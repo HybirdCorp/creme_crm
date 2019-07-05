@@ -90,28 +90,33 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         self.assertNotIn(str(FakePosition.creation_label), render_str)
 
     def test_queryset01(self):
-        "No action"
+        "No action."
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
-        sectors = [('', '---------')]
-        sectors.extend((p.pk, str(p)) for p in FakeSector.objects.all())
 
         with self.assertNoException():
             choices = list(field.choices)
 
-        self.assertEqual(sectors, choices)
+        self.assertListEqual(
+            [('', '---------'),
+             *((p.pk, str(p)) for p in FakeSector.objects.all()),
+            ],
+            choices
+        )
 
     def test_queryset02(self):
         "With action"
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
         field.user = self._create_superuser()
 
-        sectors = [('', '---------')]
-        sectors.extend((p.pk, str(p)) for p in FakeSector.objects.all())
-
         with self.assertNoException():
             options = list(field.choices)
 
-        self.assertEqual(sectors, options)
+        self.assertListEqual(
+            [('', '---------'),
+             *((p.pk, str(p)) for p in FakeSector.objects.all()),
+            ],
+            options
+        )
 
         # ------
         render_str = field.widget.render('sector', None)
@@ -147,19 +152,21 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         self.assertNotIn(second.title, render_str)
 
     def test_queryset_property01(self):
-        "No action"
+        "No action."
         field = CreatorModelChoiceField(queryset=FakeSector.objects.none())
 
         self.assertFalse(hasattr(field.widget, 'actions'))
-        self.assertEqual([('', '---------')], list(field.widget.choices))
-
-        positions = [('', '---------')]
-        positions.extend((s.pk, str(s)) for s in FakeSector.objects.all())
+        self.assertListEqual([('', '---------')], list(field.widget.choices))
 
         field.queryset = FakeSector.objects.all()
 
         self.assertFalse(hasattr(field.widget, 'actions'))
-        self.assertEqual(positions, list(field.choices))
+        self.assertListEqual(
+            [('', '---------'),
+             *((s.pk, str(s)) for s in FakeSector.objects.all())
+            ],
+            list(field.choices)
+        )
 
     def test_queryset_property02(self):
         "With action"

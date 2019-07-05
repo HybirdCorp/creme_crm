@@ -67,10 +67,12 @@ class CredentialsTestCase(CremeTestCase):
         return role
 
     def _build_contact_qs(self, *extra_contacts):
-        ids = [self.contact1.id, self.contact2.id]
-        ids.extend(c.id for c in extra_contacts)
-
-        return FakeContact.objects.filter(pk__in=ids)
+        return FakeContact.objects.filter(
+            pk__in=[self.contact1.id,
+                    self.contact2.id,
+                    *(c.id for c in extra_contacts),
+                   ],
+        )
 
     def test_populate(self):
         sandbox = self.get_object_or_fail(Sandbox, uuid=constants.UUID_SANDBOX_SUPERUSERS)

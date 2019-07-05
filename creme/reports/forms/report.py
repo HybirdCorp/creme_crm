@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,6 @@ from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field
 from .. import constants, get_report_model
 from ..models import Field
 from ..report_aggregation_registry import field_aggregation_registry
-
 
 Report = get_report_model()
 
@@ -344,12 +343,13 @@ class ReportExportPreviewFilterForm(CremeForm):
         fields['doc_type'].choices = self._backend_choices()
 
     def _date_field_choices(self, report):
-        return chain([('', pgettext_lazy('reports-date_filter', 'None'))],
-                     [(field.name, field.verbose_name)
-                        for field in report.ct.model_class()._meta.fields
-                            if is_date_field(field)
-                     ],
-                    )
+        return [
+            ('', pgettext_lazy('reports-date_filter', 'None')),
+            *((field.name, field.verbose_name)
+                  for field in report.ct.model_class()._meta.fields
+                      if is_date_field(field)
+            ),
+        ]
 
     def _backend_choices(self):
         return [(backend.id, backend.verbose_name)

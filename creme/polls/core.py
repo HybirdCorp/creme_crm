@@ -385,9 +385,10 @@ class EnumOrStringPollLineType(EnumPollLineType):
         return ChoiceOrCharField(choices=self._args['choices'], initial=initial)
 
     def get_choices(self):
-        choices = [(0, gettext('Other'))]
-        choices.extend(self._args['choices'])
-        return choices
+        return [
+            (0, gettext('Other')),
+            *self._args['choices'],
+        ]
 
     def get_editable_choices(self):
         return self._args['choices']

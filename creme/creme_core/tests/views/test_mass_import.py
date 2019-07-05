@@ -164,7 +164,6 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertEqual(count + lines_count, FakeContact.objects.count())
         self.assertDatetimesAlmostEqual(now(), job.last_run)
 
-
         contacts = []
         for first_name, last_name in lines:
             contact = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)

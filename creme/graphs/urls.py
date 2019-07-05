@@ -27,5 +27,5 @@ urlpatterns = [
         Swappable(re_path(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.GraphEdition.as_view(),  name='graphs__edit_graph'), check_args=Swappable.INT_ID),
         Swappable(re_path(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.GraphDetail.as_view(),   name='graphs__view_graph'), check_args=Swappable.INT_ID),
         app_name='graphs',
-    ).kept_patterns()
+    ).kept_patterns(),
 ]

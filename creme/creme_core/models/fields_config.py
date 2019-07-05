@@ -229,7 +229,7 @@ class FieldsConfig(CremeModel):
     def get_4_models(cls, models):
         result = {}
         get_ct = ContentType.objects.get_for_model
-        cache_key_fmt = 'creme_core-fields_config-{}'
+        cache_key_fmt = 'creme_core-fields_config-{}'.format
         not_cached_ctypes = []
 
         cache = get_per_request_cache()
@@ -237,7 +237,7 @@ class FieldsConfig(CremeModel):
         # Step 1: fill 'result' with cached configs
         for model in models:
             ct = get_ct(model)
-            fc = cache.get(cache_key_fmt.format(ct.id))
+            fc = cache.get(cache_key_fmt(ct.id))
 
             if fc is None:
                 if cls.is_model_valid(model):  # Avoid useless queries
@@ -248,14 +248,16 @@ class FieldsConfig(CremeModel):
         # Step 2: fill 'result' with configs in DB
         for fc in cls.objects.filter(content_type__in=not_cached_ctypes):
             ct = fc.content_type
-            result[ct.model_class()] = cache[cache_key_fmt.format(ct.id)] = fc
+            result[ct.model_class()] = cache[cache_key_fmt(ct.id)] = fc
 
         # Step 3: fill 'result' with empty configs for remaining models
         for model in models:
             if model not in result:
                 ct = get_ct(model)
-                result[model] = cache[cache_key_fmt.format(ct.id)] = \
-                    cls(content_type=ct, descriptions=())
+                result[model] = cache[cache_key_fmt(ct.id)] = cls(
+                    content_type=ct,
+                    descriptions=(),
+                )
 
         return result
 

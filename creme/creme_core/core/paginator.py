@@ -447,9 +447,7 @@ class FlowPage(Sequence):
         next_item = self._next_item
 
         if next_item is not None:
-            all_instances = [next_item]
-            all_instances.extend(self.object_list)
-            populate_related(all_instances, (self._attr_name,))
+            populate_related([next_item, *self.object_list], (self._attr_name,))
 
             value = self._key_field_info.value_from(next_item)
             offset = self._compute_offset(value, reversed(self.object_list))

@@ -123,8 +123,8 @@ class DummyListBrick(PaginatedBrick):
             data.append(Dummy('Dummy ({}) - {}'.format(item_id + 1, image_name), user, media_url(image_url)))
 
         return self._render(self.get_template_context(
-                    context, data,
-                    reloading_info={'count': item_count}
+            context, data,
+            reloading_info={'count': item_count},
         ))
 
 

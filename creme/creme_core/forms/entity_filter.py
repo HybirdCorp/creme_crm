@@ -627,7 +627,7 @@ class RegularFieldsConditionsField(_ConditionsField):
                 conditions.append(build_4_field(model=self.model, name=clean_fieldname(entry),
                                                 operator=operator,
                                                 values=values,
-                                                user=self.user
+                                                user=self.user,
                                                )
                                  )
         except EntityFilterCondition.ValueError as e:
@@ -719,7 +719,7 @@ class DateFieldsConditionsField(_ConditionsField):
                           'range': {'type':  get('name', ''),
                                     'start': fmt(get('start')),
                                     'end':   fmt(get('end'))
-                                   }
+                                   },
                          })
 
         return dicts
@@ -900,7 +900,7 @@ class CustomFieldsConditionsField(_ConditionsField):
                 conditions.append(build_condition(custom_field=clean_cfield(entry),
                                                   operator=operator,
                                                   value=values,
-                                                  user=self.user
+                                                  user=self.user,
                                                  )
                                  )
         except EntityFilterCondition.ValueError as e:
@@ -942,7 +942,7 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
                           'range': {'type':  get('name', ''),
                                     'start': fmt(get('start')),
                                     'end':   fmt(get('end'))
-                                   }
+                                   },
                          })
 
         return dicts
@@ -970,7 +970,7 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
             for entry in data:
                 date_range, start, end = clean_date_range(entry)
                 conditions.append(build_condition(custom_field=clean_cfield(entry),
-                                                  date_range=date_range, start=start, end=end
+                                                  date_range=date_range, start=start, end=end,
                                                  )
                                  )
         except EntityFilterCondition.ValueError as e:

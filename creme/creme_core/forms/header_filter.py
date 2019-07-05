@@ -110,7 +110,7 @@ class EntityCellsWidget(Widget):
 
     def get_context(self, name, value, attrs):
         if isinstance(value, list):
-            value = ','.join('%s-%s' % (cell.type_id, cell.value) for cell in value)
+            value = ','.join('{}-{}'.format(cell.type_id, cell.value) for cell in value)
 
         context = super().get_context(name=name, value=value, attrs=attrs)
 

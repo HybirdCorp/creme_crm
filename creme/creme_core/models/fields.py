@@ -303,12 +303,11 @@ class RealEntityForeignKey:
     def check(self, **kwargs):
         from .entity import CremeEntity
 
-        errors = []
-        errors.extend(self._check_field_name())
-        errors.extend(self._check_fk('_ct_field_name', ContentType))
-        errors.extend(self._check_fk('_fk_field_name', CremeEntity))
-
-        return errors
+        return [
+            *self._check_field_name(),
+            *self._check_fk('_ct_field_name', ContentType),
+            *self._check_fk('_fk_field_name', CremeEntity)
+        ]
 
     def _check_field_name(self):
         if self.name.endswith('_'):

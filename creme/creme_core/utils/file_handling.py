@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2016-2018 Hybird
+# Copyright (c) 2016-2019 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -105,8 +105,7 @@ class FileCreator:
         self.name = name
         self.max_trials = max_trials
         self.max_length = max_length or sys.maxsize
-        self._generators_classes = gen_cls = [FileNameSuffixGenerator]
-        gen_cls.extend(generators)
+        self._generators_classes = [FileNameSuffixGenerator, *generators]
 
     def create(self):
         """Create a new file.
