@@ -12,10 +12,9 @@ try:
     from django.utils.encoding import force_text
     from django.utils.formats import date_format
     from django.utils.timezone import now
-    from django.utils.translation import gettext as _, ngettext
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.gui import actions
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
              EntityFilter, SettingValue)
@@ -40,40 +39,17 @@ except Exception as e:
 
 @skipIfCustomActivity
 class ActivityTestCase(_ActivitiesTestCase):
-    ADD_URL         = reverse('activities__create_activity')
     ADD_POPUP_URL   = reverse('activities__create_activity_popup')
     ADD_INDISPO_URL = reverse('activities__create_indispo')
     # DEL_ACTTYPE_URL = reverse('creme_config__delete_instance', args=('activities', 'activity_type'))
-
-    def _buid_add_participants_url(self, activity):
-        return reverse('activities__add_participants', args=(activity.id,))
 
     def _build_add_related_uri(self, related, act_type_id=None):
         url = reverse('activities__create_related_activity', args=(related.id,))
 
         return url if not act_type_id else (url + '?activity_type={}'.format(act_type_id))
 
-    def _buid_add_subjects_url(self, activity):
-        return reverse('activities__add_subjects', args=(activity.id,))
-
     def _build_get_types_url(self, type_id):
         return reverse('activities__get_types', args=(type_id,))
-
-    def _build_nolink_setcreds(self):
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE     | EntityCredentials.UNLINK,  # Not LINK
-                  set_type=SetCredentials.ESET_ALL,
-                 )
-
-    def _create_meeting(self, title='Meeting01', subtype_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK, hour=14):
-        create_dt = self.create_datetime
-        return Activity.objects.create(user=self.user, title=title,
-                                       type_id=constants.ACTIVITYTYPE_MEETING, sub_type_id=subtype_id,
-                                       start=create_dt(year=2013, month=4, day=1, hour=hour,     minute=0),
-                                       end=create_dt(year=2013,   month=4, day=1, hour=hour + 1, minute=0),
-                                      )
 
     def _create_phonecall(self, title='Call01', subtype_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, hour=14):
         create_dt = self.create_datetime
@@ -181,7 +157,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         my_calendar = Calendar.objects.get_default_calendar(user)
 
         # GET ---
-        url = self.ADD_URL
+        url = self.ACTIVITY_CREATION_URL
         lv_url = Activity.get_lv_absolute_url()
         response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
         self.assertTemplateUsed(response, 'activities/add_activity_form.html')
@@ -266,7 +242,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         dojo = Organisation.objects.create(user=other_user, name='Dojo')
 
         my_calendar = Calendar.objects.get_default_calendar(user)
-        response = self.assertPOST200(self.ADD_URL, follow=True,
+        response = self.assertPOST200(self.ACTIVITY_CREATION_URL, follow=True,
                                       data={'user':                user.pk,
                                             'title':               'Fight !!',
                                             'type_selector':       self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
@@ -280,7 +256,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'subjects':            self.formfield_value_multi_generic_entity(akane),
                                             'linked_entities':     self.formfield_value_multi_generic_entity(dojo),
                                            }
-                                     )
+                                      )
         self.assertFormError(response, 'form', 'my_participation',
                              _('You are not allowed to link this entity: {}').format(mireille)
                             )
@@ -329,7 +305,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                     is_custom=True,
                                    )
         response = self.client.post(
-            self.ADD_URL, follow=True,
+            self.ACTIVITY_CREATION_URL, follow=True,
             data={
                 'user':               user.id,
                 'title':              title,
@@ -365,26 +341,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertRelationCount(1, rest,   constants.REL_SUB_ACTIVITY_SUBJECT,  act)  # Auto subject #3 -> no doublon
 
         self.assertEqual(8, Relation.objects.filter(subject_entity=act.id).count())
-
-    def _create_activity_by_view(self, title='My task',
-                                 atype_id=constants.ACTIVITYTYPE_TASK, subtype_id=None,
-                                 **kwargs
-                                ):
-        user = self.login()
-
-        data = {
-            'user':          user.pk,
-            'title':         title,
-            'type_selector': self._acttype_field_value(atype_id, subtype_id),
-
-            'my_participation_0': True,
-            'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
-        }
-        data.update(kwargs)
-
-        self.assertNoFormError(self.client.post(self.ADD_URL, follow=True, data=data))
-
-        return self.get_object_or_fail(Activity, title=title)
 
     def test_createview04(self):
         "No end but end time"
@@ -480,7 +436,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         title = 'My task'
         my_calendar = Calendar.objects.get_default_calendar(user)
-        response = self.client.post(self.ADD_URL, follow=True,
+        response = self.client.post(self.ACTIVITY_CREATION_URL, follow=True,
                                     data={'user': user.pk,
                                           'title': title,
                                           'status': Status.objects.all()[0].pk,
@@ -488,7 +444,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
                                          }
-                                   )
+                                    )
         self.assertNoFormError(response)
 
         act = self.get_object_or_fail(Activity, title=title)
@@ -515,7 +471,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         team.teammates = [musashi, kojiro, user]  # TODO: user + my_participation !!!!!!
 
         title = 'Fight !!'
-        response = self.client.post(self.ADD_URL, follow=True,
+        response = self.client.post(self.ACTIVITY_CREATION_URL, follow=True,
                                     data={'user':  user.pk,
                                           'title': title,
                                           'start': '2015-03-10',
@@ -526,7 +482,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                                                      constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                                                                                     ),
                                          }
-                                   )
+                                    )
         self.assertNoFormError(response)
 
         act = self.get_object_or_fail(Activity, title=title)
@@ -548,7 +504,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             'my_participation_0': True,
             'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
         }
-        url = self.ADD_URL
+        url = self.ACTIVITY_CREATION_URL
 
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', None,
@@ -568,7 +524,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
 
         bad_subject = self._create_meeting()
-        response = self.assertPOST200(self.ADD_URL, follow=True,
+        response = self.assertPOST200(self.ACTIVITY_CREATION_URL, follow=True,
                                       data={'user':               user.pk,
                                             'title':              'My task',
                                             'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
@@ -576,7 +532,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
                                             'subjects':           self.formfield_value_multi_generic_entity(bad_subject),
                                            },
-                                     )
+                                      )
         self.assertFormError(response, 'form', 'subjects',
                              _('This content type is not allowed.')
                             )
@@ -588,7 +544,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
 
-        response = self.assertPOST200(self.ADD_URL, follow=True,
+        response = self.assertPOST200(self.ACTIVITY_CREATION_URL, follow=True,
                                       data={'user':               user.id,
                                             'title':              'My task',
                                             'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
@@ -598,7 +554,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'other_participants': self.formfield_value_multi_creator_entity(
                                                                         self.other_user.linked_contact,
                                                                     ),
-                                        }
+                                           },
                                      )
         self.assertFormError(response, 'form', 'other_participants',
                              _('This entity does not exist.')
@@ -610,7 +566,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         title = 'Meeting01'
         my_calendar = Calendar.objects.get_default_calendar(user)
-        response = self.client.post(self.ADD_URL, follow=True,
+        response = self.client.post(self.ACTIVITY_CREATION_URL, follow=True,
                                     data={'user':          user.id,
                                           'title':         title,
                                           'type_selector': self._acttype_field_value(
@@ -626,7 +582,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
                                           'alert_period_0': 'days',
                                           'alert_period_1': 2,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -653,7 +609,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         title = 'Meeting01'
         my_calendar = Calendar.objects.get_default_calendar(user)
-        response = self.client.post(self.ADD_URL, follow=True,
+        response = self.client.post(self.ACTIVITY_CREATION_URL, follow=True,
                                     data={'user':          user.pk,
                                           'title':         title,
                                           'type_selector': self._acttype_field_value(
@@ -668,7 +624,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'my_participation_1': my_calendar.pk,
 
                                           'alert_period_0': 'days',
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -694,7 +650,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         genma = create_contact(first_name='Genma', last_name='Saotome')
         akane = create_contact(first_name='Akane', last_name='Tendo')
 
-        url = self.ADD_URL
+        url = self.ACTIVITY_CREATION_URL
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -720,7 +676,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'informed_users':      [user.id, other_user.id],
                                           'other_participants':  self.formfield_value_multi_creator_entity(genma),
                                           'subjects':            self.formfield_value_multi_generic_entity(akane),
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -1700,396 +1656,11 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertTrue(export_action.is_enabled)
         self.assertTrue(export_action.is_visible)
 
-    @skipIfCustomContact
-    def test_unlink01(self):
-        user = self.login()
-
-        activity = self._create_meeting()
-        contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
-
-        create_rel = partial(Relation.objects.create, subject_entity=contact,
-                             object_entity=activity, user=user,
-                            )
-        r1 = create_rel(type_id=constants.REL_SUB_PART_2_ACTIVITY)
-        r2 = create_rel(type_id=constants.REL_SUB_ACTIVITY_SUBJECT)
-        r3 = create_rel(type_id=constants.REL_SUB_LINKED_2_ACTIVITY)
-        r4 = create_rel(type_id=REL_SUB_HAS)
-        self.assertEqual(3, contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]).count())
-
-        url = reverse('activities__unlink_activity')
-        self.assertPOST200(url, data={'id': activity.id, 'object_id': contact.id})
-        self.assertEqual(0, contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]).count())
-        self.assertEqual(1, contact.relations.filter(pk=r4.id).count())
-
-        # Errors
-        self.assertPOST404(url, data={'id': activity.id})
-        self.assertPOST404(url, data={'object_id': contact.id})
-        self.assertPOST404(url)
-        self.assertPOST404(url, data={'id': 1024,        'object_id': contact.id})
-        self.assertPOST404(url, data={'id': activity.id, 'object_id': 1024})
-
-    @skipIfCustomContact
-    def test_unlink02(self):
-        "Can not unlink the activity"
-        user = self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
-
-        activity = self._create_meeting()
-        contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
-        relation = Relation.objects.create(subject_entity=contact, type_id=constants.REL_SUB_PART_2_ACTIVITY,
-                                           object_entity=activity, user=user,
-                                          )
-
-        self.assertPOST403(reverse('activities__unlink_activity'),
-                           data={'id': activity.id, 'object_id': contact.id},
-                          )
-        self.assertEqual(1, contact.relations.filter(pk=relation.id).count())
-
-    @skipIfCustomContact
-    def test_unlink03(self):
-        "Can not unlink the contact"
-        self.login(is_superuser=False)
-
-        create_creds = partial(SetCredentials.objects.create, role=self.role)
-        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.LINK   |
-                           EntityCredentials.UNLINK,
-                     set_type=SetCredentials.ESET_OWN
-                    )
-        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.LINK,
-                     set_type=SetCredentials.ESET_ALL
-                    )
-
-        activity = self._create_meeting()
-        contact = Contact.objects.create(user=self.other_user, first_name='Musashi', last_name='Miyamoto')
-        relation = Relation.objects.create(subject_entity=contact, type_id=constants.REL_SUB_PART_2_ACTIVITY,
-                                           object_entity=activity, user=self.user
-                                          )
-
-        self.assertPOST403(reverse('activities__unlink_activity'),
-                           data={'id': activity.id, 'object_id': contact.id}
-                          )
-        self.get_object_or_fail(Relation, pk=relation.id)
-
-    @skipIfCustomContact
-    def test_participants01(self):
-        user = self.login()
-        activity = self._create_meeting()
-
-        create_contact = partial(Contact.objects.create, user=user)
-        c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
-        c2 = create_contact(first_name='Kojiro',  last_name='Sasaki')
-
-        url = self._buid_add_participants_url(activity)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
-
-        context = response.context
-        self.assertEqual(_('Adding participants to activity «{entity}»').format(entity=activity),
-                         context.get('title')
-                        )
-        self.assertEqual(_('Add the participants'), context.get('submit_label'))
-
-        # ---
-        self.assertNoFormError(
-            self.client.post(url, data={'participants': self.formfield_value_multi_creator_entity(c1, c2)})
-        )
-
-        relations = Relation.objects.filter(subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY)
-        self.assertEqual(2, len(relations))
-        self.assertEqual({c1.id, c2.id}, {r.object_entity_id for r in relations})
-
-    def test_participants02(self):
-        "Credentials error with the activity"
-        user = self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
-
-        activity = self._create_meeting()
-        self.assertTrue(user.has_perm_to_change(activity))
-        self.assertFalse(user.has_perm_to_link(activity))
-        self.assertGET403(self._buid_add_participants_url(activity))
-
-    @skipIfCustomContact
-    def test_participants03(self):
-        "Credentials error with selected subjects"
-        user = self.login(is_superuser=False)
-        self._build_nolink_setcreds()
-
-        activity = self._create_meeting()
-        self.assertTrue(user.has_perm_to_link(activity))
-
-        contact = Contact.objects.create(user=self.other_user, first_name='Musashi', last_name='Miyamoto')
-        self.assertTrue(user.has_perm_to_change(contact))
-        self.assertFalse(user.has_perm_to_link(contact))
-
-        uri = self._buid_add_participants_url(activity)
-        self.assertGET200(uri)
-
-        response = self.assertPOST200(uri, data={'participants': self.formfield_value_multi_creator_entity(contact)})
-        self.assertFormError(response, 'form', 'participants',
-                             _('Some entities are not linkable: {}').format(contact)
-                            )
-        self.assertFalse(Relation.objects.filter(subject_entity=activity.id,
-                                                 type=constants.REL_OBJ_PART_2_ACTIVITY,
-                                                )
-                        )
-
-    @skipIfCustomContact
-    def test_participants04(self):
-        "Remove participants (relationships deleted)"
-        user = self.login()
-        logged = user.linked_contact
-        other = self.other_user.linked_contact
-        contact3 = Contact.objects.create(user=user, first_name='Roy', last_name='Mustang')
-
-        dt_now = now()
-        phone_call = Activity.objects.create(title='a random activity',
-                                             start=dt_now, end=dt_now,
-                                             user=user, type_id=constants.ACTIVITYTYPE_PHONECALL
-                                            )
-
-        self.assertPOST200(self._buid_add_participants_url(phone_call), follow=True,
-                           data={'my_participation_0':  True,
-                                 'my_participation_1':  Calendar.objects.get_default_calendar(logged.is_user).pk,
-                                 'participating_users': [other.is_user_id],
-                                 'participants':        self.formfield_value_multi_creator_entity(contact3),
-                                }
-                          )
-
-        self.assertRelationCount(1, phone_call, constants.REL_OBJ_PART_2_ACTIVITY, logged)   # logged user, push in his calendar
-        self.assertRelationCount(1, phone_call, constants.REL_OBJ_PART_2_ACTIVITY, other)    # other contact user, push in his calendar too
-        self.assertRelationCount(1, phone_call, constants.REL_OBJ_PART_2_ACTIVITY, contact3) # classic contact, has no calendar
-        self.assertEqual(2, phone_call.calendars.count())
-
-        sym_rel = Relation.objects.get(subject_entity=logged, type=constants.REL_SUB_PART_2_ACTIVITY, object_entity=phone_call)
-
-        del_url = reverse('activities__remove_participant')
-        self.assertGET404(del_url)
-        self.assertPOST404(del_url, data={'id': sym_rel.pk})
-        self.get_object_or_fail(Relation, pk=sym_rel.pk)
-
-        qs = Relation.objects.filter(type=constants.REL_OBJ_PART_2_ACTIVITY, subject_entity=phone_call)
-
-        for participant_rel in qs.all():
-            self.assertGET404(del_url)
-            response = self.client.post(del_url, data={'id': participant_rel.pk})
-            self.assertRedirects(response, phone_call.get_absolute_url())
-
-        self.assertFalse(qs.all())
-        self.assertFalse(phone_call.calendars.all())
-
-    @skipIfCustomContact
-    def test_participants05(self):
-        "'My participation' field is removed when it is useless."
-        activity = self._create_activity_by_view()
-
-        create_contact = partial(Contact.objects.create, user=self.user)
-        c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
-        c2 = create_contact(first_name='Kojiro',  last_name='Sasaki')
-
-        uri = self._buid_add_participants_url(activity)
-        response = self.assertGET200(uri)
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-
-        self.assertNotIn('my_participation', fields)
-        self.assertNotIn('my_calendar',      fields)
-
-        self.assertNoFormError(
-            self.client.post(uri, data={'participants': self.formfield_value_multi_creator_entity(c1, c2)})
-        )
-
-        relations = Relation.objects.filter(subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY)
-        self.assertEqual(3, len(relations))
-        self.assertEqual({c1.id, c2.id, self.user.linked_contact.id},
-                         {r.object_entity_id for r in relations}
-                        )
-
-    @skipIfCustomContact
-    def test_participants06(self):
-        "Fix a bug when checking for collision for a floating activities"
-        activity = self._create_activity_by_view()
-        self.assertIsNone(activity.start)
-        self.assertIsNone(activity.end)
-        self.assertEqual(constants.FLOATING, activity.floating_type)
-
-        create_contact = partial(Contact.objects.create, user=self.user)
-        c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
-        c2 = create_contact(first_name='Kojiro',  last_name='Sasaki')
-
-        uri = self._buid_add_participants_url(activity)
-        self.assertGET200(uri)
-        self.assertNoFormError(
-                self.client.post(uri, data={'participants': self.formfield_value_multi_creator_entity(c1, c2)})
-        )
-
-        relations = Relation.objects.filter(subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY)
-        self.assertEqual(3, len(relations))
-        self.assertEqual({c1.id, c2.id, self.user.linked_contact.id},
-                         {r.object_entity_id for r in relations}
-                        )
-
-    def test_participants07(self):
-        "When Teams are not select, their teammates are participants"
-        user = self.login()
-        activity = self._create_meeting()
-
-        create_user = get_user_model().objects.create
-        musashi = create_user(username='musashi', first_name='Musashi',
-                              last_name='Miyamoto', email='musashi@miyamoto.jp',
-                             )
-        kojiro  = create_user(username='kojiro', first_name='Kojiro',
-                              last_name='Sasaki', email='kojiro@sasaki.jp',
-                             )
-
-        team = create_user(username='Samurais', is_team=True, role=None)
-        team.teammates = [musashi, kojiro, user]
-
-        response = self.client.post(self._buid_add_participants_url(activity),
-                                    data={'my_participation_0':  True,
-                                          'my_participation_1':  Calendar.objects.get_default_calendar(user).pk,
-                                          'participating_users': [team.id, kojiro.id],
-                                         },
-                                   )
-        self.assertNoFormError(response)
-
-        relations = Relation.objects.filter(subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY)
-        self.assertEqual(3, len(relations))
-        self.assertEqual({musashi.linked_contact, kojiro.linked_contact, user.linked_contact},
-                         {r.object_entity.get_real_entity() for r in relations}
-                        )
-
-    @skipIfCustomContact
-    @skipIfCustomOrganisation
-    def test_participants08(self):
-        "Auto-subject"
-        user = self.login()
-        activity = self._create_meeting()
-
-        akane = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo')
-        dojo = Organisation.objects.create(user=user, name='Tendo Dojo')
-
-        Relation.objects.create(user=user, subject_entity=akane, type_id=REL_SUB_EMPLOYED_BY, object_entity=dojo)
-
-        self.assertNoFormError(
-            self.client.post(self._buid_add_participants_url(activity),
-                             data={'participants': self.formfield_value_multi_creator_entity(akane)},
-                            )
-        )
-
-        self.assertRelationCount(1, dojo, constants.REL_SUB_ACTIVITY_SUBJECT, activity)
-
-    @skipIfCustomOrganisation
-    def test_add_subjects01(self):
-        user = self.login()
-
-        activity = self._create_meeting()
-        orga = Organisation.objects.create(user=user, name='Ghibli')
-
-        url = self._buid_add_subjects_url(activity)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
-
-        context = response.context
-        self.assertEqual(_('Adding subjects to activity «{entity}»').format(entity=activity),
-                         context.get('title')
-                        )
-        self.assertEqual(_('Add the subjects'), context.get('submit_label'))
-
-        # ---
-        data = {'subjects': self.formfield_value_multi_generic_entity(orga)}
-        self.assertNoFormError(self.client.post(url, data=data))
-
-        relations = Relation.objects.filter(subject_entity=activity.id,
-                                            type=constants.REL_OBJ_ACTIVITY_SUBJECT,
-                                           )
-        self.assertEqual(1, len(relations))
-        self.assertEqual(orga.id, relations[0].object_entity_id)
-
-        # Avoid duplicates
-        response = self.assertPOST200(url, data=data)
-        self.assertFormError(response, 'form', 'subjects',
-                             ngettext('This entity is already a subject: %(duplicates)s',
-                                      'These entities are already subjects: %(duplicates)s',
-                                      1
-                                     ) % {'duplicates': orga}
-                            )
-
-    def test_add_subjects02(self):
-        "Credentials error with the activity"
-        user = self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
-
-        activity = self._create_meeting()
-        self.assertTrue(user.has_perm_to_change(activity))
-        self.assertFalse(user.has_perm_to_link(activity))
-        self.assertGET403(self._buid_add_subjects_url(activity))
-
-    @skipIfCustomOrganisation
-    def test_add_subjects03(self): 
-        "Credentials error with selected subjects"
-        user = self.login(is_superuser=False)
-        self._build_nolink_setcreds()
-
-        activity = self._create_meeting()
-        self.assertTrue(user.has_perm_to_link(activity))
-
-        orga = Organisation.objects.create(user=self.other_user, name='Ghibli')
-        self.assertTrue(user.has_perm_to_change(orga))
-        self.assertFalse(user.has_perm_to_link(orga))
-
-        uri = self._buid_add_subjects_url(activity)
-        self.assertGET200(uri)
-
-        response = self.assertPOST200(uri, data={'subjects': self.formfield_value_multi_generic_entity(orga)})
-        self.assertFormError(response, 'form', 'subjects',
-                             _('Some entities are not linkable: {}').format(orga)
-                            )
-        self.assertFalse(Relation.objects.filter(subject_entity=activity.id,
-                                                 type=constants.REL_OBJ_ACTIVITY_SUBJECT,
-                                                )
-                        )
-
-    def test_add_subjects04(self): 
-        "Bad ContentType (relationType constraint error)"
-        self.login()
-
-        create_meeting = self._create_meeting
-        activity    = create_meeting(title='My meeting')
-        bad_subject = create_meeting(title="I'm bad heeheeeee")
-
-        response = self.assertPOST200(self._buid_add_subjects_url(activity),
-                                      data={'subjects': self.formfield_value_multi_generic_entity(bad_subject)}
-                                     )
-        self.assertFormError(response, 'form', 'subjects',
-                             _('This content type is not allowed.')
-                            )
-
     def test_indisponibility_createview01(self):
         "Can not create an indispo with generic view"
         user = self.login()
 
-        url = self.ADD_URL
+        url = self.ACTIVITY_CREATION_URL
         self.assertGET200(url)
 
         status = Status.objects.all()[0]
