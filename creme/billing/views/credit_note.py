@@ -20,14 +20,14 @@
 
 # import warnings
 
-from django.shortcuts import get_object_or_404, redirect
+# from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import Relation
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import _check_required_model_fields, POST_only  # require_model_fields
+from creme.creme_core.views.decorators import _check_required_model_fields  # POST_only require_model_fields
 
 from ... import billing
 
@@ -38,7 +38,7 @@ from . import base
 
 CreditNote = billing.get_credit_note_model()
 
-# Function views --------------------------------------------------------------
+# Function views ---------------------------------------------------------------
 
 
 # def abstract_add_credit_note(request, form=cnote_forms.CreditNoteCreateForm,
@@ -135,26 +135,26 @@ CreditNote = billing.get_credit_note_model()
 #     return generic.list_view(request, CreditNote, hf_pk=constants.DEFAULT_HFILTER_CNOTE)
 
 
-@login_required
-@permission_required('billing')
-@POST_only
-def delete_related_credit_note(request, credit_note_id, base_id):
-    relation = get_object_or_404(Relation, subject_entity=base_id,
-                                 object_entity=credit_note_id,
-                                 type=constants.REL_OBJ_CREDIT_NOTE_APPLIED,
-                                )
-    subject = relation.subject_entity
+# @login_required
+# @permission_required('billing')
+# @POST_only
+# def delete_related_credit_note(request, credit_note_id, base_id):
+#     relation = get_object_or_404(Relation, subject_entity=base_id,
+#                                  object_entity=credit_note_id,
+#                                  type=constants.REL_OBJ_CREDIT_NOTE_APPLIED,
+#                                 )
+#     subject = relation.subject_entity
+#
+#     has_perm = request.user.has_perm_to_unlink_or_die
+#     has_perm(subject)
+#     has_perm(relation.object_entity)
+#
+#     relation.delete()
+#
+#     return redirect(subject.get_real_entity())
 
-    has_perm = request.user.has_perm_to_unlink_or_die
-    has_perm(subject)
-    has_perm(relation.object_entity)
 
-    relation.delete()
-
-    return redirect(subject.get_real_entity())
-
-
-# Class-based views  ----------------------------------------------------------
+# Class-based views  -----------------------------------------------------------
 
 class CreditNoteCreation(base.BaseCreation):
     model = CreditNote
@@ -198,6 +198,26 @@ class CreditNotesLinking(generic.RelatedToEntityFormPopup):
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_link_or_die(entity)
+
+
+class CreditNoteRemoving(generic.CremeModelDeletion):
+    model = Relation
+    permissions = 'billing'
+
+    def check_instance_permissions(self, instance, user):
+         has_perm = user.has_perm_to_unlink_or_die
+         has_perm(instance.subject_entity)
+         has_perm(instance.object_entity)
+
+    def get_query_kwargs(self):
+        return {
+            'subject_entity': self.kwargs['base_id'],
+            'object_entity': self.kwargs['credit_note_id'],
+            'type': constants.REL_OBJ_CREDIT_NOTE_APPLIED,
+        }
+
+    def get_success_url(self):
+        return self.object.subject_entity.get_absolute_url()
 
 
 class CreditNotesList(generic.EntitiesList):

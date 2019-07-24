@@ -38,18 +38,19 @@ class CreditNoteTestCase(_BillingTestCase):
         user = user or self.user
         status = status or CreditNoteStatus.objects.all()[0]
         currency = currency or Currency.objects.all()[0]
-        response = self.client.post(reverse('billing__create_cnote'), follow=True,
-                                    data={'user':            user.id,
-                                          'name':            name,
-                                          'issuing_date':    '2010-9-7',
-                                          'expiration_date': '2010-10-13',
-                                          'status':          status.id,
-                                          'currency':        currency.id,
-                                          'discount':        discount,
-                                          'source':          source.id,
-                                          'target':          self.formfield_value_generic_entity(target),
-                                         }
-                                   )
+        response = self.client.post(
+            reverse('billing__create_cnote'), follow=True,
+            data={'user':            user.id,
+                  'name':            name,
+                  'issuing_date':    '2010-9-7',
+                  'expiration_date': '2010-10-13',
+                  'status':          status.id,
+                  'currency':        currency.id,
+                  'discount':        discount,
+                  'source':          source.id,
+                  'target':          self.formfield_value_generic_entity(target),
+                 },
+        )
         self.assertNoFormError(response)
 
         credit_note = self.get_object_or_fail(CreditNote, name=name)
@@ -428,7 +429,8 @@ class CreditNoteTestCase(_BillingTestCase):
         # response = self.client.post(self._build_deleterelated_url(credit_note, invoice), follow=True)
         # self.assertNoFormError(response)
         url = self._build_deleterelated_url(credit_note, invoice)
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET405(url)
 
         response = self.assertPOST200(url, follow=True)
         self.assertRedirects(response, invoice.get_absolute_url())
