@@ -255,14 +255,16 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         sym_rel = Relation.objects.get(subject_entity=logged, type=constants.REL_SUB_PART_2_ACTIVITY, object_entity=phone_call)
 
         del_url = self.RM_PARTICIPANT_URL
-        self.assertGET404(del_url)
+        # self.assertGET404(del_url)
+        self.assertGET405(del_url)
         self.assertPOST404(del_url, data={'id': sym_rel.pk})
         self.get_object_or_fail(Relation, pk=sym_rel.pk)
 
         qs = Relation.objects.filter(type=constants.REL_OBJ_PART_2_ACTIVITY, subject_entity=phone_call)
 
         for participant_rel in qs.all():
-            self.assertGET404(del_url)
+            # self.assertGET404(del_url)
+            self.assertGET405(del_url)
             response = self.client.post(del_url, data={'id': participant_rel.pk})
             self.assertRedirects(response, phone_call.get_absolute_url())
 
@@ -457,7 +459,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         self.assertEqual(3, contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]).count())
 
         url = reverse('activities__unlink_activity')
-        self.assertPOST200(url, data={'id': activity.id, 'object_id': contact.id})
+        self.assertPOST200(url, data={'id': activity.id, 'object_id': contact.id}, follow=True)
         self.assertFalse(contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]))
         self.assertEqual(1, contact.relations.filter(pk=r4.id).count())
 

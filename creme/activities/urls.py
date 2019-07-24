@@ -30,10 +30,12 @@ urlpatterns = [
     re_path(r'^type/(?P<type_id>[\w-]*)/json[/]?$', activity.TypeChoices.as_view(), name='activities__get_types'),
 
     # Bricks
-    re_path(r'^activity/(?P<activity_id>\d+)/participant/add[/]?$', bricks.ParticipantsAdding.as_view(), name='activities__add_participants'),
-    re_path(r'^activity/participant/delete[/]?$',                   bricks.delete_participant,           name='activities__remove_participant'),
-    re_path(r'^activity/(?P<activity_id>\d+)/subject/add[/]?$',     bricks.SubjectsAdding.as_view(),     name='activities__add_subjects'),
-    re_path(r'^linked_activity/unlink[/]?$',                        bricks.unlink_activity,              name='activities__unlink_activity'),
+    re_path(r'^activity/(?P<activity_id>\d+)/participant/add[/]?$', bricks.ParticipantsAdding.as_view(),  name='activities__add_participants'),
+    # re_path(r'^activity/participant/delete[/]?$',                   bricks.delete_participant,           name='activities__remove_participant'),
+    re_path(r'^activity/participant/delete[/]?$',                   bricks.ParticipantRemoving.as_view(), name='activities__remove_participant'),
+    re_path(r'^activity/(?P<activity_id>\d+)/subject/add[/]?$',     bricks.SubjectsAdding.as_view(),      name='activities__add_subjects'),
+    # re_path(r'^linked_activity/unlink[/]?$',                        bricks.unlink_activity,              name='activities__unlink_activity'),
+    re_path(r'^linked_activity/unlink[/]?$',                        bricks.ActivityUnlinking.as_view(),   name='activities__unlink_activity'),
 
     re_path(r'^calendar/', include(calendar_patterns)),
 
