@@ -51,10 +51,11 @@ urlpatterns = [
     re_path(r'^charm/edit/(?P<charm_id>\d+)[/]?$',            strategy.CharmEdition.as_view(),  name='commercial__edit_charm'),
 
     # Evaluated organisations
-    re_path(r'^strategy/(?P<strategy_id>\d+)/add/organisation[/]?$',                         strategy.EvaluatedOrgaAdding.as_view(), name='commercial__add_evaluated_orgas'),
-    re_path(r'^strategy/(?P<strategy_id>\d+)/organisation/delete[/]?$',                      strategy.delete_evalorga,               name='commercial__remove_evaluated_orga'),
-    re_path(r'^strategy/(?P<strategy_id>\d+)/organisation/(?P<orga_id>\d+)/evaluation[/]?$', strategy.OrgaEvaluation.as_view(),      name='commercial__orga_evaluation'),
-    re_path(r'^strategy/(?P<strategy_id>\d+)/organisation/(?P<orga_id>\d+)/synthesis[/]?$',  strategy.OrgaSynthesis.as_view(),       name='commercial__orga_synthesis'),
+    re_path(r'^strategy/(?P<strategy_id>\d+)/add/organisation[/]?$',                         strategy.EvaluatedOrgaAdding.as_view(),  name='commercial__add_evaluated_orgas'),
+    # re_path(r'^strategy/(?P<strategy_id>\d+)/organisation/delete[/]?$',                      strategy.delete_evalorga,               name='commercial__remove_evaluated_orga'),
+    re_path(r'^strategy/(?P<strategy_id>\d+)/organisation/delete[/]?$',                      strategy.OrganisationRemoving.as_view(), name='commercial__remove_evaluated_orga'),
+    re_path(r'^strategy/(?P<strategy_id>\d+)/organisation/(?P<orga_id>\d+)/evaluation[/]?$', strategy.OrgaEvaluation.as_view(),       name='commercial__orga_evaluation'),
+    re_path(r'^strategy/(?P<strategy_id>\d+)/organisation/(?P<orga_id>\d+)/synthesis[/]?$',  strategy.OrgaSynthesis.as_view(),        name='commercial__orga_synthesis'),
 
     # Scores & category
     re_path(r'^strategy/(?P<strategy_id>\d+)/set_asset_score[/]?$', strategy.set_asset_score,      name='commercial__set_asset_score'),
