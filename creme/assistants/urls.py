@@ -29,6 +29,7 @@ urlpatterns = [
     re_path(r'^message/', include([
         re_path(r'^add[/]?$',                    user_message.UserMessageCreation.as_view(),        name='assistants__create_message'),
         re_path(r'^add/(?P<entity_id>\d+)[/]?$', user_message.RelatedUserMessageCreation.as_view(), name='assistants__create_related_message'),
-        re_path(r'^delete[/]?$',                 user_message.delete,                               name='assistants__delete_message'),
+        # re_path(r'^delete[/]?$',                 user_message.delete,                               name='assistants__delete_message'),
+        re_path(r'^delete[/]?$',                 user_message.UserMessageDeletion.as_view(),        name='assistants__delete_message'),
     ])),
 ]
