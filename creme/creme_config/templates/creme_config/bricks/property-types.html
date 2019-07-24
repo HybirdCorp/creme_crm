@@ -27,7 +27,7 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_ptype' as delete_url %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
     {% for prop_type in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %} class="property-label">{% widget_hyperlink prop_type %}</td>
@@ -43,7 +43,7 @@
             {% brick_table_action id='edit' url=edit_url label=_('Edit this property type') enabled=action_enabled %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url=delete_url __id=prop_type.id label=_('Delete this property type') enabled=action_enabled %}
+            {% brick_table_action id='delete' url=prop_type.get_delete_absolute_url label=_('Delete this property type') enabled=action_enabled %}
         </td>
         {% endwith %}
     </tr>

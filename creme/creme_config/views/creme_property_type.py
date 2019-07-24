@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
@@ -50,10 +52,14 @@ class PropertyTypeEdition(base.ConfigModelEdition):
     title = pgettext_lazy('creme_config-property', 'Edit the type «{object}»')
 
 
-# TODO: use the view in creme_core instead
 @decorators.login_required
 @decorators.permission_required('creme_core.can_admin')
 def delete(request):
+    warnings.warn('creme_config.views.creme_property_type.delete() is deprecated ; '
+                  'use creme_core.views.creme_property.PropertyTypeDeletion instead.',
+                  DeprecationWarning
+                 )
+
     property_type = get_object_or_404(CremePropertyType, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not property_type.is_custom:
