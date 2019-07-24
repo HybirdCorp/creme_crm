@@ -21,14 +21,14 @@
 import logging
 # import warnings
 
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, Q
 from django.db.transaction import atomic
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy as _, gettext
+# from django.http import HttpResponse
+# from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _  # gettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
@@ -37,9 +37,8 @@ from creme.creme_core.views import generic
 from creme.activities import get_activity_model
 
 from creme import projects
-from .. import constants
+from ..constants import REL_SUB_PART_AS_RESOURCE, REL_SUB_LINKED_2_PTASK
 from ..forms import task as task_forms
-
 
 logger = logging.getLogger(__name__)
 Activity = get_activity_model()
@@ -114,20 +113,20 @@ ProjectTask = projects.get_task_model()
 #     return abstract_edit_ptask_popup(request, task_id)
 
 
-@login_required
-@permission_required('projects')
-def delete_parent(request):
-    POST = request.POST
-    parent_id = get_from_POST_or_404(POST, 'parent_id')
-    task = get_object_or_404(ProjectTask, pk=get_from_POST_or_404(POST, 'id'))
-    user = request.user
-
-    # user.has_perm_to_change_or_die(task.project) #beware: modify block_tasks.html template if uncommented....
-    user.has_perm_to_change_or_die(task)
-
-    task.parent_tasks.remove(parent_id)
-
-    return HttpResponse()
+# @login_required
+# @permission_required('projects')
+# def delete_parent(request):
+#     POST = request.POST
+#     parent_id = get_from_POST_or_404(POST, 'parent_id')
+#     task = get_object_or_404(ProjectTask, pk=get_from_POST_or_404(POST, 'id'))
+#     user = request.user
+#
+#     # user.has_perm_to_change_or_die(task.project) #beware: modify block_tasks.html template if uncommented....
+#     user.has_perm_to_change_or_die(task)
+#
+#     task.parent_tasks.remove(parent_id)
+#
+#     return HttpResponse()
 
 
 # Class-based views  ----------------------------------------------------------
@@ -169,6 +168,21 @@ class ParentsAdding(generic.EntityEditionPopup):
     title = _('Adding parents to «{object}»')
 
 
+class ParentRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
+    permissions = 'projects'
+    entity_classes = ProjectTask
+
+    task_id_arg = 'id'
+    parent_id_arg = 'parent_id'
+
+    def get_related_entity_id(self):
+        return get_from_POST_or_404(self.request.POST, self.task_id_arg, cast=int)
+
+    def perform_deletion(self, request):
+        parent_id = get_from_POST_or_404(request.POST, self.parent_id_arg)
+        self.get_related_entity().parent_tasks.remove(parent_id)
+
+
 class ActivityEditionPopup(generic.EntityEditionPopup):
     model = Activity
     # NB: the form checks that the Activity is related to a task
@@ -203,34 +217,71 @@ class RelatedActivityCreation(generic.AddingInstanceToEntityPopup):
 #     return abstract_edit_activity(request, activity_id)
 
 
-@login_required
-@permission_required('projects')
-def delete_activity(request):
-    activity = get_object_or_404(Activity, pk=request.POST.get('id'))
-    get_rel = Relation.objects.get
+# @login_required
+# @permission_required('projects')
+# def delete_activity(request):
+#     activity = get_object_or_404(Activity, pk=request.POST.get('id'))
+#     get_rel = Relation.objects.get
+#
+#     try:
+#         rel1 = get_rel(type=constants.REL_SUB_PART_AS_RESOURCE, object_entity=activity)
+#         rel2 = get_rel(subject_entity=activity, type=constants.REL_SUB_LINKED_2_PTASK)
+#     except Relation.DoesNotExist as e:
+#         raise ConflictError('This activity is not related to a project task.') from e
+#
+#     request.user.has_perm_to_change_or_die(rel2.object_entity.get_real_entity())  # Project task
+#
+#     try:
+#         with atomic():
+#             rel1.delete()
+#             rel2.delete()
+#             activity.delete()
+#     except ProtectedError:
+#         logger.exception('Error when deleting an activity of project')
+#         status = 409
+#         msg = gettext('Can not be deleted because of its dependencies.')
+#     except Exception as e:
+#         status = 400
+#         msg = gettext('The deletion caused an unexpected error [{}].').format(e)
+#     else:
+#         msg = gettext('Operation successfully completed')
+#         status = 200
+#
+#     return HttpResponse(msg, status=status)
+class ActivityDeletion(generic.CremeModelDeletion):
+    model = Activity
+    permissions = 'projects'
 
-    try:
-        rel1 = get_rel(type=constants.REL_SUB_PART_AS_RESOURCE, object_entity=activity)
-        rel2 = get_rel(subject_entity=activity, type=constants.REL_SUB_LINKED_2_PTASK)
-    except Relation.DoesNotExist as e:
-        raise ConflictError('This activity is not related to a project task.') from e
+    def get_relations(self, activity):
+        relations = {
+            r.type_id: r
+                for r in Relation.objects
+                                 .filter(Q(type=REL_SUB_PART_AS_RESOURCE, object_entity=activity) |
+                                         Q(subject_entity=activity, type=REL_SUB_LINKED_2_PTASK)
+                                        )[:2]
+        }
 
-    request.user.has_perm_to_change_or_die(rel2.object_entity.get_real_entity())  # Project task
+        ptask_rel = relations.get(REL_SUB_LINKED_2_PTASK)
 
-    try:
-        with atomic():
-            rel1.delete()
-            rel2.delete()
-            activity.delete()
-    except ProtectedError:
-        logger.exception('Error when deleting an activity of project')
-        status = 409
-        msg = gettext('Can not be deleted because of its dependencies.')
-    except Exception as e:
-        status = 400
-        msg = gettext('The deletion caused an unexpected error [{}].').format(e)
-    else:
-        msg = gettext('Operation successfully completed')
-        status = 200
+        if ptask_rel is None or REL_SUB_PART_AS_RESOURCE not in relations:
+            raise ConflictError('This activity is not related to a project task.')
 
-    return HttpResponse(msg, status=status)
+        # TODO: unit test
+        self.request.user.has_perm_to_change_or_die(ptask_rel.object_entity.get_real_entity())  # Project task
+
+        return relations
+
+    def perform_deletion(self, request):
+        activity = self.object = self.get_object()
+        relations = self.get_relations(activity)
+
+        try:
+            with atomic():
+                for rel in relations.values():
+                    rel.delete()
+
+                activity.delete()
+        except ProtectedError as e:
+            logger.exception('Error when deleting an activity of project')
+
+            raise ConflictError('Can not be deleted because of its dependencies.') from e

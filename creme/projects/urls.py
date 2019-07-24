@@ -17,16 +17,19 @@ urlpatterns = [
     # TODO: change url ?? project/close/(?P<project_id>\d+) ? 'id' as POST argument ?
     re_path(r'^project/(?P<project_id>\d+)/close[/]?$', project.close, name='projects__close_project'),
 
-    re_path(r'^task/parent/delete[/]?$',               task.delete_parent,           name='projects__remove_parent_task'),
-    re_path(r'^task/(?P<task_id>\d+)/parent/add[/]?$', task.ParentsAdding.as_view(), name='projects__add_parent_task'),
+    # re_path(r'^task/parent/delete[/]?$',               task.delete_parent,           name='projects__remove_parent_task'),
+    re_path(r'^task/parent/delete[/]?$',               task.ParentRemoving.as_view(), name='projects__remove_parent_task'),
+    re_path(r'^task/(?P<task_id>\d+)/parent/add[/]?$', task.ParentsAdding.as_view(),  name='projects__add_parent_task'),
 
     # Task: Resource brick
     re_path(r'^task/(?P<task_id>\d+)/resource/add[/]?$', resource.ResourceCreation.as_view(), name='projects__create_resource'),
     re_path(r'^resource/edit/(?P<resource_id>\d+)[/]?$', resource.ResourceEdition.as_view(),  name='projects__edit_resource'),
-    re_path(r'^resource/delete[/]?$',                    resource.delete,                     name='projects__delete_resource'),
+    # re_path(r'^resource/delete[/]?$',                    resource.delete,                     name='projects__delete_resource'),
+    re_path(r'^resource/delete[/]?$',                    resource.ResourceDeletion.as_view(), name='projects__delete_resource'),
 
     # Task: related activities brick
-    re_path(r'^activity/delete[/]?$', task.delete_activity, name='projects__delete_activity'),
+    # re_path(r'^activity/delete[/]?$', task.delete_activity, name='projects__delete_activity'),
+    re_path(r'^activity/delete[/]?$', task.ActivityDeletion.as_view(), name='projects__delete_activity'),
 
     *swap_manager.add_group(
         activity_model_is_custom,
