@@ -195,6 +195,7 @@ class CharmEdition(generic.RelatedToEntityEditionPopup):
 
 @login_required
 @permission_required('commercial')
+@atomic
 def delete_evalorga(request, strategy_id):
     strategy = get_object_or_404(Strategy, pk=strategy_id)
     request.user.has_perm_to_change_or_die(strategy)
