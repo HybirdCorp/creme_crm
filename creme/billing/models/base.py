@@ -19,7 +19,6 @@
 ################################################################################
 
 from datetime import date
-from itertools import chain
 import logging
 
 from django.conf import settings
@@ -38,7 +37,6 @@ from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
 from .algo import ConfigBillingAlgo
 from .fields import BillingDiscountField
 from .other_models import AdditionalInformation, PaymentTerms, PaymentInformation
-
 
 logger = logging.getLogger(__name__)
 
@@ -195,8 +193,7 @@ class Base(CremeEntity):
         from ..registry import lines_registry
 
         for line_cls in lines_registry:
-            for line in chain(self.get_lines(line_cls)):
-                yield line
+            yield from self.get_lines(line_cls)
 
     def _get_lines_total_n_creditnotes_total(self):
         creditnotes_total = sum(credit_note.total_no_vat
