@@ -93,7 +93,6 @@ class SendingsTestCase(_EmailsTestCase):
 
     def test_sender_setting02(self):
         user = self.login(is_superuser=False,
-                          allowed_apps=('emails',),
                           creatable_models=(EmailSending, EmailCampaign),
                          )
         SetCredentials.objects.create(role=self.role,
@@ -554,7 +553,6 @@ class SendingsTestCase(_EmailsTestCase):
     def test_view_lw_email01(self):
         "Not super-user"
         user = self.login(is_superuser=False,
-                          allowed_apps=('emails',),
                           creatable_models=(EmailSending, EmailCampaign),
                          )
         SetCredentials.objects.create(role=self.role,
@@ -586,9 +584,8 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual(_('Details of the email'), response.context.get('title'))
 
     def test_view_lw_email02(self):
-        "Cannot view the campaign => error"
+        "Cannot view the campaign => error."
         user = self.login(is_superuser=False,
-                          allowed_apps=('emails',),
                           creatable_models=(EmailSending, EmailCampaign),
                          )
         SetCredentials.objects.create(role=self.role,
@@ -612,9 +609,8 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertGET403(reverse('emails__view_lw_mail', args=(lw_mail.id,)))
 
     def test_reload_sending_bricks01(self):
-        "Not super-user"
+        "Not super-user."
         user = self.login(is_superuser=False,
-                          allowed_apps=('emails',),
                           creatable_models=(EmailSending, EmailCampaign),
                          )
         SetCredentials.objects.create(role=self.role,
@@ -649,7 +645,7 @@ class SendingsTestCase(_EmailsTestCase):
 
     def test_reload_sending_bricks02(self):
         "Can not see the campaign"
-        self.login(is_superuser=False, allowed_apps=('emails',))
+        self.login(is_superuser=False)
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_OWN,

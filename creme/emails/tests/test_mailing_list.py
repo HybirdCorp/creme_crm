@@ -8,8 +8,9 @@ try:
     from django.urls import reverse
     from django.utils.translation import gettext as _
 
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
-            FieldsConfig, FakeOrganisation)
+            SetCredentials, FieldsConfig, FakeOrganisation)
 
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
@@ -22,10 +23,6 @@ except Exception as e:
 
 @skipIfCustomMailingList
 class MailingListsTestCase(_EmailsTestCase):
-    def setUp(self):
-        super().setUp()
-        self.login()
-
     def _build_addcontact_url(self, mlist):
         return reverse('emails__add_contacts_to_mlist', args=(mlist.id,))
 
@@ -38,15 +35,20 @@ class MailingListsTestCase(_EmailsTestCase):
     def _build_addorgafilter_url(self, mlist):
         return reverse('emails__add_orgas_to_mlist_from_filter', args=(mlist.id,))
 
+    def _build_remove_from_campaign(self, campaign):
+        return reverse('emails__remove_mlist_from_campaign', args=(campaign.id,))
+
     def test_create(self):
+        user = self.login()
+
         url = reverse('emails__create_mlist')
         self.assertGET200(url)
 
         name = 'my_mailinglist'
         response = self.client.post(url, follow=True,
-                                    data={'user': self.user.pk,
+                                    data={'user': user.pk,
                                           'name': name,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
         ml = self.get_object_or_fail(MailingList, name=name)
@@ -55,29 +57,32 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertTemplateUsed(response, 'emails/view_mailing_list.html')
 
     def test_edit(self):
+        user = self.login()
+
         name = 'my_mailinglist'
-        mlist = MailingList.objects.create(user=self.user, name=name)
+        mlist = MailingList.objects.create(user=user, name=name)
         url = mlist.get_edit_absolute_url()
         self.assertGET200(url)
 
         name += '_edited'
         response = self.client.post(url, follow=True,
-                                    data={'user': self.user.pk,
+                                    data={'user': user.pk,
                                           'name': name,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(mlist).name)
 
     def test_listview(self):
+        self.login()
         response = self.assertGET200(MailingList.get_lv_absolute_url())
 
         with self.assertNoException():
             # response.context['entities']
             __ = response.context['page_obj']
 
-    def test_ml_and_campaign(self):
-        user = self.user
+    def test_ml_and_campaign01(self):
+        user = self.login()
         campaign = EmailCampaign.objects.create(user=user, name='camp01')
 
         create_ml = partial(MailingList.objects.create, user=user)
@@ -97,9 +102,10 @@ class MailingListsTestCase(_EmailsTestCase):
 
         # ----
         def post(*mlists):
-            return self.client.post(url, follow=True,
-                                    data={'mailing_lists': self.formfield_value_multi_creator_entity(*mlists)},
-                                   )
+            return self.client.post(
+                url, follow=True,
+                data={'mailing_lists': self.formfield_value_multi_creator_entity(*mlists)},
+            )
 
         response = post(mlist01, mlist02)
         self.assertNoFormError(response)
@@ -111,11 +117,43 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'mailing_lists', _('This entity does not exist.'))
 
-        # Delete ----------------------
-        self.assertPOST200(reverse('emails__remove_mlist_from_campaign', args=(campaign.id,)),
-                           follow=True, data={'id': mlist01.id}
+    def test_ml_and_campaign02(self):
+        "Remove list from campaign."
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW |
+                                            EntityCredentials.CHANGE,
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+
+        create_ml = partial(MailingList.objects.create, user=user)
+        mlist01 = create_ml(name='Ml01')
+        mlist02 = create_ml(name='Ml02')
+
+        campaign = EmailCampaign.objects.create(user=user, name='camp')
+        campaign.mailing_lists.set([mlist01, mlist02])
+
+        self.assertPOST200(self._build_remove_from_campaign(campaign),
+                           follow=True, data={'id': mlist01.id},
                           )
-        self.assertEqual([mlist02], list(campaign.mailing_lists.all()))
+        self.assertListEqual([mlist02], [*campaign.mailing_lists.all()])
+
+    def test_ml_and_campaign03(self):
+        "Not allowed to change the campaign."
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,  # Not CHANGE
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+
+        mlist = MailingList.objects.create(user=user, name='Ml01')
+
+        campaign = EmailCampaign.objects.create(user=user, name='camp')
+        campaign.mailing_lists.add(mlist)
+
+        self.assertPOST403(self._build_remove_from_campaign(campaign),
+                           follow=True, data={'id': mlist.id},
+                          )
 
     def test_detect_end_line(self):
         from creme.emails.forms.recipient import _detect_end_line
@@ -149,7 +187,9 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertEqual('\r', detect(['abcdeefgij\r', 'klmonp']))
 
     def test_recipients01(self):
-        mlist = MailingList.objects.create(user=self.user, name='ml01')
+        user = self.login()
+
+        mlist = MailingList.objects.create(user=user, name='ml01')
         self.assertFalse(mlist.emailrecipient_set.exists())
 
         url = reverse('emails__add_recipients', args=(mlist.id,))
@@ -163,7 +203,10 @@ class MailingListsTestCase(_EmailsTestCase):
         # --------------------
         recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
         self.assertPOST200(url, follow=True, data={'recipients': '\n'.join(recipients)})
-        self.assertEqual(set(recipients), {r.address for r in mlist.emailrecipient_set.all()})
+        self.assertSetEqual(
+            {*recipients},
+            {r.address for r in mlist.emailrecipient_set.all()}
+        )
 
         # --------------------
         response = self.assertPOST200(url, data={'recipients': 'faye.valentine#bebop.com'})  # Invalid address
@@ -172,16 +215,19 @@ class MailingListsTestCase(_EmailsTestCase):
         # --------------------
         recipient = mlist.emailrecipient_set.all()[0]
         ct = ContentType.objects.get_for_model(EmailRecipient)
-        self.assertPOST200(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
-                           follow=True, data={'id': recipient.id},
-                          )
+        self.assertPOST200(
+            reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+            follow=True, data={'id': recipient.id},
+        )
 
         addresses = {r.address for r in mlist.emailrecipient_set.all()}
         self.assertEqual(len(recipients) - 1, len(addresses))
         self.assertNotIn(recipient.address, addresses)
 
     def _aux_test_add_recipients_csv(self, end='\n'):
-        mlist = MailingList.objects.create(user=self.user, name='ml01')
+        user = self.login()
+
+        mlist = MailingList.objects.create(user=user, name='ml01')
         url = reverse('emails__add_recipients_from_csv', args=(mlist.id,))
         self.assertGET200(url)
 
@@ -201,25 +247,34 @@ class MailingListsTestCase(_EmailsTestCase):
         csvfile.close()
 
     def test_recipients02(self):
-        "From CSV file (Unix EOF)"
+        "From CSV file (Unix EOF)."
         self._aux_test_add_recipients_csv(end='\n')
 
     def test_recipients03(self):
-        "From CSV file (Windows EOF)"
+        "From CSV file (Windows EOF)."
         self._aux_test_add_recipients_csv(end='\r\n')
 
     def test_recipients04(self):
-        "From CSV file (old Mac EOF)"
+        "From CSV file (old Mac EOF)."
         self._aux_test_add_recipients_csv(end='\r')
 
     def test_recipients05(self):
-        "Not a MailingList"
-        orga = FakeOrganisation.objects.create(user=self.user, name='Dojo')
+        "Not a MailingList."
+        user = self.login()
+        orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(reverse('emails__add_recipients', args=(orga.id,)))
 
     @skipIfCustomContact
     def test_ml_contacts01(self):
-        mlist = MailingList.objects.create(user=self.user, name='ml01')
+        user = self.login(is_superuser=False, allowed_apps=('emails', 'persons'))
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+
+        mlist = MailingList.objects.create(user=user, name='ml01')
         url = self._build_addcontact_url(mlist)
 
         response = self.assertGET200(url)
@@ -231,20 +286,24 @@ class MailingListsTestCase(_EmailsTestCase):
                         )
         self.assertEqual(_('Link the contacts'), context.get('submit_label'))
 
-        create = partial(Contact.objects.create, user=self.user)
-        recipients = [create(first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
-                      create(first_name='Jet',   last_name='Black',   email='jet.black@bebop.com'),
-                     ]
+        create = partial(Contact.objects.create, user=user)
+        recipients = [
+            create(first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
+            create(first_name='Jet',   last_name='Black',   email='jet.black@bebop.com'),
+        ]
 
         # see MultiCreatorEntityField
-        response = self.client.post(url, data={'recipients': '[{}]'.format(','.join(str(c.id) for c in recipients))})
+        response = self.client.post(
+            url,
+            data={'recipients': '[{}]'.format(','.join(str(c.id) for c in recipients))},
+        )
         self.assertNoFormError(response)
         self.assertEqual({c.id for c in recipients}, {c.id for c in mlist.contacts.all()})
 
         # --------------------
         contact_to_del = recipients[0]
         self.client.post(reverse('emails__remove_contact_from_mlist', args=(mlist.id,)),
-                         data={'id': contact_to_del.id}
+                         data={'id': contact_to_del.id},
                         )
 
         contacts = set(mlist.contacts.all())
@@ -253,8 +312,9 @@ class MailingListsTestCase(_EmailsTestCase):
 
     @skipIfCustomContact
     def test_ml_contacts02(self):
-        "'email' is hidden"
-        mlist = MailingList.objects.create(user=self.user, name='ml01')
+        "'email' is hidden."
+        user = self.login()
+        mlist = MailingList.objects.create(user=user, name='ml01')
 
         FieldsConfig.create(Contact,
                             descriptions=[('email', {FieldsConfig.HIDDEN: True})],
@@ -262,14 +322,16 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertGET409(self._build_addcontact_url(mlist))
 
     def test_ml_contacts03(self):
-        "Not a MailingList"
+        "Not a MailingList."
+        user = self.login()
         orga = FakeOrganisation.objects.create(user=self.user, name='Dojo')
         self.assertGET404(self._build_addcontact_url(orga))
 
     @skipIfCustomContact
     def test_ml_contacts_filter01(self):
-        "'All' filter"
-        mlist = MailingList.objects.create(user=self.user, name='ml01')
+        "'All' filter."
+        user = self.login()
+        mlist = MailingList.objects.create(user=user, name='ml01')
         url = self._build_addcontactfilter_url(mlist)
 
         response = self.assertGET200(url)
@@ -281,7 +343,7 @@ class MailingListsTestCase(_EmailsTestCase):
                         )
         self.assertEqual(_('Link the contacts'), context.get('submit_label'))
 
-        create = partial(Contact.objects.create, user=self.user)
+        create = partial(Contact.objects.create, user=user)
         create(first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
         create(first_name='Jet',   last_name='Black',   email='jet.black@bebop.com'),
         create(first_name='Ed',    last_name='Wong',    email='ed.wong@bebop.com', is_deleted=True),
@@ -293,22 +355,25 @@ class MailingListsTestCase(_EmailsTestCase):
 
     @skipIfCustomContact
     def test_ml_contacts_filter02(self):
-        "With a real EntityFilter"
-        create = partial(Contact.objects.create, user=self.user)
+        "With a real EntityFilter."
+        user = self.login()
+        create = partial(Contact.objects.create, user=user)
         recipients = [create(first_name='Ranma', last_name='Saotome'),
                       create(first_name='Genma', last_name='Saotome'),
                       create(first_name='Akane', last_name='Tendô'),
                      ]
         expected_ids = {recipients[0].id, recipients[1].id}
 
-        efilter = EntityFilter.create('test-filter01', 'Saotome', Contact, is_custom=True,
-                                      conditions=[EntityFilterCondition.build_4_field(model=Contact,
-                                                        operator=EntityFilterCondition.IEQUALS,
-                                                        name='last_name', values=['Saotome'],
-                                                    )
-                                                 ],
-                                     )
-        self.assertEqual(expected_ids, {c.id for c in efilter.filter(Contact.objects.all())})
+        efilter = EntityFilter.create(
+            'test-filter01', 'Saotome', Contact, is_custom=True,
+            conditions=[EntityFilterCondition.build_4_field(
+                            model=Contact,
+                            operator=EntityFilterCondition.IEQUALS,
+                            name='last_name', values=['Saotome'],
+                          ),
+                       ],
+        )
+        self.assertSetEqual(expected_ids, {c.id for c in efilter.filter(Contact.objects.all())})
 
         EntityFilter.create('test-filter02', 'Useless', Organisation, is_custom=True)  # Should not be a valid choice
 
@@ -330,25 +395,49 @@ class MailingListsTestCase(_EmailsTestCase):
         )
 
         self.assertNoFormError(self.client.post(url, data={'filters': efilter.id}))
-        self.assertEqual(expected_ids, {c.id for c in mlist.contacts.all()})
+        self.assertSetEqual(expected_ids, {c.id for c in mlist.contacts.all()})
 
     @skipIfCustomContact
     def test_ml_contacts_filter03(self):
-        "'email' is hidden"
-        mlist = MailingList.objects.create(user=self.user, name='ml01')
+        "'email' is hidden."
+        user = self.login()
+        mlist = MailingList.objects.create(user=user, name='ml01')
         FieldsConfig.create(Contact,
                             descriptions=[('email', {FieldsConfig.HIDDEN: True})],
                            )
         self.assertGET409(self._build_addcontactfilter_url(mlist))
 
     def test_ml_contacts_filter04(self):
-        "Not a MailingList"
-        orga = FakeOrganisation.objects.create(user=self.user, name='Dojo')
+        "Not a MailingList."
+        user = self.login()
+        orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(self._build_addcontactfilter_url(orga))
+
+    @skipIfCustomContact
+    def test_ml_contacts_rm(self):
+        "Not allowed to change the list."
+        user = self.login(is_superuser=False, allowed_apps=('emails', 'persons'))
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW |
+                                            EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+
+        contact = Contact.objects.create(
+            user=user, first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com',
+        )
+
+        mlist = MailingList.objects.create(user=user, name='ml01')
+        mlist.contacts.add(contact)
+
+        self.assertPOST403(reverse('emails__remove_contact_from_mlist', args=(mlist.id,)),
+                           data={'id': contact.id}, follow=True,
+                          )
 
     @skipIfCustomOrganisation
     def test_ml_orgas01(self):
-        mlist = MailingList.objects.create(user=self.user, name='ml01')
+        user = self.login()
+        mlist = MailingList.objects.create(user=user, name='ml01')
         url = self._build_addorga_url(mlist)
 
         response = self.assertGET200(url)
@@ -360,13 +449,19 @@ class MailingListsTestCase(_EmailsTestCase):
                         )
         self.assertEqual(_('Link the organisations'), context.get('submit_label'))
 
-        create = partial(Organisation.objects.create, user=self.user)
+        create = partial(Organisation.objects.create, user=user)
         recipients = [create(name='NERV',  email='contact@nerv.jp'),
                       create(name='Seele', email='contact@seele.jp'),
                      ]
-        response = self.client.post(url, data={'recipients': self.formfield_value_multi_creator_entity(*recipients)})
+        response = self.client.post(
+            url,
+            data={'recipients': self.formfield_value_multi_creator_entity(*recipients)},
+        )
         self.assertNoFormError(response)
-        self.assertEqual({c.id for c in recipients}, {c.id for c in mlist.organisations.all()})
+        self.assertSetEqual(
+            {c.id for c in recipients},
+            {*mlist.organisations.values_list('id', flat=True)},
+        )
 
         # --------------------
         orga_to_del = recipients[0]
@@ -380,8 +475,9 @@ class MailingListsTestCase(_EmailsTestCase):
 
     @skipIfCustomOrganisation
     def test_ml_orgas02(self):
-        "'email' is hidden"
-        mlist = MailingList.objects.create(user=self.user, name='ml01')
+        "'email' is hidden."
+        user = self.login()
+        mlist = MailingList.objects.create(user=user, name='ml01')
 
         FieldsConfig.create(Organisation,
                             descriptions=[('email', {FieldsConfig.HIDDEN: True})],
@@ -389,14 +485,16 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertGET409(self._build_addorga_url(mlist))
 
     def test_ml_orgas03(self):
-        "Not a MailingList"
-        orga = FakeOrganisation.objects.create(user=self.user, name='Dojo')
+        "Not a MailingList."
+        user = self.login()
+        orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(self._build_addorga_url(orga))
 
     @skipIfCustomOrganisation
     def test_ml_orgas_filter01(self):
-        " 'All' filter"
-        mlist = MailingList.objects.create(user=self.user, name='ml01')
+        " 'All' filter."
+        user = self.login()
+        mlist = MailingList.objects.create(user=user, name='ml01')
         url = self._build_addorgafilter_url(mlist)
 
         response = self.assertGET200(url)
@@ -408,19 +506,20 @@ class MailingListsTestCase(_EmailsTestCase):
                         )
         self.assertEqual(_('Link the organisations'), context.get('submit_label'))
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         create_orga(name='NERV',  email='contact@nerv.jp'),
         create_orga(name='Seele', email='contact@seele.jp')
         self.assertNoFormError(self.client.post(url, data={}))
 
         orgas = set(Organisation.objects.all())
         self.assertGreaterEqual(len(orgas), 2)
-        self.assertEqual(orgas, set(mlist.organisations.all()))
+        self.assertSetEqual(orgas, {*mlist.organisations.all()})
 
     @skipIfCustomOrganisation
     def test_ml_orgas_filter02(self):
-        "With a real EntityFilter"
-        mlist = MailingList.objects.create(user=self.user, name='ml01')
+        "With a real EntityFilter."
+        user = self.login()
+        mlist = MailingList.objects.create(user=user, name='ml01')
 
         create = partial(Organisation.objects.create, user=self.user)
         recipients = [create(name='NERV',  email='contact@nerv.jp'),
@@ -436,18 +535,22 @@ class MailingListsTestCase(_EmailsTestCase):
                                             operator=EntityFilterCondition.ISEMPTY,
                                             name='email', values=[False],
                                         ),
-                                       ]
+                                       ],
                             )
         priv_efilter = create_ef(pk='test-filter_priv', is_private=True, user=self.other_user)
 
         efilter = create_ef(pk='test-filter')
-        self.assertEqual(expected_ids, {c.id for c in efilter.filter(Organisation.objects.all())})
+        self.assertSetEqual(
+            expected_ids,
+            {c.id for c in efilter.filter(Organisation.objects.all())},
+        )
 
         url = self._build_addorgafilter_url(mlist)
         response = self.assertPOST200(url, data={'filters': priv_efilter.id})
-        self.assertFormError(response, 'form', 'filters',
-                             _('Select a valid choice. That choice is not one of the available choices.')
-                            )
+        self.assertFormError(
+            response, 'form', 'filters',
+            _('Select a valid choice. That choice is not one of the available choices.')
+        )
 
         response = self.client.post(url, data={'filters': efilter.id})
         self.assertNoFormError(response)
@@ -455,8 +558,9 @@ class MailingListsTestCase(_EmailsTestCase):
 
     @skipIfCustomOrganisation
     def test_ml_orgas_filter03(self):
-        "'email' is hidden"
-        mlist = MailingList.objects.create(user=self.user, name='ml01')
+        "'email' is hidden."
+        user = self.login()
+        mlist = MailingList.objects.create(user=user, name='ml01')
 
         FieldsConfig.create(Organisation,
                             descriptions=[('email', {FieldsConfig.HIDDEN: True})],
@@ -464,12 +568,14 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertGET409(self._build_addorgafilter_url(mlist))
 
     def test_ml_orgas_filter04(self):
-        "Not a MailingList"
-        orga = FakeOrganisation.objects.create(user=self.user, name='Dojo')
+        "Not a MailingList."
+        user = self.login()
+        orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(self._build_addorgafilter_url(orga))
 
     def test_ml_tree01(self):
-        create_ml = partial(MailingList.objects.create, user=self.user)
+        user = self.login()
+        create_ml = partial(MailingList.objects.create, user=user)
         mlist01 = create_ml(name='ml01')
         mlist02 = create_ml(name='ml02')
 
@@ -499,7 +605,8 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertFalse(mlist02.children.exists())
 
     def test_ml_tree02(self):
-        create_ml = partial(MailingList.objects.create, user=self.user)
+        user = self.login()
+        create_ml = partial(MailingList.objects.create, user=user)
         mlist01 = create_ml(name='ml01')
         mlist02 = create_ml(name='ml02')
         mlist03 = create_ml(name='ml03')
@@ -521,6 +628,7 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertFormError(post(mlist01, mlist01), 'form', 'child', _("A list can't be its own child"))
 
     def test_ml_tree03(self):
-        "Not a MailingList"
-        orga = FakeOrganisation.objects.create(user=self.user, name='Dojo')
+        "Not a MailingList."
+        user = self.login()
+        orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(reverse('emails__add_child_mlists', args=(orga.id,)))

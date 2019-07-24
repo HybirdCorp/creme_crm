@@ -6,9 +6,10 @@ try:
     from django.urls import reverse
     from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import FakeOrganisation
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import SetCredentials, FakeOrganisation
 
-    from creme.documents.tests.base import _DocumentsTestCase, skipIfCustomDocument
+    from creme.documents.tests.base import _DocumentsTestCase, skipIfCustomDocument, Document
 
     from .base import _EmailsTestCase, skipIfCustomEmailTemplate, EmailTemplate
 except Exception as e:
@@ -17,10 +18,12 @@ except Exception as e:
 
 @skipIfCustomEmailTemplate
 class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
-    def setUp(self):
-        self.login()
+    def _build_rm_attachment_url(self, template):
+        return reverse('emails__remove_attachment_from_template', args=(template.id,))
 
     def test_createview01(self):  # TODO: test attachments
+        user = self.login()
+
         url = reverse('emails__create_template')
         self.assertGET200(url)
 
@@ -29,12 +32,12 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         body      = 'blablabla {{first_name}}'
         body_html = '<p>blablabla {{last_name}}</p>'
         response = self.client.post(url, follow=True,
-                                    data={'user':      self.user.pk,
+                                    data={'user':      user.pk,
                                           'name':      name,
                                           'subject':   subject,
                                           'body':      body,
                                           'body_html': body_html,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -49,14 +52,17 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
 
     def test_createview02(self):
         "Validation error"
-        response = self.assertPOST200(reverse('emails__create_template'), follow=True,
-                                      data={'user':      self.user.pk,
-                                            'name':      'my_template',
-                                            'subject':   'Insert a joke *here*',
-                                            'body':      'blablabla {{unexisting_var}}',
-                                            'body_html': '<p>blablabla</p> {{foobar_var}}',
-                                           }
-                                     )
+        user = self.login()
+
+        response = self.assertPOST200(
+            reverse('emails__create_template'), follow=True,
+            data={'user':      user.pk,
+                  'name':      'my_template',
+                  'subject':   'Insert a joke *here*',
+                  'body':      'blablabla {{unexisting_var}}',
+                  'body_html': '<p>blablabla</p> {{foobar_var}}',
+                 },
+        )
 
         error_msg = _('The following variables are invalid: %(vars)s')
         self.assertFormError(response, 'form', 'body',
@@ -67,10 +73,12 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
                             )
 
     def test_editview01(self):
+        user = self.login()
+
         name    = 'my template'
         subject = 'Insert a joke *here*'
         body    = 'blablabla'
-        template = EmailTemplate.objects.create(user=self.user, name=name, subject=subject, body=body)
+        template = EmailTemplate.objects.create(user=user, name=name, subject=subject, body=body)
 
         url = template.get_edit_absolute_url()
         self.assertGET200(url)
@@ -79,11 +87,11 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         subject = subject.title()
         body    += ' edited'
         response = self.client.post(url, follow=True,
-                                    data={'user':    self.user.pk,
+                                    data={'user':    user.pk,
                                           'name':    name,
                                           'subject': subject,
                                           'body':    body,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -94,6 +102,7 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         self.assertEqual('',      template.body_html)
 
     def test_listview(self):
+        self.login()
         response = self.assertGET200(EmailTemplate.get_lv_absolute_url())
 
         with self.assertNoException():
@@ -102,7 +111,9 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
 
     @skipIfCustomDocument
     def test_add_attachments01(self):
-        template = EmailTemplate.objects.create(user=self.user,
+        user = self.login()
+
+        template = EmailTemplate.objects.create(user=user,
                                                 name='My template',
                                                 subject='Insert a joke *here*',
                                                 body='blablabla',
@@ -130,7 +141,64 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         self.assertEqual({doc1, doc2}, set(template.attachments.all()))
 
     def test_add_attachments02(self):
-        orga = FakeOrganisation.objects.create(user=self.user, name='Acme')
+        user = self.login()
+        orga = FakeOrganisation.objects.create(user=user, name='Acme')
         self.assertGET404(reverse('emails__add_attachments_to_template', args=(orga.id,)))
 
-    # TODO: test delete attachments
+    @skipIfCustomDocument
+    def test_delete_attachments01(self):
+        user = self.login(is_superuser=False, allowed_apps=['emails', 'documents'],
+                          creatable_models=[Document],
+                         )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+
+        file_obj1 = self._build_filedata('Content #1')
+        doc1 = self._create_doc('My doc #1', file_obj1)
+
+        file_obj2 = self._build_filedata('Content #2')
+        doc2 = self._create_doc('My doc #2', file_obj2)
+
+        template = EmailTemplate.objects.create(user=user,
+                                                name='My template',
+                                                subject='Insert a joke *here*',
+                                                body='blablabla',
+                                               )
+        template.attachments.set([doc1, doc2])
+
+        url = self._build_rm_attachment_url(template)
+        data = {'id': doc1.id}
+        self.assertGET404(url, data=data)
+
+        self.assertPOST200(url, data=data, follow=True)
+        self.assertEqual([doc2], list(template.attachments.all()))
+
+    @skipIfCustomDocument
+    def test_delete_attachments02(self):
+        "Not allowed to change the template."
+        user = self.login(is_superuser=False, allowed_apps=['emails', 'documents'],
+                          creatable_models=[Document],
+                         )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW |
+                                            EntityCredentials.LINK,  # Not CHANGE
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+
+        file_obj = self._build_filedata('Content #1')
+        doc = self._create_doc('My doc #1', file_obj)
+
+        template = EmailTemplate.objects.create(user=user,
+                                                name='My template',
+                                                subject='Insert a joke *here*',
+                                                body='blablabla',
+                                               )
+        template.attachments.add(doc)
+
+        self.assertPOST403(self._build_rm_attachment_url(template),
+                           data={'id': doc.id},
+                          )
