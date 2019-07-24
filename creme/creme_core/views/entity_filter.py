@@ -18,14 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import chain
 import logging
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from django.db.models.deletion import ProtectedError
-from django.http import HttpResponse, HttpResponseRedirect
+# from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -33,6 +32,7 @@ from django.utils.translation import gettext_lazy as _, gettext
 
 from .. import utils
 from ..auth.decorators import login_required
+from ..core.exceptions import ConflictError
 from ..forms import entity_filter as efilter_forms
 from ..gui.listview import ListViewState
 from ..http import CremeJsonResponse
@@ -130,34 +130,59 @@ class EntityFilterEdition(FilterEditionMixin, generic.CremeModelEdition):
     submit_label = _('Save the modified filter')
 
 
-@login_required
-def delete(request):
-    efilter      = get_object_or_404(EntityFilter, pk=utils.get_from_POST_or_404(request.POST, 'id'))
-    callback_url = efilter.entity_type.model_class().get_lv_absolute_url()
-    allowed, msg = efilter.can_delete(request.user)
-    status = 400  # TODO: 409 ??
+# @login_required
+# def delete(request):
+#     efilter      = get_object_or_404(EntityFilter, pk=utils.get_from_POST_or_404(request.POST, 'id'))
+#     callback_url = efilter.entity_type.model_class().get_lv_absolute_url()
+#     allowed, msg = efilter.can_delete(request.user)
+#     status = 400  # todo: 409 ??
+#
+#     if allowed:
+#         try:
+#             efilter.delete()
+#         except EntityFilter.DependenciesError as e:
+#             return_msg = str(e)
+#         except ProtectedError as e:
+#             return_msg = gettext('«{}» can not be deleted because of its dependencies.').format(efilter)
+#             return_msg += render_to_string('creme_core/templatetags/widgets/list_instances.html',
+#                                            {'objects': e.args[1][:25], 'user': request.user},
+#                                            request=request,
+#                                           )
+#         else:
+#             return_msg = gettext('Filter successfully deleted')
+#             status = 200
+#     else:
+#         return_msg = msg
+#
+#     if request.is_ajax():
+#         return HttpResponse(return_msg, status=status)
+#
+#     return HttpResponseRedirect(callback_url)
+class EntityFilterDeletion(generic.CremeModelDeletion):
+    model = EntityFilter
 
-    if allowed:
+    def check_instance_permissions(self, instance, user):
+        allowed, msg = instance.can_delete(user)
+        if not allowed:
+            raise PermissionDenied(msg)
+
+    def get_success_url(self):
+        return self.object.entity_type.model_class().get_lv_absolute_url()
+
+    def perform_deletion(self, request):
         try:
-            efilter.delete()
+            super().perform_deletion(request)
         except EntityFilter.DependenciesError as e:
-            return_msg = str(e)
+            raise ConflictError(e) from e
+        # TODO: move in a middleware ??
         except ProtectedError as e:
-            return_msg = gettext('«{}» can not be deleted because of its dependencies.').format(efilter)
-            return_msg += render_to_string('creme_core/templatetags/widgets/list_instances.html',
-                                           {'objects': e.args[1][:25], 'user': request.user},
-                                           request=request,
-                                          )
-        else:
-            return_msg = gettext('Filter successfully deleted')
-            status = 200
-    else:
-        return_msg = msg
-
-    if request.is_ajax():
-        return HttpResponse(return_msg, status=status)
-
-    return HttpResponseRedirect(callback_url)
+            msg = gettext('The filter can not be deleted because of its dependencies.')
+            msg += render_to_string(
+                'creme_core/templatetags/widgets/list_instances.html',
+                {'objects': e.args[1][:25], 'user': request.user},
+                request=request,
+            )
+            raise ConflictError(msg) from e
 
 
 # TODO: factorise with views.relations.json_rtype_ctypes  ???

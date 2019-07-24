@@ -589,13 +589,15 @@ class ReportTestCase(BaseReportsTestCase):
 
         url = reverse('creme_core__delete_efilter')
         data = {'id': efilter.id}
-        response = self.assertPOST200(url, data=data, follow=True)
+        # response = self.assertPOST200(url, data=data, follow=True)
+        response = self.assertPOST409(url, data=data, follow=True)
         self.assertStillExists(efilter)
         self.assertStillExists(report)
-        self.assertRedirects(response, FakeContact.get_lv_absolute_url())
+        # self.assertRedirects(response, FakeContact.get_lv_absolute_url())
 
         # AJAX version
-        self.assertPOST(400, url, data=data, follow=True, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        # self.assertPOST(400, url, data=data, follow=True, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertPOST(409, url, data=data, follow=True, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertStillExists(efilter)
         self.assertStillExists(report)
 

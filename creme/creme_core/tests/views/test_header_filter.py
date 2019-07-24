@@ -492,7 +492,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                             )
 
     def test_edit09(self):
-        "Not custom filter cannot be private + callback url"
+        "Not custom filter cannot be private + callback URL."
         self.login()
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
@@ -515,7 +515,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertRedirects(response, callback)
 
     def test_edit10(self):
-        "FieldsConfig"
+        "FieldsConfig."
         self.login()
 
         valid_fname = 'last_name'
@@ -556,7 +556,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertDoesNotExist(hf)
 
     def test_delete02(self):
-        "Not custom -> undeletable"
+        "Not custom -> not deletable."
         self.login()
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
@@ -566,7 +566,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertStillExists(hf)
 
     def test_delete03(self):
-        "Belongs to another user"
+        "Belongs to another user."
         self.login(is_superuser=False)
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
@@ -576,7 +576,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertStillExists(hf)
 
     def test_delete04(self):
-        "The user belongs to the owner team -> ok"
+        "The user belongs to the owner team -> OK."
         user = self.login(is_superuser=False)
 
         my_team = get_user_model().objects.create(username='TeamTitan', is_team=True)
@@ -589,7 +589,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertDoesNotExist(hf)
 
     def test_delete05(self):
-        "Belongs to a team (not mine) -> KO"
+        "Belongs to a team (not mine) -> KO."
         user = self.login(is_superuser=False)
 
         User = get_user_model()
@@ -606,7 +606,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertStillExists(hf)
 
     def test_delete06(self):
-        "Logged as super user"
+        "Logged as super user."
         self.login()
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',

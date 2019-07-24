@@ -197,11 +197,14 @@ class LineTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_delete_product_line01(self):
         self.login()
-        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
         product_line = ProductLine.objects.create(user=self.user, related_document=invoice,
                                                   on_the_fly_item='Flyyyyy',
                                                  )
-        self.assertPOST404(reverse('creme_core__delete_related_to_entity', args=(product_line.entity_type_id,)),
+        # self.assertPOST404(reverse('creme_core__delete_related_to_entity',
+        self.assertPOST409(reverse('creme_core__delete_related_to_entity',
+                                   args=(product_line.entity_type_id,),
+                                  ),
                            data={'id': product_line.id},
                           )
         self.assertPOST200(product_line.get_delete_absolute_url(), follow=True)

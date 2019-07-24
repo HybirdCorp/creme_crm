@@ -19,18 +19,18 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_list_or_404, get_object_or_404, redirect  # render
+from django.http import Http404  # HttpResponseRedirect HttpResponse
+from django.shortcuts import get_list_or_404, get_object_or_404  # redirect render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 # TODO: move them to creme_core ?
 from creme.creme_config.forms import creme_property_type as ptype_forms
 
-from ..auth.decorators import login_required, permission_required
+from ..auth.decorators import login_required  # permission_required
 from ..forms import creme_property as prop_forms
 from ..gui.bricks import QuerysetBrick, Brick
-from ..models import CremeEntity, CremePropertyType
+from ..models import CremeEntity, CremePropertyType, CremeProperty
 from ..utils import creme_entity_content_types, get_from_POST_or_404
 
 from . import generic, bricks as bricks_views
@@ -100,33 +100,83 @@ class PropertyTypeEdition(generic.CremeModelEdition):
     permissions = 'creme_core.can_admin'
 
 
-@login_required
-def delete_from_type(request):
-    POST = request.POST
-    ptype = get_object_or_404(CremePropertyType, id=get_from_POST_or_404(POST, 'ptype_id'))
-    entity = get_object_or_404(CremeEntity, id=get_from_POST_or_404(POST, 'entity_id'))
+# @login_required
+# def delete_from_type(request):
+#     POST = request.POST
+#     ptype = get_object_or_404(CremePropertyType, id=get_from_POST_or_404(POST, 'ptype_id'))
+#     entity = get_object_or_404(CremeEntity, id=get_from_POST_or_404(POST, 'entity_id'))
+#
+#     request.user.has_perm_to_change_or_die(entity)
+#
+#     ptype.cremeproperty_set.filter(creme_entity=entity).delete()
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return redirect(ptype)
+class PropertyFromFieldsDeletion(generic.base.EntityRelatedMixin,
+                                 generic.CremeModelDeletion,
+                                ):
+    model = CremeProperty
 
-    request.user.has_perm_to_change_or_die(entity)
+    entity_id_arg = 'entity_id'
+    ptype_id_arg = 'ptype_id'
 
-    ptype.cremeproperty_set.filter(creme_entity=entity).delete()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.property_type = None
 
-    if request.is_ajax():
-        return HttpResponse()
+    def get_query_kwargs(self):
+        return {
+            'type':            self.get_property_type(),
+            'creme_entity_id': self.get_related_entity().id,
+        }
 
-    return redirect(ptype)
+    def get_related_entity_id(self):
+        return get_from_POST_or_404(self.request.POST, self.entity_id_arg)
+
+    def get_property_type(self):
+        ptype = self.property_type
+
+        if ptype is None:
+            self.property_type = ptype = get_object_or_404(CremePropertyType,
+                                                           id=self.get_property_type_id(),
+                                                          )
+
+        return ptype
+
+    def get_property_type_id(self):
+        return get_from_POST_or_404(self.request.POST, self.ptype_id_arg)
+
+    def get_success_url(self):
+        return self.get_property_type().get_absolute_url()
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def delete_type(request, ptype_id):
-    ptype = get_object_or_404(CremePropertyType, pk=ptype_id)
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def delete_type(request, ptype_id):
+#     ptype = get_object_or_404(CremePropertyType, pk=ptype_id)
+#
+#     if not ptype.is_custom:
+#         raise Http404("Can't delete a standard PropertyType")
+#
+#     ptype.delete()
+#
+#     return HttpResponseRedirect(CremePropertyType.get_lv_absolute_url())
+class PropertyTypeDeletion(generic.CremeModelDeletion):
+    model = CremePropertyType
+    permissions = 'creme_core.can_admin'
 
-    if not ptype.is_custom:
-        raise Http404("Can't delete a standard PropertyType")
+    ptype_id_url_kwarg = 'ptype_id'
 
-    ptype.delete()
+    def get_query_kwargs(self):
+        return {
+            'id': self.kwargs[self.ptype_id_url_kwarg],
+            'is_custom': True,
+        }
 
-    return HttpResponseRedirect(CremePropertyType.get_lv_absolute_url())
+    def get_success_url(self):
+        return self.object.get_lv_absolute_url()
 
 
 class PropertyTypeInfoBrick(Brick):
@@ -144,9 +194,9 @@ class PropertyTypeInfoBrick(Brick):
         ptype = self.ptype
 
         return self._render(self.get_template_context(
-                    context,
-                    ctypes=self.ctypes,
-                    count_stat=CremeEntity.objects.filter(properties__type=ptype).count(),
+            context,
+            ctypes=self.ctypes,
+            count_stat=CremeEntity.objects.filter(properties__type=ptype).count(),
         ))
 
 
@@ -182,11 +232,11 @@ class TaggedEntitiesBrick(QuerysetBrick):
         ptype = self.ptype
 
         return self._render(self.get_template_context(
-                    context,
-                    ctype.model_class().objects.filter(properties__type=ptype),
-                    ptype_id=ptype.id,
-                    ctype=ctype,  # If the model is inserted in the context,
-                                  #  the template call it and create an instance...
+            context,
+            ctype.model_class().objects.filter(properties__type=ptype),
+            ptype_id=ptype.id,
+            ctype=ctype,  # If the model is inserted in the context,
+                          #  the template call it and create an instance...
         ))
 
 
@@ -203,12 +253,12 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
     def detailview_display(self, context):
         ptype = self.ptype
         btc = self.get_template_context(
-                    context,
-                    CremeEntity.objects.filter(properties__type=ptype)
-                                       .exclude(entity_type__in=self.excluded_ctypes),
-                    ptype_id=ptype.id,
-                    ctype=None,
-                )
+            context,
+            CremeEntity.objects.filter(properties__type=ptype)
+                               .exclude(entity_type__in=self.excluded_ctypes),
+            ptype_id=ptype.id,
+            ctype=None,
+        )
 
         CremeEntity.populate_real_entities(btc['page'].object_list)
 

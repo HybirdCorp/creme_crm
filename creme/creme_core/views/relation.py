@@ -20,11 +20,12 @@
 
 from collections import defaultdict
 from functools import partial
+import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q, FilteredRelation
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, get_list_or_404, redirect
+from django.shortcuts import get_object_or_404, get_list_or_404  # redirect
 from django.utils.translation import gettext_lazy as _, gettext, ngettext
 
 from .. import utils
@@ -35,6 +36,7 @@ from ..models import Relation, RelationType, CremeEntity
 
 from .decorators import jsonify
 from .generic import base
+from .generic.delete import CremeModelDeletion
 from .generic.listview import BaseEntitiesListPopup
 
 
@@ -114,7 +116,9 @@ JSON_PREDICATE_FIELDS = {
 
 @login_required
 @jsonify
-def json_entity_rtypes(request, entity_id):  # TODO: seems unused
+def json_entity_rtypes(request, entity_id):
+    warnings.warn('creme_core.views.relation.json_entity_rtypes() is deprecated.', DeprecationWarning)
+
     entity = get_object_or_404(CremeEntity, pk=entity_id)
     request.user.has_perm_to_view_or_die(entity)
 
@@ -263,54 +267,132 @@ class RelationsBulkAdding(base.EntityCTypeRelatedMixin, base.CremeFormPopup):
         return kwargs
 
 
+# @login_required
+# def delete(request):
+#     relation = get_object_or_404(Relation, pk=utils.get_from_POST_or_404(request.POST, 'id'))
+#     subject = relation.subject_entity
+#     user = request.user
+#
+#     has_perm = user.has_perm_to_unlink_or_die
+#     has_perm(subject)
+#     has_perm(relation.object_entity)
+#     relation.type.is_not_internal_or_die()
+#
+#     relation.delete()
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return redirect(subject.get_real_entity())
+class RelationDeletion(CremeModelDeletion):
+    model = Relation
+
+    def check_instance_permissions(self, instance, user):
+        subject = instance.subject_entity
+
+        has_perm = user.has_perm_to_unlink_or_die
+        has_perm(subject)
+        has_perm(instance.object_entity)
+        instance.type.is_not_internal_or_die()
+
+    def get_success_url(self):
+        return self.object.subject_entity.get_real_entity().get_absolute_url()
+
+
+# @login_required
+# def delete_similar(request):
+#     "Delete relations with the same type between 2 entities"
+#     get = partial(utils.get_from_POST_or_404, request.POST)
+#     subject_id = get('subject_id', int)
+#     rtype_id   = get('type')
+#     object_id  = get('object_id', int)
+#
+#     user = request.user
+#     subject = get_object_or_404(CremeEntity, pk=subject_id)
+#
+#     has_perm = user.has_perm_to_unlink_or_die
+#     has_perm(subject)
+#     has_perm(get_object_or_404(CremeEntity, pk=object_id))
+#
+#     rtype = get_object_or_404(RelationType, pk=rtype_id)
+#     rtype.is_not_internal_or_die()
+#
+#     for relation in Relation.objects.filter(subject_entity=subject.id, type=rtype, object_entity=object_id):
+#         relation.delete()
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return redirect(subject.get_real_entity())
+class RelationFromFieldsDeletion(CremeModelDeletion):
+    "Delete a Relation which we retrieve from the subject/object/type."
+    model = Relation
+
+    subject_id_arg = 'subject_id'
+    object_id_arg = 'object_id'
+    rtype_id_arg = 'type'
+
+    def check_subject_permissions(self, subject, user):
+        user.has_perm_to_unlink_or_die(subject)
+
+    def check_object_permissions(self, object, user):
+        user.has_perm_to_unlink_or_die(object)
+
+    def check_rtype_permissions(self, rtype, user):
+        rtype.is_not_internal_or_die()
+
+    def get_entities(self):
+        request = self.request
+        get = partial(utils.get_from_POST_or_404, request.POST, cast=int)
+        subject_id = get(self.subject_id_arg)
+        object_id  = get(self.object_id_arg)
+        entities_per_id = CremeEntity.objects.in_bulk([subject_id, object_id])
+        user = request.user
+
+        # TODO: get_bulk_or_404() ??
+
+        subject = entities_per_id.get(subject_id)
+        if subject is None:
+            raise Http404('The subject cannot be found')
+        self.check_subject_permissions(subject=subject, user=user)
+
+        object = entities_per_id.get(object_id)
+        if object is None:
+            raise Http404('The object cannot be found')
+        self.check_object_permissions(object=object, user=user)
+
+        return {
+            'subject': subject,
+            'object': object,
+        }
+
+    def get_rtype(self):
+        rtype = get_object_or_404(
+            RelationType,
+            id=utils.get_from_POST_or_404(self.request.POST, self.rtype_id_arg),
+        )
+        self.check_rtype_permissions(rtype=rtype, user=self.request.user)
+
+        return rtype
+
+    def get_query_kwargs(self):
+        entities = self.get_entities()
+
+        return {
+            'subject_entity': entities['subject'],
+            'type':           self.get_rtype(),
+            'object_entity':  entities['object'],
+        }
+
+    # TODO ?
+    # def get_success_url(self):
+    #     return self.object.subject_entity.get_real_entity().get_absolute_url()
+
+
 @login_required
-def delete(request):
-    relation = get_object_or_404(Relation, pk=utils.get_from_POST_or_404(request.POST, 'id'))
-    subject = relation.subject_entity
-    user = request.user
+def delete_all(request):
+    warnings.warn('creme_core.views.relation.delete_all() is deprecated.', DeprecationWarning)
 
-    has_perm = user.has_perm_to_unlink_or_die
-    has_perm(subject)
-    has_perm(relation.object_entity)
-    relation.type.is_not_internal_or_die()
-
-    relation.delete()
-
-    if request.is_ajax():
-        return HttpResponse()
-
-    return redirect(subject.get_real_entity())
-
-
-@login_required
-def delete_similar(request):
-    "Delete relations with the same type between 2 entities"
-    get = partial(utils.get_from_POST_or_404, request.POST)
-    subject_id = get('subject_id', int)
-    rtype_id   = get('type')
-    object_id  = get('object_id', int)
-
-    user = request.user
-    subject = get_object_or_404(CremeEntity, pk=subject_id)
-
-    has_perm = user.has_perm_to_unlink_or_die
-    has_perm(subject)
-    has_perm(get_object_or_404(CremeEntity, pk=object_id))
-
-    rtype = get_object_or_404(RelationType, pk=rtype_id)
-    rtype.is_not_internal_or_die()
-
-    for relation in Relation.objects.filter(subject_entity=subject.id, type=rtype, object_entity=object_id):
-        relation.delete()
-
-    if request.is_ajax():
-        return HttpResponse()
-
-    return redirect(subject.get_real_entity())
-
-
-@login_required
-def delete_all(request):  # TODO: deprecate ?
     subject_id = utils.get_from_POST_or_404(request.POST, 'subject_id')
     user = request.user
     subject = get_object_or_404(CremeEntity, pk=subject_id)

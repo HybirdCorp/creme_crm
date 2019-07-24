@@ -355,7 +355,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                            )
 
     def test_jobs_all05(self):
-        "Invalid type"
+        "Invalid type."
         self.login()
         self._create_invalid_job()
         self.assertGET200(self.LIST_URL)
@@ -376,7 +376,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self._assertCount(response, str(batch_process_type.verbose_name), job_count)
 
     def test_my_jobs02(self):
-        "Credentials"
+        "Credentials."
         self.login(is_superuser=False)
         self._create_batchprocess_job()
         response = self.assertGET200(self.MINE_URL)
@@ -388,7 +388,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     @override_settings(MAX_JOBS_PER_USER=1)
     def test_my_jobs03(self):
-        "Max job message"
+        "Max job message."
         self.login()
 
         # Not counted in max
@@ -409,7 +409,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     @override_settings(MAX_JOBS_PER_USER=2)
     def test_my_jobs04(self):
-        "Max job message (several messages)"
+        "Max job message (several messages)."
         self.login()
 
         for i in range(2):
@@ -421,7 +421,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                            )
 
     def test_my_jobs05(self):
-        "Invalid type"
+        "Invalid type."
         self.login()
         self._create_invalid_job()
         self.assertGET200(self.MINE_URL)
@@ -434,7 +434,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         jresult = EntityJobResult.objects.create(job=job, entity=orga)
 
         del_url = self._build_delete_url(job)
-        self.assertGET404(del_url)
+        # self.assertGET404(del_url)
+        self.assertGET405(del_url)
 
         response = self.assertPOST200(del_url, follow=True)
         self.assertDoesNotExist(job)
@@ -442,20 +443,22 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertRedirects(response, self.MINE_URL)
 
     def test_clear02(self):
-        "Redirection"
+        "Redirection."
         user = self.login()
         job = self._create_batchprocess_job(status=Job.STATUS_OK)
 
         orga = FakeOrganisation.objects.create(user=user)
         jresult = EntityJobResult.objects.create(job=job, entity=orga)
 
-        response = self.assertPOST200(self._build_delete_url(job), data={'back_url': self.LIST_URL}, follow=True)
+        response = self.assertPOST200(
+            self._build_delete_url(job), data={'back_url': self.LIST_URL}, follow=True,
+        )
         self.assertDoesNotExist(job)
         self.assertDoesNotExist(jresult)
         self.assertRedirects(response, self.LIST_URL)
 
     def test_clear03(self):
-        "status = Job.STATUS_ERROR + ajax"
+        "status = Job.STATUS_ERROR + AJAX."
         self.login()
         job = self._create_batchprocess_job(status=Job.STATUS_ERROR)
 
@@ -465,27 +468,27 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(job)
 
     def test_clear04(self):
-        "Can only clear finished jobs"
+        "Can only clear finished jobs."
         self.login()
         job = self._create_batchprocess_job()
-        self.assertPOST409(self._build_delete_url(job))
+        self.assertPOST409(self._build_delete_url(job), follow=True)
 
     def test_clear05(self):
-        "Credentials"
+        "Credentials."
         self.login(is_superuser=False)
 
         job = self._create_batchprocess_job(user=self.other_user, status=Job.STATUS_OK)
-        self.assertPOST403(self._build_delete_url(job))
+        self.assertPOST403(self._build_delete_url(job), follow=True)
 
         job = self._create_batchprocess_job(status=Job.STATUS_OK)
         self.assertPOST200(self._build_delete_url(job), follow=True)
 
     def test_clear06(self):
-        "Can not clear a system job"
+        "Can not clear a system job."
         self.login()
 
         job = Job.objects.create(type_id=batch_process_type.id, status=Job.STATUS_OK)  # No user -> system job
-        self.assertPOST409(self._build_delete_url(job))
+        self.assertPOST409(self._build_delete_url(job), follow=True)
 
     def test_disable01(self):
         queue = JobManagerQueue.get_main_queue()

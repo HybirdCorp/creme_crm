@@ -218,24 +218,51 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET403(ptype.get_edit_absolute_url())
 
     def test_edit_type04(self):
-        "Not super-user"
+        "Not super-user."
         self.login(is_superuser=False, admin_4_apps=('creme_core',))
         ptype = CremePropertyType.create('test-foobar', 'is beautiful', is_custom=True)
         self.assertGET200(ptype.get_edit_absolute_url())
 
-    def test_delete_related(self):
-        user = self.login()
+    def test_delete_related01(self):
+        user = self.login(is_superuser=False)
 
         ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text='hairy')
         entity = FakeContact.objects.create(user=user, last_name='Vrataski')
         prop   = CremeProperty.objects.create(type=ptype, creme_entity=entity)
-        ct     = ContentType.objects.get_for_model(CremeProperty)
+        get_ct = ContentType.objects.get_for_model
+        ct     = get_ct(CremeProperty)
 
-        response = self.assertPOST200(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
-                                      follow=True, data={'id': prop.id},
-                                     )
+        response = self.assertPOST200(
+            reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+            follow=True, data={'id': prop.id},
+        )
         self.assertRedirects(response, entity.get_absolute_url())
         self.assertDoesNotExist(prop)
+
+        # ---
+        self.assertPOST409(
+            reverse('creme_core__delete_related_to_entity', args=(get_ct(CremeEntity).id,)),
+            follow=True, data={'id': entity.id},
+        )
+        self.assertPOST409(
+            reverse('creme_core__delete_related_to_entity', args=(get_ct(CremePropertyType).id,)),
+            follow=True, data={'id': ptype.id},
+        )
+
+    def test_delete_related02(self):
+        "Not allowed to change the related entity."
+        self.login(is_superuser=False)
+        self._set_all_creds_except_one(EntityCredentials.CHANGE)
+
+        ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text='hairy')
+        entity = FakeContact.objects.create(user=self.other_user, last_name='Vrataski')
+        prop   = CremeProperty.objects.create(type=ptype, creme_entity=entity)
+        ct     = ContentType.objects.get_for_model(CremeProperty)
+
+        self.assertPOST403(
+            reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+            follow=True, data={'id': prop.id},
+        )
 
     def test_delete_from_type(self):
         user = self.login()
@@ -260,16 +287,20 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def test_delete_type01(self):
         self.login()
         ptype = CremePropertyType.create('test-foobar', 'is beautiful', [], is_custom=False)
-        self.assertPOST404(ptype.get_delete_absolute_url(), data={'id': ptype.id})
+        self.assertPOST404(ptype.get_delete_absolute_url())
 
     def test_delete_type02(self):
-        self.login()
+        self.login(is_superuser=False, admin_4_apps=['creme_core'])
         ptype = CremePropertyType.create('test-foobar', 'is beautiful', [], is_custom=True)
-        response = self.assertPOST200(ptype.get_delete_absolute_url(),
-                                      data={'id': ptype.id}, follow=True,
-                                     )
+        response = self.assertPOST200(ptype.get_delete_absolute_url(), follow=True)
         self.assertDoesNotExist(ptype)
         self.assertRedirects(response, CremePropertyType.get_lv_absolute_url())
+
+    def test_delete_type03(self):
+        "Not allowed to admin <creme_core>."
+        self.login(is_superuser=False)
+        ptype = CremePropertyType.create('test-foobar', 'is beautiful', [], is_custom=True)
+        self.assertPOST403(ptype.get_delete_absolute_url(), follow=True)
 
     def test_add_properties_bulk01(self):
         self.login()

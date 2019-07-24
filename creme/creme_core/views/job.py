@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.transaction import atomic
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, Http404  # HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.http import is_safe_url
@@ -125,27 +125,48 @@ def enable(request, job_id, enabled=True):
     return HttpResponse()
 
 
-@login_required
-@POST_only
-def delete(request, job_id):
-    job = get_object_or_404(Job, id=job_id)
+# @login_required
+# @POST_only
+# def delete(request, job_id):
+#     job = get_object_or_404(Job, id=job_id)
+#
+#     if job.user_id is None:
+#         raise ConflictError('A system job cannot be cleared')
+#
+#     job.check_owner_or_die(request.user)
+#
+#     if not job.is_finished:
+#         raise ConflictError('A non finished job cannot be cleared')
+#
+#     job.delete()
+#
+#     url = request.POST.get('back_url') or reverse('creme_core__my_jobs')
+#
+#     if request.is_ajax():
+#         return HttpResponse(content=url)
+#
+#     return HttpResponseRedirect(url)
+class JobDeletion(generic.CremeModelDeletion):
+    model = Job
+    job_id_url_kwarg = 'job_id'
 
-    if job.user_id is None:
-        raise ConflictError('A system job cannot be cleared')
+    def check_instance_permissions(self, instance, user):
+        if instance.user_id is None:
+            raise ConflictError('A system job cannot be cleared')
 
-    job.check_owner_or_die(request.user)
+        instance.check_owner_or_die(user)
 
-    if not job.is_finished:
-        raise ConflictError('A non finished job cannot be cleared')
+        if not instance.is_finished:
+            raise ConflictError('A non finished job cannot be cleared')
 
-    job.delete()
+    def get_query_kwargs(self):
+        return {'id': self.kwargs[self.job_id_url_kwarg]}
 
-    url = request.POST.get('back_url') or reverse('creme_core__my_jobs')
+    def get_ajax_success_url(self):
+        return self.get_success_url()
 
-    if request.is_ajax():
-        return HttpResponse(content=url)
-
-    return HttpResponseRedirect(url)
+    def get_success_url(self):
+        return self.request.POST.get('back_url') or reverse('creme_core__my_jobs')
 
 
 @login_required
