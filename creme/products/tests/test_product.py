@@ -527,11 +527,18 @@ class ProductTestCase(_ProductsTestCase):
     def test_add_images02(self):
         "Related is not a Product"
         user = self.login()
-        rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Aynami')
+        rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         self.assertGET404(reverse('products__add_images_to_product', args=(rei.id,)))
 
     def test_remove_image(self):
-        user = self.login()
+        user = self.login(is_superuser=False, allowed_apps=['documents', 'products'],
+                          creatable_models=[get_document_model()],
+                         )
+        creds = SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         create_image = self._create_image
         img_1 = create_image(ident=1, user=user)
@@ -548,13 +555,20 @@ class ProductTestCase(_ProductsTestCase):
 
         url = reverse('products__remove_image', args=(product.id,))
         data = {'id': img_1.id}
-        self.assertGET404(url, data=data)
+        # self.assertGET404(url, data=data)
+        self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data, follow=True)
         self.assertEqual([img_2], list(product.images.all()))
 
-        rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Aynami')
+        # Not a Product/Service ---
+        rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         self.assertPOST404(reverse('products__remove_image', args=(rei.id,)), data={'id': img_2.id})
+
+        # No CHANGE permission
+        creds.value = EntityCredentials.VIEW | EntityCredentials.LINK
+        creds.save()
+        self.assertPOST403(url, data={'id': img_2.id})
 
     def test_mass_import01(self):
         "Categories not in CSV"

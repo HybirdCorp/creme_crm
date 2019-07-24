@@ -236,7 +236,8 @@ class ServiceTestCase(_ProductsTestCase):
 
         url = reverse('products__remove_image', args=(service.id,))
         data = {'id': img_1.id}
-        self.assertGET404(url, data=data)
+        # self.assertGET404(url, data=data)
+        self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data, follow=True)
         self.assertEqual([img_2], list(service.images.all()))
