@@ -13,8 +13,9 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
-    from creme.creme_core.models import RelationType, Relation, FileRef
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import (RelationType, Relation, FileRef, SetCredentials,
+        FakeContact, FakeOrganisation)
 
     from . import graph_model_is_custom, get_graph_model
     from .models import RootNode
@@ -126,9 +127,13 @@ class GraphsTestCase(CremeTestCase):
         self.assertEqual({*rtypes_ids}, {rt.id for rt in rtypes})
 
         self.assertPOST200(reverse('graphs__remove_rtype', args=(graph.id,)),
-                           data={'id': rtype01.id}
+                           data={'id': rtype01.id},
+                           follow=True,
                           )
-        self.assertEqual([rtype02.id], [rt.id for rt in graph.orbital_relation_types.all()])
+        self.assertListEqual(
+            [rtype02.id],
+            [rt.id for rt in graph.orbital_relation_types.all()]
+        )
 
     def test_relation_types02(self):
         self.login(is_superuser=False)
@@ -139,7 +144,8 @@ class GraphsTestCase(CremeTestCase):
         rtype, srtype = RelationType.create(('test-subject_love', 'loves'), ('test-object_love', 'is loved to'))
         graph.orbital_relation_types.add(rtype)
         self.assertPOST403(reverse('graphs__remove_rtype', args=(graph.id,)),
-                           data={'id': rtype.id}
+                           data={'id': rtype.id},
+                           follow=True,
                           )
 
     @skipIf(skip_graphviz_tests, 'Pygraphviz is not installed (are you under Wind*ws ??')
@@ -243,9 +249,11 @@ class GraphsTestCase(CremeTestCase):
         rnode = rnodes[1]
         url = reverse('graphs__remove_root')
         data = {'id': rnode.id}
-        self.assertGET404(url, data=data)
+        # self.assertGET404(url, data=data)
+        self.assertGET405(url, data=data)
 
-        self.assertPOST200(url, data=data)
+        # self.assertPOST200(url, data=data)
+        self.assertPOST200(url, data=data, follow=True)
         self.assertDoesNotExist(rnode)
 
     def test_edit_rootnode(self):
@@ -274,3 +282,37 @@ class GraphsTestCase(CremeTestCase):
 
         self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype01.id, rtype02.id]}))
         self.assertEqual({rtype01, rtype02}, set(rnode.relation_types.all()))
+
+    def test_delete_rootnode01(self):
+        "Not super user."
+        user = self.login(is_superuser=False)
+
+        SetCredentials.objects.create(
+            role=user.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        orga = FakeOrganisation.objects.create(user=user, name='NERV')
+        graph = Graph.objects.create(user=user, name='Graph01')
+        rnode = RootNode.objects.create(graph=graph, entity=orga)
+
+        self.assertPOST200(reverse('graphs__remove_root'), data={'id': rnode.id}, follow=True)
+        self.assertDoesNotExist(rnode)
+
+    def test_delete_rootnode02(self):
+        "Not super user + cannot change Graph => error."
+        user = self.login(is_superuser=False)
+
+        SetCredentials.objects.create(
+            role=user.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        orga = FakeOrganisation.objects.create(user=user, name='NERV')
+        graph = Graph.objects.create(user=self.other_user, name='Graph01')
+        rnode = RootNode.objects.create(graph=graph, entity=orga)
+
+        self.assertPOST403(reverse('graphs__remove_root'), data={'id': rnode.id}, follow=True)
+        self.assertStillExists(rnode)

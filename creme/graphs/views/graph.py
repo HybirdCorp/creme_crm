@@ -20,9 +20,8 @@
 
 # import warnings
 
-from django.http import HttpResponse
+# from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
-
 from django.utils.translation import gettext_lazy as _, gettext
 
 # from creme.creme_core.auth import build_creation_perm as cperm
@@ -33,7 +32,6 @@ from creme.creme_core.views import generic
 from .. import get_graph_model
 from ..constants import DEFAULT_HFILTER_GRAPH
 from ..forms import graph as g_forms
-
 
 Graph = get_graph_model()
 
@@ -111,16 +109,26 @@ def dl_png(request, graph_id):
 #     return generic.list_view(request, Graph, hf_pk=DEFAULT_HFILTER_GRAPH)
 
 
-@login_required
-@permission_required('graphs')
-def delete_relation_type(request, graph_id):
-    rtype_id = get_from_POST_or_404(request.POST, 'id')
-    graph = get_object_or_404(Graph, pk=graph_id)
+# @login_required
+# @permission_required('graphs')
+# def delete_relation_type(request, graph_id):
+#     rtype_id = get_from_POST_or_404(request.POST, 'id')
+#     graph = get_object_or_404(Graph, pk=graph_id)
+#
+#     request.user.has_perm_to_change_or_die(graph)
+#     graph.orbital_relation_types.remove(rtype_id)
+#
+#     return HttpResponse()
+class RelationTypeRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
+    permissions = 'graphs'
+    entity_classes = Graph
+    entity_id_url_kwarg = 'graph_id'
 
-    request.user.has_perm_to_change_or_die(graph)
-    graph.orbital_relation_types.remove(rtype_id)
+    rtype_id_arg = 'id'
 
-    return HttpResponse()
+    def perform_deletion(self, request):
+        rtype_id = get_from_POST_or_404(request.POST, self.rtype_id_arg)
+        self.get_related_entity().orbital_relation_types.remove(rtype_id)
 
 
 # Class-based views  ----------------------------------------------------------
