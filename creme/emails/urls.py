@@ -12,8 +12,9 @@ from .views import campaign, sending, recipient, mailing_list, template, mail, s
 
 urlpatterns = [
     # Campaign: mailing_list brick
-    re_path(r'^campaign/(?P<campaign_id>\d+)/mailing_list/add[/]?$',    campaign.MailingListsAdding.as_view(), name='emails__add_mlists_to_campaign'),
-    re_path(r'^campaign/(?P<campaign_id>\d+)/mailing_list/delete[/]?$', campaign.delete_ml,                    name='emails__remove_mlist_from_campaign'),
+    re_path(r'^campaign/(?P<campaign_id>\d+)/mailing_list/add[/]?$',    campaign.MailingListsAdding.as_view(),  name='emails__add_mlists_to_campaign'),
+    # re_path(r'^campaign/(?P<campaign_id>\d+)/mailing_list/delete[/]?$', campaign.delete_ml,                    name='emails__remove_mlist_from_campaign'),
+    re_path(r'^campaign/(?P<campaign_id>\d+)/mailing_list/delete[/]?$', campaign.MailingListRemoving.as_view(), name='emails__remove_mlist_from_campaign'),
 
     # Campaign: sending brick
     re_path(r'^campaign/(?P<campaign_id>\d+)/sending/add[/]?$', sending.SendingCreation.as_view(), name='emails__create_sending'),
@@ -31,20 +32,24 @@ urlpatterns = [
     # Mailing list: contacts brick
     re_path(r'^mailing_list/(?P<ml_id>\d+)/contact/add[/]?$',             mailing_list.ContactsAdding.as_view(),           name='emails__add_contacts_to_mlist'),
     re_path(r'^mailing_list/(?P<ml_id>\d+)/contact/add_from_filter[/]?$', mailing_list.ContactsAddingFromFilter.as_view(), name='emails__add_contacts_to_mlist_from_filter'),
-    re_path(r'^mailing_list/(?P<ml_id>\d+)/contact/delete[/]?$',          mailing_list.delete_contact,                     name='emails__remove_contact_from_mlist'),
+    # re_path(r'^mailing_list/(?P<ml_id>\d+)/contact/delete[/]?$',          mailing_list.delete_contact,                     name='emails__remove_contact_from_mlist'),
+    re_path(r'^mailing_list/(?P<ml_id>\d+)/contact/delete[/]?$',          mailing_list.ContactRemoving.as_view(),          name='emails__remove_contact_from_mlist'),
 
     # Mailing list: organisations brick
     re_path(r'^mailing_list/(?P<ml_id>\d+)/organisation/add[/]?$',             mailing_list.OrganisationsAdding.as_view(),           name='emails__add_orgas_to_mlist'),
     re_path(r'^mailing_list/(?P<ml_id>\d+)/organisation/add_from_filter[/]?$', mailing_list.OrganisationsAddingFromFilter.as_view(), name='emails__add_orgas_to_mlist_from_filter'),
-    re_path(r'^mailing_list/(?P<ml_id>\d+)/organisation/delete[/]?$',          mailing_list.delete_organisation,                     name='emails__remove_orga_from_mlist'),
+    # re_path(r'^mailing_list/(?P<ml_id>\d+)/organisation/delete[/]?$',          mailing_list.delete_organisation,                     name='emails__remove_orga_from_mlist'),
+    re_path(r'^mailing_list/(?P<ml_id>\d+)/organisation/delete[/]?$',          mailing_list.OrganisationRemoving.as_view(),          name='emails__remove_orga_from_mlist'),
 
     # Mailing list: child lists brick
     re_path(r'^mailing_list/(?P<ml_id>\d+)/child/add[/]?$',    mailing_list.ChildrenAdding.as_view(), name='emails__add_child_mlists'),
-    re_path(r'^mailing_list/(?P<ml_id>\d+)/child/delete[/]?$', mailing_list.delete_child,             name='emails__remove_child_mlist'),
+    # re_path(r'^mailing_list/(?P<ml_id>\d+)/child/delete[/]?$', mailing_list.delete_child,             name='emails__remove_child_mlist'),
+    re_path(r'^mailing_list/(?P<ml_id>\d+)/child/delete[/]?$', mailing_list.ChildRemoving.as_view(),  name='emails__remove_child_mlist'),
 
     # Template: attachment brick
-    re_path(r'^template/(?P<template_id>\d+)/attachment/add[/]?$',    template.AttachmentsAdding.as_view(), name='emails__add_attachments_to_template'),
-    re_path(r'^template/(?P<template_id>\d+)/attachment/delete[/]?$', template.delete_attachment,           name='emails__remove_attachment_from_template'),
+    re_path(r'^template/(?P<template_id>\d+)/attachment/add[/]?$',    template.AttachmentsAdding.as_view(),  name='emails__add_attachments_to_template'),
+    # re_path(r'^template/(?P<template_id>\d+)/attachment/delete[/]?$', template.delete_attachment,           name='emails__remove_attachment_from_template'),
+    re_path(r'^template/(?P<template_id>\d+)/attachment/delete[/]?$', template.AttachmentRemoving.as_view(), name='emails__remove_attachment_from_template'),
 
     # Mails history bricks
     re_path(r'^mails_history/(?P<mail_id>\w+)[/]?$', mail.LightWeightEmailPopup.as_view(), name='emails__view_lw_mail'),  # TODO: improve URL (lw_mail...)
@@ -56,7 +61,8 @@ urlpatterns = [
     re_path(r'^signature/', include([
         re_path(r'^add[/]?$',                        signature.SignatureCreation.as_view(), name='emails__create_signature'),
         re_path(r'^edit/(?P<signature_id>\d+)[/]?$', signature.SignatureEdition.as_view(),  name='emails__edit_signature'),
-        re_path(r'^delete[/]?$',                     signature.delete,                      name='emails__delete_signature'),
+        # re_path(r'^delete[/]?$',                     signature.delete,                      name='emails__delete_signature'),
+        re_path(r'^delete[/]?$',                     signature.SignatureDeletion.as_view(), name='emails__delete_signature'),
     ])),
 
     *swap_manager.add_group(

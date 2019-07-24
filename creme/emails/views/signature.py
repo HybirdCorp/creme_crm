@@ -19,12 +19,12 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+# from django.http import HttpResponse, HttpResponseRedirect
+# from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.utils import get_from_POST_or_404
+# from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
 from ..forms.signature import SignatureForm
@@ -48,17 +48,24 @@ class SignatureEdition(generic.CremeModelEditionPopup):
             raise PermissionDenied(_('You can not edit this signature (not yours)'))
 
 
-@login_required
-@permission_required('emails')
-def delete(request):
-    signature = get_object_or_404(EmailSignature, pk=get_from_POST_or_404(request.POST, 'id'))
+# @login_required
+# @permission_required('emails')
+# def delete(request):
+#     signature = get_object_or_404(EmailSignature, pk=get_from_POST_or_404(request.POST, 'id'))
+#
+#     if not signature.can_change_or_delete(request.user):
+#         raise PermissionDenied(_('You can not delete this signature (not yours)'))
+#
+#     signature.delete()
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return HttpResponseRedirect('/')
+class SignatureDeletion(generic.CremeModelDeletion):
+    model = EmailSignature
+    permissions = 'emails'
 
-    if not signature.can_change_or_delete(request.user):
-        raise PermissionDenied(_('You can not delete this signature (not yours)'))
-
-    signature.delete()
-
-    if request.is_ajax():
-        return HttpResponse()
-
-    return HttpResponseRedirect('/')
+    def check_instance_permissions(self, instance, user):
+        if not instance.can_change_or_delete(user):
+            raise PermissionDenied(_('You can not delete this signature (not yours)'))

@@ -20,19 +20,18 @@
 
 # import warnings
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+# from django.http import HttpResponse
+# from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
 from .. import get_emailtemplate_model
 from ..constants import DEFAULT_HFILTER_TEMPLATE
 from ..forms import template as tpl_forms
-
 
 EmailTemplate = get_emailtemplate_model()
 
@@ -96,20 +95,20 @@ EmailTemplate = get_emailtemplate_model()
 #     return generic.list_view(request, EmailTemplate, hf_pk=DEFAULT_HFILTER_TEMPLATE)
 
 
-@login_required
-@permission_required('emails')
-def delete_attachment(request, template_id):
-    attachment_id = get_from_POST_or_404(request.POST, 'id')
-    template = get_object_or_404(EmailTemplate, pk=template_id)
-
-    request.user.has_perm_to_change_or_die(template)
-
-    template.attachments.remove(attachment_id)
-
-    if request.is_ajax():
-        return HttpResponse()
-
-    return redirect(template)
+# @login_required
+# @permission_required('emails')
+# def delete_attachment(request, template_id):
+#     attachment_id = get_from_POST_or_404(request.POST, 'id')
+#     template = get_object_or_404(EmailTemplate, pk=template_id)
+#
+#     request.user.has_perm_to_change_or_die(template)
+#
+#     template.attachments.remove(attachment_id)
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return redirect(template)
 
 
 # Class-based views  ----------------------------------------------------------
@@ -138,6 +137,18 @@ class AttachmentsAdding(generic.RelatedToEntityFormPopup):
     submit_label = _('Add the attachments')
     entity_id_url_kwarg = 'template_id'
     entity_classes = EmailTemplate
+
+
+class AttachmentRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
+    permissions = 'emails'
+    entity_classes = EmailTemplate
+    entity_id_url_kwarg = 'template_id'
+
+    doc_id_arg = 'id'
+
+    def perform_deletion(self, request):
+        attachment_id = get_from_POST_or_404(request.POST, self.doc_id_arg, cast=int)
+        self.get_related_entity().attachments.remove(attachment_id)
 
 
 class EmailTemplatesList(generic.EntitiesList):
