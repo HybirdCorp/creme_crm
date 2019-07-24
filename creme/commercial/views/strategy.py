@@ -22,7 +22,7 @@
 
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404  # redirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
@@ -41,7 +41,6 @@ from ..constants import DEFAULT_HFILTER_STRATEGY
 from ..forms import strategy as forms
 from ..models import (MarketSegment, MarketSegmentDescription, CommercialAsset, CommercialAssetScore,
         MarketSegmentCharm, MarketSegmentCharmScore)
-
 
 Strategy = get_strategy_model()
 
@@ -193,22 +192,37 @@ class CharmEdition(generic.RelatedToEntityEditionPopup):
 # Other views  ----------------------------------------------------------------
 
 
-@login_required
-@permission_required('commercial')
-@atomic
-def delete_evalorga(request, strategy_id):
-    strategy = get_object_or_404(Strategy, pk=strategy_id)
-    request.user.has_perm_to_change_or_die(strategy)
+# @login_required
+# @permission_required('commercial')
+# @atomic
+# def delete_evalorga(request, strategy_id):
+#     strategy = get_object_or_404(Strategy, pk=strategy_id)
+#     request.user.has_perm_to_change_or_die(strategy)
+#
+#     orga_id = get_from_POST_or_404(request.POST, 'id', int)
+#     strategy.evaluated_orgas.remove(orga_id)
+#     CommercialAssetScore.objects.filter(asset__strategy=strategy, organisation=orga_id).delete()
+#     MarketSegmentCharmScore.objects.filter(charm__strategy=strategy, organisation=orga_id).delete()
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return redirect(strategy)
+class OrganisationRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
+    permissions = 'emails'
+    entity_classes = Strategy
+    entity_id_url_kwarg = 'strategy_id'
 
-    orga_id = get_from_POST_or_404(request.POST, 'id', int)
-    strategy.evaluated_orgas.remove(orga_id)
-    CommercialAssetScore.objects.filter(asset__strategy=strategy, organisation=orga_id).delete()
-    MarketSegmentCharmScore.objects.filter(charm__strategy=strategy, organisation=orga_id).delete()
+    organisation_id_arg = 'id'
 
-    if request.is_ajax():
-        return HttpResponse()
+    def perform_deletion(self, request):
+        orga_id = get_from_POST_or_404(request.POST, self.organisation_id_arg, cast=int)
+        strategy = self.get_related_entity()
 
-    return redirect(strategy)
+        with atomic():
+            strategy.evaluated_orgas.remove(orga_id)
+            CommercialAssetScore.objects.filter(asset__strategy=strategy, organisation=orga_id).delete()
+            MarketSegmentCharmScore.objects.filter(charm__strategy=strategy, organisation=orga_id).delete()
 
 
 # TODO: used once => inline
