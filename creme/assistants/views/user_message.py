@@ -19,12 +19,12 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+# from django.http import HttpResponse, HttpResponseRedirect
+# from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.auth.decorators import login_required
-from creme.creme_core.utils import get_from_POST_or_404
+# from creme.creme_core.auth.decorators import login_required
+# from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
 from creme.assistants.forms.user_message import UserMessageForm
@@ -43,18 +43,26 @@ class RelatedUserMessageCreation(generic.AddingInstanceToEntityPopup):
     title = _('New message about «{entity}»')
 
 
-@login_required
-def delete(request):
-    msg = get_object_or_404(UserMessage, pk=get_from_POST_or_404(request.POST, 'id'))
+# @login_required
+# def delete(request):
+#     msg = get_object_or_404(UserMessage, pk=get_from_POST_or_404(request.POST, 'id'))
+#
+#     if request.user.id != msg.recipient_id:
+#         raise PermissionDenied(gettext('You are not allowed to delete this message: {}').format(msg))
+#
+#     msg.delete()
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     entity = msg.creme_entity
+#
+#     return HttpResponseRedirect(entity.get_absolute_url() if entity else '/')
+class UserMessageDeletion(generic.CremeModelDeletion):
+    model = UserMessage
 
-    if request.user.id != msg.recipient_id:
-        raise PermissionDenied(gettext('You are not allowed to delete this message: {}').format(msg))
-
-    msg.delete()
-
-    if request.is_ajax():
-        return HttpResponse()
-
-    entity = msg.creme_entity
-
-    return HttpResponseRedirect(entity.get_absolute_url() if entity else '/')
+    def check_instance_permissions(self, instance, user):
+        if user.id != instance.recipient_id:
+            raise PermissionDenied(
+                gettext('You are not allowed to delete this message: {}').format(instance)
+            )

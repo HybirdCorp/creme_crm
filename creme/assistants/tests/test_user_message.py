@@ -257,18 +257,28 @@ class UserMessageTestCase(AssistantsTestCase):
         self.entity.delete()
         self.assertFalse(UserMessage.objects.all())
 
-    def test_delete01(self):
+    def test_delete(self):
+        user = self.user
+        other_user = self.other_user
+
         priority = UserMessagePriority.objects.create(title='Important')
-        self._create_usermessage('TITLE', 'BODY', priority, [self.user], None)
+        self._create_usermessage('TITLE', 'BODY', priority,
+                                 users=[user, other_user],
+                                 entity=None,
+                                )
 
-        messages = UserMessage.objects.all()
-        self.assertEqual(1, len(messages))
+        messages = {msg.recipient_id: msg for msg in UserMessage.objects.all()}
+        self.assertEqual(2, len(messages))
 
-        message = messages[0]
-        self.assertEqual(self.user, message.recipient)
+        url = reverse('assistants__delete_message')
 
-        self.assertPOST(302, reverse('assistants__delete_message'), data={'id': message.id})
-        self.assertFalse(UserMessage.objects.all())
+        msg1 = messages[user.id]
+        self.assertPOST200(url, data={'id': msg1.id}, follow=True)
+        self.assertDoesNotExist(msg1)
+
+        msg2 = messages[other_user.id]
+        self.assertPOST403(url, data={'id': msg2.id}, follow=True)
+        self.assertStillExists(msg2)
 
     def test_merge(self):
         def creator(contact01, contact02):
