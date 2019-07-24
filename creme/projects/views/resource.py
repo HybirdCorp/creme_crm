@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+# from django.http import HttpResponse
+# from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import Relation
-from creme.creme_core.utils import get_from_POST_or_404
+# from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
 from .. import get_task_model
@@ -60,21 +60,37 @@ class ResourceEdition(generic.RelatedToEntityEditionPopup):
     title = _('Resource for «{entity}»')
 
 
-@login_required
-@permission_required('projects')
-def delete(request):  # TODO: generic delete ??
-    resource = get_object_or_404(Resource, pk=get_from_POST_or_404(request.POST, 'id'))
+# @login_required
+# @permission_required('projects')
+# def delete(request):  # todo: generic delete ??
+#     resource = get_object_or_404(Resource, pk=get_from_POST_or_404(request.POST, 'id'))
+#
+#     request.user.has_perm_to_change_or_die(resource.task)
+#     # request.user.has_perm_to_delete_or_die(resource) #beware to change template if uncommented
+#
+#     if Relation.objects.filter(subject_entity=resource.linked_contact_id,
+#                                type=REL_SUB_PART_AS_RESOURCE,
+#                                object_entity__in=[a.id for a in resource.task.related_activities],
+#                               ) \
+#                        .exists():
+#         raise ConflictError(gettext('This resource cannot be deleted, because it is linked to activities.'))
+#
+#     resource.delete()
+#
+#     return HttpResponse()
+class ResourceDeletion(generic.CremeModelDeletion):
+    model = Resource
+    permissions = 'projects'
 
-    request.user.has_perm_to_change_or_die(resource.task)
-    # request.user.has_perm_to_delete_or_die(resource) #beware to change template if uncommented
+    def check_instance_permissions(self, instance, user):
+        user.has_perm_to_change_or_die(instance.task)
+        # request.user.has_perm_to_delete_or_die(resource) #beware to change template if uncommented
 
-    if Relation.objects.filter(subject_entity=resource.linked_contact_id,
-                               type=REL_SUB_PART_AS_RESOURCE,
-                               object_entity__in=[a.id for a in resource.task.related_activities],
-                              ) \
-                       .exists():
-        raise ConflictError(gettext('This resource cannot be deleted, because it is linked to activities.'))
-
-    resource.delete()
-
-    return HttpResponse()
+        if Relation.objects.filter(
+            subject_entity=instance.linked_contact_id,
+            type=REL_SUB_PART_AS_RESOURCE,
+            object_entity__in=[a.id for a in instance.task.related_activities],
+       ).exists():
+            raise ConflictError(
+                gettext('This resource cannot be deleted, because it is linked to activities.')
+            )

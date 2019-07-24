@@ -196,18 +196,18 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(1, project, REL_OBJ_PROJECT_MANAGER, manager)
 
     def test_project_createview02(self):
-        "Credentials error"
+        "Credentials error."
         user = self.login(is_superuser=False, creatable_models=[Project])
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
                         EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not LINK
-                  set_type=SetCredentials.ESET_ALL
+                  set_type=SetCredentials.ESET_ALL,
                  )
         create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
                         EntityCredentials.DELETE | EntityCredentials.LINK |
                         EntityCredentials.UNLINK,
-                  set_type=SetCredentials.ESET_OWN
+                  set_type=SetCredentials.ESET_OWN,
                  )
 
         manager = Contact.objects.create(user=user, first_name='Gendo', last_name='Ikari')
@@ -407,7 +407,7 @@ class ProjectsTestCase(CremeTestCase):
         "Can not be parented with task of an other project + not super-user"
         user = self.login(is_superuser=False, allowed_apps=['persons', 'projects'],
                           creatable_models=[Project, ProjectTask],
-                          )
+                         )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -538,17 +538,27 @@ class ProjectsTestCase(CremeTestCase):
                         )
 
         # ---
-        self.assertNoFormError(self.client.post(url, data={'parents': self.formfield_value_multi_creator_entity(task01, task02)}))
-        self.assertEqual({task01, task02}, set(task03.parent_tasks.all()))
+        self.assertNoFormError(
+            self.client.post(
+                url,
+                data={'parents': self.formfield_value_multi_creator_entity(task01, task02)},
+            )
+        )
+        self.assertSetEqual({task01, task02}, {*task03.parent_tasks.all()})
 
-        self.assertPOST200(reverse('projects__remove_parent_task'), data={'id': task03.id, 'parent_id': task01.id})
-        self.assertEqual([task02], list(task03.parent_tasks.all()))
+        self.assertPOST200(
+            reverse('projects__remove_parent_task'),
+            data={'id': task03.id, 'parent_id': task01.id},
+            follow=True,
+        )
+        self.assertListEqual([task02], [*task03.parent_tasks.all()])
 
         # Error: already parent
-        self.assertFormError(self.client.post(url, data={'parents': self.formfield_value_multi_creator_entity(task02)}),
-                             'form', 'parents',
-                             _('This entity does not exist.')
-                            )
+        self.assertFormError(
+            self.client.post(url, data={'parents': self.formfield_value_multi_creator_entity(task02)}),
+            'form', 'parents',
+            _('This entity does not exist.')
+        )
 
     @skipIfCustomTask
     def test_task_add_parent02(self):
@@ -1382,9 +1392,11 @@ class ProjectsTestCase(CremeTestCase):
 
         url = self.DELETE_RESOURCE_URL
         data = {'id': resource1.id}
-        self.assertGET404(url, data=data)
+        # self.assertGET404(url, data=data)
+        self.assertGET405(url, data=data)
 
-        self.assertPOST200(url, data=data)
+        # self.assertPOST200(url, data=data)
+        self.assertPOST200(url, data=data, follow=True)
         self.assertDoesNotExist(resource1)
 
         self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
@@ -1393,7 +1405,7 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_delete_resource02(self):
-        "Related activity => 409"
+        "Related activity => 409."
         self.login()
 
         project = self.create_project('Eva02')[0]
@@ -1413,8 +1425,55 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(1, worker, REL_SUB_PART_AS_RESOURCE, activity)
 
     @skipIfCustomActivity
+    @skipIfCustomTask
+    def test_delete_resource03(self):
+        "Not super-user."
+        self.login(is_superuser=False, allowed_apps=['persons', 'projects'],
+                   creatable_models=[Project, ProjectTask],
+                  )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        project = self.create_project('Eva02')[0]
+        task    = self.create_task(project, 'arms')
+        worker  = self.other_user.linked_contact
+
+        self.create_resource(task, worker)
+        resource = task.resources_set.all()[0]
+
+        self.assertPOST200(self.DELETE_RESOURCE_URL, data={'id': resource.id}, follow=True)
+        self.assertDoesNotExist(resource)
+
+    @skipIfCustomActivity
+    @skipIfCustomTask
+    def test_delete_resource04(self):
+        "Not super-user + cannot change the task => error."
+        self.login(is_superuser=False, allowed_apps=['persons', 'projects'],
+                   creatable_models=[Project, ProjectTask],
+                  )
+        creds = SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE| EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        project = self.create_project('Eva02')[0]
+        task    = self.create_task(project, 'arms')
+        worker  = self.other_user.linked_contact
+
+        self.create_resource(task, worker)
+        resource = task.resources_set.all()[0]
+
+        creds.value = value=EntityCredentials.VIEW | EntityCredentials.LINK
+        creds.save()
+        self.assertPOST403(self.DELETE_RESOURCE_URL, data={'id': resource.id})
+
+    @skipIfCustomActivity
     def test_edit_activity_error(self):
-        "Activity not related to a project task"
+        "Activity not related to a project task."
         user = self.login()
 
         activity = Activity.objects.create(user=user, title='My task',
@@ -1432,7 +1491,8 @@ class ProjectsTestCase(CremeTestCase):
                                           )
         url = self.DELETE_ACTIVITY_URL
         data = {'id': activity.id}
-        self.assertGET404(url, data=data)
+        # self.assertGET404(url, data=data)
+        self.assertGET405(url, data=data)
         self.assertPOST409(url, data=data)
 
     @skipIfCustomActivity
@@ -1451,7 +1511,7 @@ class ProjectsTestCase(CremeTestCase):
         self.create_activity(resource)
         activity = task.related_activities[0]
 
-        self.assertPOST200(self.DELETE_ACTIVITY_URL, data={'id': activity.id})
+        self.assertPOST200(self.DELETE_ACTIVITY_URL, data={'id': activity.id}, follow=True)
         self.assertDoesNotExist(activity)
 
     @skipIfCustomActivity
