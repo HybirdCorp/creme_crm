@@ -18,22 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django import shortcuts, http
+# from django import shortcuts, http
+from django.http import Http404
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import Relation, CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import RelatedToEntityFormPopup
+from creme.creme_core.views import generic
 
 from .. import get_activity_model, constants
 from ..forms import bricks as bricks_forms
 
-
 Activity = get_activity_model()
 
 
-class ParticipantsAdding(RelatedToEntityFormPopup):
+class ParticipantsAdding(generic.RelatedToEntityFormPopup):
     form_class = bricks_forms.ParticipantCreateForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     title = _('Adding participants to activity «{entity}»')
@@ -45,26 +45,43 @@ class ParticipantsAdding(RelatedToEntityFormPopup):
         user.has_perm_to_link_or_die(entity)
 
 
-@login_required
-@permission_required('activities')
-def delete_participant(request):
-    relation = shortcuts.get_object_or_404(Relation,
-                                           pk=get_from_POST_or_404(request.POST, 'id'),
-                                           type=constants.REL_OBJ_PART_2_ACTIVITY,
-                                          )
-    subject = relation.subject_entity
-    user    = request.user
+# @login_required
+# @permission_required('activities')
+# def delete_participant(request):
+#     relation = shortcuts.get_object_or_404(Relation,
+#                                            pk=get_from_POST_or_404(request.POST, 'id'),
+#                                            type=constants.REL_OBJ_PART_2_ACTIVITY,
+#                                           )
+#     subject = relation.subject_entity
+#     user    = request.user
+#
+#     has_perm = user.has_perm_to_unlink_or_die
+#     has_perm(subject)
+#     has_perm(relation.object_entity)
+#
+#     relation.delete()
+#
+#     return shortcuts.redirect(subject.get_real_entity())
+class ParticipantRemoving(generic.CremeModelDeletion):
+    model = Relation
+    permissions = 'activities'
 
-    has_perm = user.has_perm_to_unlink_or_die
-    has_perm(subject)
-    has_perm(relation.object_entity)
+    def check_instance_permissions(self, instance, user):
+         has_perm = user.has_perm_to_unlink_or_die
+         has_perm(instance.subject_entity)
+         has_perm(instance.object_entity)
 
-    relation.delete()
+    def get_query_kwargs(self):
+        kwargs = super().get_query_kwargs()
+        kwargs['type'] = constants.REL_OBJ_PART_2_ACTIVITY
 
-    return shortcuts.redirect(subject.get_real_entity())
+        return kwargs
+
+    def get_success_url(self):
+        return self.object.subject_entity.get_absolute_url()
 
 
-class SubjectsAdding(RelatedToEntityFormPopup):
+class SubjectsAdding(generic.RelatedToEntityFormPopup):
     form_class = bricks_forms.SubjectCreateForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     title = _('Adding subjects to activity «{entity}»')
@@ -76,29 +93,72 @@ class SubjectsAdding(RelatedToEntityFormPopup):
         user.has_perm_to_link_or_die(entity)
 
 
-@login_required
-@permission_required('activities')
-def unlink_activity(request):
-    POST = request.POST
-    activity_id = get_from_POST_or_404(POST, 'id')
-    entity_id   = get_from_POST_or_404(POST, 'object_id')
-    entities = list(CremeEntity.objects.filter(pk__in=[activity_id, entity_id]))
+# @login_required
+# @permission_required('activities')
+# def unlink_activity(request):
+#     POST = request.POST
+#     activity_id = get_from_POST_or_404(POST, 'id')
+#     entity_id   = get_from_POST_or_404(POST, 'object_id')
+#     entities = list(CremeEntity.objects.filter(pk__in=[activity_id, entity_id]))
+#
+#     if len(entities) != 2:
+#         raise http.Http404(gettext('One entity does not exist any more.'))
+#
+#     has_perm = request.user.has_perm_to_unlink_or_die
+#
+#     for entity in entities:
+#         has_perm(entity)
+#
+#     types = (constants.REL_SUB_PART_2_ACTIVITY,
+#              constants.REL_SUB_ACTIVITY_SUBJECT,
+#              constants.REL_SUB_LINKED_2_ACTIVITY,
+#             )
+#     for relation in Relation.objects.filter(subject_entity=entity_id,
+#                                             type__in=types,
+#                                             object_entity=activity_id):
+#         relation.delete()
+#
+#     return http.HttpResponse()
+class ActivityUnlinking(generic.CremeDeletion):
+    permissions = 'activities'
+    activity_pk_arg = 'id'
+    entity_pk_arg = 'object_id'
 
-    if len(entities) != 2:
-        raise http.Http404(gettext('One entity does not exist any more.'))
+    relation_types = (
+        constants.REL_SUB_PART_2_ACTIVITY,
+        constants.REL_SUB_ACTIVITY_SUBJECT,
+        constants.REL_SUB_LINKED_2_ACTIVITY,
+    )
 
-    has_perm = request.user.has_perm_to_unlink_or_die
+    def check_instances_permissions(self, entities, user):
+        has_perm = user.has_perm_to_unlink_or_die
+        for entity in entities.values():
+            has_perm(entity)
 
-    for entity in entities:
-        has_perm(entity)
+    def get_entities(self):
+        request = self.request
+        POST = request.POST
+        activity_id = get_from_POST_or_404(POST, self.activity_pk_arg, cast=int)
+        subject_id   = get_from_POST_or_404(POST, self.entity_pk_arg, cast=int)
+        entities_per_id = CremeEntity.objects.in_bulk([activity_id, subject_id])
 
-    types = (constants.REL_SUB_PART_2_ACTIVITY,
-             constants.REL_SUB_ACTIVITY_SUBJECT,
-             constants.REL_SUB_LINKED_2_ACTIVITY,
-            )
-    for relation in Relation.objects.filter(subject_entity=entity_id,
-                                            type__in=types,
-                                            object_entity=activity_id):
-        relation.delete()
+        if len(entities_per_id) != 2:
+            raise Http404(gettext('One entity does not exist any more.'))
 
-    return http.HttpResponse()
+        entities = {
+            'entity': entities_per_id[subject_id],
+            'activity': entities_per_id[activity_id],
+        }
+
+        self.check_instances_permissions(entities=entities, user=request.user)
+
+        return entities
+
+    def perform_deletion(self, request):
+        entities = self.get_entities()
+
+        for relation in Relation.objects.filter(subject_entity=entities['entity'].id,
+                                                type__in=self.relation_types,
+                                                object_entity=entities['activity'].id,
+                                               ):
+            relation.delete()
