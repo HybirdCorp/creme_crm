@@ -20,22 +20,20 @@
 
 # import warnings
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+# from django.http import HttpResponse
+# from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
 from .. import get_smscampaign_model
 from ..constants import DEFAULT_HFILTER_SMSCAMPAIGN
 from ..forms import campaign as camp_forms
 
-
 SMSCampaign = get_smscampaign_model()
-
-# Function views --------------------------------------------------------------
 
 
 # def abstract_add_smscampaign(request, form=camp_forms.CampaignCreateForm,
@@ -109,22 +107,29 @@ SMSCampaign = get_smscampaign_model()
 #     return generic.list_view(request, SMSCampaign, hf_pk=DEFAULT_HFILTER_SMSCAMPAIGN)
 
 
+# @login_required
+# @permission_required('sms')
+# def delete_messaging_list(request, campaign_id):
+#     campaign = get_object_or_404(SMSCampaign, pk=campaign_id)
+#     request.user.has_perm_to_change_or_die(campaign)
+#
+#     campaign.lists.remove(request.POST.get('id'))
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return redirect(campaign)
+class MessagingListRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
+    permissions = 'sms'
+    entity_classes = SMSCampaign
+    entity_id_url_kwarg = 'campaign_id'
 
-@login_required
-@permission_required('sms')
-def delete_messaging_list(request, campaign_id):
-    campaign = get_object_or_404(SMSCampaign, pk=campaign_id)
-    request.user.has_perm_to_change_or_die(campaign)
+    mlist_id_arg = 'id'
 
-    campaign.lists.remove(request.POST.get('id'))
+    def perform_deletion(self, request):
+        ml_id = get_from_POST_or_404(request.POST, self.mlist_id_arg, cast=int)
+        self.get_related_entity().lists.remove(ml_id)
 
-    if request.is_ajax():
-        return HttpResponse()
-
-    return redirect(campaign)
-
-
-# Class-based views  ----------------------------------------------------------
 
 class SMSCampaignCreation(generic.EntityCreation):
     model = SMSCampaign
