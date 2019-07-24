@@ -21,20 +21,21 @@
 import logging
 
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy as _, gettext
+from django.core.exceptions import PermissionDenied
+# from django.http import HttpResponse, HttpResponseRedirect
+# from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _  # gettext
 
-from .. import utils
-from ..auth.decorators import login_required
+# from .. import utils
+# from ..auth.decorators import login_required
 from ..forms import header_filter as hf_forms
 from ..http import CremeJsonResponse
 from ..models import HeaderFilter
+from ..utils import get_from_GET_or_404
 
 from . import generic, entity_filter
 from .generic import base
 # from .decorators import jsonify
-
 
 logger = logging.getLogger(__name__)
 
@@ -69,25 +70,35 @@ class HeaderFilterEdition(entity_filter.FilterEditionMixin,
     submit_label = _('Save the modified view')
 
 
-@login_required
-def delete(request):
-    hf           = get_object_or_404(HeaderFilter, pk=utils.get_from_POST_or_404(request.POST, 'id'))
-    callback_url = hf.entity_type.model_class().get_lv_absolute_url()
-    allowed, msg = hf.can_delete(request.user)
+# @login_required
+# def delete(request):
+#     hf           = get_object_or_404(HeaderFilter, pk=utils.get_from_POST_or_404(request.POST, 'id'))
+#     callback_url = hf.entity_type.model_class().get_lv_absolute_url()
+#     allowed, msg = hf.can_delete(request.user)
+#
+#     if allowed:
+#         hf.delete()
+#
+#         return_msg = gettext('View successfully deleted')
+#         status = 200
+#     else:
+#         return_msg = msg
+#         status = 400
+#
+#     if request.is_ajax():
+#         return HttpResponse(return_msg, status=status)
+#
+#     return HttpResponseRedirect(callback_url)
+class HeaderFilterDeletion(generic.CremeModelDeletion):
+    model = HeaderFilter
 
-    if allowed:
-        hf.delete()
+    def check_instance_permissions(self, instance, user):
+        allowed, msg = instance.can_delete(user)
+        if not allowed:
+            raise PermissionDenied(msg)
 
-        return_msg = gettext('View successfully deleted')
-        status = 200
-    else:
-        return_msg = msg
-        status = 400
-
-    if request.is_ajax():
-        return HttpResponse(return_msg, status=status)
-
-    return HttpResponseRedirect(callback_url)
+    def get_success_url(self):
+        return self.object.entity_type.model_class().get_lv_absolute_url()
 
 
 # @login_required
@@ -108,7 +119,7 @@ class HeaderFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
         self.request.user.has_perm_to_access_or_die(ctype.app_label)
 
     def get_ctype_id(self):
-        return utils.get_from_GET_or_404(self.request.GET, self.ctype_id_arg, int)
+        return get_from_GET_or_404(self.request.GET, self.ctype_id_arg, int)
 
     def get_choices(self):
         return list(HeaderFilter.get_for_user(self.request.user, self.get_ctype())

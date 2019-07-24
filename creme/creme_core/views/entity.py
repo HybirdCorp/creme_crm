@@ -977,30 +977,57 @@ def delete_entity(request, entity_id):
     return HttpResponseRedirect(url)
 
 
-@login_required
-def delete_related_to_entity(request, ct_id):
-    """Delete a model related to a CremeEntity.
-    @param request: Request with POST method ; POST data should contain an 'id'(=pk) value.
-    @param ct_id: ContentType ID of a django model class which implements the method get_related_entity().
-    """
-    model = get_ct_or_404(ct_id).model_class()
-    if issubclass(model, CremeEntity):
-        raise Http404('This view can not delete CremeEntities.')
+# @login_required
+# def delete_related_to_entity(request, ct_id):
+#     """Delete a model related to a CremeEntity.
+#     @param request: Request with POST method ; POST data should contain an 'id'(=pk) value.
+#     @param ct_id: ContentType ID of a django model class which implements the method get_related_entity().
+#     """
+#     model = get_ct_or_404(ct_id).model_class()
+#     if issubclass(model, CremeEntity):
+#         raise Http404('This view can not delete CremeEntities.')
+#
+#     auxiliary = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
+#     entity = auxiliary.get_related_entity()
+#
+#     request.user.has_perm_to_change_or_die(entity)
+#
+#     try:
+#         auxiliary.delete()
+#     except ProtectedError as e:
+#         raise PermissionDenied(e.args[0]) from e
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return redirect(entity)
+class RelatedToEntityDeletion(generic.base.ContentTypeRelatedMixin,
+                              generic.CremeModelDeletion,
+                             ):
+    def check_instance_permissions(self, instance, user):
+        try:
+            entity = instance.get_related_entity()
+        except AttributeError:
+            raise ConflictError('This is not an auxiliary model.')
 
-    auxiliary = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
-    entity = auxiliary.get_related_entity()
+        user.has_perm_to_change_or_die(entity)
 
-    request.user.has_perm_to_change_or_die(entity)
+    @property
+    def model(self):
+        model = self.get_ctype().model_class()
+        if issubclass(model, CremeEntity):
+            raise ConflictError('This view can not delete CremeEntities.')
 
-    try:
-        auxiliary.delete()
-    except ProtectedError as e:
-        raise PermissionDenied(e.args[0]) from e
+        return model
 
-    if request.is_ajax():
-        return HttpResponse()
+    def get_success_url(self):
+        return self.object.get_related_entity().get_absolute_url()
 
-    return redirect(entity)
+    def perform_deletion(self, request):
+        try:
+            super().perform_deletion(request)
+        except ProtectedError as e:
+            raise PermissionDenied(e.args[0]) from e
 
 
 @login_required

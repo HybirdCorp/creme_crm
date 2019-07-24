@@ -11,12 +11,13 @@ from .views import (batch_process, bricks, creme_property, enumerable, entity,
 
 
 entity_patterns = [
-    re_path(r'^delete/multi[/]?$',                  entity.delete_entities,          name='creme_core__delete_entities'),
-    re_path(r'^delete/(?P<entity_id>\d+)[/]?$',     entity.delete_entity,            name='creme_core__delete_entity'),
-    re_path(r'^delete_related/(?P<ct_id>\d+)[/]?$', entity.delete_related_to_entity, name='creme_core__delete_related_to_entity'),
-    re_path(r'^restore/(?P<entity_id>\d+)[/]?$',    entity.restore_entity,           name='creme_core__restore_entity'),
-    re_path(r'^trash[/]?$',                         entity.Trash.as_view(),          name='creme_core__trash'),
-    re_path(r'^trash/empty[/]?$',                   entity.empty_trash,              name='creme_core__empty_trash'),
+    re_path(r'^delete/multi[/]?$',                  entity.delete_entities,                   name='creme_core__delete_entities'),
+    re_path(r'^delete/(?P<entity_id>\d+)[/]?$',     entity.delete_entity,                     name='creme_core__delete_entity'),
+    # re_path(r'^delete_related/(?P<ct_id>\d+)[/]?$', entity.delete_related_to_entity, name='creme_core__delete_related_to_entity'),
+    re_path(r'^delete_related/(?P<ct_id>\d+)[/]?$', entity.RelatedToEntityDeletion.as_view(), name='creme_core__delete_related_to_entity'),
+    re_path(r'^restore/(?P<entity_id>\d+)[/]?$',    entity.restore_entity,                    name='creme_core__restore_entity'),
+    re_path(r'^trash[/]?$',                         entity.Trash.as_view(),                   name='creme_core__trash'),
+    re_path(r'^trash/empty[/]?$',                   entity.empty_trash,                       name='creme_core__empty_trash'),
 
     # TODO: add a view 'creme_core__entities_as_json'
     #       (with same features as 'creme_core__entity_as_json', then remove this one)
@@ -57,8 +58,10 @@ relation_patterns = [
     # url(r'^objects2link[/]?$', relation.select_relations_objects, name='creme_core__select_entities_to_link'),
     re_path(r'^objects2link[/]?$', relation.RelationsObjectsSelectionPopup.as_view(), name='creme_core__select_entities_to_link'),
 
-    re_path(r'^delete[/]?$',         relation.delete,         name='creme_core__delete_relation'),
-    re_path(r'^delete/similar[/]?$', relation.delete_similar, name='creme_core__delete_similar_relations'),
+    # re_path(r'^delete[/]?$',         relation.delete,         name='creme_core__delete_relation'),
+    re_path(r'^delete[/]?$',         relation.RelationDeletion.as_view(),           name='creme_core__delete_relation'),
+    # re_path(r'^delete/similar[/]?$', relation.delete_similar, name='creme_core__delete_similar_relations'),
+    re_path(r'^delete/similar[/]?$', relation.RelationFromFieldsDeletion.as_view(), name='creme_core__delete_similar_relations'),  # TODO: change "name"
     re_path(r'^delete/all[/]?$',     relation.delete_all,     name='creme_core__delete_all_relations'),
 
     re_path(r'^entity/(?P<entity_id>\d+)/json[/]?$',               relation.json_entity_get,    name='creme_core__entity_as_json'),  # TODO: move to entity_patterns ?
@@ -72,14 +75,16 @@ property_patterns = [
         name='creme_core__add_properties_bulk',
     ),
 
-    re_path(r'^add/(?P<entity_id>\d+)[/]?$', creme_property.PropertiesAdding.as_view(), name='creme_core__add_properties'),
-    re_path(r'^delete_from_type[/]?$',       creme_property.delete_from_type,           name='creme_core__remove_property'),
+    re_path(r'^add/(?P<entity_id>\d+)[/]?$', creme_property.PropertiesAdding.as_view(),           name='creme_core__add_properties'),
+    # re_path(r'^delete_from_type[/]?$',       creme_property.delete_from_type,           name='creme_core__remove_property'),
+    re_path(r'^delete_from_type[/]?$',       creme_property.PropertyFromFieldsDeletion.as_view(), name='creme_core__remove_property'),
 
     # Property type
     re_path(r'^type/add[/]?$',                                creme_property.PropertyTypeCreation.as_view(), name='creme_core__create_ptype'),
     re_path(r'^type/(?P<ptype_id>[\w-]+)[/]?$',               creme_property.PropertyTypeDetail.as_view(),   name='creme_core__ptype'),
     re_path(r'^type/(?P<ptype_id>[\w-]+)/edit[/]?$',          creme_property.PropertyTypeEdition.as_view(),  name='creme_core__edit_ptype'),
-    re_path(r'^type/(?P<ptype_id>[\w-]+)/delete[/]?$',        creme_property.delete_type,                    name='creme_core__delete_ptype'),
+    # re_path(r'^type/(?P<ptype_id>[\w-]+)/delete[/]?$',        creme_property.delete_type,                    name='creme_core__delete_ptype'),
+    re_path(r'^type/(?P<ptype_id>[\w-]+)/delete[/]?$',        creme_property.PropertyTypeDeletion.as_view(), name='creme_core__delete_ptype'),
     re_path(r'^type/(?P<ptype_id>[\w-]+)/reload_bricks[/]?$', creme_property.reload_bricks,                  name='creme_core__reload_ptype_bricks'),
 ]
 
@@ -95,7 +100,8 @@ bricks_patterns = [
 entity_filter_patterns = [
     re_path(r'^add/(?P<ct_id>\d+)[/]?$',      entity_filter.EntityFilterCreation.as_view(), name='creme_core__create_efilter'),
     re_path(r'^edit/(?P<efilter_id>.+)[/]?$', entity_filter.EntityFilterEdition.as_view(),  name='creme_core__edit_efilter'),
-    re_path(r'^delete[/]?$',                  entity_filter.delete,                         name='creme_core__delete_efilter'),
+    # re_path(r'^delete[/]?$',                  entity_filter.delete,                         name='creme_core__delete_efilter'),
+    re_path(r'^delete[/]?$',                  entity_filter.EntityFilterDeletion.as_view(), name='creme_core__delete_efilter'),
 
     # TODO: move to relation_patterns/factorise with 'creme_core__ctypes_compatible_with_rtype'
     re_path(r'^rtype/(?P<rtype_id>[\w-]+)/content_types[/]?$', entity_filter.get_content_types,
@@ -110,7 +116,8 @@ entity_filter_patterns = [
 headerfilter_patterns = [
     re_path(r'^add/(?P<ct_id>\d+)[/]?$',          header_filter.HeaderFilterCreation.as_view(), name='creme_core__create_hfilter'),
     re_path(r'^edit/(?P<hfilter_id>[\w-]+)[/]?$', header_filter.HeaderFilterEdition.as_view(),  name='creme_core__edit_hfilter'),
-    re_path(r'^delete[/]?$',                      header_filter.delete,                         name='creme_core__delete_hfilter'),
+    # re_path(r'^delete[/]?$',                      header_filter.delete,                         name='creme_core__delete_hfilter'),
+    re_path(r'^delete[/]?$',                      header_filter.HeaderFilterDeletion.as_view(), name='creme_core__delete_hfilter'),
     # re_path(r'^get_for_ctype[/]?$',               header_filter.get_for_ctype,                  name='creme_core__hfilters'),
     re_path(r'^get_for_ctype[/]?$',               header_filter.HeaderFilterChoices.as_view(),  name='creme_core__hfilters'),
 ]
@@ -132,7 +139,8 @@ job_patterns = [
 
     re_path(r'^(?P<job_id>\d+)/', include([
         re_path(r'^edit[/]?$',    job.JobEdition.as_view(),       name='creme_core__edit_job'),
-        re_path(r'^delete[/]?$',  job.delete,                     name='creme_core__delete_job'),
+        # re_path(r'^delete[/]?$',  job.delete,                     name='creme_core__delete_job'),
+        re_path(r'^delete[/]?$',  job.JobDeletion.as_view(),      name='creme_core__delete_job'),
         re_path(r'^enable[/]?$',  job.enable,                     name='creme_core__enable_job'),
         re_path(r'^disable[/]?$', job.enable, {'enabled': False}, name='creme_core__disable_job'),
         re_path(r'^reload[/]?$',  job.reload_bricks,              name='creme_core__reload_job_bricks'),

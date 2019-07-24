@@ -1227,16 +1227,20 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(404, self._delete(relation).status_code)
         self.get_object_or_fail(Relation, pk=relation.pk)
 
-    def _delete_similar(self, subject, rtype, obj):
-        return self.client.post(reverse('creme_core__delete_similar_relations'),
-                                data={'subject_id': subject.id,
-                                      'type':       rtype.id,
-                                      'object_id':  obj.id,
-                                     }
-                               )
+    def assertDeleteSimilar(self, *, status, subject, rtype, object):
+        return self.assertPOST(
+            status,
+            reverse('creme_core__delete_similar_relations'),
+            data={'subject_id': subject.id if isinstance(subject, CremeEntity) else subject,
+                  'type':       rtype.id,
+                  'object_id':  object.id if isinstance(object, CremeEntity) else object,
+                 },
+            follow=True,
+        )
 
     def test_delete_similar01(self):
-        user = self.login()
+        user = self.login(is_superuser=False)
+        self._set_all_creds_except_one(excluded=EntityCredentials.DELETE)
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         subject_entity01 = create_entity()
@@ -1257,20 +1261,20 @@ class RelationViewsTestCase(ViewsTestCase):
 
         # Will be deleted (normally)
         relation01 = create_rel()
-        # relation02 = create_rel()  # IntegrityError
 
         # Won't be deleted (normally)
         relation03 = create_rel(object_entity=object_entity02)
         relation04 = create_rel(subject_entity=subject_entity02)
         relation05 = create_rel(type=rtype02)
 
-        # self.assertEqual(10, Relation.objects.count())
         self.assertEqual(8, Relation.objects.count())
 
-        self.assertEqual(302, self._delete_similar(subject_entity01, rtype01, object_entity01).status_code)
-        # self.assertEqual(0,   Relation.objects.filter(pk__in=[relation01.pk, relation02.pk]).count())
-        self.assertEqual(0,   Relation.objects.filter(pk=relation01.pk).count())
-        self.assertEqual(3,   Relation.objects.filter(pk__in=[relation03.pk, relation04.pk, relation05.pk]).count())
+        self.assertDeleteSimilar(status=404, subject=1024,             rtype=rtype01, object=object_entity01)
+        self.assertDeleteSimilar(status=404, subject=subject_entity01, rtype=rtype01, object=1024)
+
+        self.assertDeleteSimilar(status=200, subject=subject_entity01, rtype=rtype01, object=object_entity01)
+        self.assertDoesNotExist(relation01)
+        self.assertEqual(3, Relation.objects.filter(pk__in=[relation03.pk, relation04.pk, relation05.pk]).count())
 
     def test_delete_similar02(self):
         user = self.login(is_superuser=False)
@@ -1279,20 +1283,22 @@ class RelationViewsTestCase(ViewsTestCase):
         allowed   = CremeEntity.objects.create(user=user)
         forbidden = CremeEntity.objects.create(user=self.other_user)
 
-        rtype = RelationType.create(('test-subject_love', 'is loving'), ('test-object_love', 'is loved by'))[0]
+        rtype = RelationType.create(('test-subject_love', 'is loving'),
+                                    ('test-object_love',  'is loved by'),
+                                   )[0]
         create_rel = partial(Relation.objects.create, user=user, type=rtype)
         create_rel(subject_entity=allowed,   object_entity=forbidden)
         create_rel(subject_entity=forbidden, object_entity=allowed)
         self.assertEqual(4, Relation.objects.count())
 
-        self.assertEqual(403, self._delete_similar(allowed, rtype, forbidden).status_code)
-        self.assertEqual(4,   Relation.objects.count())
+        self.assertDeleteSimilar(status=403, subject=allowed, rtype=rtype, object=forbidden)
+        self.assertEqual(4, Relation.objects.count())
 
-        self.assertEqual(403, self._delete_similar(forbidden, rtype, allowed).status_code)
-        self.assertEqual(4,   Relation.objects.count())
+        self.assertDeleteSimilar(status=403, subject=forbidden, rtype=rtype, object=allowed)
+        self.assertEqual(4, Relation.objects.count())
 
     def test_delete_similar03(self):
-        "Is internal"
+        "Is internal."
         user = self.login()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
@@ -1305,11 +1311,11 @@ class RelationViewsTestCase(ViewsTestCase):
                                    )[0]
         relation = Relation.objects.create(user=user, type=rtype,
                                            subject_entity=subject_entity,
-                                           object_entity=object_entity
+                                           object_entity=object_entity,
                                           )
 
-        self.assertEqual(404, self._delete_similar(subject_entity, rtype, object_entity).status_code)
-        self.assertEqual(1,   Relation.objects.filter(pk=relation.pk).count())
+        self.assertDeleteSimilar(status=404, subject=subject_entity, rtype=rtype, object=object_entity)
+        self.assertStillExists(relation)
 
     def _aux_test_delete_all(self):
         self.assertEqual(0, Relation.objects.count())

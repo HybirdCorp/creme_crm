@@ -24,6 +24,7 @@ from .edit import (
     CremeModelEditionPopup, EntityEditionPopup,
     RelatedToEntityEditionPopup,
 )
+from .delete import CremeDeletion, CremeModelDeletion
 from .listview import EntitiesList  # list_view list_view_popup
 # from .portal import app_portal
 # from .popup import inner_popup
