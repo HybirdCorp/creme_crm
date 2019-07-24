@@ -11,8 +11,9 @@ from .views import campaign, sending, recipient, messaging_list, template
 
 urlpatterns = [
     # Campaign: messaging_lists brick
-    re_path(r'^campaign/(?P<campaign_id>\d+)/messaging_list/add[/]?$',    campaign.MessagingListsAdding.as_view(), name='sms__add_mlists_to_campaign'),
-    re_path(r'^campaign/(?P<campaign_id>\d+)/messaging_list/delete[/]?$', campaign.delete_messaging_list,          name='sms__remove_mlist_from_campaign'),
+    re_path(r'^campaign/(?P<campaign_id>\d+)/messaging_list/add[/]?$',    campaign.MessagingListsAdding.as_view(),  name='sms__add_mlists_to_campaign'),
+    # re_path(r'^campaign/(?P<campaign_id>\d+)/messaging_list/delete[/]?$', campaign.delete_messaging_list,          name='sms__remove_mlist_from_campaign'),
+    re_path(r'^campaign/(?P<campaign_id>\d+)/messaging_list/delete[/]?$', campaign.MessagingListRemoving.as_view(), name='sms__remove_mlist_from_campaign'),
 
     # Campaign: sending brick
     re_path(r'^campaign/(?P<campaign_id>\d+)/sending/add[/]?$', sending.SendingCreation.as_view(), name='sms__create_sending'),
@@ -32,7 +33,8 @@ urlpatterns = [
     # MessagingList list: contacts brick
     re_path(r'^messaging_list/(?P<mlist_id>\d+)/contact/add[/]?$',             messaging_list.ContactsAdding.as_view(),           name='sms__add_contacts_to_mlist'),
     re_path(r'^messaging_list/(?P<mlist_id>\d+)/contact/add_from_filter[/]?$', messaging_list.ContactsAddingFromFilter.as_view(), name='sms__add_contacts_to_mlist_from_filter'),
-    re_path(r'^messaging_list/(?P<mlist_id>\d+)/contact/delete[/]?',           messaging_list.delete_contact,                     name='sms__remove_contact_from_mlist'),
+    # re_path(r'^messaging_list/(?P<mlist_id>\d+)/contact/delete[/]?',           messaging_list.delete_contact,                     name='sms__remove_contact_from_mlist'),
+    re_path(r'^messaging_list/(?P<mlist_id>\d+)/contact/delete[/]?',           messaging_list.ContactRemoving.as_view(),          name='sms__remove_contact_from_mlist'),
 
     *swap_manager.add_group(
         sms.smscampaign_model_is_custom,

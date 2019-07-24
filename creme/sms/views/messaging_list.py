@@ -20,19 +20,18 @@
 
 # import warnings
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+# from django.http import HttpResponse
+# from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
 from .. import get_messaginglist_model
 from ..constants import DEFAULT_HFILTER_MLIST
 from ..forms import messaging_list as ml_forms
-
 
 MessagingList = get_messaginglist_model()
 
@@ -94,27 +93,34 @@ MessagingList = get_messaginglist_model()
 #     return generic.list_view(request, MessagingList, hf_pk=DEFAULT_HFILTER_MLIST)
 
 
-@login_required
-@permission_required('sms')
-def _delete_aux(request, mlist_id, deletor):
-    subobject_id   = get_from_POST_or_404(request.POST, 'id')
-    messaging_list = get_object_or_404(MessagingList, pk=mlist_id)
+# @login_required
+# @permission_required('sms')
+# def _delete_aux(request, mlist_id, deletor):
+#     subobject_id   = get_from_POST_or_404(request.POST, 'id')
+#     messaging_list = get_object_or_404(MessagingList, pk=mlist_id)
+#
+#     request.user.has_perm_to_change_or_die(messaging_list)
+#
+#     deletor(messaging_list, subobject_id)
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return redirect(messaging_list)
+#
+#
+# def delete_contact(request, mlist_id):
+#     return _delete_aux(request, mlist_id, lambda ml, contact_id: ml.contacts.remove(contact_id))
+class ContactRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
+    permissions = 'sms'
+    entity_classes = MessagingList
+    entity_id_url_kwarg = 'mlist_id'
 
-    request.user.has_perm_to_change_or_die(messaging_list)
+    contact_id_arg = 'id'
 
-    deletor(messaging_list, subobject_id)
-
-    if request.is_ajax():
-        return HttpResponse()
-
-    return redirect(messaging_list)
-
-
-def delete_contact(request, mlist_id):
-    return _delete_aux(request, mlist_id, lambda ml, contact_id: ml.contacts.remove(contact_id))
-
-
-# Class-based views  ----------------------------------------------------------
+    def perform_deletion(self, request):
+        contact_id = get_from_POST_or_404(request.POST, self.contact_id_arg, cast=int)
+        self.get_related_entity().contacts.remove(contact_id)
 
 
 class MessagingListCreation(generic.EntityCreation):
