@@ -20,13 +20,13 @@
 
 # import warnings
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+# from django.http import HttpResponse
+# from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import require_model_fields
@@ -36,7 +36,6 @@ from creme import persons
 from .. import get_mailinglist_model
 from ..constants import DEFAULT_HFILTER_MAILINGLIST
 from ..forms import mailing_list as ml_forms
-
 
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
@@ -102,33 +101,32 @@ MailingList  = get_mailinglist_model()
 #     return generic.list_view(request, MailingList, hf_pk=DEFAULT_HFILTER_MAILINGLIST)
 
 
-# TODO: Conflict error if 'email' field is hidden ?
-@login_required
-@permission_required('emails')
-def _delete_aux(request, ml_id, deletor):
-    subobject_id = get_from_POST_or_404(request.POST, 'id')
-    ml = get_object_or_404(MailingList, pk=ml_id)
-
-    request.user.has_perm_to_change_or_die(ml)
-
-    deletor(ml, subobject_id)
-
-    if request.is_ajax():
-        return HttpResponse()
-
-    return redirect(ml)
-
-
-def delete_contact(request, ml_id):
-    return _delete_aux(request, ml_id, lambda ml, contact_id: ml.contacts.remove(contact_id))
-
-
-def delete_organisation(request, ml_id):
-    return _delete_aux(request, ml_id, lambda ml, orga_id: ml.organisations.remove(orga_id))
-
-
-def delete_child(request, ml_id):
-    return _delete_aux(request, ml_id, lambda ml, child_id: ml.children.remove(child_id))
+# @login_required
+# @permission_required('emails')
+# def _delete_aux(request, ml_id, deletor):
+#     subobject_id = get_from_POST_or_404(request.POST, 'id')
+#     ml = get_object_or_404(MailingList, pk=ml_id)
+#
+#     request.user.has_perm_to_change_or_die(ml)
+#
+#     deletor(ml, subobject_id)
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return redirect(ml)
+#
+#
+# def delete_contact(request, ml_id):
+#     return _delete_aux(request, ml_id, lambda ml, contact_id: ml.contacts.remove(contact_id))
+#
+#
+# def delete_organisation(request, ml_id):
+#     return _delete_aux(request, ml_id, lambda ml, orga_id: ml.organisations.remove(orga_id))
+#
+#
+# def delete_child(request, ml_id):
+#     return _delete_aux(request, ml_id, lambda ml, child_id: ml.children.remove(child_id))
 
 
 # Class-based views  ----------------------------------------------------------
@@ -157,6 +155,7 @@ class MailingListsList(generic.EntitiesList):
 
 class _AddingToMailingList(generic.RelatedToEntityFormPopup):
     template_name = 'creme_core/generics/blockform/link-popup.html'
+    permissions = 'emails'
     entity_id_url_kwarg = 'ml_id'
     entity_classes = MailingList
 
@@ -190,3 +189,29 @@ class ChildrenAdding(_AddingToMailingList):
     form_class = ml_forms.AddChildForm
     title = _('New child list for «{entity}»')
     submit_label = _('Link the mailing list')
+
+
+# TODO: Conflict error if 'email' field is hidden ?
+class _RemovingFromMailingList(generic.base.EntityRelatedMixin, generic.CremeDeletion):
+    permissions = 'emails'
+    entity_classes = MailingList
+    entity_id_url_kwarg = 'ml_id'
+
+    obj2del_id_arg = 'id'
+    m2m_name = 'SETME'
+
+    def perform_deletion(self, request):
+        obj2del_id = get_from_POST_or_404(request.POST, self.obj2del_id_arg)
+        getattr(self.get_related_entity(), self.m2m_name).remove(obj2del_id)
+
+
+class ContactRemoving(_RemovingFromMailingList):
+    m2m_name = 'contacts'
+
+
+class OrganisationRemoving(_RemovingFromMailingList):
+    m2m_name = 'organisations'
+
+
+class ChildRemoving(_RemovingFromMailingList):
+    m2m_name = 'children'

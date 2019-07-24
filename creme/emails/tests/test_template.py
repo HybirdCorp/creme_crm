@@ -172,7 +172,8 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
 
         url = self._build_rm_attachment_url(template)
         data = {'id': doc1.id}
-        self.assertGET404(url, data=data)
+        # self.assertGET404(url, data=data)
+        self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data, follow=True)
         self.assertEqual([doc2], list(template.attachments.all()))

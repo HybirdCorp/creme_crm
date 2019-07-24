@@ -20,19 +20,18 @@
 
 # import warnings
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+# from django.http import HttpResponse
+# from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
 from .. import get_emailcampaign_model
 from ..constants import DEFAULT_HFILTER_CAMPAIGN
 from ..forms import campaign as camp_forms
-
 
 EmailCampaign = get_emailcampaign_model()
 
@@ -96,20 +95,20 @@ EmailCampaign = get_emailcampaign_model()
 #     return generic.list_view(request, EmailCampaign, hf_pk=DEFAULT_HFILTER_CAMPAIGN)
 
 
-@login_required
-@permission_required('emails')
-def delete_ml(request, campaign_id):
-    ml_id    = get_from_POST_or_404(request.POST, 'id')
-    campaign = get_object_or_404(EmailCampaign, pk=campaign_id)
-
-    request.user.has_perm_to_change_or_die(campaign)
-
-    campaign.mailing_lists.remove(ml_id)
-
-    if request.is_ajax():
-        return HttpResponse()
-
-    return redirect(campaign)
+# @login_required
+# @permission_required('emails')
+# def delete_ml(request, campaign_id):
+#     ml_id    = get_from_POST_or_404(request.POST, 'id')
+#     campaign = get_object_or_404(EmailCampaign, pk=campaign_id)
+#
+#     request.user.has_perm_to_change_or_die(campaign)
+#
+#     campaign.mailing_lists.remove(ml_id)
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return redirect(campaign)
 
 
 # Class-based views  ----------------------------------------------------------
@@ -144,3 +143,15 @@ class MailingListsAdding(generic.RelatedToEntityFormPopup):
     submit_label = _('Link the mailing lists')
     entity_id_url_kwarg = 'campaign_id'
     entity_classes = EmailCampaign
+
+
+class MailingListRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
+    permissions = 'emails'
+    entity_classes = EmailCampaign
+    entity_id_url_kwarg = 'campaign_id'
+
+    ml_id_arg = 'id'
+
+    def perform_deletion(self, request):
+        ml_id = get_from_POST_or_404(request.POST, self.ml_id_arg, cast=int)
+        self.get_related_entity().mailing_lists.remove(ml_id)
