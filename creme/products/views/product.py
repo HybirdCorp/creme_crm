@@ -20,25 +20,26 @@
 
 # import warnings
 
-from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404, redirect
+# from django.http import HttpResponse, Http404
+from django.shortcuts import get_object_or_404  # redirect
 
 # from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.models import CremeEntity
+from creme.creme_core.auth.decorators import login_required  # permission_required
+# from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import jsonify
 
-from .. import get_product_model, get_service_model
+from creme import products
+
 from ..constants import DEFAULT_HFILTER_PRODUCT
 from ..forms import product as product_forms
 from ..models import Category, SubCategory
 
 from .base import ImagesAddingBase
 
-Product = get_product_model()
-Service = get_service_model()
+Product = products.get_product_model()
+Service = products.get_service_model()
 
 # Function views --------------------------------------------------------------
 
@@ -110,23 +111,32 @@ def get_subcategories(request, category_id):
            ]
 
 
-@login_required
-@permission_required('products')
-def remove_image(request, entity_id):
-    img_id = get_from_POST_or_404(request.POST, 'id')
-    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+# @login_required
+# @permission_required('products')
+# def remove_image(request, entity_id):
+#     img_id = get_from_POST_or_404(request.POST, 'id')
+#     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+#
+#     if not isinstance(entity, (Product, Service)):
+#         raise Http404('Entity should be a Product/Service')
+#
+#     request.user.has_perm_to_change_or_die(entity)
+#
+#     entity.images.remove(img_id)
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return redirect(entity)
+class ImageRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
+    permissions = 'products'
+    entity_classes = [Product, Service]
 
-    if not isinstance(entity, (Product, Service)):
-        raise Http404('Entity should be a Product/Service')
+    image_id_arg = 'id'
 
-    request.user.has_perm_to_change_or_die(entity)
-
-    entity.images.remove(img_id)
-
-    if request.is_ajax():
-        return HttpResponse()
-
-    return redirect(entity)
+    def perform_deletion(self, request):
+        img_id = get_from_POST_or_404(request.POST, self.image_id_arg, cast=int)
+        self.get_related_entity().images.remove(img_id)
 
 
 # Class-based views  ----------------------------------------------------------
