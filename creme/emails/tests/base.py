@@ -33,7 +33,6 @@ try:
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
-
 Folder   = documents.get_folder_model()
 Document = documents.get_document_model()
 
@@ -58,6 +57,11 @@ def skipIfCustomMailingList(test_func):
 
 
 class _EmailsTestCase(CremeTestCase):
+    def login(self, allowed_apps=('emails',), *args, **kwargs):
+        return super().login(allowed_apps=allowed_apps,
+                             *args, **kwargs
+                            )
+
     def _build_create_entitymail_url(self, entity):
         return reverse('emails__create_email', args=(entity.id,))
 
