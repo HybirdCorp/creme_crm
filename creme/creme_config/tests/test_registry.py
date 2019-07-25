@@ -15,6 +15,7 @@ try:
     from creme.creme_config.registry import (_ConfigRegistry,
             NotRegisteredInConfig, RegistrationError)
     from creme.creme_config.bricks import GenericModelBrick
+    from creme.creme_config.forms.generics import DeletionForm
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -78,6 +79,7 @@ class RegistryTestCase(CremeTestCase):
         with self.assertRaises(NotRegisteredInConfig):
             app_registry.get_model_conf(FakeSector)
 
+        # Creator ---
         creator = model_config.creator
         creation_form = creator.form_class
         self.assertIsSubclass(creation_form, CremeModelForm)
@@ -88,6 +90,7 @@ class RegistryTestCase(CremeTestCase):
             reverse('creme_config__create_instance', args=('creme_core', 'civility'))
         )
 
+        # Editor ---
         editor = model_config.editor
         edition_form = editor.form_class
         self.assertIsSubclass(edition_form, CremeModelForm)
@@ -99,6 +102,16 @@ class RegistryTestCase(CremeTestCase):
         self.assertEqual(
             editor.get_url(civ, user),
             reverse('creme_config__edit_instance', args=('creme_core', 'civility', civ.id))
+        )
+
+        # Deletor ---
+        deletor = model_config.deletor
+        deletion_form = deletor.form_class
+        self.assertIsSubclass(deletion_form, DeletionForm)
+        self.assertIsNone(deletor.url_name)
+        self.assertEqual(
+            deletor.get_url(civ, user),
+            reverse('creme_config__delete_instance', args=('creme_core', 'civility', civ.id))
         )
 
     def test_register_model02(self):
@@ -130,8 +143,15 @@ class RegistryTestCase(CremeTestCase):
                    )
         )
 
+        self.assertEqual(
+            model_config.deletor.get_url(sector, user=user),
+            reverse('creme_config__delete_instance',
+                    args=('documents', 'documentcategory', sector.id),
+                   )
+        )
+
     def test_register_model03(self):
-        "Change name_in_url"
+        "Change name_in_url."
         user = self.login()
 
         registry = _ConfigRegistry()
@@ -152,6 +172,10 @@ class RegistryTestCase(CremeTestCase):
             model_config.editor.get_url(civ, user=user),
             reverse('creme_config__edit_instance', args=('creme_core', new_name, civ.id))
         )
+        self.assertEqual(
+            model_config.deletor.get_url(civ, user=user),
+            reverse('creme_config__delete_instance', args=('creme_core', new_name, civ.id))
+        )
 
         # --
         with self.assertRaises(ValueError):
@@ -171,13 +195,18 @@ class RegistryTestCase(CremeTestCase):
                 model = FakeCivility
                 fields = ('shortcut', )
 
+        class CivDeletionForm(DeletionForm):
+            pass
+
         registry.register_model(FakeCivility) \
                 .creation(form_class=CivCreationForm) \
-                .edition(form_class=CivEditionForm)
+                .edition(form_class=CivEditionForm) \
+                .deletion(form_class=CivDeletionForm)
 
         model_config = registry.get_app_registry('creme_core').get_model_conf(FakeCivility)
         self.assertIsSubclass(model_config.creator.form_class, CivCreationForm)
         self.assertIsSubclass(model_config.editor.form_class, CivEditionForm)
+        self.assertIsSubclass(model_config.deletor.form_class, CivDeletionForm)
 
     def test_register_model05(self):
         "Register specific URLs."
@@ -185,10 +214,12 @@ class RegistryTestCase(CremeTestCase):
         registry = _ConfigRegistry()
 
         creation_url_name = 'creme_config__create_team'
-        edition_url_name  = 'creme_config__edit_team'
+        edition_url_name  = 'creme_config__edit_team'   # NB: need an URL with an int arg
+        deletion_url_name  = 'creme_config__edit_user'  # idem
 
         registry.register_model(FakeCivility) \
                 .edition(url_name=edition_url_name) \
+                .deletion(url_name=deletion_url_name) \
                 .creation(url_name=creation_url_name)
 
         model_config = registry.get_app_registry('creme_core').get_model_conf(FakeCivility)
@@ -200,6 +231,11 @@ class RegistryTestCase(CremeTestCase):
         editor = model_config.editor
         self.assertEqual(editor.get_url(civ, user=user),
                          reverse(edition_url_name, args=(civ.id,))
+                        )
+
+        deletor = model_config.deletor
+        self.assertEqual(deletor.get_url(civ, user=user),
+                         reverse(deletion_url_name, args=(civ.id,))
                         )
 
         # Back to default
@@ -284,6 +320,39 @@ class RegistryTestCase(CremeTestCase):
         )
 
     def test_register_model08(self):
+        "Disable deletion forms."
+        user = self.login()
+        registry = _ConfigRegistry()
+
+        civ1, civ2 = FakeCivility.objects.all()[:2]
+        registry.register_model(FakeCivility)\
+                .deletion(enable_func=lambda instance, user: instance.id == civ1.id)
+
+        model_config = registry.get_app_registry('creme_core').get_model_conf(FakeCivility)
+        self.assertIsSubclass(model_config.creator.form_class, CremeModelForm)
+
+        deletor = model_config.deletor
+        self.assertIsSubclass(deletor.form_class, CremeModelForm)
+
+        url1 = reverse('creme_config__delete_instance',
+                       args=('creme_core', 'fakecivility', civ1.id),
+                      )
+        self.assertEqual(url1, deletor.get_url(instance=civ1, user=user))
+        self.assertEqual(url1, deletor.get_url(instance=civ1, user=self.other_user))
+        self.assertIsNone(deletor.get_url(instance=civ2, user=user))
+
+        # Disable with user
+        user_name = user.username
+        deletor.enable_func = lambda instance, user: user.username == user_name
+        self.assertEqual(url1, deletor.get_url(instance=civ1, user=user))
+        self.assertEqual(reverse('creme_config__delete_instance',
+                                 args=('creme_core', 'fakecivility', civ2.id),
+                                ),
+                         deletor.get_url(instance=civ2, user=user)
+                        )
+        self.assertIsNone(deletor.get_url(instance=civ1, user=self.other_user))
+
+    def test_register_model09(self):
         "Register specific Brick."
         registry = _ConfigRegistry()
 
@@ -308,7 +377,7 @@ class RegistryTestCase(CremeTestCase):
         model_config.brick_cls = SectorBrick_V2
         self.assertIsInstance(model_config.get_brick(), SectorBrick_V2)
 
-    def test_register_model09(self):
+    def test_register_model10(self):
         "Duplicated registration."
         registry = _ConfigRegistry()
 
@@ -519,7 +588,7 @@ class RegistryTestCase(CremeTestCase):
         self.assertIs(False, app_registry.is_empty)
 
     def test_get_model_creation_info01(self):
-        "Not registered model"
+        "Not registered model."
         user = self.login()
 
         registry = _ConfigRegistry()
@@ -530,7 +599,7 @@ class RegistryTestCase(CremeTestCase):
         self.assertIsNone(url)
 
     def test_get_model_creation_info02(self):
-        "Registered model"
+        "Registered model."
         user = self.login()
 
         registry = _ConfigRegistry()
@@ -559,7 +628,7 @@ class RegistryTestCase(CremeTestCase):
         self.assertTrue(allowed)
 
     def test_get_model_creation_info04(self):
-        "Specific creation URL"
+        "Specific creation URL."
         user = self.login()
 
         registry = _ConfigRegistry()
@@ -570,7 +639,7 @@ class RegistryTestCase(CremeTestCase):
         self.assertIsNone(url)
 
     def test_get_model_creation_info05(self):
-        "Enable function OK"
+        "Enable function OK."
         user = self.login()
 
         registry = _ConfigRegistry()
@@ -584,7 +653,7 @@ class RegistryTestCase(CremeTestCase):
                         )
 
     def test_get_model_creation_info06(self):
-        "Enable function KO"
+        "Enable function KO."
         user = self.login()
 
         registry = _ConfigRegistry()

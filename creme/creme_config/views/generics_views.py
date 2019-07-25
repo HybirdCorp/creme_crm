@@ -41,7 +41,6 @@ from creme.creme_core.views.generic.order import ReorderInstances
 from creme.creme_core.views.utils import json_update_from_widget_response
 
 from ..bricks import SettingsBrick  # GenericModelBrick
-from ..forms.generics import DeletionForm
 from ..registry import config_registry
 
 logger = logging.getLogger(__name__)
@@ -243,7 +242,6 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
     job_template_name = 'creme_config/deletion-job-popup.html'
 
     title = _('Replace & delete «{object}»')
-    form_class = DeletionForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -272,17 +270,16 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
                         model=type(instance)._meta.verbose_name,
                 ))
 
-    # TODO
-    # def get_form_class(self):
-    #     deletor = self.get_model_conf().deletor
-    #
-    #     if not deletor.enable_func(instance=self.object, user=self.request.user):
-    #         raise ConflictError('This model has been disabled for deletion.')
-    #
-    #     if deletor.url_name is not None:
-    #         raise ConflictError('This model does not use this deletion view.')
-    #
-    #     return deletor.form_class
+    def get_form_class(self):
+        deletor = self.get_model_conf().deletor
+
+        if not deletor.enable_func(instance=self.object, user=self.request.user):
+            raise ConflictError('This model has been disabled for deletion.')
+
+        if deletor.url_name is not None:
+            raise ConflictError('This model does not use this deletion view.')
+
+        return deletor.form_class
 
     def form_valid(self, form):
         self.object = form.save()

@@ -42,6 +42,11 @@ def config_model_edition_url(*, model_config, instance, user):
     return model_config.editor.get_url(instance=instance, user=user)
 
 
+@register.simple_tag
+def config_model_deletion_url(*, model_config, instance, user):
+    return model_config.deletor.get_url(instance=instance, user=user)
+
+
 @register.inclusion_tag('creme_core/templatetags/bricks/menu-action.html', takes_context=True)
 def config_brick_menu_hide_inactive_users_action(context, url, hidden):
     return _brick_menu_state_action(

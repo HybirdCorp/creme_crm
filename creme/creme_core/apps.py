@@ -416,21 +416,26 @@ class CremeCoreConfig(CremeAppConfig):
             from .tests import fake_models, fake_bricks
 
             # NB: see creme.creme_config.tests.test_generics_views.GenericModelConfigTestCase
-            register_model(fake_models.FakeCivility,       'fake_civility')
-            register_model(fake_models.FakeSector,         'fake_sector')
-            register_model(fake_models.FakeImageCategory,  'fake_img_cat')
-            register_model(fake_models.FakeProductType,    'fake_product_type')
-            register_model(fake_models.FakeActivityType,   'fake_activity_type')
-            register_model(fake_models.FakeTicketStatus,   'fake_ticket_status')
-            register_model(fake_models.FakeTicketPriority, 'fake_ticket_priority')
+            register_model(fake_models.FakeDocumentCategory, 'fake_documentcat')
+            register_model(fake_models.FakeCivility,         'fake_civility')
+            register_model(fake_models.FakeSector,           'fake_sector')
+            register_model(fake_models.FakeProductType,      'fake_product_type')
+            register_model(fake_models.FakeActivityType,     'fake_activity_type')
+            register_model(fake_models.FakeTicketStatus,     'fake_ticket_status')
+            register_model(fake_models.FakeTicketPriority,   'fake_ticket_priority')
+            register_model(fake_models.FakeIngredient,       'fake_ingredient')
 
-            # NB: we just need another URLs for creation/edition (even if these ones are stupid)
+            # NB: we just need another URLs for creation/edition/deletion (even if these ones are stupid)
             register_model(fake_models.FakePosition, 'fake_position') \
                           .creation(enable_func=lambda user: False) \
                           .edition(url_name='creme_core__edit_fake_contact')
             register_model(fake_models.FakeLegalForm, 'fake_legalform') \
                           .creation(url_name='creme_core__create_fake_contact') \
                           .edition(enable_func=lambda instance, user: False)
+            register_model(fake_models.FakeFolderCategory, 'fake_foldercat') \
+                          .deletion(enable_func=lambda instance, user: False)
+            register_model(fake_models.FakeImageCategory, 'fake_img_cat') \
+                          .deletion(url_name='creme_core__edit_fake_organisation')
 
             config_registry.register_app_bricks('creme_core', fake_bricks.FakeAppPortalBrick)
 

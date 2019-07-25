@@ -45,7 +45,7 @@ class RegistrationError(Exception):
 
 
 class _ModelConfigAction:
-    """Action (creation/edition/...) on a configured model."""
+    """Action (creation/edition/deletion) on a configured model."""
     __slots__ = ('_model', '_model_name', '_form_class', 'url_name')
 
     def __init__(self, *, model, model_name):
@@ -54,23 +54,24 @@ class _ModelConfigAction:
         self._form_class = None
         self.url_name = None
 
+    def _default_form_class(self):
+        model = self._model
+        get_field = model._meta.get_field
+
+        # TODO: test
+        try:
+            get_field('is_custom')
+        except FieldDoesNotExist:
+            exclude = None
+        else:
+            exclude = ('is_custom',)
+
+        return modelform_factory(model, form=CremeModelForm, exclude=exclude)
+
     @property
     def form_class(self):
-        if self._form_class is None:
-            model = self._model
-            get_field = model._meta.get_field
-
-            # TODO: test
-            try:
-                get_field('is_custom')
-            except FieldDoesNotExist:
-                exclude = None
-            else:
-                exclude = ('is_custom',)
-
-            return modelform_factory(model, form=CremeModelForm, exclude=exclude)
-
-        return self._form_class
+        form_class = self._form_class
+        return self._default_form_class() if form_class is None else form_class
 
     @form_class.setter
     def form_class(self, form_cls):
@@ -122,6 +123,32 @@ class _ModelConfigEditor(_ModelConfigAction):
                    reverse(url_name, args=(instance.id,))
 
 
+# TODO: factorise with _ModelConfigEditor
+class _ModelConfigDeletor(_ModelConfigAction):
+    __slots__ = _ModelConfigAction.__slots__ + ('enable_func',)
+
+    def __init__(self, *, model, model_name):
+        super().__init__(model=model, model_name=model_name)
+        self.enable_func = lambda instance, user: True
+
+    def _default_form_class(self):
+        from .forms.generics import DeletionForm
+
+        return DeletionForm
+
+    def get_url(self, instance, user):
+        if self.enable_func(instance=instance, user=user):
+            url_name = self.url_name
+
+            return reverse('creme_config__delete_instance',
+                           args=(self._model._meta.app_label,
+                                 self.model_name,
+                                 instance.id,
+                                ),
+                          ) if url_name is None else \
+                   reverse(url_name, args=(instance.id,))
+
+
 # class ModelConfig:
 class _ModelConfig:
     """ Contains the configuration information for a model :
@@ -132,7 +159,7 @@ class _ModelConfig:
      These different information are created automatically, but you can
      customise them.
     """
-    __slots__ = ('creator', 'editor', 'brick_cls')
+    __slots__ = ('creator', 'editor', 'deletor', 'brick_cls')
 
     _SHORT_NAME_RE = re.compile(r'^\w+$')
 
@@ -153,6 +180,7 @@ class _ModelConfig:
         # self._form_class = form_class
         self.creator = _ModelConfigCreator(model=model, model_name=model_name)
         self.editor  = _ModelConfigEditor(model=model, model_name=model_name)
+        self.deletor = _ModelConfigDeletor(model=model, model_name=model_name)
         self.brick_cls = GenericModelBrick
 
     # @property
@@ -236,6 +264,29 @@ class _ModelConfig:
 
         return self
 
+    # TODO: factorise
+    def deletion(self, *, form_class=None, url_name=None, enable_func=None):
+        """ Set the deletion behaviour ; can be used in a fluent way.
+
+        @param form_class: Class "inheriting" <creme_config.forms.generics.DeletionForm>.
+               None means that <DeletionForm> will be used.
+        @param url_name: Name of an URL (without 1 argument, the deleted instance's ID)
+               None means "creme_config__delete_instance" will be used.
+        @param enable_func: Function which takes 2 arguments (an instance of the
+               configured model & the user doing the request) & return a boolean
+               (False means the user cannot delete existing instances of the model).
+               <None> means the instance can always be edited.
+        @return: The ModelConfig instance.
+        """
+        deletor = self.deletor
+        deletor.form_class = form_class
+        deletor.url_name = url_name
+
+        if enable_func is not None:
+            deletor.enable_func = enable_func
+
+        return self
+
     @property
     def model(self):
         return self.creator.model
@@ -248,6 +299,7 @@ class _ModelConfig:
     def model_name(self, name):
         self.creator._model_name = name
         self.editor._model_name = name
+        self.deletor._model_name = name
 
     @property
     def verbose_name(self):

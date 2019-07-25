@@ -47,14 +47,14 @@ class CremeModel(Model):
         """
         pass
 
-    def _delete_m2m(self):
-        for m2m_field in self._meta.many_to_many:
-            getattr(self, m2m_field.name).clear()
-
-        for related_m2m_field in (f for f in self._meta.get_fields(include_hidden=True)
-                                    if f.many_to_many and f.auto_created
-                                 ):
-            getattr(self, related_m2m_field.get_accessor_name()).clear()
+    # def _delete_m2m(self):
+    #     for m2m_field in self._meta.many_to_many:
+    #         getattr(self, m2m_field.name).clear()
+    #
+    #     for related_m2m_field in (f for f in self._meta.get_fields(include_hidden=True)
+    #                                 if f.many_to_many and f.auto_created
+    #                              ):
+    #         getattr(self, related_m2m_field.get_accessor_name()).clear()
 
     @staticmethod
     def _delete_stored_file(field_value):
@@ -70,7 +70,7 @@ class CremeModel(Model):
                     self._delete_stored_file(file_instance)
 
     def _delete_without_transaction(self, using=None, keep_parents=False):
-        self._delete_m2m()
+        # self._delete_m2m()
         self._delete_stored_files()
         self._pre_delete()  # TODO: keep_parents ?
         super().delete(using=using, keep_parents=keep_parents)
@@ -79,6 +79,6 @@ class CremeModel(Model):
         try:
             with atomic():
                 self._delete_without_transaction(using=using)
-        except:
+        except Exception:
             logger.exception('Error in CremeModel.delete()')
             raise

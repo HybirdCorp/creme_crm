@@ -115,7 +115,7 @@ class ReportGraphBrick(Brick):
         self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(instance_brick_config)
         self.verbose_name = fetcher.verbose_name
 
-        # Used by InstanceBlockConfigItem.errors, to display errors in creme_config
+        # Used by InstanceBrickConfigItem.errors, to display errors in creme_config
         error = fetcher.error
         self.errors = [error] if error else None
 

@@ -75,6 +75,17 @@ class ReplacingHandler:
 
         self.count = self._count_related_instances()
 
+    def __repr__(self):
+        return '{cls}(field={field}, field_is_hidden={hidden}, ' \
+               'instance_to_delete={instance}, blocking={blocking}, key="{key}")'.format(
+            cls=type(self).__name__,
+            field=repr(self.field),
+            hidden=self.field_is_hidden,
+            instance=repr(self.instance_to_delete),
+            blocking=self.blocking,
+            key=self.key,
+        )
+
     def _build_formfield_label(self):
         field = self.field
         return '{} - {}'.format(field.model._meta.verbose_name,
@@ -298,11 +309,28 @@ class CremeReplaceHandler(ChoiceReplacingHandler):
         return None if self.field_is_hidden and not self.count else super().replacer(new_value)
 
 
+class M2MHandler(ChoiceReplacingHandler):
+    def _get_choicefield_data(self):
+        data = super()._get_choicefield_data()
+        data['required'] = required = not self.field.blank
+
+        if required:
+            data['empty_label'] = None
+
+        return data
+
+    def get_form_field(self):
+        return None if self.field_is_hidden else super().get_form_field()
+
+    def replacer(self, new_value):
+        return super().replacer(new_value) if new_value else None
+
+
 class DeletionForm(CremeModelForm):
     blocks = FieldBlockManager(('general', _('Replacement'), '*'))
 
     # TODO: what about deletion.DO_NOTHING ?!
-    handler_classes = {
+    fk_handler_classes = {
         'django.db.models.deletion.CASCADE':     CascadeHandler,
         'django.db.models.deletion.PROTECT':     ProtectHandler,
         'django.db.models.deletion.SET_NULL':    SetNullHandler,
@@ -313,53 +341,85 @@ class DeletionForm(CremeModelForm):
         'creme.creme_core.models.deletion.CREME_REPLACE':      CremeReplaceHandler,
     }
 
+    key_prefix = 'replace_'
+
     class Meta:
         model = DeletionCommand
         fields = ()
 
-    def __init__(self, instance_to_delete, handler_classes=None, *args, **kwargs):
+    def __init__(self, instance_to_delete, fk_handler_classes=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.instance.instance_to_delete = instance_to_delete
-        self.handlers = []
+        self.instance_to_delete = instance_to_delete
+        self.fields_configs = FieldsConfig.LocalCache()
+        self.fk_handler_classes = fk_handler_classes or self.fk_handler_classes
+        self.handlers = self._build_handlers()
+        self._add_handlers_fields()
+
+    def _add_handlers_fields(self):
         fields = self.fields
 
-        get_model_conf = FieldsConfig.LocalCache().get_4_model
-        handler_classes = handler_classes or self.handler_classes
+        for handler in self.handlers:
+            form_field = handler.get_form_field()
 
-        # TODO: M2M ??
-        for field in type(instance_to_delete)._meta.get_fields(include_hidden=True):
+            if form_field:
+                fields[handler.key] = form_field
+
+    def _build_handlers(self):
+        handlers = []
+
+        for field in type(self.instance_to_delete)._meta.get_fields(include_hidden=True):
             if field.one_to_many:
+                handler_cls = self._get_fk_handler_class(model_field=field)
+            elif field.many_to_many:
+                handler_cls = self._get_m2m_handler_class(model_field=field)
+            else:
+                # TODO: manage other cases ?
+                handler_cls = None
+
+            if handler_cls is not None:
                 related_field = field.field
-                hidden = get_model_conf(related_field.model).is_field_hidden(related_field)
-                # NB: we use the django's migration tool to get a string pattern of the attribute "on_delete".
-                delete_signature = serializer_factory(
-                    related_field.remote_field.on_delete
-                ).serialize()[0]
 
-                for handler_pattern, handler_cls in handler_classes.items():
-                    if fnmatch(delete_signature, handler_pattern):
-                        handler = handler_cls(
-                            model_field=related_field,
-                            model_field_hidden=hidden,
-                            instance_to_delete=instance_to_delete,
-                            key_prefix='replace_',
-                        )
-                        self.handlers.append(handler)
+                handlers.append(handler_cls(
+                    model_field=related_field,
+                    model_field_hidden=self.fields_configs
+                                           .get_4_model(related_field.model)
+                                           .is_field_hidden(related_field),
+                    instance_to_delete=self.instance_to_delete,
+                    key_prefix=self.key_prefix,
+                ))
 
-                        form_field = handler.get_form_field()
-                        if form_field:
-                            fields[handler.key] = form_field
+        return handlers
 
-                        break
-                else:
-                    raise ValueError(gettext(
-                        'The field "{}.{}" cannot be deleted because its '
-                        '"on_delete" constraint is not managed. '
-                        'Please contact your administrator.'.format(
-                            related_field.model.__name__,
-                            related_field.name,
-                        )
-                    ))
+    def _get_fk_handler_class(self, model_field):
+        related_field = model_field.field
+
+        related_model = related_field.model
+        if related_model._meta.auto_created:
+            # NB: we avoid the "internal" table of ManyToManyFields
+            # TODO: better way ? (problem with custom 'through' table ?)
+            return None
+
+        # NB: we use the django's migration tool to get a string pattern of the attribute "on_delete".
+        delete_signature = serializer_factory(
+            related_field.remote_field.on_delete
+        ).serialize()[0]
+
+        for handler_pattern, handler_cls in self.fk_handler_classes.items():
+            if fnmatch(delete_signature, handler_pattern):
+                return handler_cls
+
+        raise ValueError(gettext(
+            'The field "{}.{}" cannot be deleted because its '
+            '"on_delete" constraint is not managed. '
+            'Please contact your administrator.'.format(
+                related_field.model.__name__,
+                related_field.name,
+            )
+        ))
+
+    def _get_m2m_handler_class(self, model_field):
+        # TODO: customisable behaviour ??
+        return M2MHandler
 
     def clean(self):
         cdata = super().clean()
@@ -374,6 +434,7 @@ class DeletionForm(CremeModelForm):
     def save(self, *args, **kwargs):
         instance = self.instance
 
+        instance.instance_to_delete = self.instance_to_delete
         # TODO: improve CremeJSONEncoder to serialize iterators & remove list().
         get_data = self.cleaned_data.get
         instance.replacers = list(

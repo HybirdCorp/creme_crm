@@ -718,8 +718,8 @@ class _BrickRegistry:
         return iter(self._brick_classes.items())
 
     def get_brick_4_instance(self, ibi, entity=None):
-        """Get a Brick instance corresponding to a InstanceBlockConfigItem.
-        @param ibi: InstanceBlockConfigItem instance.
+        """Get a Brick instance corresponding to a InstanceBrickConfigItem.
+        @param ibi: InstanceBrickConfigItem instance.
         @param entity: CremeEntity instance if your Block has to be displayed on its detailview.
         @return Brick instance.
         """
@@ -747,7 +747,7 @@ class _BrickRegistry:
         return brick
 
     def get_bricks(self, brick_ids, entity=None):
-        """Bricks type can be SpecificRelationsBlock/InstanceBlockConfigItem:
+        """Bricks type can be SpecificRelationsBlock/InstanceBrickConfigItem:
         in this case, they are not really registered, but created on the fly.
         @param brick_ids: Sequence of id of bricks
         @param entity: if the bricks are displayed of the detail-view of an entity,

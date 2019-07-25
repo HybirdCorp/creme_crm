@@ -65,7 +65,8 @@ class AbstractActivity(CremeEntity):
                                 )
 
     calendars = models.ManyToManyField(Calendar, verbose_name=_('Calendars'),
-                                       blank=True, editable=False,
+                                       # blank=True,
+                                       editable=False,
                                       )
 
     is_all_day    = models.BooleanField(_('All day?'), blank=True, default=False)

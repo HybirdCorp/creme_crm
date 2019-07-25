@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-23 21:15+0200\n"
+"POT-Creation-Date: 2019-07-25 18:00+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -303,17 +303,22 @@ msgstr "{field} ➔ {operator}"
 msgid "{field} ➔ {operator}: «{value}»"
 msgstr "{field} ➔ {operator} : «{value}»"
 
-#: core/deletion.py:116
-#, python-brace-format
-msgid "Empty «{model} - {field}»"
-msgstr "Vider «{model}» - «{field}»"
-
-#: core/deletion.py:120
+#: core/deletion.py:117
 #, python-brace-format
 msgid "In «{model} - {field}», replace by «{new}»"
 msgstr "Dans «{model} - {field}», remplacer par «{new}»"
 
-#: core/deletion.py:164
+#: core/deletion.py:123
+#, python-brace-format
+msgid "Remove from «{model} - {field}»"
+msgstr "Enlever de «{model}» - «{field}»"
+
+#: core/deletion.py:124
+#, python-brace-format
+msgid "Empty «{model} - {field}»"
+msgstr "Vider «{model}» - «{field}»"
+
+#: core/deletion.py:169
 #, python-brace-format
 msgid "In «{model} - {field}», replace by a fallback value"
 msgstr "Dans «{model} - {field}», remplacer par une valeur de secours"
@@ -408,12 +413,12 @@ msgstr[1] "{count} fiches ont été modifiées avec succès."
 msgid "Replace & delete"
 msgstr "Remplacer & supprimer"
 
-#: creme_jobs/deletor.py:76 templatetags/creme_ctype.py:94
+#: creme_jobs/deletor.py:77 templatetags/creme_ctype.py:94
 #, python-brace-format
 msgid "{count} {model}"
 msgstr "{count} {model}"
 
-#: creme_jobs/deletor.py:81
+#: creme_jobs/deletor.py:82
 #, python-brace-format
 msgid ""
 "«{instance}» can not be deleted because of its dependencies: {dependencies}"
@@ -421,14 +426,14 @@ msgstr ""
 "«{instance}» ne peut être supprimé à cause de ses dépendances : "
 "{dependencies}"
 
-#: creme_jobs/deletor.py:102 creme_jobs/deletor.py:138
+#: creme_jobs/deletor.py:103 creme_jobs/deletor.py:139
 #, python-brace-format
 msgid "{count} entity updated."
 msgid_plural "{count} entities updated."
 msgstr[0] "{count} Fiche mise à jour"
 msgstr[1] "{count} Fiches mises à jour"
 
-#: creme_jobs/deletor.py:118
+#: creme_jobs/deletor.py:119
 #, python-brace-format
 msgid "Deleting «{object}» ({model})"
 msgstr "Supprimer «{object}» ({model})"

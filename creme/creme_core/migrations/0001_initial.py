@@ -32,92 +32,91 @@ class Migration(migrations.Migration):
     dependencies = [
         ('auth', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        # ('contenttypes', '0001_initial'),
         ('contenttypes', '0002_remove_content_type_name'),
     ]
 
     operations = [
         migrations.CreateModel(
-                name='UserRole',
-                fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                    ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
-                    ('raw_allowed_apps', models.TextField(default='')),
-                    ('raw_admin_4_apps', models.TextField(default='')),
-                    ('creatable_ctypes', models.ManyToManyField(related_name='roles_allowing_creation',
-                                                                verbose_name='Creatable resources',
-                                                                to='contenttypes.ContentType',
-                                                               )
-                    ),
-                    ('exportable_ctypes', models.ManyToManyField(related_name='roles_allowing_export',
-                                                                 verbose_name='Exportable resources',
-                                                                 to='contenttypes.ContentType',
-                                                                )
-                    ),
-                ],
-                options={
-                    'verbose_name':        'Role',
-                    'verbose_name_plural': 'Roles',
-                },
-        ),
-        migrations.CreateModel(
-                name='SetCredentials',
-                fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                    ('value', models.PositiveSmallIntegerField()),
-                    ('set_type', models.PositiveIntegerField()),
-                    ('ctype', creme_fields.CTypeForeignKey(blank=True, to='contenttypes.ContentType', null=True)),
-                    ('role', models.ForeignKey(related_name='credentials', to='creme_core.UserRole', on_delete=models.CASCADE)),
-                ],
-        ),
-        migrations.CreateModel(
-                name='CremeUser',
-                fields=[
-                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                    ('password', models.CharField(max_length=128, verbose_name='password')),
-                    ('last_login', models.DateTimeField(null=True, verbose_name='last login', blank=True)),
-                    ('username', models.CharField(help_text='Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.',
-                                                  unique=True, max_length=30, verbose_name='Username',
-                                                  validators=[RegexValidator(re.compile('^[\\w.@+-]+$'),
-                                                                             'Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.',
-                                                                             'invalid',
-                                                                            ),
-                                                  ],
-                                                  error_messages={'unique': 'A user with that username already exists.'},
-                                                 )
-                    ),
-                    ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
-                    ('last_name', models.CharField(max_length=100, verbose_name='Last name', blank=True)),
-                    ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
-                    ('date_joined', models.DateTimeField(default=now, verbose_name='Date joined')),
-                    ('is_active', models.BooleanField(default=True, verbose_name='Active?')),
-                    ('is_staff', models.BooleanField(default=False, verbose_name='Is staff?')),
-                    ('is_superuser', models.BooleanField(default=False, verbose_name='Is a superuser?')),
-                    ('is_team', models.BooleanField(default=False, verbose_name='Is a team?')),
-                    ('role', models.ForeignKey(on_delete=models.PROTECT, verbose_name='Role',
-                                               to='creme_core.UserRole', null=True,
-                                              )
-                    ),
-                    ('teammates_set', models.ManyToManyField(related_name='teams_set', verbose_name='Teammates',
-                                                             to=settings.AUTH_USER_MODEL,
+            name='UserRole',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
+                ('raw_allowed_apps', models.TextField(default='')),
+                ('raw_admin_4_apps', models.TextField(default='')),
+                ('creatable_ctypes', models.ManyToManyField(related_name='roles_allowing_creation',
+                                                            verbose_name='Creatable resources',
+                                                            to='contenttypes.ContentType',
+                                                           )
+                ),
+                ('exportable_ctypes', models.ManyToManyField(related_name='roles_allowing_export',
+                                                             verbose_name='Exportable resources',
+                                                             to='contenttypes.ContentType',
                                                             )
-                    ),
-                    ('theme', models.CharField(default=settings.THEMES[0][0], max_length=50, verbose_name='Theme',
-                                               choices=settings.THEMES,
-                                              ),
-                    ),
-                    ('time_zone', models.CharField(default=settings.TIME_ZONE,
-                                                   max_length=50, verbose_name='Time zone',
-                                                   choices=[(tz, tz) for tz in pytz.common_timezones],
-                                                  )
-                    ),
-                    ('json_settings', models.TextField(default='{}', editable=False)),
-                ],
-                options={
-                    'ordering':            ('username',),
-                    'verbose_name':        'User',
-                    'verbose_name_plural': 'Users',
-                },
+                ),
+            ],
+            options={
+                'verbose_name':        'Role',
+                'verbose_name_plural': 'Roles',
+            },
+        ),
+        migrations.CreateModel(
+            name='SetCredentials',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('value', models.PositiveSmallIntegerField()),
+                ('set_type', models.PositiveIntegerField()),
+                ('ctype', creme_fields.CTypeForeignKey(blank=True, to='contenttypes.ContentType', null=True)),
+                ('role', models.ForeignKey(related_name='credentials', to='creme_core.UserRole', on_delete=models.CASCADE)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='CremeUser',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('password', models.CharField(max_length=128, verbose_name='password')),
+                ('last_login', models.DateTimeField(null=True, verbose_name='last login', blank=True)),
+                ('username', models.CharField(help_text='Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.',
+                                              unique=True, max_length=30, verbose_name='Username',
+                                              validators=[RegexValidator(re.compile('^[\\w.@+-]+$'),
+                                                                         'Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.',
+                                                                         'invalid',
+                                                                        ),
+                                              ],
+                                              error_messages={'unique': 'A user with that username already exists.'},
+                                             )
+                ),
+                ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
+                ('last_name', models.CharField(max_length=100, verbose_name='Last name', blank=True)),
+                ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
+                ('date_joined', models.DateTimeField(default=now, verbose_name='Date joined')),
+                ('is_active', models.BooleanField(default=True, verbose_name='Active?')),
+                ('is_staff', models.BooleanField(default=False, verbose_name='Is staff?')),
+                ('is_superuser', models.BooleanField(default=False, verbose_name='Is a superuser?')),
+                ('is_team', models.BooleanField(default=False, verbose_name='Is a team?')),
+                ('role', models.ForeignKey(on_delete=models.PROTECT, verbose_name='Role',
+                                           to='creme_core.UserRole', null=True,
+                                          )
+                ),
+                ('teammates_set', models.ManyToManyField(related_name='teams_set', verbose_name='Teammates',
+                                                         to=settings.AUTH_USER_MODEL,
+                                                        )
+                ),
+                ('theme', models.CharField(default=settings.THEMES[0][0], max_length=50, verbose_name='Theme',
+                                           choices=settings.THEMES,
+                                          ),
+                ),
+                ('time_zone', models.CharField(default=settings.TIME_ZONE,
+                                               max_length=50, verbose_name='Time zone',
+                                               choices=[(tz, tz) for tz in pytz.common_timezones],
+                                              )
+                ),
+                ('json_settings', models.TextField(default='{}', editable=False)),
+            ],
+            options={
+                'ordering':            ('username',),
+                'verbose_name':        'User',
+                'verbose_name_plural': 'Users',
+            },
         ),
         migrations.CreateModel(
             # name='BlockDetailviewLocation',
@@ -408,15 +407,15 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-                name='FileRef',
-                fields=[
-                    ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                    ('filedata', models.FileField(max_length=200, upload_to='')),
-                    ('basename', models.CharField(max_length=200)),
-                    ('created', models.DateTimeField(auto_now_add=True)),
-                    ('temporary', models.BooleanField(default=True, verbose_name='Is temporary?')),
-                    ('user', creme_fields.CremeUserForeignKey(null=True, to=settings.AUTH_USER_MODEL, verbose_name='Owner user')),
-                ],
+            name='FileRef',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('filedata', models.FileField(max_length=200, upload_to='')),
+                ('basename', models.CharField(max_length=200)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('temporary', models.BooleanField(default=True, verbose_name='Is temporary?')),
+                ('user', creme_fields.CremeUserForeignKey(null=True, to=settings.AUTH_USER_MODEL, verbose_name='Owner user')),
+            ],
         ),
         migrations.CreateModel(
             name='HeaderFilter',
@@ -451,7 +450,6 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            # name='InstanceBlockConfigItem',
             name='InstanceBrickConfigItem',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -465,13 +463,13 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-                name='Imprint',
-                fields=[
-                    ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                    ('date', models.DateTimeField(auto_now_add=True)),
-                    ('entity', models.ForeignKey(on_delete=models.CASCADE, related_name='imprints', to='creme_core.CremeEntity')),
-                    ('user', models.ForeignKey(on_delete=models.CASCADE, related_name='imprints', to=settings.AUTH_USER_MODEL)),
-                ],
+            name='Imprint',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('date', models.DateTimeField(auto_now_add=True)),
+                ('entity', models.ForeignKey(on_delete=models.CASCADE, related_name='imprints', to='creme_core.CremeEntity')),
+                ('user', models.ForeignKey(on_delete=models.CASCADE, related_name='imprints', to=settings.AUTH_USER_MODEL)),
+            ],
         ),
         migrations.CreateModel(
             name='Language',
@@ -545,7 +543,6 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            # name='RelationBlockItem',
             name='RelationBrickItem',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -761,6 +758,19 @@ class Migration(migrations.Migration):
                 bases=('creme_core.cremeentity',),
             ),
             migrations.CreateModel(
+                name='FakeDocumentCategory',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('name', models.CharField(unique=True, max_length=100, verbose_name='Category name')),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test Document category',
+                    'verbose_name_plural': 'Test Document categories',
+                },
+                bases=(models.Model,),
+            ),
+            migrations.CreateModel(
                 name='FakeDocument',
                 fields=[
                     ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
@@ -770,6 +780,7 @@ class Migration(migrations.Migration):
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('filedata', models.FileField(upload_to=b'upload/creme_core-tests', max_length=100, verbose_name='File')),
                     ('linked_folder', models.ForeignKey(on_delete=models.PROTECT, verbose_name='Folder', to='creme_core.FakeFolder')),
+                    ('categories', models.ManyToManyField(verbose_name='Categories', to='creme_core.FakeDocumentCategory', blank=True)),
                 ],
                 options={
                     'ordering': ('title',),
@@ -1140,6 +1151,39 @@ class Migration(migrations.Migration):
                     'ordering': ('title',),
                     'verbose_name': 'Test Ticket',
                     'verbose_name_plural': 'Test Tickets',
+                },
+                bases=('creme_core.cremeentity',),
+            ),
+            migrations.CreateModel(
+                name='FakeIngredient',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test Ingredient',
+                    'verbose_name_plural': 'Test Ingredients',
+                },
+                bases=(models.Model,),
+            ),
+            migrations.CreateModel(
+                name='FakeRecipe',
+                fields=[
+                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                             to='creme_core.CremeEntity', on_delete=models.CASCADE,
+                                                            )
+                    ),
+                    ('name', models.CharField(max_length=100, null=True, verbose_name='Name', blank=True)),
+                    ('ingredients', models.ManyToManyField(related_name='+', verbose_name='Ingredients',
+                                                           to='creme_core.FakeIngredient', blank=True,
+                                                          )
+                    ),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test Recipe',
+                    'verbose_name_plural': 'Test Recipes',
                 },
                 bases=('creme_core.cremeentity',),
             ),
