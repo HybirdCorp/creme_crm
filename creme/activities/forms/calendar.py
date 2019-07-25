@@ -21,12 +21,17 @@
 from django.contrib.auth import get_user_model
 from django.db.transaction import atomic
 from django.forms import ModelChoiceField
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import base
 
+from creme.creme_config.forms import generics as gen_forms
+
+from .. import get_activity_model
 from ..models import Calendar
+
+Activity = get_activity_model()
 
 
 class CalendarForm(base.CremeModelForm):
@@ -63,6 +68,28 @@ class CalendarConfigForm(CalendarForm):
 
     def get_user(self):
         return self.cleaned_data.get('user') or self.instance.user
+
+
+class CalendarM2MReplacer(gen_forms.M2MHandler):
+    def _build_formfield_queryset(self):
+        instance = self.instance_to_delete
+
+        return Calendar.objects.filter(user=instance.user).exclude(id=instance.id)
+
+    def _get_choicefield_data(self):
+        data = super()._get_choicefield_data()
+        data['help_text'] = _('The activities on the deleted calendar will be moved to the selected one.')
+
+        return data
+
+
+class CalendarDeletionForm(gen_forms.DeletionForm):
+    def _get_m2m_handler_class(self, model_field):
+        remote_field = model_field.remote_field
+        if remote_field.model == Activity and remote_field.name == 'calendars':
+            return CalendarM2MReplacer
+
+        return super()._get_m2m_hanlder_class(model_field)
 
 
 # TODO: manage multi-calendar better

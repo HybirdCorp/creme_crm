@@ -11,16 +11,17 @@ from .views import activity, bricks, calendar
 
 calendar_patterns = [
     # re_path(r'^user[/]?$',                      calendar.user_calendar,              name='activities__calendar'),
-    re_path(r'^user[/]?$',                      calendar.CalendarView.as_view(),         name='activities__calendar'),
+    re_path(r'^user[/]?$',                        calendar.CalendarView.as_view(),         name='activities__calendar'),
     # re_path(r'^activities[/]?$',                calendar.get_users_activities,       name='activities__calendars_activities'),
-    re_path(r'^activities[/]?$',                calendar.ActivitiesData.as_view(),       name='activities__calendars_activities'),
-    re_path(r'^select[/]?$',                    calendar.CalendarsSelection.as_view(),   name='activities__select_calendars'),
-    # re_path(r'^activity/update[/]?$',           calendar.update_activity_date,         name='activities__set_activity_dates'),
-    re_path(r'^activity/update[/]?$',           calendar.ActivityDatesSetting.as_view(), name='activities__set_activity_dates'),
-    re_path(r'^add[/]?$',                       calendar.CalendarCreation.as_view(),     name='activities__create_calendar'),
-    re_path(r'^(?P<calendar_id>\d+)/edit[/]?$', calendar.CalendarEdition.as_view(),      name='activities__edit_calendar'),
-    re_path(r'^delete[/]?$',                    calendar.delete_user_calendar,           name='activities__delete_calendar'),
-    re_path(r'^link/(?P<activity_id>\d+)[/]?$', calendar.CalendarLinking.as_view(),      name='activities__link_calendar'),
+    re_path(r'^activities[/]?$',                  calendar.ActivitiesData.as_view(),       name='activities__calendars_activities'),
+    re_path(r'^select[/]?$',                      calendar.CalendarsSelection.as_view(),   name='activities__select_calendars'),
+    # re_path(r'^activity/update[/]?$',           calendar.update_activity_date,       name='activities__set_activity_dates'),
+    re_path(r'^activity/update[/]?$',             calendar.ActivityDatesSetting.as_view(), name='activities__set_activity_dates'),
+    re_path(r'^add[/]?$',                         calendar.CalendarCreation.as_view(),     name='activities__create_calendar'),
+    re_path(r'^(?P<calendar_id>\d+)/edit[/]?$',   calendar.CalendarEdition.as_view(),      name='activities__edit_calendar'),
+    # re_path(r'^delete[/]?$',                    calendar.delete_user_calendar,       name='activities__delete_calendar'),
+    re_path(r'^delete/(?P<calendar_id>\d+)[/]?$', calendar.CalendarDeletion.as_view(),     name='activities__delete_calendar'),
+    re_path(r'^link/(?P<activity_id>\d+)[/]?$',   calendar.CalendarLinking.as_view(),      name='activities__link_calendar'),
 ]
 
 urlpatterns = [

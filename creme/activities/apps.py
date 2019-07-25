@@ -83,23 +83,28 @@ class ActivitiesConfig(CremeAppConfig):
 
     def register_creme_config(self, config_registry):
         from . import models, bricks
-        from .forms.activity_type import ActivityTypeForm, ActivitySubTypeForm
-        from .forms.calendar import CalendarConfigForm
+        from .forms import activity_type as type_forms, calendar as cal_forms
 
         register_model = config_registry.register_model
-        register_model(models.ActivityType, 'activity_type').creation(form_class=ActivityTypeForm) \
-                                                            .edition(form_class=ActivityTypeForm)
-        register_model(models.ActivitySubType, 'activity_sub_type').creation(form_class=ActivitySubTypeForm) \
-                                                                   .edition(form_class=ActivitySubTypeForm)
+        register_model(models.ActivityType, 'activity_type') \
+                      .creation(form_class=type_forms.ActivityTypeForm) \
+                      .edition(form_class=type_forms.ActivityTypeForm)
+        register_model(models.ActivitySubType, 'activity_sub_type') \
+                      .creation(form_class=type_forms.ActivitySubTypeForm) \
+                      .edition(form_class=type_forms.ActivitySubTypeForm)
         register_model(models.Status, 'status')
-        register_model(models.Calendar, 'calendar').creation(form_class=CalendarConfigForm)\
-                                                   .edition(form_class=CalendarConfigForm)
+        register_model(models.Calendar, 'calendar') \
+                      .creation(form_class=cal_forms.CalendarConfigForm) \
+                      .edition(form_class=cal_forms.CalendarConfigForm) \
+                      .deletion(form_class=cal_forms.CalendarDeletionForm)
+
         config_registry.register_user_bricks(bricks.UserCalendarsBrick)
 
     def register_icons(self, icon_registry):
         Activity = self.Activity
+        get_icon = constants.ICONS.get
         icon_registry.register(Activity, 'images/calendar_%(size)s.png') \
-                     .register_4_instance(Activity, lambda instance: constants.ICONS.get(instance.type_id))
+                     .register_4_instance(Activity, lambda instance: get_icon(instance.type_id))
 
     def register_mass_import(self, import_form_registry):
         from .forms import mass_import

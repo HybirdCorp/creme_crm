@@ -25,26 +25,27 @@ from functools import partial
 # from json import dumps as jsondumps
 import logging
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.db.transaction import atomic
 from django.http import HttpResponse  # Http404
-from django.shortcuts import get_object_or_404  # render
+from django.shortcuts import render  # get_object_or_404
 from django.urls import reverse
 # from django.utils.html import escape
 from django.utils.timezone import now, make_naive, get_current_timezone
 from django.utils.translation import gettext_lazy as _, gettext
 
 # from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.http import CremeJsonResponse
-from creme.creme_core.models import EntityCredentials
+from creme.creme_core.models import EntityCredentials, Job, DeletionCommand
 from creme.creme_core.utils import get_from_POST_or_404, bool_from_str_extended
 from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.utils.unicode_collation import collator
-from creme.creme_core.views import decorators, generic
-from creme.creme_core.views.decorators import jsonify
+from creme.creme_core.views import generic  # decorators
+# from creme.creme_core.views.decorators import jsonify
 
 from creme.persons import get_contact_model
 
@@ -618,34 +619,81 @@ class CalendarEdition(generic.CremeModelEditionPopup):
             raise PermissionDenied('You cannot edit this Calendar (it is not yours).')
 
 
-@login_required
-@permission_required('activities')
-@jsonify
-@decorators.POST_only
-def delete_user_calendar(request):
-    calendar = get_object_or_404(Calendar, pk=get_from_POST_or_404(request.POST, 'id'))
-    user = request.user
+# @login_required
+# @permission_required('activities')
+# @jsonify
+# @decorators.POST_only
+# def delete_user_calendar(request):
+#     calendar = get_object_or_404(Calendar, pk=get_from_POST_or_404(request.POST, 'id'))
+#     user = request.user
+#
+#     # todo: factorise calendar credentials functions ?
+#     if not calendar.is_custom or (not user.is_superuser and calendar.user_id != user.id):
+#         raise PermissionDenied(gettext('You are not allowed to delete this calendar.'))
+#
+#     # Attach all existing activities to the default calendar
+#     # replacement_calendar = Calendar.get_user_default_calendar(user)
+#     replacement_calendar = Calendar.objects.get_default_calendar(user)
+#     if replacement_calendar == calendar:
+#         replacement_calendar = Calendar.objects.filter(user=user)\
+#                                                .exclude(id=calendar.id)\
+#                                                .order_by('id')\
+#                                                .first()
+#
+#         if replacement_calendar is None:
+#             raise ConflictError(gettext('You cannot delete your last calendar.'))
+#
+#     for activity in calendar.activity_set.all():
+#         activity.calendars.add(replacement_calendar)
+#
+#     calendar.delete()
+class CalendarDeletion(generic.CremeModelEditionPopup):
+    model = Calendar
+    form_class = calendar_forms.CalendarDeletionForm
+    permissions = 'activities'
+    pk_url_kwarg = 'calendar_id'
+    title = _('Replace & delete «{object}»')
+    job_template_name = 'creme_config/deletion-job-popup.html'
 
-    # TODO: factorise calendar credentials functions ?
-    if not calendar.is_custom or (not user.is_superuser and calendar.user_id != user.id):
-        raise PermissionDenied(gettext('You are not allowed to delete this calendar.'))
+    def check_instance_permissions(self, instance, user):
+        if not instance.is_custom:
+            raise ConflictError(
+                gettext('You cannot delete this calendar: it is not custom.')
+            )
 
-    # Attach all existing activities to the default calendar
-    # replacement_calendar = Calendar.get_user_default_calendar(user)
-    replacement_calendar = Calendar.objects.get_default_calendar(user)
-    if replacement_calendar == calendar:
-        replacement_calendar = Calendar.objects.filter(user=user)\
-                                               .exclude(id=calendar.id)\
-                                               .order_by('id')\
-                                               .first()
+        if instance.user_id != user.id:
+            raise PermissionDenied(gettext('You are not allowed to delete this calendar.'))
 
-        if replacement_calendar is None:
+        if not Calendar.objects.filter(user=user).exclude(id=instance.id).exists():
             raise ConflictError(gettext('You cannot delete your last calendar.'))
 
-    for activity in calendar.activity_set.all():
-        activity.calendars.add(replacement_calendar)
+        ctype = ContentType.objects.get_for_model(Calendar)
+        dcom = DeletionCommand.objects.filter(content_type=ctype).first()
 
-    calendar.delete()
+        if dcom is not None:
+            if dcom.job.status == Job.STATUS_OK:
+                dcom.job.delete()
+            else:
+                # TODO: if STATUS_ERROR, show a popup with the errors ?
+                raise ConflictError(
+                    gettext('A deletion process for an instance of «{model}» already exists.').format(
+                        model=ctype,
+                ))
+
+    def form_valid(self, form):
+        self.object = form.save()
+
+        return render(request=self.request,
+                      template_name=self.job_template_name,
+                      context={'job': self.object.job},
+                     )
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = None
+        kwargs['instance_to_delete'] = self.object
+
+        return kwargs
 
 
 class CalendarLinking(generic.CremeModelEditionPopup):

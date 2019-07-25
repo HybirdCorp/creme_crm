@@ -6,6 +6,7 @@ try:
     # from json import dumps as json_dump
     from json import loads as json_load
 
+    from django.contrib.contenttypes.models import ContentType
     from django.contrib.sessions.models import Session
     from django.core.exceptions import ValidationError
     from django.core.management import call_command
@@ -17,7 +18,9 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Relation, SetCredentials, CremeUser
+    from creme.creme_core.creme_jobs import deletor_type
+    from creme.creme_core.models import (Relation, SetCredentials, CremeUser,
+        Job, DeletionCommand)
 
     from .base import _ActivitiesTestCase, skipIfCustomActivity
 
@@ -36,7 +39,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     ADD_URL = reverse('activities__create_calendar')
     CONF_ADD_URL = reverse('creme_config__create_instance', args=('activities', 'calendar'))
     CALENDAR_URL = reverse('activities__calendar')
-    DEL_CALENDAR_URL = reverse('activities__delete_calendar')
+    # DEL_CALENDAR_URL = reverse('activities__delete_calendar')
     UPDATE_URL = reverse('activities__set_activity_dates')
 
     def assertUserHasDefaultCalendar(self, user):
@@ -47,6 +50,9 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def build_link_url(self, activity_id):
         return reverse('activities__link_calendar', args=(activity_id,))
+
+    def build_delete_calendar_url(self, calendar):
+        return reverse('activities__delete_calendar', args=(calendar.id,))
 
     def _get_cal_activities(self, calendars, start=None, end=None, status=200):
         data = {'calendar_id': [str(c.id) for c in calendars]}
@@ -525,107 +531,223 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_delete_calendar01(self):
         "Not custom -> error."
         user = self.login()
+        self.assertGET404(reverse('activities__delete_calendar', args=(1024,)))
 
         Calendar.objects.get_default_calendar(user)
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=False)
 
-        url = self.DEL_CALENDAR_URL
-        self.assertGET404(url)
+        # url = self.DEL_CALENDAR_URL
+        url = self.build_delete_calendar_url(cal)
+        # self.assertGET404(url)
+        # self.assertPOST404(url, data={'id': 1024})
 
-        self.assertPOST404(url, data={'id': 1024})
-
-        response = self.assertPOST403(url, data={'id': cal.id})
-        self.assertEqual('application/json', response['Content-Type'])
-        self.assertEqual(_('You are not allowed to delete this calendar.'),
-                         force_text(response.content)
-                        )
+        # response = self.assertPOST403(url, data={'id': cal.id})
+        response = self.assertGET409(url)
+        # self.assertEqual('application/json', response['Content-Type'])
+        # self.assertEqual(_('You are not allowed to delete this calendar.'),
+        #                  force_text(response.content)
+        #                 )
+        self.assertIn(
+           escape(_('You cannot delete this calendar: it is not custom.')),
+           response.content.decode()
+        )
 
         self.get_object_or_fail(Calendar, pk=cal.pk)
 
     def test_delete_calendar02(self):
         user = self.login()
 
-        Calendar.objects.get_default_calendar(user)
+        def_cal = Calendar.objects.get_default_calendar(user)
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
-        url = self.DEL_CALENDAR_URL
-        self.assertGET404(url)
-        self.assertPOST200(url, data={'id': cal.id})
+        act = Activity.objects.create(user=user, title='Act#1',
+                                      type_id=ACTIVITYTYPE_TASK,
+                                     )
+        act.calendars.add(cal)
+
+        # url = self.DEL_CALENDAR_URL
+        # self.assertGET404(url)
+        # self.assertPOST200(url, data={'id': cal.id})
+        # self.assertDoesNotExist(cal)
+        url = self.build_delete_calendar_url(cal)
+
+        # GET ---
+        response = self.assertGET200(url)
+
+        context = response.context
+        self.assertEqual(_('Replace & delete «{object}»').format(object=cal),
+                         context.get('title')
+                        )
+
+        fname = 'replace_activities__activity_calendars'
+        with self.assertNoException():
+            replace_field = context['form'].fields[fname]
+
+        self.assertEqual('{} - {}'.format(_('Activity'), _('Calendars')),
+                         replace_field.label
+                        )
+        self.assertListEqual(
+            [(def_cal.id, str(def_cal))],
+            list(replace_field.choices)
+        )
+
+        # POST ---
+        response = self.client.post(
+            url,
+            data={'replace_activities__activity_calendars': def_cal.id},
+        )
+        self.assertNoFormError(response)
+
+        dcom = self.get_object_or_fail(
+            DeletionCommand,
+            content_type=ContentType.objects.get_for_model(Calendar),
+        )
+        self.assertEqual(cal, dcom.instance_to_delete)
+        self.assertListEqual(
+            [('fixed_value', Activity, 'calendars', def_cal)],
+            [(r.type_id, r.model_field.model, r.model_field.name, r.get_value())
+                for r in dcom.replacers
+            ]
+        )
+
+        deletor_type.execute(dcom.job)
         self.assertDoesNotExist(cal)
+        self.assertIn(def_cal, list(act.calendars.all()))
 
     def test_delete_calendar03(self):
         "No super user."
         user = self.login(is_superuser=False)
 
-        Calendar.objects.get_default_calendar(user)
+        def_cal = Calendar.objects.get_default_calendar(user)
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
-        self.assertPOST200(self.DEL_CALENDAR_URL, data={'id': cal.id})
-        self.assertDoesNotExist(cal)
+        # self.assertPOST200(self.DEL_CALENDAR_URL, data={'id': cal.id})
+        response = self.client.post(
+            self.build_delete_calendar_url(cal),
+            data={'replace_activities__activity_calendars': def_cal.id},
+        )
+        # self.assertDoesNotExist(cal)
+        self.assertNoFormError(response)
+
+        self.get_object_or_fail(
+            DeletionCommand,
+            content_type=ContentType.objects.get_for_model(Calendar),
+        )
 
     def test_delete_calendar04(self): 
-        "Other user's calendar"
+        "Other user's calendar."
         self.login(is_superuser=False)
         other_user = self.other_user
 
         Calendar.objects.get_default_calendar(other_user)
         cal = Calendar.objects.create(user=other_user, name='Cal #1', is_custom=True)
 
-        self.assertPOST403(self.DEL_CALENDAR_URL, data={'id': cal.id})
+        # self.assertPOST403(self.DEL_CALENDAR_URL, data={'id': cal.id})
+        response = self.assertGET403(self.build_delete_calendar_url(cal))
+        self.assertIn(
+           escape(_('You are not allowed to delete this calendar.')),
+           response.content.decode()
+        )
 
-    @skipIfCustomActivity
+    # @skipIfCustomActivity
+    # def test_delete_calendar05(self):
+    #     "Reassign activities calendars."
+    #     user = self.login()
+    #     default_calendar = Calendar.objects.get_default_calendar(user)
+    #
+    #     cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
+    #     act = Activity.objects.create(user=user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
+    #     act.calendars.add(cal)
+    #     self.assertEqual([cal], list(act.calendars.all()))
+    #
+    #     url = self.DEL_CALENDAR_URL
+    #     self.assertPOST200(url, data={'id': cal.id})
+    #     self.assertDoesNotExist(cal)
+    #
+    #     act = self.refresh(act)
+    #     self.assertEqual([default_calendar], list(act.calendars.all()))
+    #
+    # @skipIfCustomActivity
+    # def test_delete_calendar06(self):
+    #     "Reassign activities calendars + deleted is the default calendar."
+    #     user = self.login()
+    #     not_custom_cal = Calendar.objects.get_default_calendar(user)
+    #     default_cal = Calendar.objects.create(user=user, name='Cal #2',
+    #                                           is_custom=True, is_default=True,
+    #                                          )
+    #     cal3 = Calendar.objects.create(user=user, name='Ahhh first calendar')
+    #     self.assertFalse(self.refresh(not_custom_cal).is_default)
+    #     self.assertEqual(cal3, Calendar.objects.filter(user=user).first())
+    #
+    #     act = Activity.objects.create(user=user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
+    #     act.calendars.add(default_cal)
+    #     self.assertEqual([default_cal], list(act.calendars.all()))
+    #
+    #     url = self.DEL_CALENDAR_URL
+    #     self.assertPOST200(url, data={'id': default_cal.id})
+    #     self.assertDoesNotExist(default_cal)
+    #
+    #     self.assertTrue(self.refresh(not_custom_cal).is_default)
+    #     act = self.refresh(act)
+    #     self.assertEqual([not_custom_cal], list(act.calendars.all()))
+    #
+    # def test_delete_calendar07(self):
     def test_delete_calendar05(self):
-        "Reassign activities calendars."
-        user = self.login()
-        default_calendar = Calendar.objects.get_default_calendar(user)
-
-        cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
-        act = Activity.objects.create(user=user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
-        act.calendars.add(cal)
-        self.assertEqual([cal], list(act.calendars.all()))
-
-        url = self.DEL_CALENDAR_URL
-        self.assertPOST200(url, data={'id': cal.id})
-        self.assertDoesNotExist(cal)
-
-        act = self.refresh(act)
-        self.assertEqual([default_calendar], list(act.calendars.all()))
-
-    @skipIfCustomActivity
-    def test_delete_calendar06(self):
-        "Reassign activities calendars + deleted is the default calendar."
-        user = self.login()
-        not_custom_cal = Calendar.objects.get_default_calendar(user)
-        default_cal = Calendar.objects.create(user=user, name='Cal #2',
-                                              is_custom=True, is_default=True,
-                                             )
-        cal3 = Calendar.objects.create(user=user, name='Ahhh first calendar')
-        self.assertFalse(self.refresh(not_custom_cal).is_default)
-        self.assertEqual(cal3, Calendar.objects.filter(user=user).first())
-
-        act = Activity.objects.create(user=user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
-        act.calendars.add(default_cal)
-        self.assertEqual([default_cal], list(act.calendars.all()))
-
-        url = self.DEL_CALENDAR_URL
-        self.assertPOST200(url, data={'id': default_cal.id})
-        self.assertDoesNotExist(default_cal)
-
-        self.assertTrue(self.refresh(not_custom_cal).is_default)
-        act = self.refresh(act)
-        self.assertEqual([not_custom_cal], list(act.calendars.all()))
-
-    def test_delete_calendar07(self):
         "The deleted calendar is the last one (but custom -- should not happen btw)."
         user = self.login()
 
         cal = Calendar.objects.get_default_calendar(user)
         Calendar.objects.filter(id=cal.id).update(is_custom=True)
 
-        url = self.DEL_CALENDAR_URL
-        self.assertGET404(url)
-        self.assertPOST409(url, data={'id': cal.id})
-        self.assertStillExists(cal)
+        # url = self.DEL_CALENDAR_URL
+        # self.assertGET404(url)
+        # self.assertPOST409(url, data={'id': cal.id})
+        # self.assertStillExists(cal)
+        self.assertGET409(self.build_delete_calendar_url(cal))
+
+    def test_delete_calendar06(self):
+        "Command uniqueness."
+        user = self.login()
+        self.assertFalse(DeletionCommand.objects.first())
+
+        Calendar.objects.get_default_calendar(user)
+        cal2 = Calendar.objects.create(user=user, name='Cal #2')
+        cal3 = Calendar.objects.create(user=user, name='Cal #3')
+
+        job = Job.objects.create(
+            type_id=deletor_type.id,
+            user=self.user,
+        )
+        self.assertEqual(Job.STATUS_WAIT, job.status)
+
+        dcom = DeletionCommand.objects.create(
+            content_type=Calendar,
+            job=job,
+            pk_to_delete=str(cal2.pk),
+            deleted_repr=str(cal2),
+        )
+
+        url = self.build_delete_calendar_url(cal3)
+
+        response = self.assertGET409(url)
+        msg = _('A deletion process for an instance of «{model}» already exists.').format(
+                  model=_('Calendar'),
+              )
+        self.assertIn(msg, response.content.decode())
+
+        # ---
+        job.status = Job.STATUS_ERROR
+        job.save()
+        response = self.assertGET409(url)
+        self.assertIn(msg, response.content.decode())
+
+        # ---
+        job.status = Job.STATUS_OK
+        job.save()
+        response = self.assertGET200(url)
+        self.assertIn('form', response.context)
+        self.assertDoesNotExist(job)
+        self.assertDoesNotExist(dcom)
 
     @skipIfCustomActivity
     def test_change_activity_calendar01(self):
@@ -1071,7 +1193,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertFalse(cal.is_public)
 
     def test_config02(self): 
-        "Only one default"
+        "Only one default."
         user = self.login()
         cal1 = Calendar.objects.get_default_calendar(user)
 
@@ -1093,8 +1215,8 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         self.assertFalse(self.refresh(cal1).is_default)
 
-        cal3 = Calendar.objects.create(user=user, name='My third calendar')
-
+        # cal3 = Calendar.objects.create(user=user, name='My third calendar')
+        #
         # Delete
         # self.assertPOST200(reverse('creme_config__delete_instance',
         #                            args=('activities', 'calendar'),
@@ -1104,17 +1226,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         # self.assertDoesNotExist(cal2)
         # self.assertTrue(self.refresh(cal1).is_default)
         # self.assertFalse(self.refresh(cal3).is_default)
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                     args=('activities', 'calendar', cal2.id),
-                                    ),
-                            )
-        self.assertNoFormError(response)
-
-        job = self.get_deletion_command_or_fail(Calendar).job
-        job.type.execute(job)
-        self.assertDoesNotExist(cal2)
-        self.assertTrue(self.refresh(cal1).is_default)
-        self.assertFalse(self.refresh(cal3).is_default)
 
     def test_config03(self): 
         "Edition"
@@ -1152,6 +1263,93 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertTrue(cal2.is_public)
 
         self.assertFalse(self.refresh(cal1).is_default)
+
+    def test_config04(self):
+        "Deletion."
+        def get_url(cal):
+            return reverse('creme_config__delete_instance',
+                           args=('activities', 'calendar', cal.id),
+                          )
+
+        user = self.login()
+        cal1 = Calendar.objects.get_default_calendar(user)
+        cal2 = Calendar.objects.create(
+            user=user, name='Cal#2', is_custom=False,
+        )
+        self.assertGET409(get_url(cal2))  # Cannot deleted a not custom Calendar
+
+        cal3 = Calendar.objects.create(user=user, name='Cal#3')
+        Calendar.objects.get_default_calendar(self.other_user)  # Not in choices
+
+        act = Activity.objects.create(user=user, title='Act#1',
+                                      type_id=ACTIVITYTYPE_TASK,
+                                     )
+        act.calendars.add(cal3)
+
+        # GET ---
+        url = get_url(cal3)
+        response = self.assertGET200(url)
+
+        context = response.context
+        self.assertEqual(_('Replace & delete «{object}»').format(object=cal3),
+                         context.get('title')
+                        )
+
+        fname = 'replace_activities__activity_calendars'
+        with self.assertNoException():
+            replace_field = context['form'].fields[fname]
+
+        self.assertEqual('{} - {}'.format(_('Activity'), _('Calendars')),
+                         replace_field.label
+                        )
+        self.assertEqual(
+            _('The activities on the deleted calendar will be moved to the selected one.'),
+            replace_field.help_text
+        )
+        self.assertCountEqual(
+            [(cal1.id, str(cal1)),
+             (cal2.id, str(cal2)),
+            ],
+            list(replace_field.choices)
+        )
+
+        # POST ---
+        response = self.client.post(
+            url,
+            data={'replace_activities__activity_calendars': cal2.id},
+        )
+        self.assertNoFormError(response)
+
+        dcom = self.get_object_or_fail(
+            DeletionCommand,
+            content_type=ContentType.objects.get_for_model(Calendar),
+        )
+        self.assertEqual(cal3, dcom.instance_to_delete)
+        self.assertListEqual(
+            [('fixed_value', Activity, 'calendars', cal2)],
+            [(r.type_id, r.model_field.model, r.model_field.name, r.get_value())
+                for r in dcom.replacers
+            ]
+        )
+        self.assertEqual(1, dcom.total_count)
+
+        job = dcom.job
+        self.assertEqual(
+            [_('Deleting «{object}» ({model})').format(
+                 object=cal3.name, model=_('Calendar'),
+             ),
+             _('In «{model} - {field}», replace by «{new}»').format(
+                 model=_('Activity'),
+                 field=_('Calendars'),
+                 new=cal2,
+             )
+            ],
+            deletor_type.get_description(job)
+        )
+
+        deletor_type.execute(job)
+        self.assertDoesNotExist(cal3)
+        self.assertIn(cal2, list(act.calendars.all()))
 
     def test_colorfield(self):
         user = self.login()

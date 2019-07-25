@@ -46,10 +46,10 @@ class _DeletorType(JobType):
 
         # TODO: is_deleted field ?
         # TODO: regroup by same CType & update several fields at once when its possible
-        for replacement in dcom.replacers:
-            new_value = replacement.get_value()
+        for replacer in dcom.replacers:
+            new_value = replacer.get_value()
 
-            model_field = replacement.model_field
+            model_field = replacer.model_field
             rel_mngr   = model_field.model._default_manager
             field_name = model_field.name
 
@@ -62,12 +62,13 @@ class _DeletorType(JobType):
                 with atomic():
                     related_instance = rel_mngr.select_for_update().filter(pk=pk).first()
                     if related_instance is not None:
-                        setattr(related_instance, field_name, new_value)
-                        related_instance.save()
+                        if model_field.many_to_many:
+                            getattr(related_instance, field_name).add(new_value)
+                        else:
+                            setattr(related_instance, field_name, new_value)
+                            related_instance.save()
 
                     dcom_mngr.filter(pk=dcom.pk).update(updated_count=F('updated_count') + 1)
-
-        # TODO: M2M ?
 
         try:
             instance_2_del.delete()

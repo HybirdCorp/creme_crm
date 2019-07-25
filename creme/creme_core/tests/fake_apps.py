@@ -28,7 +28,7 @@ def ready():
     from . import fake_function_fields
     from .fake_models import (FakeContact, FakeOrganisation, FakeImage,
             FakeActivity, FakeEmailCampaign, FakeMailingList,
-            FakeInvoice, FakeInvoiceLine, FakeTicket)
+            FakeInvoice, FakeInvoiceLine, FakeTicket, FakeRecipe)
 
     from creme.creme_config.tests.fake_models import FakeConfigEntity
 
@@ -43,6 +43,7 @@ def ready():
         FakeInvoiceLine,
         FakeConfigEntity,
         FakeTicket,
+        FakeRecipe,
     )
 
     function_field_registry.register(CremeEntity,     fake_function_fields.FakeTodosField)

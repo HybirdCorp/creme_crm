@@ -104,7 +104,7 @@ class AbstractReportGraph(CremeEntity):
 
     @staticmethod
     def get_fetcher_from_instance_brick(instance_brick_config):
-        """Build a GraphFetcher related to this ReportGraph & an InstanceBlockConfigItem.
+        """Build a GraphFetcher related to this ReportGraph & an InstanceBrickConfigItem.
         @param instance_brick_config: An instance of InstanceBrickConfigItem.
         @return A GraphFetcher instance.
         """

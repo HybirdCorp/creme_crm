@@ -82,16 +82,16 @@ def _uninstall_blocks(sender, **kwargs):
     app_label = sender.label
     brick_ids = set()
 
-    # RelationBlockItem --------------------------------------------------------
+    # RelationBrickItem --------------------------------------------------------
     rbi_brick_ids = RelationBrickItem.objects \
                                      .filter(relation_type__id__startswith=app_label + '-') \
                                      .values_list('brick_id', flat=True)
 
     brick_ids.update(rbi_brick_ids)
     BrickDetailviewLocation.objects.filter(brick_id__in=rbi_brick_ids).delete()
-    # NB: concerned RelationBlockItems should be removed when RelationType are removed.
+    # NB: concerned RelationBrickItems should be removed when RelationType are removed.
 
-    # InstanceBlockConfigItem --------------------------------------------------
+    # InstanceBrickConfigItem --------------------------------------------------
     ibc_items = InstanceBrickConfigItem.objects\
                                        .filter(brick_id__startswith=InstanceBrickConfigItem.
                                                                         generate_base_id(app_name=app_label,

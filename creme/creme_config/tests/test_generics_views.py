@@ -17,7 +17,10 @@ try:
         FakeCivility, FakeSector, FakePosition, FakeLegalForm,
         FakeContact, FakeOrganisation,
         FakeProductType, FakeProduct, FakeActivityType, FakeActivity,
-        FakeTicketStatus, FakeTicketPriority, FakeTicket)
+        FakeTicketStatus, FakeTicketPriority, FakeTicket,
+        FakeDocumentCategory, FakeDocument,
+        FakeFolder, FakeFolderCategory, FakeImageCategory,
+        FakeIngredient, FakeRecipe)
     from creme.creme_core.models.history import HistoryLine, TYPE_EDITION
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_bricks import FakeAppPortalBrick
@@ -211,7 +214,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(shortcut, civ.shortcut)
 
     def test_edit02(self):
-        "Order not changed"
+        "Order not changed."
         count = FakeSector.objects.count()
         sector = FakeSector.objects.create(title='music', order=count + 1)
 
@@ -825,6 +828,129 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             hline.get_verbose_modifications(self.user)
         )
 
+    def test_delete_m2m_01(self):
+        "Does not replace."
+        folder = FakeFolder.objects.create(user=self.user, title='Pictures')
+
+        create_cat = FakeDocumentCategory.objects.create
+        cat1    = create_cat(name='Pictures')
+        cat2    = create_cat(name='Music')
+        cat3    = create_cat(name='Video')
+        cat2del = create_cat(name='Pix')
+
+        doc = FakeDocument.objects.create(user=self.user, title='Pix1',
+                                          linked_folder=folder,
+                                         )
+        doc.categories.set([cat2del, cat3])
+
+        url = reverse('creme_config__delete_instance',
+                      args=('creme_core', 'fake_documentcat', cat2del.id),
+                     )
+
+        # GET ---
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            replace_field = fields['replace_creme_core__fakedocument_categories']
+            choices = list(replace_field.choices)
+
+        self.assertEqual('{} - {}'.format('Test Document', _('Categories')),
+                         replace_field.label
+                        )
+
+        self.assertFalse(replace_field.required)
+
+        self.assertIn(('', '---------'),    choices)
+        self.assertIn((cat1.id, str(cat1)), choices)
+        self.assertIn((cat2.id, str(cat2)), choices)
+        self.assertNotIn((cat2del.id, str(cat2del)), choices)
+
+        self.assertEqual(1, len(fields), fields)
+
+        # POST ---
+        response = self.client.post(url)
+        self.assertNoFormError(response)
+
+        dcom = self.get_deletion_command_or_fail(FakeDocumentCategory)
+        self.assertEqual(str(cat2del.id), dcom.pk_to_delete)
+        self.assertReplacersEqual([], dcom)
+        self.assertEqual(1, dcom.total_count)
+
+        deletor_type.execute(dcom.job)
+        self.assertDoesNotExist(cat2del)
+        self.assertListEqual([cat3], [*doc.categories.all()])
+
+    def test_delete_m2m_02(self):
+        "Replace."
+        folder = FakeFolder.objects.create(user=self.user, title='Pictures')
+
+        create_cat = FakeDocumentCategory.objects.create
+        cat1    = create_cat(name='Pictures')
+        cat2    = create_cat(name='Music')
+        cat2del = create_cat(name='Pix')
+
+        create_doc = partial(FakeDocument.objects.create, user=self.user, linked_folder=folder)
+        doc1 = create_doc(title='Summer pix')
+        doc1.categories.set([cat2del, cat2])
+
+        doc2 = create_doc(title='X-mas pix')
+        doc2.categories.set([cat2del, cat1])  # <= after replacement, "cat1" should not be duplicated
+
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('creme_core', 'fake_documentcat', cat2del.id),
+                    ),
+            data={
+                'replace_creme_core__fakedocument_categories': cat1.id,
+            },
+        )
+        self.assertNoFormError(response)
+
+        dcom = self.get_deletion_command_or_fail(FakeDocumentCategory)
+        self.assertReplacersEqual(
+            [('fixed_value', FakeDocument, 'categories', cat1)],
+            dcom
+        )
+        self.assertEqual(2, dcom.total_count)
+
+        job = dcom.job
+        self.assertEqual(deletor_type.id, job.type_id)
+        self.assertEqual(self.user, job.user)
+
+        deletor_type.execute(job)
+        self.assertDoesNotExist(cat2del)
+        self.assertCountEqual([cat1, cat2], [*doc1.categories.all()])
+        self.assertListEqual([cat1], [*doc2.categories.all()])
+
+    def test_delete_m2m_03(self):
+        "Not blank."
+        create_ing = FakeIngredient.objects.create
+        ing1    = create_ing(name='Courgette')
+        ing2    = create_ing(name='Onion')
+        # ing3    = create_ing(name='Chili pepper')
+        ing2del = create_ing(name='Zucchini')
+
+        # recipe = FakeRecipe.objects.create(user=self.user, name='Ratatoo-ee')
+        # recipe.ingredients.set([ing2del, ing2, ing3])
+
+        response = self.assertGET200(
+            reverse('creme_config__delete_instance',
+                    args=('creme_core', 'fake_ingredient', ing2del.id),
+                   )
+        )
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            replace_field = fields['replace_creme_core__fakerecipe_ingredients']
+            choices = list(replace_field.choices)
+
+        self.assertTrue(replace_field.required)
+        self.assertIn((ing1.id, str(ing1)), choices)
+        self.assertIn((ing2.id, str(ing2)), choices)
+        self.assertNotIn((ing2del.id, str(ing2del)), choices)
+        self.assertNotIn(('', '---------'),          choices)
+
     def test_delete_hidden_related(self):
         "ForeignKey(..., related_name='+', ...) => use the field anyway."
         self.assertIsNone(DeletionCommand.objects.first())
@@ -1179,6 +1305,43 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             dcom
         )
 
+    def test_delete_hidden_m2m(self):
+        FieldsConfig.create(
+            FakeDocument,
+            descriptions=[('categories', {FieldsConfig.HIDDEN: True})],
+        )
+
+        folder = FakeFolder.objects.create(user=self.user, title='Pictures')
+        cat2del = FakeDocumentCategory.objects.create(name='Pix')
+
+        doc = FakeDocument.objects.create(user=self.user, title='Pix1',
+                                          linked_folder=folder,
+                                         )
+        doc.categories.set([cat2del])
+
+        url = reverse('creme_config__delete_instance',
+                      args=('creme_core', 'fake_documentcat', cat2del.id),
+                     )
+
+        # GET ---
+        response = self.assertGET200(url)
+
+        self.assertNotIn(
+            'replace_creme_core__fakedocument_categories',
+            response.context['form'].fields,
+        )
+
+        # POST ---
+        response = self.client.post(url)
+        self.assertNoFormError(response)
+
+        dcom = self.get_deletion_command_or_fail(FakeDocumentCategory)
+        self.assertReplacersEqual([], dcom)
+
+        deletor_type.execute(dcom.job)
+        self.assertDoesNotExist(cat2del)
+        self.assertFalse(doc.categories.all())
+
     def test_delete_uniqneness(self):
         self.assertFalse(DeletionCommand.objects.first())
 
@@ -1306,6 +1469,23 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertPOST404(self._build_finish_deletor_url(job))
 
+    def test_delete_customisation01(self):
+        "Deletion disabled (see creme.creme_core.apps.CremeCoreConfig.register_creme_config())."
+        fc = FakeFolderCategory.objects.create(name='PDFs')
+        self.assertGET409(reverse('creme_config__delete_instance',
+                                  args=('creme_core', 'fake_foldercat', fc.id,)
+                                 )
+                         )
+
+    def test_delete_customisation02(self):
+        "Not vanilla-URL (see creme.creme_core.apps.CremeCoreConfig.register_creme_config())."
+        img_cat = FakeImageCategory.objects.first()
+
+        self.assertGET409(reverse('creme_config__delete_instance',
+                                  args=('creme_core', 'fake_img_cat', img_cat.id),
+                                 )
+                         )
+
     def test_reload_model_brick(self):
         response = self.assertGET200(reverse('creme_config__reload_model_brick',
                                              args=('creme_core', 'fake_civility'),
@@ -1344,9 +1524,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
     def test_reload_app_bricks02(self):
-        response = self.assertGET200(reverse('creme_config__reload_app_bricks', args=('creme_core',)),
-                                     data={'brick_id': FakeAppPortalBrick.id_}
-                                    )
+        response = self.assertGET200(
+            reverse('creme_config__reload_app_bricks', args=('creme_core',)),
+            data={'brick_id': FakeAppPortalBrick.id_},
+        )
 
         results = response.json()
         self.assertIsInstance(results, list)

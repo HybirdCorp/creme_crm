@@ -6,7 +6,7 @@ try:
 
     from creme.creme_core.core.deletion import FixedValueReplacer, SETReplacer, REPLACERS_MAP
     from creme.creme_core.models import (FakeContact, FakeOrganisation, FakeCivility,
-        FakeSector, FakeTicketPriority, FakeTicket)
+        FakeSector, FakeTicketPriority, FakeTicket, FakeDocumentCategory, FakeDocument)
 
     from ..base import CremeTestCase
 except Exception as e:
@@ -88,6 +88,28 @@ class DeletionTestCase(CremeTestCase):
                 model_field=FakeOrganisation._meta.get_field('sector'),
                 value=sector,
             ))
+        )
+
+    def test_replacer_by_fixed_value04(self):
+        "ManyToMany."
+        cat = FakeDocumentCategory.objects.create(name='PNGs')
+        m2m = FakeDocument._meta.get_field('categories')
+
+        self.assertEqual(
+            _('In «{model} - {field}», replace by «{new}»').format(
+                model='Test Document',
+                field=_('Categories'),
+                new=cat.name,
+            ),
+            str(FixedValueReplacer(model_field=m2m, value=cat))
+        )
+
+        self.assertEqual(
+            _('Remove from «{model} - {field}»').format(
+                model='Test Document',
+                field=_('Categories'),
+            ),
+            str(FixedValueReplacer(model_field=m2m))
         )
 
     def test_replacer_for_SET(self):

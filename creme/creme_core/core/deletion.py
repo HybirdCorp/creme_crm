@@ -111,16 +111,21 @@ class FixedValueReplacer(Replacer):
 
     def __str__(self):
         value = self._fixed_value
-        fk = self.model_field
+        rel_field = self.model_field
 
-        return _('Empty «{model} - {field}»').format(
-            model=fk.model._meta.verbose_name,
-            field=fk.verbose_name,
-        ) if value is None else \
-        _('In «{model} - {field}», replace by «{new}»').format(
-            model=fk.model._meta.verbose_name,
-            field=fk.verbose_name,
-            new=value,
+        if value:
+            return _('In «{model} - {field}», replace by «{new}»').format(
+                model=rel_field.model._meta.verbose_name,
+                field=rel_field.verbose_name,
+                new=value,
+            )
+
+        msg = _('Remove from «{model} - {field}»') if rel_field.many_to_many else \
+              _('Empty «{model} - {field}»')
+
+        return msg.format(
+            model=rel_field.model._meta.verbose_name,
+            field=rel_field.verbose_name,
         )
 
     def as_dict(self):

@@ -21,7 +21,7 @@ else:
 
     __all__ = (
         'FakeFolderCategory', 'FakeFolder',
-        'FakeDocument', 'FakeFileComponent',
+        'FakeDocumentCategory', 'FakeDocument', 'FakeFileComponent',
         'FakeImageCategory', 'FakeImage',
         'FakeCivility', 'FakePosition', 'FakeSector', 'FakeAddress',
         'FakeContact', 'FakeLegalForm', 'FakeOrganisation',
@@ -31,6 +31,7 @@ else:
         'FakeProductType', 'FakeProduct',
         'FakeReport',
         'FakeTicketStatus', 'FakeTicketPriority', 'FakeTicket',
+        'FakeIngredient', 'FakeRecipe',
     )
 
 
@@ -60,13 +61,13 @@ else:
                                       # related_name='folder_category_set',
                                      )
 
-#        allowed_related = CremeEntity.allowed_related | {'document'}
-#        creation_label = _('Create a folder')
+        # allowed_related = CremeEntity.allowed_related | {'document'}
+        # creation_label = _('Create a folder')
 
         class Meta:
             app_label = 'creme_core'
             manager_inheritance_from_future = True
-#            unique_together = ('title', 'folder', 'category')
+            # unique_together = ('title', 'parent', 'category')
             verbose_name = 'Test Folder'
             verbose_name_plural = 'Test Folders'
             ordering = ('title',)
@@ -74,14 +75,31 @@ else:
         def __str__(self):
             return self.title
 
+    class FakeDocumentCategory(CremeModel):
+        name = models.CharField(_('Category name'), max_length=100, unique=True)
+
+        def __str__(self):
+            return self.name
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = 'Test Document category'
+            verbose_name_plural = 'Test Document categories'
+            ordering = ('name',)
+
 
     class FakeDocument(CremeEntity):
-        title       = models.CharField(_('Title'), max_length=100)
+        title         = models.CharField(_('Title'), max_length=100)
 #        description = models.TextField(_('Description'), blank=True, null=True).set_tags(optional=True)
-        filedata    = models.FileField(_('File'), max_length=100, upload_to='upload/creme_core-tests')
+        filedata      = models.FileField(_('File'), max_length=100, upload_to='upload/creme_core-tests')
         linked_folder = models.ForeignKey(FakeFolder, verbose_name=_('Folder'), on_delete=models.PROTECT)
+        categories    = models.ManyToManyField(FakeDocumentCategory,
+                                               verbose_name=_('Categories'),
+                                               related_name='+',
+                                               blank=True,
+                                              ).set_tags(optional=True)
 
-#        creation_label = _('Create a document')
+       # creation_label = _('Create a document')
 
         class Meta:
             app_label = 'creme_core'
@@ -93,15 +111,13 @@ else:
         def __str__(self):
             return '{} - {}'.format(self.linked_folder, self.title)
 
-#        def get_absolute_url(self):
-#           return "/documents/document/%s" % self.id
+        # def get_absolute_url(self):
 
         @staticmethod
         def get_lv_absolute_url():
             return reverse('creme_core__list_fake_documents')
 
-#        def get_edit_absolute_url(self):
-#            return "/documents/document/edit/%s" % self.id
+        # def get_edit_absolute_url(self):
 
 
     class FakeFileComponent(CremeModel):
@@ -131,10 +147,11 @@ else:
 
     class FakeImage(CremeEntity):
         name        = models.CharField(_('Name'), max_length=100, blank=True, null=True)
-        # description = models.TextField(_('Description'), blank=True, null=True)\
-        #                     .set_tags(optional=True)
-#        image       = ImageField(_('Image'), height_field='height', width_field='width',
-#                                 upload_to='upload/images', max_length=500)
+#        description = models.TextField(_('Description'), blank=True, null=True)\
+#                             .set_tags(optional=True)
+        # image       = models.ImageField(_('Image'), height_field='height', width_field='width',
+        #                                 upload_to='upload/images', max_length=500
+        #                                )
         filedata    = models.FileField(_('File'), max_length=100, editable=False,
                                        upload_to='upload/creme_core-tests',
                                       )
@@ -145,7 +162,7 @@ else:
         exif_date   = models.DateField(_('Exif date'), blank=True, null=True)\
                             .set_tags(optional=True)
 
-#        creation_label = _('Create an image')
+        # creation_label = _('Create an image')
 
         class Meta:
             app_label = 'creme_core'
@@ -168,8 +185,7 @@ else:
         def get_lv_absolute_url():
             return reverse('creme_core__list_fake_images')
 
-#        def get_edit_absolute_url(self):
-#            return "/media_managers/image/edit/%s" % self.id
+        # def get_edit_absolute_url(self):
 
 
     class FakeCivility(CremeModel):
@@ -266,8 +282,8 @@ else:
                                       ).set_tags(optional=True)
         is_a_nerd   = models.BooleanField(_('Is a Nerd'), default=False)
         loves_comics = models.BooleanField(_('Loves comics'), default=None, null=True, blank=True)
-        # description = models.TextField(_('Description'), blank=True, null=True) \
-        #                     .set_tags(optional=True)
+#        description = models.TextField(_('Description'), blank=True, null=True) \
+#                            .set_tags(optional=True)
         phone       = core_fields.PhoneField(_('Phone number'), max_length=100,
                                              blank=True, null=True,
                                             ).set_tags(optional=True)
@@ -443,7 +459,7 @@ else:
                                   on_delete=models.PROTECT,  # editable=False,
                                  ).set_tags(optional=True)
 
-#        creation_label = _('Create an activity')
+        # creation_label = _('Create an activity')
 
         class Meta:
             app_label = 'creme_core'
@@ -455,11 +471,8 @@ else:
         def __str__(self):
             return self.title
 
-#        def get_absolute_url(self):
-#            return "/activities/activity/%s" % self.id
-
-#        def get_edit_absolute_url(self):
-#            return "/activities/activity/edit/%s" % self.id
+        # def get_absolute_url(self):
+        # def get_edit_absolute_url(self):
 
         @staticmethod
         def get_lv_absolute_url():
@@ -479,11 +492,8 @@ else:
         def __str__(self) :
             return self.name
 
-#        def get_absolute_url(self):
-#            return "/emails/mailing_list/%s" % self.id
-
-#        def get_edit_absolute_url(self):
-#            return "/emails/mailing_list/edit/%s" % self.id
+        # def get_absolute_url(self):
+        # def get_edit_absolute_url(self):
 
         @staticmethod
         def get_lv_absolute_url():
@@ -504,11 +514,8 @@ else:
         def __str__(self):
             return self.name
 
-#        def get_absolute_url(self):
-#            return "/emails/campaign/%s" % self.id
-
-#        def get_edit_absolute_url(self):
-#            return "/emails/campaign/edit/%s" % self.id
+        # def get_absolute_url(self):
+        # def get_edit_absolute_url(self):
 
         @staticmethod
         def get_lv_absolute_url():
@@ -521,7 +528,9 @@ else:
         issuing_date    = models.DateField(_('Issuing date'), blank=True, null=True)
         expiration_date = models.DateField(_('Expiration date'), blank=True, null=True)\
                                 .set_tags(optional=True)
-        periodicity     = core_fields.DatePeriodField(_('Periodicity of the generation'), blank=True, null=True)
+        periodicity     = core_fields.DatePeriodField(_('Periodicity of the generation'),
+                                                      blank=True, null=True,
+                                                     )
         total_vat       = core_fields.MoneyField(_('Total with VAT'), max_digits=14, decimal_places=2,
                                                  blank=True, null=True, editable=False, default=0,
                                                 )
@@ -543,8 +552,7 @@ else:
         def get_absolute_url(self):
             return reverse('creme_core__view_fake_invoice', args=(self.id,))
 
-#        def get_edit_absolute_url(self):
-#            return "/billing/invoice/edit/%s" % self.id
+        # def get_edit_absolute_url(self):
 
         @staticmethod
         def get_lv_absolute_url():
@@ -622,7 +630,6 @@ else:
             return self.name
 
         # def get_absolute_url(self):
-        #     return '/tests/product/%s' % self.id
 
         # NB: no get_lv_absolute_url(()  (see views.test_header_filter)
 
@@ -700,3 +707,35 @@ else:
             verbose_name = 'Test Ticket'
             verbose_name_plural = 'Test Tickets'
             ordering = ('title',)
+
+
+    class FakeIngredient(CremeModel):
+        name = models.CharField(_('Name'), max_length=100)
+
+        def __str__(self):
+            return self.name
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = 'Test Ingredient'
+            verbose_name_plural = 'Test Ingredients'
+            ordering = ('name',)
+
+
+    class FakeRecipe(CremeEntity):
+        name        = models.CharField(_('Name'), max_length=100)
+        ingredients = models.ManyToManyField(
+            FakeIngredient, verbose_name=_('Ingredients'), related_name='+',
+            # NB: see creme_config.tests.test_generics_views.GenericModelConfigTestCase#test_delete_m2m_03
+            blank=False,
+        )
+
+        class Meta:
+            app_label = 'creme_core'
+            manager_inheritance_from_future = True
+            verbose_name = 'Test Recipe'
+            verbose_name_plural = 'Test Recipes'
+            ordering = ('name',)
+
+        def __str__(self):
+            return self.name
