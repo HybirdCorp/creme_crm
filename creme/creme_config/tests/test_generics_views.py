@@ -33,17 +33,17 @@ except Exception as e:
 
 
 class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        # cls._sector_backup = list(FakeSector.objects.all())
-        # FakeSector.objects.all().delete()
-
-        # # We import here in order to not launch the automatic registration before the fake bricks are registered.
-        # from .. import registry
-        # cls._ConfigRegistry = registry._ConfigRegistry
-        # cls.NotRegisteredInConfig = registry.NotRegisteredInConfig
+    # @classmethod
+    # def setUpClass(cls):
+    #     super().setUpClass()
+    #
+    #     cls._sector_backup = list(FakeSector.objects.all())
+    #     FakeSector.objects.all().delete()
+    #
+    #     # We import here in order to not launch the automatic registration before the fake bricks are registered.
+    #     from .. import registry
+    #     cls._ConfigRegistry = registry._ConfigRegistry
+    #     cls.NotRegisteredInConfig = registry.NotRegisteredInConfig
 
     # @classmethod
     # def tearDownClass(cls):
@@ -405,7 +405,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(dcom)
 
     def test_delete03(self):
-        "Not custom instance"
+        "Not custom instance."
         sector = FakeSector.objects.create(title='Music', is_custom=False)
         url = reverse('creme_config__delete_instance',
                       args=('creme_core', 'fake_sector', sector.pk),
@@ -417,11 +417,12 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertStillExists(sector)
 
     def test_delete04(self):
-        "Several fields + replacement + CREME_REPLACE."
+        "Several fields + replacement + limit_choices + CREME_REPLACE."
         create_sector = FakeSector.objects.create
         sector1 = create_sector(title='Bo')
         sector2 = create_sector(title='Blade')
         sector3 = create_sector(title='Sai')
+        sector4 = create_sector(title='[INVALID]')  # Should not be proposed for Contacts
         sector2del = create_sector(title='Gun')
 
         create_contact = partial(FakeContact.objects.create, user=self.user, last_name='Turtle')
@@ -450,10 +451,13 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(('', '---------'),          choices1)
         self.assertIn((sector1.id, str(sector1)), choices1)
         self.assertIn((sector2.id, str(sector2)), choices1)
+        self.assertIn((sector3.id, str(sector3)), choices1)
         self.assertNotIn((sector2del.id, str(sector2del)), choices1)
+        self.assertNotIn((sector4.id,    str(sector4)),    choices1)
 
         self.assertNotIn(('', '---------'),       choices2)
         self.assertIn((sector1.id, str(sector1)), choices2)
+        self.assertIn((sector4.id, str(sector4)), choices2)
         self.assertNotIn((sector2del.id, str(sector2del)), choices2)
 
         response = self.assertPOST200(
@@ -955,8 +959,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         "ForeignKey(..., related_name='+', ...) => use the field anyway."
         self.assertIsNone(DeletionCommand.objects.first())
 
-        lform     = FakeLegalForm.objects.create(title='Ninja clan')
-        lform2del = FakeLegalForm.objects.create(title='Ninja army')
+        lform     = FakeLegalForm.objects.create(title='Ninja clan[OK]')
+        lform2del = FakeLegalForm.objects.create(title='Ninja army[OK]')
 
         url = reverse('creme_config__delete_instance',
                       args=('creme_core', 'fake_legalform', lform2del.id),
