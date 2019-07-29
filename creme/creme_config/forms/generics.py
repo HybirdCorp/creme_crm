@@ -25,8 +25,8 @@ from django import forms
 from django.db.migrations.serializer import serializer_factory
 from django.utils.translation import gettext_lazy as _, gettext, ngettext_lazy
 
-from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.core import deletion
+from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.forms.base import CremeModelForm, FieldBlockManager
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import Job, FieldsConfig, DeletionCommand
@@ -153,9 +153,11 @@ class ChoiceReplacingHandler(ReplacingHandler):
     to use as replacement.
     """
     def _build_formfield_queryset(self):
-        instance = self.instance_to_delete
+        field = self.field
+        qs = field.remote_field.model._default_manager.exclude(pk=self.instance_to_delete.pk)
+        limit_choices_to = field.get_limit_choices_to()
 
-        return type(instance)._default_manager.exclude(pk=instance.pk)
+        return qs.complex_filter(limit_choices_to) if limit_choices_to else qs
 
     def _get_choicefield_data(self):
         return {
