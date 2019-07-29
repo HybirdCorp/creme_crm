@@ -33,6 +33,7 @@ from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..forms import relation as rel_forms
 from ..models import Relation, RelationType, CremeEntity
+from ..shortcuts import get_bulk_or_404
 
 from .decorators import jsonify
 from .generic import base
@@ -346,24 +347,18 @@ class RelationFromFieldsDeletion(CremeModelDeletion):
         get = partial(utils.get_from_POST_or_404, request.POST, cast=int)
         subject_id = get(self.subject_id_arg)
         object_id  = get(self.object_id_arg)
-        entities_per_id = CremeEntity.objects.in_bulk([subject_id, object_id])
+        entities_per_id = get_bulk_or_404(CremeEntity, [subject_id, object_id])
         user = request.user
 
-        # TODO: get_bulk_or_404() ??
-
-        subject = entities_per_id.get(subject_id)
-        if subject is None:
-            raise Http404('The subject cannot be found')
+        subject = entities_per_id[subject_id]
         self.check_subject_permissions(subject=subject, user=user)
 
-        object = entities_per_id.get(object_id)
-        if object is None:
-            raise Http404('The object cannot be found')
+        object = entities_per_id[object_id]
         self.check_object_permissions(object=object, user=user)
 
         return {
-            'subject': subject,
-            'object': object,
+            'subject_entity': subject,
+            'object_entity': object,
         }
 
     def get_rtype(self):
@@ -376,13 +371,10 @@ class RelationFromFieldsDeletion(CremeModelDeletion):
         return rtype
 
     def get_query_kwargs(self):
-        entities = self.get_entities()
+        kwargs = self.get_entities()
+        kwargs['type'] = self.get_rtype()
 
-        return {
-            'subject_entity': entities['subject'],
-            'type':           self.get_rtype(),
-            'object_entity':  entities['object'],
-        }
+        return kwargs
 
     # TODO ?
     # def get_success_url(self):
