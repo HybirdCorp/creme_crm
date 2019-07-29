@@ -762,21 +762,32 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(1710, invoice._get_total())  # total_exclusive_of_tax
         self.assertEqual(1710, invoice.total_no_vat)
 
-    def test_delete_status01(self):
+    # def test_delete_status01(self):
+    def test_delete_status(self):
         self.login()
 
-        status = InvoiceStatus.objects.create(name='OK')
-        self.assertDeleteStatusOK(status, 'invoice_status')
+        new_status = InvoiceStatus.objects.first()
+        status2del = InvoiceStatus.objects.create(name='OK')
 
-    def test_delete_status02(self):
-        self.login()
-
-        status = InvoiceStatus.objects.create(name='OK')
         invoice = self.create_invoice_n_orgas('Nerv')[0]
-        invoice.status = status
+        invoice.status = status2del
         invoice.save()
 
-        self.assertDeleteStatusKO(status, 'invoice_status', invoice)
+        self.assertDeleteStatusOK(status2del=status2del,
+                                  short_name='invoice_status',
+                                  new_status=new_status,
+                                  doc=invoice,
+                                 )
+
+    # def test_delete_status02(self):
+    #     self.login()
+    #
+    #     status = InvoiceStatus.objects.create(name='OK')
+    #     invoice = self.create_invoice_n_orgas('Nerv')[0]
+    #     invoice.status = status
+    #     invoice.save()
+    #
+    #     self.assertDeleteStatusKO(status, 'invoice_status', invoice)
 
     def test_delete_paymentterms(self):
         self.login()

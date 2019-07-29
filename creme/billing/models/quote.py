@@ -18,16 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey, DateField, PROTECT
+from django.db.models import ForeignKey, DateField  # PROTECT
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
+
+from creme.creme_core.models import CREME_REPLACE
 
 from .base import Base
 from .other_models import QuoteStatus
 
 
 class AbstractQuote(Base):
-    status           = ForeignKey(QuoteStatus, verbose_name=_('Status of quote'), on_delete=PROTECT)
+    status           = ForeignKey(QuoteStatus,
+                                  verbose_name=_('Status of quote'),
+                                  # on_delete=PROTECT,
+                                  on_delete=CREME_REPLACE,
+                                 )
     acceptation_date = DateField(_('Acceptation date'), blank=True, null=True) \
                                 .set_tags(clonable=False, optional=True)
 

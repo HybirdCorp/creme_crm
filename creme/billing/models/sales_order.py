@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey, PROTECT
+from django.db.models import ForeignKey  # PROTECT
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+
+from creme.creme_core.models import CREME_REPLACE
 
 from .base import Base
 from .templatebase import TemplateBase
@@ -28,7 +30,11 @@ from .other_models import SalesOrderStatus
 
 
 class AbstractSalesOrder(Base):
-    status = ForeignKey(SalesOrderStatus, verbose_name=_('Status of salesorder'), on_delete=PROTECT)
+    status = ForeignKey(SalesOrderStatus,
+                        verbose_name=_('Status of salesorder'),
+                        # on_delete=PROTECT,
+                        on_delete=CREME_REPLACE,
+                       )
 
     creation_label = _('Create a salesorder')
     save_label     = _('Save the salesorder')

@@ -18,20 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey, PROTECT
+from django.db.models import ForeignKey  # PROTECT
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import Relation
+from creme.creme_core.models import Relation, CREME_REPLACE
 
 from .. import get_template_base_model
 from ..constants import REL_SUB_CREDIT_NOTE_APPLIED
+
 from .base import Base
 from .other_models import CreditNoteStatus
 
 
 class AbstractCreditNote(Base):
-    status = ForeignKey(CreditNoteStatus, verbose_name=_('Status of credit note'), on_delete=PROTECT)
+    status = ForeignKey(CreditNoteStatus,
+                        verbose_name=_('Status of credit note'),
+                        # on_delete=PROTECT,
+                        on_delete=CREME_REPLACE,
+                       )
 
     creation_label = _('Create a credit note')
     save_label     = _('Save the credit note')

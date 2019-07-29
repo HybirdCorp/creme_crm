@@ -18,22 +18,32 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey, PROTECT, SET_NULL
+from django.db.models import ForeignKey, PROTECT  # SET_NULL
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+
+from creme.creme_core.models import deletion
 
 from creme.persons.workflow import transform_target_into_customer
 
 from .. import get_template_base_model
 from ..constants import DEFAULT_DECIMAL
+
+from . import other_models
 from .base import Base
-from .other_models import InvoiceStatus, SettlementTerms
 
 
 class AbstractInvoice(Base):
-    status       = ForeignKey(InvoiceStatus, verbose_name=_('Status of invoice'), on_delete=PROTECT)
-    payment_type = ForeignKey(SettlementTerms, verbose_name=_('Settlement terms'),
-                              blank=True, null=True, on_delete=SET_NULL,
+    status       = ForeignKey(other_models.InvoiceStatus,
+                              verbose_name=_('Status of invoice'),
+                              # on_delete=PROTECT,
+                              on_delete=deletion.CREME_REPLACE,
+                             )
+    payment_type = ForeignKey(other_models.SettlementTerms,
+                              verbose_name=_('Settlement terms'),
+                              blank=True, null=True,
+                              # on_delete=SET_NULL,
+                              on_delete=deletion.CREME_REPLACE_NULL,
                              ).set_tags(optional=True)
 
     creation_label = _('Create an invoice')
@@ -83,7 +93,7 @@ class AbstractInvoice(Base):
 
         if isinstance(template, get_template_base_model()):
             tpl_status_id = template.status_id
-            if InvoiceStatus.objects.filter(pk=tpl_status_id).exists():
+            if other_models.InvoiceStatus.objects.filter(pk=tpl_status_id).exists():
                 status_id = tpl_status_id
 
         self.status_id = status_id

@@ -118,7 +118,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_merge_algoconfig01(self):
-        "One managed organisation"
+        "One managed organisation."
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -145,7 +145,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_merge_algoconfig02(self):
-        "Two managed organisations"
+        "Two managed organisations."
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -170,7 +170,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_merge_algoconfig03(self):
-        "Two organisations with algo config, but not managed (anymore)"
+        "Two organisations with algo config, but not managed (anymore)."
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)

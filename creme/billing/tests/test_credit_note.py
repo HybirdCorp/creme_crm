@@ -34,40 +34,6 @@ class CreditNoteTestCase(_BillingTestCase):
     def _build_deleterelated_url(self, credit_note, invoice):
         return reverse('billing__delete_related_cnote', args=(credit_note.id, invoice.id))
 
-    def create_credit_note(self, name, source, target, currency=None, discount=Decimal(), user=None, status=None):
-        user = user or self.user
-        status = status or CreditNoteStatus.objects.all()[0]
-        currency = currency or Currency.objects.all()[0]
-        response = self.client.post(
-            reverse('billing__create_cnote'), follow=True,
-            data={'user':            user.id,
-                  'name':            name,
-                  'issuing_date':    '2010-9-7',
-                  'expiration_date': '2010-10-13',
-                  'status':          status.id,
-                  'currency':        currency.id,
-                  'discount':        discount,
-                  'source':          source.id,
-                  'target':          self.formfield_value_generic_entity(target),
-                 },
-        )
-        self.assertNoFormError(response)
-
-        credit_note = self.get_object_or_fail(CreditNote, name=name)
-        self.assertRedirects(response, credit_note.get_absolute_url())
-
-        return credit_note
-
-    def create_credit_note_n_orgas(self, name, user=None, status=None, **kwargs):
-        user = user or self.user
-        create_orga = partial(Organisation.objects.create, user=user)
-        source = create_orga(name='Source Orga')
-        target = create_orga(name='Target Orga')
-
-        credit_note = self.create_credit_note(name, source, target, user=user, status=status, **kwargs)
-
-        return credit_note, source, target
-
     def assertInvoiceTotalToPay(self, invoice, total):
         invoice = self.refresh(invoice)
         expected_total = Decimal(total)
@@ -199,17 +165,29 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual([credit_note], self.refresh(invoice).get_credit_notes())
         self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
 
-    def test_delete_status01(self):
+    # def test_delete_status01(self):
+    def test_delete_status(self):
         self.login()
-        status = CreditNoteStatus.objects.create(name='OK')
-        self.assertDeleteStatusOK(status, 'credit_note_status')
+        # status = CreditNoteStatus.objects.create(name='OK')
+        # self.assertDeleteStatusOK(status, 'credit_note_status')
 
-    def test_delete_status02(self):
-        self.login()
-        status = CreditNoteStatus.objects.create(name='OK')
-        credit_note = self.create_credit_note_n_orgas('Credit Note 001', status=status)[0]
+        new_status = CreditNoteStatus.objects.first()
+        status2del = CreditNoteStatus.objects.create(name='OK')
 
-        self.assertDeleteStatusKO(status, 'credit_note_status', credit_note)
+        credit_note = self.create_credit_note_n_orgas('Credit Note 001', status=status2del)[0]
+
+        self.assertDeleteStatusOK(status2del=status2del,
+                                  short_name='credit_note_status',
+                                  new_status=new_status,
+                                  doc=credit_note,
+                                 )
+
+    # def test_delete_status02(self):
+    #     self.login()
+    #     status = CreditNoteStatus.objects.create(name='OK')
+    #     credit_note = self.create_credit_note_n_orgas('Credit Note 001', status=status)[0]
+    #
+    #     self.assertDeleteStatusKO(status, 'credit_note_status', credit_note)
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine

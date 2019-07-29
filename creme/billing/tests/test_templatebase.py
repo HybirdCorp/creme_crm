@@ -12,12 +12,12 @@ try:
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..models import (InvoiceStatus, QuoteStatus, SalesOrderStatus,
+    from ..models import (InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
             AdditionalInformation, PaymentTerms)
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from .base import (_BillingTestCase, skipIfCustomTemplateBase,
             skipIfCustomInvoice, skipIfCustomQuote, skipIfCustomSalesOrder,
-            Organisation, TemplateBase, Invoice, Quote, SalesOrder)
+            Organisation, TemplateBase, Invoice, Quote, SalesOrder, CreditNote)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -189,7 +189,7 @@ class TemplateBaseTestCase(_BillingTestCase):
 
     @skipIfCustomSalesOrder
     def test_create_order02(self):
-        "Bad status id"
+        "Bad status id."
         pk = 8
         self.assertFalse(SalesOrder.objects.filter(pk=pk))
 
@@ -199,5 +199,107 @@ class TemplateBaseTestCase(_BillingTestCase):
             order = tpl.create_entity()
 
         self.assertEqual(1, order.status.id)
+
+    def test_delete_invoice_status(self):
+        new_status, other_status = InvoiceStatus.objects.all()[:2]
+        status2del = InvoiceStatus.objects.create(name='OK')
+
+        tpl1 = self._create_templatebase(Invoice, status2del.id)
+        tpl2 = self._create_templatebase(Invoice, other_status.id)
+        tpl3 = self._create_templatebase(Quote,   status2del.id)
+
+        invoice = self.create_invoice_n_orgas('Nerv')[0]
+        invoice.status = status2del
+        invoice.save()
+
+        self.assertDeleteStatusOK(status2del=status2del,
+                                  short_name='invoice_status',
+                                  new_status=new_status,
+                                  doc=invoice,
+                                 )
+
+        tpl1 = self.assertStillExists(tpl1)
+        self.assertEqual(new_status.id, tpl1.status_id)
+
+        tpl2 = self.refresh(tpl2)
+        self.assertEqual(other_status.id, tpl2.status_id)
+
+        tpl3 = self.refresh(tpl3)
+        self.assertEqual(status2del.id, tpl3.status_id)
+
+    def test_delete_quote_status(self):
+        new_status, other_status = QuoteStatus.objects.all()[:2]
+        status2del = QuoteStatus.objects.create(name='OK')
+
+        tpl1 = self._create_templatebase(Quote,   status2del.id)
+        tpl2 = self._create_templatebase(Quote,   other_status.id)
+        tpl3 = self._create_templatebase(Invoice, status2del.id)
+
+        quote = self.create_quote_n_orgas('Nerv', status=status2del)[0]
+
+        self.assertDeleteStatusOK(status2del=status2del,
+                                  short_name='quote_status',
+                                  new_status=new_status,
+                                  doc=quote,
+                                 )
+
+        tpl1 = self.assertStillExists(tpl1)
+        self.assertEqual(new_status.id, tpl1.status_id)
+
+        tpl2 = self.refresh(tpl2)
+        self.assertEqual(other_status.id, tpl2.status_id)
+
+        tpl3 = self.refresh(tpl3)
+        self.assertEqual(status2del.id, tpl3.status_id)
+
+    def test_delete_salesorder_status(self):
+        new_status, other_status = SalesOrderStatus.objects.all()[:2]
+        status2del = SalesOrderStatus.objects.create(name='OK')
+
+        tpl1 = self._create_templatebase(SalesOrder, status2del.id)
+        tpl2 = self._create_templatebase(SalesOrder, other_status.id)
+        tpl3 = self._create_templatebase(Invoice,    status2del.id)
+
+        order = self.create_salesorder_n_orgas('Order', status=status2del)[0]
+
+        self.assertDeleteStatusOK(status2del=status2del,
+                                  short_name='sales_order_status',
+                                  new_status=new_status,
+                                  doc=order,
+                                 )
+
+        tpl1 = self.assertStillExists(tpl1)
+        self.assertEqual(new_status.id, tpl1.status_id)
+
+        tpl2 = self.refresh(tpl2)
+        self.assertEqual(other_status.id, tpl2.status_id)
+
+        tpl3 = self.refresh(tpl3)
+        self.assertEqual(status2del.id, tpl3.status_id)
+
+    def test_delete_creditnote_status(self):
+        new_status, other_status = CreditNoteStatus.objects.all()[:2]
+        status2del = CreditNoteStatus.objects.create(name='OK')
+
+        tpl1 = self._create_templatebase(CreditNote, status2del.id)
+        tpl2 = self._create_templatebase(CreditNote, other_status.id)
+        tpl3 = self._create_templatebase(Invoice,    status2del.id)
+
+        credit_note = self.create_credit_note_n_orgas('Credit Note', status=status2del)[0]
+
+        self.assertDeleteStatusOK(status2del=status2del,
+                                  short_name='credit_note_status',
+                                  new_status=new_status,
+                                  doc=credit_note,
+                                 )
+
+        tpl1 = self.assertStillExists(tpl1)
+        self.assertEqual(new_status.id, tpl1.status_id)
+
+        tpl2 = self.refresh(tpl2)
+        self.assertEqual(other_status.id, tpl2.status_id)
+
+        tpl3 = self.refresh(tpl3)
+        self.assertEqual(status2del.id, tpl3.status_id)
 
     # TODO: test form

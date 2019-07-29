@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,22 +20,22 @@
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.signals import post_save, post_delete
+from django.db.models import signals
+from django.db.transaction import atomic
 from django.dispatch import receiver
 
 from creme.creme_core.models import Relation
-from creme.creme_core.signals import pre_merge_related
+from creme.creme_core import signals as core_signals
 
-from creme.persons import get_organisation_model
+from creme import persons, billing
 
-from . import constants, get_invoice_model, get_quote_model, get_sales_order_model
+from . import constants
 from .models import ConfigBillingAlgo, SimpleBillingAlgo
 
+Organisation = persons.get_organisation_model()
 
-Organisation = get_organisation_model()
 
-
-@receiver(post_save, sender=Organisation)
+@receiver(signals.post_save, sender=Organisation)
 def set_simple_conf_billing(sender, instance, **kwargs):
     if not instance.is_managed:
         return
@@ -45,16 +45,16 @@ def set_simple_conf_billing(sender, instance, **kwargs):
 
     get_ct = ContentType.objects.get_for_model
 
-    for model, prefix in [(get_quote_model(),       settings.QUOTE_NUMBER_PREFIX),
-                          (get_invoice_model(),     settings.INVOICE_NUMBER_PREFIX),
-                          (get_sales_order_model(), settings.SALESORDER_NUMBER_PREFIX),
+    for model, prefix in [(billing.get_quote_model(),       settings.QUOTE_NUMBER_PREFIX),
+                          (billing.get_invoice_model(),     settings.INVOICE_NUMBER_PREFIX),
+                          (billing.get_sales_order_model(), settings.SALESORDER_NUMBER_PREFIX),
                          ]:
         ct = get_ct(model)
         ConfigBillingAlgo.objects.create(organisation=instance, ct=ct, name_algo=SimpleBillingAlgo.ALGO_NAME)
         SimpleBillingAlgo.objects.create(organisation=instance, last_number=0, prefix=prefix, ct=ct)
 
 
-@receiver(pre_merge_related)
+@receiver(core_signals.pre_merge_related)
 def handle_merge_organisations(sender, other_entity, **kwargs):
     # NB: we assume that all CTs are covered if at least one CT is covered
     #     because ConfigBillingAlgo/SimpleBillingAlgo instances are only
@@ -77,7 +77,36 @@ def handle_merge_organisations(sender, other_entity, **kwargs):
             return  # We avoid the queries for the next model (if it's the first iteration)
 
 
-@receiver((post_save, post_delete), sender=Relation)
+STATUSES_REPLACEMENTS = {
+    billing.get_credit_note_model(): 'status',
+    billing.get_invoice_model():     'status',
+    billing.get_quote_model():       'status',
+    billing.get_sales_order_model(): 'status',
+}
+
+@receiver(core_signals.pre_replace_and_delete)
+def handle_replace_statuses(sender, model_field, replacing_instance, **kwargs):
+    model = model_field.model
+
+    if STATUSES_REPLACEMENTS.get(model) == model_field.name:
+        tpl_mngr = billing.get_template_base_model().objects
+
+        for pk in tpl_mngr.filter(status_id=sender.pk,
+                                  ct=ContentType.objects.get_for_model(model),
+                                 )\
+                          .values_list('pk', flat=True):
+            # NB1: we perform a .save(), not an .update() in order to:
+            #       - let the model compute it's business logic (if there is one).
+            #       - get an HistoryLine for entities.
+            # NB2: as in edition view, we perform a select_for_update() to avoid
+            #      overriding other fields (if there are concurrent accesses)
+            with atomic():
+                tpl = tpl_mngr.select_for_update().filter(pk=pk).first()
+                tpl.status_id = replacing_instance.id
+                tpl.save()
+
+
+@receiver((signals.post_save, signals.post_delete), sender=Relation)
 def manage_linked_credit_notes(sender, instance, **kwargs):
     "The calculated totals of Invoices have to be refreshed."
     if instance.type_id == constants.REL_SUB_CREDIT_NOTE_APPLIED:
@@ -85,8 +114,8 @@ def manage_linked_credit_notes(sender, instance, **kwargs):
 
 
 # TODO: problem, if several lines are deleted at once, lots of useless queries (workflow engine ??)
-@receiver(post_delete, sender=Relation)
+@receiver(signals.post_delete, sender=Relation)
 def manage_line_deletion(sender, instance, **kwargs):
-    "The calculated totals (Invoice, Quote...) have to be refreshed"
+    "The calculated totals (Invoice, Quote...) have to be refreshed."
     if instance.type_id == constants.REL_OBJ_HAS_LINE:
         instance.object_entity.get_real_entity().save()

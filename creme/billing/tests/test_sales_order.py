@@ -232,19 +232,31 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertEqual(2, orders_page.paginator.count)
         self.assertEqual({order1, order2}, set(orders_page.paginator.object_list))
 
-    def test_delete_status01(self):
+    # def test_delete_status01(self):
+    def test_delete_status(self):
         self.login()
 
-        status = SalesOrderStatus.objects.create(name='OK')
-        self.assertDeleteStatusOK(status, 'sales_order_status')
+        # status = SalesOrderStatus.objects.create(name='OK')
+        # self.assertDeleteStatusOK(status, 'sales_order_status')
 
-    def test_delete_status02(self):
-        self.login()
+        new_status = SalesOrderStatus.objects.first()
+        status2del = SalesOrderStatus.objects.create(name='OK')
 
-        status = SalesOrderStatus.objects.create(name='OK')
-        order = self.create_salesorder_n_orgas('Order', status=status)[0]
+        order = self.create_salesorder_n_orgas('Order', status=status2del)[0]
 
-        self.assertDeleteStatusKO(status, 'sales_order_status', order)
+        self.assertDeleteStatusOK(status2del=status2del,
+                                  short_name='sales_order_status',
+                                  new_status=new_status,
+                                  doc=order,
+                                 )
+
+    # def test_delete_status02(self):
+    #     self.login()
+    #
+    #     status = SalesOrderStatus.objects.create(name='OK')
+    #     order = self.create_salesorder_n_orgas('Order', status=status)[0]
+    #
+    #     self.assertDeleteStatusKO(status, 'sales_order_status', order)
 
     @skipIfCustomAddress
     def test_mass_import(self):
