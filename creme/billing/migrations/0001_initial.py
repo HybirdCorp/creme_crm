@@ -1,24 +1,23 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from decimal import Decimal
 
 from django.conf import settings
 from django.db import models, migrations
 from django.db.models.deletion import SET_NULL, PROTECT, CASCADE
 
-import creme.creme_core.models.fields
+from creme.creme_core.models import (fields as creme_fields,
+    CREME_REPLACE_NULL, CREME_REPLACE)
 
-import creme.billing.models.fields
+from creme.billing.models.fields import BillingDiscountField
 
 
 class Migration(migrations.Migration):
     # replaces = [
-    #     (b'billing', '0001_initial'),
-    #     (b'billing', '0012_v1_7__charfields_not_null_1'),
-    #     (b'billing', '0013_v1_7__charfields_not_null_2'),
-    #     (b'billing', '0014_v1_7__textfields_not_null_1'),
-    #     (b'billing', '0015_v1_7__textfields_not_null_2'),
+    #     ('billing', '0001_initial'),
+    #     ('billing', '0012_v1_7__charfields_not_null_1'),
+    #     ('billing', '0013_v1_7__charfields_not_null_2'),
+    #     ('billing', '0014_v1_7__textfields_not_null_1'),
+    #     ('billing', '0015_v1_7__textfields_not_null_2'),
     # ]
 
     initial = True
@@ -91,7 +90,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name_algo', models.CharField(max_length=400, verbose_name='Algo name')),
-                ('ct', creme.creme_core.models.fields.CTypeForeignKey(to='contenttypes.ContentType')),
+                ('ct', creme_fields.CTypeForeignKey(to='contenttypes.ContentType')),
                 ('organisation', models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)),
             ],
             options={
@@ -104,7 +103,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('is_custom', models.BooleanField(default=True)),
-                ('order', creme.creme_core.models.fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('order', creme_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -125,18 +124,21 @@ class Migration(migrations.Migration):
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
                 ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
                 ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
-                ('discount', creme.billing.models.fields.BillingDiscountField(default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2)),
+                ('discount', BillingDiscountField(default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2)),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
-                ('total_vat', creme.creme_core.models.fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total with VAT')),
-                ('total_no_vat', creme.creme_core.models.fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total without VAT')),
-                ('additional_info', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
+                ('total_vat', creme_fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total with VAT')),
+                ('total_no_vat', creme_fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total without VAT')),
+                # ('additional_info', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
+                ('additional_info', models.ForeignKey(related_name='+', on_delete=CREME_REPLACE_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
                 ('currency', models.ForeignKey(related_name='+', on_delete=PROTECT, default=1, verbose_name='Currency', to='creme_core.Currency')),
                 ('payment_info', models.ForeignKey(on_delete=SET_NULL, blank=True, editable=False, to='billing.PaymentInformation', null=True, verbose_name='Payment information')),
-                ('payment_terms', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
+                # ('payment_terms', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
+                ('payment_terms', models.ForeignKey(related_name='+', on_delete=CREME_REPLACE_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
                 ('billing_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
                 ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
 
-                ('status', models.ForeignKey(on_delete=PROTECT, verbose_name='Status of credit note', to='billing.CreditNoteStatus')),
+                # ('status', models.ForeignKey(on_delete=PROTECT, verbose_name='Status of credit note', to='billing.CreditNoteStatus')),
+                ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status of credit note', to='billing.CreditNoteStatus')),
             ],
             options={
                 'swappable': 'BILLING_CREDIT_NOTE_MODEL',
@@ -165,7 +167,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('is_custom', models.BooleanField(default=True)),
-                ('order', creme.creme_core.models.fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('order', creme_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('pending_payment', models.BooleanField(default=False, verbose_name='Pending payment')),
             ],
             options={
@@ -187,19 +189,23 @@ class Migration(migrations.Migration):
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
                 ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
                 ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
-                ('discount', creme.billing.models.fields.BillingDiscountField(default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2)),
+                ('discount', BillingDiscountField(default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2)),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
-                ('total_vat', creme.creme_core.models.fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total with VAT')),
-                ('total_no_vat', creme.creme_core.models.fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total without VAT')),
-                ('additional_info', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
+                ('total_vat', creme_fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total with VAT')),
+                ('total_no_vat', creme_fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total without VAT')),
+                # ('additional_info', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
+                ('additional_info', models.ForeignKey(related_name='+', on_delete=CREME_REPLACE_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
                 ('currency', models.ForeignKey(related_name='+', on_delete=PROTECT, default=1, verbose_name='Currency', to='creme_core.Currency')),
                 ('payment_info', models.ForeignKey(on_delete=SET_NULL, blank=True, editable=False, to='billing.PaymentInformation', null=True, verbose_name='Payment information')),
-                ('payment_terms', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
+                # ('payment_terms', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
+                ('payment_terms', models.ForeignKey(related_name='+', on_delete=CREME_REPLACE_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
                 ('billing_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
                 ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
 
-                ('status', models.ForeignKey(on_delete=PROTECT, verbose_name='Status of invoice', to='billing.InvoiceStatus')),
-                ('payment_type', models.ForeignKey(on_delete=SET_NULL, verbose_name='Settlement terms', blank=True, to='billing.SettlementTerms', null=True)),
+                # ('status', models.ForeignKey(on_delete=PROTECT, verbose_name='Status of invoice', to='billing.InvoiceStatus')),
+                ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status of invoice', to='billing.InvoiceStatus')),
+                # ('payment_type', models.ForeignKey(on_delete=SET_NULL, verbose_name='Settlement terms', blank=True, to='billing.SettlementTerms', null=True)),
+                ('payment_type', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Settlement terms', blank=True, to='billing.SettlementTerms', null=True)),
             ],
             options={
                 'swappable': 'BILLING_INVOICE_MODEL',
@@ -215,7 +221,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('is_custom', models.BooleanField(default=True)),
-                ('order', creme.creme_core.models.fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('order', creme_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('won', models.BooleanField(default=False, verbose_name='Won')),
             ],
             options={
@@ -237,19 +243,22 @@ class Migration(migrations.Migration):
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
                 ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
                 ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
-                ('discount', creme.billing.models.fields.BillingDiscountField(default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2)),
+                ('discount', BillingDiscountField(default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2)),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
-                ('total_vat', creme.creme_core.models.fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total with VAT')),
-                ('total_no_vat', creme.creme_core.models.fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total without VAT')),
-                ('additional_info', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
+                ('total_vat', creme_fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total with VAT')),
+                ('total_no_vat', creme_fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total without VAT')),
+                # ('additional_info', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
+                ('additional_info', models.ForeignKey(related_name='+', on_delete=CREME_REPLACE_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
                 ('currency', models.ForeignKey(related_name='+', on_delete=PROTECT, default=1, verbose_name='Currency', to='creme_core.Currency')),
                 ('payment_info', models.ForeignKey(on_delete=SET_NULL, blank=True, editable=False, to='billing.PaymentInformation', null=True, verbose_name='Payment information')),
-                ('payment_terms', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
+                # ('payment_terms', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
+                ('payment_terms', models.ForeignKey(related_name='+', on_delete=CREME_REPLACE_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
                 ('billing_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
                 ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
 
                 ('acceptation_date', models.DateField(null=True, verbose_name='Acceptation date', blank=True)),
-                ('status', models.ForeignKey(on_delete=PROTECT, verbose_name='Status of quote', to='billing.QuoteStatus')),
+                # ('status', models.ForeignKey(on_delete=PROTECT, verbose_name='Status of quote', to='billing.QuoteStatus')),
+                ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status of quote', to='billing.QuoteStatus')),
             ],
             options={
                 'swappable': 'BILLING_QUOTE_MODEL',
@@ -265,7 +274,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('is_custom', models.BooleanField(default=True)),
-                ('order', creme.creme_core.models.fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('order', creme_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -286,18 +295,21 @@ class Migration(migrations.Migration):
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
                 ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
                 ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
-                ('discount', creme.billing.models.fields.BillingDiscountField(default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2)),
+                ('discount', BillingDiscountField(default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2)),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
-                ('total_vat', creme.creme_core.models.fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total with VAT')),
-                ('total_no_vat', creme.creme_core.models.fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total without VAT')),
-                ('additional_info', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
+                ('total_vat', creme_fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total with VAT')),
+                ('total_no_vat', creme_fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total without VAT')),
+                # ('additional_info', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
+                ('additional_info', models.ForeignKey(related_name='+', on_delete=CREME_REPLACE_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
                 ('currency', models.ForeignKey(related_name='+', on_delete=PROTECT, default=1, verbose_name='Currency', to='creme_core.Currency')),
                 ('payment_info', models.ForeignKey(on_delete=SET_NULL, blank=True, editable=False, to='billing.PaymentInformation', null=True, verbose_name='Payment information')),
-                ('payment_terms', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
+                # ('payment_terms', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
+                ('payment_terms', models.ForeignKey(related_name='+', on_delete=CREME_REPLACE_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
                 ('billing_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
                 ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
 
-                ('status', models.ForeignKey(on_delete=PROTECT, verbose_name='Status of salesorder', to='billing.SalesOrderStatus')),
+                # ('status', models.ForeignKey(on_delete=PROTECT, verbose_name='Status of salesorder', to='billing.SalesOrderStatus')),
+                ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status of salesorder', to='billing.SalesOrderStatus')),
             ],
             options={
                 'swappable': 'BILLING_SALES_ORDER_MODEL',
@@ -313,7 +325,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('last_number', models.IntegerField()),
                 ('prefix', models.CharField(max_length=400, verbose_name='Invoice prefix')),
-                ('ct', creme.creme_core.models.fields.CTypeForeignKey(to='contenttypes.ContentType')),
+                ('ct', creme_fields.CTypeForeignKey(to='contenttypes.ContentType')),
                 ('organisation', models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)),
             ],
             options={
@@ -332,19 +344,21 @@ class Migration(migrations.Migration):
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
                 ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
                 ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
-                ('discount', creme.billing.models.fields.BillingDiscountField(default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2)),
+                ('discount', BillingDiscountField(default=Decimal('0'), verbose_name='Overall discount', max_digits=10, decimal_places=2)),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
-                ('total_vat', creme.creme_core.models.fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total with VAT')),
-                ('total_no_vat', creme.creme_core.models.fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total without VAT')),
-                ('additional_info', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
+                ('total_vat', creme_fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total with VAT')),
+                ('total_no_vat', creme_fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total without VAT')),
+                # ('additional_info', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
+                ('additional_info', models.ForeignKey(related_name='+', on_delete=CREME_REPLACE_NULL, verbose_name='Additional Information', blank=True, to='billing.AdditionalInformation', null=True)),
                 ('currency', models.ForeignKey(related_name='+', on_delete=PROTECT, default=1, verbose_name='Currency', to='creme_core.Currency')),
                 ('payment_info', models.ForeignKey(on_delete=SET_NULL, blank=True, editable=False, to='billing.PaymentInformation', null=True, verbose_name='Payment information')),
-                ('payment_terms', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
+                # ('payment_terms', models.ForeignKey(related_name='+', on_delete=SET_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
+                ('payment_terms', models.ForeignKey(related_name='+', on_delete=CREME_REPLACE_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
                 ('billing_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
                 ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
 
                 ('status_id', models.PositiveIntegerField(editable=False)),
-                ('ct', creme.creme_core.models.fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
+                ('ct', creme_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
             ],
             options={
                 'swappable': 'BILLING_TEMPLATE_BASE_MODEL',

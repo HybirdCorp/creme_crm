@@ -30,7 +30,6 @@ from creme.creme_core.models.fields import CTypeForeignKey
 
 from .base import Base
 
-
 logger = logging.getLogger(__name__)
 
 

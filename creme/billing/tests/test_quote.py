@@ -353,17 +353,29 @@ class QuoteTestCase(_BillingTestCase):
         self.assertTrue(export_action.is_enabled)
         self.assertTrue(export_action.is_visible)
 
-    def test_delete_status01(self):
+    # def test_delete_status01(self):
+    def test_delete_status(self):
         self.login()
-        status = QuoteStatus.objects.create(name='OK')
-        self.assertDeleteStatusOK(status, 'quote_status')
+        # status = QuoteStatus.objects.create(name='OK')
+        # self.assertDeleteStatusOK(status, 'quote_status')
 
-    def test_delete_status02(self):
-        self.login()
-        status = QuoteStatus.objects.create(name='OK')
-        quote = self.create_quote_n_orgas('Nerv', status=status)[0]
+        new_status = QuoteStatus.objects.first()
+        status2del = QuoteStatus.objects.create(name='OK')
 
-        self.assertDeleteStatusKO(status, 'quote_status', quote)
+        quote = self.create_quote_n_orgas('Nerv', status=status2del)[0]
+
+        self.assertDeleteStatusOK(status2del=status2del,
+                                  short_name='quote_status',
+                                  new_status=new_status,
+                                  doc=quote,
+                                 )
+
+    # def test_delete_status02(self):
+    #     self.login()
+    #     status = QuoteStatus.objects.create(name='OK')
+    #     quote = self.create_quote_n_orgas('Nerv', status=status)[0]
+    #
+    #     self.assertDeleteStatusKO(status, 'quote_status', quote)
 
     @skipIfCustomAddress
     def test_mass_import(self):

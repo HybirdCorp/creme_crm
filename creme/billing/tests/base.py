@@ -29,7 +29,7 @@ try:
 
     from creme import billing
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from ..models import QuoteStatus
+    from ..models import CreditNoteStatus, QuoteStatus
 
     skip_cnote_tests    = billing.credit_note_model_is_custom()
     skip_invoice_tests  = billing.invoice_model_is_custom()
@@ -101,21 +101,56 @@ class _BillingTestCaseMixin:
         for f in ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country'):
             self.assertEqual(getattr(address1, f), getattr(address2, f))
 
+    def create_credit_note(self, name, source, target, currency=None, discount=Decimal(), user=None, status=None):
+        user = user or self.user
+        status = status or CreditNoteStatus.objects.all()[0]
+        currency = currency or Currency.objects.all()[0]
+        response = self.client.post(
+            reverse('billing__create_cnote'), follow=True,
+            data={'user':            user.id,
+                  'name':            name,
+                  'issuing_date':    '2010-9-7',
+                  'expiration_date': '2010-10-13',
+                  'status':          status.id,
+                  'currency':        currency.id,
+                  'discount':        discount,
+                  'source':          source.id,
+                  'target':          self.formfield_value_generic_entity(target),
+                 },
+        )
+        self.assertNoFormError(response)
+
+        credit_note = self.get_object_or_fail(CreditNote, name=name)
+        self.assertRedirects(response, credit_note.get_absolute_url())
+
+        return credit_note
+
+    def create_credit_note_n_orgas(self, name, user=None, status=None, **kwargs):
+        user = user or self.user
+        create_orga = partial(Organisation.objects.create, user=user)
+        source = create_orga(name='Source Orga')
+        target = create_orga(name='Target Orga')
+
+        credit_note = self.create_credit_note(name, source, target, user=user, status=status, **kwargs)
+
+        return credit_note, source, target
+
     def create_invoice(self, name, source, target, currency=None, discount=Decimal(), user=None):
         user = user or self.user
         currency = currency or Currency.objects.all()[0]
-        response = self.client.post(reverse('billing__create_invoice'), follow=True,
-                                    data={'user':            user.pk,
-                                          'name':            name,
-                                          'issuing_date':    '2010-9-7',
-                                          'expiration_date': '2010-10-13',
-                                          'status':          1,
-                                          'currency':        currency.id,
-                                          'discount':        discount,
-                                          'source':          source.id,
-                                          'target':          self.formfield_value_generic_entity(target),
-                                         }
-                                   )
+        response = self.client.post(
+            reverse('billing__create_invoice'), follow=True,
+            data={'user':            user.pk,
+                  'name':            name,
+                  'issuing_date':    '2010-9-7',
+                  'expiration_date': '2010-10-13',
+                  'status':          1,
+                  'currency':        currency.id,
+                  'discount':        discount,
+                  'source':          source.id,
+                  'target':          self.formfield_value_generic_entity(target),
+                 },
+        )
         self.assertNoFormError(response)
         invoice = self.get_object_or_fail(Invoice, name=name)
         self.assertRedirects(response, invoice.get_absolute_url())
@@ -137,18 +172,19 @@ class _BillingTestCaseMixin:
     def create_quote(self, name, source, target, currency=None, status=None):
         status = status or QuoteStatus.objects.all()[0]
         currency = currency or Currency.objects.all()[0]
-        response = self.client.post(reverse('billing__create_quote'), follow=True,
-                                    data={'user':            self.user.pk,
-                                          'name':            name,
-                                          'issuing_date':    '2011-3-15',
-                                          'expiration_date': '2012-4-22',
-                                          'status':          status.id,
-                                          'currency':        currency.id,
-                                          'discount':        Decimal(),
-                                          'source':          source.id,
-                                          'target':          self.formfield_value_generic_entity(target),
-                                         }
-                                   )
+        response = self.client.post(
+            reverse('billing__create_quote'), follow=True,
+            data={'user':            self.user.pk,
+                  'name':            name,
+                  'issuing_date':    '2011-3-15',
+                  'expiration_date': '2012-4-22',
+                  'status':          status.id,
+                  'currency':        currency.id,
+                  'discount':        Decimal(),
+                  'source':          source.id,
+                  'target':          self.formfield_value_generic_entity(target),
+                 },
+        )
         self.assertNoFormError(response)
 
         quote = self.get_object_or_fail(Quote, name=name)
@@ -185,18 +221,19 @@ class _BillingTestCaseMixin:
 
     def create_salesorder(self, name, source, target, currency=None, status=None):  # TODO inline (used once)
         currency = currency or Currency.objects.all()[0]
-        response = self.client.post(reverse('billing__create_order'), follow=True,
-                                    data={'user':            self.user.pk,
-                                          'name':            name,
-                                          'issuing_date':    '2012-1-5',
-                                          'expiration_date': '2012-2-15',
-                                          'status':          status.id if status else 1,
-                                          'currency':        currency.id,
-                                          'discount':        Decimal(),
-                                          'source':          source.id,
-                                          'target':          self.formfield_value_generic_entity(target),
-                                         }
-                                   )
+        response = self.client.post(
+            reverse('billing__create_order'), follow=True,
+            data={'user':            self.user.pk,
+                  'name':            name,
+                  'issuing_date':    '2012-1-5',
+                  'expiration_date': '2012-2-15',
+                  'status':          status.id if status else 1,
+                  'currency':        currency.id,
+                  'discount':        Decimal(),
+                  'source':          source.id,
+                  'target':          self.formfield_value_generic_entity(target),
+                 },
+        )
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(SalesOrder, name=name)
@@ -207,40 +244,45 @@ class _BillingTestCaseMixin:
 
         return order, source, target
 
-    def assertDeleteStatusOK(self, status, short_name):
+    def assertDeleteStatusOK(self, *, status2del, short_name, new_status, doc):
         # self.assertPOST200(reverse('creme_config__delete_instance', args=('billing', short_name)),
         #                    data={'id': status.pk}
         #                   )
         # self.assertDoesNotExist(status)
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('billing', short_name, status.id)
-                                           ),
-                                   )
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('billing', short_name, status2del.id)
+                   ),
+            data={'replace_billing__{}_status'.format(type(doc).__name__.lower()): new_status.id},
+        )
         self.assertNoFormError(response)
 
-        job = self.get_deletion_command_or_fail(type(status)).job
+        job = self.get_deletion_command_or_fail(type(status2del)).job
         job.type.execute(job)
-        self.assertDoesNotExist(status)
-
-    def assertDeleteStatusKO(self, status, short_name, doc):
-        # self.assertPOST404(reverse('creme_config__delete_instance', args=('billing', short_name)),
-        #                    data={'id': status.pk}
-        #                   )
-        # self.assertStillExists(status)
-        # doc = self.get_object_or_fail(doc.__class__, pk=doc.pk)
-        # self.assertEqual(status, doc.status)
-        response = self.assertPOST200(reverse('creme_config__delete_instance',
-                                              args=('billing', short_name, status.id)
-                                             ),
-                                     )
-        self.assertFormError(
-            response, 'form',
-            'replace_billing__{}_status'.format(type(doc).__name__.lower()),
-            _('Deletion is not possible.')
-        )
+        self.assertDoesNotExist(status2del)
 
         doc = self.assertStillExists(doc)
-        self.assertEqual(status, doc.status)
+        self.assertEqual(new_status, doc.status)
+
+    # def assertDeleteStatusKO(self, status, short_name, doc):
+    #     # self.assertPOST404(reverse('creme_config__delete_instance', args=('billing', short_name)),
+    #     #                    data={'id': status.pk}
+    #     #                   )
+    #     # self.assertStillExists(status)
+    #     # doc = self.get_object_or_fail(doc.__class__, pk=doc.pk)
+    #     # self.assertEqual(status, doc.status)
+    #     response = self.assertPOST200(reverse('creme_config__delete_instance',
+    #                                           args=('billing', short_name, status.id)
+    #                                          ),
+    #                                  )
+    #     self.assertFormError(
+    #         response, 'form',
+    #         'replace_billing__{}_status'.format(type(doc).__name__.lower()),
+    #         _('Deletion is not possible.')
+    #     )
+    #
+    #     doc = self.assertStillExists(doc)
+    #     self.assertEqual(status, doc.status)
 
     def _set_managed(self, orga, managed=True):
         orga.is_managed = managed

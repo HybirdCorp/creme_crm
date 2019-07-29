@@ -27,7 +27,7 @@ from django.db.models import (CharField, TextField, ForeignKey, DateField,
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-from creme.creme_core.models import CremeEntity, Relation, Currency
+from creme.creme_core.models import CremeEntity, Relation, Currency, CREME_REPLACE_NULL
 from creme.creme_core.models.fields import MoneyField
 
 from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
@@ -77,11 +77,15 @@ class Base(CremeEntity):
     additional_info  = ForeignKey(AdditionalInformation,
                                   verbose_name=_('Additional Information'),
                                   related_name='+',
-                                  blank=True, null=True, on_delete=SET_NULL,
+                                  blank=True, null=True,
+                                  # on_delete=SET_NULL,
+                                  on_delete=CREME_REPLACE_NULL,
                                  ).set_tags(clonable=False, optional=True)
     payment_terms    = ForeignKey(PaymentTerms, verbose_name=_('Payment Terms'),
                                   related_name='+',
-                                  blank=True, null=True, on_delete=SET_NULL,
+                                  blank=True, null=True,
+                                  # on_delete=SET_NULL,
+                                  on_delete=CREME_REPLACE_NULL,
                                  ).set_tags(clonable=False, optional=True)
     payment_info     = ForeignKey(PaymentInformation, verbose_name=_('Payment information'),
                                   blank=True, null=True, editable=False, on_delete=SET_NULL,
@@ -89,7 +93,7 @@ class Base(CremeEntity):
 
     creation_label = _('Create an accounting document')
 
-    generate_number_in_create = True # TODO: use settings instead ???
+    generate_number_in_create = True  # TODO: use settings instead ???
 
     # Caches
     _creditnotes_cache = None

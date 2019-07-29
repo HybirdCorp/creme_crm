@@ -25,6 +25,7 @@ from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _, gettext, ngettext
 
 from ..models import DeletionCommand, JobResult, FieldsConfig
+from ..signals import pre_replace_and_delete
 from ..utils.translation import get_model_verbose_name
 
 from .base import JobType, JobProgress
@@ -52,6 +53,11 @@ class _DeletorType(JobType):
             model_field = replacer.model_field
             rel_mngr   = model_field.model._default_manager
             field_name = model_field.name
+
+            pre_replace_and_delete.send_robust(sender=instance_2_del,
+                                               model_field=model_field,
+                                               replacing_instance=new_value,
+                                              )
 
             for pk in rel_mngr.filter(**{field_name: instance_2_del.pk}).values_list('pk', flat=True):
                 # NB1: we perform a .save(), not an .update() in order to:
