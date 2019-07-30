@@ -799,29 +799,33 @@ class EntityFilterCondition(Model):
     ISEMPTY         = 21
     RANGE           = 22
 
-    _FIELDTYPES_ALL  = {'string',
-                        'enum', 'enum__null',
-                        'number', 'number__null',
-                        'date', 'date__null',
-                        'boolean', 'boolean__null',
-                        'fk', 'fk__null',
-                        'user', 'user__null',
-                       }
+    _FIELDTYPES_ALL  = {
+        'string',
+        'enum', 'enum__null',
+        'number', 'number__null',
+        'date', 'date__null',
+        'boolean', 'boolean__null',
+        'fk', 'fk__null',
+        'user', 'user__null',
+    }
 
-    _FIELDTYPES_ORDERABLE = {'number', 'number__null',
-                             'date', 'date__null',
-                            }
+    _FIELDTYPES_ORDERABLE = {
+        'number', 'number__null',
+        'date', 'date__null',
+    }
 
-    _FIELDTYPES_RELATED = {'fk', 'fk__null',
-                           'enum', 'enum__null',
-                          }
+    _FIELDTYPES_RELATED = {
+        'fk', 'fk__null',
+        'enum', 'enum__null',
+    }
 
-    _FIELDTYPES_NULLABLE = {'string',
-                            'fk__null',
-                            'user__null',
-                            'enum__null',
-                            'boolean__null'
-                           }
+    _FIELDTYPES_NULLABLE = {
+        'string',
+        'fk__null',
+        'user__null',
+        'enum__null',
+        'boolean__null',
+    }
 
     _OPERATOR_MAP = {
         EQUALS:          _ConditionOperator(_('Equals'),                                 '{}__exact',
@@ -868,30 +872,31 @@ class EntityFilterCondition(Model):
                     value=self.value,
         )
 
-    @staticmethod
-    def build_4_customfield(custom_field, operator, value, user=None):
-        if not EntityFilterCondition._OPERATOR_MAP.get(operator):
-            raise EntityFilterCondition.ValueError('build_4_customfield(): unknown operator: {}'.format(operator))
+    # @staticmethod
+    @classmethod
+    # def build_4_customfield(custom_field, operator, value, user=None):
+    def build_4_customfield(cls, custom_field, operator, value, user=None):
+        if not cls._OPERATOR_MAP.get(operator):
+            raise cls.ValueError('build_4_customfield(): unknown operator: {}'.format(operator))
 
         if custom_field.field_type == CustomField.DATETIME:
-            raise EntityFilterCondition.ValueError('build_4_customfield(): does not manage DATE CustomFields')
+            raise cls.ValueError('build_4_customfield(): does not manage DATE CustomFields')
 
-        # TODO : A bit ugly way to validate operators, but needed for compatibility.
-        if custom_field.field_type == CustomField.BOOL and operator not in (EntityFilterCondition.EQUALS,
-                                                                            EntityFilterCondition.EQUALS_NOT,
-                                                                            EntityFilterCondition.ISEMPTY):
-            raise EntityFilterCondition.ValueError('build_4_customfield(): BOOL type is only compatible with'
-                                                   ' EQUALS, EQUALS_NOT and ISEMPTY operators'
-                                                  )
+        # TODO: A bit ugly way to validate operators, but needed for compatibility.
+        if custom_field.field_type == CustomField.BOOL and \
+           operator not in (cls.EQUALS, cls.EQUALS_NOT, cls.ISEMPTY):
+            raise cls.ValueError('build_4_customfield(): BOOL type is only compatible with '
+                                 'EQUALS, EQUALS_NOT and ISEMPTY operators'
+                                )
 
         if not isinstance(value, (list, tuple)):
-            raise EntityFilterCondition.ValueError('build_4_customfield(): value is not an array')
+            raise cls.ValueError('build_4_customfield(): value is not an array')
 
         cf_value_class = custom_field.get_value_class()
 
         try:
-            if operator == EntityFilterCondition.ISEMPTY:
-                operator_obj = EntityFilterCondition._OPERATOR_MAP.get(operator)
+            if operator == cls.ISEMPTY:
+                operator_obj = cls._OPERATOR_MAP.get(operator)
                 value = operator_obj.validate_field_values(None, value, user=user)
             else:
                 clean_value = cf_value_class.get_formfield(custom_field, None, user=user).clean
@@ -901,7 +906,7 @@ class EntityFilterCondition(Model):
                 else:
                     value = [str(clean_value(v)) for v in value]
         except Exception as e:
-            raise EntityFilterCondition.ValueError(str(e)) from e
+            raise cls.ValueError(str(e)) from e
 
         # TODO: migration that replace single value by arrays of values.
         value = {'operator': operator,
@@ -909,18 +914,20 @@ class EntityFilterCondition(Model):
                  'rname':    cf_value_class.get_related_name(),
                 }
 
-        return EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
-                                     name=str(custom_field.id),
-                                     value=EntityFilterCondition.encode_value(value)
-                                    )
+        return cls(type=cls.EFC_CUSTOMFIELD,
+                   name=str(custom_field.id),
+                   value=cls.encode_value(value),
+                  )
 
-    @staticmethod
-    def _build_daterange_dict(date_range=None, start=None, end=None):
+    # @staticmethod
+    @classmethod
+    # def _build_daterange_dict(date_range=None, start=None, end=None):
+    def _build_daterange_dict(cls, date_range=None, start=None, end=None):
         range_dict = {}
 
         if date_range:
             if not date_range_registry.get_range(date_range):
-                raise EntityFilterCondition.ValueError('build_4_date(): invalid date range.')
+                raise cls.ValueError('build_4_date(): invalid date range.')
 
             range_dict['name'] = date_range
         else:
@@ -928,40 +935,47 @@ class EntityFilterCondition(Model):
             if end:   range_dict['end']   = date_2_dict(end)
 
         if not range_dict:
-            raise EntityFilterCondition.ValueError('date_range or start/end must be given.')
+            raise cls.ValueError('date_range or start/end must be given.')
 
         return range_dict
 
-    @staticmethod
-    def build_4_date(model, name, date_range=None, start=None, end=None):
+    # @staticmethod
+    @classmethod
+    # def build_4_date(model, name, date_range=None, start=None, end=None):
+    def build_4_date(cls, model, name, date_range=None, start=None, end=None):
         try:
             finfo = FieldInfo(model, name)
         except FieldDoesNotExist as e:
-            raise EntityFilterCondition.ValueError(str(e)) from e
+            raise cls.ValueError(str(e)) from e
 
         if not is_date_field(finfo[-1]):
-            raise EntityFilterCondition.ValueError('build_4_date(): field must be a date field.')
+            raise cls.ValueError('build_4_date(): field must be a date field.')
 
-        return EntityFilterCondition(type=EntityFilterCondition.EFC_DATEFIELD, name=name,
-                                     value=EntityFilterCondition.encode_value(EntityFilterCondition._build_daterange_dict(date_range, start, end))
-                                    )
+        return cls(
+            type=cls.EFC_DATEFIELD, name=name,
+            value=cls.encode_value(cls._build_daterange_dict(date_range, start, end)),
+        )
 
-    @staticmethod
-    def build_4_datecustomfield(custom_field, date_range=None, start=None, end=None):
+    # @staticmethod
+    @classmethod
+    # def build_4_datecustomfield(custom_field, date_range=None, start=None, end=None):
+    def build_4_datecustomfield(cls, custom_field, date_range=None, start=None, end=None):
         if not custom_field.field_type == CustomField.DATETIME:
-            raise EntityFilterCondition.ValueError('build_4_datecustomfield(): not a date custom field.')
+            raise cls.ValueError('build_4_datecustomfield(): not a date custom field.')
 
-        value = EntityFilterCondition._build_daterange_dict(date_range, start, end)
+        value = cls._build_daterange_dict(date_range, start, end)
         value['rname'] = custom_field.get_value_class().get_related_name()
 
-        return EntityFilterCondition(type=EntityFilterCondition.EFC_DATECUSTOMFIELD,
-                                     name=str(custom_field.id),
-                                     value=EntityFilterCondition.encode_value(value),
-                                    )
+        return cls(type=cls.EFC_DATECUSTOMFIELD,
+                   name=str(custom_field.id),
+                   value=cls.encode_value(value),
+                  )
 
     # TODO multivalue is stupid for some operator (LT, GT etc...) => improve checking ???
-    @staticmethod
-    def build_4_field(model, name, operator, values, user=None):
+    # @staticmethod
+    @classmethod
+    # def build_4_field(model, name, operator, values, user=None):
+    def build_4_field(cls, model, name, operator, values, user=None):
         """Search in the values of a model field.
         @param name: Name of the field
         @param operator: Operator ID ; see EntityFilterCondition.EQUALS and friends.
@@ -970,36 +984,37 @@ class EntityFilterCondition(Model):
                                   - ISEMPTY: 'values' is a list containing one boolean.
         @param user: Some fields need a user instance for permission validation.
         """
-        operator_obj = EntityFilterCondition._OPERATOR_MAP.get(operator)
+        operator_obj = cls._OPERATOR_MAP.get(operator)
         if not operator_obj:
-            raise EntityFilterCondition.ValueError('Unknown operator: {}'.format(operator))
+            raise cls.ValueError('Unknown operator: {}'.format(operator))
 
         try:
             finfo = FieldInfo(model, name)
         except FieldDoesNotExist as e:
-            raise EntityFilterCondition.ValueError(str(e)) from e
+            raise cls.ValueError(str(e)) from e
 
         try:
             values = operator_obj.validate_field_values(finfo[-1], values, user=user)
         except Exception as e:
-            raise EntityFilterCondition.ValueError(str(e)) from e
+            raise cls.ValueError(str(e)) from e
 
-        return EntityFilterCondition(type=EntityFilterCondition.EFC_FIELD,
-                                     name=name,
-                                     value=EntityFilterCondition.encode_value({'operator': operator,
-                                                                               'values': values,
-                                                                              }
-                                                                             )
-                                    )
+        return cls(
+            type=cls.EFC_FIELD, name=name,
+            value=cls.encode_value({'operator': operator, 'values': values}),
+        )
 
-    @staticmethod
-    def build_4_property(ptype, has=True):
-        return EntityFilterCondition(type=EntityFilterCondition.EFC_PROPERTY, name=ptype.id,
-                                     value=EntityFilterCondition.encode_value(bool(has))
-                                    )
+    # @staticmethod
+    @classmethod
+    # def build_4_property(ptype, has=True):
+    def build_4_property(cls, ptype, has=True):
+        return cls(type=cls.EFC_PROPERTY, name=ptype.id,
+                   value=cls.encode_value(bool(has)),
+                  )
 
-    @staticmethod
-    def build_4_relation(rtype, has=True, ct=None, entity=None):
+    # @staticmethod
+    @classmethod
+    # def build_4_relation(rtype, has=True, ct=None, entity=None):
+    def build_4_relation(cls, rtype, has=True, ct=None, entity=None):
         value = {'has': bool(has)}
 
         if entity:
@@ -1007,30 +1022,30 @@ class EntityFilterCondition(Model):
         elif ct:
             value['ct_id'] = ct.id
 
-        return EntityFilterCondition(type=EntityFilterCondition.EFC_RELATION,
-                                     name=rtype.id,
-                                     value=EntityFilterCondition.encode_value(value)
-                                    )
+        return cls(type=cls.EFC_RELATION,
+                   name=rtype.id,
+                   value=cls.encode_value(value),
+                  )
 
-    @staticmethod
-    def build_4_relation_subfilter(rtype, subfilter, has=True):
+    # @staticmethod
+    @classmethod
+    # def build_4_relation_subfilter(rtype, subfilter, has=True):
+    def build_4_relation_subfilter(cls, rtype, subfilter, has=True):
         assert isinstance(subfilter, EntityFilter)
-        cond = EntityFilterCondition(type=EntityFilterCondition.EFC_RELATION_SUBFILTER,
-                                     name=rtype.id,
-                                     value=EntityFilterCondition.encode_value(
-                                                {'has': bool(has), 'filter_id': subfilter.id}
-                                            )
-                                    )
+        cond = cls(
+            type=cls.EFC_RELATION_SUBFILTER, name=rtype.id,
+            value=cls.encode_value({'has': bool(has), 'filter_id': subfilter.id}),
+        )
         cond._subfilter_cache = subfilter
 
         return cond
 
-    @staticmethod
-    def build_4_subfilter(subfilter):
+    # @staticmethod
+    @classmethod
+    # def build_4_subfilter(subfilter):
+    def build_4_subfilter(cls, subfilter):
         assert isinstance(subfilter, EntityFilter)
-        cond = EntityFilterCondition(type=EntityFilterCondition.EFC_SUBFILTER,
-                                     name=subfilter.id,
-                                    )
+        cond = cls(type=cls.EFC_SUBFILTER, name=subfilter.id)
         cond._subfilter_cache = subfilter
 
         return cond
@@ -1073,12 +1088,12 @@ class EntityFilterCondition(Model):
     #                                        _GET_DISTINCT_FUNCS,
     #                                        _get_q_*() etc...
     _GET_DISTINCT_FUNCS = {
-            EFC_FIELD: _get_distinct_regularfield,
-        }
+        EFC_FIELD: _get_distinct_regularfield,
+    }
 
     def entities_are_distinct(self):
     # def entities_are_distinct(self, all_conditions): TODO ?
-        func = EntityFilterCondition._GET_DISTINCT_FUNCS.get(self.type)
+        func = self._GET_DISTINCT_FUNCS.get(self.type)
 
         return func(self) if func is not None else True
         # return func(self, all_conditions) if func is not None else True TODO: ??
@@ -1087,12 +1102,12 @@ class EntityFilterCondition(Model):
     def error(self):  # TODO: map of validators
         etype = self.type
 
-        if etype == EntityFilterCondition.EFC_FIELD:
+        if etype == self.EFC_FIELD:
             try:
                 FieldInfo(self.filter.entity_type.model_class(), self.name)
             except FieldDoesNotExist as e:
                 return str(e)
-        elif etype == EntityFilterCondition.EFC_DATEFIELD:
+        elif etype == self.EFC_DATEFIELD:
             try:  # TODO: factorise
                 finfo = FieldInfo(self.filter.entity_type.model_class(), self.name)
             except FieldDoesNotExist as e:
@@ -1100,8 +1115,8 @@ class EntityFilterCondition(Model):
 
             if not is_date_field(finfo[-1]):
                 return '{} is not a date field'.format(self.name)  # TODO: test
-        elif etype in (EntityFilterCondition.EFC_SUBFILTER,
-                       EntityFilterCondition.EFC_RELATION_SUBFILTER,
+        elif etype in (self.EFC_SUBFILTER,
+                       self.EFC_RELATION_SUBFILTER,
                       ):
             if self._get_subfilter() is False:
                 return '{} is not a valid filter ID'.format(self._get_subfilter_id())
@@ -1111,7 +1126,7 @@ class EntityFilterCondition(Model):
         #     instead of use a 'JOIN', in order to avoid the interaction between
         #     several conditions on the same type of CustomField (ie: same table).
         search_info = self.decoded_value
-        operator = EntityFilterCondition._OPERATOR_MAP[search_info['operator']]
+        operator = self._OPERATOR_MAP[search_info['operator']]
         related_name = search_info['rname']
         fname = '{}__value'.format(related_name)
         resolve = EntityFilter.resolve_variable
@@ -1178,7 +1193,7 @@ class EntityFilterCondition(Model):
 
     def _get_q_field(self, user):
         search_info = self.decoded_value
-        operator = EntityFilterCondition._OPERATOR_MAP[search_info['operator']]
+        operator = self._OPERATOR_MAP[search_info['operator']]
         resolve = EntityFilter.resolve_variable
         values = [resolve(value, user) for value in search_info['values']]
         field_info = FieldInfo(self.filter.entity_type.model_class(), self.name)
@@ -1243,21 +1258,21 @@ class EntityFilterCondition(Model):
         return query
 
     _GET_Q_FUNCS = {
-            EFC_SUBFILTER:          (lambda self, user: self._get_subfilter().get_q(user)),
-            EFC_FIELD:              _get_q_field,
-            EFC_RELATION:           _get_q_relation,
-            EFC_RELATION_SUBFILTER: _get_q_relation_subfilter,
-            EFC_PROPERTY:           _get_q_property,
-            EFC_DATEFIELD:          (lambda self, user: Q(**self._load_daterange(self.decoded_value)
-                                                                .get_q_dict(field=self.name, now=now())
-                                                         )
-                                    ),
-            EFC_CUSTOMFIELD:        _get_q_customfield,
-            EFC_DATECUSTOMFIELD:    _get_q_datecustomfield,
-        }
+        EFC_SUBFILTER:          (lambda self, user: self._get_subfilter().get_q(user)),
+        EFC_FIELD:              _get_q_field,
+        EFC_RELATION:           _get_q_relation,
+        EFC_RELATION_SUBFILTER: _get_q_relation_subfilter,
+        EFC_PROPERTY:           _get_q_property,
+        EFC_DATEFIELD:          (lambda self, user: Q(**self._load_daterange(self.decoded_value)
+                                                            .get_q_dict(field=self.name, now=now())
+                                                     )
+                                ),
+        EFC_CUSTOMFIELD:        _get_q_customfield,
+        EFC_DATECUSTOMFIELD:    _get_q_datecustomfield,
+    }
 
     def get_q(self, user=None):
-        return EntityFilterCondition._GET_Q_FUNCS[self.type](self, user)
+        return self._GET_Q_FUNCS[self.type](self, user)
 
     def _get_subfilter_id(self):
         type = self.type
