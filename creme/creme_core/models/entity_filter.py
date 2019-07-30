@@ -42,11 +42,11 @@ from ..utils.date_range import date_range_registry
 from ..utils.dates import make_aware_dt, date_2_dict
 from ..utils.meta import is_date_field, FieldInfo
 from ..utils.serializers import json_encode
+
 from .creme_property import CremeProperty
 from .custom_field import CustomField, CustomFieldBoolean
 from .fields import CremeUserForeignKey, CTypeForeignKey
 from .relation import RelationType, Relation
-
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ class EntityFilterList(list):
         return self._selected
 
     def select_by_id(self, *ids):
-        """Try several EntityFilter ids"""
+        """Try several EntityFilter ids."""
         # Linear search but with few items after all...
         for efilter_id in ids:
             for efilter in self:
@@ -85,7 +85,13 @@ class EntityFilterVariable:
 
 class _CurrentUserVariable(EntityFilterVariable):
     def resolve(self, value, user=None):
-        return user.pk if user is not None else None
+        # return user.pk if user is not None else None
+        if user is None:
+            return None
+
+        teams = user.teams
+
+        return [user.id, *(t.id for t in teams)] if teams else user.id
 
     def validate(self, field, value):
         if not isinstance(field, ForeignKey) or not issubclass(field.remote_field.model, get_user_model()):
@@ -714,6 +720,29 @@ class _ConditionOperator:
         return values
 
 
+class _EqualsOperator(_ConditionOperator):
+    def __init__(self, name, **kwargs):
+        super().__init__(name,
+                         key_pattern='{}__exact',  # NB: have not real meaning here
+                         accept_subpart=False,
+                         **kwargs
+                        )
+
+    def get_q(self, efcondition, values):
+        name = efcondition.name
+        query = Q()
+
+        for value in values:
+            if isinstance(value, (list, tuple)):
+                q = Q(**{'{}__in'.format(name): value})
+            else:
+                q = Q(**{self.key_pattern.format(name): value})
+
+            query |= q
+
+        return query
+
+
 class _ConditionBooleanOperator(_ConditionOperator):
     def validate_field_values(self, field, values, user=None):
         if len(values) != 1 or not isinstance(values[0], bool):
@@ -724,7 +753,8 @@ class _ConditionBooleanOperator(_ConditionOperator):
 
 class _IsEmptyOperator(_ConditionBooleanOperator):
     def __init__(self, name, exclude=False, **kwargs):
-        super().__init__(name, key_pattern='{}__isnull',
+        super().__init__(name,
+                         key_pattern='{}__isnull',  # NB: have not real meaning here
                          exclude=exclude, accept_subpart=False,
                          **kwargs
                         )
@@ -828,12 +858,14 @@ class EntityFilterCondition(Model):
     }
 
     _OPERATOR_MAP = {
-        EQUALS:          _ConditionOperator(_('Equals'),                                 '{}__exact',
-                                            accept_subpart=False, allowed_fieldtypes=_FIELDTYPES_ALL),
+        # EQUALS:          _ConditionOperator(_('Equals'),                                 '{}__exact',
+        #                                     accept_subpart=False, allowed_fieldtypes=_FIELDTYPES_ALL),
+        EQUALS:          _EqualsOperator(_('Equals'), allowed_fieldtypes=_FIELDTYPES_ALL),
         IEQUALS:         _ConditionOperator(_('Equals (case insensitive)'),              '{}__iexact',
                                             accept_subpart=False, allowed_fieldtypes=('string',)),
-        EQUALS_NOT:      _ConditionOperator(_('Does not equal'),                         '{}__exact',
-                                            exclude=True, accept_subpart=False, allowed_fieldtypes=_FIELDTYPES_ALL),
+        # EQUALS_NOT:      _ConditionOperator(_('Does not equal'),                         '{}__exact',
+        #                                     exclude=True, accept_subpart=False, allowed_fieldtypes=_FIELDTYPES_ALL),
+        EQUALS_NOT:      _EqualsOperator(_('Equals'), allowed_fieldtypes=_FIELDTYPES_ALL, exclude=True),
         IEQUALS_NOT:     _ConditionOperator(_('Does not equal (case insensitive)'),      '{}__iexact',
                                             exclude=True, accept_subpart=False, allowed_fieldtypes=('string',)),
         CONTAINS:        _ConditionOperator(_('Contains'),                               '{}__contains', allowed_fieldtypes=('string',)),

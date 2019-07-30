@@ -663,7 +663,7 @@ class EntityFiltersTestCase(CremeTestCase):
         )
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('ed', 'yui', exclude=True))
 
-    def test_filter_field_equals_currentuser(self):
+    def test_filter_field_equals_currentuser01(self):
         other_user = self.other_user
 
         contacts = self.contacts
@@ -697,6 +697,97 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertExpectedFiltered(self.refresh(efilter), FakeContact,
                                     self._list_contact_ids(*first_names)
                                    )
+
+    def test_filter_field_equals_currentuser02(self):
+        "Teams"
+        user = self.user
+        other_user = self.other_user
+
+        User = get_user_model()
+        teammate = User.objects.create(username='fulbertc',
+                                       email='fulbnert@creme.org', role=self.role,
+                                       first_name='Fulbert', last_name='Creme',
+                                      )
+
+        tt_team = User.objects.create(username='TeamTitan', is_team=True)
+        tt_team.teammates = [user, teammate]
+
+        a_team = User.objects.create(username='A-Team', is_team=True)
+        a_team.teammates = [other_user]
+
+        contacts = self.contacts
+
+        def set_owner(short_name, owner):
+            c = contacts[short_name]
+            c.user = owner
+            c.save()
+
+        set_owner('rei',    tt_team)     # Included
+        set_owner('asuka',  other_user)  # Excluded
+        set_owner('shinji', a_team)      # Excluded
+
+        set_global_info(user=user)
+
+        efilter = EntityFilter.create(
+            'test-filter_mycontacts', 'My contacts', FakeContact,
+            conditions=[EntityFilterCondition.build_4_field(
+                            model=FakeContact,
+                            operator=EntityFilterCondition.EQUALS,
+                            name='user',
+                            values=['__currentuser__'],
+                        ),
+                       ],
+        )
+
+        self.assertExpectedFiltered(
+            self.refresh(efilter), FakeContact,
+            self._list_contact_ids('asuka', 'shinji', exclude=True)
+        )
+
+    def test_filter_field_not_equals_currentuser(self):
+        user = self.user
+        other_user = self.other_user
+
+        User = get_user_model()
+        teammate = User.objects.create(username='fulbertc',
+                                       email='fulbnert@creme.org', role=self.role,
+                                       first_name='Fulbert', last_name='Creme',
+                                      )
+
+        tt_team = User.objects.create(username='TeamTitan', is_team=True)
+        tt_team.teammates = [user, teammate]
+
+        a_team = User.objects.create(username='A-Team', is_team=True)
+        a_team.teammates = [other_user]
+
+        contacts = self.contacts
+
+        def set_owner(short_name, owner):
+            c = contacts[short_name]
+            c.user = owner
+            c.save()
+
+        set_owner('rei',    tt_team)     # Excluded
+        set_owner('asuka',  other_user)  # Included
+        set_owner('shinji', a_team)      # Included
+
+        set_global_info(user=user)
+
+        efilter = EntityFilter.create(
+            'test-filter_mycontacts', 'My contacts', FakeContact,
+            conditions=[EntityFilterCondition.build_4_field(
+                            model=FakeContact,
+                            operator=EntityFilterCondition.EQUALS_NOT,
+                            name='user',
+                            values=['__currentuser__'],
+                        ),
+                       ],
+        )
+
+        self.assertExpectedFiltered(
+            self.refresh(efilter), FakeContact,
+            self._list_contact_ids('asuka', 'shinji')
+        )
 
     def test_filter_field_iequals(self):
         efilter = EntityFilter.create(
