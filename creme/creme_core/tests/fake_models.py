@@ -333,7 +333,7 @@ else:
             index_together = ('last_name', 'first_name', 'cremeentity_ptr')
 
         def __str__(self):
-            return '{} {} {}'.format(self.civility, self.first_name, self.last_name).strip()
+            return '{} {} {}'.format(self.civility or '', self.first_name, self.last_name).strip()
 
         def clean(self):
             if self.is_user_id and not self.first_name:
