@@ -1358,4 +1358,9 @@ def _delete_relationtype_efc(sender, instance, **kwargs):
 
 @receiver(pre_delete, sender=CustomField)
 def _delete_customfield_efc(sender, instance, **kwargs):
-    EntityFilterCondition.objects.filter(type=EntityFilterCondition.EFC_CUSTOMFIELD, name=instance.id).delete()
+    EntityFilterCondition.objects.filter(
+        type__in=(EntityFilterCondition.EFC_CUSTOMFIELD,
+                  EntityFilterCondition.EFC_DATECUSTOMFIELD,
+                 ),
+        name=instance.id,
+    ).delete()

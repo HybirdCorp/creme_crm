@@ -2448,8 +2448,7 @@ class EntityFiltersTestCase(CremeTestCase):
                          'BOOL type is only compatible with EQUALS, EQUALS_NOT and ISEMPTY operators'
                         )
 
-    def test_customfield08(self):
-        "CustomField is deleted."
+    def test_customfield_deletion01(self):
         create_cf = partial(CustomField.objects.create, content_type=self.contact_ct, field_type=CustomField.INT)
         custom_field01 = create_cf(name='Size (cm)')
         custom_field02 = create_cf(name='IQ')
@@ -2461,7 +2460,29 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
 
         custom_field01.delete()
-        self.assertEqual([str(custom_field02.id)], [cond.name for cond in efilter.conditions.all()])
+        self.assertListEqual([str(custom_field02.id)],
+                             [cond.name for cond in efilter.conditions.all()]
+                            )
+
+    def test_customfield_deletion02(self):
+        "Date custom field."
+        create_cf = partial(CustomField.objects.create, content_type=self.contact_ct, field_type=CustomField.DATETIME)
+        custom_field01 = create_cf(name='Holidays')
+        custom_field02 = create_cf(name='Favorite day')
+
+        build = partial(EntityFilterCondition.build_4_datecustomfield, start=date(year=2019, month=7, day=31))
+
+        efilter = EntityFilter.create(
+            'test-filter01', name='Break', model=FakeContact, is_custom=True,
+            conditions=[build(custom_field=custom_field01),
+                        build(custom_field=custom_field02),
+                       ],
+        )
+
+        custom_field01.delete()
+        self.assertListEqual([str(custom_field02.id)],
+                             [*efilter.conditions.values_list('name', flat=True)]
+                            )
 
     def test_customfield_number_isempty(self):
         rei = self.contacts['rei']
