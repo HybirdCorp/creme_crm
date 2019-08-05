@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.utils.encoding import smart_str
 
 from mediagenerator.generators.bundles.base import Filter
 
@@ -21,9 +20,9 @@ class YUICompressor(Filter):
                 compressor = settings.YUICOMPRESSOR_PATH
                 cmd = Popen(['java', '-jar', compressor,
                              '--charset', 'utf-8', '--type', self.filetype],
-                            stdin=PIPE, stdout=PIPE, stderr=PIPE,
+                            stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding='utf-8',
                             universal_newlines=True)
-                output, error = cmd.communicate(smart_str(input))
+                output, error = cmd.communicate(input)
 
                 assert cmd.wait() == 0, 'Command returned bad result:\n{}'.format(error)
 
