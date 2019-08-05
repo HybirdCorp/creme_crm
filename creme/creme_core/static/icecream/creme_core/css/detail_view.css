@@ -56,7 +56,8 @@
 
 /* .detailview .south:not(:empty), */
 .content-detail-view .south:not(:empty),
-.content-form-view .south:not(:empty) {
+.content-form-view .south:not(:empty),
+.inner-popup-content .south:not(:empty) {
     margin-top: 15px;
 }
 
