@@ -294,6 +294,7 @@ class RegularDateField(ListViewSearchField):
 class RegularRelatedField(ListViewSearchField):
     widget = SelectLVSWidget
     enumerable_registry = enumerable.enumerable_registry
+    default_null_label = _('* is empty *')
 
     def __init__(self, enumerable_registry=None, **kwargs):
         super().__init__(**kwargs)
@@ -307,7 +308,10 @@ class RegularRelatedField(ListViewSearchField):
 
         field = self.cell.field_info[-1]
         if field.null or field.many_to_many:
-            choices.append({'value': NULL, 'label': _('* is empty *')})
+            choices.append({
+                'value': NULL,
+                'label': self._get_field_null_label(field),
+            })
 
         try:
             enumerator = enumerable_registry.enumerator_by_field(field)
@@ -315,6 +319,14 @@ class RegularRelatedField(ListViewSearchField):
             logger.warning('RegularRelatedField => %s', e)
         else:
             choices.extend(enumerator.choices(user=self.user))
+
+    def _get_field_null_label(self, field):
+        try:
+            null_label = field.get_null_label()
+        except AttributeError:
+            null_label = ''
+
+        return '* {} *'.format(null_label) if null_label else self.default_null_label
 
     def to_python(self, value):
         if value:
