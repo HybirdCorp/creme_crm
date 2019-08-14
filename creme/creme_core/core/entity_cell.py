@@ -309,8 +309,10 @@ class EntityCellRegularField(EntityCell):
                          # filter_string=pattern.format(name) if has_a_filter else '',
                         )
 
-    @staticmethod
-    def build(model, name, is_hidden=False):
+    # @staticmethod
+    @classmethod
+    # def build(model, name, is_hidden=False):
+    def build(cls, model, name, is_hidden=False):
         """ Helper function to build EntityCellRegularField instances.
 
         @param model: Class inheriting django.db.models.Model.
@@ -324,7 +326,8 @@ class EntityCellRegularField(EntityCell):
             logger.warning('EntityCellRegularField(): problem with field "%s" ("%s")', name, e)
             return None
 
-        return EntityCellRegularField(model, name, field_info, is_hidden)
+        # return EntityCellRegularField(model, name, field_info, is_hidden)
+        return cls(model, name, field_info, is_hidden)
 
     @property
     def field_info(self):
@@ -403,8 +406,10 @@ class EntityCellCustomField(EntityCell):
                          # filter_string=pattern.format(customfield.get_value_class().get_related_name()),
                         )
 
-    @staticmethod
-    def build(model, customfield_id):
+    # @staticmethod
+    @classmethod
+    # def build(model, customfield_id):
+    def build(cls, model, customfield_id):
         ct = ContentType.objects.get_for_model(model)
 
         try:
@@ -413,8 +418,9 @@ class EntityCellCustomField(EntityCell):
             logger.warning('EntityCellCustomField: custom field "%s" does not exist', customfield_id)
             return None
 
-        return EntityCellCustomField(cfield)
- 
+        # return EntityCellCustomField(cfield)
+        return cls(cfield)
+
     @property
     def custom_field(self):
         return self._customfield
@@ -453,8 +459,10 @@ class EntityCellFunctionField(EntityCell):
                          is_hidden=func_field.is_hidden,
                         )
 
-    @staticmethod
-    def build(model, func_field_name):
+    # @staticmethod
+    @classmethod
+    # def build(model, func_field_name):
+    def build(cls, model, func_field_name):
         # TODO: pass the 'function_field_registry' in a context
         func_field = function_field_registry.get(model, func_field_name)
 
@@ -462,7 +470,8 @@ class EntityCellFunctionField(EntityCell):
             logger.warning('EntityCellFunctionField: function field "%s" does not exist', func_field_name)
             return None
 
-        return EntityCellFunctionField(model=model, func_field=func_field)
+        # return EntityCellFunctionField(model=model, func_field=func_field)
+        return cls(model=model, func_field=func_field)
 
     @property
     def function_field(self):
@@ -500,15 +509,18 @@ class EntityCellRelation(EntityCell):
                          is_hidden=is_hidden,
                         )
 
-    @staticmethod
-    def build(model, rtype_id, is_hidden=False):
+    # @staticmethod
+    @classmethod
+    # def build(model, rtype_id, is_hidden=False):
+    def build(cls, model, rtype_id, is_hidden=False):
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
         except RelationType.DoesNotExist:
             logger.warning('EntityCellRelation: relation type "%s" does not exist', rtype_id)
             return None
 
-        return EntityCellRelation(model=model, rtype=rtype, is_hidden=is_hidden)
+        # return EntityCellRelation(model=model, rtype=rtype, is_hidden=is_hidden)
+        return cls(model=model, rtype=rtype, is_hidden=is_hidden)
 
     @property
     def is_multiline(self):
