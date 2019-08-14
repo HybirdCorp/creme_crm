@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
@@ -33,6 +35,12 @@ from .. import constants
 from .. import get_contact_model
 
 from . import base, other_models
+
+
+class OrganisationManager(models.Manager):
+    @cached_per_request('persons-organisation-all_managed')
+    def filter_managed_by_creme(self):
+        return self.filter(is_managed=True, is_deleted=False)
 
 
 class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
@@ -87,6 +95,8 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
                                           blank=True, null=True,
                                           on_delete=models.SET_NULL,
                                          ).set_tags(optional=True)
+
+    objects = OrganisationManager()
 
     search_score = 102
 
@@ -146,10 +156,13 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
                                           relations__object_entity=self.id,
                                          )
 
-    # TODO: move in a manager ??
     @classmethod
-    @cached_per_request('persons-organisation-all_managed')
     def get_all_managed_by_creme(cls):
+        warnings.warn('AbstractOrganisation.get_all_managed_by_creme() is deprecated ; '
+                      'use .objects.filter_managed_by_creme() instead.',
+                      DeprecationWarning
+                     )
+
         # cache = get_per_request_cache()
         # cache_key = 'persons-organisation-all_managed'
         # qs = cache.get(cache_key)
@@ -158,7 +171,7 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
         #     cache[cache_key] = qs = cls.objects.filter(is_managed=True, is_deleted=False)
         #
         # return qs
-        return cls.objects.filter(is_managed=True, is_deleted=False)
+        return cls.objects.filter_managed_by_creme()
 
     def _post_save_clone(self, source):
         self._aux_post_save_clone(source)

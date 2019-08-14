@@ -41,7 +41,7 @@ class CrmButton(Button):
 
     def ok_4_display(self, entity):
         # TODO: only one query ??
-        self.__managed_orga = Organisation.get_all_managed_by_creme()
+        self.__managed_orga = Organisation.objects.filter_managed_by_creme()
         already_linked_pk = Relation.objects.filter(type=self.relation_type_id,
                                                     subject_entity=entity,
                                                    ) \

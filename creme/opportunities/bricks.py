@@ -252,7 +252,7 @@ class OppTargetBrick(Brick):
 
     def __init__(self):
         super().__init__()
-        self.display_source = display_source = len(Organisation.get_all_managed_by_creme()) > 1
+        self.display_source = display_source = len(Organisation.objects.filter_managed_by_creme()) > 1
 
         if display_source:
             self.relation_type_deps += (constants.REL_OBJ_EMIT_ORGA,)

@@ -87,7 +87,7 @@ def sum_totals_no_vat(model, entity, user, **kwargs):
                                          .values_list('id', 'total_no_vat')
                      ))
     managed_ids = Relation.objects.filter(
-            subject_entity__in=[o.id for o in Organisation.get_all_managed_by_creme()],
+            subject_entity__in=[o.id for o in Organisation.objects.filter_managed_by_creme()],
             type=REL_OBJ_BILL_ISSUED,
             object_entity_id__in=all_totals.keys(),
         ).values_list('object_entity', flat=True)
@@ -114,11 +114,15 @@ def sum_totals_no_vat_multi(model, entities, user, **kwargs):
         bill_info_map[e_id].append((bill_id, total))
         bill_ids.append(bill_id)
 
-    managed_bill_ids = set(Relation.objects.filter(
-                                subject_entity__in=[o.id for o in Organisation.get_all_managed_by_creme()],
-                                type=REL_OBJ_BILL_ISSUED,
-                                object_entity_id__in=bill_ids,
-                          ).values_list('object_entity', flat=True))
+    managed_bill_ids = {*Relation.objects.filter(
+                             subject_entity__in=[
+                                 # NB: not values_list() to use the cache of filter_managed_by_creme()
+                                 o.id for o in Organisation.objects.filter_managed_by_creme()
+                             ],
+                             type=REL_OBJ_BILL_ISSUED,
+                             object_entity_id__in=bill_ids,
+                         ).values_list('object_entity', flat=True)
+                       }
 
     for entity in entities:
         yield entity, sum(total for bill_id, total in bill_info_map[entity.id]

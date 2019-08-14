@@ -45,7 +45,7 @@ def copy_or_create_address(address, owner, name):
 
 def first_managed_orga_id():
     try:
-        return get_organisation_model().get_all_managed_by_creme().values_list('id', flat=True)[0]
+        return get_organisation_model().objects.filter_managed_by_creme().values_list('id', flat=True)[0]
     except IndexError:
         logger.warning('No managed organisation ?!')
 

@@ -82,7 +82,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         set_status(invoice05)
         self.create_line(invoice05, 750, 1)
 
-        bool(Organisation.get_all_managed_by_creme())  # Fill cache
+        bool(Organisation.objects.filter_managed_by_creme())  # Fill cache
 
         # 2 Queries:
         #  - managed organisations
@@ -157,7 +157,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         set_status(invoice_3_1)
         self.create_line(invoice_3_1, 750, 1)
 
-        bool(Organisation.get_all_managed_by_creme())  # Fill cache
+        bool(Organisation.objects.filter_managed_by_creme())  # Fill cache
 
         funf = function_field_registry.get(Organisation, 'total_pending_payment')
         self.assertIsNotNone(funf)
@@ -275,7 +275,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         self._set_managed(source)
         self.create_line(invoice, 2000, 1)
 
-        bool(Organisation.get_all_managed_by_creme())  # Fill cache
+        bool(Organisation.objects.filter_managed_by_creme())  # Fill cache
         funf = function_field_registry.get(Organisation, 'total_pending_payment')
 
         with self.assertNumQueries(2):
@@ -309,7 +309,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         self._set_managed(source)
         self.create_line(invoice, 2000, 1)
 
-        bool(Organisation.get_all_managed_by_creme())  # Fill cache
+        bool(Organisation.objects.filter_managed_by_creme())  # Fill cache
         funf = function_field_registry.get(Organisation, 'total_pending_payment')
 
         with self.assertNumQueries(2):
@@ -365,7 +365,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(quote04, 300, 1)
 
         FieldsConfig.get_4_model(Quote)  # Fill cache
-        bool(Organisation.get_all_managed_by_creme())  # Fill cache
+        bool(Organisation.objects.filter_managed_by_creme())  # Fill cache
 
         with self.assertNumQueries(2):
             total = get_total_won_quote_last_year(target, user)
@@ -443,7 +443,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.assertIsNotNone(funf)
 
         FieldsConfig.get_4_model(Quote)  # Fill cache
-        bool(Organisation.get_all_managed_by_creme())  # Fill cache
+        bool(Organisation.objects.filter_managed_by_creme())  # Fill cache
 
         with self.assertNumQueries(2):
             funf.populate_entities([target01, target02], user)
@@ -511,7 +511,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(quote04, 300, 1)
 
         FieldsConfig.get_4_model(Quote)  # Fill cache
-        bool(Organisation.get_all_managed_by_creme())  # Fill cache
+        bool(Organisation.objects.filter_managed_by_creme())  # Fill cache
 
         with self.assertNumQueries(2):
             total = get_total_won_quote_this_year(target, user)
@@ -587,7 +587,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.assertIsNotNone(funf)
 
         FieldsConfig.get_4_model(Quote)  # Fill cache
-        bool(Organisation.get_all_managed_by_creme())  # Fill cache
+        bool(Organisation.objects.filter_managed_by_creme())  # Fill cache
 
         with self.assertNumQueries(2):
             funf.populate_entities([target01, target02], user)

@@ -251,7 +251,7 @@ class OrganisationCardHatBrick(Brick):
     def detailview_display(self, context):
         organisation = context['object']
         user = context['user']
-        managed_orgas = Organisation.get_all_managed_by_creme()
+        managed_orgas = Organisation.objects.filter_managed_by_creme()
 
         get_fconfigs = context['fields_configs'].get_4_model
         is_hidden = get_fconfigs(Organisation).is_fieldname_hidden
@@ -442,7 +442,7 @@ class ManagedOrganisationsBrick(PaginatedBrick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
                     context,
-                    Organisation.get_all_managed_by_creme(),
+                    Organisation.objects.filter_managed_by_creme(),
         ))
 
 
@@ -474,27 +474,31 @@ if apps.is_installed('creme.activities'):
                                    )
 
         def _get_neglected(self, now):
-            user_contacts     = Contact.objects.filter(is_user__isnull=False).values_list('id', flat=True)
-            future_activities = list(Activity.objects.filter(start__gte=now,
-                                                             relations__type=activities_constants.REL_OBJ_PART_2_ACTIVITY,
-                                                             relations__object_entity__in=user_contacts,
-                                                             )
-                                                     .values_list('id', flat=True)
-                                    )
-            neglected_orgas_qs = Organisation.objects.filter(is_deleted=False,
-                                                             relations__type__in=self._RTYPE_IDS_CUSTOMERS,
-                                                             relations__object_entity__in=Organisation.get_all_managed_by_creme(),
-                                                            ) \
-                                                     .exclude(relations__type=constants.REL_SUB_INACTIVE) \
-                                                     .distinct()
+            user_contacts = Contact.objects.filter(is_user__isnull=False).values_list('id', flat=True)
+            future_activities = [
+                *Activity.objects
+                         .filter(start__gte=now,
+                                 relations__type=activities_constants.REL_OBJ_PART_2_ACTIVITY,
+                                 relations__object_entity__in=user_contacts,
+                                )
+                         .values_list('id', flat=True)
+            ]
+            neglected_orgas_qs = Organisation.objects \
+                                             .filter(is_deleted=False,
+                                                     relations__type__in=self._RTYPE_IDS_CUSTOMERS,
+                                                     relations__object_entity__in=Organisation.objects.filter_managed_by_creme(),
+                                                    ) \
+                                             .exclude(relations__type=constants.REL_SUB_INACTIVE) \
+                                             .distinct()
 
             if not future_activities:
                 return neglected_orgas_qs  # No need to retrieve it & transform into a list (good idea ??)
 
-            neglected_orgas = list(neglected_orgas_qs.exclude(relations__object_entity__in=future_activities,
-                                                              relations__type__in=self._RTYPE_IDS_ORGA_N_ACT,
-                                                             )
-                                  )
+            neglected_orgas = [
+                *neglected_orgas_qs.exclude(relations__object_entity__in=future_activities,
+                                            relations__type__in=self._RTYPE_IDS_ORGA_N_ACT,
+                                           )
+            ]
 
             if neglected_orgas:
                 linked_people_map = dict(Relation.objects.filter(type__in=self._RTYPE_IDS_EMPLOYEES,

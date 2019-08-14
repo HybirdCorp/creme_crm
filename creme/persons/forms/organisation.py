@@ -46,7 +46,7 @@ class CustomerForm(_OrganisationBaseForm):
     # TODO: manage not viewable organisations (should not be very useful anyway)
     customers_managed_orga = forms.ModelChoiceField(
         label=_('Related managed organisation'),
-        queryset=Organisation.get_all_managed_by_creme(),
+        queryset=Organisation.objects.filter_managed_by_creme(),
         empty_label=None,
     )
     customers_rtypes = forms.MultipleChoiceField(
