@@ -113,6 +113,10 @@ END:VEVENT
           )
 
     def get_title_for_calendar(self):
+        warnings.warn("AbstractActivity.get_title_for_calendar() is deprecated ; "
+                      "use the attribute 'title' instead.",
+                      DeprecationWarning,
+                     )
         return self.title
 
     @classmethod

@@ -382,7 +382,8 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
 
         return {
             'id':    activity.id,
-            'title': activity.get_title_for_calendar(),
+            # 'title': activity.get_title_for_calendar(),
+            'title': activity.title,
 
             'start':  start.isoformat(),
             'end':    end.isoformat(),
