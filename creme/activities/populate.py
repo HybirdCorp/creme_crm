@@ -26,10 +26,12 @@ from django.utils.translation import gettext as _, pgettext
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
+from creme.creme_core.core.entity_filter import condition_handler
+from creme.creme_core.core.entity_filter.operators import EQUALS
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, ButtonMenuItem, SearchConfigItem,
         BrickDetailviewLocation, BrickHomeLocation, SettingValue,
-        HeaderFilter, EntityFilter, EntityFilterCondition)
+        HeaderFilter, EntityFilter)  # EntityFilterCondition
 from creme.creme_core.utils import create_if_needed
 
 from creme import persons
@@ -37,7 +39,6 @@ from creme.persons.constants import FILTER_CONTACT_ME
 
 from . import get_activity_model, bricks, buttons, constants, setting_keys
 from .models import ActivityType, ActivitySubType, Status, Calendar
-
 
 logger = logging.getLogger(__name__)
 
@@ -119,23 +120,39 @@ class Populator(BasePopulator):
                                    (constants.EFILTER_PHONECALLS, _('Phone calls'), constants.ACTIVITYTYPE_PHONECALL),
                                    (constants.EFILTER_TASKS,      _('Tasks'),       constants.ACTIVITYTYPE_TASK),
                                   ):
-            create_efilter(pk, name=name, model=Activity, is_custom=False, user='admin',
-                           conditions=[EntityFilterCondition.build_4_field(model=Activity,
-                                             operator=EntityFilterCondition.EQUALS,
-                                             name='type',
-                                             values=[atype_id],
-                                         ),
-                                      ],
-                          )
+            create_efilter(
+                pk, name=name, model=Activity, is_custom=False, user='admin',
+                conditions=[
+                    # EntityFilterCondition.build_4_field(
+                    #     model=Activity,
+                    #     operator=EntityFilterCondition.EQUALS,
+                    #     name='type',
+                    #     values=[atype_id],
+                    # ),
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=Activity,
+                        operator_id=EQUALS,
+                        field_name='type',
+                        values=[atype_id],
+                    ),
+                ],
+            )
 
-        create_efilter(constants.EFILTER_PARTICIPATE, name=_('In which I participate'),
-                       model=Activity, is_custom=False, user='admin',
-                       conditions=[EntityFilterCondition.build_4_relation_subfilter(
-                                         rtype=rt_obj_part_2_activity,
-                                         subfilter=EntityFilter.get_latest_version(FILTER_CONTACT_ME)
-                                     ),
-                                  ],
-                      )
+        create_efilter(
+            constants.EFILTER_PARTICIPATE, name=_('In which I participate'),
+            model=Activity, is_custom=False, user='admin',
+            conditions=[
+                # EntityFilterCondition.build_4_relation_subfilter(
+                #     rtype=rt_obj_part_2_activity,
+                #     subfilter=EntityFilter.get_latest_version(FILTER_CONTACT_ME)
+                # ),
+                condition_handler.RelationSubFilterConditionHandler.build_condition(
+                    model=Activity,
+                    rtype=rt_obj_part_2_activity,
+                    subfilter=EntityFilter.get_latest_version(FILTER_CONTACT_ME),
+                ),
+            ],
+        )
 
         # ---------------------------
         SearchConfigItem.create_if_needed(Activity, ['title', 'description', 'type__name'])

@@ -11,9 +11,10 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+    from creme.creme_core.core.entity_filter import condition_handler, operators
     from creme.creme_core.forms.widgets import Label
     from creme.creme_core.models import (RelationType, Relation,
-            EntityFilter, EntityFilterCondition, SetCredentials, FakeOrganisation)
+            EntityFilter, SetCredentials, FakeOrganisation)  # EntityFilterCondition
 
     from creme.persons.constants import FILTER_MANAGED_ORGA
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
@@ -749,14 +750,21 @@ class ActTestCase(CommercialBaseTestCase):
 
         act = self.create_act()
 
-        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                        model=Organisation,
-                                                        operator=EntityFilterCondition.ICONTAINS,
-                                                        name='name', values=['Ferraille'],
-                                                    )
-                                                 ],
-                                     )
+        efilter = EntityFilter.create(
+            'test-filter01', 'Acme', Organisation, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=Organisation,
+                #     operator=EntityFilterCondition.ICONTAINS,
+                #     name='name', values=['Ferraille'],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Organisation,
+                    operator_id=operators.ICONTAINS,
+                    field_name='name', values=['Ferraille'],
+                ),
+            ],
+        )
 
         objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
                                                 ctype=Organisation,
@@ -879,17 +887,23 @@ class ActTestCase(CommercialBaseTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_count_relations02(self):
-        "With filter"
+        "With filter."
         user = self.login()
 
         efilter = EntityFilter.create(
             'test-filter01', 'Acme', Organisation, is_custom=True,
-            conditions=[EntityFilterCondition.build_4_field(
-                              model=Organisation,
-                              operator=EntityFilterCondition.ICONTAINS,
-                              name='name', values=['Ferraille'],
-                          ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=Organisation,
+                #     operator=EntityFilterCondition.ICONTAINS,
+                #     name='name', values=['Ferraille'],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Organisation,
+                    operator_id=operators.ICONTAINS,
+                    field_name='name', values=['Ferraille'],
+                ),
+            ],
         )
 
         act = self.create_act()

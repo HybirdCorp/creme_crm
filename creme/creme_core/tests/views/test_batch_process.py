@@ -13,10 +13,13 @@ try:
     from django.utils.translation import gettext as _, ngettext
 
     from .base import ViewsTestCase
+
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.core.entity_filter import operators, operands
+    from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
     from creme.creme_core.core.job import job_type_registry, JobManagerQueue  # Should be a test queue
     from creme.creme_core.creme_jobs.batch_process import batch_process_type
-    from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
+    from creme.creme_core.models import (EntityFilter,  # EntityFilterCondition
             SetCredentials, Job, EntityJobResult, FakeContact, FakeOrganisation)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -249,20 +252,26 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 #                                                 }
 #                                     )
 #        self.assertFormError(response, 'form', 'actions',
-#                             _(u"This field is invalid with this model."),
+#                             _('This field is invalid with this model.'),
 #                            )
 
     def test_select_efilter(self):
         self.login()
-        efilter = EntityFilter.create('test-filter01', 'Contains "club"',
-                                      FakeOrganisation, is_custom=True,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                        model=FakeOrganisation,
-                                                        operator=EntityFilterCondition.CONTAINS,
-                                                        name='name', values=['club'],
-                                                    ),
-                                                 ],
-                                     )
+        efilter = EntityFilter.create(
+            'test-filter01', 'Contains "club"',
+            FakeOrganisation, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeOrganisation,
+                #     operator=EntityFilterCondition.CONTAINS,
+                #     name='name', values=['club'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation, field_name='name',
+                    operator_id=operators.CONTAINS, values=['club'],
+                ),
+            ],
+        )
 
         response = self.assertGET200(self._build_add_url(FakeOrganisation, efilter_id=efilter.id))
 
@@ -272,17 +281,19 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual(efilter.id, form.initial['filter'])
 
     def test_several_actions(self):
-        "'upper' + 'title' operators"
+        "'upper' + 'title' operators."
         self.login()
 
         contact = FakeContact.objects.create(user=self.user, first_name='kanji', last_name='sasahara')
-        response = self.client.post(self._build_add_url(FakeContact), follow=True,
-                                    data={'actions': json_dump([
-                                                self.build_formfield_entry(name='first_name', operator='title', value=''),
-                                                self.build_formfield_entry(name='last_name',  operator='upper', value=''),
-                                            ]),
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_add_url(FakeContact), follow=True,
+            data={
+                'actions': json_dump([
+                    self.build_formfield_entry(name='first_name', operator='title', value=''),
+                    self.build_formfield_entry(name='last_name',  operator='upper', value=''),
+                ]),
+            },
+        )
         self.assertNoFormError(response)
 
         self._execute_job(response)
@@ -295,18 +306,21 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.login()
 
         name = 'first_name'
-        response = self.assertPOST200(self._build_add_url(FakeContact), follow=True,
-                                      data={'actions': json_dump([
-                                                    self.build_formfield_entry(name=name, operator='title', value=''),
-                                                    self.build_formfield_entry(name=name, operator='upper', value=''),
-                                                ]),
-                                           }
-                                     )
-        self.assertFormError(response, 'form', 'actions',
-                             _('The field «%(field)s» can not be used twice.') % {
-                                    'field': _('First name'),
-                                 }
-                            )
+        response = self.assertPOST200(
+            self._build_add_url(FakeContact), follow=True,
+            data={
+                'actions': json_dump([
+                    self.build_formfield_entry(name=name, operator='title', value=''),
+                    self.build_formfield_entry(name=name, operator='upper', value=''),
+                ]),
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'actions',
+             _('The field «%(field)s» can not be used twice.') % {
+                    'field': _('First name'),
+                 }
+        )
 
     def test_with_filter01(self):
         user = self.login()
@@ -316,15 +330,21 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         orga02 = create_orga(name='Manga club')
         orga03 = create_orga(name='Anime club')
 
-        efilter = EntityFilter.create('test-filter01', 'Contains "club"',
-                                      FakeOrganisation, is_custom=True,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                        model=FakeOrganisation,
-                                                        operator=EntityFilterCondition.CONTAINS,
-                                                        name='name', values=['club'],
-                                                    ),
-                                                 ],
-                                     )
+        efilter = EntityFilter.create(
+            'test-filter01', 'Contains "club"',
+            FakeOrganisation, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeOrganisation,
+                #     operator=EntityFilterCondition.CONTAINS,
+                #     name='name', values=['club'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation, field_name='name',
+                    operator_id=operators.CONTAINS, values=['club'],
+                ),
+            ],
+        )
         self.assertEqual({orga02, orga03}, set(efilter.filter(FakeOrganisation.objects.all())))  # <== not 'orga01'
 
         response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
@@ -365,35 +385,43 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                         )
 
     def test_with_filter02(self):
-        "Private filters (which belong to other users) are forbidden"
+        "Private filters (which belong to other users) are forbidden."
         self.login()
 
-        efilter = EntityFilter.create('test-filter01', 'Contains "club"',
-                                      FakeOrganisation, is_custom=True,
-                                      is_private=True, user=self.other_user,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                        model=FakeOrganisation,
-                                                        operator=EntityFilterCondition.CONTAINS,
-                                                        name='name', values=['club'],
-                                                    ),
-                                                 ],
-                                     )
+        efilter = EntityFilter.create(
+            'test-filter01', 'Contains "club"',
+            FakeOrganisation, is_custom=True,
+            is_private=True, user=self.other_user,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeOrganisation,
+                #     operator=EntityFilterCondition.CONTAINS,
+                #     name='name', values=['club'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation, field_name='name',
+                    operator_id=operators.CONTAINS, values=['club'],
+                ),
+            ],
+        )
 
-        response = self.assertPOST200(self._build_add_url(FakeOrganisation), follow=True,
-                                      data={'filter':  efilter.id,
-                                            'actions': self.build_formfield_value(
-                                                            name='name',
-                                                            operator='lower',
-                                                            value='',
-                                                        ),
-                                           }
-                                     )
-        self.assertFormError(response, 'form', 'filter',
-                             _('Select a valid choice. That choice is not one of the available choices.')
-                            )
+        response = self.assertPOST200(
+            self._build_add_url(FakeOrganisation), follow=True,
+            data={'filter':  efilter.id,
+                'actions': self.build_formfield_value(
+                                name='name',
+                                operator='lower',
+                                value='',
+                            ),
+               },
+        )
+        self.assertFormError(
+            response, 'form', 'filter',
+            _('Select a valid choice. That choice is not one of the available choices.')
+        )
 
     def test_with_filter03(self):
-        "__currentuser__ condition (need global_info)"
+        "__currentuser__ condition (need global_info)."
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -401,26 +429,35 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         orga02 = create_orga(name='Manga club')
         orga03 = create_orga(name='Anime club', user=self.other_user)
 
-        efilter = EntityFilter.create('test-filter01', 'Assigned to me',
-                                      FakeOrganisation, is_custom=True,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                        model=FakeOrganisation,
-                                                        operator=EntityFilterCondition.EQUALS,
-                                                        name='user',
-                                                        values=['__currentuser__'],
-                                                    ),
-                                                 ],
-                                     )
+        efilter = EntityFilter.create(
+            'test-filter01', 'Assigned to me',
+            FakeOrganisation, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeOrganisation,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='user',
+                #     values=['__currentuser__'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation, field_name='user',
+                    operator_id=operators.EQUALS,
+                    values=[operands.CurrentUserOperand.type_id],
+                ),
+            ],
+        )
 
-        response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
-                                    data={'filter':  efilter.id,
-                                          'actions': self.build_formfield_value(
-                                                            name='name',
-                                                            operator='upper',
-                                                            value='',
-                                                        ),
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_add_url(FakeOrganisation), follow=True,
+            data={
+                'filter':  efilter.id,
+                'actions': self.build_formfield_value(
+                                name='name',
+                                operator='upper',
+                                value='',
+                           ),
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._get_job(response)
@@ -436,11 +473,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.VIEW | EntityCredentials.DELETE |
                         EntityCredentials.LINK | EntityCredentials.UNLINK,  # Not 'CHANGE'
-                  set_type=SetCredentials.ESET_ALL
+                  set_type=SetCredentials.ESET_ALL,
                  )
         create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
                         EntityCredentials.LINK | EntityCredentials.UNLINK,
-                  set_type=SetCredentials.ESET_OWN
+                  set_type=SetCredentials.ESET_OWN,
                  )
 
         create_orga = FakeOrganisation.objects.create
@@ -456,7 +493,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                             operator='lower',
                                                             value='',
                                                         ),
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
         job = self._get_job(response)
@@ -465,26 +502,35 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual('manga club', self.refresh(orga02).name)
         self.assertEqual('Genshiken',  self.refresh(orga01).name)  # <== not changed
 
-        self.assertEqual([orga02],
-                         [jr.entity.get_real_entity()
-                            for jr in EntityJobResult.objects.filter(job=job)
-                         ]
-                        )
+        self.assertListEqual(
+            [orga02],
+            [jr.entity.get_real_entity()
+                for jr in EntityJobResult.objects.filter(job=job)
+            ]
+        )
 
     def test_model_error(self):
         user = self.login()
 
         description = 'Genshiken member'
-        efilter = EntityFilter.create('test-filter01', 'Belongs to Genshiken',
-                                      FakeContact, is_custom=True,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                        model=FakeContact,
-                                                        operator=EntityFilterCondition.EQUALS,
-                                                        name='description',
-                                                        values=[description],
-                                                    )
-                                                 ],
-                                     )
+        efilter = EntityFilter.create(
+            'test-filter01', 'Belongs to Genshiken',
+            FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='description',
+                #     values=[description],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    field_name='description',
+                    operator_id=operators.EQUALS,
+                    values=[description],
+                ),
+            ],
+        )
 
         first_name = 'Kanako'
         last_name = 'Ouno'
@@ -496,14 +542,16 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             contact01.last_name = ''
             contact01.full_clean()
 
-        response = self.client.post(self._build_add_url(FakeContact), follow=True,
-                                    data={'filter':  efilter.id,
-                                          'actions': json_dump([
-                                                self.build_formfield_entry(name='last_name',  operator='rm_start', value=6),
-                                                self.build_formfield_entry(name='first_name', operator='upper',    value=''),
-                                            ]),
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_add_url(FakeContact), follow=True,
+            data={
+                'filter':  efilter.id,
+                'actions': json_dump([
+                    self.build_formfield_entry(name='last_name',  operator='rm_start', value=6),
+                    self.build_formfield_entry(name='first_name', operator='upper',    value=''),
+                ]),
+            },
+        )
         self.assertNoFormError(response)
         job = self._get_job(response)
 
@@ -517,13 +565,14 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                          jresult.messages
                         )
 
-        self.assertEqual([ngettext('{count} entity has been successfully modified.',
-                                   '{count} entities have been successfully modified.',
-                                   1
-                                  ).format(count=1),
-                         ],
-                         job.stats
-                        )
+        self.assertListEqual(
+            [ngettext('{count} entity has been successfully modified.',
+                      '{count} entities have been successfully modified.',
+                      1
+                     ).format(count=1),
+            ],
+            job.stats
+        )
 
     def build_ops_url(self, ct_id, field):
         return reverse('creme_core__batch_process_ops', args=(ct_id, field))
@@ -552,7 +601,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         assertStrOps('email')
 
     def test_get_ops03(self):
-        "Organisation CT, other category of operator"
+        "Organisation CT, other category of operator."
         self.login()
 
         response = self.assertGET200(self.build_ops_url(self.orga_ct.id, 'capital'))
@@ -563,19 +612,19 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertNotIn('prefix', (e[0] for e in json_data))
 
     def test_get_ops04(self):
-        "Empty category"
+        "Empty category."
         self.login()
 
         response = self.assertGET200(self.build_ops_url(self.contact_ct_id, 'image'))
         self.assertEqual([], response.json())
 
     def test_get_ops05(self):
-        "No app credentials"
+        "No app credentials."
         self.login(is_superuser=False, allowed_apps=['documents'])  # Not 'creme_core'
         self.assertGET403(self.build_ops_url(self.contact_ct_id, 'first_name'))
 
     def test_get_ops06(self):
-        "Unknown field"
+        "Unknown field."
         self.login()
 
         self.assertGET(400, self.build_ops_url(self.contact_ct_id, 'foobar'))
@@ -588,17 +637,25 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         orga02 = create_orga(name='Manga club')
         orga03 = create_orga(name='Anime club')
 
-        efilter = EntityFilter.create('test-filter01', 'Contains "club"',
-                                      FakeOrganisation, is_custom=True,
-                                     )
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeOrganisation,
-                                                                    operator=EntityFilterCondition.CONTAINS,
-                                                                    name='description', values=['club']
-                                                                   )
-                               ])
-        self.assertEqual({orga01, orga02, orga03},
-                         set(efilter.filter(FakeOrganisation.objects.all()))
-                        )
+        efilter = EntityFilter.create(
+            'test-filter01', 'Contains "club"', FakeOrganisation, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeOrganisation,
+                #     operator=EntityFilterCondition.CONTAINS,
+                #     name='description', values=['club']
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.CONTAINS,
+                    field_name='description',
+                    values=['club'],
+                ),
+            ],
+        )
+        self.assertSetEqual({orga01, orga02, orga03},
+                            {*efilter.filter(FakeOrganisation.objects.all())}
+                           )
 
         response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
                                     data={'filter':  efilter.id,
@@ -607,7 +664,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                             operator='rm_end',
                                                             value='5',
                                                         ),
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -634,7 +691,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                             operator='upper',
                                                             value='',
                                                         ),
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -654,7 +711,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                             operator='rm_end',
                                                             value='5',
                                                         ),
-                                         }
+                                         },
                                    )
         efilter.delete()
         self.assertDoesNotExist(efilter)

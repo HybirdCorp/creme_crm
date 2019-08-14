@@ -4,8 +4,9 @@ try:
     from django.urls import reverse
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.core.entity_filter import condition_handler, operators
     from creme.creme_core.models.auth import SetCredentials
-    from creme.creme_core.models.entity_filter import EntityFilter, EntityFilterCondition
+    from creme.creme_core.models.entity_filter import EntityFilter  # EntityFilterCondition
 
     from creme.persons.tests.base import (skipIfCustomAddress,
             skipIfCustomContact, skipIfCustomOrganisation)
@@ -299,14 +300,21 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         address2 = self.create_shipping_address(orga2, zipcode='01190', town='Ozan')
         address3 = self.create_billing_address(orga3, zipcode='01630', town='Péron')
 
-        efilter = EntityFilter.create('test-filter', 'Orga 1', Organisation, is_custom=True,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                        model=Organisation,
-                                                        operator=EntityFilterCondition.EQUALS,
-                                                        name='name', values=['Orga 1'],
-                                                    ),
-                                                ] 
-                                     )
+        efilter = EntityFilter.create(
+            'test-filter', 'Orga 1', Organisation, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=Organisation,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='name', values=['Orga 1'],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Organisation,
+                    operator_id=operators.EQUALS,
+                    field_name='name', values=['Orga 1'],
+                ),
+            ],
+        )
 
         url = self.GET_ADDRESSES_URL
         response = self.assertGET200(url)
@@ -444,14 +452,21 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         user = self.login()
         self.populate_addresses(user)
 
-        efilter = EntityFilter.create('test-filter', 'test', Organisation, is_custom=True,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                        model=Organisation,
-                                                        operator=EntityFilterCondition.EQUALS_NOT,
-                                                        name='name', values=['C'],
-                                                    ),
-                                                 ]  # filter ST-VICTOR
-                                     )
+        efilter = EntityFilter.create(
+            'test-filter', 'test', Organisation, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=Organisation,
+                #     operator=EntityFilterCondition.EQUALS_NOT,
+                #     name='name', values=['C'],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Organisation,
+                    operator_id=operators.EQUALS_NOT,
+                    field_name='name', values=['C'],
+                ),
+            ],  # filter ST-VICTOR
+        )
 
         url = self.GET_NEIGHBOURS_URL
         GET_data = {'filter_id': efilter.id}

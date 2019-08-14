@@ -11,8 +11,11 @@ try:
 
     from creme.creme_core.tests.fake_constants import FAKE_REL_SUB_EMPLOYED_BY
     from creme.creme_core.tests.views.base import ViewsTestCase
+
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.entity_filter.operators import EQUALS
+    from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import (HeaderFilter, FieldsConfig,
             RelationType, CustomField, EntityFilter, EntityFilterCondition,
@@ -109,16 +112,22 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         )
 
         # Set a filter in the session (should be kept)
-        efilter = EntityFilter.create('creme_core-tests_views_header_filter_test_create02',
-                            name='Misato', model=FakeContact,
-                            is_custom=True,
-                            conditions=[EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.EQUALS,
-                                    name='first_name', values=['Misato'],
-                                ),
-                            ],
-                           )
+        efilter = EntityFilter.create(
+            'creme_core-tests_views_header_filter_test_create02',
+            name='Misato', model=FakeContact,
+            is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='first_name', values=['Misato'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='first_name',
+                    operator_id=EQUALS, values=['Misato'],
+                ),
+            ],
+        )
         response = self.assertPOST200(lv_url, data={'filter': efilter.id})
         self.assertEqual(efilter.id, response.context['list_view_state'].entity_filter_id)
 

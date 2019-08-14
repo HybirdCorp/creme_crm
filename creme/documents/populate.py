@@ -27,9 +27,10 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, BrickDetailviewLocation,
-        SearchConfigItem, HeaderFilter, EntityFilter, EntityFilterCondition)
+        SearchConfigItem, HeaderFilter, EntityFilter)  # EntityFilterCondition
 from creme.creme_core.utils import create_if_needed
 
 from . import get_document_model, get_folder_model, folder_model_is_custom, constants, bricks
@@ -115,15 +116,24 @@ class Populator(BasePopulator):
                            )
 
         # ---------------------------
-        EntityFilter.create(constants.EFILTER_IMAGES, name=_('Images'), model=Document,
-                            is_custom=False, user='admin',
-                            conditions=[EntityFilterCondition.build_4_field(model=Document,
-                                              operator=EntityFilterCondition.STARTSWITH,
-                                              name='mime_type__name',
-                                              values=[constants.MIMETYPE_PREFIX_IMG],
-                                          ),
-                                       ],
-                           )
+        EntityFilter.create(
+            constants.EFILTER_IMAGES, name=_('Images'), model=Document,
+            is_custom=False, user='admin',
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=Document,
+                #     operator=EntityFilterCondition.STARTSWITH,
+                #     name='mime_type__name',
+                #     values=[constants.MIMETYPE_PREFIX_IMG],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Document,
+                    operator_id=operators.STARTSWITH,
+                    field_name='mime_type__name',
+                    values=[constants.MIMETYPE_PREFIX_IMG],
+                ),
+            ],
+        )
 
         # ---------------------------
         create_sci = SearchConfigItem.create_if_needed

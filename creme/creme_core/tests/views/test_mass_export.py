@@ -23,8 +23,11 @@ try:
     from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT
     from ..fake_models import (FakeContact, FakeOrganisation, FakeImage,
             FakeEmailCampaign, FakeMailingList, FakeInvoice, FakeInvoiceLine)
+
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.entity_filter.operators import ISTARTSWITH
+    from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
     from creme.creme_core.models import (RelationType, Relation, FieldsConfig,
             CremePropertyType, CremeProperty, FileRef,
             HeaderFilter, EntityFilter, EntityFilterCondition)
@@ -459,12 +462,17 @@ class MassExportViewsTestCase(ViewsTestCase):
         efilter = EntityFilter.create(
             'test-filter01', 'Red', FakeContact,
             user=user, is_custom=False,
-            conditions=[EntityFilterCondition.build_4_field(
-                              model=FakeContact,
-                              operator=EntityFilterCondition.ISTARTSWITH,
-                              name='last_name', values=['Wong'],
-                          ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.ISTARTSWITH,
+                #     name='last_name', values=['Wong'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='last_name',
+                    operator_id=ISTARTSWITH, values=['Wong'],
+                )
+            ],
         )
 
         existing_hline_ids = list(HistoryLine.objects.values_list('id', flat=True))

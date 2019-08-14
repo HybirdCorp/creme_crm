@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from creme.creme_core.models.entity_filter import EntityFilter, EntityFilterCondition
+    from creme.creme_core.core.entity_filter import condition_handler, operators
+    from creme.creme_core.models.entity_filter import EntityFilter  # EntityFilterCondition
 
     from creme.persons.constants import FILTER_MANAGED_ORGA, FILTER_CONTACT_ME
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
@@ -24,16 +25,23 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         self.organisations_title = str(Organisation._meta.verbose_name_plural)
 
     def create_filter(self, pk, name, owner, model, field, operator, *values):
-        return EntityFilter.create(pk, name, model=model,
-                                   user=owner,
-                                   is_private=True, is_custom=True,
-                                   conditions=[EntityFilterCondition.build_4_field(
-                                                   model=model,
-                                                   operator=operator,
-                                                   name=field, values=values,
-                                               ),
-                                              ],
-                                  )
+        return EntityFilter.create(
+            pk, name, model=model,
+            user=owner,
+            is_private=True, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=model,
+                #     operator=operator,
+                #     name=field, values=values,
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=model,
+                    operator_id=operator,
+                    field_name=field, values=values,
+                ),
+            ],
+        )
 
     def test_filter_choices01(self):
         user = self.user
@@ -67,7 +75,8 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         contact_me    = get_efilter(pk=FILTER_CONTACT_ME)
         managed_orgas = get_efilter(pk=FILTER_MANAGED_ORGA)
 
-        EQUALS = EntityFilterCondition.EQUALS
+        # EQUALS = EntityFilterCondition.EQUALS
+        EQUALS = operators.EQUALS
         efilter1 = self.create_filter('filter-1', 'Contact filter', user, Contact,      'first_name', EQUALS, 'John')
         efilter2 = self.create_filter('filter-2', 'Orga filter',    user, Organisation, 'name',       EQUALS, 'Le spectre')
 
@@ -99,7 +108,8 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
 
         managed_orgas = EntityFilter.objects.get(pk=FILTER_MANAGED_ORGA)
         efilter = self.create_filter('filter-2', 'Orga filter', other_user, Organisation, 'name',
-                                     EntityFilterCondition.EQUALS, 'Le spectre'
+                                     # EntityFilterCondition.EQUALS, 'Le spectre',
+                                     operators.EQUALS, 'Le spectre',
                                     )
 
         title = self.organisations_title

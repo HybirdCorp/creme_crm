@@ -13,14 +13,23 @@ try:
     from creme import __version__
 
     from ..base import CremeTestCase
-    from ..fake_models import FakeContact, FakeCivility, FakeOrganisation, FakeImage, FakeDocument, FakeFolder
 
+    from creme.creme_core.core.entity_filter import operators
+    from creme.creme_core.core.entity_filter.condition_handler import (
+        FilterConditionHandler,
+        SubFilterConditionHandler, RelationSubFilterConditionHandler,
+        RegularFieldConditionHandler, DateRegularFieldConditionHandler,
+        CustomFieldConditionHandler, DateCustomFieldConditionHandler,
+        PropertyConditionHandler, RelationConditionHandler,
+    )
     from creme.creme_core.global_info import set_global_info
-    from creme.creme_core.models import (CremeEntity, Language,
-            Relation, RelationType, CremeProperty, CremePropertyType,
-            CustomField, CustomFieldInteger, CustomFieldString, CustomFieldFloat,
-            CustomFieldBoolean, CustomFieldDateTime, CustomFieldEnum, CustomFieldEnumValue,
-            EntityFilter, EntityFilterCondition)
+    from creme.creme_core.models import (
+        CremeEntity, Language, Relation, RelationType, CremeProperty, CremePropertyType,
+        CustomField, CustomFieldInteger, CustomFieldString, CustomFieldFloat,
+        CustomFieldBoolean, CustomFieldDateTime, CustomFieldEnum, CustomFieldEnumValue,
+        EntityFilter, EntityFilterCondition,
+        FakeContact, FakeCivility, FakeOrganisation, FakeImage, FakeDocument, FakeFolder,
+    )
     from creme.creme_core.models.entity_filter import EntityFilterList
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -112,20 +121,29 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_create01(self):
         "Custom=False."
         pk = 'test-filter01'
-        name = 'Ikari'
+        name = 'Ikari family'
         model = FakeContact
+        fname = 'last_name'
+        operator_id = operators.EQUALS
+        value = 'Ikari'
 
         with self.assertRaises(ValueError):
             EntityFilter.create(pk, name, model)
 
         efilter = EntityFilter.create(
             pk, name, model,
-            conditions=[EntityFilterCondition.build_4_field(
-                            model=FakeContact,
-                            operator=EntityFilterCondition.EQUALS,
-                            name='last_name', values=['Ikari'],
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='last_name', values=['Ikari'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operator_id,
+                    field_name=fname, values=[value],
+                ),
+            ],
         )
 
         self.assertIsInstance(efilter, EntityFilter)
@@ -141,13 +159,23 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
-        self.assertEqual('last_name',                     condition.name)
-        self.assertEqual({'operator': EntityFilterCondition.EQUALS, 'values': ['Ikari']},
+        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
+        self.assertEqual(fname,                                condition.name)
+        # self.assertEqual({'operator': EntityFilterCondition.EQUALS, 'values': [value]},
+        self.assertEqual({'operator': operator_id, 'values': [value]},
                          condition.decoded_value
                         )
 
         self.assertTrue(efilter.entities_are_distinct)
+
+        handler = condition.handler
+        self.assertIsInstance(handler, RegularFieldConditionHandler)
+        # self.assertEqual(condition, handler.condition)
+        self.assertEqual(fname,       handler._field_name)
+        self.assertEqual(operator_id, handler._operator_id)
+        self.assertEqual([value],     handler._values)
+
 
     def test_create02(self):
         "A owner, custom filter."
@@ -195,12 +223,18 @@ class EntityFiltersTestCase(CremeTestCase):
             return EntityFilter.create(
                 'creme_core-subfilter{}'.format(idx), 'Misato', model=FakeContact,
                 user=owner, is_private=True, is_custom=True,
-                conditions=[EntityFilterCondition.build_4_field(
-                                 model=FakeContact,
-                                 operator=EntityFilterCondition.EQUALS,
-                                 name='first_name', values=['Misato'],
-                             ),
-                           ],
+                conditions=[
+                    # EntityFilterCondition.build_4_field(
+                    #     model=FakeContact,
+                    #     operator=EntityFilterCondition.EQUALS,
+                    #     name='first_name', values=['Misato'],
+                    # ),
+                    RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator_id=operators.EQUALS,
+                        field_name='first_name', values=['Misato'],
+                    ),
+                ],
             )
 
         subfilter1 = create_subfilter(1, other_user)
@@ -208,45 +242,56 @@ class EntityFiltersTestCase(CremeTestCase):
         subfilter3 = create_subfilter(3, other_team)
         subfilter4 = create_subfilter(4, team)
 
-        cond1 = EntityFilterCondition.build_4_field(
-            model=FakeContact,
-            operator=EntityFilterCondition.EQUALS,
-            name='last_name', values=['Katsuragi'],
+        # cond1 = EntityFilterCondition.build_4_field(
+        #     model=FakeContact,
+        #     operator=EntityFilterCondition.EQUALS,
+        #     name='last_name', values=['Katsuragi'],
+        # )
+        cond1 = RegularFieldConditionHandler.build_condition(
+            model=FakeContact, field_name='last_name',
+            operator_id=operators.EQUALS, values=['Katsuragi'],
         )
+
+        build_subfilter_cond = SubFilterConditionHandler.build_condition
 
         with self.assertRaises(EntityFilter.PrivacyError):
             EntityFilter.create(
                 'creme_core-filter1', 'Misato Katsuragi', model=FakeContact,
                 is_custom=True,
-                conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter1)],
+                # conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter1)],
+                conditions=[cond1, build_subfilter_cond(subfilter1)],
             )
 
         with self.assertRaises(EntityFilter.PrivacyError):
             EntityFilter.create(
                 'creme_core-filter2', 'Misato Katsuragi', model=FakeContact,
                 user=user, is_private=True, is_custom=True,
-                conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter1)],
+                # conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter1)],
+                conditions=[cond1, build_subfilter_cond(subfilter1)],
             )
 
         with self.assertNoException():
             EntityFilter.create(
                 'creme_core-filter3', 'Misato Katsuragi', model=FakeContact,
                 user=user, is_private=True, is_custom=True,
-                conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter2)],
+                # conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter2)],
+                conditions=[cond1, build_subfilter_cond(subfilter2)],
             )
 
         with self.assertRaises(EntityFilter.PrivacyError):
             EntityFilter.create(
                 'creme_core-filter4', 'Misato Katsuragi', model=FakeContact,
                 user=user, is_private=True, is_custom=True,
-                conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter3)],
+                # conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter3)],
+                conditions=[cond1, build_subfilter_cond(subfilter3)],
             )
 
         with self.assertNoException():
             EntityFilter.create(
                 'creme_core-filter5', 'Misato Katsuragi', model=FakeContact,
                 user=user, is_private=True, is_custom=True,
-                conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter4)],
+                # conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter4)],
+                conditions=[cond1, build_subfilter_cond(subfilter4)],
             )
 
     def test_get_latest_version(self):
@@ -298,30 +343,38 @@ class EntityFiltersTestCase(CremeTestCase):
         equal = EntityFilterCondition.conditions_equal
         self.assertIs(equal([], []), True)
 
-        build_4_field = partial(EntityFilterCondition.build_4_field,
-                                model=FakeContact,
-                                operator=EntityFilterCondition.EQUALS,
-                                name='last_name', values=['Ikari'],
-                               )
-        conditions1 = [build_4_field()]
+        # build_cond = partial(EntityFilterCondition.build_4_field,
+        build_cond = partial(RegularFieldConditionHandler.build_condition,
+                             model=FakeContact,
+                             # operator=EntityFilterCondition.EQUALS,
+                             operator_id=operators.EQUALS,
+                             # name='last_name',
+                             field_name='last_name',
+                             values=['Ikari'],
+                             )
+        conditions1 = [build_cond()]
         self.assertIs(equal([], conditions1), False)
         self.assertTrue(equal(conditions1, conditions1))
 
-        self.assertFalse(equal(conditions1, [build_4_field(name='first_name')]))
-        self.assertFalse(equal(conditions1, [build_4_field(values=['Katsuragi'])]))
+        # self.assertFalse(equal(conditions1, [build_cond(name='first_name')]))
+        self.assertFalse(equal(conditions1, [build_cond(field_name='first_name')]))
+        self.assertFalse(equal(conditions1, [build_cond(values=['Katsuragi'])]))
         self.assertFalse(equal(conditions1,
-                               [build_4_field(operator=EntityFilterCondition.CONTAINS)]
+                               # [build_cond(operator=EntityFilterCondition.CONTAINS)]
+                               [build_cond(operator_id=operators.CONTAINS)]
                               )
-                         )
+                        )
 
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
         hates = RelationType.create(('test-subject_hate', 'Is hating'),
                                     ('test-object_hate',  'Is hated by')
                                    )[0]
 
-        cond1 = build_4_field()
-        cond2 = EntityFilterCondition.build_4_property(ptype=ptype, has=True)
-        cond3 = EntityFilterCondition.build_4_relation(rtype=hates, has=True)
+        cond1 = build_cond()
+        # cond2 = EntityFilterCondition.build_4_property(ptype=ptype, has=True)
+        cond2 = PropertyConditionHandler.build_condition(model=FakeContact, ptype=ptype, has=True)
+        # cond3 = EntityFilterCondition.build_4_relation(rtype=hates, has=True)
+        cond3 = RelationConditionHandler.build_condition(model=FakeContact, rtype=hates, has=True)
         self.assertFalse(equal([cond1, cond2],
                                [cond2, cond3]
                               )
@@ -334,71 +387,70 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_conditions_equal02(self):
         "Does not compare JSON but dict (Py3k bug)."
         equal = EntityFilterCondition.conditions_equal
+        type_id = RegularFieldConditionHandler.type_id
 
         cond1 = EntityFilterCondition(
-            type=EntityFilterCondition.EFC_FIELD,
+            # type=EntityFilterCondition.EFC_FIELD,
+            model=FakeContact,
+            type=type_id,
             name='first_name',
             value='{"operator": 1, "values": ["Ikari"]}',
         )
         cond2 = EntityFilterCondition(
-            type=EntityFilterCondition.EFC_FIELD,
+            # type=EntityFilterCondition.EFC_FIELD,
+            model=FakeContact,
+            type=type_id,
             name='first_name',
             value='{"operator": 1, "values": ["Ikari"]}',
         )
         cond3 = EntityFilterCondition(
-            type=EntityFilterCondition.EFC_FIELD,
+            # type=EntityFilterCondition.EFC_FIELD,
+            model=FakeContact,
+            type=type_id,
             name='first_name',
             value='{"values": ["Ikari"], "operator": 1}',  # Different strings, but same JSONified dict....
         )
         self.assertTrue(equal([cond1], [cond2]))
         self.assertTrue(equal([cond1], [cond3]))
 
-    def test_create_condition_creatorfield_fk(self):
-        equal = EntityFilterCondition.conditions_equal
-        folder = FakeFolder.objects.create(title='Folder 01', user=self.user)
-        other_folder = FakeFolder.objects.create(title='Folder 02', user=self.other_user)
-        self.assertIs(equal([], []), True)
-
-        build_4_field = partial(EntityFilterCondition.build_4_field,
-                                model=FakeDocument,
-                                operator=EntityFilterCondition.EQUALS,
-                                name='linked_folder',
-                               )
-
-        # user can link Document on "Folder 01" (owner=user)
-        self.assertNoException(lambda: build_4_field(values=[str(folder.id)], user=self.user))
-        # user can link Document on "Folder 02" (owner=other_user)
-        self.assertNoException(lambda: build_4_field(values=[str(other_folder.id)], user=self.user))
-
-        # other_user cannot link (not authenticated)
-        with self.assertRaises(EntityFilterCondition.ValueError):
-            build_4_field(values=[str(folder.id)], user=self.other_user)
-
     def test_create_again01(self):
         "is_custom=True -> override."
         EntityFilter.create(
             'test-filter', 'Ikari', FakeContact,
             is_custom=True, use_or=True,
-            conditions=[EntityFilterCondition.build_4_field(
-                              model=FakeContact,
-                              operator=EntityFilterCondition.EQUALS,
-                              name='last_name', values=['Ikari'],
-                          ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='last_name', values=['Ikari'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS,
+                    field_name='last_name', values=['Ikari'],
+                ),
+            ],
         )
         count = EntityFilter.objects.count()
 
         user = self.user
         name = 'Misato my love'
-        efilter = EntityFilter.create('test-filter', name, FakeContact,
-                                      is_custom=True, user=user, use_or=False,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                        model=FakeContact,
-                                                        operator=EntityFilterCondition.IEQUALS,
-                                                        name='first_name', values=['Gendo'],
-                                                    ),
-                                                 ]
-                                      )
+        efilter = EntityFilter.create(
+            'test-filter', name, FakeContact,
+            is_custom=True, user=user, use_or=False,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.IEQUALS,
+                #     name='first_name', values=['Gendo'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IEQUALS,
+                    field_name='first_name', values=['Gendo'],
+                ),
+            ],
+        )
         self.assertEqual(name, efilter.name)
         self.assertEqual(user, efilter.user)
         self.assertFalse(efilter.use_or)
@@ -407,9 +459,11 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
-        self.assertEqual('first_name',                    condition.name)
-        self.assertEqual({'operator': EntityFilterCondition.IEQUALS, 'values': ['Gendo']},
+        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
+        self.assertEqual('first_name',                         condition.name)
+        # self.assertEqual({'operator': EntityFilterCondition.IEQUALS, 'values': ['Gendo']},
+        self.assertEqual({'operator': operators.IEQUALS, 'values': ['Gendo']},
                          condition.decoded_value
                         )
 
@@ -419,22 +473,34 @@ class EntityFiltersTestCase(CremeTestCase):
             EntityFilter.create(
                 'test-filter', name, FakeContact,
                 user=user, use_or=False, is_custom=False,  # <==== cannot become custom False
-                conditions=[EntityFilterCondition.build_4_field(
-                                model=FakeContact,
-                                operator=EntityFilterCondition.IEQUALS,
-                                name='first_name', values=['Gendo'],
-                            ),
-                           ],
+                conditions=[
+                    # EntityFilterCondition.build_4_field(
+                    #     model=FakeContact,
+                    #     operator=EntityFilterCondition.IEQUALS,
+                    #     name='first_name', values=['Gendo'],
+                    # ),
+                    RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator_id=operators.IEQUALS,
+                        field_name='first_name', values=['Gendo'],
+                    ),
+                ],
             )
 
     def test_create_again02(self):
         "is_custom=False + no change -> override name (but not user)."
-        conditions = [EntityFilterCondition.build_4_field(
-                            model=FakeContact,
-                            operator=EntityFilterCondition.EQUALS,
-                            name='last_name', values=['Ikari'],
-                        ),
-                     ]
+        conditions = [
+            # EntityFilterCondition.build_4_field(
+            #     model=FakeContact,
+            #     operator=EntityFilterCondition.EQUALS,
+            #     name='last_name', values=['Ikari'],
+            # ),
+            RegularFieldConditionHandler.build_condition(
+                model=FakeContact,
+                operator_id=operators.EQUALS,
+                field_name='last_name', values=['Ikari'],
+            ),
+        ]
         pk = 'test-filter'
         EntityFilter.create(pk, 'Misato', FakeContact, user=self.other_user, conditions=conditions)
         count = EntityFilter.objects.count()
@@ -456,23 +522,35 @@ class EntityFiltersTestCase(CremeTestCase):
         pk = 'test-filter'
         EntityFilter.create(
             pk, 'Misato', FakeContact,
-            conditions=[EntityFilterCondition.build_4_field(
-                                model=FakeContact,
-                                operator=EntityFilterCondition.EQUALS,
-                                name='last_name', values=['Katsuragi'],
-                            ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='last_name', values=['Katsuragi'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS,
+                    field_name='last_name', values=['Katsuragi'],
+                ),
+            ],
         )
 
         with self.assertRaises(ValueError):
             EntityFilter.create(
                 pk, 'Nerv', FakeOrganisation,
-                conditions=[EntityFilterCondition.build_4_field(
-                                model=FakeOrganisation,
-                                operator=EntityFilterCondition.EQUALS,
-                                name='name', values=['Nerv'],
-                            ),
-                           ],
+                conditions=[
+                    # EntityFilterCondition.build_4_field(
+                    #     model=FakeOrganisation,
+                    #     operator=EntityFilterCondition.EQUALS,
+                    #     name='name', values=['Nerv'],
+                    # ),
+                    RegularFieldConditionHandler.build_condition(
+                        model=FakeOrganisation,
+                        operator_id=operators.EQUALS,
+                        field_name='name', values=['Nerv'],
+                    ),
+                ],
             )
 
     def test_create_again04(self):
@@ -480,23 +558,35 @@ class EntityFiltersTestCase(CremeTestCase):
         pk = 'test-filter'
         EntityFilter.create(
             pk, 'Misato', FakeContact, is_custom=True,
-            conditions=[EntityFilterCondition.build_4_field(
-                                model=FakeContact,
-                                operator=EntityFilterCondition.EQUALS,
-                                name='last_name', values=['Katsuragi'],
-                            ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='last_name', values=['Katsuragi'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS,
+                    field_name='last_name', values=['Katsuragi'],
+                )
+            ],
         )
 
         with self.assertRaises(ValueError):
             EntityFilter.create(
                 pk, 'Nerv', FakeOrganisation, is_custom=True,
-                conditions=[EntityFilterCondition.build_4_field(
-                                model=FakeOrganisation,
-                                operator=EntityFilterCondition.EQUALS,
-                                name='name', values=['Nerv'],
-                            ),
-                       ],
+                conditions=[
+                    # EntityFilterCondition.build_4_field(
+                    #     model=FakeOrganisation,
+                    #     operator=EntityFilterCondition.EQUALS,
+                    #     name='name', values=['Nerv'],
+                    # ),
+                    RegularFieldConditionHandler.build_condition(
+                        model=FakeOrganisation,
+                        operator_id=operators.EQUALS,
+                        field_name='name', values=['Nerv'],
+                    ),
+                ],
             )
 
     def test_create_again05(self):
@@ -506,12 +596,18 @@ class EntityFiltersTestCase(CremeTestCase):
         def create_filter(use_or=False, value='Ikari'):
             return EntityFilter.create(
                 pk, 'Nerv member', FakeContact, is_custom=False, use_or=use_or,
-                conditions=[EntityFilterCondition.build_4_field(
-                                 model=FakeContact,
-                                 operator=EntityFilterCondition.EQUALS,
-                                 name='last_name', values=[value],
-                             ),
-                           ],
+                conditions=[
+                    # EntityFilterCondition.build_4_field(
+                    #     model=FakeContact,
+                    #     operator=EntityFilterCondition.EQUALS,
+                    #     name='last_name', values=[value],
+                    # ),
+                    RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator_id=operators.EQUALS,
+                        field_name='last_name', values=[value],
+                    ),
+                ],
             )
 
         qs = EntityFilter.objects.filter(pk__startswith=pk)
@@ -543,7 +639,6 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_create_errors(self):
         "Invalid chars in PK."
-
         def create_filter(pk):
             return EntityFilter.create(pk, 'Nerv member', FakeContact, is_custom=True)
 
@@ -571,12 +666,18 @@ class EntityFiltersTestCase(CremeTestCase):
                 'creme_core-test_filter', 'Nerv member',
                 FakeContact, is_custom=False,
                 is_private=True, user=self.user,
-                conditions=[EntityFilterCondition.build_4_field(
-                                 model=FakeContact,
-                                 operator=EntityFilterCondition.EQUALS,
-                                 name='last_name', values=['Ikari'],
-                             ),
-                           ],
+                conditions=[
+                    # EntityFilterCondition.build_4_field(
+                    #     model=FakeContact,
+                    #     operator=EntityFilterCondition.EQUALS,
+                    #     name='last_name', values=['Ikari'],
+                    # ),
+                    RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator_id=operators.EQUALS,
+                        field_name='last_name', values=['Ikari'],
+                    ),
+                ],
             )
 
     def test_ct_cache(self):
@@ -595,15 +696,23 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_filter_field_equals01(self):
         efilter = EntityFilter.create(
             'test-filter01', 'Ikari', FakeContact,
-            conditions=[EntityFilterCondition.build_4_field(
-                              model=FakeContact,
-                              operator=EntityFilterCondition.EQUALS,
-                              name='last_name', values=['Ikari'],
-                          ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='last_name', values=['Ikari'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS,
+                    field_name='last_name', values=['Ikari'],
+                ),
+            ],
         )
         self.assertEqual(1, efilter.conditions.count())
-        self.assertExpectedFiltered(self.refresh(efilter), FakeContact, self._get_ikari_case_sensitive())
+        self.assertExpectedFiltered(self.refresh(efilter), FakeContact,
+                                    self._get_ikari_case_sensitive()
+                                   )
 
         with self.assertNumQueries(0):
             conds = efilter.get_conditions()
@@ -617,13 +726,20 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_filter_field_equals02(self):
         efilter = EntityFilter.create(
             'test-filter01', 'Spike & Faye', FakeContact,
-            conditions=[EntityFilterCondition.build_4_field(
-                              model=FakeContact,
-                              operator=EntityFilterCondition.EQUALS,
-                              name='first_name',
-                              values=['Spike', 'Faye'],
-                          ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='first_name',
+                #     values=['Spike', 'Faye'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS,
+                    field_name='first_name',
+                    values=['Spike', 'Faye'],
+                ),
+            ],
         )
         self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(self.refresh(efilter), FakeContact,
@@ -637,10 +753,16 @@ class EntityFiltersTestCase(CremeTestCase):
         yui = contacts['yui']; yui.is_a_nerd = True; yui.save()
 
         def build_cond(value):
-            return EntityFilterCondition.build_4_field(
+            # return EntityFilterCondition.build_4_field(
+            #     model=FakeContact,
+            #     operator=EntityFilterCondition.EQUALS,
+            #     name='is_a_nerd',
+            #     values=[value],
+            # )
+            return RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
-                operator=EntityFilterCondition.EQUALS,
-                name='is_a_nerd',
+                operator_id=operators.EQUALS,
+                field_name='is_a_nerd',
                 values=[value],
             )
 
@@ -654,14 +776,18 @@ class EntityFiltersTestCase(CremeTestCase):
             pk='test-filter02', name='is a not nerd', model=FakeContact, is_custom=True,
             conditions=[build_cond(False)],
         )
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('ed', 'yui', exclude=True))
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('ed', 'yui', exclude=True)
+                                   )
 
         # Old (buggy ?) format
         efilter = EntityFilter.create(
             pk='test-filter02', name='is a not nerd v2', model=FakeContact, is_custom=True,
             conditions=[build_cond('False')],
         )
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('ed', 'yui', exclude=True))
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('ed', 'yui', exclude=True)
+                                   )
 
     def test_filter_field_equals_currentuser01(self):
         other_user = self.other_user
@@ -678,13 +804,20 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter_mycontacts', 'My contacts', FakeContact,
-            conditions=[EntityFilterCondition.build_4_field(
-                            model=FakeContact,
-                            operator=EntityFilterCondition.EQUALS,
-                            name='user',
-                            values=['__currentuser__'],
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='user',
+                #     values=['__currentuser__'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS,
+                    field_name='user',
+                    values=['__currentuser__'],
+                ),
+            ],
         )
 
         self.assertEqual(1, efilter.conditions.count())
@@ -699,7 +832,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                    )
 
     def test_filter_field_equals_currentuser02(self):
-        "Teams"
+        "Teams."
         user = self.user
         other_user = self.other_user
 
@@ -730,13 +863,14 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter_mycontacts', 'My contacts', FakeContact,
-            conditions=[EntityFilterCondition.build_4_field(
-                            model=FakeContact,
-                            operator=EntityFilterCondition.EQUALS,
-                            name='user',
-                            values=['__currentuser__'],
-                        ),
-                       ],
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS,
+                    field_name='user',
+                    values=['__currentuser__'],
+                ),
+            ],
         )
 
         self.assertExpectedFiltered(
@@ -775,13 +909,14 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter_mycontacts', 'My contacts', FakeContact,
-            conditions=[EntityFilterCondition.build_4_field(
-                            model=FakeContact,
-                            operator=EntityFilterCondition.EQUALS_NOT,
-                            name='user',
-                            values=['__currentuser__'],
-                        ),
-                       ],
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS_NOT,
+                    field_name='user',
+                    values=['__currentuser__'],
+                ),
+            ],
         )
 
         self.assertExpectedFiltered(
@@ -793,12 +928,18 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create(
             'test-filter01', 'Ikari (insensitive)', FakeContact,
             user=self.user, is_custom=False,
-            conditions=[EntityFilterCondition.build_4_field(
-                            model=FakeContact,
-                            operator=EntityFilterCondition.IEQUALS,
-                            name='last_name', values=['Ikari'],
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.IEQUALS,
+                #     name='last_name', values=['Ikari'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IEQUALS,
+                    field_name='last_name', values=['Ikari'],
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact,
                                     self._list_contact_ids('shinji', 'yui', 'gendou'),
@@ -807,12 +948,18 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_filter_field_not_equals(self):
         efilter = EntityFilter.create('test-filter01', 'Not Ikari', FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.EQUALS_NOT,
-                                    name='last_name', values=['Ikari']
-                                ),
-                               ])
+        efilter.set_conditions([
+            # EntityFilterCondition.build_4_field(
+            #     model=FakeContact,
+            #     operator=EntityFilterCondition.EQUALS_NOT,
+            #     name='last_name', values=['Ikari']
+            # ),
+            RegularFieldConditionHandler.build_condition(
+                model=FakeContact,
+                operator_id=operators.EQUALS_NOT,
+                field_name='last_name', values=['Ikari'],
+            ),
+        ])
 
         excluded = frozenset(self._get_ikari_case_sensitive())
         self.assertExpectedFiltered(
@@ -830,12 +977,18 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(self.contact_ct.id, efilters[0].entity_type.id)
         self.assertEqual(efilter.id,         efilters[0].id)
 
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.IEQUALS_NOT,
-                                    name='last_name', values=['Ikari'],
-                                ),
-                               ])
+        efilter.set_conditions([
+            # EntityFilterCondition.build_4_field(
+            #     model=FakeContact,
+            #     operator=EntityFilterCondition.IEQUALS_NOT,
+            #     name='last_name', values=['Ikari'],
+            # ),
+            RegularFieldConditionHandler.build_condition(
+                model=FakeContact,
+                operator_id=operators.IEQUALS_NOT,
+                field_name='last_name', values=['Ikari'],
+            ),
+        ])
         self.assertExpectedFiltered(efilter, FakeContact,
                                     self._list_contact_ids('shinji', 'yui', 'gendou', exclude=True)
                                    )
@@ -844,203 +997,349 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create('test-filter01', name='Contains "isat"',
                                       model=FakeContact, is_custom=True,
                                      )
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.CONTAINS,
-                                    name='first_name', values=['isat'],
-                                ),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('misato', 'risato'))
+        efilter.set_conditions([
+            # EntityFilterCondition.build_4_field(
+            #     model=FakeContact,
+            #     operator=EntityFilterCondition.CONTAINS,
+            #     name='first_name', values=['isat'],
+            # ),
+            RegularFieldConditionHandler.build_condition(
+                model=FakeContact,
+                operator_id=operators.CONTAINS,
+                field_name='first_name', values=['isat'],
+            ),
+        ])
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('misato', 'risato')
+                                   )
 
     def test_filter_field_icontains(self):
         efilter = EntityFilter.create(pk='test-filter01', name='Not contains "Misa"',
                                       model=FakeContact, user=self.user, is_custom=True,
                                      )
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.ICONTAINS,
-                                    name='first_name', values=['misa'],
-                                ),
-                               ])
+        efilter.set_conditions([
+            # EntityFilterCondition.build_4_field(
+            #     model=FakeContact,
+            #     operator=EntityFilterCondition.ICONTAINS,
+            #     name='first_name', values=['misa'],
+            # ),
+            RegularFieldConditionHandler.build_condition(
+                model=FakeContact,
+                operator_id=operators.ICONTAINS,
+                field_name='first_name', values=['misa'],
+            ),
+        ])
         self.assertExpectedFiltered(efilter, FakeContact, [self.contacts['misato'].id], True)
 
     def test_filter_field_contains_not(self):
         efilter = EntityFilter.create('test-filter01', 'Not Ikari', FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.CONTAINS_NOT,
-                                    name='first_name', values=['sato'],
-                                ),
-                               ])
+        efilter.set_conditions([
+            #     EntityFilterCondition.build_4_field(
+            #     model=FakeContact,
+            #     operator=EntityFilterCondition.CONTAINS_NOT,
+            #     name='first_name', values=['sato'],
+            # ),
+            RegularFieldConditionHandler.build_condition(
+                model=FakeContact,
+                operator_id=operators.CONTAINS_NOT,
+                field_name='first_name', values=['sato'],
+            ),
+        ])
         self.assertExpectedFiltered(
             efilter, FakeContact, self._list_contact_ids('misato', 'risato', exclude=True)
         )
 
     def test_filter_field_icontains_not(self):
         efilter = EntityFilter.create('test-filter01', 'Not contains "sato" (ci)', FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeContact,
-                                                                    operator=EntityFilterCondition.ICONTAINS_NOT,
-                                                                    name='first_name', values=['sato']
-                                                                   ),
-                               ])
+        efilter.set_conditions([
+            # EntityFilterCondition.build_4_field(
+            #     model=FakeContact,
+            #     operator=EntityFilterCondition.ICONTAINS_NOT,
+            #     name='first_name', values=['sato'],
+            # ),
+            RegularFieldConditionHandler.build_condition(
+                model=FakeContact,
+                operator_id=operators.ICONTAINS_NOT,
+                field_name='first_name', values=['sato'],
+            ),
+        ])
         self.assertExpectedFiltered(efilter, FakeContact,
                                     self._list_contact_ids('misato', 'risato', exclude=True),
                                     case_insensitive=True
                                    )
 
     def test_filter_field_gt(self):
-        efilter = EntityFilter.create(pk='test-filter01', name='> Yua', model=FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.GT,
-                                    name='first_name', values=['Yua'],
-                                )
-                               ])
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='> Yua', model=FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.GT,
+                #     name='first_name', values=['Yua'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.GT,
+                    field_name='first_name', values=['Yua'],
+                ),
+            ],
+        )
         self.assertExpectedFiltered(efilter, FakeContact, [self.contacts['yui'].id])
 
     def test_filter_field_gte(self):
-        efilter = EntityFilter.create('test-filter01', '>= Spike', FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.GTE,
-                                    name='first_name', values=['Spike'],
-                                ),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('spike', 'yui'))
+        efilter = EntityFilter.create(
+            'test-filter01', '>= Spike', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.GTE,
+                #     name='first_name', values=['Spike'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.GTE,
+                    field_name='first_name', values=['Spike'],
+                ),
+            ],
+        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('spike', 'yui')
+                                   )
 
     def test_filter_field_lt(self):
         efilter = EntityFilter.create('test-filter01', '< Faye', FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.LT,
-                                    name='first_name', values=['Faye'],
-                                ),
-                               ])
+        efilter.set_conditions([
+            # EntityFilterCondition.build_4_field(
+            #     model=FakeContact,
+            #     operator=EntityFilterCondition.LT,
+            #     name='first_name', values=['Faye'],
+            # ),
+            RegularFieldConditionHandler.build_condition(
+                model=FakeContact,
+                operator_id=operators.LT,
+                field_name='first_name', values=['Faye'],
+            ),
+        ])
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('ed', 'asuka'))
 
     def test_filter_field_lte(self):
-        efilter = EntityFilter.create('test-filter01', '<= Faye', FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.LTE,
-                                    name='first_name', values=['Faye'],
-                                ),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('faye', 'ed', 'asuka'))
+        efilter = EntityFilter.create(
+            'test-filter01', '<= Faye', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.LTE,
+                #     name='first_name', values=['Faye'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.LTE,
+                    field_name='first_name', values=['Faye'],
+                ),
+            ],
+        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('faye', 'ed', 'asuka')
+                                   )
 
     def test_filter_field_startswith(self):
-        efilter = EntityFilter.create(pk='test-filter01', name='starts "Gen"',
-                                      model=FakeContact, is_custom=True,
-                                     )
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.STARTSWITH,
-                                    name='first_name', values=['Gen']
-                                ),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('gendou', 'genji'))
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='starts "Gen"', model=FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.STARTSWITH,
+                #     name='first_name', values=['Gen']
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.STARTSWITH,
+                    field_name='first_name', values=['Gen'],
+                ),
+            ],
+        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('gendou', 'genji')
+                                   )
 
     def test_filter_field_istartswith(self):
-        efilter = EntityFilter.create(pk='test-filter01', name='starts "Gen" (ci)',
-                                      model=FakeContact, is_custom=True,
-                                     )
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.ISTARTSWITH,
-                                    name='first_name', values=['gen'],
-                                ),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('gendou', 'genji'))
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='starts "Gen" (ci)', model=FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.ISTARTSWITH,
+                #     name='first_name', values=['gen'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.ISTARTSWITH,
+                    field_name='first_name', values=['gen'],
+                ),
+            ],
+        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('gendou', 'genji')
+                                   )
 
     def test_filter_field_startswith_not(self):
-        efilter = EntityFilter.create(pk='test-filter01', name='starts not "Asu"',
-                                      model=FakeContact, is_custom=True,
-                                     )
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.STARTSWITH_NOT,
-                                    name='first_name', values=['Asu'],
-                                ),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('asuka', exclude=True))
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='starts not "Asu"',
+            model=FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.STARTSWITH_NOT,
+                #     name='first_name', values=['Asu'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.STARTSWITH_NOT,
+                    field_name='first_name', values=['Asu'],
+                ),
+            ]
+        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('asuka', exclude=True)
+                                   )
 
     def test_filter_field_istartswith_not(self):
-        efilter = EntityFilter.create('test-filter01', 'starts not "asu"', FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.ISTARTSWITH_NOT,
-                                    name='first_name', values=['asu'],
-                                ),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('asuka', exclude=True))
+        efilter = EntityFilter.create(
+            'test-filter01', 'starts not "asu"', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.ISTARTSWITH_NOT,
+                #     name='first_name', values=['asu'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.ISTARTSWITH_NOT,
+                    field_name='first_name', values=['asu'],
+                ),
+            ],
+        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('asuka', exclude=True)
+                                   )
 
     def test_filter_field_endswith(self):
-        efilter = EntityFilter.create('test-filter01', 'ends "sato"', FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.ENDSWITH,
-                                    name='first_name', values=['sato'],
-                                ),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('misato', 'risato'))
+        efilter = EntityFilter.create(
+            'test-filter01', 'ends "sato"', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.ENDSWITH,
+                #     name='first_name', values=['sato'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.ENDSWITH,
+                    field_name='first_name', values=['sato'],
+                ),
+            ],
+        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('misato', 'risato')
+                                   )
 
     def test_filter_field_iendswith(self):
-        efilter = EntityFilter.create('test-filter01', 'ends "SATO"', FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.IENDSWITH,
-                                    name='first_name', values=['SATO'],
-                                ),
-                               ])
+        efilter = EntityFilter.create(
+            'test-filter01', 'ends "SATO"', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.IENDSWITH,
+                #     name='first_name', values=['SATO'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IENDSWITH,
+                    field_name='first_name', values=['SATO'],
+                ),
+           ],
+        )
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('misato', 'risato'))
 
     def test_filter_field_endswith_not(self):
-        efilter = EntityFilter.create('test-filter01', 'ends not "sato"', FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.ENDSWITH_NOT,
-                                    name='first_name', values=['sato'],
-                                ),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact,
-                                    self._list_contact_ids('misato', 'risato', exclude=True),
-                                   )
+        efilter = EntityFilter.create(
+            'test-filter01', 'ends not "sato"', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.ENDSWITH_NOT,
+                #     name='first_name', values=['sato'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.ENDSWITH_NOT,
+                    field_name='first_name', values=['sato'],
+                ),
+            ],
+        )
+        self.assertExpectedFiltered(
+            efilter, FakeContact,
+            self._list_contact_ids('misato', 'risato', exclude=True),
+        )
 
     def test_filter_field_iendswith_not(self):
-        efilter = EntityFilter.create('test-filter01', 'ends not "SATO" (ci)',
-                                      model=FakeContact, is_custom=True,
-                                     )
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.IENDSWITH_NOT,
-                                    name='first_name', values=['SATO'],
-                                ),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('misato', 'risato', exclude=True))
+        efilter = EntityFilter.create(
+            'test-filter01', 'ends not "SATO" (ci)', model=FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.IENDSWITH_NOT,
+                #     name='first_name', values=['SATO'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IENDSWITH_NOT,
+                    field_name='first_name', values=['SATO'],
+                ),
+            ],
+        )
+        self.assertExpectedFiltered(
+            efilter, FakeContact,
+            self._list_contact_ids('misato', 'risato', exclude=True)
+        )
 
     def test_filter_field_isempty01(self):
-        efilter = EntityFilter.create(pk='test-filter01', name='is empty',
-                                      model=FakeContact, is_custom=True,
-                                     )
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.ISEMPTY,
-                                    name='description', values=[True],
-                                ),
-                               ])
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='is empty', model=FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.ISEMPTY,
+                #     name='description', values=[True],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.ISEMPTY,
+                    field_name='description', values=[True],
+                ),
+            ],
+        )
         self.assertEqual(1, efilter.conditions.count())
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('faye', exclude=True))
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('faye', exclude=True)
+                                   )
 
     def test_filter_field_isempty02(self):
-        efilter = EntityFilter.create('test-filter01', 'is not empty',
-                                      model=FakeContact, is_custom=True,
-                                     )
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.ISEMPTY,
-                                    name='description', values=[False],
-                                ),
-                               ])
+        efilter = EntityFilter.create(
+            'test-filter01', 'is not empty', model=FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.ISEMPTY,
+                #     name='description', values=[False],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.ISEMPTY,
+                    field_name='description', values=[False],
+                ),
+            ],
+        )
         self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(efilter, FakeContact, [self.contacts['faye'].id])
 
@@ -1050,15 +1349,21 @@ class EntityFiltersTestCase(CremeTestCase):
         create_orga(name='Bebop & cie', capital=None)
         orga02 = create_orga(name='Nerv', capital=10000)
 
-        efilter = EntityFilter.create('test-filter01', 'is not null',
-                                      model=FakeOrganisation, is_custom=True,
-                                     )
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeOrganisation,
-                                    operator=EntityFilterCondition.ISEMPTY,
-                                    name='capital', values=[False],
-                                ),
-                               ])
+        efilter = EntityFilter.create(
+            'test-filter01', 'is not null', model=FakeOrganisation, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeOrganisation,
+                #     operator=EntityFilterCondition.ISEMPTY,
+                #     name='capital', values=[False],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.ISEMPTY,
+                    field_name='capital', values=[False],
+                ),
+            ],
+        )
         self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(efilter, FakeOrganisation, [orga02.id])
 
@@ -1066,17 +1371,24 @@ class EntityFiltersTestCase(CremeTestCase):
         "Subfield of FK."
         efilter = EntityFilter.create(
             pk='test-filter01', name='civility is empty', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_field(
-                              model=FakeContact,
-                              operator=EntityFilterCondition.ISEMPTY,
-                              name='civility__title', values=[True],
-                             ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.ISEMPTY,
+                #     name='civility__title', values=[True],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.ISEMPTY,
+                    field_name='civility__title', values=[True],
+                ),
+           ],
         )
         self.assertEqual(1, efilter.conditions.count())
-        self.assertExpectedFiltered(efilter, FakeContact,
-                                    self._list_contact_ids('spike', 'jet', 'faye', exclude=True),
-                                   )
+        self.assertExpectedFiltered(
+            efilter, FakeContact,
+            self._list_contact_ids('spike', 'jet', 'faye', exclude=True),
+        )
 
     def test_filter_field_range(self):
         create_orga = partial(FakeOrganisation.objects.create, user=self.user)
@@ -1084,46 +1396,84 @@ class EntityFiltersTestCase(CremeTestCase):
         orga02 = create_orga(name='Nerv',  capital=10000)
         orga03 = create_orga(name='Seele', capital=100000)
 
-        efilter = EntityFilter.create('test-filter01', name='Between 5K & 500K',
-                                      model=FakeOrganisation, is_custom=True,
-                                     )
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeOrganisation,
-                                    operator=EntityFilterCondition.RANGE,
-                                    name='capital', values=(5000, 500000),
-                                ),
-                               ])
+        efilter = EntityFilter.create(
+            'test-filter01', name='Between 5K & 500K', model=FakeOrganisation, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeOrganisation,
+                #     operator=EntityFilterCondition.RANGE,
+                #     name='capital', values=(5000, 500000),
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.RANGE,
+                    field_name='capital', values=(5000, 500000),
+                ),
+            ],
+        )
         self.assertExpectedFiltered(efilter, FakeOrganisation, [orga02.id, orga03.id])
 
     def test_filter_fk01(self):
-        build_4_field = EntityFilterCondition.build_4_field
-        efilter = EntityFilter.create('test-filter01', 'Misters', FakeContact, is_custom=True)
-        efilter.set_conditions([build_4_field(model=FakeContact,
-                                              operator=EntityFilterCondition.EQUALS,
-                                              name='civility',
-                                              values=[self.civ_mister.id],  # TODO: "self.mister" ??
-                                             ),
-                               ])
-        self.assertTrue(efilter.entities_are_distinct)
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('spike', 'jet'))
+        efilter1 = EntityFilter.create(
+            'test-filter01', 'Misters', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='civility',
+                #     values=[self.civ_mister.id],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS,
+                    field_name='civility',
+                    values=[self.civ_mister.id],  # TODO: "self.mister" ??
+                ),
+            ],
+        )
+        self.assertTrue(efilter1.entities_are_distinct)
+        self.assertExpectedFiltered(efilter1, FakeContact,
+                                    self._list_contact_ids('spike', 'jet')
+                                   )
 
-        efilter = EntityFilter.create('test-filter02', 'Not Misses', FakeContact, is_custom=True)
-        efilter.set_conditions([build_4_field(model=FakeContact,
-                                              operator=EntityFilterCondition.EQUALS_NOT,
-                                              name='civility', values=[self.civ_miss.id],
-                                             ),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('faye', exclude=True))
+        efilter2 = EntityFilter.create(
+            'test-filter02', 'Not Misses', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.EQUALS_NOT,
+                #     name='civility', values=[self.civ_miss.id],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS_NOT,
+                    field_name='civility', values=[self.civ_miss.id],
+                ),
+            ],
+        )
+        self.assertExpectedFiltered(efilter2, FakeContact,
+                                    self._list_contact_ids('faye', exclude=True)
+                                   )
 
     def test_filter_fk02(self):
-        efilter = EntityFilter.create('test-filter01', 'Mist..', FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                    model=FakeContact,
-                                    operator=EntityFilterCondition.ISTARTSWITH,
-                                    name='civility__title', values=['Mist'],
-                                ),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('spike', 'jet'))
+        efilter = EntityFilter.create(
+            'test-filter01', 'Mist..', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.ISTARTSWITH,
+                #     name='civility__title', values=['Mist'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.ISTARTSWITH,
+                    field_name='civility__title', values=['Mist'],
+                ),
+            ],
+        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('spike', 'jet')
+                                   )
 
     def test_filter_m2m(self):
         create_language = Language.objects.create
@@ -1144,11 +1494,17 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(4, filter_contacts(languages__name__contains='an').distinct().count())
 
         efilter = EntityFilter.create('test-filter01', 'JP', FakeContact, is_custom=True)
-        build_4_field = EntityFilterCondition.build_4_field
-        efilter.set_conditions([build_4_field(model=FakeContact,
-                                              operator=EntityFilterCondition.IEQUALS,
-                                              name='languages__code', values=['JP'],
-                                             ),
+        # build_4_field = EntityFilterCondition.build_4_field
+        build_cond = RegularFieldConditionHandler.build_condition
+        # efilter.set_conditions([build_4_field(model=FakeContact,
+        #                                       operator=EntityFilterCondition.IEQUALS,
+        #                                       name='languages__code', values=['JP'],
+        #                                      ),
+        #                        ])
+        efilter.set_conditions([build_cond(model=FakeContact,
+                                           operator_id=operators.IEQUALS,
+                                           field_name='languages__code', values=['JP'],
+                                          ),
                                ])
         self.assertFalse(efilter.entities_are_distinct)
         self.assertExpectedFiltered(efilter, FakeContact, [jet.id, rei.id, asuka.id], use_distinct=True)
@@ -1156,146 +1512,111 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create('test-filter02', 'lang contains "an"',
                                       model=FakeContact, is_custom=True,
                                      )
-        efilter.set_conditions([build_4_field(model=FakeContact,
-                                              operator=EntityFilterCondition.ICONTAINS,
-                                              name='languages__name', values=['an'],
-                                             )
+        # efilter.set_conditions([build_4_field(model=FakeContact,
+        #                                       operator=EntityFilterCondition.ICONTAINS,
+        #                                       name='languages__name', values=['an'],
+        #                                      )
+        #                        ])
+        efilter.set_conditions([build_cond(model=FakeContact,
+                                           operator_id=operators.ICONTAINS,
+                                           field_name='languages__name', values=['an'],
+                                          )
                                ])
         self.assertExpectedFiltered(efilter, FakeContact, [jet.id, rei.id, asuka.id, faye.id], use_distinct=True)
 
         # Empty
-        efilter = EntityFilter.create('test-filter03', 'has a language', FakeContact, is_custom=True,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                            model=FakeContact,
-                                                            operator=EntityFilterCondition.ISEMPTY,
-                                                            name='languages', values=[True],
-                                                        ),
-                                                 ],
-                                     )
-        self.assertExpectedFiltered(efilter, FakeContact,
-                                    self._list_contact_ids('jet', 'rei', 'asuka', 'faye', 'yui', exclude=True),
-                                    use_distinct=True,
-                                   )
+        efilter = EntityFilter.create(
+            'test-filter03', 'has a language', FakeContact, is_custom=True,
+            conditions=[
+                # build_4_field(model=FakeContact,
+                #               operator=EntityFilterCondition.ISEMPTY,
+                #               name='languages', values=[True],
+                #              ),
+                build_cond(model=FakeContact,
+                           operator_id=operators.ISEMPTY,
+                           field_name='languages', values=[True],
+                          ),
+            ],
+        )
+        self.assertExpectedFiltered(
+            efilter, FakeContact,
+            self._list_contact_ids('jet', 'rei', 'asuka', 'faye', 'yui', exclude=True),
+            use_distinct=True,
+        )
 
         # Not empty
-        efilter = EntityFilter.create('test-filter04', 'has no language', FakeContact, is_custom=True,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                            model=FakeContact,
-                                                            operator=EntityFilterCondition.ISEMPTY,
-                                                            name='languages', values=[False],
-                                                        ),
-                                                 ],
-                                     )
+        efilter = EntityFilter.create(
+            'test-filter04', 'has no language', FakeContact, is_custom=True,
+            conditions=[
+                # build_4_field(model=FakeContact,
+                #               operator=EntityFilterCondition.ISEMPTY,
+                #               name='languages', values=[False],
+                #              ),
+                build_cond(model=FakeContact,
+                           operator_id=operators.ISEMPTY,
+                           field_name='languages', values=[False],
+                          ),
+            ],
+        )
         self.assertExpectedFiltered(efilter, FakeContact,
                                     [jet.id, rei.id, asuka.id, faye.id, yui.id],
                                     use_distinct=True,
                                    )
 
-    def test_problematic_validation_fields(self):
-        efilter = EntityFilter.create('test-filter01', 'Mist..', FakeOrganisation, is_custom=True)
-        build = EntityFilterCondition.build_4_field
-
-        with self.assertNoException():
-            # Problem a part of a email address is not a valid email address
-            efilter.set_conditions([build(model=FakeOrganisation,
-                                          operator=EntityFilterCondition.ISTARTSWITH,
-                                          name='email', values=['misato'],
-                                         ),
-                                   ]
-                                  )
-
-        with self.assertNoException():
-            efilter.set_conditions([build(model=FakeOrganisation,
-                                          operator=EntityFilterCondition.RANGE,
-                                          name='email', values=['misato', 'yui'],
-                                         ),
-                                   ],
-                                  )
-
-        with self.assertNoException():
-            efilter.set_conditions([build(model=FakeOrganisation,
-                                          operator=EntityFilterCondition.EQUALS,
-                                          name='email', values=['misato@nerv.jp'],
-                                         ),
-                                   ],
-                                  )
-
-        self.assertRaises(EntityFilterCondition.ValueError, build,
-                          model=FakeOrganisation, operator=EntityFilterCondition.EQUALS,
-                          name='email', values=['misato'],
-                         )
-
-    def test_build_condition(self):
-        "Errors."
-        ValueError = EntityFilterCondition.ValueError
-        build_4_field = EntityFilterCondition.build_4_field
-
-        self.assertRaises(ValueError, build_4_field,
-                          model=FakeContact, operator=EntityFilterCondition.CONTAINS, name='unknown_field', values=['Misato'],
-                         )
-        self.assertRaises(ValueError, build_4_field,
-                          model=FakeOrganisation, operator=EntityFilterCondition.GT, name='capital', values=['Not an integer']
-                         )
-        self.assertRaises(ValueError, build_4_field,
-                          # ISEMPTY => boolean
-                          model=FakeContact, operator=EntityFilterCondition.ISEMPTY, name='description', values=['Not a boolean'],
-                         )
-        self.assertRaises(ValueError, build_4_field,
-                          # Only one boolean is expected
-                          model=FakeContact, operator=EntityFilterCondition.ISEMPTY, name='description', values=[True, True],
-                         )
-        self.assertRaises(ValueError, build_4_field,
-                          model=FakeContact, operator=EntityFilterCondition.STARTSWITH, name='civility__unknown', values=['Mist']
-                         )
-        self.assertRaises(ValueError, build_4_field,
-                          model=FakeOrganisation, operator=EntityFilterCondition.RANGE, name='capital', values=[5000]
-                         )
-        self.assertRaises(ValueError, build_4_field,
-                          model=FakeOrganisation, operator=EntityFilterCondition.RANGE, name='capital', values=[5000, 50000, 100000]
-                         )
-        self.assertRaises(ValueError, build_4_field,
-                          model=FakeOrganisation, operator=EntityFilterCondition.RANGE, name='capital', values=['not an integer', 500000]
-                         )
-        self.assertRaises(ValueError, build_4_field,
-                          model=FakeOrganisation, operator=EntityFilterCondition.RANGE, name='capital', values=[500000, 'not an integer']
-                         )
-
     def test_condition_update(self):
-        build = partial(EntityFilterCondition.build_4_field, model=FakeContact)
-        EQUALS = EntityFilterCondition.EQUALS
-        IEQUALS = EntityFilterCondition.IEQUALS
-        cond1 = build(operator=EQUALS, name='first_name', values=['Jet'])
-        self.assertFalse(build(operator=EQUALS, name='first_name', values=['Jet']).update(cond1))
-        self.assertTrue(build(operator=IEQUALS, name='first_name', values=['Jet']).update(cond1))
-        self.assertTrue(build(operator=EQUALS,  name='last_name',  values=['Jet']).update(cond1))
-        self.assertTrue(build(operator=EQUALS,  name='first_name', values=['Ed']).update(cond1))
-        self.assertTrue(build(operator=IEQUALS, name='last_name',  values=['Jet']).update(cond1))
-        self.assertTrue(build(operator=IEQUALS, name='last_name',  values=['Ed']).update(cond1))
+        # build = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        build = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
+        # EQUALS = EntityFilterCondition.EQUALS
+        EQUALS = operators.EQUALS
+        # IEQUALS = EntityFilterCondition.IEQUALS
+        IEQUALS = operators.IEQUALS
+        # cond = build(operator=EQUALS, name='first_name', values=['Jet'])
+        cond = build(operator_id=EQUALS, field_name='first_name', values=['Jet'])
+        # self.assertFalse(build(operator=EQUALS, name='first_name', values=['Jet']).update(cond))
+        # self.assertTrue(build(operator=IEQUALS, name='first_name', values=['Jet']).update(cond))
+        # self.assertTrue(build(operator=EQUALS,  name='last_name',  values=['Jet']).update(cond))
+        # self.assertTrue(build(operator=EQUALS,  name='first_name', values=['Ed']).update(cond))
+        # self.assertTrue(build(operator=IEQUALS, name='last_name',  values=['Jet']).update(cond))
+        # self.assertTrue(build(operator=IEQUALS, name='last_name',  values=['Ed']).update(cond))
+        self.assertFalse(build(operator_id=EQUALS, field_name='first_name', values=['Jet']).update(cond))
+        self.assertTrue(build(operator_id=IEQUALS, field_name='first_name', values=['Jet']).update(cond))
+        self.assertTrue(build(operator_id=EQUALS,  field_name='last_name',  values=['Jet']).update(cond))
+        self.assertTrue(build(operator_id=EQUALS,  field_name='first_name', values=['Ed']).update(cond))
+        self.assertTrue(build(operator_id=IEQUALS, field_name='last_name',  values=['Jet']).update(cond))
+        self.assertTrue(build(operator_id=IEQUALS, field_name='last_name',  values=['Ed']).update(cond))
 
     def test_set_conditions01(self):
-        build = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        # build = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        build = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
         efilter = EntityFilter.create('test-filter01', 'Jet', FakeContact, is_custom=True)
-        efilter.set_conditions([build(operator=EntityFilterCondition.EQUALS, name='first_name', values=['Jet'])])
+        # efilter.set_conditions([build(operator=EntityFilterCondition.EQUALS, name='first_name', values=['Jet'])])
+        efilter.set_conditions([build(operator_id=operators.EQUALS, field_name='first_name', values=['Jet'])])
 
         # NB: create an other condition that has he last id (so if we delete the
         #     first condition, and recreate another one, the id will be different)
         EntityFilter.create('test-filter02', 'Faye', FakeContact, is_custom=True) \
-                    .set_conditions([build(operator=EntityFilterCondition.EQUALS, name='first_name', values=['Faye'])])
+                    .set_conditions([
+                        # build(operator=EntityFilterCondition.EQUALS, name='first_name', values=['Faye']),
+                        build(operator_id=operators.EQUALS, field_name='first_name', values=['Faye']),
+                    ])
 
         conditions = efilter.conditions.all()
         self.assertEqual(1, len(conditions))
         old_id = conditions[0].id
 
-        operator = EntityFilterCondition.CONTAINS
+        # operator = EntityFilterCondition.CONTAINS
+        operator = operators.CONTAINS
         name = 'last_name'
         value = 'Black'
-        efilter.set_conditions([build(operator=operator, name=name, values=[value])])
+        # efilter.set_conditions([build(operator=operator, name=name, values=[value])])
+        efilter.set_conditions([build(operator_id=operator, field_name=name, values=[value])])
 
         conditions = efilter.conditions.all()
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
+        # self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                      condition.name)
         self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
         self.assertEqual(old_id,                                    condition.id)
@@ -1303,107 +1624,240 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_set_conditions02(self):
         efilter = EntityFilter.create('test-filter01', 'Jet', FakeContact, is_custom=True)
 
-        kwargs1 = {'model':     FakeContact,
-                   'operator':  EntityFilterCondition.EQUALS,
-                   'name':      'first_name',
-                   'values':    ['Jet'],
+        kwargs1 = {'model':      FakeContact,
+                   # 'operator':  EntityFilterCondition.EQUALS,
+                   'operator_id':   operators.EQUALS,
+                   # 'name':      'first_name',
+                   'field_name': 'first_name',
+                   'values':     ['Jet'],
                   }
         kwargs2 = {**kwargs1}
-        kwargs2['operator'] = EntityFilterCondition.IEQUALS
+        # kwargs2['operator'] = EntityFilterCondition.IEQUALS
+        kwargs2['operator_id'] = operators.IEQUALS
 
-        build = EntityFilterCondition.build_4_field
+        # build = EntityFilterCondition.build_4_field
+        build = RegularFieldConditionHandler.build_condition
         efilter.set_conditions([build(**kwargs1), build(**kwargs2)])
 
         # NB: see test_set_conditions01()
         EntityFilter.create('test-filter02', 'Faye', FakeContact, is_custom=True) \
-                    .set_conditions([build(model=FakeContact, operator=EntityFilterCondition.EQUALS, name='first_name', values=['Faye'])])
+                    .set_conditions([
+                        # build(model=FakeContact, operator=EntityFilterCondition.EQUALS, name='first_name', values=['Faye']),
+                        build(model=FakeContact, operator_id=operators.EQUALS,
+                              field_name='first_name', values=['Faye'],
+                             ),
+                    ])
 
         conditions = efilter.conditions.order_by('id')
         self.assertEqual(2, len(conditions))
 
         for kwargs, condition in zip([kwargs1, kwargs2], conditions):
-            self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
-            self.assertEqual(kwargs['name'],                  condition.name)
-            self.assertEqual({'operator': kwargs['operator'], 'values': kwargs['values']}, condition.decoded_value)
+            # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
+            self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
+            # self.assertEqual(kwargs['name'],                       condition.name)
+            self.assertEqual(kwargs['field_name'],                 condition.name)
+            self.assertDictEqual(
+                # {'operator': kwargs['operator'], 'values': kwargs['values']},
+                {'operator': kwargs['operator_id'], 'values': kwargs['values']},
+                condition.decoded_value
+            )
 
         old_id = conditions[0].id
 
-        kwargs1['operator'] = EntityFilterCondition.GT
+        # kwargs1['operator'] = EntityFilterCondition.GT
+        kwargs1['operator_id'] = operators.GT
         efilter.set_conditions([build(**kwargs1)])
 
         conditions = efilter.conditions.all()
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        self.assertEqual(EntityFilterCondition.EFC_FIELD,                                condition.type)
-        self.assertEqual(kwargs1['name'],                                                condition.name)
-        self.assertEqual({'operator': kwargs1['operator'], 'values': kwargs1['values']}, condition.decoded_value)
-        self.assertEqual(old_id,                                                         condition.id)
+        # self.assertEqual(EntityFilterCondition.EFC_FIELD,     condition.type)
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
+        # self.assertEqual(kwargs1['name'],                      condition.name)
+        self.assertEqual(kwargs1['field_name'],                condition.name)
+        self.assertEqual(old_id,                               condition.id)
+        self.assertDictEqual(
+            # {'operator': kwargs1['operator'], 'values': kwargs1['values']},
+            {'operator': kwargs1['operator_id'], 'values': kwargs1['values']},
+            condition.decoded_value
+        )
 
     def test_set_conditions03(self):
         """Set an erroneous condition on an existing filter
         -> try to delete a condition without PK (BUGFIX).
         """
-        efilter = EntityFilter.create('test-filter', 'Misato', FakeContact,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                            model=FakeContact,
-                                                            operator=EntityFilterCondition.EQUALS,
-                                                            name='last_name', values=['Katsuragi'],
-                                                        ),
-                                                 ],
-                                     )
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                        model=FakeOrganisation,  # Not the same CT !!
-                                        operator=EntityFilterCondition.EQUALS,
-                                        name='name', values=['Nerv'],
-                                    ),
-                               ]
-                              )
+        efilter = EntityFilter.create(
+            'test-filter', 'Misato', FakeContact,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #         model=FakeContact,
+                #         operator=EntityFilterCondition.EQUALS,
+                #         name='last_name', values=['Katsuragi'],
+                #      ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS,
+                    field_name='last_name', values=['Katsuragi'],
+                ),
+            ],
+        )
+        efilter.set_conditions([
+            # EntityFilterCondition.build_4_field(
+            #     model=FakeOrganisation,  # Not the same CT !!
+            #     operator=EntityFilterCondition.EQUALS,
+            #     name='name', values=['Nerv'],
+            # ),
+            EntityFilterCondition(
+                model=FakeContact,
+                type=SubFilterConditionHandler.type_id,
+                name='invalid_id',
+            )
+        ])
         self.assertFalse(efilter.get_conditions())
         self.assertFalse(efilter.conditions.all())
+
+    def test_set_conditions04(self):
+        "Related ContentTypes are different between filter & condition => error."
+        efilter = EntityFilter.create(
+            'test-filter', 'Misato', FakeContact,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.EQUALS,
+                    field_name='name', values=['Nerv'],
+                ),
+            ],
+        )
+        self.assertFalse(efilter.get_conditions())
+        self.assertFalse(efilter.conditions.all())
+
+    def test_conditions_errors(self):
+        "@error"
+        operator_id = operators.EQUALS
+        fname = 'last_name'
+        value = ['Ikari']
+        condition1 = RegularFieldConditionHandler.build_condition(
+            model=FakeContact,
+            operator_id=operator_id,
+            field_name=fname, values=[value],
+        )
+        self.assertIsNone(condition1.error)
+        self.assertEqual(fname, condition1.name)
+        self.assertEqual(
+            condition1.decoded_value,
+            {'operator': operator_id, 'values': [value]},
+        )
+
+        # ---
+        condition2 = EntityFilterCondition(
+            model=FakeContact,
+            type=condition1.type,
+            name='invalid',
+            value=condition1.value,
+        )
+        self.assertEqual("FakeContact has no field named 'invalid'",
+                         condition2.error
+                        )
+
+        # ---
+        condition3 = EntityFilterCondition(
+            model=FakeContact,
+            type=condition1.type,
+            name=condition1.name,
+            value='[]',  # Not a serialized dictionary
+        )
+        self.assertEqual('Invalid data, cannot build a handler', condition3.error)
+
+    def test_get_conditions_errors(self):
+        "Invalid stored data."
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='Test', model=FakeContact, is_custom=True,
+        )
+        condition = RegularFieldConditionHandler.build_condition(
+            model=FakeContact,
+            operator_id=operators.EQUALS,
+            field_name='last_name', values=['Ikari'],
+        )
+        condition.filter = efilter
+        condition.save()
+
+        conditions = self.refresh(efilter).get_conditions()
+        self.assertEqual(1, len(conditions))
+
+        EntityFilterCondition.objects.filter(id=conditions[0].id).update(value='[]')
+        self.assertFalse(self.refresh(efilter).get_conditions())
 
     def test_multi_conditions_and01(self):
         efilter = EntityFilter.create(pk='test-filter01', name='Filter01',
                                       model=FakeContact, is_custom=True,
                                      )
-        build = EntityFilterCondition.build_4_field
-        efilter.set_conditions([build(model=FakeContact, operator=EntityFilterCondition.EQUALS,
-                                      name='last_name', values=['Ikari']
-                                     ),
-                                build(model=FakeContact, operator=EntityFilterCondition.STARTSWITH,
-                                      name='first_name', values=['Shin']
-                                     ),
-                               ])
+        # build = EntityFilterCondition.build_4_field
+        build = RegularFieldConditionHandler.build_condition
+        efilter.set_conditions([
+            # build(model=FakeContact, operator=EntityFilterCondition.EQUALS,
+            #       name='last_name', values=['Ikari']
+            #      ),
+            # build(model=FakeContact, operator=EntityFilterCondition.STARTSWITH,
+            #       name='first_name', values=['Shin']
+            #      ),
+            build(model=FakeContact, operator_id=operators.EQUALS,
+                  field_name='last_name', values=['Ikari']
+                 ),
+            build(model=FakeContact, operator_id=operators.STARTSWITH,
+                  field_name='first_name', values=['Shin']
+                 ),
+        ])
         self.assertExpectedFiltered(efilter, FakeContact, [self.contacts['shinji'].id])
 
         self.assertEqual(2, len(efilter.get_conditions()))
 
     def test_multi_conditions_or01(self):
-        efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=FakeContact,
-                                      use_or=True, is_custom=True,
-                                      )
-        build = EntityFilterCondition.build_4_field
-        efilter.set_conditions([build(model=FakeContact, operator=EntityFilterCondition.EQUALS,
-                                      name='last_name', values=['Spiegel']
-                                     ),
-                                build(model=FakeContact, operator=EntityFilterCondition.STARTSWITH,
-                                      name='first_name', values=['Shin']
-                                     ),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('spike', 'shinji'))
+        # build = EntityFilterCondition.build_4_field
+        build = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True,
+            use_or=True,  # <==
+            conditions=[
+                # build(model=FakeContact, operator=EntityFilterCondition.EQUALS,
+                #       name='last_name', values=['Spiegel'],
+                #      ),
+                # build(model=FakeContact, operator=EntityFilterCondition.STARTSWITH,
+                #       name='first_name', values=['Shin'],
+                #      ),
+                build(operator_id=operators.EQUALS,
+                      field_name='last_name', values=['Spiegel'],
+                     ),
+                build(operator_id=operators.STARTSWITH,
+                      field_name='first_name', values=['Shin'],
+                     ),
+            ],
+        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('spike', 'shinji')
+                                   )
 
     def test_subfilter01(self):
-        build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
-        build_sf      = EntityFilterCondition.build_4_subfilter
-        sub_efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=FakeContact, use_or=True, is_custom=True)
-        sub_efilter.set_conditions([
-            build_4_field(operator=EntityFilterCondition.EQUALS,     name='last_name',  values=['Spiegel']),
-            build_4_field(operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Shin']),
-        ])
+        # build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        build_4_field = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
+        # build_sf      = EntityFilterCondition.build_4_subfilter
+        build_sf      = SubFilterConditionHandler.build_condition
+        sub_efilter = EntityFilter.create(
+            pk='test-filter01', name='Filter01', model=FakeContact, use_or=True, is_custom=True,
+            conditions=[
+                # build_4_field(operator=EntityFilterCondition.EQUALS,     name='last_name',  values=['Spiegel']),
+                # build_4_field(operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Shin']),
+                build_4_field(operator_id=operators.EQUALS,     field_name='last_name',  values=['Spiegel']),
+                build_4_field(operator_id=operators.STARTSWITH, field_name='first_name', values=['Shin']),
+            ],
+        )
+
         efilter = EntityFilter.create(pk='test-filter02', name='Filter02', model=FakeContact, use_or=False, is_custom=True)
-        conds = [build_4_field(operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Spi']),
-                 build_sf(sub_efilter),
-                ]
+        conds = [
+            # build_4_field(operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Spi']),
+            build_4_field(operator_id=operators.STARTSWITH, field_name='first_name', values=['Spi']),
+            build_sf(sub_efilter),
+        ]
 
         with self.assertNoException():
             efilter.check_cycle(conds)
@@ -1414,12 +1868,15 @@ class EntityFiltersTestCase(CremeTestCase):
         # Test that a CycleError is not raised
         sub_sub_efilter = EntityFilter.create(pk='test-filter03', name='Filter03', model=FakeContact, is_custom=True)
         sub_sub_efilter.set_conditions([
-            build_4_field(operator=EntityFilterCondition.EQUALS,     name='last_name',  values=['Black']),
-            build_4_field(operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Jet'])
+            # build_4_field(operator=EntityFilterCondition.EQUALS,     name='last_name',  values=['Black']),
+            # build_4_field(operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Jet'])
+            build_4_field(operator_id=operators.EQUALS,     field_name='last_name',  values=['Black']),
+            build_4_field(operator_id=operators.STARTSWITH, field_name='first_name', values=['Jet'])
         ])
 
         conds = [
-            build_4_field(operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Spi']),
+            # build_4_field(operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Spi']),
+            build_4_field(operator_id=operators.STARTSWITH, field_name='first_name', values=['Spi']),
             build_sf(sub_sub_efilter),
         ]
 
@@ -1432,33 +1889,49 @@ class EntityFiltersTestCase(CremeTestCase):
                                       model=FakeContact, use_or=False, is_custom=True,
                                      )
         conds = [
-            EntityFilterCondition.build_4_field(
-                model=FakeContact, operator=EntityFilterCondition.STARTSWITH,
-                name='first_name', values=['Spi']
+            # EntityFilterCondition.build_4_field(
+            #     model=FakeContact, operator=EntityFilterCondition.STARTSWITH,
+            #     name='first_name', values=['Spi']
+            # ),
+            # EntityFilterCondition.build_4_subfilter(efilter),
+            RegularFieldConditionHandler.build_condition(
+                model=FakeContact, field_name='first_name',
+                operator_id=operators.STARTSWITH, values=['Spi'],
             ),
-            EntityFilterCondition.build_4_subfilter(efilter),
+            SubFilterConditionHandler.build_condition(efilter),
         ]
         self.assertRaises(EntityFilter.CycleError, efilter.check_cycle,    conds)
         self.assertRaises(EntityFilter.CycleError, efilter.set_conditions, conds)
 
     def test_subfilter03(self):
         "Cycle error (length = 1)."
-        build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
-        build_sf = EntityFilterCondition.build_4_subfilter
+        # build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        build_4_field = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
+        # build_sf = EntityFilterCondition.build_4_subfilter
+        build_sf = SubFilterConditionHandler.build_condition
 
-        efilter01 = EntityFilter.create(pk='test-filter01', name='Filter01', model=FakeContact, use_or=True, is_custom=True)
-        efilter01.set_conditions([build_4_field(operator=EntityFilterCondition.EQUALS, name='last_name', values=['Spiegel'])])
+        efilter01 = EntityFilter.create(
+            pk='test-filter01', name='Filter01', model=FakeContact, use_or=True, is_custom=True,
+            conditions=[
+                # build_4_field(operator=EntityFilterCondition.EQUALS, name='last_name', values=['Spiegel']),
+                build_4_field(operator_id=operators.EQUALS, field_name='last_name', values=['Spiegel']),
+            ],
+        )
 
-        efilter02 = EntityFilter.create(pk='test-filter02', name='Filter02', model=FakeContact, use_or=False, is_custom=True)
+        efilter02 = EntityFilter.create(
+            pk='test-filter02', name='Filter02', model=FakeContact, use_or=False, is_custom=True,
+        )
         self.assertSetEqual({efilter02.id}, efilter02.get_connected_filter_ids())
 
         efilter02.set_conditions([
-            build_4_field(operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Spi']),
+            # build_4_field(operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Spi']),
+            build_4_field(operator_id=operators.STARTSWITH, field_name='first_name', values=['Spi']),
             build_sf(efilter01),
         ])
 
         conds = [
-            build_4_field(operator=EntityFilterCondition.CONTAINS, name='first_name', values=['Faye']),
+            # build_4_field(operator=EntityFilterCondition.CONTAINS, name='first_name', values=['Faye']),
+            build_4_field(operator_id=operators.CONTAINS, field_name='first_name', values=['Faye']),
             build_sf(efilter02),
         ]
         efilter01 = self.refresh(efilter01)
@@ -1468,26 +1941,40 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_subfilter04(self):
         "Cycle error (length = 2)."
-        build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
-        build_sf = EntityFilterCondition.build_4_subfilter
+        # build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        build_4_field = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
+        # build_sf = EntityFilterCondition.build_4_subfilter
+        build_sf = SubFilterConditionHandler.build_condition
 
-        efilter01 = EntityFilter.create(pk='test-filter01', name='Filter01', model=FakeContact, use_or=True, is_custom=True)
-        efilter01.set_conditions([build_4_field(operator=EntityFilterCondition.EQUALS, name='last_name', values=['Spiegel'])])
+        efilter01 = EntityFilter.create(
+            pk='test-filter01', name='Filter01', model=FakeContact, use_or=True, is_custom=True,
+            conditions=[
+                # build_4_field(operator=EntityFilterCondition.EQUALS, name='last_name', values=['Spiegel']),
+                build_4_field(operator_id=operators.EQUALS, field_name='last_name', values=['Spiegel']),
+            ]
+        )
 
-        efilter02 = EntityFilter.create(pk='test-filter02', name='Filter02', model=FakeContact, use_or=False, is_custom=True)
-        efilter02.set_conditions([
-            build_4_field(operator=EntityFilterCondition.STARTSWITH, values=['Spi'], name='first_name'),
-            build_sf(efilter01),
-        ])
+        efilter02 = EntityFilter.create(
+            pk='test-filter02', name='Filter02', model=FakeContact, use_or=False, is_custom=True,
+            conditions=[
+                # build_4_field(operator=EntityFilterCondition.STARTSWITH, values=['Spi'], name='first_name'),
+                build_4_field(operator_id=operators.STARTSWITH, field_name='first_name', values=['Spi']),
+                build_sf(efilter01),
+            ],
+        )
 
-        efilter03 = EntityFilter.create(pk='test-filter03', name='Filter03', model=FakeContact, use_or=False, is_custom=True)
-        efilter03.set_conditions([
-            build_4_field(operator=EntityFilterCondition.ISTARTSWITH, values=['Misa'], name='first_name'),
-            build_sf(efilter02),
-        ])
+        efilter03 = EntityFilter.create(
+            pk='test-filter03', name='Filter03', model=FakeContact, use_or=False, is_custom=True,
+            conditions=[
+                # build_4_field(operator=EntityFilterCondition.ISTARTSWITH, values=['Misa'], name='first_name'),
+                build_4_field(operator_id=operators.ISTARTSWITH, field_name='first_name', values=['Misa']),
+                build_sf(efilter02),
+            ],
+        )
 
         conds = [
-            build_4_field(operator=EntityFilterCondition.EQUALS, name='last_name', values=['Spiegel']),
+            # build_4_field(operator=EntityFilterCondition.EQUALS, name='last_name', values=['Spiegel']),
+            build_4_field(operator_id=operators.EQUALS, field_name='last_name', values=['Spiegel']),
             build_sf(efilter03),
         ]
         efilter01 = self.refresh(efilter01)
@@ -1501,12 +1988,24 @@ class EntityFiltersTestCase(CremeTestCase):
         for fn in cute_ones:
             CremeProperty.objects.create(type=ptype, creme_entity=self.contacts[fn])
 
-        efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_property(ptype=ptype, has=True)])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids(*cute_ones))
+        # build_cond = PropertyConditionHandler.build_condition
+        build_cond = partial(PropertyConditionHandler.build_condition, model=FakeContact)
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True,
+            # conditions=[EntityFilterCondition.build_4_property(ptype=ptype, has=True)],
+            conditions=[build_cond(ptype=ptype, has=True)],
+        )
+        self.assertIsInstance(efilter.get_conditions()[0].handler, PropertyConditionHandler)
+        self.assertExpectedFiltered(
+            efilter, FakeContact, self._list_contact_ids(*cute_ones)
+        )
 
-        efilter.set_conditions([EntityFilterCondition.build_4_property(ptype=ptype, has=False)])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids(*cute_ones, exclude=True))
+        # efilter.set_conditions([EntityFilterCondition.build_4_property(ptype=ptype, has=False)])
+        efilter.set_conditions([build_cond(ptype=ptype, has=False)])
+        self.assertExpectedFiltered(
+            efilter, FakeContact,
+            self._list_contact_ids(*cute_ones, exclude=True)
+        )
 
     def test_properties02(self):
         "Several conditions on properties."
@@ -1525,7 +2024,8 @@ class EntityFiltersTestCase(CremeTestCase):
         for fn in beautiful_ones:
              create_prop(type=ptype2, creme_entity=self.contacts[fn])
 
-        build_cond = EntityFilterCondition.build_4_property
+        # build_cond = EntityFilterCondition.build_4_property
+        build_cond = partial(PropertyConditionHandler.build_condition, model=FakeContact)
         efilter = EntityFilter.create(pk='test-filter', name='Cute & pretty',
                                       model=FakeContact, is_custom=True,
                                       conditions=[build_cond(ptype=ptype1, has=True),
@@ -1533,6 +2033,38 @@ class EntityFiltersTestCase(CremeTestCase):
                                                  ],
                                      )
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('asuka'))
+
+    def test_property_deletion01(self):
+        "Delete CremePropertyType => delete related conditions."
+        create_ptype = CremePropertyType.create
+        ptype1 = create_ptype(str_pk='test-prop_pretty',    text='Pretty')
+        ptype2 = create_ptype(str_pk='test-prop_beautiful', text='Beautiful')
+
+        # We want a condition with the same name than the one for ptype1
+        subfilter = EntityFilter.objects.create(
+            id=ptype1.id,
+            name='Do not delete me please',
+            entity_type=FakeContact,
+        )
+
+        build = partial(PropertyConditionHandler.build_condition,model=FakeContact)
+        efilter = EntityFilter.create(
+            'test-filter01', name='Propertieeesss', model=FakeContact, is_custom=True,
+            conditions=[
+                build(ptype=ptype1),
+                build(ptype=ptype2),
+                SubFilterConditionHandler.build_condition(subfilter),  # <= should not be deleted
+            ],
+        )
+
+        ptype1.delete()
+        self.assertSetEqual(
+            {
+                (SubFilterConditionHandler.type_id, str(subfilter.id)),
+                (PropertyConditionHandler.type_id,  ptype2.id),
+            },
+            {*efilter.conditions.values_list('type', 'name')}
+        )
 
     def _aux_test_relations(self):
         self.loves, self.loved = RelationType.create(('test-subject_love', 'Is loving'),
@@ -1562,11 +2094,15 @@ class EntityFiltersTestCase(CremeTestCase):
         loves = self._aux_test_relations()
         in_love = ('faye', 'shinji', 'gendou', 'jet')
 
-        efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=True)])
+        # build_cond = EntityFilterCondition.build_4_relation
+        build_cond = partial(RelationConditionHandler.build_condition, model=FakeContact)
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True,
+            conditions=[build_cond(rtype=loves, has=True)],
+        )
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids(*in_love))
 
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=False)])
+        efilter.set_conditions([build_cond(rtype=loves, has=False)])
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids(*in_love, exclude=True))
 
     def test_relations02(self):
@@ -1574,12 +2110,21 @@ class EntityFiltersTestCase(CremeTestCase):
         loves = self._aux_test_relations()
         in_love = ('faye', 'shinji', 'gendou')  # Not 'jet' ('bebop' not is a Contact)
 
-        efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=True, ct=self.contact_ct)])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids(*in_love))
+        # build_cond = EntityFilterCondition.build_4_relation
+        build_cond = partial(RelationConditionHandler.build_condition, model=FakeContact)
 
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=False, ct=self.contact_ct)])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids(*in_love, exclude=True))
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True,
+            conditions=[build_cond(rtype=loves, has=True, ct=self.contact_ct)],
+        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids(*in_love)
+                                   )
+
+        efilter.set_conditions([build_cond(rtype=loves, has=False, ct=self.contact_ct)])
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids(*in_love, exclude=True)
+                                   )
 
     def test_relations03(self):
         "Wanted entity."
@@ -1587,20 +2132,36 @@ class EntityFiltersTestCase(CremeTestCase):
         in_love = ('shinji', 'gendou')
         rei = self.contacts['rei']
 
-        efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=True, entity=rei)])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids(*in_love))
+        # build_cond = EntityFilterCondition.build_4_relation
+        build_cond = partial(RelationConditionHandler.build_condition, model=FakeContact)
 
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=False, entity=rei)])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids(*in_love, exclude=True))
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='Filter 01', model=FakeContact, is_custom=True,
+            conditions=[build_cond(rtype=loves, has=True, entity=rei)],
+        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids(*in_love)
+                                   )
+
+        efilter.set_conditions([build_cond(rtype=loves, has=False, entity=rei)])
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids(*in_love, exclude=True)
+                                   )
 
     def test_relations04(self):
         "Wanted entity is deleted."
         loves = self._aux_test_relations()
         rei = self.contacts['rei']
 
-        efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=True, entity=rei)])
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='Filter 01', model=FakeContact, is_custom=True,
+            # conditions=[EntityFilterCondition.build_4_relation(rtype=loves, has=True, entity=rei)],
+            conditions=[
+                RelationConditionHandler.build_condition(
+                    model=FakeContact, rtype=loves, has=True, entity=rei,
+                ),
+            ],
+        )
 
         with self.assertNoException():
             Relation.objects.filter(object_entity=rei.id).delete()
@@ -1612,18 +2173,33 @@ class EntityFiltersTestCase(CremeTestCase):
         "RelationType is deleted."
         loves = self._aux_test_relations()
 
-        efilter = EntityFilter.create(pk='test-filter01', name='Filter 01',
-                                      model=FakeContact, is_custom=True,
-                                     )
-        build = EntityFilterCondition.build_4_relation
-        efilter.set_conditions([
-            build(rtype=loves,      has=True, entity=self.contacts['rei']),
-            build(rtype=self.loved, has=True, ct=self.contact_ct),
-            build(rtype=self.hates, has=True),
-        ])
+        # We want a condition with the same name than the one for loves
+        subfilter = EntityFilter.objects.create(
+            id=str(loves.id),
+            name='Do not delete me please',
+            entity_type=FakeContact,
+        )
+
+        # build = EntityFilterCondition.build_4_relation
+        build = partial(RelationConditionHandler.build_condition, model=FakeContact)
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='Filter 01', model=FakeContact, is_custom=True,
+            conditions=[
+                build(rtype=loves,      has=True, entity=self.contacts['rei']),
+                build(rtype=self.loved, has=True, ct=self.contact_ct),
+                build(rtype=self.hates, has=True),
+                SubFilterConditionHandler.build_condition(subfilter),  # <= should not be deleted
+            ],
+        )
 
         loves.delete()
-        self.assertEqual([self.hates.id], [cond.name for cond in efilter.conditions.all()])
+        self.assertSetEqual(
+            {
+                (SubFilterConditionHandler.type_id, str(subfilter.id)),
+                (RelationConditionHandler.type_id,  str(self.hates.id)),
+            },
+            {*efilter.conditions.values_list('type', 'name')}
+        )
 
     def test_relations06(self):
         "Several conditions on relations (with OR)."
@@ -1633,26 +2209,31 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create(pk='test-filter01', name='Filter 01',
                                       model=FakeContact, use_or=True, is_custom=True,
                                      )
-        build = EntityFilterCondition.build_4_relation
+        # build = EntityFilterCondition.build_4_relation
+        build = partial(RelationConditionHandler.build_condition, model=FakeContact)
         efilter.set_conditions([
             build(rtype=loves,      has=True, entity=self.contacts['rei']),
             build(rtype=self.hates, has=True, entity=gendo),
         ])
-        self.assertExpectedFiltered(efilter, FakeContact, [self.contacts['shinji'].id, gendo.id])
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    [self.contacts['shinji'].id, gendo.id]
+                                   )
 
     def test_relations07(self):
         "Several conditions on relations (with AND)."
         loves = self._aux_test_relations()
+        c = self.contacts
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter 01',
                                       model=FakeContact, use_or=False, is_custom=True,
                                      )
-        build = EntityFilterCondition.build_4_relation
+        # build = EntityFilterCondition.build_4_relation
+        build = partial(RelationConditionHandler.build_condition, model=FakeContact)
         efilter.set_conditions([
-            build(rtype=loves,      has=True, entity=self.contacts['rei']),
-            build(rtype=self.hates, has=True, entity=self.contacts['gendou']),
+            build(rtype=loves,      has=True, entity=c['rei']),
+            build(rtype=self.hates, has=True, entity=c['gendou']),
         ])
-        self.assertExpectedFiltered(efilter, FakeContact, [self.contacts['shinji'].id])
+        self.assertExpectedFiltered(efilter, FakeContact, [c['shinji'].id])
 
     def test_relations_subfilter01(self):
         loves = self._aux_test_relations()
@@ -1661,15 +2242,23 @@ class EntityFiltersTestCase(CremeTestCase):
         sub_efilter = EntityFilter.create(pk='test-filter01', name='Filter Rei',
                                           model=FakeContact, is_custom=True,
                                          )
-        build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        # build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        build_4_field = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
         sub_efilter.set_conditions([
-            build_4_field(operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
-            build_4_field(operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei']),
+            # build_4_field(operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
+            # build_4_field(operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei']),
+            build_4_field(operator_id=operators.STARTSWITH, field_name='last_name',  values=['Ayanami']),
+            build_4_field(operator_id=operators.EQUALS,     field_name='first_name', values=['Rei']),
         ])
         self.assertExpectedFiltered(sub_efilter, FakeContact, [self.contacts['rei'].id])
 
-        efilter = EntityFilter.create(pk='test-filter02', name='Filter Rei lovers', model=FakeContact, is_custom=True)
-        conds = [EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=True, subfilter=sub_efilter)]
+        efilter = EntityFilter.create(
+            pk='test-filter02', name='Filter Rei lovers', model=FakeContact, is_custom=True,
+        )
+
+        # build__subfilter = EntityFilterCondition.build_4_relation_subfilter
+        build_subfilter = partial(RelationSubFilterConditionHandler.build_condition, model=FakeContact)
+        conds = [build_subfilter(rtype=loves, has=True, subfilter=sub_efilter)]
 
         with self.assertNoException():
             efilter.check_cycle(conds)
@@ -1677,16 +2266,24 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter.set_conditions(conds)
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids(*in_love))
 
-        efilter.set_conditions([EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=False, subfilter=sub_efilter)])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids(*in_love, exclude=True))
+        efilter.set_conditions([build_subfilter(rtype=loves, has=False, subfilter=sub_efilter)])
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids(*in_love, exclude=True)
+                                   )
 
     def test_relations_subfilter02(self):
         "Cycle error (length = 0)."
         loves = self._aux_test_relations()
 
-        efilter = EntityFilter.create(pk='test-filter01', name='Filter Rei lovers', model=FakeContact, is_custom=True)
-        conds = [EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=True, subfilter=efilter)]
-
+        efilter = EntityFilter.create(
+            pk='test-filter01', name='Filter Rei lovers', model=FakeContact, is_custom=True,
+        )
+        # conds = [EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=True, subfilter=efilter)]
+        conds = [
+            RelationSubFilterConditionHandler.build_condition(
+                model=FakeContact, rtype=loves, has=True, subfilter=efilter,
+            ),
+        ]
         self.assertRaises(EntityFilter.CycleError, efilter.check_cycle, conds)
         self.assertRaises(EntityFilter.CycleError, efilter.set_conditions, conds)
 
@@ -1694,106 +2291,153 @@ class EntityFiltersTestCase(CremeTestCase):
         "Cycle error (length = 1)."
         loves = self._aux_test_relations()
 
-        efilter01 = EntityFilter.create(pk='test-filter01', name='Filter 01', model=FakeContact, is_custom=True)
-        efilter01.set_conditions([
-            EntityFilterCondition.build_4_field(model=FakeContact, operator=EntityFilterCondition.EQUALS,
-                                                name='last_name', values=['Ayanami'],
-                                               ),
-        ])
+        efilter01 = EntityFilter.create(
+            pk='test-filter01', name='Filter 01', model=FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(model=FakeContact, operator=EntityFilterCondition.EQUALS,
+                #                                     name='last_name', values=['Ayanami'],
+                #                                    ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, operator_id=operators.EQUALS,
+                    field_name='last_name', values=['Ayanami'],
+                ),
+            ],
+        )
 
-        efilter02 = EntityFilter.create(pk='test-filter02', name='Filter 02', model=FakeContact, is_custom=True)
-        efilter02.set_conditions([EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=True, subfilter=efilter01)])
+        # build_4_relfilter = EntityFilterCondition.build_4_relation_subfilter
+        build_4_relfilter = partial(RelationSubFilterConditionHandler.build_condition,
+                                    model=FakeContact,
+                                   )
+        efilter02 = EntityFilter.create(
+            pk='test-filter02', name='Filter 02', model=FakeContact, is_custom=True,
+            conditions=[
+                # build_4_relfilter(rtype=loves, has=True, subfilter=efilter01),
+                build_4_relfilter(rtype=loves, has=True, subfilter=efilter01),
+            ],
+        )
 
-        conds = [EntityFilterCondition.build_4_relation_subfilter(rtype=self.hates, has=False, subfilter=efilter02)]
+        # conds = [EntityFilterCondition.build_4_relation_subfilter(rtype=self.hates, has=False, subfilter=efilter02)]
+        conds = [build_4_relfilter(rtype=self.hates, has=False, subfilter=efilter02)]
         efilter01 = self.refresh(efilter01)
-        self.assertRaises(EntityFilter.CycleError, efilter01.check_cycle, conds)
+        self.assertRaises(EntityFilter.CycleError, efilter01.check_cycle,    conds)
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
 
     def test_relations_subfilter04(self):
         "RelationType is deleted."
         loves = self._aux_test_relations()
-        build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        # build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        build_4_field = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
 
         sub_efilter01 = EntityFilter.create(
             pk='test-filter01', name='Filter Rei', model=FakeContact,
-            conditions=[build_4_field(operator=EntityFilterCondition.STARTSWITH,
-                                      name='last_name',  values=['Ayanami'],
-                                     ),
-                       ],
+            conditions=[
+                # build_4_field(operator=EntityFilterCondition.STARTSWITH,
+                #               name='last_name',  values=['Ayanami'],
+                #              ),
+                build_4_field(operator_id=operators.STARTSWITH,
+                              field_name='last_name', values=['Ayanami'],
+                             ),
+            ],
         )
 
         sub_efilter02 = EntityFilter.create(
             pk='test-filter02', name='Filter Rei', model=FakeContact,
-            conditions=[build_4_field(operator=EntityFilterCondition.STARTSWITH,
-                                      name='first_name',  values=['Misa'],
-                                     ),
-                       ],
+            conditions=[
+                # build_4_field(operator=EntityFilterCondition.STARTSWITH,
+                #               name='first_name',  values=['Misa'],
+                #              ),
+                build_4_field(operator_id=operators.STARTSWITH,
+                              field_name='first_name', values=['Misa'],
+                             ),
+            ],
         )
 
         efilter = EntityFilter.create(pk='test-filter03', name='Filter Rei lovers',
                                       model=FakeContact, is_custom=True,
                                      )
-        build = EntityFilterCondition.build_4_relation_subfilter
-        efilter.set_conditions([build(rtype=loves,      has=True, subfilter=sub_efilter01),
-                                build(rtype=self.hates, has=True, subfilter=sub_efilter02),
-                               ])
+        # build = EntityFilterCondition.build_4_relation_subfilter
+        build = partial(RelationSubFilterConditionHandler.build_condition, model=FakeContact)
+        efilter.set_conditions([
+            build(rtype=loves,      has=True, subfilter=sub_efilter01),
+            build(rtype=self.hates, has=True, subfilter=sub_efilter02),
+        ])
 
         loves.delete()
-        self.assertEqual([self.hates.id], [cond.name for cond in efilter.conditions.all()])
+        self.assertListEqual(
+            [self.hates.id],
+            [cond.name for cond in efilter.conditions.all()]
+        )
 
     def test_relations_subfilter05(self):
         "Several conditions (with OR)."
         loves = self._aux_test_relations()
 
-        build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        # build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        build_4_field = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
 
         sub_efilter01 = EntityFilter.create(
             pk='test-filter01', name='Filter Rei', model=FakeContact,
             conditions=[
-                build_4_field(operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
-                build_4_field(operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei']),
+                # build_4_field(operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
+                # build_4_field(operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei']),
+                build_4_field(operator_id=operators.STARTSWITH, field_name='last_name',  values=['Ayanami']),
+                build_4_field(operator_id=operators.EQUALS,     field_name='first_name', values=['Rei']),
             ],
         )
         self.assertExpectedFiltered(sub_efilter01, FakeContact, [self.contacts['rei'].id])
 
         sub_efilter02 = EntityFilter.create(
             pk='test-filter02', name='Filter Gendô', model=FakeContact,
-            conditions=[build_4_field(operator=EntityFilterCondition.EQUALS, name='first_name', values=['Gendô'])],
+            # conditions=[build_4_field(operator=EntityFilterCondition.EQUALS, name='first_name', values=['Gendô'])],
+            conditions=[build_4_field(operator_id=operators.EQUALS, field_name='first_name', values=['Gendô'])],
         )
         self.assertExpectedFiltered(sub_efilter02, FakeContact, [self.contacts['gendou'].id])
 
         efilter = EntityFilter.create(pk='test-filter03', name='Filter with 2 sublovers',
                                       model=FakeContact, use_or=True, is_custom=True,
                                      )
-        build = EntityFilterCondition.build_4_relation_subfilter
-        efilter.set_conditions([build(rtype=loves,      has=True, subfilter=sub_efilter01),
-                                build(rtype=self.hates, has=True, subfilter=sub_efilter02),
-                               ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('shinji', 'gendou'))
+        # build = EntityFilterCondition.build_4_relation_subfilter
+        build = partial(RelationSubFilterConditionHandler.build_condition, model=FakeContact)
+        efilter.set_conditions([
+            build(rtype=loves,      has=True, subfilter=sub_efilter01),
+            build(rtype=self.hates, has=True, subfilter=sub_efilter02),
+        ])
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('shinji', 'gendou')
+                                   )
 
     def test_relations_subfilter06(self):
         "Several conditions (with AND)."
         loves = self._aux_test_relations()
 
-        build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        # build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
+        build_4_field = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
 
-        sub_efilter01 = EntityFilter.create(pk='test-filter01', name='Filter Rei', model=FakeContact, is_custom=True)
-        sub_efilter01.set_conditions([
-            build_4_field(operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
-            build_4_field(operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei']),
-        ])
+        sub_efilter01 = EntityFilter.create(
+            pk='test-filter01', name='Filter Rei', model=FakeContact, is_custom=True,
+            conditions=[
+                # build_4_field(operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
+                # build_4_field(operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei']),
+                build_4_field(operator_id=operators.STARTSWITH, field_name='last_name',  values=['Ayanami']),
+                build_4_field(operator_id=operators.EQUALS,     field_name='first_name', values=['Rei']),
+            ],
+        )
         self.assertExpectedFiltered(sub_efilter01, FakeContact, [self.contacts['rei'].id])
 
         sub_efilter02 = EntityFilter.create(pk='test-filter02', name='Filter Gendo', model=FakeContact, is_custom=True)
         sub_efilter02.set_conditions([
-            build_4_field(operator=EntityFilterCondition.EQUALS, name='first_name', values=['Gendô']),
+            # build_4_field(operator=EntityFilterCondition.EQUALS, name='first_name', values=['Gendô']),
+            build_4_field(operator_id=operators.EQUALS, field_name='first_name', values=['Gendô']),
         ])
         self.assertExpectedFiltered(sub_efilter02, FakeContact, [self.contacts['gendou'].id])
 
         efilter = EntityFilter.create(pk='test-filter03', name='Filter with 2 sublovers',
                                       model=FakeContact, use_or=False, is_custom=True,
                                      )
-        build_4_relsubfilter = partial(EntityFilterCondition.build_4_relation_subfilter, has=True)
+        # build_4_relsubfilter = partial(EntityFilterCondition.build_4_relation_subfilter, has=True)
+        build_4_relsubfilter = partial(RelationSubFilterConditionHandler.build_condition,
+                                       model=FakeContact, has=True,
+                                      )
         efilter.set_conditions([
             build_4_relsubfilter(rtype=loves,      subfilter=sub_efilter01),
             build_4_relsubfilter(rtype=self.hates, subfilter=sub_efilter02),
@@ -1802,37 +2446,57 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_date01(self):
         "GTE operator."
-        efilter = EntityFilter.create('test-filter01', 'After 2000-1-1', FakeContact, is_custom=True)
-        efilter.set_conditions([
-            EntityFilterCondition.build_4_date(model=FakeContact, name='birthday',
-                                               start=date(year=2000, month=1, day=1),
-                                              ),
-        ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('asuka', 'shinji'))
+        efilter = EntityFilter.create(
+            'test-filter01', 'After 2000-1-1', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_date(model=FakeContact, name='birthday',
+                #                                    start=date(year=2000, month=1, day=1),
+                #                                   ),
+                DateRegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='birthday',
+                    start=date(year=2000, month=1, day=1),
+                ),
+            ],
+        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('asuka', 'shinji')
+                                   )
 
     def test_date02(self):
         "LTE operator."
         efilter = EntityFilter.create(
             'test-filter01', 'Before 1999-12-31', FakeContact,
-            conditions=[EntityFilterCondition.build_4_date(
-                              model=FakeContact, name='birthday',
-                              end=date(year=1999, month=12, day=31),
-                             ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_date(
+                #     model=FakeContact, name='birthday',
+                #     end=date(year=1999, month=12, day=31),
+                # ),
+                DateRegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='birthday',
+                    end=date(year=1999, month=12, day=31),
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, [self.contacts['misato'].id])
 
     def test_date03(self):
         "Range."
-        efilter = EntityFilter.create('test-filter01', name='Between 2001-1-1 & 2001-12-1',
-                                      model=FakeContact, is_custom=True,
-                                     )
-        efilter.set_conditions([
-            EntityFilterCondition.build_4_date(model=FakeContact, name='birthday',
-                                               start=date(year=2001, month=1, day=1),
-                                               end=date(year=2001, month=12, day=1),
-                                              ),
-        ])
+        efilter = EntityFilter.create(
+            'test-filter01', name='Between 2001-1-1 & 2001-12-1',
+            model=FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_date(
+                #     model=FakeContact, name='birthday',
+                #     start=date(year=2001, month=1, day=1),
+                #     end=date(year=2001, month=12, day=1),
+                # ),
+                DateRegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='birthday',
+                    start=date(year=2001, month=1, day=1),
+                    end=date(year=2001, month=12, day=1),
+                ),
+            ],
+        )
         self.assertExpectedFiltered(efilter, FakeContact, [self.contacts['shinji'].id])
 
     def test_date04(self):
@@ -1845,11 +2509,15 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='In the future', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_date(
-                              model=FakeContact, name='birthday',
-                              date_range='in_future',
-                             ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_date(
+                #     model=FakeContact, name='birthday',
+                #     date_range='in_future',
+                # ),
+                DateRegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='birthday', date_range='in_future',
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, [faye.id])
 
@@ -1862,11 +2530,14 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='Created during previous year', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_date(
-                            model=FakeContact, name='created',
-                            date_range='previous_year',
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_date(
+                #     model=FakeContact, name='created', date_range='previous_year',
+                # ),
+                DateRegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='created', date_range='previous_year',
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('faye'))
 
@@ -1879,11 +2550,14 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='Created during current year', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_date(
-                            model=FakeContact, name='created',
-                            date_range='current_year',
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_date(
+                #     model=FakeContact, name='created', date_range='current_year',
+                # ),
+                DateRegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='created', date_range='current_year',
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact,
                                     self._list_contact_ids('faye', exclude=True),
@@ -1895,13 +2569,18 @@ class EntityFiltersTestCase(CremeTestCase):
         FakeContact.objects.filter(pk=faye.id)\
                            .update(created=faye.created + timedelta(days=(13 - faye.created.month) * 31))
 
-        efilter = EntityFilter.create('test-filter01', name='Created during next year (?!)',
-                                      model=FakeContact, is_custom=True,
-                                     )
-        efilter.set_conditions([EntityFilterCondition.build_4_date(model=FakeContact, name='created',
-                                                                   date_range='next_year',
-                                                                  ),
-                               ])
+        efilter = EntityFilter.create(
+            'test-filter01', name='Created during next year (?!)',
+            model=FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_date(
+                #     model=FakeContact, name='created', date_range='next_year',
+                # ),
+                DateRegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='created', date_range='next_year',
+                ),
+            ]
+        )
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('faye'))
 
     def test_datetime04(self):
@@ -1909,15 +2588,21 @@ class EntityFiltersTestCase(CremeTestCase):
         faye = self.contacts['faye']
         FakeContact.objects.filter(pk=faye.id).update(created=faye.created - timedelta(days=31))
 
-        efilter = EntityFilter.create('test-filter01', name='Created during current month',
-                                      model=FakeContact, is_custom=True,
-                                     )
-        efilter.set_conditions([
-            EntityFilterCondition.build_4_date(model=FakeContact, name='created',
-                                               date_range='current_month',
-                                              ),
-        ])
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('faye', exclude=True))
+        efilter = EntityFilter.create(
+            'test-filter01', name='Created during current month',
+            model=FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_date(
+                #     model=FakeContact, name='created', date_range='current_month',
+                # ),
+                DateRegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='created', date_range='current_month',
+                ),
+            ],
+        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('faye', exclude=True)
+                                   )
 
     def test_datetime05(self):
         "Current quarter."
@@ -1928,13 +2613,18 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='Created during current quarter', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_date(
-                            model=FakeContact, name='created',
-                            date_range='current_quarter',
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_date(
+                #     model=FakeContact, name='created', date_range='current_quarter',
+                # ),
+                DateRegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='created', date_range='current_quarter',
+                ),
+            ],
         )
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('faye', exclude=True))
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('faye', exclude=True)
+                                   )
 
     def test_datetime06(self):
         "Sub-field."
@@ -1952,24 +2642,30 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='Recent images content', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_date(
-                            model=FakeContact, name='image__created',
-                            date_range='current_quarter',
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_date(
+                #     model=FakeContact, name='image__created', date_range='current_quarter',
+                # ),
+                DateRegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='image__created',
+                    date_range='current_quarter',
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, [jet.id])
 
     def test_date_field_empty(self):
         efilter = EntityFilter.create(
             'test-filter01', name='Birthday is null', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_date(
-                            model=FakeContact, name='birthday',
-                            date_range='empty',
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_date(
+                #     model=FakeContact, name='birthday', date_range='empty',
+                # ),
+                DateRegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='birthday', date_range='empty',
+                ),
+            ],
         )
-
         self.assertExpectedFiltered(
             efilter, FakeContact,
             self._list_contact_ids('misato', 'asuka', 'shinji', exclude=True)
@@ -1978,38 +2674,18 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_date_field_not_empty(self):
         efilter = EntityFilter.create(
             'test-filter01', name='Birthday is null', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_date(
-                            model=FakeContact, name='birthday',
-                            date_range='not_empty',
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_date(
+                #     model=FakeContact, name='birthday', date_range='not_empty',
+                # ),
+                DateRegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='birthday', date_range='not_empty',
+                ),
+            ],
         )
-
-        self.assertExpectedFiltered(efilter, FakeContact,
-                                    self._list_contact_ids('misato', 'asuka', 'shinji')
-                                   )
-
-    def test_build_date(self):
-        "Errors."
-        self.assertRaises(
-            EntityFilterCondition.ValueError,
-            EntityFilterCondition.build_4_date,
-            model=FakeContact, name='unknown_field', start=date(year=2001, month=1, day=1)
-        )
-        self.assertRaises(
-            EntityFilterCondition.ValueError,
-            EntityFilterCondition.build_4_date,
-            model=FakeContact, name='first_name', start=date(year=2001, month=1, day=1)  # Not a date
-        )
-        self.assertRaises(
-            EntityFilterCondition.ValueError,
-            EntityFilterCondition.build_4_date,
-            model=FakeContact, name='birthday',  # No date given
-        )
-        self.assertRaises(
-            EntityFilterCondition.ValueError,
-            EntityFilterCondition.build_4_date,
-            model=FakeContact, name='birthday', date_range='unknown_range',
+        self.assertExpectedFiltered(
+            efilter, FakeContact,
+            self._list_contact_ids('misato', 'asuka', 'shinji')
         )
 
     def test_customfield01(self):
@@ -2026,12 +2702,16 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(2, CustomFieldInteger.objects.count())
 
         efilter = EntityFilter.create('test-filter01', name='Small', model=FakeContact, is_custom=True)
-        cond = EntityFilterCondition.build_4_customfield(custom_field=custom_field,
-                                                         operator=EntityFilterCondition.LTE,
-                                                         value=[155]
-                                                        )
-        self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, cond.type)
-
+        # cond = EntityFilterCondition.build_4_customfield(custom_field=custom_field,
+        #                                                  operator=EntityFilterCondition.LTE,
+        #                                                  value=[155]
+        #                                                 )
+        # self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, cond.type)
+        cond = CustomFieldConditionHandler.build_condition(
+            custom_field=custom_field,
+            operator_id=operators.LTE,
+            values=[155],
+        )
         efilter.set_conditions([cond])
         self.assertExpectedFiltered(efilter, FakeContact, [rei.id])
 
@@ -2060,12 +2740,18 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='Not so small', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                            custom_field=custom_field01,
-                            operator=EntityFilterCondition.GTE,
-                            value=[155]
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field01,
+                #     operator=EntityFilterCondition.GTE,
+                #     value=[155],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field01,
+                    operator_id=operators.GTE,
+                    values=[155],
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, [asuka.id])
 
@@ -2084,12 +2770,18 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='not 00', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                            custom_field=custom_field,
-                            operator=EntityFilterCondition.CONTAINS_NOT,
-                            value=['00'],
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.CONTAINS_NOT,
+                #     value=['00'],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.CONTAINS_NOT,
+                    values=['00'],
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact,
                                     self._list_contact_ids('rei', exclude=True),
@@ -2100,15 +2792,18 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create(
             'test-filter01-old', name='not 00', model=FakeContact,
             conditions=[EntityFilterCondition(
-                            type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                            # type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                            type=20,
+                            model=FakeContact,
                             name=str(custom_field.id),
                             value=EntityFilterCondition.encode_value({
-                                'operator': EntityFilterCondition.CONTAINS_NOT,
+                                # 'operator': EntityFilterCondition.CONTAINS_NOT,
+                                'operator': operators.CONTAINS_NOT,
                                 'value': '00',
                                 'rname': cfield_rname,
                             }),
                         ),
-                       ],
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact,
                                     self._list_contact_ids('rei', exclude=True),
@@ -2134,16 +2829,19 @@ class EntityFiltersTestCase(CremeTestCase):
         klass(custom_field=custom_field02, entity=spike).set_value_n_save(156)
         klass(custom_field=custom_field02, entity=asuka).set_value_n_save(80)
 
-        build_cond = EntityFilterCondition.build_4_customfield
+        # build_cond = EntityFilterCondition.build_4_customfield
+        build_cond = CustomFieldConditionHandler.build_condition
         efilter = EntityFilter.create(
             'test-filter01', name='Not so small but light', model=FakeContact,
             conditions=[build_cond(custom_field=custom_field01,
-                                   operator=EntityFilterCondition.GTE,
-                                   value=[155]
+                                   # operator=EntityFilterCondition.GTE,
+                                   operator_id=operators.GTE,
+                                   values=[155],
                                   ),
                         build_cond(custom_field=custom_field02,
-                                   operator=EntityFilterCondition.LTE,
-                                   value=[100]
+                                   # operator=EntityFilterCondition.LTE,
+                                   operator_id=operators.LTE,
+                                   values=[100],
                                   ),
                        ],
         )
@@ -2155,18 +2853,24 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create(
             'test-filter01-old', name='Not so small but light', model=FakeContact,
             conditions=[
-                EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                # EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                EntityFilterCondition(type=20,
+                                      model=FakeContact,
                                       name=str(custom_field01.id),
                                       value=EntityFilterCondition.encode_value({
-                                          'operator': EntityFilterCondition.GTE,
+                                          # 'operator': EntityFilterCondition.GTE,
+                                          'operator': operators.GTE,
                                           'value': 155,
                                           'rname': cfield01_rname,
                                       }),
                                      ),
-                EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                # EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                EntityFilterCondition(type=20,
+                                      model=FakeContact,
                                       name=str(custom_field02.id),
                                       value=EntityFilterCondition.encode_value({
-                                          'operator': EntityFilterCondition.LTE,
+                                          # 'operator': EntityFilterCondition.LTE,
+                                          'operator': operators.LTE,
                                           'value': 100,
                                           'rname': cfield02_rname,
                                       }),
@@ -2194,12 +2898,18 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='<= 40', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                                  custom_field=custom_field,
-                                  operator=EntityFilterCondition.LTE,
-                                  value=['40']
-                              ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.LTE,
+                #     value=['40']
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.LTE,
+                    values=['40']
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, [ed.id, rei.id])
 
@@ -2207,10 +2917,13 @@ class EntityFiltersTestCase(CremeTestCase):
         cfield_rname = custom_field.get_value_class().get_related_name()
         efilter = EntityFilter.create(
             'test-filter01-old', name='<= 40', model=FakeContact,
-            conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+            # conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+            conditions=[EntityFilterCondition(type=20,
+                                              model=FakeContact,
                                               name=str(custom_field.id),
                                               value=EntityFilterCondition.encode_value({
-                                                  'operator': EntityFilterCondition.LTE,
+                                                  # 'operator': EntityFilterCondition.LTE,
+                                                  'operator': operators.LTE,
                                                   'value': '40',
                                                   'rname': cfield_rname,
                                               }),
@@ -2238,12 +2951,18 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='is valid', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                                  custom_field=custom_field,
-                                  operator=EntityFilterCondition.EQUALS,
-                                  value=[True],
-                              ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     value=[True],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.EQUALS,
+                    values=[True],
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, [ed.id, rei.id])
 
@@ -2251,10 +2970,13 @@ class EntityFiltersTestCase(CremeTestCase):
         cfield_rname = custom_field.get_value_class().get_related_name()
         efilter = EntityFilter.create(
             'test-filter01-old', name='is valid', model=FakeContact,
-            conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+            # conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+            conditions=[EntityFilterCondition(type=20,
+                                              model=FakeContact,
                                               name=str(custom_field.id),
                                               value=EntityFilterCondition.encode_value({
-                                                  'operator': EntityFilterCondition.EQUALS,
+                                                  # 'operator': EntityFilterCondition.EQUALS,
+                                                  'operator': operators.EQUALS,
                                                   'value': 'True',
                                                   'rname': cfield_rname,
                                               }),
@@ -2282,12 +3004,18 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='is valid', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                                  custom_field=custom_field,
-                                  operator=EntityFilterCondition.EQUALS,
-                                  value=[False]
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     value=[False],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.EQUALS,
+                    values=[False],
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, [contacts['asuka'].id])
 
@@ -2295,10 +3023,13 @@ class EntityFiltersTestCase(CremeTestCase):
         cfield_rname = custom_field.get_value_class().get_related_name()
         efilter = EntityFilter.create(
             'test-filter01-old', name='is valid', model=FakeContact,
-            conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+            # conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+            conditions=[EntityFilterCondition(type=20,
+                                              model=FakeContact,
                                               name=str(custom_field.id),
                                               value=EntityFilterCondition.encode_value({
-                                                  'operator': EntityFilterCondition.EQUALS,
+                                                  # 'operator': EntityFilterCondition.EQUALS,
+                                                  'operator': operators.EQUALS,
                                                   'value': 'False',
                                                   'rname': cfield_rname,
                                               }),
@@ -2329,10 +3060,15 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create(
             'test-filter01', name='Eva-00', model=FakeContact,
             conditions=[
-                EntityFilterCondition.build_4_customfield(
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     value=[eva00.id],
+                # ),
+                CustomFieldConditionHandler.build_condition(
                     custom_field=custom_field,
-                    operator=EntityFilterCondition.EQUALS,
-                    value=[eva00.id],  # TODO: "value=eva00"
+                    operator_id=operators.EQUALS,
+                    values=[eva00.id],  # TODO: "value=eva00"
                 ),
             ],
         )
@@ -2344,10 +3080,13 @@ class EntityFiltersTestCase(CremeTestCase):
             'test-filter01-old', name='Eva-00', model=FakeContact,
             conditions=[
                 EntityFilterCondition(
-                    type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                    # type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                    model=FakeContact,
+                    type=20,
                     name=str(custom_field.id),
                     value=EntityFilterCondition.encode_value({
-                        'operator': EntityFilterCondition.EQUALS,
+                        # 'operator': EntityFilterCondition.EQUALS,
+                        'operator': operators.EQUALS,
                         'value': eva00.id,
                         'rname': cfield_rname,
                     }),
@@ -2358,9 +3097,10 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_customfield_enum_multiple(self):
         "ENUM."
-        rei = self.contacts['rei']
-        asuka = self.contacts['asuka']
-        shinji = self.contacts['shinji']
+        c = self.contacts
+        rei    = c['rei']
+        asuka  = c['asuka']
+        shinji = c['shinji']
 
         custom_field = CustomField.objects.create(name='Eva',
                                                   content_type=self.contact_ct,
@@ -2380,12 +3120,18 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='Eva-00', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                               custom_field=custom_field,
-                               operator=EntityFilterCondition.EQUALS,
-                               value=[eva00.id, eva02.id],  # TODO: "value=eva00"
-                              ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     value=[eva00.id, eva02.id],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.EQUALS,
+                    values=[eva00.id, eva02.id],  # TODO: "value=eva00"
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, [rei.id, asuka.id])
 
@@ -2404,73 +3150,87 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='Cuties', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                           custom_field=custom_field,
-                           operator=EntityFilterCondition.EQUALS,
-                           value=[True],
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     value=[True],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.EQUALS,
+                    values=[True],
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, [rei.id])
 
         efilter = EntityFilter.create(
             'test-filter02', name='Cuties', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                            custom_field=custom_field,
-                            operator=EntityFilterCondition.EQUALS_NOT,
-                            value=[True],
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.EQUALS_NOT,
+                #     value=[True],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.EQUALS_NOT,
+                    values=[True],
+                ),
+            ],
         )
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('rei', exclude=True))
-
-    def test_customfield_boolean_unsupported(self):
-        "BOOL."
-        rei = self.contacts['rei']
-
-        custom_field = CustomField.objects.create(
-            name='cute ??', content_type=self.contact_ct, field_type=CustomField.BOOL,
-        )
-
-        value_class = custom_field.get_value_class()
-        value_class(custom_field=custom_field, entity=rei).set_value_n_save(True)
-        value_class(custom_field=custom_field, entity=self.contacts['jet']).set_value_n_save(False)
-        self.assertEqual(2, CustomFieldBoolean.objects.count())
-
-        with self.assertRaises(EntityFilterCondition.ValueError) as err:
-            EntityFilterCondition.build_4_customfield(custom_field=custom_field,
-                                                      operator=EntityFilterCondition.GT,
-                                                      value=[True],
-                                                     )
-
-        self.assertEqual(str(err.exception),
-                         'build_4_customfield(): '
-                         'BOOL type is only compatible with EQUALS, EQUALS_NOT and ISEMPTY operators'
-                        )
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('rei', exclude=True)
+                                   )
 
     def test_customfield_deletion01(self):
-        create_cf = partial(CustomField.objects.create, content_type=self.contact_ct, field_type=CustomField.INT)
+        create_cf = partial(CustomField.objects.create,
+                            content_type=self.contact_ct, field_type=CustomField.INT,
+                           )
         custom_field01 = create_cf(name='Size (cm)')
         custom_field02 = create_cf(name='IQ')
 
-        efilter = EntityFilter.create('test-filter01', name='Small', model=FakeContact, is_custom=True)
-        build = partial(EntityFilterCondition.build_4_customfield, operator=EntityFilterCondition.LTE, value=[155])
-        efilter.set_conditions([build(custom_field=custom_field01),
-                                build(custom_field=custom_field02),
-                               ])
+        # We want a condition with the same name than the one for custom_field01
+        subfilter = EntityFilter.objects.create(
+            id=str(custom_field01.id),
+            name='Do not delete me please',
+            entity_type=FakeContact,
+        )
+
+        build = partial(CustomFieldConditionHandler.build_condition,
+                        operator_id=operators.LTE, values=[155],
+                       )
+        efilter = EntityFilter.create(
+            'test-filter01', name='Small', model=FakeContact, is_custom=True,
+            conditions=[
+                build(custom_field=custom_field01),
+                build(custom_field=custom_field02),
+                SubFilterConditionHandler.build_condition(subfilter),  # <= should not be deleted
+            ],
+        )
 
         custom_field01.delete()
-        self.assertListEqual([str(custom_field02.id)],
-                             [cond.name for cond in efilter.conditions.all()]
-                            )
+        self.assertSetEqual(
+            {
+                (SubFilterConditionHandler.type_id,   str(subfilter.id)),
+                (CustomFieldConditionHandler.type_id, str(custom_field02.id)),
+            },
+            {*efilter.conditions.values_list('type', 'name')}
+        )
 
     def test_customfield_deletion02(self):
         "Date custom field."
-        create_cf = partial(CustomField.objects.create, content_type=self.contact_ct, field_type=CustomField.DATETIME)
+        create_cf = partial(CustomField.objects.create, content_type=self.contact_ct,
+                            field_type=CustomField.DATETIME,
+                           )
         custom_field01 = create_cf(name='Holidays')
         custom_field02 = create_cf(name='Favorite day')
 
-        build = partial(EntityFilterCondition.build_4_datecustomfield, start=date(year=2019, month=7, day=31))
+        # build = partial(EntityFilterCondition.build_4_datecustomfield, start=date(year=2019, month=7, day=31))
+        build = partial(DateCustomFieldConditionHandler.build_condition,
+                        start=date(year=2019, month=7, day=31),
+                       )
 
         efilter = EntityFilter.create(
             'test-filter01', name='Break', model=FakeContact, is_custom=True,
@@ -2499,12 +3259,18 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='empty', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                               custom_field=custom_field,
-                               operator=EntityFilterCondition.ISEMPTY,
-                               value=[True]
-                              ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.ISEMPTY,
+                #     value=[True]
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.ISEMPTY,
+                    values=[True],
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact,
                                     self._list_contact_ids('rei', 'asuka', exclude=True),
@@ -2512,14 +3278,22 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter02', name='not empty', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                            custom_field=custom_field,
-                            operator=EntityFilterCondition.ISEMPTY,
-                            value=[False],
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.ISEMPTY,
+                #     value=[False],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.ISEMPTY,
+                    values=[False],
+                ),
+            ],
         )
-        self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('rei', 'asuka'))
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._list_contact_ids('rei', 'asuka')
+                                   )
 
     def test_customfield_enum_isempty(self):
         rei = self.contacts['rei']
@@ -2528,8 +3302,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                   content_type=self.contact_ct,
                                                   field_type=CustomField.ENUM,
                                                  )
-        create_evalue = CustomFieldEnumValue.objects.create
-        eva00 = create_evalue(custom_field=custom_field, value='Eva-00')
+        eva00 = CustomFieldEnumValue.objects.create(custom_field=custom_field, value='Eva-00')
 
         klass = custom_field.get_value_class()
         klass(custom_field=custom_field, entity=rei).set_value_n_save(eva00.id)
@@ -2539,61 +3312,87 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', name='empty', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                            custom_field=custom_field,
-                            operator=EntityFilterCondition.ISEMPTY,
-                            value=[True],
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.ISEMPTY,
+                #     value=[True],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.ISEMPTY,
+                    values=[True],
+                ),
+            ],
         )
-
         self.assertExpectedFiltered(efilter, FakeContact,
                                     self._list_contact_ids('rei', 'asuka', exclude=True),
                                    )
 
         efilter = EntityFilter.create(
             'test-filter02', name='not empty', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                            custom_field=custom_field,
-                            operator=EntityFilterCondition.ISEMPTY,
-                            value=[False]
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.ISEMPTY,
+                #     value=[False],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.ISEMPTY,
+                    values=[False],
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('rei', 'asuka'))
 
     def test_customfield_string_isempty(self):
+        c = self.contacts
+
         custom_field = CustomField.objects.create(name='Eva',
                                                   content_type=self.contact_ct,
                                                   field_type=CustomField.STR,
                                                  )
         klass = custom_field.get_value_class()
-        klass(custom_field=custom_field, entity=self.contacts['rei']).set_value_n_save('Eva-00')
-        klass(custom_field=custom_field, entity=self.contacts['shinji']).set_value_n_save('Eva-01')
+        klass(custom_field=custom_field, entity=c['rei']).set_value_n_save('Eva-00')
+        klass(custom_field=custom_field, entity=c['shinji']).set_value_n_save('Eva-01')
 
         self.assertEqual(2, CustomFieldString.objects.count())
 
         efilter = EntityFilter.create(
             'test-filter01', name='empty', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                            custom_field=custom_field,
-                            operator=EntityFilterCondition.ISEMPTY,
-                            value=[True],
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.ISEMPTY,
+                #     value=[True],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.ISEMPTY,
+                    values=[True],
+                ),
+            ],
         )
-        self.assertExpectedFiltered(efilter, FakeContact,
-                                    self._list_contact_ids('rei', 'shinji', exclude=True),
-                                   )
+        self.assertExpectedFiltered(
+            efilter, FakeContact,
+            self._list_contact_ids('rei', 'shinji', exclude=True),
+        )
 
         efilter = EntityFilter.create(
             'test-filter01', name='not empty', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                            custom_field=custom_field,
-                            operator=EntityFilterCondition.ISEMPTY,
-                            value=[False],
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.ISEMPTY,
+                #     value=[False],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.ISEMPTY,
+                    values=[False],
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact,
                                     self._list_contact_ids('rei', 'shinji'),
@@ -2613,61 +3412,45 @@ class EntityFiltersTestCase(CremeTestCase):
 
         self.assertEqual(3, CustomFieldBoolean.objects.count())
 
-        efilter = EntityFilter.create(
+        efilter1 = EntityFilter.create(
             'test-filter01', name='empty', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                            custom_field=custom_field,
-                            operator=EntityFilterCondition.ISEMPTY,
-                            value=[True],
-                         ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.ISEMPTY,
+                #     value=[True],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.ISEMPTY,
+                    values=[True],
+                ),
+            ],
         )
         self.assertExpectedFiltered(
-            efilter, FakeContact,
+            efilter1, FakeContact,
             self._list_contact_ids('rei', 'shinji', 'asuka', exclude=True),
         )
 
-        efilter = EntityFilter.create(
+        # ---
+        efilter2 = EntityFilter.create(
             'test-filter01', name='not empty', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_customfield(
-                            custom_field=custom_field,
-                            operator=EntityFilterCondition.ISEMPTY,
-                            value=[False],
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #         custom_field=custom_field,
+                #         operator=EntityFilterCondition.ISEMPTY,
+                #         value=[False],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.ISEMPTY,
+                    values=[False],
+                ),
+            ],
         )
         self.assertExpectedFiltered(
-            efilter, FakeContact,
+            efilter2, FakeContact,
             self._list_contact_ids('rei', 'shinji', 'asuka'),
-        )
-
-    def test_build_customfield(self):
-        "Errors."
-        create_cf = partial(CustomField.objects.create, content_type=self.contact_ct)
-        cf_int = create_cf(name='size (cm)', field_type=CustomField.INT)
-        self.assertRaises(
-            EntityFilterCondition.ValueError,
-            EntityFilterCondition.build_4_customfield,
-            custom_field=cf_int, operator=1216, value=155,  # Invalid operator
-        )
-        self.assertRaises(
-            EntityFilterCondition.ValueError,
-            EntityFilterCondition.build_4_customfield,
-            custom_field=cf_int, operator=EntityFilterCondition.CONTAINS, value='not an int',
-        )
-
-        cf_date = create_cf(name='Day', field_type=CustomField.DATETIME)
-        self.assertRaises(
-            EntityFilterCondition.ValueError,
-            EntityFilterCondition.build_4_customfield,
-            custom_field=cf_date, operator=EntityFilterCondition.EQUALS, value=2011,  # DATE
-        )
-
-        cf_bool = create_cf(name='Cute ?', field_type=CustomField.BOOL)
-        self.assertRaises(
-            EntityFilterCondition.ValueError,
-            EntityFilterCondition.build_4_customfield,
-            custom_field=cf_bool, operator=EntityFilterCondition.CONTAINS, value=True,  # Bad operator
         )
 
     def _aux_test_datecf(self):
@@ -2691,10 +3474,11 @@ class EntityFiltersTestCase(CremeTestCase):
         custom_field = self._aux_test_datecf()
 
         efilter = EntityFilter.create('test-filter01', 'After April', FakeContact, is_custom=True)
-        cond = EntityFilterCondition.build_4_datecustomfield(
+        # cond = EntityFilterCondition.build_4_datecustomfield(
+        cond = DateCustomFieldConditionHandler.build_condition(
             custom_field=custom_field, start=date(year=2015, month=4, day=1),
         )
-        self.assertEqual(EntityFilterCondition.EFC_DATECUSTOMFIELD, cond.type)
+        # self.assertEqual(EntityFilterCondition.EFC_DATECUSTOMFIELD, cond.type)
 
         efilter.set_conditions([cond])
         self.assertExpectedFiltered(efilter, FakeContact,
@@ -2707,11 +3491,13 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', 'Before May', FakeContact,
-            conditions=[EntityFilterCondition.build_4_datecustomfield(
-                            custom_field=custom_field,
-                            end=date(year=2015, month=5, day=1),
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_datecustomfield(
+                DateCustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    end=date(year=2015, month=5, day=1),
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('shinji', 'rei'))
 
@@ -2721,12 +3507,14 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', 'In April', FakeContact,
-            conditions=[EntityFilterCondition.build_4_datecustomfield(
-                            custom_field=custom_field,
-                            start=date(year=2015, month=4, day=1),
-                            end=date(year=2015, month=4, day=30),
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_datecustomfield(
+                DateCustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    start=date(year=2015, month=4, day=1),
+                    end=date(year=2015, month=4, day=30),
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, [self.contacts['shinji'].id])
 
@@ -2737,23 +3525,25 @@ class EntityFiltersTestCase(CremeTestCase):
                                                   field_type=CustomField.DATETIME,
                                                  )
 
-        contacts = self.contacts
-        spike = contacts['spike']
-        jet   = contacts['jet']
+        c = self.contacts
+        spike = c['spike']
+        jet   = c['jet']
         dt_now = now()
 
         klass = partial(custom_field.get_value_class(), custom_field=custom_field)
-        klass(entity=contacts['faye']).set_value_n_save(self.create_datetime(year=2000, month=3, day=14))
+        klass(entity=c['faye']).set_value_n_save(self.create_datetime(year=2000, month=3, day=14))
         klass(entity=spike).set_value_n_save(dt_now + timedelta(days=3650))
         klass(entity=jet).set_value_n_save(dt_now + timedelta(days=700))
 
         efilter = EntityFilter.create(
             'test-filter01', name='In the future', model=FakeContact,
-            conditions=[EntityFilterCondition.build_4_datecustomfield(
-                            custom_field=custom_field,
-                            date_range='in_future'
-                        ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_datecustomfield(
+                DateCustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    date_range='in_future'
+                ),
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, [spike.id, jet.id])
 
@@ -2773,7 +3563,8 @@ class EntityFiltersTestCase(CremeTestCase):
         klass(entity=shinji).set_value_n_save(create_dt(year=2030, month=4, day=21))
         klass(entity=contacts['asuka']).set_value_n_save(create_dt(year=2040, month=5, day=3))
 
-        build_cond = EntityFilterCondition.build_4_datecustomfield
+        # build_cond = EntityFilterCondition.build_4_datecustomfield
+        build_cond = DateCustomFieldConditionHandler.build_condition
         efilter = EntityFilter.create(
             'test-filter01', 'Complex filter', FakeContact, use_or=False,
             conditions=[
@@ -2783,32 +3574,19 @@ class EntityFiltersTestCase(CremeTestCase):
         )
         self.assertExpectedFiltered(efilter, FakeContact, [shinji.id])
 
-    def test_build_datecustomfield(self):
-        "Errors."
-        create_cf = partial(CustomField.objects.create, content_type=self.contact_ct)
-        custom_field = create_cf(name='First flight', field_type=CustomField.INT)  # Not a DATE
-        self.assertRaises(EntityFilterCondition.ValueError,
-                          EntityFilterCondition.build_4_datecustomfield,
-                          custom_field=custom_field, date_range='in_future',
-                         )
-
-        custom_field = create_cf(name='Day', field_type=CustomField.DATETIME)
-        self.assertRaises(EntityFilterCondition.ValueError,
-                          EntityFilterCondition.build_4_datecustomfield,
-                          custom_field=custom_field,  # No date is given
-                         )
-        self.assertRaises(EntityFilterCondition.ValueError,
-                          EntityFilterCondition.build_4_datecustomfield,
-                          custom_field=custom_field, date_range='unknown_range',
-                         )
-
     def test_invalid_field(self):
         efilter = EntityFilter.create('test-filter01', 'Ikari', FakeContact, is_custom=True)
-        build = partial(EntityFilterCondition.build_4_field, model=FakeContact,
-                        operator=EntityFilterCondition.EQUALS, values=['Ikari'],
-                       )
-        cond1 = build(name='last_name')
-        cond2 = build(name='first_name')
+        # build = partial(EntityFilterCondition.build_4_field, model=FakeContact,
+        #                 operator=EntityFilterCondition.EQUALS, values=['Ikari'],
+        #                )
+        build = partial(RegularFieldConditionHandler.build_condition,
+                        model=FakeContact,
+                        operator_id=operators.EQUALS, values=['Ikari'],
+                        )
+        # cond1 = build(name='last_name')
+        # cond2 = build(name='first_name')
+        cond1 = build(field_name='last_name')
+        cond2 = build(field_name='first_name')
         cond2.name = 'invalid'
 
         efilter.set_conditions([cond1, cond2])
@@ -2817,19 +3595,27 @@ class EntityFiltersTestCase(CremeTestCase):
             filtered = list(efilter.filter(FakeContact.objects.all()))
 
         self.assertDoesNotExist(cond2)
-        self.assertEqual(set(self._get_ikari_case_sensitive()), {c.id for c in filtered})
+        self.assertSetEqual({*self._get_ikari_case_sensitive()}, {c.id for c in filtered})
 
         self.assertEqual(1, len(efilter.get_conditions()))
 
     def test_invalid_datefield(self):
         efilter = EntityFilter.create('test-filter01', 'Ikari', FakeContact, is_custom=True)
-        cond1 = EntityFilterCondition.build_4_field(model=FakeContact, name='last_name',
-                                                    operator=EntityFilterCondition.EQUALS,
-                                                    values=['Ikari'],
-                                                   )
-        cond2 = EntityFilterCondition.build_4_date(model=FakeContact, name='birthday',
-                                                   start=date(year=2000, month=1, day=1),
-                                                  )
+        # cond1 = EntityFilterCondition.build_4_field(model=FakeContact, name='last_name',
+        #                                             operator=EntityFilterCondition.EQUALS,
+        #                                             values=['Ikari'],
+        #                                            )
+        # cond2 = EntityFilterCondition.build_4_date(model=FakeContact, name='birthday',
+        #                                            start=date(year=2000, month=1, day=1),
+        #                                           )
+        cond1 = RegularFieldConditionHandler.build_condition(
+            model=FakeContact, field_name='last_name',
+            operator_id=operators.EQUALS, values=['Ikari'],
+        )
+        cond2 = DateRegularFieldConditionHandler.build_condition(
+            model=FakeContact, field_name='birthday',
+            start=date(year=2000, month=1, day=1),
+        )
         cond2.name = 'invalid'
 
         efilter.set_conditions([cond1, cond2])
@@ -2839,48 +3625,34 @@ class EntityFiltersTestCase(CremeTestCase):
             filtered = list(efilter.filter(FakeContact.objects.all()))
 
         self.assertDoesNotExist(cond2)
-        self.assertEqual(set(self._get_ikari_case_sensitive()), {c.id for c in filtered})
-
-    def test_invalid_currentuser(self):
-        efilter = EntityFilter.create('test-filter01', 'Spike & Faye', FakeContact, is_custom=True)
-
-        with self.assertRaises(EntityFilterCondition.ValueError):
-            efilter.set_conditions([
-                EntityFilterCondition.build_4_field(
-                    model=FakeContact,
-                    operator=EntityFilterCondition.EQUALS,
-                    name='birthday',
-                    values=['__currentuser__'],
-                ),
-            ])
-
-        with self.assertNoException():
-            efilter.set_conditions([
-                EntityFilterCondition.build_4_field(
-                    model=FakeContact,
-                    operator=EntityFilterCondition.EQUALS,
-                    name='last_name',
-                    values=['__currentuser__'],
-                ),
-            ])
+        self.assertSetEqual({*self._get_ikari_case_sensitive()},
+                            {c.id for c in filtered}
+                           )
 
     def test_invalid_subfilter(self):
-        build_4_field = partial(EntityFilterCondition.build_4_field,
-                                model=FakeContact, operator=EntityFilterCondition.CONTAINS,
+        # build_4_field = partial(EntityFilterCondition.build_4_field,
+        #                         model=FakeContact, operator=EntityFilterCondition.CONTAINS,
+        #                        )
+        build_4_field = partial(RegularFieldConditionHandler.build_condition,
+                                model=FakeContact, operator_id=operators.CONTAINS,
                                )
+
         sub_efilter = EntityFilter.create(
             pk='test-filter01', name='Filter01', model=FakeContact,
-            conditions=[build_4_field(name='last_name',  values=['Spiegel'])],
+            # conditions=[build_4_field(name='last_name', values=['Spiegel'])],
+            conditions=[build_4_field(field_name='last_name', values=['Spiegel'])],
         )
 
-        sub_cond = EntityFilterCondition.build_4_subfilter(sub_efilter)
+        # sub_cond = EntityFilterCondition.build_4_subfilter(sub_efilter)
+        sub_cond = SubFilterConditionHandler.build_condition(sub_efilter)
         with self.assertNumQueries(0):
             error = sub_cond.error
         self.assertIsNone(error)
 
         efilter = EntityFilter.create(
             pk='test-filter02', name='Filter02', model=FakeContact,
-            conditions=[build_4_field(name='first_name', values=['Spi']),
+            # conditions=[build_4_field(name='first_name', values=['Spi']),
+            conditions=[build_4_field(field_name='first_name', values=['Spi']),
                         sub_cond,
                        ],
         )
@@ -2895,22 +3667,30 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_invalid_relations_subfilter(self):
         loves = self._aux_test_relations()
 
-        build_4_field = partial(EntityFilterCondition.build_4_field,
-                                model=FakeContact, operator=EntityFilterCondition.EQUALS,
-                               )
+        # build_4_field = partial(EntityFilterCondition.build_4_field,
+        #                         model=FakeContact, operator=EntityFilterCondition.EQUALS,
+        #                        )
+        build_4_field = partial(RegularFieldConditionHandler.build_condition,
+                                model=FakeContact, operator_id=operators.EQUALS,
+                                )
         sub_efilter = EntityFilter.create(
             pk='test-filter01', name='Filter Rei', model=FakeContact,
-            conditions=[build_4_field(name='last_name', values=['Ayanami'])],
+            # conditions=[build_4_field(name='last_name', values=['Ayanami'])],
+            conditions=[build_4_field(field_name='last_name', values=['Ayanami'])],
         )
 
-        sub_cond = EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=True, subfilter=sub_efilter)
+        # sub_cond = EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=True, subfilter=sub_efilter)
+        sub_cond = RelationSubFilterConditionHandler.build_condition(
+            model=FakeContact, rtype=loves, has=True, subfilter=sub_efilter,
+        )
         with self.assertNumQueries(0):
             error = sub_cond.error
         self.assertIsNone(error)
 
         efilter = EntityFilter.create(
             pk='test-filter02', name='Filter Rei lovers', model=FakeContact,
-            conditions=[build_4_field(name='first_name', values=['rei']),
+            # conditions=[build_4_field(name='first_name', values=['rei']),
+            conditions=[build_4_field(field_name='first_name', values=['rei']),
                         sub_cond,
                        ],
         )
@@ -2924,26 +3704,40 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_get_for_user(self):
         user = self.user
-        create_ef = partial(EntityFilter.create, name='Misatos',
-                            model=FakeContact,
-                            conditions=[EntityFilterCondition.build_4_field(
-                                                model=FakeContact,
-                                                operator=EntityFilterCondition.EQUALS,
-                                                name='first_name', values=['Misato'],
-                                            ),
-                                       ],
-                           )
+        create_ef = partial(
+            EntityFilter.create, name='Misatos',
+            model=FakeContact,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='first_name', values=['Misato'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS,
+                    field_name='first_name', values=['Misato'],
+                ),
+            ],
+        )
 
         ef1 = create_ef(pk='test-ef_contact1')
         ef2 = create_ef(pk='test-ef_contact2', user=user)
-        ef3 = create_ef(pk='test-ef_orga', model=FakeOrganisation, name='NERV',
-                        conditions=[EntityFilterCondition.build_4_field(
-                                            model=FakeOrganisation,
-                                            operator=EntityFilterCondition.IEQUALS,
-                                            name='name', values=['NERV'],
-                                        ),
-                                   ],
-                        )
+        ef3 = create_ef(
+            pk='test-ef_orga', model=FakeOrganisation, name='NERV',
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeOrganisation,
+                #     operator=EntityFilterCondition.IEQUALS,
+                #     name='name', values=['NERV'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.IEQUALS,
+                    field_name='name', values=['NERV'],
+                ),
+            ],
+        )
         ef4 = create_ef(pk='test-ef_contact3', user=self.other_user)
         ef5 = create_ef(pk='test-ef_contact4', user=self.other_user,
                         is_private=True, is_custom=True,
@@ -2982,26 +3776,40 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_filterlist01(self):
         user = self.user
-        create_ef = partial(EntityFilter.create, name='Misatos',
-                            model=FakeContact,
-                            conditions=[EntityFilterCondition.build_4_field(
-                                                model=FakeContact,
-                                                operator=EntityFilterCondition.EQUALS,
-                                                name='first_name', values=['Misato'],
-                                            ),
-                                       ],
-                            )
+        create_ef = partial(
+            EntityFilter.create, name='Misatos',
+            model=FakeContact,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='first_name', values=['Misato'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS,
+                    field_name='first_name', values=['Misato'],
+                ),
+            ],
+        )
 
         ef1 = create_ef(pk='test-ef_contact1')
         ef2 = create_ef(pk='test-ef_contact2', user=user)
-        ef3 = create_ef(pk='test-ef_orga', model=FakeOrganisation, name='NERV',
-                        conditions=[EntityFilterCondition.build_4_field(
-                                            model=FakeOrganisation,
-                                            operator=EntityFilterCondition.IEQUALS,
-                                            name='name', values=['NERV'],
-                                        ),
-                                   ],
-                        )
+        ef3 = create_ef(
+            pk='test-ef_orga', model=FakeOrganisation, name='NERV',
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeOrganisation,
+                #     operator=EntityFilterCondition.IEQUALS,
+                #     name='name', values=['NERV'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.IEQUALS,
+                    field_name='name', values=['NERV'],
+                ),
+            ],
+        )
         ef4 = create_ef(pk='test-ef_contact3', user=self.other_user)
 
         ct = self.contact_ct
@@ -3041,12 +3849,18 @@ class EntityFiltersTestCase(CremeTestCase):
         a_team = User.objects.create(username='A-Team', is_team=True)
         a_team.teammates = [other_user]
 
-        conditions = [EntityFilterCondition.build_4_field(
-                            model=FakeContact,
-                            operator=EntityFilterCondition.EQUALS,
-                            name='first_name', values=['Misato'],
-                        ),
-                     ]
+        conditions = [
+            # EntityFilterCondition.build_4_field(
+            #     model=FakeContact,
+            #     operator=EntityFilterCondition.EQUALS,
+            #     name='first_name', values=['Misato'],
+            # ),
+            RegularFieldConditionHandler.build_condition(
+                model=FakeContact,
+                operator_id=operators.EQUALS,
+                field_name='first_name', values=['Misato'],
+            ),
+        ]
 
         def create_ef(id, **kwargs):
             return EntityFilter.create(pk='test-ef_contact{}'.format(id),
@@ -3089,19 +3903,26 @@ class EntityFiltersTestCase(CremeTestCase):
 
         other_user = self.other_user
 
-        conditions = [EntityFilterCondition.build_4_field(
-                            model=FakeContact,
-                            operator=EntityFilterCondition.EQUALS,
-                            name='first_name', values=['Misato'],
-                        ),
-                     ]
+        conditions = [
+            # EntityFilterCondition.build_4_field(
+            #     model=FakeContact,
+            #     operator=EntityFilterCondition.EQUALS,
+            #     name='first_name', values=['Misato'],
+            # ),
+            RegularFieldConditionHandler.build_condition(
+                model=FakeContact,
+                operator_id=operators.EQUALS,
+                field_name='first_name', values=['Misato'],
+            ),
+        ]
 
         def create_ef(id, **kwargs):
-            return EntityFilter.create(pk='test-ef_contact{}'.format(id),
-                                       name='Filter #{}'.format(id),
-                                       model=FakeContact, conditions=conditions,
-                                       **kwargs
-                                      )
+            return EntityFilter.create(
+                pk='test-ef_contact{}'.format(id),
+                name='Filter #{}'.format(id),
+                model=FakeContact, conditions=conditions,
+                **kwargs
+            )
 
         ef1 = create_ef(1)
 

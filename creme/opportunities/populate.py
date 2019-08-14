@@ -26,10 +26,11 @@ from django.utils.translation import gettext as _, pgettext
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
+from creme.creme_core.core.entity_filter import operators, condition_handler
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
         BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem, ButtonMenuItem,
-        HeaderFilter, EntityFilterCondition, EntityFilter)
+        HeaderFilter, EntityFilter)  # EntityFilterCondition
 
 from creme import persons, products
 
@@ -104,35 +105,60 @@ class Populator(BasePopulator):
 
         # ---------------------------
         create_efilter = partial(EntityFilter.create, model=Opportunity, user='admin')
-        create_cond    = partial(EntityFilterCondition.build_4_field, model=Opportunity)
-        create_efilter('opportunities-opportunities_won',
-                       name=_('Opportunities won'),
-                       conditions=[create_cond(operator=EntityFilterCondition.EQUALS,
-                                               name='sales_phase__won',
-                                               values=[True],
-                                              ),
-                                  ],
-                      )
-        create_efilter('opportunities-opportunities_lost',
-                       name=_('Opportunities lost'),
-                       conditions=[create_cond(operator=EntityFilterCondition.EQUALS,
-                                               name='sales_phase__lost',
-                                               values=[True],
-                                              ),
-                                  ],
-                      )
-        create_efilter('opportunities-neither_won_nor_lost_opportunities',
-                       name=_('Neither won nor lost opportunities'),
-                       conditions=[create_cond(operator=EntityFilterCondition.EQUALS_NOT,
-                                               name='sales_phase__won',
-                                               values=[True],
-                                              ),
-                                   create_cond(operator=EntityFilterCondition.EQUALS_NOT,
-                                               name='sales_phase__lost',
-                                               values=[True],
-                                              )
-                                  ],
-                      )
+        # create_cond    = partial(EntityFilterCondition.build_4_field, model=Opportunity)
+        build_cond = partial(condition_handler.RegularFieldConditionHandler.build_condition,
+                             model=Opportunity,
+                             )
+        create_efilter(
+            'opportunities-opportunities_won',
+            name=_('Opportunities won'),
+            conditions=[
+                # create_cond(operator=EntityFilterCondition.EQUALS,
+                #             name='sales_phase__won',
+                #             values=[True],
+                #            ),
+                build_cond(operator_id=operators.EQUALS,
+                           field_name='sales_phase__won',
+                           values=[True],
+                          ),
+            ],
+        )
+        create_efilter(
+            'opportunities-opportunities_lost',
+            name=_('Opportunities lost'),
+            conditions=[
+                # create_cond(operator=EntityFilterCondition.EQUALS,
+                #             name='sales_phase__lost',
+                #             values=[True],
+                #            ),
+                build_cond(operator_id=operators.EQUALS,
+                           field_name='sales_phase__lost',
+                           values=[True],
+                          ),
+            ],
+        )
+        create_efilter(
+            'opportunities-neither_won_nor_lost_opportunities',
+            name=_('Neither won nor lost opportunities'),
+            conditions=[
+                # create_cond(operator=EntityFilterCondition.EQUALS_NOT,
+                #             name='sales_phase__won',
+                #             values=[True],
+                #           ),
+                build_cond(operator_id=operators.EQUALS_NOT,
+                           field_name='sales_phase__won',
+                           values=[True],
+                          ),
+                # create_cond(operator=EntityFilterCondition.EQUALS_NOT,
+                #             name='sales_phase__lost',
+                #             values=[True],
+                #            ),
+                build_cond(operator_id=operators.EQUALS_NOT,
+                           field_name='sales_phase__lost',
+                           values=[True],
+                          ),
+            ],
+        )
 
         # ---------------------------
         HeaderFilter.create(pk=constants.DEFAULT_HFILTER_OPPORTUNITY, model=Opportunity,

@@ -26,8 +26,11 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks, models as core_models
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
+from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
+from creme.creme_core.core.entity_filter.operands import CurrentUserOperand
+from creme.creme_core.core.entity_filter.operators import EQUALS
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import EntityFilter, EntityFilterCondition, EntityFilterVariable
+from creme.creme_core.models import EntityFilter  # EntityFilterVariable EntityFilterCondition
 from creme.creme_core.utils import create_if_needed
 
 from creme import persons
@@ -81,59 +84,81 @@ class Populator(BasePopulator):
             rt_map[sym_rt.id] = sym_rt
 
         # ---------------------------
-        EntityFilter.create(constants.FILTER_MANAGED_ORGA, name=_('Managed by creme'),
-                            model=Organisation, user='admin',
-                            conditions=[EntityFilterCondition.build_4_field(
-                                              model=Organisation,
-                                              operator=EntityFilterCondition.EQUALS,
-                                              name='is_managed',
-                                              values=[True],
-                                          ),
-                                       ],
-                           )
-        EntityFilter.create(constants.FILTER_CONTACT_ME, name=_('Me'),
-                            model=Contact, user='admin',
-                            conditions=[EntityFilterCondition.build_4_field(
-                                              model=Contact,
-                                              operator=EntityFilterCondition.EQUALS,
-                                              name='is_user',
-                                              values=[EntityFilterVariable.CURRENT_USER],
-                                          ),
-                                       ],
-                           )
+        EntityFilter.create(
+            constants.FILTER_MANAGED_ORGA, name=_('Managed by creme'),
+            model=Organisation, user='admin',
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=Organisation,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='is_managed',
+                #     values=[True],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=Organisation,
+                    operator_id=EQUALS,
+                    field_name='is_managed',
+                    values=[True],
+                ),
+            ],
+        )
+        EntityFilter.create(
+            constants.FILTER_CONTACT_ME, name=_('Me'),
+            model=Contact, user='admin',
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=Contact,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='is_user',
+                #     values=[EntityFilterVariable.CURRENT_USER],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=Contact,
+                    operator_id=EQUALS,
+                    field_name='is_user',
+                    values=[CurrentUserOperand.type_id],
+                ),
+            ],
+        )
 
         # ---------------------------
         create_hf = core_models.HeaderFilter.create
-        create_hf(pk=constants.DEFAULT_HFILTER_CONTACT, model=Contact,
-                  name=_('Contact view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
-                              (EntityCellRegularField, {'name': 'first_name'}),
-                              (EntityCellRegularField, {'name': 'phone'}),
-                              (EntityCellRegularField, {'name': 'email'}),
-                              (EntityCellRegularField, {'name': 'user'}),
-                              EntityCellRelation(model=Contact, rtype=rt_map[constants.REL_SUB_EMPLOYED_BY]),
-                             ],
-                 )
-        create_hf(pk=constants.DEFAULT_HFILTER_ORGA, model=Organisation,
-                  name=_('Organisation view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                              (EntityCellRegularField, {'name': 'phone'}),
-                              (EntityCellRegularField, {'name': 'user'}),
-                              EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_OBJ_MANAGES]),
-                             ],
-                 )
-        create_hf(pk=constants.DEFAULT_HFILTER_ORGA_CUSTOMERS, model=Organisation,
-                  name=_('Prospect/Suspect view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                              (EntityCellRegularField, {'name': 'sector'}),
-                              (EntityCellRegularField, {'name': 'phone'}),
-                              (EntityCellRegularField, {'name': 'email'}),
-                              (EntityCellRegularField, {'name': 'user'}),
-                              EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_SUB_CUSTOMER_SUPPLIER]),
-                              EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_SUB_PROSPECT]),
-                              EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_SUB_SUSPECT]),
-                             ],
-                 )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_CONTACT, model=Contact,
+            name=_('Contact view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'last_name'}),
+                (EntityCellRegularField, {'name': 'first_name'}),
+                (EntityCellRegularField, {'name': 'phone'}),
+                (EntityCellRegularField, {'name': 'email'}),
+                (EntityCellRegularField, {'name': 'user'}),
+                EntityCellRelation(model=Contact, rtype=rt_map[constants.REL_SUB_EMPLOYED_BY]),
+            ],
+        )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_ORGA, model=Organisation,
+            name=_('Organisation view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'phone'}),
+                (EntityCellRegularField, {'name': 'user'}),
+                EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_OBJ_MANAGES]),
+            ],
+        )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_ORGA_CUSTOMERS, model=Organisation,
+            name=_('Prospect/Suspect view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'sector'}),
+                (EntityCellRegularField, {'name': 'phone'}),
+                (EntityCellRegularField, {'name': 'email'}),
+                (EntityCellRegularField, {'name': 'user'}),
+                EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_SUB_CUSTOMER_SUPPLIER]),
+                EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_SUB_PROSPECT]),
+                EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_SUB_SUSPECT]),
+            ],
+        )
 
         # ---------------------------
         create_sci = core_models.SearchConfigItem.create_if_needed
@@ -150,10 +175,11 @@ class Populator(BasePopulator):
             # ---------------------------
             # TODO: add relation to admin ????
             if not Organisation.objects.exists():
-                Organisation.objects.create(user=get_user_model().objects.get_admin(),
-                                            name=_('ReplaceByYourSociety'), is_managed=True,
-                                            uuid=constants.UUID_FIRST_ORGA,
-                                           )
+                Organisation.objects.create(
+                    user=get_user_model().objects.get_admin(),
+                    name=_('ReplaceByYourSociety'), is_managed=True,
+                    uuid=constants.UUID_FIRST_ORGA,
+                )
 
             # ---------------------------
             create_if_needed(Position, {'pk': 1}, title=_('CEO'))

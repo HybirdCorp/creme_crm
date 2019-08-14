@@ -19,11 +19,12 @@ try:
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.entity_filter import condition_handler, operators
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.gui import actions
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
-            EntityFilter, EntityFilterCondition, CustomField, CustomFieldInteger,
-            CremePropertyType, CremeProperty, HeaderFilter, FieldsConfig)
+            EntityFilter, CustomField, CustomFieldInteger,
+            CremePropertyType, CremeProperty, HeaderFilter, FieldsConfig)  # EntityFilterCondition
     from creme.creme_core.tests.fake_constants import (FAKE_REL_SUB_EMPLOYED_BY,
             FAKE_REL_OBJ_EMPLOYED_BY, FAKE_REL_OBJ_BILL_ISSUED)
     from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation, FakeLegalForm, FakePosition,
@@ -67,15 +68,23 @@ class ReportTestCase(BaseReportsTestCase):
         self.robb = create_contact(first_name='Robb',   last_name='Stark', user=self.other_user)
         self.aria = create_contact(first_name='Aria',   last_name='Stark', image=self.aria_face)
 
-        self.efilter = EntityFilter.create('test-filter', 'Starks', FakeContact, is_custom=True,
-                                           conditions=[EntityFilterCondition.build_4_field(
-                                                            model=FakeContact,
-                                                            operator=EntityFilterCondition.IEQUALS,
-                                                            name='last_name',
-                                                            values=[self.ned.last_name],
-                                                        ),
-                                                      ],
-                                           )
+        self.efilter = EntityFilter.create(
+            'test-filter', 'Starks', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.IEQUALS,
+                #     name='last_name',
+                #     values=[self.ned.last_name],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IEQUALS,
+                    field_name='last_name',
+                    values=[self.ned.last_name],
+                ),
+            ],
+        )
 
     def _build_image_report(self):
         img_report = Report.objects.create(user=self.user, name='Report on images',
@@ -220,12 +229,21 @@ class ReportTestCase(BaseReportsTestCase):
     def test_createview02(self):
         "With EntityFilter"
         self.login()
-        efilter = EntityFilter.create('test-filter', 'Mihana family', FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeContact,
-                                                                    operator=EntityFilterCondition.IEQUALS,
-                                                                    name='last_name', values=['Mihana'],
-                                                                   )
-                               ])
+        efilter = EntityFilter.create(
+            'test-filter', 'Mihana family', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.IEQUALS,
+                #     name='last_name', values=['Mihana'],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IEQUALS,
+                    field_name='last_name', values=['Mihana'],
+                ),
+            ],
+        )
 
         report = self._create_report('My awesome report', efilter)
         self.assertEqual(efilter, report.filter)
@@ -672,14 +690,21 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login()
         tomo = FakeContact.objects.create(user=user, first_name='Tomo', last_name='Takino')
 
-        efilter = EntityFilter.create('test-filter', 'Kasuga family', FakeContact, is_custom=True,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                        model=FakeContact,
-                                                        operator=EntityFilterCondition.IEQUALS,
-                                                        name='last_name', values=['Kasuga'],
-                                                    ),
-                                                 ],
-                                     )
+        efilter = EntityFilter.create(
+            'test-filter', 'Kasuga family', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.IEQUALS,
+                #     name='last_name', values=['Kasuga'],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IEQUALS,
+                    field_name='last_name', values=['Kasuga'],
+                ),
+            ],
+        )
         report = self._create_report('My report', efilter=efilter)
 
         response = self.assertGET200(self._build_preview_url(report))
@@ -1776,12 +1801,21 @@ class ReportTestCase(BaseReportsTestCase):
             create_rel(subject_entity=self.starks, object_entity=self.robb)
             create_rel(subject_entity=self.lannisters, object_entity=self.tyrion)
 
-        efilter = EntityFilter.create('test-filter', 'Houses', FakeOrganisation, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeOrganisation,
-                                                                    operator=EntityFilterCondition.ISTARTSWITH,
-                                                                    name='name', values=['House '],
-                                                                    )
-                               ])
+        efilter = EntityFilter.create(
+            'test-filter', 'Houses', FakeOrganisation, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeOrganisation,
+                #     operator=EntityFilterCondition.ISTARTSWITH,
+                #     name='name', values=['House '],
+                # )
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.ISTARTSWITH,
+                    field_name='name', values=['House '],
+                ),
+            ],
+        )
 
         create_report = partial(Report.objects.create, user=self.user, filter=None)
 
@@ -1920,21 +1954,31 @@ class ReportTestCase(BaseReportsTestCase):
         "Sub report: sub-filter"
         self.login()
 
-        efilter = EntityFilter.create('test-filter', 'Internal folders', FakeReportsFolder, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeReportsFolder,
-                                                                    operator=EntityFilterCondition.ISTARTSWITH,
-                                                                    name='title', values=['Inter'],
-                                                                   )
-                               ])
+        efilter = EntityFilter.create(
+            'test-filter', 'Internal folders', FakeReportsFolder, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeReportsFolder,
+                #     operator=EntityFilterCondition.ISTARTSWITH,
+                #     name='title', values=['Inter'],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeReportsFolder,
+                    operator_id=operators.ISTARTSWITH,
+                    field_name='title', values=['Inter'],
+                ),
+            ],
+        )
 
         self._aux_test_fetch_documents(efilter)
 
         doc1 = self.doc1
-        self.assertEqual([[doc1.title,      doc1.description, self.folder1.title, ''],
-                          [self.doc2.title, '',               '',                 ''],
-                         ],
-                         self.doc_report.fetch_all_lines()
-                        )
+        self.assertListEqual(
+            [[doc1.title,      doc1.description, self.folder1.title, ''],
+             [self.doc2.title, '',               '',                 ''],
+            ],
+            self.doc_report.fetch_all_lines()
+        )
 
     def test_fetch_fk_03(self):
         "Sub report (flattened)"
@@ -2026,19 +2070,27 @@ class ReportTestCase(BaseReportsTestCase):
         jet   = create_contact(last_name='Black',     image=img3)
         ed    = create_contact(last_name='Wong')
 
-        efilter = EntityFilter.create('test-filter', 'Bebop member', FakeContact, is_custom=True,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                            model=FakeContact,
-                                                            operator=EntityFilterCondition.IEQUALS,
-                                                            name='description',
-                                                            values=[description],
-                                                        ),
-                                                 ],
-                                      )
+        efilter = EntityFilter.create(
+            'test-filter', 'Bebop member', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.IEQUALS,
+                #     name='description',
+                #     values=[description],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IEQUALS,
+                    field_name='description',
+                    values=[description],
+                ),
+            ],
+        )
 
-        report = Report.objects.create(name='Contact report', user=user, filter=efilter,
-                                       ct=self.ct_contact,
-                                      )
+        report = Report.objects.create(
+            name='Contact report', user=user, filter=efilter, ct=self.ct_contact,
+        )
 
         create_field = partial(Field.objects.create, report=report,
                                selected=False, sub_report=None, type=RFT_FIELD,
@@ -2063,12 +2115,19 @@ class ReportTestCase(BaseReportsTestCase):
         robb = create_contact(first_name='Robb',   last_name='Stark')
         aria = create_contact(first_name='Aria',   last_name='Stark')
 
-        efilter = EntityFilter.create('test-filter', 'Starks', FakeContact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeContact,
-                                                                    operator=EntityFilterCondition.IEQUALS,
-                                                                    name='last_name', values=[ned.last_name]
-                                                                    )
-                               ])
+        efilter = EntityFilter.create(
+            'test-filter', 'Starks', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact, name='last_name',
+                #     operator=EntityFilterCondition.IEQUALS, values=[ned.last_name]
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='last_name',
+                    operator_id=operators.IEQUALS, values=[ned.last_name]
+                ),
+            ],
+        )
 
         cf = self._create_cf_int()
         create_cfval = partial(CustomFieldInteger.objects.create, custom_field=cf)
@@ -2606,8 +2665,15 @@ class ReportTestCase(BaseReportsTestCase):
         ptype = CremePropertyType.create(str_pk='test-prop_dwarf', text='Is a dwarf')
         CremeProperty.objects.create(type=ptype, creme_entity=self.tyrion)
 
-        dwarves_filter = EntityFilter.create('test-filter_dwarves', 'Dwarves', FakeContact, is_custom=True)
-        dwarves_filter.set_conditions([EntityFilterCondition.build_4_property(ptype, has=True)])
+        dwarves_filter = EntityFilter.create(
+            'test-filter_dwarves', 'Dwarves', FakeContact, is_custom=True,
+            # conditions=[EntityFilterCondition.build_4_property(ptype, has=True)]
+            conditions=[
+                condition_handler.PropertyConditionHandler.build_condition(
+                    model=FakeContact, ptype=ptype, has=True,
+                ),
+            ]
+        )
 
         report_contact = self.report_contact
         report_contact.filter = dwarves_filter
