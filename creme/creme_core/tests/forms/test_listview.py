@@ -6,7 +6,7 @@ try:
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.db.models import Q
-    from django.utils.translation import gettext as _
+    from django.utils.translation import gettext as _, pgettext
 
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellRelation)  # EntityCellFunctionField
@@ -302,7 +302,7 @@ class SearchFieldsTestCase(CremeTestCase):
             to_python(value=['123', '26-02-2019'])
         )
 
-    def test_regular_choicefield01(self):
+    def test_regular_choicefield(self):
         cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='discount_unit')
 
         field = lv_form.RegularChoiceField(cell=cell, user=self.user)  # TODO: choices=... ?
@@ -363,7 +363,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value=1024))
 
     def test_regular_relatedfield02(self):
-        "Not nullable FK"
+        "Not nullable FK."
         cell = EntityCellRegularField.build(model=FakeActivity, name='type')
         field = lv_form.RegularRelatedField(cell=cell, user=self.user)
         self.assertEqual(
@@ -376,7 +376,7 @@ class SearchFieldsTestCase(CremeTestCase):
         )
 
     def test_regular_relatedfield03(self):
-        "ManyToMany"
+        "ManyToMany."
         cell = EntityCellRegularField.build(model=FakeImage, name='categories')
         field = lv_form.RegularRelatedField(cell=cell, user=self.user)
 
@@ -439,11 +439,22 @@ class SearchFieldsTestCase(CremeTestCase):
         )
 
     def test_regular_relatedfield06(self):
-        "Not enumerable FK"
+        "Not enumerable FK."
         cell = EntityCellRegularField.build(model=FakeContact, name='address')
         expected_choices = [
             {'value': '',           'label': _('All')},
             {'value': lv_form.NULL, 'label': _('* is empty *')},
+        ]
+
+        field = lv_form.RegularRelatedField(cell=cell, user=self.user)
+        self.assertEqual(expected_choices, field.choices)
+
+    def test_regular_relatedfield07(self):
+        "Field has a null_label."
+        cell = EntityCellRegularField.build(model=FakeContact, name='is_user')
+        expected_choices = [
+            {'value': '',           'label': _('All')},
+            {'value': lv_form.NULL, 'label': '* {} *'.format(pgettext('persons-is_user', 'None'))},
         ]
 
         field = lv_form.RegularRelatedField(cell=cell, user=self.user)
