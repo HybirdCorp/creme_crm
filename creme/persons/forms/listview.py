@@ -26,6 +26,7 @@ from creme.creme_core.forms import listview
 
 from creme.persons import get_address_model
 
+
 # NB: keep as example
 # class AddressFKField(BaseChoiceField):
 #     FILLED = 'FILLED'
@@ -72,9 +73,9 @@ class AddressFKField(listview.ListViewSearchField):
         # TODO: factorise with mass_import
         address_field_names = list(get_address_model().info_field_names())
         try:
-           address_field_names.remove('name')
+            address_field_names.remove('name')
         except ValueError:
-           pass
+            pass
 
         fk_name = self.cell.value
 

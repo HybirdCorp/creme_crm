@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+
 class QuickFormsRegistry:
     class RegistrationError(Exception):
         pass
@@ -39,7 +40,7 @@ class QuickFormsRegistry:
         except KeyError as e:
             raise self.RegistrationError('No Quick Form is registered for the model : {}'.format(model)) from e
 
-    def iter_models(self):
+    def iter_models(self):  # TODO: @property "models"
         return self._forms.keys()
 
     def get_form(self, model):

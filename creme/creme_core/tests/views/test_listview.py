@@ -30,6 +30,8 @@ try:
 
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.entity_filter.operators import ISTARTSWITH
+    from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.gui.listview import ListViewState
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
@@ -936,15 +938,21 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        efilter = EntityFilter.create('test-filter01', 'Red', FakeOrganisation,
-                                      user=user, is_custom=False,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                        model=FakeOrganisation,
-                                                        operator=EntityFilterCondition.ISTARTSWITH,
-                                                        name='name', values=['Red'],
-                                                    ),
-                                                 ],
-                                     )
+        efilter = EntityFilter.create(
+            'test-filter01', 'Red', FakeOrganisation,
+            user=user, is_custom=False,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeOrganisation,
+                #     operator=EntityFilterCondition.ISTARTSWITH,
+                #     name='name', values=['Red'],
+                # ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation, field_name='name',
+                    operator_id=ISTARTSWITH, values=['Red'],
+                ),
+            ],
+        )
 
         # context = CaptureQueriesContext()
         # with context:

@@ -27,7 +27,6 @@ from django.utils.translation import gettext_lazy as _
 
 from .dates import make_aware_dt
 
-
 logger = logging.getLogger(__name__)
 
 _DAY_START = {'hour': 0,  'minute': 0,  'second': 0}
@@ -58,7 +57,8 @@ class DateRange:
     def __str__(self):
         return str(self.verbose_name)
 
-    def get_dates(self, now):
+    @staticmethod
+    def get_dates(now):
         raise NotImplementedError
 
     def get_q_dict(self, field, now):
@@ -309,19 +309,31 @@ class DateRangeRegistry:
             name = drange.name
 
             if name in ranges_map:
-                raise self.RegistrationError("Duplicate date range's id or date range registered twice : {}".format(name))
+                raise self.RegistrationError(
+                    "Duplicate date range's id or date range registered twice : {}".format(name)
+                )
 
             ranges_map[name] = drange
 
-    def get_range(self, name=None, start=None,end=None):
-        """
-        @param start datetime.date or datetime.date
-        @param end datetime.date or datetime.date
+    def get_range(self, name=None, start=None, end=None):
+        """Get a DateRange.
+        @param name: Name of a registered range (eg: "next_year"),
+               or None if you want a custom range.
+        @param start: Start date of custom range.
+               Instance of <datetime.date>, or None (named range, only end date).
+        @param end: End date of custom range.
+               Instance of <datetime.date>, or None (named range, only start date).
+        @return: An instance of DateRange, or None.
         """
         drange = self._ranges.get(name)
 
         if drange:
             return drange
+
+        if name:
+            logger.warning('%s.get_range(): no range named "%s".',
+                           type(self).__name__, name,
+                          )
 
         if not start and not end:
             return None
@@ -329,9 +341,10 @@ class DateRangeRegistry:
         return CustomRange(start, end)
 
 
-date_range_registry = DateRangeRegistry(PreviousYearRange(), CurrentYearRange(), NextYearRange(),
-                                        PreviousQuarterRange(), CurrentQuarterRange(), NextQuarterRange(),
-                                        PreviousMonthRange(), CurrentMonthRange(), NextMonthRange(),
-                                        YesterdayRange(), TodayRange(), TomorrowRange(),
-                                        FutureRange(), PastRange(), EmptyRange(), NotEmptyRange(),
-                                       )
+date_range_registry = DateRangeRegistry(
+    PreviousYearRange(),    CurrentYearRange(),    NextYearRange(),
+    PreviousQuarterRange(), CurrentQuarterRange(), NextQuarterRange(),
+    PreviousMonthRange(),   CurrentMonthRange(),   NextMonthRange(),
+    YesterdayRange(), TodayRange(), TomorrowRange(),
+    FutureRange(), PastRange(), EmptyRange(), NotEmptyRange(),
+)

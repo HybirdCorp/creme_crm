@@ -13,10 +13,11 @@ try:
     from django.utils.translation import gettext as _, pgettext
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.core.entity_filter import condition_handler, operators
     from creme.creme_core.models import (RelationType, Relation,
             InstanceBrickConfigItem, BrickDetailviewLocation, BrickHomeLocation,
-            EntityFilter, EntityFilterCondition, FieldsConfig, SetCredentials,
-            CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger)
+            EntityFilter, FieldsConfig, SetCredentials,
+            CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger)  # EntityFilterCondition
     from creme.creme_core.tests import fake_constants
     from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation,
             FakeInvoice, FakePosition, FakeSector)
@@ -151,14 +152,21 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertURL(builder(None), FakeContact)
         self.assertURL(builder({'id': 1}), FakeContact, expected_q=Q(id=1))
 
-        efilter = EntityFilter.create('test-filter', 'Names', FakeContact, is_custom=True)
-        efilter.set_conditions([
-            EntityFilterCondition.build_4_field(
-                model=FakeContact,
-                operator=EntityFilterCondition.IENDSWITH,
-                name='last_name', values=['Stark'],
-            ),
-        ])
+        efilter = EntityFilter.create(
+            'test-filter', 'Names', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.IENDSWITH,
+                #     name='last_name', values=['Stark'],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IENDSWITH,
+                    field_name='last_name', values=['Stark'],
+                ),
+            ],
+        )
 
         builder = ListViewURLBuilder(FakeContact, efilter)
         self.assertURL(builder(None), FakeContact, expected_efilter_id='test-filter')
@@ -955,14 +963,21 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         create_contact(first_name='Bran',   position=lord)
         create_contact(first_name='Aria')
 
-        efilter = EntityFilter.create('test-filter', 'Starks', FakeContact, is_custom=True)
-        efilter.set_conditions([
-            EntityFilterCondition.build_4_field(
-                model=FakeContact,
-                operator=EntityFilterCondition.IEQUALS,
-                name='last_name', values=[last_name]
-            ),
-        ])
+        efilter = EntityFilter.create(
+            'test-filter', 'Starks', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.IEQUALS,
+                #     name='last_name', values=[last_name],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IEQUALS,
+                    field_name='last_name', values=[last_name],
+                ),
+            ],
+        )
 
         report = self._create_simple_contacts_report(efilter=efilter)
         rgraph = ReportGraph.objects.create(user=user, linked_report=report,
@@ -1005,14 +1020,21 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         create_orga(name='House Stark',     capital=100,  sector=war)
         create_orga(name='House Targaryen', capital=10,   sector=war)
 
-        efilter = EntityFilter.create('test-filter', 'Houses', FakeOrganisation, is_custom=True)
-        efilter.set_conditions([
-            EntityFilterCondition.build_4_field(
-                model=FakeOrganisation,
-                operator=EntityFilterCondition.ISTARTSWITH,
-                name='name', values=['House '],
-            ),
-        ])
+        efilter = EntityFilter.create(
+            'test-filter', 'Houses', FakeOrganisation, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeOrganisation,
+                #     operator=EntityFilterCondition.ISTARTSWITH,
+                #     name='name', values=['House '],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.ISTARTSWITH,
+                    field_name='name', values=['House '],
+                ),
+            ],
+        )
 
         report = self._create_simple_organisations_report(efilter=efilter)
         rgraph = ReportGraph.objects.create(user=user, linked_report=report,
@@ -1142,14 +1164,21 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         create_contact(first_name='Bran')
         create_contact(first_name='Arya', user=user)
 
-        efilter = EntityFilter.create('test-filter', 'Starks', FakeContact, is_custom=True)
-        efilter.set_conditions([
-            EntityFilterCondition.build_4_field(
-                model=FakeContact,
-                operator=EntityFilterCondition.IEQUALS,
-                name='last_name', values=[last_name]
-            ),
-        ])
+        efilter = EntityFilter.create(
+            'test-filter', 'Starks', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.IEQUALS,
+                #     name='last_name', values=[last_name]
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IEQUALS,
+                    field_name='last_name', values=[last_name],
+                ),
+            ],
+        )
 
         report = self._create_simple_contacts_report(efilter=efilter)
         rgraph = ReportGraph.objects.create(user=user, linked_report=report,
@@ -1791,14 +1820,21 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         aria   = create_contact(first_name='Aria',   last_name='Stark')
         jon    = create_contact(first_name='Jon',    last_name='Snow')
 
-        efilter = EntityFilter.create('test-filter', 'Not bastard', FakeContact, is_custom=True)
-        efilter.set_conditions([
-            EntityFilterCondition.build_4_field(
-                model=FakeContact,
-                operator=EntityFilterCondition.IEQUALS,
-                name='last_name', values=[tyrion.last_name, ned.last_name]
-            ),
-        ])
+        efilter = EntityFilter.create(
+            'test-filter', 'Not bastard', FakeContact, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=FakeContact,
+                #     operator=EntityFilterCondition.IEQUALS,
+                #     name='last_name', values=[tyrion.last_name, ned.last_name]
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='last_name',
+                    operator_id=operators.IEQUALS,
+                    values=[tyrion.last_name, ned.last_name],
+                ),
+            ]
+        )
 
         create_rel = partial(Relation.objects.create, user=user, type_id=fake_constants.FAKE_REL_OBJ_EMPLOYED_BY)
         create_rel(subject_entity=lannisters, object_entity=tyrion)

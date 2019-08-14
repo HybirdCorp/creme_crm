@@ -9,7 +9,8 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
+    from creme.creme_core.core.entity_filter import condition_handler, operators
+    from creme.creme_core.models import (EntityFilter,  # EntityFilterCondition
             SetCredentials, FieldsConfig, FakeOrganisation)
 
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
@@ -366,12 +367,18 @@ class MailingListsTestCase(_EmailsTestCase):
 
         efilter = EntityFilter.create(
             'test-filter01', 'Saotome', Contact, is_custom=True,
-            conditions=[EntityFilterCondition.build_4_field(
-                            model=Contact,
-                            operator=EntityFilterCondition.IEQUALS,
-                            name='last_name', values=['Saotome'],
-                          ),
-                       ],
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=Contact,
+                #     operator=EntityFilterCondition.IEQUALS,
+                #     name='last_name', values=['Saotome'],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Contact,
+                    operator_id=operators.IEQUALS,
+                    field_name='last_name', values=['Saotome'],
+                ),
+            ],
         )
         self.assertSetEqual(expected_ids, {c.id for c in efilter.filter(Contact.objects.all())})
 
@@ -528,15 +535,22 @@ class MailingListsTestCase(_EmailsTestCase):
                      ]
         expected_ids = {recipients[0].id, recipients[1].id}
 
-        create_ef = partial(EntityFilter.create, name='Has email',
-                            model=Organisation, is_custom=True,
-                            conditions=[EntityFilterCondition.build_4_field(
-                                            model=Organisation,
-                                            operator=EntityFilterCondition.ISEMPTY,
-                                            name='email', values=[False],
-                                        ),
-                                       ],
-                            )
+        create_ef = partial(
+            EntityFilter.create, name='Has email',
+            model=Organisation, is_custom=True,
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=Organisation,
+                #     operator=EntityFilterCondition.ISEMPTY,
+                #     name='email', values=[False],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Organisation,
+                    operator_id=operators.ISEMPTY,
+                    field_name='email', values=[False],
+                ),
+            ],
+        )
         priv_efilter = create_ef(pk='test-filter_priv', is_private=True, user=self.other_user)
 
         efilter = create_ef(pk='test-filter')

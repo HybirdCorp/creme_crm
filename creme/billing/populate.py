@@ -26,9 +26,10 @@ from django.utils.translation import gettext as _, pgettext
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import (EntityCellRegularField,
         EntityCellRelation, EntityCellFunctionField)
+from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, SettingValue, SearchConfigItem,
-        ButtonMenuItem, HeaderFilter, EntityFilter, EntityFilterCondition,
+        ButtonMenuItem, HeaderFilter, EntityFilter,  # EntityFilterCondition
         BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem)
 from creme.creme_core.utils import create_if_needed
 
@@ -137,53 +138,90 @@ class Populator(BasePopulator):
 
         # ---------------------------
         EntityFilter.create(
-                'billing-invoices_unpaid', name=_('Invoices unpaid'),
-                model=Invoice, user='admin',
-                conditions=[EntityFilterCondition.build_4_field(
-                                    model=Invoice,
-                                    operator=EntityFilterCondition.EQUALS,
-                                    name='status__pending_payment', values=[True],
-                                ),
-                           ],
-            )
+            'billing-invoices_unpaid', name=_('Invoices unpaid'),
+            model=Invoice, user='admin',
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=Invoice,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='status__pending_payment', values=[True],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Invoice,
+                    operator_id=operators.EQUALS,
+                    field_name='status__pending_payment',
+                    values=[True],
+                ),
+            ],
+        )
         EntityFilter.create(
-                'billing-invoices_unpaid_late', name=_('Invoices unpaid and late'),
-                model=Invoice, user='admin',
-                conditions=[EntityFilterCondition.build_4_field(
-                                    model=Invoice,
-                                    operator=EntityFilterCondition.EQUALS,
-                                    name='status__pending_payment', values=[True],
-                                ),
-                            EntityFilterCondition.build_4_date(
-                                    model=Invoice,
-                                    name='expiration_date', date_range='in_past',
-                                ),
-                           ],
-            )
+            'billing-invoices_unpaid_late', name=_('Invoices unpaid and late'),
+            model=Invoice, user='admin',
+            conditions=[
+                # EntityFilterCondition.build_4_field(
+                #     model=Invoice,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='status__pending_payment', values=[True],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Invoice,
+                    operator_id=operators.EQUALS,
+                    field_name='status__pending_payment',
+                    values=[True],
+                ),
+                # EntityFilterCondition.build_4_date(
+                #     model=Invoice,
+                #     name='expiration_date', date_range='in_past',
+                # ),
+                condition_handler.DateRegularFieldConditionHandler.build_condition(
+                    model=Invoice,
+                    field_name='expiration_date',
+                    date_range='in_past',
+                ),
+            ],
+        )
         current_year_invoice_filter = EntityFilter.create(
-                'billing-current_year_invoices', name=_('Current year invoices'),
-                model=Invoice, user='admin',
-                conditions=[EntityFilterCondition.build_4_date(
-                                    model=Invoice,
-                                    name='issuing_date', date_range='current_year',
-                                ),
-                           ],
-            )
+            'billing-current_year_invoices', name=_('Current year invoices'),
+            model=Invoice, user='admin',
+            conditions=[
+                # EntityFilterCondition.build_4_date(
+                #     model=Invoice,
+                #     name='issuing_date', date_range='current_year',
+                # ),
+                condition_handler.DateRegularFieldConditionHandler.build_condition(
+                    model=Invoice,
+                    field_name='issuing_date',
+                    date_range='current_year',
+                ),
+            ],
+        )
         current_year_unpaid_invoice_filter = EntityFilter.create(
-                'billing-current_year_unpaid_invoices',
-                name=_('Current year and unpaid invoices'),
-                model=Invoice, user='admin',
-                conditions=[EntityFilterCondition.build_4_date(
-                                    model=Invoice,
-                                    name='issuing_date', date_range='current_year',
-                                ),
-                            EntityFilterCondition.build_4_field(
-                                    model=Invoice,
-                                    operator=EntityFilterCondition.EQUALS,
-                                    name='status__pending_payment', values=[True],
-                                ),
-                           ],
-            )
+            'billing-current_year_unpaid_invoices',
+            name=_('Current year and unpaid invoices'),
+            model=Invoice, user='admin',
+            conditions=[
+                # EntityFilterCondition.build_4_date(
+                #     model=Invoice,
+                #     name='issuing_date', date_range='current_year',
+                # ),
+                condition_handler.DateRegularFieldConditionHandler.build_condition(
+                    model=Invoice,
+                    field_name='issuing_date',
+                    date_range='current_year',
+                ),
+                # EntityFilterCondition.build_4_field(
+                #     model=Invoice,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     name='status__pending_payment', values=[True],
+                # ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Invoice,
+                    operator_id=operators.EQUALS,
+                    field_name='status__pending_payment',
+                    values=[True],
+                ),
+            ],
+        )
 
         # ---------------------------
         def create_hf(hf_pk, name, model, status=True):

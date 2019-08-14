@@ -7,6 +7,8 @@ try:
 
     from .base import ViewsTestCase
     from creme.creme_core import models
+    from creme.creme_core.core.entity_filter import operators
+    from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
     # from creme.creme_core.utils.unicode_collation import collator
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -152,29 +154,40 @@ class EnumerableViewsTestCase(ViewsTestCase):
         user = self.login()
 
         create_filter = models.EntityFilter.create
-        build_cond = models.EntityFilterCondition.build_4_field
-        efilter1 = create_filter('test-filter01',
-                                 name='Filter 01',
-                                 model=models.FakeContact,
-                                 is_custom=True,
-                                 conditions=[build_cond(
-                                                model=models.FakeContact,
-                                                operator=models.EntityFilterCondition.EQUALS,
-                                                name='first_name', values=['Misato'],
-                                             ),
-                                            ],
-                                 )
-        efilter2 = create_filter('test-filter02',
-                                 name='Filter 02',
-                                 model=models.FakeOrganisation,
-                                 is_custom=True, user=user, is_private=True,
-                                 conditions=[build_cond(
-                                                 model=models.FakeOrganisation,
-                                                 operator=models.EntityFilterCondition.CONTAINS,
-                                                 name='name', values=['NERV'],
-                                              ),
-                                            ]
-                                 )
+        # build_cond = models.EntityFilterCondition.build_4_field
+        build_cond = RegularFieldConditionHandler.build_condition
+        efilter1 = create_filter(
+            'test-filter01',
+            name='Filter 01',
+            model=models.FakeContact,
+            is_custom=True,
+            conditions=[
+                build_cond(
+                   model=models.FakeContact,
+                   # operator=models.EntityFilterCondition.EQUALS,
+                   operator_id=operators.EQUALS,
+                   # name='first_name',
+                   field_name='first_name',
+                   values=['Misato'],
+                ),
+            ],
+        )
+        efilter2 = create_filter(
+            'test-filter02',
+            name='Filter 02',
+            model=models.FakeOrganisation,
+            is_custom=True, user=user, is_private=True,
+            conditions=[
+                build_cond(
+                    model=models.FakeOrganisation,
+                    # operator=models.EntityFilterCondition.CONTAINS,
+                    operator_id=operators.CONTAINS,
+                    # name='name',
+                    field_name='name',
+                    values=['NERV'],
+                ),
+            ],
+        )
 
         response = self.assertGET200(self._build_choices_url(models.FakeReport, 'efilter'))
 
