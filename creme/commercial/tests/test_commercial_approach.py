@@ -314,7 +314,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
         user = self.user
         orga = Organisation.objects.create(user=user, name='NERV')
-        mngd_orga = Organisation.get_all_managed_by_creme()[0]
+        mngd_orga = Organisation.objects.filter_managed_by_creme()[0]
 
         create_contact = partial(Contact.objects.create, user=user)
         manager  = create_contact(last_name='Hikari')
@@ -372,7 +372,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def _build_orgas(self):
         user = self.user
-        mngd_orga = Organisation.get_all_managed_by_creme()[0]
+        mngd_orga = Organisation.objects.filter_managed_by_creme()[0]
         customer  = Organisation.objects.create(user=user, name='NERV')
 
         Relation.objects.create(user=user, subject_entity=customer,

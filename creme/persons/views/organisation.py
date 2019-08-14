@@ -175,11 +175,14 @@ class MyLeadsAndMyCustomersList(OrganisationsList):
 
     def get_internal_q(self):
         return Q(
-            relations__type__in=(constants.REL_SUB_CUSTOMER_SUPPLIER,
-                                 constants.REL_SUB_PROSPECT,
-                                 constants.REL_SUB_SUSPECT,
-                                ),
-            relations__object_entity__in=[o.id for o in Organisation.get_all_managed_by_creme()],
+            relations__type__in=(
+                constants.REL_SUB_CUSTOMER_SUPPLIER,
+                constants.REL_SUB_PROSPECT,
+                constants.REL_SUB_SUSPECT,
+            ),
+            relations__object_entity__in=[
+                o.id for o in Organisation.objects.filter_managed_by_creme()
+            ],
         )
 
 

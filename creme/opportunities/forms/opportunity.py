@@ -107,7 +107,7 @@ class TargetMixin(Form):
 
 class EmitterMixin(Form):
     emitter = ModelChoiceField(label=_('Concerned organisation'),
-                               queryset=Organisation.get_all_managed_by_creme(),
+                               queryset=Organisation.objects.filter_managed_by_creme(),
                                empty_label=None,
                               )
 

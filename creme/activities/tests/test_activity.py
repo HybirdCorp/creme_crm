@@ -285,7 +285,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         school = create_orga(name='Furinkan High')
         rest   = create_orga(name='Okonomiyaki tenshi')
 
-        mngd = Organisation.get_all_managed_by_creme()[0]
+        mngd = Organisation.objects.filter_managed_by_creme()[0]
 
         create_rel = partial(Relation.objects.create, user=user)
         create_rel(subject_entity=me,    type_id=REL_SUB_EMPLOYED_BY, object_entity=mngd)

@@ -38,7 +38,7 @@ def get_mass_form_builder(header_dict, choices):
                                      )
         emitter = ModelChoiceField(label=_('Concerned organisation'),
                                    empty_label=None,
-                                   queryset=Organisation.get_all_managed_by_creme(),
+                                   queryset=Organisation.objects.filter_managed_by_creme(),
                                   )
 
         def _pre_instance_save(self, instance, line):

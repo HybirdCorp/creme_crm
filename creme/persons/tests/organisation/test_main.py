@@ -296,7 +296,7 @@ class OrganisationTestCase(_BaseTestCase):
     def _build_managed_orga(self, user=None, name='Bebop'):
         return Organisation.objects.create(user=user or self.user, name=name, is_managed=True)
 
-    def test_get_all_managed_by_creme(self):
+    def test_get_all_managed_by_creme(self):  # DEPRECATED
         user = self.login()
 
         mng_orga1 = self._build_managed_orga()
@@ -318,6 +318,28 @@ class OrganisationTestCase(_BaseTestCase):
 
         self.assertEqual(id(qs1), id(qs2))
 
+    def test_manager_filter_managed_by_creme(self):
+        user = self.login()
+
+        mng_orga1 = self._build_managed_orga()
+        mng_orga2 = self._build_managed_orga(name='NERV')
+        orga = Organisation.objects.create(user=user, name='Seele')
+
+        with self.assertNumQueries(1):
+            qs1 = Organisation.objects.filter_managed_by_creme()
+            mng_orgas = {*qs1}
+
+        self.assertIn(mng_orga1, mng_orgas)
+        self.assertIn(mng_orga2, mng_orgas)
+        self.assertNotIn(orga,   mng_orgas)
+
+        # Test request-cache
+        with self.assertNumQueries(0):
+            qs2 = Organisation.objects.filter_managed_by_creme()
+            __ = [*qs2]
+
+        self.assertEqual(id(qs1), id(qs2))
+
     def _become_test(self, url_name, relation_type_id):
         user = self.login()
 
@@ -332,6 +354,56 @@ class OrganisationTestCase(_BaseTestCase):
         # POST twice
         self.assertPOST200(url, data=data, follow=True)
         self.assertRelationCount(1, subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id)
+
+    def test_get_employees(self):
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='Bebop')
+        orga2 = create_orga(name='Red tail')
+
+        create_contact = partial(Contact.objects.create, user=user)
+        c1 = create_contact(first_name='Spike',   last_name='Spiegel')
+        c2 = create_contact(first_name='Jet',     last_name='Black')
+        c3 = create_contact(first_name='Faye',    last_name='Valentine')
+        c4 = create_contact(first_name='Edward',  last_name='Wong')
+        c5 = create_contact(first_name='Number2', last_name='Droid', is_deleted=True)
+
+        create_relation = partial(Relation.objects.create,
+                                  user=user, type_id=constants.REL_SUB_EMPLOYED_BY,
+                                 )
+        create_relation(subject_entity=c1, object_entity=orga1)
+        create_relation(subject_entity=c2, object_entity=orga1)
+        create_relation(subject_entity=c3, object_entity=orga1, type_id=constants.REL_SUB_MANAGES)
+        create_relation(subject_entity=c4, object_entity=orga2)
+        create_relation(subject_entity=c5, object_entity=orga1)
+
+        self.assertListEqual([c2, c1], [*orga1.get_employees()])
+
+    def test_get_managers(self):
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='Bebop')
+        orga2 = create_orga(name='Red tail')
+
+        create_contact = partial(Contact.objects.create, user=user)
+        c1 = create_contact(first_name='Spike',   last_name='Spiegel')
+        c2 = create_contact(first_name='Jet',     last_name='Black')
+        c3 = create_contact(first_name='Faye',    last_name='Valentine')
+        c4 = create_contact(first_name='Edward',  last_name='Wong')
+        c5 = create_contact(first_name='Number2', last_name='Droid', is_deleted=True)
+
+        create_relation = partial(Relation.objects.create,
+                                  user=user, type_id=constants.REL_SUB_MANAGES,
+                                 )
+        create_relation(subject_entity=c1, object_entity=orga1)
+        create_relation(subject_entity=c2, object_entity=orga1)
+        create_relation(subject_entity=c3, object_entity=orga1, type_id=constants.REL_SUB_EMPLOYED_BY)
+        create_relation(subject_entity=c4, object_entity=orga2)
+        create_relation(subject_entity=c5, object_entity=orga1)
+
+        self.assertListEqual([c2, c1], [*orga1.get_managers()])
 
     def test_become_customer01(self):
         self._become_test('persons__become_customer', constants.REL_SUB_CUSTOMER_SUPPLIER)

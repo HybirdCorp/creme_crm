@@ -243,7 +243,7 @@ class PersonsConfig(CremeAppConfig):
             get_ct = ContentType.objects.get_for_model
             fields['organisation'] = ModelChoiceField(
                 label=_('User organisation'),
-                queryset=self.Organisation.get_all_managed_by_creme(),
+                queryset=self.Organisation.objects.filter_managed_by_creme(),
                 empty_label=None,
             )
             fields['relation'] = ModelChoiceField(

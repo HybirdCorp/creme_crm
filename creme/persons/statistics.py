@@ -32,7 +32,8 @@ class _RelationsStatistics:
         self.orga_model = orga_model
 
     def __call__(self):
-        data = self.orga_model.get_all_managed_by_creme() \
+        data = self.orga_model.objects \
+                              .filter_managed_by_creme() \
                               .filter(relations__type=self.relation_type_id) \
                               .annotate(related_count=Count('relations')) \
                               .values('name', 'related_count') \
