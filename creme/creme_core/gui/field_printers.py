@@ -72,7 +72,7 @@ def simple_print_html(entity, fval, user, field):
 
 
 def simple_print_csv(entity, fval, user, field):
-    return str(fval) if fval is not None else ""
+    return str(fval) if fval is not None else ''
 
 
 def print_color_html(entity, fval, user, field):
@@ -222,10 +222,10 @@ print_many2many_html = M2MPrinter(default_printer=M2MPrinter.printer_html,
 def print_many2many_csv(entity, fval, user, field):
     if issubclass(fval.model, CremeEntity):
         # TODO: CSV summary ?? [e.get_entity_m2m_summary(user)]
-        return '/'.join(str(e) if user.has_perm_to_view(e)
-                         else settings.HIDDEN_VALUE
-                            for e in fval.filter(is_deleted=False)
-                        )
+        return '/'.join(
+            str(e) if user.has_perm_to_view(e) else settings.HIDDEN_VALUE
+                for e in fval.filter(is_deleted=False)
+        )
 
     return '/'.join(str(a) for a in fval.all())
 
@@ -266,63 +266,63 @@ def print_unsafehtml_html(entity, fval, user, field):
 class _FieldPrintersRegistry:
     def __init__(self):
         self._printers = ClassKeyedMap([
-                    (models.IntegerField,       print_integer),
+                (models.IntegerField,       print_integer),
 
-                    (models.FloatField,         print_decimal),
-                    (models.DecimalField,       print_decimal),
+                (models.FloatField,         print_decimal),
+                (models.DecimalField,       print_decimal),
 
-                    (models.BooleanField,       print_boolean_html),
-                    (models.NullBooleanField,   print_boolean_html),
+                (models.BooleanField,       print_boolean_html),
+                (models.NullBooleanField,   print_boolean_html),
 
-                    (models.DateField,          print_date),
-                    (models.DateTimeField,      print_datetime),
+                (models.DateField,          print_date),
+                (models.DateTimeField,      print_datetime),
 
-                    (models.TextField,          print_text_html),
-                    (models.EmailField,         print_email_html),
-                    (models.URLField,           print_url_html),
+                (models.TextField,          print_text_html),
+                (models.EmailField,         print_email_html),
+                (models.URLField,           print_url_html),
 
-                    (models.FileField,          print_file_html),
-                    (models.ImageField,         print_image_html),
+                (models.FileField,          print_file_html),
+                (models.ImageField,         print_image_html),
 
-                    (models.ForeignKey,         print_foreignkey_html),
-                    (models.ManyToManyField,    print_many2many_html),
-                    (models.OneToOneField,      print_foreignkey_html),
+                (models.ForeignKey,         print_foreignkey_html),
+                (models.ManyToManyField,    print_many2many_html),
+                (models.OneToOneField,      print_foreignkey_html),
 
-                    (fields.DurationField,      print_duration),
-                    (fields.DatePeriodField,    simple_print_html),  # TODO: JSONField ?
+                (fields.DurationField,      print_duration),
+                (fields.DatePeriodField,    simple_print_html),  # TODO: JSONField ?
 
-                    (fields.ColorField,         print_color_html),
+                (fields.ColorField,         print_color_html),
 
-                    (fields.UnsafeHTMLField,    print_unsafehtml_html),
-                ],
-                default=simple_print_html,
-            )
+                (fields.UnsafeHTMLField,    print_unsafehtml_html),
+            ],
+            default=simple_print_html,
+        )
         self._csv_printers = ClassKeyedMap([
-                    (models.IntegerField,       print_integer),
+                (models.IntegerField,       print_integer),
 
-                    (models.FloatField,         print_decimal),
-                    (models.DecimalField,       print_decimal),
+                (models.FloatField,         print_decimal),
+                (models.DecimalField,       print_decimal),
 
-                    (models.BooleanField,       print_boolean_csv),
-                    (models.NullBooleanField,   print_boolean_csv),
+                (models.BooleanField,       print_boolean_csv),
+                (models.NullBooleanField,   print_boolean_csv),
 
-                    (models.DateField,          print_date),
-                    (models.DateTimeField,      print_datetime),
-                    # (models.ImageField,         print_image_csv, TODO ??
+                (models.DateField,          print_date),
+                (models.DateTimeField,      print_datetime),
+                # (models.ImageField,         print_image_csv, TODO ??
 
-                    (models.ForeignKey,         print_foreignkey_csv),
-                    (models.ManyToManyField,    print_many2many_csv),
-                    (models.OneToOneField,      print_foreignkey_csv),
+                (models.ForeignKey,         print_foreignkey_csv),
+                (models.ManyToManyField,    print_many2many_csv),
+                (models.OneToOneField,      print_foreignkey_csv),
 
-                    (fields.DurationField,      print_duration),
-                ],
-                default=simple_print_csv,
-            )
+                (fields.DurationField,      print_duration),
+            ],
+            default=simple_print_csv,
+        )
 
         self._printers_maps = {
-                'html': self._printers,
-                'csv':  self._csv_printers,
-            }
+            'html': self._printers,
+            'csv':  self._csv_printers,
+        }
 
         css_default        = getattr(settings, 'CSS_DEFAULT_LISTVIEW')
         css_default_header = getattr(settings, 'CSS_DEFAULT_HEADER_LISTVIEW')
@@ -332,22 +332,22 @@ class _FieldPrintersRegistry:
         css_date_header_listview = getattr(settings, 'CSS_DATE_HEADER_LISTVIEW', css_default_header)
 
         self._listview_css_printers = ClassKeyedMap([
-                    (models.IntegerField,               css_number_listview),
-                    (models.CommaSeparatedIntegerField, css_number_listview),
-                    (models.DecimalField,               css_number_listview),
-                    (models.FloatField,                 css_number_listview),
+                (models.IntegerField,               css_number_listview),
+                (models.CommaSeparatedIntegerField, css_number_listview),
+                (models.DecimalField,               css_number_listview),
+                (models.FloatField,                 css_number_listview),
 
-                    (models.TextField,                  css_textarea_listview),
-                ],
-                default=css_default,
-            )
+                (models.TextField,                  css_textarea_listview),
+            ],
+            default=css_default,
+        )
 
         self._header_listview_css_printers = ClassKeyedMap([
-                    (models.DateField,      css_date_header_listview),
-                    (models.DateTimeField,  css_date_header_listview),
-                ],
-                default=css_default_header,
-            )
+                (models.DateField,      css_date_header_listview),
+                (models.DateTimeField,  css_date_header_listview),
+            ],
+            default=css_default_header,
+        )
 
     def register(self, field, printer, output='html'):
         """Register a field printer.
