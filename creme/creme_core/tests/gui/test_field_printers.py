@@ -12,10 +12,12 @@ try:
     from django.utils.translation import gettext as _, pgettext
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.core.entity_filter import operators
+    from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
     from creme.creme_core.gui import field_printers
     from creme.creme_core.models import (
         CremeUser, SetCredentials,
-        CremeEntity,
+        CremeEntity, EntityFilter,
         FakeContact,
         FakeOrganisation,
         FakeActivity,
@@ -23,6 +25,7 @@ try:
         FakeSector,
         FakeProduct,
         FakeImage, FakeImageCategory,
+        FakeReport,
     )
     from creme.creme_core.tests import fake_constants
     from creme.creme_core.tests.base import CremeTestCase
@@ -277,6 +280,54 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual(
             '<a href="{}">{}</a>'.format(img.get_absolute_url(), img),
             printer(c, img, user, field)
+        )
+
+    def test_fk_printer03(self):
+        "EntityFilter."
+        user = self.login()
+
+        name = 'Nerv'
+        desc1 = 'important'
+        desc2 = 'beware'
+        efilter = EntityFilter.create(
+            pk='test-ef_orga', name='My filter', model=FakeOrganisation, is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.STARTSWITH,
+                    field_name='name', values=[name],
+                ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.CONTAINS,
+                    field_name='description', values=[desc1, desc2],
+                ),
+            ],
+        )
+
+        r = FakeReport()
+        field = r._meta.get_field('efilter')
+        self.assertHTMLEqual(
+            '<div class="entity_filter-summary">{name}'
+                '<ul>'
+                    '<li>{cond1}</li>'
+                    '<li>{cond2}</li>'
+                '</ul>'
+            '</div>'.format(
+                name=efilter.name,
+                cond1=_('«{field}» starts with {values}').format(
+                     field=_('Name'),
+                     values=_('«{enum_value}»').format(enum_value=name),
+                 ),
+                cond2=_('«{field}» contains {values}').format(
+                     field=_('Description'),
+                     values='{first} or {last}'.format(
+                         first=_('«{enum_value}»').format(enum_value=desc1),
+                         last=_('«{enum_value}»').format(enum_value=desc2),
+                     ),
+                 ),
+            ),
+            field_printers.print_foreignkey_html(r, efilter, user, field)
         )
 
     def test_print_foreignkey_csv01(self):

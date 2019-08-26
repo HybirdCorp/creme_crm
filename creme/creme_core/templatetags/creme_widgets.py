@@ -31,7 +31,6 @@ from ..utils.media import get_current_theme_from_context
 
 from . import KWARG_RE
 
-
 register = Library()
 logger = logging.getLogger(__name__)
 

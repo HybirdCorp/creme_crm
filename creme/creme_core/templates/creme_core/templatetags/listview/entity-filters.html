@@ -9,11 +9,22 @@
             <option value="{{efilter.id}}"{% if efilter_id == efilter.id %} selected{% endif %}>{{efilter.name}}</option>
         {% endfor %}
     </select>
+{% with efilter=entity_filters.selected %}
+    {% if efilter_id %}{% blocktrans asvar popup_title %}Conditions of «{{efilter}}»{% endblocktrans %}
+        <a onclick="event.preventDefault(); creme.dialogs.html($('.lv-entity_filter-conditions', this).html(), {'title': '{{popup_title|escapejs}}'}).open();">
+            {% widget_icon name='info' label=_('Information on the current filter') size='listview-filter-action' %}
+            <div style="display:none">
+                <ul class="lv-entity_filter-conditions">{% get_efilter_conditions efilter=entity_filters.selected user=user as vconds %}
+                    {% for vcond in vconds %}<li>{{vcond}}</li>{% endfor %}
+                </ul>
+            </div>
+        </a>
+    {% endif %}
     {% if show_buttons %}{% ctype_for_model model as ctype %}
         <a href="{% url 'creme_core__create_efilter' ctype.id %}">
             {% widget_icon name='add' label=_('Create a custom filter') size='listview-filter-action' %}
         </a>
-        <a href="{{entity_filters.selected.get_edit_absolute_url}}" data-action="redirect" class="{% if not can_edit %}is-disabled{% endif %}">
+        <a href="{{efilter.get_edit_absolute_url}}" data-action="redirect" class="{% if not can_edit %}is-disabled{% endif %}">
             {% widget_icon name='edit' label=_('Edit this filter') size='listview-filter-action' %}
         </a>
         <a href="{% url 'creme_core__delete_efilter' %}" data-action="delete" class="{% if not can_delete %}is-disabled{% endif %}">
@@ -21,4 +32,5 @@
             {% blockjsondata class='listview-action-data' %}{"data": {"id": "{{efilter_id}}"}}{% endblockjsondata %}
         </a>
     {% endif %}
+{% endwith %}
 </fieldset>

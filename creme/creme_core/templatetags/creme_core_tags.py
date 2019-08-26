@@ -346,6 +346,11 @@ def jsondata(value, **kwargs):
     return mark_safe('<script type="application/json"{}><!-- {} --></script>'.format(attrs, escapejson(content)))
 
 
+@register.simple_tag
+def get_efilter_conditions(efilter, user):
+    return efilter.get_verbose_conditions(user)
+
+
 # TODO: filter ?
 # TODO: useless ?
 @register.simple_tag

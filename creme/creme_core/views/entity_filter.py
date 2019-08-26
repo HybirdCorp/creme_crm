@@ -33,6 +33,7 @@ from django.utils.translation import gettext_lazy as _, gettext
 from .. import utils
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
+from ..core.entity_filter.operands import CurrentUserOperand
 from ..forms import entity_filter as efilter_forms
 from ..gui.listview import ListViewState
 from ..http import CremeJsonResponse
@@ -249,11 +250,10 @@ class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
 
 class UserChoicesView(base.CheckedView):
     response_class = CremeJsonResponse
-    current_user_label = _('Current user')
 
     def get(self, request, *args, **kwargs):
         return self.response_class(
-            [('__currentuser__', self.current_user_label),
+            [(CurrentUserOperand.type_id, CurrentUserOperand.verbose_name),
              *((e.id, str(e)) for e in get_user_model().objects.all()),
             ],
             safe=False,  # Result is not a dictionary

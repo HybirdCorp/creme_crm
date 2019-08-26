@@ -29,12 +29,11 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
 from django.utils.translation import ngettext, gettext as _
 
-from ..models import CremeEntity, fields
+from ..models import CremeEntity, EntityFilter, fields
 from ..templatetags.creme_widgets import widget_entity_hyperlink, widget_urlize
 from ..utils import bool_as_html
 from ..utils.collections import ClassKeyedMap
 from ..utils.meta import FieldInfo
-
 
 # TODO: in settings
 MAX_HEIGHT = 200
@@ -145,6 +144,17 @@ class FKPrinter:
     def print_fk_entity_html(entity, fval, user, field):
         return widget_entity_hyperlink(fval, user)
 
+    @staticmethod
+    def print_fk_efilter_html(entity, fval, user, field):
+        return format_html(
+            '<div class="entity_filter-summary">{}<ul>{}</ul></div>',
+            fval.name,
+            format_html_join(
+                '', '<li>{}</li>',
+                ((vc,) for vc in fval.get_verbose_conditions(user)),
+            )
+        )
+
     def __init__(self, none_printer, default_printer):
         self.none_printer = none_printer
         self._sub_printers = ClassKeyedMap(default=default_printer)
@@ -158,9 +168,11 @@ class FKPrinter:
         return self
 
 
-print_foreignkey_html = FKPrinter(none_printer=FKPrinter.print_fk_null_html,
-                                  default_printer=simple_print_html,
-                                 ).register(CremeEntity, FKPrinter.print_fk_entity_html)
+print_foreignkey_html = FKPrinter(
+    none_printer=FKPrinter.print_fk_null_html,
+    default_printer=simple_print_html,
+).register(CremeEntity,  FKPrinter.print_fk_entity_html) \
+ .register(EntityFilter, FKPrinter.print_fk_efilter_html)
 
 
 # TODO: FKPrinter() ?

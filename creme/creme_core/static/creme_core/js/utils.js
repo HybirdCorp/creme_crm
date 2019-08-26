@@ -188,7 +188,7 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload
 
                  var buttons = $me.dialog('option', 'buttons');
 
-                 // TODO: use the OS order for 'Cancel'/'OK' buttons
+                 // todo: use the OS order for 'Cancel'/'OK' buttons
                  buttons.push({
                      text: options['send_button_label'] || gettext("Save"),
                      click: submit_handler

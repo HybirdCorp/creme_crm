@@ -729,6 +729,12 @@
     padding-right: 5px;
 }
 
+/* Special content */
+.listview tbody .lv-cell-content .entity_filter-summary ul {
+    font-size: 0.9em;
+    color: hsl(198, 2%, 52%);
+}
+
 /* Listview - row selection */
 
 .listview.first-row-hovered .lv-search-header th,

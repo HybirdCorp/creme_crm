@@ -790,6 +790,19 @@ table.table_detail_view + table.table_detail_view {
     vertical-align: top;
 }
 
+/* tiles => specific style */
+.brick-tiles .brick-tile-value .entity_filter-summary ul {
+    margin-top: 3px;
+    margin-bottom: 3px;
+    padding-left: 14px;
+
+    list-style-type: disc;
+
+    font-size: 12px;
+    font-weight: 500;
+    color: hsla(216, 2%, 30%, 1);
+}
+
 /* brick types - tiles type - end */
 
 /* brick types - key/value list */
