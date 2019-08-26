@@ -44,7 +44,6 @@ from ..setting_keys import form_user_messages_key
 from .activity_type import ActivityTypeField
 from .fields import UserParticipationField
 
-
 logger = logging.getLogger(__name__)
 Contact = get_contact_model()
 Activity = get_activity_model()
@@ -482,9 +481,9 @@ class IndisponibilityCreateForm(_ActivityCreateForm):
 
     class Meta(_ActivityCreateForm.Meta):
         exclude = _ActivityCreateForm.Meta.exclude + (
-                        'place', 'description', 'minutes', 'busy', 'status',
-                        'duration',
-                    )  # TODO: test
+            'place', 'description', 'minutes', 'busy', 'status',
+            'duration',
+        )  # TODO: test
 
     blocks = _ActivityCreateForm.blocks.new(
         ('datetime',     _('When'),         ['is_all_day', 'start', 'start_time', 'end', 'end_time']),

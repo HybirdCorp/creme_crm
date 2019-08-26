@@ -1657,7 +1657,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertTrue(export_action.is_visible)
 
     def test_indisponibility_createview01(self):
-        "Can not create an indispo with generic view"
+        "Can not create an unavailability with the generic view."
         user = self.login()
 
         url = self.ACTIVITY_CREATION_URL
@@ -1679,7 +1679,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
                                             'my_participation_0': True,
                                             'my_participation_1': my_calendar.pk,
-                                           }
+                                           },
                                     )
         self.assertFormError(response, 'form', 'type_selector',
                              _('This type causes constraint error.'),
@@ -1704,7 +1704,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'start_time':         '09:08:07',
                                           'end_time':           '06:05:04',
                                           'participating_users': [user.id, other_user.id],
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -1713,6 +1713,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertIsNone(act.status)
         self.assertFalse(act.is_all_day)
         self.assertFalse(act.busy)
+
+        get_cal = Calendar.objects.get_default_calendar
+        self.assertCountEqual([get_cal(user), get_cal(other_user)], [*act.calendars.all()])
 
         create_dt = self.create_datetime
         self.assertEqual(create_dt(year=2010, month=1, day=10, hour=9, minute=8, second=7), act.start)

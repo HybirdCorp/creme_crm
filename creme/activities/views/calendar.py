@@ -27,7 +27,7 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.db.transaction import atomic
 from django.http import HttpResponse  # Http404
 from django.shortcuts import render  # get_object_or_404
@@ -47,7 +47,7 @@ from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views import generic  # decorators
 # from creme.creme_core.views.decorators import jsonify
 
-from creme.persons import get_contact_model
+# from creme.persons import get_contact_model
 
 from .. import get_activity_model, constants
 from ..forms import calendar as calendar_forms
@@ -409,9 +409,10 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
                 logger.exception('ActivitiesData._get_datetime(key=%s)', key)
 
     @staticmethod
-    def _get_one_activity_per_calendar(calendar_ids, activities):
+    def _get_one_activity_per_calendar(activities):
         for activity in activities:
-            for calendar in activity.calendars.filter(id__in=calendar_ids):
+            # "concerned_calendars" is added by get_activities_data()
+            for calendar in activity.concerned_calendars:
                 copied = copy(activity)
                 copied.calendar = calendar
                 yield copied
@@ -422,34 +423,43 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
         calendar_ids = [cal.id for cal in self.get_calendars(request)]
         self.save_calendar_ids(request, calendar_ids)
 
-        contacts = list(get_contact_model().objects.exclude(is_user=None)
-                                           .values_list('id', flat=True)
-                       )  # NB: list() to avoid inner query
+        # contacts = [*get_contact_model().objects
+        #                                 .exclude(is_user=None)
+        #                                 .values_list('id', flat=True)
+        #            ]  # NB: list to avoid inner query
 
         start = self.get_start(request)
         end   = self.get_end(request=request, start=start)
 
         # TODO: label when no calendar related to the participant of an unavailability
-        # TODO: better way than distinct() then multiply instances with queries
-        #       (see _get_one_activity_per_calendar()) ?
         activities = EntityCredentials.filter(
             user,
             Activity.objects
                     .filter(is_deleted=False)
                     .filter(self.get_date_q(start=start, end=end))
-                    .filter(Q(calendars__in=calendar_ids) |
-                            Q(type=constants.ACTIVITYTYPE_INDISPO,
-                              relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
-                              relations__object_entity__in=contacts,
-                             )
-                           ).distinct()
+                    .filter(Q(calendars__in=calendar_ids)
+                            # | Q(type=constants.ACTIVITYTYPE_INDISPO,
+                            #     relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
+                            #     relations__object_entity__in=contacts,
+                            #    )
+                           )
+                    .distinct()
+                    # NB: we already filter by calendars ; maybe a future Django version
+                    #     will allow us to annotate the calendar ID directly
+                    #     (distinct() would have to be removed of course)
+                    .prefetch_related(
+                        Prefetch('calendars',
+                                 queryset=Calendar.objects.filter(id__in=calendar_ids),
+                                 to_attr='concerned_calendars',
+                                )
+                     )
         )
 
         activity_2_dict = partial(self._activity_2_dict, user=user)
 
         return [
             activity_2_dict(activity=a)
-                for a in self._get_one_activity_per_calendar(calendar_ids, activities)
+                for a in self._get_one_activity_per_calendar(activities)
         ]
 
     @staticmethod
