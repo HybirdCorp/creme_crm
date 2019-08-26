@@ -19,16 +19,19 @@
 ################################################################################
 
 from datetime import datetime
+import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import BooleanField, Q, ManyToManyField
+from django.db.models import BooleanField, Q, ForeignKey, ManyToManyField
 from django.db.models.fields import FieldDoesNotExist
+from django.utils.formats import date_format
 from django.utils.timezone import now
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import (
     CremeEntity,
     CremePropertyType, CremeProperty,
-    CustomField, CustomFieldBoolean,
+    CustomField, CustomFieldBoolean, CustomFieldEnumValue,
     EntityFilter, EntityFilterCondition,
     RelationType, Relation,
 )
@@ -38,6 +41,8 @@ from creme.creme_core.utils.dates import make_aware_dt, date_2_dict
 from creme.creme_core.utils.meta import is_date_field, FieldInfo
 
 from . import operators, entity_filter_registry
+
+logger = logging.getLogger(__name__)
 
 
 class FilterConditionHandler:
@@ -76,6 +81,10 @@ class FilterConditionHandler:
 
     def entities_are_distinct(self):
         return True
+
+    def description(self, user):
+        "Human-readable string explaining the handler."
+        raise NotImplementedError
 
     @property
     def error(self):
@@ -140,6 +149,8 @@ class SubFilterConditionHandler(FilterConditionHandler):
     """Filter entities with a (sub) EntityFilter."""
     type_id = 1
 
+    DESCRIPTION_FORMAT = _('Entities are accepted by the filter «{}»')
+
     def __init__(self, *, model=None, subfilter):
         """Constructor.
 
@@ -181,6 +192,11 @@ class SubFilterConditionHandler(FilterConditionHandler):
             handler=cls(subfilter=subfilter),
         )
 
+    def description(self, user):
+        subfilter = self.subfilter
+
+        return self.DESCRIPTION_FORMAT.format(subfilter) if subfilter else '???'
+
     @property
     def error(self):
         if self.subfilter is False:
@@ -207,10 +223,15 @@ class OperatorConditionHandlerMixin:
         if operator_id not in operators.OPERATORS:
             return "Operator ID '{}' is invalid".format(operator_id)
 
-    @staticmethod
-    def resolve_operand(value, user):
+    @classmethod
+    def get_operand(cls, value, user):
+        return entity_filter_registry.get_operand(type_id=value, user=user)
+
+    @classmethod
+    def resolve_operand(cls, value, user):
         "Replace a value corresponding to a special dynamic operand if needed."
-        operand = entity_filter_registry.get_operand(type_id=value, user=user)
+        # operand = entity_filter_registry.get_operand(type_id=value, user=user)
+        operand = cls.get_operand(value=value, user=user)
 
         return value if operand is None else operand.resolve()
 
@@ -229,6 +250,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         self._field_name = field_name
         self._operator_id = operator_id
         self._values = values
+        self._verbose_values = None  # Cache for values in description()
 
     # TODO: multi-value is stupid for some operator (LT, GT etc...) => improve checking ???
     @classmethod
@@ -292,6 +314,55 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             value=condition_cls.encode_value(
                 {'operator': operator_id, 'values': values}
             ),
+        )
+
+    def description(self, user):
+        finfo = FieldInfo(self._model, self._field_name)
+        values = self._verbose_values
+
+        if values is None:
+            last_field = finfo[-1]
+
+            if isinstance(last_field, (ForeignKey, ManyToManyField)):
+                values = []
+                pks = []
+
+                for value in self._values:
+                    operand = self.get_operand(value=value, user=user)
+
+                    if operand:
+                        values.append(operand.verbose_name)
+                    else:
+                        pks.append(value)
+
+                # NB: invalid ID are ignored (deleted instances do not cause
+                #     the deletion of condition yet, like with Relation/CremeProperty.
+                related_model = last_field.remote_field.model
+
+                try:
+                    instances = [*related_model._default_manager.filter(pk__in=pks)]
+                except ValueError:
+                    logger.exception(
+                        'Error in %s.description() while retrieving instance of %s with ID=%s',
+                        type(self).__name__, related_model, self._values,
+                    )
+                    values.append('???')
+                else:
+                    values.extend(
+                        instance.allowed_str(user)
+                        if hasattr(instance, 'allowed_str') else
+                        instance
+                            for instance in instances
+                    )
+            else:
+                # TODO: operand too...
+                values = self._values
+
+            self._verbose_values = values
+
+        return operators.OPERATORS.get(self._operator_id).description(
+            field_vname=finfo.verbose_name,
+            values=values,
         )
 
     def entities_are_distinct(self):
@@ -358,6 +429,36 @@ class DateFieldHandlerMixin:
             raise cls.ValueError('date_range or start/end must be given.')
 
         return range_dict
+
+    def _datefield_description(self, verbose_field):
+        # TODO: move to DateRange ??
+        if self._range_name:
+            return _('«{field}» is «{value}»').format(
+                field=verbose_field,
+                value=self._get_date_range().verbose_name,
+            )
+
+        start = self._start
+        end   = self._end
+
+        if start:
+            return _('«{field}» is between «{start}» and «{end}»').format(
+                        field=verbose_field,
+                        start=date_format(start, 'DATE_FORMAT'),
+                        end=date_format(end, 'DATE_FORMAT'),
+                    ) if end else \
+                   _('«{field}» starts «{date}»').format(
+                        field=verbose_field,
+                        date=date_format(start, 'DATE_FORMAT'),
+                    )
+
+        if end:
+            return _('«{field}» ends «{date}»').format(
+                field=verbose_field,
+                date=date_format(end, 'DATE_FORMAT'),
+            )
+
+        return '??'
 
     def _get_date_range(self):
         "Get a <creme_core.utils.date_range.DateRange> instance from the attributes."
@@ -444,16 +545,9 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin, FilterConditionHan
         If a custom range is used, at least one of the 2 argument "start" & "end"
         must be filled with a date.
         """
-        # TODO: factorise
-        try:
-            finfo = FieldInfo(model, field_name)
-        except FieldDoesNotExist as e:
-            raise cls.ValueError(str(e)) from e
-
-        if not is_date_field(finfo[-1]):
-            raise cls.ValueError(
-                '{}.build_condition(): field must be a date field.'.format(cls.__name__)
-            )
+        error = cls._check_field(model=model, field_name=field_name)
+        if error:
+            raise cls.ValueError(error)
 
         return condition_cls(
             model=model,
@@ -464,15 +558,24 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin, FilterConditionHan
             ),
         )
 
-    @property
-    def error(self):
+    @staticmethod
+    def _check_field(model, field_name):
         try:
-            finfo = FieldInfo(self._model, self._field_name)
+            finfo = FieldInfo(model, field_name)
         except FieldDoesNotExist as e:
             return str(e)
 
         if not is_date_field(finfo[-1]):
-            return "'{}' is not a date field".format(self._field_name)
+            return "'{}' is not a date field".format(field_name)
+
+    def description(self, user):
+        finfo = FieldInfo(self._model, self._field_name)
+
+        return self._datefield_description(verbose_field=finfo.verbose_name)
+
+    @property
+    def error(self):
+        return self._check_field(model=self._model, field_name=self._field_name)
 
     def get_q(self, user):
         return Q(**self._get_date_range().get_q_dict(field=self._field_name, now=now()))
@@ -485,14 +588,13 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
         @param model: Class inheriting <creme_core.models.CremeEntity>
                (ignored if an EntityFilter instance is passed for "custom_field" -- see below).
         @param custom_field: <creme_core.models.CustomField> instance or ID (int).
-        @param operator_id: ID of operator
-               (see <creme_core.core.entity_filter.operators.OPERATORS>).
         @param related_name: Related name (django's way) corresponding to the
                used CustomField.
         """
         if isinstance(custom_field, CustomField):
             super().__init__(model=custom_field.content_type.model_class())
             self._custom_field_id = custom_field.id
+            self._custom_field    = custom_field
             self._related_name = custom_field.get_value_class().get_related_name()
         else:
             if model is None:
@@ -506,13 +608,26 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
 
             super().__init__(model=model)
             self._custom_field_id = custom_field
+            self._custom_field = None
             self._related_name = related_name
+
+    @property
+    def custom_field(self):
+        cfield = self._custom_field
+        if cfield is None:
+            self._custom_field = cfield = CustomField.objects.filter(
+                id=self._custom_field_id,
+            ).first() or False
+
+        return cfield
 
     @property
     def error(self):
         rname = self._related_name
         if not any(rname == cf_cls.get_related_name() for cf_cls in _TABLES.values()):
             return "related_name '{}' is invalid".format(rname)
+
+        # TODO: check existence of the CustomField ? (normally the condition should be removed)
 
     @classmethod
     def query_for_related_conditions(cls, instance):
@@ -544,6 +659,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         super().__init__(model=model, custom_field=custom_field, related_name=related_name)
         self._operator_id = operator_id
         self._values = values
+        self._verbose_values = None  # Cache for values in description()
 
     @classmethod
     def build(cls, *, model, name, data):
@@ -604,6 +720,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         cf_value_class = custom_field.get_value_class()
 
         try:
+            # TODO: move this in Operator code
             if operator_id == operators.ISEMPTY:
                 operator_obj = operators.OPERATORS.get(operator_id)
                 value = operator_obj.validate_field_values(
@@ -632,6 +749,33 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             type=cls.type_id,
             name=str(custom_field.id),
             value=condition_cls.encode_value(value),
+        )
+
+    def description(self, user):
+        cfield = self.custom_field
+        if cfield is False:
+            # NB: should not happen because EntityFilterCondition with errors are removed.
+            return '???'
+
+        values = self._verbose_values
+        if values is None:
+            if cfield.field_type in {CustomField.ENUM, CustomField.MULTI_ENUM}:
+                try:
+                    values = [*CustomFieldEnumValue.objects.filter(pk__in=self._values)]
+                except ValueError:
+                    logger.exception(
+                        'Error in %s.description() while retrieving CustomField enum-values with ID=%s',
+                        type(self).__name__, self._values,
+                    )
+                    values = ['???']
+            else:
+                values = self._values
+
+            self._verbose_values = values
+
+        return operators.OPERATORS.get(self._operator_id).description(
+            field_vname=cfield.name,
+            values=values,
         )
 
     @property
@@ -705,7 +849,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
 
     @classmethod
     def build(cls, *, model, name, data):
-        kwargs = cls._load_daterange_kwargs(data)  # Test if it's a dict too
+        kwargs = cls._load_daterange_kwargs(data)  # It tests if it's a dict too
         try:
             cf_id = int(name)
             rname = data['rname']
@@ -749,6 +893,14 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
             value=condition_cls.encode_value(value),
         )
 
+    def description(self, user):
+        cfield = self.custom_field
+        if cfield is False:
+            # NB: should not happen because EntityFilterCondition with errors are removed.
+            return '???'
+
+        return self._datefield_description(verbose_field=cfield.name)
+
     def get_q(self, user):
         # NB: see CustomFieldConditionHandler.get_q() remark
         related_name = self._related_name
@@ -765,6 +917,17 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
 
 
 class BaseRelationConditionHandler(FilterConditionHandler):
+    def __init__(self, *, model, rtype, exclude):
+        super().__init__(model=model)
+        self._exclude = exclude
+
+        if isinstance(rtype, RelationType):
+            self._rtype_id = rtype.id
+            self._rtype = rtype
+        else:
+            self._rtype_id = rtype
+            self._rtype = None
+
     @classmethod
     def query_for_related_conditions(cls, instance):
         return Q(
@@ -772,21 +935,45 @@ class BaseRelationConditionHandler(FilterConditionHandler):
             name=instance.id,
         ) if isinstance(instance, RelationType) else Q()
 
+    @property
+    def relation_type(self):
+        rtype = self._rtype
+        if rtype is None:
+            self._rtype = rtype = RelationType.objects.filter(id=self._rtype_id).first() or False
+
+        return rtype
+
 
 class RelationConditionHandler(BaseRelationConditionHandler):
     """Filter entities which are have (or have not) certain Relations."""
     type_id = 10
 
+    # NB: True == exclude
+    DESCRIPTION_FORMATS = {
+        'rtype': {
+            False: _('The entities have relationships «{predicate}»'),
+            True:  _('The entities have no relationship «{predicate}»'),
+        },
+        'ctype': {
+            False: _('The entities have relationships «{predicate}» to «{model}»'),
+            True: _('The entities have no relationship «{predicate}» to «{model}»'),
+        },
+        'entity': {
+            False: _('The entities have relationships «{predicate}» to «{entity}»'),
+            True:  _('The entities have no relationship «{predicate}» to «{entity}»'),
+        },
+    }
+
     def __init__(self, *, model, rtype, exclude=False, ctype=None, entity=None):
-        super().__init__(model=model)
-        self._rtype_id = rtype.id if isinstance(rtype, RelationType) else rtype
-        self._exclude = exclude
+        super().__init__(model=model, rtype=rtype,exclude=exclude)
 
         if isinstance(entity, CremeEntity):
             self._entity_id = entity.id
+            self._entity = entity
             self._ct_id = None
         else:
             self._entity_id = entity
+            self._entity = None
             self._ct_id = ctype.id if isinstance(ctype, ContentType) else ctype
 
     @classmethod
@@ -851,6 +1038,48 @@ class RelationConditionHandler(BaseRelationConditionHandler):
             value=condition_cls.encode_value(value),
         )
 
+    @property
+    def content_type(self):
+        ct_id = self._ct_id
+        try:
+            return ContentType.objects.get_for_id(ct_id) if ct_id else None
+        except ContentType.DoesNotExist:
+            return False
+
+    def description(self, user):
+        rtype = self.relation_type
+        if rtype is False:
+            return '???'
+
+        fmt_kwargs = {'predicate': rtype.predicate}
+        entity = self.entity
+
+        if entity is not None:
+            fmt_kwargs['entity'] = entity.allowed_str(user) if entity else '???'
+            str_key = 'entity'
+        else:
+            ctype = self.content_type
+
+            if ctype is not None:
+                fmt_kwargs['model'] = ctype.model_class()._meta.verbose_name_plural if ctype else '???'
+                str_key = 'ctype'
+            else:
+                str_key = 'rtype'
+
+        return self.DESCRIPTION_FORMATS[str_key][self._exclude].format(**fmt_kwargs)
+
+    @property
+    def entity(self):
+        if self._entity_id is None:
+            return None
+
+        entity = self._entity
+        if entity is None:
+            e = CremeEntity.objects.filter(id=self._entity_id).first()
+            self._entity = entity = e.get_real_entity() if e is not None else False
+
+        return entity
+
     # TODO: use a filter "relations__*" when there is only one condition on Relations ??
     def get_q(self, user):
         kwargs = {'type': self._rtype_id}
@@ -877,6 +1106,12 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
     """
     type_id = 11
 
+    # NB: True == exclude
+    DESCRIPTION_FORMATS = {
+        False: _('The entities have relationships «{predicate}» to «{filter}»'),
+        True:  _('The entities have no relationship «{predicate}» to «{filter}»'),
+    }
+
     def __init__(self, *, model, rtype, subfilter, exclude=False):
         """Constructor.
 
@@ -886,14 +1121,14 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
         @param exclude: Boolean ; the retrieved Relations have to be
                included (True) or excluded (False).
         """
-        super().__init__(model=model)
+        super().__init__(model=model, rtype=rtype, exclude=exclude)
+
         if isinstance(subfilter, EntityFilter):
             self._subfilter_id = subfilter.id
             self._subfilter    = subfilter  # TODO: copy ?
         else:
             self._subfilter_id = subfilter
 
-        self._rtype_id = rtype.id if isinstance(rtype, RelationType) else rtype
         self._exclude = exclude
 
     @classmethod
@@ -940,6 +1175,14 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
             handler=cls(model=model, rtype=rtype, subfilter=subfilter, exclude=not has),
         )
 
+    def description(self, user):
+        rtype = self.relation_type
+
+        return self.DESCRIPTION_FORMATS[self._exclude].format(
+            predicate=rtype.predicate,
+            filter=self.subfilter or '???',
+        ) if rtype else '???'
+
     @property
     def error(self):
         # TODO: error if relation type not found ?
@@ -973,9 +1216,18 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
         return self._subfilter_id
 
 
+# NB: we do not check existence of CremePropertyType in @error to avoid a query ;
+#     the related EntityFilterCondition should be deleted if the
+#     CremePropertyType is deleted.
 class PropertyConditionHandler(FilterConditionHandler):
     """Filter entities which are have (or have not) certain CremeProperties."""
     type_id = 15
+
+    # NB: True == exclude
+    DESCRIPTION_FORMATS = {
+        False: _('The entities have the property «{}»'),
+        True:  _('The entities have no property «{}»'),
+    }
 
     def __init__(self, *, model, ptype, exclude=False):
         """Constructor.
@@ -986,7 +1238,13 @@ class PropertyConditionHandler(FilterConditionHandler):
                included (True) or excluded (False).
         """
         super().__init__(model=model)
-        self._ptype_id = ptype.id if isinstance(ptype, CremePropertyType) else ptype
+        if isinstance(ptype, CremePropertyType):
+            self._ptype_id = ptype.id
+            self._ptype = ptype
+        else:
+            self._ptype_id = ptype
+            self._ptype = None
+
         self._exclude = exclude
 
     @classmethod
@@ -1015,6 +1273,10 @@ class PropertyConditionHandler(FilterConditionHandler):
             value=condition_cls.encode_value(bool(has)),
         )
 
+    def description(self, user):
+        ptype = self.property_type
+        return self.DESCRIPTION_FORMATS[self._exclude].format(ptype) if ptype else '???'
+
     # TODO: see remark on RelationConditionHandler._get_q()
     def get_q(self, user):
         query = Q(pk__in=CremeProperty.objects
@@ -1026,6 +1288,14 @@ class PropertyConditionHandler(FilterConditionHandler):
             query.negate()
 
         return query
+
+    @property
+    def property_type(self):
+        ptype = self._ptype
+        if ptype is None:
+            self._ptype = ptype = CremePropertyType.objects.filter(id=self._ptype_id).first() or False
+
+        return ptype
 
     @classmethod
     def query_for_related_conditions(cls, instance):

@@ -44,7 +44,6 @@ from creme.creme_core.utils.collections import LimitedList
 from creme.creme_core.utils.serializers import json_encode
 from creme.creme_core.signals import pre_uninstall_flush, post_uninstall_flush
 
-
 MAX_ERRORS = 15  # Number of errors which are displayed when flushing instances #TODO: as argument ?
 
 

@@ -20,7 +20,7 @@
 
 from django.db import models
 from django.db.models.query_utils import Q
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 
 # from creme.creme_core.models import EntityFilter
 from creme.creme_core.utils.meta import FieldInfo
@@ -28,6 +28,59 @@ from creme.creme_core.utils.meta import FieldInfo
 from . import entity_filter_registry
 
 # TODO: register the Operators in <entity_filter_registry>
+
+
+# IDs
+EQUALS          =  1
+IEQUALS         =  2
+EQUALS_NOT      =  3
+IEQUALS_NOT     =  4
+CONTAINS        =  5
+ICONTAINS       =  6
+CONTAINS_NOT    =  7
+ICONTAINS_NOT   =  8
+GT              =  9
+GTE             = 10
+LT              = 11
+LTE             = 12
+STARTSWITH      = 13
+ISTARTSWITH     = 14
+STARTSWITH_NOT  = 15
+ISTARTSWITH_NOT = 16
+ENDSWITH        = 17
+IENDSWITH       = 18
+ENDSWITH_NOT    = 19
+IENDSWITH_NOT   = 20
+ISEMPTY         = 21
+RANGE           = 22
+
+FIELDTYPES_ALL = {
+    'string',
+    'enum', 'enum__null',
+    'number', 'number__null',
+    'date', 'date__null',
+    'boolean', 'boolean__null',
+    'fk', 'fk__null',
+    'user', 'user__null',
+}
+FIELDTYPES_ORDERABLE = {
+    'number', 'number__null',
+    'date', 'date__null',
+}
+FIELDTYPES_RELATED = {
+    'fk', 'fk__null',
+    'enum', 'enum__null',
+}
+FIELDTYPES_NULLABLE = {
+    'string',
+    'fk__null',
+    'user__null',
+    'enum__null',
+    'boolean__null',
+}
+FIELDTYPES_STRING = {
+    'string',
+}
 
 
 # class _ConditionOperator:
@@ -40,7 +93,7 @@ class ConditionOperator:
     The main feature is the method <get_q()> with provides a <Q> instance to
     perform the wanted SQL query.
     """
-    __slots__ = ('name', '_accept_subpart', '_exclude', '_key_pattern', '_allowed_fieldtypes')
+    # __slots__ = ('name', '_accept_subpart', '_exclude', '_key_pattern', '_allowed_fieldtypes')
 
     # Fields for which the subpart of a valid value is not valid
     _NO_SUBPART_VALIDATION_FIELDS = {
@@ -50,6 +103,7 @@ class ConditionOperator:
 
     def __init__(self, name, key_pattern,
                  exclude=False, accept_subpart=True, allowed_fieldtypes=None,
+                 description_pattern=None,
                 ):
         """Constructor.
 
@@ -66,18 +120,54 @@ class ConditionOperator:
         @param allowed_fieldtypes: Sequence of strings used by the form fields/widgets
                to know which operators to propose for a given model-field
                (see creme_core/forms/entity_filter.py).
+        @param description_pattern: Format string used by <description()>
+               (format variable are "{field}" & "{values}").
         """
         self._key_pattern    = key_pattern
         self._exclude        = exclude
         self._accept_subpart = accept_subpart
+        self._description_pattern = description_pattern
         self.name            = name
 
         # Needed by JavaScript widget to filter operators for each field type
-        self._allowed_fieldtypes = allowed_fieldtypes or ()
+        self._allowed_fieldtypes = allowed_fieldtypes or ()  # TODO: copy ?
 
     @property
     def allowed_fieldtypes(self):
         return self._allowed_fieldtypes
+
+    @property
+    def description_pattern(self):
+        return self._description_pattern
+
+    def description(self, *, field_vname, values):
+        """Description of the operation for human.
+
+        @param field_vname: Verbose name of the field (regular or custom).
+        @param values: List of operands.
+        @return: A localized string.
+        """
+        pattern = self.description_pattern
+
+        if values and pattern:
+            return pattern.format(
+                field=field_vname,
+                values=self._enumeration(values),
+            )
+
+        return '??'
+
+    @staticmethod
+    def _enumeration(values):
+        value_format = gettext('«{enum_value}»').format
+        first_part = ', '.join(value_format(enum_value=v) for v in values[:-1])
+
+        return gettext('{first} or {last}').format(
+                    first=first_part,
+                    last=value_format(enum_value=values[-1]),
+               ) \
+               if first_part else \
+               value_format(enum_value=values[-1])
 
     @property
     def exclude(self):
@@ -147,12 +237,25 @@ class ConditionOperator:
 
 
 class EqualsOperator(ConditionOperator):
-    def __init__(self, name, **kwargs):
+    # NB: True == exclude
+    DESCRIPTION_PATTERNS = {
+        False: _('«{field}» is {values}'),
+        True:  _('«{field}» is not {values}'),
+    }
+
+    # def __init__(self, name, **kwargs):
+    def __init__(self, name, exclude=False):
         super().__init__(name,
                          key_pattern='{}__exact',  # NB: have not real meaning here
                          accept_subpart=False,
-                         **kwargs
+                         allowed_fieldtypes=FIELDTYPES_ALL,
+                         exclude=exclude,
+                         # **kwargs
                         )
+
+    @property
+    def description_pattern(self):
+        return self.DESCRIPTION_PATTERNS[self._exclude]
 
     # def get_q(self, efcondition, values):
     def get_q(self, *, model, field_name, values):
@@ -188,12 +291,24 @@ class BooleanOperator(ConditionOperator):
 
 # class _IsEmptyOperator(_ConditionBooleanOperator):
 class IsEmptyOperator(BooleanOperator):
-    def __init__(self, name, exclude=False, **kwargs):
+    DESCRIPTION_PATTERNS = {
+        True:  _('«{field}» is empty'),
+        False: _('«{field}» is not empty'),
+    }
+
+    # def __init__(self, name, exclude=False, **kwargs):
+    def __init__(self, name, exclude=False):
         super().__init__(name,
                          key_pattern='{}__isnull',  # NB: have not real meaning here
                          exclude=exclude, accept_subpart=False,
-                         **kwargs
+                         allowed_fieldtypes=FIELDTYPES_NULLABLE,
                         )
+
+    def description(self, *, field_vname, values):
+        if values:
+            return self.DESCRIPTION_PATTERNS[bool(values[0])].format(field=field_vname)
+
+        return super().description(field_vname=field_vname, values=values)
 
     # def get_q(self, efcondition, values):
     def get_q(self, *, model, field_name, values):
@@ -218,94 +333,98 @@ class IsEmptyOperator(BooleanOperator):
 
 # class _RangeOperator(_ConditionOperator):
 class RangeOperator(ConditionOperator):
+    DESCRIPTION_PATTERN = _('«{field}» is between «{start}» and «{end}»')
+
     def __init__(self, name):
         super().__init__(name, '{}__range', allowed_fieldtypes=('number', 'date'))
+
+    def description(self, *, field_vname, values):
+        return self.DESCRIPTION_PATTERN.format(
+                field=field_vname,
+                start=values[0],
+                end=values[1],
+            ) if len(values) == 2 else \
+            super().description(field_vname=field_vname, values=values)
 
     # def validate_field_values(self, field, values, user=None):
     def validate_field_values(self, *, field, values, user=None,
                               efilter_registry=entity_filter_registry,
                              ):
         if len(values) != 2:
-            raise ValueError('A list with 2 elements is expected for condition {}'.format(self.name))
+            raise ValueError(
+                'A list with 2 elements is expected for condition {}'.format(self.name)
+            )
 
         return [super().validate_field_values(field=field, values=values)]
 
-# IDs
-EQUALS          =  1
-IEQUALS         =  2
-EQUALS_NOT      =  3
-IEQUALS_NOT     =  4
-CONTAINS        =  5
-ICONTAINS       =  6
-CONTAINS_NOT    =  7
-ICONTAINS_NOT   =  8
-GT              =  9
-GTE             = 10
-LT              = 11
-LTE             = 12
-STARTSWITH      = 13
-ISTARTSWITH     = 14
-STARTSWITH_NOT  = 15
-ISTARTSWITH_NOT = 16
-ENDSWITH        = 17
-IENDSWITH       = 18
-ENDSWITH_NOT    = 19
-IENDSWITH_NOT   = 20
-ISEMPTY         = 21
-RANGE           = 22
-
-FIELDTYPES_ALL  = {
-    'string',
-    'enum', 'enum__null',
-    'number', 'number__null',
-    'date', 'date__null',
-    'boolean', 'boolean__null',
-    'fk', 'fk__null',
-    'user', 'user__null',
-}
-FIELDTYPES_ORDERABLE = {
-    'number', 'number__null',
-    'date', 'date__null',
-}
-FIELDTYPES_RELATED = {
-    'fk', 'fk__null',
-    'enum', 'enum__null',
-}
-FIELDTYPES_NULLABLE = {
-    'string',
-    'fk__null',
-    'user__null',
-    'enum__null',
-    'boolean__null',
-}
-FIELDTYPES_STRING = {
-    'string',
-}
 
 OPERATORS = {
-    EQUALS:     EqualsOperator(_('Equals'), allowed_fieldtypes=FIELDTYPES_ALL),
-    EQUALS_NOT: EqualsOperator(_('Equals'), allowed_fieldtypes=FIELDTYPES_ALL, exclude=True),
+    # EQUALS:     EqualsOperator(_('Equals'), allowed_fieldtypes=FIELDTYPES_ALL),
+    EQUALS:     EqualsOperator(_('Equals')),
+    # EQUALS_NOT: EqualsOperator(_('Equals'), allowed_fieldtypes=FIELDTYPES_ALL, exclude=True),
+    EQUALS_NOT: EqualsOperator(_('Equals'), exclude=True),
 
-    GT:  ConditionOperator(_('>'),  '{}__gt',  allowed_fieldtypes=FIELDTYPES_ORDERABLE),
-    GTE: ConditionOperator(_('>='), '{}__gte', allowed_fieldtypes=FIELDTYPES_ORDERABLE),
-    LT:  ConditionOperator(_('<'),  '{}__lt',  allowed_fieldtypes=FIELDTYPES_ORDERABLE),
-    LTE: ConditionOperator(_('<='), '{}__lte', allowed_fieldtypes=FIELDTYPES_ORDERABLE),
+    # TODO: <accept_subpart = False> when it's integer ?
+    # TODO: several values are stupid here
+    GT:  ConditionOperator(_('>'),  '{}__gt',  allowed_fieldtypes=FIELDTYPES_ORDERABLE,
+                           description_pattern=_('«{field}» is greater than {values}'),
+                          ),
+    # GTE: ConditionOperator(_('>='), '{}__gte', allowed_fieldtypes=FIELDTYPES_ORDERABLE),
+    GTE: ConditionOperator(_('≥'), '{}__gte', allowed_fieldtypes=FIELDTYPES_ORDERABLE,
+                           description_pattern=_('«{field}» is greater or equal to {values}'),
+                          ),
+    LT:  ConditionOperator(_('<'),  '{}__lt',  allowed_fieldtypes=FIELDTYPES_ORDERABLE,
+                           description_pattern=_('«{field}» is lesser than {values}'),
+                          ),
+    # LTE: ConditionOperator(_('<='), '{}__lte', allowed_fieldtypes=FIELDTYPES_ORDERABLE),
+    LTE: ConditionOperator(_('≤'), '{}__lte', allowed_fieldtypes=FIELDTYPES_ORDERABLE,
+                           description_pattern=_('«{field}» is lesser or equal to {values}'),
+                          ),
 
-    IEQUALS:         ConditionOperator(_('Equals (case insensitive)'),              '{}__iexact',      allowed_fieldtypes=FIELDTYPES_STRING,               accept_subpart=False),
-    IEQUALS_NOT:     ConditionOperator(_('Does not equal (case insensitive)'),      '{}__iexact',      allowed_fieldtypes=FIELDTYPES_STRING, exclude=True, accept_subpart=False),
-    CONTAINS:        ConditionOperator(_('Contains'),                               '{}__contains',    allowed_fieldtypes=FIELDTYPES_STRING),
-    CONTAINS_NOT:    ConditionOperator(_('Does not contain'),                       '{}__contains',    allowed_fieldtypes=FIELDTYPES_STRING, exclude=True),
-    ICONTAINS:       ConditionOperator(_('Contains (case insensitive)'),            '{}__icontains',   allowed_fieldtypes=FIELDTYPES_STRING),
-    ICONTAINS_NOT:   ConditionOperator(_('Does not contain (case insensitive)'),    '{}__icontains',   allowed_fieldtypes=FIELDTYPES_STRING, exclude=True),
-    STARTSWITH:      ConditionOperator(_('Starts with'),                            '{}__startswith',  allowed_fieldtypes=FIELDTYPES_STRING),
-    STARTSWITH_NOT:  ConditionOperator(_('Does not start with'),                    '{}__startswith',  allowed_fieldtypes=FIELDTYPES_STRING, exclude=True),
-    ISTARTSWITH:     ConditionOperator(_('Starts with (case insensitive)'),         '{}__istartswith', allowed_fieldtypes=FIELDTYPES_STRING),
-    ISTARTSWITH_NOT: ConditionOperator(_('Does not start with (case insensitive)'), '{}__istartswith', allowed_fieldtypes=FIELDTYPES_STRING, exclude=True),
-    ENDSWITH:        ConditionOperator(_('Ends with'),                              '{}__endswith',    allowed_fieldtypes=FIELDTYPES_STRING),
-    ENDSWITH_NOT:    ConditionOperator(_('Does not end with'),                      '{}__endswith',    allowed_fieldtypes=FIELDTYPES_STRING, exclude=True),
-    IENDSWITH:       ConditionOperator(_('Ends with (case insensitive)'),           '{}__iendswith',   allowed_fieldtypes=FIELDTYPES_STRING),
-    IENDSWITH_NOT:   ConditionOperator(_('Does not end with (case insensitive)'),   '{}__iendswith',   allowed_fieldtypes=FIELDTYPES_STRING, exclude=True),
+    IEQUALS:         ConditionOperator(_('Equals (case insensitive)'),              '{}__iexact',      allowed_fieldtypes=FIELDTYPES_STRING,               accept_subpart=False,
+                                       description_pattern=_('«{field}» is equal to {values} (case insensitive)'),
+                                      ),
+    IEQUALS_NOT:     ConditionOperator(_('Does not equal (case insensitive)'),      '{}__iexact',      allowed_fieldtypes=FIELDTYPES_STRING, exclude=True, accept_subpart=False,
+                                       description_pattern=_('«{field}» is different from {values} (case insensitive)'),
+                                      ),
+    CONTAINS:        ConditionOperator(_('Contains'),                               '{}__contains',    allowed_fieldtypes=FIELDTYPES_STRING,
+                                       description_pattern=_('«{field}» contains {values}'),
+                                      ),
+    CONTAINS_NOT:    ConditionOperator(_('Does not contain'),                       '{}__contains',    allowed_fieldtypes=FIELDTYPES_STRING, exclude=True,
+                                       description_pattern=_('«{field}» does not contain {values}'),
+                                      ),
+    ICONTAINS:       ConditionOperator(_('Contains (case insensitive)'),            '{}__icontains',   allowed_fieldtypes=FIELDTYPES_STRING,
+                                       description_pattern=_('«{field}» contains {values} (case insensitive)'),
+                                      ),
+    ICONTAINS_NOT:   ConditionOperator(_('Does not contain (case insensitive)'),    '{}__icontains',   allowed_fieldtypes=FIELDTYPES_STRING, exclude=True,
+                                       description_pattern=_('«{field}» does not contain {values} (case insensitive)'),
+                                      ),
+    STARTSWITH:      ConditionOperator(_('Starts with'),                            '{}__startswith',  allowed_fieldtypes=FIELDTYPES_STRING,
+                                       description_pattern=_('«{field}» starts with {values}'),
+                                      ),
+    STARTSWITH_NOT:  ConditionOperator(_('Does not start with'),                    '{}__startswith',  allowed_fieldtypes=FIELDTYPES_STRING, exclude=True,
+                                       description_pattern=_('«{field}» does not start with {values}'),
+                                      ),
+    ISTARTSWITH:     ConditionOperator(_('Starts with (case insensitive)'),         '{}__istartswith', allowed_fieldtypes=FIELDTYPES_STRING,
+                                       description_pattern=_('«{field}» starts with {values} (case insensitive)'),
+                                      ),
+    ISTARTSWITH_NOT: ConditionOperator(_('Does not start with (case insensitive)'), '{}__istartswith', allowed_fieldtypes=FIELDTYPES_STRING, exclude=True,
+                                       description_pattern=_('«{field}» does not start with {values} (case insensitive)'),
+                                      ),
+    ENDSWITH:        ConditionOperator(_('Ends with'),                              '{}__endswith',    allowed_fieldtypes=FIELDTYPES_STRING,
+                                       description_pattern=_('«{field}» ends with {values}'),
+                                      ),
+    ENDSWITH_NOT:    ConditionOperator(_('Does not end with'),                      '{}__endswith',    allowed_fieldtypes=FIELDTYPES_STRING, exclude=True,
+                                       description_pattern=_('«{field}» does not end with {values}'),
+                                      ),
+    IENDSWITH:       ConditionOperator(_('Ends with (case insensitive)'),           '{}__iendswith',   allowed_fieldtypes=FIELDTYPES_STRING,
+                                       description_pattern=_('«{field}» ends with {values} (case insensitive)'),
+                                      ),
+    IENDSWITH_NOT:   ConditionOperator(_('Does not end with (case insensitive)'),   '{}__iendswith',   allowed_fieldtypes=FIELDTYPES_STRING, exclude=True,
+                                       description_pattern=_('«{field}» does not end with {values} (case insensitive)'),
+                                      ),
 
-    ISEMPTY: IsEmptyOperator(_('Is empty'), allowed_fieldtypes=FIELDTYPES_NULLABLE),
+    # ISEMPTY: IsEmptyOperator(_('Is empty'), allowed_fieldtypes=FIELDTYPES_NULLABLE),
+    ISEMPTY: IsEmptyOperator(_('Is empty')),
     RANGE:   RangeOperator(_('Range')),
 }

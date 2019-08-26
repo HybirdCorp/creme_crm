@@ -20,6 +20,7 @@
 
 from django.contrib.auth import get_user_model
 from django.db.models import ForeignKey
+from django.utils.translation import gettext_lazy as _
 
 
 # class EntityFilterVariable:
@@ -27,6 +28,7 @@ class ConditionDynamicOperand:
     """Represent special value for right operand in conditions."""
     # CURRENT_USER = '__currentuser__'
     type_id = None
+    verbose_name = ''
 
     def __init__(self, user):
         self.user = user
@@ -54,6 +56,7 @@ class CurrentUserOperand(ConditionDynamicOperand):
     Operand for condition on fields ForeignKey(CremeUser, ...).
     """
     type_id = '__currentuser__'
+    verbose_name = _('Current user')
 
     # def resolve(self, value, user=None):
     def resolve(self):

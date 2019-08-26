@@ -660,6 +660,11 @@ class EntityFilter(models.Model):  # CremeModel ???
     # def get_variable(value):
     #     return EntityFilter._VARIABLE_MAP.get(value) if isinstance(value, str) else None
 
+    def get_verbose_conditions(self, user):
+        "Generators of human-readable strings explaining the conditions."
+        for cond in self.get_conditions():
+            yield cond.description(user)
+
     # @staticmethod
     # def resolve_variable(value, user):
     #     variable = EntityFilter.get_variable(value)
@@ -1010,6 +1015,10 @@ class EntityFilterCondition(models.Model):
         # return json_dump(value)
         return json_encode(value)
 
+    def description(self, user):
+        "Human-readable string explaining the condition."
+        return self.handler.description(user)
+
     @property
     def handler(self):
         _handler = self._handler
@@ -1281,7 +1290,9 @@ class EntityFilterCondition(models.Model):
 #                   EntityFilterCondition.EFC_DATECUSTOMFIELD,
 #                  ),
 #     ).delete()
-# TODO: manage deletion of instance linked with FK (Sector, Priority...) too.
+# TODO: manage also deletion of:
+#  - instance linked with FK (Sector, Priority...).
+#  - instance of CremeEntity used by Relation handlers.
 @receiver(pre_delete)
 def _delete_related_efc(sender, instance, **kwargs):
     q = Q()

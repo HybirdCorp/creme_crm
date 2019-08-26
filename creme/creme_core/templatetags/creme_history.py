@@ -24,7 +24,6 @@ from django import template
 
 from ..models.history import HistoryLine, TYPE_CREATION, TYPE_EDITION
 
-
 register = template.Library()
 
 

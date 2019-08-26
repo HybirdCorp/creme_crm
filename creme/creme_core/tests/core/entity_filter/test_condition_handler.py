@@ -6,9 +6,11 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.query_utils import Q
+    from django.utils.formats import date_format
     from django.utils.timezone import now
-    # from django.utils.translation import gettext as _
+    from django.utils.translation import gettext as _
 
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.entity_filter import operators
     from creme.creme_core.core.entity_filter.condition_handler import (
         FilterConditionHandler,
@@ -18,9 +20,15 @@ try:
         SubFilterConditionHandler, RelationSubFilterConditionHandler,
     )
     from creme.creme_core.models import (
-        RelationType, Relation, CremeProperty, CremePropertyType, CustomField,
+        CremeEntity,
+        RelationType, Relation,
+        CremeProperty, CremePropertyType,
+        CustomField, CustomFieldEnumValue,
+        SetCredentials,
         EntityFilter, EntityFilterCondition,
-        FakeContact, FakeOrganisation, FakeFolder, FakeDocument,
+        FakeContact, FakeOrganisation, FakePosition,
+        FakeFolder, FakeDocument,
+        FakeImageCategory, FakeImage,
     )
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.utils.date_range import date_range_registry
@@ -273,6 +281,166 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         with self.assertRaises(FilterConditionHandler.ValueError):
             build_4_field(values=[str(folder.id)], user=other_user)
 
+    def test_regularfield_description01(self):
+        user = self.login()
+
+        value = 'Corp'
+        handler = RegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='name',
+            operator_id=operators.CONTAINS,
+            values=[value],
+        )
+        self.assertEqual(
+            _('«{field}» contains {values}').format(
+                field=_('Name'),
+                values=_('«{enum_value}»').format(enum_value=value),
+            ),
+            handler.description(user)
+        )
+
+    def test_regularfield_description02(self):
+        "Other field & operator."
+        user = self.login()
+
+        value = 'Spiegel'
+        handler = RegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='last_name',
+            operator_id=operators.STARTSWITH,
+            values=[value],
+        )
+        self.assertEqual(
+            _('«{field}» starts with {values}').format(
+                field=_('Last name'),
+                values=_('«{enum_value}»').format(enum_value=value),
+            ),
+            handler.description(user)
+        )
+
+    def test_regularfield_description03(self):
+        "ForeignKey."
+        user = self.login()
+        position1, position2 = FakePosition.objects.all()[:2]
+
+        handler1 = RegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='position',
+            operator_id=operators.EQUALS,
+            values=[position1.id, position2.id, 1024],
+        )
+
+        with self.assertNumQueries(1):
+            description = handler1.description(user)
+
+        self.assertEqual(
+            _('«{field}» is {values}').format(
+                field=_('Position'),
+                values=_('{first} or {last}').format(
+                    first=_('«{enum_value}»').format(enum_value=position1),
+                    last=_('«{enum_value}»').format(enum_value=position2),
+                ),
+            ),
+            description
+        )
+
+        with self.assertNumQueries(0):
+            ___ = handler1.description(user)
+
+        # ---
+        handler2 = RegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='position',
+            operator_id=operators.EQUALS,
+            values=[position1.id, 'notanint'],
+        )
+        self.assertEqual(
+            _('«{field}» is {values}').format(
+                field=_('Position'),
+                values=_('«{enum_value}»').format(enum_value='???')
+            ),
+            handler2.description(user)
+        )
+
+    def test_regularfield_description04(self):
+        "ForeignKey to CremeEntity."
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        create_folder = partial(FakeFolder.objects.create, user=user)
+        folder1 = create_folder(title='Pix')
+        folder2 = create_folder(title='Music')
+        folder3 = create_folder(title='ZZZ',  user=self.other_user)
+
+        handler = RegularFieldConditionHandler(
+            model=FakeDocument,
+            field_name='linked_folder',
+            operator_id=operators.EQUALS,
+            values=[folder1.id, folder2.id, folder3.id],
+        )
+        fmt = _('«{enum_value}»').format
+        self.assertEqual(
+            _('«{field}» is {values}').format(
+                field=_('Folder'),
+                values=_('{first} or {last}').format(
+                    first='{}, {}'.format(
+                        fmt(enum_value=folder2),
+                        fmt(enum_value=folder1),
+                    ),
+                    last=fmt(enum_value=_('Entity #{id} (not viewable)').format(id=folder3.id)),
+                ),
+            ),
+            handler.description(user)
+        )
+
+    def test_regularfield_description05(self):
+        "ManyToManyField."
+        user = self.login()
+        cat1, cat2 = FakeImageCategory.objects.all()[:2]
+
+        handler1 = RegularFieldConditionHandler(
+            model=FakeImage,
+            field_name='categories',
+            operator_id=operators.EQUALS,
+            values=[cat1.id, cat2.id, 1024],
+        )
+
+        with self.assertNumQueries(1):
+            description = handler1.description(user)
+
+        fmt_value = _('«{enum_value}»').format
+        self.assertEqual(
+            _('«{field}» is {values}').format(
+                field=_('Categories'),
+                values=_('{first} or {last}').format(
+                    first=fmt_value(enum_value=cat1),
+                    last=fmt_value(enum_value=cat2),
+                ),
+            ),
+            description
+        )
+
+        with self.assertNumQueries(0):
+            ___ = handler1.description(user)
+
+        # ---
+        handler2 = RegularFieldConditionHandler(
+            model=FakeImage,
+            field_name='categories',
+            operator_id=operators.EQUALS,
+            values=[cat1.id, 'notanint'],
+        )
+        self.assertEqual(
+            _('«{field}» is {values}').format(
+                field=_('Categories'),
+                values=fmt_value(enum_value='???')
+            ),
+            handler2.description(user)
+        )
+
     def test_dateregularfield_init(self):
         fname = 'created'
         range_name = 'previous_year'
@@ -329,7 +497,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertEqual(FakeContact, handler.model)
         self.assertIsNone(handler.subfilter_id)
-        self.assertEqual(fname,       handler._field_name)
+        self.assertEqual(fname,      handler._field_name)
         self.assertEqual(range_name, handler._range_name)
         self.assertIsNone(handler._start)
         self.assertIsNone(handler._end)
@@ -473,6 +641,93 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             model=FakeContact, field_name='birthday', date_range='unknown_range',
         )
 
+    def test_dateregularfield_description01(self):
+        user = self.login()
+
+        handler = DateRegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='created',
+            date_range='previous_year',
+        )
+        self.assertEqual(
+            _('«{field}» is «{value}»').format(
+                field=_('Creation date'), value=_('Previous year'),
+            ),
+            handler.description(user=user)
+        )
+
+    def test_dateregularfield_description02(self):
+        "Other field & named range."
+        user = self.login()
+
+        handler = DateRegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='birthday',
+            date_range='next_month',
+        )
+        self.assertEqual(
+            _('«{field}» is «{value}»').format(
+                field=_('Birthday'), value=_('Next month'),
+            ),
+            handler.description(user=user)
+        )
+
+    def test_dateregularfield_description03(self):
+        "Custom ranges."
+        user = self.login()
+
+        start = date(year=2000, month=6, day=1)
+        handler1 = DateRegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='birthday',
+            start=start,
+        )
+        self.assertEqual(
+            _('«{field}» starts «{date}»').format(
+                field=_('Birthday'),
+                date=date_format(start, 'DATE_FORMAT'),
+            ),
+            handler1.description(user=user)
+        )
+
+        # ---
+        end = date(year=2000, month=7, day=1)
+        handler2 = DateRegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='birthday',
+            end=end,
+        )
+        self.assertEqual(
+            _('«{field}» ends «{date}»').format(
+                field=_('Birthday'),
+                date=date_format(end, 'DATE_FORMAT'),
+            ),
+            handler2.description(user=user)
+        )
+
+        # ---
+        handler3 = DateRegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='birthday',
+            start=start,
+            end=end,
+        )
+        self.assertEqual(
+            _('«{field}» is between «{start}» and «{end}»').format(
+                field=_('Birthday'),
+                start=date_format(start, 'DATE_FORMAT'),
+                end=date_format(end, 'DATE_FORMAT'),
+            ),
+            handler3.description(user=user)
+        )
+
+        # ---
+        handler4 = DateRegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='birthday',
+        )
+        self.assertEqual('??', handler4.description(user=user))
+
     def test_customfield_init01(self):
         custom_field = CustomField.objects.create(
             name='Is a foundation?', field_type=CustomField.BOOL,
@@ -504,6 +759,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             Q(pk__in=FakeOrganisation.objects.none()),
             handler.get_q(user=None)
         )
+
+        # ---
+        with self.assertNumQueries(1):
+            cfield2 = handler.custom_field
+
+        self.assertEqual(custom_field, cfield2)
+
+        with self.assertNumQueries(0):
+            __ = handler.custom_field
 
         # ---
         with self.assertRaises(TypeError):
@@ -797,6 +1061,155 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             handler.get_q(user=None)
         )
 
+    def test_customfield_description01(self):
+        user = self.login()
+
+        custom_field = CustomField.objects.create(
+            name='Size', field_type=CustomField.INT,
+            content_type=FakeContact,
+        )
+
+        value = 25
+        handler = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field,
+            operator_id=operators.EQUALS,
+            values=[value],
+        )
+        self.assertEqual(
+            _('«{field}» is {values}').format(
+                field=custom_field.name,
+                values=_('«{enum_value}»').format(enum_value=value),
+            ),
+            handler.description(user)
+        )
+
+    def test_customfield_description02(self):
+        "Other field & operator."
+        user = self.login()
+
+        custom_field = CustomField.objects.create(
+            name='Degree', field_type=CustomField.STR,
+            content_type=FakeContact,
+        )
+
+        value = 'phD'
+        handler = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field,
+            operator_id=operators.CONTAINS,
+            values=[value],
+        )
+        self.assertEqual(
+            _('«{field}» contains {values}').format(
+                field=custom_field.name,
+                values=_('«{enum_value}»').format(enum_value=value),
+            ),
+            handler.description(user)
+        )
+
+    def test_customfield_description03(self):
+        "ENUM."
+        user = self.login()
+
+        custom_field = CustomField.objects.create(
+            name='Mark', field_type=CustomField.ENUM,
+            content_type=FakeContact,
+        )
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create,
+                                custom_field=custom_field,
+                               )
+        enum_A = create_evalue(value='A')
+        enum_B = create_evalue(value='B')
+
+        handler1 = CustomFieldConditionHandler(
+            model=FakeContact,
+            custom_field=custom_field,
+            operator_id=operators.EQUALS,
+            values=[enum_A.id, enum_B.id, 1024],
+        )
+
+        with self.assertNumQueries(1):
+            description = handler1.description(user)
+
+        fmt = _('«{enum_value}»').format
+        self.assertEqual(
+            _('«{field}» is {values}').format(
+                field=custom_field.name,
+                values=_('{first} or {last}').format(
+                    first=fmt(enum_value=enum_A),
+                    last=fmt(enum_value=enum_B),
+               ),
+            ),
+            description
+        )
+
+        with self.assertNumQueries(0):
+            ___ = handler1.description(user)
+
+        # ---
+        handler2 = CustomFieldConditionHandler(
+            model=FakeContact,
+            custom_field=custom_field,
+            operator_id=operators.EQUALS,
+            values=[enum_A.id, 'notanint'],
+        )
+        self.assertEqual(
+            _('«{field}» is {values}').format(
+                field=custom_field.name,
+                values=_('«{enum_value}»').format(enum_value='???')
+            ),
+            handler2.description(user)
+        )
+
+    def test_customfield_description04(self):
+        "MULTI_ENUM."
+        user = self.login()
+
+        custom_field = CustomField.objects.create(
+            name='Colors', field_type=CustomField.MULTI_ENUM,
+            content_type=FakeContact,
+        )
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create,
+                                custom_field=custom_field,
+                               )
+        enum_1 = create_evalue(value='Red')
+        enum_2 = create_evalue(value='Green')
+
+        handler = CustomFieldConditionHandler(
+            model=FakeContact,
+            custom_field=custom_field,
+            operator_id=operators.EQUALS,
+            values=[enum_1.id, enum_2.id, 1024],
+        )
+
+        fmt = _('«{enum_value}»').format
+        self.assertEqual(
+            _('«{field}» is {values}').format(
+                field=custom_field.name,
+                values=_('{first} or {last}').format(
+                    first=fmt(enum_value=enum_1),
+                    last=fmt(enum_value=enum_2),
+               ),
+            ),
+            handler.description(user)
+        )
+
+    def test_customfield_description05(self):
+        "Deleted CustomField."
+        user = self.login()
+
+        handler = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=1025,
+            related_name='customfieldinteger',
+            operator_id=operators.EQUALS,
+            values=[42],
+        )
+        self.assertEqual('???', handler.description(user))
+
     def test_datecustomfield_init01(self):
         custom_field = CustomField.objects.create(
             name='First fight',
@@ -829,6 +1242,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             handler.get_q(user=None)
         )
 
+        # ---
+        with self.assertNumQueries(1):
+            cfield2 = handler.custom_field
+
+        self.assertEqual(custom_field, cfield2)
+
+        with self.assertNumQueries(0):
+            __ = handler.custom_field
+
     def test_datecustomfield_init02(self):
         "Pass a CustomField instance + start/end."
         custom_field = CustomField.objects.create(
@@ -851,6 +1273,12 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsNone(handler._range_name)
         self.assertEqual(start, handler._start)
         self.assertEqual(end,   handler._end)
+
+        # ---
+        with self.assertNumQueries(0):
+            cfield2 = handler.custom_field
+
+        self.assertEqual(custom_field, cfield2)
 
     def test_datecustomfield_error(self):
         "<error> property."
@@ -1005,18 +1433,101 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             handler.get_q(user=None)
         )
 
+    def test_datecustomfield_description01(self):
+        user = self.login()
+
+        custom_field = CustomField.objects.create(
+            name='First fight', field_type=CustomField.DATETIME,
+            content_type=FakeOrganisation,
+        )
+
+        handler1 = DateCustomFieldConditionHandler(
+            custom_field=custom_field,
+            date_range='previous_year',
+        )
+        self.assertEqual(
+            _('«{field}» is «{value}»').format(
+                field=custom_field.name, value=_('Previous year'),
+            ),
+            handler1.description(user=user)
+        )
+
+        # Other named range
+        handler2 = DateCustomFieldConditionHandler(
+            custom_field=custom_field,
+            date_range='current_year',
+        )
+        self.assertEqual(
+            _('«{field}» is «{value}»').format(
+                field=custom_field.name, value=_('Current year'),
+            ),
+            handler2.description(user=user)
+        )
+
+    def test_datecustomfield_description03(self):
+        "Custom ranges."
+        user = self.login()
+
+        custom_field = CustomField.objects.create(
+            name='First fight', field_type=CustomField.DATETIME,
+            content_type=FakeOrganisation,
+        )
+
+        start = date(year=2000, month=6, day=1)
+        handler1 = DateCustomFieldConditionHandler(
+            custom_field=custom_field,
+            start=start,
+        )
+        self.assertEqual(
+            _('«{field}» starts «{date}»').format(
+                field=custom_field.name,
+                date=date_format(start, 'DATE_FORMAT'),
+            ),
+            handler1.description(user=user)
+        )
+
+        # ---
+        end = date(year=2000, month=7, day=1)
+        handler2 = DateCustomFieldConditionHandler(
+            custom_field=custom_field,
+            end=end,
+        )
+        self.assertEqual(
+            _('«{field}» ends «{date}»').format(
+                field=custom_field.name,
+                date=date_format(end, 'DATE_FORMAT'),
+            ),
+            handler2.description(user=user)
+        )
+
+    def test_datecustomfield_description04(self):
+        "Deleted CustomField."
+        user = self.login()
+
+        handler = DateCustomFieldConditionHandler(
+            model=FakeOrganisation,
+            related_name='customfielddatetime',
+            custom_field=1024,
+            date_range='previous_year',
+        )
+        self.assertEqual('???', handler.description(user=user))
+
     def test_relation_init01(self):
-        rtype_id = 'creme_core-subject_loves'
+        user = self.login()
+        rtype = RelationType.create(('test-subject_love', 'Is loving'),
+                                    ('test-object_love',  'Is loved by')
+                                   )[0]
+
         handler1 = RelationConditionHandler(
             model=FakeOrganisation,
-            rtype=rtype_id,
+            rtype=rtype.id,
             exclude=False,
         )
 
         self.assertEqual(FakeOrganisation, handler1.model)
         self.assertIsNone(handler1.subfilter_id)
         self.assertIs(handler1.subfilter, False)
-        self.assertEqual(rtype_id, handler1._rtype_id)
+        self.assertEqual(rtype.id, handler1._rtype_id)
         self.assertIs(handler1._exclude, False)
         self.assertIsNone(handler1._ct_id)
         self.assertIsNone(handler1._entity_id)
@@ -1029,10 +1540,24 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
         # ---
+        with self.assertNumQueries(1):
+            rtype2 = handler1.relation_type
+
+        self.assertEqual(rtype, rtype2)
+
+        with self.assertNumQueries(0):
+            __ = handler1.relation_type
+
+        # ---
+        with self.assertNumQueries(0):
+            e1 = handler1.entity
+        self.assertIsNone(e1)
+
+        # ---
         ctype_id = ContentType.objects.get_for_model(FakeContact).id
         handler2 = RelationConditionHandler(
             model=FakeOrganisation,
-            rtype=rtype_id,
+            rtype=rtype.id,
             ctype=ctype_id,
             exclude=True,
         )
@@ -1041,15 +1566,25 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(ctype_id, handler2._ct_id)
 
         # ---
-        entity_id = 64
+        entity = FakeContact.objects.create(user=user, last_name='Ayanami', first_name='Rei')
         handler3 = RelationConditionHandler(
             model=FakeOrganisation,
-            rtype=rtype_id,
-            entity=entity_id,
+            rtype=rtype.id,
+            entity=entity.id,
         )
 
         self.assertIs(handler3._exclude, False)
-        self.assertEqual(entity_id, handler3._entity_id)
+        self.assertEqual(entity.id, handler3._entity_id)
+
+        # ---
+        ContentType.objects.get_for_model(CremeEntity)  # pre-fill the cache
+
+        with self.assertNumQueries(2):
+            e3 = handler3.entity
+        self.assertEqual(entity, e3)
+
+        with self.assertNumQueries(0):
+            __ = handler3.entity
 
     def test_relation_init02(self):
         "Pass an instance of RelationType."
@@ -1064,6 +1599,13 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         self.assertEqual(FakeContact, handler.model)
         self.assertEqual(rtype.id, handler._rtype_id)
+        self.assertIsNone(handler.content_type)
+
+        # ---
+        with self.assertNumQueries(0):
+            rtype2 = handler.relation_type
+
+        self.assertEqual(rtype, rtype2)
 
     def test_relation_init03(self):
         "Pass an instance of ContentType."
@@ -1076,6 +1618,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         self.assertEqual(FakeOrganisation, handler.model)
         self.assertEqual(ctype.id, handler._ct_id)
+        self.assertEqual(ctype, handler.content_type)
 
     def test_relation_init04(self):
         "Pass an instance of CremeEntity."
@@ -1091,6 +1634,11 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(FakeOrganisation, handler.model)
         self.assertEqual(entity.id, handler._entity_id)
         self.assertIsNone(handler._ct_id)
+
+        # --
+        with self.assertNumQueries(0):
+            e = handler.entity
+        self.assertEqual(entity, e)
 
     def test_relation_build01(self):
         rtype_id1 = 'creme_core-subject_test1'
@@ -1333,6 +1881,168 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             handler4.get_q(user=None)
         )
 
+    def test_relation_description01(self):
+        user = self.login()
+
+        rtype = RelationType.create(('test-subject_love', 'Is loving'),
+                                    ('test-object_love',  'Is loved by')
+                                   )[0]
+
+        handler1 = RelationConditionHandler(
+            model=FakeOrganisation,
+            rtype=rtype,
+        )
+        self.assertEqual(
+            _('The entities have relationships «{predicate}»').format(predicate=rtype.predicate),
+            handler1.description(user)
+        )
+
+        # ---
+        ctype = ContentType.objects.get_for_model(FakeContact)
+        handler2 = RelationConditionHandler(
+            model=FakeOrganisation,
+            rtype=rtype,
+            ctype=ctype,
+        )
+        self.assertEqual(
+            _('The entities have relationships «{predicate}» to «{model}»').format(
+                predicate=rtype.predicate,
+                model='Test Contacts',
+            ),
+            handler2.description(user)
+        )
+
+        # ---
+        entity = FakeContact.objects.create(user=user, last_name='Ayanami', first_name='Rei')
+        handler3 = RelationConditionHandler(
+            model=FakeContact,
+            rtype=rtype,
+            entity=entity,
+        )
+        self.assertEqual(
+            _('The entities have relationships «{predicate}» to «{entity}»').format(
+                predicate=rtype.predicate,
+                entity=entity,
+            ),
+            handler3.description(user)
+        )
+
+    def test_relation_description02(self):
+        user = self.login()
+
+        rtype = RelationType.create(('test-subject_like', 'Is liking'),
+                                    ('test-object_like',  'Is liked by')
+                                   )[0]
+
+        handler1 = RelationConditionHandler(
+            model=FakeContact,
+            rtype=rtype,
+            exclude=True,
+        )
+        self.assertEqual(
+            _('The entities have no relationship «{predicate}»').format(predicate=rtype.predicate),
+            handler1.description(user)
+        )
+
+        # ---
+        ctype = ContentType.objects.get_for_model(FakeContact)
+        handler2 = RelationConditionHandler(
+            model=FakeOrganisation,
+            rtype=rtype,
+            ctype=ctype,
+            exclude=True,
+        )
+        self.assertEqual(
+            _('The entities have no relationship «{predicate}» to «{model}»').format(
+                predicate=rtype.predicate,
+                model='Test Contacts',
+            ),
+            handler2.description(user)
+        )
+
+        # ---
+        entity = FakeContact.objects.create(user=user, last_name='Ayanami', first_name='Rei')
+        handler3 = RelationConditionHandler(
+            model=FakeContact,
+            rtype=rtype,
+            entity=entity,
+            exclude=True,
+        )
+        self.assertEqual(
+            _('The entities have no relationship «{predicate}» to «{entity}»').format(
+                predicate=rtype.predicate,
+                entity=entity,
+            ),
+            handler3.description(user)
+        )
+
+    def test_relation_description03(self):
+        "Credentials."
+        user = self.login(is_superuser=False)
+
+        rtype = RelationType.create(('test-subject_love', 'Is loving'),
+                                    ('test-object_love',  'Is loved by')
+                                   )[0]
+        entity = FakeContact.objects.create(user=self.other_user,
+                                            last_name='Ayanami', first_name='Rei',
+                                           )
+
+        handler = RelationConditionHandler(
+            model=FakeContact,
+            rtype=rtype,
+            entity=entity,
+        )
+        self.assertEqual(
+            _('The entities have relationships «{predicate}» to «{entity}»').format(
+                predicate=rtype.predicate,
+                entity=_('Entity #{id} (not viewable)').format(id=entity.id),
+            ),
+            handler.description(user)
+        )
+
+    def test_relation_description04(self):
+        "Errors."
+        user = self.login()
+
+        handler1 = RelationConditionHandler(
+            model=FakeContact,
+            rtype='doesnotexistanymore',
+            exclude=True,
+        )
+        self.assertEqual('???', handler1.description(user))
+
+        # ---
+        rtype = RelationType.create(('test-subject_like', 'Is liking'),
+                                    ('test-object_like',  'Is liked by')
+                                   )[0]
+        handler2 = RelationConditionHandler(
+            model=FakeContact,
+            rtype=rtype,
+            entity=1024,
+        )
+        self.assertEqual(
+            _('The entities have relationships «{predicate}» to «{entity}»').format(
+                predicate=rtype.predicate,
+                entity='???',
+            ),
+            handler2.description(user)
+        )
+
+        # ---
+        handler3 = RelationConditionHandler(
+            model=FakeOrganisation,
+            rtype=rtype,
+            ctype=1024,
+            exclude=True,
+        )
+        self.assertEqual(
+            _('The entities have no relationship «{predicate}» to «{model}»').format(
+                predicate=rtype.predicate,
+                model='???',
+            ),
+            handler3.description(user)
+        )
+
     def test_subfilter_init01(self):
         sub_efilter = EntityFilter.create(
             pk='test-filter01', name='Filter01', model=FakeOrganisation, is_custom=True,
@@ -1443,6 +2153,35 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(sub_efilter.id, handler.subfilter_id)
         self.assertEqual(sub_efilter.id, handler._subfilter_id)
         self.assertEqual(sub_efilter, handler.subfilter)
+
+    def test_subfilter_description01(self):
+        user = self.login()
+        sub_efilter = EntityFilter.create(
+            pk='test-filter01', name='Filter01', model=FakeOrganisation, is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation, field_name='name',
+                    operator_id=operators.EQUALS, values=['Bebop'],
+                ),
+            ],
+        )
+
+        handler = SubFilterConditionHandler(
+            model=FakeOrganisation,
+            subfilter=sub_efilter.id,
+        )
+        self.assertEqual(
+            _('Entities are accepted by the filter «{}»').format(sub_efilter.name),
+            handler.description(user)
+        )
+
+    def test_subfilter_description02(self):
+        user = self.login()
+        handler = SubFilterConditionHandler(
+            model=FakeOrganisation,
+            subfilter='doesnotexist',
+        )
+        self.assertEqual('???', handler.description(user))
 
     def test_relation_subfilter_init01(self):
         sub_efilter = EntityFilter.create(
@@ -1701,18 +2440,102 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             handler2.get_q(user=None)
         )
 
+    def test_relation_subfilter_description01(self):
+        user = self.login()
+
+        rtype = RelationType.create(('test-subject_love', 'Is loving'),
+                                    ('test-object_love',  'Is loved by')
+                                   )[0]
+
+        sub_filter = EntityFilter.create(
+            pk='test-filter01', name='Filter Ikari', model=FakeContact, is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='last_name',
+                    operator_id=operators.STARTSWITH, values=['Ikari'],
+                ),
+            ],
+        )
+
+        handler1 = RelationSubFilterConditionHandler(
+            model=FakeOrganisation,
+            rtype=rtype,
+            subfilter=sub_filter,
+        )
+        self.assertEqual(
+            _('The entities have relationships «{predicate}» to «{filter}»').format(
+                predicate=rtype.predicate,
+                filter=sub_filter,
+            ),
+            handler1.description(user)
+        )
+
+        # --- exclude
+        handler2 = RelationSubFilterConditionHandler(
+            model=FakeOrganisation,
+            rtype=rtype,
+            subfilter=sub_filter,
+            exclude=True
+        )
+        self.assertEqual(
+            _('The entities have no relationship «{predicate}» to «{filter}»').format(
+                predicate=rtype.predicate,
+                filter=sub_filter,
+            ),
+            handler2.description(user)
+        )
+
+    def test_relation_subfilter_description02(self):
+        user = self.login()
+
+        sub_filter = EntityFilter.create(
+            pk='test-filter01', name='Filter Ikari', model=FakeContact, is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='last_name',
+                    operator_id=operators.STARTSWITH, values=['Ikari'],
+                ),
+            ],
+        )
+
+        handler1 = RelationSubFilterConditionHandler(
+            model=FakeOrganisation,
+            rtype='deosnotexist',
+            subfilter=sub_filter,
+        )
+        self.assertEqual('???', handler1.description(user))
+
+        # ---
+        rtype = RelationType.create(('test-subject_love', 'Is loving'),
+                                    ('test-object_love',  'Is loved by')
+                                   )[0]
+
+        handler2 = RelationSubFilterConditionHandler(
+            model=FakeOrganisation,
+            rtype=rtype,
+            subfilter='doesnotexist',
+        )
+        self.assertEqual(
+            _('The entities have relationships «{predicate}» to «{filter}»').format(
+                predicate=rtype.predicate,
+                filter='???',
+            ),
+            handler2.description(user)
+        )
+
     def test_property_init01(self):
-        ptype_id = 'creme_core-is_cool'
+        ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
+
         handler = PropertyConditionHandler(
             model=FakeOrganisation,
-            ptype=ptype_id,
+            ptype=ptype.id,
             exclude=False,
         )
 
         self.assertEqual(FakeOrganisation, handler.model)
         self.assertIsNone(handler.subfilter_id)
         self.assertIs(handler.subfilter, False)
-        self.assertEqual(ptype_id, handler._ptype_id)
+        self.assertEqual(ptype.id, handler._ptype_id)
         self.assertIs(handler._exclude, False)
 
         self.assertIsNone(handler.error)
@@ -1721,6 +2544,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             Q(pk__in=CremeProperty.objects.none()),
             handler.get_q(user=None)
         )
+
+        # ---
+        with self.assertNumQueries(1):
+            ptype2 = handler.property_type
+
+        self.assertEqual(ptype, ptype2)
+
+        with self.assertNumQueries(0):
+            __ = handler.property_type
 
     def test_property_init02(self):
         "Pass a CremePropertyType instance."
@@ -1735,6 +2567,12 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(FakeContact, handler.model)
         self.assertEqual(ptype.id, handler._ptype_id)
         self.assertIs(handler._exclude, True)
+
+        # ---
+        with self.assertNumQueries(0):
+            ptype2 = handler.property_type
+
+        self.assertEqual(ptype, ptype2)
 
     def test_property_build01(self):
         ptype_id1 = 'creme_core-test1'
@@ -1855,17 +2693,66 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             handler2.get_q(user=None)
         )
 
+    def test_property_description01(self):
+        user = self.login()
+        cute = CremePropertyType.create(str_pk='test-prop_cute', text='Cute')
+        handler = PropertyConditionHandler(
+            model=FakeOrganisation,
+            ptype=cute,
+            exclude=False,
+        )
+        self.assertEqual(
+            _('The entities have the property «{}»').format(cute.text),
+            handler.description(user)
+        )
+
+    def test_property_description02(self):
+        user = self.login()
+        cute = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
+        handler = PropertyConditionHandler(
+            model=FakeOrganisation,
+            ptype=cute,
+            exclude=True,
+        )
+        self.assertEqual(
+            _('The entities have no property «{}»').format(cute.text),
+            handler.description(user)
+        )
+
+    def test_property_description03(self):
+        "Deleted CremePropertyType."
+        user = self.login()
+        handler = PropertyConditionHandler(
+            model=FakeOrganisation,
+            ptype='doesnotexist',
+        )
+        self.assertEqual('???', handler.description(user))
+
     def test_operand_currentuser(self):
+        user = self.login()
         # efilter = EntityFilter.create('test-filter01', 'Spike & Faye', FakeContact, is_custom=True)
 
         with self.assertNoException():
-            RegularFieldConditionHandler.build_condition(
+            handler = RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator_id=operators.EQUALS,
                 field_name='user',
                 values=['__currentuser__'],
             )
 
+        self.assertQEqual(Q(user__exact=user.id), handler.get_q(user))
+        other = self.other_user
+        self.assertQEqual(Q(user__exact=other.id), handler.get_q(other))
+
+        self.assertEqual(
+            _('«{field}» is {values}').format(
+                field=_('Owner user'),
+                values=_('«{enum_value}»').format(enum_value=_('Current user')),
+            ),
+            handler.description(user)
+        )
+
+        # ---
         with self.assertNoException():
             # efilter.set_conditions([
             #     EntityFilterCondition.build_4_field(

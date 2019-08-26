@@ -9,6 +9,7 @@ try:
     from django.contrib.auth import get_user_model
     from django.db.models.query import QuerySet
     from django.utils.timezone import now
+    from django.utils.translation import gettext as _
 
     from creme import __version__
 
@@ -3772,6 +3773,79 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertSetEqual(
             persons_efilters_set,
             {*EntityFilter.get_for_user(user, [self.contact_ct, orga_ct])}
+        )
+
+    def test_get_verbose_conditions01(self):
+        efilter = EntityFilter.create(pk='test-ef_contact',
+                                      name='My filter',
+                                      model=FakeContact,
+                                      is_custom=True,
+                                      conditions=[],
+                                     )
+
+        self.assertEqual([], [*efilter.get_verbose_conditions(self.user)])
+
+    def test_get_verbose_conditions02(self):
+        "One condition."
+        first_name = 'Misato'
+        efilter = EntityFilter.create(
+            pk='test-ef_contact', name='My filter', model=FakeContact, is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.EQUALS,
+                    field_name='first_name', values=[first_name],
+                ),
+            ],
+        )
+
+        msg = _('«{field}» is {values}').format(
+            field=_('First name'),
+            values=_('«{enum_value}»').format(enum_value=first_name),
+        )
+        self.assertEqual(
+            msg,
+            efilter.get_conditions()[0].description(self.user)
+        )
+        self.assertListEqual(
+            [msg],
+            [*efilter.get_verbose_conditions(self.user)]
+        )
+
+    def test_get_verbose_conditions03(self):
+        "Several conditions."
+        name = 'Nerv'
+        desc1 = 'important'
+        desc2 = 'beware'
+        efilter = EntityFilter.create(
+            pk='test-ef_orga', name='My filter', model=FakeOrganisation, is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.STARTSWITH,
+                    field_name='name', values=[name],
+                ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.CONTAINS,
+                    field_name='description', values=[desc1, desc2],
+                ),
+            ],
+        )
+        self.assertListEqual(
+            [_('«{field}» starts with {values}').format(
+                 field=_('Name'),
+                 values=_('«{enum_value}»').format(enum_value=name),
+             ),
+             _('«{field}» contains {values}').format(
+                 field=_('Description'),
+                 values='{first} or {last}'.format(
+                     first=_('«{enum_value}»').format(enum_value=desc1),
+                     last=_('«{enum_value}»').format(enum_value=desc2),
+                 ),
+             ),
+            ],
+            [*efilter.get_verbose_conditions(self.user)]
         )
 
     def test_filterlist01(self):
