@@ -994,6 +994,36 @@ class CalendarTestCase(_ActivitiesTestCase):
             )
         )
 
+    @skipIfCustomActivity
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
+    def test_activities_data04(self):
+        "Activity in several Calendars."
+        user = self.login()
+        other_user = self.other_user
+
+        cal1 = Calendar.objects.get_default_calendar(user)
+        cal2 = Calendar.objects.get_default_calendar(other_user)
+
+        start = self.create_datetime(year=2013, month=4, day=1)
+
+        create = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_TASK)
+        act1 = create(title='Act#1', start=start + timedelta(days=1),  end=start + timedelta(days=2))
+        act2 = create(title='Act#2', start=start + timedelta(days=2),  end=start + timedelta(days=3))
+
+        act1.calendars.set([cal1, cal2])  # <== Act1 must be returned twice
+        act2.calendars.set([cal2])
+
+        response = self._get_cal_activities([cal1, cal2],
+                                            start=start.strftime('%s'),
+                                           )
+        self.assertCountEqual(
+            [(act1.id, cal1.id),
+             (act1.id, cal2.id),
+             (act2.id, cal2.id),
+            ],
+            [(d['id'], d['calendar']) for d in response.json()]
+        )
+
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
     def test_selected_calendars_in_session(self):
         user = self.login()
