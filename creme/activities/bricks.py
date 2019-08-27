@@ -125,9 +125,11 @@ class FutureActivitiesBrick(QuerysetBrick):
 
     def _get_queryset_for_entity(self, entity, context):
         if isinstance(entity, Organisation):
-            return Activity.get_future_linked_for_orga(entity, context['today'])
+            # return Activity.get_future_linked_for_orga(entity, context['today'])
+            return Activity.objects.future_linked_to_organisation(entity, context['today'])
         else:
-            return Activity.get_future_linked(entity, context['today'])
+            # return Activity.get_future_linked(entity, context['today'])
+            return Activity.objects.future_linked(entity=entity, today=context['today'])
 
     def get_template_context(self, *args, **kwargs):
         ctxt = super().get_template_context(*args, **kwargs)
@@ -179,9 +181,11 @@ class PastActivitiesBrick(FutureActivitiesBrick):
 
     def _get_queryset_for_entity(self, entity, context):
         if isinstance(entity, Organisation):
-            return Activity.get_past_linked_for_orga(entity, context['today'])
+            # return Activity.get_past_linked_for_orga(entity, context['today'])
+            return Activity.objects.past_linked_to_organisation(entity, context['today'])
         else:
-            return Activity.get_past_linked(entity, context['today'])
+            # return Activity.get_past_linked(entity, context['today'])
+            return Activity.objects.past_linked(entity, context['today'])
 
 
 class UserCalendarsBrick(QuerysetBrick):

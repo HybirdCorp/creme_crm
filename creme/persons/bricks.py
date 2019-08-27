@@ -50,10 +50,11 @@ if apps.is_installed('creme.activities'):
 
     class Activities4Card:
         dependencies = [Activity]
-        relation_type_deps = [activities_constants.REL_SUB_PART_2_ACTIVITY,
-                              activities_constants.REL_SUB_ACTIVITY_SUBJECT,
-                              activities_constants.REL_SUB_LINKED_2_ACTIVITY,
-                             ]
+        relation_type_deps = [
+            activities_constants.REL_SUB_PART_2_ACTIVITY,
+            activities_constants.REL_SUB_ACTIVITY_SUBJECT,
+            activities_constants.REL_SUB_LINKED_2_ACTIVITY,
+        ]
 
         @staticmethod
         def get(context, entity):
@@ -61,11 +62,15 @@ if apps.is_installed('creme.activities'):
             user = context['user']
 
             if isinstance(entity, Organisation):
-                past = Activity.get_past_linked_for_orga
-                future = Activity.get_future_linked_for_orga
+                # past = Activity.get_past_linked_for_orga
+                past = Activity.objects.past_linked_to_organisation
+                # future = Activity.get_future_linked_for_orga
+                future = Activity.objects.future_linked_to_organisation
             else:
-                past = Activity.get_past_linked
-                future = Activity.get_future_linked
+                # past = Activity.get_past_linked
+                past = Activity.objects.past_linked
+                # future = Activity.get_future_linked
+                future = Activity.objects.future_linked
 
             return {
                 'last': EntityCredentials.filter(user, past(entity, now)).first(),
@@ -89,7 +94,8 @@ if apps.is_installed('creme.activities'):
             if not contact.is_user_id:
                 time_limit = self.context['today'] - self.delta
 
-                if not Activity.get_future_linked(contact, today=time_limit).exists():
+                # if not Activity.get_future_linked(contact, today=time_limit).exists():
+                if not Activity.objects.future_linked(contact, today=time_limit).exists():
                     return self.label_not if time_limit > contact.created else self.label_never
 
             return ''
