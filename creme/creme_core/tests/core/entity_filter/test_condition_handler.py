@@ -240,8 +240,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # Problem a part of a email address is not a valid email address
         with self.assertRaises(FilterConditionHandler.ValueError) as cm:
             build(operator_id=operators.EQUALS, values=['misato'])
-        # self.assertEqual(_('Enter a valid email address.'), cm.exception.args[0])  TODO: ?
-        self.assertEqual("['Enter a valid email address.']", cm.exception.args[0])
+        self.assertEqual("['{}']".format(_('Enter a valid email address.')),
+                         cm.exception.args[0]
+                        )
 
         # ---
         with self.assertNoException():
