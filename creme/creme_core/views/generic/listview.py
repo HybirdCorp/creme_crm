@@ -972,7 +972,6 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
 class BaseEntitiesListPopup(EntitiesList):
     """Base class for list-view in inner-popup."""
-    # TODO: use it (see EntitiesList.get_template_names())
     # TODO: improve title display => move it to the popup header
     template_name = 'creme_core/generics/entities-popup.html'
     is_popup_view = True
