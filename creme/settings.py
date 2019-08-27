@@ -252,7 +252,7 @@ MIDDLEWARE = [
 ]
 
 INSTALLED_DJANGO_APPS = [
-    'django.contrib.contenttypes',
+    'creme.creme_core.apps.ContentTypesConfig',  # Replaces 'django.contrib.contenttypes',
     'django.contrib.auth',
     'django.contrib.sessions',
     # 'django.contrib.sites', #remove ??
