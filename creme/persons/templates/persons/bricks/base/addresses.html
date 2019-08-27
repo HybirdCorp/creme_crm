@@ -26,7 +26,7 @@
         <div class='address-map'>
             <div class='address-container'>
                 <span class='address-title'>
-                    {% trans 'Billing address' %}{% templatize '{{b_address.get_edit_absolute_url}}?type=billing' as b_uri %}
+                    {% trans 'Billing address' %}{% url_join b_address.get_edit_absolute_url type='billing' as b_uri %}
                     {% brick_action id='edit' url=b_uri display='both' enabled=has_perm %}
                 </span>
                 {% block billing_address_content %}{# TODO: override this #}
@@ -39,7 +39,7 @@
         <div class='address-map'>
             <div class='address-container'>
                 <span class='address-title'>
-                    {% trans 'Shipping address' %}{% templatize '{{s_address.get_edit_absolute_url}}?type=shipping' as s_uri %}
+                    {% trans 'Shipping address' %}{% url_join s_address.get_edit_absolute_url type='shipping' as s_uri %}
                     {% brick_action id='edit' url=s_uri display='both' enabled=has_perm %}
                 </span>
                 {% block shipping_address_content %}{# TODO: override this #}

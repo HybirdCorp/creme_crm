@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_widgets creme_bricks crudity_tags %}
+{% load i18n creme_widgets creme_bricks crudity_tags %}{# creme_core_tags #}
 
 {% block brick_extra_class %}{{block.super}} brick-selectable crudity-actions-brick{% endblock %}
 
@@ -67,7 +67,7 @@
         {% endfor %}
         </td>
         <td>{{backend.verbose_method}}</td>
-        <td {% brick_table_data_status action %}>{% templatize '.row-selector[value={{waiting_action.id}}]' as selector %}
+        <td {% brick_table_data_status action %}>{# {% templatize '.row-selector[value={{waiting_action.id}}]' as selector %} #}
             {% brick_table_action id='crudity-validate-row' url=validate_url __id=waiting_action.pk label=_('Validate') icon='ok' %}
         </td>
         <td {% brick_table_data_status action %}>

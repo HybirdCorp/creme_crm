@@ -9,7 +9,7 @@
 
 {% block brick_header_actions %}
 {% url 'creme_core__listview_popup' as lv_url %}
-{% templatize '{{lv_url}}?ct_id={{objects_ctype.id}}&q_filter={{q_filter}}' as action_uri %}
+{% url_join lv_url ct_id=objects_ctype.id q_filter=q_filter as action_uri %}
     {% brick_header_action id='view' url=action_uri label=_('List of documents') icon='search' %} {# class='contained-doc-search' #}
 {% endblock %}
 
