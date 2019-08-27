@@ -22,8 +22,9 @@ import logging
 from sys import argv
 
 from django.apps import AppConfig, apps
-from django.core import checks
+from django.contrib.contenttypes.apps import ContentTypesConfig as VanillaContentTypesConfig
 from django.conf import settings
+from django.core import checks
 from django.utils.translation import gettext_lazy as _
 
 from .checks import Tags, check_uninstalled_apps  # NB: it registers other checks too
@@ -103,6 +104,15 @@ class MediaGeneratorConfig(AppConfig):
 
         settings.CREME_CSS = CREME_CSS  # For compatibility (should not be useful)
         settings.MEDIA_BUNDLES = MEDIA_BUNDLES
+
+
+class ContentTypesConfig(VanillaContentTypesConfig):
+    def ready(self):
+        super().ready()
+
+        from django.contrib.contenttypes.models import ContentType
+        assert not ContentType._meta.ordering, 'It seems ContentType has an ordering policy now ?!'
+        ContentType._meta.ordering = ('id', )
 
 
 class CremeAppConfig(AppConfig):
