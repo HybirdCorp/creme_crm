@@ -91,9 +91,13 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
         if apps.is_installed('creme.activities'):
             from creme.activities import get_activity_model
 
-            is_neglected = not get_activity_model().get_future_linked(opportunity,
-                                                                      today=context['today'] - timedelta(days=30),
-                                                                     ).exists()
+            # is_neglected = not get_activity_model().get_future_linked(opportunity,
+            #                                                           today=context['today'] - timedelta(days=30),
+            #                                                          ).exists()
+            is_neglected = not get_activity_model().objects.future_linked(
+                entity=opportunity,
+                today=context['today'] - timedelta(days=30),
+            ).exists()
         else:
             is_neglected = None
 

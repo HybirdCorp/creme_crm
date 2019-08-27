@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, date, time
+    from datetime import datetime, date, time, timedelta
     from functools import partial
 
     from django.apps import apps
@@ -2074,3 +2074,599 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertNotEqual(activity1.busy, activity2.busy)
         self.assertSameRelationsNProperties(activity1, activity2, exclude_internal=False)
+
+    def test_get_future_linked(self):  # DEPRECATED
+        user = self.login()
+        create_dt = self.create_datetime
+        today = create_dt(year=2019, month=8, day=26, hour=8)
+
+        rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
+                                     ('test-object_foobar',  'is loved by')
+                                    )[0]
+
+        create_activity = partial(Activity.objects.create, user=user,
+                                  type_id=constants.ACTIVITYTYPE_MEETING,
+                                  start=today + timedelta(hours=3),
+                                  end=today   + timedelta(hours=4),
+                                 )
+        activity1 = create_activity(title='Meeting#1')
+        ___       = create_activity(title='Meeting#2')  # No relation
+        activity3 = create_activity(title='Meeting#3')  # Ignored type of relation
+        activity4 = create_activity(title='Meeting#4', is_deleted=True)
+        activity5 = create_activity(title='Meeting#5',
+                                    start=today - timedelta(hours=15),
+                                    end=today   - timedelta(hours=14),
+                                   )  # In the past
+        activity6 = create_activity(title='Meeting#6',
+                                    start=today + timedelta(hours=1),
+                                    end=today   + timedelta(hours=2),
+                                   )
+
+        create_contact = partial(Contact.objects.create, user=user)
+        c1 = create_contact(first_name='Ranma', last_name='Saotome')
+        c2 = create_contact(first_name='Genma', last_name='Saotome')
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        o1 = create_orga(name='Saotome dojo')
+        o2 = create_orga(name='Tendou dojo')
+
+        create_rel = partial(Relation.objects.create, user=user, object_entity=activity1,
+                             type_id=constants.REL_SUB_PART_2_ACTIVITY,
+                            )
+
+        create_rel(subject_entity=c1)
+        create_rel(subject_entity=c1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT)  # Second relation on the same activity => return once
+        create_rel(subject_entity=o1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(subject_entity=o2, type_id=constants.REL_SUB_LINKED_2_ACTIVITY)
+        create_rel(subject_entity=c2, type_id=rtype1.id, object_entity=activity3)
+        create_rel(subject_entity=c1, object_entity=activity4)
+        create_rel(subject_entity=c1, object_entity=activity5)
+        create_rel(subject_entity=c1, object_entity=activity6)
+
+        self.assertEqual(
+            [activity6, activity1],
+            [*Activity.get_future_linked(entity=c1, today=today)]
+        )
+        self.assertEqual(
+            [activity1],
+            [*Activity.get_future_linked(entity=o1, today=today)]
+        )
+        self.assertEqual(
+            [activity1],
+            [*Activity.get_future_linked(entity=o2, today=today)]
+        )
+        self.assertFalse(Activity.get_future_linked(entity=c2, today=today))
+
+    def test_get_past_linked(self):  # DEPRECATED
+        user = self.login()
+        create_dt = self.create_datetime
+        today = create_dt(year=2019, month=8, day=26, hour=8)
+
+        rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
+                                     ('test-object_foobar',  'is loved by')
+                                    )[0]
+
+        create_activity = partial(Activity.objects.create, user=user,
+                                  type_id=constants.ACTIVITYTYPE_MEETING,
+                                  start=today - timedelta(hours=24),
+                                  end=today   - timedelta(hours=23),
+                                 )
+        activity1 = create_activity(title='Meeting#1')
+        ___       = create_activity(title='Meeting#2')  # No relation
+        activity3 = create_activity(title='Meeting#3')  # Ignored type of relation
+        activity4 = create_activity(title='Meeting#4', is_deleted=True)
+        activity5 = create_activity(title='Meeting#5',
+                                    start=today + timedelta(hours=4),
+                                    end=today   + timedelta(hours=5),
+                                   )  # In the future
+        activity6 = create_activity(title='Meeting#6',
+                                    start=today - timedelta(hours=15),
+                                    end=today   - timedelta(hours=14),
+                                   )
+
+        create_contact = partial(Contact.objects.create, user=user)
+        c1 = create_contact(first_name='Ranma', last_name='Saotome')
+        c2 = create_contact(first_name='Genma', last_name='Saotome')
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        o1 = create_orga(name='Saotome dojo')
+        o2 = create_orga(name='Tendou dojo')
+
+        create_rel = partial(Relation.objects.create, user=user, object_entity=activity1,
+                             type_id=constants.REL_SUB_PART_2_ACTIVITY,
+                            )
+
+        create_rel(subject_entity=c1)
+        create_rel(subject_entity=c1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT)  # Second relation on the same activity => return once
+        create_rel(subject_entity=o1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(subject_entity=o2, type_id=constants.REL_SUB_LINKED_2_ACTIVITY)
+        create_rel(subject_entity=c2, type_id=rtype1.id, object_entity=activity3)
+        create_rel(subject_entity=c1, object_entity=activity4)
+        create_rel(subject_entity=c1, object_entity=activity5)
+        create_rel(subject_entity=c1, object_entity=activity6)
+
+        self.assertEqual(
+            [activity6, activity1],
+            [*Activity.get_past_linked(entity=c1, today=today)]
+        )
+        self.assertEqual(
+            [activity1],
+            [*Activity.get_past_linked(entity=o1, today=today)]
+        )
+        self.assertEqual(
+            [activity1],
+            [*Activity.get_past_linked(entity=o2, today=today)]
+        )
+        self.assertFalse(Activity.get_past_linked(entity=c2, today=today))
+
+    def test_manager_future_linked(self):
+        user = self.login()
+        create_dt = self.create_datetime
+        today = create_dt(year=2019, month=8, day=26, hour=8)
+
+        rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
+                                     ('test-object_foobar',  'is loved by')
+                                    )[0]
+
+        create_activity = partial(Activity.objects.create, user=user,
+                                  type_id=constants.ACTIVITYTYPE_MEETING,
+                                  start=today + timedelta(hours=3),
+                                  end=today   + timedelta(hours=4),
+                                 )
+        activity1 = create_activity(title='Meeting#1')
+        ___       = create_activity(title='Meeting#2')  # No relation
+        activity3 = create_activity(title='Meeting#3')  # Ignored type of relation
+        activity4 = create_activity(title='Meeting#4', is_deleted=True)
+        activity5 = create_activity(title='Meeting#5',
+                                    start=today - timedelta(hours=15),
+                                    end=today   - timedelta(hours=14),
+                                   )  # In the past
+        activity6 = create_activity(title='Meeting#6',
+                                    start=today + timedelta(hours=1),
+                                    end=today   + timedelta(hours=2),
+                                   )
+
+        create_contact = partial(Contact.objects.create, user=user)
+        c1 = create_contact(first_name='Ranma', last_name='Saotome')
+        c2 = create_contact(first_name='Genma', last_name='Saotome')
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        o1 = create_orga(name='Saotome dojo')
+        o2 = create_orga(name='Tendou dojo')
+
+        create_rel = partial(Relation.objects.create, user=user, object_entity=activity1,
+                             type_id=constants.REL_SUB_PART_2_ACTIVITY,
+                            )
+
+        create_rel(subject_entity=c1)
+        create_rel(subject_entity=c1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT)  # Second relation on the same activity => return once
+        create_rel(subject_entity=o1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(subject_entity=o2, type_id=constants.REL_SUB_LINKED_2_ACTIVITY)
+        create_rel(subject_entity=c2, type_id=rtype1.id, object_entity=activity3)
+        create_rel(subject_entity=c1, object_entity=activity4)
+        create_rel(subject_entity=c1, object_entity=activity5)
+        create_rel(subject_entity=c1, object_entity=activity6)
+
+        self.assertEqual(
+            [activity6, activity1],
+            [*Activity.objects.future_linked(entity=c1, today=today)]
+        )
+        self.assertEqual(
+            [activity1],
+            [*Activity.objects.future_linked(entity=o1, today=today)]
+        )
+        self.assertEqual(
+            [activity1],
+            [*Activity.objects.future_linked(entity=o2, today=today)]
+        )
+        self.assertFalse(Activity.objects.future_linked(entity=c2, today=today))
+
+    def test_manager_past_linked(self):
+        user = self.login()
+        create_dt = self.create_datetime
+        today = create_dt(year=2019, month=8, day=26, hour=8)
+
+        rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
+                                     ('test-object_foobar',  'is loved by')
+                                    )[0]
+
+        create_activity = partial(Activity.objects.create, user=user,
+                                  type_id=constants.ACTIVITYTYPE_MEETING,
+                                  start=today - timedelta(hours=24),
+                                  end=today   - timedelta(hours=23),
+                                 )
+        activity1 = create_activity(title='Meeting#1')
+        ___       = create_activity(title='Meeting#2')  # No relation
+        activity3 = create_activity(title='Meeting#3')  # Ignored type of relation
+        activity4 = create_activity(title='Meeting#4', is_deleted=True)
+        activity5 = create_activity(title='Meeting#5',
+                                    start=today + timedelta(hours=4),
+                                    end=today   + timedelta(hours=5),
+                                   )  # In the future
+        activity6 = create_activity(title='Meeting#6',
+                                    start=today - timedelta(hours=15),
+                                    end=today   - timedelta(hours=14),
+                                   )
+
+        create_contact = partial(Contact.objects.create, user=user)
+        c1 = create_contact(first_name='Ranma', last_name='Saotome')
+        c2 = create_contact(first_name='Genma', last_name='Saotome')
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        o1 = create_orga(name='Saotome dojo')
+        o2 = create_orga(name='Tendou dojo')
+
+        create_rel = partial(Relation.objects.create, user=user, object_entity=activity1,
+                             type_id=constants.REL_SUB_PART_2_ACTIVITY,
+                            )
+
+        create_rel(subject_entity=c1)
+        create_rel(subject_entity=c1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT)  # Second relation on the same activity => return once
+        create_rel(subject_entity=o1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(subject_entity=o2, type_id=constants.REL_SUB_LINKED_2_ACTIVITY)
+        create_rel(subject_entity=c2, type_id=rtype1.id, object_entity=activity3)
+        create_rel(subject_entity=c1, object_entity=activity4)
+        create_rel(subject_entity=c1, object_entity=activity5)
+        create_rel(subject_entity=c1, object_entity=activity6)
+
+        self.assertEqual(
+            [activity6, activity1],
+            [*Activity.objects.past_linked(entity=c1, today=today)]
+        )
+        self.assertEqual(
+            [activity1],
+            [*Activity.objects.past_linked(entity=o1, today=today)]
+        )
+        self.assertEqual(
+            [activity1],
+            [*Activity.objects.past_linked(entity=o2, today=today)]
+        )
+        self.assertFalse(Activity.objects.past_linked(entity=c2, today=today))
+
+    def test_get_future_linked_for_orga(self):  # DEPRECATED
+        user = self.login()
+
+        sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
+        sv.value = False  # We disable the auto subjects feature
+        sv.save()
+
+        create_dt = self.create_datetime
+        today = create_dt(year=2019, month=8, day=26, hour=8)
+
+        rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
+                                     ('test-object_foobar',  'is loved by')
+                                    )[0]
+
+        create_activity = partial(Activity.objects.create, user=user,
+                                  type_id=constants.ACTIVITYTYPE_MEETING,
+                                  start=today + timedelta(hours=3),
+                                  end=today   + timedelta(hours=4),
+                                 )
+        activity1 = create_activity(title='Meeting#1')
+        activity2 = create_activity(title='Meeting#2')
+        activity3 = create_activity(title='Meeting#3')
+        activity4 = create_activity(title='Meeting#4', is_deleted=True)
+        activity5 = create_activity(title='Meeting#5',
+                                    start=today - timedelta(hours=15),
+                                    end=today   - timedelta(hours=14),
+                                   )  # In the past => ignored
+        activity6 = create_activity(title='Meeting#6',
+                                    start=today + timedelta(hours=1),
+                                    end=today   + timedelta(hours=2),
+                                   )  # Before <activity1> when ordering by 'start'
+        activity7 = create_activity(title='Meeting#2')
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='Saotome dojo')
+        orga2 = create_orga(name='Tendou dojo')
+        orga3 = create_orga(name='Hibiki dojo')
+        orga4 = create_orga(name='Happosai dojo')
+
+        create_contact = partial(Contact.objects.create, user=user)
+        c1 = create_contact(first_name='Ranma', last_name='Saotome')
+        c2 = create_contact(first_name='Ryoga', last_name='Hibiki')
+        c3 = create_contact(first_name='Akane', last_name='Tendou')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=c1, type_id=REL_SUB_EMPLOYED_BY, object_entity=orga2)
+        create_rel(subject_entity=c2, type_id=REL_SUB_MANAGES,     object_entity=orga3)
+        create_rel(subject_entity=c3, type_id=REL_SUB_EMPLOYED_BY, object_entity=orga4)
+
+        # About <orga1>
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity1)
+        create_rel(subject_entity=orga1, type_id=rtype1.id,                           object_entity=activity3)  # Ignored type of relation
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity4)
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity5)
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity6)
+
+        # About <orga2>
+        create_rel(subject_entity=c1, type_id=constants.REL_SUB_PART_2_ACTIVITY,  object_entity=activity2)
+
+        # About <orga3>
+        create_rel(subject_entity=c2, type_id=constants.REL_SUB_LINKED_2_ACTIVITY, object_entity=activity3)
+
+        # About <orga4> (2 relationships on the same activity => return only one)
+        create_rel(subject_entity=orga4, type_id=constants.REL_SUB_ACTIVITY_SUBJECT, object_entity=activity7)
+        create_rel(subject_entity=c3,    type_id=constants.REL_SUB_PART_2_ACTIVITY,  object_entity=activity7)
+
+        self.assertEqual(
+            [activity6, activity1],
+            [*Activity.get_future_linked_for_orga(orga1, today=today)]
+        )
+
+        self.assertFalse(Relation.objects.filter(subject_entity=activity2, object_entity=orga2))
+        self.assertEqual(
+            [activity2],
+            [*Activity.get_future_linked_for_orga(orga=orga2, today=today)]
+        )
+
+        self.assertEqual(
+            [activity3],
+            [*Activity.get_future_linked_for_orga(orga=orga3, today=today)]
+        )
+
+        self.assertEqual(
+            [activity7],
+            [*Activity.get_future_linked_for_orga(orga=orga4, today=today)]
+        )
+
+    def test_get_past_linked_for_orga(self):  # DEPRECATED
+        user = self.login()
+
+        sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
+        sv.value = False  # We disable the auto subjects feature
+        sv.save()
+
+        create_dt = self.create_datetime
+        today = create_dt(year=2019, month=8, day=26, hour=8)
+
+        rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
+                                     ('test-object_foobar',  'is loved by')
+                                    )[0]
+
+        create_activity = partial(Activity.objects.create, user=user,
+                                  type_id=constants.ACTIVITYTYPE_MEETING,
+                                  start=today - timedelta(hours=16),
+                                  end=today   - timedelta(hours=15),
+                                 )
+        activity1 = create_activity(title='Meeting#1')
+        activity2 = create_activity(title='Meeting#2')
+        activity3 = create_activity(title='Meeting#3')
+        activity4 = create_activity(title='Meeting#4', is_deleted=True)
+        activity5 = create_activity(title='Meeting#5',
+                                    start=today + timedelta(hours=1),
+                                    end=today   + timedelta(hours=2),
+                                   )  # In the Future => ignored
+        activity6 = create_activity(title='Meeting#6',
+                                    start=today - timedelta(hours=15),
+                                    end=today   - timedelta(hours=14),
+                                   )  # Before <activity1> when ordering by '-start'
+        activity7 = create_activity(title='Meeting#2')
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='Saotome dojo')
+        orga2 = create_orga(name='Tendou dojo')
+        orga3 = create_orga(name='Hibiki dojo')
+        orga4 = create_orga(name='Happosai dojo')
+
+        create_contact = partial(Contact.objects.create, user=user)
+        c1 = create_contact(first_name='Ranma', last_name='Saotome')
+        c2 = create_contact(first_name='Ryoga', last_name='Hibiki')
+        c3 = create_contact(first_name='Akane', last_name='Tendou')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=c1, type_id=REL_SUB_EMPLOYED_BY, object_entity=orga2)
+        create_rel(subject_entity=c2, type_id=REL_SUB_MANAGES,     object_entity=orga3)
+        create_rel(subject_entity=c3, type_id=REL_SUB_EMPLOYED_BY, object_entity=orga4)
+
+        # About <orga1>
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity1)
+        create_rel(subject_entity=orga1, type_id=rtype1.id,                           object_entity=activity3)  # Ignored type of relation
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity4)
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity5)
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity6)
+
+        # About <orga2>
+        create_rel(subject_entity=c1, type_id=constants.REL_SUB_PART_2_ACTIVITY,  object_entity=activity2)
+
+        # About <orga3>
+        create_rel(subject_entity=c2, type_id=constants.REL_SUB_LINKED_2_ACTIVITY, object_entity=activity3)
+
+        # About <orga4> (2 relationships on the same activity => return only one)
+        create_rel(subject_entity=orga4, type_id=constants.REL_SUB_ACTIVITY_SUBJECT, object_entity=activity7)
+        create_rel(subject_entity=c3,    type_id=constants.REL_SUB_PART_2_ACTIVITY,  object_entity=activity7)
+
+        self.assertEqual(
+            [activity6, activity1],
+            [*Activity.get_past_linked_for_orga(orga1, today=today)]
+        )
+
+        self.assertFalse(Relation.objects.filter(subject_entity=activity2, object_entity=orga2))
+        self.assertEqual(
+            [activity2],
+            [*Activity.get_past_linked_for_orga(orga=orga2, today=today)]
+        )
+
+        self.assertEqual(
+            [activity3],
+            [*Activity.get_past_linked_for_orga(orga=orga3, today=today)]
+        )
+
+        self.assertEqual(
+            [activity7],
+            [*Activity.get_past_linked_for_orga(orga=orga4, today=today)]
+        )
+
+    def test_manager_future_linked_to_organisation(self):
+        user = self.login()
+
+        sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
+        sv.value = False  # We disable the auto subjects feature
+        sv.save()
+
+        create_dt = self.create_datetime
+        today = create_dt(year=2019, month=8, day=26, hour=8)
+
+        rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
+                                     ('test-object_foobar',  'is loved by')
+                                    )[0]
+
+        create_activity = partial(Activity.objects.create, user=user,
+                                  type_id=constants.ACTIVITYTYPE_MEETING,
+                                  start=today + timedelta(hours=3),
+                                  end=today   + timedelta(hours=4),
+                                 )
+        activity1 = create_activity(title='Meeting#1')
+        activity2 = create_activity(title='Meeting#2')
+        activity3 = create_activity(title='Meeting#3')
+        activity4 = create_activity(title='Meeting#4', is_deleted=True)
+        activity5 = create_activity(title='Meeting#5',
+                                    start=today - timedelta(hours=15),
+                                    end=today   - timedelta(hours=14),
+                                   )  # In the past => ignored
+        activity6 = create_activity(title='Meeting#6',
+                                    start=today + timedelta(hours=1),
+                                    end=today   + timedelta(hours=2),
+                                   )  # Before <activity1> when ordering by 'start'
+        activity7 = create_activity(title='Meeting#2')
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='Saotome dojo')
+        orga2 = create_orga(name='Tendou dojo')
+        orga3 = create_orga(name='Hibiki dojo')
+        orga4 = create_orga(name='Happosai dojo')
+
+        create_contact = partial(Contact.objects.create, user=user)
+        c1 = create_contact(first_name='Ranma', last_name='Saotome')
+        c2 = create_contact(first_name='Ryoga', last_name='Hibiki')
+        c3 = create_contact(first_name='Akane', last_name='Tendou')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=c1, type_id=REL_SUB_EMPLOYED_BY, object_entity=orga2)
+        create_rel(subject_entity=c2, type_id=REL_SUB_MANAGES,     object_entity=orga3)
+        create_rel(subject_entity=c3, type_id=REL_SUB_EMPLOYED_BY, object_entity=orga4)
+
+        # About <orga1>
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity1)
+        create_rel(subject_entity=orga1, type_id=rtype1.id,                           object_entity=activity3)  # Ignored type of relation
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity4)
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity5)
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity6)
+
+        # About <orga2>
+        create_rel(subject_entity=c1, type_id=constants.REL_SUB_PART_2_ACTIVITY,  object_entity=activity2)
+
+        # About <orga3>
+        create_rel(subject_entity=c2, type_id=constants.REL_SUB_LINKED_2_ACTIVITY, object_entity=activity3)
+
+        # About <orga4> (2 relationships on the same activity => return only one)
+        create_rel(subject_entity=orga4, type_id=constants.REL_SUB_ACTIVITY_SUBJECT, object_entity=activity7)
+        create_rel(subject_entity=c3,    type_id=constants.REL_SUB_PART_2_ACTIVITY,  object_entity=activity7)
+
+        self.assertEqual(
+            [activity6, activity1],
+            [*Activity.objects.future_linked_to_organisation(orga1, today=today)]
+        )
+
+        self.assertFalse(Relation.objects.filter(subject_entity=activity2, object_entity=orga2))
+        self.assertEqual(
+            [activity2],
+            [*Activity.objects.future_linked_to_organisation(orga=orga2, today=today)]
+        )
+
+        self.assertEqual(
+            [activity3],
+            [*Activity.objects.future_linked_to_organisation(orga=orga3, today=today)]
+        )
+
+        self.assertEqual(
+            [activity7],
+            [*Activity.objects.future_linked_to_organisation(orga=orga4, today=today)]
+        )
+
+    def test_manager_past_linked_to_organisation(self):
+        user = self.login()
+
+        sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
+        sv.value = False  # We disable the auto subjects feature
+        sv.save()
+
+        create_dt = self.create_datetime
+        today = create_dt(year=2019, month=8, day=26, hour=8)
+
+        rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
+                                     ('test-object_foobar',  'is loved by')
+                                    )[0]
+
+        create_activity = partial(Activity.objects.create, user=user,
+                                  type_id=constants.ACTIVITYTYPE_MEETING,
+                                  start=today - timedelta(hours=16),
+                                  end=today   - timedelta(hours=15),
+                                 )
+        activity1 = create_activity(title='Meeting#1')
+        activity2 = create_activity(title='Meeting#2')
+        activity3 = create_activity(title='Meeting#3')
+        activity4 = create_activity(title='Meeting#4', is_deleted=True)
+        activity5 = create_activity(title='Meeting#5',
+                                    start=today + timedelta(hours=1),
+                                    end=today   + timedelta(hours=2),
+                                   )  # In the Future => ignored
+        activity6 = create_activity(title='Meeting#6',
+                                    start=today - timedelta(hours=15),
+                                    end=today   - timedelta(hours=14),
+                                   )  # Before <activity1> when ordering by '-start'
+        activity7 = create_activity(title='Meeting#2')
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='Saotome dojo')
+        orga2 = create_orga(name='Tendou dojo')
+        orga3 = create_orga(name='Hibiki dojo')
+        orga4 = create_orga(name='Happosai dojo')
+
+        create_contact = partial(Contact.objects.create, user=user)
+        c1 = create_contact(first_name='Ranma', last_name='Saotome')
+        c2 = create_contact(first_name='Ryoga', last_name='Hibiki')
+        c3 = create_contact(first_name='Akane', last_name='Tendou')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=c1, type_id=REL_SUB_EMPLOYED_BY, object_entity=orga2)
+        create_rel(subject_entity=c2, type_id=REL_SUB_MANAGES,     object_entity=orga3)
+        create_rel(subject_entity=c3, type_id=REL_SUB_EMPLOYED_BY, object_entity=orga4)
+
+        # About <orga1>
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity1)
+        create_rel(subject_entity=orga1, type_id=rtype1.id,                           object_entity=activity3)  # Ignored type of relation
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity4)
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity5)
+        create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity6)
+
+        # About <orga2>
+        create_rel(subject_entity=c1, type_id=constants.REL_SUB_PART_2_ACTIVITY,  object_entity=activity2)
+
+        # About <orga3>
+        create_rel(subject_entity=c2, type_id=constants.REL_SUB_LINKED_2_ACTIVITY, object_entity=activity3)
+
+        # About <orga4> (2 relationships on the same activity => return only one)
+        create_rel(subject_entity=orga4, type_id=constants.REL_SUB_ACTIVITY_SUBJECT, object_entity=activity7)
+        create_rel(subject_entity=c3,    type_id=constants.REL_SUB_PART_2_ACTIVITY,  object_entity=activity7)
+
+        self.assertEqual(
+            [activity6, activity1],
+            [*Activity.objects.past_linked_to_organisation(orga1, today=today)]
+        )
+
+        self.assertFalse(Relation.objects.filter(subject_entity=activity2, object_entity=orga2))
+        self.assertEqual(
+            [activity2],
+            [*Activity.objects.past_linked_to_organisation(orga=orga2, today=today)]
+        )
+
+        self.assertEqual(
+            [activity3],
+            [*Activity.objects.past_linked_to_organisation(orga=orga3, today=today)]
+        )
+
+        self.assertEqual(
+            [activity7],
+            [*Activity.objects.past_linked_to_organisation(orga=orga4, today=today)]
+        )

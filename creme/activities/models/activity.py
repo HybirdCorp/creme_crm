@@ -31,8 +31,47 @@ from ..constants import (NARROW, CREATION_LABELS,
         REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
 # from ..setting_keys import auto_subjects_key
 
+from . import other_models
 from .calendar import Calendar
-from .other_models import ActivityType, ActivitySubType, Status
+
+
+class ActivityManager(models.Manager):
+    linked_rtype_ids = (
+        REL_OBJ_PART_2_ACTIVITY,
+        REL_OBJ_ACTIVITY_SUBJECT,
+        REL_OBJ_LINKED_2_ACTIVITY,
+    )
+
+    def _linked(self, entity):
+        return self.filter(
+            is_deleted=False,
+            relations__object_entity=entity,
+            relations__type__in=self.linked_rtype_ids,
+        ).distinct()
+
+    def _linked_to_organisation(self, orga):
+        return self.filter(
+            is_deleted=False,
+            relations__object_entity__in=[
+                orga,
+                *orga.get_managers().values_list('id', flat=True),
+                *orga.get_employees().values_list('id', flat=True),
+            ],
+            relations__type__in=self.linked_rtype_ids,
+        ).distinct()
+
+    def future_linked(self, entity, today):
+        # TODO: end greater than today or floating type equal to floating
+        return self._linked(entity).filter(end__gt=today).order_by('start')
+
+    def past_linked(self, entity, today):
+        return self._linked(entity).filter(end__lte=today)
+
+    def future_linked_to_organisation(self, orga, today):
+        return self._linked_to_organisation(orga).filter(end__gt=today).order_by('start')
+
+    def past_linked_to_organisation(self, orga, today):
+        return self._linked_to_organisation(orga).filter(end__lte=today)
 
 
 class AbstractActivity(CremeEntity):
@@ -49,16 +88,16 @@ class AbstractActivity(CremeEntity):
                                            blank=True, null=True,
                                           )
 
-    type     = models.ForeignKey(ActivityType,
+    type     = models.ForeignKey(other_models.ActivityType,
                                  verbose_name=_('Activity type'),
                                  on_delete=models.PROTECT,
                                 )
-    sub_type = models.ForeignKey(ActivitySubType,
+    sub_type = models.ForeignKey(other_models.ActivitySubType,
                                  verbose_name=_('Activity sub-type'),
                                  blank=True, null=True,
                                  on_delete=models.SET_NULL,
                                 )
-    status   = models.ForeignKey(Status, verbose_name=_('Status'),
+    status   = models.ForeignKey(other_models.Status, verbose_name=_('Status'),
                                  blank=True, null=True,
                                  # on_delete=models.SET_NULL,
                                  on_delete=CREME_REPLACE_NULL,
@@ -75,6 +114,8 @@ class AbstractActivity(CremeEntity):
     floating_type = models.PositiveIntegerField(_('Floating type'), default=NARROW,
                                                 editable=False,
                                                ).set_tags(viewable=False)
+
+    objects = ActivityManager()
 
     creation_label = _('Create an activity')
     save_label = _('Save the activity')
@@ -146,17 +187,19 @@ END:VEVENT
     def get_subject_relations(self, real_entities=True):
         """Get the list of models.Relation instances which link the Activity
         with its subjects.
-        @param real_entities Retrieve (efficiently) the real entities which are related.
+        @param real_entities: Retrieve (efficiently) the real entities which are related.
         """
         return self.get_relations(REL_OBJ_ACTIVITY_SUBJECT, real_obj_entities=real_entities)
 
     def get_linkedto_relations(self):
         return self.get_relations(REL_OBJ_LINKED_2_ACTIVITY, real_obj_entities=True)
 
-    # TODO: move to manager the following methods
-    # TODO: test
     @classmethod
     def _get_linked_aux(cls, entity):
+        warnings.warn('AbstractActivity._get_linked_aux() is deprecated.',
+                      DeprecationWarning,
+                     )
+
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
         return cls.objects.filter(is_deleted=False,
                                   relations__object_entity=entity,
@@ -177,14 +220,17 @@ END:VEVENT
     #                              ) \
     #                       .distinct()
 
-    # TODO: test
     @classmethod
     def _get_linked_for_orga(cls, orga):
+        warnings.warn('AbstractActivity._get_linked_for_orga() is deprecated.',
+                      DeprecationWarning,
+                     )
+
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-        # TODO: [orga, *orga.get_managers()....]
-        entities = [orga]
-        entities.extend(orga.get_managers().values_list('id', flat=True))
-        entities.extend(orga.get_employees().values_list('id', flat=True))
+        entities = [orga,
+                    *orga.get_managers().values_list('id', flat=True),
+                    *orga.get_employees().values_list('id', flat=True),
+                   ]
 
         return cls.objects.filter(is_deleted=False,
                                   relations__object_entity__in=entities,
@@ -193,7 +239,12 @@ END:VEVENT
                           .distinct()
 
     @classmethod
-    def get_future_linked(cls, entity, today):  # TODO end greater than today or floating type equal to floating
+    def get_future_linked(cls, entity, today):
+        warnings.warn('AbstractActivity.get_future_linked() is deprecated ; '
+                      'use .objects.future_linked() instead.',
+                      DeprecationWarning,
+                     )
+
         return cls._get_linked_aux(entity).filter(end__gt=today).order_by('start')
 
     # @classmethod
@@ -205,11 +256,21 @@ END:VEVENT
 
     @classmethod
     def get_future_linked_for_orga(cls, orga, today):
+        warnings.warn('AbstractActivity.get_future_linked_for_orga() is deprecated ; '
+                      'use .objects.future_linked_to_organisation() instead.',
+                      DeprecationWarning,
+                     )
+
         return cls._get_linked_for_orga(orga).filter(end__gt=today).order_by('start')
 
     @classmethod
     def get_past_linked(cls, entity, today):
-        return cls._get_linked_aux(entity).filter(end__lte=today).order_by('-start')
+        warnings.warn('AbstractActivity.get_past_linked() is deprecated ; '
+                      'use .objects.past_linked() instead.',
+                      DeprecationWarning,
+                     )
+
+        return cls._get_linked_aux(entity).filter(end__lte=today)  # .order_by('-start')
 
     # @classmethod
     # def get_past_linked_for_ctypes(cls, ct_ids, today):
@@ -220,7 +281,12 @@ END:VEVENT
 
     @classmethod
     def get_past_linked_for_orga(cls, orga, today):
-        return cls._get_linked_for_orga(orga).filter(end__lte=today).order_by('-start')
+        warnings.warn('AbstractActivity.get_past_linked_for_orga() is deprecated ; '
+                      'use .objects.past_linked_to_organisation() instead.',
+                      DeprecationWarning,
+                     )
+
+        return cls._get_linked_for_orga(orga).filter(end__lte=today)  # .order_by('-start')
 
     def handle_all_day(self):
         if self.is_all_day:
