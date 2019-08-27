@@ -661,11 +661,10 @@ class _BrickRegistry:
         return self
 
     def register_4_model(self, model, brick_cls):  # TODO: had an 'overload' arg ??
-        # assert brick_cls.id_ is None
-        if brick_cls.id_ != MODELBRICK_ID:
-            logger.warning('register_4_model(): <%s> should have an id_== MODELBRICK_ID', brick_cls)
-            brick_cls.id_ = MODELBRICK_ID
-        # assert brick_cls.id_ == MODELBRICK_ID  TODO
+        # if brick_cls.id_ != MODELBRICK_ID:
+        #     logger.warning('register_4_model(): <%s> should have an id_== MODELBRICK_ID', brick_cls)
+        #     brick_cls.id_ = MODELBRICK_ID
+        assert brick_cls.id_ == MODELBRICK_ID
 
         # NB: the key is the class, not the ContentType.id because it can cause
         # some inconsistencies in DB problem in unit tests (contenttypes cache bug with tests ??)
@@ -705,11 +704,6 @@ class _BrickRegistry:
             brick_classes[brick_id] = brick_cls
 
         return self
-
-    # @staticmethod
-    # def _generate_modelbrick_id(model):
-    #     meta = model._meta
-    #     return 'modelblock_{}-{}'.format(meta.app_label, meta.model_name)
 
     def __getitem__(self, brick_id):
         return self._brick_classes[brick_id]
@@ -786,11 +780,6 @@ class _BrickRegistry:
                 yield CustomBrick(id_, cbci)
                 continue
 
-            # if id_.startswith('modelblock_'):
-            #     yield self.get_brick_4_object(ContentType.objects
-            #                                              .get_by_natural_key(*id_[len('modelblock_'):].split('-'))
-            #                                  )
-            #     continue
             if id_ == MODELBRICK_ID:
                 if entity is None:
                     logger.warning('Model brick without entity ?!')

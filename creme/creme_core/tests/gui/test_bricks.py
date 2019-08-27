@@ -56,10 +56,12 @@ class BrickRegistryTestCase(CremeTestCase):
 
             def home_display(self, context): return '<table id="{}"></table>'.format(self.id_)
 
-        class FakeContactBrick(SimpleBrick):
+        # class FakeContactBrick(SimpleBrick):
+        class FakeContactBrick(EntityBrick):
             verbose_name = 'Fake Contact block'
 
-        class FakeOrganisationBrick(SimpleBrick):
+        # class FakeOrganisationBrick(SimpleBrick):
+        class FakeOrganisationBrick(EntityBrick):
             verbose_name = 'Fake Organisation block'
 
         class _FoobarInstanceBrick(Brick):
@@ -503,12 +505,14 @@ class BrickRegistryTestCase(CremeTestCase):
             template_name = 'persons/bricks/my_contact.html'
 
         brick_registry = _BrickRegistry()
-        brick_registry.register_4_model(FakeContact, ContactBrick)
+        # brick_registry.register_4_model(FakeContact, ContactBrick)
+        with self.assertRaises(AssertionError):
+            brick_registry.register_4_model(FakeContact, ContactBrick)
 
-        brick = brick_registry.get_brick_4_object(FakeContact)
-        self.assertIsInstance(brick, ContactBrick)
-        self.assertEqual(MODELBRICK_ID, brick.id_)
-        self.assertEqual((FakeContact,), brick.dependencies)
+        # brick = brick_registry.get_brick_4_object(FakeContact)
+        # self.assertIsInstance(brick, ContactBrick)
+        # self.assertEqual(MODELBRICK_ID, brick.id_)
+        # self.assertEqual((FakeContact,), brick.dependencies)
 
     def test_brick_4_instance01(self):
         user = self.login()

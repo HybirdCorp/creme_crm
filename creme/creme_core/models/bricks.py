@@ -126,12 +126,11 @@ class BrickDetailviewLocation(CremeModel):
         app_label = 'creme_core'
         ordering = ('order',)
 
-    # HACK: remove this code when data migration is done
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if self.brick_id.startswith(MODELBRICK_ID):  # TODO: data migration to do id_ == MODELBRICK_ID
-            self.brick_id = MODELBRICK_ID
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #
+    #     if self.brick_id.startswith(MODELBRICK_ID):
+    #         self.brick_id = MODELBRICK_ID
 
     def __repr__(self):
         return 'BrickDetailviewLocation(id={id}, content_type_id={ct_id}, role={role}, ' \
