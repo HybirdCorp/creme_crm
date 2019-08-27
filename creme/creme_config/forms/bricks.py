@@ -38,7 +38,6 @@ from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
 
-
 __all__ = (
     'BrickDetailviewLocationsAddForm', 'BrickDetailviewLocationsEditForm',
     'BrickHomeLocationsAddingForm', 'BrickHomeLocationsEditionForm',
