@@ -1,9 +1,9 @@
 from django.conf import settings
 
-from mediagenerator.generators.bundles.base import Filter
+from mediagenerator.generators.bundles.base import SubProcessFilter
 
 
-class YUICompressor(Filter):
+class YUICompressor(SubProcessFilter):
     def __init__(self, **kwargs):
         # super(YUICompressor, self).__init__(**kwargs)
         super().__init__(**kwargs)
@@ -12,22 +12,12 @@ class YUICompressor(Filter):
             'The parent filter expects "{}".'.format(self.filetype))
 
     def get_output(self, variation):
-        # We import this here, so App Engine Helper users don't get import errors.
-        from subprocess import Popen, PIPE
-
         for input in self.get_input(variation):
             try:
                 compressor = settings.YUICOMPRESSOR_PATH
-                cmd = Popen(['java', '-jar', compressor,
-                             '--charset', 'utf-8', '--type', self.filetype],
-                            stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding='utf-8',
-                            universal_newlines=True)
-                output, error = cmd.communicate(input)
-
-                assert cmd.wait() == 0, 'Command returned bad result:\n{}'.format(error)
-
-                # yield output.decode('utf-8')
-                yield output
+                yield self.run_process([
+                    'java', '-jar', compressor, '--charset', 'utf-8', '--type', self.filetype
+                ], input=input)
             except Exception as e:
                 raise ValueError(
                     "Failed to execute Java VM or yuicompressor. "
