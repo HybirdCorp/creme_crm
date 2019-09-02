@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from .database import CaseSensitivity  # NOQA
+
 from .auth import CremeUser, EntityCredentials, UserRole, SetCredentials, Sandbox  # NOQA
 
 from .file_ref import FileRef  # NOQA

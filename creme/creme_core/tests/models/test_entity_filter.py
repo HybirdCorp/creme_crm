@@ -177,7 +177,6 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(operator_id, handler._operator_id)
         self.assertEqual([value],     handler._values)
 
-
     def test_create02(self):
         "A owner, custom filter."
         pk = 'test-filter_nerv'

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-26 10:33+0200\n"
+"POT-Creation-Date: 2019-09-02 13:01+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -76,57 +76,57 @@ msgstr "Ajout de relation multiple"
 msgid "Merge 2 entities"
 msgstr "Fusionner 2 fiches"
 
-#: apps.py:279
+#: apps.py:289
 msgid "Core"
 msgstr "Cœur"
 
-#: apps.py:319 templates/creme_core/header/menu-base.html:4
+#: apps.py:329 templates/creme_core/header/menu-base.html:4
 #: templates/creme_core/header/menu-base.html:9
 #: templates/creme_core/home.html:4 templates/creme_core/home.html:12
 msgid "Home"
 msgstr "Accueil"
 
-#: apps.py:321 models/auth.py:616 models/job.py:83
+#: apps.py:331 models/auth.py:616 models/job.py:83
 #: templates/creme_core/bricks/imprints.html:17
 #: templates/creme_core/bricks/job.html:60
 msgid "User"
 msgstr "Utilisateur"
 
-#: apps.py:322 templates/creme_core/my_page.html:4
+#: apps.py:332 templates/creme_core/my_page.html:4
 #: templates/creme_core/my_page.html:12
 msgid "My page"
 msgstr "Ma page"
 
-#: apps.py:325 templates/creme_core/bricks/jobs-mine.html:7
+#: apps.py:335 templates/creme_core/bricks/jobs-mine.html:7
 #: templates/creme_core/job/list-mine.html:4
 msgid "My jobs"
 msgstr "Mes jobs"
 
-#: apps.py:330
+#: apps.py:340
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: apps.py:334
+#: apps.py:344
 msgid "Tools"
 msgstr "Outils"
 
-#: apps.py:336 models/job.py:104 templates/creme_core/bricks/jobs-all.html:18
+#: apps.py:346 models/job.py:104 templates/creme_core/bricks/jobs-all.html:18
 msgid "Jobs"
 msgstr "Jobs"
 
-#: apps.py:344
+#: apps.py:354
 msgid "+ Creation"
 msgstr "+ Création"
 
-#: apps.py:345
+#: apps.py:355
 msgid "Main entities"
 msgstr "Fiches principales"
 
-#: apps.py:347
+#: apps.py:357
 msgid "Other type of entity"
 msgstr "Autre type de fiche"
 
-#: apps.py:350
+#: apps.py:360
 msgid "Recent entities"
 msgstr "Fiches récentes"
 
@@ -907,7 +907,7 @@ msgstr "Filtre"
 #: templates/creme_core/listview/search-widgets/boolean.html:3
 #: templates/creme_core/templatetags/listview/entity-filters.html:7
 #: templates/creme_core/templatetags/search-form.html:7
-#: views/entity_filter.py:197 views/entity_filter.py:221
+#: views/entity_filter.py:218 views/entity_filter.py:242
 msgid "All"
 msgstr "Tout"
 
@@ -1563,15 +1563,15 @@ msgstr "Informations «{model}»"
 msgid "Relationship block: «{predicate}»"
 msgstr "Bloc de relation: «{predicate}»"
 
-#: gui/bricks.py:734
+#: gui/bricks.py:728
 msgid "Unknown type of block (bad uninstall ?)"
 msgstr "Type de bloc inconnu (mauvaise désinstallation ?)"
 
-#: gui/bricks.py:849
+#: gui/bricks.py:838
 msgid "Information on the entity"
 msgstr "Informations sur la fiche"
 
-#: gui/bricks.py:869
+#: gui/bricks.py:858
 msgid "Title bar"
 msgstr "Barre de titre"
 
@@ -1654,7 +1654,7 @@ msgstr "À la première page"
 msgid "Next page"
 msgstr "Page suivante"
 
-#: models/auth.py:51 models/bricks.py:513 models/entity_filter.py:93
+#: models/auth.py:51 models/bricks.py:512 models/entity_filter.py:93
 #: models/i18n.py:28 templates/creme_core/bricks/relations.html:17
 #: templates/creme_core/bricks/trash.html:17
 msgid "Name"
@@ -1886,40 +1886,40 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
 msgid "Save"
 msgstr "Enregistrer"
 
-#: models/bricks.py:99 models/bricks.py:512 models/button_menu.py:32
+#: models/bricks.py:99 models/bricks.py:511 models/button_menu.py:32
 #: models/custom_field.py:56
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/bricks.py:100 models/bricks.py:209 models/search.py:60
+#: models/bricks.py:100 models/bricks.py:208 models/search.py:60
 msgid "Related role"
 msgstr "Rôle associé"
 
-#: models/bricks.py:326 models/bricks.py:440 models/bricks.py:638
+#: models/bricks.py:325 models/bricks.py:439 models/bricks.py:637
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/bricks.py:328
+#: models/bricks.py:327
 msgid "Related type of relationship"
 msgstr "Type de relation associé"
 
-#: models/bricks.py:334
+#: models/bricks.py:333
 msgid "Create a type of block"
 msgstr "Créer un type de bloc"
 
-#: models/bricks.py:335 models/bricks.py:450
+#: models/bricks.py:334 models/bricks.py:449
 msgid "Save the block"
 msgstr "Enregistrer le bloc"
 
-#: models/bricks.py:444
+#: models/bricks.py:443
 msgid "Block related entity"
 msgstr "Fiche associée au bloc"
 
-#: models/bricks.py:447
+#: models/bricks.py:446
 msgid "Verbose"
 msgstr "Verbeux"
 
-#: models/bricks.py:449
+#: models/bricks.py:448
 msgid "Create a block"
 msgstr "Créer un bloc"
 
@@ -2532,47 +2532,47 @@ msgstr "Par défaut ?"
 msgid "Create a VAT value"
 msgstr "Créer une valeur de TVA"
 
-#: populate.py:39
+#: populate.py:48
 msgid "owns"
 msgstr "possède"
 
-#: populate.py:40
+#: populate.py:49
 msgid "belongs to"
 msgstr "appartient à"
 
-#: populate.py:49
+#: populate.py:58
 msgid "Euro"
 msgstr "Euro"
 
-#: populate.py:49
+#: populate.py:58
 msgid "€"
 msgstr "€"
 
-#: populate.py:49
+#: populate.py:58
 msgid "EUR"
 msgstr "EUR"
 
-#: populate.py:80
+#: populate.py:89
 msgid "replaceMe@byYourAddress.com"
 msgstr "remplacezMoi@parVotreAdresse.fr"
 
-#: populate.py:93
+#: populate.py:102
 msgid "United States dollar"
 msgstr "Dollar américain"
 
-#: populate.py:93
+#: populate.py:102
 msgid "$"
 msgstr "$"
 
-#: populate.py:93
+#: populate.py:102
 msgid "USD"
 msgstr "USD"
 
-#: populate.py:95
+#: populate.py:104
 msgid "French"
 msgstr "Français"
 
-#: populate.py:96
+#: populate.py:105
 msgid "English"
 msgstr "Anglais"
 
@@ -3812,11 +3812,20 @@ msgid_plural "{count} entities don't exist or have been removed."
 msgstr[0] "{count} fiche n'existe pas ou a été supprimée."
 msgstr[1] "{count} fiches n'existent pas ou ont été supprimées."
 
-#: views/entity_filter.py:131
+#: views/entity_filter.py:78
+msgid ""
+"Notice: your database is not case sensitive, so the string operators which "
+"are case sensitive and the ones which are not will accept the same entities."
+msgstr ""
+"Remarque : votre base de données n'est pas sensible à la casse, donc les "
+"opérateurs sur chaîne de caractères qui sont sensibles à la casse et ceux "
+"qui ne le sont pas accepteront les mêmes fiches."
+
+#: views/entity_filter.py:145
 msgid "Save the modified filter"
 msgstr "Enregistrer le filtre modifié"
 
-#: views/entity_filter.py:180
+#: views/entity_filter.py:201
 msgid "The filter can not be deleted because of its dependencies."
 msgstr "Le filtre ne peut être supprimé à cause de ses dépendances."
 
@@ -3838,7 +3847,7 @@ msgstr "Modifier «{object}»"
 msgid "List of {models}"
 msgstr "Liste des {models}"
 
-#: views/generic/listview.py:609 views/generic/listview.py:984
+#: views/generic/listview.py:609 views/generic/listview.py:983
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 

@@ -38,6 +38,7 @@ from ..forms import entity_filter as efilter_forms
 from ..gui.listview import ListViewState
 from ..http import CremeJsonResponse
 from ..models import EntityFilter, RelationType
+from ..utils.db import is_db_case_sensitive
 
 from . import generic
 from .decorators import jsonify
@@ -70,6 +71,13 @@ class FilterMixin:
             self.lv_url = url
 
         return url
+
+    @staticmethod
+    def get_case_sensitivity_message():
+        return None if is_db_case_sensitive() else \
+               _('Notice: your database is not case sensitive, so the string operators '
+                 'which are case sensitive and the ones which are not will accept the same entities.'
+                )
 
     def get_success_url(self):
         return self.build_lv_url() or reverse('creme_core__home')
@@ -116,6 +124,12 @@ class EntityFilterCreation(FilterCreationMixin, generic.CremeModelCreation):
 
         return response
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_message'] = self.get_case_sensitivity_message()
+
+        return context
+
     def get_initial(self):
         initial = super().get_initial()
         initial['is_private'] = settings.FILTERS_INITIAL_PRIVATE
@@ -129,6 +143,13 @@ class EntityFilterEdition(FilterEditionMixin, generic.CremeModelEdition):
     template_name = 'creme_core/forms/entity-filter.html'
     pk_url_kwarg = 'efilter_id'
     submit_label = _('Save the modified filter')
+
+    # TODO: factorise
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_message'] = self.get_case_sensitivity_message()
+
+        return context
 
 
 # @login_required

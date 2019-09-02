@@ -26,8 +26,14 @@ from django.utils.translation import gettext as _
 
 from . import bricks, constants, creme_jobs, sandboxes, setting_keys
 from .management.commands.creme_populate import BasePopulator
-from .models import (RelationType, SettingValue, Currency, Language, Vat, Job, Sandbox,
-        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation, ButtonMenuItem)
+from .models import (
+    CaseSensitivity,
+    Job, Sandbox,
+    RelationType, SettingValue,
+    Currency, Language, Vat,
+    BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
+    ButtonMenuItem,
+)
 from .utils import create_if_needed
 from .utils.date_period import date_period_registry
 
@@ -35,6 +41,9 @@ from .utils.date_period import date_period_registry
 class Populator(BasePopulator):
     def populate(self):
         already_populated = RelationType.objects.filter(id=constants.REL_SUB_HAS).exists()
+
+        if not CaseSensitivity.objects.exists():
+            CaseSensitivity.objects.create(text='CasE')
 
         RelationType.create((constants.REL_SUB_HAS, _('owns')),
                             (constants.REL_OBJ_HAS, _('belongs to')))
@@ -68,7 +77,7 @@ class Populator(BasePopulator):
         Sandbox.objects.get_or_create(uuid=constants.UUID_SANDBOX_SUPERUSERS,
                                       defaults={# 'superuser': True,
                                                 'type_id':   sandboxes.OnlySuperusersType.id,
-                                               }
+                                               },
                                      )
 
         # ---------------------------

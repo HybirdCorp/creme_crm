@@ -102,7 +102,14 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertIn(_('Create a filter for «%(ctype)s»') % {'ctype': 'Test Contact'},
                       response.content.decode(),
                      )
-        self.assertIs(response.context['form'].initial.get('is_private'), False)
+
+        context = response.context
+        with self.assertNoException():
+            form = context['form']
+            # NB: difficult to test the content in a robust way (depends on the DB config)
+            __ = context['help_message']
+
+        self.assertIs(form.initial.get('is_private'), False)
 
         # TODO: test widgets instead
 #        with self.assertNoException():
@@ -1027,6 +1034,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             context = response.context
             submit_label = context['submit_label']
             formfields = context['form'].fields
+            # NB: difficult to test the content in a robust way (depends on the DB config)
+            __ = context['help_message']
 
         self.assertEqual(_('Save the modified filter'), submit_label)
 
