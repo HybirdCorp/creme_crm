@@ -150,7 +150,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
         self.assertNotIn(lang1.id, ids)
 
     def test_choices_success_specific_printer01(self):
-        "Model is EntityFilter"
+        "Model is EntityFilter."
         user = self.login()
 
         create_filter = models.EntityFilter.create
@@ -222,7 +222,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
                         )
 
     def test_choices_success_specific_printer02(self):
-        "Field is a EntityCTypeForeignKey"
+        "Field is a EntityCTypeForeignKey."
         self.login()
 
         response = self.assertGET200(self._build_choices_url(models.FakeReport, 'ctype'))
