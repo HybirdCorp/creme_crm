@@ -3,10 +3,11 @@
 try:
     from datetime import date
 
+    from django.db.models.query_utils import Q
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.core.entity_filter import operators
-    # from creme.creme_core.models import FakeFolder
+    from creme.creme_core.models import FakeOrganisation, FakeContact
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -23,6 +24,23 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual(pattern, op.key_pattern)
         self.assertIs(op.accept_subpart, True)
         self.assertEqual(name, str(op))
+
+    def test_get_q1(self):
+        op = operators.ConditionOperator(name='Contains', key_pattern='{}__contains')
+        self.assertQEqual(
+            Q(name__contains='Acme'),
+            op.get_q(model=FakeOrganisation, field_name='name', values=['Acme'])
+        )
+
+    def test_get_q2(self):
+        "Other pattern, several values."
+        op = operators.ConditionOperator(name='Ends with', key_pattern='{}__endswith')
+        self.assertQEqual(
+            Q(last_name__endswith='foo') | Q(last_name__endswith='bar'),
+            op.get_q(model=FakeContact,
+                     field_name='last_name', values=['foo', 'bar'],
+                    )
+        )
 
     def test_equals(self):
         op = operators.EqualsOperator(name='Equals')
@@ -79,6 +97,23 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value1, value2, value3])
         )
 
+    def test_equals_get_q(self):
+        op = operators.EqualsOperator(name='Equals')
+        self.assertQEqual(
+            Q(name__exact='Acme') | Q(name__exact='Akme'),
+            op.get_q(model=FakeOrganisation,
+                     field_name='name',
+                     values=['Acme', 'Akme'],
+                    )
+        )
+        self.assertQEqual(
+            Q(last_name__in=['Spiegel', 'Black']),
+            op.get_q(model=FakeContact,
+                     field_name='last_name',
+                     values=[['Spiegel', 'Black']],
+                    )
+        )
+
     def test_equals_not(self):
         op = operators.EqualsOperator(name='Equals', exclude=True)
         self.assertIs(op.exclude, True)
@@ -92,7 +127,7 @@ class OperatorTestCase(CremeTestCase):
             _('«{field}» is not {values}').format(
                 field=field,
                 values=fmt_value(enum_value=value1),
-            ),
+             ),
             op.description(field_vname=field, values=[value1])
         )
 
@@ -133,6 +168,33 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=['True'])  # not Bool
         )
 
+    def test_is_empty_get_q(self):
+        op = operators.IsEmptyOperator(name='Is empty')
+        self.assertQEqual(
+            Q(sector__isnull=True),
+            op.get_q(model=FakeOrganisation,
+                     field_name='sector',
+                     values=[True],
+                    )
+        )
+        self.assertQEqual(
+            Q(last_name__isnull=True) | Q(last_name=''),
+            op.get_q(model=FakeContact,
+                     field_name='last_name',
+                     values=[True],
+                    )
+        )
+
+        q3 = Q(last_name__isnull=True) | Q(last_name='')
+        q3.negate()
+        self.assertQEqual(
+            q3,
+            op.get_q(model=FakeContact,
+                     field_name='last_name',
+                     values=[False],
+                    )
+        )
+
     def test_range(self):
         op = operators.RangeOperator(name='Range')
         self.assertTrue(op.accept_subpart)
@@ -160,6 +222,16 @@ class OperatorTestCase(CremeTestCase):
                 end=value2,
             ),
             op.description(field_vname=field, values=[value1, value2])
+        )
+
+    def test_range_get_q(self):
+        op = operators.RangeOperator(name='Range')
+        self.assertQEqual(
+            Q(capital__range=[1000, 10000]),
+            op.get_q(model=FakeOrganisation,
+                     field_name='capital',
+                     values=[[1000, 10000]],
+                    )
         )
 
     def test_gt(self):
@@ -541,5 +613,4 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
-    # TODO: get_q x N
     # TODO: validate_field_values x N
