@@ -237,8 +237,7 @@ class OperatorConditionHandlerMixin:
 
 
 class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
-                                   FilterConditionHandler,
-                                  ):
+                                   FilterConditionHandler):
     """Filter entities by using one of their fields.
     Note: no date field ; see <DateRegularFieldConditionHandler>.
     """
@@ -270,7 +269,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
     @classmethod
     def build_condition(cls, *, model, field_name, operator_id, values, user=None,
                         condition_cls=EntityFilterCondition,
-                        efilter_registry=entity_filter_registry,
+                        efilter_registry=entity_filter_registry
                        ):
         """Build an (unsaved) EntityFilterCondition.
 
@@ -638,8 +637,7 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
 
 
 class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
-                                  BaseCustomFieldConditionHandler,
-                                 ):
+                                  BaseCustomFieldConditionHandler):
     """Filter entities by using one of their CustomFields.
     Note: no date field ; see DateCustomFieldConditionHandler
     """
@@ -680,8 +678,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
     @classmethod
     def build_condition(cls, *, custom_field, operator_id, values, user=None,
                         condition_cls=EntityFilterCondition,
-                        efilter_registry=entity_filter_registry,
-                       ):
+                        efilter_registry=entity_filter_registry):
         """Build an (unsaved) EntityFilterCondition.
 
         @param custom_field: Instance of <creme_core.models.CustomField>.
@@ -827,8 +824,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
 
 
 class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
-                                      BaseCustomFieldConditionHandler,
-                                     ):
+                                      BaseCustomFieldConditionHandler):
     """Filter entities by using one of their date CustomFields."""
     type_id = 21
 
@@ -862,8 +858,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
 
     @classmethod
     def build_condition(cls, *, custom_field, date_range=None, start=None, end=None,
-                        condition_cls=EntityFilterCondition,
-                       ):
+                        condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
         @param custom_field: Instance of <creme_core.models.CustomField>
@@ -1008,8 +1003,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
     @classmethod
     def build_condition(cls, *, model, rtype, has=True, ct=None, entity=None,
-                        condition_cls=EntityFilterCondition,
-                       ):
+                        condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.

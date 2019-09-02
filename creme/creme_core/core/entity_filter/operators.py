@@ -204,8 +204,7 @@ class ConditionOperator:
 
     # def validate_field_values(self, field, values, user=None):
     def validate_field_values(self, *, field, values, user=None,
-                              efilter_registry=entity_filter_registry,
-                             ):
+                              efilter_registry=entity_filter_registry):
         """Raises a ValidationError to notify of a problem with 'values'.
         @param field: Model field.
         @param values: Sequence of POSTed values to validate.
@@ -279,8 +278,7 @@ class EqualsOperator(ConditionOperator):
 class BooleanOperator(ConditionOperator):
     # def validate_field_values(self, field, values, user=None):
     def validate_field_values(self, *, field, values, user=None,
-                              efilter_registry=entity_filter_registry,
-                             ):
+                              efilter_registry=entity_filter_registry):
         if len(values) != 1 or not isinstance(values[0], bool):
             raise ValueError(
                 'A list with one bool is expected for boolean operator {}'.format(self.name)
@@ -348,8 +346,7 @@ class RangeOperator(ConditionOperator):
 
     # def validate_field_values(self, field, values, user=None):
     def validate_field_values(self, *, field, values, user=None,
-                              efilter_registry=entity_filter_registry,
-                             ):
+                              efilter_registry=entity_filter_registry):
         if len(values) != 2:
             raise ValueError(
                 'A list with 2 elements is expected for condition {}'.format(self.name)
