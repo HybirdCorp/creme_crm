@@ -32,6 +32,8 @@ from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.models import ForeignKey
 # from django.db.transaction import atomic
 
+from ..models import CaseSensitivity
+
 from .meta import FieldInfo
 
 
@@ -306,3 +308,15 @@ def populate_related(instances, field_names):
 #         if old_order != index:
 #             setattr(instance, order_field, index)
 #             instance.save(force_update=True, update_fields=(order_field,))
+
+
+# NB: 'maxsize=None' => avoid locking (number of models is small)
+@lru_cache(maxsize=None)
+def is_db_case_sensitive():  # TODO: argument "db" for multi-db env ?
+    """Is the main database case sensitive or not.
+    @return A boolean ; <True> means "case sensitive".
+
+    NB: the return value is immutable, so the cached values can not be altered.
+    """
+    # NB: a line with <text == 'CasE'> must exist in DB ; see 'populate.py'.
+    return not CaseSensitivity.objects.filter(text='case').exists()
