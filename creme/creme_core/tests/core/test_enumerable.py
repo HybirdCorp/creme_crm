@@ -4,11 +4,15 @@ try:
     from functools import partial
 
     from django.db.models.fields import FieldDoesNotExist
+    from django.utils.translation import gettext as _
 
     from ..base import CremeTestCase
 
     from creme.creme_core.core.enumerable import _EnumerableRegistry, Enumerator
-    from creme.creme_core.models import (Language,
+    from creme.creme_core.enumerators import EntityFilterEnumerator
+    from creme.creme_core.models import (
+        EntityFilter, CremeUser,
+        Language,
         FakeContact, FakeOrganisation, FakeCivility, FakeAddress,
         FakeImageCategory, FakeImage, FakeReport)
     from creme.creme_core.models.fields import CTypeForeignKey, EntityCTypeForeignKey
@@ -183,7 +187,7 @@ class EnumerableTestCase(CremeTestCase):
                              )
 
     def test_register_field_type02(self):
-        "Inheritance"
+        "Inheritance."
         class CTypeForeignKeyEnumerator(Enumerator):
             pass
 
@@ -231,3 +235,53 @@ class EnumerableTestCase(CremeTestCase):
                 ]
             ))
         )
+
+    def test_efilter_enumerator(self):
+        user = CremeUser.objects.create_user(
+            username='Kanna', email='kanna@century.jp',
+            first_name='Kanna', last_name='Gendou',
+            password='uselesspw',
+        )
+
+        create_filter = EntityFilter.objects.create
+        efilter1 = create_filter(
+            id='test-filter01',
+            name='Filter 01',
+            entity_type=FakeContact,
+            is_custom=True,
+        )
+        efilter2 = create_filter(
+            id='test-filter02',
+            name='Filter 02',
+            entity_type=FakeOrganisation,
+            is_custom=True, user=user, is_private=True,
+        )
+
+        e = EntityFilterEnumerator(FakeReport._meta.get_field('efilter'))
+        choices = e.choices(user)
+
+        self.assertIsInstance(choices, list)
+
+        first_choice = choices[0]
+        self.assertIsInstance(first_choice, dict)
+        self.assertIn('value', first_choice)
+
+        def find_efilter_dict(efilter):
+            efilter_as_dicts = [c for c in choices if c['value'] == efilter.id]
+            self.assertEqual(1, len(efilter_as_dicts))
+            return efilter_as_dicts[0]
+
+        self.assertEqual({'value': efilter1.pk,
+                          'label': efilter1.name,
+                          'help': '',
+                          'group': 'Test Contact',
+                         },
+                         find_efilter_dict(efilter1)
+                        )
+        self.assertEqual({'value': efilter2.pk,
+                          'label': efilter2.name,
+                          'help': _('Private ({})').format(user),
+                          'group': 'Test Organisation',
+                         },
+                         find_efilter_dict(efilter2)
+                        )
