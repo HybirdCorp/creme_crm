@@ -348,7 +348,7 @@ def jsondata(value, **kwargs):
 
 @register.simple_tag
 def get_efilter_conditions(efilter, user):
-    return efilter.get_verbose_conditions(user)
+    return [*efilter.get_verbose_conditions(user)]
 
 
 # TODO: filter ?

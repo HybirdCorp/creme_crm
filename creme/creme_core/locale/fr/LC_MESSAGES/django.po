@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-02 13:01+0200\n"
+"POT-Creation-Date: 2019-09-04 23:59+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -336,72 +336,72 @@ msgstr "Actions"
 msgid "Entities are accepted by the filter «{}»"
 msgstr "Les fiches sont acceptées par le filtre «{}»"
 
-#: core/entity_filter/condition_handler.py:436
+#: core/entity_filter/condition_handler.py:435
 #, python-brace-format
 msgid "«{field}» is «{value}»"
 msgstr "«{field}» vaut «{value}»"
 
-#: core/entity_filter/condition_handler.py:445
-#: core/entity_filter/operators.py:336
+#: core/entity_filter/condition_handler.py:444
+#: core/entity_filter/operators.py:334
 #, python-brace-format
 msgid "«{field}» is between «{start}» and «{end}»"
 msgstr "«{field}» est entre «{start}» et «{end}»"
 
-#: core/entity_filter/condition_handler.py:450
+#: core/entity_filter/condition_handler.py:449
 #, python-brace-format
 msgid "«{field}» starts «{date}»"
 msgstr "«{field}» commence le «{date}»"
 
-#: core/entity_filter/condition_handler.py:456
+#: core/entity_filter/condition_handler.py:455
 #, python-brace-format
 msgid "«{field}» ends «{date}»"
 msgstr "«{field}» finit le «{date}»"
 
-#: core/entity_filter/condition_handler.py:954
+#: core/entity_filter/condition_handler.py:949
 #, python-brace-format
 msgid "The entities have relationships «{predicate}»"
 msgstr "Les fiches ont des relations «{predicate}»"
 
-#: core/entity_filter/condition_handler.py:955
+#: core/entity_filter/condition_handler.py:950
 #, python-brace-format
 msgid "The entities have no relationship «{predicate}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}»"
 
-#: core/entity_filter/condition_handler.py:958
+#: core/entity_filter/condition_handler.py:953
 #, python-brace-format
 msgid "The entities have relationships «{predicate}» to «{model}»"
 msgstr "Les fiches ont des relations «{predicate}» vers «{model}»"
 
-#: core/entity_filter/condition_handler.py:959
+#: core/entity_filter/condition_handler.py:954
 #, python-brace-format
 msgid "The entities have no relationship «{predicate}» to «{model}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}» vers «{model}»"
 
-#: core/entity_filter/condition_handler.py:962
+#: core/entity_filter/condition_handler.py:957
 #, python-brace-format
 msgid "The entities have relationships «{predicate}» to «{entity}»"
 msgstr "Les fiches ont des relations «{predicate}» vers «{entity}»"
 
-#: core/entity_filter/condition_handler.py:963
+#: core/entity_filter/condition_handler.py:958
 #, python-brace-format
 msgid "The entities have no relationship «{predicate}» to «{entity}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}» vers «{entity}»"
 
-#: core/entity_filter/condition_handler.py:1111
+#: core/entity_filter/condition_handler.py:1105
 #, python-brace-format
 msgid "The entities have relationships «{predicate}» to «{filter}»"
 msgstr "Les fiches ont des relations «{predicate}» vers «{filter}»"
 
-#: core/entity_filter/condition_handler.py:1112
+#: core/entity_filter/condition_handler.py:1106
 #, python-brace-format
 msgid "The entities have no relationship «{predicate}» to «{filter}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}» vers «{filter}»"
 
-#: core/entity_filter/condition_handler.py:1228
+#: core/entity_filter/condition_handler.py:1222
 msgid "The entities have the property «{}»"
 msgstr "Les fiches ont la propriété «{}»"
 
-#: core/entity_filter/condition_handler.py:1229
+#: core/entity_filter/condition_handler.py:1223
 msgid "The entities have no property «{}»"
 msgstr "Les fiches n'ont pas la propriété «{}»"
 
@@ -419,197 +419,197 @@ msgstr "«{enum_value}»"
 msgid "{first} or {last}"
 msgstr "{first} ou {last}"
 
-#: core/entity_filter/operators.py:242
+#: core/entity_filter/operators.py:241
 #, python-brace-format
 msgid "«{field}» is {values}"
 msgstr "«{field}» vaut {values}"
 
-#: core/entity_filter/operators.py:243
+#: core/entity_filter/operators.py:242
 #, python-brace-format
 msgid "«{field}» is not {values}"
 msgstr "«{field}» n'est pas {values}"
 
-#: core/entity_filter/operators.py:295
+#: core/entity_filter/operators.py:293
 #, python-brace-format
 msgid "«{field}» is empty"
 msgstr "«{field}» est vide"
 
-#: core/entity_filter/operators.py:296
+#: core/entity_filter/operators.py:294
 #, python-brace-format
 msgid "«{field}» is not empty"
 msgstr "«{field}» n'est pas vide"
 
-#: core/entity_filter/operators.py:363 core/entity_filter/operators.py:365
+#: core/entity_filter/operators.py:360 core/entity_filter/operators.py:362
 msgid "Equals"
 msgstr "Est égal à"
 
-#: core/entity_filter/operators.py:369
+#: core/entity_filter/operators.py:366
 msgid ">"
 msgstr ">"
 
-#: core/entity_filter/operators.py:370
+#: core/entity_filter/operators.py:367
 #, python-brace-format
 msgid "«{field}» is greater than {values}"
 msgstr "«{field}» est plus grand que {values}"
 
-#: core/entity_filter/operators.py:373
+#: core/entity_filter/operators.py:370
 msgid "≥"
 msgstr "≥"
 
-#: core/entity_filter/operators.py:374
+#: core/entity_filter/operators.py:371
 #, python-brace-format
 msgid "«{field}» is greater or equal to {values}"
 msgstr "«{field}» est plus grand ou égal à {values}"
 
-#: core/entity_filter/operators.py:376
+#: core/entity_filter/operators.py:373
 msgid "<"
 msgstr "<"
 
-#: core/entity_filter/operators.py:377
+#: core/entity_filter/operators.py:374
 #, python-brace-format
 msgid "«{field}» is lesser than {values}"
 msgstr "«{field}» est plus petit que {values}"
 
-#: core/entity_filter/operators.py:380
+#: core/entity_filter/operators.py:377
 msgid "≤"
 msgstr "≤"
 
-#: core/entity_filter/operators.py:381
+#: core/entity_filter/operators.py:378
 #, python-brace-format
 msgid "«{field}» is lesser or equal to {values}"
 msgstr "«{field}» est plus petit ou égal à {values}"
 
-#: core/entity_filter/operators.py:384
+#: core/entity_filter/operators.py:381
 msgid "Equals (case insensitive)"
 msgstr "Est égal à (Ne respecte pas la casse)"
 
-#: core/entity_filter/operators.py:385
+#: core/entity_filter/operators.py:382
 #, python-brace-format
 msgid "«{field}» is equal to {values} (case insensitive)"
 msgstr "«{field}» est égal à {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:387
+#: core/entity_filter/operators.py:384
 msgid "Does not equal (case insensitive)"
 msgstr "N'est pas égal à (Ne respecte pas la casse)"
 
-#: core/entity_filter/operators.py:388
+#: core/entity_filter/operators.py:385
 #, python-brace-format
 msgid "«{field}» is different from {values} (case insensitive)"
 msgstr "«{field}» n'est pas égal à {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:390
+#: core/entity_filter/operators.py:387
 msgid "Contains"
 msgstr "Contient"
 
-#: core/entity_filter/operators.py:391
+#: core/entity_filter/operators.py:388
 #, python-brace-format
 msgid "«{field}» contains {values}"
 msgstr "«{field}» contient {values}"
 
-#: core/entity_filter/operators.py:393
+#: core/entity_filter/operators.py:390
 msgid "Does not contain"
 msgstr "Ne contient pas"
 
-#: core/entity_filter/operators.py:394
+#: core/entity_filter/operators.py:391
 #, python-brace-format
 msgid "«{field}» does not contain {values}"
 msgstr "«{field}» ne contient pas {values}"
 
-#: core/entity_filter/operators.py:396
+#: core/entity_filter/operators.py:393
 msgid "Contains (case insensitive)"
 msgstr "Contient (Ne respecte pas la casse)"
 
-#: core/entity_filter/operators.py:397
+#: core/entity_filter/operators.py:394
 #, python-brace-format
 msgid "«{field}» contains {values} (case insensitive)"
 msgstr "«{field}» contient {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:399
+#: core/entity_filter/operators.py:396
 msgid "Does not contain (case insensitive)"
 msgstr "Ne contient pas (Ne respecte pas la casse)"
 
-#: core/entity_filter/operators.py:400
+#: core/entity_filter/operators.py:397
 #, python-brace-format
 msgid "«{field}» does not contain {values} (case insensitive)"
 msgstr "«{field}» ne contient pas {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:402
+#: core/entity_filter/operators.py:399
 msgid "Starts with"
 msgstr "Commence par"
 
-#: core/entity_filter/operators.py:403
+#: core/entity_filter/operators.py:400
 #, python-brace-format
 msgid "«{field}» starts with {values}"
 msgstr "«{field}» commence par {values}"
 
-#: core/entity_filter/operators.py:405
+#: core/entity_filter/operators.py:402
 msgid "Does not start with"
 msgstr "Ne commence pas par"
 
-#: core/entity_filter/operators.py:406
+#: core/entity_filter/operators.py:403
 #, python-brace-format
 msgid "«{field}» does not start with {values}"
 msgstr "«{field}» ne commence pas par {values}"
 
-#: core/entity_filter/operators.py:408
+#: core/entity_filter/operators.py:405
 msgid "Starts with (case insensitive)"
 msgstr "Commence par (Ne respecte pas la casse)"
 
-#: core/entity_filter/operators.py:409
+#: core/entity_filter/operators.py:406
 #, python-brace-format
 msgid "«{field}» starts with {values} (case insensitive)"
 msgstr "«{field}» commence par {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:411
+#: core/entity_filter/operators.py:408
 msgid "Does not start with (case insensitive)"
 msgstr "Ne commence pas par (Ne respecte pas la casse)"
 
-#: core/entity_filter/operators.py:412
+#: core/entity_filter/operators.py:409
 #, python-brace-format
 msgid "«{field}» does not start with {values} (case insensitive)"
 msgstr "«{field}» ne commence pas par {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:414
+#: core/entity_filter/operators.py:411
 msgid "Ends with"
 msgstr "Se termine par"
 
-#: core/entity_filter/operators.py:415
+#: core/entity_filter/operators.py:412
 #, python-brace-format
 msgid "«{field}» ends with {values}"
 msgstr "«{field}» finit par {values}"
 
-#: core/entity_filter/operators.py:417
+#: core/entity_filter/operators.py:414
 msgid "Does not end with"
 msgstr "Ne se termine pas par"
 
-#: core/entity_filter/operators.py:418
+#: core/entity_filter/operators.py:415
 #, python-brace-format
 msgid "«{field}» does not end with {values}"
 msgstr "«{field}» ne finit pas par {values}"
 
-#: core/entity_filter/operators.py:420
+#: core/entity_filter/operators.py:417
 msgid "Ends with (case insensitive)"
 msgstr "Se termine par (Ne respecte pas la casse)"
 
-#: core/entity_filter/operators.py:421
+#: core/entity_filter/operators.py:418
 #, python-brace-format
 msgid "«{field}» ends with {values} (case insensitive)"
 msgstr "«{field}» finit par {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:423
+#: core/entity_filter/operators.py:420
 msgid "Does not end with (case insensitive)"
 msgstr "Ne se termine pas par (Ne respecte pas la casse)"
 
-#: core/entity_filter/operators.py:424
+#: core/entity_filter/operators.py:421
 #, python-brace-format
 msgid "«{field}» does not end with {values} (case insensitive)"
 msgstr "«{field}» ne finit pas par {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:428 utils/date_range.py:276
+#: core/entity_filter/operators.py:425 utils/date_range.py:276
 msgid "Is empty"
 msgstr "Est vide"
 
-#: core/entity_filter/operators.py:429
+#: core/entity_filter/operators.py:426
 msgid "Range"
 msgstr "Intervalle"
 
@@ -3459,15 +3459,23 @@ msgstr "Conditions du filtre «%(efilter)s»"
 msgid "Information on the current filter"
 msgstr "Informations sur le filter courant"
 
-#: templates/creme_core/templatetags/listview/entity-filters.html:25
+#: templates/creme_core/templatetags/listview/entity-filters.html:18
+msgid "Any condition is met:"
+msgstr "Au moins une condition est remplie :"
+
+#: templates/creme_core/templatetags/listview/entity-filters.html:18
+msgid "All these conditions are met:"
+msgstr "Toutes les conditions sont remplies :"
+
+#: templates/creme_core/templatetags/listview/entity-filters.html:30
 msgid "Create a custom filter"
 msgstr "Créer un filtre personnalisé"
 
-#: templates/creme_core/templatetags/listview/entity-filters.html:28
+#: templates/creme_core/templatetags/listview/entity-filters.html:33
 msgid "Edit this filter"
 msgstr "Modifier ce filtre"
 
-#: templates/creme_core/templatetags/listview/entity-filters.html:31
+#: templates/creme_core/templatetags/listview/entity-filters.html:36
 msgid "Delete this custom filter"
 msgstr "Supprimer ce filtre personnalisé"
 
