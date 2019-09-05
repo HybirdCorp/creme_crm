@@ -8,21 +8,31 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    from creme.creme_core.models import (RelationType, Vat,
-            SettingValue, BrickDetailviewLocation)
+    from creme.creme_core.models import (
+        RelationType,
+        Vat,
+        SettingValue,
+        BrickDetailviewLocation,
+    )
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 
     from .. import bricks, constants
     from ..algos import SimpleAlgo
-    from ..models import (InvoiceStatus, SalesOrderStatus, CreditNoteStatus,
-            ConfigBillingAlgo, SimpleBillingAlgo)
+    from ..models import (
+        InvoiceStatus, SalesOrderStatus, CreditNoteStatus,
+        ConfigBillingAlgo, SimpleBillingAlgo,
+    )
     from ..registry import AlgoRegistry
+    from ..setting_keys import payment_info_key
 
-    from .base import (_BillingTestCase,
-            Organisation, Contact, Product, Service,
-            CreditNote, Invoice, Quote, SalesOrder, TemplateBase,
-            ProductLine, ServiceLine)
+    from .base import (
+        _BillingTestCase,
+        Organisation, Contact,
+        Product, Service,
+        CreditNote, Invoice, Quote, SalesOrder, TemplateBase,
+        ProductLine, ServiceLine,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -255,7 +265,8 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(orga1, sba_list1[0].organisation)
 
     def _get_setting_value(self):
-        return self.get_object_or_fail(SettingValue, key_id=constants.DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
+        # return self.get_object_or_fail(SettingValue, key_id=constants.DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
+        return self.get_object_or_fail(SettingValue, key_id=payment_info_key.id)
 
     @skipIfCustomOrganisation
     def test_brick_orga01(self):
