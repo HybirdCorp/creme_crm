@@ -106,6 +106,15 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self.assertEqual('False#True#False#True', render.strip())
 
+    def test_format(self):
+        with self.assertNoException():
+            template = Template("{% load creme_core_tags %}"
+                                "{{ 'world'|format:'Hello %s' }}"
+                               )
+            render = template.render(Context())
+
+        self.assertEqual('Hello world', render.strip())
+
     def test_templatize(self):
         with self.assertNoException():
             template = Template('{% load creme_core_tags %}'

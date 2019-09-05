@@ -278,8 +278,8 @@ def is_plural(x):
 
 
 @register.filter(name='format')
-def format_string(ustring, format_str):
-    return format_str % ustring
+def format_string(value, format_str):
+    return format_str % value
 
 
 @register.filter

@@ -18,15 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django import template
 from django.template.defaultfilters import truncatewords
 
 register = template.Library()
 
 
-# TODO: in creme_core ?? use u'…' (like in utils.ellipsis) ??
 @register.filter(name='truncate')
 def truncate(word, truncate_at):
+    warnings.warn('The filter "|truncate" (crudity_tags) is deprecated ;'
+                  'use "|truncatewords" and "|truncatewords" instead.',
+                  DeprecationWarning
+                 )
+
     words = truncatewords(word, truncate_at)
     word = str(word)
     truncated = word[:truncate_at]
