@@ -7,12 +7,15 @@ try:
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     # from django.db.models.query import QuerySet
+    from django.db.models.query_utils import Q
     from django.urls import reverse
     from django.utils.timezone import now
     from django.utils.translation import gettext as _
 
+    from creme.creme_core.core.entity_cell import EntityCellFunctionField
     from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.models import CremeEntity  # FakeOrganisation, FakeMailingList
+    from creme.creme_core.forms.listview import TextLVSWidget
+    from creme.creme_core.models import CremeEntity, FakeOrganisation  # FakeMailingList
 
     from ..models import Memo
     from .base import AssistantsTestCase
@@ -30,7 +33,7 @@ class MemoTestCase(AssistantsTestCase):
                                     data={'user':        self.user.pk,
                                           'content':     content,
                                           'on_homepage': on_homepage,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -107,6 +110,25 @@ will be truncate by str() method"""
         funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
         self.assertIsNotNone(funf)
         self.assertEqual('<ul></ul>', funf(self.entity, self.user).for_html())
+
+        # ---
+        field_class = funf.search_field_builder
+        self.assertIsNotNone(field_class)
+
+        field = field_class(
+            cell=EntityCellFunctionField(model=FakeOrganisation, func_field=funf),
+            user=self.user,
+        )
+        self.assertIsInstance(field.widget, TextLVSWidget)
+
+        to_python = field.to_python
+        self.assertEqual(Q(), to_python(value=None))
+        self.assertEqual(Q(), to_python(value=''))
+
+        value = 'foobar'
+        self.assertEqual(Q(assistants_memos__content__icontains=value),
+                         to_python(value=value)
+                        )
 
     def _oldify_memo(self, memo):
         cdate = memo.creation_date

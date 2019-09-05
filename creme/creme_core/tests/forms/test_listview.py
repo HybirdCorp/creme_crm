@@ -855,7 +855,7 @@ class SearchFieldsTestCase(CremeTestCase):
         from creme.creme_core.function_fields import PropertiesField
         from creme.creme_core.models import CremePropertyType
 
-        create_ptype  = CremePropertyType.create
+        create_ptype = CremePropertyType.create
         get_ct = ContentType.objects.get_for_model
         ct_orga = get_ct(FakeOrganisation)
         ptype1 = create_ptype('test-cool',       'is cool')

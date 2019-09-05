@@ -8,16 +8,20 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.core import mail
     # from django.db.models.query import QuerySet
+    from django.db.models.query_utils import Q
     from django.test.utils import override_settings
     from django.urls import reverse
     from django.utils.timezone import now
     from django.utils.translation import gettext as _
 
+    from creme.creme_core.core.entity_cell import EntityCellFunctionField
+    from creme.creme_core.forms.listview import TextLVSWidget
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-    from creme.creme_core.models import CremeEntity, DateReminder  # FakeOrganisation FakeMailingList
+    from creme.creme_core.models import CremeEntity, DateReminder, FakeOrganisation  #FakeMailingList
 
     from ..models import Alert
+
     from .base import AssistantsTestCase
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -151,6 +155,25 @@ class AlertTestCase(AssistantsTestCase):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
         self.assertIsNotNone(funf)
         self.assertEqual('<ul></ul>', funf(self.entity, self.user).for_html())
+
+        # ---
+        field_class = funf.search_field_builder
+        self.assertIsNotNone(field_class)
+
+        field = field_class(
+            cell=EntityCellFunctionField(model=FakeOrganisation, func_field=funf),
+            user=self.user,
+        )
+        self.assertIsInstance(field.widget, TextLVSWidget)
+
+        to_python = field.to_python
+        self.assertEqual(Q(), to_python(value=None))
+        self.assertEqual(Q(), to_python(value=''))
+
+        value = 'foobar'
+        self.assertEqual(Q(assistants_alerts__title__icontains=value),
+                         to_python(value=value)
+                        )
 
     def test_function_field02(self):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
