@@ -9,25 +9,37 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.core import mail
     from django.core.mail.backends.locmem import EmailBackend
-    from django.db.models.query import QuerySet
+    from django.db.models.query import QuerySet, Q
     from django.test.utils import override_settings
     from django.urls import reverse
     from django.utils.timezone import now, localtime
     from django.utils.translation import gettext as _
 
     from creme.creme_core.bricks import JobErrorsBrick
+    from creme.creme_core.core.entity_cell import EntityCellFunctionField
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-    from creme.creme_core.models import (CremeEntity, DateReminder,
-            SettingValue, HistoryLine, JobResult)
-    from creme.creme_core.models.history import (TYPE_AUX_CREATION,
-            TYPE_AUX_EDITION, TYPE_AUX_DELETION)
-    from creme.creme_core.tests.fake_models import FakeContact  # FakeOrganisation, FakeMailingList
+    from creme.creme_core.forms.listview import TextLVSWidget
+    from creme.creme_core.models import (
+        CremeEntity,
+        DateReminder,
+        SettingValue,
+        HistoryLine,
+        JobResult,
+        FakeContact  # FakeOrganisation, FakeMailingList
+    )
+    from creme.creme_core.models.history import (
+        TYPE_AUX_CREATION,
+        TYPE_AUX_EDITION,
+        TYPE_AUX_DELETION,
+    )
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from ..bricks import TodosBrick
     from ..constants import MIN_HOUR_4_TODO_REMINDER
+    from ..function_fields import TodosField
     from ..models import ToDo, Alert
+
     from .base import AssistantsTestCase
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -263,8 +275,27 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
     def test_function_field01(self):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
-        self.assertIsNotNone(funf)
+        self.assertIsInstance(funf, TodosField)
         self.assertEqual('<ul></ul>', funf(self.entity, self.user).for_html())
+
+        # ---
+        field_class = funf.search_field_builder
+        self.assertIsNotNone(field_class)
+
+        field = field_class(
+            cell=EntityCellFunctionField(model=FakeContact, func_field=funf),
+            user=self.user,
+        )
+        self.assertIsInstance(field.widget, TextLVSWidget)
+
+        to_python = field.to_python
+        self.assertEqual(Q(), to_python(value=None))
+        self.assertEqual(Q(), to_python(value=''))
+
+        value = 'foobar'
+        self.assertEqual(Q(assistants_todos__title__icontains=value),
+                         to_python(value=value)
+                        )
 
     def test_function_field02(self):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')

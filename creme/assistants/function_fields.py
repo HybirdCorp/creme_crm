@@ -20,12 +20,38 @@
 
 from collections import defaultdict
 
+from django.db.models.query_utils import Q
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.core.function_field import (FunctionField,
-        FunctionFieldResult, FunctionFieldResultsList)
+from creme.creme_core.core.function_field import (
+    FunctionField,
+    FunctionFieldResult,
+    FunctionFieldResultsList,
+)
+from creme.creme_core.forms import listview as lv_form
 
 from .models import Alert, Memo, ToDo
+
+
+class AlertsSearchField(lv_form.ListViewSearchField):
+    widget = lv_form.TextLVSWidget
+
+    def to_python(self, value):
+        return Q(assistants_alerts__title__icontains=value) if value else Q()
+
+
+class MemosSearchField(lv_form.ListViewSearchField):
+    widget = lv_form.TextLVSWidget
+
+    def to_python(self, value):
+        return Q(assistants_memos__content__icontains=value) if value else Q()
+
+
+class TodosSearchField(lv_form.ListViewSearchField):
+    widget = lv_form.TextLVSWidget
+
+    def to_python(self, value):
+        return Q(assistants_todos__title__icontains=value) if value else Q()
 
 
 class _CachedFunctionField(FunctionField):
@@ -39,6 +65,7 @@ class AlertsField(_CachedFunctionField):
     name         = 'assistants-get_alerts'
     verbose_name = _('Alerts')
     result_type  = FunctionFieldResultsList
+    search_field_builder = AlertsSearchField
 
     def __call__(self, entity, user):
         # cache = getattr(entity, '_alerts_cache', None)
@@ -56,11 +83,12 @@ class AlertsField(_CachedFunctionField):
         cached = cache.get(e_id)
 
         if cached is None:
-            cached = cache[e_id] = list(Alert.objects
-                                             .filter(entity_id=e_id, is_validated=False)
-                                             .order_by('trigger_date')
-                                             .values_list('title', flat=True)
-                                       )
+            cached = cache[e_id] = [
+                *Alert.objects
+                      .filter(entity_id=e_id, is_validated=False)
+                      .order_by('trigger_date')
+                      .values_list('title', flat=True)
+            ]
 
         return FunctionFieldResultsList(FunctionFieldResult(title) for title in cached)
 
@@ -92,6 +120,7 @@ class MemosField(_CachedFunctionField):
     name         = 'assistants-get_memos'
     verbose_name = _('Memos')
     result_type  = FunctionFieldResultsList
+    search_field_builder = MemosSearchField
 
     def __call__(self, entity, user):
         # cache = getattr(entity, '_memos_cache', None)
@@ -108,10 +137,12 @@ class MemosField(_CachedFunctionField):
         cached = cache.get(e_id)
 
         if cached is None:
-            cached = cache[e_id] = list(Memo.objects.filter(entity_id=entity.id)
-                                                    .order_by('-creation_date')
-                                                    .values_list('content', flat=True)
-                                       )
+            cached = cache[e_id] = [
+                *Memo.objects
+                     .filter(entity_id=entity.id)
+                     .order_by('-creation_date')
+                     .values_list('content', flat=True)
+            ]
 
         return FunctionFieldResultsList(FunctionFieldResult(content) for content in cached)
 
@@ -141,6 +172,7 @@ class TodosField(_CachedFunctionField):
     name         = 'assistants-get_todos'
     verbose_name = _('Todos')
     result_type  = FunctionFieldResultsList
+    search_field_builder = TodosSearchField
 
     def __call__(self, entity, user):
         # cache = getattr(entity, '_todos_cache', None)
@@ -157,10 +189,12 @@ class TodosField(_CachedFunctionField):
         cached = cache.get(e_id)
 
         if cached is None:
-            cached = cache[e_id] = list(ToDo.objects.filter(entity_id=entity.id, is_ok=False)
-                                                    .order_by('-creation_date')
-                                                    .values_list('title', flat=True)
-                                       )
+            cached = cache[e_id] = [
+                *ToDo.objects
+                     .filter(entity_id=entity.id, is_ok=False)
+                     .order_by('-creation_date')
+                     .values_list('title', flat=True)
+            ]
 
         return FunctionFieldResultsList(FunctionFieldResult(title) for title in cached)
 
