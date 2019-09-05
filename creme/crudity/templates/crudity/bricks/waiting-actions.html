@@ -44,9 +44,7 @@
             <input class="row-selector" value="{{waiting_action.pk}}" title="{% trans 'Select this line' %}" type="checkbox"/>
         </td>
         <td>
-{#        {% for k, v in waiting_action.get_data.items %} #}
         {% for k, v in waiting_action.data.items %}
-{#            {% if forloop.counter0|mod:4 == 0 %} #}
             {% if forloop.counter0|divisibleby:4 %}
             <p>
             {% else %}
@@ -59,8 +57,8 @@
                 {{k}} : {{v|truncate:50}}
             {% endif %}
 {% endcomment %}
-            {{k}} : {{v|truncate:50}}
-{#            {% if forloop.counter|mod:4 == 0 %} #}
+{#            {{k}} : {{v|truncate:50}} #}
+            {{k}} : {{v|truncatewords:50|truncatechars:500}}
             {% if forloop.counter|divisibleby:4 %}
             </p>
             {% endif %}

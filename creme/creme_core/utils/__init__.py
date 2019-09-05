@@ -292,6 +292,7 @@ def truncate_str(str, max_length, suffix=''):
         return str[:max_length]
 
 
+# TODO: use django.utils.text.Truncator.chars() instead ??
 def ellipsis(s, length):
     "Ensures that an unicode-string has a maximum length."
     if len(s) > length:
