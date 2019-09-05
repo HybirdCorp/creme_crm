@@ -24,7 +24,7 @@ from functools import partial
 from django.db.transaction import atomic
 from django.forms import (ModelChoiceField, TypedChoiceField, DecimalField,
         ValidationError, TextInput, Textarea)
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core import forms as core_forms
 from creme.creme_core.forms.fields import MultiCreatorEntityField
@@ -35,7 +35,6 @@ from creme.products.forms.fields import CategoryField
 
 from creme import billing
 from .. import constants
-
 
 ProductLine = billing.get_product_line_model()
 ServiceLine = billing.get_service_line_model()
@@ -117,7 +116,16 @@ class LineEditForm(core_forms.CremeModelForm):
 
     class Meta:
         exclude = ()
+        widgets = {
+            'on_the_fly_item': TextInput(attrs={'class': 'line-on_the_fly', 'validator': 'Value'}),
+            'unit_price':      TextInput(attrs={'class': 'line-unit_price bound', 'validator': 'Decimal'}),
+            'quantity':        TextInput(attrs={'class': 'line-quantity bound', 'validator': 'PositiveDecimal'}),
+            'unit':            TextInput(attrs={'class': 'line-unit'}),
+            'discount':        TextInput(attrs={'class': 'line-quantity_discount bound'}),
+            'comment':         Textarea(attrs={'class': 'line-comment', 'rows': 2}),
+        }
 
+    # TODO: related_document=None ??
     def __init__(self, user, related_document=None, *args, **kwargs):
         super().__init__(user=user, *args, **kwargs)
         self.related_document = related_document
@@ -125,33 +133,24 @@ class LineEditForm(core_forms.CremeModelForm):
 
         if self.instance.related_item:
             del fields['on_the_fly_item']
-        else:
-            fields['on_the_fly_item'].widget = TextInput(attrs={'class': 'line-on_the_fly', 'validator': 'Value'})
-
-        fields['unit_price'].widget = TextInput(attrs={'class': 'line-unit_price bound', 'validator': 'Decimal'})
-        fields['quantity'].widget   = TextInput(attrs={'class': 'line-quantity bound', 'validator': 'PositiveDecimal'})
-        fields['unit'].widget       = TextInput(attrs={'class': 'line-unit'})
-        fields['discount'].widget   = TextInput(attrs={'class': 'line-quantity_discount bound'})
 
         currency_str = related_document.currency.local_symbol
-        discount_units = [(constants.DISCOUNT_PERCENT,     '%'),
-                          (constants.DISCOUNT_LINE_AMOUNT, _('{currency} per line').format(currency=currency_str)),
-                          (constants.DISCOUNT_ITEM_AMOUNT, _('{currency} per unit').format(currency=currency_str)),
-                         ]
+        discount_units = [
+            (constants.DISCOUNT_PERCENT,     '%'),
+            (constants.DISCOUNT_LINE_AMOUNT, gettext('{currency} per line').format(currency=currency_str)),
+            (constants.DISCOUNT_ITEM_AMOUNT, gettext('{currency} per unit').format(currency=currency_str)),
+        ]
 
         line = self.instance
         fields['discount_unit'] = discount_unit_f = TypedChoiceField(choices=discount_units, coerce=int)
         discount_unit_f.initial = constants.DISCOUNT_PERCENT if line.discount_unit == constants.DISCOUNT_PERCENT else \
                                   (constants.DISCOUNT_LINE_AMOUNT if line.total_discount else constants.DISCOUNT_ITEM_AMOUNT) #HACK: see below
-        discount_unit_f.required = True
         discount_unit_f.widget.attrs = {'class': 'bound'}
 
-        fields['comment'].widget = Textarea(attrs={'class': 'line-comment', 'rows': 2})
         fields['vat_value'].initial = Vat.get_default_vat()
 
     # TODO: UGLY HACK: we should have our 3 choices in Line.discount_unit & remove Line.total_discount (refactor the template too)
     def clean(self):
-        # cdata = super(LineEditForm, self).clean()
         cdata = super().clean()
 
         if not self._errors:

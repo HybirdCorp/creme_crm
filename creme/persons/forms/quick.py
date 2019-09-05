@@ -31,7 +31,6 @@ from creme.creme_core.models import Relation
 from creme import persons
 from ..constants import REL_SUB_EMPLOYED_BY
 
-
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 
@@ -69,7 +68,7 @@ class ContactQuickForm(CremeModelForm):
             orga_field.initial = gettext('You are not allowed to link with a Contact') if not c_link_perm else \
                                  gettext('You are not allowed to link with an Organisation')
         elif not self.can_create():
-            self.fields['organisation'].help_text = gettext('Enter the name of an existing Organisation.')
+            self.fields['organisation'].help_text = _('Enter the name of an existing Organisation.')
 
     def can_create(self):
         return self.user.has_perm_to_create(Organisation)

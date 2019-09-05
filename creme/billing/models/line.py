@@ -50,7 +50,8 @@ class Line(CremeEntity):
     unit            = CharField(_('Unit'), max_length=100, blank=True)
     discount        = DecimalField(_('Discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
     # TODO: remove total_discount & add a choice to discount_unit (see EditForm)
-    # TODO: null=False ???
+    # TODO: remove null=True
+    # TODO: remove editable=False
     discount_unit   = PositiveIntegerField(_('Discount Unit'), blank=True, null=True, editable=False,
                                            choices=DISCOUNT_UNIT.items(), default=PERCENT_PK,
                                           )
