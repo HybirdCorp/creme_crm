@@ -60,7 +60,8 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
                         ),
                     )
                 else:
-                    self.fields['beware'] = CharField(label=_('Beware !'),
+                    self.fields['beware'] = CharField(
+                        label=_('Beware !'),
                         required=False, widget=Label,
                         initial=ngettext(
                             'The filter of {count} report cannot be changed because it is private.',
