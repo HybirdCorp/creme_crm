@@ -22,7 +22,7 @@ from django.db.models.query_utils import Q
 from django.forms.fields import BooleanField
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeEntityForm, CreatorEntityField
+from creme.creme_core.forms import CremeModelForm, CreatorEntityField  # CremeEntityForm
 from creme.creme_core.models import Relation
 
 from creme.persons import get_contact_model
@@ -31,15 +31,17 @@ from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
 
 from ..constants import REL_SUB_PART_AS_RESOURCE
 from ..models import Resource
+
 from .task import _link_contact_n_activity
 
 
-class ResourceCreateForm(CremeEntityForm):
+# class ResourceCreateForm(CremeEntityForm):
+class ResourceCreateForm(CremeModelForm):  # Not CremeEntityForm to avoid Relations/CremeProperties fields
     contact = CreatorEntityField(label=_('Contact to be assigned to this task'),
                                  model=get_contact_model(),
                                 )
 
-    class Meta(CremeEntityForm.Meta):
+    class Meta(CremeModelForm.Meta):
         model = Resource
 
     def __init__(self, task, *args, **kwargs):
@@ -82,10 +84,11 @@ class ResourceEditForm(ResourceCreateForm):
 
         if old_contact != new_contact:
             task_activities = self.instance.task.related_activities
-            activities_ids = {activity.id
-                                for activity in task_activities
-                                    if activity.projects_resource.linked_contact == old_contact
-                             }
+            activities_ids = {
+                activity.id
+                    for activity in task_activities
+                        if activity.projects_resource.linked_contact == old_contact
+            }
 
             atypes = [REL_SUB_PART_AS_RESOURCE]
             if not self.cleaned_data.get('keep_participating'):
