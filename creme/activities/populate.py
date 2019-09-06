@@ -56,21 +56,22 @@ class Populator(BasePopulator):
 
         # ---------------------------
         create_rtype = RelationType.create
-        create_rtype((constants.REL_SUB_LINKED_2_ACTIVITY, _('related to the activity')),
-                     (constants.REL_OBJ_LINKED_2_ACTIVITY, _('(activity) related to'),    [Activity]),
-                     minimal_display=(True, False),
-                    )
-        rt_obj_activity_subject = \
-            create_rtype((constants.REL_SUB_ACTIVITY_SUBJECT, _('is subject of the activity'), [Contact, Organisation]),
-                         (constants.REL_OBJ_ACTIVITY_SUBJECT, _('(activity) is to subject'),   [Activity]),
-                         minimal_display=(True, False),
-                        )[1]
-        rt_obj_part_2_activity = \
-            create_rtype((constants.REL_SUB_PART_2_ACTIVITY, _('participates to the activity'),  [Contact]),
-                         (constants.REL_OBJ_PART_2_ACTIVITY, _('(activity) has as participant'), [Activity]),
-                         is_internal=True,
-                         minimal_display=(True, False),
-                        )[1]
+        create_rtype(
+            (constants.REL_SUB_LINKED_2_ACTIVITY, _('related to the activity')),
+            (constants.REL_OBJ_LINKED_2_ACTIVITY, _('(activity) related to'),    [Activity]),
+            minimal_display=(True, False),
+        )
+        rt_obj_activity_subject = create_rtype(
+            (constants.REL_SUB_ACTIVITY_SUBJECT, _('is subject of the activity'), [Contact, Organisation]),
+            (constants.REL_OBJ_ACTIVITY_SUBJECT, _('(activity) has for subject'), [Activity]),
+            minimal_display=(True, False),
+        )[1]
+        rt_obj_part_2_activity = create_rtype(
+            (constants.REL_SUB_PART_2_ACTIVITY, _('participates to the activity'),  [Contact]),
+            (constants.REL_OBJ_PART_2_ACTIVITY, _('(activity) has as participant'), [Activity]),
+            is_internal=True,
+            minimal_display=(True, False),
+        )[1]
 
         # ---------------------------
         create_if_needed(Status, {'pk': constants.STATUS_PLANNED},     name=pgettext('activities-status', 'Planned'),     description=pgettext('activities-status', 'Planned'),     is_custom=False)
@@ -102,16 +103,20 @@ class Populator(BasePopulator):
         create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_FAILED},     name=_('Outgoing - Failed'), type=phone_call_type, is_custom=False)
 
         # ---------------------------
-        HeaderFilter.create(pk=constants.DEFAULT_HFILTER_ACTIVITY, name=_('Activity view'), model=Activity,
-                            cells_desc=[(EntityCellRegularField, {'name': 'start'}),
-                                        (EntityCellRegularField, {'name': 'title'}),
-                                        (EntityCellRegularField, {'name': 'type'}),
-                                        EntityCellRelation(model=Activity, rtype=rt_obj_part_2_activity),
-                                        EntityCellRelation(model=Activity, rtype=rt_obj_activity_subject),
-                                        (EntityCellRegularField, {'name': 'user'}),
-                                        (EntityCellRegularField, {'name': 'end'}),
-                                       ],
-                           )
+        HeaderFilter.create(
+            pk=constants.DEFAULT_HFILTER_ACTIVITY,
+            name=_('Activity view'),
+            model=Activity,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'start'}),
+                (EntityCellRegularField, {'name': 'title'}),
+                (EntityCellRegularField, {'name': 'type'}),
+                EntityCellRelation(model=Activity, rtype=rt_obj_part_2_activity),
+                EntityCellRelation(model=Activity, rtype=rt_obj_activity_subject),
+                (EntityCellRegularField, {'name': 'user'}),
+                (EntityCellRegularField, {'name': 'end'}),
+            ],
+        )
 
         # ---------------------------
         create_efilter = EntityFilter.create
