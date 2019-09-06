@@ -4,15 +4,36 @@
         {% trans 'View of list' as label %}{% widget_icon name='header_filter' label=label size='listview-filter' %}{{label}}
     </div>
     <select name="hfilter" class="lv-state-field list-views-selector">
+{% comment %}
         {% for hfilter in header_filters %}
             <option value="{{hfilter.id}}"{% if hfilter_id == hfilter.id %} selected{% endif %}>{{hfilter.name}}</option>
+        {% endfor %}
+{% endcomment %}
+        {% for hfilter in global_header_filters %}
+            <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
+        {% endfor %}
+
+        {% if my_header_filters %}
+            <optgroup label="{% trans 'My views' %}">
+            {% for hfilter in my_header_filters %}
+                <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
+            {% endfor %}
+            </optgroup>
+        {% endif %}
+
+         {% for user, hfilters in other_header_filters %}
+            <optgroup label="{% blocktrans %}Views of {{user}}{% endblocktrans %}">
+            {% for hfilter in hfilters %}
+               <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
+            {% endfor %}
+            </optgroup>
         {% endfor %}
     </select>
     {% if show_buttons %}{% ctype_for_model model as ctype %}
         <a href="{% url 'creme_core__create_hfilter' ctype.id %}">
             {% widget_icon name='add' label=_('Create a custom view') size='listview-filter-action' %}
         </a>
-        <a href="{{header_filters.selected.get_edit_absolute_url}}" data-action="redirect" class="{% if not can_edit %}is-disabled{% endif %}">
+        <a href="{{selected.get_edit_absolute_url}}" data-action="redirect" class="{% if not can_edit %}is-disabled{% endif %}">
             {% widget_icon name='edit' label=_('Edit this view') size='listview-filter-action' %}
         </a>
         <a href="{% url 'creme_core__delete_hfilter' %}" data-action="delete" class="{% if not can_delete %}is-disabled{% endif %}">

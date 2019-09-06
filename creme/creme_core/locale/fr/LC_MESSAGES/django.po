@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-04 23:59+0200\n"
+"POT-Creation-Date: 2019-09-06 15:41+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -823,7 +823,7 @@ msgid "General information"
 msgstr "Informations générales"
 
 #: forms/base.py:282 forms/mass_import.py:1182 models/entity.py:72
-#: models/entity_filter.py:94 models/header_filter.py:72 models/relation.py:364
+#: models/entity_filter.py:94 models/header_filter.py:73 models/relation.py:364
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
 
@@ -2102,7 +2102,7 @@ msgstr "Filtres de fiche"
 msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
-#: models/entity_filter.py:153 models/header_filter.py:120
+#: models/entity_filter.py:153 models/header_filter.py:121
 msgid "You are not allowed to access to this app"
 msgstr "Vous n'êtes autorisé à accéder à cette application"
 
@@ -2241,28 +2241,28 @@ msgstr "Configuration de {model}"
 msgid "Warning: the app «{app}» need the field «{field}»."
 msgstr "Attention: l'app «{app}» a besoin du champ «{field}»."
 
-#: models/header_filter.py:71
+#: models/header_filter.py:72
 msgid "Name of the view"
 msgstr "Nom de la vue"
 
-#: models/header_filter.py:80
+#: models/header_filter.py:81
 msgctxt "creme_core-header_filter"
 msgid "Is private?"
 msgstr "Est privée ?"
 
-#: models/header_filter.py:84
+#: models/header_filter.py:85
 msgid "Create a view"
 msgstr "Créer une vue"
 
-#: models/header_filter.py:85
+#: models/header_filter.py:86
 msgid "Save the view"
 msgstr "Enregistrer la vue"
 
-#: models/header_filter.py:104
+#: models/header_filter.py:105
 msgid "This view can't be deleted"
 msgstr "Cette vue ne peut être supprimée"
 
-#: models/header_filter.py:128
+#: models/header_filter.py:129
 msgid "You are not allowed to edit/delete this view"
 msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 
@@ -3487,15 +3487,24 @@ msgstr "Actions sur les fiches sélectionnées"
 msgid "Show only the desired columns"
 msgstr "Afficher uniquement les colonnes désirées"
 
-#: templates/creme_core/templatetags/listview/header-filters.html:13
+#: templates/creme_core/templatetags/listview/header-filters.html:17
+msgid "My views"
+msgstr "Mes vues"
+
+#: templates/creme_core/templatetags/listview/header-filters.html:25
+#, python-format
+msgid "Views of %(user)s"
+msgstr "Vues de %(user)s"
+
+#: templates/creme_core/templatetags/listview/header-filters.html:34
 msgid "Create a custom view"
 msgstr "Créer une vue personnalisée"
 
-#: templates/creme_core/templatetags/listview/header-filters.html:16
+#: templates/creme_core/templatetags/listview/header-filters.html:37
 msgid "Edit this view"
 msgstr "Modifier cette vue"
 
-#: templates/creme_core/templatetags/listview/header-filters.html:19
+#: templates/creme_core/templatetags/listview/header-filters.html:40
 msgid "Delete this custom view"
 msgstr "Supprimer cette vue personnalisée"
 

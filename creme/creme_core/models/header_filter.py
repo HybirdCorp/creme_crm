@@ -22,7 +22,8 @@ from collections import defaultdict
 from json import loads as json_load  # dumps as json_dump
 import logging
 
-from django.db.models import Model, CharField, TextField, BooleanField, Q
+from django.db import models
+from django.db.models.query_utils import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
@@ -63,23 +64,23 @@ class HeaderFilterList(list):
         return self._selected
 
 
-class HeaderFilter(Model):  # CremeModel ???
+class HeaderFilter(models.Model):  # CremeModel ???
     """View of list : sets of columns (see EntityCell) stored for a specific
     ContentType of CremeEntity.
     """
-    id          = CharField(primary_key=True, max_length=100, editable=False)
-    name        = CharField(_('Name of the view'), max_length=100)
+    id          = models.CharField(primary_key=True, max_length=100, editable=False)
+    name        = models.CharField(_('Name of the view'), max_length=100)
     user        = CremeUserForeignKey(verbose_name=_('Owner user'), blank=True, null=True)
     entity_type = CTypeForeignKey(editable=False)
 
     # 'False' means: cannot be deleted (to be sure that a ContentType
     #  has always at least one existing HeaderFilter)
-    is_custom = BooleanField(blank=False, default=True, editable=False)
+    is_custom = models.BooleanField(blank=False, default=True, editable=False)
 
     # 'True' means: can only be viewed (and so edited/deleted) by its owner.
-    is_private = BooleanField(pgettext_lazy('creme_core-header_filter', 'Is private?'), default=False)
+    is_private = models.BooleanField(pgettext_lazy('creme_core-header_filter', 'Is private?'), default=False)
 
-    json_cells = TextField(editable=False, null=True)  # TODO: JSONField ? CellsField ?
+    json_cells = models.TextField(editable=False, null=True)  # TODO: JSONField ? CellsField ?
 
     creation_label = _('Create a view')
     save_label     = _('Save the view')
