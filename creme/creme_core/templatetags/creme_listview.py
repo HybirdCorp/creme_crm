@@ -18,9 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from collections import defaultdict
+from collections import defaultdict
 import logging
 
+from django.contrib.auth import get_user_model
 # from django.conf import settings
 # from django.db.models import ForeignKey, ManyToManyField, BooleanField, DateField
 from django.template import Library
@@ -35,7 +36,7 @@ from ..gui.bulk_update import bulk_update_registry
 # from ..gui.listview import NULL_FK
 from ..gui.pager import PagerContext
 # from ..models import CustomField
-
+from ..utils.unicode_collation import collator
 
 logger = logging.getLogger(__name__)
 register = Library()
@@ -93,14 +94,41 @@ def listview_entity_filters(*, model, user, efilters, show_buttons):
 #     return context
 @register.inclusion_tag('creme_core/templatetags/listview/header-filters.html')
 def listview_header_filters(*, model, user, hfilters, show_buttons):
-    hfilter = hfilters.selected
+    selected_hfilter = hfilters.selected
+
+    grouped_hfilters = defaultdict(list)
+    for hfilter in hfilters:
+        grouped_hfilters[hfilter.user_id].append(hfilter)
+
+    global_header_filters = grouped_hfilters.pop(None, ())
+    my_header_filters     = grouped_hfilters.pop(user.id, ())
+
+    if grouped_hfilters:
+        users = get_user_model().objects.in_bulk(grouped_hfilters.keys())
+        other_header_filters = [
+            (users.get(user_id), user_hfilters)
+                for user_id, user_hfilters in grouped_hfilters.items()
+        ]
+
+        sort_key = collator.sort_key
+        other_header_filters.sort(key=lambda t: sort_key(str(t[0])))
+    else:
+        other_header_filters = ()
 
     return {
         'model': model,
-        'header_filters': hfilters,
-        'hfilter_id': hfilter.id,
-        'can_edit': hfilter.can_edit(user)[0],
-        'can_delete': hfilter.can_delete(user)[0],
+        # 'header_filters': hfilters,
+
+        'global_header_filters': global_header_filters,
+        'my_header_filters':     my_header_filters,
+        'other_header_filters':  other_header_filters,
+
+        'selected': selected_hfilter,
+        # 'hfilter_id': selected_hfilter.id,
+
+        'can_edit':   selected_hfilter.can_edit(user)[0],
+        'can_delete': selected_hfilter.can_delete(user)[0],
+
         'show_buttons': show_buttons,
     }
 
