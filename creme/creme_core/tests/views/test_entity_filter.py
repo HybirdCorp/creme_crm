@@ -21,8 +21,9 @@ try:
         PropertyConditionHandler, RelationConditionHandler,
     )
     from creme.creme_core.core.entity_cell import EntityCellRegularField
-    from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
-        HeaderFilter, CustomField, RelationType, CremePropertyType,  # EntityFilterVariable
+    from creme.creme_core.models import (
+        EntityFilter,  # EntityFilterCondition  EntityFilterVariable
+        HeaderFilter, CustomField, RelationType, CremePropertyType,
         FakeContact, FakeOrganisation, FakeCivility, FakeImage,
         FakeDocument, FakeFolder, FakeProduct,
     )
@@ -1684,7 +1685,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter01 = EntityFilter.create(
             'test-filter01', 'Filter01', FakeContact, is_custom=True,
         )
-        efilter02 = EntityFilter.create(
+        ___ = EntityFilter.create(
             'test-filter02', 'Filter02', FakeContact, is_custom=True,
             # conditions=[EntityFilterCondition.build_4_subfilter(efilter01)],
             conditions=[SubFilterConditionHandler.build_condition(efilter01)],
@@ -1704,7 +1705,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter01 = EntityFilter.create(
             'test-filter01', 'Filter01', FakeContact, is_custom=True,
         )
-        efilter02 = EntityFilter.create(
+        ___ = EntityFilter.create(
             'test-filter02', 'Filter02', FakeContact, is_custom=True,
             conditions=[
                 # EntityFilterCondition.build_4_relation_subfilter(rtype=srtype,

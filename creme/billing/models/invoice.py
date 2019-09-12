@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey, PROTECT  # SET_NULL
+from django.db.models import ForeignKey  # PROTECT SET_NULL
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 

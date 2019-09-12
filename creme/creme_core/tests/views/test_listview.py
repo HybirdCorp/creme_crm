@@ -22,21 +22,31 @@ try:
 
     from .base import ViewsTestCase
     from .. import fake_constants
-    from ..fake_models import (FakeContact, FakeOrganisation, FakeAddress, FakeCivility, FakeSector,
-            FakeImage, FakeImageCategory, FakeActivity, FakeActivityType,
-            FakeEmailCampaign, FakeMailingList,
-            FakeInvoice, FakeInvoiceLine,
-            FakeDocument, FakeFolder, FakeFolderCategory)
 
-    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-            EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.entity_cell import (
+        EntityCellRegularField,
+        EntityCellCustomField,
+        EntityCellFunctionField,
+        EntityCellRelation,
+    )
     from creme.creme_core.core.entity_filter.operators import ISTARTSWITH
     from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.gui.listview import ListViewState
-    from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
-            HeaderFilter, RelationType, Relation, FieldsConfig,
-            CremePropertyType, CremeProperty, CustomField, CustomFieldEnumValue)
+    from creme.creme_core.models import (
+        EntityFilter,   # EntityFilterCondition
+        HeaderFilter,
+        RelationType, Relation,
+        FieldsConfig,
+        CremePropertyType, CremeProperty,
+        CustomField, CustomFieldEnumValue,
+        FakeContact, FakeOrganisation, FakeAddress, FakeCivility, FakeSector,
+        FakeImage, FakeImageCategory,
+        FakeActivity, FakeActivityType,
+        FakeEmailCampaign, FakeMailingList,
+        FakeInvoice, FakeInvoiceLine,
+        FakeDocument, FakeFolder, FakeFolderCategory,
+    )
     from creme.creme_core.models.entity_filter import EntityFilterList
     from creme.creme_core.models.header_filter import HeaderFilterList
     from creme.creme_core.utils.profiling import CaptureQueriesContext
@@ -307,7 +317,7 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_content_template(self):
         "Use reload template (content=1)"
-        user = self.login()
+        self.login()
 
         response = self.assertPOST200(self.url)
         self.assertTemplateUsed(response, 'creme_core/generics/entities.html')
@@ -322,7 +332,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertTemplateUsed(response, 'creme_core/listview/content.html')
 
     def test_content_popup_template(self):
-        user = self.login()
+        self.login()
 
         response = self.assertPOST200(reverse('creme_core__listview_popup'),
                                       data={'ct_id': self.ctype.id},

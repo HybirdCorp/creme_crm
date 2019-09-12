@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import date
-
     from django.db.models.query_utils import Q
     from django.utils.translation import gettext_lazy as _
 

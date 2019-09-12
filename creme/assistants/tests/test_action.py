@@ -6,7 +6,7 @@ try:
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
-    from django.db.models.query import QuerySet
+    # from django.db.models.query import QuerySet
     from django.urls import reverse
     from django.utils.timezone import now
     from django.utils.translation import gettext as _

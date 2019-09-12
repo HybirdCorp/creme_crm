@@ -13,14 +13,17 @@ try:
 
     from creme.creme_core.creme_jobs import deletor_type
     from creme.creme_core.forms.widgets import Label
-    from creme.creme_core.models import (DeletionCommand, Job, JobResult, FieldsConfig,
+    from creme.creme_core.models import (
+        DeletionCommand, Job, JobResult,
+        FieldsConfig,
         FakeCivility, FakeSector, FakePosition, FakeLegalForm,
         FakeContact, FakeOrganisation,
         FakeProductType, FakeProduct, FakeActivityType, FakeActivity,
         FakeTicketStatus, FakeTicketPriority, FakeTicket,
         FakeDocumentCategory, FakeDocument,
         FakeFolder, FakeFolderCategory, FakeImageCategory,
-        FakeIngredient, FakeRecipe)
+        FakeIngredient,  # FakeRecipe
+    )
     from creme.creme_core.models.history import HistoryLine, TYPE_EDITION
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_bricks import FakeAppPortalBrick

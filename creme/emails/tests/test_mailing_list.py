@@ -10,13 +10,20 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.entity_filter import condition_handler, operators
-    from creme.creme_core.models import (EntityFilter,  # EntityFilterCondition
-            SetCredentials, FieldsConfig, FakeOrganisation)
+    from creme.creme_core.models import (
+        EntityFilter,  # EntityFilterCondition
+        SetCredentials,
+        FieldsConfig,
+        FakeOrganisation,
+    )
 
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from .base import (_EmailsTestCase, skipIfCustomMailingList,
-            Contact, Organisation, MailingList, EmailCampaign)
+    from .base import (
+        _EmailsTestCase,
+        skipIfCustomMailingList,
+        Contact, Organisation, MailingList, EmailCampaign,
+    )
     from creme.emails.models import EmailRecipient
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -325,7 +332,7 @@ class MailingListsTestCase(_EmailsTestCase):
     def test_ml_contacts03(self):
         "Not a MailingList."
         user = self.login()
-        orga = FakeOrganisation.objects.create(user=self.user, name='Dojo')
+        orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(self._build_addcontact_url(orga))
 
     @skipIfCustomContact

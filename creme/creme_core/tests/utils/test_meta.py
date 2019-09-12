@@ -224,7 +224,7 @@ class FieldInfoTestCase(CremeTestCase):
         # ----
         create_language = Language.objects.create
         l1 = create_language(name='English',  code='EN')
-        l2 = create_language(name='French',   code='FRA')
+        __ = create_language(name='French',   code='FRA')
         l3 = create_language(name='Japanese', code='JP')
 
         # al.languages = [l1, l3]

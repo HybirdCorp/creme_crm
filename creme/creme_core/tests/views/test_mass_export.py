@@ -24,13 +24,21 @@ try:
     from ..fake_models import (FakeContact, FakeOrganisation, FakeImage,
             FakeEmailCampaign, FakeMailingList, FakeInvoice, FakeInvoiceLine)
 
-    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-            EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.entity_cell import (
+        EntityCellRegularField,
+        EntityCellFunctionField,
+        EntityCellRelation,
+    )
     from creme.creme_core.core.entity_filter.operators import ISTARTSWITH
     from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
-    from creme.creme_core.models import (RelationType, Relation, FieldsConfig,
-            CremePropertyType, CremeProperty, FileRef,
-            HeaderFilter, EntityFilter, EntityFilterCondition)
+    from creme.creme_core.models import (
+        RelationType, Relation,
+        FieldsConfig,
+        CremePropertyType, CremeProperty,
+        FileRef,
+        HeaderFilter,
+        EntityFilter,  # EntityFilterCondition
+    )
     from creme.creme_core.models.history import TYPE_EXPORT, HistoryLine
     from creme.creme_core.utils.queries import QSerializer
 except Exception as e:

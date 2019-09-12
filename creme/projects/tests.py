@@ -1467,7 +1467,7 @@ class ProjectsTestCase(CremeTestCase):
         self.create_resource(task, worker)
         resource = task.resources_set.all()[0]
 
-        creds.value = value=EntityCredentials.VIEW | EntityCredentials.LINK
+        creds.value = EntityCredentials.VIEW | EntityCredentials.LINK
         creds.save()
         self.assertPOST403(self.DELETE_RESOURCE_URL, data={'id': resource.id})
 

@@ -113,7 +113,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         orga2 = create_orga(name='Sega')
 
         create_pi = PaymentInformation.objects.create
-        pi_21 = create_pi(organisation=orga2, name='RIB 1', is_default=True)  # First if no filter by organisation
+        __    = create_pi(organisation=orga2, name='RIB 1', is_default=True)  # First if no filter by organisation
         pi_11 = create_pi(organisation=orga1, name='RIB 1', is_default=True)
         pi_12 = create_pi(organisation=orga1, name='RIB 2', is_default=False)
 
@@ -130,7 +130,7 @@ class PaymentInformationTestCase(_BillingTestCase):
                                                            'rib_key':    rib_key,
                                                            'bic':        bic,
                                                            'is_default': True,
-                                                          }
+                                                          },
                                                )
                               )
 
