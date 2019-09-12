@@ -14,24 +14,33 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.entity_filter import condition_handler, operators
-    from creme.creme_core.models import (RelationType, Relation,
-            InstanceBrickConfigItem, BrickDetailviewLocation, BrickHomeLocation,
-            EntityFilter, FieldsConfig, SetCredentials,
-            CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger)  # EntityFilterCondition
+    from creme.creme_core.models import (
+        RelationType, Relation,
+        InstanceBrickConfigItem, BrickDetailviewLocation, BrickHomeLocation,
+        EntityFilter, FieldsConfig, SetCredentials,
+        CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger,
+        FakeContact, FakeOrganisation,
+        FakeInvoice, FakePosition, FakeSector,
+    )  # EntityFilterCondition
     from creme.creme_core.tests import fake_constants
-    from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation,
-            FakeInvoice, FakePosition, FakeSector)
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
     from creme.creme_core.utils.queries import QSerializer
 
-    from .base import (BaseReportsTestCase, skipIfCustomReport, skipIfCustomRGraph,
-            Report, ReportGraph)
+    from .base import (
+        BaseReportsTestCase,
+        skipIfCustomReport, skipIfCustomRGraph,
+        Report, ReportGraph,
+    )
     from .fake_models import FakeReportsFolder, FakeReportsDocument
 
     from ..bricks import ReportGraphBrick
-    from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR,
-            RGT_CUSTOM_RANGE, RGT_CUSTOM_FK, RGT_RELATION, RGT_DAY, RGT_MONTH,
-            RGT_YEAR, RGT_RANGE, RGT_FK, RFT_FIELD, RFT_RELATION)
+    from ..constants import (
+        RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE,
+        RGT_FK, RGT_RELATION,
+        RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE,
+        RGT_CUSTOM_FK,
+        RFT_FIELD, RFT_RELATION,
+    )
     from ..core.graph import ListViewURLBuilder
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -1719,7 +1728,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         lannisters = create_orga(name='House Lannister', creation_date='2013-06-22')
         starks     = create_orga(name='House Stark',     creation_date='2013-07-25')
         baratheons = create_orga(name='House Baratheon', creation_date='2014-08-5')
-        targaryens = create_orga(name='House Targaryen', creation_date='2015-08-5')
+        __         = create_orga(name='House Targaryen', creation_date='2015-08-5')
         tullies    = create_orga(name='House Tully',     creation_date='2016-08-5')
 
         cf = CustomField.objects.create(content_type=self.ct_orga,
@@ -2995,7 +3004,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         create_doc = partial(FakeReportsDocument.objects.create, linked_folder=folder)
         doc1 = create_doc(title='Doc#1', user=user)
-        doc2 = create_doc(title='Doc#2', user=user)
+        __   = create_doc(title='Doc#2', user=user)
         doc3 = create_doc(title='Doc#3', user=self.other_user)  # Cannot be seen => should not be used to compute aggregate
         self.assertEqual(doc1.created.year, doc3.created.year)
 

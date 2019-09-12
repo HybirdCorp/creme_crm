@@ -12,14 +12,21 @@ try:
     from creme.creme_core.tests.fake_constants import FAKE_REL_SUB_EMPLOYED_BY
     from creme.creme_core.tests.views.base import ViewsTestCase
 
-    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-            EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.entity_cell import (
+        EntityCellRegularField,
+        EntityCellCustomField,
+        EntityCellFunctionField,
+        EntityCellRelation,
+    )
     from creme.creme_core.core.entity_filter.operators import EQUALS
     from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
     from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.models import (HeaderFilter, FieldsConfig,
-            RelationType, CustomField, EntityFilter, EntityFilterCondition,
-            FakeContact, FakeOrganisation, FakeProduct, FakeMailingList)
+    from creme.creme_core.models import (
+        HeaderFilter, FieldsConfig,
+        RelationType, CustomField,
+        EntityFilter,   # EntityFilterCondition
+        FakeContact, FakeOrganisation, FakeProduct, FakeMailingList,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 

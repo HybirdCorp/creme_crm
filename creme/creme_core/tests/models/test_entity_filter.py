@@ -17,7 +17,6 @@ try:
 
     from creme.creme_core.core.entity_filter import operators
     from creme.creme_core.core.entity_filter.condition_handler import (
-        FilterConditionHandler,
         SubFilterConditionHandler, RelationSubFilterConditionHandler,
         RegularFieldConditionHandler, DateRegularFieldConditionHandler,
         CustomFieldConditionHandler, DateCustomFieldConditionHandler,
@@ -29,7 +28,7 @@ try:
         CustomField, CustomFieldInteger, CustomFieldString, CustomFieldFloat,
         CustomFieldBoolean, CustomFieldDateTime, CustomFieldEnum, CustomFieldEnumValue,
         EntityFilter, EntityFilterCondition,
-        FakeContact, FakeCivility, FakeOrganisation, FakeImage, FakeDocument, FakeFolder,
+        FakeContact, FakeCivility, FakeOrganisation, FakeImage,
     )
     from creme.creme_core.models.entity_filter import EntityFilterList
 except Exception as e:

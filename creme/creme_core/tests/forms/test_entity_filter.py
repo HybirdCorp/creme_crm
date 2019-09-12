@@ -19,7 +19,7 @@ try:
     )
     from creme.creme_core.models import (
         RelationType, CremePropertyType,
-        EntityFilter, EntityFilterCondition, FieldsConfig,
+        EntityFilter, FieldsConfig,  # EntityFilterCondition
         CustomField, CustomFieldEnumValue, Language,
         CremeEntity, FakeContact, FakeCivility, FakePosition,
         FakeOrganisation, FakeImage, FakeInvoice, FakeInvoiceLine,

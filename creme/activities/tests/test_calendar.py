@@ -4,7 +4,6 @@ try:
     from datetime import timedelta, date
     from functools import partial
     # from json import dumps as json_dump
-    from json import loads as json_load
 
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.sessions.models import Session
@@ -12,7 +11,7 @@ try:
     from django.core.management import call_command
     from django.urls import reverse
     from django.test.utils import override_settings
-    from django.utils.encoding import force_text
+    # from django.utils.encoding import force_text
     from django.utils.html import escape
     from django.utils.timezone import make_naive, get_current_timezone
     from django.utils.translation import gettext as _
@@ -862,7 +861,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         create = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_TASK)
         act0 = create(title='Act#0', start=start, end=start)
         act1 = create(title='Act#1', start=start + timedelta(days=1), end=start + timedelta(days=2))
-        act2 = create(title='Act#2', start=start + timedelta(days=1), end=start + timedelta(days=2))  # Not in calendar
+        __   = create(title='Act#2', start=start + timedelta(days=1), end=start + timedelta(days=2))  # Not in calendar
         act3 = create(title='Act#3', start=start + timedelta(days=2), end=end   + timedelta(days=1),  # Start OK
                       is_all_day=True, type_id=ACTIVITYTYPE_MEETING, 
                       sub_type_id=ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
@@ -969,7 +968,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         create_ind = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_INDISPO)
         act6 = create_ind(title='Ind#1', start=start + timedelta(days=5), end=start + timedelta(days=6))
-        act7 = create_ind(title='Ind#2', start=start + timedelta(days=7), end=start + timedelta(days=8))  # Not linked
+        __   = create_ind(title='Ind#2', start=start + timedelta(days=7), end=start + timedelta(days=8))  # Not linked
         act8 = create_ind(title='Ind#3', start=start + timedelta(days=9), end=start + timedelta(days=10))
 
         create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)

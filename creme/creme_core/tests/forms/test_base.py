@@ -178,7 +178,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             content_type=ContentType.objects.get_for_model(FakeContact),
         )
         cfield1 = create_cf(name='Size',   field_type=CustomField.INT)
-        cfield2 = create_cf(name='Cursed', field_type=CustomField.BOOL)
+        __      = create_cf(name='Cursed', field_type=CustomField.BOOL)
 
         fields = FakeContactForm(user=user).fields
 

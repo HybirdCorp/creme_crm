@@ -329,11 +329,11 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         root01  = create_comp(name='Root01')
         root02  = create_comp(name='Root02')
         child01 = create_comp(name='Child 01', parent=root01)
-        child11 = create_comp(name='Child 11', parent=child01)
-        child12 = create_comp(name='Child 12', parent=child01)
-        child13 = create_comp(name='Child 13', parent=child01)
+        __      = create_comp(name='Child 11', parent=child01)
+        __      = create_comp(name='Child 12', parent=child01)
+        __      = create_comp(name='Child 13', parent=child01)
         child02 = create_comp(name='Child 02', parent=root01)
-        child21 = create_comp(name='Child 21', parent=child02)
+        __      = create_comp(name='Child 21', parent=child02)
 
         comptree = pattern.get_components_tree()  # TODO: test that no additional queries are done ???
         self.assertIsInstance(comptree, list)
@@ -376,8 +376,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         comp00 = create_comp(name='Signed opportunities')  # NB: should not be removed
         comp01 = create_comp(name='DELETE ME')
         comp02 = create_comp(name='Will be orphaned01',  parent=comp01)
-        comp03 = create_comp(name='Will be orphaned02',  parent=comp01)
-        comp04 = create_comp(name='Will be orphaned03',  parent=comp02)
+        __     = create_comp(name='Will be orphaned02',  parent=comp01)
+        __     = create_comp(name='Will be orphaned03',  parent=comp02)
         comp05 = create_comp(name='Smiles done')  # NB: should not be removed
         comp06 = create_comp(name='Stand by me',         parent=comp05)  # NB: should not be removed
 
@@ -402,18 +402,18 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                              )
         comp1   = create_comp(name='1',                    ctype=ct_orga)
         comp11  = create_comp(name='1.1',   parent=comp1,  success_rate=20, ctype=ct_contact)
-        comp111 = create_comp(name='1.1.1', parent=comp11)
-        comp112 = create_comp(name='1.1.2', parent=comp11)
+        __      = create_comp(name='1.1.1', parent=comp11)
+        __      = create_comp(name='1.1.2', parent=comp11)
         comp12  = create_comp(name='1.2',   parent=comp1,  ctype=ct_contact, filter=efilter)
-        comp121 = create_comp(name='1.2.1', parent=comp12)
-        comp122 = create_comp(name='1.2.2', parent=comp12)
+        __      = create_comp(name='1.2.1', parent=comp12)
+        __      = create_comp(name='1.2.2', parent=comp12)
         comp2   = create_comp(name='2',                    success_rate=50)
         comp21  = create_comp(name='2.1',   parent=comp2)
-        comp211 = create_comp(name='2.1.1', parent=comp21)
-        comp212 = create_comp(name='2.1.2', parent=comp21)
+        __      = create_comp(name='2.1.1', parent=comp21)
+        __      = create_comp(name='2.1.2', parent=comp21)
         comp22  = create_comp(name='2.2',   parent=comp2)
-        comp221 = create_comp(name='2.2.1', parent=comp22)
-        comp222 = create_comp(name='2.2.2', parent=comp22)
+        __      = create_comp(name='2.2.1', parent=comp22)
+        __      = create_comp(name='2.2.2', parent=comp22)
 
         cloned_pattern = pattern.clone()
 
@@ -459,13 +459,13 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                                             )
 
         build_url = self.build_inneredit_url
-        url =  build_url(comp01, 'name')
+        url = build_url(comp01, 'name')
         self.assertGET200(url)
 
         name = comp01.name.title()
         response = self.client.post(url, data={'entities_lbl': [str(comp01)],
                                                'field_value':  name,
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(comp01).name)

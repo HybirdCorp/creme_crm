@@ -470,7 +470,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         create_address = self.create_address
         ST_VICTOR   = create_address(self.orga, address='St Victor',     zipcode='13007',       town=town1.name, geoloc=(43.290347, 5.365572))
         COMMANDERIE = create_address(contact,   address='Commanderie',   zipcode='13011',       town=town1.name, geoloc=(43.301963, 5.462410))
-        _AUBAGNE    = create_address(contact,   address='Maire Aubagne', zipcode=town2.zipcode, town=town2.name, geoloc=(43.295783, 5.565589))
+        __          = create_address(contact,   address='Maire Aubagne', zipcode=town2.zipcode, town=town2.name, geoloc=(43.295783, 5.565589))
 
         self.assertFalse(ST_VICTOR.geoaddress.neighbours(distance=1000))
         self.assertEqual(list(ST_VICTOR.geoaddress.neighbours(distance=10000)),
@@ -488,13 +488,16 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         town = self.marseille1
 
         create_address = self.create_address
-        create_address(self.orga, address='St Victor', zipcode='13007', town=town.name, geoloc=(43.290347, 5.365572))
-        create_address(contact, address='Commanderie', zipcode='13011', town=town.name, geoloc=(43.301963, 5.462410))
+        create_address(self.orga, address='St Victor',   zipcode='13007', town=town.name, geoloc=(43.290347, 5.365572))
+        create_address(contact,   address='Commanderie', zipcode='13011', town=town.name, geoloc=(43.301963, 5.462410))
 
         address = create_address(contact, address='Maire Aubagne', zipcode='0', town='Unknown')
         GeoAddress.populate_geoaddress(address)
 
-        self.assertEqual((None, None), (address.geoaddress.latitude, address.geoaddress.longitude))
+        self.assertEqual(
+            (None, None),
+            (address.geoaddress.latitude, address.geoaddress.longitude)
+        )
 
         self.assertFalse(address.geoaddress.neighbours(distance=1000))
         self.assertFalse(address.geoaddress.neighbours(distance=10000))

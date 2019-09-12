@@ -141,14 +141,14 @@ class FieldBlockManager:
                                    )
         to_add = []
 
-        for cat, name, fields in blocks:
+        for cat, name, field_names in blocks:
             field_block = merged_blocks.get(cat)
 
             if field_block is not None:
                 field_block.name = name
-                field_block.field_names.extend(fields)
+                field_block.field_names.extend(field_names)
             else:
-                to_add.append((cat, _FieldBlock(name, fields)))  # Can't add during iteration
+                to_add.append((cat, _FieldBlock(name, field_names)))  # Can't add during iteration
 
         for cat, field_block in to_add:
             merged_blocks[cat] = field_block

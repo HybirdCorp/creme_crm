@@ -263,7 +263,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_section = partial(PollFormSection.objects.create, pform=pform)
-        section_1 = create_section(name='Name of the Chapter 1', order=1)
+        __        = create_section(name='Name of the Chapter 1', order=1)
         section_2 = create_section(name='Name of the Chapter 2', order=2)
         section_3 = create_section(name='Name of the Chapter 3', order=3)
 
