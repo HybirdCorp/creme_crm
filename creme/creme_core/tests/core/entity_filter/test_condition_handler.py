@@ -11,7 +11,7 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_filter import operators
+    from creme.creme_core.core.entity_filter import operators, operands
     from creme.creme_core.core.entity_filter.condition_handler import (
         FilterConditionHandler,
         RegularFieldConditionHandler, DateRegularFieldConditionHandler,
@@ -21,6 +21,7 @@ try:
     )
     from creme.creme_core.models import (
         CremeEntity,
+        CremeUser,
         RelationType, Relation,
         CremeProperty, CremePropertyType,
         CustomField, CustomFieldEnumValue,
@@ -2733,17 +2734,28 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         user = self.login()
         # efilter = EntityFilter.create('test-filter01', 'Spike & Faye', FakeContact, is_custom=True)
 
+        user2 = CremeUser.objects.create(
+            username='chloe', email='chloe@noir.jp',
+            first_name='Chloe', last_name='Noir',
+        )
+        team = CremeUser.objects.create(username='NOIR', is_team=True)
+        team.teammates = [user2]
+
+        value = operands.CurrentUserOperand.type_id
+
         with self.assertNoException():
             handler = RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator_id=operators.EQUALS,
                 field_name='user',
-                values=['__currentuser__'],
+                # values=['__currentuser__'],
+                values=[value],
             )
 
         self.assertQEqual(Q(user__exact=user.id), handler.get_q(user))
         other = self.other_user
         self.assertQEqual(Q(user__exact=other.id), handler.get_q(other))
+        self.assertQEqual(Q(user__in=[user2.id, team.id]), handler.get_q(user2))
 
         self.assertEqual(
             _('«{field}» is {values}').format(
@@ -2768,7 +2780,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 operator_id=operators.EQUALS,
                 # OK it's a CharField, you could search "__currentuser__" if you want...
                 field_name='last_name',
-                values=['__currentuser__'],
+                values=[value],
             )
 
         # with self.assertRaises(EntityFilterCondition.ValueError):
@@ -2785,7 +2797,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 model=FakeContact,
                 operator_id=operators.EQUALS,
                 field_name='birthday',   # <= DateField -> KO
-                values=['__currentuser__'],
+                values=[value],
             )
 
         with self.assertRaises(FilterConditionHandler.ValueError):
@@ -2793,5 +2805,5 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 model=FakeContact,
                 operator_id=operators.EQUALS,
                 field_name='sector',   # <= ForeignKey but not related to User
-                values=['__currentuser__'],
+                values=[value],
             )

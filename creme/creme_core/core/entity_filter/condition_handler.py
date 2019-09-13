@@ -228,12 +228,25 @@ class OperatorConditionHandlerMixin:
         return entity_filter_registry.get_operand(type_id=value, user=user)
 
     @classmethod
-    def resolve_operand(cls, value, user):
-        "Replace a value corresponding to a special dynamic operand if needed."
-        # operand = entity_filter_registry.get_operand(type_id=value, user=user)
-        operand = cls.get_operand(value=value, user=user)
+    def resolve_operands(cls, values, user):
+        """Return a list where:
+            - values which does not correspond to a special dynamic operand are unchanged.
+            - values corresponding to a special dynamic operand are resoled with this one.
+        """
+        resolved_values = []
 
-        return value if operand is None else operand.resolve()
+        for value in values:
+            operand = cls.get_operand(value=value, user=user)
+            if operand is None:
+                resolved_values.append(value)
+            else:
+                resolved_value = operand.resolve()
+                if isinstance(resolved_value, list):
+                    resolved_values.extend(resolved_value)
+                else:
+                    resolved_values.append(resolved_value)
+
+        return resolved_values
 
 
 class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
@@ -380,8 +393,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
 
     def get_q(self, user):
         operator = operators.OPERATORS[self._operator_id]
-        resolve = self.resolve_operand
-        values = [resolve(value, user) for value in self._values]
+        values = self.resolve_operands(values=self._values, user=user)
         field_info = FieldInfo(self._model, self._field_name)
 
         # HACK: old format compatibility for boolean fields.
@@ -792,8 +804,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         if not isinstance(values, (list, tuple)):
             values = [values]
 
-        resolve = self.resolve_operand
-        resolved_values = [resolve(value, user) for value in values]
+        resolved_values = self.resolve_operands(values=values, user=user)
 
         # HACK : compatibility with older format
         if CustomFieldBoolean.get_related_name() == related_name:
