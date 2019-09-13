@@ -15,7 +15,7 @@ try:
 
     from ..base import CremeTestCase
 
-    from creme.creme_core.core.entity_filter import operators
+    from creme.creme_core.core.entity_filter import operators, operands
     from creme.creme_core.core.entity_filter.condition_handler import (
         SubFilterConditionHandler, RelationSubFilterConditionHandler,
         RegularFieldConditionHandler, DateRegularFieldConditionHandler,
@@ -867,11 +867,11 @@ class EntityFiltersTestCase(CremeTestCase):
                     model=FakeContact,
                     operator_id=operators.EQUALS,
                     field_name='user',
-                    values=['__currentuser__'],
+                    # values=['__currentuser__'],
+                    values=[operands.CurrentUserOperand.type_id],
                 ),
             ],
         )
-
         self.assertExpectedFiltered(
             self.refresh(efilter), FakeContact,
             self._list_contact_ids('asuka', 'shinji', exclude=True)
@@ -913,7 +913,8 @@ class EntityFiltersTestCase(CremeTestCase):
                     model=FakeContact,
                     operator_id=operators.EQUALS_NOT,
                     field_name='user',
-                    values=['__currentuser__'],
+                    # values=['__currentuser__'],
+                    values=[operands.CurrentUserOperand.type_id],
                 ),
             ],
         )

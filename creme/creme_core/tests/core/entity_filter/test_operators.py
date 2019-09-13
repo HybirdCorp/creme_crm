@@ -98,17 +98,24 @@ class OperatorTestCase(CremeTestCase):
     def test_equals_get_q(self):
         op = operators.EqualsOperator(name='Equals')
         self.assertQEqual(
-            Q(name__exact='Acme') | Q(name__exact='Akme'),
+            Q(name__exact='Acme'),
             op.get_q(model=FakeOrganisation,
                      field_name='name',
-                     values=['Acme', 'Akme'],
+                     values=['Acme'],
                     )
         )
         self.assertQEqual(
             Q(last_name__in=['Spiegel', 'Black']),
             op.get_q(model=FakeContact,
                      field_name='last_name',
-                     values=[['Spiegel', 'Black']],
+                     values=['Spiegel', 'Black'],
+                    )
+        )
+        self.assertQEqual(
+            Q(),
+            op.get_q(model=FakeContact,
+                     field_name='last_name',
+                     values=[],  # Should not happen...
                     )
         )
 

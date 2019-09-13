@@ -257,21 +257,27 @@ class EqualsOperator(ConditionOperator):
         return self.DESCRIPTION_PATTERNS[self._exclude]
 
     # def get_q(self, efcondition, values):
+    #     name = efcondition.name
+    #     query = Q()
+    #
+    #     for value in values:
+    #         if isinstance(value, (list, tuple)):
+    #             q = Q(**{'{}__in'.format(name): value})
+    #         else:
+    #             q = Q(**{self.key_pattern.format(name): value})
+    #
+    #         query |= q
+    #
+    #     return query
     def get_q(self, *, model, field_name, values):
-        # name = efcondition.name
-        query = Q()
+        if not values:
+            q = Q()
+        elif len(values) == 1:
+            q = Q(**{self.key_pattern.format(field_name): values[0]})
+        else:
+            q = Q(**{'{}__in'.format(field_name): values})
 
-        for value in values:
-            if isinstance(value, (list, tuple)):
-                # q = Q(**{'{}__in'.format(name): value})
-                q = Q(**{'{}__in'.format(field_name): value})
-            else:
-                # q = Q(**{self.key_pattern.format(name): value})
-                q = Q(**{self.key_pattern.format(field_name): value})
-
-            query |= q
-
-        return query
+        return q
 
 
 # class _ConditionBooleanOperator(_ConditionOperator):
