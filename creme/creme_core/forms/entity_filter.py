@@ -860,7 +860,7 @@ class CustomFieldsConditionsField(_ConditionsField):
         'invalidvalue':       _('This value is invalid.'),
     }
 
-    _NOT_ACCEPTED_TYPES = frozenset((CustomField.DATETIME,)) # TODO: "!= DATE" instead
+    _NOT_ACCEPTED_TYPES = frozenset((CustomField.DATETIME,))  # TODO: "!= DATE" instead
 
     @_ConditionsField.model.setter
     def model(self, model):
@@ -885,7 +885,8 @@ class CustomFieldsConditionsField(_ConditionsField):
             field_type = customfield_rname_choicetype(search_info['rname'])
             field_entry = {'id': int(condition.name), 'type': field_type}
 
-            value = ','.join(str(v) for v in search_info['value'])
+            # value = ','.join(str(v) for v in search_info['value'])
+            value = ','.join(str(v) for v in search_info['values'])
 
             # HACK : lower serialisation of boolean (combobox waiting for 'true' and not 'True')
             if search_info['rname'] == CustomFieldBoolean.get_related_name():

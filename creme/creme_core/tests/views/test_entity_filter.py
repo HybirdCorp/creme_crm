@@ -297,7 +297,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(
             {'operator': cfield_operator,
              'rname': 'customfieldinteger',
-             'value': [str(cfield_value)],
+             # 'value': [str(cfield_value)],
+             'values': [str(cfield_value)],
             },
             condition.decoded_value
         )
@@ -1134,7 +1135,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertDictEqual(
             {'operator': cfield_operator,
              'rname':    'customfieldstring',
-             'value':    [str(cfield_value)],
+             # 'value':    [str(cfield_value)],
+             'values':    [str(cfield_value)],
             },
             condition.decoded_value
         )

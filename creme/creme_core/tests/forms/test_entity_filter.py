@@ -1381,7 +1381,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_int.id),             condition.name)
         self.assertDictEqual({'operator': operator,
                               'rname': 'customfieldinteger',
-                              'value': [str(value)],
+                              # 'value': [str(value)],
+                              'values': [str(value)],
                              },
                              condition.decoded_value
                             )
@@ -1408,7 +1409,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_int.id),             condition.name)
         self.assertDictEqual({'operator': operator,
                               'rname': 'customfieldinteger',
-                              'value': [str(value)],
+                              # 'value': [str(value)],
+                              'values': [str(value)],
                              },
                              condition.decoded_value
                             )
@@ -1431,7 +1433,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_enum.id),            condition.name)
         self.assertDictEqual({'operator': operator,
                               'rname': 'customfieldenum',
-                              'value': [value],
+                              # 'value': [value],
+                              'values': [value],
                              },
                              condition.decoded_value
                             )
@@ -1456,9 +1459,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_enum.id),            condition.name)
         self.assertDictEqual({'operator': operator,
                               'rname': 'customfieldenum',
-                              'value': [str(self.cfield_enum_A.pk),
-                                        str(self.cfield_enum_B.pk)
-                                       ],
+                              # 'value': [str(self.cfield_enum_A.pk),
+                              'values': [str(self.cfield_enum_A.pk),
+                                         str(self.cfield_enum_B.pk)
+                                        ],
                              },
                              condition.decoded_value
                             )
@@ -1481,9 +1485,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_enum.id),            condition.name)
         self.assertDictEqual({'operator': operator,
                               'rname': 'customfieldenum',
-                              'value': [str(self.cfield_enum_A.pk),
-                                        str(self.cfield_enum_B.pk),
-                                       ],
+                              # 'value': [str(self.cfield_enum_A.pk),
+                              'values': [str(self.cfield_enum_A.pk),
+                                         str(self.cfield_enum_B.pk),
+                                        ],
                              },
                              condition.decoded_value
                             )
@@ -1506,7 +1511,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_multienum.id),       condition.name)
         self.assertDictEqual({'operator': operator,
                               'rname': 'customfieldmultienum',
-                              'value': [value],
+                              # 'value': [value],
+                              'values': [value],
                              },
                              condition.decoded_value
                             )
@@ -1531,9 +1537,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_multienum.id),       condition.name)
         self.assertEqual({'operator': operator,
                           'rname': 'customfieldmultienum',
-                          'value': [str(self.cfield_multienum_F.pk),
-                                    str(self.cfield_multienum_H.pk)
-                                   ],
+                          # 'value': [str(self.cfield_multienum_F.pk),
+                          'values': [str(self.cfield_multienum_F.pk),
+                                     str(self.cfield_multienum_H.pk)
+                                    ],
                          },
                          condition.decoded_value
                         )
@@ -1558,9 +1565,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_multienum.id),       condition.name)
         self.assertEqual({'operator': operator,
                           'rname': 'customfieldmultienum',
-                          'value': [str(self.cfield_multienum_F.pk),
-                                    str(self.cfield_multienum_H.pk)
-                                   ],
+                          # 'value': [str(self.cfield_multienum_F.pk),
+                          'values': [str(self.cfield_multienum_F.pk),
+                                     str(self.cfield_multienum_H.pk)
+                                    ],
                          },
                          condition.decoded_value
                         )
@@ -1581,7 +1589,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_str.id),             condition.name)
         self.assertDictEqual(
-            {'operator': operator, 'rname': 'customfieldstring', 'value': []},
+            # {'operator': operator, 'rname': 'customfieldstring', 'value': []},
+            {'operator': operator, 'rname': 'customfieldstring', 'values': []},
             condition.decoded_value
         )
 
@@ -1601,7 +1610,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_bool.id),            condition.name)
         self.assertDictEqual(
-            {'operator': operator, 'rname': 'customfieldboolean', 'value': ['False']},
+            # {'operator': operator, 'rname': 'customfieldboolean', 'value': ['False']},
+            {'operator': operator, 'rname': 'customfieldboolean', 'values': ['False']},
             condition.decoded_value
         )
 

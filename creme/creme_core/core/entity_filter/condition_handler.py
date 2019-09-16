@@ -312,6 +312,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             raise cls.ValueError(str(e)) from e
 
         try:
+            # TODO: cast more values (eg: integers instead of "digit" string)
             values = operator_obj.validate_field_values(
                 field=finfo[-1], values=values, user=user,
                 efilter_registry=efilter_registry,
@@ -678,7 +679,8 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             kwargs = {
                 'operator_id':  int(data['operator']),
                 'related_name': data['rname'],  # NB: we could remove it...
-                'values':       data['value'],  # TODO: check if it's a list ? check content ?
+                # 'values':       data['value'],
+                'values':       data['values'],  # TODO: check if it's a list ? check content ?
             }
         except (TypeError, KeyError, ValueError) as e:
             raise cls.DataError(
@@ -720,6 +722,8 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
                 '{}.build_condition(): BOOL type is only compatible with '
                 'EQUALS, EQUALS_NOT and ISEMPTY operators'.format(cls.__name__)
             )
+            # TODO: validate values is a list containing one Boolean (done
+            #       below for ISEMPTY only) when form field has been fixed
 
         if not isinstance(values, (list, tuple)):
             raise cls.ValueError(
@@ -746,10 +750,10 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         except Exception as e:
             raise cls.ValueError(str(e)) from e
 
-        # TODO: migration which replaces single value by arrays of values.
         value = {
             'operator': operator_id,
-            'value':    value,
+            # 'value':    value,
+            'values':   value,
             'rname':    cf_value_class.get_related_name(),
         }
 
@@ -800,13 +804,14 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         fname = '{}__value'.format(related_name)
         values = self._values
 
-        # HACK : compatibility code which converts old filters values into array.
-        if not isinstance(values, (list, tuple)):
-            values = [values]
+        # # HACK : compatibility code which converts old filters values into array.
+        # if not isinstance(values, (list, tuple)):
+        #     values = [values]
 
         resolved_values = self.resolve_operands(values=values, user=user)
 
-        # HACK : compatibility with older format
+        # TODO: current form-field/widget generates the JSON '["True"]',
+        #       when '[true]' would be better  => fix form & migrate data
         if CustomFieldBoolean.get_related_name() == related_name:
             clean_bool = BooleanField().to_python
             resolved_values = [clean_bool(v) for v in resolved_values]
