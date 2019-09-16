@@ -90,7 +90,7 @@ class ReorderInstances(View):
         """Returns the future order (starting at 1) of the instance we want to move."""
         order = get_from_POST_or_404(self.request.POST, self.target_order_post_argument, int)
         if order < 1:
-            raise ConflictError('Target order must be greater or equal to 1.')
+            raise ConflictError('Target order must be greater than or equal to 1.')
 
         return order
 

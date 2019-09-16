@@ -2,6 +2,7 @@
 
 try:
     from datetime import date
+    from decimal import Decimal
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
@@ -24,12 +25,14 @@ try:
         CremeUser,
         RelationType, Relation,
         CremeProperty, CremePropertyType,
-        CustomField, CustomFieldEnumValue,
+        CustomField, CustomFieldEnum, CustomFieldMultiEnum, CustomFieldEnumValue,
         SetCredentials,
         EntityFilter, EntityFilterCondition,
-        FakeContact, FakeOrganisation, FakePosition,
-        FakeFolder, FakeDocument,
+        FakeContact, FakeOrganisation, FakePosition, FakeSector,
+        FakeFolderCategory, FakeFolder, FakeDocumentCategory, FakeDocument,
         FakeImageCategory, FakeImage,
+        FakeReport,
+        FakeInvoice, FakeInvoiceLine,
     )
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.utils.date_range import date_range_registry
@@ -135,6 +138,415 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                     'operator': 'notanint',  # <==
                 },
             )
+
+    def test_regularfield_accept_string(self):
+        user = self.login()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        o1 = create_orga(name='Evil Corp', description='Very evil')
+        o2 = create_orga(name='Genius incorporated')
+        o3 = create_orga(name='Acme')
+
+        handler1 = RegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='name',
+            operator_id=operators.ICONTAINS,
+            values=['Corp'],
+        )
+        self.assertIs(handler1.accept(entity=o1, user=user), True)
+        self.assertIs(handler1.accept(entity=o2, user=user), True)
+        self.assertIs(handler1.accept(entity=o3, user=user), False)
+
+        # Operator need a Boolean (not a string) (<True> version)
+        handler2 = RegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='description',
+            operator_id=operators.ISEMPTY,
+            values=[True],
+        )
+        self.assertIs(handler2.accept(entity=o1, user=user), False)
+        self.assertIs(handler2.accept(entity=o2, user=user), True)
+
+        # Operator need a Boolean (not a string) (<False> version)
+        handler3 = RegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='description',
+            operator_id=operators.ISEMPTY,
+            values=[False],
+        )
+        self.assertIs(handler3.accept(entity=o1, user=user), True)
+        self.assertIs(handler3.accept(entity=o2, user=user), False)
+
+    def test_regularfield_accept_int(self):
+        user = self.login()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        o1 = create_orga(name='Corp #1', capital=1000)
+        o2 = create_orga(name='Corp #2', capital=500)
+        o3 = create_orga(name='Corp #3', capital=None)
+
+        handler1 = RegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='capital',
+            operator_id=operators.EQUALS,
+            values=[1000],
+        )
+        self.assertIs(handler1.accept(entity=o1, user=user), True)
+        self.assertIs(handler1.accept(entity=o2, user=user), False)
+        self.assertIs(handler1.accept(entity=o3, user=user), False)
+
+        # String format ---
+        handler2 = RegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='capital',
+            operator_id=operators.EQUALS,
+            values=['1000'],
+        )
+        self.assertIs(handler2.accept(entity=o1, user=user), True)
+        self.assertIs(handler2.accept(entity=o2, user=user), False)
+        self.assertIs(handler2.accept(entity=o3, user=user), False)
+
+    def test_regularfield_accept_boolean(self):
+        user = self.login()
+
+        create_contact = partial(FakeContact.objects.create, user=user, last_name='Doe')
+        c1 = create_contact(loves_comics=True)
+        c2 = create_contact(loves_comics=False)
+        c3 = create_contact(loves_comics=None)
+
+        handler1 = RegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='loves_comics',
+            operator_id=operators.EQUALS,
+            values=[True],
+        )
+        self.assertIs(handler1.accept(entity=c1, user=user), True)
+        self.assertIs(handler1.accept(entity=c2, user=user), False)
+        self.assertIs(handler1.accept(entity=c3, user=user), False)
+
+        # String format ---
+        handler2 = RegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='loves_comics',
+            operator_id=operators.EQUALS,
+            values=['True'],
+        )
+        self.assertIs(handler2.accept(entity=c1, user=user), True)
+        self.assertIs(handler2.accept(entity=c2, user=user), False)
+        self.assertIs(handler2.accept(entity=c3, user=user), False)
+
+    def test_regularfield_accept_decimal(self):
+        user = self.login()
+        handler = RegularFieldConditionHandler(
+            model=FakeInvoiceLine,
+            field_name='unit_price',
+            operator_id=operators.GTE,
+            values=['10.5'],
+        )
+        invoice = FakeInvoice.objects.create(user=user, name='Invoice#1')
+
+        create_line = partial(FakeInvoiceLine.objects.create,
+                              user=user, linked_invoice=invoice,
+                             )
+        l1 = create_line(unit_price=Decimal('11'))
+        self.assertIs(handler.accept(entity=l1, user=user), True)
+
+        l2 = create_line(unit_price=Decimal('10.4'))
+        self.assertIs(handler.accept(entity=l2, user=user), False)
+
+    def test_regularfield_accept_fk01(self):
+        "ForeignKey."
+        user = self.login()
+        sector1, sector2 = FakeSector.objects.all()[:2]
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        o1 = create_orga(name='Evil Corp',   sector=sector1)
+        o2 = create_orga(name='Genius inc.', sector=sector2)
+        o3 = create_orga(name='Acme',        sector=None)
+
+        handler1 = RegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='sector',
+            operator_id=operators.EQUALS,
+            values=[sector1.id],
+        )
+        self.assertIs(handler1.accept(entity=o1, user=user), True)
+        self.assertIs(handler1.accept(entity=o2, user=user), False)
+        self.assertIs(handler1.accept(entity=o3, user=user), False)
+
+        # String format ---
+        handler2 = RegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='sector',
+            operator_id=operators.EQUALS,
+            values=[str(sector1.id)],
+        )
+        self.assertIs(handler2.accept(entity=o1, user=user), True)
+        self.assertIs(handler2.accept(entity=o2, user=user), False)
+        self.assertIs(handler2.accept(entity=o3, user=user), False)
+
+    def test_regularfield_accept_fk02(self):
+        "ForeignKey sub-field."
+        user = self.login()
+        sector1, sector2 = FakeSector.objects.all()[:2]
+
+        handler = RegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='sector__title',
+            operator_id=operators.EQUALS,
+            values=[sector1.title],
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        o1 = create_orga(name='Evil Corp', sector=sector1)
+        self.assertIs(handler.accept(entity=o1, user=user), True)
+
+        o2 = create_orga(name='Genius incorporated', sector=sector2)
+        self.assertIs(handler.accept(entity=o2, user=user), False)
+
+        o3 = create_orga(name='Acme', sector=None)
+        self.assertIs(handler.accept(entity=o3, user=user), False)
+
+    def test_regularfield_accept_fk03(self):
+        "Nested ForeignKey (sub-field)."
+        user = self.login()
+
+        create_cat = FakeFolderCategory.objects.create
+        cat1 = create_cat(name='Pix')
+        cat2 = create_cat(name='Video')
+
+        create_folder = partial(FakeFolder.objects.create, user=user)
+        folder1 = create_folder(title='Pictures', category=cat1)
+        folder2 = create_folder(title='Videos',   category=cat2)
+        folder3 = create_folder(title='Misc',     category=None)
+
+        create_doc = partial(FakeDocument.objects.create, user=user)
+        doc1 = create_doc(title='Pix#1',   linked_folder=folder1)
+        doc2 = create_doc(title='Video#1', linked_folder=folder2)
+        doc3 = create_doc(title='Text#1',  linked_folder=folder3)
+
+        handler = RegularFieldConditionHandler(
+            model=FakeDocument,
+            field_name='linked_folder__category',
+            operator_id=operators.EQUALS,
+            values=[cat1.id],
+        )
+        self.assertIs(handler.accept(entity=doc1, user=user), True)
+        self.assertIs(handler.accept(entity=doc2, user=user), False)
+        self.assertIs(handler.accept(entity=doc3, user=user), False)
+
+    def test_regularfield_accept_fk04(self):
+        "Nullable nested ForeignKey (sub-field)."
+        user = self.login()
+
+        create_efilter = EntityFilter.objects.create
+        efilter1 = create_efilter(pk='creme_core-test_condition01',
+                                  name='Filter#1',
+                                  entity_type=FakeContact,
+                                 )
+        efilter2 = create_efilter(pk='creme_core-test_condition02',
+                                  name='Filter#2',
+                                  entity_type=FakeOrganisation,
+                                 )
+
+        create_report = partial(FakeReport.objects.create, user=user)
+        r1 = create_report(name='Report1', ctype=FakeContact,      efilter=efilter1)
+        r2 = create_report(name='Report2', ctype=FakeOrganisation, efilter=efilter2)
+        r3 = create_report(name='Report3', ctype=FakeContact)
+
+        handler = RegularFieldConditionHandler(
+            model=FakeReport,
+            field_name='efilter__entity_type',
+            operator_id=operators.EQUALS,
+            values=[efilter1.entity_type_id],
+        )
+        self.assertIs(handler.accept(entity=r1, user=user), True)
+        self.assertIs(handler.accept(entity=r2, user=user), False)
+        self.assertIs(handler.accept(entity=r3, user=user), False)
+
+    def test_regularfield_accept_fk05(self):
+        "Primary key is a CharField => BEWARE to ISEMPTY which need boolean value."
+        user = self.login()
+
+        create_efilter = partial(EntityFilter.objects.create, entity_type=FakeContact)
+        efilter1 = create_efilter(pk='creme_core-test_condition01', name='Filter#1')
+        efilter2 = create_efilter(pk='creme_core-test_condition02', name='Filter#2')
+
+        create_report = partial(FakeReport.objects.create, user=user, ctype=FakeContact)
+        r1 = create_report(name='Report1', efilter=efilter1)
+        r2 = create_report(name='Report2', efilter=efilter2)
+        r3 = create_report(name='Report3')
+
+        handler1 = RegularFieldConditionHandler(
+            model=FakeReport,
+            field_name='efilter',
+            operator_id=operators.EQUALS,
+            values=[efilter1.id],
+        )
+        self.assertIs(handler1.accept(entity=r1, user=user), True)
+        self.assertIs(handler1.accept(entity=r2, user=user), False)
+        self.assertIs(handler1.accept(entity=r3, user=user), False)
+
+        # IS EMPTY (<True> version)---
+        handler2 = RegularFieldConditionHandler(
+            model=FakeReport,
+            field_name='efilter',
+            operator_id=operators.ISEMPTY,
+            values=[True],
+        )
+        self.assertIs(handler2.accept(entity=r1, user=user), False)
+        self.assertIs(handler2.accept(entity=r2, user=user), False)
+        self.assertIs(handler2.accept(entity=r3, user=user), True)
+
+        # IS EMPTY (<False> version)---
+        handler3 = RegularFieldConditionHandler(
+            model=FakeReport,
+            field_name='efilter',
+            operator_id=operators.ISEMPTY,
+            values=[False],
+        )
+        self.assertIs(handler3.accept(entity=r1, user=user), True)
+        self.assertIs(handler3.accept(entity=r2, user=user), True)
+        self.assertIs(handler3.accept(entity=r3, user=user), False)
+
+    def test_regularfield_accept_operand(self):
+        "Use operand resolving."
+        user = self.login()
+        handler = RegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='user',
+            operator_id=operators.EQUALS,
+            values=[operands.CurrentUserOperand.type_id],
+        )
+
+        create_orga = FakeOrganisation.objects.create
+        o1 = create_orga(name='Evil Corp', user=user)
+        self.assertIs(handler.accept(entity=o1, user=user), True)
+
+        o2 = create_orga(name='Genius incorporated', user=self.other_user)
+        self.assertIs(handler.accept(entity=o2, user=user), False)
+
+    def test_regularfield_accept_m2m_01(self):
+        "M2M."
+        user = self.login()
+
+        create_cat = FakeDocumentCategory.objects.create
+        cat1 = create_cat(name='Picture')
+        cat2 = create_cat(name='Music')
+
+        create_doc = partial(
+            FakeDocument.objects.create,
+            user=user,
+            linked_folder=FakeFolder.objects.create(user=user, title='My docs'),
+        )
+        doc1 = create_doc(title='Picture#1'); doc1.categories.set([cat1])
+        doc2 = create_doc(title='Music#1');   doc2.categories.set([cat2])
+        doc3 = create_doc(title='Video#1')
+
+        # EQUALS ---
+        handler1 = RegularFieldConditionHandler(
+            model=FakeDocument,
+            field_name='categories',
+            operator_id=operators.EQUALS,
+            values=[cat1.id],
+        )
+        self.assertIs(handler1.accept(entity=doc1, user=user), True)
+        self.assertIs(handler1.accept(entity=doc2, user=user), False)
+        self.assertIs(handler1.accept(entity=doc3, user=user), False)
+
+        # ISEMPTY ---
+        handler2 = RegularFieldConditionHandler(
+            model=FakeDocument,
+            field_name='categories',
+            operator_id=operators.ISEMPTY,
+            values=[True],
+        )
+        self.assertIs(handler2.accept(entity=doc1, user=user), False)
+        self.assertIs(handler2.accept(entity=doc2, user=user), False)
+        self.assertIs(handler2.accept(entity=doc3, user=user), True)
+
+        # String format ---
+        handler3 = RegularFieldConditionHandler(
+            model=FakeDocument,
+            field_name='categories',
+            operator_id=operators.EQUALS,
+            values=[str(cat1.id)],
+        )
+        self.assertIs(handler3.accept(entity=doc1, user=user), True)
+        self.assertIs(handler3.accept(entity=doc2, user=user), False)
+        self.assertIs(handler3.accept(entity=doc3, user=user), False)
+
+        # ISEMPTY (False) ---
+        handler4 = RegularFieldConditionHandler(
+            model=FakeDocument,
+            field_name='categories',
+            operator_id=operators.ISEMPTY,
+            values=[False],
+        )
+        self.assertIs(handler4.accept(entity=doc1, user=user), True)
+        self.assertIs(handler4.accept(entity=doc2, user=user), True)
+        self.assertIs(handler4.accept(entity=doc3, user=user), False)
+
+    def test_regularfield_accept_m2m_02(self):
+        "M2M + subfield."
+        user = self.login()
+
+        create_cat = FakeDocumentCategory.objects.create
+        cat1 = create_cat(name='Picture')
+        cat2 = create_cat(name='Music')
+
+        handler = RegularFieldConditionHandler(
+            model=FakeDocument,
+            field_name='categories__name',
+            operator_id=operators.ICONTAINS,
+            values=['pic'],
+        )
+
+        create_doc = partial(
+            FakeDocument.objects.create,
+            user=user,
+            linked_folder=FakeFolder.objects.create(user=user, title='My docs'),
+        )
+        doc1 = create_doc(title='Picture#1')
+        doc1.categories.set([cat1])
+        self.assertIs(handler.accept(entity=doc1, user=user), True)
+
+        doc2 = create_doc(title='Music#1')
+        doc2.categories.set([cat2])
+        self.assertIs(handler.accept(entity=doc2, user=user), False)
+
+        doc3 = create_doc(title='Video#1')
+        self.assertIs(handler.accept(entity=doc3, user=user), False)
+
+    def test_regularfield_accept_m2m_03(self):
+        "Subfield is a M2M."
+        user = self.login()
+        cat1, cat2 = FakeImageCategory.objects.all()[:2]
+
+        handler = RegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='image__categories',
+            operator_id=operators.EQUALS,
+            values=[cat1.id],
+        )
+
+        create_img = partial(FakeImage.objects.create, user=user)
+        img1 = create_img(name='Img#1'); img1.categories.set([cat1])
+        img2 = create_img(name='Img#2'); img2.categories.set([cat2])
+        img3 = create_img(name='Img#3')
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        c1 = create_contact(last_name='Doe', image=img1)
+        self.assertIs(handler.accept(entity=c1, user=user), True)
+
+        c2 = create_contact(last_name='Doe', image=img2)
+        self.assertIs(handler.accept(entity=c2, user=user), False)
+
+        c3 = create_contact(last_name='Doe', image=img3)
+        self.assertIs(handler.accept(entity=c3, user=user), False)
+
+        c4 = create_contact(last_name='Doe')
+        self.assertIs(handler.accept(entity=c4, user=user), False)
 
     def test_regularfield_condition01(self):
         "Build condition."
@@ -271,7 +683,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                                 operator_id=operators.EQUALS,
                                 # name='linked_folder',
                                 field_name='linked_folder',
-                                )
+                               )
 
         # user can link Document on "Folder 01" (owner=user)
         self.assertNoException(lambda: build_4_field(values=[str(folder.id)], user=user))
@@ -282,6 +694,23 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # with self.assertRaises(EntityFilterCondition.ValueError):
         with self.assertRaises(FilterConditionHandler.ValueError):
             build_4_field(values=[str(folder.id)], user=other_user)
+
+    def test_regularfield_get_q(self):
+        "ForeignKey."
+        user = self.login()
+        sector_id = 3
+        handler = RegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='sector',
+            operator_id=operators.EQUALS,
+            values=[sector_id],
+        )
+
+        self.assertQEqual(
+            # Q(sector_id__exact=sector_id),  TODO ??
+            Q(sector__exact=sector_id),
+            handler.get_q(user)
+        )
 
     def test_regularfield_description01(self):
         user = self.login()
@@ -928,6 +1357,259 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 },
             )
 
+    def test_customfield_accept_int(self):
+        user = self.login()
+
+        custom_field = CustomField.objects.create(
+            name='Number of ships', field_type=CustomField.INT,
+            content_type=FakeOrganisation,
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        bebop     = create_orga(name='Bebop')
+        dragons   = create_orga(name='Red Dragons')
+        swordfish = create_orga(name='Swordfish')
+
+        klass = custom_field.get_value_class()
+
+        def set_cfvalue(entity, value):
+            klass(custom_field=custom_field, entity=entity).set_value_n_save(value)
+
+        set_cfvalue(bebop,   4)
+        set_cfvalue(dragons, 100)
+
+        handler1 = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.EQUALS,
+            values=[4],
+            related_name='customfieldint',
+        )
+        self.assertIs(handler1.accept(entity=bebop,     user=user), True)
+        self.assertIs(handler1.accept(entity=dragons,   user=user), False)
+        self.assertIs(handler1.accept(entity=swordfish, user=user), False)
+
+        # String format ---
+        handler2 = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.EQUALS,
+            values=['4'],
+            related_name='customfieldint',
+        )
+        self.assertIs(handler2.accept(entity=bebop,     user=user), True)
+        self.assertIs(handler2.accept(entity=dragons,   user=user), False)
+        self.assertIs(handler2.accept(entity=swordfish, user=user), False)
+
+    def test_customfield_accept_bool(self):
+        user = self.login()
+
+        custom_field = CustomField.objects.create(
+            name='Accept bounties?', field_type=CustomField.BOOL,
+            content_type=FakeOrganisation,
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        bebop     = create_orga(name='Bebop')
+        dragons   = create_orga(name='Red Dragons')
+        swordfish = create_orga(name='Swordfish')
+
+        klass = custom_field.get_value_class()
+
+        def set_cfvalue(entity, value):
+            klass(custom_field=custom_field, entity=entity).set_value_n_save(value)
+
+        set_cfvalue(bebop,   True)
+        set_cfvalue(dragons, False)
+
+        handler1 = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.EQUALS,
+            values=[True],
+            related_name='customfieldboolean',
+        )
+        self.assertIs(handler1.accept(entity=bebop,     user=user), True)
+        self.assertIs(handler1.accept(entity=dragons,   user=user), False)
+        self.assertIs(handler1.accept(entity=swordfish, user=user), False)
+
+        # String format ---
+        handler2 = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.EQUALS,
+            values=['True'],
+            related_name='customfieldboolean',
+        )
+        self.assertIs(handler2.accept(entity=bebop,     user=user), True)
+        self.assertIs(handler2.accept(entity=dragons,   user=user), False)
+        self.assertIs(handler2.accept(entity=swordfish, user=user), False)
+
+    def test_customfield_accept_decimal(self):
+        user = self.login()
+
+        custom_field = CustomField.objects.create(
+            name='Average turnover', field_type=CustomField.FLOAT,
+            content_type=FakeOrganisation,
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        bebop     = create_orga(name='Bebop')
+        dragons   = create_orga(name='Red Dragons')
+        swordfish = create_orga(name='Swordfish')
+
+        klass = custom_field.get_value_class()
+
+        def set_cfvalue(entity, value):
+            klass(custom_field=custom_field, entity=entity).set_value_n_save(value)
+
+        set_cfvalue(bebop,   Decimal('1000.5'))
+        set_cfvalue(dragons, Decimal('4000.8'))
+
+        handler = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.LTE,
+            values=['2000'],
+            related_name='customfieldfloat',
+        )
+        self.assertIs(handler.accept(entity=bebop,     user=user), True)
+        self.assertIs(handler.accept(entity=dragons,   user=user), False)
+        self.assertIs(handler.accept(entity=swordfish, user=user), False)
+
+    def test_customfield_accept_enum(self):
+        user = self.login()
+
+        custom_field = CustomField.objects.create(
+            name='Type of ship', field_type=CustomField.ENUM,
+            content_type=FakeOrganisation,
+        )
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create,
+                                custom_field=custom_field,
+                               )
+        enum_small  = create_evalue(value='Small')
+        enum_medium = create_evalue(value='Medium')
+        enum_big    = create_evalue(value='Big')
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        bebop     = create_orga(name='Bebop')
+        swordfish = create_orga(name='Swordfish')
+        redtail   = create_orga(name='RedTail')
+
+        create_evalue = partial(CustomFieldEnum.objects.create, custom_field=custom_field)
+        create_evalue(entity=swordfish, value=enum_small)
+        create_evalue(entity=bebop,     value=enum_big)
+
+        # EQUALS ---
+        handler1 = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.EQUALS,
+            values=[enum_small.id, enum_medium.id],
+            related_name='customfieldenum',
+        )
+        self.assertIs(handler1.accept(entity=swordfish, user=user), True)
+        self.assertIs(handler1.accept(entity=bebop,     user=user), False)
+        self.assertIs(handler1.accept(entity=redtail,   user=user), False)
+
+        # ISEMPTY ---
+        handler2 = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.ISEMPTY,
+            values=[True],
+            related_name='customfieldenum',
+        )
+        self.assertIs(handler2.accept(entity=swordfish, user=user), False)
+        self.assertIs(handler2.accept(entity=bebop,     user=user), False)
+        self.assertIs(handler2.accept(entity=redtail,   user=user), True)
+
+        # String format ---
+        handler3 = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.EQUALS,
+            values=[str(enum_small.id), str(enum_medium.id)],
+            related_name='customfieldenum',
+        )
+        self.assertIs(handler3.accept(entity=swordfish, user=user), True)
+        self.assertIs(handler3.accept(entity=bebop,     user=user), False)
+        self.assertIs(handler3.accept(entity=redtail,   user=user), False)
+
+    def test_customfield_accept_multienum(self):
+        "MULTI_ENUM."
+        user = self.login()
+
+        custom_field = CustomField.objects.create(
+            name='Type of ship', field_type=CustomField.MULTI_ENUM,
+            content_type=FakeOrganisation,
+        )
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create,
+                                custom_field=custom_field,
+                               )
+        enum_attack = create_evalue(value='Attack')
+        enum_fret   = create_evalue(value='Fret')
+        enum_house  = create_evalue(value='House')
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        bebop     = create_orga(name='Bebop')
+        swordfish = create_orga(name='Swordfish')
+        redtail   = create_orga(name='RedTail')
+
+        cf_memum = partial(CustomFieldMultiEnum, custom_field=custom_field)
+        cf_memum(entity=swordfish).set_value_n_save([enum_attack])
+        cf_memum(entity=bebop).set_value_n_save([enum_fret, enum_house])
+
+        # EQUALS ---
+        handler1 = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.EQUALS,
+            values=[enum_attack.id, enum_fret.id],
+            related_name='customfieldmultienum',
+        )
+        self.assertIs(handler1.accept(entity=swordfish, user=user), True)
+        self.assertIs(handler1.accept(entity=redtail,   user=user), False)
+        self.assertIs(handler1.accept(entity=bebop,     user=user), True)
+
+        # ISEMPTY ---
+        handler2 = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.ISEMPTY,
+            values=[True],
+            related_name='customfieldmultienum',
+        )
+        self.assertIs(handler2.accept(entity=swordfish, user=user), False)
+        self.assertIs(handler2.accept(entity=bebop,     user=user), False)
+        self.assertIs(handler2.accept(entity=redtail,   user=user), True)
+
+        # String format ---
+        handler3 = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.EQUALS,
+            values=[str(enum_attack.id), str(enum_fret.id)],
+            related_name='customfieldmultienum',
+        )
+        self.assertIs(handler3.accept(entity=swordfish, user=user), True)
+        self.assertIs(handler3.accept(entity=redtail,   user=user), False)
+        self.assertIs(handler3.accept(entity=bebop,     user=user), True)
+
+        # ISEMPTY (False) ---
+        handler4 = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.ISEMPTY,
+            values=[False],
+            related_name='customfieldmultienum',
+        )
+        self.assertIs(handler4.accept(entity=swordfish, user=user), True)
+        self.assertIs(handler4.accept(entity=bebop,     user=user), True)
+        self.assertIs(handler4.accept(entity=redtail,   user=user), False)
+
     def test_customfield_condition01(self):
         "Build condition."
         custom_field = CustomField.objects.create(
@@ -1030,7 +1712,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             'BOOL type is only compatible with EQUALS, EQUALS_NOT and ISEMPTY operators'
         )
 
-    def test_customfield_get_q(self):
+    def test_customfield_get_q_bool(self):
         "get_q() not empty."
         user = self.login()
 
@@ -1052,17 +1734,42 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         set_cfvalue(bebop,   True)
         set_cfvalue(dragons, False)
 
-        handler = CustomFieldConditionHandler(
+        handler1 = CustomFieldConditionHandler(
             model=FakeOrganisation,
             custom_field=custom_field.id,
             operator_id=operators.EQUALS,
-            values=['True'],
+            values=[True],
             related_name='customfieldboolean',
         )
         self.assertQEqual(
             # NB: the nested QuerySet is not compared by the query, but by its result...
             Q(pk__in=FakeOrganisation.objects.filter(id=bebop.id).values_list('id', flat=True)),
-            handler.get_q(user=None)
+            handler1.get_q(user=None)
+        )
+
+        handler2 = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.EQUALS,
+            values=[False],
+            related_name='customfieldboolean',
+        )
+        self.assertQEqual(
+            Q(pk__in=FakeOrganisation.objects.filter(id=dragons.id).values_list('id', flat=True)),
+            handler2.get_q(user=None)
+        )
+
+        # String format
+        handler3 = CustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field.id,
+            operator_id=operators.EQUALS,
+            values=['False'],
+            related_name='customfieldboolean',
+        )
+        self.assertQEqual(
+            Q(pk__in=FakeOrganisation.objects.filter(id=dragons.id).values_list('id', flat=True)),
+            handler3.get_q(user=None)
         )
 
     def test_customfield_description01(self):
@@ -1841,7 +2548,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                              .filter(id__in=[rel1.id, rel2.id, rel3.id])
                              .values_list('subject_entity_id', flat=True)
              ),
-            handler1.get_q(user=None)
+            handler1.get_q(user=user)
         )
 
         # Exclude ---
@@ -1851,10 +2558,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                                            )
         self.assertQEqual(
             ~Q(pk__in=Relation.objects
-                             .filter(id__in=[rel1.id, rel2.id, rel3.id])
-                             .values_list('subject_entity_id', flat=True)
+                              .filter(id__in=[rel1.id, rel2.id, rel3.id])
+                              .values_list('subject_entity_id', flat=True)
               ),
-            handler2.get_q(user=None)
+            handler2.get_q(user=user)
         )
 
         # CT ---
@@ -1868,7 +2575,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                              .filter(id__in=[rel1.id, rel2.id])
                              .values_list('subject_entity_id', flat=True)
              ),
-            handler3.get_q(user=None)
+            handler3.get_q(user=user)
         )
 
         # Entity ---
@@ -1882,8 +2589,67 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                              .filter(id=rel1.id)
                              .values_list('subject_entity_id', flat=True)
              ),
-            handler4.get_q(user=None)
+            handler4.get_q(user=user)
         )
+
+    def test_relation_accept(self):
+        user = self.login()
+        loves = RelationType.create(('test-subject_love', 'Is loving'),
+                                    ('test-object_love',  'Is loved by')
+                                   )[0]
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        shinji = create_contact(last_name='Ikari',     first_name='Shinji')
+        rei    = create_contact(last_name='Ayanami',   first_name='Rei')
+        asuka  = create_contact(last_name='Langley',   first_name='Asuka')
+        misato = create_contact(last_name='Katsuragi', first_name='Misato')
+        gendo  = create_contact(last_name='Ikari',     first_name='Gendo')
+
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=shinji, type=loves, object_entity=rei)
+        create_rel(subject_entity=asuka,  type=loves, object_entity=shinji)
+        create_rel(subject_entity=misato, type=loves, object_entity=nerv)
+
+        handler1 = RelationConditionHandler(model=FakeContact,
+                                            rtype=loves.id,
+                                           )
+
+        self.assertIs(handler1.accept(entity=shinji, user=user), True)
+        self.assertIs(handler1.accept(entity=asuka,  user=user), True)
+        self.assertIs(handler1.accept(entity=misato, user=user), True)
+        self.assertIs(handler1.accept(entity=rei,    user=user), False)
+        self.assertIs(handler1.accept(entity=gendo,  user=user), False)
+
+        # Exclude ---
+        handler2 = RelationConditionHandler(model=FakeContact,
+                                            rtype=loves.id,
+                                            exclude=True,
+                                           )
+        self.assertIs(handler2.accept(entity=shinji, user=user), False)
+        self.assertIs(handler2.accept(entity=misato, user=user), False)
+        self.assertIs(handler2.accept(entity=asuka,  user=user), False)
+        self.assertIs(handler2.accept(entity=rei,    user=user), True)
+        self.assertIs(handler2.accept(entity=gendo,  user=user), True)
+
+        # CT ---
+        handler3 = RelationConditionHandler(
+            model=FakeContact,
+            rtype=loves.id,
+            ctype=ContentType.objects.get_for_model(FakeContact),
+        )
+        self.assertIs(handler3.accept(entity=shinji, user=user), True)
+        self.assertIs(handler3.accept(entity=misato, user=user), False)
+
+        # Entity ---
+        handler4 = RelationConditionHandler(
+            model=FakeContact,
+            rtype=loves.id,
+            entity=rei.id,
+        )
+        self.assertIs(handler4.accept(entity=shinji, user=user), True)
+        self.assertIs(handler4.accept(entity=asuka,  user=user), False)
 
     def test_relation_description01(self):
         user = self.login()
@@ -2125,6 +2891,29 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             subfilter='invalid',
         )
         self.assertEqual("'invalid' is not a valid filter ID", handler.error)
+
+    def test_subfilter_accept(self):
+        user = self.login()
+        sub_efilter = EntityFilter.create(
+            pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='last_name',
+                    operator_id=operators.EQUALS, values=['Elric'],
+                ),
+            ],
+        )
+
+        handler = SubFilterConditionHandler(subfilter=sub_efilter)
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        ed  = create_contact(first_name='Edward',   last_name='Elric')
+        al  = create_contact(first_name='Alphonse', last_name='Elric')
+        roy = create_contact(first_name='Roy',      last_name='Mustang')
+
+        self.assertIs(handler.accept(entity=ed,  user=user), True)
+        self.assertIs(handler.accept(entity=al,  user=user), True)
+        self.assertIs(handler.accept(entity=roy, user=user), False)
 
     def test_subfilter_condition(self):
         "Build condition."
@@ -2656,8 +3445,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         user = self.login()
 
         create_ptype = CremePropertyType.create
-        cute  = create_ptype(str_pk='test-prop_cute', text='Cute')
-        pilot = create_ptype(str_pk='test-prop_pilot',  text='Pilot')
+        cute  = create_ptype(str_pk='test-prop_cute',  text='Cute')
+        pilot = create_ptype(str_pk='test-prop_pilot', text='Pilot')
 
         create_contact = partial(FakeContact.objects.create, user=user)
         shinji = create_contact(last_name='Ikari',     first_name='Shinji')
@@ -2672,7 +3461,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         ___   = create_prop(creme_entity=shinji, type=pilot)
 
         handler1 = PropertyConditionHandler(
-            model=FakeOrganisation,
+            model=FakeContact,
             ptype=cute.id,
         )
         self.assertQEqual(
@@ -2680,12 +3469,12 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                                   .filter(id__in=[prop1.id, prop3.id])
                                   .values_list('creme_entity_id', flat=True)
              ),
-            handler1.get_q(user=None)
+            handler1.get_q(user=user)
         )
 
         # Exclude ---
         handler2 = PropertyConditionHandler(
-            model=FakeOrganisation,
+            model=FakeContact,
             ptype=cute.id,
             exclude=True,
         )
@@ -2694,8 +3483,42 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                                    .filter(id__in=[prop1.id, prop3.id])
                                    .values_list('creme_entity_id', flat=True)
               ),
-            handler2.get_q(user=None)
+            handler2.get_q(user=user)
         )
+
+    def test_property_accept(self):
+        user = self.login()
+        create_ptype = CremePropertyType.create
+        cute = create_ptype(str_pk='test-prop_cute',  text='Cute')
+        pilot = create_ptype(str_pk='test-prop_pilot', text='Pilot')
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        shinji = create_contact(last_name='Ikari',     first_name='Shinji')
+        rei    = create_contact(last_name='Ayanami',   first_name='Rei')
+        misato = create_contact(last_name='Katsuragi', first_name='Misato')
+
+        create_prop = CremeProperty.objects.create
+        create_prop(creme_entity=rei,    type=cute)
+        create_prop(creme_entity=shinji, type=pilot)
+
+        handler1 = PropertyConditionHandler(
+            model=FakeContact,
+            ptype=cute.id,
+        )
+
+        self.assertIs(handler1.accept(entity=rei,    user=user), True)
+        self.assertIs(handler1.accept(entity=shinji, user=user), False)
+        self.assertIs(handler1.accept(entity=misato, user=user), False)
+
+        # Exclude ---
+        handler2 = PropertyConditionHandler(
+            model=FakeContact,
+            ptype=cute.id,
+            exclude=True,
+        )
+        self.assertIs(handler2.accept(entity=rei,    user=user), False)
+        self.assertIs(handler2.accept(entity=shinji, user=user), True)
+        self.assertIs(handler2.accept(entity=misato, user=user), True)
 
     def test_property_description01(self):
         user = self.login()

@@ -24,10 +24,14 @@ try:
     )
     from creme.creme_core.global_info import set_global_info
     from creme.creme_core.models import (
-        CremeEntity, Language, Relation, RelationType, CremeProperty, CremePropertyType,
+        CremeEntity,
+        CremeUser,
+        Relation, RelationType,
+        CremeProperty, CremePropertyType,
         CustomField, CustomFieldInteger, CustomFieldString, CustomFieldFloat,
         CustomFieldBoolean, CustomFieldDateTime, CustomFieldEnum, CustomFieldEnumValue,
         EntityFilter, EntityFilterCondition,
+        Language,
         FakeContact, FakeCivility, FakeOrganisation, FakeImage,
     )
     from creme.creme_core.models.entity_filter import EntityFilterList
@@ -709,9 +713,6 @@ class EntityFiltersTestCase(CremeTestCase):
             ],
         )
         self.assertEqual(1, efilter.conditions.count())
-        self.assertExpectedFiltered(self.refresh(efilter), FakeContact,
-                                    self._get_ikari_case_sensitive()
-                                   )
 
         with self.assertNumQueries(0):
             conds = efilter.get_conditions()
@@ -721,6 +722,34 @@ class EntityFiltersTestCase(CremeTestCase):
         cond = conds[0]
         self.assertIsInstance(cond, EntityFilterCondition)
         self.assertEqual('last_name', cond.name)
+
+        # ---
+        efilter = self.refresh(efilter)
+        self.assertExpectedFiltered(efilter, FakeContact,
+                                    self._get_ikari_case_sensitive()
+                                   )
+
+        user = CremeUser.objects.create(
+            username='Kanna', email='kanna@century.jp',
+            first_name='Kanna', last_name='Gendou',
+            password='uselesspw',
+        )
+
+        cond_accept   = partial(cond.accept, user=user)
+        filter_accept = partial(efilter.accept, user=user)
+        contacts = self.contacts
+
+        shinji = contacts['shinji']
+        self.assertIs(cond_accept(shinji), True)
+        self.assertIs(filter_accept(shinji), True)
+
+        yui = contacts['yui']
+        self.assertIs(cond_accept(yui), True)
+        self.assertIs(filter_accept(yui), True)
+
+        spike = contacts['spike']
+        self.assertIs(cond_accept(spike), False)
+        self.assertIs(filter_accept(spike), False)
 
     def test_filter_field_equals02(self):
         efilter = EntityFilter.create(
@@ -1562,6 +1591,91 @@ class EntityFiltersTestCase(CremeTestCase):
                                     [jet.id, rei.id, asuka.id, faye.id, yui.id],
                                     use_distinct=True,
                                    )
+
+    def test_accept01(self):
+        "One condition."
+        user = CremeUser.objects.create(
+            username='Kanna', email='kanna@century.jp',
+            first_name='Kanna', last_name='Gendou',
+            password='uselesspw',
+        )
+        efilter = EntityFilter.create(
+            'test-filter01', 'Ikari', FakeContact,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IEQUALS,
+                    field_name='last_name', values=['IKARI'],
+                ),
+            ],
+        )
+
+        accept = partial(efilter.accept, user=user)
+        contacts = self.contacts
+        self.assertIs(accept(contacts['shinji']), True)
+        self.assertIs(accept(contacts['yui']),    True)
+        self.assertIs(accept(contacts['spike']),  False)
+
+    def test_accept02(self):
+        "Two conditions + AND."
+        user = CremeUser.objects.create(
+            username='Kanna', email='kanna@century.jp',
+            first_name='Kanna', last_name='Gendou',
+            password='uselesspw',
+        )
+        efilter = EntityFilter.create(
+            'test-filter01', 'Ikari', FakeContact,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IEQUALS,
+                    field_name='last_name', values=['IKARI'],
+                ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IENDSWITH,
+                    field_name='first_name', values=['I'],
+                ),
+            ],
+        )
+
+        accept = partial(efilter.accept, user=user)
+        contacts = self.contacts
+        self.assertIs(accept(contacts['shinji']), True)
+        self.assertIs(accept(contacts['yui']),    True)
+        self.assertIs(accept(contacts['gendou']), False)
+
+    def test_accept03(self):
+        "Two conditions + OR."
+        user = CremeUser.objects.create(
+            username='Kanna', email='kanna@century.jp',
+            first_name='Kanna', last_name='Gendou',
+            password='uselesspw',
+        )
+        efilter = EntityFilter.create(
+            'test-filter01', 'Ikari', FakeContact,
+            use_or=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IEQUALS,
+                    field_name='last_name', values=['IKARI'],
+                ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator_id=operators.IENDSWITH,
+                    field_name='first_name', values=['I'],
+                ),
+            ],
+        )
+
+        accept = partial(efilter.accept, user=user)
+        contacts = self.contacts
+        self.assertIs(accept(contacts['shinji']), True)
+        self.assertIs(accept(contacts['yui']),    True)
+        self.assertIs(accept(contacts['gendou']), True)
+        self.assertIs(accept(contacts['rei']),    True)
+        self.assertIs(accept(contacts['spike']),  False)
 
     def test_condition_update(self):
         # build = partial(EntityFilterCondition.build_4_field, model=FakeContact)

@@ -180,7 +180,7 @@ class IntPollLineType(PollLineType):
             if max_value is None:
                 return self.verbose_name
 
-            return gettext('Integer lesser than {max_value}').format(max_value=max_value)
+            return gettext('Integer less than {max_value}').format(max_value=max_value)
 
         if max_value is None:
             return gettext('Integer greater than {min_value}').format(min_value=min_value)

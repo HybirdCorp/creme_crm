@@ -547,7 +547,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         line = pform.lines.all()[0]
         self.assertEqual({'upper_bound': upper_bound}, json_load(line.type_args))
-        self.assertEqual(_('Integer lesser than {max_value}').format(max_value=upper_bound),
+        self.assertEqual(_('Integer less than {max_value}').format(max_value=upper_bound),
                          str(line.poll_line_type.description)
                         )
 

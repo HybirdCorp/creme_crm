@@ -331,7 +331,7 @@ def ellipsis_multi(strings, length):
 
 def prefixed_truncate(s, prefix, length):
     """Truncates a string if it is too long ; when a truncation is done, the given prefix is added.
-    The length of the result is always lesser or equal than the given length.
+    The length of the result is always less than or equal than the given length.
 
     @param s: A str instance.
     @param prefix: An object which can be "stringified" ; eg: a string, a ugettext_lazy instance.
