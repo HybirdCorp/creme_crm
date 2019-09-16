@@ -131,6 +131,25 @@ class EntityFilter(models.Model):  # CremeModel ???
     def __str__(self):
         return self.name
 
+    def accept(self, entity, user):
+        """Check if a CremeEntity instance is accepted or refused by the filter.
+        Use it for entities which have already been retrieved ; but prefer
+        the method filter() in order to retrieve the least entities as possible.
+
+        @param entity: Instance of <CremeEntity>.
+        @param user: Instance of <django.contrib.auth.get_user_model()> ; it's
+               the current user (& so is used to retrieve it & it's teams by the
+               operand <CurrentUserOperand>.
+        @return: A boolean ; True means the entity is accepted
+                (ie: pass the conditions).
+        """
+        accepted = (
+            condition.accept(entity=entity, user=user)
+                for condition in self.get_conditions()
+        )
+
+        return any(accepted) if self.use_or else all(accepted)
+
     def can_delete(self, user):
         if not self.is_custom:
             return False, gettext("This filter can't be edited/deleted")
@@ -986,6 +1005,20 @@ class EntityFilterCondition(models.Model):
     #     cond._subfilter_cache = subfilter
     #
     #     return cond
+
+    def accept(self, entity, user):
+        """Check if a CremeEntity instance is accepted or refused by the condition.
+        Use it for entities which have already been retrieved ; but prefer
+        the method get_q() in order to retrieve the least entities as possible.
+
+        @param entity: Instance of <CremeEntity>.
+        @param user: Instance of <django.contrib.auth.get_user_model()> ; it's
+               the current user (& so is used to retrieve it & it's teams by the
+               operand <CurrentUserOperand>.
+        @return: A boolean ; True means the entity is accepted
+                (ie: pass the condition).
+        """
+        return self.handler.accept(entity=entity, user=user)
 
     @staticmethod
     def conditions_equal(conditions1, conditions2):

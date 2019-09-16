@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from unittest.mock import patch
+
     from django.db.models.query_utils import Q
     from django.utils.translation import gettext_lazy as _
 
@@ -41,7 +43,8 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_equals(self):
-        op = operators.EqualsOperator(name='Equals')
+        op = operators.OPERATORS[operators.EQUALS]
+        self.assertIsInstance(op, operators.EqualsOperator)
         self.assertFalse(op.accept_subpart)
         self.assertIs(op.exclude, False)
         self.assertSetEqual({
@@ -119,8 +122,48 @@ class OperatorTestCase(CremeTestCase):
                     )
         )
 
+    def test_equals_accept(self):
+        op = operators.EqualsOperator('Equals')
+        self.assertIs(op.accept(field_value='Nerv',  values=['Nerv']),  True)
+        self.assertIs(op.accept(field_value='Nerv',  values=['Seele']), False)
+        self.assertIs(op.accept(field_value='Seele', values=['Seele']), True)
+
+        # Case sensitivity ---
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+                   return_value=True) as mock_sensitive:
+            accepted_sensitive = op.accept(field_value='Nerv', values=['nErv'])
+
+        mock_sensitive.assert_called_once_with()
+        self.assertIs(accepted_sensitive, False)
+
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+                   return_value=False) as mock_no_sensitive:
+            accepted_no_sensitive = op.accept(field_value='Nerv', values=['nErv'])
+
+        mock_no_sensitive.assert_called_once_with()
+        self.assertIs(accepted_no_sensitive, True)
+
+        # Value is a list ---
+        self.assertIs(op.accept(field_value='Nerv', values=[['Eva01', 'Nerv']]), True)
+        self.assertIs(op.accept(field_value='Nerv', values=[['Eva01', 'Eva02']]), False)
+
+        # Not strings ---
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+                   return_value=True):
+            self.assertIs(op.accept(field_value=1000, values=[1000]), True)
+            self.assertIs(op.accept(field_value=500,  values=[1000]), False)
+            self.assertIs(op.accept(field_value=500,  values=[500]),  True)
+
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+                   return_value=False):
+            self.assertIs(op.accept(field_value=1000, values=[1000]), True)
+            self.assertIs(op.accept(field_value=500,  values=[1000]), False)
+            self.assertIs(op.accept(field_value=500,  values=[500]),  True)
+
+        self.assertIs(op.accept(field_value=None, values=[1]), False)
+
     def test_equals_not(self):
-        op = operators.EqualsOperator(name='Equals', exclude=True)
+        op = operators.EqualsNotOperator(name='Equals not')
         self.assertIs(op.exclude, True)
 
         field = 'Foo'
@@ -132,7 +175,7 @@ class OperatorTestCase(CremeTestCase):
             _('«{field}» is not {values}').format(
                 field=field,
                 values=fmt_value(enum_value=value1),
-             ),
+            ),
             op.description(field_vname=field, values=[value1])
         )
 
@@ -144,9 +187,32 @@ class OperatorTestCase(CremeTestCase):
                     first=fmt_value(enum_value=value1),
                     last=value2,
                 ),
-             ),
+            ),
             op.description(field_vname=field, values=[value1, value2])
         )
+
+    def test_equals_not_accept(self):
+        op = operators.EqualsNotOperator('Equals not')
+        self.assertIs(op.accept(field_value='Nerv', values=['Nerv']),  False)
+        self.assertIs(op.accept(field_value='Nerv', values=['Seele']), True)
+        self.assertIs(op.accept(field_value='Seele', values=['Seele']), False)
+
+        # Case sensitivity ---
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+                   return_value=True) as mock_sensitive:
+            accepted_sensitive = op.accept(field_value='Nerv', values=['nErv'])
+
+        mock_sensitive.assert_called_once_with()
+        self.assertIs(accepted_sensitive, True)
+
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+                   return_value=False) as mock_no_sensitive:
+            accepted_no_sensitive = op.accept(field_value='Nerv', values=['nErv'])
+
+        mock_no_sensitive.assert_called_once_with()
+        self.assertIs(accepted_no_sensitive, False)
+
+        self.assertIs(op.accept(field_value=None, values=[1]), True)
 
     def test_is_empty(self):
         op = operators.IsEmptyOperator(name='Is empty')
@@ -200,6 +266,15 @@ class OperatorTestCase(CremeTestCase):
                     )
         )
 
+    def test_is_empty_accept(self):
+        op = operators.IsEmptyOperator(name='Is empty')
+        self.assertIs(op.accept(field_value='',   values=[True]), True)
+        self.assertIs(op.accept(field_value=None, values=[True]), True)
+        self.assertIs(op.accept(field_value='X',  values=[True]), False)
+
+        self.assertIs(op.accept(field_value='',    values=[False]), False)
+        self.assertIs(op.accept(field_value='FOO', values=[False]), True)
+
     def test_range(self):
         op = operators.RangeOperator(name='Range')
         self.assertTrue(op.accept_subpart)
@@ -239,8 +314,18 @@ class OperatorTestCase(CremeTestCase):
                     )
         )
 
+    def test_range_accept(self):
+        op = operators.RangeOperator(name='Range')
+        self.assertIs(op.accept(field_value=1000, values=[[100, 1500]]), True)
+        self.assertIs(op.accept(field_value=99,   values=[[100, 1500]]), False)
+        self.assertIs(op.accept(field_value=1501, values=[[100, 1500]]), False)
+        self.assertIs(op.accept(field_value=1000, values=[[100, 1500]]), True)
+        self.assertIs(op.accept(field_value=1500, values=[[100, 1500]]), True)
+        self.assertIs(op.accept(field_value=None, values=[[100, 1500]]), False)
+
     def test_gt(self):
         op = operators.OPERATORS[operators.GT]
+        self.assertIsInstance(op, operators.GTOperator)
         self.assertEqual(_('>'), op.name)
         self.assertIs(op.exclude, False)
         self.assertEqual('{}__gt', op.key_pattern)
@@ -274,8 +359,18 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value1, value2])
         )
 
+    def test_gt_accept(self):
+        op = operators.GTOperator('Greater')
+        self.assertIs(op.accept(field_value=1000, values=[100]),  True)
+        self.assertIs(op.accept(field_value=1000, values=[999]),  True)
+        self.assertIs(op.accept(field_value=1000, values=[1000]), False)
+
+        self.assertIs(op.accept(field_value=99,   values=[100]),  False)
+        self.assertIs(op.accept(field_value=None, values=[100]),  False)
+
     def test_gte(self):
         op = operators.OPERATORS[operators.GTE]
+        self.assertIsInstance(op, operators.GTEOperator)
         # self.assertEqual(_('>='), op.name)
         self.assertEqual(_('≥'), op.name)
         self.assertIs(op.exclude, False)
@@ -288,15 +383,25 @@ class OperatorTestCase(CremeTestCase):
         field = 'order'
         value1 = 6
         self.assertEqual(
-            _('«{field}» is greater or equal to {values}').format(
+            _('«{field}» is greater than or equal to {values}').format(
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value1),
             ),
             op.description(field_vname=field, values=[value1])
         )
 
+    def test_gte_accept(self):
+        op = operators.GTEOperator('Greater or equal')
+        self.assertIs(op.accept(field_value=1000, values=[100]),  True)
+        self.assertIs(op.accept(field_value=1000, values=[1000]), True)
+        self.assertIs(op.accept(field_value=1000, values=[1001]), False)
+
+        self.assertIs(op.accept(field_value=99,   values=[100]), False)
+        self.assertIs(op.accept(field_value=None, values=[100]), False)
+
     def test_lt(self):
         op = operators.OPERATORS[operators.LT]
+        self.assertIsInstance(op, operators.LTOperator)
         self.assertEqual(_('<'), op.name)
         self.assertIs(op.exclude, False)
         self.assertEqual('{}__lt', op.key_pattern)
@@ -308,15 +413,25 @@ class OperatorTestCase(CremeTestCase):
         field = 'order'
         value = 8
         self.assertEqual(
-            _('«{field}» is lesser than {values}').format(
+            _('«{field}» is less than {values}').format(
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
             op.description(field_vname=field, values=[value])
         )
 
+    def test_lt_accept(self):
+        op = operators.LTOperator('Less')
+        self.assertIs(op.accept(field_value=100, values=[1000]), True)
+        self.assertIs(op.accept(field_value=100, values=[101]),  True)
+        self.assertIs(op.accept(field_value=100, values=[100]),  False)
+
+        self.assertIs(op.accept(field_value=99, values=[100]), True)
+        self.assertIs(op.accept(field_value=None, values=[100]), False)
+
     def test_lte(self):
         op = operators.OPERATORS[operators.LTE]
+        self.assertIsInstance(op, operators.LTEOperator)
         # self.assertEqual(_('<='), op.name)
         self.assertEqual(_('≤'), op.name)
         self.assertIs(op.exclude, False)
@@ -329,15 +444,25 @@ class OperatorTestCase(CremeTestCase):
         field = 'size'
         value = 68
         self.assertEqual(
-            _('«{field}» is lesser or equal to {values}').format(
+            _('«{field}» is less than or equal to {values}').format(
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
             op.description(field_vname=field, values=[value])
         )
 
+    def test_lte_accept(self):
+        op = operators.LTEOperator('Less or equal')
+        self.assertIs(op.accept(field_value=100, values=[1000]), True)
+        self.assertIs(op.accept(field_value=100, values=[100]),  True)
+        self.assertIs(op.accept(field_value=100, values=[99]),   False)
+
+        self.assertIs(op.accept(field_value=99,   values=[99]), True)
+        self.assertIs(op.accept(field_value=None, values=[99]), False)
+
     def test_iequals(self):
         op = operators.OPERATORS[operators.IEQUALS]
+        self.assertIsInstance(op, operators.IEqualsOperator)
         self.assertEqual(_('Equals (case insensitive)'), op.name)
         self.assertEqual('{}__iexact',                   op.key_pattern)
         self.assertFalse(op.accept_subpart)
@@ -358,8 +483,18 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
+    def test_iequals_accept(self):
+        op = operators.IEqualsOperator('Equal++')
+        self.assertIs(op.accept(field_value='Nerv', values=['Nerv']),  True)
+        self.assertIs(op.accept(field_value='Nerv', values=['nerv']),  True)
+        self.assertIs(op.accept(field_value='Nerv', values=['Seele']), False)
+
+        self.assertIs(op.accept(field_value='SEELE', values=['Seele']), True)
+        self.assertIs(op.accept(field_value=None,    values=['gikari@seele.jp']), False)
+
     def test_iequals_not(self):
         op = operators.OPERATORS[operators.IEQUALS_NOT]
+        self.assertIsInstance(op, operators.IEqualsNotOperator)
         self.assertEqual(_('Does not equal (case insensitive)'), op.name)
         self.assertEqual('{}__iexact',                           op.key_pattern)
         self.assertFalse(op.accept_subpart)
@@ -378,8 +513,17 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
+    def test_iequals_not_accept(self):
+        op = operators.IEqualsNotOperator('Not equal++')
+        self.assertIs(op.accept(field_value='Nerv', values=['Nerv']),  False)
+        self.assertIs(op.accept(field_value='Nerv', values=['nerv']),  False)
+        self.assertIs(op.accept(field_value='Nerv', values=['Seele']), True)
+
+        self.assertIs(op.accept(field_value='SEELE', values=['Seele']), False)
+
     def test_contains(self):
         op = operators.OPERATORS[operators.CONTAINS]
+        self.assertIsInstance(op, operators.ContainsOperator)
         self.assertEqual(_('Contains'), op.name)
         self.assertEqual('{}__contains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
@@ -398,8 +542,37 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
+    def test_contains_accept(self):
+        op = operators.ContainsOperator('Contains')
+        self.assertIs(op.accept(field_value='Evil corp',         values=['corp']), True)
+        self.assertIs(op.accept(field_value='Acme incorporated', values=['corp']), True)
+
+        self.assertIs(op.accept(field_value='Nerv inc.',  values=['corp']), False)
+        self.assertIs(op.accept(field_value='Nerv inc.',  values=['inc']),  True)
+
+        self.assertIs(op.accept(field_value='Evil corp', values=['cme', 'vil']),  True)
+        self.assertIs(op.accept(field_value='Nerv inc.', values=['cme', 'vil']),  False)
+
+        # Case sensitivity ---
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+                   return_value=True) as mock_sensitive:
+            accepted_sensitive = op.accept(field_value='Evil corp', values=['cOR'])
+
+        mock_sensitive.assert_called_once_with()
+        self.assertIs(accepted_sensitive, False)
+
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+                   return_value=False) as mock_no_sensitive:
+            accepted_no_sensitive = op.accept(field_value='Evil corp', values=['cOR'])
+
+        mock_no_sensitive.assert_called_once_with()
+        self.assertIs(accepted_no_sensitive, True)
+
+        self.assertIs(op.accept(field_value=None, values=['corp']), False)
+
     def test_contains_not(self):
         op = operators.OPERATORS[operators.CONTAINS_NOT]
+        self.assertIsInstance(op, operators.ContainsNotOperator)
         self.assertEqual(_('Does not contain'), op.name)
         self.assertEqual('{}__contains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
@@ -418,8 +591,19 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
+    def test_contains_not_accept(self):
+        op = operators.ContainsNotOperator('Contains not')
+        self.assertIs(op.accept(field_value='Evil corp',        values=['inc']), True)
+        self.assertIs(op.accept(field_value='Acme corporation', values=['inc']), True)
+        self.assertIs(op.accept(field_value='Nerv inc.',        values=['inc']), False)
+
+        self.assertIs(op.accept(field_value='Evil corp', values=['cme', 'erv']),  True)
+        self.assertIs(op.accept(field_value='Evil corp', values=['cor', 'erv']),  False)
+        self.assertIs(op.accept(field_value='Evil corp', values=['cme', 'vil']), False)
+
     def test_icontains(self):
         op = operators.OPERATORS[operators.ICONTAINS]
+        self.assertIsInstance(op, operators.IContainsOperator)
         self.assertEqual(_('Contains (case insensitive)'), op.name)
         self.assertEqual('{}__icontains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
@@ -438,8 +622,18 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
+    def test_icontains_accept(self):
+        op = operators.IContainsOperator('Contains++')
+        self.assertIs(op.accept(field_value='Evil corp', values=['corp']), True)
+        self.assertIs(op.accept(field_value='Evil corp', values=['CORP']), True)
+
+        self.assertIs(op.accept(field_value='ACME incorporated', values=['acme']), True)
+
+        self.assertIs(op.accept(field_value=None, values=['acme']), False)
+
     def test_icontains_not(self):
         op = operators.OPERATORS[operators.ICONTAINS_NOT]
+        self.assertIsInstance(op, operators.IContainsNotOperator)
         self.assertEqual(_('Does not contain (case insensitive)'), op.name)
         self.assertEqual('{}__icontains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
@@ -458,15 +652,24 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
+    def test_icontains_not_accept(self):
+        op = operators.IContainsNotOperator('Contains not++')
+        self.assertIs(op.accept(field_value='Evil corp', values=['corp']), False)
+        self.assertIs(op.accept(field_value='Evil corp', values=['CORP']), False)
+
+        self.assertIs(op.accept(field_value='ACME incorporated', values=['evil']), True)
+        self.assertIs(op.accept(field_value='ACME incorporated', values=['EVIL']), True)
+
     def test_startswith(self):
         op = operators.OPERATORS[operators.STARTSWITH]
+        self.assertIsInstance(op, operators.StartsWithOperator)
         self.assertEqual(_('Starts with'), op.name)
         self.assertEqual('{}__startswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
         self.assertEqual(operators.FIELDTYPES_STRING,
                          op.allowed_fieldtypes
-                        )
+                         )
 
         field = 'Last_name'
         value = 'sire'
@@ -478,8 +681,35 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
+    def test_startswith_accept(self):
+        op = operators.StartsWithOperator('Starts with')
+        self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), True)
+        self.assertIs(op.accept(field_value='Evil company', values=['Evil']), True)
+
+        self.assertIs(op.accept(field_value='We are not Evil', values=['Evil']), False)
+        self.assertIs(op.accept(field_value='We are not Evil', values=['Evil', 'We']), True)
+        self.assertIs(op.accept(field_value='We are not Evil', values=['We']),   True)
+
+        # Case sensitivity ---
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+                   return_value=True) as mock_sensitive:
+            accepted_sensitive = op.accept(field_value='Evil corp', values=['EVIL'])
+
+        mock_sensitive.assert_called_once_with()
+        self.assertIs(accepted_sensitive, False)
+
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+                   return_value=False) as mock_no_sensitive:
+            accepted_no_sensitive = op.accept(field_value='Evil corp', values=['EVIL'])
+
+        mock_no_sensitive.assert_called_once_with()
+        self.assertIs(accepted_no_sensitive, True)
+
+        self.assertIs(op.accept(field_value=None, values=['evil']), False)
+
     def test_startswith_not(self):
         op = operators.OPERATORS[operators.STARTSWITH_NOT]
+        self.assertIsInstance(op, operators.StartswithNotOperator)
         self.assertEqual(_('Does not start with'), op.name)
         self.assertEqual('{}__startswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
@@ -498,8 +728,17 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
+    def test_startswith_not_accept(self):
+        op = operators.StartswithNotOperator('Starts not with')
+        self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), False)
+        self.assertIs(op.accept(field_value='Evil corp', values=['corp']), True)
+
+        self.assertIs(op.accept(field_value='Evil company', values=['Evil']), False)
+        self.assertIs(op.accept(field_value='Evil company', values=['comp']), True)
+
     def test_istartswith(self):
         op = operators.OPERATORS[operators.ISTARTSWITH]
+        self.assertIsInstance(op, operators.IStartsWithOperator)
         self.assertEqual(_('Starts with (case insensitive)'), op.name)
         self.assertEqual('{}__istartswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
@@ -518,8 +757,18 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
+    def test_istartswith_accept(self):
+        op = operators.IStartsWithOperator('Starts with ++')
+        self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), True)
+        self.assertIs(op.accept(field_value='Evil corp', values=['evil']), True)
+        self.assertIs(op.accept(field_value='Evil corp', values=['corp']), False)
+
+        self.assertIs(op.accept(field_value='We are not Evil', values=['Evil']), False)
+        self.assertIs(op.accept(field_value=None, values=['evil']), False)
+
     def test_istartswith_not(self):
         op = operators.OPERATORS[operators.ISTARTSWITH_NOT]
+        self.assertIsInstance(op, operators.IStartswithNotOperator)
         self.assertEqual(_('Does not start with (case insensitive)'), op.name)
         self.assertEqual('{}__istartswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
@@ -538,8 +787,17 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
+    def test_istartswith_not_accept(self):
+        op = operators.IStartswithNotOperator('Starts with not ++')
+        self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), False)
+        self.assertIs(op.accept(field_value='Evil corp', values=['evil']), False)
+        self.assertIs(op.accept(field_value='Evil corp', values=['corp']), True)
+
+        self.assertIs(op.accept(field_value='Evil inc.', values=['Evil']), False)
+
     def test_endswith(self):
         op = operators.OPERATORS[operators.ENDSWITH]
+        self.assertIsInstance(op, operators.EndsWithOperator)
         self.assertEqual(_('Ends with'), op.name)
         self.assertEqual('{}__endswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
@@ -557,6 +815,29 @@ class OperatorTestCase(CremeTestCase):
             ),
             op.description(field_vname=field, values=[value])
         )
+
+    def test_endswith_accept(self):
+        op = operators.EndsWithOperator('Ends with')
+        self.assertIs(op.accept(field_value='Evil corp',    values=['corp']), True)
+        self.assertIs(op.accept(field_value='Evil corp',    values=['Evil']), False)
+        self.assertIs(op.accept(field_value='Evil company', values=['corp']), False)
+
+        # Case sensitivity ---
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+                   return_value=True) as mock_sensitive:
+            accepted_sensitive = op.accept(field_value='Evil corp', values=['CORP'])
+
+        mock_sensitive.assert_called_once_with()
+        self.assertIs(accepted_sensitive, False)
+
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+                   return_value=False) as mock_no_sensitive:
+            accepted_no_sensitive = op.accept(field_value='Evil corp', values=['CORP'])
+
+        mock_no_sensitive.assert_called_once_with()
+        self.assertIs(accepted_no_sensitive, True)
+
+        self.assertIs(op.accept(field_value=None, values=['@corp']), False)
 
     def test_endswith_not(self):
         op = operators.OPERATORS[operators.ENDSWITH_NOT]
@@ -578,8 +859,15 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
+    def test_endswith_not_accept(self):
+        op = operators.OPERATORS[operators.ENDSWITH_NOT]
+        self.assertIs(op.accept(field_value='Evil corp',    values=['corp']), False)
+        self.assertIs(op.accept(field_value='Evil corp',    values=['Evil']), True)
+        self.assertIs(op.accept(field_value='Evil company', values=['corp']), True)
+
     def test_iendswith(self):
         op = operators.OPERATORS[operators.IENDSWITH]
+        self.assertIsInstance(op, operators.IEndsWithOperator)
         self.assertEqual(_('Ends with (case insensitive)'), op.name)
         self.assertEqual('{}__iendswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
@@ -598,8 +886,19 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
+    def test_iendswith_accept(self):
+        op = operators.IEndsWithOperator('Ends with ++')
+        self.assertIs(op.accept(field_value='Evil corp', values=['corp']), True)
+        self.assertIs(op.accept(field_value='Evil corp', values=['CORP']), True)
+        self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), False)
+        self.assertIs(op.accept(field_value='Evil INC',  values=['inc']),  True)
+        self.assertIs(op.accept(field_value='Evil INC',  values=['corp']), False)
+
+        self.assertIs(op.accept(field_value=None, values=['@corp']), False)
+
     def test_iendswith_not(self):
         op = operators.OPERATORS[operators.IENDSWITH_NOT]
+        self.assertIsInstance(op, operators.IEndsWithNotOperator)
         self.assertEqual(_('Does not end with (case insensitive)'), op.name)
         self.assertEqual('{}__iendswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
@@ -617,5 +916,13 @@ class OperatorTestCase(CremeTestCase):
             ),
             op.description(field_vname=field, values=[value])
         )
+
+    def test_iendswith_not_accept(self):
+        op = operators.IEndsWithNotOperator('Ends with not ++')
+        self.assertIs(op.accept(field_value='Evil corp', values=['corp']), False)
+        self.assertIs(op.accept(field_value='Evil corp', values=['CORP']), False)
+        self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), True)
+        self.assertIs(op.accept(field_value='Evil INC',  values=['inc']),  False)
+        self.assertIs(op.accept(field_value='Evil INC',  values=['corp']), True)
 
     # TODO: validate_field_values x N

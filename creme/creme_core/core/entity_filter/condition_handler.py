@@ -19,10 +19,16 @@
 ################################################################################
 
 from datetime import datetime
+from decimal import Decimal
+from functools import partial
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import BooleanField, Q, ForeignKey, ManyToManyField
+from django.db.models import (
+    BooleanField,
+    ForeignKey, ManyToManyField,
+    Q,
+)
 from django.db.models.fields import FieldDoesNotExist
 from django.utils.formats import date_format
 from django.utils.timezone import now
@@ -31,7 +37,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.models import (
     CremeEntity,
     CremePropertyType, CremeProperty,
-    CustomField, CustomFieldBoolean, CustomFieldEnumValue,
+    CustomField, CustomFieldEnumValue,  # CustomFieldBoolean
     EntityFilter, EntityFilterCondition,
     RelationType, Relation,
 )
@@ -73,6 +79,17 @@ class FilterConditionHandler:
         """
         self._model = model
         self._subfilter = None   # 'None' means not retrieved ; 'False' means invalid filter
+
+    def accept(self, *, entity, user):
+        """Check if a CremeEntity instance is accepted or refused by the handler.
+
+        @param entity: Instance of <CremeEntity>.
+        @param user: Instance of <django.contrib.auth.get_user_model()> ; it's
+               the current user (& so is used to retrieve it & it's teams by the
+               operand <CurrentUserOperand>.
+        @return: A boolean ; True means the entity is accepted.
+        """
+        raise NotImplementedError
 
     @classmethod
     def build(cls, *, model, name, data):
@@ -171,6 +188,9 @@ class SubFilterConditionHandler(FilterConditionHandler):
             super().__init__(model=model)
             self._subfilter_id = subfilter
 
+    def accept(self, *, entity, user):
+        return self.subfilter.accept(entity=entity, user=user)
+
     @classmethod
     def build(cls, *, model, name, data):
         return cls(model=model, subfilter=name)
@@ -263,6 +283,48 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         self._operator_id = operator_id
         self._values = values
         self._verbose_values = None  # Cache for values in description()
+
+    def accept(self, *, entity, user):
+        operator = operators.OPERATORS[self._operator_id]
+        values = self.resolve_operands(values=self._values, user=user)
+
+        field_info = FieldInfo(self._model, self._field_name)
+        last_field = field_info[-1]
+
+        if isinstance(last_field, ForeignKey):
+            # NB: we want to retrieve ID & not instance (we store ID in 'values'
+            #     & want to avoid some queries).
+            base_instance = entity if len(field_info) == 1 else field_info[:-1].value_from(entity)
+            field_value = None if base_instance is None else \
+                          getattr(base_instance, field_info[-1].attname)
+
+            # TODO: move this test in operator code + factorise ?
+            if not isinstance(operator, operators.IsEmptyOperator):
+                values = [*map(last_field.to_python, values)]
+        elif isinstance(last_field, ManyToManyField):
+            # NB: see ForeignKey remark
+            base_instance = entity if len(field_info) == 1 else field_info[:-1].value_from(entity)
+            # NB: <or None> to send at least one value (useful for "is empty" operator
+            field_value = None if base_instance is None else \
+                          [*getattr(base_instance, last_field.attname).values_list('pk', flat=True)] or None
+
+            # TODO: move this test in operator code...
+            # TODO: test (need M2M with str PK)
+            if not isinstance(operator, operators.IsEmptyOperator):
+                values = [*map(last_field.target_field.to_python, values)]
+        else:
+            # HACK: string format (would be better to convert data before)
+            # TODO: move this test in operator code...
+            if not isinstance(operator, operators.IsEmptyOperator):
+                values = [*map(last_field.to_python, values)]
+
+            field_value = field_info.value_from(entity)
+
+        accept = partial(operator.accept, values=values)
+
+        return any(accept(field_value=i) for i in field_value) \
+               if isinstance(field_value, list) else \
+               accept(field_value=field_value)
 
     # TODO: multi-value is stupid for some operator (LT, GT etc...) => improve checking ???
     @classmethod
@@ -398,9 +460,9 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         field_info = FieldInfo(self._model, self._field_name)
 
         # HACK: old format compatibility for boolean fields.
-        if isinstance(field_info[-1], BooleanField):
-            clean = BooleanField().to_python
-            values = [clean(v) for v in values]
+        last_field = field_info[-1]
+        if isinstance(last_field, BooleanField):
+            values = [*map(last_field.to_python, values)]
 
         query = operator.get_q(model=self._model,
                                field_name=self._field_name,
@@ -458,11 +520,11 @@ class DateFieldHandlerMixin:
                         field=verbose_field,
                         start=date_format(start, 'DATE_FORMAT'),
                         end=date_format(end, 'DATE_FORMAT'),
-                    ) if end else \
+                   ) if end else \
                    _('«{field}» starts «{date}»').format(
                         field=verbose_field,
                         date=date_format(start, 'DATE_FORMAT'),
-                    )
+                   )
 
         if end:
             return _('«{field}» ends «{date}»').format(
@@ -529,6 +591,8 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin, FilterConditionHan
         FilterConditionHandler.__init__(self, model=model)
         self._field_name = field_name
         DateFieldHandlerMixin.__init__(self, **kwargs)
+
+    # def accept(self, *, entity, user):  TODO ? (not needed currently for credentials filters)
 
     @classmethod
     def build(cls, *, model, name, data):
@@ -672,6 +736,44 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         self._values = values
         self._verbose_values = None  # Cache for values in description()
 
+    def accept(self, *, entity, user):
+        operator = operators.OPERATORS[self._operator_id]
+        values = self._values
+
+        cfield = self.custom_field
+        cfvalue = entity.get_custom_value(cfield)
+        cf_type = cfield.field_type
+
+        if cfvalue is None:
+            field_value = None
+        else:
+            # TODO: current form-field/widget generates the JSON '["True"]' or '["123"]',
+            #       when '[true]' or '[123]' would be better  => fix form & migrate data
+            if cf_type in {CustomField.INT, CustomField.ENUM, CustomField.MULTI_ENUM}:
+                # TODO: move to operator code (the code works without this test,
+                #       because boolean are just converted to integers, but it's crappy)
+                if not isinstance(operator, operators.IsEmptyOperator):
+                    values = [*map(int, values)]
+            elif cf_type == CustomField.BOOL:
+                values = [*map(BooleanField().to_python, values)]
+            elif cf_type == CustomField.FLOAT:
+                values = [*map(Decimal, values)]
+
+            if cf_type == CustomField.MULTI_ENUM:
+                # NB: we use get_enumvalues() to get a cached result & avoid re-making queries
+                field_value = [v.id for v in cfvalue.get_enumvalues()]
+
+            elif cf_type == CustomField.ENUM:
+                field_value = cfvalue.value_id
+            else:
+                field_value = cfvalue.value
+
+        accept = partial(operator.accept, values=values)
+
+        return any(accept(field_value=i) for i in field_value) \
+               if isinstance(field_value, list) else \
+               accept(field_value=field_value)
+
     @classmethod
     def build(cls, *, model, name, data):
         try:
@@ -810,11 +912,9 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
 
         resolved_values = self.resolve_operands(values=values, user=user)
 
-        # TODO: current form-field/widget generates the JSON '["True"]',
-        #       when '[true]' would be better  => fix form & migrate data
-        if CustomFieldBoolean.get_related_name() == related_name:
-            clean_bool = BooleanField().to_python
-            resolved_values = [clean_bool(v) for v in resolved_values]
+        # if CustomFieldBoolean.get_related_name() == related_name:
+        #     clean_bool = BooleanField().to_python
+        #     resolved_values = [clean_bool(v) for v in resolved_values]
 
         # TODO: move more code in operator ??
         if isinstance(operator, operators.IsEmptyOperator):
@@ -858,6 +958,8 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
             self, model=model, custom_field=custom_field, related_name=related_name,
         )
         DateFieldHandlerMixin.__init__(self, **kwargs)
+
+    # def accept(self, *, entity, user):  TODO ? (not needed currently for credentials filters)
 
     @classmethod
     def build(cls, *, model, name, data):
@@ -976,7 +1078,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
     }
 
     def __init__(self, *, model, rtype, exclude=False, ctype=None, entity=None):
-        super().__init__(model=model, rtype=rtype,exclude=exclude)
+        super().__init__(model=model, rtype=rtype, exclude=exclude)
 
         if isinstance(entity, CremeEntity):
             self._entity_id = entity.id
@@ -986,6 +1088,27 @@ class RelationConditionHandler(BaseRelationConditionHandler):
             self._entity_id = entity
             self._entity = None
             self._ct_id = ctype.id if isinstance(ctype, ContentType) else ctype
+
+    def accept(self, *, entity, user):
+        # NB: we use get_relations() in order to get a cached result, & so avoid
+        #     additional queries when calling several times this method.
+        # TODO: add a system to populate relations when checking several entities
+        relations = entity.get_relations(relation_type_id=self._rtype_id)
+
+        if self._entity_id:
+            entity_id = self._entity_id
+            found = any(r.object_entity_id == entity_id for r in relations)
+        elif self._ct_id:
+            ct_id = self._ct_id
+            # TODO: get_relations() with real_obj_entities==False does not select_related()
+            #       => real_obj_entities = True ?
+            #          select_related() even if real_obj_entities==False ?
+            #          CT's ID stored in Relation (RealEntityForeignKey) ??
+            found = any(r.object_entity.entity_type_id == ct_id for r in relations)
+        else:
+            found = bool(relations)
+
+        return not found if self._exclude else found
 
     @classmethod
     def build(cls, *, model, name, data):
@@ -1141,6 +1264,8 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
 
         self._exclude = exclude
 
+    # def accept(self, *, entity, user):  TODO ? (not needed currently for credentials filters)
+
     @classmethod
     def build(cls, *, model, name, data):
         try:
@@ -1257,6 +1382,15 @@ class PropertyConditionHandler(FilterConditionHandler):
 
         self._exclude = exclude
 
+    def accept(self, *, entity, user):
+        ptype_id = self._ptype_id
+        # NB: we use get_properties() in order to get a cached result, & so avoid
+        #     additional queries when calling several times this method.
+        # TODO: add a system to populate properties when checking several entities
+        accepted = any(prop.type_id == ptype_id for prop in entity.get_properties())
+
+        return not accepted if self._exclude else accepted
+
     @classmethod
     def build(cls, *, model, name, data):
         if not isinstance(data, bool):
@@ -1294,7 +1428,8 @@ class PropertyConditionHandler(FilterConditionHandler):
                                       .values_list('creme_entity_id', flat=True)
                  )
 
-        if self._exclude:  # Is a boolean indicating if got or has not got the property type
+        # Do we filter entities which has got or has not got the property type ?
+        if self._exclude:
             query.negate()
 
         return query

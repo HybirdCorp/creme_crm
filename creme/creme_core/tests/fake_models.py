@@ -99,7 +99,7 @@ else:
                                                blank=True,
                                               ).set_tags(optional=True)
 
-       # creation_label = _('Create a document')
+        # creation_label = _('Create a document')
 
         class Meta:
             app_label = 'creme_core'
@@ -112,12 +112,11 @@ else:
             return '{} - {}'.format(self.linked_folder, self.title)
 
         # def get_absolute_url(self):
+        # def get_edit_absolute_url(self):
 
         @staticmethod
         def get_lv_absolute_url():
             return reverse('creme_core__list_fake_documents')
-
-        # def get_edit_absolute_url(self):
 
 
     class FakeFileComponent(CremeModel):
@@ -377,7 +376,7 @@ else:
                                            )
         url_site        = models.URLField(_('Web Site'), max_length=500,
                                           blank=True, null=True,
-                                         ).set_tags(optional=True)
+                                         ).set_tags(optional=True)  # NB: keep nullable for some tests
         sector          = models.ForeignKey(FakeSector, verbose_name=_('Sector'),
                                             blank=True, null=True,
                                             # on_delete=models.SET_NULL,

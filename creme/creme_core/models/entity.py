@@ -286,7 +286,7 @@ class CremeEntity(CremeModel):
             # logger.debug('CremeEntity.get_custom_value(): Cache HIT for id=%s cf_id=%s', self.id, custom_field.id)
         except KeyError:
             # logger.debug('CremeEntity.get_custom_value(): Cache MISS for id=%s cf_id=%s', self.id, custom_field.id)
-            CremeEntity.populate_custom_values([self], [custom_field])
+            self.populate_custom_values([self], [custom_field])
             cvalue = self._cvalues_map.get(custom_field.id)
 
         return cvalue
