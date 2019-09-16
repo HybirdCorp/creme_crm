@@ -850,7 +850,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             data={
                 'operator': operator_id,
                 'rname': rname,
-                'value': [value],
+                # 'value': [value],
+                'values': [value],
             },
         )
         self.assertEqual(FakeContact, handler.model)
@@ -948,7 +949,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(str(custom_field.id), condition.name)
         self.assertDictEqual(
             {'operator': operator_id,
-             'value': [str(value)],
+             # 'value': [str(value)],
+             'values': [str(value)],
              'rname': rname,
             },
             condition.decoded_value

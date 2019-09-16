@@ -2787,27 +2787,27 @@ class EntityFiltersTestCase(CremeTestCase):
                                     self._list_contact_ids('rei', exclude=True),
                                    )
 
-        # Old filter format compatibility
-        cfield_rname = custom_field.get_value_class().get_related_name()
-        efilter = EntityFilter.create(
-            'test-filter01-old', name='not 00', model=FakeContact,
-            conditions=[EntityFilterCondition(
-                            # type=EntityFilterCondition.EFC_CUSTOMFIELD,
-                            type=20,
-                            model=FakeContact,
-                            name=str(custom_field.id),
-                            value=EntityFilterCondition.encode_value({
-                                # 'operator': EntityFilterCondition.CONTAINS_NOT,
-                                'operator': operators.CONTAINS_NOT,
-                                'value': '00',
-                                'rname': cfield_rname,
-                            }),
-                        ),
-            ],
-        )
-        self.assertExpectedFiltered(efilter, FakeContact,
-                                    self._list_contact_ids('rei', exclude=True),
-                                   )
+        # # Old filter format compatibility
+        # cfield_rname = custom_field.get_value_class().get_related_name()
+        # efilter = EntityFilter.create(
+        #     'test-filter01-old', name='not 00', model=FakeContact,
+        #     conditions=[EntityFilterCondition(
+        #                     # type=EntityFilterCondition.EFC_CUSTOMFIELD,
+        #                     type=20,
+        #                     model=FakeContact,
+        #                     name=str(custom_field.id),
+        #                     value=EntityFilterCondition.encode_value({
+        #                         # 'operator': EntityFilterCondition.CONTAINS_NOT,
+        #                         'operator': operators.CONTAINS_NOT,
+        #                         'value': '00',
+        #                         'rname': cfield_rname,
+        #                     }),
+        #                 ),
+        #     ],
+        # )
+        # self.assertExpectedFiltered(efilter, FakeContact,
+        #                             self._list_contact_ids('rei', exclude=True),
+        #                            )
 
     def test_customfield04(self):
         "2 INT CustomFields with 2 conditions."
@@ -2831,7 +2831,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         # build_cond = EntityFilterCondition.build_4_customfield
         build_cond = CustomFieldConditionHandler.build_condition
-        efilter = EntityFilter.create(
+        efilter1 = EntityFilter.create(
             'test-filter01', name='Not so small but light', model=FakeContact,
             conditions=[build_cond(custom_field=custom_field01,
                                    # operator=EntityFilterCondition.GTE,
@@ -2845,39 +2845,54 @@ class EntityFiltersTestCase(CremeTestCase):
                                   ),
                        ],
         )
-        self.assertExpectedFiltered(efilter, FakeContact, [asuka.id])
+        self.assertExpectedFiltered(efilter1, FakeContact, [asuka.id])
 
-        # Old filter format compatibility
-        cfield01_rname = custom_field01.get_value_class().get_related_name()
-        cfield02_rname = custom_field02.get_value_class().get_related_name()
-        efilter = EntityFilter.create(
-            'test-filter01-old', name='Not so small but light', model=FakeContact,
-            conditions=[
-                # EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
-                EntityFilterCondition(type=20,
-                                      model=FakeContact,
-                                      name=str(custom_field01.id),
-                                      value=EntityFilterCondition.encode_value({
-                                          # 'operator': EntityFilterCondition.GTE,
-                                          'operator': operators.GTE,
-                                          'value': 155,
-                                          'rname': cfield01_rname,
-                                      }),
-                                     ),
-                # EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
-                EntityFilterCondition(type=20,
-                                      model=FakeContact,
-                                      name=str(custom_field02.id),
-                                      value=EntityFilterCondition.encode_value({
-                                          # 'operator': EntityFilterCondition.LTE,
-                                          'operator': operators.LTE,
-                                          'value': 100,
-                                          'rname': cfield02_rname,
-                                      }),
-                                     ),
-            ],
+        # String format (TO BE REMOVED ??)
+        efilter2 = EntityFilter.create(
+            'test-filter02', name='Not so small but light', model=FakeContact,
+            conditions=[build_cond(custom_field=custom_field01,
+                                   operator_id=operators.GTE,
+                                   values=['155'],
+                                  ),
+                        build_cond(custom_field=custom_field02,
+                                   operator_id=operators.LTE,
+                                   values=['100'],
+                                  ),
+                       ],
         )
-        self.assertExpectedFiltered(efilter, FakeContact, [asuka.id])
+        self.assertExpectedFiltered(efilter2, FakeContact, [asuka.id])
+
+        # # Old filter format compatibility
+        # cfield01_rname = custom_field01.get_value_class().get_related_name()
+        # cfield02_rname = custom_field02.get_value_class().get_related_name()
+        # efilter = EntityFilter.create(
+        #     'test-filter01-old', name='Not so small but light', model=FakeContact,
+        #     conditions=[
+        #         # EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+        #         EntityFilterCondition(type=20,
+        #                               model=FakeContact,
+        #                               name=str(custom_field01.id),
+        #                               value=EntityFilterCondition.encode_value({
+        #                                   # 'operator': EntityFilterCondition.GTE,
+        #                                   'operator': operators.GTE,
+        #                                   'value': 155,
+        #                                   'rname': cfield01_rname,
+        #                               }),
+        #                              ),
+        #         # EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+        #         EntityFilterCondition(type=20,
+        #                               model=FakeContact,
+        #                               name=str(custom_field02.id),
+        #                               value=EntityFilterCondition.encode_value({
+        #                                   # 'operator': EntityFilterCondition.LTE,
+        #                                   'operator': operators.LTE,
+        #                                   'value': 100,
+        #                                   'rname': cfield02_rname,
+        #                               }),
+        #                              ),
+        #     ],
+        # )
+        # self.assertExpectedFiltered(efilter, FakeContact, [asuka.id])
 
     def test_customfield05(self):
         "FLOAT."
@@ -2913,24 +2928,94 @@ class EntityFiltersTestCase(CremeTestCase):
         )
         self.assertExpectedFiltered(efilter, FakeContact, [ed.id, rei.id])
 
-        # Old filter format compatibility
-        cfield_rname = custom_field.get_value_class().get_related_name()
-        efilter = EntityFilter.create(
-            'test-filter01-old', name='<= 40', model=FakeContact,
-            # conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
-            conditions=[EntityFilterCondition(type=20,
-                                              model=FakeContact,
-                                              name=str(custom_field.id),
-                                              value=EntityFilterCondition.encode_value({
-                                                  # 'operator': EntityFilterCondition.LTE,
-                                                  'operator': operators.LTE,
-                                                  'value': '40',
-                                                  'rname': cfield_rname,
-                                              }),
-                                             ),
-                       ],
+        # # Old filter format compatibility
+        # cfield_rname = custom_field.get_value_class().get_related_name()
+        # efilter = EntityFilter.create(
+        #     'test-filter01-old', name='<= 40', model=FakeContact,
+        #     # conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+        #     conditions=[EntityFilterCondition(type=20,
+        #                                       model=FakeContact,
+        #                                       name=str(custom_field.id),
+        #                                       value=EntityFilterCondition.encode_value({
+        #                                           # 'operator': EntityFilterCondition.LTE,
+        #                                           'operator': operators.LTE,
+        #                                           'value': '40',
+        #                                           'rname': cfield_rname,
+        #                                       }),
+        #                                      ),
+        #                ],
+        # )
+        # self.assertExpectedFiltered(efilter, FakeContact, [ed.id, rei.id])
+
+    def test_customfield06(self):
+        "ENUM."
+        rei = self.contacts['rei']
+
+        custom_field = CustomField.objects.create(name='Eva',
+                                                  content_type=self.contact_ct,
+                                                  field_type=CustomField.ENUM,
+                                                 )
+        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=custom_field)
+        eva00 = create_evalue(value='Eva-00')
+        create_evalue(value='Eva-01')
+        eva02 = create_evalue(value='Eva-02')
+
+        klass = custom_field.get_value_class()
+        klass(custom_field=custom_field, entity=rei).set_value_n_save(eva00.id)
+        klass(custom_field=custom_field, entity=self.contacts['asuka']).set_value_n_save(eva02.id)
+
+        self.assertEqual(2, CustomFieldEnum.objects.count())
+
+        efilter1 = EntityFilter.create(
+            'test-filter01', name='Eva-00', model=FakeContact,
+            conditions=[
+                # EntityFilterCondition.build_4_customfield(
+                #     custom_field=custom_field,
+                #     operator=EntityFilterCondition.EQUALS,
+                #     value=[eva00.id],
+                # ),
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.EQUALS,
+                    values=[eva00.id],
+                ),
+            ],
         )
-        self.assertExpectedFiltered(efilter, FakeContact, [ed.id, rei.id])
+        self.assertExpectedFiltered(efilter1, FakeContact, [rei.id])
+
+        # String format
+        efilter2 = EntityFilter.create(
+            'test-filter01', name='Eva-00', model=FakeContact,
+            conditions=[
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.EQUALS,
+                    values=[str(eva00.id)],
+                ),
+            ],
+        )
+        self.assertExpectedFiltered(efilter2, FakeContact, [rei.id])
+
+        # # Old filter format compatibility
+        # cfield_rname = custom_field.get_value_class().get_related_name()
+        # efilter = EntityFilter.create(
+        #     'test-filter01-old', name='Eva-00', model=FakeContact,
+        #     conditions=[
+        #         EntityFilterCondition(
+        #             # type=EntityFilterCondition.EFC_CUSTOMFIELD,
+        #             model=FakeContact,
+        #             type=20,
+        #             name=str(custom_field.id),
+        #             value=EntityFilterCondition.encode_value({
+        #                 # 'operator': EntityFilterCondition.EQUALS,
+        #                 'operator': operators.EQUALS,
+        #                 'value': eva00.id,
+        #                 'rname': cfield_rname,
+        #             }),
+        #         ),
+        #     ],
+        # )
+        # self.assertExpectedFiltered(efilter, FakeContact, [rei.id])
 
     def test_customfield_boolean(self):
         "Boolean field."
@@ -2949,7 +3034,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         self.assertEqual(3, CustomFieldBoolean.objects.count())
 
-        efilter = EntityFilter.create(
+        efilter1 = EntityFilter.create(
             'test-filter01', name='is valid', model=FakeContact,
             conditions=[
                 # EntityFilterCondition.build_4_customfield(
@@ -2964,26 +3049,37 @@ class EntityFiltersTestCase(CremeTestCase):
                 ),
             ],
         )
-        self.assertExpectedFiltered(efilter, FakeContact, [ed.id, rei.id])
+        self.assertExpectedFiltered(efilter1, FakeContact, [ed.id, rei.id])
 
-        # Old filter format compatibility
-        cfield_rname = custom_field.get_value_class().get_related_name()
-        efilter = EntityFilter.create(
+        # String format
+        efilter2 = EntityFilter.create(
             'test-filter01-old', name='is valid', model=FakeContact,
-            # conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
-            conditions=[EntityFilterCondition(type=20,
-                                              model=FakeContact,
-                                              name=str(custom_field.id),
-                                              value=EntityFilterCondition.encode_value({
-                                                  # 'operator': EntityFilterCondition.EQUALS,
-                                                  'operator': operators.EQUALS,
-                                                  'value': 'True',
-                                                  'rname': cfield_rname,
-                                              }),
-                                             ),
-                       ],
+            conditions=[
+                CustomFieldConditionHandler.build_condition(
+                    custom_field=custom_field,
+                    operator_id=operators.EQUALS,
+                    values=['True'],
+                ),
+            ],
         )
-        self.assertExpectedFiltered(efilter, FakeContact, [ed.id, rei.id])
+        self.assertExpectedFiltered(efilter2, FakeContact, [ed.id, rei.id])
+
+        # # Old filter format compatibility
+        # cfield_rname = custom_field.get_value_class().get_related_name()
+        # efilter = EntityFilter.create(
+        #     'test-filter01-old', name='is valid', model=FakeContact,
+        #     conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+        #                                       model=FakeContact,
+        #                                       name=str(custom_field.id),
+        #                                       value=EntityFilterCondition.encode_value({
+        #                                           'operator': EntityFilterCondition.EQUALS,
+        #                                           'value': 'True',
+        #                                           'rname': cfield_rname,
+        #                                       }),
+        #                                      ),
+        #                ],
+        # )
+        # self.assertExpectedFiltered(efilter, FakeContact, [ed.id, rei.id])
 
     def test_customfield_boolean_false(self):
         "Boolean field."
@@ -3030,70 +3126,14 @@ class EntityFiltersTestCase(CremeTestCase):
                                               value=EntityFilterCondition.encode_value({
                                                   # 'operator': EntityFilterCondition.EQUALS,
                                                   'operator': operators.EQUALS,
-                                                  'value': 'False',
+                                                  # 'value': 'False',
+                                                  'values': ['False'],
                                                   'rname': cfield_rname,
                                               }),
                                              ),
                        ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, [contacts['asuka'].id])
-
-    def test_customfield06(self):
-        "ENUM."
-        rei = self.contacts['rei']
-
-        custom_field = CustomField.objects.create(name='Eva',
-                                                  content_type=self.contact_ct,
-                                                  field_type=CustomField.ENUM,
-                                                 )
-        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=custom_field)
-        eva00 = create_evalue(value='Eva-00')
-        create_evalue(value='Eva-01')
-        eva02 = create_evalue(value='Eva-02')
-
-        klass = custom_field.get_value_class()
-        klass(custom_field=custom_field, entity=rei).set_value_n_save(eva00.id)
-        klass(custom_field=custom_field, entity=self.contacts['asuka']).set_value_n_save(eva02.id)
-
-        self.assertEqual(2, CustomFieldEnum.objects.count())
-
-        efilter = EntityFilter.create(
-            'test-filter01', name='Eva-00', model=FakeContact,
-            conditions=[
-                # EntityFilterCondition.build_4_customfield(
-                #     custom_field=custom_field,
-                #     operator=EntityFilterCondition.EQUALS,
-                #     value=[eva00.id],
-                # ),
-                CustomFieldConditionHandler.build_condition(
-                    custom_field=custom_field,
-                    operator_id=operators.EQUALS,
-                    values=[eva00.id],  # TODO: "value=eva00"
-                ),
-            ],
-        )
-        self.assertExpectedFiltered(efilter, FakeContact, [rei.id])
-
-        # Old filter format compatibility
-        cfield_rname = custom_field.get_value_class().get_related_name()
-        efilter = EntityFilter.create(
-            'test-filter01-old', name='Eva-00', model=FakeContact,
-            conditions=[
-                EntityFilterCondition(
-                    # type=EntityFilterCondition.EFC_CUSTOMFIELD,
-                    model=FakeContact,
-                    type=20,
-                    name=str(custom_field.id),
-                    value=EntityFilterCondition.encode_value({
-                        # 'operator': EntityFilterCondition.EQUALS,
-                        'operator': operators.EQUALS,
-                        'value': eva00.id,
-                        'rname': cfield_rname,
-                    }),
-                ),
-            ],
-        )
-        self.assertExpectedFiltered(efilter, FakeContact, [rei.id])
 
     def test_customfield_enum_multiple(self):
         "ENUM."
