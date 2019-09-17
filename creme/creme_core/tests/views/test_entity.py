@@ -457,13 +457,21 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertStillExists(contact3)
 
     def test_empty_trash02(self):
-        "Dependencies problem"
+        "Dependencies problem."
         user = self.login()
 
-        create_entity = partial(CremeEntity.objects.create, user=user, is_deleted=True)
-        entity01 = create_entity()
-        entity02 = create_entity()
-        entity03 = create_entity()  # Not linked => can be deleted
+        create_contact = partial(FakeContact.objects.create,
+                                 user=user,
+                                 last_name='Doe',
+                                 is_deleted=True,
+                                )
+        entity01 = create_contact(first_name='#1')
+        entity02 = create_contact(first_name='#2')
+        entity03 = create_contact(first_name='#3')  # Not linked => can be deleted
+        entity04 = create_contact(first_name='#4', is_deleted=False)
+        entity05 = FakeOrganisation.objects.create(
+                user=user, name='Acme', is_deleted=True,
+        )  # Not linked => can be deleted
 
         rtype = RelationType.create(('test-subject_linked', 'is linked to'),
                                     ('test-object_linked',  'is linked to'),
@@ -471,10 +479,26 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                    )[0]
         Relation.objects.create(user=user, type=rtype, subject_entity=entity01, object_entity=entity02)
 
-        self.assertPOST(409, self.EMPTY_TRASH_URL)
+        response = self.assertPOST(409, self.EMPTY_TRASH_URL)
         self.assertStillExists(entity01)
         self.assertStillExists(entity02)
         self.assertDoesNotExist(entity03)
+        self.assertStillExists(entity04)
+        self.assertDoesNotExist(entity05)
+
+        content = response.content.decode()
+        self.assertIn(
+            ngettext('The following entity cannot be deleted',
+                     'The following entities cannot be deleted',
+                     2
+                    ),
+            content
+        )
+
+        msg_fmt = _('«{entity}» can not be deleted because of its dependencies.').format
+        self.assertIn(msg_fmt(entity=entity01), content)
+        self.assertIn(msg_fmt(entity=entity02), content)
+        self.assertNotIn(msg_fmt(entity=entity03), content)
 
     def test_empty_trash03(self):
         "Credentials on specific ContentType."
