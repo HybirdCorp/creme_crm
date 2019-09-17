@@ -26,6 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, FieldDoesNotExist, ProtectedError
 from django.db.transaction import atomic
+from django.db.utils import NotSupportedError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render, redirect
@@ -44,8 +45,12 @@ from ..gui import bulk_update  # NB: do no import <bulk_update_registry> to faci
 from ..gui.merge import merge_form_registry
 from ..models import CremeEntity, EntityCredentials, FieldsConfig, Sandbox
 from ..models.fields import UnsafeHTMLField
-from ..utils import (get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404,
-        bool_from_str_extended)
+from ..utils import (
+    get_ct_or_404,
+    get_from_POST_or_404, get_from_GET_or_404,
+    bool_from_str_extended,
+)
+from ..utils.collections import LimitedList
 from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.serializers import json_encode
@@ -66,18 +71,19 @@ def get_creme_entities_repr(request, entities_ids):
     e_ids = [int(e_id) for e_id in entities_ids.split(',') if e_id]
 
     entities = CremeEntity.objects.in_bulk(e_ids)
-    CremeEntity.populate_real_entities(list(entities.values()))
+    CremeEntity.populate_real_entities([*entities.values()])
 
     user = request.user
     has_perm = user.has_perm_to_view
 
-    return [{'id': e_id,
-             'text': entity.get_real_entity().get_entity_summary(user)
-                     if has_perm(entity) else
-                     gettext('Entity #{id} (not viewable)').format(id=e_id)
-            } for e_id, entity in ((e_id, entities.get(e_id)) for e_id in e_ids)
+    return [
+        {'id': e_id,
+         'text': entity.get_real_entity().get_entity_summary(user)
+                 if has_perm(entity) else
+                 gettext('Entity #{id} (not viewable)').format(id=e_id)
+        } for e_id, entity in ((e_id, entities.get(e_id)) for e_id in e_ids)
                 if entity is not None
-           ]
+    ]
 
 
 @login_required
@@ -754,55 +760,69 @@ class Trash(generic.BricksView):
     template_name = 'creme_core/trash.html'
 
 
+# TODO: use a Job
 @login_required
 @POST_only
 def empty_trash(request):
+    # NB 1: we try to delete the remaining entities (which could not be deleted
+    #       because of relationships) when there are errors, while the previous
+    #       iteration managed to remove some entities.
+    #       It will not work with cyclic references (but it is certainly very unusual).
+    # NB 2: we do not use delete() method of queryset in order to send signals.
     user = request.user
 
-    # We try to delete the remaining entities (which could not be deleted 
-    # because of relationships) when there are errors, while the previous 
-    # iteration managed to remove some entities.
-    # It will not work with cyclic references (but it is certainly very unusual).
+    ctype_ids_qs = CremeEntity.objects.filter(is_deleted=True) \
+                                      .values_list('entity_type', flat=True)
+
+    try:
+        # NB: currently only supported by PostGreSQL
+        ctype_ids = [*ctype_ids_qs.order_by('entity_type_id').distinct('entity_type_id')]
+    except NotSupportedError:
+        ctype_ids = {*ctype_ids_qs}
+
+    entity_classes = [
+        ct.model_class()
+            for ct in map(ContentType.objects.get_for_id, ctype_ids)
+    ]
+
     while True:
         progress = False
-        errors = []  # TODO: LimitedList
-        # NB: we do not use delete() method of queryset in order to send signals
-        entities = EntityCredentials.filter_entities(
-                        user,
-                        CremeEntity.objects.filter(is_deleted=True),
-                        EntityCredentials.DELETE,
-                    )
-        paginator = FlowPaginator(queryset=entities.order_by('id'),
-                                  key='id', per_page=1024,
-                                 )
+        errors = LimitedList(max_size=50)
 
-        # TODO: select_for_update() ?
-        for entities_page in paginator.pages():
-            entities = entities_page.object_list
+        for entity_class in entity_classes:
+            paginator = FlowPaginator(
+                queryset=EntityCredentials.filter(
+                    user,
+                    entity_class.objects.filter(is_deleted=True),
+                    EntityCredentials.DELETE,
+                ).order_by('id').select_for_update(),
+                key='id',
+                per_page=256,
+            )
 
-            CremeEntity.populate_real_entities(entities)
+            with atomic():
+                for entities_page in paginator.pages():
+                    for entity in entities_page.object_list:
+                        entity = entity.get_real_entity()
 
-            for entity in entities:
-                entity = entity.get_real_entity()
-
-                try:
-                    entity.delete()
-                except ProtectedError:
-                    errors.append(
-                        gettext('«{entity}» can not be deleted because of its dependencies.').format(
-                            entity=entity.allowed_str(user)
-                        )
-                    )
-                except Exception as e:
-                    logger.exception('Error when trying to empty the trash')
-                    errors.append(
-                        gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
-                            entity=entity.allowed_str(user),
-                            error=e,
-                        )
-                    )
-                else:
-                    progress = True
+                        try:
+                            entity.delete()
+                        except ProtectedError:
+                            errors.append(
+                                gettext('«{entity}» can not be deleted because of its dependencies.').format(
+                                    entity=entity.allowed_str(user)
+                                )
+                            )
+                        except Exception as e:
+                            logger.exception('Error when trying to empty the trash')
+                            errors.append(
+                                gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
+                                    entity=entity.allowed_str(user),
+                                    error=e,
+                                )
+                            )
+                        else:
+                            progress = True
 
         if not errors or not progress:
             break
@@ -813,10 +833,20 @@ def empty_trash(request):
         message = gettext('Operation successfully completed')
     else:
         status = 409
+        error_count = len(errors)
+        additional_count = error_count - errors.max_size
         message = format_html(
-            '{}<ul>{}</ul>',
-            gettext('The following entities cannot be deleted'),
+            '{}<br><ul>{}</ul><br>{}',
+            ngettext('The following entity cannot be deleted:',
+                     'The following entities cannot be deleted:',
+                     error_count,
+                    ),
             format_html_join('', '<li>{}</li>', ((msg,) for msg in errors)),
+            '' if additional_count <= 0 else
+            ngettext('(and {count} other entity)',
+                     '(and {count} other entities)',
+                     additional_count,
+                    ).format(count=additional_count),
         )
 
     return HttpResponse(message, status=status)
@@ -914,7 +944,7 @@ def delete_entities(request):
     logger.debug('delete_entities() -> ids: %s ', entity_ids)
 
     user     = request.user
-    entities = list(CremeEntity.objects.select_for_update().filter(pk__in=entity_ids))
+    entities = [*CremeEntity.objects.select_for_update().filter(pk__in=entity_ids)]
     errors   = defaultdict(list)
 
     len_diff = len(entity_ids) - len(entities)
