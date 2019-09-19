@@ -20,6 +20,7 @@
 
 from functools import partial
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext_lazy as _, gettext
@@ -244,11 +245,12 @@ class ConditionOperator:
 
             for value in values:
                 # variable = EntityFilter.get_variable(value)
-                operand = entity_filter_registry.get_operand(type_id=value, user=user)
+                operand = efilter_registry.get_operand(type_id=value, user=user)
 
                 if operand is not None:
                     operand.validate(field=field, value=value)
                 else:
+                    # TODO: validate all values at once for ManyToManyField ?
                     clean([value] if is_multiple else value)
 
         return values
@@ -562,7 +564,8 @@ class BooleanOperator(ConditionOperator):
     def validate_field_values(self, *, field, values, user=None,
                               efilter_registry=entity_filter_registry):
         if len(values) != 1 or not isinstance(values[0], bool):
-            raise ValueError(
+            # raise ValueError(
+            raise ValidationError(
                 'A list with one bool is expected for boolean operator {}'.format(self.name)
             )
 
@@ -639,7 +642,8 @@ class RangeOperator(ConditionOperator):
     def validate_field_values(self, *, field, values, user=None,
                               efilter_registry=entity_filter_registry):
         if len(values) != 2:
-            raise ValueError(
+            # raise ValueError(
+            raise ValidationError(
                 'A list with 2 elements is expected for condition {}'.format(self.name)
             )
 

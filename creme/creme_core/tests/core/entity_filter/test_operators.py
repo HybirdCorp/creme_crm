@@ -3,11 +3,12 @@
 try:
     from unittest.mock import patch
 
+    from django.core.exceptions import ValidationError
     from django.db.models.query_utils import Q
     from django.utils.translation import gettext_lazy as _
 
-    from creme.creme_core.core.entity_filter import operators
-    from creme.creme_core.models import FakeOrganisation, FakeContact
+    from creme.creme_core.core.entity_filter import operators, operands, _EntityFilterRegistry
+    from creme.creme_core.models import FakeOrganisation, FakeContact, Language
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -41,6 +42,102 @@ class OperatorTestCase(CremeTestCase):
                      field_name='last_name', values=['foo', 'bar'],
                     )
         )
+
+    def test_validate_field_values01(self):
+        "String."
+        op = operators.ConditionOperator(name='Foo', key_pattern='{}__foobar')
+        field = FakeOrganisation._meta.get_field('name')
+
+        values = ['Acme']
+        self.assertEqual(
+            values,
+            op.validate_field_values(field=field, values=[*values])
+        )
+
+    def test_validate_field_values02(self):
+        "Integer."
+        op = operators.ConditionOperator(name='Foo', key_pattern='{}__foobar')
+        field = FakeOrganisation._meta.get_field('capital')
+
+        values = ['1000', '3000']
+        self.assertEqual(
+            values,
+            op.validate_field_values(field=field, values=[*values])
+        )
+
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=['1000', 'notanint'])
+
+    def test_validate_field_values03(self):
+        "Email (sub-part validation."
+        op1 = operators.ConditionOperator(name='Foo', key_pattern='{}__foobar')
+        field = FakeOrganisation._meta.get_field('email')
+
+        values = ['toto@']
+        self.assertEqual(
+            values,
+            op1.validate_field_values(field=field, values=[*values])
+        )
+
+        op2 = operators.ConditionOperator(name='Foo', key_pattern='{}__foobar',
+                                          accept_subpart=False,
+                                         )
+        with self.assertRaises(ValidationError):
+            op2.validate_field_values(field=field, values=values)
+
+    def test_validate_field_values04(self):
+        "Operand."
+        user = self.login()
+        registry = _EntityFilterRegistry()
+
+        op = operators.ConditionOperator(name='Foo', key_pattern='{}__foobar')
+        get_field = FakeOrganisation._meta.get_field
+
+        values = [operands.CurrentUserOperand.type_id]
+        self.assertEqual(
+            values,
+            op.validate_field_values(
+                field=get_field('name'),
+                values=[*values],
+                user=user,
+                efilter_registry=registry,
+            )
+        )
+
+        user_field = get_field('user')
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(
+                field=user_field,
+                values=[*values],
+                user=user,
+                efilter_registry=registry,
+            )
+
+        registry.register_operands(operands.CurrentUserOperand)
+        self.assertEqual(
+            values,
+            op.validate_field_values(
+                field=get_field('user'),
+                values=[*values],
+                user=user,
+                efilter_registry=registry,
+            )
+        )
+
+    def test_validate_field_values05(self):
+        "ManyToManyField."
+        op = operators.ConditionOperator(name='Foo', key_pattern='{}__foobar')
+        field = FakeContact._meta.get_field('languages')
+        lang1, lang2 = Language.objects.all()[:2]
+
+        values = [str(lang1.id), str(lang2.id)]
+        self.assertEqual(
+            values,
+            op.validate_field_values(field=field, values=[*values])
+        )
+
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=[*values, 'notanint'])
 
     def test_equals(self):
         op = operators.OPERATORS[operators.EQUALS]
@@ -214,7 +311,31 @@ class OperatorTestCase(CremeTestCase):
 
         self.assertIs(op.accept(field_value=None, values=[1]), True)
 
+    def test_boolean(self):
+        op = operators.BooleanOperator(name='Is null', key_pattern='{}__isnull')
+        field = FakeContact._meta.get_field('is_a_nerd')
+
+        values1 = [True]
+        self.assertEqual(
+            values1,
+            op.validate_field_values(field=field, values=[*values1])
+        )
+
+        values2 = [False]
+        self.assertEqual(
+            values2,
+            op.validate_field_values(field=field, values=[*values2])
+        )
+
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=['notabool'])
+
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=[True, False])
+
     def test_is_empty(self):
+        self.assertIsSubclass(operators.IsEmptyOperator, operators.BooleanOperator)
+
         op = operators.IsEmptyOperator(name='Is empty')
         self.assertFalse(op.accept_subpart)
         self.assertSetEqual(
@@ -303,6 +424,25 @@ class OperatorTestCase(CremeTestCase):
             ),
             op.description(field_vname=field, values=[value1, value2])
         )
+
+    def test_range_validate_field_values(self):
+        op = operators.RangeOperator(name='Range')
+        field = FakeOrganisation._meta.get_field('capital')
+
+        values1 = [1000, 2000]
+        self.assertEqual(
+            [values1],
+            op.validate_field_values(field=field, values=[*values1])
+        )
+
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=[1000])
+
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=[1000, 2000, 3000])
+
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=[1000, 'noanint'])
 
     def test_range_get_q(self):
         op = operators.RangeOperator(name='Range')
@@ -924,5 +1064,3 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), True)
         self.assertIs(op.accept(field_value='Evil INC',  values=['inc']),  False)
         self.assertIs(op.accept(field_value='Evil INC',  values=['corp']), True)
-
-    # TODO: validate_field_values x N
