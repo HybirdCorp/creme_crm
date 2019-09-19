@@ -72,6 +72,31 @@ class ListViewTestCase(ViewsTestCase):
         FakeCivility.objects.all().delete()
         FakeCivility.objects.bulk_create(cls._civ_backup)
 
+    def _assertFastCount(self, captured_sql):
+        db_engine = settings.DATABASES['default']['ENGINE']
+        if db_engine == 'django.db.backends.mysql':
+            trash_sql = 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` WHERE `creme_core_cremeentity`.`is_deleted` = 1'
+        elif db_engine == 'django.db.backends.sqlite3':
+            trash_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" WHERE "creme_core_cremeentity"."is_deleted" = 1'
+        elif db_engine.startswith('django.db.backends.postgresql'):
+            trash_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" WHERE "creme_core_cremeentity"."is_deleted" = true'
+        else:
+            self.fail('This RDBMS is not managed by this test case.')
+
+        optimized_counts = []
+        for sql in captured_sql:
+            if sql.startswith('SELECT COUNT(*)') and sql != trash_sql:
+                if 'INNER JOIN' in sql:
+                    self.fail('slow COUNT query found: {}'.format(sql))
+
+                optimized_counts.append(sql)
+
+        if len(optimized_counts) != 1:
+            self.fail('{} fast queries found in:\n{}'.format(
+                len(optimized_counts),
+                '\n'.join(' - {}'.format(sql) for sql in optimized_counts),
+            ))
+
     def _assertNoDistinct(self, captured_sql):
         entities_q_re = re.compile(r'^SELECT (?P<distinct>DISTINCT )?(.)creme_core_cremeentity(.)\.(.)id(.)')
 
@@ -236,7 +261,10 @@ class ListViewTestCase(ViewsTestCase):
                             EntityCellCustomField(cfield),
                            )
 
-        response = self.assertPOST200(self.url, data={'hfilter': hf.id})
+        context = CaptureQueriesContext()
+
+        with context:
+            response = self.assertPOST200(self.url, data={'hfilter': hf.id})
 
         with self.assertNoException():
             ctxt = response.context
@@ -292,9 +320,10 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(str(cfield_value), content)
 
         self.assertEqual(2, orgas_page.paginator.count)
+        self._assertFastCount(context.captured_sql)
 
     def test_content02(self):
-        "FieldsConfig"
+        "FieldsConfig."
         user = self.login()
 
         valid_fname = 'name'
@@ -316,7 +345,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(bebop.url_site, content, '"url_site" not hidden')
 
     def test_content_template(self):
-        "Use reload template (content=1)"
+        "Use reload template (content=1)."
         self.login()
 
         response = self.assertPOST200(self.url)
@@ -555,7 +584,7 @@ class ListViewTestCase(ViewsTestCase):
                             )
 
     def test_ordering_regularfield_fk(self):
-        "Sort by ForeignKey"
+        "Sort by ForeignKey."
         user = self.login()
 
         create_civ = FakeCivility.objects.create
@@ -653,7 +682,7 @@ class ListViewTestCase(ViewsTestCase):
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
     def test_ordering_regularfield_fastmode(self):
-        "Ordering = '-fieldname'"
+        "Ordering = '-fieldname'."
         user = self.login()
         self.assertTrue('-start', FakeActivity._meta.ordering[0])
 
@@ -837,7 +866,7 @@ class ListViewTestCase(ViewsTestCase):
                         )
 
     def test_ordering_customfield_column(self):
-        "Custom field ordering is ignored in current implementation"
+        "Custom field ordering is ignored in current implementation."
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -916,7 +945,7 @@ class ListViewTestCase(ViewsTestCase):
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
     def test_ordering_fastmode_01(self):
-        "Fast mode=OFF"
+        "Fast mode=OFF."
         sql = self._aux_test_ordering_fastmode()
         self.assertRegex(sql,
                          r'ORDER BY '
@@ -929,7 +958,7 @@ class ListViewTestCase(ViewsTestCase):
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=2)
     def test_ordering_fastmode_02(self):
-        "Fast mode=ON"
+        "Fast mode=ON."
         sql = self._aux_test_ordering_fastmode()
         self.assertRegex(sql,
                          r'ORDER BY'
@@ -1248,29 +1277,7 @@ class ListViewTestCase(ViewsTestCase):
         # self.assertEqual(4, response.context['entities'].paginator.count)
         self.assertEqual(4, response.context['page_obj'].paginator.count)
 
-        db_engine = settings.DATABASES['default']['ENGINE']
-        if db_engine == 'django.db.backends.mysql':
-            trash_sql = 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` WHERE `creme_core_cremeentity`.`is_deleted` = 1'
-        elif db_engine == 'django.db.backends.sqlite3':
-            trash_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" WHERE "creme_core_cremeentity"."is_deleted" = 1'
-        elif db_engine.startswith('django.db.backends.postgresql'):
-            trash_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" WHERE "creme_core_cremeentity"."is_deleted" = true'
-        else:
-            self.fail('This RDBMS is not managed by this test case.')
-
-        optimized_counts = []
-        for sql in context.captured_sql:
-            if sql.startswith('SELECT COUNT(*)') and sql != trash_sql:
-                if 'INNER JOIN' in sql:
-                    self.fail('slow COUNT query found: {}'.format(sql))
-
-                optimized_counts.append(sql)
-
-        if len(optimized_counts) != 1:
-            self.fail('{} fast queries found in:\n{}'.format(
-                len(optimized_counts),
-                '\n'.join(' - {}'.format(sql) for sql in optimized_counts),
-            ))
+        self._assertFastCount(context.captured_sql)
 
     def test_search_regularfields02(self):
         user = self.login()
@@ -1307,7 +1314,7 @@ class ListViewTestCase(ViewsTestCase):
         # self._assertNoDistinct(context.captured_sql)
 
     def test_search_regularfields03(self):
-        "ForeignKey (NULL or not)"
+        "ForeignKey (NULL or not)."
         user = self.login()
 
         create_sector = FakeSector.objects.create
@@ -1353,7 +1360,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(seele,    orgas_set)
 
     def test_search_regularfields04(self):
-        "BooleanField (NULL or not)"
+        "BooleanField (NULL or not)."
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1664,7 +1671,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(ed.last_name,       content)
 
     def test_search_fk02(self):
-        "Search on a subfield which is a FK too"
+        "Search on a subfield which is a FK too."
         user = self.login()
 
         create_cat = FakeFolderCategory.objects.create
@@ -1715,7 +1722,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(doc4.title, content)
 
     def test_search_fk03(self):
-        "Search on a subfield which is a FK on CremeEntity"
+        "Search on a subfield which is a FK on CremeEntity."
         user = self.login()
 
         create_folder = partial(FakeFolder.objects.create, user=user)
@@ -1813,7 +1820,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2 !!
 
     def test_search_m2mfields02(self):
-        "M2M to basic model"
+        "M2M to basic model."
         user = self.login()
         hf = HeaderFilter.create(pk='test-hf_img', name='Image view', model=FakeImage)
         build_cell = partial(EntityCellRegularField.build, model=FakeImage)
@@ -1866,7 +1873,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(img3.name,    content)
 
     def test_search_m2mfields03(self):
-        "M2M to basic model + sub-field"
+        "M2M to basic model + sub-field."
         user = self.login()
         hf = HeaderFilter.create(pk='test-hf_img', name='Image view', model=FakeImage)
         build_cell = partial(EntityCellRegularField.build, model=FakeImage)
@@ -2819,7 +2826,7 @@ class ListViewTestCase(ViewsTestCase):
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[10, 25], DEFAULT_PAGE_SIZE_IDX=0)
     def test_pagination_fast01(self):
-        "Paginator with 'keyset' (big number of lines)"
+        "Paginator with 'keyset' (big number of lines)."
         self.login()
         organisations = self._build_orgas()
         hf = self._build_hf()
@@ -2869,7 +2876,7 @@ class ListViewTestCase(ViewsTestCase):
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[10, 50], DEFAULT_PAGE_SIZE_IDX=0)
     def test_pagination_fast02(self):
-        "ContentType = Contact"
+        "ContentType = Contact."
         user = self.login()
         rows = 10
         expected_count = rows + 3
@@ -2933,7 +2940,7 @@ class ListViewTestCase(ViewsTestCase):
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[10, 25], DEFAULT_PAGE_SIZE_IDX=1)
     def test_pagination_fast03(self):
-        "Set an ORDER"
+        "Set an ORDER."
         user = self.login()
         rows = 10
         expected_count = rows + 3
@@ -2994,7 +3001,7 @@ class ListViewTestCase(ViewsTestCase):
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_pagination_fast04(self):
-        "Field key duplicates => use OFFSET too"
+        "Field key duplicates => use OFFSET too."
         user = self.login()
         rows = 10
         expected_count = rows + 3
@@ -3043,7 +3050,7 @@ class ListViewTestCase(ViewsTestCase):
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[5, 10])
     def test_pagination_fast05(self):
-        "Errors => page 1"
+        "Errors => page 1."
         user = self.login()
         rows = 5
         expected_count = rows + 3
@@ -3093,7 +3100,7 @@ class ListViewTestCase(ViewsTestCase):
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[5, 10])
     def test_pagination_fast06(self):
-        "LastPage => last page"
+        "LastPage => last page."
         user = self.login()
         rows = 5
         expected_count = 2 * rows + 3
@@ -3137,7 +3144,7 @@ class ListViewTestCase(ViewsTestCase):
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[10])
     def test_pagination_fast07(self):
-        "Page is saved"
+        "Page is saved."
         self.login()
         organisations = self._build_orgas()
         hf = self._build_hf()
@@ -3165,7 +3172,7 @@ class ListViewTestCase(ViewsTestCase):
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=14, PAGE_SIZES=[10])
     def test_pagination_fast08(self):
-        "Change paginator class slow => fast (so saved page info are not compatible)"
+        "Change paginator class slow => fast (so saved page info are not compatible)."
         user =  self.login()
         self._build_orgas()
         hf = self._build_hf()
