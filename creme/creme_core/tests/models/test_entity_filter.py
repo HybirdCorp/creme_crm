@@ -4001,6 +4001,57 @@ class EntityFiltersTestCase(CremeTestCase):
             [*efilter.get_verbose_conditions(self.user)]
         )
 
+    def test_applicable_on_entity_base(self):
+        efilter1 = EntityFilter.create(
+            pk='test-ef_orga1', name='My name filter',
+            model=FakeOrganisation, is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.STARTSWITH,
+                    field_name='name', values=['House'],
+                ),
+            ],
+        )
+        self.assertIs(efilter1.applicable_on_entity_base, False)
+
+        efilter2 = EntityFilter.create(
+            pk='test-ef_orga2', name='My description filter',
+            model=FakeOrganisation, is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.ICONTAINS,
+                    field_name='description', values=['House'],
+                ),
+            ],
+        )
+        self.assertIs(efilter2.applicable_on_entity_base, True)
+
+        efilter3 = EntityFilter.create(
+            pk='test-ef_orga3', name='My empty filter',
+            model=FakeOrganisation, is_custom=True,
+        )
+        self.assertIs(efilter3.applicable_on_entity_base, True)
+
+        efilter4 = EntityFilter.create(
+            pk='test-ef_orga4', name='My complex filter',
+            model=FakeOrganisation, is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.ICONTAINS,
+                    field_name='description', values=['House'],
+                ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator_id=operators.STARTSWITH,
+                    field_name='name', values=['House'],
+                ),
+            ],
+        )
+        self.assertIs(efilter4.applicable_on_entity_base, False)
+
     def test_filterlist01(self):
         user = self.user
         create_ef = partial(

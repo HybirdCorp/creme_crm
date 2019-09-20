@@ -36,6 +36,7 @@ try:
     )
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.utils.date_range import date_range_registry
+    from creme.creme_core.utils.meta import FieldInfo
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -61,12 +62,18 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual([value],     handler._values)
 
         self.assertIsNone(handler.error)
+        self.assertIs(handler.applicable_on_entity_base, False)
 
         self.assertQEqual(
             Q(name__icontains=value),
             handler.get_q(user=None)
         )
         # TODO: test other operators
+
+        finfo = handler.field_info
+        self.assertIsInstance(finfo, FieldInfo)
+        self.assertEqual(1, len(finfo))
+        self.assertEqual(fname, finfo[0].name)
 
     def test_regularfield_error(self):
         "<error> property."
@@ -91,6 +98,16 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                          handler2.error
                         )
 
+    def test_regularfield_applicable_on_entity_base(self):
+        "Field belongs to CremeEntity."
+        handler = RegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='description',
+            operator_id=operators.ICONTAINS,
+            values=['#important'],
+        )
+        self.assertIs(handler.applicable_on_entity_base, True)
+
     def test_regularfield_build01(self):
         fname = 'name'
         operator_id = operators.ICONTAINS
@@ -98,7 +115,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         handler = RegularFieldConditionHandler.build(
             model=FakeOrganisation,
             name=fname,
-            data={'operator': operator_id, 'values': [value]}
+            data={'operator': operator_id, 'values': [value]},
         )
         self.assertEqual(FakeOrganisation, handler.model)
         self.assertIsNone(handler.subfilter_id)
@@ -890,6 +907,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsNone(handler._end)
 
         self.assertIsNone(handler.error)
+        self.assertIs(handler.applicable_on_entity_base, True)
 
         self.assertQEqual(
             Q(**date_range_registry.get_range(name=range_name)
@@ -917,6 +935,14 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual("'sector' is not a date field",
                          handler2.error
                         )
+
+    def test_dateregularfield_applicable_on_entity_base(self):
+        handler = DateRegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='creation_date',
+            date_range='current_quarter',
+        )
+        self.assertIs(handler.applicable_on_entity_base, False)
 
     def test_dateregularfield_build01(self):
         fname = 'modified'
@@ -1185,6 +1211,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(rname,           handler._related_name)
 
         self.assertIsNone(handler.error)
+        self.assertIs(handler.applicable_on_entity_base, True)
 
         self.assertQEqual(
             Q(pk__in=FakeOrganisation.objects.none()),
@@ -1947,6 +1974,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsNone(handler._end)
 
         self.assertIsNone(handler.error)
+        self.assertIs(handler.applicable_on_entity_base, True)
 
         self.assertQEqual(
             Q(pk__in=FakeOrganisation.objects.none()),
@@ -2244,6 +2272,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsNone(handler1._entity_id)
 
         self.assertIsNone(handler1.error)
+        self.assertIs(handler1.applicable_on_entity_base, True)
 
         self.assertQEqual(
             Q(pk__in=Relation.objects.none()),
@@ -2841,6 +2870,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             __ = handler.subfilter
 
         self.assertIsNone(handler.error)
+        self.assertIs(handler.applicable_on_entity_base, False)
 
         self.assertQEqual(Q(name__exact='Bebop'),
                           handler.get_q(user=None)
@@ -2891,6 +2921,20 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             subfilter='invalid',
         )
         self.assertEqual("'invalid' is not a valid filter ID", handler.error)
+
+    def test_subfilter_applicable_on_entity_base(self):
+        sub_efilter = EntityFilter.create(
+            pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='description',
+                    operator_id=operators.ICONTAINS, values=['Alchemist'],
+                ),
+            ],
+        )
+
+        handler = SubFilterConditionHandler(subfilter=sub_efilter)
+        self.assertIs(handler.applicable_on_entity_base, True)
 
     def test_subfilter_accept(self):
         user = self.login()
@@ -3008,6 +3052,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             __ = handler.subfilter
 
         self.assertIsNone(handler.error)
+        self.assertIs(handler.applicable_on_entity_base, True)
 
         self.assertQEqual(
             Q(pk__in=Relation.objects.none()),

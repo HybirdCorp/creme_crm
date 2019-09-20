@@ -150,6 +150,14 @@ class EntityFilter(models.Model):  # CremeModel ???
 
         return any(accepted) if self.use_or else all(accepted)
 
+    @property
+    def applicable_on_entity_base(self):
+        """Can this filter be applied on CremeEntity (QuerySet or simple instance)?
+        Eg: if a condition reads a model-field specific to a child class, the
+            filter won't be applicable to CremeEntity.
+        """
+        return all(c.handler.applicable_on_entity_base for c in self.get_conditions())
+
     def can_delete(self, user):
         if not self.is_custom:
             return False, gettext("This filter can't be edited/deleted")

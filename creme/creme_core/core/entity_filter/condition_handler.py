@@ -91,6 +91,14 @@ class FilterConditionHandler:
         """
         raise NotImplementedError
 
+    @property
+    def applicable_on_entity_base(self):
+        """Can this handler be applied on CremeEntity (QuerySet or simple instance)?
+        Eg: if the handler reads a model-field specific to a child class, it
+            won't be applicable to CremeEntity.
+        """
+        return False
+
     @classmethod
     def build(cls, *, model, name, data):
         "Get an instance of FilterConditionHandler from serialized data."
@@ -191,6 +199,10 @@ class SubFilterConditionHandler(FilterConditionHandler):
     def accept(self, *, entity, user):
         return self.subfilter.accept(entity=entity, user=user)
 
+    @property
+    def applicable_on_entity_base(self):
+        return self.subfilter.applicable_on_entity_base
+
     @classmethod
     def build(cls, *, model, name, data):
         return cls(model=model, subfilter=name)
@@ -269,8 +281,22 @@ class OperatorConditionHandlerMixin:
         return resolved_values
 
 
+class BaseRegularFieldConditionHandler(FilterConditionHandler):
+    def __init__(self, *, model, field_name):
+        super().__init__(model=model)
+        self._field_name = field_name
+
+    @property
+    def applicable_on_entity_base(self):
+        return self.field_info[0] in CremeEntity._meta.fields
+
+    @property
+    def field_info(self):
+        return FieldInfo(self._model, self._field_name)  # TODO: cache ?
+
+
 class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
-                                   FilterConditionHandler):
+                                   BaseRegularFieldConditionHandler):
     """Filter entities by using one of their fields.
     Note: no date field ; see <DateRegularFieldConditionHandler>.
     """
@@ -278,8 +304,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
     operators = operators.OPERATORS
 
     def __init__(self, *, model, field_name, operator_id, values):
-        super().__init__(model=model)
-        self._field_name = field_name
+        super().__init__(model=model, field_name=field_name)
         self._operator_id = operator_id
         self._values = values
         self._verbose_values = None  # Cache for values in description()
@@ -288,7 +313,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         operator = operators.OPERATORS[self._operator_id]
         values = self.resolve_operands(values=self._values, user=user)
 
-        field_info = FieldInfo(self._model, self._field_name)
+        field_info = self.field_info
         last_field = field_info[-1]
 
         if isinstance(last_field, ForeignKey):
@@ -392,7 +417,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         )
 
     def description(self, user):
-        finfo = FieldInfo(self._model, self._field_name)
+        finfo = self.field_info
         values = self._verbose_values
 
         if values is None:
@@ -441,14 +466,12 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         )
 
     def entities_are_distinct(self):
-        field_info = FieldInfo(self._model, self._field_name)
-
-        return not isinstance(field_info[0], ManyToManyField)
+        return not isinstance(self.field_info[0], ManyToManyField)
 
     @property
     def error(self):
         try:
-            FieldInfo(self._model, self._field_name)
+            __ = self.field_info
         except FieldDoesNotExist as e:
             return str(e)
 
@@ -457,7 +480,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
     def get_q(self, user):
         operator = operators.OPERATORS[self._operator_id]
         values = self.resolve_operands(values=self._values, user=user)
-        field_info = FieldInfo(self._model, self._field_name)
+        field_info = self.field_info
 
         # HACK: old format compatibility for boolean fields.
         last_field = field_info[-1]
@@ -583,13 +606,13 @@ class DateFieldHandlerMixin:
         return kwargs
 
 
-class DateRegularFieldConditionHandler(DateFieldHandlerMixin, FilterConditionHandler):
+class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
+                                       BaseRegularFieldConditionHandler):
     """Filter entities by using one of their date fields."""
     type_id = 6
 
     def __init__(self, *, model, field_name, **kwargs):
-        FilterConditionHandler.__init__(self, model=model)
-        self._field_name = field_name
+        BaseRegularFieldConditionHandler.__init__(self, model=model, field_name=field_name)
         DateFieldHandlerMixin.__init__(self, **kwargs)
 
     # def accept(self, *, entity, user):  TODO ? (not needed currently for credentials filters)
@@ -645,9 +668,7 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin, FilterConditionHan
             return "'{}' is not a date field".format(field_name)
 
     def description(self, user):
-        finfo = FieldInfo(self._model, self._field_name)
-
-        return self._datefield_description(verbose_field=finfo.verbose_name)
+        return self._datefield_description(verbose_field=self.field_info.verbose_name)
 
     @property
     def error(self):
@@ -686,6 +707,10 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
             self._custom_field_id = custom_field
             self._custom_field = None
             self._related_name = related_name
+
+    @property
+    def applicable_on_entity_base(self):
+        return True
 
     @property
     def custom_field(self):
@@ -1040,6 +1065,10 @@ class BaseRelationConditionHandler(FilterConditionHandler):
         else:
             self._rtype_id = rtype
             self._rtype = None
+
+    @property
+    def applicable_on_entity_base(self):
+        return True
 
     @classmethod
     def query_for_related_conditions(cls, instance):
