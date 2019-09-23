@@ -89,16 +89,29 @@ class EntityFilter(models.Model):  # CremeModel ???
      - The existence (or the not existence) of a kind of Relationship.
      - The holding (or the not holding) of a kind of CremeProperty
     """
-    id          = models.CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
-    name        = models.CharField(max_length=100, verbose_name=_('Name'))
-    user        = CremeUserForeignKey(verbose_name=_('Owner user'), blank=True, null=True).set_tags(viewable=False)
+    id   = models.CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
+    name = models.CharField(max_length=100, verbose_name=_('Name'))
+
+    is_custom = models.BooleanField(editable=False, default=True).set_tags(viewable=False)
+    user = CremeUserForeignKey(
+        verbose_name=_('Owner user'), blank=True, null=True,
+        help_text=_('All users can see this filter, but only the owner can edit or delete it'),
+    ).set_tags(viewable=False)
+    is_private = models.BooleanField(
+        pgettext_lazy('creme_core-entity_filter', 'Is private?'),
+        default=False,
+        help_text=_('A private filter can only be used by its owner (or the teammates if the owner is a team)'),
+    )
+
     entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
-    is_custom   = models.BooleanField(editable=False, default=True).set_tags(viewable=False)
-
-    # 'True' means: can only be viewed (and so edited/deleted) by its owner.
-    is_private = models.BooleanField(pgettext_lazy('creme_core-entity_filter', 'Is private?'), default=False)
-
-    use_or = models.BooleanField(verbose_name=_('Use "OR"'), default=False).set_tags(viewable=False)
+    use_or = models.BooleanField(
+        verbose_name=_('The entity is accepted if'),
+        choices=[
+            (False, _('All the conditions are met')),
+            (True,  _('Any condition is met')),
+        ],
+        default=False,
+    ).set_tags(viewable=False)
 
     creation_label = _('Create a filter')
     save_label     = _('Save the filter')
