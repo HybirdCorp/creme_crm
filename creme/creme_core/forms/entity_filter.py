@@ -1336,15 +1336,6 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
 # Forms-------------------------------------------------------------------------
 
 class _EntityFilterForm(CremeModelForm):
-    # Notice that we do not use 0/1 because it is linked to a boolean field,
-    # so the value given to the widget for the selected choice is 'True' or 'False'...
-    use_or = ChoiceField(label=_('The entity is accepted if'),
-                         choices=(('False', _('all the conditions are met')),
-                                  ('True',  _('any condition is met')),
-                                 ),
-                         widget=CremeRadioSelect,
-                        )
-
     fields_conditions           = RegularFieldsConditionsField(label=_('On regular fields'), required=False,
                                                                help_text=_('You can write several values, separated by commas.')
                                                               )
@@ -1359,7 +1350,8 @@ class _EntityFilterForm(CremeModelForm):
     subfilters_conditions       = SubfiltersConditionsField(label=_('Sub-filters'), required=False)
 
     error_messages = {
-        'no_condition': _('The filter must have at least one condition.'),
+        'no_condition':    _('The filter must have at least one condition.'),
+        'foreign_private': _('A private filter must belong to you (or one of your teams).')
     }
 
     _CONDITIONS_FIELD_NAMES = ('fields_conditions', 'datefields_conditions',
@@ -1372,11 +1364,8 @@ class _EntityFilterForm(CremeModelForm):
 
     class Meta(CremeModelForm.Meta):
         model = EntityFilter
-        help_texts = {
-            'user': _('All users can see this filter, but only the owner can edit or delete it'),
-            'is_private': _('A private filter can only be used by its owner '
-                            '(or the teammates if the owner is a team)'
-                           ),
+        widgets = {
+            'use_or': CremeRadioSelect,
         }
 
     def __init__(self, *args, **kwargs):
@@ -1408,9 +1397,9 @@ class _EntityFilterForm(CremeModelForm):
             if not req_user.is_staff and is_private and owner:
                 if owner.is_team:
                     if req_user.id not in owner.teammates:
-                        self.add_error('user', _('A private filter must belong to you (or one of your teams).'))
+                        self.add_error('user', self.error_messages['foreign_private'])
                 elif owner != req_user:
-                    self.add_error('user', _('A private filter must belong to you (or one of your teams).'))
+                    self.add_error('user', self.error_messages['foreign_private'])
 
             try:
                 self.instance.check_privacy(self.get_cleaned_conditions(), is_private, owner)
@@ -1429,24 +1418,24 @@ class EntityFilterCreateForm(_EntityFilterForm):
         for field_name in self._CONDITIONS_FIELD_NAMES:
             fields[field_name].initialize(ctype)
 
-        fields['use_or'].initial = 'False'
-
     def save(self, *args, **kwargs):
         instance = self.instance
         ct = self._entity_type
 
-        instance.is_custom = True
+        # instance.is_custom = True
 
         super().save(commit=False, *args, **kwargs)
-        generate_string_id_and_save(EntityFilter, [instance],
-                                    'creme_core-userfilter_{}-{}'.format(ct.app_label, ct.model),
-                                   )
+        generate_string_id_and_save(
+            EntityFilter, [instance],
+            'creme_core-userfilter_{}-{}'.format(ct.app_label, ct.model),
+       )
 
-        instance.set_conditions(self.get_cleaned_conditions(),
-                                # There cannot be a cycle because we are creating the filter right now
-                                check_cycles=False,
-                                check_privacy=False,  # Already checked in clean()
-                               )
+        instance.set_conditions(
+            self.get_cleaned_conditions(),
+            # There cannot be a cycle because we are creating the filter right now
+            check_cycles=False,
+            check_privacy=False,  # Already checked in clean()
+        )
 
         return instance
 
