@@ -20,51 +20,73 @@
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.forms.fields import MultipleChoiceField, CharField
+from django.forms import fields
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeForm, CremeModelForm
+from creme.creme_core.forms import CremeModelForm  # CremeForm
 from creme.creme_core.forms.fields import CTypeChoiceField
 from creme.creme_core.forms.widgets import DynamicSelect, Label
 from creme.creme_core.models import FieldsConfig
 
 
-class FieldsConfigAddForm(CremeForm):
-    ctype = CTypeChoiceField(label=_('Related resource'),
-                             help_text=_('The proposed types of resource have '
-                                         'at least a field which can be hidden.'
-                                        ),
-                             widget=DynamicSelect(attrs={'autocomplete': True}),
-                            )
+# class FieldsConfigAddForm(CremeForm):
+class FieldsConfigAddForm(CremeModelForm):
+    ctype = CTypeChoiceField(
+        label=_('Related resource'),
+        help_text=_('The proposed types of resource have at least a field which can be hidden.'),
+        widget=DynamicSelect(attrs={'autocomplete': True}),
+    )
+
+    class Meta(CremeModelForm.Meta):
+        model = FieldsConfig
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        used_ct_ids = set(FieldsConfig.objects.values_list('content_type', flat=True))
-        self.ctypes = ctypes = [ct for ct in map(ContentType.objects.get_for_model,
-                                                 filter(FieldsConfig.is_model_valid, apps.get_models())
-                                                )
-                                        if ct.id not in used_ct_ids
-                               ]
+        used_ct_ids = {*FieldsConfig.objects.values_list('content_type', flat=True)}
+        self.ctypes = ctypes = [
+            ct
+                for ct in map(ContentType.objects.get_for_model,
+                              filter(FieldsConfig.is_model_valid, apps.get_models()),
+                             )
+                    if ct.id not in used_ct_ids
+        ]
 
         if ctypes:
             self.fields['ctype'].ctypes = ctypes
         else:
             # TODO: remove the 'submit' button ?
-            self.fields['ctype'] = CharField(
-                    label=_('Related resource'),
-                    required=False, widget=Label,
-                    initial=_('All configurable types of resource are already configured.'),
-                )
+            self.fields['ctype'] = fields.CharField(
+                label=_('Related resource'),
+                required=False, widget=Label,
+                initial=_('All configurable types of resource are already configured.'),
+            )
 
-    def save(self):
-        if self.ctypes:
-            return FieldsConfig.objects.create(content_type=self.cleaned_data['ctype'],
-                                               descriptions=(),
-                                              )
+    def clean(self, *args, **kwargs):
+        cdata = super().clean(*args, **kwargs)
+
+        if not self._errors:
+            instance = self.instance
+            instance.content_type = self.cleaned_data['ctype']
+            instance.descriptions = ()
+
+        return cdata
+
+    # def save(self):
+    #     if self.ctypes:
+    #         return FieldsConfig.objects.create(content_type=self.cleaned_data['ctype'],
+    #                                            descriptions=(),
+    #                                           )
+    def save(self, *args, **kwargs):
+        if self.ctypes:  # NB: remove if we raise a ValidationError in clean()
+            super().save(*args, **kwargs)
+
+        return self.instance
 
 
 class FieldsConfigEditForm(CremeModelForm):
-    hidden = MultipleChoiceField(label=_('Hidden fields'), choices=(), required=False)
+    hidden = fields.MultipleChoiceField(
+        label=_('Hidden fields'), choices=(), required=False,
+    )
 
     class Meta(CremeModelForm.Meta):
         model = FieldsConfig
@@ -78,10 +100,22 @@ class FieldsConfigEditForm(CremeModelForm):
         if instance.pk:
             hidden_f.initial = [f.name for f in instance.hidden_fields]
 
-    def save(self, *args, **kwargs):
-        # TODO: in clean for ValidationErrors ??
-        HIDDEN = FieldsConfig.HIDDEN
-        self.instance.descriptions = [(field_name, {HIDDEN: True})
-                                        for field_name in self.cleaned_data['hidden']
-                                     ]
-        return super().save(*args, **kwargs)
+    def clean(self, *args, **kwargs):
+        cdata = super().clean(*args, **kwargs)
+
+        if not self._errors:
+            HIDDEN = FieldsConfig.HIDDEN
+            self.instance.descriptions = [
+                (field_name, {HIDDEN: True})
+                    for field_name in self.cleaned_data['hidden']
+            ]
+
+        return cdata
+
+    # def save(self, *args, **kwargs):
+    #     HIDDEN = FieldsConfig.HIDDEN
+    #     self.instance.descriptions = [
+    #         (field_name, {HIDDEN: True})
+    #             for field_name in self.cleaned_data['hidden']
+    #     ]
+    #     return super().save(*args, **kwargs)

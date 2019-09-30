@@ -1415,7 +1415,6 @@ class BricksConfigTestCase(CremeTestCase):
 
         url = reverse('creme_config__create_rtype_brick')
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New type of block'), context.get('title'))
         self.assertEqual(_('Create a type of block'), context.get('title'))
         self.assertEqual(_('Save the block'),         context.get('submit_label'))
 
@@ -1442,10 +1441,12 @@ class BricksConfigTestCase(CremeTestCase):
         )
 
         url = self._build_rbrick_addctypes_wizard_url(rb_item)
+
+        # Step 1 ---
         response = self.assertGET200(url)
         context = response.context
         self.assertEqual(
-            _('New customised type for «{predicate}»').format(predicate=rt.predicate),
+            _('New customised type for «{object}»').format(object=rt.predicate),
             context.get('title')
         )
 
@@ -1461,9 +1462,10 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertIn(ct_activity,          choices)
         self.assertNotIn(ct_image,          choices)
 
+        step_key = 'relation_c_type_brick_wizard-current_step'
         response = self.assertPOST200(
             url,
-            data={'relation_c_type_brick_wizard-current_step': '0',
+            data={step_key: '0',
                   '0-ctype': ct_contact.pk,
                  },
         )
@@ -1473,7 +1475,8 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertIsNone(rb_item.get_cells(ct_contact))
         context = response.context
         self.assertEqual(
-            _('New customised type for «{predicate}»').format(predicate=rt.predicate),
+            # _('New customised type for «{predicate}»').format(predicate=rt.predicate),
+            _('New customised type for «{object}»').format(object=rt.predicate),
             context.get('title')
         )
 
@@ -1487,8 +1490,10 @@ class BricksConfigTestCase(CremeTestCase):
         field_lname = 'last_name'
         response = self.client.post(
             url,
-            data={'relation_c_type_brick_wizard-current_step': '1',
-                  '1-cells': 'regular_field-{rfield1},regular_field-{rfield2},function_field-{ffield}'.format(
+            data={step_key: '1',
+                  '1-cells': 'regular_field-{rfield1},'
+                             'regular_field-{rfield2},'
+                             'function_field-{ffield}'.format(
                                      rfield1=field_fname,
                                      rfield2=field_lname,
                                      ffield=funcfield.name,

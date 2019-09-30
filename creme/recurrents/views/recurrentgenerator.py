@@ -34,7 +34,6 @@ from .. import get_rgenerator_model
 from ..constants import DEFAULT_HFILTER_RGENERATOR
 from ..forms import recurrentgenerator as generator_forms
 
-
 RecurrentGenerator = get_rgenerator_model()
 
 

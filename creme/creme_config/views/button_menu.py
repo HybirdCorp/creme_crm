@@ -44,6 +44,9 @@ class ButtonMenuWizard(generic.wizard.CremeWizardViewPopup):
     class _ResourceStep(button_forms.ButtonMenuAddForm):
         step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
 
+        def save(self, commit=False):
+            return super().save(commit=commit)
+
     # class _ConfigStep(button_forms.ButtonMenuEditForm):
     #     step_prev_label = _('Previous step')
     #     step_submit_label = _('Save the configuration')

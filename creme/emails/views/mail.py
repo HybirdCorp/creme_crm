@@ -274,9 +274,9 @@ class EntityEmailWizard(EntityRelatedMixin, generic.EntityCreationWizardPopup):
             initial['body'] = Template(email_template.body).render(Context(ctx))
             initial['body_html'] = Template(email_template.body_html).render(Context(ctx))
             initial['signature'] = email_template.signature_id
-            initial['attachments'] = list(email_template.attachments
-                                                        .values_list('id', flat=True)
-                                         )  # TODO: test
+            initial['attachments'] = [
+                *email_template.attachments.values_list('id', flat=True)
+            ]  # TODO: test
 
         return initial
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-28 11:20+0200\n"
+"POT-Creation-Date: 2019-09-30 11:23+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -69,7 +69,7 @@ msgstr "Configuration des types de relation personnalisés"
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: bricks.py:386 bricks.py:616 forms/bricks.py:224 forms/bricks.py:300
+#: bricks.py:386 bricks.py:616 forms/bricks.py:223 forms/bricks.py:299
 #: forms/search.py:68 forms/user.py:77 forms/user.py:118
 #: templates/creme_config/bricks/bricklocations-home.html:42
 #: templates/creme_config/bricks/search-config.html:31
@@ -77,42 +77,42 @@ msgstr "Liste des types de relation semi-fixés"
 msgid "Superuser"
 msgstr "Super-utilisateur"
 
-#: forms/bricks.py:109
+#: forms/bricks.py:108
 msgid "Header block"
 msgstr "Bloc entête"
 
-#: forms/bricks.py:110
+#: forms/bricks.py:109
 msgid "Blocks to display on top"
 msgstr "Blocs à afficher en haut"
 
-#: forms/bricks.py:111
+#: forms/bricks.py:110
 msgid "Blocks to display on left side"
 msgstr "Blocs à afficher à gauche"
 
-#: forms/bricks.py:112
+#: forms/bricks.py:111
 msgid "Blocks to display on right side"
 msgstr "Blocs à afficher à droite"
 
-#: forms/bricks.py:113
+#: forms/bricks.py:112
 msgid "Blocks to display on bottom"
 msgstr "Blocs à afficher en bas"
 
-#: forms/bricks.py:116
+#: forms/bricks.py:115
 #, python-format
 msgid "The following block should be displayed only once: «%(block)s»"
 msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: «%(block)s»"
 
-#: forms/bricks.py:117
+#: forms/bricks.py:116
 msgid "Your configuration is empty !"
 msgstr "Votre configuration est vide !"
 
-#: forms/bricks.py:203 forms/bricks.py:280 forms/search.py:45 forms/user.py:65
+#: forms/bricks.py:202 forms/bricks.py:279 forms/search.py:45 forms/user.py:65
 #: forms/user.py:108 templates/creme_config/bricks/bricklocations-home.html:17
 #: templates/creme_config/bricks/users.html:25
 msgid "Role"
 msgstr "Rôle"
 
-#: forms/bricks.py:208 templates/creme_config/bricks_portal.html:8
+#: forms/bricks.py:207 templates/creme_config/bricks_portal.html:8
 #: templates/creme_config/button_menu_portal.html:8
 #: templates/creme_config/custom_fields_portal.html:8
 #: templates/creme_config/fields_config_portal.html:8
@@ -131,36 +131,36 @@ msgstr "Rôle"
 msgid "Configuration"
 msgstr "Configuration"
 
-#: forms/bricks.py:284 forms/bricks.py:316
+#: forms/bricks.py:283 forms/bricks.py:315
 msgid "Blocks to display on the home"
 msgstr "Blocs à afficher sur l'accueil"
 
-#: forms/bricks.py:337
+#: forms/bricks.py:336
 msgid "Blocks to display on the «My Page» of the users"
 msgstr "Blocs à afficher sur le «Ma page» des utilisateurs"
 
-#: forms/bricks.py:379
+#: forms/bricks.py:378
 msgid "Customised resource"
 msgstr "Ressource personnalisée"
 
-#: forms/bricks.py:406
+#: forms/bricks.py:407
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/bricks.py:413
+#: forms/bricks.py:414
 msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
-#: forms/bricks.py:455 forms/button_menu.py:39 forms/custom_fields.py:79
-#: forms/fields_config.py:33 forms/fields_config.py:54
+#: forms/bricks.py:479 forms/button_menu.py:38 forms/custom_fields.py:79
+#: forms/fields_config.py:35 forms/fields_config.py:59
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: forms/bricks.py:486
+#: forms/bricks.py:519
 msgid "Lines"
 msgstr "Lignes"
 
-#: forms/button_menu.py:62
+#: forms/button_menu.py:65
 msgid "Buttons to display"
 msgstr "Boutons à afficher"
 
@@ -245,46 +245,46 @@ msgstr "Nouveaux choix de la liste"
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
-#: forms/fields_config.py:34
+#: forms/fields_config.py:36
 msgid ""
 "The proposed types of resource have at least a field which can be hidden."
 msgstr ""
 "Les types de ressource proposés ont au moins un champ qui peut être caché."
 
-#: forms/fields_config.py:56 views/fields_config.py:74
+#: forms/fields_config.py:61 views/fields_config.py:81
 msgid "All configurable types of resource are already configured."
 msgstr "Tous les types de ressource configurables sont déjà configurés."
 
-#: forms/fields_config.py:67
+#: forms/fields_config.py:88
 #: templates/creme_config/bricks/fields-configs.html:18
 msgid "Hidden fields"
 msgstr "Champs cachés"
 
-#: forms/generics.py:108
+#: forms/generics.py:119
 #, python-brace-format
 msgid "OK: no instance of «{model}»."
 msgstr "Ok : aucune instance de «{model}»"
 
-#: forms/generics.py:110
+#: forms/generics.py:121
 #, python-brace-format
 msgid "BEWARE: {count} instance of «{model}»."
 msgid_plural "BEWARE: {count} instances of «{model}»."
 msgstr[0] "ATTENTION : {count} instance de «{model}»."
 msgstr[1] "ATTENTION : {count} instances de «{model}»."
 
-#: forms/generics.py:160
+#: forms/generics.py:173
 #, python-brace-format
 msgid "OK: no instance of «{model}» have to be deleted."
 msgstr "OK : aucune instance de «{model}» n'a à être supprimé."
 
-#: forms/generics.py:162
+#: forms/generics.py:175
 #, python-brace-format
 msgid "BEWARE: {count} instance of «{model}» will be deleted."
 msgid_plural "BEWARE: {count} instances of «{model}» will be deleted."
 msgstr[0] "ATTENTION : {count} instance de «{model}» va être supprimé."
 msgstr[1] "ATTENTION : {count} instances de «{model}» vont être supprimées."
 
-#: forms/generics.py:174
+#: forms/generics.py:187
 #, python-brace-format
 msgid ""
 "OK: there is no related instance of «{model}», the deletion can be done."
@@ -292,7 +292,7 @@ msgstr ""
 "OK : il n'y aucune instance de «{model}» liée, la suppression peut avoir "
 "lieu."
 
-#: forms/generics.py:178
+#: forms/generics.py:191
 #, python-brace-format
 msgid ""
 "ERROR: {count} instance of «{model}» uses «{instance}» so the deletion is "
@@ -307,12 +307,12 @@ msgstr[1] ""
 "ERREUR : {count} instances de «{model}» utilisent «{instance}» donc la "
 "suppression est impossible."
 
-#: forms/generics.py:196 forms/generics.py:209 forms/generics.py:258
+#: forms/generics.py:209 forms/generics.py:222 forms/generics.py:271
 #, python-brace-format
 msgid "OK: no instance of «{model}» have to be updated."
 msgstr "OK : aucune instance de «{model}» ne doit être mise à jour."
 
-#: forms/generics.py:198
+#: forms/generics.py:211
 #, python-brace-format
 msgid ""
 "BEWARE: {count} instance of «{model}» uses «{instance}» & will be updated "
@@ -327,7 +327,7 @@ msgstr[1] ""
 "ATTENTION : {count} instances de «{model}» utilisent «{instance}» & vont "
 "être mises à jour (le champ va être vidé)."
 
-#: forms/generics.py:211
+#: forms/generics.py:224
 #, python-brace-format
 msgid ""
 "BEWARE: {count} instance of «{model}» uses «{instance}» & will be updated "
@@ -342,13 +342,13 @@ msgstr[1] ""
 "ATTENTION : {count} instances de «{model}» utilisent «{instance}» & vont "
 "être mises à jour (le champ va être mis à «{fallback}»)."
 
-#: forms/generics.py:241
+#: forms/generics.py:254
 msgid "ERROR: the default value is invalid. Please contact your administrator."
 msgstr ""
 "ERREUR : la valeur par défaut est invalide. Veuillez contacter votre "
 "administrateur."
 
-#: forms/generics.py:260
+#: forms/generics.py:273
 #, python-brace-format
 msgid ""
 "BEWARE: {count} instance of «{model}» uses «{instance}» & will be updated "
@@ -363,11 +363,11 @@ msgstr[1] ""
 "ATTENTION : {count} instances de «{model}» utilisent «{instance}» & vont "
 "être mise à jour (le champ va recevoir une valeur de secours)."
 
-#: forms/generics.py:302
+#: forms/generics.py:332
 msgid "Replacement"
 msgstr "Remplacement"
 
-#: forms/generics.py:356
+#: forms/generics.py:414
 msgid ""
 "The field \"{}.{}\" cannot be deleted because its \"on_delete\" constraint "
 "is not managed. Please contact your administrator."
@@ -375,7 +375,7 @@ msgstr ""
 "Le champ \"{}.{}\" ne peut pas être supprimé car sa contrainte \"on_delete\" "
 "n'est pas gérée. Veuillez contacter votre administrateur."
 
-#: forms/generics.py:370
+#: forms/generics.py:432
 msgid "Deletion is not possible."
 msgstr "La suppression n'est pas possible."
 
@@ -876,7 +876,7 @@ msgstr "Supprimer la configuration"
 msgid "Configured types of resource"
 msgstr "Types de ressource configurés"
 
-#: templates/creme_config/bricks/button-menu.html:12 views/button_menu.py:57
+#: templates/creme_config/bricks/button-menu.html:12 views/button_menu.py:60
 msgid "New buttons configuration"
 msgstr "Nouvelle configuration de boutons"
 
@@ -912,7 +912,7 @@ msgid "No type requires configuration"
 msgstr "Aucun type ne nécessite de configuration"
 
 #: templates/creme_config/bricks/custom-fields.html:12
-#: views/custom_fields.py:38
+#: views/custom_fields.py:39
 msgid "New custom field configuration"
 msgstr "Nouvelle configuration de champ personnalisé"
 
@@ -947,7 +947,7 @@ msgid "Custom blocks"
 msgstr "Blocs personnalisés"
 
 #: templates/creme_config/bricks/custombricks-configs.html:12
-#: views/bricks.py:97
+#: views/bricks.py:100
 msgid "New custom block"
 msgstr "Nouveau bloc personnalisé"
 
@@ -1057,7 +1057,7 @@ msgid "Types of property"
 msgstr "Types de propriété"
 
 #: templates/creme_config/bricks/property-types.html:18
-#: views/creme_property_type.py:42
+#: views/creme_property_type.py:44
 msgid "New custom type of property"
 msgstr "Nouveau type de propriété personnalisé"
 
@@ -1624,16 +1624,16 @@ msgstr "Accueil"
 msgid "View and edit your Creme settings"
 msgstr "Voir et modifier vos réglages Creme"
 
-#: templatetags/creme_config_tags.py:52
+#: templatetags/creme_config_tags.py:57
 msgid "Hide inactive users"
 msgstr "Cacher les utilisateurs désactivés"
 
-#: templatetags/creme_config_tags.py:53
+#: templatetags/creme_config_tags.py:58
 msgid "Show inactive users"
 msgstr "Montrer les utilisateurs désactivés"
 
-#: views/base.py:30 views/bricks.py:166 views/bricks.py:267
-#: views/button_menu.py:58
+#: views/base.py:31 views/bricks.py:172 views/bricks.py:276
+#: views/button_menu.py:61
 msgid "Save the configuration"
 msgstr "Enregistrer la configuration"
 
@@ -1642,98 +1642,98 @@ msgstr "Enregistrer la configuration"
 msgid "New block configuration for «{model}»"
 msgstr "Nouvelle configuration de bloc pour «{model}»"
 
-#: views/bricks.py:83 views/bricks.py:254 views/button_menu.py:45
-#: views/fields_config.py:68
+#: views/bricks.py:83 views/bricks.py:263 views/button_menu.py:45
+#: views/fields_config.py:76
 msgctxt "creme_config-verb"
 msgid "Select"
 msgstr "Sélectionner"
 
-#: views/bricks.py:98
+#: views/bricks.py:101
 msgid "Save the block"
 msgstr "Enregistrer le bloc"
 
-#: views/bricks.py:198
+#: views/bricks.py:204
 #, python-brace-format
 msgid "Edit configuration of super-users for «{model}»"
 msgstr "Modifier la configuration des super-utilisateurs pour «{model}»"
 
-#: views/bricks.py:200
+#: views/bricks.py:206
 #, python-brace-format
 msgid "Edit configuration of «{role}» for «{model}»"
 msgstr "Modifier la configuration de «{role}» pour «{model}»"
 
-#: views/bricks.py:205
+#: views/bricks.py:211
 #, python-brace-format
 msgid "Edit default configuration for «{model}»"
 msgstr "Modifier la configuration par défaut pour «{model}»"
 
-#: views/bricks.py:207 views/button_menu.py:116
+#: views/bricks.py:213 views/button_menu.py:119
 msgid "Edit default configuration"
 msgstr "Modifier la configuration par défaut"
 
-#: views/bricks.py:215
+#: views/bricks.py:221
 msgid "Create home configuration for a role"
 msgstr "Créer la configuration de l'accueil d'un rôle"
 
-#: views/bricks.py:222
+#: views/bricks.py:228
 msgid "Edit home configuration"
 msgstr "Modifier la configuration de l'accueil"
 
-#: views/bricks.py:237
+#: views/bricks.py:243
 msgid "Edit default \"My page\""
 msgstr "Modifier le \"Ma page\" par défaut"
 
-#: views/bricks.py:242
+#: views/bricks.py:248
 msgid "Edit \"My page\""
 msgstr "Modifier \"Ma page\""
 
-#: views/bricks.py:266
+#: views/bricks.py:275
 #, python-brace-format
-msgid "New customised type for «{predicate}»"
-msgstr "Nouveau type personnalisé pour «{predicate}»"
+msgid "New customised type for «{object}»"
+msgstr "Nouveau type personnalisé pour «{object}»"
 
-#: views/bricks.py:320
+#: views/bricks.py:307
 #, python-brace-format
 msgid "Edit «{model}» configuration"
 msgstr "Modifier la configuration de «{model}»"
 
-#: views/bricks.py:363
+#: views/bricks.py:367
 #, python-brace-format
 msgid "Edit the block «{object}»"
 msgstr "Modifier le bloc «{object}»"
 
-#: views/button_menu.py:114
+#: views/button_menu.py:117
 #, python-brace-format
 msgid "Edit configuration for «{model}»"
 msgstr "Modifier la configuration pour «{model}»"
 
-#: views/creme_property_type.py:50
+#: views/creme_property_type.py:52
 #, python-brace-format
 msgctxt "creme_config-property"
 msgid "Edit the type «{object}»"
 msgstr "Modifier le type «{object}»"
 
-#: views/custom_fields.py:54
+#: views/custom_fields.py:55
 #, python-brace-format
 msgid "New custom field for «{model}»"
 msgstr "Nouveau champ personnalisé pour «{model}»"
 
 # Already in creme_core
-#: views/generics_views.py:106
+#: views/generics_views.py:105
 msgid "Save"
 msgstr ""
 
-#: views/generics_views.py:125
+#: views/generics_views.py:124
 #, python-brace-format
 msgid "New value: {model}"
 msgstr "Nouvelle valeur : {model}"
 
-#: views/generics_views.py:245
+#: views/generics_views.py:244
 #, python-brace-format
 msgid "Replace & delete «{object}»"
 msgstr "Remplacer & supprimer «{object}»"
 
-#: views/generics_views.py:251
+#: views/generics_views.py:249
 msgid ""
 "The deleted value can be replaced in existing entities by another value. If "
 "a field cannot be empty, you must chose a replacing value."
@@ -1742,13 +1742,13 @@ msgstr ""
 "autre valeur. Si un champ ne peut être vide, vous devez choisir une valeur "
 "de remplacement."
 
-#: views/generics_views.py:271
+#: views/generics_views.py:269
 #, python-brace-format
 msgid "A deletion process for an instance of «{model}» already exists."
 msgstr ""
 "Il y a déjà un processus de suppression pour une instance de «{model}»."
 
-#: views/generics_views.py:328
+#: views/generics_views.py:325
 msgid "Error. Please contact your administrator."
 msgstr "Erreur. Veuillez contacter votre administrateur."
 
