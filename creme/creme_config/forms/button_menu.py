@@ -30,7 +30,6 @@ from creme.creme_core.models import ButtonMenuItem
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
 
-
 _PREFIX = 'creme_config-userbmi'
 
 
@@ -45,16 +44,20 @@ class ButtonMenuAddForm(CremeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        used_ct_ids = set(ButtonMenuItem.objects.exclude(content_type=None)
-                                                .distinct()
-                                                .values_list('content_type_id', flat=True)
-                         )
+        used_ct_ids = {
+            *ButtonMenuItem.objects.exclude(content_type=None)
+                                   .distinct()
+                                   .values_list('content_type_id', flat=True)
+        }
         ct_field = self.fields['ctype']
         ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
 
-    def save(self):
+    def save(self, commit=True):
         bmi = ButtonMenuItem(content_type=self.cleaned_data['ctype'], button_id='', order=1)
-        generate_string_id_and_save(ButtonMenuItem, [bmi], _PREFIX)
+        if commit:
+            generate_string_id_and_save(ButtonMenuItem, [bmi], _PREFIX)
+
+        return bmi
 
 
 class ButtonMenuEditForm(CremeForm):

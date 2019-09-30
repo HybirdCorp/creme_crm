@@ -396,6 +396,8 @@ class RTypeBrickItemAddCtypeForm(CremeModelForm):
         ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
 
     def save(self, *args, **kwargs):
+        # NB: we should set this in clean(), but it interfere when we re-using
+        #     the same instance (see __init__)
         self.instance.set_cells(self.cleaned_data['ctype'], ())
 
         return super().save(*args, **kwargs)
@@ -450,13 +452,36 @@ class RTypeBrickItemEditCtypeForm(CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-class CustomBrickConfigItemCreateForm(CremeModelForm):
+class _CustomBrickConfigItemBaseForm(CremeModelForm):
+    class Meta(CremeModelForm.Meta):
+        model = CustomBrickConfigItem
+
+    def save(self, commit=True, *args, **kwargs):
+        instance = self.instance
+
+        if instance.pk:
+            super().save(*args, **kwargs)
+        else:
+            super().save(commit=False)
+
+            if commit:
+                ct = instance.content_type
+                generate_string_id_and_save(
+                    CustomBrickConfigItem, [instance],
+                    'creme_core-user_customblock_{}-{}'.format(ct.app_label, ct.model)
+                )
+
+        return instance
+
+
+# class CustomBrickConfigItemCreateForm(CremeModelForm):
+class CustomBrickConfigItemCreateForm(_CustomBrickConfigItemBaseForm):
     ctype = EntityCTypeChoiceField(label=_('Related resource'),
                                    widget=DynamicSelect(attrs={'autocomplete': True}),
                                   )
 
-    class Meta(CremeModelForm.Meta):
-        model = CustomBrickConfigItem
+    # class Meta(CremeModelForm.Meta):
+    #     model = CustomBrickConfigItem
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -468,26 +493,35 @@ class CustomBrickConfigItemCreateForm(CremeModelForm):
                                               if not is_invalid(model)
                                       )
 
-    def save(self, *args, **kwargs):
-        instance = self.instance
-        ct = self.cleaned_data['ctype']
-        instance.content_type = ct
+    def clean(self, *args, **kwargs):
+        cdata = super().clean(*args, **kwargs)
 
-        super().save(commit=False)
-        generate_string_id_and_save(CustomBrickConfigItem, [instance],
-                                    'creme_core-user_customblock_{}-{}'.format(ct.app_label, ct.model)
-                                   )
+        if not self._errors:
+            self.instance.content_type = self.cleaned_data['ctype']
 
-        return instance
+        return cdata
+
+    # def save(self, *args, **kwargs):
+    #     instance = self.instance
+    #     ct = self.cleaned_data['ctype']
+    #     instance.content_type = ct
+    #
+    #     super().save(commit=False)
+    #     generate_string_id_and_save(CustomBrickConfigItem, [instance],
+    #                                 'creme_core-user_customblock_{}-{}'.format(ct.app_label, ct.model)
+    #                                )
+    #
+    #     return instance
 
 
-class CustomBrickConfigItemEditForm(CremeModelForm):
+# class CustomBrickConfigItemEditForm(CremeModelForm):
+class CustomBrickConfigItemEditForm(_CustomBrickConfigItemBaseForm):
     cells = EntityCellsField(label=_('Lines'))
 
     blocks = CremeModelForm.blocks.new(('cells', 'Columns', ['cells']))
 
-    class Meta(CremeModelForm.Meta):
-        model = CustomBrickConfigItem
+    # class Meta(CremeModelForm.Meta):
+    #     model = CustomBrickConfigItem
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -499,7 +533,15 @@ class CustomBrickConfigItemEditForm(CremeModelForm):
         cells_f.content_type = instance.content_type
         cells_f.initial = cells
 
-    def save(self, *args, **kwargs):
-        self.instance.cells = self.cleaned_data['cells']
+    def clean(self, *args, **kwargs):
+        cdata = super().clean(*args, **kwargs)
 
-        return super().save(*args, **kwargs)
+        if not self._errors:
+            self.instance.cells = self.cleaned_data['cells']
+
+        return cdata
+
+    # def save(self, *args, **kwargs):
+    #     self.instance.cells = self.cleaned_data['cells']
+    #
+    #     return super().save(*args, **kwargs)

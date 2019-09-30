@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 import warnings
 
 from django.core.exceptions import ImproperlyConfigured
@@ -33,6 +34,8 @@ from creme.creme_core import models
 from creme.creme_core.auth.decorators import login_required
 
 from . import base
+
+logger = logging.getLogger(__name__)
 
 
 class PopupWizardMixin:
@@ -168,6 +171,26 @@ class CremeWizardView(base.TitleMixin,
             raise ImproperlyConfigured("No URL to redirect to. Provide a success_url.")
 
         return str(self.success_url)  # success_url may be lazy
+
+    def validate_previous_steps(self, step):
+        i_prev_step = int(step) - 1
+
+        if i_prev_step >= 0:
+            prev_step = str(i_prev_step)
+            form_obj = self.get_form(
+                step=prev_step,
+                data=self.storage.get_step_data(prev_step),
+                files=self.storage.get_step_files(prev_step),
+            )
+            if not form_obj.is_valid():
+                logger.warning(
+                    '%s.validate_previous_steps(): the form <%s> is not valid '
+                    '(maybe it is not re-entrant with a cleaned instance).'
+                    'Errors: %s',
+                    type(self).__name__,
+                    type(form_obj).__name__,
+                    form_obj.errors,
+                )
 
 
 class CremeWizardViewPopup(CremeWizardView):
@@ -337,7 +360,12 @@ class CremeModelEditionWizard(SingleObjectMixin, CremeWizardView):
         return context
 
     def get_form_instance(self, step):
-        return super().get_form_instance(step=step) or self.object
+        instance = super().get_form_instance(step=step) or self.object
+
+        # We fill the instance with the previous step (so recursively all previous should be used)
+        self.validate_previous_steps(step)
+
+        return instance
 
     def get_object(self, queryset=None):
         request = self.request

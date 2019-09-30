@@ -39,6 +39,10 @@ class ConfigModelCreationWizard(generic.CremeModelCreationWizardPopup):
     permissions = _PERM
 
 
+class ConfigModelEditionWizard(generic.CremeModelEditionWizardPopup):
+    permissions = _PERM
+
+
 class ConfigEdition(generic.CremeEditionPopup):
     permissions = _PERM
 

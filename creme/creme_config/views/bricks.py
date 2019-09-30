@@ -82,6 +82,9 @@ class CustomBrickWizard(base.ConfigModelCreationWizard):
     class _ResourceStep(bricks_forms.CustomBrickConfigItemCreateForm):
         step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
 
+        def save(self, commit=False, *args, **kwargs):
+            super().save(commit=commit, *args, **kwargs)
+
     class _ConfigStep(bricks_forms.CustomBrickConfigItemEditForm):
         class Meta(bricks_forms.CustomBrickConfigItemEditForm.Meta):
             exclude = ('name',)
@@ -99,6 +102,10 @@ class CustomBrickWizard(base.ConfigModelCreationWizard):
     # template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
     # permission = 'creme_core.can_admin'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cbci = CustomBrickConfigItem()
+
     # def done(self, form_list, **kwargs):
     #     resource_step, conf_step = form_list
     #
@@ -107,19 +114,18 @@ class CustomBrickWizard(base.ConfigModelCreationWizard):
     #         conf_step.save()
     #
     #     return HttpResponse()
-    def done_save(self, form_list):
-        resource_step, conf_step = form_list
 
-        # TODO: improve to do not save() twice
-        conf_step.instance = resource_step.save()
-        conf_step.save()
-
+    # def get_form_instance(self, step):
+    #     if step == '1':
+    #         cleaned_data = self.get_cleaned_data_for_step('0')
+    #         return CustomBrickConfigItem(name=cleaned_data['name'],
+    #                                      content_type=cleaned_data['ctype'],
+    #                                     )
     def get_form_instance(self, step):
-        if step == '1':
-            cleaned_data = self.get_cleaned_data_for_step('0')
-            return CustomBrickConfigItem(name=cleaned_data['name'],
-                                         content_type=cleaned_data['ctype'],
-                                        )
+        # We fill the instance with the previous step (so recursively all previous should be used)
+        self.validate_previous_steps(step)
+
+        return self.cbci
 
 
 class RoleRelatedMixin:
@@ -249,7 +255,10 @@ class MyPageEdition(BaseMyPageEdition):
 
 
 # class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):
-class RelationCTypeBrickWizard(base.ConfigModelCreationWizard):
+class RelationCTypeBrickWizard(base.ConfigModelEditionWizard):
+    model = RelationBrickItem
+    pk_url_kwarg = 'rbi_id'
+
     class _ContentTypeStep(bricks_forms.RTypeBrickItemAddCtypeForm):
         step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
 
@@ -263,14 +272,10 @@ class RelationCTypeBrickWizard(base.ConfigModelCreationWizard):
         bricks_forms.RTypeBrickItemEditCtypeForm,
     )
     # wizard_title = 'New customised type'  # Overridden by get_context_data()
-    title = _('New customised type for «{predicate}»')
+    title = _('New customised type for «{object}»')
     submit_label = _('Save the configuration')
     # template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
     # permission = 'creme_core.can_admin'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.relation_brick_item = None
 
     # def done(self, form_list, **kwargs):
     #     _ct_form, fields_form = form_list
@@ -286,18 +291,6 @@ class RelationCTypeBrickWizard(base.ConfigModelCreationWizard):
     #
     #     return context
 
-    def get_relation_brick_item(self):
-        rbi = self.relation_brick_item
-        if rbi is None:
-            rbi = self.relation_brick_item = \
-                get_object_or_404(RelationBrickItem, id=self.kwargs['rbi_id'])
-
-        return rbi
-
-    def get_form_instance(self, step):
-        # return get_object_or_404(RelationBrickItem, id=self.kwargs['rbi_id'])
-        return self.get_relation_brick_item()
-
     def get_form_kwargs(self, step=None):
         kwargs = super().get_form_kwargs(step=step)
 
@@ -305,12 +298,6 @@ class RelationCTypeBrickWizard(base.ConfigModelCreationWizard):
             kwargs['ctype'] = self.get_cleaned_data_for_step('0')['ctype']
 
         return kwargs
-
-    def get_title_format_data(self):
-        data = super().get_title_format_data()
-        data['predicate'] = self.get_relation_brick_item()
-
-        return data
 
 
 class RelationCTypeBrickEdition(EntityCTypeRelatedMixin, base.ConfigModelEdition):

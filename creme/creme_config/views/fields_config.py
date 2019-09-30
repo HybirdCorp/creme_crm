@@ -78,7 +78,6 @@ class FieldsConfigWizard(base.ConfigModelCreationWizard):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             if not self.ctypes:
-                # raise ConflictError(ugettext('All configurable types of resource are already configured.'))
                 raise ConflictError(_('All configurable types of resource are already configured.'))
 
     # class _ConfigStep(fconf_forms.FieldsConfigEditForm):
@@ -88,10 +87,14 @@ class FieldsConfigWizard(base.ConfigModelCreationWizard):
     form_list = (
         _ModelStep,
         # _ConfigStep,
-        fconf_forms.FieldsConfigEditForm
+        fconf_forms.FieldsConfigEditForm,
     )
     model = FieldsConfig
     # permission = 'creme_core.can_admin'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cbci = FieldsConfig()
 
     # def done(self, form_list, **kwargs):
     #     _model_step, configure_step = form_list
@@ -99,6 +102,11 @@ class FieldsConfigWizard(base.ConfigModelCreationWizard):
     #
     #     return HttpResponse()
 
+    # def get_form_instance(self, step):
+    #     return FieldsConfig(content_type=cleaned_data['ctype'], descriptions=())
+    #     cleaned_data = self.get_cleaned_data_for_step('0')
     def get_form_instance(self, step):
-        cleaned_data = self.get_cleaned_data_for_step('0')
-        return FieldsConfig(content_type=cleaned_data['ctype'], descriptions=())
+        # We fill the instance with the previous step (so recursively all previous should be used)
+        self.validate_previous_steps(step)
+
+        return self.cbci
