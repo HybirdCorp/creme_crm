@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import OrderedDict, defaultdict
 from functools import reduce
 import logging
 from operator import or_ as or_op
@@ -32,9 +33,8 @@ from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, _user_
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.core.validators import RegexValidator
-from django.db.models import (Model, UUIDField, CharField, TextField, BooleanField,
-        PositiveSmallIntegerField, PositiveIntegerField, EmailField,
-        DateTimeField, ForeignKey, ManyToManyField, PROTECT, CASCADE, Q)
+from django.db import models
+from django.db.models.query_utils import Q
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _, gettext
 
@@ -47,14 +47,18 @@ from .fields import CTypeForeignKey
 logger = logging.getLogger(__name__)
 
 
-class UserRole(Model):
-    name              = CharField(_('Name'), max_length=100, unique=True)
+class UserRole(models.Model):
+    name              = models.CharField(_('Name'), max_length=100, unique=True)
     # superior         = ForeignKey('self', verbose_name=_('Superior'), null=True) #related_name='subordinates'
     # TODO: CTypeManyToManyField ?
-    creatable_ctypes  = ManyToManyField(ContentType, verbose_name=_('Creatable resources'),  related_name='roles_allowing_creation') # null=True,
-    exportable_ctypes = ManyToManyField(ContentType, verbose_name=_('Exportable resources'), related_name='roles_allowing_export')   # null=True,
-    raw_allowed_apps  = TextField(default='')  # Use 'allowed_apps' property
-    raw_admin_4_apps  = TextField(default='')  # Use 'admin_4_apps' property
+    creatable_ctypes  = models.ManyToManyField(ContentType, verbose_name=_('Creatable resources'),
+                                               related_name='roles_allowing_creation',  # TODO: '+' ?
+                                              )
+    exportable_ctypes = models.ManyToManyField(ContentType, verbose_name=_('Exportable resources'),
+                                               related_name='roles_allowing_export',  # TODO: '+' ?
+                                              )
+    raw_allowed_apps  = models.TextField(default='')  # Use 'allowed_apps' property
+    raw_admin_4_apps  = models.TextField(default='')  # Use 'admin_4_apps' property
 
     creation_label = _('Create a role')
     save_label     = _('Save the role')
@@ -185,7 +189,7 @@ class UserRole(Model):
 
         if setcredentials is None:
             logger.debug('UserRole.get_credentials(): Cache MISS for id=%s', self.id)
-            self._setcredentials = setcredentials = list(self.credentials.all())
+            self._setcredentials = setcredentials = [*self.credentials.all()]
         else:
             logger.debug('UserRole.get_credentials(): Cache HIT for id=%s', self.id)
 
@@ -213,8 +217,6 @@ class UserRole(Model):
         @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
         @return: A new (filtered) queryset on the same model.
         """
-        from .entity import CremeEntity
-
         model = queryset.model
         assert issubclass(model, CremeEntity)
         assert model is not CremeEntity
@@ -240,8 +242,10 @@ class UserRole(Model):
                by its field 'entity_type' (to keep only entities of the right model, & so do not
                make mistakes with credentials).
         @return: A new (filtered) queryset on the same model.
+        @raise: EntityCredentials.FilteringError if there is an EntityFilter,
+                which cannot be used on CremeEntity, in the SetCredentials
+                concerning the models of the allowed apps.
         """
-        from creme.creme_core.models import CremeEntity
         assert queryset.model is CremeEntity
 
         from ..registry import creme_registry
@@ -249,30 +253,58 @@ class UserRole(Model):
         is_app_allowed = self.is_app_allowed_or_administrable
 
         return SetCredentials.filter_entities(
-                    self._get_setcredentials(), user, queryset, perm,
-                    models=[model
-                                for model in creme_registry.iter_entity_models()
-                                    if is_app_allowed(model._meta.app_label)
-                           ],
-                    as_model=as_model,
-                )
+            sc_sequence=self._get_setcredentials(),
+            user=user, queryset=queryset,
+            perm=perm,
+            models=[model
+                        for model in creme_registry.iter_entity_models()
+                            if is_app_allowed(model._meta.app_label)
+                   ],
+            as_model=as_model,
+        )
 
 
-class SetCredentials(Model):
-    role      = ForeignKey(UserRole, related_name='credentials', on_delete=CASCADE, editable=False)
-    value     = PositiveSmallIntegerField()  # See EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
-    set_type  = PositiveIntegerField()  # See SetCredentials.ESET_* TODO: choices ?
-    ctype     = CTypeForeignKey(null=True, blank=True)  # TODO: EntityCTypeForeignKey ?
-    # entity  = ForeignKey(CremeEntity, null=True) ??
-    forbidden = BooleanField(default=False)
-
+class SetCredentials(models.Model):
     # 'ESET' means 'Entities SET'
-    ESET_ALL = 1  # => all entities
-    ESET_OWN = 2  # => his own entities
+    ESET_ALL    = 1  # => all entities
+    ESET_OWN    = 2  # => his own entities
+    ESET_FILTER = 3  # => use an EntityFilter
 
-    ESETS_MAP = {ESET_ALL: _('all entities'),
-                 ESET_OWN: _("user's own entities"),
-                }
+    ESETS_MAP = OrderedDict([
+        (ESET_ALL,    _('All entities')),
+        (ESET_OWN,    _("User's own entities")),
+        (ESET_FILTER, _('Filtered entities')),
+    ])
+
+    role     = models.ForeignKey(UserRole, related_name='credentials', on_delete=models.CASCADE, editable=False)
+    value    = models.PositiveSmallIntegerField()  # See EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
+    set_type = models.PositiveIntegerField(
+        verbose_name=_('Type of entities set'),
+        choices=ESETS_MAP.items(),
+        blank=False,
+        default=ESET_ALL,
+        help_text=_('The choice «Filtered entities» allows to configure credentials '
+                    'based on values of fields or relationships for example.'
+                   ),
+    )
+    ctype = CTypeForeignKey(
+        verbose_name=_('Apply to a specific type'),
+        null=True, blank=True
+    )  # TODO: EntityCTypeForeignKey ?
+    # entity  = models.ForeignKey(CremeEntity, null=True) ??
+    forbidden = models.BooleanField(
+        verbose_name=_('Allow or forbid?'),
+        default=False,
+        choices=[
+            (False, _('The users are allowed to perform the selected actions')),
+            (True,  _('The users are NOT allowed to perform the selected actions')),
+        ],
+        help_text=_('Notice that actions which are forbidden & allowed at '
+                    'the same time are considered as forbidden when final '
+                    'permissions are computed.'
+                   ),
+    )
+    efilter = models.ForeignKey('EntityFilter', editable=False, null=True, on_delete=models.PROTECT)
 
     class Meta:
         app_label = 'creme_core'
@@ -283,28 +315,32 @@ class SetCredentials(Model):
         perms = []
         append = perms.append
 
-        if value & EntityCredentials.VIEW:   append(gettext('view'))
-        if value & EntityCredentials.CHANGE: append(gettext('change'))
-        if value & EntityCredentials.DELETE: append(gettext('delete'))
-        if value & EntityCredentials.LINK:   append(gettext('link'))
-        if value & EntityCredentials.UNLINK: append(gettext('unlink'))
+        if value is not None:
+            if value & EntityCredentials.VIEW:   append(gettext('view'))
+            if value & EntityCredentials.CHANGE: append(gettext('change'))
+            if value & EntityCredentials.DELETE: append(gettext('delete'))
+            if value & EntityCredentials.LINK:   append(gettext('link'))
+            if value & EntityCredentials.UNLINK: append(gettext('unlink'))
 
         if not perms:
             append(gettext('nothing forbidden') if forbidden else
                    gettext('nothing allowed')
                   )
 
-        args = {'set':   SetCredentials.ESETS_MAP[self.set_type],
-                'perms': ', '.join(perms),
-               }
+        args = {
+            'set':   self.ESETS_MAP.get(self.set_type, '??'),  # TODO: get_set_type_display() ?
+            'perms': ', '.join(perms),
+        }
 
         if self.ctype:
             args['type'] = self.ctype
-            format_str = gettext('For {set} of type “{type}” forbidden to: {perms}') if forbidden else \
-                         gettext('For {set} of type “{type}” allowed to: {perms}')
+            format_str = gettext('For “{set}“ of type “{type}” it is forbidden to: {perms}') \
+                         if forbidden else \
+                         gettext('For “{set}“ of type “{type}” it is allowed to: {perms}')
         else:
-            format_str = gettext('For {set} forbidden to: {perms}') if forbidden else \
-                         gettext('For {set} allowed to: {perms}')
+            format_str = gettext('For “{set}“ it is forbidden to: {perms}') \
+                         if forbidden else \
+                         gettext('For “{set}“ it is allowed to: {perms}')
 
         return format_str.format(**args)
 
@@ -313,11 +349,16 @@ class SetCredentials(Model):
         ctype_id = self.ctype_id
 
         if not ctype_id or ctype_id == entity.entity_type_id:
-            if self.set_type == SetCredentials.ESET_ALL:
+            set_type = self.set_type
+
+            if set_type == SetCredentials.ESET_ALL:
                 return self.value
-            else:  # SetCredentials.ESET_OWN
+            elif set_type == SetCredentials.ESET_OWN:
                 user_id = entity.user_id
                 if user.id == user_id or any(user_id == t.id for t in user.teams):
+                    return self.value
+            else:  # SetCredentials.ESET_FILTER
+                if self.efilter.accept(entity=entity, user=user):
                     return self.value
 
         return EntityCredentials.NONE
@@ -347,54 +388,74 @@ class SetCredentials(Model):
                 return user.id in owner.teammates if owner.is_team else user == owner
 
         ESET_ALL = cls.ESET_ALL
+        ESET_OWN = cls.ESET_OWN
         allowed_ctype_ids = (None, ContentType.objects.get_for_model(model).id)  # TODO: factorise
         allowed_found = False
 
         for sc in sc_sequence:
-            if sc.ctype_id in allowed_ctype_ids and sc.value & perm and (
-               sc.set_type == ESET_ALL or user_is_concerned(sc)):
-                if sc.forbidden:
-                    return False
-                else:
-                    allowed_found = True
+            if sc.ctype_id in allowed_ctype_ids and sc.value & perm:
+                set_type = sc.set_type
+
+                # NB: it's hard to manage ESET_FILTER in a satisfactory way,
+                #     so we ignore this type of credentials when checking models
+                #     (so LINK credentials + filter == no relationships adding at entity creation).
+                if set_type == ESET_ALL or (set_type == ESET_OWN and user_is_concerned(sc)):
+                    if sc.forbidden:
+                        return False
+                    else:
+                        allowed_found = True
 
         return allowed_found
 
     @classmethod
     def _aux_filter(cls, model, sc_sequence, user, queryset, perm):
-        allowed_ctype_ids = (None, ContentType.objects.get_for_model(model).id)
+        get_ct = ContentType.objects.get_for_model
+        allowed_ctype_ids = {None, get_ct(CremeEntity).id, get_ct(model).id}
         ESET_ALL = cls.ESET_ALL
+        ESET_OWN = cls.ESET_OWN
 
         forbidden, allowed = split_filter(
             lambda sc: sc.forbidden,
-            # NB: we sort to get ESET_ALL creds before ESET_OWN ones (more priority)
             sorted((sc for sc in sc_sequence
                         if sc.ctype_id in allowed_ctype_ids and sc.value & perm
                    ),
-                   key=lambda sc: sc.set_type
+                   # NB: we sort to get ESET_ALL creds before ESET_OWN ones, then ESET_FILTER ones.
+                   key=lambda sc: sc.set_type,
                   )
         )
 
-        if allowed:
-            if forbidden:
-                if forbidden[0].set_type == ESET_ALL:
-                    filtered_qs = queryset.none()
-                else:  # SetCredentials.ESET_OWN (this case is probably not really useful...)
-                    if allowed[0].set_type == ESET_ALL:
-                        teams = user.teams
-                        filtered_qs = queryset.exclude(user__in=[user, *teams]) if teams else \
-                                      queryset.exclude(user=user)
-                    else:  # SetCredentials.ESET_OWN
-                        filtered_qs = queryset.none()
-            else:
-                if allowed[0].set_type == ESET_ALL:
-                    filtered_qs = queryset  # No additional filtering needed
-                else:  # SetCredentials.ESET_OWN
-                    teams = user.teams
-                    filtered_qs = queryset.filter(user__in=[user, *teams]) if teams else \
-                                  queryset.filter(user=user)
+        if not allowed:
+            return queryset.none()
+
+        if any(f.set_type == ESET_ALL for f in forbidden):
+            return queryset.none()
+
+        def user_filtering_kwargs():  # TODO: cache/lazy
+            teams = user.teams
+            return {'user__in': [user, *teams]} if teams else {'user': user}
+
+        filtered_qs = queryset
+
+        q = Q()
+        for cred in allowed:
+            set_type = cred.set_type
+
+            if set_type == ESET_ALL:
+                break
+
+            if set_type == ESET_OWN:
+                q |= Q(**user_filtering_kwargs())
+            else:  # SetCredentials.ESET_FILTER
+                # TODO: distinct ? (see EntityFilter.filter())
+                q |= cred.efilter.get_q(user=user)
         else:
-            filtered_qs = queryset.none()
+            filtered_qs = filtered_qs.filter(q)
+
+        for cred in forbidden:
+            if cred.set_type == ESET_OWN:
+                filtered_qs = filtered_qs.exclude(**user_filtering_kwargs())
+            else:  # SetCredentials.ESET_FILTER
+                filtered_qs = filtered_qs.exclude(cred.efilter.get_q(user=user))
 
         return filtered_qs
 
@@ -415,7 +476,10 @@ class SetCredentials(Model):
         assert issubclass(model, CremeEntity)
         assert model is not CremeEntity
 
-        return cls._aux_filter(model, sc_sequence, user, queryset, perm)
+        return cls._aux_filter(
+            model=model, sc_sequence=sc_sequence, user=user,
+            queryset=queryset, perm=perm,
+        )
 
     @classmethod
     def filter_entities(cls, sc_sequence, user, queryset, perm, models, as_model=None):
@@ -433,66 +497,165 @@ class SetCredentials(Model):
                by its field 'entity_type' (to keep only entities of the right model, & so do not
                make mistakes with credentials).
         @return: A new queryset on CremeEntity.
+        @raise: EntityCredentials.FilteringError if an EntityFilter which cannot
+                be used on CremeEntity is found in <sc_sequence>.
         """
         from .entity import CremeEntity
         assert queryset.model is CremeEntity
 
+        get_for_model = ContentType.objects.get_for_model
+        entity_ct_id = get_for_model(CremeEntity).id
+
+        def _check_efilters(sc_seq):
+            if any(sc.efilter_id and not sc.efilter.applicable_on_entity_base for sc in sc_seq):
+                raise EntityCredentials.FilteringError(
+                    "An EntityFilter (not targeting CremeEntity) is used by a "
+                    "{cls} instance so it's not possible to use "
+                    "{cls}.filter_entities().".format(cls=cls.__name__)
+                )
+
         if as_model is not None:
             assert issubclass(as_model, CremeEntity)
-            return cls._aux_filter(as_model, sc_sequence, user, queryset, perm)
 
-        get_for_model = ContentType.objects.get_for_model
+            narrowed_ct_ids = {None, entity_ct_id, get_for_model(as_model).id}
+            narrowed_sc = [sc for sc in sc_sequence if sc.ctype_id in narrowed_ct_ids]
+            _check_efilters(narrowed_sc)
+
+            return cls._aux_filter(
+                model=as_model, sc_sequence=narrowed_sc, user=user,
+                queryset=queryset, perm=perm,
+            )
+
+        all_ct_ids = {
+            None,
+            entity_ct_id,
+            *(get_for_model(model).id for model in models),
+        }
+        sorted_sc = sorted((sc for sc in sc_sequence if sc.ctype_id in all_ct_ids),
+                           # NB: we sort to get ESET_ALL creds before ESET_OWN/ESET_FILTER ones.
+                           key=lambda sc: sc.set_type,
+                          )
+        _check_efilters(sorted_sc)
+
+        # NB: some explanations on the algorithm :
+        #  we try to regroup ContentTypes (corresponding to CremeEntity sub_classes)
+        #  which have the same filtering rules ; so we can generate a Query which looks like
+        #    entity_type__in=[...] OR (entity_type__in=[...] AND user__exact=current-user) OR
+        #    (entity_type__in=[...] AND field1__startswith='foo')
+
+        OWN_FILTER_ID = 0  # Fake EntityFilter ID corresponding to ESET_OWN.
+
         ESET_ALL = cls.ESET_ALL
         ESET_OWN = cls.ESET_OWN
-        ct_ids_all_allowed = []
-        ct_ids_own_allowed = []
-        ct_ids_own_forbidden = []
+        ESET_FILTER = cls.ESET_FILTER
+
+        def _extract_filter_ids(set_creds):
+            for sc in set_creds:
+                if sc.set_type == ESET_OWN:
+                    yield OWN_FILTER_ID
+                    break  # Avoid several OWN_FILTER_ID (should not happen)
+
+            for sc in set_creds:
+                if sc.set_type == ESET_FILTER:
+                    yield sc.efilter_id
+
+        # Map of EntityFilters to apply on ContentTypes groups
+        #   key = tuple containing 2 tuples of filter IDs: forbidden rules & allowed ones.
+        #   value = list of ContentType IDs.
+        #  Note: special values for EntityFilter ID:
+        #    None: means ESET_ALL (no filtering)
+        #    OWN_FILTER_ID: means ESET_OWN (a virtual EntityFilter on "user" field).
+        ctypes_filtering = defaultdict(list)
+
+        efilters_per_id = {sc.efilter_id: sc.efilter for sc in sc_sequence}
 
         for model in models:
             ct_id = get_for_model(model).id
-            allowed_ctype_ids = (None, ct_id)
+            model_ct_ids = (None, entity_ct_id, ct_id)   # <None> == CremeEntity too
 
-            # TODO: factorise ?
             forbidden, allowed = split_filter(
                 lambda sc: sc.forbidden,
-                # NB: we sort to get ESET_ALL creds before ESET_OWN ones (more priority)
-                sorted((sc for sc in sc_sequence
-                        if sc.ctype_id in allowed_ctype_ids and sc.value & perm
-                        ),
-                       key=lambda sc: sc.set_type
-                      )
+                (sc for sc in sorted_sc
+                    if sc.ctype_id in model_ct_ids and sc.value & perm
+                )
             )
 
             if allowed:
-                if forbidden:
-                    if forbidden[0].set_type == ESET_OWN and allowed[0].set_type == ESET_ALL:
-                        ct_ids_own_forbidden.append(ct_id)
-                else:
-                    if allowed[0].set_type == ESET_ALL:
-                        ct_ids_all_allowed.append(ct_id)  # No additional filtering needed
-                    else:  # ESET_OWN
-                        ct_ids_own_allowed.append(ct_id)
+                if forbidden and forbidden[0].set_type == ESET_ALL:
+                    continue
 
-        if not ct_ids_all_allowed and not ct_ids_own_allowed and not ct_ids_own_forbidden:
+                allowed_filter_ids = [None] if allowed[0].set_type == ESET_ALL else \
+                                     [*_extract_filter_ids(allowed)]
+                forbidden_filter_ids = [*_extract_filter_ids(forbidden)]
+
+                ctypes_filtering[(
+                    tuple(forbidden_filter_ids),
+                    tuple(allowed_filter_ids),
+                )].append(ct_id)
+
+        if not ctypes_filtering:
             queryset = queryset.none()
         else:
-            q = Q(entity_type_id__in=ct_ids_all_allowed) if ct_ids_all_allowed else Q()
-
-            if ct_ids_own_allowed or ct_ids_own_forbidden:
+            def _user_filtering_q():  # TODO: cached/lazy ?
                 teams = user.teams
-                user_kwargs = {'user__in': [user, *teams]} if teams else {'user': user}
+                return Q(**{'user__in': [user, *teams]} if teams else {'user': user})
 
-                if ct_ids_own_allowed:
-                    q |= Q(entity_type_id__in=ct_ids_own_allowed, **user_kwargs)
+            def _efilter_ids_to_Q(efilter_ids):
+                filters_q = Q()
 
-                if ct_ids_own_forbidden:
-                    q |= Q(entity_type_id__in=ct_ids_own_forbidden) & ~Q(**user_kwargs)
+                for filter_id in efilter_ids:
+                    # TODO: condexpr
+                    if filter_id is not None:  # None == ESET_ALL
+                        if filter_id == OWN_FILTER_ID:
+                            filter_q = _user_filtering_q()
+                        else:
+                            # TODO: distinct ??
+                            filter_q = efilters_per_id[filter_id].get_q(user=user)
+
+                        filters_q |= filter_q
+
+                return filters_q
+
+            q = Q()
+            for (forbidden_filter_ids, allowed_filter_ids), ct_ids in ctypes_filtering.items():
+                q |= (
+                    (Q(entity_type_id=ct_ids[0]) if len(ct_ids) == 1 else Q(entity_type_id__in=ct_ids))
+                    & _efilter_ids_to_Q(allowed_filter_ids)
+                    & ~_efilter_ids_to_Q(forbidden_filter_ids)
+                )
 
             queryset = queryset.filter(q)
 
         return queryset
 
-    def set_value(self, can_view, can_change, can_delete, can_link, can_unlink):
+    def save(self, *args, **kwargs):
+        if self.set_type == self.ESET_FILTER:
+            if not self.efilter_id:
+                raise ValueError(
+                    '{} with <set_type == ESET_FILTER> must have a filter.'.format(
+                        type(self).__name__,
+                    ))
+
+            ct = self.ctype
+            model = ct.model_class() if ct else CremeEntity
+            filter_model = self.efilter.entity_type.model_class()
+
+            if filter_model != model :
+                raise ValueError(
+                    '{cls} must have a filter related to the same type: {model} != {filter_model}'.format(
+                        cls=type(self).__name__,
+                        model=model,
+                        filter_model=filter_model,
+                    ))
+        elif self.efilter_id:
+            raise ValueError(
+                'Only {} with <set_type == ESET_FILTER> can have a filter.'.format(
+                    type(self).__name__,
+            ))
+
+        super().save(*args, **kwargs)
+
+    def set_value(self, can_view, can_change, can_delete, can_link, can_unlink):  # TODO: keywords only ??
         """Set the 'value' attribute from 5 booleans."""
         value = EntityCredentials.NONE
 
@@ -545,58 +708,61 @@ class CremeUserManager(BaseUserManager):
 
 class CremeUser(AbstractBaseUser):
     # NB: auth.models.AbstractUser.username max_length == 150 (since django 1.10) => increase too ?
-    username = CharField(_('Username'), max_length=30, unique=True,
-                         help_text=_('Required. 30 characters or fewer. '
-                                     'Letters, digits and @/./+/-/_ only.'
-                                    ),
-                         validators=[RegexValidator(re_compile(r'^[\w.@+-]+$'),
-                                                    _('Enter a valid username. '
-                                                      'This value may contain only letters, numbers, '
-                                                      'and @/./+/-/_ characters.'),
-                                                    'invalid',
-                                                   ),
-                                    ],
-                         error_messages={
-                             'unique': _('A user with that username already exists.'),
-                         },
-                        )
-    last_name  = CharField(_('Last name'), max_length=100, blank=True)
-    first_name = CharField(_('First name'), max_length=100, blank=True)\
-                          .set_tags(viewable=False)  # NB: blank=True for teams
-    email      = EmailField(_('Email address'), blank=True)
+    username = models.CharField(
+        _('Username'), max_length=30, unique=True,
+        help_text=_('Required. 30 characters or fewer. '
+                    'Letters, digits and @/./+/-/_ only.'
+                   ),
+        validators=[
+            RegexValidator(re_compile(r'^[\w.@+-]+$'),
+                           _('Enter a valid username. '
+                             'This value may contain only letters, numbers, '
+                             'and @/./+/-/_ characters.'
+                            ),
+                           'invalid',
+                          ),
+        ],
+        error_messages={
+            'unique': _('A user with that username already exists.'),
+        },
+    )
+    last_name  = models.CharField(_('Last name'), max_length=100, blank=True)
+    first_name = models.CharField(_('First name'), max_length=100, blank=True)\
+                                 .set_tags(viewable=False)  # NB: blank=True for teams
+    email      = models.EmailField(_('Email address'), blank=True)
 
-    date_joined = DateTimeField(_('Date joined'), default=now).set_tags(viewable=False)
-    is_active   = BooleanField(_('Active?'), default=True,
-                               # help_text=_('Designates whether this user should be treated as '
-                               #             'active. Deselect this instead of deleting accounts.'
-                               #            ), TODO
-                              ).set_tags(viewable=False)
+    date_joined = models.DateTimeField(_('Date joined'), default=now).set_tags(viewable=False)
+    is_active   = models.BooleanField(_('Active?'), default=True,
+                                      # help_text=_('Designates whether this user should be treated as '
+                                      #             'active. Deselect this instead of deleting accounts.'
+                                      #            ), TODO
+                                     ).set_tags(viewable=False)
 
-    is_staff     = BooleanField(_('Is staff?'), default=False,
-                                # help_text=_('Designates whether the user can log into this admin site.'), TODO
-                               ).set_tags(viewable=False)
-    is_superuser = BooleanField(_('Is a superuser?'), default=False,
-                                # help_text=_('If True, can create groups & events.') TODO
-                               ).set_tags(viewable=False)
-    role         = ForeignKey(UserRole, verbose_name=_('Role'), null=True,
-                              on_delete=PROTECT,
-                             ).set_tags(viewable=False)
+    is_staff     = models.BooleanField(_('Is staff?'), default=False,
+                                       # help_text=_('Designates whether the user can log into this admin site.'), TODO
+                                      ).set_tags(viewable=False)
+    is_superuser = models.BooleanField(_('Is a superuser?'), default=False,
+                                       # help_text=_('If True, can create groups & events.') TODO
+                                      ).set_tags(viewable=False)
+    role         = models.ForeignKey(UserRole, verbose_name=_('Role'), null=True,
+                                     on_delete=models.PROTECT,
+                                    ).set_tags(viewable=False)
 
-    is_team       = BooleanField(verbose_name=_('Is a team?'), default=False).set_tags(viewable=False)
-    teammates_set = ManyToManyField('self', verbose_name=_('Teammates'),
-                                    symmetrical=False, related_name='teams_set',
-                                   ).set_tags(viewable=False)
+    is_team       = models.BooleanField(verbose_name=_('Is a team?'), default=False).set_tags(viewable=False)
+    teammates_set = models.ManyToManyField('self', verbose_name=_('Teammates'),
+                                           symmetrical=False, related_name='teams_set',
+                                          ).set_tags(viewable=False)
 
-    time_zone = CharField(_('Time zone'), max_length=50, default=settings.TIME_ZONE,
-                          choices=[(tz, tz) for tz in pytz.common_timezones],
-                         ).set_tags(viewable=False)
-    theme     = CharField(_('Theme'), max_length=50,
-                          default=settings.THEMES[0][0],
-                          choices=settings.THEMES,
-                         ).set_tags(viewable=False)
+    time_zone = models.CharField(_('Time zone'), max_length=50, default=settings.TIME_ZONE,
+                                 choices=[(tz, tz) for tz in pytz.common_timezones],
+                                ).set_tags(viewable=False)
+    theme     = models.CharField(_('Theme'), max_length=50,
+                                 default=settings.THEMES[0][0],
+                                 choices=settings.THEMES,
+                                ).set_tags(viewable=False)
 
     # NB: do not use directly ; use the property 'settings'
-    json_settings = TextField(editable=False, default='{}').set_tags(viewable=False)  # TODO: JSONField ?
+    json_settings = models.TextField(editable=False, default='{}').set_tags(viewable=False)  # TODO: JSONField ?
 
     objects = CremeUserManager()
 
@@ -672,7 +838,7 @@ class CremeUser(AbstractBaseUser):
 
         teams = self._teams
         if teams is None:
-            self._teams = teams = list(self.teams_set.all())
+            self._teams = teams = [*self.teams_set.all()]
 
         return teams
 
@@ -897,7 +1063,7 @@ for fname in ('password', 'last_login'):
 del get_user_field
 
 
-class Sandbox(Model):
+class Sandbox(models.Model):
     """When a CremeEntity is associated to a sandbox, only the user related to this sandbox
     can have its regular permission on this entity.
     A Sandbox can be related to a UserRole ; in these case all users with this role can access to this entity.
@@ -905,15 +1071,16 @@ class Sandbox(Model):
     Notice that superusers ignore the Sandboxes ; so if a SandBox has no related user/role, the entities in
     this sandbox are only accessible to the superusers (like the Sandbox built in creme_core.populate.py)
     """
-    uuid      = UUIDField(unique=True, editable=False, default=uuid.uuid4)
-    type_id   = CharField('Type of sandbox', max_length=48, editable=False)
-    role      = ForeignKey(UserRole, verbose_name='Related role', null=True,
-                           default=None, on_delete=CASCADE, editable=False,
-                          )
+    uuid      = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
+    type_id   = models.CharField('Type of sandbox', max_length=48, editable=False)
+    role      = models.ForeignKey(UserRole, verbose_name='Related role', null=True,
+                                  default=None, on_delete=models.CASCADE, editable=False,
+                                 )
     # superuser = BooleanField('related to superusers', default=False, editable=False)
-    user      = ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Related user',
-                           null=True, default=None, on_delete=CASCADE, editable=False,
-                          )
+    user      = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Related user',
+                                  null=True, default=None, on_delete=models.CASCADE,
+                                  editable=False,
+                                 )
 
     class Meta:
         app_label = 'creme_core'
@@ -924,3 +1091,6 @@ class Sandbox(Model):
         from creme.creme_core.core.sandbox import sandbox_type_registry
 
         return sandbox_type_registry.get(self)
+
+
+from .entity import CremeEntity

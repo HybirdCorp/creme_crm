@@ -46,6 +46,9 @@ class EntityCredentials:
         UNLINK_PERM: UNLINK,
     }
 
+    class FilteringError(Exception):
+        pass
+
     def _sandbox_is_allowed(self, sandbox, user):
         if sandbox.role_id:
             return sandbox.role_id == user.role_id
@@ -151,6 +154,10 @@ class EntityCredentials:
                by its field 'entity_type' (to keep only entities of the right model, & so do not
                make mistakes with credentials).
         @return: A new Queryset on CremeEntity, more selective (not retrieved).
+        @raise: ValueError if the <queryset> does not concern 'CremeEntity'.
+        @raise: EntityCredentials.FilteringError if there is an EntityFilter,
+                which cannot be used on CremeEntity, in the SetCredentials
+                concerning the models of the allowed apps.
         """
         from creme.creme_core.models import CremeEntity
 

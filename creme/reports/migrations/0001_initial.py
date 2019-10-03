@@ -6,6 +6,8 @@ from django.db.models.deletion import PROTECT, CASCADE
 
 from creme.creme_core.models import fields as creme_fields
 
+EF_USER = 1
+
 
 class Migration(migrations.Migration):
     # replaces = [
@@ -32,6 +34,7 @@ class Migration(migrations.Migration):
                 ('ct', creme_fields.EntityCTypeForeignKey(verbose_name='Entity type', to='contenttypes.ContentType')),
                 ('filter', models.ForeignKey(on_delete=PROTECT, verbose_name='Filter', blank=True,
                                              to='creme_core.EntityFilter', null=True,
+                                             limit_choices_to={'filter_type': EF_USER},
                                             )
                 ),
             ],

@@ -1397,6 +1397,17 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
         self.assertFalse(self.refresh(efilter).is_private)
 
+    def test_edit10(self):
+        "Cannot edit a system filter."
+        self.login()
+
+        efilter = EntityFilter.objects.create(
+            id='test-system_filter', name='System filter',
+            entity_type=FakeContact, is_custom=True,
+            filter_type=EntityFilter.EF_SYSTEM,
+        )
+        self.assertGET403(efilter.get_edit_absolute_url())
+
     def _aux_edit_subfilter(self, efilter, user=None, is_private=''):
         user = user or self.user
 
@@ -1417,7 +1428,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         )
 
     def test_edit_subfilter01(self):
-        "Edit a filter which is a sub-filter for another one -> both are public"
+        "Edit a filter which is a sub-filter for another one -> both are public."
         user = self.login()
 
         efilter1 = EntityFilter.create(
@@ -1434,7 +1445,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(user, self.refresh(efilter1).user)
 
     def test_edit_subfilter02(self):
-        "The sub-filter becomes public"
+        "The sub-filter becomes public."
         user = self.login()
 
         efilter1 = EntityFilter.create(

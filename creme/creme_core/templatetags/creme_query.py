@@ -18,12 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.template import Library
 
 from ..auth.entity_credentials import EntityCredentials
 from ..models import CremeEntity
 from ..utils.queries import QSerializer
 
+logger = logging.getLogger(__name__)
 register = Library()
 __serializer = QSerializer()
 
@@ -46,14 +49,22 @@ def query_entities_count(*, ctype, user):
     assert issubclass(model, CremeEntity)
 
     # TODO: factorise (with views.generic.listview)
-    return EntityCredentials.filter_entities(
-                    user,
-                    CremeEntity.objects.filter(
-                         is_deleted=False,
-                         entity_type=ctype,
-                        ),
-                    as_model=model,
-                ).count()
+    try:
+        return EntityCredentials.filter_entities(
+            user=user,
+            queryset=CremeEntity.objects.filter(
+                is_deleted=False,
+                entity_type=ctype,
+            ),
+            as_model=model,
+        ).count()
+    except EntityCredentials.FilteringError as e:
+        logger.debug('{%% query_entities_count %%} : fast count is not possible (%s)', e)
+
+        return EntityCredentials.filter(
+            user=user,
+            queryset=model.objects.filter(is_deleted=False),
+        ).count()
 
 
 @register.filter()

@@ -1103,7 +1103,11 @@ class Migration(migrations.Migration):
                     ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('ctype', creme_fields.EntityCTypeForeignKey(verbose_name='Entity type', to='contenttypes.ContentType')),
-                    ('efilter', models.ForeignKey(on_delete=models.PROTECT, verbose_name='Filter', blank=True, to='creme_core.EntityFilter', null=True)),
+                    ('efilter', models.ForeignKey(to='creme_core.EntityFilter', verbose_name='Filter',
+                                                  on_delete=models.PROTECT, blank=True, null=True,
+                                                  limit_choices_to={'filter_type': 1},  # EntityFilter.EF_USER
+                                                 )
+                    ),
                 ],
                 options={
                     'ordering': ('name',),

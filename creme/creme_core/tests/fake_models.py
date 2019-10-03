@@ -639,6 +639,7 @@ else:
         efilter = models.ForeignKey(EntityFilter, verbose_name=_('Filter'),
                                     blank=True, null=True,
                                     on_delete=models.PROTECT,
+                                    limit_choices_to={'filter_type': EntityFilter.EF_USER},
                                    ).set_null_label(_('No filter'))
 
         # creation_label = _('Create a report')
