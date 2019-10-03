@@ -3499,7 +3499,7 @@ msgstr "Conditions du filtre «%(efilter)s»"
 
 #: templates/creme_core/templatetags/listview/entity-filters.html:15
 msgid "Information on the current filter"
-msgstr "Informations sur le filter courant"
+msgstr "Informations sur le filtre courant"
 
 #: templates/creme_core/templatetags/listview/entity-filters.html:18
 msgid "Any condition is met:"

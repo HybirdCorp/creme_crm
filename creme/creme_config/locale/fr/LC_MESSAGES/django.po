@@ -641,7 +641,7 @@ msgstr ""
 # Already in creme_core
 #: forms/user_role.py:188
 msgid "On properties"
-msgstr "Pas de propriété"
+msgstr ""
 
 # Already in creme_core
 #: forms/user_role.py:203
@@ -651,7 +651,7 @@ msgstr ""
 # Already in creme_core
 #: forms/user_role.py:204 forms/user_role.py:243
 msgid "Conditions"
-msgstr "Configuration"
+msgstr ""
 
 #: forms/user_role.py:245
 msgid "No filter, no condition."
@@ -1456,11 +1456,12 @@ msgstr "Filtre «%(efilter)s»"
 #: templates/creme_config/bricks/user-roles.html:51
 #, python-format
 msgid "Conditions of «%(efilter)s»"
-msgstr "Configuration des champs"
+msgstr ""
 
+# Already in creme_core
 #: templates/creme_config/bricks/user-roles.html:54
 msgid "Information on the current filter"
-msgstr "Informations sur le filtre courant"
+msgstr ""
 
 # Already in creme_core
 #: templates/creme_config/bricks/user-roles.html:57
