@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 28-06-2019 pour la version 2.1 de Creme
+:Version: 03-10-2019 pour la version 2.1 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -145,7 +145,7 @@ Puis créons dedans un fichier nommé ``beaver.py`` (notez le singulier) à l'ai
     # -*- coding: utf-8 -*-
 
     from django.db.models import CharField, DateField
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.models import CremeEntity
 
@@ -267,7 +267,7 @@ Tout d'abord, créons un nouveau fichier ``beavers/apps.py`` qui contient : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.apps import CremeAppConfig
 
@@ -405,7 +405,7 @@ Dans ``forms/``, nous créons alors le fichier ``beaver.py`` : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.forms import CremeEntityForm
 
@@ -610,7 +610,7 @@ Puis créons un fichier : ``beavers/populate.py``. ::
 
     # -*- coding: utf-8 -*-
 
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.management.commands.creme_populate import BasePopulator
@@ -675,7 +675,7 @@ Localisation (l10n)
 Jusqu'ici nous avons mis uniquement des labels en anglais. Donc même si votre
 navigateur est configuré pour récupérer les pages en français quand c'est possible,
 l'interface du module *beavers* reste en anglais. Mais nous avons toujours utilisé
-les méthodes ``ugettext`` et ``ugettext_lazy`` (importées en tant que '_') pour
+les méthodes ``gettext`` et ``gettext_lazy`` (importées en tant que '_') pour
 'wrapper' nos labels. Il va donc être facile de localiser notre module.
 Dans ``beavers/``, créez un répertoire ``locale``, puis lancez la commande qui
 construit le fichier de traduction (en français ici) : ::
@@ -824,7 +824,7 @@ Créez un fichier ``models/status.py`` : ::
     # -*- coding: utf-8 -*-
 
     from django.db.models import CharField, BooleanField
-    from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+    from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
     from creme.creme_core.models import CremeModel
 
@@ -934,7 +934,7 @@ Puis ajoutons un champ 'status' dans notre modèle ``Beaver`` : ::
 
     from django.db.models import CharField, DateField, ForeignKey  # <- NEW
     from django.urls import reverse
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.models import CremeEntity, CREME_REPLACE
 
@@ -1254,7 +1254,7 @@ Créez le fichier ``creme/beavers/bricks.py`` : ::
 
     from datetime import date
 
-    from django.utils.translation import ugettext_lazy as _, ugettext
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.gui.bricks import Brick
 
@@ -1294,8 +1294,8 @@ Créez le fichier ``creme/beavers/bricks.py`` : ::
             birthday = beaver.birthday
 
             return self._render(self.get_template_context(
-                        context,
-                        age=(date.today().year - birthday.year) if birthday else None,
+                context,
+                age=(date.today().year - birthday.year) if birthday else None,
             ))
 
 On crée ensuite le template correspondant, ``creme/beavers/templates/beavers/bricks/age.html`` : ::
@@ -1414,7 +1414,7 @@ Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
     # -*- coding: utf-8 -*-
 
     from django.shortcuts import get_object_or_404
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.views.generic import EntityCreation
 
@@ -1459,7 +1459,7 @@ une convention) : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.gui.button_menu import Button
 
@@ -1604,7 +1604,7 @@ fichier ``function_fields.py`` ::
 
     from datetime import date
 
-    from django.utils.translation import ugettext
+    from django.utils.translation import gettext_lazy as _, gettext
 
     from creme.creme_core.core.function_field import FunctionField
 
@@ -1617,9 +1617,9 @@ fichier ``function_fields.py`` ::
             birthday = entity.birthday
 
             return self.result_type(
-                ugettext('{} year(s)').format(date.today().year - birthday.year)
+                gettext('{} year(s)').format(date.today().year - birthday.year)
                 if birthday else
-                ugettext('N/A')
+                gettext('N/A')
             )
 
 
@@ -1674,7 +1674,7 @@ action d'un castor dans la vue de liste.
 Créons un fichier ``actions.py`` dans notre app : ::
 
     from django.urls.base import reverse
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.gui.actions import UIAction
 
@@ -2095,7 +2095,7 @@ Notre ``AppConfig`` va déclarer que l'on étend ``tickets`` : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.apps import CremeAppConfig
 
@@ -2117,7 +2117,7 @@ afin d'éviter tout un tas de petits désagréments/bugs : ::
     # -*- coding: utf-8 -*-
 
     from django.db.models import DecimalField
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.models import CremeModel
 
@@ -2585,7 +2585,7 @@ Dans un fichier ``setting_keys.py`` à la racine de votre app mettez : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.core.setting_key import SettingKey
 
@@ -2674,7 +2674,7 @@ Dans le fichier ``setting_keys.py`` à la racine de l'app mettez : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.core.setting_key import UserSettingKey
 
@@ -2810,7 +2810,7 @@ Ici on va juste créer un simple fichier ``beavers/creme_jobs.py`` : ::
     # -*- coding: utf-8 -*-
 
     from django.conf import settings
-    from django.utils.translation import ugettext_lazy as _, ugettext
+    from django.utils.translation import gettext_lazy as _, gettext
 
     from creme.creme_core.creme_jobs.base import JobType
 
@@ -2830,8 +2830,8 @@ Ici on va juste créer un simple fichier ``beavers/creme_jobs.py`` : ::
             # La liste permet de mettre des informations supplémentaires comme
             # l'URL du service utilisée dans notre cas.
             return [
-                ugettext('Check the health of the beavers by connecting to our health service'),
-                ugettext('URL is {}').format(settings.BEAVERS_HEALTH_URL),
+                gettext('Check the health of the beavers by connecting to our health service'),
+                gettext('URL is {}').format(settings.BEAVERS_HEALTH_URL),
             ]
 
 
@@ -2913,9 +2913,10 @@ dans le bloc d'erreurs de la vue détaillée du job). Voici un exemple : ::
             except MyConnectionError as e:
                 JobResult.objects.create(
                     job=job,
-                    messages=[ugettext('An error occurred during connection.'),
-                              ugettext('Original error: {}').format(e),
-                             ],
+                    messages=[
+                        gettext('An error occurred during connection.'),
+                        gettext('Original error: {}').format(e),
+                    ],
                 )
 
 
