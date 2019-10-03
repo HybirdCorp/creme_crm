@@ -21,7 +21,7 @@ try:
         CremeUser, Sandbox, CremeEntity,
         CremePropertyType, CremeProperty,
         Relation, UserRole, SetCredentials,
-        EntityFilter, EntityFilterCondition,
+        EntityFilter,
         FakeContact, FakeOrganisation, FakeInvoice, FakeInvoiceLine,
     )
     from creme.creme_core.sandboxes import OnlySuperusersType

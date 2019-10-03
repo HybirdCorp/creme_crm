@@ -34,7 +34,7 @@ from django.db.models import (
     FileField as ModelFileField,
 )
 from django.db.models.fields.related import RelatedField as ModelRelatedField
-from django.forms import ModelMultipleChoiceField, DateField, ChoiceField, ValidationError
+from django.forms import ModelMultipleChoiceField, DateField, ValidationError  # ChoiceField
 from django.forms.fields import CallableChoiceIterator
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
