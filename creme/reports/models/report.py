@@ -41,6 +41,7 @@ class AbstractReport(CremeEntity):
     ct     = EntityCTypeForeignKey(verbose_name=_('Entity type'))
     filter = ForeignKey(EntityFilter, verbose_name=_('Filter'),
                         blank=True, null=True, on_delete=PROTECT,
+                        limit_choices_to={'filter_type': EntityFilter.EF_USER},
                        ).set_null_label(_('No filter'))
 
     creation_label = _('Create a report')

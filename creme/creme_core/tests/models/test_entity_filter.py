@@ -153,6 +153,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertIsInstance(efilter, EntityFilter)
         self.assertEqual(pk,    efilter.id)
         self.assertEqual(name,  efilter.name)
+        self.assertEqual(EntityFilter.EF_USER, efilter.filter_type)
         self.assertEqual(model, efilter.entity_type.model_class())
         self.assertIsNone(efilter.user)
         self.assertIs(efilter.use_or,     False)
@@ -3858,6 +3859,8 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_get_for_user(self):
         user = self.user
+        other_user = self.other_user
+
         create_ef = partial(
             EntityFilter.create, name='Misatos',
             model=FakeContact,
@@ -3892,10 +3895,16 @@ class EntityFiltersTestCase(CremeTestCase):
                 ),
             ],
         )
-        ef4 = create_ef(pk='test-ef_contact3', user=self.other_user)
-        ef5 = create_ef(pk='test-ef_contact4', user=self.other_user,
+        ef4 = create_ef(pk='test-ef_contact3', user=other_user)
+        ef5 = create_ef(pk='test-ef_contact4', user=other_user,
                         is_private=True, is_custom=True,
                        )
+        ef6 = EntityFilter.objects.create(
+            pk='test-ef_contact5',
+            name='My contacts',
+            entity_type=FakeContact,
+            filter_type=EntityFilter.EF_SYSTEM,  # <==
+        )
 
         efilters = EntityFilter.get_for_user(user, self.contact_ct)
         self.assertIsInstance(efilters, QuerySet)
@@ -3907,6 +3916,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         self.assertNotIn(ef3, efilters_set)
         self.assertNotIn(ef5, efilters_set)
+        self.assertNotIn(ef6, efilters_set)
 
         # ----
         orga_ct = ContentType.objects.get_for_model(FakeOrganisation)

@@ -17,28 +17,53 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-            EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.entity_cell import (
+        EntityCellRegularField,
+        EntityCellCustomField,
+        EntityCellFunctionField,
+        EntityCellRelation,
+    )
     from creme.creme_core.core.entity_filter import condition_handler, operators
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.gui import actions
-    from creme.creme_core.models import (RelationType, Relation, SetCredentials,
-            EntityFilter, CustomField, CustomFieldInteger,
-            CremePropertyType, CremeProperty, HeaderFilter, FieldsConfig)  # EntityFilterCondition
-    from creme.creme_core.tests.fake_constants import (FAKE_REL_SUB_EMPLOYED_BY,
-            FAKE_REL_OBJ_EMPLOYED_BY, FAKE_REL_OBJ_BILL_ISSUED)
-    from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation, FakeLegalForm, FakePosition,
-            FakeImage, FakeImageCategory, FakeEmailCampaign, FakeMailingList, FakeInvoice,
-            FakeFolderCategory, FakeFolder as FakeCoreFolder, FakeDocument as FakeCoreDocument)
+    from creme.creme_core.models import (
+        CremePropertyType, CremeProperty,
+        RelationType, Relation,
+        SetCredentials,
+        HeaderFilter, EntityFilter,  # EntityFilterCondition
+        CustomField, CustomFieldInteger,
+        FieldsConfig,
+        FakeContact, FakeOrganisation, FakeLegalForm, FakePosition,
+        FakeImage, FakeImageCategory,
+        FakeEmailCampaign, FakeMailingList,
+        FakeInvoice,
+        FakeFolderCategory,
+        FakeFolder as FakeCoreFolder,
+        FakeDocument as FakeCoreDocument,
+    )
+    from creme.creme_core.tests.fake_constants import (
+        FAKE_REL_SUB_EMPLOYED_BY,
+        FAKE_REL_OBJ_EMPLOYED_BY,
+        FAKE_REL_OBJ_BILL_ISSUED,
+    )
 
     from .base import BaseReportsTestCase, skipIfCustomReport, Report
-    from .fake_models import FakeReportsFolder, FakeReportsDocument, Guild
 
     from ..actions import ExportReportAction
-    from ..constants import (RFT_FIELD, RFT_CUSTOM, RFT_RELATION, RFT_FUNCTION,
-            RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
+    from ..constants import (
+        RFT_FIELD,
+        RFT_CUSTOM,
+        RFT_RELATION,
+        RFT_FUNCTION,
+        RFT_AGG_FIELD,
+        RFT_AGG_CUSTOM,
+        RFT_RELATED,
+    )
     from ..forms.report import ReportExportPreviewFilterForm
-    from ..models import Field
+    from ..models import (
+        Field,
+        FakeReportsFolder, FakeReportsDocument, Guild,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -348,18 +373,35 @@ class ReportTestCase(BaseReportsTestCase):
 
         name = 'my report'
         report = self._create_report(name)
-        url = report.get_edit_absolute_url()
-        self.assertGET200(url)
 
         name = name.title()
-        efilter = EntityFilter.create('test-filter', 'Filter', FakeContact, is_custom=True,
-                                      is_private=True, user=user,
-                                      )
+        efilter = EntityFilter.create(
+            'test-filter', 'Filter', FakeContact, is_custom=True,
+            is_private=True, user=user,
+        )
+        system_efilter = EntityFilter.objects.create(
+            id='test-filter02',
+            name='Agences',
+            entity_type=FakeContact,
+            filter_type=EntityFilter.EF_SYSTEM,
+        )
+
+        # GET ---
+        url = report.get_edit_absolute_url()
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            filter_choices = response.context['form'].fields['filter'].choices
+
+        self.assertIn((efilter.id, str(efilter)), filter_choices)
+        self.assertNotIn((system_efilter.id, str(system_efilter)), filter_choices)
+
+        # POST ---
         response = self.client.post(url, follow=True, 
                                     data={'user': user.pk,
                                           'name': name,
                                           'filter': efilter.id,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 

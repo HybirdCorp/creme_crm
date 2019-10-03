@@ -256,6 +256,12 @@ class EnumerableTestCase(CremeTestCase):
             entity_type=FakeOrganisation,
             is_custom=True, user=user, is_private=True,
         )
+        efilter3 = create_filter(
+            id='test-filter03',
+            name='Filter 01',
+            entity_type=FakeContact,
+            filter_type=EntityFilter.EF_SYSTEM,  # <==
+        )
 
         e = EntityFilterEnumerator(FakeReport._meta.get_field('efilter'))
         choices = e.choices(user)
@@ -285,3 +291,6 @@ class EnumerableTestCase(CremeTestCase):
                          },
                          find_efilter_dict(efilter2)
                         )
+        self.assertFalse(
+            [c for c in choices if c['value'] == efilter3.id]
+        )

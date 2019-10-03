@@ -112,7 +112,7 @@ class Migration(migrations.Migration):
                 ('sub_type',models.ForeignKey(on_delete=SET_NULL, verbose_name='Activity sub-type', blank=True, to='activities.ActivitySubType', null=True)),
                 # ('status', models.ForeignKey(on_delete=SET_NULL, verbose_name='Status', blank=True, to='activities.Status', null=True)),
                 ('status', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Status', blank=True, to='activities.Status', null=True)),
-                ('calendars', models.ManyToManyField(verbose_name='Calendars', editable=False, to='activities.Calendar', blank=True)),
+                ('calendars', models.ManyToManyField(verbose_name='Calendars', editable=False, to='activities.Calendar')),  # blank=True
             ],
             options={
                 'swappable': 'ACTIVITIES_ACTIVITY_MODEL',

@@ -89,8 +89,19 @@ class EntityFilter(models.Model):  # CremeModel ???
      - The existence (or the not existence) of a kind of Relationship.
      - The holding (or the not holding) of a kind of CremeProperty
     """
+    EF_SYSTEM = 0
+    EF_USER = 1
+
     id   = models.CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
     name = models.CharField(max_length=100, verbose_name=_('Name'))
+
+    filter_type = models.PositiveSmallIntegerField(
+        editable=False, default=EF_USER,
+        choices=[
+            (EF_SYSTEM, 'System filter (internal use)'),
+            (EF_USER,   'Regular filter (usable in list-view...'),
+        ],
+    ).set_tags(viewable=False)
 
     is_custom = models.BooleanField(editable=False, default=True).set_tags(viewable=False)
     user = CremeUserForeignKey(
@@ -179,6 +190,9 @@ class EntityFilter(models.Model):  # CremeModel ???
 
     def can_edit(self, user):
         assert not user.is_team
+
+        if self.filter_type == self.EF_SYSTEM:
+            return False, gettext('You cannot edit/delete a system filter')
 
         if not self.user_id:  # All users allowed
             return True, 'OK'
@@ -556,17 +570,20 @@ class EntityFilter(models.Model):  # CremeModel ???
 
     # TODO: move to a manager + rename (filter_...) + accept models
     #       possible to separate into 2 methods (filter by user & filter by ct) ??
-    @staticmethod
-    def get_for_user(user, content_type=None):
+    # @staticmethod
+    @classmethod
+    # def get_for_user(user, content_type=None):
+    def get_for_user(cls, user, content_type=None):
         """Get the EntityFilter queryset corresponding of filters which a user can see.
         @param user: A User instance.
         @param content_type: None (means 'for all ContentTypes').
-                             A ContentType instance (means 'filters related to this CT').
-                             An iterable of ContentType instances (means 'filters related to these CT').
+               A ContentType instance (means 'filters related to this CT').
+               An iterable of ContentType instances (means 'filters related to these CT').
         """
         assert not user.is_team
 
-        qs = EntityFilter.objects.all()
+        # qs = EntityFilter.objects.all()
+        qs = cls.objects.exclude(filter_type=cls.EF_SYSTEM)
 
         if content_type:
             qs = qs.filter(entity_type=content_type) if isinstance(content_type, ContentType) else \

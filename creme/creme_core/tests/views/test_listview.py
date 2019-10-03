@@ -23,18 +23,19 @@ try:
     from .base import ViewsTestCase
     from .. import fake_constants
 
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.entity_cell import (
         EntityCellRegularField,
         EntityCellCustomField,
         EntityCellFunctionField,
         EntityCellRelation,
     )
-    from creme.creme_core.core.entity_filter.operators import ISTARTSWITH
-    from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
+    from creme.creme_core.core.entity_filter import operators, condition_handler
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.gui.listview import ListViewState
     from creme.creme_core.models import (
         EntityFilter,   # EntityFilterCondition
+        SetCredentials,
         HeaderFilter,
         RelationType, Relation,
         FieldsConfig,
@@ -63,7 +64,7 @@ class ListViewTestCase(ViewsTestCase):
         cls.url = FakeOrganisation.get_lv_absolute_url()
         cls.ctype = ContentType.objects.get_for_model(FakeOrganisation)
 
-        cls._civ_backup = list(FakeCivility.objects.all())
+        cls._civ_backup = [*FakeCivility.objects.all()]
         FakeCivility.objects.all().delete()
 
     @classmethod
@@ -190,7 +191,7 @@ class ListViewTestCase(ViewsTestCase):
                         div_node = td_node.find('.//div')
 
                         if div_node is not None:
-                            content.append(list(div_node) or div_node.text.strip())
+                            content.append([*div_node] or div_node.text.strip())
 
         return content
 
@@ -579,7 +580,7 @@ class ListViewTestCase(ViewsTestCase):
         lines = [(self.assertIndex(str(getattr(e, key)), content), e)
                     for e in entries
                 ]
-        self.assertListEqual(list(entries),
+        self.assertListEqual([*entries],
                              [line[1] for line in sorted(lines, key=lambda e: e[0])]
                             )
 
@@ -666,12 +667,14 @@ class ListViewTestCase(ViewsTestCase):
 
         fname = 'mailing_lists'
         func_field_name = 'get_pretty_properties'
-        HeaderFilter.create(pk='test-hf_camp', name='Campaign view', model=FakeEmailCampaign,
-                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                                        (EntityCellRegularField, {'name': fname}),
-                                        (EntityCellFunctionField, {'func_field_name': func_field_name}),
-                                       ]
-                           )
+        HeaderFilter.create(
+            pk='test-hf_camp', name='Campaign view', model=FakeEmailCampaign,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': fname}),
+                (EntityCellFunctionField, {'func_field_name': func_field_name}),
+            ],
+        )
 
         url = FakeEmailCampaign.get_lv_absolute_url()
         # We just check that it does not crash
@@ -710,11 +713,12 @@ class ListViewTestCase(ViewsTestCase):
         # self.assertEqual('-',  sort_order)
         self.assertEqual('DESC',  sort_order)
 
-        self.assertRegex(self._get_sql(response),
-                         r'ORDER BY '
-                         r'.creme_core_fakeactivity.\..start. DESC( NULLS LAST)?\, '
-                         r'.creme_core_fakeactivity.\..cremeentity_ptr_id. DESC( NULLS LAST)?$'
-                        )
+        self.assertRegex(
+            self._get_sql(response),
+            r'ORDER BY '
+            r'.creme_core_fakeactivity.\..start. DESC( NULLS LAST)?\, '
+            r'.creme_core_fakeactivity.\..cremeentity_ptr_id. DESC( NULLS LAST)?$'
+        )
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
     def test_ordering_default(self):
@@ -740,12 +744,13 @@ class ListViewTestCase(ViewsTestCase):
         # self.assertEqual('', listview_state.sort_order)
         self.assertEqual('ASC', listview_state.sort_order)
 
-        self.assertRegex(self._get_sql(response),
-                         r'ORDER BY '
-                         r'.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?\, '
-                         r'.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?\, '
-                         r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
-                        )
+        self.assertRegex(
+            self._get_sql(response),
+            r'ORDER BY '
+            r'.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?\, '
+            r'.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?\, '
+            r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+        )
 
     def test_ordering_merge_column_and_default(self):
         self.assertEqual(('last_name', 'first_name'), FakeContact._meta.ordering)
@@ -986,9 +991,9 @@ class ListViewTestCase(ViewsTestCase):
                 #     operator=EntityFilterCondition.ISTARTSWITH,
                 #     name='name', values=['Red'],
                 # ),
-                RegularFieldConditionHandler.build_condition(
+                condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation, field_name='name',
-                    operator_id=ISTARTSWITH, values=['Red'],
+                    operator_id=operators.ISTARTSWITH, values=['Red'],
                 ),
             ],
         )
@@ -2728,7 +2733,7 @@ class ListViewTestCase(ViewsTestCase):
         for i in range(expected_count - count):
             create_orga(name='Mafia #{:02}'.format(i))
 
-        organisations = list(FakeOrganisation.objects.all())
+        organisations = [*FakeOrganisation.objects.all()]
         self.assertEqual(expected_count, len(organisations))
 
         return organisations
@@ -2763,7 +2768,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(13, paginator.count)
         self.assertEqual(2,  paginator.num_pages)
 
-        entities = list(entities_page.object_list)
+        entities = [*entities_page.object_list]
         idx1 = self.assertIndex(organisations[0], entities)
         self.assertEqual(0, idx1)
         idx10 = self.assertIndex(organisations[9], entities)
@@ -2776,7 +2781,7 @@ class ListViewTestCase(ViewsTestCase):
 
         self.assertEqual(3, len(entities_page))
 
-        entities = list(entities_page.object_list)
+        entities = [*entities_page.object_list]
         idx11 = self.assertIndex(organisations[10], entities)
         self.assertEqual(0, idx11)
 
@@ -2815,14 +2820,14 @@ class ListViewTestCase(ViewsTestCase):
         # entities_page = response.context['entities']
         entities_page = response.context['page_obj']
         self.assertEqual(2, entities_page.number)
-        self.assertIndex(organisations[10], list(entities_page.object_list))
+        self.assertIndex(organisations[10], [*entities_page.object_list])
 
         # ... which should be kept in session
         response = post()
         # entities_page = response.context['entities']
         entities_page = response.context['page_obj']
         self.assertEqual(2, entities_page.number)
-        self.assertIndex(organisations[10], list(entities_page.object_list))
+        self.assertIndex(organisations[10], [*entities_page.object_list])
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[10, 25], DEFAULT_PAGE_SIZE_IDX=0)
     def test_pagination_fast01(self):
@@ -2832,11 +2837,12 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf()
 
         def post(page_info=None):
-            return self.assertPOST200(self.url,
-                                      data={'hfilter': hf.id,
-                                            'page': json_dump(page_info) if page_info else '',
-                                           },
-                                     )
+            return self.assertPOST200(
+                self.url,
+                data={'hfilter': hf.id,
+                      'page': json_dump(page_info) if page_info else '',
+                     },
+            )
 
         # Page 1 --------------------
         response = post()
@@ -2856,7 +2862,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(13, paginator.count)
         self.assertEqual(2, paginator.num_pages)
 
-        entities = list(entities_page1.object_list)
+        entities = [*entities_page1.object_list]
         idx1 = self.assertIndex(organisations[0], entities)
         self.assertEqual(0, idx1)
 
@@ -2870,7 +2876,7 @@ class ListViewTestCase(ViewsTestCase):
 
         self.assertEqual(3, len(entities_page2))
 
-        entities = list(entities_page2.object_list)
+        entities = [*entities_page2.object_list]
         idx11 = self.assertIndex(organisations[10], entities)
         self.assertEqual(0, idx11)
 
@@ -2888,7 +2894,7 @@ class ListViewTestCase(ViewsTestCase):
         for i in range(expected_count - count):
             create_contact(first_name='Gally', last_name='Tuned{:02}'.format(i))
 
-        contacts = list(FakeContact.objects.all())
+        contacts = [*FakeContact.objects.all()]
         self.assertEqual(expected_count, len(contacts))
 
         hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
@@ -2920,7 +2926,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(rows, paginator.per_page)
         self.assertEqual(expected_count, paginator.count)
 
-        entities = list(entities_page1.object_list)
+        entities = [*entities_page1.object_list]
         idx1 = self.assertIndex(contacts[0], entities)
         self.assertEqual(0, idx1)
 
@@ -2934,7 +2940,7 @@ class ListViewTestCase(ViewsTestCase):
 
         self.assertEqual(3, len(entities_page2))
 
-        entities = list(entities_page2.object_list)
+        entities = [*entities_page2.object_list]
         idx11 = self.assertIndex(contacts[10], entities)
         self.assertEqual(0, idx11)
 
@@ -2948,40 +2954,44 @@ class ListViewTestCase(ViewsTestCase):
         count = FakeContact.objects.count()
         self.assertLessEqual(count, expected_count)
 
-        ids = list(range(expected_count - count))
+        ids = [*range(expected_count - count)]
         shuffle(ids)
 
         create_contact = partial(FakeContact.objects.create, user=user)
         for i, id_ in enumerate(ids):
             # NB: we want the ordering by 'first_name' to be different from the 'last_name' one
-            create_contact(first_name='Gally{:02}'.format(id_), last_name='Tuned{:02}'.format(i))
+            create_contact(first_name='Gally{:02}'.format(id_),
+                           last_name='Tuned{:02}'.format(i),
+                          )
 
         ordering_fname = 'first_name'
-        contacts = list(FakeContact.objects.order_by(ordering_fname))
+        contacts = [*FakeContact.objects.order_by(ordering_fname)]
         self.assertEqual(expected_count, len(contacts))
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell2 = build_cell(name=ordering_fname)
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view',
+                                 model=FakeContact,
                                  cells_desc=[build_cell(name='last_name'), cell2],
                                 )
 
         def post(page_info=None):
-            return self.assertPOST200(FakeContact.get_lv_absolute_url(),
-                                      data={'hfilter': hf.id,
-                                            # 'sort_field': cell2.key,
-                                            'sort_key': cell2.key,
-                                            'sort_order': '',  # TODO: 'DESC'
-                                            'page': json_dump(page_info) if page_info else '',
-                                            'rows': rows,
-                                           },
-                                      )
+            return self.assertPOST200(
+                FakeContact.get_lv_absolute_url(),
+                data={'hfilter': hf.id,
+                      # 'sort_field': cell2.key,
+                      'sort_key': cell2.key,
+                      'sort_order': '',  # TODO: 'DESC'
+                      'page': json_dump(page_info) if page_info else '',
+                      'rows': rows,
+                     },
+            )
 
         # Page 1 --------------------
         response = post()
         # entities_page1 = response.context['entities']
         entities_page1 = response.context['page_obj']
-        entities = list(entities_page1.object_list)
+        entities = [*entities_page1.object_list]
         idx1 = self.assertIndex(contacts[0], entities)
         self.assertEqual(0, idx1)
 
@@ -2995,7 +3005,7 @@ class ListViewTestCase(ViewsTestCase):
 
         self.assertEqual(3, len(entities_page2))
 
-        entities = list(entities_page2.object_list)
+        entities = [*entities_page2.object_list]
         idx11 = self.assertIndex(contacts[10], entities)
         self.assertEqual(0, idx11)
 
@@ -3014,28 +3024,30 @@ class ListViewTestCase(ViewsTestCase):
             # NB: same last_name
             create_contact(first_name='Gally', last_name='Tuned', phone='11 22 33 #%02i' % i)
 
-        contacts = list(FakeContact.objects.order_by('last_name', 'first_name', 'cremeentity_ptr_id'))
+        contacts = [*FakeContact.objects.order_by('last_name', 'first_name', 'cremeentity_ptr_id')]
         self.assertEqual(expected_count, len(contacts))
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
-                                             (EntityCellRegularField, {'name': 'first_name'}),
-                                            ],
-                                )
+        hf = HeaderFilter.create(
+            pk='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
+                        (EntityCellRegularField, {'name': 'first_name'}),
+                       ],
+        )
 
         def post(page_info=None):
-            return self.assertPOST200(FakeContact.get_lv_absolute_url(),
-                                      data={'hfilter': hf.id,
-                                            'page': json_dump(page_info) if page_info else '',
-                                            'rows': rows,
-                                           },
-                                     )
+            return self.assertPOST200(
+                FakeContact.get_lv_absolute_url(),
+                data={'hfilter': hf.id,
+                      'page': json_dump(page_info) if page_info else '',
+                      'rows': rows,
+                     },
+            )
 
         # Page 1 --------------------
         response = post()
         # entities_page1 = response.context['entities']
         entities_page1 = response.context['page_obj']
-        idx10 = self.assertIndex(contacts[9], list(entities_page1.object_list))
+        idx10 = self.assertIndex(contacts[9], [*entities_page1.object_list])
         self.assertEqual(9, idx10)
 
         # Page 2 --------------------
@@ -3045,7 +3057,7 @@ class ListViewTestCase(ViewsTestCase):
 
         self.assertEqual(3, len(entities_page2))
 
-        idx11 = self.assertIndex(contacts[10], list(entities_page2.object_list))
+        idx11 = self.assertIndex(contacts[10], [*entities_page2.object_list])
         self.assertEqual(0, idx11)
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[5, 10])
@@ -3316,3 +3328,122 @@ class ListViewTestCase(ViewsTestCase):
 
         # self.assertEqual(1, response.context['entities'].paginator.count)
         self.assertEqual(1, response.context['page_obj'].paginator.count)
+
+    @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
+    def test_credentials_with_filter01(self):
+        "Fast count is not possible."
+        user = self.login(is_superuser=False)
+
+        efilter = EntityFilter.objects.create(
+            id='creme_core-test_listview',
+            entity_type=FakeOrganisation,
+            filter_type=EntityFilter.EF_SYSTEM,
+        )
+        efilter.set_conditions(
+            [condition_handler.RegularFieldConditionHandler.build_condition(
+                model=FakeOrganisation,
+                operator_id=operators.ICONTAINS,
+                field_name='name', values=['Corp'],
+             ),
+            ],
+            check_cycles=False,  # There cannot be a cycle without sub-filter.
+            check_privacy=False,  # No sense here.
+        )
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_FILTER,
+                                      ctype=FakeOrganisation,
+                                      efilter=efilter,
+                                     )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        orga1 = create_orga(name='Acme')  # OK (belongs to user)
+        orga2 = create_orga(name='Foobar incorporated')  # OK: (name passes the Filter)
+        orga3 = create_orga(name='Genius company', user=self.other_user)
+
+        hf = self._build_hf()
+
+        with self.assertLogs(level='DEBUG') as logs_manager:
+            response = self.assertPOST200(self.url, data={'hfilter': hf.id})
+
+        with self.assertNoException():
+            orgas_page = response.context['page_obj']
+
+        self.assertIn(orga1, orgas_page.object_list)
+        self.assertIn(orga2, orgas_page.object_list)
+        self.assertNotIn(orga3, orgas_page.object_list)
+
+        self.assertEqual(2, orgas_page.paginator.count)
+
+        for msg in logs_manager.output:
+            if msg.startswith(
+                'DEBUG:creme.creme_core.views.generic.listview:'
+                'FakeOrganisationsList.get_unordered_queryset_n_count() : '
+                'fast count is not possible'
+            ):
+                break
+        else:
+            self.fail('No slow count message found in {}'.format(logs_manager.output))
+
+    @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
+    def test_credentials_with_filter02(self):
+        "Beware to DISTINCT with filter on relationships."
+        user = self.login(is_superuser=False)
+
+        pilots = RelationType.create(('test-subject_pilots', 'pilots'),
+                                     ('test-object_pilots',  'is piloted by'),
+                                    )[0]
+
+        cred_efilter = EntityFilter.objects.create(
+            id='creme_core-test_listview01',
+            entity_type=FakeContact,
+            filter_type=EntityFilter.EF_SYSTEM,
+        )
+        cred_efilter.set_conditions(
+            [condition_handler.RelationConditionHandler.build_condition(
+                model=FakeContact,
+                rtype=pilots,
+             ),
+            ],
+            check_cycles=False,  # There cannot be a cycle without sub-filter.
+            check_privacy=False,  # No sense here.
+        )
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_FILTER,
+                                      ctype=FakeContact,
+                                      efilter=cred_efilter,
+                                     )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        bebop      = create_orga(name='Bebop')
+        swordfish  = create_orga(name='Swordfish')
+        hammerhead = create_orga(name='Hammerhead')
+
+        # <other_user> because super().login() configures credentials to VIEW our own entities.
+        create_contact = partial(FakeContact.objects.create, user=self.other_user)
+        spike = create_contact(first_name='Spike',  last_name='Spiegel')
+        jet   = create_contact(first_name='Jet',    last_name='Black')
+        ed    = create_contact(first_name='Edward', last_name='Wong')  # <== No Relation
+
+        create_rel = partial(Relation.objects.create, user=user, type=pilots)
+        create_rel(subject_entity=spike, object_entity=swordfish)
+        create_rel(subject_entity=jet,   object_entity=bebop)
+        create_rel(subject_entity=jet,   object_entity=hammerhead)  # <== 2 Relations !!
+
+        response = self.assertPOST200(
+            FakeContact.get_lv_absolute_url(),
+            data={'hfilter': 'creme_core-hf_fakecontact'},  # See fake_populate.py
+        )
+
+        with self.assertNoException():
+            contacts_page = response.context['page_obj']
+
+        contacts = [*contacts_page]
+        self.assertCountOccurrences(member=spike, container=contacts, count=1)
+        self.assertNotIn(ed, contacts)
+        self.assertCountOccurrences(member=jet, container=contacts, count=1)  # Not 2
+
+        self.assertEqual(2, contacts_page.paginator.count)

@@ -843,9 +843,12 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         # ----
         # If the query does not use the real entities' specific fields to filter,
         # we perform a query on CremeEntity & so we avoid a JOIN.
-        model = self.model
-        count = qs.count() if filtered else \
-                EntityCredentials.filter_entities(
+        if filtered:
+            count = qs.count()
+        else:
+            model = self.model
+            try:
+                count = EntityCredentials.filter_entities(
                     user,
                     CremeEntity.objects.filter(
                         is_deleted=False,
@@ -853,6 +856,11 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
                     ),
                     as_model=model,
                 ).count()
+            except EntityCredentials.FilteringError as e:
+                logger.debug('%s.get_unordered_queryset_n_count() : fast count is not possible (%s)',
+                             type(self).__name__, e,
+                            )
+                count = qs.count()
 
         return qs, count
 

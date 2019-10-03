@@ -45,6 +45,26 @@ It limits what the concerned users can see, edit, delete…{% endblocktrans %}
                     {{sc}}
                     {% brick_action id='edit'   url=edit_creds_url          label=_('Edit these credentials')   enabled=admin_perm %}
                     {% brick_action id='delete' url=rm_creds_url __id=sc.id label=_('Delete these credentials') enabled=admin_perm %}
+                    {% with efilter=sc.efilter %}
+                        {% if efilter %}
+                            <br>&nbsp;{% blocktrans %}Filter «{{efilter}}»{% endblocktrans %}
+                            {% blocktrans asvar popup_title %}Conditions of «{{efilter}}»{% endblocktrans %}
+                            {# TODO: factorise with creme/creme_core/templates/creme_core/templatetags/listview/entity-filters.html #}
+                            <a onclick="event.preventDefault(); creme.dialogs.html($('.creds-entity_filter-description', this).html(), {'title': '{{popup_title|escapejs}}'}).open();">
+                                {% widget_icon name='info' label=_('Information on the current filter') size='brick-action' %}
+                                <div style="display:none" class="creds-entity_filter-description">{% get_efilter_conditions efilter=sc.efilter user=user as vconds %}
+                                {% if vconds|length > 1 %}
+                                    <span>{% if efilter.use_or %}{% trans 'Any condition is met:' %}{% else %}{% trans 'All these conditions are met:' %}{% endif %}</span>
+                                    <ul>
+                                        {% for vcond in vconds %}<li>{{vcond}}</li>{% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <span>{{vconds.0}}</span>
+                                {% endif %}
+                                </div>
+                            </a>
+                        {% endif %}
+                    {% endwith %}
                 </li>
             {% endfor %}
             </ul>
