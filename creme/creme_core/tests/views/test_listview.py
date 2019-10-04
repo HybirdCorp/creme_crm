@@ -8,7 +8,8 @@ try:
     from random import shuffle
     import re
 
-    import html5lib
+    # import html5lib
+    from bleach._vendor import html5lib  # Avoid a dependence only for test
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType

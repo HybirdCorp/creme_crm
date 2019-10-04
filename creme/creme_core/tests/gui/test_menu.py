@@ -3,7 +3,8 @@
 try:
     from xml.etree import ElementTree
 
-    import html5lib
+    # import html5lib
+    from bleach._vendor import html5lib  # Avoid a dependence only for test
 
     from django.test.client import RequestFactory
 
