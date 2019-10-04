@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2018 Hybird
+# Copyright (c) 2018-2019 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,7 @@ class Command(BaseCommand):
                     errors_count += 1
                     self.stderr.write(
                         'The swappable URL "{url}" from the app "{app}" seems '
-                        'has broken checking_args: {args}.'.format(
+                        'having broken check_args: {args}.'.format(
                                 url=name,
                                 app=group.app_name,
                                 args=swappable.verbose_args,
