@@ -655,7 +655,8 @@ class SetCredentials(models.Model):
 
         super().save(*args, **kwargs)
 
-    def set_value(self, can_view, can_change, can_delete, can_link, can_unlink):  # TODO: keywords only ??
+    # def set_value(self, can_view, can_change, can_delete, can_link, can_unlink):
+    def set_value(self, *, can_view, can_change, can_delete, can_link, can_unlink):
         """Set the 'value' attribute from 5 booleans."""
         value = EntityCredentials.NONE
 
