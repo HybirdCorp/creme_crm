@@ -193,16 +193,16 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit.html')
 
         context = response.context
-        self.assertEqual(_('Edit «{}»').format(ptype), context.get('title'))
-        self.assertEqual(_('Save the modifications'),  context.get('submit_label'))
-        self.assertEqual(referer_url,                  context.get('cancel_url'))
+        self.assertEqual(_('Edit «{object}»').format(object=ptype), context.get('title'))
+        self.assertEqual(_('Save the modifications'),               context.get('submit_label'))
+        self.assertEqual(referer_url,                               context.get('cancel_url'))
 
         ct_orga = get_ct(FakeOrganisation)
         text = 'is very beautiful'
         response = self.client.post(url, follow=True,
                                     data={'text':           text,
                                           'subject_ctypes': [ct_orga.id],
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
         self.assertRedirects(response, ptype.get_absolute_url())

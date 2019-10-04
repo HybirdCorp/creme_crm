@@ -82,8 +82,10 @@ class EntityEmailTestCase(_EmailsTestCase):
         url = self._build_create_entitymail_url(contact)
 
         context = self.assertGET200(url).context
-        self.assertEqual(_('Sending an email to «{}»').format(contact), context.get('title'))
-        self.assertEqual(EntityEmail.sending_label,                     context.get('submit_label'))
+        self.assertEqual(_('Sending an email to «{entity}»').format(entity=contact),
+                         context.get('title')
+                        )
+        self.assertEqual(EntityEmail.sending_label, context.get('submit_label'))
 
         with self.assertNoException():
             c_recipients = context['form'].fields['c_recipients']
