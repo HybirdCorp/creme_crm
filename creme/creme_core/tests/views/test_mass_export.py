@@ -7,7 +7,8 @@ try:
     from unittest import skipIf
     from urllib.parse import urlencode
 
-    import html5lib
+    # import html5lib
+    from bleach._vendor import html5lib  # Avoid a dependence only for test
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
@@ -21,8 +22,11 @@ try:
 
     from .base import ViewsTestCase
     from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT
-    from ..fake_models import (FakeContact, FakeOrganisation, FakeImage,
-            FakeEmailCampaign, FakeMailingList, FakeInvoice, FakeInvoiceLine)
+    from ..fake_models import (
+        FakeContact, FakeOrganisation, FakeImage,
+        FakeEmailCampaign, FakeMailingList,
+        FakeInvoice, FakeInvoiceLine,
+    )
 
     from creme.creme_core.core.entity_cell import (
         EntityCellRegularField,
