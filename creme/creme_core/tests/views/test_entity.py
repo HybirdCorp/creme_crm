@@ -488,8 +488,8 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         content = response.content.decode()
         self.assertIn(
-            ngettext('The following entity cannot be deleted',
-                     'The following entities cannot be deleted',
+            ngettext('The following entity cannot be deleted:',
+                     'The following entities cannot be deleted:',
                      2
                     ),
             content
@@ -1604,14 +1604,14 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        self.assertEqual(_('Edit «{}»').format(mario), context.get('title'))
-        self.assertEqual(_('Save the modifications'),  context.get('submit_label'))
+        self.assertEqual(_('Edit «{object}»').format(object=mario), context.get('title'))
+        self.assertEqual(_('Save the modifications'),               context.get('submit_label'))
 
         # ---
         first_name = 'Luigi'
         response = self.client.post(url, data={'entities_lbl': [str(mario)],
                                                'field_value': first_name,
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(first_name, self.refresh(mario).first_name)

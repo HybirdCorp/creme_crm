@@ -280,9 +280,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual(
             _('«{field}» is not {values}').format(
                 field=field,
-                values=_('{first} or «{last}»').format(
+                values=_('{first} or {last}').format(
                     first=fmt_value(enum_value=value1),
-                    last=value2,
+                    last=fmt_value(enum_value=value2),
                 ),
             ),
             op.description(field_vname=field, values=[value1, value2])
@@ -491,9 +491,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual(
             _('«{field}» is greater than {values}').format(
                 field=field,
-                values=_('{first} or «{last}»').format(
+                values=_('{first} or {last}').format(
                     first=fmt_value(enum_value=value1),
-                    last=value2,
+                    last=fmt_value(enum_value=value2),
                 ),
             ),
             op.description(field_vname=field, values=[value1, value2])

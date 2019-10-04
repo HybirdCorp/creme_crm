@@ -605,8 +605,8 @@ class EditionTestCase(ViewsTestCase):
 
         context = response.context
         self.assertIsInstance(context.get('form'), fake_forms.FakeContactForm)
-        self.assertEqual(_('Edit «{}»').format(contact), context.get('title'))
-        self.assertEqual(_('Save the modifications'),    context.get('submit_label'))
+        self.assertEqual(_('Edit «{object}»').format(object=contact), context.get('title'))
+        self.assertEqual(_('Save the modifications'),                 context.get('submit_label'))
         self.assertIsNone(context.get('cancel_url', -1))
 
         first_name = 'Spike'
