@@ -44,11 +44,11 @@ DEPENDENCIES:
  - These python packages :
    (exact versions of Python packages are indicated in the file 'creme/requirements.txt')
      - Mandatory :
-         - Django 2.1
-         - redis 2.10
-         - python-dateutil 2.7
+         - Django 2.2
+         - redis 3.3
+         - python-dateutil 2.8
          - bleach 2.1
-         - Pillow 5
+         - Pillow 6.2
          - django-formtools 2.1
 
      - Optional :
@@ -140,7 +140,7 @@ Run the following commands in the root directory:
     >> python manage.py generatemedia
     >> python manage.py creme_populate
 
-If you are upgrading from Creme 1.8, clean all existing sessions, for example like this:
+If you are upgrading from Creme 2.0, clean all existing sessions, for example like this:
     >> python manage.py shell
     > from django.contrib.sessions.models import Session
     > Session.objects.all().delete()
