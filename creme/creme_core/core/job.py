@@ -210,7 +210,7 @@ else:
     import traceback
     from time import sleep
 
-    from redis import StrictRedis
+    from redis import StrictRedis  # TODO: "Redis" with redis3
     from redis.exceptions import RedisError
 
     from creme.creme_core.utils.serializers import json_encode
