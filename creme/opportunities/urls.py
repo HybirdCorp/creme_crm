@@ -40,7 +40,8 @@ urlpatterns = [
         Swappable(re_path(r'^opportunity/(?P<opp_id>\d+)/add_contact[/]?$',
                           contact.RelatedContactCreation.as_view(),
                           name='opportunities__create_related_contact',
-                         )
+                         ),
+                  check_args=Swappable.INT_ID,
                  ),
         app_name='opportunities',
     ).kept_patterns(),
