@@ -20,8 +20,8 @@
 
 from django.contrib.auth.backends import ModelBackend
 
+from . import SUPERUSER_PERM
 from .entity_credentials import EntityCredentials
-
 
 _ADD_PREFIX = 'add_'
 _EXPORT_PREFIX = 'export_'
@@ -38,7 +38,8 @@ class EntityBackend(ModelBackend):
             app_name, dot, action_name = perm.partition('.')
 
             if not action_name:
-                return user_obj.has_perm_to_access(app_name)
+                return user_obj.is_superuser if app_name == SUPERUSER_PERM else \
+                       user_obj.has_perm_to_access(app_name)
 
             if action_name == 'can_admin':
                 return user_obj.has_perm_to_admin(app_name)

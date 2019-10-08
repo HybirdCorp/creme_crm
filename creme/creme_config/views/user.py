@@ -28,7 +28,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core import utils
-from creme.creme_core.auth.decorators import _check_superuser  # login_required, superuser_required
+from creme.creme_core.auth import SUPERUSER_PERM
+# from creme.creme_core.auth.decorators import _check_superuser login_required superuser_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import lock, BrickState
 from creme.creme_core.views import generic
@@ -45,19 +46,21 @@ class PasswordChange(generic.CremeModelEditionPopup):
     model = get_user_model()
     form_class = user_forms.UserChangePwForm
     pk_url_kwarg = 'user_id'
+    permissions = SUPERUSER_PERM
     title = _('Change password for «{object}»')
 
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)
+    # def check_view_permissions(self, user):
+    #     super().check_view_permissions(user=user)
+    #     _check_superuser(user)
 
 
 class BaseUserCreation(generic.CremeModelCreationPopup):
     model = get_user_model()
+    permissions = SUPERUSER_PERM
 
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)
+    # def check_view_permissions(self, user):
+    #     super().check_view_permissions(user=user)
+    #     _check_superuser(user)
 
 
 class UserCreation(BaseUserCreation):
@@ -77,10 +80,11 @@ class Portal(generic.BricksView):
 class BaseUserEdition(generic.CremeModelEditionPopup):
     model = get_user_model()
     pk_url_kwarg = 'user_id'
+    permissions = SUPERUSER_PERM
 
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)
+    # def check_view_permissions(self, user):
+    #     super().check_view_permissions(user=user)
+    #     _check_superuser(user)
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -153,10 +157,7 @@ class UserDeletion(BaseUserEdition):
 #     return HttpResponse()
 class UserDeactivation(generic.CheckedView):
     user_id_url_kwarg = 'user_id'
-
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)
+    permissions = SUPERUSER_PERM
 
     def post(self, request, **kwargs):
         user_id = self.kwargs[self.user_id_url_kwarg]
@@ -195,10 +196,7 @@ class UserDeactivation(generic.CheckedView):
 #     return HttpResponse()
 class UserActivation(generic.CheckedView):
     user_id_url_kwarg = 'user_id'
-
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)
+    permissions = SUPERUSER_PERM
 
     def post(self, request, **kwargs):
         user_id = self.kwargs[self.user_id_url_kwarg]

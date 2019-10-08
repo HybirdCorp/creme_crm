@@ -25,7 +25,8 @@ from django.urls import reverse
 from django.utils.http import is_safe_url
 from django.utils.translation import gettext_lazy as _, gettext
 
-from ..auth.decorators import login_required, superuser_required, _check_superuser
+from ..auth import SUPERUSER_PERM
+from ..auth.decorators import login_required, superuser_required  # _check_superuser
 from ..bricks import JobBrick
 from ..core.exceptions import ConflictError
 from ..core.job import JobManagerQueue
@@ -39,10 +40,11 @@ from . import generic
 
 class Jobs(generic.BricksView):
     template_name = 'creme_core/job/list-all.html'
+    permissions = SUPERUSER_PERM
 
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)
+    # def check_view_permissions(self, user):
+    #     super().check_view_permissions(user=user)
+    #     _check_superuser(user)
 
 
 class MyJobs(generic.BricksView):
@@ -89,6 +91,7 @@ class JobEdition(generic.CremeModelEditionPopup):
     model = Job
     # form_class = ...
     pk_url_kwarg = 'job_id'
+    permissions = SUPERUSER_PERM
     title = _('Edit the job «{object}»')
 
     def check_instance_permissions(self, instance, user):
@@ -97,9 +100,9 @@ class JobEdition(generic.CremeModelEditionPopup):
         if instance.user_id is not None:
             raise ConflictError('A non-system job cannot be edited')
 
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)
+    # def check_view_permissions(self, user):
+    #     super().check_view_permissions(user=user)
+    #     _check_superuser(user)
 
     def get_form_class(self):
         config_form = self.object.get_config_form_class()

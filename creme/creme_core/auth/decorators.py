@@ -38,4 +38,5 @@ def _check_superuser(user):
 
     raise PermissionDenied(_('You are not super-user.'))
 
+
 superuser_required = original_decorators.user_passes_test(_check_superuser)

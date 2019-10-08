@@ -15,8 +15,12 @@ try:
     from ..base import CremeTestCase, skipIfNotInstalled
 
     from creme.creme_core import constants
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_filter import condition_handler, operators, operands
+    from creme.creme_core.auth import EntityCredentials, SUPERUSER_PERM
+    from creme.creme_core.core.entity_filter import (
+        condition_handler,
+        operators,
+        operands,
+    )
     from creme.creme_core.models import (
         CremeUser, Sandbox, CremeEntity,
         CremePropertyType, CremeProperty,
@@ -160,11 +164,16 @@ class CredentialsTestCase(CremeTestCase):
         self.assertNotEqual(theme[0], user.theme)
         self.assertEqual(theme, user.theme_info)
 
-    def test_super_user(self):
+    def test_super_user01(self):
         user = self.user
         user.is_superuser = True  # <====
 
         has_perm = user.has_perm
+        self.assertTrue(has_perm('creme_core'))
+
+        self.assertEqual('*superuser*', SUPERUSER_PERM)
+        self.assertTrue(has_perm(SUPERUSER_PERM))
+
         contact1 = self.contact1
         self.assertTrue(has_perm('creme_core.view_entity',   contact1))
         self.assertTrue(has_perm('creme_core.change_entity', contact1))
@@ -203,6 +212,11 @@ class CredentialsTestCase(CremeTestCase):
         self.assertEqual([contact1.id, contact2.id],
                          self._ids_list(qs)
                         )
+
+    def test_super_user02(self):
+        user = self.user
+        self._create_role('Salesman', ['creme_core'], users=[user])
+        self.assertFalse(user.has_perm(SUPERUSER_PERM))
 
     def test_role_esetall_view(self):
         "VIEW + ESET_ALL."
