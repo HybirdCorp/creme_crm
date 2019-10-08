@@ -171,7 +171,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.IENDSWITH,
+                    operator=operators.IENDSWITH,
                     field_name='last_name', values=['Stark'],
                 ),
             ],
@@ -982,7 +982,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     field_name='last_name', values=[last_name],
                 ),
             ],
@@ -1039,7 +1039,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
-                    operator_id=operators.ISTARTSWITH,
+                    operator=operators.ISTARTSWITH,
                     field_name='name', values=['House '],
                 ),
             ],
@@ -1183,7 +1183,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     field_name='last_name', values=[last_name],
                 ),
             ],
@@ -1839,7 +1839,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact, field_name='last_name',
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     values=[tyrion.last_name, ned.last_name],
                 ),
             ]

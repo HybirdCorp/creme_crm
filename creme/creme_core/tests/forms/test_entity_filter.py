@@ -10,7 +10,7 @@ try:
 
     from .base import FieldTestCase
 
-    from creme.creme_core.core.entity_filter import operators
+    from creme.creme_core.core.entity_filter import entity_filter_registry, operators
     from creme.creme_core.core.entity_filter.condition_handler import (
         RelationSubFilterConditionHandler,
         RegularFieldConditionHandler, DateRegularFieldConditionHandler,
@@ -699,7 +699,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                              # ),
                              RegularFieldConditionHandler.build_condition(
                                  model=FakeContact,
-                                 operator_id=operators.EQUALS,
+                                 operator=operators.EQUALS,
                                  field_name=hidden_fname, values=['Ikari'],
                              ),
                          ],
@@ -736,7 +736,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                              # ),
                              RegularFieldConditionHandler.build_condition(
                                  model=FakeContact,
-                                 operator_id=operators.EQUALS,
+                                 operator=operators.EQUALS,
                                  field_name=hidden_sfname, values=['Ikari'],
                              ),
                          ],
@@ -775,7 +775,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                              # ),
                              RegularFieldConditionHandler.build_condition(
                                  model=FakeContact,
-                                 operator_id=operators.EQUALS,
+                                 operator=operators.EQUALS,
                                  field_name=hidden_sfname, values=['Ikari'],
                              ),
                          ],
@@ -815,7 +815,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                              # ),
                              RegularFieldConditionHandler.build_condition(
                                  model=FakeContact,
-                                 operator_id=operators.EQUALS,
+                                 operator=operators.EQUALS,
                                  field_name=hidden_fname, values=[position.id],
                              ),
                          ],
@@ -1198,9 +1198,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.cfield_multienum_G = create_evalue(value='G')
         self.cfield_multienum_H = create_evalue(value='H')
 
-    def _get_allowed_types(self, operator):
+    # def _get_allowed_types(self, operator):
+    def _get_allowed_types(self, operator_id):
         # return ' '.join(EntityFilterCondition._OPERATOR_MAP[operator].allowed_fieldtypes)
-        return ' '.join(operators.OPERATORS[operator].allowed_fieldtypes)
+        return ' '.join(entity_filter_registry.get_operator(operator_id).allowed_fieldtypes)
 
     def test_frompython_custom_int(self):
         # EQUALS = EntityFilterCondition.EQUALS
@@ -1208,7 +1209,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         field = CustomFieldsConditionsField(model=FakeContact)
         # condition = EntityFilterCondition.build_4_customfield(self.cfield_int, EQUALS, [150])
         condition = CustomFieldConditionHandler.build_condition(
-            custom_field=self.cfield_int, operator_id=EQUALS, values=[150],
+            custom_field=self.cfield_int, operator=EQUALS, values=[150],
         )
         data = field._value_to_jsonifiable([condition])
 
@@ -1229,7 +1230,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         field = CustomFieldsConditionsField(model=FakeContact)
         # condition = EntityFilterCondition.build_4_customfield(self.cfield_str, EQUALS, ['abc'])
         condition = CustomFieldConditionHandler.build_condition(
-            custom_field=self.cfield_str, operator_id=EQUALS, values=['abc'],
+            custom_field=self.cfield_str, operator=EQUALS, values=['abc'],
         )
         data = field._value_to_jsonifiable([condition])
 
@@ -1250,7 +1251,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         field = CustomFieldsConditionsField(model=FakeContact)
         # condition = EntityFilterCondition.build_4_customfield(self.cfield_bool, EQUALS, [False])
         condition = CustomFieldConditionHandler.build_condition(
-            custom_field=self.cfield_bool, operator_id=EQUALS, values=[False],
+            custom_field=self.cfield_bool, operator=EQUALS, values=[False],
         )
         data = field._value_to_jsonifiable([condition])
 
@@ -1268,7 +1269,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         # Old format
         # condition = EntityFilterCondition.build_4_customfield(self.cfield_bool, EQUALS, ['False'])
         condition = CustomFieldConditionHandler.build_condition(
-            custom_field=self.cfield_bool, operator_id=EQUALS, values=['False'],
+            custom_field=self.cfield_bool, operator=EQUALS, values=['False'],
         )
         data = field._value_to_jsonifiable([condition])
 
@@ -1289,7 +1290,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         field = CustomFieldsConditionsField(model=FakeContact)
         # condition = EntityFilterCondition.build_4_customfield(self.cfield_enum, EQUALS, [self.cfield_enum_A.id])
         condition = CustomFieldConditionHandler.build_condition(
-            custom_field=self.cfield_enum, operator_id=EQUALS, values=[self.cfield_enum_A.id],
+            custom_field=self.cfield_enum, operator=EQUALS, values=[self.cfield_enum_A.id],
         )
         data = field._value_to_jsonifiable([condition])
 

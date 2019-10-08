@@ -403,7 +403,7 @@ class CremeCoreConfig(CremeAppConfig):
         button_registry.register(buttons.Restrict2SuperusersButton)
 
     def register_entity_filter(self, entity_filter_registry):
-        from .core.entity_filter import condition_handler, operands
+        from .core.entity_filter import condition_handler, operands, operators
 
         entity_filter_registry.register_condition_handlers(
             condition_handler.SubFilterConditionHandler,
@@ -414,6 +414,32 @@ class CremeCoreConfig(CremeAppConfig):
             condition_handler.RelationConditionHandler,
             condition_handler.RelationSubFilterConditionHandler,
             condition_handler.PropertyConditionHandler,
+        ).register_operators(
+            operators.EqualsOperator,
+            operators.EqualsNotOperator,
+
+            operators.GTOperator,
+            operators.GTEOperator,
+            operators.LTOperator,
+            operators.LTEOperator,
+
+            operators.IEqualsOperator,
+            operators.IEqualsNotOperator,
+            operators.ContainsOperator,
+            operators.ContainsNotOperator,
+            operators.IContainsOperator,
+            operators.IContainsNotOperator,
+            operators.StartsWithOperator,
+            operators.StartswithNotOperator,
+            operators.IStartsWithOperator,
+            operators.IStartswithNotOperator,
+            operators.EndsWithOperator,
+            operators.EndsWithNotOperator,
+            operators.IEndsWithOperator,
+            operators.IEndsWithNotOperator,
+
+            operators.IsEmptyOperator,
+            operators.RangeOperator,
         ).register_operands(
             operands.CurrentUserOperand,
         )

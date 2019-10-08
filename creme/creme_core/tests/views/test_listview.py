@@ -994,7 +994,7 @@ class ListViewTestCase(ViewsTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation, field_name='name',
-                    operator_id=operators.ISTARTSWITH, values=['Red'],
+                    operator=operators.ISTARTSWITH, values=['Red'],
                 ),
             ],
         )
@@ -3343,7 +3343,7 @@ class ListViewTestCase(ViewsTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeOrganisation,
-                operator_id=operators.ICONTAINS,
+                operator=operators.ICONTAINS,
                 field_name='name', values=['Corp'],
              ),
             ],

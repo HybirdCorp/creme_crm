@@ -29,11 +29,21 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import (RelationType, BrickDetailviewLocation,
-        SearchConfigItem, HeaderFilter, EntityFilter)  # EntityFilterCondition
+from creme.creme_core.models import (
+    RelationType,
+    BrickDetailviewLocation,
+    SearchConfigItem,
+    HeaderFilter,
+    EntityFilter,
+)  # EntityFilterCondition
 from creme.creme_core.utils import create_if_needed
 
-from . import get_document_model, get_folder_model, folder_model_is_custom, constants, bricks
+from . import (
+    get_document_model, get_folder_model,
+    folder_model_is_custom,
+    constants,
+    bricks,
+)
 from .models import FolderCategory, DocumentCategory
 
 logger = logging.getLogger(__name__)
@@ -128,7 +138,7 @@ class Populator(BasePopulator):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Document,
-                    operator_id=operators.STARTSWITH,
+                    operator=operators.StartsWithOperator,
                     field_name='mime_type__name',
                     values=[constants.MIMETYPE_PREFIX_IMG],
                 ),

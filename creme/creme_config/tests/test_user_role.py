@@ -1276,7 +1276,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         efilter1.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
-                operator_id=operators.ISTARTSWITH,
+                operator=operators.ISTARTSWITH,
                 field_name='last_name', values=['Agency of'],
              ),
             ],
@@ -1422,7 +1422,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         efilter1.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
-                operator_id=operators.ISTARTSWITH,
+                operator=operators.ISTARTSWITH,
                 field_name='last_name', values=['Agency of'],
              ),
             ],
@@ -1526,7 +1526,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
-                operator_id=operators.EQUALS,
+                operator=operators.EQUALS,
                 field_name='last_name', values=['Agent#'],
              ),
             ],
@@ -1592,7 +1592,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         efilter1.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
-                operator_id=operators.ICONTAINS,
+                operator=operators.ICONTAINS,
                 field_name='description', values=['Important'],
              ),
             ],
@@ -1770,7 +1770,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         efilter1.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
-                operator_id=operators.ICONTAINS,
+                operator=operators.ICONTAINS,
                 field_name='description', values=['Important'],
              ),
             ],

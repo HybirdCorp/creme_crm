@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-03 13:01+0200\n"
+"POT-Creation-Date: 2019-10-08 18:19+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -86,7 +86,7 @@ msgstr "Cœur"
 msgid "Home"
 msgstr "Accueil"
 
-#: apps.py:331 models/auth.py:782 models/job.py:83
+#: apps.py:331 models/auth.py:783 models/job.py:83
 #: templates/creme_core/bricks/imprints.html:17
 #: templates/creme_core/bricks/job.html:60
 msgid "User"
@@ -332,76 +332,76 @@ msgstr "Dans «{model} - {field}», remplacer par une valeur de secours"
 msgid "Actions"
 msgstr "Actions"
 
-#: core/entity_filter/condition_handler.py:177
+#: core/entity_filter/condition_handler.py:178
 msgid "Entities are accepted by the filter «{}»"
 msgstr "Les fiches sont acceptées par le filtre «{}»"
 
-#: core/entity_filter/condition_handler.py:533
+#: core/entity_filter/condition_handler.py:535
 #, python-brace-format
 msgid "«{field}» is «{value}»"
 msgstr "«{field}» vaut «{value}»"
 
-#: core/entity_filter/condition_handler.py:542
-#: core/entity_filter/operators.py:624
+#: core/entity_filter/condition_handler.py:544
+#: core/entity_filter/operators.py:556
 #, python-brace-format
 msgid "«{field}» is between «{start}» and «{end}»"
 msgstr "«{field}» est entre «{start}» et «{end}»"
 
-#: core/entity_filter/condition_handler.py:547
+#: core/entity_filter/condition_handler.py:549
 #, python-brace-format
 msgid "«{field}» starts «{date}»"
 msgstr "«{field}» commence le «{date}»"
 
-#: core/entity_filter/condition_handler.py:553
+#: core/entity_filter/condition_handler.py:555
 #, python-brace-format
 msgid "«{field}» ends «{date}»"
 msgstr "«{field}» finit le «{date}»"
 
-#: core/entity_filter/condition_handler.py:1096
+#: core/entity_filter/condition_handler.py:1098
 #, python-brace-format
 msgid "The entities have relationships «{predicate}»"
 msgstr "Les fiches ont des relations «{predicate}»"
 
-#: core/entity_filter/condition_handler.py:1097
+#: core/entity_filter/condition_handler.py:1099
 #, python-brace-format
 msgid "The entities have no relationship «{predicate}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}»"
 
-#: core/entity_filter/condition_handler.py:1100
+#: core/entity_filter/condition_handler.py:1102
 #, python-brace-format
 msgid "The entities have relationships «{predicate}» to «{model}»"
 msgstr "Les fiches ont des relations «{predicate}» vers «{model}»"
 
-#: core/entity_filter/condition_handler.py:1101
+#: core/entity_filter/condition_handler.py:1103
 #, python-brace-format
 msgid "The entities have no relationship «{predicate}» to «{model}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}» vers «{model}»"
 
-#: core/entity_filter/condition_handler.py:1104
+#: core/entity_filter/condition_handler.py:1106
 #, python-brace-format
 msgid "The entities have relationships «{predicate}» to «{entity}»"
 msgstr "Les fiches ont des relations «{predicate}» vers «{entity}»"
 
-#: core/entity_filter/condition_handler.py:1105
+#: core/entity_filter/condition_handler.py:1107
 #, python-brace-format
 msgid "The entities have no relationship «{predicate}» to «{entity}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}» vers «{entity}»"
 
-#: core/entity_filter/condition_handler.py:1273
+#: core/entity_filter/condition_handler.py:1275
 #, python-brace-format
 msgid "The entities have relationships «{predicate}» to «{filter}»"
 msgstr "Les fiches ont des relations «{predicate}» vers «{filter}»"
 
-#: core/entity_filter/condition_handler.py:1274
+#: core/entity_filter/condition_handler.py:1276
 #, python-brace-format
 msgid "The entities have no relationship «{predicate}» to «{filter}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}» vers «{filter}»"
 
-#: core/entity_filter/condition_handler.py:1392
+#: core/entity_filter/condition_handler.py:1394
 msgid "The entities have the property «{}»"
 msgstr "Les fiches ont la propriété «{}»"
 
-#: core/entity_filter/condition_handler.py:1393
+#: core/entity_filter/condition_handler.py:1395
 msgid "The entities have no property «{}»"
 msgstr "Les fiches n'ont pas la propriété «{}»"
 
@@ -409,207 +409,211 @@ msgstr "Les fiches n'ont pas la propriété «{}»"
 msgid "Current user"
 msgstr "Utilisateur courant"
 
-#: core/entity_filter/operators.py:182
+#: core/entity_filter/operators.py:176
 #, python-brace-format
 msgid "«{enum_value}»"
 msgstr "«{enum_value}»"
 
-#: core/entity_filter/operators.py:185
+#: core/entity_filter/operators.py:179
 #, python-brace-format
 msgid "{first} or {last}"
 msgstr "{first} ou {last}"
 
-#: core/entity_filter/operators.py:260
+#: core/entity_filter/operators.py:255
+msgid "Equals"
+msgstr "Est égal à"
+
+#: core/entity_filter/operators.py:258
 #, python-brace-format
 msgid "«{field}» is {values}"
 msgstr "«{field}» vaut {values}"
 
-#: core/entity_filter/operators.py:316
+#: core/entity_filter/operators.py:306
+msgid "Does not equal"
+msgstr "N'est pas égal à"
+
+#: core/entity_filter/operators.py:307
 #, python-brace-format
 msgid "«{field}» is not {values}"
 msgstr "«{field}» n'est pas {values}"
+
+#: core/entity_filter/operators.py:323
+msgid ">"
+msgstr ">"
 
 #: core/entity_filter/operators.py:324
 #, python-brace-format
 msgid "«{field}» is greater than {values}"
 msgstr "«{field}» est plus grand que {values}"
 
-#: core/entity_filter/operators.py:339
+#: core/entity_filter/operators.py:331
+msgid "≥"
+msgstr "≥"
+
+#: core/entity_filter/operators.py:332
 #, python-brace-format
 msgid "«{field}» is greater than or equal to {values}"
 msgstr "«{field}» est plus grand ou égal à {values}"
 
-#: core/entity_filter/operators.py:354
+#: core/entity_filter/operators.py:339
+msgid "<"
+msgstr "<"
+
+#: core/entity_filter/operators.py:340
 #, python-brace-format
 msgid "«{field}» is less than {values}"
 msgstr "«{field}» est plus petit que {values}"
 
-#: core/entity_filter/operators.py:369
+#: core/entity_filter/operators.py:347
+msgid "≤"
+msgstr "≤"
+
+#: core/entity_filter/operators.py:348
 #, python-brace-format
 msgid "«{field}» is less than or equal to {values}"
 msgstr "«{field}» est plus petit ou égal à {values}"
 
-#: core/entity_filter/operators.py:383
+#: core/entity_filter/operators.py:374
+msgid "Equals (case insensitive)"
+msgstr "Est égal à (Ne respecte pas la casse)"
+
+#: core/entity_filter/operators.py:376
 #, python-brace-format
 msgid "«{field}» is equal to {values} (case insensitive)"
 msgstr "«{field}» est égal à {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:398
+#: core/entity_filter/operators.py:386
+msgid "Does not equal (case insensitive)"
+msgstr "N'est pas égal à (Ne respecte pas la casse)"
+
+#: core/entity_filter/operators.py:387
 #, python-brace-format
 msgid "«{field}» is different from {values} (case insensitive)"
 msgstr "«{field}» n'est pas égal à {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:406
+#: core/entity_filter/operators.py:393
+msgid "Contains"
+msgstr "Contient"
+
+#: core/entity_filter/operators.py:394
 #, python-brace-format
 msgid "«{field}» contains {values}"
 msgstr "«{field}» contient {values}"
 
-#: core/entity_filter/operators.py:427
+#: core/entity_filter/operators.py:403
+msgid "Does not contain"
+msgstr "Ne contient pas"
+
+#: core/entity_filter/operators.py:404
 #, python-brace-format
 msgid "«{field}» does not contain {values}"
 msgstr "«{field}» ne contient pas {values}"
 
-#: core/entity_filter/operators.py:436
+#: core/entity_filter/operators.py:410
+msgid "Contains (case insensitive)"
+msgstr "Contient (Ne respecte pas la casse)"
+
+#: core/entity_filter/operators.py:411
 #, python-brace-format
 msgid "«{field}» contains {values} (case insensitive)"
 msgstr "«{field}» contient {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:451
+#: core/entity_filter/operators.py:418
+msgid "Does not contain (case insensitive)"
+msgstr "Ne contient pas (Ne respecte pas la casse)"
+
+#: core/entity_filter/operators.py:419
 #, python-brace-format
 msgid "«{field}» does not contain {values} (case insensitive)"
 msgstr "«{field}» ne contient pas {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:459
+#: core/entity_filter/operators.py:425
+msgid "Starts with"
+msgstr "Commence par"
+
+#: core/entity_filter/operators.py:426
 #, python-brace-format
 msgid "«{field}» starts with {values}"
 msgstr "«{field}» commence par {values}"
 
-#: core/entity_filter/operators.py:479
+#: core/entity_filter/operators.py:435
+msgid "Does not start with"
+msgstr "Ne commence pas par"
+
+#: core/entity_filter/operators.py:436
 #, python-brace-format
 msgid "«{field}» does not start with {values}"
 msgstr "«{field}» ne commence pas par {values}"
 
-#: core/entity_filter/operators.py:487
+#: core/entity_filter/operators.py:442
+msgid "Starts with (case insensitive)"
+msgstr "Commence par (Ne respecte pas la casse)"
+
+#: core/entity_filter/operators.py:443
 #, python-brace-format
 msgid "«{field}» starts with {values} (case insensitive)"
 msgstr "«{field}» commence par {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:503
+#: core/entity_filter/operators.py:450
+msgid "Does not start with (case insensitive)"
+msgstr "Ne commence pas par (Ne respecte pas la casse)"
+
+#: core/entity_filter/operators.py:451
 #, python-brace-format
 msgid "«{field}» does not start with {values} (case insensitive)"
 msgstr "«{field}» ne commence pas par {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:511
+#: core/entity_filter/operators.py:457
+msgid "Ends with"
+msgstr "Se termine par"
+
+#: core/entity_filter/operators.py:458
 #, python-brace-format
 msgid "«{field}» ends with {values}"
 msgstr "«{field}» finit par {values}"
 
-#: core/entity_filter/operators.py:531
+#: core/entity_filter/operators.py:467
+msgid "Does not end with"
+msgstr "Ne se termine pas par"
+
+#: core/entity_filter/operators.py:468
 #, python-brace-format
 msgid "«{field}» does not end with {values}"
 msgstr "«{field}» ne finit pas par {values}"
 
-#: core/entity_filter/operators.py:539
+#: core/entity_filter/operators.py:474
+msgid "Ends with (case insensitive)"
+msgstr "Se termine par (Ne respecte pas la casse)"
+
+#: core/entity_filter/operators.py:475
 #, python-brace-format
 msgid "«{field}» ends with {values} (case insensitive)"
 msgstr "«{field}» finit par {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:554
+#: core/entity_filter/operators.py:482
+msgid "Does not end with (case insensitive)"
+msgstr "Ne se termine pas par (Ne respecte pas la casse)"
+
+#: core/entity_filter/operators.py:483
 #, python-brace-format
 msgid "«{field}» does not end with {values} (case insensitive)"
 msgstr "«{field}» ne finit pas par {values} (insensible à la casse)"
 
-#: core/entity_filter/operators.py:578
+#: core/entity_filter/operators.py:504 utils/date_range.py:276
+msgid "Is empty"
+msgstr "Est vide"
+
+#: core/entity_filter/operators.py:508
 #, python-brace-format
 msgid "«{field}» is empty"
 msgstr "«{field}» est vide"
 
-#: core/entity_filter/operators.py:579
+#: core/entity_filter/operators.py:509
 #, python-brace-format
 msgid "«{field}» is not empty"
 msgstr "«{field}» n'est pas vide"
 
-#: core/entity_filter/operators.py:655 core/entity_filter/operators.py:657
-msgid "Equals"
-msgstr "Est égal à"
-
-#: core/entity_filter/operators.py:662
-msgid ">"
-msgstr ">"
-
-#: core/entity_filter/operators.py:664
-msgid "≥"
-msgstr "≥"
-
-#: core/entity_filter/operators.py:666
-msgid "<"
-msgstr "<"
-
-#: core/entity_filter/operators.py:668
-msgid "≤"
-msgstr "≤"
-
-#: core/entity_filter/operators.py:671
-msgid "Equals (case insensitive)"
-msgstr "Est égal à (Ne respecte pas la casse)"
-
-#: core/entity_filter/operators.py:673
-msgid "Does not equal (case insensitive)"
-msgstr "N'est pas égal à (Ne respecte pas la casse)"
-
-#: core/entity_filter/operators.py:675
-msgid "Contains"
-msgstr "Contient"
-
-#: core/entity_filter/operators.py:677
-msgid "Does not contain"
-msgstr "Ne contient pas"
-
-#: core/entity_filter/operators.py:679
-msgid "Contains (case insensitive)"
-msgstr "Contient (Ne respecte pas la casse)"
-
-#: core/entity_filter/operators.py:681
-msgid "Does not contain (case insensitive)"
-msgstr "Ne contient pas (Ne respecte pas la casse)"
-
-#: core/entity_filter/operators.py:683
-msgid "Starts with"
-msgstr "Commence par"
-
-#: core/entity_filter/operators.py:685
-msgid "Does not start with"
-msgstr "Ne commence pas par"
-
-#: core/entity_filter/operators.py:687
-msgid "Starts with (case insensitive)"
-msgstr "Commence par (Ne respecte pas la casse)"
-
-#: core/entity_filter/operators.py:689
-msgid "Does not start with (case insensitive)"
-msgstr "Ne commence pas par (Ne respecte pas la casse)"
-
-#: core/entity_filter/operators.py:691
-msgid "Ends with"
-msgstr "Se termine par"
-
-#: core/entity_filter/operators.py:693
-msgid "Does not end with"
-msgstr "Ne se termine pas par"
-
-#: core/entity_filter/operators.py:695
-msgid "Ends with (case insensitive)"
-msgstr "Se termine par (Ne respecte pas la casse)"
-
-#: core/entity_filter/operators.py:697
-msgid "Does not end with (case insensitive)"
-msgstr "Ne se termine pas par (Ne respecte pas la casse)"
-
-#: core/entity_filter/operators.py:700 utils/date_range.py:276
-msgid "Is empty"
-msgstr "Est vide"
-
-#: core/entity_filter/operators.py:701
+#: core/entity_filter/operators.py:554
 msgid "Range"
 msgstr "Intervalle"
 
@@ -876,7 +880,7 @@ msgstr "Ces relations vont être ajoutées : {}"
 msgid "You are not allowed to link this kind of entity."
 msgstr "Vous n'êtes pas autorisé à relier ce type de fiche."
 
-#: forms/batch_process.py:79 forms/entity_filter.py:523
+#: forms/batch_process.py:79 forms/entity_filter.py:534
 msgid "This field is invalid with this model."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
@@ -885,8 +889,8 @@ msgstr "Ce champ n'existe pas dans ce type de fiche."
 msgid "The field «%(field)s» can not be used twice."
 msgstr "Le champ «%(field)s» ne peut pas être utilisé deux fois."
 
-#: forms/batch_process.py:81 forms/entity_filter.py:524
-#: forms/entity_filter.py:859
+#: forms/batch_process.py:81 forms/entity_filter.py:535
+#: forms/entity_filter.py:872
 msgid "This operator is invalid."
 msgstr "Cette opérateur est invalide."
 
@@ -936,139 +940,139 @@ msgstr "AUCUNE !"
 msgid "Uneditable entities"
 msgstr "Fiches non modifiables"
 
-#: forms/entity_filter.py:70
+#: forms/entity_filter.py:74
 msgid "True"
 msgstr "Vrai"
 
-#: forms/entity_filter.py:71
+#: forms/entity_filter.py:75
 msgid "False"
 msgstr "Faux"
 
-#: forms/entity_filter.py:74
+#: forms/entity_filter.py:78
 msgid "Has the property"
 msgstr "A la propriété"
 
-#: forms/entity_filter.py:75
+#: forms/entity_filter.py:79
 msgid "Does not have the property"
 msgstr "N'a pas la propriété"
 
-#: forms/entity_filter.py:78
+#: forms/entity_filter.py:82
 msgid "Has the relationship"
 msgstr "A la relation"
 
-#: forms/entity_filter.py:79
+#: forms/entity_filter.py:83
 msgid "Does not have the relationship"
 msgstr "N'a pas la relation"
 
-#: forms/entity_filter.py:376
+#: forms/entity_filter.py:386
 msgid "No custom field at present."
 msgstr "Aucun champ personnalisé pour le moment."
 
-#: forms/entity_filter.py:399
+#: forms/entity_filter.py:410
 msgid "No date custom field at present."
 msgstr "Aucun champ personnalisé de date pour le moment."
 
-#: forms/entity_filter.py:467
+#: forms/entity_filter.py:478
 msgid "(no filter)"
 msgstr "(pas de filtre)"
 
-#: forms/entity_filter.py:525 forms/entity_filter.py:860
+#: forms/entity_filter.py:536 forms/entity_filter.py:873
 msgid "This value is invalid."
 msgstr "Cette valeur est invalide."
 
-#: forms/entity_filter.py:696
+#: forms/entity_filter.py:709
 msgid "This field is not a date field for this model."
 msgstr "Ce champ date n'existe pas dans ce type de fiche."
 
-#: forms/entity_filter.py:697
+#: forms/entity_filter.py:710
 msgid "This date range is invalid."
 msgstr "Cet interval de date n'est pas valide."
 
-#: forms/entity_filter.py:698
+#: forms/entity_filter.py:711
 msgid "Please enter a start date and/or a end date."
 msgstr "Veuillez une date de début et/ou de fin."
 
-#: forms/entity_filter.py:858
+#: forms/entity_filter.py:871
 msgid "This custom field is invalid with this model."
 msgstr "Ce champ personnalisé est invalide pour ce type de fiche."
 
-#: forms/entity_filter.py:993
+#: forms/entity_filter.py:1008
 msgid "This date custom field is invalid with this model."
 msgstr "Ce champ personnalisé de date est invalide pour ce type de fiche."
 
-#: forms/entity_filter.py:1071
+#: forms/entity_filter.py:1086
 msgid "This type of relationship type is invalid with this model."
 msgstr "Cette relation est invalide avec ce type de fiche."
 
-#: forms/entity_filter.py:1072
+#: forms/entity_filter.py:1087
 msgid "This content type is invalid."
 msgstr "Ce type de resource n'est pas autorisé."
 
-#: forms/entity_filter.py:1073
+#: forms/entity_filter.py:1088
 msgid "This entity is invalid."
 msgstr "Cette fiche est invalide."
 
-#: forms/entity_filter.py:1195 forms/fields.py:1001
+#: forms/entity_filter.py:1210 forms/fields.py:1001
 msgid "This filter is invalid."
 msgstr "Ce filtre est invalide."
 
-#: forms/entity_filter.py:1258
+#: forms/entity_filter.py:1273
 msgid "This property type is invalid with this model."
 msgstr "Ce type de propriété est invalide avec ce type de fiche."
 
-#: forms/entity_filter.py:1339
+#: forms/entity_filter.py:1354
 msgid "On regular fields"
 msgstr "Sur les champs normaux"
 
-#: forms/entity_filter.py:1340
+#: forms/entity_filter.py:1355
 msgid "You can write several values, separated by commas."
 msgstr "Vous pouvez écrire plusieurs valeurs, séparées par des virgules."
 
-#: forms/entity_filter.py:1342
+#: forms/entity_filter.py:1357
 msgid "On date fields"
 msgstr "Sur les champs de date"
 
-#: forms/entity_filter.py:1343
+#: forms/entity_filter.py:1358
 msgid "On custom fields"
 msgstr "Sur les champs personnalisés"
 
-#: forms/entity_filter.py:1344
+#: forms/entity_filter.py:1359
 msgid "On date custom fields"
 msgstr "Sur les champs personnalisés de date"
 
-#: forms/entity_filter.py:1345
+#: forms/entity_filter.py:1360
 msgid "On relationships"
 msgstr "Sur les relations"
 
-#: forms/entity_filter.py:1346
+#: forms/entity_filter.py:1361
 msgid "Do not select any entity if you want to match them all."
 msgstr "Ne sélectionnez aucune fiche si vous voulez chercher parmi toutes."
 
-#: forms/entity_filter.py:1348
+#: forms/entity_filter.py:1363
 msgid "On relationships with results of other filters"
 msgstr "Sur les relations avec les résultats d'autres filtres"
 
-#: forms/entity_filter.py:1349
+#: forms/entity_filter.py:1364
 msgid "On properties"
 msgstr "Sur les propriétés"
 
-#: forms/entity_filter.py:1350
+#: forms/entity_filter.py:1365
 msgid "Sub-filters"
 msgstr "Sous-filtres"
 
-#: forms/entity_filter.py:1353
+#: forms/entity_filter.py:1368
 msgid "The filter must have at least one condition."
 msgstr "Le filtre doit avoir au moins une condition."
 
-#: forms/entity_filter.py:1354
+#: forms/entity_filter.py:1369
 msgid "A private filter must belong to you (or one of your teams)."
 msgstr "Un filtre privé doit vous être attribué (ou à une des vos équipes)."
 
-#: forms/entity_filter.py:1363
+#: forms/entity_filter.py:1378
 msgid "Conditions"
 msgstr "Conditions"
 
-#: forms/entity_filter.py:1373 forms/header_filter.py:339
+#: forms/entity_filter.py:1388 forms/header_filter.py:339
 msgid "All users"
 msgstr "Tous les utilisateurs"
 
@@ -1651,7 +1655,7 @@ msgstr "Créer un rôle"
 msgid "Save the role"
 msgstr "Enregistrer le rôle"
 
-#: models/auth.py:68 models/auth.py:747
+#: models/auth.py:68 models/auth.py:748
 msgid "Role"
 msgstr "Rôle"
 
@@ -1756,135 +1760,135 @@ msgstr "Pour “{set}“ interdit de : {perms}"
 msgid "For “{set}“ it is allowed to: {perms}"
 msgstr "Pour “{set}“ autorisé à : {perms}"
 
-#: models/auth.py:712
+#: models/auth.py:713
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: models/auth.py:713
+#: models/auth.py:714
 msgid "Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only."
 msgstr ""
 "Requis. 30 caractères maximum. Uniquement des lettres, nombres et les "
 "caractères « @ », « . », « + », « - » et « _ »."
 
 # Already in django.auth
-#: models/auth.py:718
+#: models/auth.py:719
 msgid ""
 "Enter a valid username. This value may contain only letters, numbers, and "
 "@/./+/-/_ characters."
 msgstr ""
 
 # Already in django.auth
-#: models/auth.py:726
+#: models/auth.py:727
 msgid "A user with that username already exists."
 msgstr ""
 
-#: models/auth.py:729
+#: models/auth.py:730
 msgid "Last name"
 msgstr "Nom"
 
-#: models/auth.py:730
+#: models/auth.py:731
 msgid "First name"
 msgstr "Prénom"
 
-#: models/auth.py:732
+#: models/auth.py:733
 msgid "Email address"
 msgstr "Adresse e-mail"
 
-#: models/auth.py:734
+#: models/auth.py:735
 msgid "Date joined"
 msgstr "Date d'inscription"
 
-#: models/auth.py:735
+#: models/auth.py:736
 msgid "Active?"
 msgstr "Actif ?"
 
-#: models/auth.py:741
+#: models/auth.py:742
 msgid "Is staff?"
 msgstr "Est administrateur ?"
 
-#: models/auth.py:744
+#: models/auth.py:745
 msgid "Is a superuser?"
 msgstr "Est un super-utilisateur ?"
 
-#: models/auth.py:751
+#: models/auth.py:752
 msgid "Is a team?"
 msgstr "Est une équipe ?"
 
-#: models/auth.py:752
+#: models/auth.py:753
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: models/auth.py:756
+#: models/auth.py:757
 msgid "Time zone"
 msgstr "Fuseau horaire"
 
-#: models/auth.py:759
+#: models/auth.py:760
 msgid "Theme"
 msgstr "Thème"
 
-#: models/auth.py:772
+#: models/auth.py:773
 msgid "Create a user"
 msgstr "Créer un utilisateur"
 
-#: models/auth.py:773
+#: models/auth.py:774
 msgid "Save the user"
 msgstr "Enregistrer l'utilisateur"
 
-#: models/auth.py:783
+#: models/auth.py:784
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: models/auth.py:791
+#: models/auth.py:792
 #, python-brace-format
 msgid "{user} (team)"
 msgstr "{user} (équipe)"
 
-#: models/auth.py:798
+#: models/auth.py:799
 #, python-brace-format
 msgid "{first_name} {last_name}."
 msgstr "{first_name} {last_name}."
 
-#: models/auth.py:916
+#: models/auth.py:917
 msgid "Invalid app \"{}\""
 msgstr "App invalide \"{}\""
 
-#: models/auth.py:921
+#: models/auth.py:922
 msgid "You are not allowed to access to the app: {}"
 msgstr "Vous n'avez pas accés à cette application: {}"
 
-#: models/auth.py:932
+#: models/auth.py:933
 msgid "You are not allowed to configure this app: {}"
 msgstr "Vous n'êtes pas autorisé à configurer cette app: {}"
 
-#: models/auth.py:950
+#: models/auth.py:951
 msgid "You are not allowed to edit this entity: {}"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: {}"
 
-#: models/auth.py:965
+#: models/auth.py:966
 msgid "You are not allowed to create: {}"
 msgstr "Vous n'avez pas la permission de créer : {}"
 
-#: models/auth.py:979 views/entity.py:891
+#: models/auth.py:980 views/entity.py:891
 msgid "You are not allowed to delete this entity: {}"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: {}"
 
-#: models/auth.py:994
+#: models/auth.py:995
 msgid "You are not allowed to export: {}"
 msgstr "Vous n'avez pas la permission d'exporter: {}"
 
-#: models/auth.py:1024
+#: models/auth.py:1025
 msgid "You are not allowed to link this entity: {}"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: {}"
 
-#: models/auth.py:1028
+#: models/auth.py:1029
 msgid "You are not allowed to link: {}"
 msgstr "Vous n'avez pas la permission de lier: {}"
 
-#: models/auth.py:1041
+#: models/auth.py:1042
 msgid "You are not allowed to unlink this entity: {}"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: {}"
 
-#: models/auth.py:1053
+#: models/auth.py:1054
 msgid "You are not allowed to view this entity: {}"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
 
@@ -3923,11 +3927,11 @@ msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 msgid "Save the modified view"
 msgstr "Enregistrer la vue modifiée"
 
-#: views/job.py:61
+#: views/job.py:63
 msgid "Unknown job type ({}). Please contact your administrator."
 msgstr "Type de job inconnu({}). Veuillez contacter votre administrateur."
 
-#: views/job.py:92
+#: views/job.py:95
 #, python-brace-format
 msgid "Edit the job «{object}»"
 msgstr "Modifier le job «{object}»"
@@ -3999,9 +4003,6 @@ msgstr "Veuillez entrer au moins {count} caractères"
 #: views/search.py:305
 msgid "Empty search…"
 msgstr "Recherche vide…"
-
-#~ msgid "Does not equal"
-#~ msgstr "N'est pas égal à"
 
 #~ msgid "«{}» can not be deleted because of its dependencies."
 #~ msgstr "«{}» ne peut être supprimé à cause de ses dépendances."

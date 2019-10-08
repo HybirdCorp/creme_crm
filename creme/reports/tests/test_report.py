@@ -104,7 +104,7 @@ class ReportTestCase(BaseReportsTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     field_name='last_name',
                     values=[self.ned.last_name],
                 ),
@@ -264,7 +264,7 @@ class ReportTestCase(BaseReportsTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     field_name='last_name', values=['Mihana'],
                 ),
             ],
@@ -742,7 +742,7 @@ class ReportTestCase(BaseReportsTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     field_name='last_name', values=['Kasuga'],
                 ),
             ],
@@ -1853,7 +1853,7 @@ class ReportTestCase(BaseReportsTestCase):
                 # )
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
-                    operator_id=operators.ISTARTSWITH,
+                    operator=operators.ISTARTSWITH,
                     field_name='name', values=['House '],
                 ),
             ],
@@ -2006,7 +2006,7 @@ class ReportTestCase(BaseReportsTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeReportsFolder,
-                    operator_id=operators.ISTARTSWITH,
+                    operator=operators.ISTARTSWITH,
                     field_name='title', values=['Inter'],
                 ),
             ],
@@ -2123,7 +2123,7 @@ class ReportTestCase(BaseReportsTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     field_name='description',
                     values=[description],
                 ),
@@ -2166,7 +2166,7 @@ class ReportTestCase(BaseReportsTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact, field_name='last_name',
-                    operator_id=operators.IEQUALS, values=[ned.last_name]
+                    operator=operators.IEQUALS, values=[ned.last_name]
                 ),
             ],
         )

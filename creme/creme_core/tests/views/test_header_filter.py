@@ -131,7 +131,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact, field_name='first_name',
-                    operator_id=EQUALS, values=['Misato'],
+                    operator=EQUALS, values=['Misato'],
                 ),
             ],
         )

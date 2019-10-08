@@ -310,7 +310,7 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Organisation,
-                    operator_id=operators.EQUALS,
+                    operator=operators.EQUALS,
                     field_name='name', values=['Orga 1'],
                 ),
             ],
@@ -462,7 +462,7 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Organisation,
-                    operator_id=operators.EQUALS_NOT,
+                    operator=operators.EQUALS_NOT,
                     field_name='name', values=['C'],
                 ),
             ],  # filter ST-VICTOR

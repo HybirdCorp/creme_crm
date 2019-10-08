@@ -382,7 +382,7 @@ class MailingListsTestCase(_EmailsTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Contact,
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     field_name='last_name', values=['Saotome'],
                 ),
             ],
@@ -553,7 +553,7 @@ class MailingListsTestCase(_EmailsTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Organisation,
-                    operator_id=operators.ISEMPTY,
+                    operator=operators.ISEMPTY,
                     field_name='email', values=[False],
                 ),
             ],

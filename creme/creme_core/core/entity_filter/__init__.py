@@ -26,15 +26,17 @@ logger = logging.getLogger(__name__)
 class _EntityFilterRegistry:
     """Registry about EntityFilter components:
      - Conditions handlers.
+     - Operators.
      - Operands.
     """
-    __slots__ = ('_handler_classes', '_operand_classes')
+    __slots__ = ('_handler_classes', '_operator_classes', '_operand_classes')
 
     class RegistrationError(Exception):
         pass
 
     def __init__(self):
         self._handler_classes = {}
+        self._operator_classes = {}
         self._operand_classes = {}
 
     def register_condition_handlers(self, *classes):
@@ -56,7 +58,7 @@ class _EntityFilterRegistry:
         return self
 
     def register_operands(self, *classes):
-        """Register classes of operands.
+        """Register classes of operand.
 
         @param classes: Classes inheriting
                <creme_core.core.entity_filter.operands.ConditionDynamicOperand>.
@@ -69,6 +71,24 @@ class _EntityFilterRegistry:
             if setdefault(cls.type_id, cls) is not cls:
                 raise self.RegistrationError(
                     "Duplicated operand's ID (or operand registered twice): {}".format(cls.type_id)
+                )
+
+        return self
+
+    def register_operators(self, *classes):
+        """Register classes of operator.
+
+        @param classes: Classes inheriting
+               <creme_core.core.entity_filter.operators.ConditionOperator>.
+        @return: self (to chain registrations).
+        @raises: _EntityFilterRegistry.RegistrationError if an ID is duplicated.
+        """
+        setdefault = self._operator_classes.setdefault
+
+        for cls in classes:
+            if setdefault(cls.type_id, cls) is not cls:
+                raise self.RegistrationError(
+                    "Duplicated operator's ID (or operator registered twice): {}".format(cls.type_id)
                 )
 
         return self
@@ -110,10 +130,32 @@ class _EntityFilterRegistry:
         cls = self._operand_classes.get(type_id) if isinstance(type_id, str) else None
         return None if cls is None else cls(user)
 
+    def get_operator(self, type_id):
+        """Get an instance of operator from its ID.
+
+        @param type_id: Id of the operator's class
+               (see attribute <ConditionOperator.type_id>).
+        @return: Instance of a class inheriting <ConditionOperator>,
+                 or None if the ID is invalid or not found.
+        """
+        cls = self._operator_classes.get(type_id)
+        return None if cls is None else cls()
+
     @property
     def handler_classes(self):
         """Iterator on registered handler classes."""
         return iter(self._handler_classes.values())
+
+    def operands(self, user):
+        """Generator of operand instances."""
+        for op_cls in self._operand_classes.values():
+            yield op_cls(user)
+
+    @property
+    def operators(self):
+        """Generator of operator instances."""
+        for op_cls in self._operator_classes.values():
+            yield op_cls()
 
 
 entity_filter_registry = _EntityFilterRegistry()

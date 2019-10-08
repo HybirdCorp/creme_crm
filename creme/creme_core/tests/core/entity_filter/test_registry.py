@@ -93,6 +93,8 @@ class _EntityFilterRegistryTestCase(CremeTestCase):
         operand2 = registry.get_operand(type_id=TestOperand.type_id, user=None)
         self.assertIsInstance(operand2, TestOperand)
 
+        self.assertSetEqual({cls1, TestOperand}, {type(op) for op in registry.operands(user=None)})
+
     def test_operands02(self):
         "ID collision."
         registry = _EntityFilterRegistry()
@@ -106,3 +108,31 @@ class _EntityFilterRegistryTestCase(CremeTestCase):
 
         with self.assertRaises(_EntityFilterRegistry.RegistrationError):
             registry.register_operands(TestOperand)
+
+    def test_operator01(self):
+        registry = _EntityFilterRegistry()
+
+        cls1 = operators.EqualsOperator
+        self.assertIsNone(registry.get_operator(type_id=cls1.type_id))
+
+        cls2 = operators.IsEmptyOperator
+        registry.register_operators(cls1, cls2)
+        operator1 = registry.get_operator(type_id=cls1.type_id)
+        self.assertIsInstance(operator1, cls1)
+
+        operator2 = registry.get_operator(type_id=cls2.type_id)
+        self.assertIsInstance(operator2, cls2)
+
+        self.assertSetEqual({cls1, cls2}, {type(op) for op in registry.operators})
+
+    def test_operators02(self):
+        "ID collision."
+        registry = _EntityFilterRegistry()
+
+        class TestOperator(operators.EqualsOperator):
+            pass
+
+        registry.register_operators(operators.EqualsOperator)
+
+        with self.assertRaises(_EntityFilterRegistry.RegistrationError):
+            registry.register_operators(TestOperator)

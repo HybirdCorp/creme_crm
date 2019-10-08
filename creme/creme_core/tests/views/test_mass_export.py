@@ -482,7 +482,7 @@ class MassExportViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact, field_name='last_name',
-                    operator_id=ISTARTSWITH, values=['Wong'],
+                    operator=ISTARTSWITH, values=['Wong'],
                 )
             ],
         )

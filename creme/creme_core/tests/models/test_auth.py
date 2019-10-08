@@ -957,7 +957,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
-                operator_id=operators.IEQUALS,
+                operator=operators.IEQUALS,
                 field_name='last_name', values=[contact1.last_name],
              ),
             ],
@@ -1030,7 +1030,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
-                operator_id=operators.IEQUALS,
+                operator=operators.IEQUALS,
                 field_name='last_name', values=[contact1.last_name],
              ),
             ],
@@ -1080,7 +1080,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
-                operator_id=operators.IEQUALS,
+                operator=operators.IEQUALS,
                 field_name='last_name', values=[contact1.last_name],
              ),
             ],
@@ -1131,7 +1131,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
-                operator_id=operators.IEQUALS,
+                operator=operators.IEQUALS,
                 field_name='last_name', values=[contact1.last_name],
              ),
             ],
@@ -1177,7 +1177,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
-                operator_id=operators.IEQUALS,
+                operator=operators.IEQUALS,
                 field_name='last_name', values=[contact1.last_name],
              ),
             ],
@@ -1228,7 +1228,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
-                operator_id=operators.IEQUALS,
+                operator=operators.IEQUALS,
                 field_name='last_name', values=[contact1.last_name],
              ),
             ],
@@ -1280,7 +1280,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter1.set_conditions([
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     field_name='last_name', values=[contact1.last_name],
                 ),
             ],
@@ -1296,7 +1296,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter2.set_conditions([
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     field_name='first_name', values=[contact1.first_name],
                 ),
             ],
@@ -1349,7 +1349,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter1.set_conditions([
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     field_name='last_name', values=[contact1.last_name],
                 ),
             ],
@@ -1365,7 +1365,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter2.set_conditions([
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     field_name='first_name', values=[contact1.first_name],
                 ),
             ],
@@ -1421,7 +1421,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter1.set_conditions([
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     field_name='last_name', values=[contact1.last_name],
                 ),
             ],
@@ -1437,7 +1437,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter2.set_conditions([
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.IEQUALS,
+                    operator=operators.IEQUALS,
                     field_name='first_name', values=[contact1.first_name],
                 ),
             ],
@@ -1491,7 +1491,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
-                operator_id=operators.EQUALS,
+                operator=operators.EQUALS,
                 field_name='user', values=[operands.CurrentUserOperand.type_id],
              ),
             ],
@@ -1562,7 +1562,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
-                operator_id=operators.EQUALS_NOT,
+                operator=operators.EQUALS_NOT,
                 field_name='user', values=[operands.CurrentUserOperand.type_id],
              ),
             ],
@@ -2153,7 +2153,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
-                operator_id=operators.EQUALS,
+                operator=operators.EQUALS,
                 field_name='user', values=[user.id],
              ),
             ],
@@ -2364,7 +2364,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
-                operator_id=operators.EQUALS,
+                operator=operators.EQUALS,
                 field_name='user', values=[user.id],
              ),
             ],
@@ -2417,7 +2417,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
-                operator_id=operators.EQUALS,
+                operator=operators.EQUALS,
                 field_name='user', values=[user.id],
              ),
             ],
@@ -2459,7 +2459,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
-                operator_id=operators.EQUALS,
+                operator=operators.EQUALS,
                 field_name='user', values=[other.id],
              ),
             ],
@@ -2523,7 +2523,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter1.set_conditions(
             [build_condition(
                 model=CremeEntity,
-                operator_id=operators.EQUALS,
+                operator=operators.EQUALS,
                 field_name='user', values=[user.id],
              ),
             ],
@@ -2533,7 +2533,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter2.set_conditions(
             [build_condition(
                 model=CremeEntity,
-                operator_id=operators.ISEMPTY,
+                operator=operators.ISEMPTY,
                 field_name='description', values=[False],
              ),
             ],
@@ -2590,7 +2590,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter1.set_conditions(
             [build_condition(
                 model=CremeEntity,
-                operator_id=operators.EQUALS,
+                operator=operators.EQUALS,
                 field_name='user', values=[self.other_user.id],
              ),
             ],
@@ -2600,7 +2600,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter2.set_conditions(
             [build_condition(
                 model=CremeEntity,
-                operator_id=operators.ISEMPTY,
+                operator=operators.ISEMPTY,
                 field_name='description', values=[False],
              ),
             ],
@@ -2673,7 +2673,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
-                operator_id=operators.EQUALS,
+                operator=operators.EQUALS,
                 field_name='user', values=[operands.CurrentUserOperand.type_id],
              ),
             ],
@@ -2727,7 +2727,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=Document,
-                operator_id=operators.ICONTAINS,
+                operator=operators.ICONTAINS,
                 field_name='title', values=['Picture'],
              ),
             ],
@@ -2768,7 +2768,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter_4_contact.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
-                operator_id=operators.EQUALS,
+                operator=operators.EQUALS,
                 field_name='user', values=[user.id],
              ),
             ],
@@ -2784,7 +2784,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter_4_orga.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeOrganisation,
-                operator_id=operators.ICONTAINS,
+                operator=operators.ICONTAINS,
                 field_name='name', values=['Corp'],
              ),
             ],

@@ -79,7 +79,7 @@ class CremeQueryTagsTestCase(CremeTestCase):
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeOrganisation,
-                operator_id=operators.EQUALS,
+                operator=operators.EQUALS,
                 field_name='name', values=[name],
              ),
             ],
