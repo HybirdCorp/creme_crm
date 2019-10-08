@@ -268,7 +268,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation, field_name='name',
-                    operator_id=operators.CONTAINS, values=['club'],
+                    operator=operators.CONTAINS, values=['club'],
                 ),
             ],
         )
@@ -341,7 +341,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation, field_name='name',
-                    operator_id=operators.CONTAINS, values=['club'],
+                    operator=operators.CONTAINS, values=['club'],
                 ),
             ],
         )
@@ -400,7 +400,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation, field_name='name',
-                    operator_id=operators.CONTAINS, values=['club'],
+                    operator=operators.CONTAINS, values=['club'],
                 ),
             ],
         )
@@ -441,7 +441,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation, field_name='user',
-                    operator_id=operators.EQUALS,
+                    operator=operators.EQUALS,
                     values=[operands.CurrentUserOperand.type_id],
                 ),
             ],
@@ -526,7 +526,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     field_name='description',
-                    operator_id=operators.EQUALS,
+                    operator=operators.EQUALS,
                     values=[description],
                 ),
             ],
@@ -647,7 +647,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
-                    operator_id=operators.CONTAINS,
+                    operator=operators.CONTAINS,
                     field_name='description',
                     values=['club'],
                 ),

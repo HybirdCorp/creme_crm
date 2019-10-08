@@ -108,7 +108,7 @@ class Populator(BasePopulator):
         # create_cond    = partial(EntityFilterCondition.build_4_field, model=Opportunity)
         build_cond = partial(condition_handler.RegularFieldConditionHandler.build_condition,
                              model=Opportunity,
-                             )
+                            )
         create_efilter(
             'opportunities-opportunities_won',
             name=_('Opportunities won'),
@@ -117,7 +117,7 @@ class Populator(BasePopulator):
                 #             name='sales_phase__won',
                 #             values=[True],
                 #            ),
-                build_cond(operator_id=operators.EQUALS,
+                build_cond(operator=operators.EqualsOperator,
                            field_name='sales_phase__won',
                            values=[True],
                           ),
@@ -131,7 +131,7 @@ class Populator(BasePopulator):
                 #             name='sales_phase__lost',
                 #             values=[True],
                 #            ),
-                build_cond(operator_id=operators.EQUALS,
+                build_cond(operator=operators.EqualsOperator,
                            field_name='sales_phase__lost',
                            values=[True],
                           ),
@@ -145,7 +145,7 @@ class Populator(BasePopulator):
                 #             name='sales_phase__won',
                 #             values=[True],
                 #           ),
-                build_cond(operator_id=operators.EQUALS_NOT,
+                build_cond(operator=operators.EqualsNotOperator,
                            field_name='sales_phase__won',
                            values=[True],
                           ),
@@ -153,7 +153,7 @@ class Populator(BasePopulator):
                 #             name='sales_phase__lost',
                 #             values=[True],
                 #            ),
-                build_cond(operator_id=operators.EQUALS_NOT,
+                build_cond(operator=operators.EqualsNotOperator,
                            field_name='sales_phase__lost',
                            values=[True],
                           ),
@@ -161,16 +161,18 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        HeaderFilter.create(pk=constants.DEFAULT_HFILTER_OPPORTUNITY, model=Opportunity,
-                            name=_('Opportunity view'),
-                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                                        EntityCellRelation(model=Opportunity, rtype=rt_sub_targets),
-                                        (EntityCellRegularField, {'name': 'sales_phase'}),
-                                        (EntityCellRegularField, {'name': 'estimated_sales'}),
-                                        (EntityCellRegularField, {'name': 'made_sales'}),
-                                        (EntityCellRegularField, {'name': 'closing_date'}),
-                                       ],
-                           )
+        HeaderFilter.create(
+            pk=constants.DEFAULT_HFILTER_OPPORTUNITY, model=Opportunity,
+            name=_('Opportunity view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                EntityCellRelation(model=Opportunity, rtype=rt_sub_targets),
+                (EntityCellRegularField, {'name': 'sales_phase'}),
+                (EntityCellRegularField, {'name': 'estimated_sales'}),
+                (EntityCellRegularField, {'name': 'made_sales'}),
+                (EntityCellRegularField, {'name': 'closing_date'}),
+            ],
+        )
 
         # ---------------------------
         SearchConfigItem.create_if_needed(Opportunity, ['name', 'made_sales', 'sales_phase__name', 'origin__name'])

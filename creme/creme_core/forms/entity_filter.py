@@ -37,10 +37,14 @@ from django.db.models.fields.related import RelatedField as ModelRelatedField
 from django.forms import ModelMultipleChoiceField, DateField, ValidationError  # ChoiceField
 from django.forms.fields import CallableChoiceIterator
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
 from django.utils.formats import date_format
+from django.utils.translation import gettext_lazy as _
 
-from ..core.entity_filter import operators, condition_handler
+from ..core.entity_filter import (
+    entity_filter_registry,
+    condition_handler,
+    operators,
+)
 from ..models import (
     CremeEntity, EntityFilter,  # EntityFilterCondition
     RelationType, CremePropertyType,
@@ -136,10 +140,15 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
         return pinput
 
     def _build_operatorchoices(self, operators):
+        # return [
+        #     (json.dumps({'id': id, 'types': ' '.join(op.allowed_fieldtypes)}),
+        #      op.name,
+        #     ) for id, op in operators.items()
+        # ]
         return [
-            (json.dumps({'id': id, 'types': ' '.join(op.allowed_fieldtypes)}),
-             op.name,
-            ) for id, op in operators.items()
+            (json.dumps({'id': op.type_id, 'types': ' '.join(op.allowed_fieldtypes)}),
+             op.verbose_name,
+            ) for op in operators
         ]
 
     def _build_fieldchoice(self, name, data):
@@ -233,13 +242,14 @@ class RegularFieldsConditionsWidget(SelectorList):
         self.fields = fields
 
     def get_context(self, name, value, attrs):
-        self.selector = FieldConditionWidget(model=self.model,
-                                             fields=self.fields,
-                                             # TODO: given by form field ?
-                                             # operators=EntityFilterCondition._OPERATOR_MAP,
-                                             operators=operators.OPERATORS,
-                                             autocomplete=True,
-                                            )
+        self.selector = FieldConditionWidget(
+            model=self.model,
+            fields=self.fields,
+            # TODO: given by form field (pass registry as constructor argument) ?
+            # operators=EntityFilterCondition._OPERATOR_MAP,
+            operators=[*entity_filter_registry.operators],
+            autocomplete=True,
+        )
 
         return super().get_context(name=name, value=value, attrs=attrs)
 
@@ -376,11 +386,12 @@ class CustomFieldConditionWidget(SelectorList):
             return Label(empty_label=_('No custom field at present.'))\
                         .get_context(name=name, value=value, attrs=attrs)
 
-        self.selector = CustomFieldConditionSelector(fields=fields, autocomplete=True,
-                                                     # TODO: given by form field ?
-                                                     # operators=EntityFilterCondition._OPERATOR_MAP,
-                                                     operators=operators.OPERATORS,
-                                                    )
+        self.selector = CustomFieldConditionSelector(
+            fields=fields, autocomplete=True,
+            # TODO: given by form field ?
+            # operators=EntityFilterCondition._OPERATOR_MAP,
+            operators=[*entity_filter_registry.operators],
+        )
 
         return super().get_context(name=name, value=value, attrs=attrs)
 
@@ -590,17 +601,17 @@ class RegularFieldsConditionsField(_ConditionsField):
         field_choicetype = FieldConditionWidget.field_choicetype
 
         for condition in value:
-            search_info = condition.decoded_value
+            search_info = condition.decoded_value  # TODO: use condition.handler
             operator_id = search_info['operator']
             # operator = EntityFilterCondition._OPERATOR_MAP.get(operator_id)
-            operator = operators.OPERATORS.get(operator_id)
+            operator = entity_filter_registry.get_operator(operator_id)
 
             field = fields[condition.name][-1]
             field_entry = {'name': condition.name, 'type': field_choicetype(field)}
 
             # TODO: use polymorphism instead ??
             # if isinstance(operator, _ConditionBooleanOperator):
-            if isinstance(operator, operators.BooleanOperator):
+            if isinstance(operator, operators.BooleanOperatorBase):
                 values = search_info['values'][0]
             elif isinstance(field, ModelBooleanField):
                 values = search_info['values'][0]
@@ -632,18 +643,20 @@ class RegularFieldsConditionsField(_ConditionsField):
 
     def _clean_operator_n_values(self, entry):
         clean_value = self.clean_value
-        operator = clean_value(clean_value(entry, 'operator', dict, required_error_key='invalidoperator'),
-                               'id', int, required_error_key='invalidoperator',
-                              )
+        # operator = clean_value(
+        operator_id = clean_value(
+            clean_value(entry, 'operator', dict, required_error_key='invalidoperator'),
+            'id', int, required_error_key='invalidoperator',
+        )
 
         # operator_class = EntityFilterCondition._OPERATOR_MAP.get(operator)
-        operator_class = operators.OPERATORS.get(operator)
+        operator_class = entity_filter_registry.get_operator(operator_id)
 
         if not operator_class:
             raise ValidationError(self.error_messages['invalidoperator'], code='invalidoperator')
 
         # if isinstance(operator_class, _ConditionBooleanOperator):
-        if isinstance(operator_class, operators.BooleanOperator):
+        if isinstance(operator_class, operators.BooleanOperatorBase):
             values = [clean_value(entry, 'value', bool, required_error_key='invalidvalue')]
         elif entry is None:
             values = self._return_none_or_raise(self.required, 'invalidvalue')
@@ -654,7 +667,8 @@ class RegularFieldsConditionsField(_ConditionsField):
         else:
             values = [v for v in clean_value(entry, 'value', str, required_error_key='invalidvalue').split(',') if v]
 
-        return operator, values
+        # return operator, values
+        return operator_id, values
 
     def _value_from_unjsonfied(self, data):
         # build_4_field = EntityFilterCondition.build_4_field
@@ -670,8 +684,7 @@ class RegularFieldsConditionsField(_ConditionsField):
                 conditions.append(build_4_field(model=self.model,
                                                 # name=clean_fieldname(entry),
                                                 field_name=clean_fieldname(entry),
-                                                # operator=operator,
-                                                operator_id=operator,
+                                                operator=operator,
                                                 values=values,
                                                 user=self.user,
                                                )
@@ -875,7 +888,7 @@ class CustomFieldsConditionsField(_ConditionsField):
         dicts = []
         customfield_rname_choicetype = CustomFieldConditionSelector.customfield_rname_choicetype
         # get_op = EntityFilterCondition._OPERATOR_MAP.get
-        get_op = operators.OPERATORS.get
+        get_op = entity_filter_registry.get_operator
 
         for condition in value:
             search_info = condition.decoded_value
@@ -918,15 +931,17 @@ class CustomFieldsConditionsField(_ConditionsField):
         return cfield
 
     def _clean_operator_n_values(self, entry):
-        clean_value =  self.clean_value
-        operator = clean_value(clean_value(entry, 'operator', dict,
-                                           required_error_key='invalidoperator',
-                                          ),
-                               'id', int, required_error_key='invalidoperator',
-                              )
+        clean_value = self.clean_value
+        # operator = clean_value(
+        operator_id = clean_value(
+            clean_value(entry, 'operator', dict,
+                        required_error_key='invalidoperator',
+                       ),
+            'id', int, required_error_key='invalidoperator',
+        )
 
         # operator_class = EntityFilterCondition._OPERATOR_MAP.get(operator)
-        operator_class = operators.OPERATORS.get(operator)
+        operator_class = entity_filter_registry.get_operator(operator_id)
 
         if not operator_class:
             raise ValidationError(self.error_messages['invalidoperator'],
@@ -934,7 +949,7 @@ class CustomFieldsConditionsField(_ConditionsField):
                                  )
 
         # if isinstance(operator_class, _ConditionBooleanOperator):
-        if isinstance(operator_class, operators.BooleanOperator):
+        if isinstance(operator_class, operators.BooleanOperatorBase):
             values = [clean_value(entry, 'value', bool, required_error_key='invalidvalue')]
         elif entry is None:
             values = self._return_none_or_raise(self.required, 'invalidvalue')
@@ -953,7 +968,8 @@ class CustomFieldsConditionsField(_ConditionsField):
                             if v
                      ]
 
-        return operator, values
+        # return operator, values
+        return operator_id, values
 
     def _value_from_unjsonfied(self, data):
         # build_condition = EntityFilterCondition.build_4_customfield
@@ -966,8 +982,7 @@ class CustomFieldsConditionsField(_ConditionsField):
             for entry in data:
                 operator, values = clean_operator_n_values(entry)
                 conditions.append(build_condition(custom_field=clean_cfield(entry),
-                                                  # operator=operator,
-                                                  operator_id=operator,
+                                                  operator=operator,
                                                   values=values,
                                                   user=self.user,
                                                  )

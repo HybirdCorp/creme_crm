@@ -65,6 +65,7 @@ class FilterConditionHandler:
     <creme_core.core.entity_filter.entity_filter_registry>.
     """
     type_id = None
+    efilter_registry = entity_filter_registry
 
     class DataError(Exception):
         pass
@@ -250,14 +251,18 @@ class SubFilterConditionHandler(FilterConditionHandler):
 
 
 class OperatorConditionHandlerMixin:
-    @staticmethod
-    def _check_operator(operator_id):
-        if operator_id not in operators.OPERATORS:
+    @classmethod
+    def _check_operator(cls, operator_id):
+        if cls.get_operator(operator_id) is None:
             return "Operator ID '{}' is invalid".format(operator_id)
 
     @classmethod
     def get_operand(cls, value, user):
-        return entity_filter_registry.get_operand(type_id=value, user=user)
+        return cls.efilter_registry.get_operand(type_id=value, user=user)
+
+    @classmethod
+    def get_operator(cls, operator_id):
+        return cls.efilter_registry.get_operator(operator_id)
 
     @classmethod
     def resolve_operands(cls, values, user):
@@ -301,7 +306,6 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
     Note: no date field ; see <DateRegularFieldConditionHandler>.
     """
     type_id = 5
-    operators = operators.OPERATORS
 
     def __init__(self, *, model, field_name, operator_id, values):
         super().__init__(model=model, field_name=field_name)
@@ -310,7 +314,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         self._verbose_values = None  # Cache for values in description()
 
     def accept(self, *, entity, user):
-        operator = operators.OPERATORS[self._operator_id]
+        operator = self.get_operator(self._operator_id)
         values = self.resolve_operands(values=self._values, user=user)
 
         field_info = self.field_info
@@ -367,28 +371,25 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         return cls(model=model, field_name=name, **kwargs)
 
     @classmethod
-    def build_condition(cls, *, model, field_name, operator_id, values, user=None,
-                        condition_cls=EntityFilterCondition,
-                        efilter_registry=entity_filter_registry
-                       ):
+    def build_condition(cls, *, model, field_name, operator, values, user=None,
+                        condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
         @param field_name: Name of the field.
-        @param operator_id: Operator ID ;
-               see 'creme_core.core.entity_filter.operators.EQUALS' and friends.
+        @param operator: <creme_core.core.entity_filter.operators.ConditionOperator> ID or class.
         @param values: List of searched values (logical OR between them).
                Exceptions: - RANGE: 'values' is always a list of 2 elements
                            - ISEMPTY: 'values' is a list containing one boolean.
         @param user: Some fields need a user instance for permission validation.
         @param condition_cls: Class of condition.
-        @param efilter_registry: Instance of <_EntityFilterRegistry>.
         """
-        try:
-            operator_obj = cls.operators[operator_id]
-        except KeyError:
+        operator_id = operator if isinstance(operator, int) else operator.type_id
+
+        operator_obj = cls.get_operator(operator_id)
+        if operator_obj is None:
             raise cls.ValueError(
-                '{}.build_condition(): unknown operator "{}"'.format(
+                '{}.build_condition(): unknown operator ID="{}"'.format(
                     cls.__name__, operator_id,
                 )
             )
@@ -402,7 +403,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             # TODO: cast more values (eg: integers instead of "digit" string)
             values = operator_obj.validate_field_values(
                 field=finfo[-1], values=values, user=user,
-                efilter_registry=efilter_registry,
+                efilter_registry=cls.efilter_registry,
             )
         except Exception as e:
             raise cls.ValueError(str(e)) from e
@@ -412,7 +413,8 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             type=cls.type_id,
             name=field_name,
             value=condition_cls.encode_value(
-                {'operator': operator_id, 'values': values}
+                # {'operator': operator_id, 'values': values}
+                {'operator': operator_obj.type_id, 'values': values}
             ),
         )
 
@@ -460,7 +462,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
 
             self._verbose_values = values
 
-        return operators.OPERATORS.get(self._operator_id).description(
+        return self.get_operator(self._operator_id).description(
             field_vname=finfo.verbose_name,
             values=values,
         )
@@ -478,7 +480,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         return self._check_operator(self._operator_id)
 
     def get_q(self, user):
-        operator = operators.OPERATORS[self._operator_id]
+        operator = self.get_operator(self._operator_id)
         values = self.resolve_operands(values=self._values, user=user)
         field_info = self.field_info
 
@@ -744,7 +746,6 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
     Note: no date field ; see DateCustomFieldConditionHandler
     """
     type_id = 20
-    operators = operators.OPERATORS
 
     def __init__(self, *, model=None, custom_field, related_name=None, operator_id, values):
         """Constructor.
@@ -762,7 +763,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         self._verbose_values = None  # Cache for values in description()
 
     def accept(self, *, entity, user):
-        operator = operators.OPERATORS[self._operator_id]
+        operator = self.get_operator(self._operator_id)
         values = self._values
 
         cfield = self.custom_field
@@ -817,24 +818,26 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         return cls(model=model, custom_field=cf_id, **kwargs)
 
     @classmethod
-    def build_condition(cls, *, custom_field, operator_id, values, user=None,
-                        condition_cls=EntityFilterCondition,
-                        efilter_registry=entity_filter_registry):
+    def build_condition(cls, *, custom_field, operator, values, user=None,
+                        condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
         @param custom_field: Instance of <creme_core.models.CustomField>.
-        @param operator_id: Operator ID ;
-               see 'creme_core.core.entity_filter.operators.EQUALS' and friends.
+        @param operator: <creme_core.core.entity_filter.operators.ConditionOperator> ID or class.
         @param values: List of searched values (logical OR between them).
                Exceptions: - RANGE: 'values' is always a list of 2 elements
                            - ISEMPTY: 'values' is a list containing one boolean.
         @param user: Some fields need a user instance for permission validation.
         @param condition_cls: Class of condition.
-        @param efilter_registry: Instance of <_EntityFilterRegistry>.
         """
-        if operator_id not in cls.operators:
+        operator_id = operator if isinstance(operator, int) else operator.type_id
+
+        operator_obj = cls.get_operator(operator_id)
+        if operator_obj is None:
             raise cls.ValueError(
-                '{}.build_condition(): unknown operator: {}'.format(cls.__name__, operator_id)
+                '{}.build_condition(): unknown operator ID="{}"'.format(
+                    cls.__name__, operator_id,
+                )
             )
 
         if custom_field.field_type == CustomField.DATETIME:
@@ -862,10 +865,9 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         try:
             # TODO: move this in Operator code
             if operator_id == operators.ISEMPTY:
-                operator_obj = operators.OPERATORS.get(operator_id)
-                value = operator_obj.validate_field_values(
+                value = cls.get_operator(operator_id).validate_field_values(
                     field=None, values=values, user=user,
-                    efilter_registry=efilter_registry,
+                    efilter_registry=cls.efilter_registry,
                 )
             else:
                 clean_value = cf_value_class.get_formfield(custom_field, None, user=user).clean
@@ -913,7 +915,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
 
             self._verbose_values = values
 
-        return operators.OPERATORS.get(self._operator_id).description(
+        return self.get_operator(self._operator_id).description(
             field_vname=cfield.name,
             values=values,
         )
@@ -926,7 +928,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         # NB: Sadly we retrieve the ids of the entity that match with this condition
         #     instead of use a 'JOIN', in order to avoid the interaction between
         #     several conditions on the same type of CustomField (ie: same table).
-        operator = operators.OPERATORS[self._operator_id]
+        operator = self.get_operator(self._operator_id)
         related_name = self._related_name
         fname = '{}__value'.format(related_name)
         values = self._values

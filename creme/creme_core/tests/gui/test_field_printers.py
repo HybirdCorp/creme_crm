@@ -294,12 +294,12 @@ class FieldsPrintersTestCase(CremeTestCase):
             conditions=[
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
-                    operator_id=operators.STARTSWITH,
+                    operator=operators.STARTSWITH,
                     field_name='name', values=[name],
                 ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
-                    operator_id=operators.CONTAINS,
+                    operator=operators.CONTAINS,
                     field_name='description', values=[desc1, desc2],
                 ),
             ],

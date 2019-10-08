@@ -760,7 +760,7 @@ class ActTestCase(CommercialBaseTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Organisation,
-                    operator_id=operators.ICONTAINS,
+                    operator=operators.ICONTAINS,
                     field_name='name', values=['Ferraille'],
                 ),
             ],
@@ -900,7 +900,7 @@ class ActTestCase(CommercialBaseTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Organisation,
-                    operator_id=operators.ICONTAINS,
+                    operator=operators.ICONTAINS,
                     field_name='name', values=['Ferraille'],
                 ),
             ],

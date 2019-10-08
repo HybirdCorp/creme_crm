@@ -165,7 +165,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
                 build_cond(
                    model=models.FakeContact,
                    # operator=models.EntityFilterCondition.EQUALS,
-                   operator_id=operators.EQUALS,
+                   operator=operators.EQUALS,
                    # name='first_name',
                    field_name='first_name',
                    values=['Misato'],
@@ -181,7 +181,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
                 build_cond(
                     model=models.FakeOrganisation,
                     # operator=models.EntityFilterCondition.CONTAINS,
-                    operator_id=operators.CONTAINS,
+                    operator=operators.CONTAINS,
                     # name='name',
                     field_name='name',
                     values=['NERV'],

@@ -26,9 +26,11 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks, models as core_models
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
-from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
-from creme.creme_core.core.entity_filter.operands import CurrentUserOperand
-from creme.creme_core.core.entity_filter.operators import EQUALS
+from creme.creme_core.core.entity_filter import (
+    condition_handler,
+    operands,
+    operators,
+)
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import EntityFilter  # EntityFilterVariable EntityFilterCondition
 from creme.creme_core.utils import create_if_needed
@@ -94,9 +96,9 @@ class Populator(BasePopulator):
                 #     name='is_managed',
                 #     values=[True],
                 # ),
-                RegularFieldConditionHandler.build_condition(
+                condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Organisation,
-                    operator_id=EQUALS,
+                    operator=operators.EqualsOperator,
                     field_name='is_managed',
                     values=[True],
                 ),
@@ -112,11 +114,11 @@ class Populator(BasePopulator):
                 #     name='is_user',
                 #     values=[EntityFilterVariable.CURRENT_USER],
                 # ),
-                RegularFieldConditionHandler.build_condition(
+                condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Contact,
-                    operator_id=EQUALS,
+                    operator=operators.EqualsOperator,
                     field_name='is_user',
-                    values=[CurrentUserOperand.type_id],
+                    values=[operands.CurrentUserOperand.type_id],
                 ),
             ],
         )

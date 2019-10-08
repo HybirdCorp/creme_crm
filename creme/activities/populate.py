@@ -26,12 +26,17 @@ from django.utils.translation import gettext as _, pgettext
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
-from creme.creme_core.core.entity_filter import condition_handler
-from creme.creme_core.core.entity_filter.operators import EQUALS
+from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import (RelationType, ButtonMenuItem, SearchConfigItem,
-        BrickDetailviewLocation, BrickHomeLocation, SettingValue,
-        HeaderFilter, EntityFilter)  # EntityFilterCondition
+from creme.creme_core.models import (
+    RelationType,
+    ButtonMenuItem,
+    SearchConfigItem,
+    BrickDetailviewLocation, BrickHomeLocation,
+    SettingValue,
+    HeaderFilter,
+    EntityFilter,
+)  # EntityFilterCondition
 from creme.creme_core.utils import create_if_needed
 
 from creme import persons
@@ -136,7 +141,7 @@ class Populator(BasePopulator):
                     # ),
                     condition_handler.RegularFieldConditionHandler.build_condition(
                         model=Activity,
-                        operator_id=EQUALS,
+                        operator=operators.EqualsOperator,
                         field_name='type',
                         values=[atype_id],
                     ),

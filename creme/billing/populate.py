@@ -24,21 +24,32 @@ from django.apps import apps
 from django.utils.translation import gettext as _, pgettext
 
 from creme.creme_core import bricks as core_bricks
-from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-        EntityCellRelation, EntityCellFunctionField)
+from creme.creme_core.core.entity_cell import (
+    EntityCellRegularField,
+    EntityCellRelation,
+    EntityCellFunctionField,
+)
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import (RelationType, SettingValue, SearchConfigItem,
-        ButtonMenuItem, HeaderFilter, EntityFilter,  # EntityFilterCondition
-        BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem)
+from creme.creme_core.models import (
+    RelationType,
+    SettingValue,
+    SearchConfigItem,
+    ButtonMenuItem,
+    HeaderFilter,
+    EntityFilter,  # EntityFilterCondition
+    BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem,
+)
 from creme.creme_core.utils import create_if_needed
 
 from creme import persons, products, billing
 
 from . import bricks, buttons, constants, setting_keys
 from .core import BILLING_MODELS
-from .models import (InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
-        SettlementTerms, AdditionalInformation, PaymentTerms)
+from .models import (
+    InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
+    SettlementTerms, AdditionalInformation, PaymentTerms,
+)
 from .registry import lines_registry
 
 logger = logging.getLogger(__name__)
@@ -148,7 +159,7 @@ class Populator(BasePopulator):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Invoice,
-                    operator_id=operators.EQUALS,
+                    operator=operators.EqualsOperator,
                     field_name='status__pending_payment',
                     values=[True],
                 ),
@@ -165,7 +176,7 @@ class Populator(BasePopulator):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Invoice,
-                    operator_id=operators.EQUALS,
+                    operator=operators.EqualsOperator,
                     field_name='status__pending_payment',
                     values=[True],
                 ),
@@ -216,7 +227,7 @@ class Populator(BasePopulator):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Invoice,
-                    operator_id=operators.EQUALS,
+                    operator=operators.EqualsOperator,
                     field_name='status__pending_payment',
                     values=[True],
                 ),

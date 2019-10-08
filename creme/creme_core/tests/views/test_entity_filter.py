@@ -188,7 +188,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
-                    operator_id=operators.GT,
+                    operator=operators.GT,
                     field_name='capital', values=[10000],
                 ),
             ],
@@ -497,7 +497,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.EQUALS,
+                    operator=operators.EQUALS,
                     field_name='first_name', values=['Misato'],
                 ),
             ],
@@ -669,7 +669,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                  # ),
                  RegularFieldConditionHandler.build_condition(
                      model=FakeContact,
-                     operator_id=operators.EQUALS,
+                     operator=operators.EQUALS,
                      field_name='civility',
                      values=[civility.pk],
                  ),
@@ -693,7 +693,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.EQUALS,
+                    operator=operators.EQUALS,
                     field_name='first_name', values=['Misato'],
                 ),
             ],
@@ -763,7 +763,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.EQUALS,
+                    operator=operators.EQUALS,
                     field_name='first_name', values=['Misato'],
                 ),
             ],
@@ -779,7 +779,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.EQUALS,
+                    operator=operators.EQUALS,
                     field_name='last_name', values=['Katsuragi'],
                 ),
             ],
@@ -853,7 +853,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                     # ),
                     RegularFieldConditionHandler.build_condition(
                         model=FakeContact,
-                        operator_id=operators.EQUALS,
+                        operator=operators.EQUALS,
                         field_name='first_name', values=['Misato'],
                     ),
                 ],
@@ -971,7 +971,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         #                                                     value=['Ed'],
         #                                                    )
         cf_cond = CustomFieldConditionHandler.build_condition(
-            custom_field=custom_field, operator_id=operators.ICONTAINS, values=['Ed'],
+            custom_field=custom_field, operator=operators.ICONTAINS, values=['Ed'],
         )
         # datecf_cond = EntityFilterCondition.build_4_datecustomfield(custom_field=datecfield,
         #                                                             start=date(year=2010, month=1, day=1),
@@ -987,7 +987,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             #                                     ),
             RegularFieldConditionHandler.build_condition(
                 model=FakeContact, field_name='first_name',
-                operator_id=operators.CONTAINS, values=['Atom'],
+                operator=operators.CONTAINS, values=['Atom'],
             ),
             # EntityFilterCondition.build_4_field(model=FakeContact,
             #                                     operator=EntityFilterCondition.ISEMPTY,
@@ -995,7 +995,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             #                                    ),
             RegularFieldConditionHandler.build_condition(
                 model=FakeContact, field_name='description',
-                operator_id=operators.ISEMPTY, values=[False]
+                operator=operators.ISEMPTY, values=[False]
             ),
             # EntityFilterCondition.build_4_date(model=FakeContact, name='birthday',
             #                                    start=date(year=2001, month=1, day=1),
@@ -1193,7 +1193,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
-                    operator_id=operators.EQUALS,
+                    operator=operators.EQUALS,
                     field_name='first_name', values=['Misato'],
                 ),
             ],
@@ -1278,7 +1278,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact, field_name='first_name',
-                    operator_id=operators.EQUALS, values=['Misato'],
+                    operator=operators.EQUALS, values=['Misato'],
                 ),
             ],
         )
@@ -1372,7 +1372,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact, field_name='first_name',
-                    operator_id=operators.EQUALS, values=['Misato'],
+                    operator=operators.EQUALS, values=['Misato'],
                 ),
             ],
         )
@@ -1638,7 +1638,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact, field_name='last_name',
-                    operator_id=operators.EQUALS, values=['Ikari'],
+                    operator=operators.EQUALS, values=['Ikari'],
                 ),
             ],
         )
@@ -1793,7 +1793,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact, field_name='first_name',
-                    operator_id=operators.EQUALS, values=['Misato'],
+                    operator=operators.EQUALS, values=['Misato'],
                 ),
             ],
         )

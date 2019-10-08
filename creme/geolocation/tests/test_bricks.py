@@ -37,7 +37,7 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
                 # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=model,
-                    operator_id=operator,
+                    operator=operator,
                     field_name=field, values=values,
                 ),
             ],

@@ -7,8 +7,17 @@ try:
     from django.db.models.query_utils import Q
     from django.utils.translation import gettext_lazy as _
 
-    from creme.creme_core.core.entity_filter import operators, operands, _EntityFilterRegistry
-    from creme.creme_core.models import FakeOrganisation, FakeContact, Language
+    from creme.creme_core.core.entity_filter import (
+        operators,
+        operands,
+        _EntityFilterRegistry,
+        entity_filter_registry,
+    )
+    from creme.creme_core.models import (
+        Language,
+        FakeOrganisation,
+        FakeContact,
+    )
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -16,36 +25,45 @@ except Exception as e:
 
 class OperatorTestCase(CremeTestCase):
     def test_base(self):
-        name = 'Foo'
         pattern = '{}__foobar'
-        op = operators.ConditionOperator(name=name, key_pattern=pattern)
-        self.assertEqual(name, op.name)
+
+        class TestOp(operators.ConditionOperator):
+            verbose_name = 'Foo'
+            key_pattern = pattern
+
+        op = TestOp()
         self.assertEqual((), op.allowed_fieldtypes)
         self.assertIs(op.exclude, False)
         self.assertEqual(pattern, op.key_pattern)
         self.assertIs(op.accept_subpart, True)
-        self.assertEqual(name, str(op))
+        self.assertEqual(TestOp.verbose_name, str(op))
 
     def test_get_q1(self):
-        op = operators.ConditionOperator(name='Contains', key_pattern='{}__contains')
+        class ContainsOp(operators.ConditionOperator):
+            key_pattern = '{}__contains'
+
         self.assertQEqual(
             Q(name__contains='Acme'),
-            op.get_q(model=FakeOrganisation, field_name='name', values=['Acme'])
+            ContainsOp().get_q(model=FakeOrganisation,
+                               field_name='name', values=['Acme'],
+                              )
         )
 
     def test_get_q2(self):
         "Other pattern, several values."
-        op = operators.ConditionOperator(name='Ends with', key_pattern='{}__endswith')
+        class EndsOp(operators.ConditionOperator):
+            key_pattern = '{}__endswith'
+
         self.assertQEqual(
             Q(last_name__endswith='foo') | Q(last_name__endswith='bar'),
-            op.get_q(model=FakeContact,
-                     field_name='last_name', values=['foo', 'bar'],
-                    )
+            EndsOp().get_q(model=FakeContact,
+                           field_name='last_name', values=['foo', 'bar'],
+                          )
         )
 
     def test_validate_field_values01(self):
         "String."
-        op = operators.ConditionOperator(name='Foo', key_pattern='{}__foobar')
+        op = operators.ConditionOperator()
         field = FakeOrganisation._meta.get_field('name')
 
         values = ['Acme']
@@ -56,7 +74,7 @@ class OperatorTestCase(CremeTestCase):
 
     def test_validate_field_values02(self):
         "Integer."
-        op = operators.ConditionOperator(name='Foo', key_pattern='{}__foobar')
+        op = operators.ConditionOperator()
         field = FakeOrganisation._meta.get_field('capital')
 
         values = ['1000', '3000']
@@ -69,8 +87,8 @@ class OperatorTestCase(CremeTestCase):
             op.validate_field_values(field=field, values=['1000', 'notanint'])
 
     def test_validate_field_values03(self):
-        "Email (sub-part validation."
-        op1 = operators.ConditionOperator(name='Foo', key_pattern='{}__foobar')
+        "Email (sub-part validation)."
+        op1 = operators.ConditionOperator()
         field = FakeOrganisation._meta.get_field('email')
 
         values = ['toto@']
@@ -79,9 +97,10 @@ class OperatorTestCase(CremeTestCase):
             op1.validate_field_values(field=field, values=[*values])
         )
 
-        op2 = operators.ConditionOperator(name='Foo', key_pattern='{}__foobar',
-                                          accept_subpart=False,
-                                         )
+        class DoNotAcceptSubPartOperator(operators.ConditionOperator):
+            accept_subpart = False
+
+        op2 = DoNotAcceptSubPartOperator()
         with self.assertRaises(ValidationError):
             op2.validate_field_values(field=field, values=values)
 
@@ -90,7 +109,7 @@ class OperatorTestCase(CremeTestCase):
         user = self.login()
         registry = _EntityFilterRegistry()
 
-        op = operators.ConditionOperator(name='Foo', key_pattern='{}__foobar')
+        op = operators.ConditionOperator()
         get_field = FakeOrganisation._meta.get_field
 
         values = [operands.CurrentUserOperand.type_id]
@@ -126,7 +145,7 @@ class OperatorTestCase(CremeTestCase):
 
     def test_validate_field_values05(self):
         "ManyToManyField."
-        op = operators.ConditionOperator(name='Foo', key_pattern='{}__foobar')
+        op = operators.ConditionOperator()
         field = FakeContact._meta.get_field('languages')
         lang1, lang2 = Language.objects.all()[:2]
 
@@ -140,7 +159,7 @@ class OperatorTestCase(CremeTestCase):
             op.validate_field_values(field=field, values=[*values, 'notanint'])
 
     def test_equals(self):
-        op = operators.OPERATORS[operators.EQUALS]
+        op = entity_filter_registry.get_operator(operators.EQUALS)
         self.assertIsInstance(op, operators.EqualsOperator)
         self.assertFalse(op.accept_subpart)
         self.assertIs(op.exclude, False)
@@ -196,7 +215,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_equals_get_q(self):
-        op = operators.EqualsOperator(name='Equals')
+        op = operators.EqualsOperator()
         self.assertQEqual(
             Q(name__exact='Acme'),
             op.get_q(model=FakeOrganisation,
@@ -220,7 +239,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_equals_accept(self):
-        op = operators.EqualsOperator('Equals')
+        op = operators.EqualsOperator()
         self.assertIs(op.accept(field_value='Nerv',  values=['Nerv']),  True)
         self.assertIs(op.accept(field_value='Nerv',  values=['Seele']), False)
         self.assertIs(op.accept(field_value='Seele', values=['Seele']), True)
@@ -260,7 +279,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None, values=[1]), False)
 
     def test_equals_not(self):
-        op = operators.EqualsNotOperator(name='Equals not')
+        op = operators.EqualsNotOperator()
         self.assertIs(op.exclude, True)
 
         field = 'Foo'
@@ -289,7 +308,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_equals_not_accept(self):
-        op = operators.EqualsNotOperator('Equals not')
+        op = operators.EqualsNotOperator()
         self.assertIs(op.accept(field_value='Nerv', values=['Nerv']),  False)
         self.assertIs(op.accept(field_value='Nerv', values=['Seele']), True)
         self.assertIs(op.accept(field_value='Seele', values=['Seele']), False)
@@ -312,7 +331,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None, values=[1]), True)
 
     def test_boolean(self):
-        op = operators.BooleanOperator(name='Is null', key_pattern='{}__isnull')
+        op = operators.BooleanOperatorBase()
         field = FakeContact._meta.get_field('is_a_nerd')
 
         values1 = [True]
@@ -334,9 +353,9 @@ class OperatorTestCase(CremeTestCase):
             op.validate_field_values(field=field, values=[True, False])
 
     def test_is_empty(self):
-        self.assertIsSubclass(operators.IsEmptyOperator, operators.BooleanOperator)
+        self.assertIsSubclass(operators.IsEmptyOperator, operators.BooleanOperatorBase)
 
-        op = operators.IsEmptyOperator(name='Is empty')
+        op = operators.IsEmptyOperator()
         self.assertFalse(op.accept_subpart)
         self.assertSetEqual(
             {'string', 'fk__null', 'user__null', 'enum__null', 'boolean__null'},
@@ -361,7 +380,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_is_empty_get_q(self):
-        op = operators.IsEmptyOperator(name='Is empty')
+        op = operators.IsEmptyOperator()
         self.assertQEqual(
             Q(sector__isnull=True),
             op.get_q(model=FakeOrganisation,
@@ -388,7 +407,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_is_empty_accept(self):
-        op = operators.IsEmptyOperator(name='Is empty')
+        op = operators.IsEmptyOperator()
         self.assertIs(op.accept(field_value='',   values=[True]), True)
         self.assertIs(op.accept(field_value=None, values=[True]), True)
         self.assertIs(op.accept(field_value='X',  values=[True]), False)
@@ -397,7 +416,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value='FOO', values=[False]), True)
 
     def test_range(self):
-        op = operators.RangeOperator(name='Range')
+        op = operators.RangeOperator()
         self.assertTrue(op.accept_subpart)
         self.assertEqual('{}__range',        op.key_pattern)
         self.assertEqual(('number', 'date'), op.allowed_fieldtypes)
@@ -426,7 +445,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_range_validate_field_values(self):
-        op = operators.RangeOperator(name='Range')
+        op = operators.RangeOperator()
         field = FakeOrganisation._meta.get_field('capital')
 
         values1 = [1000, 2000]
@@ -445,7 +464,7 @@ class OperatorTestCase(CremeTestCase):
             op.validate_field_values(field=field, values=[1000, 'noanint'])
 
     def test_range_get_q(self):
-        op = operators.RangeOperator(name='Range')
+        op = operators.RangeOperator()
         self.assertQEqual(
             Q(capital__range=[1000, 10000]),
             op.get_q(model=FakeOrganisation,
@@ -455,7 +474,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_range_accept(self):
-        op = operators.RangeOperator(name='Range')
+        op = operators.RangeOperator()
         self.assertIs(op.accept(field_value=1000, values=[[100, 1500]]), True)
         self.assertIs(op.accept(field_value=99,   values=[[100, 1500]]), False)
         self.assertIs(op.accept(field_value=1501, values=[[100, 1500]]), False)
@@ -464,9 +483,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None, values=[[100, 1500]]), False)
 
     def test_gt(self):
-        op = operators.OPERATORS[operators.GT]
+        op = entity_filter_registry.get_operator(operators.GT)
         self.assertIsInstance(op, operators.GTOperator)
-        self.assertEqual(_('>'), op.name)
+        self.assertEqual(_('>'), op.verbose_name)
         self.assertIs(op.exclude, False)
         self.assertEqual('{}__gt', op.key_pattern)
         self.assertIs(op.accept_subpart, True)
@@ -500,7 +519,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_gt_accept(self):
-        op = operators.GTOperator('Greater')
+        op = operators.GTOperator()
         self.assertIs(op.accept(field_value=1000, values=[100]),  True)
         self.assertIs(op.accept(field_value=1000, values=[999]),  True)
         self.assertIs(op.accept(field_value=1000, values=[1000]), False)
@@ -509,10 +528,10 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None, values=[100]),  False)
 
     def test_gte(self):
-        op = operators.OPERATORS[operators.GTE]
+        op = entity_filter_registry.get_operator(operators.GTE)
         self.assertIsInstance(op, operators.GTEOperator)
         # self.assertEqual(_('>='), op.name)
-        self.assertEqual(_('≥'), op.name)
+        self.assertEqual(_('≥'), op.verbose_name)
         self.assertIs(op.exclude, False)
         self.assertEqual('{}__gte', op.key_pattern)
         self.assertIs(op.accept_subpart, True)
@@ -531,7 +550,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_gte_accept(self):
-        op = operators.GTEOperator('Greater or equal')
+        op = operators.GTEOperator()
         self.assertIs(op.accept(field_value=1000, values=[100]),  True)
         self.assertIs(op.accept(field_value=1000, values=[1000]), True)
         self.assertIs(op.accept(field_value=1000, values=[1001]), False)
@@ -540,9 +559,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None, values=[100]), False)
 
     def test_lt(self):
-        op = operators.OPERATORS[operators.LT]
+        op = entity_filter_registry.get_operator(operators.LT)
         self.assertIsInstance(op, operators.LTOperator)
-        self.assertEqual(_('<'), op.name)
+        self.assertEqual(_('<'), op.verbose_name)
         self.assertIs(op.exclude, False)
         self.assertEqual('{}__lt', op.key_pattern)
         self.assertIs(op.accept_subpart, True)
@@ -561,7 +580,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_lt_accept(self):
-        op = operators.LTOperator('Less')
+        op = operators.LTOperator()
         self.assertIs(op.accept(field_value=100, values=[1000]), True)
         self.assertIs(op.accept(field_value=100, values=[101]),  True)
         self.assertIs(op.accept(field_value=100, values=[100]),  False)
@@ -570,10 +589,10 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None, values=[100]), False)
 
     def test_lte(self):
-        op = operators.OPERATORS[operators.LTE]
+        op = entity_filter_registry.get_operator(operators.LTE)
         self.assertIsInstance(op, operators.LTEOperator)
         # self.assertEqual(_('<='), op.name)
-        self.assertEqual(_('≤'), op.name)
+        self.assertEqual(_('≤'), op.verbose_name)
         self.assertIs(op.exclude, False)
         self.assertEqual('{}__lte', op.key_pattern)
         self.assertIs(op.accept_subpart, True)
@@ -592,7 +611,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_lte_accept(self):
-        op = operators.LTEOperator('Less or equal')
+        op = operators.LTEOperator()
         self.assertIs(op.accept(field_value=100, values=[1000]), True)
         self.assertIs(op.accept(field_value=100, values=[100]),  True)
         self.assertIs(op.accept(field_value=100, values=[99]),   False)
@@ -601,9 +620,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None, values=[99]), False)
 
     def test_iequals(self):
-        op = operators.OPERATORS[operators.IEQUALS]
+        op = entity_filter_registry.get_operator(operators.IEQUALS)
         self.assertIsInstance(op, operators.IEqualsOperator)
-        self.assertEqual(_('Equals (case insensitive)'), op.name)
+        self.assertEqual(_('Equals (case insensitive)'), op.verbose_name)
         self.assertEqual('{}__iexact',                   op.key_pattern)
         self.assertFalse(op.accept_subpart)
         self.assertFalse(op.exclude)
@@ -624,7 +643,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_iequals_accept(self):
-        op = operators.IEqualsOperator('Equal++')
+        op = operators.IEqualsOperator()
         self.assertIs(op.accept(field_value='Nerv', values=['Nerv']),  True)
         self.assertIs(op.accept(field_value='Nerv', values=['nerv']),  True)
         self.assertIs(op.accept(field_value='Nerv', values=['Seele']), False)
@@ -633,9 +652,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None,    values=['gikari@seele.jp']), False)
 
     def test_iequals_not(self):
-        op = operators.OPERATORS[operators.IEQUALS_NOT]
+        op = entity_filter_registry.get_operator(operators.IEQUALS_NOT)
         self.assertIsInstance(op, operators.IEqualsNotOperator)
-        self.assertEqual(_('Does not equal (case insensitive)'), op.name)
+        self.assertEqual(_('Does not equal (case insensitive)'), op.verbose_name)
         self.assertEqual('{}__iexact',                           op.key_pattern)
         self.assertFalse(op.accept_subpart)
         self.assertTrue(op.exclude)
@@ -654,7 +673,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_iequals_not_accept(self):
-        op = operators.IEqualsNotOperator('Not equal++')
+        op = operators.IEqualsNotOperator()
         self.assertIs(op.accept(field_value='Nerv', values=['Nerv']),  False)
         self.assertIs(op.accept(field_value='Nerv', values=['nerv']),  False)
         self.assertIs(op.accept(field_value='Nerv', values=['Seele']), True)
@@ -662,9 +681,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value='SEELE', values=['Seele']), False)
 
     def test_contains(self):
-        op = operators.OPERATORS[operators.CONTAINS]
+        op = entity_filter_registry.get_operator(operators.CONTAINS)
         self.assertIsInstance(op, operators.ContainsOperator)
-        self.assertEqual(_('Contains'), op.name)
+        self.assertEqual(_('Contains'), op.verbose_name)
         self.assertEqual('{}__contains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
@@ -683,7 +702,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_contains_accept(self):
-        op = operators.ContainsOperator('Contains')
+        op = operators.ContainsOperator()
         self.assertIs(op.accept(field_value='Evil corp',         values=['corp']), True)
         self.assertIs(op.accept(field_value='Acme incorporated', values=['corp']), True)
 
@@ -711,9 +730,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None, values=['corp']), False)
 
     def test_contains_not(self):
-        op = operators.OPERATORS[operators.CONTAINS_NOT]
+        op = entity_filter_registry.get_operator(operators.CONTAINS_NOT)
         self.assertIsInstance(op, operators.ContainsNotOperator)
-        self.assertEqual(_('Does not contain'), op.name)
+        self.assertEqual(_('Does not contain'), op.verbose_name)
         self.assertEqual('{}__contains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
@@ -732,7 +751,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_contains_not_accept(self):
-        op = operators.ContainsNotOperator('Contains not')
+        op = operators.ContainsNotOperator()
         self.assertIs(op.accept(field_value='Evil corp',        values=['inc']), True)
         self.assertIs(op.accept(field_value='Acme corporation', values=['inc']), True)
         self.assertIs(op.accept(field_value='Nerv inc.',        values=['inc']), False)
@@ -742,9 +761,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value='Evil corp', values=['cme', 'vil']), False)
 
     def test_icontains(self):
-        op = operators.OPERATORS[operators.ICONTAINS]
+        op = entity_filter_registry.get_operator(operators.ICONTAINS)
         self.assertIsInstance(op, operators.IContainsOperator)
-        self.assertEqual(_('Contains (case insensitive)'), op.name)
+        self.assertEqual(_('Contains (case insensitive)'), op.verbose_name)
         self.assertEqual('{}__icontains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
@@ -763,7 +782,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_icontains_accept(self):
-        op = operators.IContainsOperator('Contains++')
+        op = operators.IContainsOperator()
         self.assertIs(op.accept(field_value='Evil corp', values=['corp']), True)
         self.assertIs(op.accept(field_value='Evil corp', values=['CORP']), True)
 
@@ -772,9 +791,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None, values=['acme']), False)
 
     def test_icontains_not(self):
-        op = operators.OPERATORS[operators.ICONTAINS_NOT]
+        op = entity_filter_registry.get_operator(operators.ICONTAINS_NOT)
         self.assertIsInstance(op, operators.IContainsNotOperator)
-        self.assertEqual(_('Does not contain (case insensitive)'), op.name)
+        self.assertEqual(_('Does not contain (case insensitive)'), op.verbose_name)
         self.assertEqual('{}__icontains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
@@ -793,7 +812,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_icontains_not_accept(self):
-        op = operators.IContainsNotOperator('Contains not++')
+        op = operators.IContainsNotOperator()
         self.assertIs(op.accept(field_value='Evil corp', values=['corp']), False)
         self.assertIs(op.accept(field_value='Evil corp', values=['CORP']), False)
 
@@ -801,15 +820,15 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value='ACME incorporated', values=['EVIL']), True)
 
     def test_startswith(self):
-        op = operators.OPERATORS[operators.STARTSWITH]
+        op = entity_filter_registry.get_operator(operators.STARTSWITH)
         self.assertIsInstance(op, operators.StartsWithOperator)
-        self.assertEqual(_('Starts with'), op.name)
+        self.assertEqual(_('Starts with'), op.verbose_name)
         self.assertEqual('{}__startswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
         self.assertEqual(operators.FIELDTYPES_STRING,
                          op.allowed_fieldtypes
-                         )
+                        )
 
         field = 'Last_name'
         value = 'sire'
@@ -822,7 +841,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_startswith_accept(self):
-        op = operators.StartsWithOperator('Starts with')
+        op = operators.StartsWithOperator()
         self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), True)
         self.assertIs(op.accept(field_value='Evil company', values=['Evil']), True)
 
@@ -848,9 +867,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None, values=['evil']), False)
 
     def test_startswith_not(self):
-        op = operators.OPERATORS[operators.STARTSWITH_NOT]
+        op = entity_filter_registry.get_operator(operators.STARTSWITH_NOT)
         self.assertIsInstance(op, operators.StartswithNotOperator)
-        self.assertEqual(_('Does not start with'), op.name)
+        self.assertEqual(_('Does not start with'), op.verbose_name)
         self.assertEqual('{}__startswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
@@ -869,7 +888,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_startswith_not_accept(self):
-        op = operators.StartswithNotOperator('Starts not with')
+        op = operators.StartswithNotOperator()
         self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), False)
         self.assertIs(op.accept(field_value='Evil corp', values=['corp']), True)
 
@@ -877,9 +896,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value='Evil company', values=['comp']), True)
 
     def test_istartswith(self):
-        op = operators.OPERATORS[operators.ISTARTSWITH]
+        op = entity_filter_registry.get_operator(operators.ISTARTSWITH)
         self.assertIsInstance(op, operators.IStartsWithOperator)
-        self.assertEqual(_('Starts with (case insensitive)'), op.name)
+        self.assertEqual(_('Starts with (case insensitive)'), op.verbose_name)
         self.assertEqual('{}__istartswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
@@ -898,7 +917,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_istartswith_accept(self):
-        op = operators.IStartsWithOperator('Starts with ++')
+        op = operators.IStartsWithOperator()
         self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), True)
         self.assertIs(op.accept(field_value='Evil corp', values=['evil']), True)
         self.assertIs(op.accept(field_value='Evil corp', values=['corp']), False)
@@ -907,9 +926,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None, values=['evil']), False)
 
     def test_istartswith_not(self):
-        op = operators.OPERATORS[operators.ISTARTSWITH_NOT]
+        op = entity_filter_registry.get_operator(operators.ISTARTSWITH_NOT)
         self.assertIsInstance(op, operators.IStartswithNotOperator)
-        self.assertEqual(_('Does not start with (case insensitive)'), op.name)
+        self.assertEqual(_('Does not start with (case insensitive)'), op.verbose_name)
         self.assertEqual('{}__istartswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
@@ -928,7 +947,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_istartswith_not_accept(self):
-        op = operators.IStartswithNotOperator('Starts with not ++')
+        op = operators.IStartswithNotOperator()
         self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), False)
         self.assertIs(op.accept(field_value='Evil corp', values=['evil']), False)
         self.assertIs(op.accept(field_value='Evil corp', values=['corp']), True)
@@ -936,9 +955,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value='Evil inc.', values=['Evil']), False)
 
     def test_endswith(self):
-        op = operators.OPERATORS[operators.ENDSWITH]
+        op = entity_filter_registry.get_operator(operators.ENDSWITH)
         self.assertIsInstance(op, operators.EndsWithOperator)
-        self.assertEqual(_('Ends with'), op.name)
+        self.assertEqual(_('Ends with'), op.verbose_name)
         self.assertEqual('{}__endswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
@@ -957,7 +976,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_endswith_accept(self):
-        op = operators.EndsWithOperator('Ends with')
+        op = operators.EndsWithOperator()
         self.assertIs(op.accept(field_value='Evil corp',    values=['corp']), True)
         self.assertIs(op.accept(field_value='Evil corp',    values=['Evil']), False)
         self.assertIs(op.accept(field_value='Evil company', values=['corp']), False)
@@ -980,8 +999,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None, values=['@corp']), False)
 
     def test_endswith_not(self):
-        op = operators.OPERATORS[operators.ENDSWITH_NOT]
-        self.assertEqual(_('Does not end with'), op.name)
+        op = entity_filter_registry.get_operator(operators.ENDSWITH_NOT)
+        self.assertIsInstance(op, operators.EndsWithNotOperator)
+        self.assertEqual(_('Does not end with'), op.verbose_name)
         self.assertEqual('{}__endswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
@@ -1000,15 +1020,15 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_endswith_not_accept(self):
-        op = operators.OPERATORS[operators.ENDSWITH_NOT]
+        op = entity_filter_registry.get_operator(operators.ENDSWITH_NOT)
         self.assertIs(op.accept(field_value='Evil corp',    values=['corp']), False)
         self.assertIs(op.accept(field_value='Evil corp',    values=['Evil']), True)
         self.assertIs(op.accept(field_value='Evil company', values=['corp']), True)
 
     def test_iendswith(self):
-        op = operators.OPERATORS[operators.IENDSWITH]
+        op = entity_filter_registry.get_operator(operators.IENDSWITH)
         self.assertIsInstance(op, operators.IEndsWithOperator)
-        self.assertEqual(_('Ends with (case insensitive)'), op.name)
+        self.assertEqual(_('Ends with (case insensitive)'), op.verbose_name)
         self.assertEqual('{}__iendswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
@@ -1027,7 +1047,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_iendswith_accept(self):
-        op = operators.IEndsWithOperator('Ends with ++')
+        op = operators.IEndsWithOperator()
         self.assertIs(op.accept(field_value='Evil corp', values=['corp']), True)
         self.assertIs(op.accept(field_value='Evil corp', values=['CORP']), True)
         self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), False)
@@ -1037,9 +1057,9 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value=None, values=['@corp']), False)
 
     def test_iendswith_not(self):
-        op = operators.OPERATORS[operators.IENDSWITH_NOT]
+        op = entity_filter_registry.get_operator(operators.IENDSWITH_NOT)
         self.assertIsInstance(op, operators.IEndsWithNotOperator)
-        self.assertEqual(_('Does not end with (case insensitive)'), op.name)
+        self.assertEqual(_('Does not end with (case insensitive)'), op.verbose_name)
         self.assertEqual('{}__iendswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
@@ -1058,7 +1078,7 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_iendswith_not_accept(self):
-        op = operators.IEndsWithNotOperator('Ends with not ++')
+        op = operators.IEndsWithNotOperator()
         self.assertIs(op.accept(field_value='Evil corp', values=['corp']), False)
         self.assertIs(op.accept(field_value='Evil corp', values=['CORP']), False)
         self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), True)
