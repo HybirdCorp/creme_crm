@@ -17,6 +17,7 @@
 {% block brick_table_columns %}
     {% brick_table_column_for_field ctype=objects_ctype field='number' status='primary' %}
     {% brick_table_column_for_field ctype=objects_ctype field='name' status='nowrap' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='status' %}
     {% brick_table_column title=_('Unlink') status='action' %}
 {% endblock %}
 
@@ -28,6 +29,7 @@
             {% if invoice_view_perm %}{{invoice.number}}{% else %}{{HIDDEN_VALUE}}{% endif %}
         </td>
         <td>{% widget_entity_hyperlink invoice user %}</td>
+        <td>{% if invoice_view_perm %}{{invoice.status}}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_relation_url __subject_id=object.id __type=predicate_id __object_id=invoice.id label=_('Unlink this invoice') icon='unlink' enabled=unlink_perm|and_op:invoice_unlink_perm %}
         </td>

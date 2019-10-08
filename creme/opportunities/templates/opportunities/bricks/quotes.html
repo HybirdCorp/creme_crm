@@ -25,6 +25,7 @@
 {% block brick_table_columns %}
     {% brick_table_column_for_field ctype=objects_ctype field='number' status='primary' %}
     {% brick_table_column_for_field ctype=objects_ctype field='name' status='nowrap' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='status' %}
     {% brick_table_column title=_('Current quote?') status='nowrap' %}
     {% brick_table_column title=_('Unlink') status='action' %}
 {% endblock %}
@@ -40,17 +41,16 @@
             {% if quote_view_perm %}{{quote.number}}{% else %}{{HIDDEN_VALUE}}{% endif %}
         </td>
         <td>{% widget_entity_hyperlink quote user %}</td>
+        <td>{% if quote_view_perm %}{{quote.status}}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
         <td>
         {% if quote_is_current %}
             <input class="opportunities-current-quote" type="checkbox" data-url="{% url 'opportunities__linked_quote_is_current' object.id quote.id 'unset_current' %}"
                    {% if not unlink_perm or not quote_unlink_perm %}disabled="disabled"{% endif %}
-                   checked>
-            </input>
+                   checked />
             {% trans 'Yes' %}
         {% else %}
             <input class="opportunities-current-quote" type="checkbox" data-url="{% url 'opportunities__linked_quote_is_current' object.id quote.id 'set_current' %}"
-                   {% if not unlink_perm or not quote_unlink_perm %}disabled="disabled"{% endif %}>
-            </input>
+                   {% if not unlink_perm or not quote_unlink_perm %}disabled="disabled"{% endif %} />
             {% trans 'No' %}
         {% endif %}
         </td>
