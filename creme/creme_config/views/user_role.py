@@ -29,7 +29,8 @@ from django.utils.translation import gettext_lazy as _  # ugettext
 
 # from formtools.wizard.views import SessionWizardView
 
-from creme.creme_core.auth.decorators import _check_superuser  # login_required, superuser_required
+from creme.creme_core.auth import SUPERUSER_PERM
+# from creme.creme_core.auth.decorators import _check_superuser login_required superuser_required
 from creme.creme_core.models import UserRole, SetCredentials, lock
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
@@ -104,16 +105,12 @@ class RoleCreationWizard(generic.CremeModelCreationWizardPopup):
         role_forms.UserRoleCredentialsFilterStep,
     )
     model = UserRole
-    # permissions = 'creme_core.can_admin'  # TODO: 'superuser' perm ??
+    permissions = SUPERUSER_PERM
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.role = UserRole()
         self.set_cred = SetCredentials()
-
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)  # TODO: set public ?
 
     def done_save(self, form_list):
         for form in form_list:
@@ -189,7 +186,7 @@ class RoleCreationWizard(generic.CremeModelCreationWizardPopup):
 class RoleEditionWizard(generic.CremeModelEditionWizardPopup):
     model = UserRole
     pk_url_kwarg = 'role_id'
-    # permission = 'creme_core.can_admin'  # TODO: 'superuser' perm
+    permissions = SUPERUSER_PERM
 
     form_list = (
         role_forms.UserRoleAppsStep,
@@ -197,10 +194,6 @@ class RoleEditionWizard(generic.CremeModelEditionWizardPopup):
         role_forms.UserRoleCreatableCTypesStep,
         role_forms.UserRoleExportableCTypesStep,
     )
-
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)  # TODO: set public ?
 
     def done_save(self, form_list):
         for form in form_list:
@@ -211,10 +204,11 @@ class RoleEditionWizard(generic.CremeModelEditionWizardPopup):
 class BaseRoleEdition(generic.CremeModelEditionPopup):
     model = UserRole
     pk_url_kwarg = 'role_id'
+    permissions = SUPERUSER_PERM
 
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)
+    # def check_view_permissions(self, user):
+    #     super().check_view_permissions(user=user)
+    #     _check_superuser(user)
 
 
 # class CredentialsAdding(BaseRoleEdition):
@@ -224,7 +218,7 @@ class BaseRoleEdition(generic.CremeModelEditionPopup):
 class CredentialsAddingWizard(generic.CremeModelEditionWizardPopup):
     model = UserRole
     pk_url_kwarg = 'role_id'
-
+    permissions = SUPERUSER_PERM
     title = _('Add credentials to «{object}»')
 
     class LastStep(role_forms.CredentialsFilterStep):
@@ -238,10 +232,6 @@ class CredentialsAddingWizard(generic.CremeModelEditionWizardPopup):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.credentials = SetCredentials(role=self.object)
-
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)  # TODO: permissions = "*super*"
 
     def done_save(self, form_list):
         for form in form_list:
@@ -272,17 +262,13 @@ class CredentialsAddingWizard(generic.CremeModelEditionWizardPopup):
 class CredentialsEditionWizard(generic.CremeModelEditionWizardPopup):
     model = SetCredentials
     pk_url_kwarg = 'cred_id'
-
+    permissions = SUPERUSER_PERM
     title = _('Edit credentials for «{role}»')
 
     form_list = (
         role_forms.CredentialsGeneralStep,
         role_forms.CredentialsFilterStep,
     )
-
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)  # TODO: permissions = "*super*"
 
     def done_save(self, form_list):
         for form in form_list:
@@ -303,11 +289,7 @@ class CredentialsEditionWizard(generic.CremeModelEditionWizardPopup):
 #     return HttpResponse()
 class CredentialsDeletion(generic.CheckedView):
     creds_id_arg = 'id'
-
-    # TODO: factorise/ "*super*" permission
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)
+    permissions = SUPERUSER_PERM
 
     @atomic
     def post(self, request, *args, **kwargs):
