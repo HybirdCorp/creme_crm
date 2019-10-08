@@ -35,8 +35,10 @@
 {% url 'creme_core__delete_similar_relations' as delete_relation_url %}
     {% for quote in page.object_list %}
     {% with quote_is_current=quote.id|in:current_quote_ids %}
-    <tr>{% has_perm_to link quote as quote_link_perm %}{% has_perm_to unlink quote as quote_unlink_perm %}
-        <td {% brick_table_data_status primary %}>{{quote.number}}</td>
+    <tr>{% has_perm_to view quote as quote_view_perm %}{% has_perm_to link quote as quote_link_perm %}{% has_perm_to unlink quote as quote_unlink_perm %}
+        <td {% brick_table_data_status primary %}>
+            {% if quote_view_perm %}{{quote.number}}{% else %}{{HIDDEN_VALUE}}{% endif %}
+        </td>
         <td>{% widget_entity_hyperlink quote user %}</td>
         <td>
         {% if quote_is_current %}

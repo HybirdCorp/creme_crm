@@ -22,9 +22,11 @@
 
 {% block brick_table_rows %}
 {% has_perm_to unlink object as unlink_perm %}{% url 'creme_core__delete_similar_relations' as delete_relation_url %}
-    {% for invoice in page.object_list %}{% has_perm_to unlink invoice as invoice_unlink_perm %}
+    {% for invoice in page.object_list %}{% has_perm_to view invoice as invoice_view_perm %}{% has_perm_to unlink invoice as invoice_unlink_perm %}
     <tr>
-        <td {% brick_table_data_status primary %}>{{invoice.number}}</td>
+        <td {% brick_table_data_status primary %}>
+            {% if invoice_view_perm %}{{invoice.number}}{% else %}{{HIDDEN_VALUE}}{% endif %}
+        </td>
         <td>{% widget_entity_hyperlink invoice user %}</td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_relation_url __subject_id=object.id __type=predicate_id __object_id=invoice.id label=_('Unlink this invoice') icon='unlink' enabled=unlink_perm|and_op:invoice_unlink_perm %}

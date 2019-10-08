@@ -32,13 +32,13 @@
     <tr>{% has_perm_to view people as people_view_perm %}
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink people user %}</td>
         {% if 'phone' not in hidden_fields %}
-            {% if people_view_perm %}<td data-type="phone">{% print_field object=people field='phone' %}</td>{% else %}<td>—</td>{% endif %}
+            {% if people_view_perm %}<td data-type="phone">{% print_field object=people field='phone' %}</td>{% else %}<td>{{HIDDEN_VALUE}}</td>{% endif %}
         {% endif %}
         {% if 'mobile' not in hidden_fields %}
-            {% if people_view_perm %}<td data-type="phone">{% print_field object=people field='mobile' %}</td>{% else %}<td>—</td>{% endif %}
+            {% if people_view_perm %}<td data-type="phone">{% print_field object=people field='mobile' %}</td>{% else %}<td>{{HIDDEN_VALUE}}</td>{% endif %}
         {% endif %}
         {% if 'email' not in hidden_fields %}
-            {% if people_view_perm %}<td data-type="email">{% print_field object=people field='email' %}</td>{% else %}<td>—</td>{% endif %}
+            {% if people_view_perm %}<td data-type="email">{% print_field object=people field='email' %}</td>{% else %}<td>{{HIDDEN_VALUE}}</td>{% endif %}
         {% endif %}
         <td {% brick_table_data_status action %}>{% has_perm_to change people as people_edit_perm %}
             {% brick_table_action id='redirect' url=people.get_edit_absolute_url|add:'?callback_url=${location}' label=_('Edit this contact') icon='edit' enabled=people_edit_perm %}

@@ -23,8 +23,10 @@
 {% block brick_table_rows %}
 {% has_perm_to unlink object as unlink_perm %}{% url 'creme_core__delete_similar_relations' as delete_relation_url %}
     {% for salesorder in page.object_list %}
-    <tr>{% has_perm_to unlink salesorder as salesorder_unlink_perm %}
-        <td {% brick_table_data_status primary %}>{{salesorder.number}}</td>
+    <tr>{% has_perm_to view salesorder as salesorder_view_perm %}{% has_perm_to unlink salesorder as salesorder_unlink_perm %}
+        <td {% brick_table_data_status primary %}>
+            {% if salesorder_view_perm %}{{salesorder.number}}{% else %}{{HIDDEN_VALUE}}{% endif %}
+        </td>
         <td>{% widget_entity_hyperlink salesorder user %}</td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_relation_url __subject_id=object.id __type=predicate_id __object_id=salesorder.id label=_('Unlink this salesorder') icon='unlink' enabled=unlink_perm|and_op:salesorder_unlink_perm %}
