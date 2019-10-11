@@ -42,12 +42,22 @@ class FieldsConfigAddForm(CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        used_ct_ids = {*FieldsConfig.objects.values_list('content_type', flat=True)}
+
+        models = [*filter(FieldsConfig.is_model_valid, apps.get_models())]
+        # NB: we use <FieldsConfig.get_4_models()> to take advantage of its cache ;
+        #     it useful because this constructor can be called several times in a request
+        #     because of our wizard (which fill the instance by calling all
+        #     previous steps' validation).
+        # Old code:
+        #  used_ct_ids = {*FieldsConfig.objects.values_list('content_type', flat=True)}
+        used_ct_ids = {
+            fc.content_type_id
+                for fc in FieldsConfig.get_4_models(models).values()
+                    if not fc._state.adding  # <True> means the FieldsConfig is in DB
+        }
         self.ctypes = ctypes = [
             ct
-                for ct in map(ContentType.objects.get_for_model,
-                              filter(FieldsConfig.is_model_valid, apps.get_models()),
-                             )
+                for ct in map(ContentType.objects.get_for_model, models)
                     if ct.id not in used_ct_ids
         ]
 
