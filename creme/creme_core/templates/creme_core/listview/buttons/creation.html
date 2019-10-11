@@ -1,4 +1,6 @@
 {% load i18n creme_widgets creme_ctype %}
+{% if button.url %}
 <a {% if button.is_allowed %}class="with-icon" href="{{button.url}}"{% else %}class="with-icon forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
     {% widget_icon name='add' label=_('Create') size='listview-button' %}{{button.label}}
 </a>
+{% endif %}

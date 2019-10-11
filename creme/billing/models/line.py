@@ -22,17 +22,14 @@ from functools import partial
 import logging
 
 from django.core.exceptions import ValidationError
-from django.db.models import (CharField, DecimalField, BooleanField, TextField,
-        PositiveIntegerField, ForeignKey, PROTECT)
+from django.db import models
 from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.models import CremeEntity, Relation, Vat
 
-from ..constants import (REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK,
-        DISCOUNT_UNIT, DEFAULT_DECIMAL, DEFAULT_QUANTITY)
+from .. import constants
 from ..utils import round_to_2
-
 
 logger = logging.getLogger(__name__)
 
@@ -42,21 +39,35 @@ logger = logging.getLogger(__name__)
 
 class Line(CremeEntity):
     # NB: not blank (no related item => name is filled)
-    on_the_fly_item = CharField(_('On-the-fly line'), max_length=100, null=True)
+    on_the_fly_item = models.CharField(_('On-the-fly line'), max_length=100, null=True)
 
-    comment         = TextField(_('Comment'), blank=True)
-    quantity        = DecimalField(_('Quantity'), max_digits=10, decimal_places=2, default=DEFAULT_QUANTITY)
-    unit_price      = DecimalField(_('Unit price'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
-    unit            = CharField(_('Unit'), max_length=100, blank=True)
-    discount        = DecimalField(_('Discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
+    comment       = models.TextField(_('Comment'), blank=True)
+    quantity      = models.DecimalField(_('Quantity'),
+                                        max_digits=10, decimal_places=2,
+                                        default=constants.DEFAULT_QUANTITY,
+                                       )
+    unit_price    = models.DecimalField(_('Unit price'),
+                                        max_digits=10, decimal_places=2,
+                                        default=constants.DEFAULT_DECIMAL,
+                                       )
+    unit          = models.CharField(_('Unit'), max_length=100, blank=True)
+    discount      = models.DecimalField(_('Discount'),
+                                        max_digits=10, decimal_places=2,
+                                        default=constants.DEFAULT_DECIMAL,
+                                       )
     # TODO: remove total_discount & add a choice to discount_unit (see EditForm)
     # TODO: remove null=True
     # TODO: remove editable=False
-    discount_unit   = PositiveIntegerField(_('Discount Unit'), blank=True, null=True, editable=False,
-                                           choices=DISCOUNT_UNIT.items(), default=PERCENT_PK,
-                                          )
-    total_discount  = BooleanField(_('Total discount ?'), editable=False, default=False)
-    vat_value       = ForeignKey(Vat, verbose_name=_('VAT'), blank=True, null=True, on_delete=PROTECT)  # TODO null=False
+    # TODO: move constants in the model class
+    discount_unit  = models.PositiveIntegerField(_('Discount Unit'),
+                                                 blank=True, null=True, editable=False,
+                                                 choices=constants.DISCOUNT_UNIT.items(),
+                                                 default=constants.PERCENT_PK,
+                                                )
+    total_discount = models.BooleanField(_('Total discount ?'), editable=False, default=False)
+    vat_value      = models.ForeignKey(Vat, verbose_name=_('VAT'),
+                                       blank=True, null=True, on_delete=models.PROTECT,
+                                      )  # TODO null=False
 
     creation_label = _('Create a line')
 
@@ -72,9 +83,11 @@ class Line(CremeEntity):
         ordering = ('created',)
 
     def _pre_delete(self):
-        for relation in Relation.objects.filter(type__in=[REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM],
-                                                subject_entity=self.id,
-                                               ):
+        for relation in Relation.objects.filter(
+                type__in=[constants.REL_OBJ_HAS_LINE,
+                          constants.REL_SUB_LINE_RELATED_ITEM,
+                         ],
+                subject_entity=self.id):
             relation._delete_without_transaction()
 
     def _pre_save_clone(self, source):
@@ -82,37 +95,42 @@ class Line(CremeEntity):
         self.related_item     = source.related_item
 
     def clean(self):
-        if self.discount_unit == PERCENT_PK:
+        if self.discount_unit == constants.PERCENT_PK:
             if not (0 <= self.discount <= 100):
-                raise ValidationError(gettext('If you choose % for your discount unit, '
-                                              'your discount must be between 1 and 100%'
-                                             ),
-                                      code='invalid_percentage',
-                                     )
+                raise ValidationError(
+                    gettext('If you choose % for your discount unit, '
+                            'your discount must be between 1 and 100%'
+                           ),
+                    code='invalid_percentage',
+                )
         elif self.total_discount:  # Global discount
             if self.discount > self.unit_price * self.quantity:
-                raise ValidationError(gettext('Your overall discount is superior than'
-                                               ' the total line (unit price * quantity)'
-                                              ),
-                                      code='discount_gt_total',
-                                     )
+                raise ValidationError(
+                    gettext('Your overall discount is superior than'
+                            ' the total line (unit price * quantity)'
+                           ),
+                    code='discount_gt_total',
+                )
         else:  # Unitary discount
             if self.discount > self.unit_price:
-                raise ValidationError(gettext('Your discount is superior than the unit price'),
-                                      code='discount_gt_unitprice',
-                                     )
+                raise ValidationError(
+                    gettext('Your discount is superior than the unit price'),
+                    code='discount_gt_unitprice',
+                )
 
         if self.related_item:
             if self.on_the_fly_item:
-                raise ValidationError(gettext('You cannot set an on the fly name '
-                                              'to a line with a related item'
-                                             ),
-                                      code='useless_name',
-                                     )
+                raise ValidationError(
+                    gettext('You cannot set an on the fly name '
+                            'to a line with a related item'
+                           ),
+                    code='useless_name',
+                )
         elif not self.on_the_fly_item:
-            raise ValidationError(gettext('You must define a name for an on the fly item'),
-                                  code='required_name',
-                                 )
+            raise ValidationError(
+                gettext('You must define a name for an on the fly item'),
+                code='required_name',
+            )
 
         super().clean()
 
@@ -142,8 +160,8 @@ class Line(CremeEntity):
         global_discount_line    = self.total_discount
         unit_price_line         = self.unit_price
 
-        if self.discount_unit == PERCENT_PK and discount_line:
-            total_after_first_discount = self.quantity * (unit_price_line - (unit_price_line * discount_line / 100 ))
+        if self.discount_unit == constants.PERCENT_PK and discount_line:
+            total_after_first_discount = self.quantity * (unit_price_line - (unit_price_line * discount_line / 100))
         elif global_discount_line:
             total_after_first_discount = self.quantity * unit_price_line - discount_line
         else:
@@ -164,7 +182,9 @@ class Line(CremeEntity):
 
         if related is False:
             try:
-                related = self.relations.get(type=REL_OBJ_HAS_LINE, subject_entity=self.id) \
+                related = self.relations.get(type=constants.REL_OBJ_HAS_LINE,
+                                             subject_entity=self.id,
+                                            ) \
                                         .object_entity \
                                         .get_real_entity()
             except Relation.DoesNotExist:
@@ -176,14 +196,15 @@ class Line(CremeEntity):
 
     @related_document.setter
     def related_document(self, billing_entity):
-        assert self.pk is None, 'Line.related_document(setter): line is already saved (can not change any more).'
+        assert self.pk is None, \
+               'Line.related_document(setter): line is already saved (can not change any more).'
         self._related_document = billing_entity
 
     @property
     def related_item(self):
         if self.id and not self._related_item and not self.on_the_fly_item:
             try:
-                self._related_item = self.relations.get(type=REL_SUB_LINE_RELATED_ITEM,
+                self._related_item = self.relations.get(type=constants.REL_SUB_LINE_RELATED_ITEM,
                                                         subject_entity=self.id,
                                                        ).object_entity.get_real_entity()
             except Relation.DoesNotExist:
@@ -193,7 +214,8 @@ class Line(CremeEntity):
 
     @related_item.setter
     def related_item(self, entity):
-        assert self.pk is None, 'Line.related_item(setter): line is already saved (can not change any more).'
+        assert self.pk is None, \
+               'Line.related_item(setter): line is already saved (can not change any more).'
         self._related_item = entity
 
     @staticmethod
@@ -205,17 +227,18 @@ class Line(CremeEntity):
     def save(self, *args, **kwargs):
         if not self.pk:  # Creation
             assert self._related_document, 'Line.related_document is required'
-            assert bool(self._related_item) ^ bool(self.on_the_fly_item), 'Line.related_item or Line.on_the_fly_item is required'
+            assert bool(self._related_item) ^ bool(self.on_the_fly_item), \
+                   'Line.related_item or Line.on_the_fly_item is required'
 
             self.user = self._related_document.user
 
             super().save(*args, **kwargs)
 
             create_relation = partial(Relation.objects.create, subject_entity=self, user=self.user)
-            create_relation(type_id=REL_OBJ_HAS_LINE, object_entity=self._related_document)
+            create_relation(type_id=constants.REL_OBJ_HAS_LINE, object_entity=self._related_document)
 
             if self._related_item:
-                create_relation(type_id=REL_SUB_LINE_RELATED_ITEM, object_entity=self._related_item)
+                create_relation(type_id=constants.REL_SUB_LINE_RELATED_ITEM, object_entity=self._related_item)
         else:
             super().save(*args, **kwargs)
 

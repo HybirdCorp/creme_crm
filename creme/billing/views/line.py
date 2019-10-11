@@ -38,9 +38,8 @@ from creme import billing
 
 from .. import constants
 from ..core import BILLING_MODELS
-from ..registry import lines_registry
 from ..forms import line as line_forms
-
+from ..registry import lines_registry
 
 ProductLine = billing.get_product_line_model()
 ServiceLine = billing.get_service_line_model()
