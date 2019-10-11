@@ -29,16 +29,21 @@ from django.db.models import Q  # FieldDoesNotExist
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _, gettext
 
-from ..models import (CremeEntity, CremePropertyType, CremeProperty,
-        RelationType, Relation, SemiFixedRelationType,
-        CustomFieldValue, FieldsConfig)
+from ..models import (
+    CremeEntity,
+    CremePropertyType, CremeProperty,
+    RelationType, Relation, SemiFixedRelationType,
+    CustomFieldValue,
+    FieldsConfig,
+)
 from ..utils.collections import FluentList
 
 from . import fields, widgets
 
-__all__ = ('FieldBlockManager', 'CremeForm', 'CremeModelForm',
-           'CremeModelWithUserForm', 'CremeEntityForm',
-          )
+__all__ = (
+    'FieldBlockManager', 'CremeForm', 'CremeModelForm',
+    'CremeModelWithUserForm', 'CremeEntityForm',
+)
 
 logger = logging.getLogger(__name__)
 _CUSTOM_NAME = 'custom_field_{}'
@@ -332,6 +337,7 @@ class CremeEntityForm(CremeModelForm):
     }
 
     blocks = CremeModelWithUserForm.blocks.new(
+        ('description',   _('Description'),   ('description',)),
         ('properties',    _('Properties'),    ('property_types',)),
         ('relationships', _('Relationships'), ('rtypes_info', 'relation_types', 'semifixed_rtypes')),
     )

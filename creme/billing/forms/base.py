@@ -30,7 +30,6 @@ from creme.persons import get_contact_model, get_organisation_model, get_address
 
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -62,8 +61,8 @@ class BaseEditForm(CremeEntityForm):
             }
 
     blocks = CremeEntityForm.blocks.new(
-                ('orga_n_address', _('Organisations'), ['source', 'target']),  # TODO: rename
-            )
+        ('orga_n_address', _('Organisations'), ['source', 'target']),  # TODO: rename (beware to template)
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

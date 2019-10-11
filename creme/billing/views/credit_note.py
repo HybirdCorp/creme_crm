@@ -167,7 +167,7 @@ class CreditNoteDetail(generic.EntityDetail):
     pk_url_kwarg = 'cnote_id'
 
 
-class CreditNoteEdition(generic.EntityEdition):
+class CreditNoteEdition(base.BaseEdition):
     model = CreditNote
     form_class = cnote_forms.CreditNoteEditForm
     pk_url_kwarg = 'cnote_id'
