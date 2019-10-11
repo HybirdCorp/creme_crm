@@ -167,7 +167,7 @@ class InvoiceDetail(generic.EntityDetail):
     pk_url_kwarg = 'invoice_id'
 
 
-class InvoiceEdition(generic.EntityEdition):
+class InvoiceEdition(base.BaseEdition):
     model = Invoice
     form_class = invoice_forms.InvoiceEditForm
     pk_url_kwarg = 'invoice_id'

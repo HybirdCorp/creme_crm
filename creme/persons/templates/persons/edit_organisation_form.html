@@ -1,8 +1,9 @@
-{% extends 'creme_core/base.html' %}
-{% load i18n creme_core_tags %}
+{% extends 'creme_core/generics/blockform/edit.html' %}
+{# {% extends 'creme_core/base.html' %} #}
+{% load i18n %}{# creme_core_tags #}
 
-{% block page_title %}{% blocktrans %}Edit «{{object}}»{% endblocktrans %} - {% endblock %}
+{# {% block page_title %}{% blocktrans %}Edit «{{object}}»{% endblocktrans %} - {% endblock %} #}
 
 {% block content %}{% blocktrans asvar form_title %}Edit «{{object}}»{% endblocktrans %}
-    {% include "persons/frags/organisation_form_content.html" with icon_name='edit' title=form_title %}
+    {% include 'persons/frags/organisation_form_content.html' with icon_name='edit' title=form_title %}
 {% endblock %}

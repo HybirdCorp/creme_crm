@@ -24,7 +24,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         blocks_group = TestFakeContactForm(user=user).get_blocks()
         blocks = list(blocks_group)
 
-        self.assertEqual(4, len(blocks))
+        self.assertEqual(5, len(blocks))
 
         # ------------------
         block1 = blocks[0]
@@ -43,14 +43,15 @@ class FieldBlockManagerTestCase(CremeTestCase):
         self.assertEqual('id_user', bfield.auto_id)
 
         # ------------------
-        self.assertEqual(_('Properties'),    str(blocks[1][0]))
-        self.assertEqual(_('Relationships'), str(blocks[2][0]))
+        self.assertEqual(_('Description'),   str(blocks[1][0]))
+        self.assertEqual(_('Properties'),    str(blocks[2][0]))
+        self.assertEqual(_('Relationships'), str(blocks[3][0]))
 
         # ------------------
-        block4 = blocks[3]
-        self.assertEqual(block_vname, block4[0])
+        block5 = blocks[4]
+        self.assertEqual(block_vname, block5[0])
 
-        fields = block4[1]
+        fields = block5[1]
         self.assertEqual(4, len(fields))
         self.assertEqual('id_phone', fields[0][0].auto_id)
 

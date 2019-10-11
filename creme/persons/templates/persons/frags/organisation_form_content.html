@@ -3,6 +3,7 @@
 {% block main_content %}
     {% with form.get_blocks as blocks %}
         {% include 'creme_core/generics/blockform/content.html' with form_block=blocks.general %}
+        {% include 'creme_core/generics/blockform/content.html' with form_block=blocks.description %}
 
         {% include 'creme_core/generics/blockform/content.html' with form_block=blocks.customer_relation %}
 
