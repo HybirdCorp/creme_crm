@@ -7,15 +7,22 @@ try:
     from django.db.models import CharField, IntegerField, ForeignKey
 
     from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-            EntityCellCustomField,
-            EntityCellRelation, EntityCellFunctionField)
+    from creme.creme_core.core.entity_cell import (
+        EntityCellRegularField,
+        EntityCellCustomField,
+        EntityCellRelation, EntityCellFunctionField
+    )
     from creme.creme_core.core.function_field import FunctionField
     from creme.creme_core.forms import listview as lv_form
     from creme.creme_core.gui.listview import search as lv_search
-    from creme.creme_core.models import (CremeUser, CustomField, RelationType,
-            FakeContact, FakeOrganisation, FakeInvoiceLine,
-            FakeSector, FakeEmailCampaign)
+    from creme.creme_core.models import (
+        CremeUser,
+        CustomField,
+        RelationType,
+        FakeContact, FakeOrganisation, FakeSector,
+        FakeInvoiceLine,
+        FakeEmailCampaign,
+    )
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -347,7 +354,7 @@ class ListViewSearchTestCase(CremeTestCase):
     def test_regularfield_registry_default01(self):
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         get_field = partial(lv_search.RegularFieldSearchRegistry().get_field,
-                            user=self.user
+                            user=self.user,
                            )
         self.assertIsInstance(
             get_field(cell=build_cell(name='first_name')),
@@ -360,6 +367,14 @@ class ListViewSearchTestCase(CremeTestCase):
         self.assertIsInstance(
             get_field(cell=build_cell(name='birthday')),
             lv_form.RegularDateField
+        )
+        self.assertIsInstance(
+            get_field(cell=build_cell(model=FakeOrganisation, name='capital')),
+            lv_form.RegularPositiveIntegerField
+        )
+        self.assertIsInstance(
+            get_field(cell=build_cell(model=FakeInvoiceLine, name='discount')),
+            lv_form.RegularDecimalField
         )
 
         # Sub field
@@ -454,9 +469,10 @@ class ListViewSearchTestCase(CremeTestCase):
         str_cfield   = create_cfield(name='A', field_type=CustomField.STR)
         int_cfield   = create_cfield(name='B', field_type=CustomField.INT)
         bool_cfield  = create_cfield(name='C', field_type=CustomField.BOOL)
-        dt_cfield    = create_cfield(name='D', field_type=CustomField.DATETIME)
-        enum_cfield  = create_cfield(name='E', field_type=CustomField.ENUM)
-        menum_cfield = create_cfield(name='F', field_type=CustomField.MULTI_ENUM)
+        deci_cfield  = create_cfield(name='D', field_type=CustomField.FLOAT)
+        dt_cfield    = create_cfield(name='E', field_type=CustomField.DATETIME)
+        enum_cfield  = create_cfield(name='F', field_type=CustomField.ENUM)
+        menum_cfield = create_cfield(name='G', field_type=CustomField.MULTI_ENUM)
 
         registry = lv_search.CustomFieldSearchRegistry()
 
@@ -470,13 +486,19 @@ class ListViewSearchTestCase(CremeTestCase):
             cell=EntityCellCustomField(customfield=int_cfield),
             user=user,
         )
-        self.assertIsInstance(int_field, lv_form.CustomCharField)
+        self.assertIsInstance(int_field, lv_form.CustomIntegerField)
 
         bool_field = registry.get_field(
             cell=EntityCellCustomField(customfield=bool_cfield),
             user=user,
         )
         self.assertIsInstance(bool_field, lv_form.CustomBooleanField)
+
+        deci_field = registry.get_field(
+            cell=EntityCellCustomField(customfield=deci_cfield),
+            user=user,
+        )
+        self.assertIsInstance(deci_field, lv_form.CustomDecimalField)
 
         dt_field = registry.get_field(
             cell=EntityCellCustomField(customfield=dt_cfield),

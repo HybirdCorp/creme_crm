@@ -198,13 +198,15 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         (models.CharField, lv_form.RegularCharField),
         (models.TextField, lv_form.RegularCharField),
 
-        (models.IntegerField, lv_form.RegularCharField),  # TODO: IntegerWidget
+        (models.IntegerField,              lv_form.RegularIntegerField),
+        (models.PositiveIntegerField,      lv_form.RegularPositiveIntegerField),
+        (models.PositiveSmallIntegerField, lv_form.RegularPositiveIntegerField),
 
-        (models.FloatField,   lv_form.RegularCharField),  # TODO: FloatWidget (NumericWidget ?)
-        (models.DecimalField, lv_form.RegularCharField),  # TODO: DecimalWidget (idem ?)
+        (models.FloatField,   lv_form.RegularFloatField),
+        (models.DecimalField, lv_form.RegularDecimalField),
 
         (models.BooleanField, lv_form.RegularBooleanField),
-        # (models.NullBooleanField, RegularBooleanField),  # TODO ("null" choice)
+        # (models.NullBooleanField, RegularBooleanField),
 
         (models.DateField, lv_form.RegularDateField),
         # (models.TimeField, ), TODO
@@ -318,8 +320,8 @@ class CustomFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
     of CustomField.
     """
     DEFAULT_FIELDS = (
-        (CustomField.INT,        lv_form.CustomCharField),  # TODO: CustomIntegerField
-        (CustomField.FLOAT,      lv_form.CustomCharField),  # TODO: Float/Decimal/Numeric Field
+        (CustomField.INT,        lv_form.CustomIntegerField),
+        (CustomField.FLOAT,      lv_form.CustomDecimalField),
         (CustomField.BOOL,       lv_form.CustomBooleanField),
         (CustomField.STR,        lv_form.CustomCharField),
         (CustomField.DATETIME,   lv_form.CustomDatetimeField),
