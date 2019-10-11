@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018  Hybird
+#    Copyright (C) 2018-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -213,6 +213,7 @@ class _EnumerableRegistry:
         @param model: Model inheriting 'CremeEntity'.
         @param field_name: Name of a field of <model>.
         @param enumerator_class: Class inheriting 'Enumerator'.
+        @return: self (to chain calls to register_*() methods).
         @raises: ValueError if the model or the field are invalid.
         @raises: FieldDoesNotExist.
         """
@@ -227,16 +228,21 @@ class _EnumerableRegistry:
                 )
             )
 
+        return self
+
     def register_field_type(self, field_class, enumerator_class):
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for a specific field class.
 
         @param field_class: Class inheriting 'django.db.models.Field'.
         @param enumerator_class: Class inheriting 'Enumerator'.
+        @return: self (to chain calls to register_*() methods).
         """
         assert issubclass(enumerator_class, Enumerator)
 
         self._enums_4_field_types[field_class] = enumerator_class
+
+        return self
 
     def register_related_model(self, model, enumerator_class):
         """Customise the class of the enumerator returned by the methods
@@ -245,6 +251,7 @@ class _EnumerableRegistry:
 
         @param model: Model (class inheriting 'django.db.models.Model').
         @param enumerator_class: Class inheriting 'Enumerator'.
+        @return: self (to chain calls to register_*() methods).
         """
         assert issubclass(enumerator_class, Enumerator)
 
@@ -252,6 +259,8 @@ class _EnumerableRegistry:
             raise self.RegistrationError(
                 '_EnumerableRegistry: this model is already registered: {}'.format(model)
             )
+
+        return self
 
 
 enumerable_registry = _EnumerableRegistry()
