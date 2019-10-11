@@ -19,12 +19,16 @@
 ################################################################################
 
 from collections import defaultdict
+import decimal
 from functools import partial
 import logging
+from re import compile as compile_re
+import unicodedata
 
 from django.conf import settings
 from django.db.models.query_utils import Q
 from django.forms import Field, Widget
+from django.utils.formats import get_format
 from django.utils.functional import cached_property
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
@@ -52,6 +56,46 @@ class TextLVSWidget(ListViewSearchWidget):
     """Search-widget to enter a string."""
     # input_type = 'text'  # TODO ? (see 'django/forms/widgets/input.html')
     template_name = 'creme_core/listview/search-widgets/text.html'
+
+
+class IntegerLVSWidget(TextLVSWidget):
+    tooltip = _('''You can use these operators: <, <=, >, >=
+Eg: < 100
+
+You can combine several expressions with the separator «;»
+Eg: > -100 ; <= 2000 
+''')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.attrs['title'] = self.tooltip
+
+
+class PositiveIntegerLVSWidget(IntegerLVSWidget):
+    tooltip = _('''You can use these operators: <, <=, >, >=
+Eg: < 100
+
+You can combine several expressions with the separator «;»
+Eg: > 100 ; <= 2000 
+''')
+
+
+class DecimalLVSWidget(IntegerLVSWidget):
+    tooltip = _('''You can use these operators: <, <=, >, >=
+Eg: < 100
+
+You can combine several expressions with the separator «;»
+Eg: > 10 ; <= 10.5 
+''')
+
+
+class FloatLVSWidget(IntegerLVSWidget):
+    tooltip = _('''You must use these operators: <, <=, >, >=
+Eg: < 100
+
+You can combine several expressions with the separator «;»
+Eg: > 10 ; <= 10.5 
+''')
 
 
 # TODO: inherit SelectLVSWidget ?
@@ -178,6 +222,118 @@ class ListViewSearchField(Field):
         return Q()
 
 
+class BaseIntegerField(ListViewSearchField):
+    """ Base class for list-view search-fields which filter with 'operations'.
+    Here 'operation' means a string containing an operator and a value.
+
+    Eg: "< 12"
+    """
+    widget = IntegerLVSWidget
+
+    OPERATIONS_SEPARATOR = ';'  # Separates operations. Eg: >100 ; <= 200
+    OPERATION_RE = compile_re(r'^(.*?)(\-?[0-9]+)$')  # Regex for one operation.
+    # Available operators
+    #  Key: operation string in the user input.
+    #  Value: filter to use in the QuerySet.
+    OPERATORS = {
+        '':   'exact',
+        '=':  'exact',
+        '>':  'gt',
+        '>=': 'gte',
+        '<':  'lt',
+        '<=': 'lte',
+    }
+
+    def _get_q_for_operations(self, operations):
+        """Return a Q from operations.
+
+        @param operations: List of tuples (queryset-filter, number-value)
+        @return: <django.db.models.query_utils.Q> instance.
+        """
+        raise NotImplementedError
+
+    def _str_to_number(self, number_str):
+        """Convert a string number, found in the user input, to a real number.
+        Default implementation returns an integer.
+
+        @param number_str: String.
+        @return: A number, or None if the conversion is not possible.
+        """
+        try:
+            return int(number_str)
+        except ValueError:
+            return None
+
+    def to_python(self, value):
+        if value:
+            expressions = []
+
+            for part in value.replace(' ', '').split(self.OPERATIONS_SEPARATOR):
+                match = self.OPERATION_RE.search(part)
+
+                if match:
+                    op_str, number_str = match.groups()
+                    query_op = self.OPERATORS.get(op_str)
+
+                    if query_op:
+                        number = self._str_to_number(number_str)
+
+                        if number is not None:
+                            expressions.append((query_op, number))
+
+            if expressions:
+                return self._get_q_for_operations(expressions)
+
+        return super().to_python(value)
+
+
+class BaseDecimalField(BaseIntegerField):
+    widget = DecimalLVSWidget
+
+    # NB: we assume that decimal separator is "." or ",".
+    #     Another design would be better for other separator
+    #     (without colliding with operators), but it should be OK in many cases...
+    OPERATION_RE = compile_re(r'^(.*?)(\-?[0-9]*[\.,]?[0-9]*)$')
+
+    # NB: copy of <django.utils.formats.sanitize_separators()> which forces <use_l10n=True>
+    # TODO: remove when 'settings.USE_L10N = True' is set by default
+    @staticmethod
+    def _sanitize_separators(value):
+        # if isinstance(value, str):
+        parts = []
+        decimal_separator = get_format('DECIMAL_SEPARATOR',
+                                       use_l10n=True,  # <=========
+                                      )
+        if decimal_separator in value:
+            value, decimals = value.split(decimal_separator, 1)
+            parts.append(decimals)
+
+        if settings.USE_THOUSAND_SEPARATOR:
+            thousand_sep = get_format('THOUSAND_SEPARATOR')
+            if thousand_sep == '.' and value.count('.') == 1 and len(value.split('.')[-1]) != 3:
+                pass
+            else:
+                for replacement in {thousand_sep,
+                                    unicodedata.normalize('NFKD', thousand_sep)
+                                   }:
+                    value = value.replace(replacement, '')
+        parts.append(value)
+        # value = '.'.join(reversed(parts))
+        #
+        # return value
+        return '.'.join(reversed(parts))
+
+    def _str_to_number(self, number_str):
+        sanitized_number_str = self._sanitize_separators(number_str)
+
+        try:
+            number = decimal.Decimal(sanitized_number_str)
+        except decimal.InvalidOperation:
+            number = None
+
+        return number
+
+
 class BaseChoiceField(ListViewSearchField):
     widget = SelectLVSWidget
 
@@ -245,6 +401,42 @@ class RegularBooleanField(ListViewSearchField):
             final_value = value
 
         return Q(**{self.cell.value: final_value})
+
+
+class RegularOperationsFieldMixin:
+    def _build_q_from_operations(self, operations):
+        return Q(**{
+            '{}__{}'.format(self.cell.value, op): number
+                for op, number in operations
+        })
+
+
+class RegularIntegerField(RegularOperationsFieldMixin, BaseIntegerField):
+    def _get_q_for_operations(self, operations):
+        return self._build_q_from_operations(operations)
+
+
+class RegularPositiveIntegerField(RegularIntegerField):
+    widget = PositiveIntegerLVSWidget
+    OPERATION_RE = compile_re(r'^(.*?)([0-9]+)$')
+
+
+class RegularDecimalField(RegularOperationsFieldMixin, BaseDecimalField):
+    def _get_q_for_operations(self, operations):
+        return self._build_q_from_operations(operations)
+
+
+class RegularFloatField(RegularDecimalField):
+    widget = FloatLVSWidget
+
+    # No equal operator on float because of round problem
+    # (you should probably only use DecimalField any way...)
+    OPERATORS = {
+        '>':  'gt',
+        '>=': 'gte',
+        '<':  'lt',
+        '<=': 'lte',
+    }
 
 
 class RegularChoiceField(BaseChoiceField):
@@ -376,6 +568,32 @@ class CustomCharField(ListViewSearchField):
             )
 
         return super().to_python(value=value)
+
+
+class CustomOperationsFieldMixin:
+    def _build_q_from_operations(self, operations):
+        cfield = self.cell.custom_field
+
+        return Q(
+            pk__in=cfield.get_value_class()
+                         .objects
+                         .filter(custom_field=cfield,
+                                 **{'value__{}'.format(op): number
+                                        for op, number in operations
+                                   }
+                                )
+                         .values_list('entity_id', flat=True)
+        )
+
+
+class CustomIntegerField(CustomOperationsFieldMixin, BaseIntegerField):
+    def _get_q_for_operations(self, operations):
+        return self._build_q_from_operations(operations)
+
+
+class CustomDecimalField(CustomOperationsFieldMixin, BaseDecimalField):
+    def _get_q_for_operations(self, operations):
+        return self._build_q_from_operations(operations)
 
 
 # TODO: factorise

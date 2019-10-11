@@ -1,22 +1,30 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from decimal import Decimal
     from functools import partial
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.db.models import Q
     from django.utils.translation import gettext as _, pgettext
+    from django.utils.formats import get_format, number_format
 
-    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-            EntityCellCustomField, EntityCellRelation)  # EntityCellFunctionField
+    from creme.creme_core.core.entity_cell import (
+        EntityCellRegularField,
+        EntityCellCustomField,
+        EntityCellRelation,
+    )  # EntityCellFunctionField
     from creme.creme_core.core.enumerable import _EnumerableRegistry, QSEnumerator
     from creme.creme_core.forms import listview as lv_form
     from creme.creme_core.gui.listview import ListViewSearchFieldRegistry
-    from creme.creme_core.models import (CremeUser, RelationType, Relation,
-            CustomField, CustomFieldEnumValue,
-            FakeContact, FakeOrganisation, FakeSector, FakeInvoiceLine,
-            FakeActivity, FakeActivityType, FakeImage, FakeImageCategory)
+    from creme.creme_core.models import (
+        CremeUser,
+        RelationType, Relation,
+        CustomField, CustomFieldEnumValue,
+        FakeContact, FakeOrganisation, FakeSector, FakeInvoiceLine,
+        FakeActivity, FakeActivityType, FakeImage, FakeImageCategory,
+    )
     from creme.creme_core.tests.fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT
 
     from ..base import CremeTestCase
@@ -266,6 +274,146 @@ class SearchFieldsTestCase(CremeTestCase):
 
         self.assertTrue(field.null)
         self.assertTrue(field.widget.null)
+
+    def test_regular_integerfield(self):
+        cell = EntityCellRegularField.build(model=FakeOrganisation, name='capital')
+        field = lv_form.RegularIntegerField(cell=cell, user=self.user)
+
+        to_python = field.to_python
+        self.assertEqual(Q(), to_python(value=None))
+        self.assertEqual(Q(), to_python(value=''))
+        self.assertEqual(Q(), to_python(value='notatint'))
+        self.assertEqual(Q(), to_python(value='>notatint'))
+        self.assertEqual(Q(), to_python(value='<notatint'))
+        self.assertEqual(Q(), to_python(value='>=notatint'))
+        self.assertEqual(Q(), to_python(value='<=notatint'))
+        self.assertEqual(Q(), to_python(value='#100'))
+
+        self.assertEqual(Q(capital__exact=100), to_python(value='100'))
+        self.assertEqual(Q(capital__exact=100), to_python(value=' 100 '))
+        self.assertEqual(Q(capital__exact=100), to_python(value=' = 100 '))
+        self.assertEqual(Q(capital__exact=-100), to_python(value='-100'))
+
+        self.assertEqual(Q(capital__gt=1000), to_python(value='>1000'))
+        self.assertEqual(Q(capital__gt=1000), to_python(value=' > 1000 '))
+
+        self.assertEqual(Q(capital__lt=250), to_python(value='<250'))
+        self.assertEqual(Q(capital__lt=250), to_python(value=' < 250 '))
+
+        self.assertEqual(Q(capital__gte=123), to_python(value='>=123'))
+        self.assertEqual(Q(capital__lte=25),  to_python(value='<=25'))
+
+        self.assertEqual(Q(capital__gte=100, capital__lt=200),
+                         to_python(value='>=100; <200')
+                        )
+        self.assertEqual(Q(capital__gte=100),
+                         to_python(value='>=100; <notanint')
+                        )
+
+    def test_regular_positiveintegerfield(self):
+        cell = EntityCellRegularField.build(model=FakeOrganisation, name='capital')
+        field = lv_form.RegularPositiveIntegerField(cell=cell, user=self.user)
+
+        to_python = field.to_python
+        self.assertEqual(Q(), to_python(value=None))
+        self.assertEqual(Q(), to_python(value=''))
+        self.assertEqual(Q(), to_python(value='notatint'))
+        self.assertEqual(Q(), to_python(value='>notatint'))
+        self.assertEqual(Q(), to_python(value='<notatint'))
+        self.assertEqual(Q(), to_python(value='>=notatint'))
+        self.assertEqual(Q(), to_python(value='<=notatint'))
+        self.assertEqual(Q(), to_python(value='#100'))
+
+        self.assertEqual(Q(capital__exact=100), to_python(value='100'))
+        self.assertEqual(Q(capital__exact=100), to_python(value=' 100 '))
+        self.assertEqual(Q(capital__exact=100), to_python(value=' = 100 '))
+
+        self.assertEqual(Q(capital__gt=1000), to_python(value='>1000'))
+        self.assertEqual(Q(capital__gt=1000), to_python(value=' > 1000 '))
+
+        self.assertEqual(Q(capital__lt=250), to_python(value='<250'))
+
+        self.assertEqual(Q(capital__gte=123), to_python(value='>=123'))
+        self.assertEqual(Q(capital__lte=25),  to_python(value='<=25'))
+
+        self.assertEqual(Q(capital__gte=100, capital__lt=200),
+                         to_python(value='>=100; <200')
+                        )
+        self.assertEqual(Q(capital__gte=100),
+                         to_python(value='>=100; <notanint')
+                        )
+
+    def test_regular_decimalfield(self):
+        cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='discount')
+        field = lv_form.RegularDecimalField(cell=cell, user=self.user)
+
+        to_python = field.to_python
+        self.assertEqual(Q(), to_python(value=None))
+        self.assertEqual(Q(), to_python(value=''))
+        self.assertEqual(Q(), to_python(value='notadecimal'))
+        self.assertEqual(Q(), to_python(value='>notadecimal'))
+        self.assertEqual(Q(), to_python(value='<notadecimal'))
+        self.assertEqual(Q(), to_python(value='>=notadecimal'))
+        self.assertEqual(Q(), to_python(value='<=notadecimal'))
+        self.assertEqual(Q(), to_python(value='#100'))
+
+        self.assertEqual(Q(discount__exact=Decimal('100')), to_python(value='100'))
+        self.assertEqual(Q(discount__exact=Decimal('100')), to_python(value=' 100 '))
+        self.assertEqual(Q(discount__exact=Decimal('100')), to_python(value=' = 100 '))
+        self.assertEqual(Q(discount__exact=Decimal('-100')), to_python(value='-100'))
+
+        self.assertEqual(Q(discount__gt=Decimal('1000')), to_python(value='>1000'))
+        self.assertEqual(Q(discount__gt=Decimal('1000')), to_python(value=' > 1000 '))
+
+        self.assertEqual(Q(discount__lt=Decimal('250')), to_python(value='<250'))
+
+        self.assertEqual(Q(discount__gte=Decimal('123')), to_python(value='>=123'))
+        self.assertEqual(Q(discount__lte=Decimal('25')),  to_python(value='<=25'))
+
+        self.assertEqual(Q(discount__gte=Decimal('100'), discount__lt=Decimal('200')),
+                         to_python(value='>=100; <200')
+                        )
+        self.assertEqual(Q(discount__gte=Decimal('100')),
+                         to_python(value='>=100; <notanint')
+                        )
+
+        # With decimal part ---
+        # TODO: fix when 'settings.USE_L10N = True' is set by default
+        dec_sep = get_format('DECIMAL_SEPARATOR', use_l10n=True)
+        self.assertEqual(Q(), to_python(value=dec_sep))
+        self.assertEqual(Q(discount__exact=Decimal('10.5')),
+                         to_python(value=number_format(Decimal('10.5'), use_l10n=True))
+                        )
+        # No whole part
+        self.assertEqual(Q(discount__exact=Decimal('0.5')),
+                         to_python(value=dec_sep + '5')
+                        )
+
+    def test_regular_floatfield(self):
+        cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='discount')
+        field = lv_form.RegularFloatField(cell=cell, user=self.user)
+
+        to_python = field.to_python
+        self.assertEqual(Q(), to_python(value=None))
+        self.assertEqual(Q(), to_python(value=''))
+        self.assertEqual(Q(), to_python(value='notafloat'))
+        self.assertEqual(Q(), to_python(value='>notafloat'))
+
+        # No EQUAL
+        self.assertEqual(Q(), to_python(value='100'))
+        self.assertEqual(Q(), to_python(value='=100'))
+
+        self.assertEqual(Q(discount__gt=1000.0), to_python(value='>1000'))
+        self.assertEqual(Q(discount__lt=25.0), to_python(value='<25'))
+
+        self.assertEqual(Q(discount__gte=123.0), to_python(value='>=123'))
+        self.assertEqual(Q(discount__lte=25.0), to_python(value='<=25'))
+
+        # TODO: fix when 'settings.USE_L10N = True' is set by default
+        self.assertEqual(
+            Q(discount__gt=10.5),
+            to_python(value='>' + number_format(10.5, use_l10n=True))
+        )
 
     def test_regular_datefield(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='created')
@@ -561,7 +709,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(1, len(children))
         k, v = children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual({ryu.id, ken.id}, set(v))
+        self.assertSetEqual({ryu.id, ken.id}, {*v})
 
         # ---
         # self.assertEqual(Q(customfieldboolean__value=False,
@@ -572,7 +720,155 @@ class SearchFieldsTestCase(CremeTestCase):
         q_false = to_python(value=False)
         k, v = q_false.children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual([zangief.id], list(v))
+        self.assertListEqual([zangief.id], [*v])
+
+    def test_custom_integerfield(self):
+        cfield = CustomField.objects.create(
+            name='HP', field_type=CustomField.INT, content_type=FakeContact,
+        )
+
+        create_contact = partial(FakeContact.objects.create, user=self.user)
+        ken     = create_contact(first_name='Ken',     last_name='Masters')
+        chunli  = create_contact(first_name='Chun-Li', last_name='')
+        zangief = create_contact(first_name='Zangief', last_name='??')
+        create_contact(first_name='Blanka',  last_name='??')
+
+        def set_cfvalue(cfield, entity, value):
+            cfield.get_value_class()(custom_field=cfield, entity=entity).set_value_n_save(value)
+
+        set_cfvalue(cfield, ken,     100)
+        set_cfvalue(cfield, chunli,  90)
+        set_cfvalue(cfield, zangief, 120)
+
+        cell = EntityCellCustomField(cfield)
+        field = lv_form.CustomIntegerField(cell=cell, user=self.user)
+
+        to_python = field.to_python
+        self.assertEqual(Q(), to_python(value=None))
+        self.assertEqual(Q(), to_python(value=''))
+        self.assertEqual(Q(), to_python(value='notatint'))
+        self.assertEqual(Q(), to_python(value='>notatint'))
+        self.assertEqual(Q(), to_python(value='<notatint'))
+        self.assertEqual(Q(), to_python(value='>=notatint'))
+        self.assertEqual(Q(), to_python(value='<=notatint'))
+        self.assertEqual(Q(), to_python(value='#100'))
+
+        # EQUAL ---
+        q_equal = to_python(value=' 100 ')
+        self.assertIsInstance(q_equal, Q)
+        self.assertFalse(q_equal.negated)
+
+        equal_children = q_equal.children
+        self.assertEqual(1, len(equal_children))
+        equal_k, equal_v = equal_children[0]
+        self.assertEqual('pk__in', equal_k)
+        self.assertListEqual([ken.id], [*equal_v])
+
+        self.assertQEqual(q_equal, to_python(value=' = 100 '))
+
+        # GT ---
+        q_gt = to_python(value=' > 100 ')
+        gt_k, gt_v = q_gt.children[0]
+        self.assertEqual('pk__in', gt_k)
+        self.assertListEqual([zangief.id], [*gt_v])
+
+        # LT ---
+        q_lt = to_python(value=' < 100 ')
+        lt_k, lt_v = q_lt.children[0]
+        self.assertEqual('pk__in', lt_k)
+        self.assertListEqual([chunli.id], [*lt_v])
+
+        # GTE ---
+        q_gte = to_python(value=' >= 100 ')
+        __, gte_v = q_gte.children[0]
+        self.assertSetEqual({ken.id, zangief.id}, {*gte_v})
+
+        # LTE ---
+        q_lte = to_python(value=' <= 100 ')
+        __, lte_v = q_lte.children[0]
+        self.assertSetEqual({ken.id, chunli.id}, {*lte_v})
+
+        # RANGE ---
+        q_range = to_python(value=' >90 ; <= 110 ')
+        __, range_v = q_range.children[0]
+        self.assertListEqual([ken.id], [*range_v])
+
+    def test_custom_decimalfield(self):
+        cfield = CustomField.objects.create(
+            name='HP', field_type=CustomField.FLOAT, content_type=FakeContact,
+        )
+
+        create_contact = partial(FakeContact.objects.create, user=self.user)
+        ken     = create_contact(first_name='Ken',     last_name='Masters')
+        chunli  = create_contact(first_name='Chun-Li', last_name='')
+        zangief = create_contact(first_name='Zangief', last_name='??')
+        create_contact(first_name='Blanka',  last_name='??')
+
+        def set_cfvalue(cfield, entity, value):
+            cfield.get_value_class()(custom_field=cfield, entity=entity).set_value_n_save(value)
+
+        set_cfvalue(cfield, ken,     '100')
+        set_cfvalue(cfield, chunli,  '90')
+        set_cfvalue(cfield, zangief, '120.5')
+
+        cell = EntityCellCustomField(cfield)
+        field = lv_form.CustomDecimalField(cell=cell, user=self.user)
+
+        to_python = field.to_python
+        self.assertEqual(Q(), to_python(value=None))
+        self.assertEqual(Q(), to_python(value=''))
+        self.assertEqual(Q(), to_python(value='notadecimal'))
+        self.assertEqual(Q(), to_python(value='>notadecimal'))
+        self.assertEqual(Q(), to_python(value='<notadecimal'))
+        self.assertEqual(Q(), to_python(value='>=notadecimal'))
+        self.assertEqual(Q(), to_python(value='<=notadecimal'))
+        self.assertEqual(Q(), to_python(value='#100'))
+
+        # EQUAL ---
+        q_equal = to_python(value=' 100 ')
+        self.assertIsInstance(q_equal, Q)
+        self.assertFalse(q_equal.negated)
+
+        equal_children = q_equal.children
+        self.assertEqual(1, len(equal_children))
+        equal_k, equal_v = equal_children[0]
+        self.assertEqual('pk__in', equal_k)
+        self.assertListEqual([ken.id], [*equal_v])
+
+        self.assertQEqual(q_equal, to_python(value=' = 100 '))
+
+        # GT ---
+        q_gt = to_python(value=' > 100 ')
+        gt_k, gt_v = q_gt.children[0]
+        self.assertEqual('pk__in', gt_k)
+        self.assertListEqual([zangief.id], [*gt_v])
+
+        # LT ---
+        q_lt = to_python(value=' < 100 ')
+        lt_k, lt_v = q_lt.children[0]
+        self.assertEqual('pk__in', lt_k)
+        self.assertListEqual([chunli.id], [*lt_v])
+
+        # GTE ---
+        q_gte = to_python(value=' >= 100 ')
+        __, gte_v = q_gte.children[0]
+        self.assertSetEqual({ken.id, zangief.id}, {*gte_v})
+
+        # LTE ---
+        q_lte = to_python(value=' <= 100 ')
+        __, lte_v = q_lte.children[0]
+        self.assertSetEqual({ken.id, chunli.id}, {*lte_v})
+
+        # RANGE ---
+        q_range = to_python(value=' >90 ; <= 110 ')
+        __, range_v = q_range.children[0]
+        self.assertListEqual([ken.id], [*range_v])
+
+        # With decimal part ---
+        # TODO: fix when 'settings.USE_L10N = True' is set by default
+        q_sep = to_python(value=number_format(Decimal('120.5'), use_l10n=True))
+        __, sep_v = q_sep.children[0]
+        self.assertListEqual([zangief.id], [*sep_v])
 
     def test_custom_datefield(self):
         cfield = CustomField.objects.create(
@@ -737,9 +1033,9 @@ class SearchFieldsTestCase(CremeTestCase):
         )
 
         create_evalue = CustomFieldEnumValue.objects.create
-        punch  = create_evalue(custom_field=cfield, value='Punch')
-        kick   = create_evalue(custom_field=cfield, value='Kick')
-        hold   = create_evalue(custom_field=cfield, value='Hold')
+        punch = create_evalue(custom_field=cfield, value='Punch')
+        kick  = create_evalue(custom_field=cfield, value='Kick')
+        hold  = create_evalue(custom_field=cfield, value='Hold')
 
         create_contact = partial(FakeContact.objects.create, user=self.user)
         ryu     = create_contact(first_name='Ryu',     last_name='??')

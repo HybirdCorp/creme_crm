@@ -2052,14 +2052,14 @@ class ListViewTestCase(ViewsTestCase):
                                                       # 'regular_field-name': '',
                                                       # cell.key: '4',
                                                       'search-regular_field-name': '',
-                                                      'search-' + cell.key: '4',
+                                                      'search-' + cell.key: '>10',
                                                      },
                                      )
         content = self._get_lv_content(self._get_lv_node(response))
-        self.assertIn(bebop.name,        content)
-        self.assertNotIn(swordfish.name, content)
-        self.assertIn(redtail.name,      content)
-        self.assertNotIn(dragons.name,   content)
+        self.assertIn(bebop.name,     content)
+        self.assertIn(swordfish.name, content)
+        self.assertNotIn(redtail.name, content)
+        self.assertNotIn(dragons.name, content)
 
     def test_search_customfield02(self):
         "INT & STR"

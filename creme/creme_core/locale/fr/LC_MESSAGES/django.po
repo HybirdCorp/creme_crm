@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-08 18:19+0200\n"
+"POT-Creation-Date: 2019-10-10 19:19+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -907,7 +907,7 @@ msgctxt "creme_core-noun"
 msgid "Filter"
 msgstr "Filtre"
 
-#: forms/batch_process.py:191 forms/listview.py:189 forms/listview.py:306
+#: forms/batch_process.py:191 forms/listview.py:345 forms/listview.py:498
 #: models/history.py:568
 #: templates/creme_core/listview/search-widgets/boolean.html:3
 #: templates/creme_core/templatetags/listview/entity-filters.html:7
@@ -1202,7 +1202,63 @@ msgstr ""
 "Une vue de liste privée peut seulement être utilisée par son propriétaire "
 "(ou les coéquipiers si le propriétaire est une équipe)"
 
-#: forms/listview.py:251 forms/listview.py:297 forms/listview.py:443
+#: forms/listview.py:62
+msgid ""
+"You can use these operators: <, <=, >, >=\n"
+"Eg: < 100\n"
+"\n"
+"You can combine several expressions with the separator «;»\n"
+"Eg: > -100 ; <= 2000 \n"
+msgstr ""
+"Vous pouvez utiliser ces opérateurs : <, <=, >, >=\n"
+"Ex: < 100\n"
+"\n"
+"Vous pouvez combiner plusieurs expressions avec le séparateur «;»\n"
+"Ex: > -100 ; <= 2000 \n"
+
+#: forms/listview.py:75
+msgid ""
+"You can use these operators: <, <=, >, >=\n"
+"Eg: < 100\n"
+"\n"
+"You can combine several expressions with the separator «;»\n"
+"Eg: > 100 ; <= 2000 \n"
+msgstr ""
+"Vous pouvez utiliser ces opérateurs : <, <=, >, >=\n"
+"Ex: < 100\n"
+"\n"
+"Vous pouvez combiner plusieurs expressions avec le séparateur «;»\n"
+"Ex: > 100 ; <= 2000 \n"
+
+#: forms/listview.py:84
+msgid ""
+"You can use these operators: <, <=, >, >=\n"
+"Eg: < 100\n"
+"\n"
+"You can combine several expressions with the separator «;»\n"
+"Eg: > 10 ; <= 10.5 \n"
+msgstr ""
+"Vous pouvez utiliser ces opérateurs : <, <=, >, >=\n"
+"Ex: < 100\n"
+"\n"
+"Vous pouvez combiner plusieurs expressions avec le séparateur «;»\n"
+"Ex: > 10 ; <= 10,5 \n"
+
+#: forms/listview.py:93
+msgid ""
+"You must use these operators: <, <=, >, >=\n"
+"Eg: < 100\n"
+"\n"
+"You can combine several expressions with the separator «;»\n"
+"Eg: > 10 ; <= 10.5 \n"
+msgstr ""
+"Vous devez utiliser ces opérateurs : <, <=, >, >=\n"
+"Ex: < 100\n"
+"\n"
+"Vous pouvez combiner plusieurs expressions avec le séparateur «;»\n"
+"Ex: > 10 ; <= 10,5 \n"
+
+#: forms/listview.py:443 forms/listview.py:489 forms/listview.py:661
 msgid "* is empty *"
 msgstr "* est vide *"
 
