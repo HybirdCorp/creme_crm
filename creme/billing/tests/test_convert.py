@@ -240,7 +240,8 @@ class ConvertTestCase(_BillingTestCase):
         # quote.save() # To set total_vat...
         quote = self.refresh(quote)
 
-        quote_property = CremeProperty.objects.create(creme_entity=quote, type=CremePropertyType.objects.all()[0])
+        ptype = CremePropertyType.create(str_pk='billing-prtest_convert05', text='Test')
+        quote_property = CremeProperty.objects.create(creme_entity=quote, type=ptype)
 
         self.assertEqual(2, quote.get_lines(ServiceLine).count())
         self.assertEqual(2, quote.get_lines(ProductLine).count())
