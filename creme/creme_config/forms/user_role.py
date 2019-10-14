@@ -18,11 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import OrderedDict
+
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _, gettext, pgettext
 
-from creme.creme_core.apps import creme_app_configs, extended_app_configs, CremeAppConfig
+from creme.creme_core.apps import (
+    creme_app_configs,
+    extended_app_configs,
+    CremeAppConfig,
+)
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import (
     CremeForm, CremeModelForm, FieldBlockManager,
@@ -30,7 +37,11 @@ from creme.creme_core.forms import (
     entity_filter as ef_forms,
 )
 from creme.creme_core.forms.widgets import Label, DynamicSelect, CremeRadioSelect
-from creme.creme_core.models import CremeEntity, CremeUser, UserRole, SetCredentials, EntityFilter  # Mutex
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeUser, UserRole, SetCredentials,
+    EntityFilter,
+)  # Mutex
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import update_model_instance
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
@@ -121,14 +132,22 @@ class CredentialsGeneralStep(CremeModelForm):
                    ),
     )
 
+    # Field name => permission
+    PERM_FIELDS = OrderedDict([
+        ('can_view',    EntityCredentials.VIEW),
+        ('can_change',  EntityCredentials.CHANGE),
+        ('can_delete',  EntityCredentials.DELETE),
+        ('can_link',    EntityCredentials.LINK),
+        ('can_unlink',  EntityCredentials.UNLINK),
+    ])
+
     blocks = FieldBlockManager(
         ('general', _('General information'), '*'),
-        ('actions', _('Actions'), ['can_view', 'can_change', 'can_delete', 'can_link', 'can_unlink']),
+        ('actions', _('Actions'), [*PERM_FIELDS.values()]),
     )
 
     class Meta:
         model = SetCredentials
-        # exclude = ('role', 'value')
         exclude = ('value', )  # fields ??
         widgets = {
             'set_type':  CremeRadioSelect,
@@ -146,11 +165,19 @@ class CredentialsGeneralStep(CremeModelForm):
 
         # TODO: SetCredentials.value default to 0
         value = self.instance.value or 0
-        fields['can_view'].initial   = bool(value & EntityCredentials.VIEW)
-        fields['can_change'].initial = bool(value & EntityCredentials.CHANGE)
-        fields['can_delete'].initial = bool(value & EntityCredentials.DELETE)
-        fields['can_link'].initial   = bool(value & EntityCredentials.LINK)
-        fields['can_unlink'].initial = bool(value & EntityCredentials.UNLINK)
+        for fname, perm in self.PERM_FIELDS.items():
+            fields[fname].initial = bool(value & perm)
+
+    def clean(self, *args, **kwargs):
+        cdata = super().clean(*args, **kwargs)
+
+        if not self._errors:
+            get = cdata.get
+
+            if not any(get(fname) for fname in self.PERM_FIELDS.keys()):
+                raise ValidationError(gettext('No action has been selected.'))
+
+        return cdata
 
     def _get_allowed_apps(self):
         return self.instance.role.allowed_apps
@@ -158,11 +185,7 @@ class CredentialsGeneralStep(CremeModelForm):
     def save(self, *args, **kwargs):
         get_data = self.cleaned_data.get
         self.instance.set_value(
-            can_view=get_data('can_view'),
-            can_change=get_data('can_change'),
-            can_delete=get_data('can_delete'),
-            can_link=get_data('can_link'),
-            can_unlink=get_data('can_unlink'),
+            **{fname: get_data(fname) for fname in self.PERM_FIELDS.keys()}
         )
 
 
