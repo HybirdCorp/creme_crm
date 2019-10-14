@@ -744,6 +744,38 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(ct_contact.id, creds.ctype_id)
         self.assertTrue(creds.forbidden)
 
+    @skipIfNotInstalled('creme.persons')
+    def test_add_credentials05(self):
+        "No action => Validation error."
+        self.login()
+
+        role = UserRole(name='CEO')
+        role.allowed_apps = ['persons']
+        role.save()
+
+        url = self._build_add_creds_url(role)
+        self.assertGET200(url)  # NB: init session
+
+        step_key = 'credentials_adding_wizard-current_step'
+        response = self.assertPOST200(
+            url,
+            data={
+                step_key: '0',
+
+                '0-set_type':  SetCredentials.ESET_ALL,
+                '0-forbidden': 'False',
+
+                '0-can_view':   False,
+                '0-can_change': False,
+                '0-can_delete': False,
+                '0-can_link':   False,
+                '0-can_unlink': False,
+            },
+        )
+        self.assertFormError(response, 'form', None,
+                             _('No action has been selected.')
+                            )
+
     def test_add_credentials_with_filter01(self):
         self.login()
 
