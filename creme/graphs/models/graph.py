@@ -144,7 +144,7 @@ class AbstractGraph(CremeEntity):
         try:
             path = FileCreator(join(settings.MEDIA_ROOT, 'upload', 'graphs'), img_basename).create()
         except FileCreator.Error as e:
-            raise Graph.GraphException(e) from e
+            raise self.GraphException(e) from e
 
         try:
             # graph.draw(join(dir_path, filename), format='png')  # Format: pdf svg
@@ -152,7 +152,7 @@ class AbstractGraph(CremeEntity):
         except IOError as e:
             delete_file(path)
 
-            raise Graph.GraphException(str(e)) from e
+            raise self.GraphException(str(e)) from e
 
         fileref = FileRef.objects.create( # user=request.user, TODO
                                          filedata='upload/graphs/' + basename(path),
