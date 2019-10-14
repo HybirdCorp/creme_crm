@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from creme.creme_core.utils import bool_from_str_extended
 from creme.creme_core.views import generic
 
 from creme.billing.models import Base
@@ -57,6 +58,12 @@ class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
         initial['target'] = self.get_related_entity()
 
         return initial
+
+    def get_success_url(self):
+        if bool_from_str_extended(self.request.GET.get('redirection', '0')):
+            return self.object.get_absolute_url()
+
+        return super().get_success_url()
 
 
 class BaseEdition(generic.EntityEdition):

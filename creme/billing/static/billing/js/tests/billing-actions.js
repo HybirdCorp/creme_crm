@@ -661,4 +661,45 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document', function(
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
+QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document (with redirection)', function(assert) {
+    var creationURL = 'mock/billing/document/add';
+    var quoteURL = 'mock/quote/12';
+
+    var POSTBackends = {};  // TODO:  {[creationURL]: ...}  when IE is dead
+    POSTBackends[creationURL] = this.backend.response(200, quoteURL);
+    this.setMockBackendPOST(POSTBackends);
+
+    var widget = this.createHatMenuBar({
+        buttons: [
+            this.createHatMenuActionButton({
+                url: creationURL + '?redirection=true',
+                action: 'billing-hatmenubar-add-document',
+                data: {
+                    rtype_id: ['rtype-C'],
+                    model_id: ['model-A']
+                }
+            })
+        ]
+    });
+
+    $(widget.element).find('a.menu_button').click();
+
+    deepEqual([
+        ['GET', {"redirection": "true"}]
+    ], this.mockBackendUrlCalls(creationURL));
+
+    this.assertOpenedDialog();
+    deepEqual([], this.mockListenerCalls('action-done'));
+
+    this.submitFormDialog();
+    this.assertClosedDialog();
+
+    deepEqual([
+        ['GET', {"redirection": "true"}],
+        ['POST', {"URI-SEARCH": {"redirection": "true" }}]
+    ], this.mockBackendUrlCalls(creationURL));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    deepEqual([quoteURL], this.mockRedirectCalls());
+});
+
 }(jQuery));

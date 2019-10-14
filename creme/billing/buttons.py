@@ -22,14 +22,15 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.button_menu import Button
+from creme.creme_core.models import SettingValue
 
 from creme import persons
 
 from .. import billing
 from .constants import REL_OBJ_BILL_RECEIVED
-from .models import Base
 from .core import get_models_for_conversion
-
+from .models import Base
+from .setting_keys import button_redirection_key
 
 Invoice    = billing.get_invoice_model()
 Quote      = billing.get_quote_model()
@@ -71,6 +72,11 @@ class _AddBillingDocumentButton(Button):
         context['model_id'] = '{}.{}'.format(meta.app_label, meta.model_name)
 
         context['rtype_id'] = REL_OBJ_BILL_RECEIVED
+
+        context['redirect'] = SettingValue.objects.get_4_key(
+            button_redirection_key,
+            default=True,
+        ).value
 
         return super().render(context)
 

@@ -273,7 +273,9 @@ class Populator(BasePopulator):
             SearchConfigItem.create_if_needed(model, [], disabled=True)
 
         # ---------------------------
-        SettingValue.objects.get_or_create(key_id=setting_keys.payment_info_key.id, defaults={'value': True})
+        create_svalue = SettingValue.objects.get_or_create
+        create_svalue(key_id=setting_keys.payment_info_key.id,       defaults={'value': True})
+        create_svalue(key_id=setting_keys.button_redirection_key.id, defaults={'value': True})
 
         # ---------------------------
         if not already_populated:

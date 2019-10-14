@@ -98,23 +98,27 @@ creme.billing.AddDocumentAction = creme.component.Action.sub({
     _run: function(options) {
         options = $.extend(this.options(), options || {});
 
-        var width = $(window).innerWidth();
-        var deps = options.deps || ['creme_core.relation'];
-
         var self = this;
-        var reload = new creme.bricks.BricksReloader().dependencies(deps).action();
-
+        var width = $(window).innerWidth();
         var dialog = new creme.dialog.FormDialogAction({
             width: width * 0.8,
             maxWidth: width,
             url: options.url
         });
 
-        dialog.onDone(function() {
-            reload.on({
-                fail: function(event, error) { self.fail(error); },
-                'done cancel': function() { self.done(); }
-            }).start();
+        dialog.onDone(function(event, data) {
+            var redirectionURL = data['content'];
+            if (redirectionURL) {
+                creme.utils.redirect(redirectionURL);
+            } else {
+                var deps = options.deps || ['creme_core.relation'];
+                var reload = new creme.bricks.BricksReloader().dependencies(deps).action();
+
+                reload.on({
+                    fail: function(event, error) { self.fail(error); },
+                    'done cancel': function() { self.done(); }
+                }).start();
+            }
         }).onFail(function(event, error) {
             self.fail(error);
         }).onCancel(function(event) {

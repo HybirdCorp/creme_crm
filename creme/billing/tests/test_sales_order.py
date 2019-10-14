@@ -8,14 +8,19 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Currency, SetCredentials
+    from creme.creme_core.models import Currency, SetCredentials, SettingValue
 
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from ..models import SalesOrderStatus
+    from ..setting_keys import button_redirection_key
 
-    from .base import _BillingTestCase, skipIfCustomSalesOrder, SalesOrder, Organisation, Invoice
+    from .base import (
+        _BillingTestCase,
+        skipIfCustomSalesOrder,
+        SalesOrder, Organisation, Invoice,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -23,6 +28,10 @@ except Exception as e:
 @skipIfCustomOrganisation
 @skipIfCustomSalesOrder
 class SalesOrderTestCase(_BillingTestCase):
+    @staticmethod
+    def _build_related_creation_url(target):
+        return reverse('billing__create_related_order', args=(target.id,))
+
     def test_detailview01(self):
         self.login(is_superuser=False,
                    allowed_apps=['billing', 'persons'],
@@ -31,20 +40,23 @@ class SalesOrderTestCase(_BillingTestCase):
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW |
                                             EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN
+                                      set_type=SetCredentials.ESET_OWN,
                                      )
 
         order = self.create_salesorder_n_orgas('My order')[0]
         response = self.assertGET200(order.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_sales_order.html')
 
-        self.assertContains(response, '<a class="menu_button menu-button-icon " data-action="billing-hatmenubar-convert"')
+        self.assertContains(
+            response,
+            '<a class="menu_button menu-button-icon " data-action="billing-hatmenubar-convert"'
+        )
 
         self.assertContains(response, _('Convert to Invoice'))
         self.assertContains(response, '"type": "invoice"')
 
     def test_detailview02(self):
-        "Cannot create invoice => convert button disabled"
+        "Cannot create invoice => convert button disabled."
         self.login(is_superuser=False,
                    allowed_apps=['billing', 'persons'],
                    creatable_models=[Organisation, SalesOrder],  # Invoice
@@ -52,15 +64,18 @@ class SalesOrderTestCase(_BillingTestCase):
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW |
                                             EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN
+                                      set_type=SetCredentials.ESET_OWN,
                                      )
 
         order = self.create_salesorder_n_orgas('My order')[0]
         response = self.assertGET200(order.get_absolute_url())
 
-        self.assertContains(response, '<a class="menu_button menu-button-icon is-disabled" data-action="billing-hatmenubar-convert"')
+        self.assertContains(
+            response,
+            '<a class="menu_button menu-button-icon is-disabled" data-action="billing-hatmenubar-convert"'
+        )
 
-        self.assertContains(response, _('Convert to Invoice'))
+        self.assertContains(response, _('Convert to Invoice').encode())
         self.assertContains(response, '"type": "invoice"')
 
     def test_createview01(self):
@@ -82,7 +97,7 @@ class SalesOrderTestCase(_BillingTestCase):
         user = self.login()
 
         source, target = self.create_orgas()
-        url = reverse('billing__create_related_order', args=(target.id,))
+        url = self._build_related_creation_url(target) + '?redirection=true'
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
@@ -105,18 +120,20 @@ class SalesOrderTestCase(_BillingTestCase):
         name = 'Order#1'
         currency = Currency.objects.all()[0]
         status   = SalesOrderStatus.objects.all()[1]
-        response = self.client.post(url, follow=True,
-                                    data={'user':            user.pk,
-                                          'name':            name,
-                                          'issuing_date':    '2013-12-13',
-                                          'expiration_date': '2014-1-20',
-                                          'status':          status.id,
-                                          'currency':        currency.id,
-                                          'discount':        Decimal(),
-                                          'source':          source.id,
-                                          'target':          self.formfield_value_generic_entity(target),
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':            user.pk,
+                'name':            name,
+                'issuing_date':    '2013-12-13',
+                'expiration_date': '2014-1-20',
+                'status':          status.id,
+                'currency':        currency.id,
+                'discount':        Decimal(),
+                'source':          source.id,
+                'target':          self.formfield_value_generic_entity(target),
+            },
+        )
         self.assertNoFormError(response)
 
         order = self.get_object_or_fail(SalesOrder, name=name)
@@ -128,8 +145,45 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertRelationCount(1, order, REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
 
+        self.assertEqual(order.get_absolute_url(), response.content.decode())
+
     def test_create_related02(self):
-        "Not a super-user"
+        "No redirection after the creation."
+        user = self.login()
+
+        source, target = self.create_orgas()
+        name = 'Order#1'
+        currency = Currency.objects.all()[0]
+        status   = SalesOrderStatus.objects.all()[1]
+        response = self.client.post(
+            self._build_related_creation_url(target) + '?redirection=false',
+            follow=True,
+            data={
+                'user':            user.pk,
+                'name':            name,
+                'issuing_date':    '2013-12-13',
+                'expiration_date': '2014-1-20',
+                'status':          status.id,
+                'currency':        currency.id,
+                'discount':        Decimal(),
+                'source':          source.id,
+                'target':          self.formfield_value_generic_entity(target),
+            },
+        )
+        self.assertNoFormError(response)
+        self.assertFalse(response.content)  # NB: means "close the popup"
+
+        order = self.get_object_or_fail(SalesOrder, name=name)
+        self.assertEqual(date(year=2013, month=12, day=13), order.issuing_date)
+        self.assertEqual(date(year=2014, month=1,  day=20), order.expiration_date)
+        self.assertEqual(currency, order.currency)
+        self.assertEqual(status,   order.status)
+
+        self.assertRelationCount(1, order, REL_SUB_BILL_ISSUED,   source)
+        self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
+
+    def test_create_related03(self):
+        "Not a super-user."
         self.login(is_superuser=False,
                    allowed_apps=['persons', 'billing'],
                    creatable_models=[SalesOrder],
@@ -144,10 +198,10 @@ class SalesOrderTestCase(_BillingTestCase):
                                      )
 
         source, target = self.create_orgas()
-        self.assertGET200(reverse('billing__create_related_order', args=(target.id,)))
+        self.assertGET200(self._build_related_creation_url(target))
 
-    def test_create_related03(self):
-        "Creation creds are needed"
+    def test_create_related04(self):
+        "Creation creds are needed."
         self.login(is_superuser=False,
                    allowed_apps=['persons', 'billing'],
                    # creatable_models=[SalesOrder],
@@ -162,10 +216,10 @@ class SalesOrderTestCase(_BillingTestCase):
                                      )
 
         source, target = self.create_orgas()
-        self.assertGET403(reverse('billing__create_related_order', args=(target.id,)))
+        self.assertGET403(self._build_related_creation_url(target))
 
-    def test_create_related04(self):
-        "CHANGE creds are needed"
+    def test_create_related05(self):
+        "CHANGE creds are needed."
         self.login(is_superuser=False,
                    allowed_apps=['persons', 'billing'],
                    creatable_models=[SalesOrder],
@@ -180,7 +234,7 @@ class SalesOrderTestCase(_BillingTestCase):
                                      )
 
         source, target = self.create_orgas()
-        self.assertGET403(reverse('billing__create_related_order', args=(target.id,)))
+        self.assertGET403(self._build_related_creation_url(target))
 
     def test_editview(self):
         user = self.login()
@@ -196,18 +250,20 @@ class SalesOrderTestCase(_BillingTestCase):
                                            international_symbol='MUSD', is_custom=True,
                                           )
         status   = SalesOrderStatus.objects.all()[1]
-        response = self.client.post(url, follow=True,
-                                    data={'user':            user.pk,
-                                          'name':            name,
-                                          'issuing_date':    '2012-2-12',
-                                          'expiration_date': '2012-3-13',
-                                          'status':          status.id,
-                                          'currency':        currency.id,
-                                          'discount':        Decimal(),
-                                          'source':          source.id,
-                                          'target':          self.formfield_value_generic_entity(target),
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':            user.pk,
+                'name':            name,
+                'issuing_date':    '2012-2-12',
+                'expiration_date': '2012-3-13',
+                'status':          status.id,
+                'currency':        currency.id,
+                'discount':        Decimal(),
+                'source':          source.id,
+                'target':          self.formfield_value_generic_entity(target),
+            },
+        )
         self.assertNoFormError(response)
 
         order = self.refresh(order)
@@ -230,7 +286,7 @@ class SalesOrderTestCase(_BillingTestCase):
             orders_page = response.context['page_obj']
 
         self.assertEqual(2, orders_page.paginator.count)
-        self.assertEqual({order1, order2}, set(orders_page.paginator.object_list))
+        self.assertSetEqual({order1, order2}, {*orders_page.paginator.object_list})
 
     # def test_delete_status01(self):
     def test_delete_status(self):
