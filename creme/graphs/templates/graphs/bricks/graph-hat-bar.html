@@ -2,10 +2,12 @@
 {% load i18n creme_widgets %}
 
 {% block buttons %}
+    {% if dl_button %}
     <div class='bar-action'>
         <a href="{% url 'graphs__dl_image' object.id %}">
             {% widget_icon name='download' size='brick-hat-bar-button' label=_('Download as PNG file') %}
         </a>
     </div>
+    {% endif %}
     {{block.super}}
 {% endblock %}

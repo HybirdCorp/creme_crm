@@ -18,17 +18,35 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.gui.bricks import SimpleBrick, QuerysetBrick
+from creme.creme_core.gui.bricks import Brick, QuerysetBrick
 from creme.creme_core.models import CremeEntity
 
 from . import get_graph_model
 from .models import RootNode
 
+logger = logging.getLogger(__name__)
 
-class GraphBarHatBrick(SimpleBrick):
+
+class GraphBarHatBrick(Brick):
     template_name = 'graphs/bricks/graph-hat-bar.html'
+
+    def detailview_display(self, context):
+        try:
+            import pygraphviz
+        except ImportError:
+            logger.warn(
+                'The package "pygraphviz" is not installed ; '
+                'see creme/graphs/requirements.txt for version.'
+            )
+            dl_button = False
+        else:
+            dl_button = True
+
+        return self._render(self.get_template_context(context, dl_button=dl_button))
 
 
 class RootNodesBrick(QuerysetBrick):
@@ -57,6 +75,6 @@ class OrbitalRelationTypesBrick(QuerysetBrick):
     def detailview_display(self, context):
         graph = context['object']
         return self._render(self.get_template_context(
-                    context,
-                    graph.orbital_relation_types.select_related('symmetric_type'),
+            context,
+            graph.orbital_relation_types.select_related('symmetric_type'),
         ))

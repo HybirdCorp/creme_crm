@@ -60,7 +60,7 @@ DEPENDENCIES:
              - pdflatex (if you want PDF export -- you'll need 'Latex' too)
 
          - creme.graphs:
-             - pygraphviz (seems unavailable on windows -- you'll need 'graphviz' too)
+             - pygraphviz 1.5 (seems unavailable on windows -- you'll need 'graphviz' too)
 
          - creme.crudity:
              - lcab (if you want Infopath forms exports and your server doesn't run on Windows)

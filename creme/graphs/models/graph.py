@@ -22,7 +22,7 @@ from os import remove as delete_file
 from os.path import basename
 
 from django.conf import settings
-from django.db.models import CharField, ManyToManyField, ForeignKey, CASCADE
+from django.db import models
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
@@ -32,8 +32,12 @@ from creme.creme_core.utils.file_handling import FileCreator
 
 
 class AbstractGraph(CremeEntity):
-    name                   = CharField(pgettext_lazy('graphs', 'Name of the graph'), max_length=100)
-    orbital_relation_types = ManyToManyField(RelationType, verbose_name=_('Types of the peripheral relations'))
+    name = models.CharField(
+        pgettext_lazy('graphs', 'Name of the graph'), max_length=100,
+    )
+    orbital_relation_types = models.ManyToManyField(
+        RelationType, verbose_name=_('Types of the peripheral relations'),
+    )
 
     creation_label = pgettext_lazy('graphs', 'Create a graph')
     save_label     = pgettext_lazy('graphs', 'Save the graph')
@@ -173,10 +177,15 @@ class Graph(AbstractGraph):
 
 
 class RootNode(CremeModel):
-    graph          = ForeignKey(settings.GRAPHS_GRAPH_MODEL, related_name='roots', editable=False, on_delete=CASCADE)
-    entity         = ForeignKey(CremeEntity, editable=False, on_delete=CASCADE)
+    graph = models.ForeignKey(
+        settings.GRAPHS_GRAPH_MODEL, related_name='roots',
+        editable=False, on_delete=models.CASCADE,
+    )
+    entity = models.ForeignKey(
+        CremeEntity, editable=False, on_delete=models.CASCADE,
+    )
     # TODO: editable=False is only to avoid inner edition with an ugly widget
-    relation_types = ManyToManyField(RelationType, editable=False)
+    relation_types = models.ManyToManyField(RelationType, editable=False)
 
     class Meta:
         app_label = 'graphs'

@@ -83,10 +83,20 @@ def dl_png(request, graph_id):
 
     try:
         return graph.generate_png(user)
+    except ImportError:
+        return render(
+            request, 'graphs/graph_error.html',
+            {'error_message': gettext(
+                'The package "pygraphviz" is not installed ; '
+                'please contact your administrator.'
+             )
+            },
+         )
     except Graph.GraphException:
-        return render(request, 'graphs/graph_error.html',
-                      {'error_message': gettext('This graph is too big!')},
-                     )
+        return render(
+            request, 'graphs/graph_error.html',
+            {'error_message': gettext('This graph is too big!')},
+        )
 
 
 # @login_required
