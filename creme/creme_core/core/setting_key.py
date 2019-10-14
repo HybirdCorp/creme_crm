@@ -27,7 +27,6 @@ from django.utils.translation import gettext as _
 from ..utils import bool_from_str, bool_as_html
 from ..utils.serializers import json_encode
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -44,17 +43,17 @@ class _SettingKey:
     EMAIL  = 20
 
     _CASTORS = {
-            STRING: str,
-            INT:    int,
-            BOOL:   bool_from_str,
-            HOUR:   int,  # TODO: validate 0 =< x =< 23  ??
-            EMAIL:  str,
-        }
+        STRING: str,
+        INT:    int,
+        BOOL:   bool_from_str,
+        HOUR:   int,  # TODO: validate 0 =< x =< 23  ??
+        EMAIL:  str,
+    }
 
     HTML_PRINTERS = {
-            BOOL:   bool_as_html,
-            HOUR:   print_hour,
-        }
+        BOOL:   bool_as_html,
+        HOUR:   print_hour,
+    }
 
     def __init__(self, id, description, app_label, type=STRING, hidden=False, blank=False):
         """Constructor.
@@ -76,12 +75,12 @@ class _SettingKey:
     def __str__(self):
         return '{cls}(id="{id}", description="{description}", ' \
                'app_label="{app_label}", type={type}, hidden={hidden})'.format(
-                cls=self.__class__.__name__,
-                id=self.id,
-                description=self.description,
-                app_label=self.app_label,
-                type=self.type,
-                hidden=self.hidden,
+            cls=self.__class__.__name__,
+            id=self.id,
+            description=self.description,
+            app_label=self.app_label,
+            type=self.type,
+            hidden=self.hidden,
         )
 
     def cast(self, value_str):
@@ -101,12 +100,12 @@ class SettingKey(_SettingKey):
 
 class UserSettingKey(_SettingKey):
     _CASTORS = {
-            _SettingKey.STRING: str,
-            _SettingKey.INT:    int,
-            _SettingKey.BOOL:   bool,  # TODO: fix _SettingKey to use JSON ('True' => 'true') ??
-            _SettingKey.HOUR:   int,
-            _SettingKey.EMAIL:  str,
-        }
+        _SettingKey.STRING: str,
+        _SettingKey.INT:    int,
+        _SettingKey.BOOL:   bool,  # TODO: fix _SettingKey to use JSON ('True' => 'true') ??
+        _SettingKey.HOUR:   int,
+        _SettingKey.EMAIL:  str,
+    }
 
 
 class _SettingKeyRegistry:
@@ -129,10 +128,14 @@ class _SettingKeyRegistry:
 
         for skey in skeys:
             if not isinstance(skey, key_class):
-                raise self.RegistrationError("Bad class for key {} (need {})".format(skey, key_class))
+                raise self.RegistrationError(
+                    "Bad class for key {} (need {})".format(skey, key_class)
+                )
 
             if setdefault(skey.id, skey) is not skey:
-                raise self.RegistrationError("Duplicated setting key's id: {}".format(skey.id))
+                raise self.RegistrationError(
+                    "Duplicated setting key's id: {}".format(skey.id)
+                )
 
     def unregister(self, *skeys):
         pop = self._skeys.pop
@@ -140,9 +143,11 @@ class _SettingKeyRegistry:
         for skey in skeys:
             if pop(skey.id, None) is None:
                 # logger.warn('This Setting is not registered (already un-registered ?): %s', skey.id)
-                raise self.RegistrationError('This Setting is not registered '
-                                             '(already un-registered ?): {}'.format(skey.id)
-                                            )
+                raise self.RegistrationError(
+                    'This Setting is not registered (already un-registered ?): {}'.format(
+                        skey.id,
+                    )
+                )
 
 
 setting_key_registry = _SettingKeyRegistry(SettingKey)
@@ -180,7 +185,7 @@ class UserSettingValueManager:
         return True
 
     def __getitem__(self, key):
-        "@raise KeyError"
+        "@raise KeyError."
         return key.cast(self._values[key.id])
 
     # TODO: accept key or key_id ??

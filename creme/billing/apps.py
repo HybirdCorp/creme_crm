@@ -196,7 +196,10 @@ class BillingConfig(CremeAppConfig):
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 
-        setting_key_registry.register(setting_keys.payment_info_key)
+        setting_key_registry.register(
+            setting_keys.payment_info_key,
+            setting_keys.button_redirection_key,
+        )
 
     def register_smart_columns(self, smart_columns_registry):
         from . import constants

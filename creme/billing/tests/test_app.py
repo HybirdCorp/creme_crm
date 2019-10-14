@@ -23,8 +23,8 @@ try:
         InvoiceStatus, SalesOrderStatus, CreditNoteStatus,
         ConfigBillingAlgo, SimpleBillingAlgo,
     )
+    from .. import setting_keys
     from ..registry import AlgoRegistry
-    from ..setting_keys import payment_info_key
 
     from .base import (
         _BillingTestCase,
@@ -54,6 +54,9 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(1, CreditNoteStatus.objects.filter(pk=1).count())
 
         self.assertTrue(Vat.objects.exists())  # In creme_core populate...
+
+        sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.button_redirection_key.id)
+        self.assertIs(True, sv.value)
 
         # Contribution to activities
         from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
@@ -93,16 +96,24 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self._set_managed(orga)
 
         algoconfs = ConfigBillingAlgo.objects.filter(organisation=orga)
-        self.assertEqual(['SIMPLE_ALGO'] * 3, [algoconf.name_algo for algoconf in algoconfs])
-        self.assertEqual({Quote, Invoice, SalesOrder},
-                         {algoconf.ct.model_class() for algoconf in algoconfs}
-                        )
+        self.assertListEqual(
+            ['SIMPLE_ALGO'] * 3,
+            [algoconf.name_algo for algoconf in algoconfs]
+        )
+        self.assertSetEqual(
+            {Quote, Invoice, SalesOrder},
+            {algoconf.ct.model_class() for algoconf in algoconfs}
+        )
 
         simpleconfs = SimpleBillingAlgo.objects.filter(organisation=orga)
-        self.assertEqual([0] * 3, [simpleconf.last_number for simpleconf in simpleconfs])
-        self.assertEqual({Quote, Invoice, SalesOrder},
-                         {simpleconf.ct.model_class() for simpleconf in simpleconfs}
-                        )
+        self.assertListEqual(
+            [0] * 3,
+            [simpleconf.last_number for simpleconf in simpleconfs]
+        )
+        self.assertSetEqual(
+            {Quote, Invoice, SalesOrder},
+            {simpleconf.ct.model_class() for simpleconf in simpleconfs}
+        )
 
     def _merge_organisations(self, orga1, orga2):
         user = self.user
@@ -114,7 +125,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
                                           'name_1':      orga1.name,
                                           'name_2':      orga2.name,
                                           'name_merged': orga1.name,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
         self.assertStillExists(orga1)
@@ -264,15 +275,15 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(3, len(sba_list1))
         self.assertEqual(orga1, sba_list1[0].organisation)
 
-    def _get_setting_value(self):
-        # return self.get_object_or_fail(SettingValue, key_id=constants.DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
-        return self.get_object_or_fail(SettingValue, key_id=payment_info_key.id)
+    # def _get_setting_value(self):
+    #     return self.get_object_or_fail(SettingValue, key_id=constants.DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
 
     @skipIfCustomOrganisation
     def test_brick_orga01(self):
         self.login()
 
-        sv = self._get_setting_value()
+        # sv = self._get_setting_value()
+        sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.payment_info_key.id)
         self.assertIs(True, sv.value)
 
         orga = Organisation.objects.create(user=self.user, name='NERV')
@@ -303,7 +314,8 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'billing/bricks/received-invoices.html')
         self.assertTemplateUsed(response, 'billing/bricks/received-billing-documents.html')
 
-        sv = self._get_setting_value()
+        # sv = self._get_setting_value()
+        sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.payment_info_key.id)
         sv.value = False
         sv.save()
 

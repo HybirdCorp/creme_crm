@@ -15,3 +15,11 @@ payment_info_key = SettingKey(
                  ),
     app_label='billing', type=SettingKey.BOOL,
 )
+button_redirection_key = SettingKey(
+    id='billing-button_redirection',
+    description=_('Go the detailview of the billing document created '
+                  'with the button (of the button bar) after the creation? '
+                  '(ie: «No» means «remain on the Contact/Organisation detailview»)'
+                 ),
+    app_label='billing', type=SettingKey.BOOL,
+)
