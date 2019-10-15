@@ -231,7 +231,7 @@ TEMPLATES = [
 ]
 
 MIDDLEWARE = [
-    'mediagenerator.middleware.MediaMiddleware',  # Must be the first
+    # 'mediagenerator.middleware.MediaMiddleware',  # Must be the first
 
     'creme.creme_core.middleware.exceptions.Ajax500Middleware',  # It must be last middleware that catches all exceptions
     'creme.creme_core.middleware.exceptions.Ajax404Middleware',
@@ -483,8 +483,8 @@ REPOSITORY = 'https://bitbucket.org/hybird/creme_crm/src/'
 # MEDIA GENERATOR & THEME SETTINGS #############################################
 # http://www.allbuttonspressed.com/projects/django-mediagenerator
 
-MEDIA_DEV_MODE = False
-DEV_MEDIA_URL = '/devmedia/'
+# MEDIA_DEV_MODE = False
+# DEV_MEDIA_URL = '/devmedia/'
 PRODUCTION_MEDIA_URL = '/static_media/'
 
 GENERATED_MEDIA_DIR = join(MEDIA_ROOT, 'static')

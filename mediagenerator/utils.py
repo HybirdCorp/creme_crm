@@ -10,10 +10,13 @@ from django.core.exceptions import ImproperlyConfigured
 # from django.utils.importlib import import_module
 from django.utils.http import urlquote
 
-from . import settings as media_settings
-from .settings import (GLOBAL_MEDIA_DIRS, PRODUCTION_MEDIA_URL,
-    IGNORE_APP_MEDIA_DIRS, MEDIA_GENERATORS, DEV_MEDIA_URL,
-    GENERATED_MEDIA_NAMES_MODULE)
+# from . import settings as media_settings
+from .settings import (
+    GLOBAL_MEDIA_DIRS, PRODUCTION_MEDIA_URL,
+    IGNORE_APP_MEDIA_DIRS, MEDIA_GENERATORS,
+    # DEV_MEDIA_URL,
+    GENERATED_MEDIA_NAMES_MODULE,
+)
 
 try:
     NAMES = import_module(GENERATED_MEDIA_NAMES_MODULE).NAMES
@@ -89,11 +92,13 @@ def get_production_mapping():
 
 
 def get_media_mapping():
-    return _generated_names if media_settings.MEDIA_DEV_MODE else get_production_mapping()
+    # return _generated_names if media_settings.MEDIA_DEV_MODE else get_production_mapping()
+    return get_production_mapping()  # TODO: inline ?
 
 
 def get_media_url_mapping():
-    base_url = DEV_MEDIA_URL if media_settings.MEDIA_DEV_MODE else PRODUCTION_MEDIA_URL
+    # base_url = DEV_MEDIA_URL if media_settings.MEDIA_DEV_MODE else PRODUCTION_MEDIA_URL
+    base_url = PRODUCTION_MEDIA_URL
     mapping = {}
 
     for key, value in get_media_mapping().items():
@@ -105,11 +110,11 @@ def get_media_url_mapping():
 
 
 def media_urls(key, refresh=False):
-    if media_settings.MEDIA_DEV_MODE:
-        if refresh:
-            _refresh_dev_names()
-
-        return [DEV_MEDIA_URL + url for url in _generated_names[key]]
+    # if media_settings.MEDIA_DEV_MODE:
+    #     if refresh:
+    #         _refresh_dev_names()
+    #
+    #     return [DEV_MEDIA_URL + url for url in _generated_names[key]]
 
     return [PRODUCTION_MEDIA_URL + get_production_mapping()[key]]
 
@@ -119,8 +124,10 @@ def media_url(key, refresh=False):
     if len(urls) == 1:
         return urls[0]
 
-    raise ValueError('media_url() only works with URLs that contain exactly '
-                     'one file. Use media_urls() (or {% include_media %} in templates) instead.')
+    raise ValueError(
+        'media_url() only works with URLs that contain exactly '
+        'one file. Use media_urls() (or {% include_media %} in templates) instead.'
+    )
 
 
 # def get_media_dirs():
@@ -177,7 +184,7 @@ def read_text_file(path):
 
 def load_backend(backend):
     if backend not in _backends_cache:
-        module_name, func_name = backend.rsplit('.', 1)  # TODO: useful ?
+        # module_name, func_name = backend.rsplit('.', 1)
         _backends_cache[backend] = _load_backend(backend)
 
     return _backends_cache[backend]
@@ -189,9 +196,13 @@ def _load_backend(path):
     try:
         mod = import_module(module_name)
     except (ImportError, ValueError) as e:
-        raise ImproperlyConfigured('Error importing backend module {}: "{}"'.format(module_name, e))
+        raise ImproperlyConfigured(
+            'Error importing backend module {}: "{}"'.format(module_name, e)
+        )
 
     try:
         return getattr(mod, attr_name)
     except AttributeError:
-        raise ImproperlyConfigured('Module "{}" does not define a "{}" backend'.format(module_name, attr_name))
+        raise ImproperlyConfigured(
+            'Module "{}" does not define a "{}" backend'.format(module_name, attr_name)
+        )
