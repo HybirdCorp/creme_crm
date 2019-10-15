@@ -1,11 +1,11 @@
 from collections import defaultdict, OrderedDict
+import logging
 import os
 import shutil
-import logging
 
 from django.utils.http import urlquote
 
-from . import settings, utils
+from . import utils  # settings
 from .settings import GENERATED_MEDIA_DIR, GENERATED_MEDIA_NAMES_FILE, MEDIA_GENERATORS
 from .utils import load_backend
 
@@ -19,9 +19,9 @@ def generate_media():
     if os.path.exists(GENERATED_MEDIA_DIR):
         shutil.rmtree(GENERATED_MEDIA_DIR)
 
-    # This will make media_url() generate production URLs
-    was_dev_mode = settings.MEDIA_DEV_MODE
-    settings.MEDIA_DEV_MODE = False
+    # # This will make media_url() generate production URLs
+    # was_dev_mode = settings.MEDIA_DEV_MODE
+    # settings.MEDIA_DEV_MODE = False
 
     utils.NAMES = {}
 
@@ -50,7 +50,7 @@ def generate_media():
 
             utils.NAMES[key] = urlquote(url)
 
-    settings.MEDIA_DEV_MODE = was_dev_mode
+    # settings.MEDIA_DEV_MODE = was_dev_mode
 
     # Generate a module with media file name mappings
     with open(GENERATED_MEDIA_NAMES_FILE, 'w') as fp:
