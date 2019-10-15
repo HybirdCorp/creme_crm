@@ -438,7 +438,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     def test_edit04(self):
-        "Common user without role"
+        "Common user without role."
         self.login()
 
         other_user = self.other_user
@@ -499,7 +499,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.client.post(url, follow=True,
                                     data={'password_1': password,
                                           'password_2': password,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
         self.assertTrue(self.refresh(other_user).check_password(password))
@@ -515,7 +515,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         password = 'password'
         self.assertPOST403(url, data={'password_1': password,
                                       'password_2': password,
-                                     }
+                                     },
                           )
 
     @skipIfNotCremeUser
@@ -766,10 +766,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login()
 
         user = User.objects.create_user(username='Shogun',
-                                             first_name='Choji', last_name='Ochiai',
-                                             email='shogun@century.jp',
-                                             password='uselesspw',
-                                            )
+                                        first_name='Choji', last_name='Ochiai',
+                                        email='shogun@century.jp',
+                                        password='uselesspw',
+                                       )
         team  = self._create_team('Teamee', [user])
         team2 = self._create_team('Teamee2', [user])
 

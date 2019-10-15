@@ -153,7 +153,7 @@ class CremeWizardView(base.TitleMixin,
         submit_label = getattr(form, 'step_submit_label', '')
         if not submit_label:
             submit_label = self.get_submit_label() \
-                           if int(self.storage.current_step) + 1 == len(self.form_list) else\
+                           if int(self.steps.current) + 1 == len(self.form_list) else \
                            self.step_next_label
         context['submit_label'] = submit_label
 
