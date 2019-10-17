@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import OrderedDict
 import logging
 
 logger = logging.getLogger(__name__)
@@ -35,7 +36,7 @@ class _EntityFilterRegistry:
         pass
 
     def __init__(self):
-        self._handler_classes = {}
+        self._handler_classes = OrderedDict()  # We keep the registration order for the form.
         self._operator_classes = {}
         self._operand_classes = {}
 
@@ -159,3 +160,4 @@ class _EntityFilterRegistry:
 
 
 entity_filter_registry = _EntityFilterRegistry()
+credentials_efilter_registry = _EntityFilterRegistry()

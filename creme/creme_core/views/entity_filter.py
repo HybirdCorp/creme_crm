@@ -32,9 +32,10 @@ from django.utils.translation import gettext_lazy as _, gettext
 
 from .. import utils
 from ..auth.decorators import login_required
-from ..core.exceptions import ConflictError
+from ..core.entity_filter import entity_filter_registry
 from ..core.entity_filter.operands import CurrentUserOperand
-from ..forms import entity_filter as efilter_forms
+from ..core.exceptions import ConflictError
+from ..forms.entity_filter import forms as efilter_forms
 from ..gui.listview import ListViewState
 from ..http import CremeJsonResponse
 from ..models import EntityFilter, RelationType
@@ -126,11 +127,16 @@ class FilterMixin:
 #             raise PermissionDenied(msg)
 #
 #         return filter_
+class EntityFilterMixin(FilterMixin):
+    efilter_registry = entity_filter_registry
+
+    def get_efilter_registry(self):
+        return self.efilter_registry
 
 
 # class EntityFilterCreation(FilterCreationMixin, generic.CremeModelCreation):
 class EntityFilterCreation(base.EntityCTypeRelatedMixin,
-                           FilterMixin,
+                           EntityFilterMixin,
                            generic.CremeModelCreation):
     model = EntityFilter
     form_class = efilter_forms.EntityFilterCreateForm
@@ -152,6 +158,7 @@ class EntityFilterCreation(base.EntityCTypeRelatedMixin,
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs[self.ctype_form_kwarg] = self.get_ctype()
+        kwargs['efilter_registry'] = self.get_efilter_registry()
 
         return kwargs
 
@@ -163,7 +170,7 @@ class EntityFilterCreation(base.EntityCTypeRelatedMixin,
 
 
 # class EntityFilterEdition(FilterEditionMixin, generic.CremeModelEdition):
-class EntityFilterEdition(FilterMixin, generic.CremeModelEdition):
+class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
     model = EntityFilter
     form_class = efilter_forms.EntityFilterEditForm
     template_name = 'creme_core/forms/entity-filter.html'
@@ -181,6 +188,12 @@ class EntityFilterEdition(FilterMixin, generic.CremeModelEdition):
         self.check_filter_permissions(filter_obj=efilter, user=self.request.user)
 
         return efilter
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['efilter_registry'] = self.get_efilter_registry()
+
+        return kwargs
 
 
 # @login_required

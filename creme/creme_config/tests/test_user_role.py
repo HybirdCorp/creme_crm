@@ -288,8 +288,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             fields6 = response.context['form'].fields
             name_f = fields6['name']
             use_or_choices = fields6['use_or'].choices
-            fconds_f = fields6['fields_conditions']
-            rconds_f = fields6['relations_conditions']
+            fconds_f = fields6['regularfieldcondition']
+            rconds_f = fields6['relationcondition']
 
         self.assertNotIn('no_filter_label', fields6)
         self.assertIsInstance(name_f, CharField)
@@ -299,8 +299,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                          use_or_choices
                         )
 
-        self.assertIn('customfields_conditions', fields6)
-        self.assertIn('properties_conditions',   fields6)
+        self.assertIn('customfieldcondition', fields6)
+        self.assertIn('propertycondition',   fields6)
 
         self.assertEqual(Contact, fconds_f.model)
         self.assertEqual(Contact, rconds_f.model)
@@ -315,7 +315,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 step_key: '5',
                 '5-name': filter_name,
                 '5-use_or': 'True',
-                '5-fields_conditions': json_dump([
+                '5-regularfieldcondition': json_dump([
                     {'field':    {'name': filter_field_name},
                      'operator': {'id': str(filter_operator_id)},
                      'value':    filter_field_value,
@@ -418,9 +418,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # Step 6 ---
         with self.assertNoException():
             fields6 = response.context['form'].fields
-            fconds_f = fields6['fields_conditions']
+            fconds_f = fields6['regularfieldcondition']
 
-        self.assertNotIn('customfields_conditions', fields6)
+        self.assertNotIn('customfieldcondition', fields6)
         self.assertEqual(CremeEntity, fconds_f.model)
 
         filter_name = 'Important entities'
@@ -433,7 +433,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 step_key: '5',
                 '5-name': filter_name,
                 '5-use_or': 'True',
-                '5-fields_conditions': json_dump([
+                '5-regularfieldcondition': json_dump([
                     {'field':    {'name': filter_field_name},
                      'operator': {'id': str(filter_operator_id)},
                      'value':    filter_field_value,
@@ -496,6 +496,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(_('Add credentials to «{object}»').format(object=role),
                          context.get('title')
                         )
+        self.assertFalse(context.get('help_message'))
+
         # self.assertEqual(_('Add the credentials'), context.get('submit_label'))
         self.assertEqual(_('Next step'), context.get('submit_label'))
 
@@ -805,11 +807,20 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         # Step 2 ---
+        context = response.context
+
         with self.assertNoException():
-            fields = response.context['form'].fields
+            help_message = context['help_message']
+
+            fields = context['form'].fields
             name_f = fields['name']
             use_or_choices = fields['use_or'].choices
-            fconds_f = fields['fields_conditions']
+            fconds_f = fields['regularfieldcondition']
+
+        self.assertEqual(
+            _('Beware to performances with conditions on custom fields or relationships.'),
+            help_message
+        )
 
         self.assertIsInstance(name_f, CharField)
         self.assertEqual([(False, _('All the conditions are met')),
@@ -818,9 +829,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                          use_or_choices
                         )
 
-        self.assertIn('customfields_conditions', fields)
-        self.assertIn('relations_conditions',    fields)
-        self.assertIn('properties_conditions',   fields)
+        self.assertIn('customfieldcondition', fields)
+        self.assertIn('relationcondition',    fields)
+        self.assertIn('propertycondition',    fields)
 
         self.assertEqual(FakeContact, fconds_f.model)
 
@@ -835,7 +846,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 step_key: '1',
                 '1-name': name,
                 '1-use_or': 'False',
-                '1-fields_conditions': json_dump([
+                '1-regularfieldcondition': json_dump([
                     {'field':    {'name': field_name},
                      'operator': {'id': str(operator)},
                      'value':    value,
@@ -926,16 +937,16 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 step_key: '1',
                 '1-name': name,
                 '1-use_or': 'True',
-                '1-customfields_conditions': json_dump([
+                '1-customfieldcondition': json_dump([
                     {'field':    {'id': str(custom_field.id)},
                      'operator': {'id': str(cfield_operator)},
                      'value':    cfield_value,
                     },
                 ]),
-                '1-relations_conditions': json_dump(
+                '1-relationcondition': json_dump(
                     [{'has': True, 'rtype': rtype.id, 'ctype': 0, 'entity': None}]
                 ),
-                '1-properties_conditions': json_dump([{'has': True, 'ptype': ptype.id}])
+                '1-propertycondition': json_dump([{'has': True, 'ptype': ptype.id}])
             },
         )
         self.assertNoFormError(response)
@@ -1015,15 +1026,15 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # Step 2 ---
         with self.assertNoException():
             fields = response.context['form'].fields
-            fconds_f = fields['fields_conditions']
+            fconds_f = fields['regularfieldcondition']
 
-        self.assertIn('use_or',                  fields)
-        self.assertIn('relations_conditions',    fields)
-        self.assertIn('properties_conditions',   fields)
+        self.assertIn('use_or',            fields)
+        self.assertIn('relationcondition', fields)
+        self.assertIn('propertycondition', fields)
 
         self.assertEqual(CremeEntity, fconds_f.model)
 
-        self.assertNotIn('customfields_conditions', fields)
+        self.assertNotIn('customfieldcondition', fields)
 
         # Step 2 (POST form) ---
         name = 'My entities'
@@ -1036,7 +1047,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 step_key: '1',
                 '1-name': name,
                 '1-use_or': 'False',
-                '1-fields_conditions': json_dump([
+                '1-regularfieldcondition': json_dump([
                     {'field':    {'name': field_name},
                      'operator': {'id': str(operator)},
                      'value':    value,
@@ -1071,6 +1082,49 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual({'operator': operator, 'values': [value]},
                          condition.decoded_value
                         )
+
+    def test_add_credentials_with_filter04(self):
+        "No condition => error."
+        self.login()
+
+        role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
+        url = self._build_add_creds_url(role)
+
+        # Step 1
+        ctype = ContentType.objects.get_for_model(FakeOrganisation)
+        set_type = SetCredentials.ESET_FILTER
+        step_key = 'credentials_adding_wizard-current_step'
+        response = self.client.post(
+            url,
+            data={
+                step_key: '0',
+
+                '0-set_type':  set_type,
+                '0-ctype':     ctype.id,
+                '0-forbidden': 'False',
+
+                '0-can_view':   True,
+                '0-can_change': False,
+                '0-can_delete': False,
+                '0-can_link':   False,
+                '0-can_unlink': False,
+            },
+        )
+        self.assertNoFormError(response)
+
+        # Step 2
+        response = self.assertPOST200(
+            url,
+            data={
+                step_key: '1',
+                '1-name': 'Empty filter',
+                '1-use_or': 'False',
+            },
+        )
+        self.assertFormError(
+            response, 'form', None,
+            _('The filter must have at least one condition.'),
+        )
 
     @skipIfNotInstalled('creme.persons')
     def test_edit_credentials01(self):
@@ -1223,7 +1277,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             fields = response.context['form'].fields
             use_or_choices = fields['use_or'].choices
-            fconds_f = fields['fields_conditions']
+            fconds_f = fields['regularfieldcondition']
 
         self.assertEqual([(False, _('All the conditions are met')),
                           (True,  _('Any condition is met')),
@@ -1231,9 +1285,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                          use_or_choices
                         )
 
-        self.assertIn('customfields_conditions', fields)
-        self.assertIn('relations_conditions',    fields)
-        self.assertIn('properties_conditions',   fields)
+        self.assertIn('customfieldcondition', fields)
+        self.assertIn('relationcondition',    fields)
+        self.assertIn('propertycondition',    fields)
 
         self.assertEqual(FakeContact, fconds_f.model)
 
@@ -1248,7 +1302,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 step_key: '1',
                 '1-name': name,
                 '1-use_or': 'True',
-                '1-fields_conditions': json_dump([
+                '1-regularfieldcondition': json_dump([
                     {'field':    {'name': field_name},
                      'operator': {'id': str(operator)},
                      'value':    value,
@@ -1353,8 +1407,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             fields = response.context['form'].fields
             name_f = fields['name']
             use_or_f = fields['use_or']
-            fconds_f  = fields['fields_conditions']
-            cfconds_f = fields['customfields_conditions']
+            fconds_f  = fields['regularfieldcondition']
+            cfconds_f = fields['customfieldcondition']
 
         self.assertEqual(efilter1.name,   name_f.initial)
         self.assertEqual(efilter1.use_or, use_or_f.initial)
@@ -1377,16 +1431,16 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 step_key: '1',
                 '1-name': name,
                 '1-use_or': 'False',
-                '1-customfields_conditions': json_dump([
+                '1-customfieldcondition': json_dump([
                     {'field':    {'id': str(custom_field.id)},
                      'operator': {'id': str(cfield_operator)},
                      'value':    cfield_value,
                     },
                 ]),
-                '1-relations_conditions': json_dump(
+                '1-relationcondition': json_dump(
                     [{'has': True, 'rtype': rtype.id, 'ctype': 0, 'entity': None}]
                 ),
-                '1-properties_conditions': json_dump(
+                '1-propertycondition': json_dump(
                     [{'has': True, 'ptype': ptype.id}]
                 ),
             },
@@ -1499,7 +1553,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             fields = response.context['form'].fields
             name_f = fields['name']
-            fconds_f = fields['fields_conditions']
+            fconds_f = fields['regularfieldcondition']
 
         self.assertIsNone(name_f.initial)
 
@@ -1513,7 +1567,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 step_key: '1',
                 '1-name': name,
                 '1-use_or': 'True',
-                '1-properties_conditions': json_dump(
+                '1-propertycondition': json_dump(
                     [{'has': True, 'ptype': ptype.id}]
                 ),
             },
@@ -1665,13 +1719,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             fields = response.context['form'].fields
             name_f = fields['name']
-            fconds_f = fields['fields_conditions']
+            fconds_f = fields['regularfieldcondition']
 
-        self.assertIn('use_or',                  fields)
-        self.assertIn('relations_conditions',    fields)
-        self.assertIn('properties_conditions',   fields)
+        self.assertIn('use_or',            fields)
+        self.assertIn('relationcondition', fields)
+        self.assertIn('propertycondition', fields)
 
-        self.assertNotIn('customfields_conditions', fields)
+        self.assertNotIn('customfieldcondition', fields)
 
         self.assertEqual(efilter1.name, name_f.initial)
 
@@ -1686,7 +1740,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 step_key: '1',
                 '1-name': name,
                 '1-use_or': 'True',
-                '1-properties_conditions': json_dump([{'has': True, 'ptype': ptype.id}])
+                '1-propertycondition': json_dump([{'has': True, 'ptype': ptype.id}])
             },
         )
         self.assertNoFormError(response)
@@ -1757,7 +1811,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 step_key: '1',
                 '1-name': name,
                 '1-use_or': 'False',
-                '1-fields_conditions': json_dump([
+                '1-regularfieldcondition': json_dump([
                     {'field':    {'name': field_name},
                      'operator': {'id': str(operator)},
                      'value':    value,
@@ -1844,7 +1898,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             fields = response.context['form'].fields
             name_f = fields['name']
-            fconds_f = fields['fields_conditions']
+            fconds_f = fields['regularfieldcondition']
 
         self.assertEqual(efilter1.name, name_f.initial)
 

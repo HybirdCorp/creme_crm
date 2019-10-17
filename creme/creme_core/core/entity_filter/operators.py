@@ -106,11 +106,11 @@ class ConditionOperator:
     # Integer ID (see EQUALS & its friends) used for registration.
     type_id = None
 
-    # Used in forms to configure the condition (see creme_core/forms/entity_filter.py)
+    # Used in forms to configure the condition (see creme_core/forms/forms.py)
     verbose_name = ''
 
     # Sequence of strings used by the form fields/widgets to know which
-    # operators to propose for a given model-field (see creme_core/forms/entity_filter.py).
+    # operators to propose for a given model-field (see creme_core/forms/forms.py).
     allowed_fieldtypes = ()
 
     # Boolean ;  <True> means that the operand given by the user should not be
@@ -608,3 +608,30 @@ class RangeOperator(ConditionOperator):
 #     ISEMPTY:         _IsEmptyOperator(_(u'Is empty'), allowed_fieldtypes=_FIELDTYPES_NULLABLE),
 #     RANGE:           _RangeOperator(_(u'Range')),
 # }
+all_operators = (
+    EqualsOperator,
+    EqualsNotOperator,
+
+    GTOperator,
+    GTEOperator,
+    LTOperator,
+    LTEOperator,
+
+    IEqualsOperator,
+    IEqualsNotOperator,
+    ContainsOperator,
+    ContainsNotOperator,
+    IContainsOperator,
+    IContainsNotOperator,
+    StartsWithOperator,
+    StartswithNotOperator,
+    IStartsWithOperator,
+    IStartswithNotOperator,
+    EndsWithOperator,
+    EndsWithNotOperator,
+    IEndsWithOperator,
+    IEndsWithNotOperator,
+
+    IsEmptyOperator,
+    RangeOperator,
+)

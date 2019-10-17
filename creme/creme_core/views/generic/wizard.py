@@ -146,6 +146,7 @@ class CremeWizardView(base.TitleMixin,
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
         context['title'] = getattr(form, 'step_title', '') or self.get_title()
+        context['help_message'] = getattr(form, 'step_help_message', '')
 
         context['prev_label']  = getattr(form, 'step_prev_label',  self.step_prev_label)
         context['first_label'] = getattr(form, 'step_first_label', self.step_first_label)
