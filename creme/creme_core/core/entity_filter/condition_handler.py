@@ -42,6 +42,7 @@ from creme.creme_core.models import (
     RelationType, Relation,
 )
 from creme.creme_core.models.custom_field import _TABLES
+from creme.creme_core.forms.entity_filter import fields as ef_fields
 from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.utils.dates import make_aware_dt, date_2_dict
 from creme.creme_core.utils.meta import is_date_field, FieldInfo
@@ -105,12 +106,12 @@ class FilterConditionHandler:
         "Get an instance of FilterConditionHandler from serialized data."
         raise NotImplementedError
 
-    def entities_are_distinct(self):
-        return True
-
     def description(self, user):
         "Human-readable string explaining the handler."
         raise NotImplementedError
+
+    def entities_are_distinct(self):
+        return True
 
     @property
     def error(self):
@@ -119,6 +120,10 @@ class FilterConditionHandler:
         """
         return None
 
+    @classmethod
+    def formfield(cls, form_class=None, **kwargs):
+        raise NotImplementedError
+
     def get_q(self, user):
         """Get the query which filter the entities with the expected behaviour.
 
@@ -126,7 +131,7 @@ class FilterConditionHandler:
                used to check credentials.
         @return: An instance of <django.models.Q>.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def model(self):
@@ -234,6 +239,12 @@ class SubFilterConditionHandler(FilterConditionHandler):
     def error(self):
         if self.subfilter is False:
             return "'{}' is not a valid filter ID".format(self.subfilter_id)
+
+    @classmethod
+    def formfield(cls, form_class=ef_fields.SubfiltersConditionsField, **kwargs):
+        defaults = {'label': _('Sub-filters'), **kwargs}
+
+        return form_class(**defaults)
 
     def get_q(self, user):
         return self.subfilter.get_q(user)
@@ -479,6 +490,16 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
 
         return self._check_operator(self._operator_id)
 
+    @classmethod
+    def formfield(cls, form_class=ef_fields.RegularFieldsConditionsField, **kwargs):
+        defaults = {
+            'label': _('On regular fields'),
+            'help_text': _('You can write several values, separated by commas.'),
+            **kwargs
+        }
+
+        return form_class(**defaults)
+
     def get_q(self, user):
         operator = self.get_operator(self._operator_id)
         values = self.resolve_operands(values=self._values, user=user)
@@ -675,6 +696,12 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
     @property
     def error(self):
         return self._check_field(model=self._model, field_name=self._field_name)
+
+    @classmethod
+    def formfield(cls, form_class=ef_fields.DateFieldsConditionsField, **kwargs):
+        defaults = {'label': _('On date fields'), **kwargs}
+
+        return form_class(**defaults)
 
     def get_q(self, user):
         return Q(**self._get_date_range().get_q_dict(field=self._field_name, now=now()))
@@ -924,6 +951,12 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
     def error(self):
         return self._check_operator(self._operator_id) or super().error
 
+    @classmethod
+    def formfield(cls, form_class=ef_fields.CustomFieldsConditionsField, **kwargs):
+        defaults = {'label': _('On custom fields'), **kwargs}
+
+        return form_class(**defaults)
+
     def get_q(self, user):
         # NB: Sadly we retrieve the ids of the entity that match with this condition
         #     instead of use a 'JOIN', in order to avoid the interaction between
@@ -1040,6 +1073,12 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
             return '???'
 
         return self._datefield_description(verbose_field=cfield.name)
+
+    @classmethod
+    def formfield(cls, form_class=ef_fields.DateCustomFieldsConditionsField, **kwargs):
+        defaults = {'label': _('On date custom fields'), **kwargs}
+
+        return form_class(**defaults)
 
     def get_q(self, user):
         # NB: see CustomFieldConditionHandler.get_q() remark
@@ -1244,6 +1283,16 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
         return entity
 
+    @classmethod
+    def formfield(cls, form_class=ef_fields.RelationsConditionsField, **kwargs):
+        defaults = {
+            'label': _('On relationships'),
+            'help_text': _('Do not select any entity if you want to match them all.'),
+            **kwargs
+        }
+
+        return form_class(**defaults)
+
     # TODO: use a filter "relations__*" when there is only one condition on Relations ??
     def get_q(self, user):
         kwargs = {'type': self._rtype_id}
@@ -1355,6 +1404,15 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
         if self.subfilter is False:
             return "'{}' is not a valid filter ID".format(self.subfilter_id)
 
+    @classmethod
+    def formfield(cls, form_class=ef_fields.RelationSubfiltersConditionsField, **kwargs):
+        defaults = {
+            'label': _('On relationships with results of other filters'),
+            **kwargs
+        }
+
+        return form_class(**defaults)
+
     # TODO: use a filter "relations__*" when there is only one condition on Relations ??
     def get_q(self, user):
         subfilter = self.subfilter
@@ -1451,6 +1509,12 @@ class PropertyConditionHandler(FilterConditionHandler):
     def description(self, user):
         ptype = self.property_type
         return self.DESCRIPTION_FORMATS[self._exclude].format(ptype) if ptype else '???'
+
+    @classmethod
+    def formfield(cls, form_class=ef_fields.PropertiesConditionsField, **kwargs):
+        defaults = {'label': _('On properties'), **kwargs}
+
+        return form_class(**defaults)
 
     # TODO: see remark on RelationConditionHandler._get_q()
     def get_q(self, user):

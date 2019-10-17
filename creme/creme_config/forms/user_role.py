@@ -31,11 +31,16 @@ from creme.creme_core.apps import (
     CremeAppConfig,
 )
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_filter import (
+    credentials_efilter_registry,
+    condition_handler,
+)
 from creme.creme_core.forms import (
     CremeForm, CremeModelForm, FieldBlockManager,
     MultiEntityCTypeChoiceField,
-    entity_filter as ef_forms,
+    # entity_filter as ef_forms,
 )
+from creme.creme_core.forms.entity_filter import fields as ef_fields
 from creme.creme_core.forms.widgets import Label, DynamicSelect, CremeRadioSelect
 from creme.creme_core.models import (
     CremeEntity,
@@ -193,51 +198,44 @@ class CredentialsFilterStep(CremeModelForm):
     name   = EntityFilter._meta.get_field('name').formfield(label=_('Name of the filter'))
     use_or = EntityFilter._meta.get_field('use_or').formfield(widget=CremeRadioSelect)
 
-    fields_conditions = ef_forms.RegularFieldsConditionsField(
-        label=_('On regular fields'), required=False,
-        help_text=_('You can write several values, separated by commas.'),
-    )
-    customfields_conditions = ef_forms.CustomFieldsConditionsField(
-        label=_('On custom fields'), required=False,
-        help_text=_('Beware to performances.'),
-    )
-    relations_conditions = ef_forms.RelationsConditionsField(
-        label=_('On relationships'), required=False,
-        help_text=_('Do not select any entity if you want to match them all. '
-                    'Beware to performances.'
-                   ),
-    )
-    properties_conditions = ef_forms.PropertiesConditionsField(
-        label=_('On properties'), required=False,
-    )
-
     class Meta:
         model = SetCredentials
         fields = ()
 
-    _CONDITIONS_FIELD_NAMES = (
-        'fields_conditions',
-        'customfields_conditions',
-        'relations_conditions',
-        'properties_conditions',
-    )
+    error_messages = {
+        'no_condition': _('The filter must have at least one condition.'),
+    }
 
     blocks = FieldBlockManager(
-        ('general',    _('Filter'),     '*'),
-        ('conditions', _('Conditions'), _CONDITIONS_FIELD_NAMES),
+        ('general',    _('Filter'),     ('name', 'use_or')),
+        ('conditions', _('Conditions'), '*'),
     )
 
-    def __init__(self, *args, **kwargs):
+    step_help_message = _('Beware to performances with conditions on custom fields or relationships.')
+
+    # TODO: API for this in handlers ??
+    no_entity_base_handlers = (
+        condition_handler.CustomFieldConditionHandler,
+        condition_handler.DateCustomFieldConditionHandler,
+    )
+
+    def __init__(self, efilter_registry=credentials_efilter_registry, *args, **kwargs):
         super().__init__(*args, **kwargs)
         fields = self.fields
+        self.conditions_field_names = fnames = []
 
         if self.instance.set_type == SetCredentials.ESET_FILTER:
             instance = self.instance
             ctype = instance.ctype
 
             if ctype is None:
-                del fields['customfields_conditions']
                 ctype = ContentType.objects.get_for_model(CremeEntity)
+                handler_classes = (
+                    cls for cls in efilter_registry.handler_classes
+                        if not issubclass(cls, self.no_entity_base_handlers)
+                )
+            else:
+                handler_classes = efilter_registry.handler_classes
 
             efilter = self.instance.efilter
 
@@ -255,11 +253,20 @@ class CredentialsFilterStep(CremeModelForm):
             else:
                 f_init_args = (ctype,)
 
-            for field_name in self._CONDITIONS_FIELD_NAMES:
-                field = fields.get(field_name)
+            f_kwargs = {
+                'user': self.user,
+                'required': False,
+                'efilter_registry': efilter_registry,
+            }
+            handler_fieldname = self._handler_fieldname
+            for handler_cls in handler_classes:
+                fname = handler_fieldname(handler_cls)
 
-                if field:
-                    field.initialize(*f_init_args)
+                field = handler_cls.formfield(**f_kwargs)
+                field.initialize(*f_init_args)
+
+                fields[fname] = field
+                fnames.append(fname)
         else:
             fields.clear()
             fields['no_filter_label'] = forms.CharField(
@@ -268,14 +275,30 @@ class CredentialsFilterStep(CremeModelForm):
                 initial=_('No filter, no condition.'),
             )
 
+    def clean(self):
+        cdata = super().clean()
+
+        if not self._errors:
+            fnames = self.conditions_field_names
+
+            if fnames and not any(cdata[f] for f in fnames):
+                raise ValidationError(self.error_messages['no_condition'],
+                                      code='no_condition',
+                                     )
+
+        return cdata
+
     def get_cleaned_conditions(self):
         cdata = self.cleaned_data
         conditions = []
 
-        for fname in self._CONDITIONS_FIELD_NAMES:
-            conditions.extend(cdata.get(fname, ()))
+        for fname in self.conditions_field_names:
+            conditions.extend(cdata[fname])
 
         return conditions
+
+    def _handler_fieldname(self, handler_cls):
+        return handler_cls.__name__.lower().replace('handler', '')
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -573,8 +596,8 @@ class UserRoleCredentialsGeneralStep(CredentialsGeneralStep):
 
 class UserRoleCredentialsFilterStep(CredentialsFilterStep):
     blocks = FieldBlockManager(
-        ('general',    _('First credentials: filter'),     '*'),
-        ('conditions', _('First credentials: conditions'), CredentialsFilterStep._CONDITIONS_FIELD_NAMES),
+        ('general',    _('First credentials: filter'),     ('name', 'use_or')),
+        ('conditions', _('First credentials: conditions'), '*'),
     )
 
     def __init__(self, role, *args, **kwargs):

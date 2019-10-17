@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-14 17:49+0200\n"
+"POT-Creation-Date: 2019-10-17 17:48+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -537,25 +537,25 @@ msgstr "Choisissez un utilisateur auquel transférer"
 msgid "Teams"
 msgstr "Équipes"
 
-#: forms/user_role.py:115
+#: forms/user_role.py:120
 msgid "View"
 msgstr "Voir"
 
-#: forms/user_role.py:116
+#: forms/user_role.py:121
 msgid "Change"
 msgstr "Changer"
 
-#: forms/user_role.py:117
+#: forms/user_role.py:122
 #: templates/creme_config/bricks/configurable-model.html:70
 #: templates/creme_config/bricks/user-roles.html:77
 msgid "Delete"
 msgstr "Supprimer"
 
-#: forms/user_role.py:120
+#: forms/user_role.py:125
 msgid "Link"
 msgstr "Lier"
 
-#: forms/user_role.py:121
+#: forms/user_role.py:126
 msgid ""
 "You must have the permission to link on 2 entities to create a relationship "
 "between them. Beware: if you use «Filtered entities», you won't be able to "
@@ -566,11 +566,11 @@ msgstr ""
 "pas ajouter de relations dans les formulaires de création (vous devrez les "
 "ajouter plus tard)."
 
-#: forms/user_role.py:129
+#: forms/user_role.py:134
 msgid "Unlink"
 msgstr "Délier"
 
-#: forms/user_role.py:130
+#: forms/user_role.py:135
 msgid ""
 "You must have the permission to unlink on 2 entities to delete a "
 "relationship between them."
@@ -579,11 +579,11 @@ msgstr ""
 "entre elles."
 
 # Already in creme_core
-#: forms/user_role.py:145
+#: forms/user_role.py:150
 msgid "General information"
 msgstr ""
 
-#: forms/user_role.py:146
+#: forms/user_role.py:151
 #: templates/creme_config/bricks/configurable-model.html:35
 #: templates/creme_config/bricks/custombricks-configs.html:19
 #: templates/creme_config/bricks/fields-configs.html:19
@@ -596,94 +596,68 @@ msgstr ""
 msgid "Actions"
 msgstr "Actions"
 
-#: forms/user_role.py:163
+#: forms/user_role.py:168
 msgctxt "content_type"
 msgid "None"
 msgstr "Aucun"
 
-#: forms/user_role.py:178
+#: forms/user_role.py:183
 msgid "No action has been selected."
 msgstr "Aucune action n'a été sélectionnée."
 
-#: forms/user_role.py:193
+#: forms/user_role.py:198
 msgid "Name of the filter"
 msgstr "Nom du filtre"
 
 # Already in creme_core
-#: forms/user_role.py:197
-msgid "On regular fields"
-msgstr ""
-
-# Already in creme_core
-#: forms/user_role.py:198
-msgid "You can write several values, separated by commas."
-msgstr ""
-
-# Already in creme_core
-#: forms/user_role.py:201
-msgid "On custom fields"
-msgstr ""
-
-#: forms/user_role.py:202
-msgid "Beware to performances."
-msgstr "Attention aux performances"
-
-# Already in creme_core
-#: forms/user_role.py:205
-msgid "On relationships"
-msgstr ""
-
-# Already in creme_core
 #: forms/user_role.py:206
-msgid ""
-"Do not select any entity if you want to match them all. Beware to "
-"performances."
-msgstr ""
-"Ne sélectionnez aucune fiche si vous voulez chercher parmi toutes. Attention "
-"aux performances."
-
-# Already in creme_core
-#: forms/user_role.py:211
-msgid "On properties"
+msgid "The filter must have at least one condition."
 msgstr ""
 
 # Already in creme_core
-#: forms/user_role.py:226
+#: forms/user_role.py:210
 msgid "Filter"
 msgstr ""
 
 # Already in creme_core
-#: forms/user_role.py:227 forms/user_role.py:266
+#: forms/user_role.py:211 forms/user_role.py:273
 msgid "Conditions"
 msgstr ""
 
-#: forms/user_role.py:268
+#: forms/user_role.py:214
+msgid ""
+"Beware to performances with conditions on custom fields or relationships."
+msgstr ""
+"Attention aux performances avec les conditions sur les champs personnalisés "
+"ou sur les relations."
+
+#: forms/user_role.py:275
 msgid "No filter, no condition."
 msgstr "Pas de filtre, pas de condition."
 
-#: forms/user_role.py:351
+#: forms/user_role.py:374
 msgid "Choose a role to transfer to"
 msgstr "Choisissez un rôle auquel transférer"
 
-#: forms/user_role.py:356
+#: forms/user_role.py:379
 msgid "Information"
 msgstr "Informations"
 
-#: forms/user_role.py:357
+#: forms/user_role.py:380
 msgid "This role is not used by any user, you can delete it safely."
 msgstr ""
 "Ce rôle n'est utilisé par aucun utilisateur, vous pouvez le supprimer en "
 "toute sécurité."
 
-#: forms/user_role.py:397 templates/creme_config/bricks/user-roles.html:24
+#: forms/user_role.py:420 templates/creme_config/bricks/user-roles.html:24
 msgid "Allowed applications"
 msgstr "Applications autorisées"
 
-#: forms/user_role.py:434 templates/creme_config/bricks/user-roles.html:25
+#: forms/user_role.py:457 templates/creme_config/bricks/user-roles.html:25
 msgid "Administrated applications"
 msgstr "Applications administrées"
 
-#: forms/user_role.py:435
+#: forms/user_role.py:458
 msgid ""
 "These applications can be configured. For example, the concerned users can "
 "create new choices available in forms (eg: position for contacts)."
@@ -692,15 +666,15 @@ msgstr ""
 "concernés peuvent créer de nouveaux choix disponibles dans les formulaires "
 "(ex: la fonction pour les contacts)."
 
-#: forms/user_role.py:473
+#: forms/user_role.py:496
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: forms/user_role.py:499
+#: forms/user_role.py:522
 msgid "Exportable resources"
 msgstr "Ressources exportables"
 
-#: forms/user_role.py:500
+#: forms/user_role.py:523
 msgid ""
 "This types of entities can be downloaded as CSV/XLS files (in the "
 "corresponding list-views)."
@@ -708,23 +682,23 @@ msgstr ""
 "Ces types de fiches peuvent être téléchargés en tant que fichiers CSV/XLS "
 "(dans les vues en liste correspondantes)."
 
-#: forms/user_role.py:547
+#: forms/user_role.py:570
 msgid "First credentials: main information"
 msgstr "Premiers droits : informations principales"
 
-#: forms/user_role.py:548
+#: forms/user_role.py:571
 msgid "First credentials: actions"
 msgstr "Premiers droits : actions"
 
-#: forms/user_role.py:560
+#: forms/user_role.py:583
 msgid "Yes"
 msgstr "Oui"
 
-#: forms/user_role.py:576
+#: forms/user_role.py:599
 msgid "First credentials: filter"
 msgstr "Premiers droits : filtre"
 
-#: forms/user_role.py:577
+#: forms/user_role.py:600
 msgid "First credentials: conditions"
 msgstr "Premiers droits : conditions"
 

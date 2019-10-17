@@ -86,3 +86,8 @@ class CurrentUserOperand(ConditionDynamicOperand):
 
         # return field.formfield().clean(value)
         field.formfield().clean(value)
+
+
+all_operands = (
+    CurrentUserOperand,
+)

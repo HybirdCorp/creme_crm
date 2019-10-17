@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-10 19:19+0200\n"
+"POT-Creation-Date: 2019-10-17 17:51+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -76,57 +76,57 @@ msgstr "Ajout de relation multiple"
 msgid "Merge 2 entities"
 msgstr "Fusionner 2 fiches"
 
-#: apps.py:289
+#: apps.py:298
 msgid "Core"
 msgstr "Cœur"
 
-#: apps.py:329 templates/creme_core/header/menu-base.html:4
+#: apps.py:338 templates/creme_core/header/menu-base.html:4
 #: templates/creme_core/header/menu-base.html:9
 #: templates/creme_core/home.html:4 templates/creme_core/home.html:12
 msgid "Home"
 msgstr "Accueil"
 
-#: apps.py:331 models/auth.py:783 models/job.py:83
+#: apps.py:340 models/auth.py:783 models/job.py:83
 #: templates/creme_core/bricks/imprints.html:17
 #: templates/creme_core/bricks/job.html:60
 msgid "User"
 msgstr "Utilisateur"
 
-#: apps.py:332 templates/creme_core/my_page.html:4
+#: apps.py:341 templates/creme_core/my_page.html:4
 #: templates/creme_core/my_page.html:12
 msgid "My page"
 msgstr "Ma page"
 
-#: apps.py:335 templates/creme_core/bricks/jobs-mine.html:7
+#: apps.py:344 templates/creme_core/bricks/jobs-mine.html:7
 #: templates/creme_core/job/list-mine.html:4
 msgid "My jobs"
 msgstr "Mes jobs"
 
-#: apps.py:340
+#: apps.py:349
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: apps.py:344
+#: apps.py:353
 msgid "Tools"
 msgstr "Outils"
 
-#: apps.py:346 models/job.py:104 templates/creme_core/bricks/jobs-all.html:18
+#: apps.py:355 models/job.py:104 templates/creme_core/bricks/jobs-all.html:18
 msgid "Jobs"
 msgstr "Jobs"
 
-#: apps.py:354
+#: apps.py:363
 msgid "+ Creation"
 msgstr "+ Création"
 
-#: apps.py:355
+#: apps.py:364
 msgid "Main entities"
 msgstr "Fiches principales"
 
-#: apps.py:357
+#: apps.py:366
 msgid "Other type of entity"
 msgstr "Autre type de fiche"
 
-#: apps.py:360
+#: apps.py:369
 msgid "Recent entities"
 msgstr "Fiches récentes"
 
@@ -177,13 +177,13 @@ msgstr "Fichier XLSX"
 msgid "XLSX file extension introduced by Microsoft Excel 2007."
 msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 
-#: bricks.py:43 forms/base.py:302 forms/base.py:335 forms/mass_import.py:1185
+#: bricks.py:43 forms/base.py:307 forms/base.py:341 forms/mass_import.py:1185
 #: function_fields.py:48 models/creme_property.py:230
 #: templates/creme_core/bricks/properties.html:7
 msgid "Properties"
 msgstr "Propriétés"
 
-#: bricks.py:60 forms/base.py:336 forms/relation.py:37 gui/bricks.py:410
+#: bricks.py:60 forms/base.py:342 forms/relation.py:37 gui/bricks.py:410
 #: models/relation.py:376 templates/creme_core/bricks/relations.html:7
 #: templates/creme_core/forms/widgets/entity-cells.html:83
 msgid "Relationships"
@@ -332,78 +332,118 @@ msgstr "Dans «{model} - {field}», remplacer par une valeur de secours"
 msgid "Actions"
 msgstr "Actions"
 
-#: core/entity_filter/condition_handler.py:178
+#: core/entity_filter/condition_handler.py:183
 msgid "Entities are accepted by the filter «{}»"
 msgstr "Les fiches sont acceptées par le filtre «{}»"
 
-#: core/entity_filter/condition_handler.py:535
+#: core/entity_filter/condition_handler.py:245
+msgid "Sub-filters"
+msgstr "Sous-filtres"
+
+#: core/entity_filter/condition_handler.py:496
+msgid "On regular fields"
+msgstr "Sur les champs normaux"
+
+#: core/entity_filter/condition_handler.py:497
+msgid "You can write several values, separated by commas."
+msgstr "Vous pouvez écrire plusieurs valeurs, séparées par des virgules."
+
+#: core/entity_filter/condition_handler.py:556
 #, python-brace-format
 msgid "«{field}» is «{value}»"
 msgstr "«{field}» vaut «{value}»"
 
-#: core/entity_filter/condition_handler.py:544
+#: core/entity_filter/condition_handler.py:565
 #: core/entity_filter/operators.py:556
 #, python-brace-format
 msgid "«{field}» is between «{start}» and «{end}»"
 msgstr "«{field}» est entre «{start}» et «{end}»"
 
-#: core/entity_filter/condition_handler.py:549
+#: core/entity_filter/condition_handler.py:570
 #, python-brace-format
 msgid "«{field}» starts «{date}»"
 msgstr "«{field}» commence le «{date}»"
 
-#: core/entity_filter/condition_handler.py:555
+#: core/entity_filter/condition_handler.py:576
 #, python-brace-format
 msgid "«{field}» ends «{date}»"
 msgstr "«{field}» finit le «{date}»"
 
-#: core/entity_filter/condition_handler.py:1098
+#: core/entity_filter/condition_handler.py:702
+msgid "On date fields"
+msgstr "Sur les champs de date"
+
+#: core/entity_filter/condition_handler.py:956
+msgid "On custom fields"
+msgstr "Sur les champs personnalisés"
+
+#: core/entity_filter/condition_handler.py:1079
+msgid "On date custom fields"
+msgstr "Sur les champs personnalisés de date"
+
+#: core/entity_filter/condition_handler.py:1137
 #, python-brace-format
 msgid "The entities have relationships «{predicate}»"
 msgstr "Les fiches ont des relations «{predicate}»"
 
-#: core/entity_filter/condition_handler.py:1099
+#: core/entity_filter/condition_handler.py:1138
 #, python-brace-format
 msgid "The entities have no relationship «{predicate}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}»"
 
-#: core/entity_filter/condition_handler.py:1102
+#: core/entity_filter/condition_handler.py:1141
 #, python-brace-format
 msgid "The entities have relationships «{predicate}» to «{model}»"
 msgstr "Les fiches ont des relations «{predicate}» vers «{model}»"
 
-#: core/entity_filter/condition_handler.py:1103
+#: core/entity_filter/condition_handler.py:1142
 #, python-brace-format
 msgid "The entities have no relationship «{predicate}» to «{model}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}» vers «{model}»"
 
-#: core/entity_filter/condition_handler.py:1106
+#: core/entity_filter/condition_handler.py:1145
 #, python-brace-format
 msgid "The entities have relationships «{predicate}» to «{entity}»"
 msgstr "Les fiches ont des relations «{predicate}» vers «{entity}»"
 
-#: core/entity_filter/condition_handler.py:1107
+#: core/entity_filter/condition_handler.py:1146
 #, python-brace-format
 msgid "The entities have no relationship «{predicate}» to «{entity}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}» vers «{entity}»"
 
-#: core/entity_filter/condition_handler.py:1275
+#: core/entity_filter/condition_handler.py:1289
+msgid "On relationships"
+msgstr "Sur les relations"
+
+#: core/entity_filter/condition_handler.py:1290
+msgid "Do not select any entity if you want to match them all."
+msgstr "Ne sélectionnez aucune fiche si vous voulez chercher parmi toutes."
+
+#: core/entity_filter/condition_handler.py:1324
 #, python-brace-format
 msgid "The entities have relationships «{predicate}» to «{filter}»"
 msgstr "Les fiches ont des relations «{predicate}» vers «{filter}»"
 
-#: core/entity_filter/condition_handler.py:1276
+#: core/entity_filter/condition_handler.py:1325
 #, python-brace-format
 msgid "The entities have no relationship «{predicate}» to «{filter}»"
 msgstr "Les fiches n'ont pas de relation «{predicate}» vers «{filter}»"
 
-#: core/entity_filter/condition_handler.py:1394
+#: core/entity_filter/condition_handler.py:1410
+msgid "On relationships with results of other filters"
+msgstr "Sur les relations avec les résultats d'autres filtres"
+
+#: core/entity_filter/condition_handler.py:1452
 msgid "The entities have the property «{}»"
 msgstr "Les fiches ont la propriété «{}»"
 
-#: core/entity_filter/condition_handler.py:1395
+#: core/entity_filter/condition_handler.py:1453
 msgid "The entities have no property «{}»"
 msgstr "Les fiches n'ont pas la propriété «{}»"
+
+#: core/entity_filter/condition_handler.py:1515
+msgid "On properties"
+msgstr "Sur les propriétés"
 
 #: core/entity_filter/operands.py:59
 msgid "Current user"
@@ -653,7 +693,7 @@ msgstr ""
 msgid "Original error: {}"
 msgstr "Erreur originale : {}"
 
-#: core/setting_key.py:36
+#: core/setting_key.py:35
 #, python-brace-format
 msgid "{hour}h"
 msgstr "{hour}h"
@@ -821,30 +861,30 @@ msgstr "Supprimer les vieux fichiers temporaires"
 msgid "Private ({})"
 msgstr "Privé ({})"
 
-#: forms/base.py:216 forms/base.py:245 forms/relation.py:240
-#: templates/creme_core/bricks/ptype-info.html:11
+#: forms/base.py:221 forms/base.py:250 forms/entity_filter/forms.py:60
+#: forms/relation.py:240 templates/creme_core/bricks/ptype-info.html:11
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:282 forms/mass_import.py:1182 models/entity.py:72
+#: forms/base.py:287 forms/mass_import.py:1182 models/entity.py:72
 #: models/entity_filter.py:108 models/header_filter.py:73
 #: models/relation.py:364
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
 
-#: forms/base.py:307
+#: forms/base.py:312
 msgid "Information on relationships"
 msgstr "Informations sur les relations"
 
-#: forms/base.py:312
+#: forms/base.py:317
 msgid "Relationships to add"
 msgstr "Relations à ajouter"
 
-#: forms/base.py:317 forms/relation.py:38 models/relation.py:448
+#: forms/base.py:322 forms/relation.py:38 models/relation.py:448
 msgid "Semi-fixed types of relationship"
 msgstr "Types de relation semi-fixés"
 
-#: forms/base.py:325
+#: forms/base.py:330
 #, python-format
 msgid ""
 "The property «%(property)s» is mandatory in order to use the relationship "
@@ -853,7 +893,7 @@ msgstr ""
 "La propriété «%(property)s» est obligatoire pour pouvoir utiliser la "
 "relation «%(predicate)s»"
 
-#: forms/base.py:328
+#: forms/base.py:333
 #, python-format
 msgid ""
 "These properties are mandatory in order to use the relationship "
@@ -862,25 +902,30 @@ msgstr ""
 "Ces propriétés sont obligatoires pour pouvoir utiliser la relation "
 "«%(predicate)s» : %(properties)s"
 
-#: forms/base.py:331
+#: forms/base.py:336
 msgid "You are not allowed to link the created entity (wrong owner?)."
 msgstr ""
 "Vous n'êtes pas autorisé à relier la fiche créée (mauvais propriétaire ?)"
 
-#: forms/base.py:408
+#: forms/base.py:340 models/entity.py:74
+#: templates/creme_core/bricks/job.html:65
+msgid "Description"
+msgstr "Description"
+
+#: forms/base.py:414
 #, python-brace-format
 msgid "This relationship will be added: {predicate} «{entity}»"
 msgstr "Cette relation va être ajoutée : {predicate} «{entity}»"
 
-#: forms/base.py:414
+#: forms/base.py:420
 msgid "These relationships will be added: {}"
 msgstr "Ces relations vont être ajoutées : {}"
 
-#: forms/base.py:446
+#: forms/base.py:452
 msgid "You are not allowed to link this kind of entity."
 msgstr "Vous n'êtes pas autorisé à relier ce type de fiche."
 
-#: forms/batch_process.py:79 forms/entity_filter.py:534
+#: forms/batch_process.py:79 forms/entity_filter/fields.py:105
 msgid "This field is invalid with this model."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
@@ -889,8 +934,8 @@ msgstr "Ce champ n'existe pas dans ce type de fiche."
 msgid "The field «%(field)s» can not be used twice."
 msgstr "Le champ «%(field)s» ne peut pas être utilisé deux fois."
 
-#: forms/batch_process.py:81 forms/entity_filter.py:535
-#: forms/entity_filter.py:872
+#: forms/batch_process.py:81 forms/entity_filter/fields.py:106
+#: forms/entity_filter/fields.py:443
 msgid "This operator is invalid."
 msgstr "Cette opérateur est invalide."
 
@@ -912,7 +957,7 @@ msgstr "Filtre"
 #: templates/creme_core/listview/search-widgets/boolean.html:3
 #: templates/creme_core/templatetags/listview/entity-filters.html:7
 #: templates/creme_core/templatetags/search-form.html:7
-#: views/entity_filter.py:218 views/entity_filter.py:242
+#: views/entity_filter.py:262 views/entity_filter.py:286
 msgid "All"
 msgstr "Tout"
 
@@ -940,141 +985,101 @@ msgstr "AUCUNE !"
 msgid "Uneditable entities"
 msgstr "Fiches non modifiables"
 
-#: forms/entity_filter.py:74
-msgid "True"
-msgstr "Vrai"
-
-#: forms/entity_filter.py:75
-msgid "False"
-msgstr "Faux"
-
-#: forms/entity_filter.py:78
-msgid "Has the property"
-msgstr "A la propriété"
-
-#: forms/entity_filter.py:79
-msgid "Does not have the property"
-msgstr "N'a pas la propriété"
-
-#: forms/entity_filter.py:82
-msgid "Has the relationship"
-msgstr "A la relation"
-
-#: forms/entity_filter.py:83
-msgid "Does not have the relationship"
-msgstr "N'a pas la relation"
-
-#: forms/entity_filter.py:386
-msgid "No custom field at present."
-msgstr "Aucun champ personnalisé pour le moment."
-
-#: forms/entity_filter.py:410
-msgid "No date custom field at present."
-msgstr "Aucun champ personnalisé de date pour le moment."
-
-#: forms/entity_filter.py:478
-msgid "(no filter)"
-msgstr "(pas de filtre)"
-
-#: forms/entity_filter.py:536 forms/entity_filter.py:873
+#: forms/entity_filter/fields.py:107 forms/entity_filter/fields.py:444
 msgid "This value is invalid."
 msgstr "Cette valeur est invalide."
 
-#: forms/entity_filter.py:709
+#: forms/entity_filter/fields.py:280
 msgid "This field is not a date field for this model."
 msgstr "Ce champ date n'existe pas dans ce type de fiche."
 
-#: forms/entity_filter.py:710
+#: forms/entity_filter/fields.py:281
 msgid "This date range is invalid."
 msgstr "Cet interval de date n'est pas valide."
 
-#: forms/entity_filter.py:711
+#: forms/entity_filter/fields.py:282
 msgid "Please enter a start date and/or a end date."
 msgstr "Veuillez une date de début et/ou de fin."
 
-#: forms/entity_filter.py:871
+#: forms/entity_filter/fields.py:442
 msgid "This custom field is invalid with this model."
 msgstr "Ce champ personnalisé est invalide pour ce type de fiche."
 
-#: forms/entity_filter.py:1008
+#: forms/entity_filter/fields.py:579
 msgid "This date custom field is invalid with this model."
 msgstr "Ce champ personnalisé de date est invalide pour ce type de fiche."
 
-#: forms/entity_filter.py:1086
+#: forms/entity_filter/fields.py:657
 msgid "This type of relationship type is invalid with this model."
 msgstr "Cette relation est invalide avec ce type de fiche."
 
-#: forms/entity_filter.py:1087
+#: forms/entity_filter/fields.py:658
 msgid "This content type is invalid."
 msgstr "Ce type de resource n'est pas autorisé."
 
-#: forms/entity_filter.py:1088
+#: forms/entity_filter/fields.py:659
 msgid "This entity is invalid."
 msgstr "Cette fiche est invalide."
 
-#: forms/entity_filter.py:1210 forms/fields.py:1001
+#: forms/entity_filter/fields.py:782 forms/fields.py:1001
 msgid "This filter is invalid."
 msgstr "Ce filtre est invalide."
 
-#: forms/entity_filter.py:1273
+#: forms/entity_filter/fields.py:847
 msgid "This property type is invalid with this model."
 msgstr "Ce type de propriété est invalide avec ce type de fiche."
 
-#: forms/entity_filter.py:1354
-msgid "On regular fields"
-msgstr "Sur les champs normaux"
-
-#: forms/entity_filter.py:1355
-msgid "You can write several values, separated by commas."
-msgstr "Vous pouvez écrire plusieurs valeurs, séparées par des virgules."
-
-#: forms/entity_filter.py:1357
-msgid "On date fields"
-msgstr "Sur les champs de date"
-
-#: forms/entity_filter.py:1358
-msgid "On custom fields"
-msgstr "Sur les champs personnalisés"
-
-#: forms/entity_filter.py:1359
-msgid "On date custom fields"
-msgstr "Sur les champs personnalisés de date"
-
-#: forms/entity_filter.py:1360
-msgid "On relationships"
-msgstr "Sur les relations"
-
-#: forms/entity_filter.py:1361
-msgid "Do not select any entity if you want to match them all."
-msgstr "Ne sélectionnez aucune fiche si vous voulez chercher parmi toutes."
-
-#: forms/entity_filter.py:1363
-msgid "On relationships with results of other filters"
-msgstr "Sur les relations avec les résultats d'autres filtres"
-
-#: forms/entity_filter.py:1364
-msgid "On properties"
-msgstr "Sur les propriétés"
-
-#: forms/entity_filter.py:1365
-msgid "Sub-filters"
-msgstr "Sous-filtres"
-
-#: forms/entity_filter.py:1368
+#: forms/entity_filter/forms.py:48
 msgid "The filter must have at least one condition."
 msgstr "Le filtre doit avoir au moins une condition."
 
-#: forms/entity_filter.py:1369
+#: forms/entity_filter/forms.py:49
 msgid "A private filter must belong to you (or one of your teams)."
 msgstr "Un filtre privé doit vous être attribué (ou à une des vos équipes)."
 
-#: forms/entity_filter.py:1378
+#: forms/entity_filter/forms.py:61
 msgid "Conditions"
 msgstr "Conditions"
 
-#: forms/entity_filter.py:1388 forms/header_filter.py:339
+#: forms/entity_filter/forms.py:77 forms/header_filter.py:339
 msgid "All users"
 msgstr "Tous les utilisateurs"
+
+#: forms/entity_filter/widgets.py:56
+msgid "True"
+msgstr "Vrai"
+
+#: forms/entity_filter/widgets.py:57
+msgid "False"
+msgstr "Faux"
+
+#: forms/entity_filter/widgets.py:60
+msgid "Has the property"
+msgstr "A la propriété"
+
+#: forms/entity_filter/widgets.py:61
+msgid "Does not have the property"
+msgstr "N'a pas la propriété"
+
+#: forms/entity_filter/widgets.py:64
+msgid "Has the relationship"
+msgstr "A la relation"
+
+#: forms/entity_filter/widgets.py:65
+msgid "Does not have the relationship"
+msgstr "N'a pas la relation"
+
+#: forms/entity_filter/widgets.py:364
+msgid "No custom field at present."
+msgstr "Aucun champ personnalisé pour le moment."
+
+#: forms/entity_filter/widgets.py:388
+msgid "No date custom field at present."
+msgstr "Aucun champ personnalisé de date pour le moment."
+
+#: forms/entity_filter/widgets.py:456
+msgid "(no filter)"
+msgstr "(pas de filtre)"
 
 #: forms/fields.py:96
 msgid "Invalid format"
@@ -1561,7 +1566,7 @@ msgstr "Effacer"
 
 #: forms/widgets.py:653 forms/widgets.py:722 forms/widgets.py:940
 #: models/base.py:34 templates/creme_core/generics/view_entity.html:18
-#: templates/creme_core/listview/buttons/creation.html:3
+#: templates/creme_core/listview/buttons/creation.html:4
 #: templates/creme_core/view_property_type.html:19
 msgid "Create"
 msgstr "Créer"
@@ -2131,10 +2136,6 @@ msgstr "Date de création"
 #: models/entity.py:64
 msgid "Last modification"
 msgstr "Dernière modification"
-
-#: models/entity.py:74 templates/creme_core/bricks/job.html:65
-msgid "Description"
-msgstr "Description"
 
 #: models/entity.py:89
 msgid "Create an entity"
@@ -3417,7 +3418,7 @@ msgstr "Modifier «%(object)s»"
 #: templates/creme_core/generics/blockform/edit.html:15
 #: templates/creme_core/generics/form/edit.html:15 views/generic/edit.py:173
 #: views/generic/edit.py:179 views/generic/edit.py:209
-#: views/generic/wizard.py:326
+#: views/generic/wizard.py:327
 msgid "Save the modifications"
 msgstr "Enregistrer les modifications"
 
@@ -3452,7 +3453,7 @@ msgstr ""
 "La désactivation d'un job ne prendra seulement effet qu'après son exécution "
 "courante."
 
-#: templates/creme_core/listview/buttons/creation.html:2
+#: templates/creme_core/listview/buttons/creation.html:3
 #: templates/creme_core/listview/buttons/mass-export.html:3
 #: templates/creme_core/listview/buttons/mass-import.html:3
 msgid "Forbidden"
@@ -3940,7 +3941,7 @@ msgid_plural "{count} entities don't exist or have been removed."
 msgstr[0] "{count} fiche n'existe pas ou a été supprimée."
 msgstr[1] "{count} fiches n'existent pas ou ont été supprimées."
 
-#: views/entity_filter.py:78
+#: views/entity_filter.py:85
 msgid ""
 "Notice: your database is not case sensitive, so the string operators which "
 "are case sensitive and the ones which are not will accept the same entities."
@@ -3949,11 +3950,11 @@ msgstr ""
 "opérateurs sur chaîne de caractères qui sont sensibles à la casse et ceux "
 "qui ne le sont pas accepteront les mêmes fiches."
 
-#: views/entity_filter.py:145
+#: views/entity_filter.py:178
 msgid "Save the modified filter"
 msgstr "Enregistrer le filtre modifié"
 
-#: views/entity_filter.py:201
+#: views/entity_filter.py:245
 msgid "The filter can not be deleted because of its dependencies."
 msgstr "Le filtre ne peut être supprimé à cause de ses dépendances."
 
@@ -3965,7 +3966,7 @@ msgstr "Fichier invalide"
 msgid "You are not allowed to access this view."
 msgstr "Vous n'êtes autorisé à accéder à cette page."
 
-#: views/generic/edit.py:208 views/generic/wizard.py:325
+#: views/generic/edit.py:208 views/generic/wizard.py:326
 #, python-brace-format
 msgid "Edit «{object}»"
 msgstr "Modifier «{object}»"
@@ -3979,7 +3980,7 @@ msgstr "Liste des {models}"
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 
-#: views/header_filter.py:70
+#: views/header_filter.py:82
 msgid "Save the modified view"
 msgstr "Enregistrer la vue modifiée"
 

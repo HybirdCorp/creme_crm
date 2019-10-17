@@ -12,13 +12,21 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_filter import operators, operands
+    from creme.creme_core.core.entity_filter import (
+        _EntityFilterRegistry,
+        operators,
+        operands,
+    )
     from creme.creme_core.core.entity_filter.condition_handler import (
         FilterConditionHandler,
         RegularFieldConditionHandler, DateRegularFieldConditionHandler,
         CustomFieldConditionHandler, DateCustomFieldConditionHandler,
         PropertyConditionHandler, RelationConditionHandler,
         SubFilterConditionHandler, RelationSubFilterConditionHandler,
+    )
+    from creme.creme_core.forms.entity_filter import (
+        fields as ef_fields,
+        widgets as ef_widgets,
     )
     from creme.creme_core.models import (
         CremeEntity,
@@ -45,6 +53,8 @@ except Exception as e:
 # TODO: query_for_parent_conditions()
 class FilterConditionHandlerTestCase(CremeTestCase):
     def test_regularfield_init(self):
+        user = self.login()
+
         fname = 'name'
         operator_id = operators.ICONTAINS
         value = 'Corp'
@@ -66,7 +76,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         self.assertQEqual(
             Q(name__icontains=value),
-            handler.get_q(user=None)
+            handler.get_q(user=user)
         )
         # TODO: test other operators
 
@@ -155,6 +165,33 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                     'operator': 'notanint',  # <==
                 },
             )
+
+    def test_regularfield_formfield(self):
+        user = self.login()
+        efilter_registry = _EntityFilterRegistry()
+
+        formfield1 = RegularFieldConditionHandler.formfield(
+            user=user,
+            efilter_registry=efilter_registry,
+        )
+        self.assertIsInstance(formfield1, ef_fields.RegularFieldsConditionsField)
+        self.assertEqual(user, formfield1.user)
+        self.assertIs(efilter_registry, formfield1.efilter_registry)
+        self.assertIs(formfield1.required, True)
+        self.assertEqual(_('On regular fields'), formfield1.label)
+        self.assertTrue(formfield1.help_text)
+
+        widget1 = formfield1.widget
+        self.assertIsInstance(widget1, ef_widgets.RegularFieldsConditionsWidget)
+        self.assertIs(efilter_registry, widget1.efilter_registry)
+
+        class MyField(ef_fields.RegularFieldsConditionsField):
+            pass
+
+        formfield2 = RegularFieldConditionHandler.formfield(form_class=MyField, required=False)
+        self.assertIsInstance(formfield2, MyField)
+        self.assertIs(formfield2.required, False)
+        self.assertIsNone(formfield2.user)
 
     def test_regularfield_accept_string(self):
         user = self.login()
@@ -1014,6 +1051,24 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 data={'start': {'year': 'notanint'}},
             )
 
+    def test_dateregularfield_formfield(self):
+        user = self.login()
+
+        formfield1 = DateRegularFieldConditionHandler.formfield(user=user)
+        self.assertIsInstance(formfield1, ef_fields.DateFieldsConditionsField)
+        self.assertEqual(user, formfield1.user)
+        self.assertIs(formfield1.required, True)
+        self.assertEqual(_('On date fields'), formfield1.label)
+        self.assertFalse(formfield1.help_text)
+
+        class MyField(ef_fields.DateFieldsConditionsField):
+            pass
+
+        formfield2 = DateRegularFieldConditionHandler.formfield(form_class=MyField, required=False)
+        self.assertIsInstance(formfield2, MyField)
+        self.assertIs(formfield2.required, False)
+        self.assertIsNone(formfield2.user)
+
     def test_dateregularfield_condition01(self):
         "Build condition."
         # GTE ---
@@ -1409,6 +1464,24 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                     'value': [value],
                 },
             )
+
+    def test_customfield_formfield(self):
+        user = self.login()
+
+        formfield1 = CustomFieldConditionHandler.formfield(user=user)
+        self.assertIsInstance(formfield1, ef_fields.CustomFieldsConditionsField)
+        self.assertEqual(user, formfield1.user)
+        self.assertIs(formfield1.required, True)
+        self.assertEqual(_('On custom fields'), formfield1.label)
+        self.assertFalse(formfield1.help_text)
+
+        class MyField(ef_fields.CustomFieldsConditionsField):
+            pass
+
+        formfield2 = CustomFieldConditionHandler.formfield(form_class=MyField, required=False)
+        self.assertIsInstance(formfield2, MyField)
+        self.assertIs(formfield2.required, False)
+        self.assertIsNone(formfield2.user)
 
     def test_customfield_accept_int(self):
         user = self.login()
@@ -2127,6 +2200,24 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 data={'rname': rname},
             )
 
+    def test_datecustomfield_formfield(self):
+        user = self.login()
+
+        formfield1 = DateCustomFieldConditionHandler.formfield(user=user)
+        self.assertIsInstance(formfield1, ef_fields.DateCustomFieldsConditionsField)
+        self.assertEqual(user, formfield1.user)
+        self.assertIs(formfield1.required, True)
+        self.assertEqual(_('On date custom fields'), formfield1.label)
+        self.assertFalse(formfield1.help_text)
+
+        class MyField(ef_fields.DateCustomFieldsConditionsField):
+            pass
+
+        formfield2 = DateCustomFieldConditionHandler.formfield(form_class=MyField, required=False)
+        self.assertIsInstance(formfield2, MyField)
+        self.assertIs(formfield2.required, False)
+        self.assertIsNone(formfield2.user)
+
     def test_datecustomfield_condition01(self):
         "Build condition."
         custom_field = CustomField.objects.create(
@@ -2520,6 +2611,24 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                     'entity_id': 'notanint',  # <==
                 },
             )
+
+    def test_relation_formfield(self):
+        user = self.login()
+
+        formfield1 = RelationConditionHandler.formfield(user=user)
+        self.assertIsInstance(formfield1, ef_fields.RelationsConditionsField)
+        self.assertEqual(user, formfield1.user)
+        self.assertIs(formfield1.required, True)
+        self.assertEqual(_('On relationships'), formfield1.label)
+        self.assertTrue(formfield1.help_text)
+
+        class MyField(ef_fields.RelationsConditionsField):
+            pass
+
+        formfield2 = RelationConditionHandler.formfield(form_class=MyField, required=False)
+        self.assertIsInstance(formfield2, MyField)
+        self.assertIs(formfield2.required, False)
+        self.assertIsNone(formfield2.user)
 
     def test_relation_condition(self):
         "Build condition."
@@ -2988,6 +3097,24 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         handler = SubFilterConditionHandler(subfilter=sub_efilter)
         self.assertIs(handler.applicable_on_entity_base, True)
 
+    def test_subfilter_formfield(self):
+        user = self.login()
+
+        formfield1 = SubFilterConditionHandler.formfield(user=user)
+        self.assertIsInstance(formfield1, ef_fields.SubfiltersConditionsField)
+        self.assertEqual(user, formfield1.user)
+        self.assertIs(formfield1.required, True)
+        self.assertEqual(_('Sub-filters'), formfield1.label)
+        self.assertFalse(formfield1.help_text)
+
+        class MyField(ef_fields.SubfiltersConditionsField):
+            pass
+
+        formfield2 = SubFilterConditionHandler.formfield(form_class=MyField, required=False)
+        self.assertIsInstance(formfield2, MyField)
+        self.assertIs(formfield2.required, False)
+        self.assertIsNone(formfield2.user)
+
     def test_subfilter_accept(self):
         user = self.login()
         sub_efilter = EntityFilter.create(
@@ -3207,6 +3334,26 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             rtype='creme_core-subject_test',
         )
         self.assertEqual("'invalid' is not a valid filter ID", handler.error)
+
+    def test_relation_subfilter_formfield(self):
+        user = self.login()
+
+        formfield1 = RelationSubFilterConditionHandler.formfield(user=user)
+        self.assertIsInstance(formfield1, ef_fields.RelationSubfiltersConditionsField)
+        self.assertEqual(user, formfield1.user)
+        self.assertIs(formfield1.required, True)
+        self.assertEqual(_('On relationships with results of other filters'),
+                         formfield1.label
+                        )
+        self.assertFalse(formfield1.help_text)
+
+        class MyField(ef_fields.RelationSubfiltersConditionsField):
+            pass
+
+        formfield2 = RelationSubFilterConditionHandler.formfield(form_class=MyField, required=False)
+        self.assertIsInstance(formfield2, MyField)
+        self.assertIs(formfield2.required, False)
+        self.assertIsNone(formfield2.user)
 
     def test_relation_subfilter_condition(self):
         "Build condition."
@@ -3495,6 +3642,24 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 name='creme_core-test',
                 data=[],  # <= not a Boolean.
             )
+
+    def test_property_formfield(self):
+        user = self.login()
+
+        formfield1 = PropertyConditionHandler.formfield(user=user)
+        self.assertIsInstance(formfield1, ef_fields.PropertiesConditionsField)
+        self.assertEqual(user, formfield1.user)
+        self.assertIs(formfield1.required, True)
+        self.assertEqual(_('On properties'), formfield1.label)
+        self.assertFalse(formfield1.help_text)
+
+        class MyField(ef_fields.PropertiesConditionsField):
+            pass
+
+        formfield2 = PropertyConditionHandler.formfield(form_class=MyField, required=False)
+        self.assertIsInstance(formfield2, MyField)
+        self.assertIs(formfield2.required, False)
+        self.assertIsNone(formfield2.user)
 
     def test_property_condition(self):
         "Build condition."

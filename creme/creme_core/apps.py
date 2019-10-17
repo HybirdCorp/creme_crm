@@ -180,10 +180,15 @@ class CremeAppConfig(AppConfig):
             # if hasattr(self, 'register_creme_app'):
             #     logger.critical('The AppConfig for "%s" has a method register_creme_app() which is now useless.', self.name)
 
-            from .core import (entity_filter, enumerable, function_field, imprint,
-                    reminder, sandbox, setting_key, sorter)
-            from .gui import (actions, bricks, bulk_update, button_menu, fields_config,
-                    field_printers, icons, listview, mass_import, menu, merge, quick_forms, statistics)
+            from .core import (
+                entity_filter, enumerable, function_field, imprint, reminder,
+                sandbox, setting_key, sorter,
+            )
+            from .gui import (
+                actions, bricks, bulk_update, button_menu, fields_config,
+                field_printers, icons, listview, mass_import, menu, merge,
+                quick_forms, statistics
+            )
 
             self.register_entity_models(creme_registry)
 
@@ -192,6 +197,7 @@ class CremeAppConfig(AppConfig):
             self.register_bulk_update(bulk_update.bulk_update_registry)
             self.register_buttons(button_menu.button_registry)
             self.register_cell_sorters(sorter.cell_sorter_registry)
+            self.register_credentials(entity_filter.credentials_efilter_registry)
             self.register_entity_filter(entity_filter.entity_filter_registry)
             self.register_enumerable(enumerable.enumerable_registry)
             self.register_fields_config(fields_config.fields_config_registry)
@@ -227,6 +233,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_cell_sorters(self, cell_sorter_registry):
+        pass
+
+    def register_credentials(self, entity_filter_registry):
         pass
 
     def register_entity_filter(self, entity_filter_registry):
@@ -402,46 +411,41 @@ class CremeCoreConfig(CremeAppConfig):
 
         button_registry.register(buttons.Restrict2SuperusersButton)
 
+    def register_credentials(self, entity_filter_registry):
+        from .core.entity_filter import condition_handler, operands, operators
+
+        # BEWARE: other handler classes are not complete for credentials (accept() methods)
+        entity_filter_registry.register_condition_handlers(
+            condition_handler.RegularFieldConditionHandler,
+            condition_handler.CustomFieldConditionHandler,
+            condition_handler.RelationConditionHandler,
+            condition_handler.PropertyConditionHandler,
+        ).register_operators(
+            *operators.all_operators,
+        ).register_operands(
+            *operands.all_operands,
+        )
+
     def register_entity_filter(self, entity_filter_registry):
         from .core.entity_filter import condition_handler, operands, operators
 
         entity_filter_registry.register_condition_handlers(
-            condition_handler.SubFilterConditionHandler,
             condition_handler.RegularFieldConditionHandler,
             condition_handler.DateRegularFieldConditionHandler,
+
             condition_handler.CustomFieldConditionHandler,
             condition_handler.DateCustomFieldConditionHandler,
+
             condition_handler.RelationConditionHandler,
             condition_handler.RelationSubFilterConditionHandler,
+
             condition_handler.PropertyConditionHandler,
+
+            condition_handler.SubFilterConditionHandler,
         ).register_operators(
-            operators.EqualsOperator,
-            operators.EqualsNotOperator,
-
-            operators.GTOperator,
-            operators.GTEOperator,
-            operators.LTOperator,
-            operators.LTEOperator,
-
-            operators.IEqualsOperator,
-            operators.IEqualsNotOperator,
-            operators.ContainsOperator,
-            operators.ContainsNotOperator,
-            operators.IContainsOperator,
-            operators.IContainsNotOperator,
-            operators.StartsWithOperator,
-            operators.StartswithNotOperator,
-            operators.IStartsWithOperator,
-            operators.IStartswithNotOperator,
-            operators.EndsWithOperator,
-            operators.EndsWithNotOperator,
-            operators.IEndsWithOperator,
-            operators.IEndsWithNotOperator,
-
-            operators.IsEmptyOperator,
-            operators.RangeOperator,
+            *operators.all_operators,
         ).register_operands(
-            operands.CurrentUserOperand,
+            *operands.all_operands,
         )
 
     def register_enumerable(self, enumerable_registry):
