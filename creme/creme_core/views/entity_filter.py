@@ -72,6 +72,12 @@ class FilterMixin:
 
         return url
 
+    def check_filter_permissions(self, filter_obj, user):
+        allowed, msg = filter_obj.can_edit(user)
+
+        if not allowed:
+            raise PermissionDenied(msg)
+
     @staticmethod
     def get_case_sensitivity_message():
         return None if is_db_case_sensitive() else \
@@ -81,16 +87,6 @@ class FilterMixin:
 
     def get_success_url(self):
         return self.build_lv_url() or reverse('creme_core__home')
-
-
-class FilterCreationMixin(base.EntityCTypeRelatedMixin, FilterMixin):
-    ctype_form_kwarg = 'ctype'
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs[self.ctype_form_kwarg] = self.get_ctype()
-
-        return kwargs
 
     def save_in_session(self, lvs_attr):
         request = self.request
@@ -102,21 +98,44 @@ class FilterCreationMixin(base.EntityCTypeRelatedMixin, FilterMixin):
         lvs.register_in_session(request)
 
 
-class FilterEditionMixin(FilterMixin):
-    def get_object(self, *args, **kwargs):
-        filter_ = super().get_object(*args, **kwargs)
+# class FilterCreationMixin(base.EntityCTypeRelatedMixin, FilterMixin):
+#     ctype_form_kwarg = 'ctype'
+#
+#     def get_form_kwargs(self):
+#         kwargs = super().get_form_kwargs()
+#         kwargs[self.ctype_form_kwarg] = self.get_ctype()
+#
+#         return kwargs
+#
+#     def save_in_session(self, lvs_attr):
+#         request = self.request
+#         lv_url = self.build_lv_url()
+#         lvs = ListViewState.get_state(request, lv_url) or \
+#               ListViewState(url=lv_url)
+#
+#         setattr(lvs, lvs_attr, self.object.id)
+#         lvs.register_in_session(request)
 
-        allowed, msg = filter_.can_edit(self.request.user)
-        if not allowed:
-            raise PermissionDenied(msg)
 
-        return filter_
+# class FilterEditionMixin(FilterMixin):
+#     def get_object(self, *args, **kwargs):
+#         filter_ = super().get_object(*args, **kwargs)
+#
+#         allowed, msg = filter_.can_edit(self.request.user)
+#         if not allowed:
+#             raise PermissionDenied(msg)
+#
+#         return filter_
 
 
-class EntityFilterCreation(FilterCreationMixin, generic.CremeModelCreation):
+# class EntityFilterCreation(FilterCreationMixin, generic.CremeModelCreation):
+class EntityFilterCreation(base.EntityCTypeRelatedMixin,
+                           FilterMixin,
+                           generic.CremeModelCreation):
     model = EntityFilter
     form_class = efilter_forms.EntityFilterCreateForm
     template_name = 'creme_core/forms/entity-filter.html'
+    ctype_form_kwarg = 'ctype'
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -130,6 +149,12 @@ class EntityFilterCreation(FilterCreationMixin, generic.CremeModelCreation):
 
         return context
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs[self.ctype_form_kwarg] = self.get_ctype()
+
+        return kwargs
+
     def get_initial(self):
         initial = super().get_initial()
         initial['is_private'] = settings.FILTERS_INITIAL_PRIVATE
@@ -137,19 +162,25 @@ class EntityFilterCreation(FilterCreationMixin, generic.CremeModelCreation):
         return initial
 
 
-class EntityFilterEdition(FilterEditionMixin, generic.CremeModelEdition):
+# class EntityFilterEdition(FilterEditionMixin, generic.CremeModelEdition):
+class EntityFilterEdition(FilterMixin, generic.CremeModelEdition):
     model = EntityFilter
     form_class = efilter_forms.EntityFilterEditForm
     template_name = 'creme_core/forms/entity-filter.html'
     pk_url_kwarg = 'efilter_id'
     submit_label = _('Save the modified filter')
 
-    # TODO: factorise
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_message'] = self.get_case_sensitivity_message()
 
         return context
+
+    def get_object(self, *args, **kwargs):
+        efilter = super().get_object(*args, **kwargs)
+        self.check_filter_permissions(filter_obj=efilter, user=self.request.user)
+
+        return efilter
 
 
 # @login_required

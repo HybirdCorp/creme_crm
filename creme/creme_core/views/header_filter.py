@@ -40,18 +40,29 @@ from .generic import base
 logger = logging.getLogger(__name__)
 
 
-class HeaderFilterCreation(entity_filter.FilterCreationMixin,
+# class HeaderFilterCreation(entity_filter.FilterCreationMixin,
+#                            generic.CremeModelCreation,
+#                           ):
+class HeaderFilterCreation(base.EntityCTypeRelatedMixin,
+                           entity_filter.FilterMixin,
                            generic.CremeModelCreation,
                           ):
     model = HeaderFilter
     form_class = hf_forms.HeaderFilterCreateForm
     template_name = 'creme_core/forms/header-filter.html'
+    ctype_form_kwarg = 'ctype'
 
     def form_valid(self, form):
         response = super().form_valid(form)
         self.save_in_session('header_filter_id')
 
         return response
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs[self.ctype_form_kwarg] = self.get_ctype()
+
+        return kwargs
 
     def get_initial(self):
         initial = super().get_initial()
@@ -60,7 +71,8 @@ class HeaderFilterCreation(entity_filter.FilterCreationMixin,
         return initial
 
 
-class HeaderFilterEdition(entity_filter.FilterEditionMixin,
+# class HeaderFilterEdition(entity_filter.FilterEditionMixin,
+class HeaderFilterEdition(entity_filter.FilterMixin,
                           generic.CremeModelEdition,
                          ):
     model = HeaderFilter
@@ -68,6 +80,12 @@ class HeaderFilterEdition(entity_filter.FilterEditionMixin,
     template_name = 'creme_core/forms/header-filter.html'
     pk_url_kwarg = 'hfilter_id'
     submit_label = _('Save the modified view')
+
+    def get_object(self, *args, **kwargs):
+        hfilter = super().get_object(*args, **kwargs)
+        self.check_filter_permissions(filter_obj=hfilter, user=self.request.user)
+
+        return hfilter
 
 
 # @login_required
