@@ -189,7 +189,7 @@ msgstr "Vous n'êtes pas autorisé à créer une Société."
 
 #: forms/quick.py:47
 msgid "No linkable Organisation found."
-msgstr "Aucune Société liable n'a été trouvée."
+msgstr "Aucune Société reliable n'a été trouvée."
 
 #: forms/quick.py:48
 msgid "Several Organisations with this name have been found."
@@ -713,7 +713,7 @@ msgstr "Créer une adresse de livraison"
 
 #: templates/persons/bricks/base/addresses.html:53
 msgid "No address for the moment"
-msgstr "Aucune addresse pour le moment"
+msgstr "Aucune adresse pour le moment"
 
 #: templates/persons/bricks/base/linked-people.html:7
 msgid "Link to contacts"
@@ -757,7 +757,7 @@ msgstr "Adresses supplémentaires"
 
 #: templates/persons/bricks/base/other-addresses.html:39
 msgid "No other address set for the moment"
-msgstr "Aucune addresse supplémentaire enregistrée pour le moment"
+msgstr "Aucune adresse supplémentaire enregistrée pour le moment"
 
 #: templates/persons/bricks/contact-hat-card.html:24
 #: templates/persons/bricks/organisation-hat-card.html:41
@@ -997,7 +997,7 @@ msgstr[1] "%(count)s contacts"
 #: views/address.py:125
 #, python-brace-format
 msgid "Adding address to «{entity}»"
-msgstr "Ajouter une addresse à «{entity}»"
+msgstr "Ajouter une adresse à «{entity}»"
 
 #: views/address.py:130
 #, python-brace-format
