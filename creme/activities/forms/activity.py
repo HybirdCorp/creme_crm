@@ -24,12 +24,19 @@ import logging
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
-from django.forms import ModelChoiceField, ModelMultipleChoiceField, DateTimeField, TimeField, ValidationError
+from django.forms import (
+    ModelChoiceField, ModelMultipleChoiceField,
+    DateTimeField, TimeField,
+    ValidationError,
+)
 from django.utils.timezone import localtime
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.forms import (validators, CremeEntityForm,
-    MultiCreatorEntityField, MultiGenericEntityField, DatePeriodField)
+from creme.creme_core.forms import (
+    validators, CremeEntityForm,
+    MultiCreatorEntityField, MultiGenericEntityField,
+    DatePeriodField,
+)
 from creme.creme_core.forms.widgets import CalendarWidget
 from creme.creme_core.models import RelationType, Relation, SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
@@ -38,8 +45,8 @@ from creme.persons import get_contact_model
 
 from .. import get_activity_model, constants
 from ..models import ActivityType, Calendar, ActivitySubType
-from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
 from ..setting_keys import form_user_messages_key
+from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
 
 from .activity_type import ActivityTypeField
 from .fields import UserParticipationField
@@ -263,6 +270,7 @@ class ActivityCreateForm(_ActivityCreateForm):
     error_messages = {
         **_ActivityCreateForm.error_messages,
         'no_participant': _('No participant'),
+        'alert_on_floating': _('You cannot set a relative alert on a floating activity'),
     }
 
     blocks = _ActivityForm.blocks.new(
@@ -333,6 +341,17 @@ class ActivityCreateForm(_ActivityCreateForm):
                 required=False,
                 label=_('Users to keep informed'),
             )
+
+    def clean_alert_period(self):
+        cdata = self.cleaned_data
+        alert_period = cdata['alert_period']
+
+        if alert_period and not cdata.get('start'):
+            raise ValidationError(self.error_messages['alert_on_floating'],
+                                  code='alert_on_floating',
+                                 )
+
+        return alert_period
 
     def clean_my_participation(self):
         my_participation = self.cleaned_data['my_participation']

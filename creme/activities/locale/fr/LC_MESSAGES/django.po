@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-06 18:22+0200\n"
+"POT-Creation-Date: 2019-10-17 18:44+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -27,19 +27,19 @@ msgstr "Activités"
 msgid "Calendar"
 msgstr "Calendrier"
 
-#: apps.py:137 populate.py:125
+#: apps.py:137 populate.py:130
 msgid "Phone calls"
 msgstr "Appels téléphoniques"
 
-#: apps.py:143 populate.py:124
+#: apps.py:143 populate.py:129
 msgid "Meetings"
 msgstr "Rendez-vous"
 
-#: apps.py:150 constants.py:33 populate.py:88
+#: apps.py:150 constants.py:33 populate.py:93
 msgid "Phone call"
 msgstr "Appel téléphonique"
 
-#: apps.py:151 constants.py:32 populate.py:86 populate.py:94
+#: apps.py:151 constants.py:32 populate.py:91 populate.py:99
 msgid "Meeting"
 msgstr "Rendez-vous"
 
@@ -47,15 +47,15 @@ msgstr "Rendez-vous"
 msgid "Activity"
 msgstr "Activité"
 
-#: apps.py:153 constants.py:34 populate.py:84
+#: apps.py:153 constants.py:34 populate.py:89
 msgid "Task"
 msgstr "Tâche"
 
-#: apps.py:154 populate.py:92
+#: apps.py:154 populate.py:97
 msgid "Unavailability"
 msgstr "Indisponibilité"
 
-#: bricks.py:51 forms/activity.py:490 forms/bricks.py:52
+#: bricks.py:51 forms/activity.py:502 forms/bricks.py:52
 #: forms/mass_import.py:565 templates/activities/bricks/participants.html:7
 msgid "Participants"
 msgstr "Participants"
@@ -157,7 +157,7 @@ msgstr "La durée par défaut du type sera utilisée si vous laissez vide."
 msgid "It is only informative and is not used to compute the end time."
 msgstr "Seulement informative et pas utilisée pour calculer l'heure de fin."
 
-#: forms/activity.py:192 forms/activity.py:269 forms/activity.py:489
+#: forms/activity.py:192 forms/activity.py:270 forms/activity.py:501
 msgid "When"
 msgstr "Quand"
 
@@ -181,49 +181,54 @@ msgstr "Fiches reliées à l'activité"
 msgid "No participant"
 msgstr "Aucun Participant"
 
-#: forms/activity.py:272 forms/mass_import.py:573
+#: forms/activity.py:266
+msgid "You cannot set a relative alert on a floating activity"
+msgstr ""
+"Vous ne pouvez pas mettre une alerte relative sur une activité flottante"
+
+#: forms/activity.py:273 forms/mass_import.py:573
 msgid "Participants & subjects"
 msgstr "Participants & sujets"
 
-#: forms/activity.py:275 forms/activity.py:316
+#: forms/activity.py:276 forms/activity.py:317
 msgid "Generate an alert on a specific date"
 msgstr "Générer une alerte à une date spécifique"
 
-#: forms/activity.py:276 forms/activity.py:320
+#: forms/activity.py:277 forms/activity.py:321
 msgid "Generate an alert in a while"
 msgstr "Générer une alerte dans un certain temps"
 
-#: forms/activity.py:277 forms/activity.py:334
+#: forms/activity.py:278 forms/activity.py:335
 msgid "Users to keep informed"
 msgstr "Utilisateurs à tenir informés"
 
-#: forms/activity.py:299 forms/bricks.py:74
+#: forms/activity.py:300 forms/bricks.py:74
 msgid ""
 "The organisations of the participants will be automatically added as subjects"
 msgstr ""
 "Les sociétés des participants seront ajoutées automatiquement en tant que "
 "sujets"
 
-#: forms/activity.py:322
+#: forms/activity.py:323
 msgid "How long before the activity's start the alert is raised?"
 msgstr ""
 "Combien de temps avant le début de l'activité l'alerte est-elle déclenchée ?"
 
-#: forms/activity.py:394
+#: forms/activity.py:406
 msgid "Alert of activity"
 msgstr "Alerte d'activité"
 
-#: forms/activity.py:395
+#: forms/activity.py:407
 #, python-brace-format
 msgid "Alert related to {activity}"
 msgstr "Alerte en rapport avec {activity}"
 
-#: forms/activity.py:419
+#: forms/activity.py:431
 #, python-brace-format
 msgid "[Creme] Activity created: {activity}"
 msgstr "[Creme] Activité créée : {activity}"
 
-#: forms/activity.py:420
+#: forms/activity.py:432
 #, python-brace-format
 msgid ""
 "A new activity has been created: {activity}.\n"
@@ -240,15 +245,15 @@ msgstr ""
 "    Sujets : {subjects}.\n"
 "    Participants : {participants}."
 
-#: forms/activity.py:428 forms/activity.py:429
+#: forms/activity.py:440 forms/activity.py:441
 msgid "not specified"
 msgstr "non renseigné"
 
-#: forms/activity.py:478
+#: forms/activity.py:490
 msgid "Unavailability type"
 msgstr "Type d'indisponibilité"
 
-#: forms/activity.py:505
+#: forms/activity.py:517
 msgid "Unavailable users"
 msgstr "Utilisateurs non-disponibles"
 
@@ -512,109 +517,109 @@ msgctxt "activities-plural"
 msgid "Status of activity"
 msgstr "Statuts d'activité"
 
-#: populate.py:60
+#: populate.py:65
 msgid "related to the activity"
 msgstr "relié à l'activité"
 
-#: populate.py:61
+#: populate.py:66
 msgid "(activity) related to"
 msgstr "(activité) relié à"
 
-#: populate.py:65
+#: populate.py:70
 msgid "is subject of the activity"
 msgstr "est sujet de l'activité"
 
-#: populate.py:66
+#: populate.py:71
 msgid "(activity) has for subject"
 msgstr "(activité) a pour sujet"
 
-#: populate.py:70
+#: populate.py:75
 msgid "participates to the activity"
 msgstr "participe à l'activité"
 
-#: populate.py:71
+#: populate.py:76
 msgid "(activity) has as participant"
 msgstr "(activité) a comme participant"
 
-#: populate.py:77
+#: populate.py:82
 msgctxt "activities-status"
 msgid "Planned"
 msgstr "Prévue"
 
-#: populate.py:78
+#: populate.py:83
 msgctxt "activities-status"
 msgid "In progress"
 msgstr "En cours"
 
-#: populate.py:79
+#: populate.py:84
 msgctxt "activities-status"
 msgid "Done"
 msgstr "Finie"
 
-#: populate.py:80
+#: populate.py:85
 msgctxt "activities-status"
 msgid "Delayed"
 msgstr "En retard"
 
-#: populate.py:81
+#: populate.py:86
 msgctxt "activities-status"
 msgid "Cancelled"
 msgstr "Annulée"
 
-#: populate.py:89
+#: populate.py:94
 msgid "Gathering"
 msgstr "Réunion"
 
-#: populate.py:90
+#: populate.py:95
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:91
+#: populate.py:96
 msgid "Demonstration"
 msgstr "Démonstration"
 
-#: populate.py:95
+#: populate.py:100
 msgid "Qualification"
 msgstr "Qualification"
 
-#: populate.py:96
+#: populate.py:101
 msgid "Revival"
 msgstr "Relance"
 
-#: populate.py:97
+#: populate.py:102
 msgid "Network"
 msgstr "Réseau"
 
-#: populate.py:98
+#: populate.py:103
 msgctxt "activities-meeting"
 msgid "Other"
 msgstr "Autre"
 
-#: populate.py:100
+#: populate.py:105
 msgid "Incoming"
 msgstr "Entrant"
 
-#: populate.py:101
+#: populate.py:106
 msgid "Outgoing"
 msgstr "Sortant"
 
-#: populate.py:102
+#: populate.py:107
 msgid "Conference"
 msgstr "Conférence"
 
-#: populate.py:103
+#: populate.py:108
 msgid "Outgoing - Failed"
 msgstr "Sortant - Échoué"
 
-#: populate.py:108
+#: populate.py:113
 msgid "Activity view"
 msgstr "Vue d'Activité"
 
-#: populate.py:126
+#: populate.py:131
 msgid "Tasks"
 msgstr "Tâches"
 
-#: populate.py:147
+#: populate.py:152
 msgid "In which I participate"
 msgstr "Auxquelles je participe"
 
@@ -921,7 +926,7 @@ msgstr ""
 
 #: views/activity.py:462
 msgid "List of phone calls"
-msgstr "List des appels téléphoniques"
+msgstr "Liste des appels téléphoniques"
 
 #: views/activity.py:469
 msgid "List of meetings"

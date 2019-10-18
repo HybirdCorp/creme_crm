@@ -632,6 +632,36 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertFalse(Alert.objects.filter(entity_id=act.id))
 
     @skipIfNotInstalled('creme.assistants')
+    def test_createview_alert03(self):
+        "Cannot create a relative alert on floating activity."
+        user = self.login()
+
+        title = 'Meeting01'
+        my_calendar = Calendar.objects.get_default_calendar(user)
+        response = self.assertPOST200(
+            self.ACTIVITY_CREATION_URL, follow=True,
+            data={
+                'user':  user.id,
+                'title': title,
+
+                'type_selector': self._acttype_field_value(
+                      constants.ACTIVITYTYPE_MEETING,
+                      constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                ),
+
+                'my_participation_0': True,
+                'my_participation_1': my_calendar.pk,
+
+                'alert_period_0': 'days',
+                'alert_period_1': 1,
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'alert_period',
+            _('You cannot set a relative alert on a floating activity')
+        )
+
+    @skipIfNotInstalled('creme.assistants')
     @skipIfCustomContact
     def test_createview_usermsg01(self):
         "UserMessage creation"
