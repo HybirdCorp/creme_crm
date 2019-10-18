@@ -682,9 +682,9 @@ QUnit.test('creme.bricks.Brick.action (add relationships, no selection)', functi
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').list_view();
 
-    deepEqual([], list.getSelectedEntities());
+    deepEqual([], list.selectedRows());
 
     this.validateListViewSelectionDialog();
 
@@ -724,10 +724,10 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, multiple selec
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').list_view();
 
     this.setListviewSelection(list, ['2', '3']);
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
 
@@ -764,10 +764,10 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single)', function(ass
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').list_view();
 
     this.setListviewSelection(list, ['2']);
-    deepEqual(['2'], list.getSelectedEntities());
+    deepEqual(['2'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
     this.assertClosedDialog();
@@ -798,10 +798,10 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, fail)', functi
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').list_view();
 
     this.setListviewSelection(list, ['2']);
-    deepEqual(['2'], list.getSelectedEntities());
+    deepEqual(['2'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
     this.assertClosedDialog();
@@ -832,10 +832,10 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload)', func
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').list_view();
 
     this.setListviewSelection(list, ['2']);
-    deepEqual(['2'], list.getSelectedEntities());
+    deepEqual(['2'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
     this.assertClosedDialog();
@@ -868,10 +868,10 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload, fail)'
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').list_view();
 
     this.setListviewSelection(list, ['2']);
-    deepEqual(['2'], list.getSelectedEntities());
+    deepEqual(['2'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
     this.assertClosedDialog();
@@ -899,12 +899,12 @@ QUnit.test('creme.bricks.Brick.action (add relationships, multiple)', function(a
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'multiple'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').list_view();
 
     this.setListviewSelection(list, ['2', '3']);
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
     this.assertClosedDialog();

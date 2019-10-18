@@ -79,7 +79,7 @@ QUnit.test('creme.billing.ExportDocumentAction (multiple formats, choose one)', 
 
 QUnit.test('creme.billing.listview.actions (billing-invoice-number, ok)', function(assert) {
     var list = this.createDefaultListView().controller();
-    var registry = list.getActionBuilders();
+    var registry = list.actionBuilders();
 
     var builder = registry.get('billing-invoice-number');
 
@@ -113,7 +113,7 @@ QUnit.test('creme.billing.listview.actions (billing-invoice-number, ok)', functi
 
 QUnit.test('creme.billing.listview.actions (billing-invoice-number, fail)', function(assert) {
     var list = this.createDefaultListView().controller();
-    var registry = list.getActionBuilders();
+    var registry = list.actionBuilders();
 
     var builder = registry.get('billing-invoice-number');
 

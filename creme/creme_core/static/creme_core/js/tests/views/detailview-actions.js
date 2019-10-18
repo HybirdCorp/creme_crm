@@ -61,7 +61,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (empty selector)', function(
     var dialog = this.assertOpenedDialog();
     var list = dialog.find('.ui-creme-listview').data('list_view');
 
-    deepEqual([], list.getSelectedEntities());
+    deepEqual([], list.selectedRows());
 
     this.validateListViewSelectionDialog(dialog);
 
@@ -99,8 +99,8 @@ QUnit.test('creme.detailview.brick.detailview-merge (multiple selections)', func
 
     this.setListviewSelection(list, ['2', '3']);
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
 
@@ -138,8 +138,8 @@ QUnit.test('creme.detailview.brick.detailview-merge (single selection)', functio
 
     this.setListviewSelection(list, ['2']);
 
-    equal(1, list.countEntities());
-    deepEqual(['2'], list.getSelectedEntities());
+    equal(1, list.selectedRowsCount());
+    deepEqual(['2'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
     this.assertClosedDialog();
@@ -241,8 +241,8 @@ QUnit.test('creme.relations.addRelationTo (multiple)', function(assert) {
 
     this.setListviewSelection(list, ['2', '3']);
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.submitListViewSelectionDialog(list);
     this.assertClosedDialog();

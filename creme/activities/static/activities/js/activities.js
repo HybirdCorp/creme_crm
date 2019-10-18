@@ -32,7 +32,7 @@ creme.activities.ExportAsICalAction = creme.component.Action.sub({
         options = $.extend({}, this.options(), options || {});
 
         var self = this;
-        var selection = $(this._list).list_view('getSelectedEntities');
+        var selection = this._list.selectedRows();
 
         if (selection.length < 1) {
             creme.dialogs.warning(gettext('Please select at least a line in order to export.'))
@@ -82,7 +82,7 @@ creme.activities.calendar.addFilteringInput = function(input, filter_callable) {
     });
 };
 
-//creme.activities.calendar.loadCalendarEventListeners = function(user, creme_calendars_by_user) {
+// creme.activities.calendar.loadCalendarEventListeners = function(user, creme_calendars_by_user) {
 creme.activities.calendar.loadCalendarEventListeners = function(user, select_calendars_url, creme_calendars_by_user) {
     var floatingEventFilter = function(input_value) {
         $('.floating_event').each(function(index, element) {

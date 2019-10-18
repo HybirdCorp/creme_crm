@@ -21,8 +21,8 @@ QUnit.test('creme.emails.ResendEMailsAction (no selection)', function(assert) {
         url: 'mock/emails/resend'
     }).on(this.listviewActionListeners);
 
-    equal(0, list.countEntities());
-    deepEqual([], list.getSelectedEntities());
+    equal(0, list.selectedRowsCount());
+    deepEqual([], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -41,10 +41,10 @@ QUnit.test('creme.emails.ResendEMailsAction (not confirmed)', function(assert) {
         url: 'mock/emails/resend'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('2,3');
+    this.setListviewSelection(list, ['2', '3']);
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -69,10 +69,10 @@ QUnit.test('creme.emails.ResendEMailsAction (error)', function(assert) {
         url: 'mock/emails/resend/fail'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('1,2');
+    this.setListviewSelection(list, ['1', '2']);
 
-    equal(2, list.countEntities());
-    deepEqual(['1', '2'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['1', '2'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -119,10 +119,10 @@ QUnit.test('creme.emails.ResendEMailsAction (ok)', function(assert) {
         url: 'mock/emails/resend'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('1,2,3');
+    this.setListviewSelection(list, ['1', '2', '3']);
 
-    equal(3, list.countEntities());
-    deepEqual(['1', '2', '3'], list.getSelectedEntities());
+    equal(3, list.selectedRowsCount());
+    deepEqual(['1', '2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 

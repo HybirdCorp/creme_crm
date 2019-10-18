@@ -60,9 +60,9 @@ creme.lv_widget.deleteFilter = function(list, filter_id, url) {
 };
 */
 
-creme.lv_widget.selectedLines = function(list) {
-    console.warn('creme.lv_widget.selectedLines() is deprecated; use directly $(list).list_view("getSelectedEntities") instead');
-    return $(list).list_view('getSelectedEntities');
+creme.lv_widget.selectedLines = function(element) {
+    console.warn('creme.lv_widget.selectedLines() is deprecated; use directly $(list).list_view("selectedRows") instead');
+    return $(element).list_view('selectedRows');
 };
 
 creme.lv_widget.DeleteSelectedAction = creme.component.Action.sub({
@@ -116,7 +116,7 @@ creme.lv_widget.DeleteSelectedAction = creme.component.Action.sub({
 
         var self = this;
         var list = this._list;
-        var selection = $(list).list_view('getSelectedEntities');
+        var selection = list.selectedRows();
 
         if (selection.length < 1) {
             creme.dialogs.warning(gettext("Please select at least one entity."))
@@ -150,7 +150,7 @@ creme.lv_widget.AddToSelectedAction = creme.component.Action.sub({
 
         var self = this;
         var list = this._list;
-        var selection = $(list).list_view('getSelectedEntities');
+        var selection = list.selectedRows();
 
         if (selection.length < 1) {
             creme.dialogs.warning(gettext("Please select at least one entity."))
@@ -188,7 +188,7 @@ creme.lv_widget.EditSelectedAction = creme.component.Action.sub({
 
         var self = this;
         var list = this._list;
-        var selection = $(list).list_view('getSelectedEntities');
+        var selection = list.selectedRows();
 
         if (selection.length < 1) {
             creme.dialogs.warning(gettext("Please select at least one entity."))
@@ -251,7 +251,7 @@ creme.lv_widget.MergeSelectedAction = creme.component.Action.sub({
 
         var self = this;
         var list = this._list;
-        var selection = $(list).list_view('getSelectedEntities');
+        var selection = list.selectedRows();
 
         if (selection.length !== 2) {
             creme.dialogs.warning(gettext("Please select 2 entities."))
@@ -338,7 +338,7 @@ creme.lv_widget.ListViewDialog = creme.dialog.Dialog.sub({
         var controller = this.controller();
 
         if (Object.isNone(controller) === false) {
-            controller.submitState(null, {selection: mode});
+            controller.submitState({selection: mode});
         }
 
         return this;
@@ -391,7 +391,7 @@ creme.lv_widget.ListViewDialog = creme.dialog.Dialog.sub({
 
     selected: function() {
         var controller = this.controller();
-        return Object.isNone(controller) ? [] : controller.getSelectedEntities();
+        return Object.isNone(controller) ? [] : controller.selectedRows();
     },
 
     validate: function() {
@@ -498,7 +498,7 @@ creme.lv_widget.ListViewActionLink = creme.action.ActionLink.sub({
             $(e.target).parents('.popover:first').trigger('modal-close');
         });
 
-        this.builders(list.getActionBuilders());
+        this.builders(list.actionBuilders());
     }
 });
 
@@ -579,8 +579,11 @@ creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegist
         var listview = this._list;
 
         return new creme.component.Action(function() {
-            listview.submitState(e.target, data);
-            this.done();
+            listview.submitState(data, {
+                done: function() { this.done(); },
+                fail: function() { this.fail(); },
+                cancel: function() { this.cancel(); }
+            });
         });
     },
 
@@ -792,7 +795,7 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
             element.addClass('ui-creme-listview-popup');
         }
 
-        this._initController(element, {
+        var controller = this._initController(element, {
             selectionMode: selectionMode,
             reloadurl: options['reload-url']
         });
@@ -810,44 +813,42 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
 
             this._header.bind(list);
             this._pager.on('refresh', function(event, page) {
-                            element.list_view('submitState', null, {page: page});
+                            controller.submitState({page: page});
                         })
                        .bind(list.find('.listview-pagination'));
         }
 
         element.on('change', '.list-control-group.list-views select', function() {
-            element.list_view('submitState', null, {hfilter: $(this).val()});
+            controller.submitState({hfilter: $(this).val()});
         });
 
         element.on('change', '.list-control-group.list-filters select', function() {
-            element.list_view('submitState', null, {filter: $(this).val()});
+            controller.submitState({filter: $(this).val()});
         });
 
         list.on('change', 'select.list-pagesize-selector', function() {
-            element.list_view('submitState', null, {rows: $(this).val()});
+            controller.submitState({rows: $(this).val()});
         });
     },
 
     _initController: function(element, options) {
-        var listview = element.data('list_view');
+        var listview = this.controller(element);
 
         // Only init the $.fn.list_view once per form, not on every listview reload
         if (!listview) {
-            var historyHandler;
             var inPopup = element.parents('.ui-dialog-content:first').length > 0;
             var reloadUrl = options.reloadurl || window.location.href;
 
-            if (inPopup === false) {
-                historyHandler = function(url) {
-                    creme.history.push(url);
-                };
-            }
-
             listview = element.list_view({
                 selectionMode:    options.selectionMode,
-                historyHandler:   historyHandler,
                 reloadUrl:        reloadUrl
             });
+
+            if (inPopup === false) {
+                listview.on('submit-state-complete', function(event, url, data) {
+                    creme.history.push(url);
+                });
+            }
         }
 
         return listview;
