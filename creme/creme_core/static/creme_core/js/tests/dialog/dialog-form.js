@@ -20,6 +20,12 @@ var MOCK_FRAME_CONTENT_FORM_BUTTON = '<form action="mock/submit/button">' +
                                          '<input type="text" name="lastname" required></input>' +
                                          '<button type="submit" class="ui-creme-dialog-action"></button>' +
                                      '</form>';
+var MOCK_FRAME_CONTENT_FORM_WIZARD = '<form action="mock/submit/wizard">' +
+                                         '<input type="text" name="firstname"></input>' +
+                                         '<input type="text" name="lastname" required></input>' +
+                                         '<button type="submit" class="ui-creme-dialog-action" data-no-validate name="previous">Previous</button>' +
+                                         '<button type="submit" class="ui-creme-dialog-action"></button>' +
+                                     '</form>';
 
 var MOCK_FRAME_CONTENT_FORM_MULTI = '<form action="mock/submit/multi">' +
                                         '<input type="text" name="firstname"></input>' +
@@ -75,6 +81,7 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
             'mock/submit/button': backend.response(200, MOCK_FRAME_CONTENT_FORM_BUTTON),
             'mock/submit/fail': backend.response(200, MOCK_FRAME_CONTENT_FORM_ERROR),
             'mock/submit/required': backend.response(200, MOCK_FRAME_CONTENT_FORM_REQUIRED),
+            'mock/submit/wizard': backend.response(200, MOCK_FRAME_CONTENT_FORM_WIZARD),
             'mock/submit/multi': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI),
             'mock/submit/multi/unnamed': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED),
             'mock/submit/multi/duplicates': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_DUPLICATES),
@@ -100,6 +107,7 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
                 }
             },
             'mock/submit': backend.response(200, MOCK_FRAME_CONTENT_FORM),
+            'mock/submit/wizard': backend.response(200, MOCK_FRAME_CONTENT_FORM_WIZARD),
             'mock/submit/required': backend.response(200, MOCK_FRAME_CONTENT_FORM_REQUIRED),
             'mock/submit/button': backend.response(200, MOCK_FRAME_CONTENT_FORM_BUTTON),
             'mock/submit/fail': backend.response(400, 'Unable to submit this form'),
@@ -484,8 +492,7 @@ QUnit.test('creme.dialog.FormDialog (submit + form[novalidate])', function(asser
     ], this.mockBackendUrlCalls('mock/submit/button'));
 });
 
-
-QUnit.test('creme.dialog.FormDialog (submit + options.noValidate)', function(assert) {
+QUnit.test('creme.dialog.FormDialog (submit + dialog noValidate)', function(assert) {
     var dialog = new creme.dialog.FormDialog({
         url: 'mock/submit/button',
         backend: this.backend,
@@ -519,6 +526,47 @@ QUnit.test('creme.dialog.FormDialog (submit + options.noValidate)', function(ass
             lastname: ['']
         }]
     ], this.mockBackendUrlCalls('mock/submit/button'));
+});
+
+QUnit.test('creme.dialog.FormDialog (submit + button[data-no-validate])', function(assert) {
+    var dialog = new creme.dialog.FormDialog({
+        url: 'mock/submit/wizard',
+        backend: this.backend
+    });
+
+    dialog.open();
+
+    equal(3, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+    equal('Previous', dialog.button('previous').text());
+
+    equal(true, dialog.content().find('button[name="previous"]').is('[data-no-validate]'));
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/wizard'));
+
+    // dialog forbid submit with invalid HTML5 form
+    dialog.submit();
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/wizard'));
+
+    // previous button has 'data-no-validate' attribute and allows submit
+    dialog.button('previous').click();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            firstname: [''],
+            lastname: [''],
+            previous: ['']
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/wizard'));
 });
 
 QUnit.test('creme.dialog.FormDialog (submit + extra data)', function(assert) {
