@@ -252,6 +252,10 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return buttons;
     },
 
+    _removeButton: function(name) {
+        this.button(name).detach();
+    },
+
     _updateButtonState: function(name, enabled, focus) {
         var button = this.button(name);
 
