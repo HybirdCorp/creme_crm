@@ -42,7 +42,7 @@ DEPENDENCIES:
  - Redis 3+
  - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
  - These python packages :
-   (exact versions of Python packages are indicated in the file 'creme/requirements.txt')
+   (exact versions of Python packages are indicated in the files 'creme/requirements*.txt')
      - Mandatory :
          - Django 2.2
          - redis 3.3
@@ -66,16 +66,17 @@ DEPENDENCIES:
              - lcab (if you want Infopath forms exports and your server doesn't run on Windows)
 
 Installation with 'pip':
-    - If you use MySQL, you can use the file 'creme/requirements.txt' to install all the libraries
-      needed by a classical installation with the command (better in a virtualenv):
-        >> pip install -r creme/requirements.txt
-    - If you want a customised installation, you'll have to install the package yourself,
-      depending on which apps or SQL server you want. For PostGreSQL, install the package 'psycopg2':
-        >> pip install psycopg2
+    - You should probably use "virtualenv" (on a Python >= 3.5).
+    - About DB server :
+        - If you use MySQL, you can use the file 'creme/requirements-mysql.txt' to install
+          all the libraries needed by a classical installation with the command :
+            >> pip install -r creme/requirements-mysql.txt
+        - For PostGreSQL, use 'creme/requirements-pgsql.txt' instead.
+        - For SQLite, just use 'creme/requirements.txt' instead (see RECOMMENDATIONS).
     - Notice some of these python packages need system libraries to be installed.
       For example, here a list of Debian/Ubuntu packages you'll have to install before:
         - python-dev
-        - mysql_config & libmysqlclient-dev (or libpq5 if you want to use PostGreSQL)
+        - mysql_config & libmysqlclient-dev (or libpq-dev if you want to use PostGreSQL)
         - redis-server
         - libxslt1-dev
         - default-jre
