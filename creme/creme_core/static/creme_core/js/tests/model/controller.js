@@ -87,6 +87,51 @@ QUnit.test('creme.model.CollectionController.model', function(assert) {
     this.assertItems(element, [1, 2, 3]);
 });
 
+QUnit.test('creme.model.SelectionController._cleanIndices', function(assert) {
+    var model = new creme.model.Array([]);
+    var controller = new creme.model.SelectionController().model(model);
+
+    deepEqual([], controller._cleanIndices([], 0, 0));
+    deepEqual([], controller._cleanIndices([], 0, 100));
+
+    deepEqual([[0, 0]], controller._cleanIndices([[0, 10]], 0, 0));
+    deepEqual([[0, 5]], controller._cleanIndices([[0, 10]], 0, 5));
+    deepEqual([[0, 10]], controller._cleanIndices([[0, 10]], 0, 100));
+
+    deepEqual([[5, 10]], controller._cleanIndices([[0, 10]], 5, 100));
+    deepEqual([[50, 50]], controller._cleanIndices([[0, 10]], 50, 100));
+    deepEqual([[100, 100]], controller._cleanIndices([[0, 10]], 100, 100));
+
+    deepEqual([[0, 10]], controller._cleanIndices([[10, 0]], 0, 10));
+
+    deepEqual([[1, 2], [3, 4], [5, 10]], controller._cleanIndices([[10, 5], [4, 3], [1, 2]], 0, 10));
+});
+
+QUnit.test('creme.model.SelectionController._optimizeRanges', function(assert) {
+    var model = new creme.model.Array([]);
+    var controller = new creme.model.SelectionController().model(model);
+
+    deepEqual([], controller._optimizeRanges([]));
+    deepEqual([[0, 10]], controller._optimizeRanges([[0, 10]]));
+
+    // disjointed
+    deepEqual([[0, 2], [4, 5]], controller._optimizeRanges([[0, 2], [4, 5]]));
+    deepEqual([[0, 2], [4, 5]], controller._optimizeRanges([[4, 5], [0, 2]]));
+
+    // neighbors
+    deepEqual([[0, 5]], controller._optimizeRanges([[0, 2], [3, 5]]));
+    deepEqual([[1, 5]], controller._optimizeRanges([[1, 1], [1, 2], [3, 5]]));
+
+    // override
+    deepEqual([[0, 5]], controller._optimizeRanges([[0, 2], [2, 5]]));
+    deepEqual([[0, 5]], controller._optimizeRanges([[0, 3], [2, 5]]));
+    deepEqual([[0, 5]], controller._optimizeRanges([[0, 2], [1, 5]]));
+
+    // inclusion
+    deepEqual([[0, 4]], controller._optimizeRanges([[0, 4], [1, 3]]));
+    deepEqual([[0, 4]], controller._optimizeRanges([[0, 4], [1, 2], [2, 3], [4, 4]]));
+});
+
 QUnit.test('creme.model.SelectionController.select (default)', function(assert) {
     var model = new creme.model.Array([{value: 1}, {value: 5}, {value: 3}, {value: 8}, {value: 7}]);
     var controller = new creme.model.SelectionController().model(model);
@@ -100,6 +145,12 @@ QUnit.test('creme.model.SelectionController.select (default)', function(assert) 
 
     controller.select(1);
     deepEqual([{value: 5, selected: true}], controller.selected());
+
+    controller.select(0);
+    deepEqual([{value: 1, selected: true}], controller.selected());
+
+    controller.select(4);
+    deepEqual([{value: 7, selected: true}], controller.selected());
 
     controller.select([[2, 4]]);
     deepEqual([{value: 3, selected: true}, {value: 8, selected: true}, {value: 7, selected: true}], controller.selected());
