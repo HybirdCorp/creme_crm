@@ -1065,7 +1065,7 @@ QUnit.test('creme.bricks.Brick.registry', function(assert) {
     var brick = new creme.bricks.Brick().bind(element);
     var registry = brick.getActionBuilders();
 
-    ok(Object.isSubClassOf(registry, creme.action.ActionBuilderRegistry));
+    ok(Object.isSubClassOf(registry, creme.component.FactoryRegistry));
 
     ok(registry.has('view'));
     ok(registry.has('redirect'));

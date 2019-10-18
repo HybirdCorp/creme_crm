@@ -116,7 +116,7 @@ creme.crudity.RefreshSyncStatusAction = creme.component.Action.sub({
     }
 });
 
-var CrudityActionBuilderRegistry = creme.action.ActionBuilderRegistry.sub({
+var CrudityActionBuilderRegistry = creme.component.FactoryRegistry.sub({
     _build_crudity_hatbar_refresh: function(url, options, data, e) {
         return new creme.crudity.RefreshSyncStatusAction({
             url: url,

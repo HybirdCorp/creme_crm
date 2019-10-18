@@ -690,7 +690,7 @@ QUnit.test('creme.listview.actionregistry', function(assert) {
     var list = this.createListView().controller();
     var registry = list.actionBuilders();
 
-    ok(Object.isSubClassOf(registry, creme.action.ActionBuilderRegistry));
+    ok(Object.isSubClassOf(registry, creme.component.FactoryRegistry));
 
     ok(registry.has('update'));
     ok(registry.has('delete'));

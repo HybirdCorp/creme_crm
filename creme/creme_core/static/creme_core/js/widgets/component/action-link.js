@@ -30,7 +30,7 @@ creme.action.ActionLink = creme.component.Component.sub({
 
         this._running = false;
         this._events = new creme.component.EventHandler();
-        this._registry = new creme.action.ActionBuilderRegistry();
+        this._registry = new creme.component.FactoryRegistry();
     },
 
     on: function(event, listener, decorator) {
@@ -52,14 +52,14 @@ creme.action.ActionLink = creme.component.Component.sub({
     },
 
     builders: function(builders) {
-        if (builders instanceof creme.action.ActionBuilderRegistry) {
+        if (builders instanceof creme.component.FactoryRegistry) {
             this._registry = builders;
         } else if (Object.isFunc(builders)) {
-            this._registry = new creme.action.ActionBuilderRegistry({
+            this._registry = new creme.component.FactoryRegistry({
                 fallback: builders
             });
         } else if (builders instanceof Object) {
-            this._registry = new creme.action.ActionBuilderRegistry({
+            this._registry = new creme.component.FactoryRegistry({
                 builders: builders
             });
         } else {

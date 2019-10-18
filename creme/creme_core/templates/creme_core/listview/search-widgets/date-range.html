@@ -1,4 +1,4 @@
-{% load i18n %}<div class="lv-state-field lv-search-daterange" {% include 'django/forms/widgets/attrs.html' %}>
+{% load i18n %}<div class="lv-state-field lv-search-daterange" data-lv-search-widget="daterange" {% include 'django/forms/widgets/attrs.html' %}>
     <div class="date-start">
         <label for="{{widget.id_start}}">{% trans 'Start' %}</label>
         <input name="{{widget.name}}-start" id="{{widget.id_start}}" data-format="{{widget.date_format}}" {# title="{{cell.title}}" type="date" #}

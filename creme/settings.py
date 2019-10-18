@@ -611,6 +611,7 @@ CREME_CORE_JS = ['main.js',
                     'creme_core/js/widgets/base.js',
 
                     'creme_core/js/widgets/component/component.js',
+                    'creme_core/js/widgets/component/factory.js',
                     'creme_core/js/widgets/component/events.js',
                     'creme_core/js/widgets/component/action.js',
                     'creme_core/js/widgets/component/action-registry.js',
