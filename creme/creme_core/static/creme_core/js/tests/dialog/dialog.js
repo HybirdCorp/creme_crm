@@ -857,7 +857,7 @@ QUnit.test('creme.dialog.Dialog (titlebar, fetch url)', function(assert) {
 
 
 QUnit.test('creme.dialogs.Dialog (scrollbackOnClose)', function(assert) {
-    var dialog = new creme.dialog.Dialog({scrollbackOnClose: true}).open();
+    var dialog = new creme.dialog.Dialog().open();
 
     equal(true, dialog.options.scrollbackOnClose);
 
@@ -882,7 +882,9 @@ QUnit.test('creme.dialogs.Dialog (scrollbackOnClose)', function(assert) {
 
 
 QUnit.test('creme.dialogs.Dialog (scrollbackOnClose, disabled)', function(assert) {
-    var dialog = new creme.dialog.Dialog();
+    var dialog = new creme.dialog.Dialog({
+        scrollbackOnClose: false
+    });
 
     equal(false, dialog.options.scrollbackOnClose);
 

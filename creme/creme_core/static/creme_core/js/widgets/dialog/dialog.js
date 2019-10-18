@@ -51,7 +51,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
             useFrameTitleBar: true,
             useFrameActions: true,
             closeOnEscape: true,
-            scrollbackOnClose: false
+            scrollbackOnClose: true
         }, options || {});
 
         this._initFrame(options);
