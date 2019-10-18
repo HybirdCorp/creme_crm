@@ -121,7 +121,9 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         options = options || {};
 
         var form = this.form();
-        var errors = creme.forms.validateHtml5Form(form, this.options);
+        var errors = creme.forms.validateHtml5Form(form, {
+            noValidate: options.noValidate || this.options.noValidate
+        });
 
         if (Object.isEmpty(errors) === false) {
             return this;
@@ -228,6 +230,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             var order = parseInt(item.attr('data-dialog-action-order') || 0);
             var value = item.val();
             var id = buildUniqueButtonId(name || 'send');
+            var noValidate = item.is('[data-no-validate]');
 
             if (item.is('input')) {
                 label = value || gettext('Save');
@@ -240,7 +243,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             }
 
             self._appendButton(buttons, id, label, submitCb,
-                               {data: data, order: order});
+                               {data: data, order: order, noValidate: noValidate});
         }).toggleAttr('disabled', true);
 
         if (Object.isEmpty(buttons)) {
