@@ -205,7 +205,7 @@ creme.lv_widget.EditSelectedAction = creme.component.Action.sub({
                    })
                    .onFormError(function(event, data) {
                        if ($('form', this.content()).length === 0) {
-                           this._updateButtonState('send', false);
+                           this._removeButton('send');
                            this._updateButtonLabel('cancel', gettext('Close'));
                            this._bulk_edit_done = true;
                        }
