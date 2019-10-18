@@ -225,6 +225,31 @@ creme.model.SelectionController = creme.component.Component.sub({
         return cleaned;
     },
 
+    _optimizeRanges: function(ranges) {
+        var result = [];
+        var current;
+
+        ranges.sort(this._compareRange).forEach(function(range) {
+            var start = range[0], end = range[1];
+
+            if (current === undefined) {
+                result.push(range);
+                current = range;
+            }
+
+            var isStartIn = start >= current[0] && start <= current[1] + 1;
+
+            if (isStartIn) {
+                current[1] = Math.max(end, current[1]);
+            } else {
+                result.push(range);
+                current = range;
+            }
+        });
+
+        return result;
+    },
+
     _updateSelection: function(indices, instate, outstate) {
         var model = this.model();
         var filter = this.selectionFilter();
@@ -233,19 +258,20 @@ creme.model.SelectionController = creme.component.Component.sub({
 
         indices = this._cleanIndices(indices);
 
-        var has_updates = false;
-        var next, previous, item;
+        var hasUpdates = false, outIndices = [];
+        var next, previous, item, isInRange;
 
         for (var index = 0; index < items.length; ++index) {
             item = items[index];
 
-            if (filter && !filter(item, index)) {
+            if (Object.isFunc(filter) && !filter(item, index)) {
                 continue;
             }
 
             previous = (item.selected === true);
+            isInRange = inrange(indices, index);
 
-            if (inrange(indices, index)) {
+            if (isInRange) {
                 next = instate(item, index);
             } else {
                 next = outstate ? outstate(item, index) : previous;
@@ -253,12 +279,18 @@ creme.model.SelectionController = creme.component.Component.sub({
 
             if (next !== undefined && next !== previous) {
                 item.selected = next;
-                has_updates = true;
+                hasUpdates = true;
+
+                if (!isInRange) {
+                    outIndices.push([index, index]);
+                }
             }
         }
 
-        if (has_updates) {
-            indices.forEach(function(range) {
+        if (hasUpdates) {
+            var updatedIndices = indices.concat(outIndices);
+
+            updatedIndices.forEach(function(range) {
                 var update_start = range[0];
                 var update_end = range[1];
 
