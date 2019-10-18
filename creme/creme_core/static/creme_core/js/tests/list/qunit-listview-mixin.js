@@ -139,6 +139,7 @@
                 hatbarcontrols: [],
                 hatbarbuttons: [],
                 status: {},
+                pager: '',
                 reloadurl: 'mock/listview/reload'
             }, options || {});
 
@@ -247,7 +248,7 @@
                        + '<tfoot><tr><td>'
                            + '<div class="list-footer-container sticks-horizontally">'
                                + '<div class="list-footer-stats"></div>'
-                               + '<div class="listview-pagination"></div>'
+                               + '<div class="listview-pagination">${pager}</div>'
                                + '<div class="list-footer-page-selector">'
                                    + '<select name="rows" class="lv-state-field list-pagesize-selector">'
                                        + '<option value="10">10</option>'
@@ -270,7 +271,8 @@
                    columns: options.columns.map(renderColumnTitle).join(''),
                    searches: options.columns.map(renderColumnSearch).join(''),
                    rows: options.rows.map(renderRow).join(''),
-                   rowcount: options.rows.length
+                   rowcount: options.rows.length,
+                   pager: options.pager || ''
                });
         },
 
@@ -381,7 +383,7 @@
         },
 
         setListviewSelection: function(list, ids) {
-            $(list).find('#selected_rows').val(ids.join(','));
+            list.element().find('#selected_rows').val(ids.join(','));
         },
 
         validateListViewSelectionDialog: function(dialog) {

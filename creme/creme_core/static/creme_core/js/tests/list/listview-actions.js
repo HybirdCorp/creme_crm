@@ -65,8 +65,8 @@ QUnit.test('creme.listview.DeleteSelectedAction (no selection)', function(assert
         url: 'mock/entity/delete'
     }).on(this.listviewActionListeners);
 
-    equal(0, list.countEntities());
-    deepEqual([], list.getSelectedEntities());
+    equal(0, list.selectedRowsCount());
+    deepEqual([], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -91,10 +91,10 @@ QUnit.test('creme.listview.DeleteSelectedAction (not confirmed)', function(asser
         url: 'mock/entity/delete'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('2,3');
+    list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -119,10 +119,10 @@ QUnit.test('creme.listview.DeleteSelectedAction (error)', function(assert) {
         url: 'mock/entity/delete/fail'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('1,2');
+    list.element().find('#selected_rows').val('1,2');
 
-    equal(2, list.countEntities());
-    deepEqual(['1', '2'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['1', '2'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -169,10 +169,10 @@ QUnit.test('creme.listview.DeleteSelectedAction (not allowed)', function(assert)
         url: 'mock/entity/delete/nothing'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('1,2');
+    list.element().find('#selected_rows').val('1,2');
 
-    equal(2, list.countEntities());
-    deepEqual(['1', '2'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['1', '2'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -220,10 +220,10 @@ QUnit.test('creme.listview.DeleteSelectedAction (partially allowed)', function(a
         url: 'mock/entity/delete/firstonly'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('1,2,3');
+    list.element().find('#selected_rows').val('1,2,3');
 
-    equal(3, list.countEntities());
-    deepEqual(['1', '2', '3'], list.getSelectedEntities());
+    equal(3, list.selectedRowsCount());
+    deepEqual(['1', '2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -267,10 +267,10 @@ QUnit.test('creme.listview.DeleteSelectedAction (ok)', function(assert) {
         url: 'mock/entity/delete'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('1,2,3');
+    list.element().find('#selected_rows').val('1,2,3');
 
-    equal(3, list.countEntities());
-    deepEqual(['1', '2', '3'], list.getSelectedEntities());
+    equal(3, list.selectedRowsCount());
+    deepEqual(['1', '2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -302,8 +302,8 @@ QUnit.test('creme.listview.AddToSelectedAction (no selection)', function(assert)
         url: 'mock/entity/addto'
     }).on(this.listviewActionListeners);
 
-    equal(0, list.countEntities());
-    deepEqual([], list.getSelectedEntities());
+    equal(0, list.selectedRowsCount());
+    deepEqual([], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -323,10 +323,10 @@ QUnit.test('creme.listview.AddToSelectedAction (cancel)', function(assert) {
         url: 'mock/entity/addto'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('2,3');
+    list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -355,10 +355,10 @@ QUnit.test('creme.listview.AddToSelectedAction (submit fail + cancel)', function
         url: 'mock/entity/addto'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('2,3');
+    list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -388,10 +388,10 @@ QUnit.test('creme.listview.AddToSelectedAction (ok)', function(assert) {
         url: 'mock/entity/addto'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('2,3');
+    list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -434,8 +434,8 @@ QUnit.test('creme.listview.EditSelectedAction (no selection)', function(assert) 
         url: 'mock/entity/edit'
     }).on(this.listviewActionListeners);
 
-    equal(0, list.countEntities());
-    deepEqual([], list.getSelectedEntities());
+    equal(0, list.selectedRowsCount());
+    deepEqual([], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -455,10 +455,10 @@ QUnit.test('creme.listview.EditSelectedAction (cancel)', function(assert) {
         url: 'mock/entity/edit'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('2,3');
+    list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -483,10 +483,10 @@ QUnit.test('creme.listview.EditSelectedAction (submit => form error => close)', 
         url: 'mock/entity/edit'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('2,3');
+    list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -514,10 +514,10 @@ QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close
         url: 'mock/entity/edit'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('2,3');
+    list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -565,10 +565,10 @@ QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
         url: 'mock/entity/edit'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('2,3');
+    list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -611,8 +611,8 @@ QUnit.test('creme.listview.MergeSelectedAction (no selection)', function(assert)
         url: 'mock/entity/merge'
     }).on(this.listviewActionListeners);
 
-    equal(0, list.countEntities());
-    deepEqual([], list.getSelectedEntities());
+    equal(0, list.selectedRowsCount());
+    deepEqual([], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -631,10 +631,10 @@ QUnit.test('creme.listview.MergeSelectedAction (invalid selection)', function(as
         url: 'mock/entity/merge'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('2');
+    list.element().find('#selected_rows').val('2');
 
-    equal(1, list.countEntities());
-    deepEqual(['2'], list.getSelectedEntities());
+    equal(1, list.selectedRowsCount());
+    deepEqual(['2'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -649,10 +649,10 @@ QUnit.test('creme.listview.MergeSelectedAction (invalid selection)', function(as
 
     this.resetMockListenerCalls();
 
-    $(list).find('#selected_rows').val('1,2,3');
+    list.element().find('#selected_rows').val('1,2,3');
 
-    equal(3, list.countEntities());
-    deepEqual(['1', '2', '3'], list.getSelectedEntities());
+    equal(3, list.selectedRowsCount());
+    deepEqual(['1', '2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -672,10 +672,10 @@ QUnit.test('creme.listview.MergeSelectedAction (ok)', function(assert) {
         url: 'mock/entity/merge'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('2,3');
+    list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -688,7 +688,7 @@ QUnit.test('creme.listview.MergeSelectedAction (ok)', function(assert) {
 
 QUnit.test('creme.listview.actionregistry', function(assert) {
     var list = this.createListView().controller();
-    var registry = list.getActionBuilders();
+    var registry = list.actionBuilders();
 
     ok(Object.isSubClassOf(registry, creme.action.ActionBuilderRegistry));
 
@@ -711,7 +711,7 @@ QUnit.test('creme.listview.row-action (update)', function(assert) {
     }).controller();
 
     this.assertClosedPopover();
-    $('.row-actions-trigger', list).click();
+    list.element().find('.row-actions-trigger').click();
 
     var popover = this.assertOpenedPopover();
     $('.listview-actions-container [data-action]', popover).click();
@@ -743,7 +743,7 @@ QUnit.test('creme.listview.row-action (delete, canceled)', function(assert) {
     }).controller();
 
     this.assertClosedPopover();
-    $('.row-actions-trigger', list).click();
+    list.element().find('.row-actions-trigger').click();
 
     var popover = this.assertOpenedPopover();
     $('.listview-actions-container [data-action]', popover).click();
@@ -763,7 +763,7 @@ QUnit.test('creme.listview.row-action (delete)', function(assert) {
     }).controller();
 
     this.assertClosedPopover();
-    $('.row-actions-trigger', list).click();
+    list.element().find('.row-actions-trigger').click();
 
     var popover = this.assertOpenedPopover();
     $('.listview-actions-container [data-action]', popover).click();
@@ -797,7 +797,7 @@ QUnit.test('creme.listview.row-action (clone, canceled)', function(assert) {
     }).controller();
 
     this.assertClosedPopover();
-    $('.row-actions-trigger', list).click();
+    list.element().find('.row-actions-trigger').click();
 
     var popover = this.assertOpenedPopover();
     $('.listview-actions-container [data-action]', popover).click();
@@ -817,7 +817,7 @@ QUnit.test('creme.listview.row-action (clone)', function(assert) {
     }).controller();
 
     this.assertClosedPopover();
-    $('.row-actions-trigger', list).click();
+    list.element().find('.row-actions-trigger').click();
 
     var popover = this.assertOpenedPopover();
     $('.listview-actions-container [data-action]', popover).click();
@@ -839,7 +839,7 @@ QUnit.test('creme.listview.row-action (form)', function(assert) {
     }).controller();
 
     this.assertClosedPopover();
-    $('.row-actions-trigger', list).click();
+    list.element().find('.row-actions-trigger').click();
 
     var popover = this.assertOpenedPopover();
     $('.listview-actions-container [data-action]', popover).click();
@@ -880,7 +880,7 @@ QUnit.test('creme.listview.row-action (redirect)', function(assert) {
     }).controller();
 
     this.assertClosedPopover();
-    $('.row-actions-trigger', list).click();
+    list.element().find('.row-actions-trigger').click();
 
     var popover = this.assertOpenedPopover();
     $('.listview-actions-container [data-action]', popover).click();
@@ -900,8 +900,8 @@ QUnit.test('creme.listview.header-actions (no selection)', function(assert) {
     equal(5, rows.length);
 
     // open without selection
-    equal(0, list.countEntities());
-    deepEqual([], list.getSelectedEntities());
+    equal(0, list.selectedRowsCount());
+    deepEqual([], list.selectedRows());
 
     $('.header-actions-trigger', widget.element).click();
 
@@ -914,7 +914,7 @@ QUnit.test('creme.listview.header-actions (no selection)', function(assert) {
     ], popover);
 });
 
-QUnit.test('creme.listview.header-actions (1 selection)', function(assert) {
+QUnit.test('creme.listview.header-actions (open menu, 1 selection)', function(assert) {
     var widget = this.createHeaderActionsListView();
     var list = widget.controller();
     var rows = widget.element.find('table:first tr.selectable');
@@ -924,8 +924,8 @@ QUnit.test('creme.listview.header-actions (1 selection)', function(assert) {
     $(rows[0]).click();
 
     // open without selection
-    equal(1, list.countEntities());
-    deepEqual(['1'], list.getSelectedEntities());
+    equal(1, list.selectedRowsCount());
+    deepEqual(['1'], list.selectedRows());
 
     $('.header-actions-trigger', widget.element).click();
 
@@ -938,7 +938,7 @@ QUnit.test('creme.listview.header-actions (1 selection)', function(assert) {
     ], popover);
 });
 
-QUnit.test('creme.listview.header-actions (2 selections)', function(assert) {
+QUnit.test('creme.listview.header-actions (open menu, 2 selections)', function(assert) {
     var widget = this.createHeaderActionsListView();
     var list = widget.controller();
     var rows = widget.element.find('table:first tr.selectable');
@@ -949,7 +949,7 @@ QUnit.test('creme.listview.header-actions (2 selections)', function(assert) {
     $(rows[2]).click();
 
     // open without selection
-    deepEqual(['1', '3'], list.getSelectedEntities());
+    deepEqual(['1', '3'], list.selectedRows());
 
     $('.header-actions-trigger', widget.element).click();
 
@@ -962,7 +962,7 @@ QUnit.test('creme.listview.header-actions (2 selections)', function(assert) {
     ], popover);
 });
 
-QUnit.test('creme.listview.header-actions (all selections)', function(assert) {
+QUnit.test('creme.listview.header-actions (open menu, all selections)', function(assert) {
     var widget = this.createHeaderActionsListView();
     var list = widget.controller();
     var rows = widget.element.find('table:first tr.selectable');
@@ -972,7 +972,7 @@ QUnit.test('creme.listview.header-actions (all selections)', function(assert) {
     rows.click();
 
     // open without selection
-    equal(5, list.countEntities());
+    equal(5, list.selectedRowsCount());
 
     $('.header-actions-trigger', widget.element).click();
 
@@ -985,5 +985,45 @@ QUnit.test('creme.listview.header-actions (all selections)', function(assert) {
     ], popover);
 });
 
+QUnit.test('creme.listview.header-actions (open menu, click)', function(assert) {
+    var widget = this.createHeaderActionsListView();
+    var list = widget.controller();
+    var rows = widget.element.find('table:first tr.selectable');
+
+    $(rows[0]).click();
+    $(rows[2]).click();
+
+    equal(2, list.selectedRowsCount());
+
+    $('.header-actions-trigger', widget.element).click();
+    var popover = this.assertOpenedPopover();
+
+    popover.find('.listview-action [data-action="merge-selection"]').click();
+    this.assertClosedPopover();
+
+    this.assertClosedDialog();
+    deepEqual(['/mock/entity/merge?id1=1&id2=3'], this.mockRedirectCalls());
+
+    $('.header-actions-trigger', widget.element).click();
+    popover = this.assertOpenedPopover();
+
+    popover.find('.listview-action [data-action="delete-selection"]').click();
+    this.assertClosedPopover();
+
+    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+    this.closeDialog();
+
+    $('.header-actions-trigger', widget.element).click();
+    popover = this.assertOpenedPopover();
+
+    popover.find('.listview-action [data-action="addto-selection"]').click();
+    this.assertClosedPopover();
+
+    this.assertOpenedDialog();
+    deepEqual([
+        ['GET', {ids: ['1', '3']}]
+    ], this.mockBackendUrlCalls('mock/entity/addto'));
+    this.closeDialog();
+});
 
 }(jQuery));

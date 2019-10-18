@@ -10,8 +10,8 @@ QUnit.test('creme.activities.ExportAsICalAction (no selection)', function(assert
         url: 'mock/activities/export/ical'
     }).on(this.listviewActionListeners);
 
-    equal(0, list.countEntities());
-    deepEqual([], list.getSelectedEntities());
+    equal(0, list.selectedRowsCount());
+    deepEqual([], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -30,10 +30,10 @@ QUnit.test('creme.activities.ExportAsICalAction (ok)', function(assert) {
         url: 'mock/activities/export/ical'
     }).on(this.listviewActionListeners);
 
-    $(list).find('#selected_rows').val('1,2,3');
+    this.setListviewSelection(list, ['1', '2', '3']);
 
-    equal(3, list.countEntities());
-    deepEqual(['1', '2', '3'], list.getSelectedEntities());
+    equal(3, list.selectedRowsCount());
+    deepEqual(['1', '2', '3'], list.selectedRows());
 
     action.start();
 
@@ -46,8 +46,8 @@ QUnit.test('creme.activities.exportAsICal', function(assert) {
     var list = this.createDefaultListView().controller();
 
     $(list).find('#selected_rows').val('1,2,3');
-    equal(3, list.countEntities());
-    deepEqual(['1', '2', '3'], list.getSelectedEntities());
+    equal(3, list.selectedRowsCount());
+    deepEqual(['1', '2', '3'], list.selectedRows());
 
     deepEqual([], this.mockRedirectCalls());
 

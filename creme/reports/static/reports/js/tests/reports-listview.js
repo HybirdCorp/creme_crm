@@ -173,7 +173,7 @@ QUnit.test('creme.reports.ExportReportAction (xls, created, previous_year)', fun
 
 QUnit.test('creme.reports.listview.actions (reports-export, ok)', function(assert) {
     var list = this.createDefaultListView().controller();
-    var registry = list.getActionBuilders();
+    var registry = list.actionBuilders();
 
     var builder = registry.get('reports-export');
 

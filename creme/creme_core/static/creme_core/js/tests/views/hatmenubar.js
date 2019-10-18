@@ -91,8 +91,8 @@ QUnit.test('creme.detailview.hatmenubar (addrelationships)', function(assert) {
 
     this.setListviewSelection(list, ['2', '3']);
 
-    equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntities());
+    equal(2, list.selectedRowsCount());
+    deepEqual(['2', '3'], list.selectedRows());
 
     this.validateListViewSelectionDialog(dialog);
     this.assertClosedDialog();
