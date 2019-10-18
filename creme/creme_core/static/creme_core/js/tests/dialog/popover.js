@@ -275,6 +275,64 @@ QUnit.test('creme.dialog.Popover (closeIfOut, disabled)', function(assert) {
     deepEqual([], this.mockListenerCalls('closed'));
 });
 
+
+QUnit.test('creme.dialog.Popover (scrollbackOnClose)', function(assert) {
+    var popover = new creme.dialog.Popover({
+        scrollbackOnClose: true
+    });
+    var anchor = this.qunitFixture('popover');
+
+    equal(true, popover.options().scrollbackOnClose);
+    equal(Object.isNone(popover._scrollbackPosition), true);
+    deepEqual([], this.mockScrollBackCalls());
+
+    popover.open(anchor);
+
+    equal(789, popover._scrollbackPosition);
+    deepEqual([
+        [undefined, undefined]
+    ], this.mockScrollBackCalls());
+
+    creme.utils.scrollBack(50);
+
+    deepEqual([
+        [undefined, undefined],
+        [50, undefined]
+    ], this.mockScrollBackCalls());
+
+    popover.close();
+
+    equal(Object.isNone(popover._scrollbackPosition), true);
+    deepEqual([
+        [undefined, undefined],
+        [50, undefined],
+        [789, 'slow']
+    ], this.mockScrollBackCalls());
+});
+
+
+QUnit.test('creme.dialog.Popover (scrollbackOnClose, disabled)', function(assert) {
+    var popover = new creme.dialog.Popover();
+    var anchor = this.qunitFixture('popover');
+
+    equal(false, popover.options().scrollbackOnClose);
+    equal(Object.isNone(popover._scrollbackPosition), true);
+    deepEqual([], this.mockScrollBackCalls());
+
+    popover.open(anchor);
+
+    equal(Object.isNone(popover._scrollbackPosition), true);
+    deepEqual([], this.mockScrollBackCalls());
+
+    popover.close();
+
+    // close always call creme.utils.scrollBack
+    deepEqual([
+        [undefined, 'slow']
+    ], this.mockScrollBackCalls());
+});
+
+
 QUnit.test('creme.dialog.Popover (trigger modal close)', function(assert) {
     var popover = new creme.dialog.Popover();
     var anchor = this.qunitFixture('popover');

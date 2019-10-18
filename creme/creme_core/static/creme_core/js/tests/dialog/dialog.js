@@ -855,6 +855,71 @@ QUnit.test('creme.dialog.Dialog (titlebar, fetch url)', function(assert) {
         '</div>');
 });
 
+
+QUnit.test('creme.dialogs.Dialog (scrollbackOnClose)', function(assert) {
+    var dialog = new creme.dialog.Dialog({scrollbackOnClose: true}).open();
+
+    equal(true, dialog.options.scrollbackOnClose);
+
+    deepEqual([
+        [undefined, undefined]
+    ], this.mockScrollBackCalls());
+    equal(789, dialog._scrollbackPosition);
+
+    creme.utils.scrollBack(50);
+    deepEqual([
+        [undefined, undefined],
+        [50, undefined]
+    ], this.mockScrollBackCalls());
+
+    dialog.close();
+    deepEqual([
+        [undefined, undefined],
+        [50, undefined],
+        [789, 'slow']
+    ], this.mockScrollBackCalls());
+});
+
+
+QUnit.test('creme.dialogs.Dialog (scrollbackOnClose, disabled)', function(assert) {
+    var dialog = new creme.dialog.Dialog();
+
+    equal(false, dialog.options.scrollbackOnClose);
+
+    dialog.open();
+    deepEqual([], this.mockScrollBackCalls());
+
+    // close() always call creme.utils.scrollBack
+    dialog.close();
+    deepEqual([
+        [undefined, 'slow']
+    ], this.mockScrollBackCalls());
+});
+
+
+QUnit.test('creme.dialogs.Dialog (closeOnEscape)', function(assert) {
+    var dialog = new creme.dialog.Dialog().open();
+
+    equal(true, dialog.options.closeOnEscape);
+
+    $(dialog.dialog()).trigger($.Event("keydown", {keyCode: $.ui.keyCode.ESCAPE}));
+    ok(dialog.isOpened() === false);
+});
+
+
+QUnit.test('creme.dialogs.Dialog (closeOnEscape, disabled)', function(assert) {
+    var dialog = new creme.dialog.Dialog({
+        closeOnEscape: false
+    }).open();
+
+    equal(false, dialog.options.closeOnEscape);
+
+    $(dialog.dialog()).trigger($.Event("keydown", {keyCode: $.ui.keyCode.ESCAPE}));
+    ok(dialog.isOpened() === true);
+
+    dialog.close();
+});
+
 QUnit.test('creme.dialogs.image (url)', function(assert) {
     var dialog = creme.dialogs.image('data:image/png;base64, ' + RED_DOT_5x5_BASE64);
     var self = this;
