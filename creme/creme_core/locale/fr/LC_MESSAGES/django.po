@@ -1129,7 +1129,7 @@ msgstr ""
 
 #: forms/fields.py:1093
 msgid "Enter a value if you check the box."
-msgstr "Entrez une valeur si vous chochez la case."
+msgstr "Entrez une valeur si vous cochez la case."
 
 #: forms/fields.py:1350
 msgid ""

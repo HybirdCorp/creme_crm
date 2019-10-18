@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activesync 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 11:35+0100\n"
+"POT-Creation-Date: 2018-10-17 11:15+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -209,7 +209,7 @@ msgstr "Il y a eu une erreur pendant la synchronisation"
 
 #: errors.py:55
 msgid "It seems there no available connection"
-msgstr "Il semble qu'il n'y ait pas de connection internet"
+msgstr "Il semble qu'il n'y ait pas de connexion internet"
 
 #: errors.py:56
 msgid "Wrong configuration (wrong server URL?)"

@@ -226,7 +226,7 @@ msgstr "Opportunité"
 
 #: models/opportunity.py:136
 msgid "Emitter is required."
-msgstr "Un emmeteur est requis."
+msgstr "Un émetteur est requis."
 
 #: models/opportunity.py:139
 msgid "Target is required."
