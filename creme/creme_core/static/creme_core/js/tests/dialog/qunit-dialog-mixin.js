@@ -5,7 +5,20 @@
 
     window.QUnitDialogMixin = {
         beforeEach: function() {
+            var self = this;
+
             $('<div class="ui-dialog-within-container"></div>').appendTo('body');
+
+            this.resetMockScrollBackCalls();
+
+            this.__scrollBack = creme.utils.scrollBack;
+            creme.utils.scrollBack = function(position, speed) {
+                self._scrollbackCalls.push([position, speed]);
+
+                if (Object.isNone(position)) {
+                    return 789;
+                }
+            };
         },
 
         afterEach: function() {
@@ -13,6 +26,14 @@
 
             // detach dialog container (limits movement of dialogs within it)
             $('.ui-dialog-within-container').detach();
+        },
+
+        resetMockScrollBackCalls: function() {
+            this._scrollbackCalls = [];
+        },
+
+        mockScrollBackCalls: function() {
+            return this._scrollbackCalls;
         },
 
         shutdownDialogs: function() {

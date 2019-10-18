@@ -303,6 +303,7 @@
             var dialog = creme.dialogs.image(url, {
                 title: $('#popup  [name="image-title"]').is(':checked') ? url : false,
                 closeOnEscape: $('#popup input.popup-closeonescape').is(':checked'),
+                scrollbackOnClose: $('#popup input.popup-scrollbackonclose').is(':checked')
             });
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));

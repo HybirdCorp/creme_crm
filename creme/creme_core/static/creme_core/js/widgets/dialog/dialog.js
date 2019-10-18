@@ -50,7 +50,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
             fitFrame:   true,
             useFrameTitleBar: true,
             useFrameActions: true,
-            closeOnEscape: false,
+            closeOnEscape: true,
             scrollbackOnClose: false
         }, options || {});
 
@@ -141,10 +141,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
         this._destroyDialog();
         this._events.trigger('close', [options], this);
 
-        if (options.scrollbackOnClose) {
-            $('body').animate({scrollTop: this._openingScrollPosition}, 'slow');
-        }
-
+        creme.utils.scrollBack(this._scrollbackPosition, 'slow');
+        this._scrollbackPosition = null;
     },
 
     _onOpen: function(dialog, frame, options) {
@@ -174,7 +172,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         }
 
         if (options.scrollbackOnClose) {
-            this._openingScrollPosition = $('body').get(0).scrollTop;
+            this._scrollbackPosition = creme.utils.scrollBack();
         }
 
         this._events.trigger('open', [options], this);

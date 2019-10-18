@@ -39,7 +39,8 @@ creme.dialog.Popover = creme.component.Component.sub({
             title:      false,
             closeIfOut: true,
             direction:  'bottom',
-            modal:      true
+            modal:      true,
+            scrollbackOnClose: false
         }, options || {});
 
         this._events = new creme.component.EventHandler();
@@ -95,6 +96,10 @@ creme.dialog.Popover = creme.component.Component.sub({
 
         if (options.closeIfOut) {
             this._glasspane.pane().on('mousedown', this._onclose);
+        }
+
+        if (options.scrollbackOnClose) {
+            this._scrollbackPosition = creme.utils.scrollBack();
         }
 
         this._events.trigger('opened', [], this);
@@ -171,6 +176,9 @@ creme.dialog.Popover = creme.component.Component.sub({
 
         this._glasspane.pane().off('mousedown', this._onclose);
         this._glasspane.close();
+
+        creme.utils.scrollBack(this._scrollbackPosition, 'slow');
+        this._scrollbackPosition = null;
 
         this._events.trigger('closed', Array.copy(arguments), this);
 
