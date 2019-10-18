@@ -1,28 +1,27 @@
 /*******************************************************************************
- Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2018-2019  Hybird
+    Creme is a free/open-source Customer Relationship Management software
+    Copyright (C) 2019  Hybird
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU Affero General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU Affero General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
 
- You should have received a copy of the GNU Affero General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *******************************************************************************/
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*******************************************************************************/
 
 (function($) {
 "use strict";
 
-creme.action = creme.action || {};
+creme.component = creme.component || {};
 
-/*
-creme.action.ActionBuilderRegistry = creme.component.Component.sub({
+creme.component.FactoryRegistry = creme.component.Component.sub({
     _init_: function(options) {
         options = $.extend({
             strict: false,
@@ -55,7 +54,7 @@ creme.action.ActionBuilderRegistry = creme.component.Component.sub({
             this._fallbackPrefix = null;
             this._fallback = null;
         } else {
-            throw new Error("invalid action builder registry fallback", fallback);
+            throw new Error("invalid fallback builder", fallback);
         }
 
         return this;
@@ -66,7 +65,7 @@ creme.action.ActionBuilderRegistry = creme.component.Component.sub({
         var registered = [];
 
         if (Object.isString(builders) || Array.isArray(builders)) {
-            throw new Error("action builders data must be a dict", builders);
+            throw new Error("builders data must be a dict", builders);
         }
 
         for (var key in builders) {
@@ -88,11 +87,11 @@ creme.action.ActionBuilderRegistry = creme.component.Component.sub({
 
     register: function(key, builder) {
         if (this._builders[key] !== undefined) {
-            throw new Error('action builder "%s" is already registered'.format(key));
+            throw new Error('builder "%s" is already registered'.format(key));
         }
 
         if (!Object.isFunc(builder)) {
-            throw new Error('action builder "%s" is not a function'.format(key));
+            throw new Error('builder "%s" is not a function'.format(key));
         }
 
         this._builders[key] = builder;
@@ -101,18 +100,18 @@ creme.action.ActionBuilderRegistry = creme.component.Component.sub({
 
     unregister: function(key) {
         if (this._builders[key] === undefined) {
-            throw new Error('action builder "%s" is not registered'.format(key));
+            throw new Error('builder "%s" is not registered'.format(key));
         }
 
         delete this._builders[key];
         return this;
     },
 
-    actions: function() {
+    builders: function() {
         return Object.keys(this._builders);
     },
 
-    fallbackActions: function() {
+    fallbackBuilders: function() {
         var prefix = this._fallbackPrefix;
 
         if (Object.isEmpty(prefix) === false) {
@@ -141,45 +140,8 @@ creme.action.ActionBuilderRegistry = creme.component.Component.sub({
         if (Object.isFunc(builder)) {
             return builder.bind(this);
         } else if (strict) {
-            throw new Error('no such action builder "' + key + '"');
+            throw new Error('no such builder "' + key + '"');
         }
-    }
-});
-*/
-
-creme.action.DefaultActionBuilderRegistry = creme.component.FactoryRegistry.sub({
-    _redirectAction: function(url, options, data) {
-        var context = $.extend({
-            location: window.location.href.replace(/.*?:\/\/[^\/]*/g, '') // remove 'http://host.com'
-        }, data || {});
-
-        return new creme.component.Action(function() {
-            creme.utils.goTo(creme.utils.templatize(url, context).render());
-            this.done();
-        });
-    },
-
-    _warningAction: function(message) {
-        return new creme.component.Action(function() {
-            var self = this;
-            creme.dialogs.warning(message)
-                         .onClose(function() {
-                             self.fail();
-                          })
-                         .open();
-        });
-    },
-
-    _postQueryAction: function(url, options, data) {
-        options = $.extend({action: 'post'}, options || {});
-        return creme.utils.ajaxQuery(url, options, data);
-    },
-
-    _reloadAction: function(url, options, data) {
-        return new creme.component.Action(function() {
-            creme.utils.reload();
-            this.done();
-        });
     }
 });
 

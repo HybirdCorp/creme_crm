@@ -3,9 +3,9 @@
 (function($) {
 "use strict";
 
-var MockActionBuilderRegistry = creme.action.ActionBuilderRegistry.sub({
+var MockActionBuilderRegistry = creme.component.FactoryRegistry.sub({
     _init_: function(context, options) {
-        this._super_(creme.action.ActionBuilderRegistry, '_init_', options);
+        this._super_(creme.component.FactoryRegistry, '_init_', options);
         this.context = context;
     },
 
@@ -308,7 +308,7 @@ QUnit.test('creme.action.ActionLink (bind, unknown actiontype, strict)', functio
 
     this.assertRaises(function() {
         action.bind(link);
-    }, Error, 'Error: no such action builder "unknown"');
+    }, Error, 'Error: no such builder "unknown"');
 
     equal(false, action.isBound());
     equal(false, link.is('.is-disabled'));

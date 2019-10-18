@@ -196,7 +196,8 @@ QUnit.test('creme.listview.core (jquery methods)', function(assert) {
     deepEqual([], element.list_view('selectedRows'));
     equal('mock/listview/reload', element.list_view('prop', 'reloadUrl'));
     equal(false, element.list_view('prop', 'isLoading'));
-    equal(true, Object.isSubClassOf(element.list_view('actionBuilders'), creme.action.ActionBuilderRegistry));
+    equal(true, Object.isSubClassOf(element.list_view('actionBuilders'), creme.component.FactoryRegistry));
+    equal(true, Object.isSubClassOf(element.list_view('columnFilterBuilders'), creme.component.FactoryRegistry));
 
     this.assertRaises(function() {
         element.list_view('unknown');
@@ -211,6 +212,23 @@ QUnit.test('creme.listview.core (selectionMode)', function(assert) {
     this.assertRaises(function() {
         creme.lv_widget.checkSelectionMode('invalid');
     }, Error, 'Error: invalid listview selection mode invalid');
+});
+
+QUnit.test('creme.listview.core (prop, selectionMode)', function(assert) {
+    var element = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.qunitFixture());
+    var listview = creme.widget.create(element);
+    var controller = listview.controller();
+
+    equal('multiple', controller.selectionMode());
+    equal('multiple', element.list_view('prop', 'selectionMode'));
+
+    controller.selectionMode('single');
+    equal('single', controller.selectionMode());
+    equal('single', element.list_view('prop', 'selectionMode'));
+
+    element.list_view('prop', 'selectionMode', 'none');
+    equal('none', controller.selectionMode());
+    equal('none', element.list_view('prop', 'selectionMode'));
 });
 
 QUnit.test('creme.listview.core (select)', function(assert) {
@@ -586,13 +604,13 @@ QUnit.test('creme.listview.core (filter on <input> enter)', function(assert) {
         columns: [this.createCheckAllColumnHtml(), {
                 title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
                 search: '<th class="sorted lv-column sortable text">' +
-                            '<input name="search-regular_field-name" title="Name" type="text" value="C">' +
+                            '<input name="search-regular_field-name" data-lv-search-widget="text" title="Name" type="text" value="C">' +
                         '</th>'
             }
         ]
     })).appendTo(this.qunitFixture());
     var table = element.find('table:first');
-    var column_searchinput = table.find('.lv-search-header .lv-column input[type="text"]');
+    var columnSearch = table.find('.lv-search-header .lv-column input[type="text"]');
     var listview = creme.widget.create(element);
 
     equal(listview.isStandalone(), true);
@@ -603,7 +621,7 @@ QUnit.test('creme.listview.core (filter on <input> enter)', function(assert) {
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
     equal(listview.controller().reloadUrl(), 'mock/listview/reload');
 
-    column_searchinput.trigger($.Event('keydown', {keyCode: 13, which: 13}));
+    columnSearch.trigger($.Event('keydown', {keyCode: 13, which: 13}));
 
     deepEqual([
         ['POST', {
@@ -627,7 +645,7 @@ QUnit.test('creme.listview.core (filter on <select> change)', function(assert) {
         columns: [this.createCheckAllColumnHtml(), {
                 title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
                 search: '<th class="sorted lv-column sortable text">' +
-                            '<select name="search-regular_field-name" title="Name">' +
+                            '<select name="search-regular_field-name" data-lv-search-widget="select" title="Name">' +
                                  '<option value="opt-A">A</option>' +
                                  '<option value="opt-B" selected>B</option>' +
                                  '<option value="opt-C">C</option>' +
@@ -637,7 +655,7 @@ QUnit.test('creme.listview.core (filter on <select> change)', function(assert) {
         ]
     })).appendTo(this.qunitFixture());
     var table = element.find('table:first');
-    var column_searchselect = table.find('.lv-search-header .lv-column select');
+    var columnSearch = table.find('.lv-search-header .lv-column select');
     var listview = creme.widget.create(element);
 
     equal(listview.isStandalone(), true);
@@ -648,7 +666,7 @@ QUnit.test('creme.listview.core (filter on <select> change)', function(assert) {
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
     equal(listview.controller().reloadUrl(), 'mock/listview/reload');
 
-    column_searchselect.trigger('change');
+    columnSearch.trigger('change');
 
     deepEqual([
         ['POST', {
@@ -664,6 +682,98 @@ QUnit.test('creme.listview.core (filter on <select> change)', function(assert) {
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
+
+
+QUnit.test('creme.listview.core (unknown search widget)', function(assert) {
+    var element = $(this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        reloadurl: 'mock/listview/reload',
+        columns: [this.createCheckAllColumnHtml(), {
+                title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
+                search: '<th class="sorted lv-column sortable text">' +
+                            '<input name="search-regular_field-name" data-lv-search-widget="unknown" title="Name" type="text" value="C">' +
+                        '</th>'
+            }
+        ]
+    })).appendTo(this.qunitFixture());
+    var table = element.find('table:first');
+    var listview = creme.widget.create(element);
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+    equal(listview.pager().isBound(), false);
+    equal(listview.header().isBound(), false);
+
+    var columnSearch = table.find('.lv-search-header .lv-column input[type="text"]');
+    equal(columnSearch.is('[data-lv-search-widget="unknown"]'), true);
+
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+
+    columnSearch.trigger($.Event('keydown', {keyCode: 13, which: 13}));
+
+    // Not bound, do nothing
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+
+QUnit.test('creme.listview.core (custom search widget)', function(assert) {
+    var element = $(this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        reloadurl: 'mock/listview/reload',
+        columns: [this.createCheckAllColumnHtml(), {
+                title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
+                search: '<th class="sorted lv-column sortable text">' +
+                            '<input name="search-regular_field-name" data-lv-search-widget="custom" title="Name" type="text" value="1.78">' +
+                        '</th>'
+            }
+        ]
+    })).appendTo(this.qunitFixture());
+    var table = element.find('table:first');
+
+    $(this.qunitFixture()).on('listview-setup-column-filters', '.ui-creme-listview', function(e, actions) {
+        actions.register('custom', function(element, options, list) {
+            $(element).on('keydown', function(e) {
+                if (e.keyCode === list.submitOnKey()) {
+                    e.preventDefault();
+                    list.submitState({
+                        custom: 10 * (parseFloat($(e.target).val()) || 0)
+                    });
+                }
+            }).attr('data-custom-search', 'active');
+        });
+    });
+
+    var listview = creme.widget.create(element);
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+    equal(listview.pager().isBound(), false);
+    equal(listview.header().isBound(), false);
+
+    var columnSearch = table.find('.lv-search-header .lv-column input[type="text"]');
+    equal(columnSearch.is('[data-custom-search="active"]'), true);
+
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+
+    columnSearch.trigger($.Event('keydown', {keyCode: 13, which: 13}));
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            content: 1,
+            rows: ['10'],
+            selected_rows: [''],
+            selection: ['multiple'],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
+            'custom': 17.8
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
 
 QUnit.test('creme.listview.core (toggle sort)', function(assert) {
     var element = $(this.createListViewHtml(this.sortableListViewHtmlOptions({

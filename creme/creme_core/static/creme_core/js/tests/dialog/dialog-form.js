@@ -118,7 +118,7 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
             'mock/error': backend.response(500, 'HTTP - Error 500')
         });
 
-        this.mockPostSubmitRegistry = new creme.action.ActionBuilderRegistry();
+        this.mockPostSubmitRegistry = new creme.component.FactoryRegistry();
         this.mockPostSubmitRegistry.registerAll({
             'redirect': function (url) {
                  return new creme.component.Action(function() {
