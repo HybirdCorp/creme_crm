@@ -127,6 +127,9 @@ creme.dialog.Dialog = creme.component.Component.sub({
             this._dialog.dialog('destroy');
             this._dialog.remove();
             this._dialog = undefined;
+
+            creme.utils.scrollBack(this._scrollbackPosition, 'slow');
+            this._scrollbackPosition = null;
         }
     },
 
@@ -140,9 +143,6 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         this._destroyDialog();
         this._events.trigger('close', [options], this);
-
-        creme.utils.scrollBack(this._scrollbackPosition, 'slow');
-        this._scrollbackPosition = null;
     },
 
     _onOpen: function(dialog, frame, options) {
