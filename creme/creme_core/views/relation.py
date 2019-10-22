@@ -182,7 +182,7 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
             rtype = get_object_or_404(RelationType, pk=rtype_id)
             rtype.is_not_internal_or_die()
 
-            if not rtype.is_compatible(subject_ctype.id):
+            if not rtype.is_compatible(subject_ctype):
                 raise ConflictError(
                     gettext('This type of relationship is not compatible with «{model}».')
                            .format(model=subject_ctype)

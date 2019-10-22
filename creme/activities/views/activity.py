@@ -401,7 +401,7 @@ class RelatedActivityCreation(ActivityCreation):
         else:
             rtype = RelationType.objects.get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
             rtype_id = constants.REL_SUB_ACTIVITY_SUBJECT \
-                       if rtype.is_compatible(entity.entity_type_id) else \
+                       if rtype.is_compatible(entity) else \
                        constants.REL_SUB_LINKED_2_ACTIVITY  # Not custom, & all ContentTypes should be accepted
 
         return rtype_id

@@ -189,8 +189,19 @@ class RelationsTestCase(CremeTestCase):
         self.assertIn(rtype.id,          compatibles_internal_ids)
         self.assertIn(internal_rtype.id, compatibles_internal_ids)
 
-        self.assertTrue(rtype.is_compatible(self.contact_ct.id))
-        self.assertFalse(rtype.is_compatible(ContentType.objects.get_for_model(FakeOrganisation).id))
+        contact_ct = self.contact_ct
+        self.assertTrue(rtype.is_compatible(contact_ct.id))
+        self.assertTrue(rtype.is_compatible(contact_ct))
+        self.assertTrue(rtype.is_compatible(str(contact_ct.id)))
+        self.assertTrue(rtype.is_compatible(FakeContact))
+        self.assertTrue(rtype.is_compatible(FakeContact()))
+
+        orga_ct = ContentType.objects.get_for_model(FakeOrganisation)
+        self.assertFalse(rtype.is_compatible(orga_ct.id))
+        self.assertFalse(rtype.is_compatible(orga_ct))
+        self.assertFalse(rtype.is_compatible(str(orga_ct.id)))
+        self.assertFalse(rtype.is_compatible(FakeOrganisation))
+        self.assertFalse(rtype.is_compatible(FakeOrganisation()))
 
         # Model as argument
         self.assertSetEqual(
