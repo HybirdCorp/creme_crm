@@ -9,7 +9,11 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.models import FieldsConfig, FakeContact
+    from creme.creme_core.models import (
+        CremeEntity,
+        FieldsConfig,
+        FakeContact, FakeOrganisation,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -30,14 +34,14 @@ class FieldsConfigTestCase(CremeTestCase):
         return FieldsConfig.objects.create(content_type=self.ct, descriptions=())
 
     def _configure_all_models(self):
-        used_ct_ids = set(FieldsConfig.objects.values_list('content_type', flat=True))
-        FieldsConfig.objects.bulk_create([FieldsConfig(content_type=ct, descriptions=())
-                                              for ct in map(ContentType.objects.get_for_model,
-                                                            filter(FieldsConfig.is_model_valid, apps.get_models())
-                                                           )
-                                                  if ct.id not in used_ct_ids
-                                         ]
-                                        )
+        used_ct_ids = {*FieldsConfig.objects.values_list('content_type', flat=True)}
+        FieldsConfig.objects.bulk_create([
+            FieldsConfig(content_type=ct, descriptions=())
+                for ct in map(ContentType.objects.get_for_model,
+                              filter(FieldsConfig.is_model_valid, apps.get_models())
+                             )
+                    if ct.id not in used_ct_ids
+        ])
 
     def test_portal01(self):
         self.login()
@@ -47,7 +51,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertContains(response, self.WIZARD_URL)
 
     def test_portal02(self):
-        "All CTypes are already configured"
+        "All CTypes are already configured."
         self._configure_all_models()
         self.login()
 
@@ -101,7 +105,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertCountEqual(['phone', 'birthday'], hidden_f.initial)
 
     def test_edit02(self):
-        "Not super-user"
+        "Not super-user."
         self.login(is_superuser=False)
 
         fconf = self._create_fconf()
@@ -124,22 +128,30 @@ class FieldsConfigTestCase(CremeTestCase):
     def test_wizard_model_step(self):
         self.login()
 
-        ctype = self.ct
-        self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
+        contact_ct = self.ct
+        self.assertFalse(FieldsConfig.objects.filter(content_type=contact_ct).exists())
 
         response = self.assertGET200(self.WIZARD_URL)
-        self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
+
+        with self.assertNoException():
+            ctypes = response.context['form'].fields['ctype'].ctypes
+
+        self.assertIn(contact_ct, ctypes)
+
+        get_ct = ContentType.objects.get_for_model
+        self.assertIn(get_ct(FakeOrganisation), ctypes)
+        self.assertNotIn(get_ct(CremeEntity), ctypes)
 
         response = self.client.post(self.WIZARD_URL,
                                     # {'field_config_wizard-current_step': '0',
                                     {'fields_config_wizard-current_step': '0',
-                                     '0-ctype': ctype.pk,
+                                     '0-ctype': contact_ct.pk,
                                     },
                                    )
         self.assertNoFormError(response)
 
         # last step is not submitted so nothing yet in database
-        self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
+        self.assertFalse(FieldsConfig.objects.filter(content_type=contact_ct).exists())
 
     def test_wizard_model_step_invalid(self):
         self.login()
@@ -227,12 +239,12 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
 
     def test_wizard_409(self):
-        "All CTypes are already configured"
+        "All CTypes are already configured."
         self._configure_all_models()
         self.login()
         self.assertGET409(self.WIZARD_URL)
 
     def test_wizard_403(self):
-        "Perm is 'creme_core.can_admin'"
+        "Perm is 'creme_core.can_admin'."
         self.login(is_superuser=False, allowed_apps=('creme_core',))
         self.assertGET403(self.WIZARD_URL)
