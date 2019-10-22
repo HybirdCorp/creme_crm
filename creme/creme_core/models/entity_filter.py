@@ -54,6 +54,7 @@ from .fields import CremeUserForeignKey, CTypeForeignKey
 logger = logging.getLogger(__name__)
 
 
+# TODO: move to core.entity_filter ?
 class EntityFilterList(list):
     """Contains all the EntityFilter objects corresponding to a CremeEntity's ContentType.
     Indeed, it's as a cache.
@@ -620,8 +621,12 @@ class EntityFilter(models.Model):  # CremeModel ???
             error = condition.error
 
             if error:
-                logger.warning('%s => EntityFilterCondition instance removed', error)
-                condition.delete()
+                # NB: we do not delete the instance of condition, because it can
+                #     be temporarily erroneous (eg: commented app which
+                #     registers handler/operator)
+                # logger.warning('%s => EntityFilterCondition instance removed', error)
+                # condition.delete()
+                logger.warning('%s => EntityFilterCondition instance is ignored', error)
             elif model != condition.handler.model:
                 logger.warning('EntityFilterCondition related to a different model => we removed it')
                 condition.delete()
