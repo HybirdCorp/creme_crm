@@ -329,7 +329,7 @@ class EntityEmailLinking(RelationsAdding):
 
         for rtype in RelationType.objects.filter(id__in=bricks.MailsHistoryBrick
                                                               .relation_type_deps):
-            if not rtype.is_compatible(subject_ctype.id):
+            if not rtype.is_compatible(subject_ctype):
                 continue
 
             # TODO: unit test

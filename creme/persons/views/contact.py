@@ -20,7 +20,6 @@
 
 # import warnings
 
-from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
@@ -212,11 +211,10 @@ class RelatedContactCreation(_ContactBaseCreation):
             if rtype.is_internal:
                 raise ConflictError('This RelationType cannot be used because it is internal.')
 
-            if not rtype.is_compatible(self.linked_orga.entity_type_id):
+            if not rtype.is_compatible(self.linked_orga):
                 raise ConflictError('This RelationType is not compatible with Organisation as subject')
 
-            # TODO: improve API of is_compatible()
-            if not rtype.symmetric_type.is_compatible(ContentType.objects.get_for_model(Contact).id):
+            if not rtype.symmetric_type.is_compatible(Contact):
                 raise ConflictError('This RelationType is not compatible with Contact as relationship-object')
 
             return rtype.symmetric_type

@@ -332,11 +332,37 @@ class RelationType(CremeModel):
 
         return sub_relation_type, obj_relation_type
 
-    def is_compatible(self, ctype_id):
-        # TODO: check if self.subject_ctypes.all() is already retrieved (prefetch_related)?
-        subject_ctypes = frozenset(self.subject_ctypes.values_list('id', flat=True))
+    # def is_compatible(self, ctype_id):
+    #     subject_ctype_ids = frozenset(self.subject_ctypes.values_list('id', flat=True))
+    #     return not subject_ctype_ids or ctype_id in subject_ctype_ids
+    def is_compatible(self, *args):  # TODO: use the '/' (positional-only argument) in Python 3.8
+        """Can an instance of a given model be the subject of a Relation with this type.
 
-        return not subject_ctypes or ctype_id in subject_ctypes
+        @param args: A single argument, the model, which can be:
+               - A instance of ContentType.
+               - An ID of ContentType.
+               - A model class (inheriting CremeEntity).
+               - A CremeEntity instance (its model is used).
+        @return: Boolean. <True> means "yes it is compatible".
+        """
+        assert len(args) == 1
+
+        # TODO: check if self.subject_ctypes.all() is already retrieved (prefetch_related)? cache ?
+        subject_ctype_ids = frozenset(self.subject_ctypes.values_list('id', flat=True))
+
+        arg = args[0]
+        if isinstance(arg, ContentType):
+            ctype_id = arg.id
+        elif isinstance(arg, type):
+            assert issubclass(arg, CremeEntity)
+
+            ctype_id = ContentType.objects.get_for_model(arg).id
+        elif isinstance(arg, CremeEntity):
+            ctype_id = arg.entity_type_id
+        else:
+            ctype_id = int(arg)
+
+        return not subject_ctype_ids or ctype_id in subject_ctype_ids
 
     def is_not_internal_or_die(self):
         if self.is_internal:
