@@ -119,10 +119,10 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
                                                 body='blablabla',
                                                )
 
-        file_obj1 = self._build_filedata('Content #1')
+        file_obj1 = self.build_filedata('Content #1')
         doc1 = self._create_doc('My doc #1', file_obj1)
 
-        file_obj2 = self._build_filedata('Content #2')
+        file_obj2 = self.build_filedata('Content #2')
         doc2 = self._create_doc('My doc #2', file_obj2)
 
         url = reverse('emails__add_attachments_to_template', args=(template.id,))
@@ -157,10 +157,10 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
                                       set_type=SetCredentials.ESET_ALL,
                                      )
 
-        file_obj1 = self._build_filedata('Content #1')
+        file_obj1 = self.build_filedata('Content #1')
         doc1 = self._create_doc('My doc #1', file_obj1)
 
-        file_obj2 = self._build_filedata('Content #2')
+        file_obj2 = self.build_filedata('Content #2')
         doc2 = self._create_doc('My doc #2', file_obj2)
 
         template = EmailTemplate.objects.create(user=user,
@@ -190,7 +190,7 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
                                       set_type=SetCredentials.ESET_ALL,
                                      )
 
-        file_obj = self._build_filedata('Content #1')
+        file_obj = self.build_filedata('Content #1')
         doc = self._create_doc('My doc #1', file_obj)
 
         template = EmailTemplate.objects.create(user=user,

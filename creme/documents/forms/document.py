@@ -37,7 +37,6 @@ from creme import documents
 from .. import constants
 from ..models import FolderCategory
 
-
 logger = logging.getLogger(__name__)
 Folder   = documents.get_folder_model()
 Document = documents.get_document_model()
@@ -55,8 +54,10 @@ class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to _DocumentCreationBa
     def save(self, *args, **kwargs):
         instance = self.instance
 
-        instance.filedata = fpath = handle_uploaded_file(
-                self.cleaned_data['filedata'],
+        file_data = self.cleaned_data['filedata']
+        if file_data:
+            instance.filedata = fpath = handle_uploaded_file(
+                file_data,
                 path=['upload', 'documents'],
                 max_length=Document._meta.get_field('filedata').max_length,
             )

@@ -814,6 +814,27 @@ class Migration(migrations.Migration):
                 bases=(models.Model,),
             ),
             migrations.CreateModel(
+                name='FakeFileBag',
+                fields=[
+                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                             to='creme_core.CremeEntity', on_delete=models.CASCADE,
+                                                            )
+                    ),
+                    ('name', models.CharField(max_length=100, null=True, verbose_name='Name', blank=True)),
+                    ('file1', models.ForeignKey(on_delete=models.PROTECT, verbose_name='First file',
+                                                to='creme_core.FakeFileComponent',
+                                                null=True, blank=True,
+                                               )
+                    ),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test File bag',
+                    'verbose_name_plural': 'Test File bags',
+                },
+                bases=('creme_core.cremeentity',),
+            ),
+            migrations.CreateModel(
                 name='FakeImageCategory',
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),

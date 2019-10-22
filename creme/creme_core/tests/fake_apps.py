@@ -23,12 +23,16 @@ def ready():
 
     from .fake_bricks import FakeAppPortalBrick
     from .fake_constants import FAKE_REL_SUB_EMPLOYED_BY
-    from .fake_forms import (FakeContactQuickForm, FakeOrganisationQuickForm,
-            get_csv_form_builder, get_merge_form_builder)
+    from .fake_forms import (
+        FakeContactQuickForm, FakeOrganisationQuickForm,
+        get_csv_form_builder, get_merge_form_builder,
+    )
     from . import fake_function_fields
-    from .fake_models import (FakeContact, FakeOrganisation, FakeImage,
-            FakeActivity, FakeEmailCampaign, FakeMailingList,
-            FakeInvoice, FakeInvoiceLine, FakeTicket, FakeRecipe)
+    from .fake_models import (
+        FakeContact, FakeOrganisation, FakeImage,
+        FakeActivity, FakeEmailCampaign, FakeMailingList,
+        FakeInvoice, FakeInvoiceLine, FakeTicket, FakeRecipe,
+    )
 
     from creme.creme_config.tests.fake_models import FakeConfigEntity
 

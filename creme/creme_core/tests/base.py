@@ -2,6 +2,8 @@
 
 from datetime import datetime, timedelta
 from json import dumps as json_dump
+from os.path import basename
+from tempfile import NamedTemporaryFile
 from unittest import skipIf
 from unittest.util import safe_repr
 import warnings
@@ -407,6 +409,18 @@ class _CremeTestCase:
                 msg = '{}\n[maxDiff too small for larger message]'.format(diff.short_msg)
 
             raise self.failureException('XML are not equal\n{}'.format(msg))
+
+    def build_filedata(self, content_str, suffix='.txt'):
+        tmpfile = NamedTemporaryFile(suffix=suffix)
+        tmpfile.write(content_str.encode())
+        tmpfile.flush()
+
+        filedata = tmpfile.file
+        filedata.seek(0)
+
+        tmpfile.base_name = basename(tmpfile.name)
+
+        return tmpfile
 
     def build_merge_url(self, entity1, entity2):
         return reverse('creme_core__merge_entities') + '?id1={}&id2={}'.format(entity1.id, entity2.id)

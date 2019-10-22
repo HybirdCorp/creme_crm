@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from os.path import basename, join
-from tempfile import NamedTemporaryFile
-from unittest import skipIf
-
-from django.conf import settings
-from django.urls import reverse
-
-from creme.creme_core.tests.base import CremeTestCase
-
 try:
+    from os.path import join
+    from unittest import skipIf
+
+    from django.conf import settings
+    from django.urls import reverse
+
+    from creme.creme_core.tests.base import CremeTestCase
+
     from creme import documents
     from creme.documents import constants
 
@@ -38,27 +37,16 @@ class _DocumentsTestCase(CremeTestCase):
         super().setUpClass()
         cls.ADD_DOC_URL = reverse('documents__create_document')
 
-    def _build_filedata(self, content_str, suffix='.txt'):
-        tmpfile = NamedTemporaryFile(suffix=suffix)
-        tmpfile.write(content_str.encode())
-        tmpfile.flush()
-
-        filedata = tmpfile.file
-        filedata.seek(0)
-
-        tmpfile.base_name = basename(tmpfile.name)
-
-        return tmpfile
-
     def _create_doc(self, title, file_obj=None, folder=None, description=None, user=None):
-        file_obj = file_obj or self._build_filedata('{} : Content'.format(title))
+        file_obj = file_obj or self.build_filedata('{} : Content'.format(title))
         folder = folder or Folder.objects.all()[0]
         user = user or self.user
-        data = {'user':     user.pk,
-                'title':    title,
-                'filedata': file_obj,
-                'linked_folder': folder.id,
-               }
+        data = {
+            'user': user.pk,
+            'title': title,
+            'filedata': file_obj,
+            'linked_folder': folder.id,
+        }
 
         if description is not None:
             data['description'] = description
@@ -82,9 +70,10 @@ class _DocumentsTestCase(CremeTestCase):
         name = IMAGE_PATHS[ident]
 
         with open(join(settings.CREME_ROOT, 'static', 'chantilly', 'images', name), 'rb') as image_file:
-            return self._create_doc(title=title or name,
-                                    file_obj=image_file,
-                                    folder=folder or Folder.objects.get(uuid=constants.UUID_FOLDER_IMAGES),
-                                    description=description,
-                                    user=user,
-                                   )
+            return self._create_doc(
+                title=title or name,
+                file_obj=image_file,
+                folder=folder or Folder.objects.get(uuid=constants.UUID_FOLDER_IMAGES),
+                description=description,
+                user=user,
+            )
