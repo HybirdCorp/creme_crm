@@ -26,7 +26,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.forms import CremeModelForm  # CremeForm
 from creme.creme_core.forms.fields import CTypeChoiceField
 from creme.creme_core.forms.widgets import DynamicSelect, Label
-from creme.creme_core.models import FieldsConfig
+from creme.creme_core.models import CremeEntity, FieldsConfig
 
 
 # class FieldsConfigAddForm(CremeForm):
@@ -50,15 +50,20 @@ class FieldsConfigAddForm(CremeModelForm):
         #     previous steps' validation).
         # Old code:
         #  used_ct_ids = {*FieldsConfig.objects.values_list('content_type', flat=True)}
-        used_ct_ids = {
-            fc.content_type_id
+        excluded_ct_ids = {
+            # Do not want a choice "creme entity" ('description' can be hidden).
+            ContentType.objects.get_for_model(CremeEntity).id,
+
+            # Exclude ContentType which already have a configuration
+            *(fc.content_type_id
                 for fc in FieldsConfig.get_4_models(models).values()
                     if not fc._state.adding  # <True> means the FieldsConfig is in DB
+             )
         }
         self.ctypes = ctypes = [
             ct
                 for ct in map(ContentType.objects.get_for_model, models)
-                    if ct.id not in used_ct_ids
+                    if ct.id not in excluded_ct_ids
         ]
 
         if ctypes:
