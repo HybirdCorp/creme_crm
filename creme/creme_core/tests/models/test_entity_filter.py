@@ -87,7 +87,7 @@ class EntityFiltersTestCase(CremeTestCase):
         context = CaptureQueriesContext()
 
         with context:
-            filtered = list(efilter.filter(model.objects.exclude(id__in=self._excluded_ids)))
+            filtered = [*efilter.filter(model.objects.exclude(id__in=self._excluded_ids))]
 
         self.assertEqual(len(ids), len(filtered), str(filtered) + msg)
         self.assertSetEqual({*ids}, {c.id for c in filtered})
@@ -1799,7 +1799,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_set_conditions03(self):
         """Set an erroneous condition on an existing filter
-        -> try to delete a condition without PK (BUGFIX).
+        ### -> try to delete a condition without PK (BUGFIX).
         """
         efilter = EntityFilter.create(
             'test-filter', 'Misato', FakeContact,
@@ -1829,7 +1829,14 @@ class EntityFiltersTestCase(CremeTestCase):
             )
         ])
         self.assertFalse(efilter.get_conditions())
-        self.assertFalse(efilter.conditions.all())
+        # self.assertFalse(efilter.conditions.all())
+
+        conditions = [*efilter.conditions.all()]
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(SubFilterConditionHandler.type_id, condition.type)
+        self.assertEqual('invalid_id',                      condition.name)
 
     def test_set_conditions04(self):
         "Related ContentTypes are different between filter & condition => error."
@@ -3746,9 +3753,9 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter.set_conditions([cond1, cond2])
 
         with self.assertNoException():
-            filtered = list(efilter.filter(FakeContact.objects.all()))
+            filtered = [*efilter.filter(FakeContact.objects.all())]
 
-        self.assertDoesNotExist(cond2)
+        # self.assertDoesNotExist(cond2)
         self.assertSetEqual({*self._get_ikari_case_sensitive()}, {c.id for c in filtered})
 
         self.assertEqual(1, len(efilter.get_conditions()))
@@ -3776,9 +3783,9 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(1, len(efilter.get_conditions()))
 
         with self.assertNoException():
-            filtered = list(efilter.filter(FakeContact.objects.all()))
+            filtered = [*efilter.filter(FakeContact.objects.all())]
 
-        self.assertDoesNotExist(cond2)
+        # self.assertDoesNotExist(cond2)
         self.assertSetEqual({*self._get_ikari_case_sensitive()},
                             {c.id for c in filtered}
                            )
@@ -3908,7 +3915,7 @@ class EntityFiltersTestCase(CremeTestCase):
         efilters = EntityFilter.get_for_user(user, self.contact_ct)
         self.assertIsInstance(efilters, QuerySet)
 
-        efilters_set = set(efilters)
+        efilters_set = {*efilters}
         self.assertIn(ef1, efilters_set)
         self.assertIn(ef2, efilters_set)
         self.assertIn(ef4, efilters_set)
@@ -3919,7 +3926,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         # ----
         orga_ct = ContentType.objects.get_for_model(FakeOrganisation)
-        orga_efilters_set = set(EntityFilter.get_for_user(user, orga_ct))
+        orga_efilters_set = {*EntityFilter.get_for_user(user, orga_ct)}
         self.assertIn(ef3, orga_efilters_set)
 
         self.assertNotIn(ef1, orga_efilters_set)
