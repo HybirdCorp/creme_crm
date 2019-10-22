@@ -23,8 +23,11 @@ import re
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db.models.fields import FieldDoesNotExist
-from django.db.models.fields.related import ManyToManyField
+from django.db.models import (
+    ManyToManyField,
+    FileField,
+    FieldDoesNotExist,
+)
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.widgets import Select
@@ -35,7 +38,6 @@ from ..gui import bulk_update
 from ..models import custom_field
 
 from .base import CremeForm
-
 
 _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')
 _CUSTOMFIELD_FORMAT = 'customfield-{}'  # TODO: remove & use base._CUSTOM_NAME instead
@@ -49,6 +51,13 @@ class BulkFieldSelectWidget(Select):
 
 
 class BulkForm(CremeForm):
+    excluded_bulk_fields = (
+        # NB1: bulk update of file field is broken on JS side any way(IDs are not posted ?)  TODO: fix that ?
+        # NB2: it's probably a bad idea to set the same file to several entities
+        #      (when one entity is deleted the file is attached to a FileRef then by a Job).
+        FileField,
+    )
+
     def __init__(self, model, field, user, entities, is_bulk,
                  parent_field=None, bulk_update_registry=None, **kwargs):
         super().__init__(user, **kwargs)
@@ -93,7 +102,7 @@ class BulkForm(CremeForm):
         return reverse(self._bulk_viewname,
                        kwargs={'ct_id': ContentType.objects.get_for_model(model).id,
                                'field_name': fieldname,
-                              }
+                              },
                       )
 
     def _bulk_formfield(self, user, instance=None):
@@ -111,18 +120,21 @@ class BulkForm(CremeForm):
 
         choices = []
         sub_choices = []
+        excluded = self.excluded_bulk_fields
 
         for field, subfields in regular_fields:
             if not subfields:
-                choices.append((build_url(fieldname=field.name), str(field.verbose_name)))
+                if not isinstance(field, excluded):
+                    choices.append((build_url(fieldname=field.name), str(field.verbose_name)))
             else:
-                sub_choices.append((str(field.verbose_name),
-                                    [(build_url(fieldname='{}__{}'.format(field.name, subfield.name)),
-                                      str(subfield.verbose_name),
-                                     ) for subfield in subfields
-                                    ],
-                                   )
-                                  )
+                field_sub_choices = [
+                    (build_url(fieldname='{}__{}'.format(field.name, subfield.name)),
+                     str(subfield.verbose_name),
+                    ) for subfield in subfields
+                        if not isinstance(subfield, excluded)
+                ]
+                if field_sub_choices:
+                    sub_choices.append((str(field.verbose_name), field_sub_choices))
 
         if custom_fields:
             choices.append((gettext('Custom fields'),
@@ -166,14 +178,27 @@ class BulkForm(CremeForm):
         return form_field
 
     def _bulk_clean_entity(self, entity, values):
+        file_field_info = []
+
         for key, value in values.items():
             try:
                 mfield = entity._meta.get_field(key)
             except FieldDoesNotExist:
                 pass
             else:
-                if not getattr(mfield, 'many_to_many', False):
-                    setattr(entity, key, value)
+                # Copied from django/forms/models.py l.55 ( construct_instance() )
+                #  "Defer saving file-type fields until after the other fields, so a
+                #  callable upload_to can use the values from other fields."
+                if isinstance(mfield, FileField):
+                    file_field_info.append((mfield, value))
+                else:
+                    # if not getattr(mfield, 'many_to_many', False):
+                    #     setattr(entity, key, value)
+                    mfield.save_form_data(entity, value)
+
+        for mfield, value in file_field_info:
+            # TODO: what about cleaning useless files VS files history
+            mfield.save_form_data(entity, value)
 
         entity.full_clean()
 

@@ -298,16 +298,18 @@ class _BulkUpdateRegistry:
             related_fields = self.regular_fields
             is_expandable = status.is_expandable
 
-            field_states = [(field, is_expandable(field), is_updatable(field))
-                                for field in fields
-                           ]
+            field_states = [
+                (field, is_expandable(field), is_updatable(field))
+                    for field in fields
+            ]
 
-            fields = [(field,
-                       # related_fields(model=field.rel.to, exclude_unique=exclude_unique) if expandable else None
-                       related_fields(model=field.remote_field.model, exclude_unique=exclude_unique) if expandable else None
-                      ) for field, expandable, updatable in field_states
-                            if expandable or updatable
-                     ]
+            fields = [
+                (field,
+                 # related_fields(model=field.rel.to, exclude_unique=exclude_unique) if expandable else None
+                 related_fields(model=field.remote_field.model, exclude_unique=exclude_unique) if expandable else None,
+                ) for field, expandable, updatable in field_states
+                      if expandable or updatable
+            ]
 
             return sorted(fields, key=lambda f: sort_key(f[0].verbose_name))
 

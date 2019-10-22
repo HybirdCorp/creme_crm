@@ -63,7 +63,7 @@ class DocumentTestCase(_DocumentsTestCase):
         title = 'Test doc'
         description = 'Test description'
         content = 'Yes I am the content (DocumentTestCase.test_createview)'
-        file_obj = self._build_filedata(content, suffix='.{}'.format(ext))
+        file_obj = self.build_filedata(content, suffix='.{}'.format(ext))
         folder = Folder.objects.all()[0]
         response = self.client.post(self.ADD_DOC_URL, follow=True,
                                     data={'user':     self.user.pk,
@@ -112,7 +112,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertNotIn(ext, settings.ALLOWED_EXTENSIONS)
 
         title = 'My doc'
-        file_obj = self._build_filedata('Content', suffix='.' + ext)
+        file_obj = self.build_filedata('Content', suffix='.' + ext)
         doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
@@ -135,7 +135,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertNotIn(ext, settings.ALLOWED_EXTENSIONS)
 
         title = 'My doc'
-        file_obj = self._build_filedata('Content', suffix='.old.' + ext)
+        file_obj = self.build_filedata('Content', suffix='.old.' + ext)
         doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
@@ -153,7 +153,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.login()
 
         title = 'My doc'
-        file_obj = self._build_filedata('Content', suffix='')
+        file_obj = self.build_filedata('Content', suffix='')
         doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
@@ -171,7 +171,7 @@ class DocumentTestCase(_DocumentsTestCase):
         user = self.login()
 
         ext = settings.ALLOWED_EXTENSIONS[0]
-        file_obj = self._build_filedata('Content', suffix='.' + ext)
+        file_obj = self.build_filedata('Content', suffix='.' + ext)
 
         folder = Folder.objects.create(user=user, title='test_createview05')
         response = self.client.post(self.ADD_DOC_URL, follow=True,
@@ -199,7 +199,7 @@ class DocumentTestCase(_DocumentsTestCase):
         title       = 'Test doc'
         description = 'Test description'
         content     = 'Yes I am the content (DocumentTestCase.test_editview)'
-        doc = self._create_doc(title, self._build_filedata(content), description=description)
+        doc = self._create_doc(title, self.build_filedata(content), description=description)
 
         url = doc.get_edit_absolute_url()
         self.assertGET200(url)
@@ -249,7 +249,7 @@ class DocumentTestCase(_DocumentsTestCase):
                     'user': user.id,
                     'title': title,
                     'description': 'Test description',
-                    'filedata': self._build_filedata(
+                    'filedata': self.build_filedata(
                         'Yes I am the content (DocumentTestCase.test_add_related_document01)'
                     ),
                 }
@@ -322,7 +322,7 @@ class DocumentTestCase(_DocumentsTestCase):
                   'title': 'Title',
                   'description': 'Test description',
                   'filedata':
-                      self._build_filedata(
+                      self.build_filedata(
                           'Yes I am the content (DocumentTestCase.test_add_related_document03)'
                       ),
             }
@@ -395,7 +395,7 @@ class DocumentTestCase(_DocumentsTestCase):
                 data={'user': user.id,
                       'title': title,
                       'description': 'Test description',
-                      'filedata': self._build_filedata(
+                      'filedata': self.build_filedata(
                                     'Yes I am the content (DocumentTestCase.test_add_related_document05)'
                                   ),
                 }
@@ -428,7 +428,7 @@ class DocumentTestCase(_DocumentsTestCase):
                                     data={'user':         user.pk,
                                           'title':        title,
                                           'description':  'Test description',
-                                          'filedata':     self._build_filedata(
+                                          'filedata':     self.build_filedata(
                                                                 'Yes I am the content '
                                                                 '(DocumentTestCase.test_add_related_document06)'
                                                             ),
@@ -646,7 +646,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         self.assertGET200(url)
 
         content = 'Yes I am the content (DocumentQuickFormTestCase.test_create)'
-        file_obj = self._build_filedata(content)
+        file_obj = self.build_filedata(content)
         folder = Folder.objects.all()[0]
 
         self.assertNoFormError(self.client.post(
@@ -694,7 +694,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         # ---
         content = 'Content (DocumentQuickWidgetTestCase.test_add_csv_doc)'
-        file_obj= self._build_filedata(content)
+        file_obj= self.build_filedata(content)
         response = self.client.post(url, follow=True,
                                     data={'user':     user.pk,
                                           'filedata': file_obj,
@@ -793,7 +793,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         folder = Folder.objects.all()[0]
         content = '<xml>Content (DocumentQuickWidgetTestCase.test_add_image_doc02)</xml>'
-        file_obj = self._build_filedata(content, suffix='.xml')
+        file_obj = self.build_filedata(content, suffix='.xml')
         response = self.assertPOST200(reverse('documents__create_image_popup'),
                                       follow=True,
                                       data={'user':   user.pk,
