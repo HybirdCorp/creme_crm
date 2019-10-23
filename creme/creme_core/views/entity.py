@@ -789,22 +789,39 @@ def empty_trash(request):
         progress = False
         errors = LimitedList(max_size=50)
 
+        # NB (#60): 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN' and nullable ids will fail with postgresql (both 9.6 & 10.x).
+        # TODO: This bug may be fixed in django > 2.2 (see https://code.djangoproject.com/ticket/28010)
+
+        # for entity_class in entity_classes:
+        #     paginator = FlowPaginator(
+        #         queryset=EntityCredentials.filter(
+        #             user,
+        #             entity_class.objects.filter(is_deleted=True),
+        #             EntityCredentials.DELETE,
+        #         ).order_by('id').select_for_update(),
+        #         key='id',
+        #         per_page=256,
+        #     )
+        #
+        #     with atomic():
+        #         for entities_page in paginator.pages():
+        #             for entity in entities_page.object_list:
+        #                 entity = entity.get_real_entity()
         for entity_class in entity_classes:
             paginator = FlowPaginator(
                 queryset=EntityCredentials.filter(
                     user,
                     entity_class.objects.filter(is_deleted=True),
                     EntityCredentials.DELETE,
-                ).order_by('id').select_for_update(),
+                ).order_by('id'),  # .select_for_update()
                 key='id',
                 per_page=256,
             )
 
-            with atomic():
-                for entities_page in paginator.pages():
-                    for entity in entities_page.object_list:
-                        entity = entity.get_real_entity()
-
+            for entities_page in paginator.pages():
+                with atomic():
+                    # NB (#60): Move 'SELECT FOR UPDATE' here for now (see above).
+                    for entity in entity_class.objects.filter(pk__in=entities_page.object_list).select_for_update():
                         try:
                             entity.delete()
                         except ProtectedError:
