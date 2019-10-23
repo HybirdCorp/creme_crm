@@ -52,6 +52,16 @@ except Exception as e:
 # TODO: query_for_related_conditions()
 # TODO: query_for_parent_conditions()
 class FilterConditionHandlerTestCase(CremeTestCase):
+    def assertQPkIn(self, q, *instances, negated=False):
+        self.assertIs(q.negated, negated)
+
+        children = q.children
+        self.assertEqual(1, len(children), children)
+
+        k, v = children[0]
+        self.assertEqual('pk__in', k)
+        self.assertSetEqual({i.pk for i in instances}, {*v})
+
     def test_regularfield_init(self):
         user = self.login()
 
@@ -2733,26 +2743,34 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                                             rtype=loves.id,
                                             exclude=False,
                                            )
-        self.assertQEqual(
-            Q(pk__in=Relation.objects
-                             .filter(id__in=[rel1.id, rel2.id, rel3.id])
-                             .values_list('subject_entity_id', flat=True)
-             ),
-            handler1.get_q(user=user)
-        )
+        # NB: assertQEqual causes problems with PostGre here (order in the pk__in is "random")
+        # self.assertQEqual(
+        #     Q(pk__in=Relation.objects
+        #                      .filter(id__in=[rel1.id, rel2.id, rel3.id])
+        #                      .values_list('subject_entity_id', flat=True)
+        #      ),
+        #     handler1.get_q(user=user)
+        # )
+        self.assertQPkIn(handler1.get_q(user=user),
+                         shinji, asuka, misato,
+                        )
 
         # Exclude ---
         handler2 = RelationConditionHandler(model=FakeContact,
                                             rtype=loves.id,
                                             exclude=True,
                                            )
-        self.assertQEqual(
-            ~Q(pk__in=Relation.objects
-                              .filter(id__in=[rel1.id, rel2.id, rel3.id])
-                              .values_list('subject_entity_id', flat=True)
-              ),
-            handler2.get_q(user=user)
-        )
+        # self.assertQEqual(
+        #     ~Q(pk__in=Relation.objects
+        #                       .filter(id__in=[rel1.id, rel2.id, rel3.id])
+        #                       .values_list('subject_entity_id', flat=True)
+        #       ),
+        #     handler2.get_q(user=user)
+        # )
+        self.assertQPkIn(handler2.get_q(user=user),
+                         shinji, asuka, misato,
+                         negated=True,
+                        )
 
         # CT ---
         handler3 = RelationConditionHandler(
@@ -2760,13 +2778,16 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             rtype=loves.id,
             ctype=ContentType.objects.get_for_model(FakeContact),
         )
-        self.assertQEqual(
-            Q(pk__in=Relation.objects
-                             .filter(id__in=[rel1.id, rel2.id])
-                             .values_list('subject_entity_id', flat=True)
-             ),
-            handler3.get_q(user=user)
-        )
+        # self.assertQEqual(
+        #     Q(pk__in=Relation.objects
+        #                      .filter(id__in=[rel1.id, rel2.id])
+        #                      .values_list('subject_entity_id', flat=True)
+        #      ),
+        #     handler3.get_q(user=user)
+        # )
+        self.assertQPkIn(handler3.get_q(user=user),
+                         shinji, asuka,
+                        )
 
         # Entity ---
         handler4 = RelationConditionHandler(
@@ -3454,13 +3475,16 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             subfilter=sub_filter.id,
             rtype=loves.id,
         )
-        self.assertQEqual(
-            Q(pk__in=Relation.objects
-                             .filter(id__in=[rel1.id, rel2.id])
-                             .values_list('subject_entity_id', flat=True)
-             ),
-            handler1.get_q(user=None)
-        )
+        # self.assertQEqual(
+        #     Q(pk__in=Relation.objects
+        #                      .filter(id__in=[rel1.id, rel2.id])
+        #                      .values_list('subject_entity_id', flat=True)
+        #      ),
+        #     handler1.get_q(user=user)
+        # )
+        self.assertQPkIn(handler1.get_q(user=user),
+                         shinji, asuka,
+                        )
 
         # Exclude ---
         handler2 = RelationSubFilterConditionHandler(
@@ -3469,13 +3493,17 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             rtype=loves.id,
             exclude=True,
         )
-        self.assertQEqual(
-            ~Q(pk__in=Relation.objects
-                              .filter(id__in=[rel1.id, rel2.id])
-                              .values_list('subject_entity_id', flat=True)
-              ),
-            handler2.get_q(user=None)
-        )
+        # self.assertQEqual(
+        #     ~Q(pk__in=Relation.objects
+        #                       .filter(id__in=[rel1.id, rel2.id])
+        #                       .values_list('subject_entity_id', flat=True)
+        #       ),
+        #     handler2.get_q(user=user)
+        # )
+        self.assertQPkIn(handler2.get_q(user=user),
+                         shinji, asuka,
+                         negated=True,
+                        )
 
     def test_relation_subfilter_description01(self):
         user = self.login()
