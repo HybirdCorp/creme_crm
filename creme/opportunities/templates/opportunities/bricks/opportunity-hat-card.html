@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/hat-card.html' %}
-{% load i18n creme_core_tags creme_widgets persons_tags %}
+{% load i18n creme_core_tags creme_bricks creme_widgets persons_tags %}
 
 {% block brick_extra_class %}{{block.super}} opportunities-card-brick{% endblock %}
 
@@ -39,7 +39,10 @@
 {% block card_fields %}
     <div class="card-info-field">
         <span class='card-info-key'>{% trans 'Sales phase' %}</span>
-        <span class='card-info-value'>{{object.sales_phase|default:'—'}}</span>
+        <span class='card-info-value'>
+            {{object.sales_phase|default:'—'}}
+            {% brick_card_action_for_field instance=object field='sales_phase' user=user %}
+        </span>
     </div>
     {% if 'estimated_sales' not in hidden_fields %}
     <div class="card-info-field">
@@ -50,6 +53,7 @@
             {% else %}
             {{object.estimated_sales|format_amount:object.currency}}
             {% endif %}
+            {% brick_card_action_for_field instance=object field='estimated_sales' user=user %}
         </span>
     </div>
     {% endif %}
@@ -62,6 +66,7 @@
             {% else %}
             {{object.made_sales|format_amount:object.currency}}
             {% endif %}
+            {% brick_card_action_for_field instance=object field='made_sales' user=user %}
         </span>
     </div>
     {% endif %}
