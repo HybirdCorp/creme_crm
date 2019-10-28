@@ -216,7 +216,8 @@ class RegularFieldsConditionsWidget(SelectorList):
         super().__init__(None, attrs)
         self.model = model
         self.fields = fields
-        self.efilter_registry = efilter_registry or _EntityFilterRegistry()
+        self.efilter_registry = efilter_registry or \
+                                _EntityFilterRegistry('Default for RegularFieldsConditionsWidget')
 
     def get_context(self, name, value, attrs):
         self.selector = FieldConditionWidget(
@@ -355,7 +356,8 @@ class CustomFieldConditionWidget(SelectorList):
     def __init__(self, fields=(), efilter_registry=None, attrs=None, enabled=True):
         super().__init__(None, attrs)
         self.fields = fields
-        self.efilter_registry = efilter_registry or _EntityFilterRegistry()
+        self.efilter_registry = efilter_registry or \
+                                _EntityFilterRegistry('Default for RegularFieldsConditionsWidget')
 
     def get_context(self, name, value, attrs):
         fields = list(self.fields)

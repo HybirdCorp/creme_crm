@@ -349,40 +349,42 @@ class ListViewTestCase(ViewsTestCase):
     def test_content_template(self):
         "Use reload template (content=1)."
         self.login()
+        url = self.url
 
-        response = self.assertPOST200(self.url)
+        response = self.assertPOST200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/entities.html')
 
-        response = self.assertPOST200(self.url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.assertPOST200(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertTemplateUsed(response, 'creme_core/generics/entities.html')
 
-        response = self.assertPOST200(self.url, data={'content': 1})
+        response = self.assertPOST200(url, data={'content': 1})
         self.assertTemplateUsed(response, 'creme_core/listview/content.html')
 
-        response = self.assertPOST200(self.url, data={'content': 1}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.assertPOST200(url, data={'content': 1}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertTemplateUsed(response, 'creme_core/listview/content.html')
 
     def test_content_popup_template(self):
         self.login()
+        ct_id = self.ctype.id
 
         response = self.assertPOST200(reverse('creme_core__listview_popup'),
-                                      data={'ct_id': self.ctype.id},
+                                      data={'ct_id': ct_id},
                                      )
         self.assertTemplateUsed(response, 'creme_core/generics/entities-popup.html')
 
         response = self.assertPOST200(reverse('creme_core__listview_popup'),
-                                      data={'ct_id': self.ctype.id},
+                                      data={'ct_id': ct_id},
                                       HTTP_X_REQUESTED_WITH='XMLHttpRequest',
                                      )
         self.assertTemplateUsed(response, 'creme_core/generics/entities-popup.html')
 
         response = self.assertPOST200(reverse('creme_core__listview_popup'),
-                                      data={'ct_id': self.ctype.id, 'content': 1},
+                                      data={'ct_id': ct_id, 'content': 1},
                                      )
         self.assertTemplateUsed(response, 'creme_core/listview/content.html')
 
         response = self.assertPOST200(reverse('creme_core__listview_popup'),
-                                      data={'ct_id': self.ctype.id, 'content': 1},
+                                      data={'ct_id': ct_id, 'content': 1},
                                       HTTP_X_REQUESTED_WITH='XMLHttpRequest',
                                      )
         self.assertTemplateUsed(response, 'creme_core/listview/content.html')
@@ -396,9 +398,10 @@ class ListViewTestCase(ViewsTestCase):
 
         def post(selection):
             response = self.assertPOST200(self.url, data={'selection': selection})
-            self.assertInHTML('<input class="lv-state-field" value="{}" name="selection" type="hidden" />'.format(selection),
-                              force_text(response.content)
-                             )
+            self.assertInHTML(
+                '<input class="lv-state-field" value="{}" name="selection" type="hidden" />'.format(selection),
+                force_text(response.content)
+            )
 
         post('none')
         post('single')
@@ -415,9 +418,10 @@ class ListViewTestCase(ViewsTestCase):
 
         def get(selection):
             response = self.assertGET200(self.url, data={'selection': selection})
-            self.assertInHTML('<input class="lv-state-field" value="{}" name="selection" type="hidden" />'.format(selection),
-                              force_text(response.content)
-                             )
+            self.assertInHTML(
+                '<input class="lv-state-field" value="{}" name="selection" type="hidden" />'.format(selection),
+                force_text(response.content)
+            )
 
         get('none')
         get('single')
@@ -3338,13 +3342,14 @@ class ListViewTestCase(ViewsTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_listview',
             entity_type=FakeOrganisation,
-            filter_type=EntityFilter.EF_SYSTEM,
+            filter_type=EntityFilter.EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeOrganisation,
                 operator=operators.ICONTAINS,
                 field_name='name', values=['Corp'],
+                filter_type=EntityFilter.EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -3399,12 +3404,13 @@ class ListViewTestCase(ViewsTestCase):
         cred_efilter = EntityFilter.objects.create(
             id='creme_core-test_listview01',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_SYSTEM,
+            filter_type=EntityFilter.EF_CREDENTIALS,
         )
         cred_efilter.set_conditions(
             [condition_handler.RelationConditionHandler.build_condition(
                 model=FakeContact,
                 rtype=pilots,
+                filter_type=EntityFilter.EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.

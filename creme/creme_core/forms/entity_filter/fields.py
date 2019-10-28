@@ -21,6 +21,7 @@
 # TODO: improve operators code and remove lots of hard-coded stuffs here (& in widgets)
 
 from datetime import date
+from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (
@@ -39,7 +40,7 @@ from creme.creme_core.core.entity_filter import (
     operators,
 )
 from creme.creme_core.models import (
-    CremeEntity, EntityFilter,  # EntityFilterCondition
+    CremeEntity, EntityFilter, EntityFilterCondition,
     RelationType, CremePropertyType,
     CustomField, CustomFieldBoolean,
     FieldsConfig,
@@ -62,7 +63,12 @@ class _ConditionsField(JSONField):
     _model = None
 
     # def __init__(self, model=CremeEntity, *args, **kwargs):
-    def __init__(self, *, model=CremeEntity, efilter_registry=None, **kwargs):
+    def __init__(self, *,
+                 model=CremeEntity,
+                 efilter_registry=None,
+                 efilter_type=EntityFilter.EF_USER,
+                 condition_cls=EntityFilterCondition,
+                 **kwargs):
         """Constructor.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
@@ -71,7 +77,10 @@ class _ConditionsField(JSONField):
         # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self.model = model
-        self.efilter_registry = efilter_registry or _EntityFilterRegistry()
+        self.efilter_registry = efilter_registry or \
+                                _EntityFilterRegistry('Default for _ConditionsField')
+        self.efilter_type = efilter_type
+        self.condition_cls = condition_cls
 
     def initialize(self, ctype, conditions=None, efilter=None):
         if conditions:
@@ -204,8 +213,10 @@ class RegularFieldsConditionsField(_ConditionsField):
 
     def _clean_fieldname(self, entry):
         clean_value = self.clean_value
-        fname = clean_value(clean_value(entry, 'field', dict, required_error_key='invalidfield'),
-                            'name', str, required_error_key='invalidfield')
+        fname = clean_value(
+            clean_value(entry, 'field', dict, required_error_key='invalidfield'),
+            'name', str, required_error_key='invalidfield',
+        )
 
         if fname not in self._fields:
             raise ValidationError(self.error_messages['invalidfield'], code='invalidfield')
@@ -242,8 +253,14 @@ class RegularFieldsConditionsField(_ConditionsField):
         return operator_id, values
 
     def _value_from_unjsonfied(self, data):
-        # build_4_field = EntityFilterCondition.build_4_field
-        build_4_field = condition_handler.RegularFieldConditionHandler.build_condition
+        # build_condition = EntityFilterCondition.build_4_field
+        build_condition = partial(
+            condition_handler.RegularFieldConditionHandler.build_condition,
+            model=self.model,
+            user=self.user,
+            condition_cls=self.condition_cls,
+            filter_type=self.efilter_type,
+        )
         clean_fieldname = self._clean_fieldname
         clean_operator_n_values = self._clean_operator_n_values
         conditions = []
@@ -252,14 +269,12 @@ class RegularFieldsConditionsField(_ConditionsField):
         try:
             for entry in data:
                 operator, values = clean_operator_n_values(entry)
-                conditions.append(build_4_field(model=self.model,
-                                                # name=clean_fieldname(entry),
-                                                field_name=clean_fieldname(entry),
-                                                operator=operator,
-                                                values=values,
-                                                user=self.user,
-                                               )
-                                 )
+                conditions.append(build_condition(
+                    # name=clean_fieldname(entry),
+                    field_name=clean_fieldname(entry),
+                    operator=operator,
+                    values=values,
+                ))
         # except EntityFilterCondition.ValueError as e:
         except condition_handler.FilterConditionHandler.ValueError as e:
             raise ValidationError(str(e)) from e
@@ -407,8 +422,12 @@ class DateFieldsConditionsField(_ConditionsField):
 
     def _value_from_unjsonfied(self, data):
         # build_condition = EntityFilterCondition.build_4_date
-        build_condition = condition_handler.DateRegularFieldConditionHandler.build_condition
-        model = self.model
+        build_condition = partial(
+            condition_handler.DateRegularFieldConditionHandler.build_condition,
+            model=self.model,
+            condition_cls=self.condition_cls,
+            filter_type=self.efilter_type,
+        )
         clean_field_name = self._clean_field_name
         clean_date_range = self._clean_date_range
         conditions = []
@@ -416,12 +435,11 @@ class DateFieldsConditionsField(_ConditionsField):
         try:
             for entry in data:
                 date_range, start, end = clean_date_range(entry)
-                conditions.append(build_condition(model=model,
-                                                  # name=clean_field_name(entry),
-                                                  field_name=clean_field_name(entry),
-                                                  date_range=date_range, start=start, end=end
-                                                 )
-                                 )
+                conditions.append(build_condition(
+                    # name=clean_field_name(entry),
+                    field_name=clean_field_name(entry),
+                    date_range=date_range, start=start, end=end
+                ))
         # except EntityFilterCondition.ValueError as e:
         except condition_handler.FilterConditionHandler.ValueError as e:
             raise ValidationError(str(e)) from e
@@ -544,7 +562,12 @@ class CustomFieldsConditionsField(_ConditionsField):
 
     def _value_from_unjsonfied(self, data):
         # build_condition = EntityFilterCondition.build_4_customfield
-        build_condition = condition_handler.CustomFieldConditionHandler.build_condition
+        build_condition = partial(
+            condition_handler.CustomFieldConditionHandler.build_condition,
+            user=self.user,
+            condition_cls=self.condition_cls,
+            filter_type=self.efilter_type,
+        )
         clean_cfield = self._clean_custom_field
         clean_operator_n_values = self._clean_operator_n_values
         conditions = []
@@ -555,7 +578,6 @@ class CustomFieldsConditionsField(_ConditionsField):
                 conditions.append(build_condition(custom_field=clean_cfield(entry),
                                                   operator=operator,
                                                   values=values,
-                                                  user=self.user,
                                                  )
                                  )
         # except EntityFilterCondition.ValueError as e:
@@ -623,7 +645,11 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
 
     def _value_from_unjsonfied(self, data):
         # build_condition = EntityFilterCondition.build_4_datecustomfield
-        build_condition = condition_handler.DateCustomFieldConditionHandler.build_condition
+        build_condition = partial(
+            condition_handler.DateCustomFieldConditionHandler.build_condition,
+            condition_cls=self.condition_cls,
+            filter_type=self.efilter_type,
+        )
         clean_cfield = self._clean_custom_field
         clean_date_range = self._clean_date_range
         conditions = []
@@ -756,13 +782,15 @@ class RelationsConditionsField(_ConditionsField):
                     kwargs['entity'] = entities.get(entity_id)
 
         # build_condition = EntityFilterCondition.build_4_relation
-        build_condition = condition_handler.RelationConditionHandler.build_condition
+        build_condition = partial(
+            condition_handler.RelationConditionHandler.build_condition,
+            model=self._model,
+            condition_cls=self.condition_cls,
+            filter_type=self.efilter_type,
+        )
 
         try:
-            conditions = [
-                build_condition(model=self._model, **kwargs)
-                    for kwargs in all_kwargs
-            ]
+            conditions = [build_condition(**kwargs) for kwargs in all_kwargs]
         # except EntityFilterCondition.ValueError as e:
         except condition_handler.FilterConditionHandler.ValueError as e:
             raise ValidationError(str(e)) from e
@@ -821,13 +849,15 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
                 kwargs['subfilter'] = filters.get(kwargs['subfilter'])
 
         # build_condition = EntityFilterCondition.build_4_relation_subfilter
-        build_condition = condition_handler.RelationSubFilterConditionHandler.build_condition
+        build_condition = partial(
+            condition_handler.RelationSubFilterConditionHandler.build_condition,
+            model=self._model,
+            condition_cls=self.condition_cls,
+            filter_type=self.efilter_type,
+        )
 
         try:
-            conditions = [
-                build_condition(model=self._model, **kwargs)
-                    for kwargs in all_kwargs
-            ]
+            conditions = [build_condition(**kwargs) for kwargs in all_kwargs]
         # except EntityFilterCondition.ValueError as e:
         except condition_handler.FilterConditionHandler.ValueError as e:
             raise ValidationError(str(e)) from e
@@ -877,16 +907,21 @@ class PropertiesConditionsField(_ConditionsField):
         return ptype
 
     def _value_from_unjsonfied(self, data):
-        # build = EntityFilterCondition.build_4_property
-        build = condition_handler.PropertyConditionHandler.build_condition
+        # build_condition = EntityFilterCondition.build_4_property
+        build_condition = partial(
+            condition_handler.PropertyConditionHandler.build_condition,
+            model=self._model,
+            condition_cls=self.condition_cls,
+            filter_type=self.efilter_type,
+        )
         clean_ptype = self._clean_ptype
         clean_value = self.clean_value
 
         return [
-            build(model=self._model,
-                  ptype=clean_ptype(entry),
-                  has=clean_value(entry, 'has', bool),
-                 ) for entry in data
+            build_condition(
+              ptype=clean_ptype(entry),
+              has=clean_value(entry, 'has', bool),
+            ) for entry in data
         ]
 
     def _set_initial_conditions(self, conditions):
@@ -897,19 +932,33 @@ class PropertiesConditionsField(_ConditionsField):
 
 
 # TODO: factorise with _ConditionsField (mixin ?)
+# TODO: unit tests
 class SubfiltersConditionsField(ModelMultipleChoiceField):
     # def __init__(self, model=CremeEntity, *args, **kwargs):
-    def __init__(self, *, model=CremeEntity, efilter_registry=None, user=None, **kwargs):
+    def __init__(self, *,
+                 model=CremeEntity,
+                 efilter_registry=None,
+                 efilter_type=EntityFilter.EF_USER,
+                 condition_cls=EntityFilterCondition,
+                 user=None,
+                 **kwargs):
         super().__init__(queryset=EntityFilter.objects.none(), **kwargs)
         self.user = user
         self.model = model
-        self.efilter_registry = efilter_registry or _EntityFilterRegistry()
+        self.efilter_registry = efilter_registry or \
+                                _EntityFilterRegistry('Default for SubfiltersConditionsField')
+        self.efilter_type = efilter_type
+        self.condition_cls = condition_cls
 
     def clean(self, value):
-        # build = EntityFilterCondition.build_4_subfilter
-        build = condition_handler.SubFilterConditionHandler.build_condition
+        # build_condition = EntityFilterCondition.build_4_subfilter
+        build_condition = partial(
+            condition_handler.SubFilterConditionHandler.build_condition,
+            condition_cls=self.condition_cls,
+            filter_type=self.efilter_type,
+        )
 
-        return [build(subfilter) for subfilter in super().clean(value)]
+        return [build_condition(subfilter) for subfilter in super().clean(value)]
 
     def initialize(self, ctype, conditions=None, efilter=None):
         qs = EntityFilter.get_for_user(self.user, ctype)

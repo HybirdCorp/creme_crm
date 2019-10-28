@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import OrderedDict
 # from datetime import datetime
 from itertools import zip_longest
 from json import loads as json_load  # dumps as json_dump
@@ -38,7 +39,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy, ngettext
 # from django.utils.timezone import now
 
-from ..core.entity_filter import entity_filter_registry
+from ..core import entity_filter as core_efilter
 from ..global_info import get_global_info
 from ..utils import update_model_instance
 # from ..utils.date_range import date_range_registry
@@ -54,7 +55,7 @@ from .fields import CremeUserForeignKey, CTypeForeignKey
 logger = logging.getLogger(__name__)
 
 
-# TODO: move to core.entity_filter ?
+# TODO: move to core.entity_filter ? (what about HeaderFilterList ?)
 class EntityFilterList(list):
     """Contains all the EntityFilter objects corresponding to a CremeEntity's ContentType.
     Indeed, it's as a cache.
@@ -90,18 +91,20 @@ class EntityFilter(models.Model):  # CremeModel ???
      - The existence (or the not existence) of a kind of Relationship.
      - The holding (or the not holding) of a kind of CremeProperty
     """
-    EF_SYSTEM = 0
+    EF_CREDENTIALS = 0
     EF_USER = 1
+
+    REGISTRIES = OrderedDict([
+        (EF_CREDENTIALS, core_efilter.credentials_efilter_registry),
+        (EF_USER,        core_efilter.entity_filter_registry),
+    ])
 
     id   = models.CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
     name = models.CharField(max_length=100, verbose_name=_('Name'))
 
     filter_type = models.PositiveSmallIntegerField(
         editable=False, default=EF_USER,
-        choices=[
-            (EF_SYSTEM, 'System filter (internal use)'),
-            (EF_USER,   'Regular filter (usable in list-view...'),
-        ],
+        choices=[(id_, registry.verbose_name) for id_, registry in REGISTRIES.items()],
     ).set_tags(viewable=False)
 
     is_custom = models.BooleanField(editable=False, default=True).set_tags(viewable=False)
@@ -127,8 +130,6 @@ class EntityFilter(models.Model):  # CremeModel ???
 
     creation_label = _('Create a filter')
     save_label     = _('Save the filter')
-
-    entity_filter_registry = entity_filter_registry
 
     _conditions_cache = None
     _connected_filter_cache = None
@@ -192,7 +193,7 @@ class EntityFilter(models.Model):  # CremeModel ???
     def can_edit(self, user):
         assert not user.is_team
 
-        if self.filter_type == self.EF_SYSTEM:
+        if self.filter_type != self.EF_USER:
             return False, gettext('You cannot edit/delete a system filter')
 
         if not self.user_id:  # All users allowed
@@ -502,6 +503,10 @@ class EntityFilter(models.Model):  # CremeModel ???
         # conds = self.get_conditions()
         # return all(cond.entities_are_distinct(conds) for cond in conds)
 
+    @property
+    def registry(self):
+        return self.REGISTRIES[self.filter_type]
+
     def filter(self, qs, user=None):
         qs = qs.filter(self.get_q(user))
 
@@ -522,7 +527,7 @@ class EntityFilter(models.Model):  # CremeModel ???
             #         Q(type=EntityFilterCondition.EFC_RELATION_SUBFILTER)
             #     )
             q = Q()
-            for handler_cls in self.entity_filter_registry.handler_classes:
+            for handler_cls in self.registry.handler_classes:
                 q |= handler_cls.query_for_parent_conditions(ctype=self.entity_type)
 
             self._subfilter_conditions_cache = sfc = (
@@ -584,7 +589,7 @@ class EntityFilter(models.Model):  # CremeModel ???
         assert not user.is_team
 
         # qs = EntityFilter.objects.all()
-        qs = cls.objects.exclude(filter_type=cls.EF_SYSTEM)
+        qs = cls.objects.filter(filter_type=cls.EF_USER)
 
         if content_type:
             qs = qs.filter(entity_type=content_type) if isinstance(content_type, ContentType) else \
@@ -640,6 +645,8 @@ class EntityFilter(models.Model):  # CremeModel ???
         return self._conditions_cache
 
     def set_conditions(self, conditions, check_cycles=True, check_privacy=True):
+        assert all(c.filter_type == self.filter_type for c in conditions)
+
         if check_cycles:
             self.check_cycle(conditions)
 
@@ -857,8 +864,10 @@ class EntityFilterCondition(models.Model):
     # class ValueError(Exception):
     #     pass
 
-    def __init__(self, *args, model=None, **kwargs):
+    def __init__(self, *args, model=None, filter_type=EntityFilter.EF_USER, **kwargs):
+        self.filter_type = filter_type
         super().__init__(*args, **kwargs)
+
         if self.filter_id is None:
             if model is None:
                 raise ValueError('{}.__init__(): pass a filter or model', type(self))
@@ -1100,7 +1109,7 @@ class EntityFilterCondition(models.Model):
         _handler = self._handler
 
         if _handler is None:
-            registry = self.filter.entity_filter_registry if self.filter_id else entity_filter_registry
+            registry = self.filter.registry if self.filter_id else EntityFilter.REGISTRIES[self.filter_type]
             self._handler = _handler = registry.get_handler(
                 type_id=self.type,
                 model=self.model,
@@ -1371,8 +1380,10 @@ class EntityFilterCondition(models.Model):
 #  - instance of CremeEntity used by Relation handlers.
 @receiver(pre_delete)
 def _delete_related_efc(sender, instance, **kwargs):
+    from ..core.entity_filter.condition_handler import all_handlers
+
     q = Q()
-    for handler_cls in EntityFilter.entity_filter_registry.handler_classes:
+    for handler_cls in all_handlers:
         q |= handler_cls.query_for_related_conditions(instance)
 
     if q:

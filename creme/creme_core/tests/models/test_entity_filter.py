@@ -15,7 +15,11 @@ try:
 
     from ..base import CremeTestCase
 
-    from creme.creme_core.core.entity_filter import operators, operands
+    from creme.creme_core.core.entity_filter import (
+        entity_filter_registry,
+        operators,
+        operands,
+    )
     from creme.creme_core.core.entity_filter.condition_handler import (
         SubFilterConditionHandler, RelationSubFilterConditionHandler,
         RegularFieldConditionHandler, DateRegularFieldConditionHandler,
@@ -159,6 +163,8 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertIs(efilter.use_or,     False)
         self.assertIs(efilter.is_custom,  False)
         self.assertIs(efilter.is_private, False)
+
+        self.assertEqual(entity_filter_registry, efilter.registry)
 
         conditions = efilter.conditions.all()
         self.assertEqual(1, len(conditions))
@@ -3909,7 +3915,7 @@ class EntityFiltersTestCase(CremeTestCase):
             pk='test-ef_contact5',
             name='My contacts',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_SYSTEM,  # <==
+            filter_type=EntityFilter.EF_CREDENTIALS,  # <==
         )
 
         efilters = EntityFilter.get_for_user(user, self.contact_ct)

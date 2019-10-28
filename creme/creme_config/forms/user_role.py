@@ -31,17 +31,13 @@ from creme.creme_core.apps import (
     CremeAppConfig,
 )
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.core.entity_filter import (
-    credentials_efilter_registry,
-    condition_handler,
-)
+from creme.creme_core.core.entity_filter import condition_handler
 from creme.creme_core.forms import (
     CremeForm, CremeModelForm, FieldBlockManager,
     MultiEntityCTypeChoiceField,
     # entity_filter as ef_forms,
 )
-from creme.creme_core.forms.entity_filter import fields as ef_fields
-from creme.creme_core.forms.widgets import Label, DynamicSelect, CremeRadioSelect
+from creme.creme_core.forms import widgets as creme_widgets
 from creme.creme_core.models import (
     CremeEntity,
     CremeUser, UserRole, SetCredentials,
@@ -155,9 +151,9 @@ class CredentialsGeneralStep(CremeModelForm):
         model = SetCredentials
         exclude = ('value', )  # fields ??
         widgets = {
-            'set_type':  CremeRadioSelect,
-            'ctype':     DynamicSelect(attrs={'autocomplete': True}),  # TODO: always this widget for CTypeForeignKey ??
-            'forbidden': CremeRadioSelect,
+            'set_type':  creme_widgets.CremeRadioSelect,
+            'ctype':     creme_widgets.DynamicSelect(attrs={'autocomplete': True}),  # TODO: always this widget for CTypeForeignKey ??
+            'forbidden': creme_widgets.CremeRadioSelect,
         }
 
     def __init__(self, *args, **kwargs):
@@ -196,7 +192,7 @@ class CredentialsGeneralStep(CremeModelForm):
 
 class CredentialsFilterStep(CremeModelForm):
     name   = EntityFilter._meta.get_field('name').formfield(label=_('Name of the filter'))
-    use_or = EntityFilter._meta.get_field('use_or').formfield(widget=CremeRadioSelect)
+    use_or = EntityFilter._meta.get_field('use_or').formfield(widget=creme_widgets.CremeRadioSelect)
 
     class Meta:
         model = SetCredentials
@@ -219,13 +215,15 @@ class CredentialsFilterStep(CremeModelForm):
         condition_handler.DateCustomFieldConditionHandler,
     )
 
-    def __init__(self, efilter_registry=credentials_efilter_registry, *args, **kwargs):
+    def __init__(self, efilter_type = EntityFilter.EF_CREDENTIALS, *args, **kwargs):
         super().__init__(*args, **kwargs)
         fields = self.fields
+        self.efilter_type = efilter_type
         self.conditions_field_names = fnames = []
+        instance = self.instance
 
-        if self.instance.set_type == SetCredentials.ESET_FILTER:
-            instance = self.instance
+        if instance.set_type == SetCredentials.ESET_FILTER:
+            efilter_registry = EntityFilter.REGISTRIES[efilter_type]
             ctype = instance.ctype
 
             if ctype is None:
@@ -237,7 +235,7 @@ class CredentialsFilterStep(CremeModelForm):
             else:
                 handler_classes = efilter_registry.handler_classes
 
-            efilter = self.instance.efilter
+            efilter = instance.efilter
 
             # NB: some explanations :
             #  - if the entity class related to the filter, we keep the current filter as initial.
@@ -257,6 +255,7 @@ class CredentialsFilterStep(CremeModelForm):
                 'user': self.user,
                 'required': False,
                 'efilter_registry': efilter_registry,
+                'efilter_type': efilter_type,
             }
             handler_fieldname = self._handler_fieldname
             for handler_cls in handler_classes:
@@ -271,7 +270,7 @@ class CredentialsFilterStep(CremeModelForm):
             fields.clear()
             fields['no_filter_label'] = forms.CharField(
                 label=_('Conditions'),
-                required=False, widget=Label,
+                required=False, widget=creme_widgets.Label,
                 initial=_('No filter, no condition.'),
             )
 
@@ -317,7 +316,7 @@ class CredentialsFilterStep(CremeModelForm):
                 efilter = EntityFilter(
                     name=name,
                     entity_type=ctype,
-                    filter_type=EntityFilter.EF_SYSTEM,
+                    filter_type=self.efilter_type,
                     use_or=use_or,
                 )
                 generate_string_id_and_save(
@@ -376,7 +375,8 @@ class UserRoleDeleteForm(CremeForm):
             )
         else:
             self.fields['info'] = forms.CharField(
-                label=gettext('Information'), required=False, widget=Label,
+                label=gettext('Information'), required=False,
+                widget=creme_widgets.Label,
                 initial=gettext('This role is not used by any user,'
                                 ' you can delete it safely.'
                                ),
@@ -579,7 +579,8 @@ class UserRoleCredentialsGeneralStep(CredentialsGeneralStep):
         fields = self.fields
         fields['can_view'] = forms.CharField(
             label=fields['can_view'].label,
-            required=False, widget=Label,
+            required=False,
+            widget=creme_widgets.Label,
             initial=_('Yes'),
         )
 

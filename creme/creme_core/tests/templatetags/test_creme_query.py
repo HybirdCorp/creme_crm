@@ -74,13 +74,14 @@ class CremeQueryTagsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeOrganisation,
-            filter_type=EntityFilter.EF_SYSTEM,
+            filter_type=EntityFilter.EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeOrganisation,
                 operator=operators.EQUALS,
                 field_name='name', values=[name],
+                filter_type=EntityFilter.EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.

@@ -260,7 +260,7 @@ class EnumerableTestCase(CremeTestCase):
             id='test-filter03',
             name='Filter 01',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_SYSTEM,  # <==
+            filter_type=EntityFilter.EF_CREDENTIALS,  # <==
         )
 
         e = EntityFilterEnumerator(FakeReport._meta.get_field('efilter'))

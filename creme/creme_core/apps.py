@@ -417,7 +417,7 @@ class CremeCoreConfig(CremeAppConfig):
     def register_credentials(self, entity_filter_registry):
         from .core.entity_filter import condition_handler, operands, operators
 
-        # BEWARE: other handler classes are not complete for credentials (accept() methods)
+        # BEWARE: other handler classes are not complete for credentials (accept() methods to be done)
         entity_filter_registry.register_condition_handlers(
             condition_handler.RegularFieldConditionHandler,
             condition_handler.CustomFieldConditionHandler,
@@ -433,18 +433,7 @@ class CremeCoreConfig(CremeAppConfig):
         from .core.entity_filter import condition_handler, operands, operators
 
         entity_filter_registry.register_condition_handlers(
-            condition_handler.RegularFieldConditionHandler,
-            condition_handler.DateRegularFieldConditionHandler,
-
-            condition_handler.CustomFieldConditionHandler,
-            condition_handler.DateCustomFieldConditionHandler,
-
-            condition_handler.RelationConditionHandler,
-            condition_handler.RelationSubFilterConditionHandler,
-
-            condition_handler.PropertyConditionHandler,
-
-            condition_handler.SubFilterConditionHandler,
+            *condition_handler.all_handlers,
         ).register_operators(
             *operators.all_operators,
         ).register_operands(
