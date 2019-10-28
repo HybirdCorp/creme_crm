@@ -32,6 +32,7 @@ from ..gui.bulk_update import bulk_update_registry
 from ..gui.pager import PagerContext
 from ..utils.media import get_current_theme_from_context
 from ..utils.translation import plural as is_plural
+from ..views.entity import _bulk_has_perm
 
 from .creme_widgets import get_icon_size_px, get_icon_by_name
 
@@ -110,9 +111,11 @@ def brick_header_title(context, title, plural=None, empty=None, icon='info', cou
     if isinstance(icon, str):
         # TODO: cache ?
         theme = get_current_theme_from_context(context)
-        icon = get_icon_by_name(icon, theme, size_px=get_icon_size_px(theme, size='brick-header'),
-                                label=_('Information') if icon == 'info' else rendered_title,
-                               )
+        icon = get_icon_by_name(
+            icon, theme,
+            size_px=get_icon_size_px(theme, size='brick-header'),
+            label=_('Information') if icon == 'info' else rendered_title,
+       )
 
     return {
         'title': rendered_title,
@@ -207,9 +210,10 @@ def brick_action(context, id, url='', label=None, icon=None, icon_size='brick-ac
 
     if isinstance(icon, str):
         theme = get_current_theme_from_context(context)
-        icon = get_icon_by_name(icon, theme, size_px=get_icon_size_px(theme, icon_size),
-                                label=help_text,
-                               )
+        icon = get_icon_by_name(
+            icon, theme,
+            size_px=get_icon_size_px(theme, icon_size), label=help_text,
+       )
 
     def _clean_extra_data(data, prefix='__'):
         prefix_length = len(prefix)
@@ -217,7 +221,9 @@ def brick_action(context, id, url='', label=None, icon=None, icon_size='brick-ac
 
         for key, value in data.items():
             if not key.startswith(prefix):
-                raise TemplateSyntaxError('The key "{}" does not starts with {}'.format(key, prefix))
+                raise TemplateSyntaxError(
+                    'The key "{}" does not starts with {}'.format(key, prefix)
+                )
 
             extra_data[key[prefix_length:]] = value
 
@@ -289,10 +295,13 @@ def brick_card_button(context, action, url, label, icon=None, enabled=True, conf
 
     Notice that the size of instanced Icons should be "brick-hat-card-button".
     """
-    return brick_action(context, id=action, url=url, label=label, icon=icon, icon_size='brick-hat-card-button',
-                        enabled=enabled, confirm=confirm,
-                        **kwargs
-                       )
+    return brick_action(
+        context,
+        id=action, url=url,
+        label=label, icon=icon, icon_size='brick-hat-card-button',
+        enabled=enabled, confirm=confirm,
+        **kwargs
+   )
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/bar-button.html', takes_context=True)
@@ -301,10 +310,13 @@ def brick_bar_button(context, action, url, label, icon, enabled=True, confirm=No
 
     Notice that the size of instanced Icons should be "brick-hat-bar-button".
     """
-    return brick_action(context, id=action, url=url, label=label, icon=icon, icon_size='brick-hat-bar-button',
-                        enabled=enabled, confirm=confirm,
-                        **kwargs
-                       )
+    return brick_action(
+        context,
+        id=action, url=url,
+        label=label, icon=icon, icon_size='brick-hat-bar-button',
+        enabled=enabled, confirm=confirm,
+        **kwargs
+   )
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/menu-action.html', takes_context=True)
@@ -330,29 +342,34 @@ def brick_menu_action(context, id, **kwargs):
 
 
 def _brick_menu_state_action(context, action_id, current_state, in_label, out_label, icon='view_less', **kwargs):
-    return brick_action(context, id=action_id,
-                        icon=icon,
-                        label=in_label if current_state else out_label,
-                        __inlabel=in_label,
-                        __outlabel=out_label,
-                        **kwargs
-                       )
+    return brick_action(
+        context, id=action_id,
+        icon=icon,
+        label=in_label if current_state else out_label,
+        __inlabel=in_label,
+        __outlabel=out_label,
+        **kwargs
+    )
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/menu-action.html', takes_context=True)
 def brick_menu_collapse_action(context, state):
-    return _brick_menu_state_action(context, action_id='collapse',
-                                    current_state=state.is_open,
-                                    in_label=_('Collapse block'), out_label=_('Expand block'),
-                                   )
+    return _brick_menu_state_action(
+        context,
+        action_id='collapse',
+        current_state=state.is_open,
+        in_label=_('Collapse block'), out_label=_('Expand block'),
+    )
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/menu-action.html', takes_context=True)
 def brick_menu_reduce_action(context, state):
-    return _brick_menu_state_action(context, action_id='reduce-content',
-                                    current_state=state.show_empty_fields,
-                                    in_label=_('Hide empty fields'), out_label=_('Show empty fields'),
-                                   )
+    return _brick_menu_state_action(
+        context,
+        action_id='reduce-content',
+        current_state=state.show_empty_fields,
+        in_label=_('Hide empty fields'), out_label=_('Show empty fields'),
+   )
 
 
 # TODO: attrs => only 'class' ?
@@ -383,7 +400,10 @@ def brick_table_column(title, status='', **attrs):
     return {
         'title':      title,
         'status':     status.split(' ') if status else (),
-        'attributes': mark_safe(' '.join('{}="{}"'.format(k.replace('_', '-'), v) for k, v in attrs.items())),
+        'attributes': mark_safe(
+            ' '.join('{}="{}"'.format(k.replace('_', '-'), v)
+                for k, v in attrs.items())
+        ),
     }
 
 
@@ -547,7 +567,7 @@ def brick_state_classes(state):
 
 @register.inclusion_tag('creme_core/templatetags/bricks/tile-action.html', takes_context=True)
 def brick_tile_action(context, id, **kwargs):
-    """Action (see brick_brick_action()) for the content of a tiles-brick
+    """Action (see brick_action()) for the content of a tiles-brick
     (see creme/creme_core/templates/creme_core/bricks/base/tiles.html).
 
     Example:
@@ -595,11 +615,12 @@ def brick_tile(label, value, multiline=False, data_type=None):
             ...
         {% endblock %}
     """
-    return {'label': label,
-            'content': value,
-            'multiline': multiline,
-            'data_type': data_type,
-           }
+    return {
+        'label': label,
+        'content': value,
+        'multiline': multiline,
+        'data_type': data_type,
+    }
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/tile.html')
@@ -625,8 +646,6 @@ def brick_tile_for_cell(cell, instance, user):  # TODO: keywords only ?
             ...
         {% endblock %}
     """
-    from creme.creme_core.views.entity import _bulk_has_perm
-
     try:
         content = cell.render_html(instance, user)
     except:
@@ -645,6 +664,77 @@ def brick_tile_for_cell(cell, instance, user):  # TODO: keywords only ?
         'edit_url':  bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
         'edit_perm': _bulk_has_perm(instance, user),
     }
+
+
+@register.inclusion_tag('creme_core/templatetags/bricks/card-action.html', takes_context=True)
+def brick_card_action(context, url, enabled, id='edit', display='both', **kwargs):
+    """Action (see brick_action()) for the content of a hat-card-brick
+    (see creme/creme_core/templates/creme_core/bricks/base/hat-card.html).
+
+    Example:
+        {% extends 'creme_core/bricks/base/hat-card.html' %}
+        {% load i18n creme_bricks %}
+
+        ...
+
+        {% block card_fields %}
+            <div class="card-info-field">
+                <span class='card-info-key'>{% trans 'My label' %}</span>
+                <span class='card-info-value'>
+                    {{my_value}}
+                    {% brick_card_action url=my_url enabled=True %}
+                </span>
+            </div>
+
+            ...
+        {% endblock %}
+    """
+    return brick_action(
+        context,
+        id=id,
+        url=url,
+        enabled=enabled,
+        display=display,
+        **kwargs
+    )
+
+
+# TODO: use a brick_card_action_for_cell tag ??
+@register.inclusion_tag('creme_core/templatetags/bricks/card-action.html', takes_context=True)
+def brick_card_action_for_field(context, instance, field, user, **kwargs):
+    """Inner-edition action (see brick_action()) for a field in a hat-card-brick
+    (see creme/creme_core/templates/creme_core/bricks/base/hat-card.html).
+
+    Example:
+        {% extends 'creme_core/bricks/base/hat-card.html' %}
+        {% load i18n creme_bricks %}
+
+        ...
+
+        {% block card_fields %}
+            <div class="card-info-field">
+                <span class='card-info-key'>{% trans 'My field' %}</span>
+                <span class='card-info-value'>
+                    {{object.my_field|default:'—'}}
+                    {% brick_card_action_for_field instance=object field='my_field' user=user %}
+                </span>
+            </div>
+
+            ...
+        {% endblock %}
+    """
+    cell = EntityCellRegularField.build(type(instance), field)
+
+    if cell is None:
+        raise ValueError('Invalid field (instance={}, field="{}")'.format(instance, field))
+
+    # TODO: pass the registry in context ?
+    return brick_card_action(
+        context,
+        url=bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
+        enabled=_bulk_has_perm(instance, user),
+        **kwargs
+    )
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/pager.html')
@@ -702,12 +792,17 @@ def brick_import(context, app=None, name=None, object=None):
     """
     if object is not None:
         if app is not None or name is not None:
-            raise TemplateSyntaxError('{% brick_import %}: if you give "object" parameter, you cannot give app/name parameters.')
+            raise TemplateSyntaxError(
+                '{% brick_import %}: if you give "object" parameter, '
+                'you cannot give app/name parameters.'
+            )
 
         brick = brick_registry.get_brick_4_object(object)
     else:
         if app is None or name is None:
-            raise TemplateSyntaxError('{% brick_import %}: you have to give "app" AND "name" parameters.')
+            raise TemplateSyntaxError(
+                '{% brick_import %}: you have to give "app" AND "name" parameters.'
+            )
 
         brick = brick_registry[Brick.generate_id(app, name)]()
 
@@ -747,7 +842,9 @@ def brick_declare(context, *bricks):
 
     for brick_or_seq in bricks:
         if brick_or_seq == '':
-            raise ValueError('{% brick_declare %}, "bricks" seems empty. Is you variable valid ?')
+            raise ValueError(
+                '{% brick_declare %}, "bricks" seems empty. Is you variable valid ?'
+            )
 
         if hasattr(brick_or_seq, '__iter__'):
             for brick in brick_or_seq:
@@ -789,7 +886,9 @@ def brick_display(context, *bricks, **kwargs):
     elif render_type == 'home':
         render = render_home_brick
     else:
-        raise ValueError('{% brick_display %}: "render" argument must be in {detail|home}.')
+        raise ValueError(
+            '{% brick_display %}: "render" argument must be in {detail|home}.'
+        )
 
     bricks_to_render = []
 
@@ -798,12 +897,15 @@ def brick_display(context, *bricks, **kwargs):
             BricksManager.get(context).pop_group(brick_id)
         except KeyError as e:
             raise ValueError(
-                '{{% brick_display %}}: it seems that this brick has not been declared/imported: {}'.format(brick_id)
+                '{{% brick_display %}}: it seems that this brick has not been '
+                'declared/imported: {}'.format(brick_id)
             ) from e
 
     for brick_or_seq in bricks:
         if brick_or_seq == '':
-            raise ValueError('{% brick_display %}: "bricks" seems empty. Is you variable valid ?')
+            raise ValueError(
+                '{% brick_display %}: "bricks" seems empty. Is you variable valid ?'
+            )
 
         # We avoid generator, because we need to iterate twice (import & display)
         if isinstance(brick_or_seq, (list, tuple)):
