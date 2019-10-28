@@ -46,9 +46,10 @@ from ..utils.date_range import date_range_registry
 # from ..utils.queries import get_q_from_dict
 from ..utils.serializers import json_encode
 
-from . import validators as f_validators
-from . import widgets as core_widgets
-
+from . import (
+    validators as f_validators,
+    widgets as core_widgets,
+)
 
 __all__ = (
     'CremeUserChoiceField',
@@ -67,11 +68,31 @@ __all__ = (
 )
 
 
+class CremeUserChoiceIterator(mforms.ModelChoiceIterator):
+    """"Yields the inactive users after the active ones, a specific group."""
+    def __iter__(self):
+        regular_choices = []
+        if self.field.empty_label is not None:
+            regular_choices.append(('', self.field.empty_label))
+
+        queryset = self.queryset
+        choice = self.choice
+        regular_choices.extend(choice(u) for u in queryset if u.is_active)
+
+        yield ('', regular_choices)
+
+        inactive_choices = [choice(u) for u in queryset if not u.is_active]
+        if inactive_choices:
+            yield (_('Inactive users'), inactive_choices)
+
+
 class CremeUserChoiceField(mforms.ModelChoiceField):
     """Specialization of ModelChoiceField the User model.
     The user set by the form (see CremeForm/CremeModelForm) is used as initial
     choice by default.
     """
+    iterator = CremeUserChoiceIterator
+
     def __init__(self, queryset=None, *, user=None, empty_label=None, **kwargs):
         super().__init__(
             queryset=get_user_model().objects.all() if queryset is None else queryset,
