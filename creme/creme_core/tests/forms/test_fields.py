@@ -11,21 +11,31 @@ try:
 
     from .base import FieldTestCase
 
-    from creme.creme_core.forms.fields import (CremeUserChoiceField,
-            DatePeriodField, DateRangeField,
-            DurationField, ColorField, ChoiceOrCharField,
-            OptionalChoiceField,
-            CTypeChoiceField, EntityCTypeChoiceField,
-            MultiCTypeChoiceField, MultiEntityCTypeChoiceField,
-            EnhancedMultipleChoiceField, EnhancedChoiceIterator,
-            EnhancedModelMultipleChoiceField, EnhancedModelChoiceIterator)
+    from creme.creme_core.forms.fields import (
+        CremeUserChoiceField,
+        DatePeriodField, DateRangeField,
+        DurationField, ColorField, ChoiceOrCharField,
+        OptionalChoiceField,
+        CTypeChoiceField, EntityCTypeChoiceField,
+        MultiCTypeChoiceField, MultiEntityCTypeChoiceField,
+        EnhancedMultipleChoiceField, EnhancedChoiceIterator,
+        EnhancedModelMultipleChoiceField, EnhancedModelChoiceIterator,
+    )
     from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-    from creme.creme_core.models import (RelationType, CremePropertyType,
-            CremeUser, Currency,
-            FakeContact, FakeOrganisation, FakeSector)
-    from creme.creme_core.utils.date_period import (DatePeriod, MinutesPeriod, HoursPeriod, DaysPeriod,
-            DatePeriodRegistry, date_period_registry)
-    from creme.creme_core.utils.date_range import DateRange, CustomRange, CurrentYearRange
+    from creme.creme_core.models import (
+        RelationType, CremePropertyType,
+        CremeUser, Currency,
+        FakeContact, FakeOrganisation, FakeSector,
+    )
+    from creme.creme_core.utils.date_period import (
+        DatePeriod, MinutesPeriod, HoursPeriod, DaysPeriod,
+        DatePeriodRegistry, date_period_registry
+    )
+    from creme.creme_core.utils.date_range import (
+        DateRange,
+        CustomRange,
+        CurrentYearRange,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -41,10 +51,16 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         self.assertIsNone(field.initial)
         self.assertIsNone(field.user)
 
-        choices = list(field.choices)
-        self.assertIn((user.id, str(user)),             choices)
-        self.assertIn((other_user.id, str(other_user)), choices)
-        self.assertIn((staff.id, str(staff)),           choices)
+        choices = [*field.choices]
+        self.assertEqual(1, len(choices))
+
+        active_group = choices[0]
+        self.assertEqual('', active_group[0])
+
+        active_choices = active_group[1]
+        self.assertIn((user.id, str(user)),             active_choices)
+        self.assertIn((other_user.id, str(other_user)), active_choices)
+        self.assertIn((staff.id, str(staff)),           active_choices)
 
         field.user = user
         self.assertEqual(user,    field.user)
@@ -61,10 +77,16 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
 
         field = CremeUserChoiceField(queryset=CremeUser.objects.exclude(is_staff=True))
 
-        choices = list(field.choices)
-        self.assertIn((user.id, str(user)),             choices)
-        self.assertIn((other_user.id, str(other_user)), choices)
-        self.assertNotIn((staff.id, str(staff)),        choices)
+        choices = [*field.choices]
+        self.assertEqual(1, len(choices))
+
+        active_group = choices[0]
+        self.assertEqual('', active_group[0])
+
+        active_choices = active_group[1]
+        self.assertIn((user.id, str(user)),             active_choices)
+        self.assertIn((other_user.id, str(other_user)), active_choices)
+        self.assertNotIn((staff.id, str(staff)),        active_choices)
 
     def test_initial(self):
         self.login()
@@ -73,10 +95,35 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         field = CremeUserChoiceField(initial=other_id)
         self.assertEqual(other_id, field.initial)
 
+    def test_inactive_users(self):
+        user = self.login()
+        other_user = self.other_user
+        inactive = CremeUser.objects.create(username='deunan', is_active=False)
+
+        field = CremeUserChoiceField()
+
+        choices = [*field.choices]
+        self.assertEqual(2, len(choices))
+
+        active_group = choices[0]
+        self.assertEqual('', active_group[0])
+
+        active_choices = active_group[1]
+        self.assertIn((user.id, str(user)),             active_choices)
+        self.assertIn((other_user.id, str(other_user)), active_choices)
+        self.assertNotIn((inactive.id, str(inactive)),  active_choices)
+
+        inactive_group = choices[1]
+        self.assertEqual(_('Inactive users'), inactive_group[0])
+
+        inactive_choices = inactive_group[1]
+        self.assertIn((inactive.id, str(inactive)), inactive_choices)
+        self.assertNotIn((user.id, str(user)),      inactive_choices)
+
 
 class DatePeriodFieldTestCase(FieldTestCase):
     def test_ok01(self):
-        "Days"
+        "Days."
         period = DatePeriodField().clean(['days', '3'])
         self.assertIsInstance(period, DatePeriod)
 
@@ -87,7 +134,7 @@ class DatePeriodFieldTestCase(FieldTestCase):
                         )
 
     def test_ok02(self):
-        "Minutes"
+        "Minutes."
         period = DatePeriodField().clean(['minutes', '5'])
         self.assertIsInstance(period, DatePeriod)
 
@@ -143,36 +190,42 @@ class DatePeriodFieldTestCase(FieldTestCase):
         with self.assertRaises(ValidationError) as cm:
             DatePeriodField().clean(['days', '0'])
 
-        self.assertEqual([_('Ensure this value is greater than or equal to %(limit_value)s.') % {
-                                'limit_value': 1
-                            },
-                         ],
-                         cm.exception.messages
-                        )
+        self.assertEqual(
+            [_('Ensure this value is greater than or equal to %(limit_value)s.') % {
+                'limit_value': 1
+             },
+            ],
+            cm.exception.messages
+        )
 
     def test_registry_1(self):
         self.assertEqual(list(date_period_registry.choices()), list(DatePeriodField().choices))
 
     def test_registry_2(self):
         registry = DatePeriodRegistry(MinutesPeriod, HoursPeriod)
-        self.assertEqual(list(registry.choices()), list(DatePeriodField(period_registry=registry).choices))
+        self.assertListEqual(
+            [*registry.choices()],
+            [*DatePeriodField(period_registry=registry).choices]
+        )
 
     def test_registry_3(self):
         registry = DatePeriodRegistry(MinutesPeriod, HoursPeriod)
         field = DatePeriodField()
         field.period_registry = registry
-        self.assertEqual(list(registry.choices()), list(field.choices))
+        self.assertListEqual([*registry.choices()], [*field.choices])
 
     def test_period_names_1(self):
         names = (MinutesPeriod.name, HoursPeriod.name)
-        self.assertEqual(list(date_period_registry.choices(choices=names)),
-                         list(DatePeriodField(period_names=names).choices)
+        self.assertEqual([*date_period_registry.choices(choices=names)],
+                         [*DatePeriodField(period_names=names).choices]
                         )
 
     def test_period_names_2(self):
         field = DatePeriodField()
         field.period_names = names = (MinutesPeriod.name, HoursPeriod.name)
-        self.assertEqual(list(date_period_registry.choices(choices=names)), list(field.choices))
+        self.assertEqual([*date_period_registry.choices(choices=names)],
+                         [*field.choices]
+                        )
 
 
 class DateRangeFieldTestCase(FieldTestCase):
@@ -360,11 +413,13 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         field = CTypeChoiceField(ctypes=[ct1, ct2])
         clean = field.clean
 
-        self.assertEqual(sorted([(ct1.pk, str(ct1)),
-                                 (ct2.pk, str(ct2)),
-                                ], key=lambda ct: ct[1]),
-                         list(field.widget.choices)
-                        )
+        self.assertListEqual(sorted([(ct1.pk, str(ct1)),
+                                     (ct2.pk, str(ct2)),
+                                    ],
+                                    key=lambda ct: ct[1],
+                                   ),
+                             [*field.widget.choices]
+                            )
 
         self.assertEqual(ct1, clean(ct1.id))
         self.assertEqual(ct2, clean(ct2.id))
@@ -381,7 +436,7 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
                                   key=lambda ct: ct[1]
                                  ),
                          ],
-                         list(field.widget.choices)
+                         [*field.widget.choices]
                         )
 
         self.assertEqual(ct1, clean(ct1.id))
@@ -610,7 +665,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
         )
 
         clean = field.clean
-        self.assertEqual(['2'], list(clean(['2'])))
+        self.assertListEqual(['2'], [*clean(['2'])])
         self.assertFalse([], clean(''))
         self.assertFalse([], clean([]))
 
@@ -636,7 +691,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
                     ],
         )
 
-        choices = list(field.choices)
+        choices = [*field.choices]
         choice1 = choices[0]
         id1, label1 = choice1
         self.assertEqual('Sword', label1)
@@ -649,14 +704,14 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual('Axes', label2)
         self.assertEqual(2,      id2.value)
 
-        wchoice = list(field.widget.choices)[0]
+        wchoice = [*field.widget.choices][0]
         self.assertEqual('Sword', wchoice[1])
         self.assertEqual(1,       wchoice[0].value)
 
         self.assertFalse(field.forced_values)
 
     def test_choices02(self):
-        "Callable"
+        "Callable."
         def _choices():
             return [
                 (1, 'Sword'),
@@ -666,7 +721,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
 
         field = EnhancedMultipleChoiceField(choices=_choices)
 
-        choices = list(field.choices)
+        choices = [*field.choices]
         choice1 = choices[0]
         id1, label1 = choice1
         self.assertEqual('Sword', label1)
@@ -678,7 +733,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual('Axes', label2)
         self.assertEqual(2,      id2.value)
 
-        wchoice = list(field.widget.choices)[0]
+        wchoice = [*field.widget.choices][0]
         self.assertEqual('Sword', wchoice[1])
         self.assertEqual(1,       wchoice[0].value)
 
@@ -693,7 +748,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
             ],
         )
 
-        choices = list(field.choices)
+        choices = [*field.choices]
         choice1 = choices[0]
         id1, label1 = choice1
         self.assertEqual('Sword', label1)
@@ -706,7 +761,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(2,    id2.value)
         self.assertEqual(help, id2.help)
 
-        wchoice2 = list(field.widget.choices)[1]
+        wchoice2 = [*field.widget.choices][1]
         self.assertEqual('Axes', wchoice2[1])
         wid2 = wchoice2[0]
         self.assertEqual(2,    wid2.value)
@@ -725,7 +780,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
 
         field = EnhancedMultipleChoiceField(choices=_choices)
 
-        choices = list(field.choices)
+        choices = [*field.choices]
         choice1 = choices[0]
         id1, label1 = choice1
         self.assertEqual('Sword', label1)
@@ -739,7 +794,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(2,    id2.value)
         self.assertEqual(help, id2.help)
 
-        wchoice2 = list(field.widget.choices)[1]
+        wchoice2 = [*field.widget.choices][1]
         self.assertEqual('Axes', wchoice2[1])
         wid2 = wchoice2[0]
         self.assertEqual(2,    wid2.value)
@@ -767,7 +822,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertFalse(next(wchoices1)[0].readonly)
 
         # --
-        choices1 = list(field1.choices)
+        choices1 = [*field1.choices]
         choice1 = choices1[0]
         id1, label1 = choice1
         self.assertEqual('Sword', label1)
@@ -807,7 +862,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(frozenset([2, 3]), field.forced_values)
         self.assertSetEqual({2, 3}, field.initial)
 
-        choices = list(field.choices)
+        choices = [*field.choices]
         self.assertFalse(choices[0][0].readonly)
         self.assertTrue(choices[1][0].readonly)
 
@@ -849,7 +904,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
             iterator=CustomIterator,
         )
 
-        choice = list(field.choices)[0]
+        choice = [*field.choices][0]
         self.assertEqual('The "Sword" weapon', choice[0].help)
 
 
@@ -877,14 +932,14 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertIsInstance(field.widget, UnorderedMultipleChoiceWidget)
         self.assertSetEqual(set(), field.initial)
 
-        sectors = list(FakeSector.objects.all())
+        sectors = [*FakeSector.objects.all()]
         self.assertGreaterEqual(len(sectors), 3)
 
         sector1 = sectors[0]
         sector2 = sectors[1]
         sector3 = sectors[2]
 
-        choices = list(field.choices)
+        choices = [*field.choices]
         choice1 = self.assertFoundChoice(sector1.id, sector1.title, choices)
         self.assertFalse(choice1.readonly)
         self.assertFalse(choice1.help)
@@ -908,7 +963,7 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertIsNotNone(sector)
 
         clean = field.clean
-        self.assertEqual([sector], list(clean([sector.id])))
+        self.assertListEqual([sector], [*clean([sector.id])])
         self.assertFalse([], clean(''))
         self.assertFalse([], clean([]))
 
@@ -933,7 +988,7 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(frozenset(), field1.forced_values)
         self.assertFalse(field1.initial)
 
-        sectors = list(FakeSector.objects.all())
+        sectors = [*FakeSector.objects.all()]
         self.assertGreaterEqual(len(sectors), 3)
 
         sector1, sector2, sector3 = sectors[:3]
@@ -943,7 +998,7 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertSetEqual({sector1.id, sector3.id}, field1.initial)
 
         # --
-        choices = list(field1.choices)
+        choices = [*field1.choices]
         choice1 = self.assertFoundChoice(sector1.id, sector1.title, choices)
         self.assertTrue(choice1.readonly)
 
@@ -966,7 +1021,7 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
                                 required=False,
                                 to_field_name='title',
                                )
-        sectors = list(FakeSector.objects.all())
+        sectors = [*FakeSector.objects.all()]
         self.assertGreaterEqual(len(sectors), 3)
 
         sector1, sector2, sector3 = sectors[:3]
@@ -979,7 +1034,7 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertSetEqual(expected, set(clean([sector1.title])))
 
         # --
-        choices = list(field.choices)
+        choices = [*field.choices]
         choice1 = self.assertFoundChoice(sector1.title, sector1.title, choices)
         self.assertFalse(choice1.readonly)
 
@@ -1010,7 +1065,7 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         widget = field.widget
         field.forced_values = [sector1.id]
 
-        choices = list(widget.choices)
+        choices = [*widget.choices]
         choice1 = self.assertFoundChoice(sector1.id, sector1.title, choices)
         self.assertTrue(choice1.readonly)
 
@@ -1029,6 +1084,6 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
 
         sector = FakeSector.objects.first()
 
-        choices = list(field.choices)
+        choices = [*field.choices]
         choice = self.assertFoundChoice(sector.id, sector.title, choices)
         self.assertEqual('The "{}" sector'.format(sector), choice.help)
