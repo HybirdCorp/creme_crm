@@ -330,8 +330,11 @@ class CremeCoreConfig(CremeAppConfig):
     def register_menu(self, creme_menu):
         from django.urls import reverse_lazy as reverse
 
-        from .gui.menu import (ItemGroup, ContainerItem, URLItem, TrashItem, LastViewedEntitiesItem,
-                QuickCreationItemGroup, CreationFormsItem)
+        from .auth import SUPERUSER_PERM
+        from .gui.menu import (
+            ItemGroup, ContainerItem, URLItem, TrashItem, LastViewedEntitiesItem,
+            QuickCreationItemGroup, CreationFormsItem,
+        )
         from .gui.quick_forms import quickforms_registry
 
         creme_menu.add(ContainerItem('creme', label='Creme')
@@ -352,7 +355,7 @@ class CremeCoreConfig(CremeAppConfig):
                   .add(ItemGroup('features')
                             .add(ContainerItem('tools', label=_('Tools'))
                                     .add(URLItem('creme_core-jobs', url=reverse('creme_core__jobs'),
-                                                 label=_('Jobs'), perm=lambda user: user.is_superuser  # TODO: '*superuser*'' ?
+                                                 label=_('Jobs'), perm=SUPERUSER_PERM,
                                                 ),
                                          priority=5,
                                         ),
