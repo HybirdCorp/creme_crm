@@ -214,19 +214,24 @@ class SubFilterConditionHandler(FilterConditionHandler):
         return cls(model=model, subfilter=name)
 
     @classmethod
-    def build_condition(cls, subfilter, condition_cls=EntityFilterCondition):
+    def build_condition(cls, subfilter,
+                        filter_type=EntityFilter.EF_USER,
+                        condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
         @param subfilter: <creme_core.models.EntityFilter> instance.
+        @param filter_type: see the field 'EntityFilter.filter_type'.
         @param condition_cls: Class of condition.
         """
         assert isinstance(subfilter, EntityFilter)
 
         return condition_cls(
+            filter_type=filter_type,
             type=cls.type_id,
             model=subfilter.entity_type.model_class(),
             name=subfilter.id,
             # NB: avoid a query to retrieve again the sub-filter (in forms).
+            # TODO: assert this class is available in the registry ?
             handler=cls(subfilter=subfilter),
         )
 
@@ -383,6 +388,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
 
     @classmethod
     def build_condition(cls, *, model, field_name, operator, values, user=None,
+                        filter_type=EntityFilter.EF_USER,
                         condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
@@ -393,6 +399,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
                Exceptions: - RANGE: 'values' is always a list of 2 elements
                            - ISEMPTY: 'values' is a list containing one boolean.
         @param user: Some fields need a user instance for permission validation.
+        @param filter_type: see the field 'EntityFilter.filter_type'.
         @param condition_cls: Class of condition.
         """
         operator_id = operator if isinstance(operator, int) else operator.type_id
@@ -420,6 +427,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             raise cls.ValueError(str(e)) from e
 
         return condition_cls(
+            filter_type=filter_type,
             model=model,
             type=cls.type_id,
             name=field_name,
@@ -651,6 +659,7 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
     @classmethod
     def build_condition(cls, model, field_name,
                         date_range=None, start=None, end=None,
+                        filter_type=EntityFilter.EF_USER,
                         condition_cls=EntityFilterCondition,
                        ):
         """Build an (unsaved) EntityFilterCondition.
@@ -662,6 +671,7 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
                if a custom range is used.
         @param start: Instance of <datetime.date>, or None.
         @param end: Instance of <datetime.date>, or None.
+        @param filter_type: see the field 'EntityFilter.filter_type'.
         @param condition_cls: Class of condition.
 
         If a custom range is used, at least one of the 2 argument "start" & "end"
@@ -672,6 +682,7 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
             raise cls.ValueError(error)
 
         return condition_cls(
+            filter_type=filter_type,
             model=model,
             type=cls.type_id,
             name=field_name,
@@ -846,6 +857,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
 
     @classmethod
     def build_condition(cls, *, custom_field, operator, values, user=None,
+                        filter_type=EntityFilter.EF_USER,
                         condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
@@ -855,6 +867,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
                Exceptions: - RANGE: 'values' is always a list of 2 elements
                            - ISEMPTY: 'values' is a list containing one boolean.
         @param user: Some fields need a user instance for permission validation.
+        @param filter_type: see the field 'EntityFilter.filter_type'.
         @param condition_cls: Class of condition.
         """
         operator_id = operator if isinstance(operator, int) else operator.type_id
@@ -914,6 +927,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         }
 
         return condition_cls(
+            filter_type=filter_type,
             model=custom_field.content_type.model_class(),
             type=cls.type_id,
             name=str(custom_field.id),
@@ -1036,6 +1050,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
 
     @classmethod
     def build_condition(cls, *, custom_field, date_range=None, start=None, end=None,
+                        filter_type=EntityFilter.EF_USER,
                         condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
@@ -1046,6 +1061,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
                if a custom range is used.
         @param start: Instance of <datetime.date>, or None.
         @param end: Instance of <datetime.date>, or None.
+        @param filter_type: see the field 'EntityFilter.filter_type'.
         @param condition_cls: Class of condition.
 
         If a custom range is used, at least one of the 2 argument "start" & "end"
@@ -1060,6 +1076,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
         value['rname'] = custom_field.get_value_class().get_related_name()
 
         return condition_cls(
+            filter_type=filter_type,
             model=custom_field.content_type.model_class(),
             type=cls.type_id,
             name=str(custom_field.id),
@@ -1212,6 +1229,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
     @classmethod
     def build_condition(cls, *, model, rtype, has=True, ct=None, entity=None,
+                        filter_type=EntityFilter.EF_USER,
                         condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
@@ -1225,6 +1243,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         @param entity: Instance of <creme_core.models.CremeEntity>, or None.
                If given, only Relations with this entity are examined.
                Note: "ct" argument is not used if this argument is given.
+        @param filter_type: see the field 'EntityFilter.filter_type'.
         @param condition_cls: Class of condition.
         """
         value = {'has': bool(has)}
@@ -1235,6 +1254,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
             value['ct_id'] = ct.id
 
         return condition_cls(
+            filter_type=filter_type,
             model=model,
             type=cls.type_id,
             name=rtype.id,
@@ -1365,6 +1385,7 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
 
     @classmethod
     def build_condition(cls, *, model, rtype, subfilter, has=True,
+                        filter_type=EntityFilter.EF_USER,
                         condition_cls=EntityFilterCondition
                        ):
         """Build an (unsaved) EntityFilterCondition.
@@ -1374,12 +1395,14 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
         @param subfilter: Instance of <creme_core.models.models.EntityFilter>.
         @param has: Boolean indicating if the filtered entities have (<True>)
                or have not (<False>) the retrieved Relations.
+        @param filter_type: see the field 'EntityFilter.filter_type'.
         @param condition_cls: Class of condition.
         """
         assert isinstance(subfilter, EntityFilter)
         has = bool(has)
 
         return condition_cls(
+            filter_type=filter_type,
             model=model,
             type=cls.type_id,
             name=rtype.id,
@@ -1387,6 +1410,7 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
                 {'has': has, 'filter_id': subfilter.id}
             ),
             # NB: avoid a query to retrieve again the sub-filter (in forms).
+            # TODO: assert this class is available in the registry ?
             handler=cls(model=model, rtype=rtype, subfilter=subfilter, exclude=not has),
         )
 
@@ -1490,16 +1514,20 @@ class PropertyConditionHandler(FilterConditionHandler):
         return cls(model=model, ptype=name, exclude=not data)
 
     @classmethod
-    def build_condition(cls, *, model, ptype, has=True, condition_cls=EntityFilterCondition):
+    def build_condition(cls, *, model, ptype, has=True,
+                        filter_type=EntityFilter.EF_USER,
+                        condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
         @param ptype: Instance of <creme_core.models.CremePropertyType>.
         @param has: Boolean indicating if the filtered entities have (<True>)
                or have not (<False>) the retrieved CremeProperties.
+        @param filter_type: see the field 'EntityFilter.filter_type'.
         @param condition_cls: Class of condition.
         """
         return condition_cls(
+            filter_type=filter_type,
             model=model,
             type=cls.type_id,
             name=ptype.id,
@@ -1543,3 +1571,19 @@ class PropertyConditionHandler(FilterConditionHandler):
             type=cls.type_id,
             name=instance.id,
         ) if isinstance(instance, CremePropertyType) else Q()
+
+
+all_handlers = (
+    RegularFieldConditionHandler,
+    DateRegularFieldConditionHandler,
+
+    CustomFieldConditionHandler,
+    DateCustomFieldConditionHandler,
+
+    RelationConditionHandler,
+    RelationSubFilterConditionHandler,
+
+    PropertyConditionHandler,
+
+    SubFilterConditionHandler,
+)

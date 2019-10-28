@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             model_name='entityfilter',
             name='filter_type',
             field=models.PositiveSmallIntegerField(
-                choices=[(0, 'System filter (internal use)'),
+                choices=[(0, 'Credentials filter (internal use)'),
                          (1, 'Regular filter (usable in list-view...'),
                         ],
                 default=1,

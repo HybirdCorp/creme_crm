@@ -1476,7 +1476,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter = EntityFilter.objects.create(
             id='test-system_filter', name='System filter',
             entity_type=FakeContact, is_custom=True,
-            filter_type=EntityFilter.EF_SYSTEM,
+            filter_type=EntityFilter.EF_CREDENTIALS,
         )
         self.assertGET403(efilter.get_edit_absolute_url())
 

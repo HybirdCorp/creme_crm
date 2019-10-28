@@ -2,11 +2,14 @@
 
 try:
     from creme.creme_core.core.entity_filter import (
-        operators, operands, _EntityFilterRegistry,
+        _EntityFilterRegistry,
+        operators,
+        operands,
     )
     from creme.creme_core.core.entity_filter.condition_handler import (
         FilterConditionHandler,
-        RegularFieldConditionHandler, DateRegularFieldConditionHandler,
+        RegularFieldConditionHandler,
+        DateRegularFieldConditionHandler,
     )
     from creme.creme_core.models import FakeContact
     from creme.creme_core.tests.base import CremeTestCase
@@ -14,9 +17,11 @@ except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
-class _EntityFilterRegistryTestCase(CremeTestCase):
+class EntityFilterRegistryTestCase(CremeTestCase):
     def test_handlers01(self):
-        registry = _EntityFilterRegistry()
+        name = 'Common'
+        registry = _EntityFilterRegistry(verbose_name=name)
+        self.assertEqual(name, registry.verbose_name)
 
         cls1 = RegularFieldConditionHandler
 
@@ -54,7 +59,7 @@ class _EntityFilterRegistryTestCase(CremeTestCase):
 
     def test_handlers02(self):
         "ID collision."
-        registry = _EntityFilterRegistry()
+        registry = _EntityFilterRegistry('Test')
 
         cls1 = RegularFieldConditionHandler
 
@@ -68,7 +73,8 @@ class _EntityFilterRegistryTestCase(CremeTestCase):
 
     def test_handlers03(self):
         "get_handler() + invalid data."
-        registry = _EntityFilterRegistry().register_condition_handlers(RegularFieldConditionHandler)
+        registry = _EntityFilterRegistry('Test')\
+                    .register_condition_handlers(RegularFieldConditionHandler)
 
         handler = registry.get_handler(
             type_id=RegularFieldConditionHandler.type_id,
@@ -78,7 +84,7 @@ class _EntityFilterRegistryTestCase(CremeTestCase):
         self.assertIsNone(handler)
 
     def test_operands01(self):
-        registry = _EntityFilterRegistry()
+        registry = _EntityFilterRegistry('Test')
 
         cls1 = operands.CurrentUserOperand
         self.assertIsNone(registry.get_operand(type_id=cls1.type_id, user=None))
@@ -98,7 +104,7 @@ class _EntityFilterRegistryTestCase(CremeTestCase):
 
     def test_operands02(self):
         "ID collision."
-        registry = _EntityFilterRegistry()
+        registry = _EntityFilterRegistry('Test')
 
         cls1 = operands.CurrentUserOperand
 
@@ -111,7 +117,7 @@ class _EntityFilterRegistryTestCase(CremeTestCase):
             registry.register_operands(TestOperand)
 
     def test_operator01(self):
-        registry = _EntityFilterRegistry()
+        registry = _EntityFilterRegistry('Test')
 
         cls1 = operators.EqualsOperator
         self.assertIsNone(registry.get_operator(type_id=cls1.type_id))
@@ -128,7 +134,7 @@ class _EntityFilterRegistryTestCase(CremeTestCase):
 
     def test_operators02(self):
         "ID collision."
-        registry = _EntityFilterRegistry()
+        registry = _EntityFilterRegistry('Test')
 
         class TestOperator(operators.EqualsOperator):
             pass

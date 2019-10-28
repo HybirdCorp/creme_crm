@@ -383,7 +383,7 @@ class ReportTestCase(BaseReportsTestCase):
             id='test-filter02',
             name='Agences',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_SYSTEM,
+            filter_type=EntityFilter.EF_CREDENTIALS,
         )
 
         # GET ---

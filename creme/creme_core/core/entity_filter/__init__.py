@@ -30,12 +30,11 @@ class _EntityFilterRegistry:
      - Operators.
      - Operands.
     """
-    __slots__ = ('_handler_classes', '_operator_classes', '_operand_classes')
-
     class RegistrationError(Exception):
         pass
 
-    def __init__(self):
+    def __init__(self, verbose_name):
+        self.verbose_name = verbose_name
         self._handler_classes = OrderedDict()  # We keep the registration order for the form.
         self._operator_classes = {}
         self._operand_classes = {}
@@ -159,5 +158,5 @@ class _EntityFilterRegistry:
             yield op_cls()
 
 
-entity_filter_registry = _EntityFilterRegistry()
-credentials_efilter_registry = _EntityFilterRegistry()
+entity_filter_registry = _EntityFilterRegistry('Regular filter (usable in list-view...')
+credentials_efilter_registry = _EntityFilterRegistry('Credentials filter (internal use)')
