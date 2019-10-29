@@ -72,7 +72,7 @@ class _ActivityForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         model = Activity
-        exclude = CremeEntityForm.Meta.exclude + ('type', 'sub_type')
+        exclude = (*CremeEntityForm.Meta.exclude, 'type', 'sub_type')
         widgets = {'start': CalendarWidget, 'end': CalendarWidget}
         help_texts = {'end': _('Default duration of the type will be used if you leave blank.')}
 
@@ -478,7 +478,7 @@ class RelatedActivityCreateForm(ActivityCreateForm):
 
 class CalendarActivityCreateForm(ActivityCreateForm):
     class Meta(ActivityCreateForm.Meta):
-        exclude = ActivityCreateForm.Meta.exclude + ('minutes', )
+        exclude = (*ActivityCreateForm.Meta.exclude, 'minutes')
 
     def __init__(self, start=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -499,7 +499,8 @@ class IndisponibilityCreateForm(_ActivityCreateForm):
                                     )
 
     class Meta(_ActivityCreateForm.Meta):
-        exclude = _ActivityCreateForm.Meta.exclude + (
+        exclude = (
+            *_ActivityCreateForm.Meta.exclude,
             'place', 'description', 'minutes', 'busy', 'status',
             'duration',
         )  # TODO: test

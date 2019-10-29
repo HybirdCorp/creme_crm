@@ -30,7 +30,7 @@ class _TemplateBaseForm(BaseEditForm):
 
     class Meta:
         model = get_template_base_model()
-        exclude = BaseEditForm.Meta.exclude + ('ct', 'status_id')
+        exclude = (*BaseEditForm.Meta.exclude, 'ct', 'status_id')
 
     def _build_status_field(self, billing_ct):
         meta = billing_ct.model_class()._meta

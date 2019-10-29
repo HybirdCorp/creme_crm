@@ -120,9 +120,9 @@ class RelatedActivityEditForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         model = Activity
-        exclude = CremeEntityForm.Meta.exclude + ('title', 'is_all_day', 'minutes',
-                                                  'status', 'type', 'sub_type',
-                                                 )
+        exclude = (*CremeEntityForm.Meta.exclude,
+                   'title', 'is_all_day', 'minutes', 'status', 'type', 'sub_type',
+                  )
 
     def _get_task(self):
         try:

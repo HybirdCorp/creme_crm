@@ -1274,7 +1274,7 @@ PHOTO;TYPE=JPEG:""" \
     def test_add_contact_vcf15(self):
         self.login()
 
-        vcf_forms.URL_START = vcf_forms.URL_START + ('file',)
+        vcf_forms.URL_START = (*vcf_forms.URL_START, 'file')
 
         path_base = os_path.join(settings.CREME_ROOT, 'static', 'common', 'images', '500_200.png')
         self.assertTrue(os_path.exists(path_base))
@@ -1338,7 +1338,7 @@ END:VCARD"""
         img_path = os_path.join(settings.CREME_ROOT, 'static', 'common', 'images', '500_200.png')
         self.assertTrue(os_path.exists(img_path))
 
-        vcf_forms.URL_START = vcf_forms.URL_START + ('file',)
+        vcf_forms.URL_START = (*vcf_forms.URL_START, 'file')
 
         contact_count = Contact.objects.count()
         image_count   = Document.objects.count()

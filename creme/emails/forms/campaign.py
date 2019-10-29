@@ -23,10 +23,9 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager, MultiCreatorEntityField
 
-from .. import get_emailcampaign_model, get_mailinglist_model
+from creme import emails
 
-
-EmailCampaign = get_emailcampaign_model()
+EmailCampaign = emails.get_emailcampaign_model()
 
 
 class CampaignCreateForm(CremeEntityForm):
@@ -37,11 +36,13 @@ class CampaignCreateForm(CremeEntityForm):
 class CampaignEditForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model   = EmailCampaign
-        exclude = CremeEntityForm.Meta.exclude + ('mailing_lists',)
+        exclude = (*CremeEntityForm.Meta.exclude, 'mailing_lists')
 
 
 class CampaignAddMLForm(CremeForm):
-    mailing_lists = MultiCreatorEntityField(label=_('Lists'), required=False, model=get_mailinglist_model())
+    mailing_lists = MultiCreatorEntityField(
+        label=_('Lists'), required=False, model=emails.get_mailinglist_model(),
+    )
 
     blocks = FieldBlockManager(('general', _('Mailing lists'), '*'))
 

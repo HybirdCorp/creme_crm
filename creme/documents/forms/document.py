@@ -78,7 +78,7 @@ class DocumentEditForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         model = Document
-        exclude = CremeEntityForm.Meta.exclude + ('filedata',)
+        exclude = (*CremeEntityForm.Meta.exclude, 'filedata')
 
 
 _TITLE_MAX_LEN = Folder._meta.get_field('title').max_length
@@ -86,7 +86,7 @@ _TITLE_MAX_LEN = Folder._meta.get_field('title').max_length
 
 class RelatedDocumentCreateForm(_DocumentBaseForm):
     class Meta(_DocumentBaseForm.Meta):
-        exclude = _DocumentBaseForm.Meta.exclude + ('linked_folder', )
+        exclude = (*_DocumentBaseForm.Meta.exclude, 'linked_folder')
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)

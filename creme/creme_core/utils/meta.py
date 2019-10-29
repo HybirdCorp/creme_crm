@@ -218,7 +218,7 @@ class ModelFieldEnumerator:
 
         for field in chain(meta.fields, meta.many_to_many):
             if all(ffilter(field, depth) for ffilter in ffilters):
-                field_info = parents_fields + (field,)
+                field_info = (*parents_fields, field)
 
                 if field.is_relation:  # TODO: and field.related_model ? not auto_created ?
                     if rem_depth:
