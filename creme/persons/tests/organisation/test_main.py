@@ -245,7 +245,7 @@ class OrganisationTestCase(_BaseTestCase):
 
         self.assertEqual(3, orgas_page.paginator.count)  # 3: our 2 orgas + default orga
 
-        orgas_set = set(orgas_page.object_list)
+        orgas_set = {*orgas_page.object_list}
         self.assertIn(nerv, orgas_set)
         self.assertIn(acme, orgas_set)
 
@@ -305,7 +305,7 @@ class OrganisationTestCase(_BaseTestCase):
 
         with self.assertNumQueries(1):
             qs1 = Organisation.get_all_managed_by_creme()
-            mng_orgas = set(qs1)
+            mng_orgas = {*qs1}
 
         self.assertIn(mng_orga1, mng_orgas)
         self.assertIn(mng_orga2, mng_orgas)
@@ -484,7 +484,7 @@ class OrganisationTestCase(_BaseTestCase):
 
         self.assertEqual(3, orgas_page.paginator.count)
 
-        orgas_set = set(orgas_page.object_list)
+        orgas_set = {*orgas_page.object_list}
         self.assertIn(nerv, orgas_set)
         self.assertIn(acme, orgas_set)
         self.assertIn(fsf,  orgas_set)

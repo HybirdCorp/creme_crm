@@ -191,7 +191,7 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
             # TODO: make a method in RelationType (improve is_compatible() ?)
             needed_property_types = [*rtype.subject_properties.all()]
             if needed_property_types:
-                subjects_prop_ids = set(subject.properties.values_list('type', flat=True))
+                subjects_prop_ids = {*subject.properties.values_list('type', flat=True)}
                 missing_ptypes = [
                     needed_ptype
                         for needed_ptype in needed_property_types

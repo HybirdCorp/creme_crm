@@ -821,17 +821,19 @@ class RelationViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             allowed_rtypes = response.context['form'].fields['relations'].allowed_rtypes
 
-        self.assertEqual({self.rtype01, self.rtype02}, set(allowed_rtypes))
+        self.assertSetEqual({self.rtype01, self.rtype02}, {*allowed_rtypes})
 
-        response = self.client.post(self._build_bulk_add_url(ct_id),
-                                    data={'entities_lbl': 'wtf',
-                                          'relations': self.formfield_value_multi_relation_entity(
-                                                            (self.rtype01.id, self.object01),
-                                                            (self.rtype02.id, self.object02),
-                                                          ),
-                                          'ids': [self.subject01.id, self.subject02.id]
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_bulk_add_url(ct_id),
+            data={
+                'entities_lbl': 'wtf',
+                'relations': self.formfield_value_multi_relation_entity(
+                                  (self.rtype01.id, self.object01),
+                                  (self.rtype02.id, self.object02),
+                                ),
+                'ids': [self.subject01.id, self.subject02.id]
+            },
+        )
         self.assertNoFormError(response)
 
         self.assertEqual(2, self.subject01.relations.count())
@@ -882,7 +884,7 @@ class RelationViewsTestCase(ViewsTestCase):
         contacts = entities.object_list
         self.assertEqual(3, len(contacts))
         self.assertTrue(all(isinstance(c, FakeContact) for c in contacts))
-        self.assertEqual({self.contact01, self.contact02, self.contact03}, set(contacts))
+        self.assertSetEqual({self.contact01, self.contact02, self.contact03}, {*contacts})
 
         # 'selection'  TODO: test better
         self.assertGET200(self.SELECTION_URL, data={**data, 'selection': 'single'})
@@ -907,7 +909,7 @@ class RelationViewsTestCase(ViewsTestCase):
         # contacts = response.context['entities'].object_list
         contacts = response.context['page_obj'].object_list
         self.assertEqual(2, len(contacts))
-        self.assertEqual({self.contact01, self.contact02}, set(contacts))
+        self.assertSetEqual({self.contact01, self.contact02}, {*contacts})
 
     def test_select_relations_objects03(self):
         self._aux_relation_objects_to_link_selection()
@@ -925,21 +927,22 @@ class RelationViewsTestCase(ViewsTestCase):
         create_property(type=ptype01, creme_entity=contact04)
         create_property(type=ptype02, creme_entity=contact04)
 
-        rtype, sym_rtype = RelationType.create(('test-subject_loving', 'is loving',   [FakeContact]),
-                                               ('test-object_loving',  'is loved by', [FakeContact], [ptype01, ptype02])
-                                              )
+        rtype, sym_rtype = RelationType.create(
+            ('test-subject_loving', 'is loving',   [FakeContact]),
+            ('test-object_loving',  'is loved by', [FakeContact], [ptype01, ptype02])
+        )
 
         response = self.assertGET200(self.SELECTION_URL,
                                      data={'subject_id':    self.subject.id,
                                            'rtype_id':      rtype.id,
                                            'objects_ct_id': self.ct_contact.id,
-                                          }
+                                          },
                                     )
 
         # contacts = response.context['entities'].object_list
         contacts = response.context['page_obj'].object_list
         self.assertEqual(3, len(contacts))
-        self.assertEqual({self.contact01, self.contact03, contact04}, set(contacts))
+        self.assertSetEqual({self.contact01, self.contact03, contact04}, {*contacts})
 
     def test_select_relations_objects04(self):
         self.login()
@@ -977,13 +980,13 @@ class RelationViewsTestCase(ViewsTestCase):
                            data={'subject_id':   self.subject.id,
                                  'predicate_id': self.rtype.id,
                                  'entities':     object_ids,
-                                }
+                                },
                           )
         self.assertEqual(2, Relation.objects.filter(type=self.rtype).count())
 
         relations = self.subject.relations.filter(type=self.rtype)
         self.assertEqual(2, len(relations))
-        self.assertEqual(set(object_ids), {r.object_entity_id for r in relations})
+        self.assertSetEqual({*object_ids}, {r.object_entity_id for r in relations})
 
     def test_add_relations_with_same_type02(self):
         "An entity does not exist"

@@ -50,22 +50,22 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
     def test_info_names01(self):
-        self.assertEqual({'name', 'address', 'po_box', 'zipcode', 'city',
-                          'department', 'state', 'country',
-                         },
-                         set(Address.info_field_names())
-                        )
+        self.assertSetEqual({'name', 'address', 'po_box', 'zipcode', 'city',
+                             'department', 'state', 'country',
+                            },
+                            {*Address.info_field_names()}
+                           )
 
     def test_info_names02(self):
         FieldsConfig.create(Address,
                             descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
                            )
 
-        self.assertEqual({'name', 'address', 'zipcode', 'city',
-                          'department', 'state', 'country',
-                         },
-                         set(Address.info_field_names())
-                        )
+        self.assertSetEqual({'name', 'address', 'zipcode', 'city',
+                             'department', 'state', 'country',
+                            },
+                            {*Address.info_field_names()}
+                           )
 
     def test_empty_fields(self):
         orga = self.login()
@@ -595,9 +595,9 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertSetEqual(
             {orga3, orga4},
-            set(Organisation.objects.filter(id__in=orga_ids)
-                                    .filter(to_python(value='towel'))
-               )
+            {*Organisation.objects.filter(id__in=orga_ids)
+                                  .filter(to_python(value='towel'))
+            }
         )
 
     def test_search_field02(self):

@@ -86,7 +86,7 @@ class CustomFieldsCTAddForm(CustomFieldsBaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        used_ct_ids = set(CustomField.objects.values_list('content_type_id', flat=True))
+        used_ct_ids = {*CustomField.objects.values_list('content_type_id', flat=True)}
         ct_field = self.fields['content_type']
         ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
 

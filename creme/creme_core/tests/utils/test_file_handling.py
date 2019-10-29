@@ -122,11 +122,11 @@ class FileHandlingTestCase(CremeTestCase):
 
         path2 = fcreator.create()
         name2 = 'foobar_1.txt'
-        self.assertEqual({name1, name2}, set(listdir(dir_path)))
+        self.assertSetEqual({name1, name2}, {*listdir(dir_path)})
         self.assertEqual(join(dir_path, name2), path2)
 
     def test_file_creator02(self):
-        "With 1 generator (DateFileNameGenerator)"
+        "With 1 generator (DateFileNameGenerator)."
         dir_path = self.dir_path
 
         name1 = 'stuff.txt'
@@ -137,9 +137,8 @@ class FileHandlingTestCase(CremeTestCase):
         self.assertEqual([name1], listdir(dir_path))
 
         fcreator.create()
-        date_str = date.today().strftime('%d%m%Y')
-        name2 = 'stuff_%s.txt' % date_str
-        self.assertEqual({name1, name2}, set(listdir(dir_path)))
+        name2 = 'stuff_{}.txt'.format(date.today().strftime('%d%m%Y'))
+        self.assertSetEqual({name1, name2}, {*listdir(dir_path)})
 
         with self.assertRaises(FileCreator.Error):
             fcreator.create()
@@ -160,12 +159,12 @@ class FileHandlingTestCase(CremeTestCase):
 
         fcreator.create()
         date_str = date.today().strftime('%d%m%Y')
-        name2 = 'stuff_%s.txt' % date_str
-        self.assertEqual({name1, name2}, set(listdir(dir_path)))
+        name2 = 'stuff_{}.txt'.format(date_str)
+        self.assertSetEqual({name1, name2}, {*listdir(dir_path)})
 
         fcreator.create()
-        name3 = 'stuff_%s_1.txt' % date_str
-        self.assertEqual({name1, name2, name3}, set(listdir(dir_path)))
+        name3 = 'stuff_{}_1.txt'.format(date_str)
+        self.assertSetEqual({name1, name2, name3}, {*listdir(dir_path)})
 
     def test_file_creator04(self):
         "Max trials"
@@ -188,11 +187,11 @@ class FileHandlingTestCase(CremeTestCase):
         fcreator.create()
 
         fcreator.create()
-        self.assertEqual({name,
-                          'fo_{}.txt'.format(date.today().strftime('%d%m%Y'))
-                         },
-                         set(listdir(dir_path))
-                        )
+        self.assertSetEqual({name,
+                             'fo_{}.txt'.format(date.today().strftime('%d%m%Y')),
+                            },
+                            {*listdir(dir_path)}
+                           )
 
     def test_file_creator06(self):
         "Max length (suffix is too long even alone)"

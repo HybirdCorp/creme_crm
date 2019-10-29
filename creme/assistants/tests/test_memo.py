@@ -282,7 +282,7 @@ will be truncate by str() method"""
     #     self.assertEqual(3, len(memos))
 
     def test_manager_filter_by_user(self):
-        "Teams"
+        "Teams."
         user = self.user
 
         create_user = get_user_model().objects.create
@@ -307,5 +307,5 @@ will be truncate by str() method"""
         create_memo(content='Memo#3', user=team2)  # No (other team)
 
         memos = Memo.objects.filter_by_user(user)
-        self.assertEqual({memo1, memo2}, set(memos))
+        self.assertEqual({memo1, memo2}, {*memos})
         self.assertEqual(2, len(memos))

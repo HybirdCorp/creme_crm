@@ -374,7 +374,7 @@ class ContactTestCase(_BaseTestCase):
 
         self.assertEqual(count + 2, contacts_page.paginator.count)
 
-        contacts_set = set(contacts_page.object_list)
+        contacts_set = {*contacts_page.object_list}
         self.assertIn(faye,  contacts_set)
         self.assertIn(spike, contacts_set)
         self.assertNotIn(vicious, contacts_set)

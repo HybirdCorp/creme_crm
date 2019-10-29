@@ -18,7 +18,7 @@ parser.add_argument('files', metavar='FILE', nargs='*',
                    )
 
 args = parser.parse_args()
-excluded = set(args.excluded)
+excluded = {*args.excluded}
 file_names = args.files
 
 if file_names:

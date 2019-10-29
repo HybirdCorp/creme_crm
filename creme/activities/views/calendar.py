@@ -226,7 +226,7 @@ class CalendarView(generic.CheckedTemplateView):
             # TODO: error (message VS exception) if not int ?
             raw_ids = {int(cal_id) for cal_id in request_calendar_ids if cal_id.isdigit()}
         else:
-            raw_ids = set(request.session.get(self.calendar_ids_session_key, ()))
+            raw_ids = {*request.session.get(self.calendar_ids_session_key, ())}
 
         return [
             calendar.id for calendar in calendars if calendar.id in raw_ids
@@ -502,7 +502,7 @@ class CalendarsSelection(CalendarsMixin, generic.CheckedView):
 
         calendar_ids = set(session.get(key) or ())
         calendar_ids.update(cal.id for cal in self.get_calendars(request))
-        ids_2remove = set(self._str_ids_2_int_ids(request.POST.getlist(self.remove_arg)))
+        ids_2remove = {*self._str_ids_2_int_ids(request.POST.getlist(self.remove_arg))}
 
         session[key] = [
             cal_id for cal_id in calendar_ids

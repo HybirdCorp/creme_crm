@@ -129,7 +129,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertNoFormError(response)
 
         product = self.get_object_or_fail(Product, name=name)
-        self.assertEqual({img_1, img_2}, set(product.images.all()))
+        self.assertSetEqual({img_1, img_2}, {*product.images.all()})
 
     @skipIfCustomProduct
     def test_editview(self):
@@ -190,7 +190,7 @@ class ProductTestCase(_ProductsTestCase):
             products_page = response.context['page_obj']
 
         self.assertEqual(2, products_page.paginator.count)
-        self.assertEqual(set(products), set(products_page.object_list))
+        self.assertSetEqual({*products}, {*products_page.object_list})
 
     def test_delete_category01(self):
         self.login()
@@ -504,9 +504,10 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(_('Link the images'), context.get('submit_label'))
 
         def post(*images):
-            return self.client.post(url, follow=True,
-                                    data={'images': self.formfield_value_multi_creator_entity(*images)},
-                                   )
+            return self.client.post(
+                url, follow=True,
+                data={'images': self.formfield_value_multi_creator_entity(*images)},
+            )
 
         response = post(img_1, img_4)
         self.assertEqual(200, response.status_code)
@@ -516,7 +517,7 @@ class ProductTestCase(_ProductsTestCase):
 
         response = post(img_1, img_2)
         self.assertNoFormError(response)
-        self.assertEqual({img_1, img_2, img_3}, set(product.images.all()))
+        self.assertSetEqual({img_1, img_2, img_3}, {*product.images.all()})
 
         # ------------
         img_5 = create_image(ident=5, user=user)

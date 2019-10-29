@@ -462,9 +462,11 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
 
     def test_field_enumerator09(self):
         "Translation activated."
-        choices = set(meta.ModelFieldEnumerator(FakeActivity, deep=1, only_leafs=False)
-                          .filter(viewable=True).choices()
-                     )
+        choices = {
+            *meta.ModelFieldEnumerator(FakeActivity, deep=1, only_leafs=False)
+                 .filter(viewable=True)
+                 .choices()
+        }
         fs = '[{}] - {}'.format
         type_lbl = _('Activity type')
         user_lbl = _('Owner user')

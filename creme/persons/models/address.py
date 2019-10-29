@@ -63,7 +63,7 @@ class AbstractAddress(CremeModel):
     def __str__(self):
         s = ''
         join = self.STR_SEPARATOR.join
-        allowed_fnames = set(self.info_field_names())
+        allowed_fnames = {*self.info_field_names()}
         get_field_value = (lambda fname: None if fname not in allowed_fnames else
                                          getattr(self, fname))
 

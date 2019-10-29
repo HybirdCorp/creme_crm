@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,6 @@ from creme.persons import get_address_model
 
 from .vcf_lib import vCard
 from .vcf_lib.vcard import Address as VcfAddress, Name as VcfName
-
 
 Address = get_address_model()
 
@@ -49,13 +48,13 @@ class VcfGenerator:
         # TODO: manage several employers
         self.employer = contact.get_employers().first()
 
-        self._address_field_names = set(Address.info_field_names())
+        self._address_field_names = {*Address.info_field_names()}
         self.addresses = Address.objects.filter(object_id=contact.id).order_by('id')
 
     def address_equality(self, address1, address2):  # TODO : overload __eq__() in Address?
         if address1 is not None and address2 is not None:
             return all(getattr(address1, fname) == getattr(address2, fname)
-                        for fname in self._address_field_names
+                           for fname in self._address_field_names
                       )
 
         return False

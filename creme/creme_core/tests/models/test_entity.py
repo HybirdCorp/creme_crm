@@ -209,7 +209,7 @@ class EntityTestCase(CremeTestCase):
                      'birthday', 'image']:
             self.assertEqual(getattr(naruto, attr), getattr(kage_bunshin, attr))
 
-        self.assertEqual(set(naruto.languages.all()), set(kage_bunshin.languages.all()))
+        self.assertSetEqual({*naruto.languages.all()}, {*kage_bunshin.languages.all()})
 
     def test_clone03(self):
         create_cf = partial(CustomField.objects.create,
@@ -252,9 +252,10 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual(get_cf_values(cf_enum, orga).value, get_cf_values(cf_enum, clone).value)
 
         self.assertTrue(get_cf_values(cf_multi_enum, orga).value.exists())
-        self.assertEqual(set(get_cf_values(cf_multi_enum, orga).value.values_list('pk', flat=True)),
-                         set(get_cf_values(cf_multi_enum, clone).value.values_list('pk', flat=True))
-                        )
+        self.assertSetEqual(
+            {*get_cf_values(cf_multi_enum, orga).value.values_list('pk', flat=True)},
+            {*get_cf_values(cf_multi_enum, clone).value.values_list('pk', flat=True)}
+        )
 
     def test_clone04(self):
         "ManyToMany"
@@ -269,9 +270,9 @@ class EntityTestCase(CremeTestCase):
         for attr in ('user', 'name'):
             self.assertEqual(getattr(image1, attr), getattr(image2, attr))
 
-        self.assertEqual(set(image1.categories.values_list('pk', flat=True)),
-                         set(image2.categories.values_list('pk', flat=True))
-                        )
+        self.assertSetEqual({*image1.categories.values_list('pk', flat=True)},
+                            {*image2.categories.values_list('pk', flat=True)}
+                           )
 
     def test_delete01(self):
         "Simple delete"

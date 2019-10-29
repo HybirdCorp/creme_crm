@@ -177,7 +177,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertIsNone(job.error)
         results = self._get_job_results(job)
         self.assertEqual(2, len(results))
-        self.assertEqual(set(contacts), {r.entity.get_real_entity() for r in results})
+        self.assertSetEqual({*contacts}, {r.entity.get_real_entity() for r in results})
         self._assertNoResultError(results)
         self.assertIs(results[0].updated, False)
 

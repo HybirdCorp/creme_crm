@@ -240,10 +240,10 @@ class GraphsTestCase(CremeTestCase):
         rnodes = RootNode.objects.filter(graph=graph).order_by('id')
         self.assertEqual(2, len(rnodes))
 
-        self.assertEqual({contact, orga},
-                         {rnode.entity.get_real_entity() for rnode in rnodes}
-                        )
-        self.assertEqual({rtype01, rtype02}, set(rnodes[0].relation_types.all()))
+        self.assertSetEqual({contact, orga},
+                            {rnode.entity.get_real_entity() for rnode in rnodes}
+                           )
+        self.assertEqual({rtype01, rtype02}, {*rnodes[0].relation_types.all()})
 
         # Delete
         rnode = rnodes[1]
@@ -281,7 +281,7 @@ class GraphsTestCase(CremeTestCase):
                         )
 
         self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype01.id, rtype02.id]}))
-        self.assertEqual({rtype01, rtype02}, set(rnode.relation_types.all()))
+        self.assertSetEqual({rtype01, rtype02}, {*rnode.relation_types.all()})
 
     def test_delete_rootnode01(self):
         "Not super user."

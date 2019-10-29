@@ -367,8 +367,8 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         # self.assertEqual(user.username, user_name)
         # self.assertEqual({str(cal1.id), str(cal2.id)}, set(cal_ids))
-        self.assertEqual({act1, act2, act4}, set(floating_acts))
-        self.assertEqual({cal1}, set(my_cals))
+        self.assertSetEqual({act1, act2, act4}, {*floating_acts})
+        self.assertSetEqual({cal1}, {*my_cals})
         self.assertSetEqual({cal1.id}, my_cal_ids)
         # self.assertEqual(reverse('activities__calendars_activities'), event_url)
 
@@ -1053,11 +1053,11 @@ class CalendarTestCase(_ActivitiesTestCase):
         response = self.assertGET200(self.CALENDAR_URL)
         self.assertSetEqual(
             {cal1},
-            set(Calendar.objects.filter(id__in=response.context.get('my_selected_calendar_ids'))),
+            {*Calendar.objects.filter(id__in=response.context.get('my_selected_calendar_ids'))},
         )
         self.assertSetEqual(
             {cal3},
-            set(Calendar.objects.filter(id__in=response.context.get('others_selected_calendar_ids'))),
+            {*Calendar.objects.filter(id__in=response.context.get('others_selected_calendar_ids'))},
         )
 
         sessions_after = self._get_user_sessions(user)
@@ -1413,9 +1413,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertNoFormError(self.client.post(url, {'to_user': user.id}))
         self.assertDoesNotExist(other_user)
 
-        self.assertEqual({cal11.id, cal12.id, cal21.id, cal22.id},
-                         set(Calendar.objects.filter(user=user).values_list('id', flat=True))
-                        )
+        self.assertSetEqual(
+            {cal11.id, cal12.id, cal21.id, cal22.id},
+            {*Calendar.objects.filter(user=user).values_list('id', flat=True)}
+        )
         self.assertTrue(self.refresh(cal11).is_default)
         self.assertFalse(self.refresh(cal12).is_default)
         self.assertFalse(self.refresh(cal21).is_default)
@@ -1493,9 +1494,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertFalse(Calendar.objects.filter(user=user3))
         self.assertFalse(Calendar.objects.filter(user=user4))
 
-        self.assertEqual(
+        self.assertSetEqual(
             {cal4_1, cal4_2},
-            set(Calendar.objects.filter(user=user5))
+            {*Calendar.objects.filter(user=user5)}
         )
 
     def test_command_create_default_calendar01(self):

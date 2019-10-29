@@ -100,11 +100,12 @@ class RelationsBrick(QuerysetBrick):
         if reloading_info is None:  # NB: it's not a reload, it's the initial render()
             # TODO: when it's the only use of 'used_relationtypes_ids()', inline the call (+ deprecate method) ?
             used_rtype_ids = BricksManager.get(context).used_relationtypes_ids
-            excluded_rtype_ids_set = set(RelationType.objects.filter(id__in=used_rtype_ids,
-                                                                     minimal_display=True,
-                                                                    )
-                                                             .values_list('id', flat=True)
-                                        )
+            excluded_rtype_ids_set = {
+                *RelationType.objects.filter(id__in=used_rtype_ids,
+                                             minimal_display=True,
+                                            )
+                                     .values_list('id', flat=True)
+            }
             included_rtype_ids.extend(rtype_id for rtype_id in used_rtype_ids if rtype_id not in excluded_rtype_ids_set)
             excluded_rtype_ids.extend(excluded_rtype_ids_set)
 

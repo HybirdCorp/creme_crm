@@ -297,7 +297,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             if xsd_element_attrs is None:
                 self.fail('There is at least an extra node named: {}'.format(name))
 
-            self.assertEqual(set(xsd_element_attrs.keys()), set(element_node.keys()))
+            self.assertSetEqual({*xsd_element_attrs.keys()}, {*element_node.keys()})
 
             for attr in element_node.keys():
                 # self.assertEqual(xsd_element_attrs[attr], element_node.get(attr))
@@ -360,7 +360,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             if xsd_element_attrs is None:
                 self.fail('There is at least an extra node named: {}'.format(element_node.get('name')))
 
-            self.assertEqual(set(xsd_element_attrs.keys()), set(element_node.keys()))
+            self.assertSetEqual({*xsd_element_attrs.keys()}, {*element_node.keys()})
 
             for attr in element_node.keys():
                 self.assertEqual(xsd_element_attrs[attr], element_node.get(attr))
@@ -456,11 +456,11 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertEqual('my:language', when_node.get('test'))
 
         expected_names = {'my:language', 'my:language_value'}
-        self.assertEqual(expected_names,
-                         set(match
+        self.assertSetEqual(expected_names,
+                            {match
                                 for match in (n.get('match') for n in findall('{}template'.format(xsl)))
                                     if match in expected_names
-                            )
+                            }
                         )
 
     def _get_view_xsl(self, backend, body_map):
@@ -856,6 +856,7 @@ class InfopathFormFieldTestCase(CrudityTestCase):
                                     body_map={'user_id': 1},
                                    )
         urn = InfopathFormBuilder(request=request, backend=backend).urn
-        self.assertEqual({(user.pk, str(user)) for user in get_user_model().objects.all()},
-                         set(InfopathFormField(urn, Contact, 'user_id', request)._get_choices())
-                        )
+        self.assertSetEqual(
+            {(user.pk, str(user)) for user in get_user_model().objects.all()},
+            {*InfopathFormField(urn, Contact, 'user_id', request)._get_choices()}
+        )

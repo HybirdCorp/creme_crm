@@ -86,7 +86,7 @@ class FieldBlocksGroup:
                 assert wildcard_cat is None, 'Only one wildcard is allowed: {}'.format(form)
                 wildcard_cat = cat
             else:
-                field_set |= set(field_names)
+                field_set |= {*field_names}
                 block_data = []
 
                 for fn in field_names:

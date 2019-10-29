@@ -216,7 +216,7 @@ class ActTestCase(CommercialBaseTestCase):
 
         self.assertEqual(1, acts_page.number)
         self.assertEqual(2, acts_page.paginator.count)
-        self.assertEqual(set(acts), set(acts_page.object_list))
+        self.assertSetEqual({*acts}, {*acts_page.object_list})
 
     def test_detailview(self):
         self.login()
@@ -918,7 +918,7 @@ class ActTestCase(CommercialBaseTestCase):
         orga02 = create_orga(name='World company')
         orga03 = create_orga(name='Ferraille inc')
 
-        all_orgas = set(efilter.filter(Organisation.objects.all()))
+        all_orgas = {*efilter.filter(Organisation.objects.all())}
         self.assertIn(orga01, all_orgas)
         self.assertNotIn(orga02, all_orgas)
 
@@ -1002,7 +1002,7 @@ class ActTestCase(CommercialBaseTestCase):
         act  = self.refresh(act)  # Refresh cache
         opps = act.get_related_opportunities()
         self.assertEqual(2, len(opps))
-        self.assertEqual({opp01, opp02}, set(opps))
+        self.assertSetEqual({opp01, opp02}, {*opps})
         self.assertEqual(2000, self.refresh(act).get_made_sales())
         self.assertEqual(5000, self.refresh(act).get_estimated_sales())
 

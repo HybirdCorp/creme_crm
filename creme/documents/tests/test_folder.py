@@ -671,7 +671,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertEqual(folder2.description, merged_folder.description)
         self.assertIsNone(merged_folder.parent_folder)
 
-        self.assertEqual({doc1, doc2}, set(merged_folder.document_set.all()))
+        self.assertSetEqual({doc1, doc2}, {*merged_folder.document_set.all()})
 
     def test_merge02(self):
         "One folder is the parent of the other one"

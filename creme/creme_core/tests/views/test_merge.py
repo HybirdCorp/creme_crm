@@ -47,7 +47,7 @@ class MergeViewsTestCase(ViewsTestCase):
             # contacts = response.context['entities'].object_list
             contacts = response.context['page_obj'].object_list
 
-        contacts = set(contacts)
+        contacts = {*contacts}
         self.assertIn(orga02, contacts)
         self.assertIn(orga03, contacts)
         self.assertNotIn(orga01, contacts)
@@ -59,7 +59,7 @@ class MergeViewsTestCase(ViewsTestCase):
         SetCredentials.objects.create(
                 role=self.role,
                 value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-                set_type=SetCredentials.ESET_OWN
+                set_type=SetCredentials.ESET_OWN,
             )
         orga = FakeOrganisation.objects.create(user=self.other_user, name='Genshiken')
         self.assertFalse(user.has_perm_to_view(orga))
@@ -71,7 +71,7 @@ class MergeViewsTestCase(ViewsTestCase):
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_ALL
+                                      set_type=SetCredentials.ESET_ALL,
                                      )
         orga = FakeOrganisation.objects.create(user=self.other_user, name='Genshiken')
         self.assertTrue(user.has_perm_to_view(orga))

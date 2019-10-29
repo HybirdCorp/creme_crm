@@ -1239,7 +1239,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('http://mario.com', contact.url_site)
         self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual('A plumber', contact.description)
-        self.assertEqual({languages[0], languages[1]}, set(contact.language.all()))
+        self.assertSetEqual({languages[0], languages[1]}, {*contact.language.all()})
 
     def test_create_contact03(self):
         "Unsandboxed with m2m"
@@ -1300,7 +1300,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('http://mario.com', contact.url_site)
         self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual('A plumber', contact.description)
-        self.assertEqual(set(languages[:2]), set(contact.language.all()))
+        self.assertSetEqual({*languages[:2]}, {*contact.language.all()})
 
     @skipIfCustomFolder
     @skipIfCustomDocument

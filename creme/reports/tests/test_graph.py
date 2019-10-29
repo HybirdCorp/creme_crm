@@ -574,11 +574,11 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         cf_choice = abs_choices[2]
         self.assertEqual(_('Custom fields'), cf_choice[0])
-        self.assertEqual({(cf_enum.id, cf_enum.name),
-                          (cf_dt.id,   cf_dt.name),
-                         },
-                         set(cf_choice[1])
-                        )
+        self.assertSetEqual({(cf_enum.id, cf_enum.name),
+                             (cf_dt.id,   cf_dt.name),
+                            },
+                            {*cf_choice[1]}
+                           )
 
         self.assertEqual([(cf_int.id, cf_int.name), (cf_decimal.id, cf_decimal.name)],
                          ord_choices
@@ -594,7 +594,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                                                'abscissa_group_by': gtype,
                                                'is_count':          True,
                                                'chart':             'barchart',
-                                              }
+                                              },
                                    )
 
         response = post(1000)
@@ -1989,7 +1989,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                                            )
 
         x_asc, y_asc = rgraph.fetch(user)
-        self.assertEqual({str(lannisters), str(starks)}, set(x_asc))
+        self.assertSetEqual({str(lannisters), str(starks)}, {*x_asc})
 
         index = x_asc.index
         fmt = '/tests/contacts?q_filter={}'.format

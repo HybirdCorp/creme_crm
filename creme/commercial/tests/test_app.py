@@ -130,4 +130,4 @@ class CommercialTestCase(CremeTestCase):
 
         self.assertEqual(1, salesmen_page.number)
         self.assertEqual(2, salesmen_page.paginator.count)
-        self.assertEqual(set(salesmen), set(salesmen_page.object_list))
+        self.assertSetEqual({*salesmen}, {*salesmen_page.object_list})

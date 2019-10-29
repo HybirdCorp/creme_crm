@@ -34,11 +34,13 @@ from django.utils.encoding import force_text
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.gui.button_menu import Button
-from creme.creme_core.models import (CremeEntity, RelationType, CremePropertyType,
-        EntityFilter, HistoryLine, SettingValue, Job,
-        ButtonMenuItem,
-        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
-        RelationBrickItem, InstanceBrickConfigItem, BrickState)
+from creme.creme_core.models import (
+    CremeEntity, RelationType, CremePropertyType,
+    EntityFilter, HistoryLine, SettingValue, Job,
+    ButtonMenuItem,
+    BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
+    RelationBrickItem, InstanceBrickConfigItem, BrickState
+)
 from creme.creme_core.utils import split_filter
 from creme.creme_core.utils.collections import LimitedList
 from creme.creme_core.utils.serializers import json_encode
@@ -545,7 +547,7 @@ def ordered_models_to_delete(app_config, connection):
     cursor = connection.cursor()
 
     try:
-        table_names = set(connection.introspection.table_names(cursor))
+        table_names = {*connection.introspection.table_names(cursor)}
         app_models = OrderedSet(router.get_migratable_models(app_config,
                                                              connection.alias,
                                                              # NB: the auto created tables are automatically

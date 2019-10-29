@@ -459,5 +459,5 @@ class AlertTestCase(AssistantsTestCase):
         alert3 = create_alert(title='Alert#3', user=team1)
 
         alerts = Alert.objects.filter_by_user(user=user)
-        self.assertEqual({alert1, alert3}, set(alerts))
+        self.assertSetEqual({alert1, alert3}, {*alerts})
         self.assertEqual(2, len(alerts))

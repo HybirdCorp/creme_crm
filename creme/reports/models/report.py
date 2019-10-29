@@ -124,7 +124,7 @@ class AbstractReport(CremeEntity):
         for report in asc_reports:
             asc_reports.extend(report.get_ascendants_reports())
 
-        return set(asc_reports)
+        return {*asc_reports}
 
     # TODO: move 'user' as first argument + no default value ?
     def _fetch(self, limit_to=None, extra_q=None, user=None):

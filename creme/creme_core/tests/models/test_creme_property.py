@@ -45,7 +45,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertTrue(ptype.is_custom)
         self.assertFalse(ptype.is_copiable)
         self.assertSetEqual({get_ct(FakeContact), orga_ct},
-                            set(ptype.subject_ctypes.all())
+                            {*ptype.subject_ctypes.all()}
                            )
 
     def test_create03(self):
