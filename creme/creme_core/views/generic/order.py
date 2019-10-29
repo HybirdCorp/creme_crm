@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018  Hybird
+#    Copyright (C) 2018-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -97,9 +97,11 @@ class ReorderInstances(View):
     def post(self, request, *args, **kwargs):
         new_order = self.get_target_order()
         order_fname = self.order_field_name
-        qs = self.get_queryset().order_by(order_fname)
 
         with atomic():
+            # NB: inside the atomic block to eventually perform a select_for_update().
+            qs = self.get_queryset().order_by(order_fname)
+
             instances = list(qs.select_for_update() if self.use_select_for_update else qs)
 
             target_index = self.get_moved_instance_index(instances)
