@@ -42,7 +42,7 @@
         <td class="user-username" {% brick_table_data_status primary %}>{{user.username}}</td>
         <td class="user-lastname" >{{user.last_name}}</td>
         <td class="user-firstname" >{{user.first_name}}</td>
-        <td class="user-role" >{% if user.role %}{{user.role}}{% else %}<em>{{superuser_label}}</em>{% endif %}</td>
+        <td class="user-role" >{% if user.role %}{{user.role}}{% else %}<em>{% if user.is_staff %}{% trans 'Staff' %}{% else %}{{superuser_label}}{% endif %}</em>{% endif %}</td>
         <td class="user-email" >{{user.email}}</td>
         <td class="user-active" >{{user.is_active|yesno:_('Yes,No')}}</td>
         <td class="user-last-login" data-type='datetime'>{{user.last_login|default:'—'}}</td>
