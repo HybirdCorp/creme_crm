@@ -149,7 +149,7 @@ class PersonPollRepliesBrick(_RelatedRepliesBrick):
 
 class PollCampaignRepliesBrick(_RelatedRepliesBrick):
     id_           = _RelatedRepliesBrick.generate_id('polls', 'pcampaign_replies')
-    dependencies  = _RelatedRepliesBrick.dependencies + (PollCampaign,)  # PollCampaign: expected_count can be edited
+    dependencies  = (*_RelatedRepliesBrick.dependencies, PollCampaign)  # PollCampaign: expected_count can be edited
     template_name = 'polls/bricks/campaign-preplies.html'
     target_ctypes = (PollCampaign,)
 

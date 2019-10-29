@@ -30,4 +30,4 @@ class TicketEditForm(CremeEntityForm):
 
 class TicketCreateForm(TicketEditForm):
     class Meta(TicketEditForm.Meta):
-        exclude = TicketEditForm.Meta.exclude + ('status', )
+        exclude = (*TicketEditForm.Meta.exclude, 'status')

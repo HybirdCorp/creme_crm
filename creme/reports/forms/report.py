@@ -133,7 +133,7 @@ class ReportCreateForm(CremeEntityForm):
 class ReportEditForm(CremeEntityForm):
     class Meta:
         model = Report
-        exclude = CremeEntityForm.Meta.exclude + ('ct',)
+        exclude = (*CremeEntityForm.Meta.exclude, 'ct')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

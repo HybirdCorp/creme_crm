@@ -31,7 +31,7 @@ from .. import get_graph_model
 class GraphForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = get_graph_model()
-        exclude = CremeEntityForm.Meta.exclude + ('orbital_relation_types', )
+        exclude = (*CremeEntityForm.Meta.exclude, 'orbital_relation_types')
 
 
 class AddRelationTypesForm(CremeForm):

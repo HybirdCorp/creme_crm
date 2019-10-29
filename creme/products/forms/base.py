@@ -33,7 +33,7 @@ class _BaseForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         # model = OVERLOAD ME
-        exclude = CremeEntityForm.Meta.exclude + ('category', 'sub_category')
+        exclude = (*CremeEntityForm.Meta.exclude, 'category', 'sub_category')
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -48,7 +48,7 @@ class _BaseForm(CremeEntityForm):
 class _BaseEditForm(_BaseForm):
     class Meta(_BaseForm.Meta):
         # model = OVERLOAD ME
-        exclude = _BaseForm.Meta.exclude + ('images',)
+        exclude = (*_BaseForm.Meta.exclude, 'images')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

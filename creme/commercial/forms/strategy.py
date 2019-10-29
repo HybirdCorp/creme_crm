@@ -83,7 +83,7 @@ class _SegmentForm(_AuxForm):
 
     class Meta:
         model = MarketSegmentDescription
-        exclude = _AuxForm.Meta.exclude + ('segment',)
+        exclude = (*_AuxForm.Meta.exclude, 'segment')
 
     # TODO: factorise with market_segment.MarketSegmentForm
     def clean_name(self):

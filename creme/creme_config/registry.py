@@ -87,7 +87,7 @@ class _ModelConfigAction:
 
 
 class _ModelConfigCreator(_ModelConfigAction):
-    __slots__ = _ModelConfigAction.__slots__ + ('enable_func',)
+    __slots__ = (*_ModelConfigAction.__slots__, 'enable_func')
 
     def __init__(self, *, model, model_name):
         super().__init__(model=model, model_name=model_name)
@@ -104,7 +104,7 @@ class _ModelConfigCreator(_ModelConfigAction):
 
 
 class _ModelConfigEditor(_ModelConfigAction):
-    __slots__ = _ModelConfigAction.__slots__ + ('enable_func',)
+    __slots__ = (*_ModelConfigAction.__slots__, 'enable_func')
 
     def __init__(self, *, model, model_name):
         super().__init__(model=model, model_name=model_name)
@@ -125,7 +125,7 @@ class _ModelConfigEditor(_ModelConfigAction):
 
 # TODO: factorise with _ModelConfigEditor
 class _ModelConfigDeletor(_ModelConfigAction):
-    __slots__ = _ModelConfigAction.__slots__ + ('enable_func',)
+    __slots__ = (*_ModelConfigAction.__slots__, 'enable_func')
 
     def __init__(self, *, model, model_name):
         super().__init__(model=model, model_name=model_name)
