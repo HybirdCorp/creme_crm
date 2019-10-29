@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-17 17:48+0200\n"
+"POT-Creation-Date: 2019-10-23 19:43+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -152,7 +152,7 @@ msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
 #: forms/bricks.py:479 forms/button_menu.py:38 forms/custom_fields.py:79
-#: forms/fields_config.py:35 forms/fields_config.py:69
+#: forms/fields_config.py:35 forms/fields_config.py:74
 msgid "Related resource"
 msgstr "Ressource associée"
 
@@ -251,11 +251,11 @@ msgid ""
 msgstr ""
 "Les types de ressource proposés ont au moins un champ qui peut être caché."
 
-#: forms/fields_config.py:71 views/fields_config.py:81
+#: forms/fields_config.py:76 views/fields_config.py:81
 msgid "All configurable types of resource are already configured."
 msgstr "Tous les types de ressource configurables sont déjà configurés."
 
-#: forms/fields_config.py:98
+#: forms/fields_config.py:103
 #: templates/creme_config/bricks/fields-configs.html:18
 msgid "Hidden fields"
 msgstr "Champs cachés"
@@ -1480,6 +1480,10 @@ msgstr "{count} Utilisateurs"
 #: templates/creme_config/bricks/users.html:18
 msgid "New user"
 msgstr "Nouvel utilisateur"
+
+#: templates/creme_config/bricks/users.html:45
+msgid "Staff"
+msgstr "Administrateur"
 
 #: templates/creme_config/bricks/users.html:47
 msgid "Yes,No"
