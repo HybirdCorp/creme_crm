@@ -94,7 +94,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         with self.assertNoException():
             form = response.context['form']
-            orga_fields = set(form.fields['actions']._fields)
+            orga_fields = {*form.fields['actions']._fields}
 
         self.assertEqual({'content_type': self.orga_ct,
                           'filter': None,
@@ -345,7 +345,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                 ),
             ],
         )
-        self.assertEqual({orga02, orga03}, set(efilter.filter(FakeOrganisation.objects.all())))  # <== not 'orga01'
+        self.assertSetEqual(
+            {orga02, orga03},
+            {*efilter.filter(FakeOrganisation.objects.all())}
+        )  # <== not 'orga01'
 
         response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
                                     data={'filter':  efilter.id,

@@ -180,7 +180,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
             pform_page = response.context['page_obj']
 
         self.assertEqual(2, pform_page.paginator.count)
-        self.assertEqual({pform1, pform2}, set(pform_page.object_list))
+        self.assertSetEqual({pform1, pform2}, {*pform_page.object_list})
 
     def test_deleteview01(self):
         user = self.login()

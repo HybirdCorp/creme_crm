@@ -138,10 +138,10 @@ class CredentialsTestCase(CremeTestCase):
     def test_role_attributes(self):
         role = UserRole(name='Normal')
         self.assertEqual('', role.raw_allowed_apps)
-        self.assertEqual(set(), role.allowed_apps)
+        self.assertSetEqual(set(), role.allowed_apps)
 
         self.assertEqual('', role.raw_admin_4_apps)
-        self.assertEqual(set(), role.admin_4_apps)
+        self.assertSetEqual(set(), role.admin_4_apps)
 
         role.allowed_apps = ['creme_core', 'documents']
         self.assertEqual({'creme_core', 'documents'}, role.allowed_apps)
@@ -1861,8 +1861,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(all(isinstance(u, CremeUser) for u in teammates.values()))
 
         ids_set = {user.id, other.id}
-        self.assertEqual(ids_set, set(teammates))
-        self.assertEqual(ids_set, {u.id for u in teammates.values()})
+        self.assertSetEqual(ids_set, {*teammates})
+        self.assertSetEqual(ids_set, {u.id for u in teammates.values()})
 
         user3 = CremeUser.objects.create_user(
             username='Kanna', email='kanna@century.jp',
@@ -1959,7 +1959,7 @@ class CredentialsTestCase(CremeTestCase):
         # 'teams' property------------------------------------------------------
         teams = user.teams
         self.assertEqual(2, len(teams))
-        self.assertEqual({team1, team2}, set(teams))
+        self.assertSetEqual({team1, team2}, {*teams})
 
         with self.assertNumQueries(0):  # Teams are cached
             __ = user.teams
@@ -2241,7 +2241,7 @@ class CredentialsTestCase(CremeTestCase):
         # self.assertIs(qs, qs2)
         result = [e.get_real_entity() for e in qs2]
         self.assertEqual(4, len(result))
-        self.assertEqual({self.contact1, self.contact2, orga1, orga2}, set(result))
+        self.assertSetEqual({self.contact1, self.contact2, orga1, orga2}, {*result})
 
         # ------
         with self.assertRaises(ValueError):

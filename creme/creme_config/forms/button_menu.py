@@ -117,7 +117,7 @@ class ButtonMenuEditForm(CremeForm):
             items_2_save.append(ButtonMenuItem(content_type=ct, button_id='', order=1))
         else:
             old_ids = {bmi.button_id for bmi in self.set_buttons}
-            new_ids = set(button_ids)
+            new_ids = {*button_ids}
             buttons_2_del = old_ids - new_ids
             buttons_2_add = new_ids - old_ids
 

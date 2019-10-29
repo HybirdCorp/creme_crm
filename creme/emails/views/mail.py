@@ -337,10 +337,10 @@ class EntityEmailLinking(RelationsAdding):
             needed_property_types = [*rtype.subject_properties.all()]
             if needed_property_types:
                 if subjects_prop_ids is None:
-                    subjects_prop_ids = set(subject.properties.values_list('type', flat=True))
+                    subjects_prop_ids = {*subject.properties.values_list('type', flat=True)}
 
                 if any(needed_ptype.id not in subjects_prop_ids
-                        for needed_ptype in needed_property_types
+                           for needed_ptype in needed_property_types
                       ):
                     continue
 

@@ -355,7 +355,7 @@ class RelationBrickItem(CremeModel):
     @property
     def all_ctypes_configured(self):
         # TODO: cache (object_ctypes) ??
-        compat_ctype_ids = set(self.relation_type.object_ctypes.values_list('id', flat=True)) or \
+        compat_ctype_ids = {*self.relation_type.object_ctypes.values_list('id', flat=True)} or \
                            {ct.id for ct in creme_entity_content_types()}
 
         for ct_id in self._cells_by_ct():
@@ -621,7 +621,7 @@ class BrickStateManager(models.Manager):
         for state in self.filter(brick_id__in=brick_ids, user=user):
             states[state.brick_id] = state
 
-        missing_brick_ids = set(brick_ids) - set(states.keys())  # IDs of bricks without state
+        missing_brick_ids = {*brick_ids} - {*states.keys()}  # IDs of bricks without state
 
         if missing_brick_ids:
             cls = partial(self.model, user=user, **self._get_fields_values())
@@ -713,7 +713,7 @@ class BrickState(CremeModel):
                               show_empty_fields=is_default_fields_displayed,
                              )
 
-        for brick_id in set(brick_ids) - set(states.keys()):  # Bricks with unset state
+        for brick_id in {*brick_ids} - {*states.keys()}:  # Bricks with unset state
             states[brick_id] = block_state(brick_id=brick_id)
 
         return states

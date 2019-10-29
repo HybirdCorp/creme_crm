@@ -386,7 +386,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'duration':     duration_2,
                                           'tstatus':      TaskStatus.objects.all()[0].id,
                                           'parent_tasks': self.formfield_value_multi_creator_entity(task1),
-                                          }
+                                         },
                                     )
         self.assertNoFormError(response)
 
@@ -397,9 +397,9 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(1, len(tasks2))
 
         task2 = tasks2[0]
-        self.assertEqual([task1.id], [t.id for t in task2.parent_tasks.all()])
+        self.assertListEqual([task1.id], [t.id for t in task2.parent_tasks.all()])
 
-        self.assertEqual(set(tasks), set(project.get_tasks()))
+        self.assertSetEqual({*tasks}, {*project.get_tasks()})
         self.assertEqual(duration_1 + duration_2, project.get_expected_duration())
 
     @skipIfCustomTask
@@ -580,7 +580,7 @@ class ProjectsTestCase(CremeTestCase):
 
     @skipIfCustomTask
     def test_task_add_parent03(self):
-        "Cycle error"
+        "Cycle error."
         self.login()
 
         project = self.create_project('Eva01')[0]
@@ -596,13 +596,13 @@ class ProjectsTestCase(CremeTestCase):
                                                 data={'parents': field_value(task01)},
                                                )
                               )
-        self.assertEqual({task01, task02}, set(task01.get_subtasks()))
+        self.assertSetEqual({task01, task02}, {*task01.get_subtasks()})
 
         self.assertNoFormError(self.client.post(build_url(task03),
                                                 data={'parents': field_value(task02)},
                                                )
                               )
-        self.assertEqual({task01, task02, task03}, set(task01.get_subtasks()))
+        self.assertSetEqual({task01, task02, task03}, {*task01.get_subtasks()})
 
         response = self.client.post(build_url(task01),
                                     data={'parents': field_value(task03)},
@@ -1107,9 +1107,9 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
 
         get_cal = Calendar.objects.get_default_calendar
-        self.assertEqual({get_cal(user), get_cal(self.other_user)},
-                         set(activity.calendars.all())
-                        )
+        self.assertSetEqual({get_cal(user), get_cal(self.other_user)},
+                            {*activity.calendars.all()}
+                           )
 
     @skipIfCustomTask
     def test_project_close(self):
@@ -1155,7 +1155,7 @@ class ProjectsTestCase(CremeTestCase):
     _titles_set  = lambda self, tasks_qs: self._titles_collections(tasks_qs, set)
 
     def _tasks_pk_set(self, project):
-        return set(project.get_tasks().values_list('pk', flat=True))
+        return {*project.get_tasks().values_list('pk', flat=True)}
 
     @skipIfCustomTask
     def test_project_clone01(self):
@@ -1229,9 +1229,9 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual({'1', '2'}, self._titles_set(get_task(title='3').get_parents()))
         self.assertEqual(['3'],           self._titles_list(get_task(title='4').get_parents()))
 
-        linked_contacts_set = lambda task: set(task.get_resources().values_list('linked_contact', flat=True))
-        self.assertEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task1))
-        self.assertEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task2))
+        linked_contacts_set = lambda task: {*task.get_resources().values_list('linked_contact', flat=True)}
+        self.assertSetEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task1))
+        self.assertSetEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task2))
 
     # def _delete_project_status(self, status):
     #     return self.client.post(reverse('creme_config__delete_instance', args=('projects', 'projectstatus')),

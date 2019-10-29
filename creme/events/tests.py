@@ -180,7 +180,7 @@ class EventsTestCase(CremeTestCase):
             events_page = response.context['page_obj']
 
         self.assertEqual(2, events_page.paginator.count)
-        self.assertEqual({event1, event2}, set(events_page.object_list))
+        self.assertSetEqual({event1, event2}, {*events_page.object_list})
 
     def test_listview_add_related_opport_action(self):
         user = self.login()
@@ -530,7 +530,7 @@ class EventsTestCase(CremeTestCase):
             contacts_page = response.context['page_obj']
 
         self.assertEqual(3, contacts_page.paginator.count)
-        self.assertEqual({casca, judo, griffith}, set(contacts_page.object_list))
+        self.assertSetEqual({casca, judo, griffith}, {*contacts_page.object_list})
 
     @staticmethod
     def relations_types(contact, event):
@@ -607,12 +607,12 @@ class EventsTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        self.assertEqual([constants.REL_SUB_IS_INVITED_TO],  self.relations_types(casca, event))
-        self.assertEqual([constants.REL_SUB_NOT_CAME_EVENT], self.relations_types(judo, event))
-        self.assertEqual([constants.REL_SUB_CAME_EVENT],     self.relations_types(griffith, event))
-        self.assertEqual({constants.REL_SUB_IS_INVITED_TO, constants.REL_SUB_CAME_EVENT},
-                         set(self.relations_types(rickert, event))
-                        )
+        self.assertListEqual([constants.REL_SUB_IS_INVITED_TO],  self.relations_types(casca, event))
+        self.assertListEqual([constants.REL_SUB_NOT_CAME_EVENT], self.relations_types(judo, event))
+        self.assertListEqual([constants.REL_SUB_CAME_EVENT],     self.relations_types(griffith, event))
+        self.assertSetEqual({constants.REL_SUB_IS_INVITED_TO, constants.REL_SUB_CAME_EVENT},
+                            {*self.relations_types(rickert, event)}
+                           )
         self.assertEqual([constants.REL_SUB_CAME_EVENT],     self.relations_types(carcus, event))
 
     @skipIfCustomContact
@@ -622,17 +622,18 @@ class EventsTestCase(CremeTestCase):
         event = self._create_event('Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
-        response = self.assertPOST200(self._build_link_contacts_url(event), follow=True,
-                                      data={'related_contacts': self.formfield_value_multi_relation_entity(
-                                                    (constants.REL_OBJ_IS_INVITED_TO, casca),
-                                                    (constants.REL_OBJ_CAME_EVENT,    casca),
-                                                ),
-                                           }
-                                     )
+        response = self.assertPOST200(
+            self._build_link_contacts_url(event), follow=True,
+            data={'related_contacts': self.formfield_value_multi_relation_entity(
+                          (constants.REL_OBJ_IS_INVITED_TO, casca),
+                          (constants.REL_OBJ_CAME_EVENT,    casca),
+                      ),
+                 },
+        )
         self.assertFormError(response, 'form', 'related_contacts',
                              _('Contact %(contact)s is present twice.') % {
                                     'contact': casca,
-                                }
+                                },
                             )
 
     @skipIfCustomContact

@@ -101,7 +101,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                ]
 
         def check_content(efilter, *expected_titles):
-            titles = set(efilter.filter(Activity.objects.all()).values_list('title', flat=True))
+            titles = {*efilter.filter(Activity.objects.all()).values_list('title', flat=True)}
 
             for activity in acts:
                 title = activity.title
@@ -1652,7 +1652,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertEqual(1, activities_page.number)
         self.assertEqual(2, activities_page.paginator.count)
-        self.assertEqual(set(acts), set(activities_page.object_list))
+        self.assertSetEqual({*acts}, {*activities_page.object_list})
 
         # Phone calls
         response = self.assertGET200(reverse('activities__list_phone_calls'))

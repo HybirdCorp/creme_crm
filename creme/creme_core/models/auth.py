@@ -91,7 +91,7 @@ class UserRole(models.Model):
     @admin_4_apps.setter
     def admin_4_apps(self, apps):
         """@param apps: Sequence of app labels (strings)."""
-        self._admin_4_apps = set(apps)
+        self._admin_4_apps = {*apps}
         self.raw_admin_4_apps = '\n'.join(apps)
 
     @property
@@ -106,7 +106,7 @@ class UserRole(models.Model):
     @allowed_apps.setter
     def allowed_apps(self, apps):
         """@param apps: Sequence of app labels (strings)."""
-        self._allowed_apps = set(apps)
+        self._allowed_apps = {*apps}
         self.raw_allowed_apps = '\n'.join(apps)
 
     def _build_extended_apps(self, apps):

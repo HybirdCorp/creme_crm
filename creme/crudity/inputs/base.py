@@ -65,4 +65,4 @@ class CrudityInput:
         return iter(self._brickheader_actions)
 
     def authorize_senders(self, backend, senders):
-        return not backend.limit_froms or set(senders) & set(backend.limit_froms)
+        return not backend.limit_froms or {*senders} & {*backend.limit_froms}

@@ -117,7 +117,7 @@ class MailingListsTestCase(_EmailsTestCase):
 
         response = post(mlist01, mlist02)
         self.assertNoFormError(response)
-        self.assertEqual({mlist01, mlist02}, set(campaign.mailing_lists.all()))
+        self.assertSetEqual({mlist01, mlist02}, {*campaign.mailing_lists.all()})
 
         # Duplicates ---------------------
         mlist03 = create_ml(name='Ml03')
@@ -314,7 +314,7 @@ class MailingListsTestCase(_EmailsTestCase):
                          data={'id': contact_to_del.id},
                         )
 
-        contacts = set(mlist.contacts.all())
+        contacts = {*mlist.contacts.all()}
         self.assertEqual(len(recipients) - 1, len(contacts))
         self.assertNotIn(contact_to_del, contacts)
 
@@ -357,9 +357,9 @@ class MailingListsTestCase(_EmailsTestCase):
         create(first_name='Ed',    last_name='Wong',    email='ed.wong@bebop.com', is_deleted=True),
         self.assertNoFormError(self.client.post(url, data={}))
 
-        contacts = set(Contact.objects.filter(is_deleted=False))
+        contacts = {*Contact.objects.filter(is_deleted=False)}
         self.assertGreaterEqual(len(contacts), 2)
-        self.assertEqual(contacts, set(mlist.contacts.all()))
+        self.assertSetEqual(contacts, {*mlist.contacts.all()})
 
     @skipIfCustomContact
     def test_ml_contacts_filter02(self):
@@ -483,7 +483,7 @@ class MailingListsTestCase(_EmailsTestCase):
                          data={'id': orga_to_del.id}
                         )
 
-        orgas = set(mlist.organisations.all())
+        orgas = {*mlist.organisations.all()}
         self.assertEqual(len(recipients) - 1, len(orgas))
         self.assertNotIn(orga_to_del, orgas)
 
@@ -525,7 +525,7 @@ class MailingListsTestCase(_EmailsTestCase):
         create_orga(name='Seele', email='contact@seele.jp')
         self.assertNoFormError(self.client.post(url, data={}))
 
-        orgas = set(Organisation.objects.all())
+        orgas = {*Organisation.objects.all()}
         self.assertGreaterEqual(len(orgas), 2)
         self.assertSetEqual(orgas, {*mlist.organisations.all()})
 

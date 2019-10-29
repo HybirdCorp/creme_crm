@@ -352,4 +352,4 @@ class OrderedSet(MutableSet):
         if isinstance(other, OrderedSet):
             return len(self) == len(other) and [*self] == [*other]
 
-        return set(self) == set(other)
+        return {*self} == {*other}

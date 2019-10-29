@@ -332,7 +332,7 @@ class MultiEnumPollLineType(EnumPollLineType):
     _description_del = _('Multiple choice list ({choices}) (deleted: {del_choices})')
 
     def _cast_answer_4_decoding(self, answer):
-        indices = set(answer)
+        indices = {*answer}
 
         return [v for k, v in self._args['choices'] if k in indices]
 

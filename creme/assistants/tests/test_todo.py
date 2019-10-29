@@ -216,21 +216,22 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertIs(True, self.refresh(todo).is_ok)
 
     def test_brick_reload01(self):
-        "Detailview"
+        "Detailview."
         for i in range(1, 4):
             self._create_todo('Todo{}'.format(i), 'Description {}'.format(i))
 
         todos = ToDo.objects.filter(entity=self.entity.id)
         self.assertEqual(3, len(todos))
-        self.assertEqual(set(ToDo.objects.values_list('id', flat=True)),
-                         {t.id for t in todos}
-                        )
+        self.assertSetEqual({*ToDo.objects.values_list('id', flat=True)},
+                            {t.id for t in todos}
+                           )
 
         self.assertGreaterEqual(TodosBrick.page_size, 2)
 
-        response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(self.entity.id,)),
-                                     data={'brick_id': TodosBrick.id_},
-                                    )
+        response = self.assertGET200(
+            reverse('creme_core__reload_detailview_bricks', args=(self.entity.id,)),
+            data={'brick_id': TodosBrick.id_},
+        )
         self.assertEqual('application/json', response['Content-Type'])
 
         content = response.json()
@@ -243,10 +244,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         size = min(3, settings.BLOCK_SIZE)
         self.assertEqual(size, len(page.object_list))
-        self.assertEqual(size, len(set(todos) & set(page.object_list)))
+        self.assertEqual(size, len({*todos} & {*page.object_list}))
 
     def test_brick_reload02(self):
-        "Home"
+        "Home."
         self._create_several_todos()
         self.assertEqual(3, ToDo.objects.count())
 
@@ -266,7 +267,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
             page = response.context['page']
 
         self.assertEqual(2, len(page.object_list))
-        self.assertEqual(set(todos), set(page.object_list))
+        self.assertSetEqual({*todos}, {*page.object_list})
 
     def _oldify_todo(self, todo):
         cdate = todo.creation_date
@@ -785,5 +786,5 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertIsInstance(todos, QuerySet)
         self.assertEqual(ToDo, todos.model)
 
-        self.assertEqual({todo1, todo3}, set(todos))
+        self.assertSetEqual({todo1, todo3}, {*todos})
         self.assertEqual(2, len(todos))

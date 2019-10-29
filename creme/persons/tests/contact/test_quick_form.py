@@ -169,7 +169,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
         contact_count = Contact.objects.count()
         orga_count = Organisation.objects.count()
 
-        models = set(quickforms_registry.iter_models())
+        models = {*quickforms_registry.iter_models()}
         self.assertIn(Contact, models)
         self.assertIn(Organisation, models)
 
@@ -192,7 +192,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
         response = self.client.post(url, data={'user':        user.id,
                                                'first_name':  first_name,
                                                'last_name':   last_name,
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
 
@@ -223,7 +223,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
                                           'first_name':   first_name,
                                           'last_name':    last_name,
                                           'organisation': orga_name,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(count + 1, Contact.objects.count())
@@ -260,7 +260,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
                                           'first_name':   first_name,
                                           'last_name':    last_name,
                                           'organisation': orga_name,
-                                         }
+                                         },
                                     )
         self.assertNoFormError(response)
 
@@ -301,7 +301,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
                                           'first_name':   'Faye',
                                           'last_name':    'Valentine',
                                           'organisation': orga_name,
-                                         }
+                                         },
                                    )
         self.assertFormError(response, 'form', 'organisation',
                              _('You are not allowed to create an Organisation.')

@@ -56,11 +56,12 @@ class SearchAddForm(_SearchForm):
         self.fields['fields'].choices = instance.get_modelfields_choices()
 
         role_f = self.fields['role']
-        used_role_ids = set(SearchConfigItem.objects
-                                            .filter(content_type=ctype)
-                                            .exclude(role__isnull=True, superuser=False)
-                                            .values_list('role', flat=True)
-                           )
+        used_role_ids = {
+            *SearchConfigItem.objects
+                             .filter(content_type=ctype)
+                             .exclude(role__isnull=True, superuser=False)
+                             .values_list('role', flat=True)
+        }
 
         try:
             used_role_ids.remove(None)

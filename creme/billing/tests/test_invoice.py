@@ -282,7 +282,9 @@ class InvoiceTestCase(_BillingTestCase):
             invoices_page = response.context['page_obj']
 
         self.assertEqual(2, invoices_page.paginator.count)
-        self.assertEqual({invoice1, invoice2}, set(invoices_page.paginator.object_list))
+        self.assertSetEqual({invoice1, invoice2},
+                            {*invoices_page.paginator.object_list}
+                           )
 
     def test_listview_export_actions(self):
         user = self.login()
@@ -700,7 +702,7 @@ class InvoiceTestCase(_BillingTestCase):
         cloned_line_ids = [l.id for l in cloned.iter_all_lines()]
         self.assertEqual(4, len(cloned_line_ids))
 
-        self.assertFalse(set(src_line_ids) & set(cloned_line_ids))
+        self.assertFalse({*src_line_ids} & {*cloned_line_ids})
 
         # Addresses are cloned
         billing_address = cloned.billing_address

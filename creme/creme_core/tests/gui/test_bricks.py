@@ -735,7 +735,7 @@ class BricksManagerTestCase(CremeTestCase):
 
         rtypes_ids = [srtype1.id, srtype2.id]
         mngr.used_relationtypes_ids = rtypes_ids
-        self.assertEqual(set(rtypes_ids), mngr.used_relationtypes_ids)
+        self.assertSetEqual({*rtypes_ids}, mngr.used_relationtypes_ids)
 
     def test_wildcard01(self):
         "Wildcard dependencies, read-only"
@@ -1060,7 +1060,7 @@ class BrickTestCase(CremeTestCase):
             models = brick.target_ctypes
 
         self.assertIsInstance(models, tuple)
-        self.assertEqual(expected_models, set(models))
+        self.assertSetEqual(expected_models, {*models})
 
         with self.assertNumQueries(0):
-            self.assertEqual(expected_models, set(brick.target_ctypes))
+            self.assertSetEqual(expected_models, {*brick.target_ctypes})

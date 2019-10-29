@@ -242,7 +242,7 @@ class _CremeTestCase:
 
             field_names.add(field_name)
 
-        remaining_errors = set(form_errors.keys()) - field_names
+        remaining_errors = {*form_errors.keys()} - field_names
         if remaining_errors:
             self.fail('Unexpected errors have been found in the form: {}'.format(
                         [(name, form_errors[name]) for name in remaining_errors]
@@ -362,7 +362,8 @@ class _CremeTestCase:
         self.assertEqual(count,
                          Relation.objects.filter(subject_entity=subject_entity.id,
                                                  type=type_id,
-                                                 object_entity=object_entity.id)
+                                                 object_entity=object_entity.id,
+                                                )
                                          .count()
                         )
 
@@ -372,7 +373,7 @@ class _CremeTestCase:
         pd1 = properties_desc(entity1)
         pd2 = properties_desc(entity2)
         self.assertEqual(len(pd1), len(pd2))
-        self.assertEqual(set(pd1), set(pd2))
+        self.assertSetEqual({*pd1}, {*pd2})
 
     def assertSameRelations(self, entity1, entity2, exclude_internal=True):
         def relations_desc(entity):
@@ -386,7 +387,7 @@ class _CremeTestCase:
         rd1 = relations_desc(entity1)
         rd2 = relations_desc(entity2)
         self.assertEqual(len(rd1), len(rd2))
-        self.assertEqual(set(rd1), set(rd2))
+        self.assertSetEqual({*rd1}, {*rd2})
 
     def assertSameRelationsNProperties(self, entity1, entity2, exclude_internal=True):
         self.assertSameProperties(entity1, entity2)
@@ -467,8 +468,8 @@ class _CremeTestCase:
                              [*rt.object_ctypes.order_by('id')]
                             )
 
-        self.assertEqual(set(sub_props), set(rt.subject_properties.values_list('id', flat=True)))
-        self.assertEqual(set(obj_props), set(rt.object_properties.values_list('id', flat=True)))
+        self.assertSetEqual({*sub_props}, {*rt.subject_properties.values_list('id', flat=True)})
+        self.assertSetEqual({*obj_props}, {*rt.object_properties.values_list('id', flat=True)})
 
         self.assertNotEqual(rt.pk, rt.symmetric_type_id, 'Be careful your type is its own symmetric type') #Common error
 
@@ -481,9 +482,9 @@ class _CremeTestCase:
             self.fail('Bad populate: unfoundable CremePropertyType with pk={}'.format(pk))
 
         get_ct = ContentType.objects.get_for_model
-        self.assertEqual({get_ct(model).id for model in models},
-                         set(pt.subject_ctypes.values_list('id', flat=True))
-                        )
+        self.assertSetEqual({get_ct(model).id for model in models},
+                            {*pt.subject_ctypes.values_list('id', flat=True)}
+                           )
         return pt
 
     @staticmethod

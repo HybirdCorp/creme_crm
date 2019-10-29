@@ -613,7 +613,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(button_item[0], button_item[1].id_)
 
     def test_quickforms_registry01(self):
-        "Registration"
+        "Registration."
         registry = QuickFormsRegistry()
 
         self.assertFalse([*registry.iter_models()])
@@ -623,9 +623,9 @@ class GuiTestCase(CremeTestCase):
         registry.register(FakeOrganisation, FakeOrganisationQuickForm)
         self.assertIs(FakeContactQuickForm,      registry.get_form(FakeContact))
         self.assertIs(FakeOrganisationQuickForm, registry.get_form(FakeOrganisation))
-        self.assertEqual({FakeContact, FakeOrganisation},
-                         set(registry.iter_models())
-                        )
+        self.assertSetEqual({FakeContact, FakeOrganisation},
+                            {*registry.iter_models()}
+                           )
 
         # ---
         # class OtherContactQuickForm(CremeModelWithUserForm):

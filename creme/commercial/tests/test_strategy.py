@@ -95,7 +95,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
             # strategies_page = response.context['entities']
             strategies_page = response.context['page_obj']
 
-        self.assertEqual(strategies, set(strategies_page.object_list))
+        self.assertSetEqual(strategies, {*strategies_page.object_list})
 
     def test_segment_add(self):
         user = self.login()
@@ -762,9 +762,9 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         strategy = self.refresh(strategy)
         self.assertListEqual([], [*segment_ids(strategy, orga, 3)])
-        self.assertEqual({association.id, individual.id},
-                         set(segment_ids(strategy, orga, 4))
-                        )
+        self.assertSetEqual({association.id, individual.id},
+                            {*segment_ids(strategy, orga, 4)}
+                           )
         self.assertEqual(1, MarketSegmentCategory.objects.count())
 
         self._set_segment_category(strategy, individual, orga, 2)
@@ -773,9 +773,9 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertListEqual([association.id], [*segment_ids(strategy, orga, 4)])
         self.assertListEqual([],               [*segment_ids(strategy, orga, 3)])
         self.assertListEqual([industry.id],    [*segment_ids(strategy, orga, 1)])
-        self.assertEqual({community.id, individual.id},
-                         set(segment_ids(strategy, orga, 2))
-                        )
+        self.assertSetEqual({community.id, individual.id},
+                            {*segment_ids(strategy, orga, 2)}
+                           )
         self.assertEqual(1, MarketSegmentCategory.objects.count())
 
         self.assertEqual(1, strategy.get_segment_category(orga, industry))

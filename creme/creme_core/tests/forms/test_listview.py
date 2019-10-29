@@ -667,7 +667,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(1, len(children))
         k, v = children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual({ryu.id, ken.id}, set(v))
+        self.assertSetEqual({ryu.id, ken.id}, {*v})
 
     def test_custom_booleanfield(self):
         cfield = CustomField.objects.create(
@@ -916,7 +916,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(1, len(children))
         k, v = children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual({ryu.id, ken.id}, set(v))
+        self.assertSetEqual({ryu.id, ken.id}, {*v})
 
         # ---
         # self.assertEqual(
@@ -926,7 +926,7 @@ class SearchFieldsTestCase(CremeTestCase):
         q_start = to_python(value=['01-02-2019', ''])
         k, v = q_start.children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual({ryu.id, ken.id, blanka.id}, set(v))
+        self.assertSetEqual({ryu.id, ken.id, blanka.id}, {*v})
 
         # self.assertEqual(
         #     Q(created__lte=dt(day=25, month=2, year=2019, hour=23, minute=59, second=59)),
@@ -935,7 +935,7 @@ class SearchFieldsTestCase(CremeTestCase):
         q_end = to_python(value=['', '01-03-2019'])
         k, v = q_end.children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual({ryu.id, ken.id, zangief.id}, set(v))
+        self.assertSetEqual({ryu.id, ken.id, zangief.id}, {*v})
 
         # Invalid dates ---------------------------
         self.assertEqual(Q(), to_python(value=['abc', 'def']))
@@ -946,14 +946,14 @@ class SearchFieldsTestCase(CremeTestCase):
         # )
         k, v = to_python(value=['01-02-2019', 'zblu']).children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual({ryu.id, ken.id, blanka.id}, set(v))
+        self.assertSetEqual({ryu.id, ken.id, blanka.id}, {*v})
 
         # self.assertEqual(
         #     Q(created__lte=dt(day=26, month=2, year=2019, hour=23, minute=59, second=59)),
         #     to_python(value=['123', '26-02-2019'])
         # )
         v = to_python(value=['123', '28-02-2019']).children[0][1]
-        self.assertEqual({ryu.id, ken.id, zangief.id}, set(v))
+        self.assertSetEqual({ryu.id, ken.id, zangief.id}, {*v})
 
     def test_custom_enumfield(self):
         cfield = CustomField.objects.create(
@@ -1008,7 +1008,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(1, len(children))
         k, v = children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual({ryu.id, ken.id}, set(v))
+        self.assertSetEqual({ryu.id, ken.id}, {*v})
 
         # ---
         q_hold = to_python(value=str(hold.id))
@@ -1025,7 +1025,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(1, len(children))
         k, v = children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual({ryu.id, ken.id, zangief.id}, set(v))
+        self.assertSetEqual({ryu.id, ken.id, zangief.id}, {*v})
 
     def test_custom_multienumfield(self):
         cfield = CustomField.objects.create(
@@ -1080,13 +1080,13 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(1, len(children))
         k, v = children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual({ryu.id, ken.id}, set(v))
+        self.assertSetEqual({ryu.id, ken.id}, {*v})
 
         # ---
         q_hold = to_python(value=str(hold.id))
         k, v = q_hold.children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual({ryu.id, zangief.id}, set(v))
+        self.assertSetEqual({ryu.id, zangief.id}, {*v})
 
         # ---
         q_null = to_python(value=lv_form.NULL)
@@ -1097,7 +1097,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(1, len(children))
         k, v = children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual({ryu.id, ken.id, zangief.id}, set(v))
+        self.assertSetEqual({ryu.id, ken.id, zangief.id}, {*v})
 
     def test_relationfield(self):
         user = self.user
@@ -1144,7 +1144,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(1, len(children))
         k, v = children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual({ryu.id, ken.id}, set(v))
+        self.assertSetEqual({ryu.id, ken.id}, {*v})
 
     def test_propertiesfield(self):
         from creme.creme_core.core.entity_cell import EntityCellFunctionField

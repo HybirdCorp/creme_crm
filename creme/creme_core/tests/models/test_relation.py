@@ -79,9 +79,9 @@ class RelationsTestCase(CremeTestCase):
         self.assertRaises(RelationType.DoesNotExist, RelationType.objects.get, id=rtype2.id)
 
     def build_compatible_set_legacy(self, **kwargs):
-        return set(RelationType.get_compatible_ones(self.contact_ct.id, **kwargs)
-                               .values_list('id', flat=True)
-                  )
+        return {*RelationType.get_compatible_ones(self.contact_ct.id, **kwargs)
+                             .values_list('id', flat=True)
+               }
 
     def test_get_compatible_ones01(self):
         orig_compat_ids = self.build_compatible_set_legacy()
@@ -160,10 +160,11 @@ class RelationsTestCase(CremeTestCase):
         self.assertTrue(rtype.is_compatible(self.contact_ct.id))
 
     def build_compatible_set(self, ct_or_model=None, **kwargs):
-        return set(RelationType.objects
-                               .compatible(ct_or_model or self.contact_ct, **kwargs)
-                               .values_list('id', flat=True)
-                  )
+        return {
+            *RelationType.objects
+                         .compatible(ct_or_model or self.contact_ct, **kwargs)
+                         .values_list('id', flat=True)
+        }
 
     def test_manager_compatible01(self):
         orig_compat_ids = self.build_compatible_set()

@@ -156,11 +156,11 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertTrue(ptype.is_copiable)
 
         ctypes = ptype.subject_ctypes.all()
-        self.assertEqual(2,           len(ctypes))
-        self.assertEqual(set(ct_ids), {ct.id for ct in ctypes})
+        self.assertEqual(2, len(ctypes))
+        self.assertSetEqual({*ct_ids}, {ct.id for ct in ctypes})
 
     def test_add_type03(self):
-        "Not allowed"
+        "Not allowed."
         self.login(is_superuser=False)
         self.assertGET403(self.ADD_TYPE_URL)
 
@@ -170,7 +170,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET200(self.ADD_TYPE_URL)
 
     def test_edit_type01(self):
-        "is_custom=False"
+        "is_custom=False."
         self.login()
         ptype = CremePropertyType.create('test-foobar', 'is beautiful',
                                          [ContentType.objects.get_for_model(FakeContact)],

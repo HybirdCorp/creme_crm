@@ -201,7 +201,7 @@ class ListViewTestCase(ViewsTestCase):
             # entities_page = response.context['entities']
             entities_page = response.context['page_obj']
 
-        return set(entities_page.object_list)
+        return {*entities_page.object_list}
 
     def _get_options_for_select_node(self, select_node):
         return {
@@ -286,7 +286,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIsInstance(sel_hf, HeaderFilter)
         self.assertEqual(sel_hf.id, hf.id)
 
-        orgas_set = set(orgas_page.object_list)
+        orgas_set = {*orgas_page.object_list}
         self.assertIn(bebop,     orgas_set)
         self.assertIn(swordfish, orgas_set)
 

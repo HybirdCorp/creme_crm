@@ -211,11 +211,12 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
         fields = self.fields
 
         role_f = fields['role']
-        used_role_ids = set(BrickDetailviewLocation.objects
-                                                   .filter(content_type=self.ct)
-                                                   .exclude(role__isnull=True, superuser=False)
-                                                   .values_list('role', flat=True)
-                           )
+        used_role_ids = {
+            *BrickDetailviewLocation.objects
+                                    .filter(content_type=self.ct)
+                                    .exclude(role__isnull=True, superuser=False)
+                                    .values_list('role', flat=True)
+        }
 
         try:
             used_role_ids.remove(None)
@@ -287,10 +288,11 @@ class BrickHomeLocationsAddingForm(_BrickLocationsForm):
         self._build_home_locations_field(field_name='bricks', brick_locations=())
 
         role_f = self.fields['role']
-        used_role_ids = set(BrickHomeLocation.objects
-                                             .exclude(role__isnull=True, superuser=False)
-                                             .values_list('role', flat=True)
-                           )
+        used_role_ids = {
+            *BrickHomeLocation.objects
+                              .exclude(role__isnull=True, superuser=False)
+                              .values_list('role', flat=True)
+        }
 
         # TODO: factorise ?
         try:

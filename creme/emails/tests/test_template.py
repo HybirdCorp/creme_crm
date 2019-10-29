@@ -138,7 +138,7 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
 
         response = self.client.post(url, data={'attachments': self.formfield_value_multi_creator_entity(doc1, doc2)})
         self.assertNoFormError(response)
-        self.assertEqual({doc1, doc2}, set(template.attachments.all()))
+        self.assertSetEqual({doc1, doc2}, {*template.attachments.all()})
 
     def test_add_attachments02(self):
         user = self.login()

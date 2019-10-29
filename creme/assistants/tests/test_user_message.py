@@ -186,7 +186,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
         messages = UserMessage.objects.all()
         self.assertEqual(2, len(messages))
-        self.assertEqual(set(users), {msg.recipient for msg in messages})
+        self.assertSetEqual({*users}, {msg.recipient for msg in messages})
 
     def test_create05(self):
         "Teams and isolated usres with non void intersections"
@@ -209,7 +209,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
         messages = UserMessage.objects.all()
         self.assertEqual(4, len(messages))
-        self.assertEqual(set(users), {msg.recipient for msg in messages})
+        self.assertSetEqual({*users}, {msg.recipient for msg in messages})
 
     # def test_get_messages(self):
     #     priority = UserMessagePriority.objects.create(title='Important')

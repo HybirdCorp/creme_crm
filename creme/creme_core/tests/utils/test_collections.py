@@ -140,13 +140,13 @@ class ClassKeyedMapTestCase(CremeTestCase):
         self.assertNotIn(Klass1, empty)
 
         keys_set = {Klass1, Klass2, Klass3}
-        self.assertEqual(keys_set, set(ckm))
-        self.assertEqual(keys_set, set(ckm.keys()))
+        self.assertSetEqual(keys_set, {*ckm})
+        self.assertSetEqual(keys_set, {*ckm.keys()})
 
-        self.assertEqual({1, 2, None}, set(ckm.values()))
-        self.assertEqual({(Klass1, 1), (Klass2, 2), (Klass3, None)},
-                         set(ckm.items())
-                        )
+        self.assertSetEqual({1, 2, None}, {*ckm.values()})
+        self.assertSetEqual({(Klass1, 1), (Klass2, 2), (Klass3, None)},
+                            {*ckm.items()}
+                           )
 
         r = repr(ckm)
         self.assertTrue(r.startswith('ClassKeyedMap('))

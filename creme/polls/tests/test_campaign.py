@@ -55,7 +55,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                           'due_date':       '27-8-2013',
                                           'segment':        segment.id,
                                           'expected_count': expected_count,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -85,7 +85,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                           'start':          '26-9-2013',
                                           'due_date':       '27-10-2013',
                                           'expected_count': expected_count,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -108,7 +108,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         self.assertEqual(1, camps_page.number)
         self.assertEqual(len(camps), camps_page.paginator.count)
-        self.assertEqual(set(camps), set(camps_page.object_list))
+        self.assertSetEqual({*camps}, {*camps_page.object_list})
 
     def _create_pform_n_campaign(self):
         user  = self.user
@@ -136,7 +136,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                           'pform':    pform.id,
                                           'number':   reply_number,
                                           'campaign': camp.id,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -169,7 +169,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                           'name':   name,
                                           'pform':  pform.id,
                                           'number': reply_number,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -190,7 +190,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                             EntityCredentials.DELETE |
                                             EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
+                                      set_type=SetCredentials.ESET_ALL,
                                      )
 
         pform, camp = self._create_pform_n_campaign()
@@ -209,7 +209,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                             EntityCredentials.DELETE |
                                             EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
+                                      set_type=SetCredentials.ESET_ALL,
                                      )
 
         pform, camp = self._create_pform_n_campaign()
@@ -229,7 +229,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                             EntityCredentials.DELETE |
                                             # EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
+                                      set_type=SetCredentials.ESET_ALL,
                                      )
 
         pform, camp = self._create_pform_n_campaign()

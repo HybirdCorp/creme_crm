@@ -100,7 +100,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         self.assertEqual(1, patterns_page.number)
         self.assertEqual(3, patterns_page.paginator.count)
-        self.assertEqual(set(patterns), set(patterns_page.object_list))
+        self.assertSetEqual({*patterns}, {*patterns_page.object_list})
 
     def test_add_root_pattern_component01(self):
         "No parent component, no counted relation"
@@ -385,10 +385,10 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         remaining_ids = pattern.components.values_list('id', flat=True)
         self.assertEqual(3, len(remaining_ids))
-        self.assertEqual({comp00.id, comp05.id, comp06.id}, set(remaining_ids))
+        self.assertSetEqual({comp00.id, comp05.id, comp06.id}, {*remaining_ids})
 
     def assertCompNamesEqual(self, comp_qs, *names):
-        self.assertEqual(set(names), set(comp_qs.values_list('name', flat=True)))
+        self.assertSetEqual({*names}, {*comp_qs.values_list('name', flat=True)})
 
     def test_actobjectivepattern_clone01(self):
         pattern = self._create_pattern()

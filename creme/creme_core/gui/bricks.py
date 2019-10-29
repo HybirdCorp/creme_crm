@@ -612,7 +612,7 @@ class BricksManager:
     @used_relationtypes_ids.setter
     def used_relationtypes_ids(self, relationtypes_ids):
         "@param relation_type_deps: Sequence of RelationType objects' IDs."
-        self._used_relationtypes = set(relationtypes_ids)
+        self._used_relationtypes = {*relationtypes_ids}
 
 
 class _BrickRegistry:

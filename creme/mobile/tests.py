@@ -245,14 +245,14 @@ class MobileTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'mobile/directory.html')
 
         with self.assertNoException():
-            contacts = set(response.context['favorite_contacts'])
+            contacts = {*response.context['favorite_contacts']}
             orgas    = [*response.context['favorite_organisations']]
 
-        self.assertEqual({may, joe}, contacts)
+        self.assertSetEqual({may, joe}, contacts)
         self.assertContains(response, may.last_name)
         self.assertContains(response, may.first_name)
 
-        self.assertEqual([kof], orgas)
+        self.assertListEqual([kof], orgas)
         self.assertContains(response, kof)
 
     @skipIfCustomContact
@@ -411,9 +411,9 @@ class MobileTestCase(CremeTestCase):
         response = self.assertGET200(self.SEARCH_PERSON_URL, data={'search': 'Ikari'})
 
         with self.assertNoException():
-            contacts = set(response.context['contacts'])
+            contacts = {*response.context['contacts']}
 
-        self.assertEqual({shinji, gendo, ikari}, contacts)
+        self.assertSetEqual({shinji, gendo, ikari}, contacts)
         self.assertContains(response, shinji.first_name)
         self.assertContains(response, shinji.mobile)
 
@@ -783,8 +783,8 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(pcall, phone_call)
         self.assertNotIn('called_contact', context)
         self.assertEqual(zalem, orga)
-        self.assertEqual({gally, contact}, set(contacts))
-        self.assertEqual([kuzu], orgas)
+        self.assertSetEqual({gally, contact}, {*contacts})
+        self.assertListEqual([kuzu], orgas)
 
     @skipIfCustomActivity
     def test_phone_call_wf_done(self):
@@ -883,9 +883,9 @@ class MobileTestCase(CremeTestCase):
                         )
 
         get_cal = Calendar.objects.get_default_calendar
-        self.assertEqual({get_cal(user), get_cal(self.other_user)},
-                         set(pcall.calendars.all())
-                        )
+        self.assertSetEqual({get_cal(user), get_cal(self.other_user)},
+                            {*pcall.calendars.all()}
+                           )
 
     def test_phone_call_wf_failed04(self):
         "Second participant == first participant"
