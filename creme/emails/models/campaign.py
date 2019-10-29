@@ -64,15 +64,18 @@ class AbstractEmailCampaign(CremeEntity):
 
     def all_recipients(self):
         # Merge all the mailing_lists and their children
-        lists = dict(pk_ml for ml in self.mailing_lists.filter(is_deleted=False)
-                        for pk_ml in ml.get_family().items()
-                    ).values()
+        lists = {
+            pk: ml
+                for ml in self.mailing_lists.filter(is_deleted=False)
+                    for pk, ml in ml.get_family().items()
+        }.values()
 
         # Manual recipients
-        recipients = {addr: None
-                          for addr in EmailRecipient.objects.filter(ml__in=[ml.id for ml in lists])
-                                                            .values_list('address', flat=True)
-                     }
+        recipients = {
+            addr: None
+                for addr in EmailRecipient.objects.filter(ml__in=[ml.id for ml in lists])
+                                                  .values_list('address', flat=True)
+        }
 
         # Contacts & organisations recipients
         def update(get_persons):
