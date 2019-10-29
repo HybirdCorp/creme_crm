@@ -318,6 +318,7 @@ creme.lv_widget.ListViewDialog = creme.dialog.Dialog.sub({
     _init_: function(options) {
         options = $.extend({
             title: '',
+            useListTitle: true,
             selectionMode: 'single',
             selectionValidator: this._defaultValidator,
             width: '80%'
@@ -326,6 +327,25 @@ creme.lv_widget.ListViewDialog = creme.dialog.Dialog.sub({
         this._super_(creme.dialog.Dialog, '_init_', options);
         this.selectionValidator(options.selectionValidator);
         this.selectionMode(options.selectionMode);
+
+        this._bindListView();
+    },
+
+    _bindListView: function() {
+        var self = this;
+
+        this.on('frame-update', function() {
+            self.content().on('listview-bind-complete', '.ui-creme-listview', function() {
+                if (self.options.useListTitle) {
+                    var listTitle = self.content().find('.list-title');
+                    /*
+                    var dialogHeader = self.content().parents('.ui-dialog:first').find('.ui-dialog-titlebar .ui-dialog-title');
+                    listTitle.appendTo(dialogHeader.empty());
+                    */
+                    self.title(listTitle.addClass('hidden').text());
+                }
+            });
+        });
     },
 
     selectionMode: function(mode) {

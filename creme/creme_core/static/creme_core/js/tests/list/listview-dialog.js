@@ -9,14 +9,17 @@ QUnit.module("creme.listview.dialog", new QUnitMixin(QUnitEventMixin,
         backend.options.enableUriSearch = true;
 
         var noneSelectionListHtml = this.createListViewHtml(this.defaultListViewHtmlOptions({
+            title: 'No-Selection List',
             reloadurl: 'mock/listview/reload/none',
             mode: 'none'
         }));
         var singleSelectionListHtml = this.createListViewHtml(this.defaultListViewHtmlOptions({
+            title: 'Single-Selection List',
             reloadurl: 'mock/listview/reload/single',
             mode: 'single'
         }));
         var multiSelectionListHtml = this.createListViewHtml(this.defaultListViewHtmlOptions({
+            title: 'Multi-Selection List',
             reloadurl: 'mock/listview/reload/multiple',
             mode: 'multiple'
         }));
@@ -278,6 +281,35 @@ QUnit.test('creme.listview.ListViewDialog (single, validate)', function(assert) 
     deepEqual([
         ['validate', ['1']]
     ], this.mockListenerCalls('validate'));
+});
+
+QUnit.test('creme.listview.ListViewDialog (useListTitle)', function(assert) {
+    var dialog = new creme.lv_widget.ListViewDialog({
+        title: 'My title',
+        url: 'mock/listview/selection/multiple'
+    });
+
+    dialog.onValidate(this.mockListener('validate'));
+    dialog.open();
+
+    equal(true, dialog.options.useListTitle);
+    this.assertDialogTitle('Multi-Selection List');
+    equal(0, dialog.content().find('.list-title:not(.hidden)').length);
+});
+
+QUnit.test('creme.listview.ListViewDialog (useListTitle disabled)', function(assert) {
+    var dialog = new creme.lv_widget.ListViewDialog({
+        title: 'My title',
+        url: 'mock/listview/selection/multiple',
+        useListTitle: false
+    });
+
+    dialog.onValidate(this.mockListener('validate'));
+    dialog.open();
+
+    equal(false, dialog.options.useListTitle);
+    this.assertDialogTitle('My title');
+    equal(1, dialog.content().find('.list-title:not(.hidden)').length);
 });
 
 }(jQuery));
