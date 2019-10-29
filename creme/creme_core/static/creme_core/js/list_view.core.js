@@ -551,6 +551,7 @@
             this._bindColumnSort(element);
             this._bindColumnFilters(element);
 
+            this.trigger('bind-complete');
             return this;
         },
 
