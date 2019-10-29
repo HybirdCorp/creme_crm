@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-23 19:43+0200\n"
+"POT-Creation-Date: 2019-10-28 16:56+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -537,25 +537,25 @@ msgstr "Choisissez un utilisateur auquel transférer"
 msgid "Teams"
 msgstr "Équipes"
 
-#: forms/user_role.py:120
+#: forms/user_role.py:116
 msgid "View"
 msgstr "Voir"
 
-#: forms/user_role.py:121
+#: forms/user_role.py:117
 msgid "Change"
 msgstr "Changer"
 
-#: forms/user_role.py:122
-#: templates/creme_config/bricks/configurable-model.html:70
+#: forms/user_role.py:118
+#: templates/creme_config/bricks/configurable-model.html:72
 #: templates/creme_config/bricks/user-roles.html:77
 msgid "Delete"
 msgstr "Supprimer"
 
-#: forms/user_role.py:125
+#: forms/user_role.py:121
 msgid "Link"
 msgstr "Lier"
 
-#: forms/user_role.py:126
+#: forms/user_role.py:122
 msgid ""
 "You must have the permission to link on 2 entities to create a relationship "
 "between them. Beware: if you use «Filtered entities», you won't be able to "
@@ -566,11 +566,11 @@ msgstr ""
 "pas ajouter de relations dans les formulaires de création (vous devrez les "
 "ajouter plus tard)."
 
-#: forms/user_role.py:134
+#: forms/user_role.py:130
 msgid "Unlink"
 msgstr "Délier"
 
-#: forms/user_role.py:135
+#: forms/user_role.py:131
 msgid ""
 "You must have the permission to unlink on 2 entities to delete a "
 "relationship between them."
@@ -579,11 +579,11 @@ msgstr ""
 "entre elles."
 
 # Already in creme_core
-#: forms/user_role.py:150
+#: forms/user_role.py:146
 msgid "General information"
 msgstr ""
 
-#: forms/user_role.py:151
+#: forms/user_role.py:147
 #: templates/creme_config/bricks/configurable-model.html:35
 #: templates/creme_config/bricks/custombricks-configs.html:19
 #: templates/creme_config/bricks/fields-configs.html:19
@@ -596,50 +596,50 @@ msgstr ""
 msgid "Actions"
 msgstr "Actions"
 
-#: forms/user_role.py:168
+#: forms/user_role.py:164
 msgctxt "content_type"
 msgid "None"
 msgstr "Aucun"
 
-#: forms/user_role.py:183
+#: forms/user_role.py:179
 msgid "No action has been selected."
 msgstr "Aucune action n'a été sélectionnée."
 
-#: forms/user_role.py:198
+#: forms/user_role.py:194
 msgid "Name of the filter"
 msgstr "Nom du filtre"
 
 # Already in creme_core
-#: forms/user_role.py:206
+#: forms/user_role.py:202
 msgid "The filter must have at least one condition."
 msgstr ""
 
 # Already in creme_core
-#: forms/user_role.py:210
+#: forms/user_role.py:206
 msgid "Filter"
 msgstr ""
 
 # Already in creme_core
-#: forms/user_role.py:211 forms/user_role.py:273
+#: forms/user_role.py:207 forms/user_role.py:272
 msgid "Conditions"
 msgstr ""
 
-#: forms/user_role.py:214
+#: forms/user_role.py:210
 msgid ""
 "Beware to performances with conditions on custom fields or relationships."
 msgstr ""
 "Attention aux performances avec les conditions sur les champs personnalisés "
 "ou sur les relations."
 
-#: forms/user_role.py:275
+#: forms/user_role.py:274
 msgid "No filter, no condition."
 msgstr "Pas de filtre, pas de condition."
 
-#: forms/user_role.py:374
+#: forms/user_role.py:373
 msgid "Choose a role to transfer to"
 msgstr "Choisissez un rôle auquel transférer"
 
-#: forms/user_role.py:379
+#: forms/user_role.py:378
 msgid "Information"
 msgstr "Informations"
 
@@ -690,15 +690,15 @@ msgstr "Premiers droits : informations principales"
 msgid "First credentials: actions"
 msgstr "Premiers droits : actions"
 
-#: forms/user_role.py:583
+#: forms/user_role.py:584
 msgid "Yes"
 msgstr "Oui"
 
-#: forms/user_role.py:599
+#: forms/user_role.py:600
 msgid "First credentials: filter"
 msgstr "Premiers droits : filtre"
 
-#: forms/user_role.py:600
+#: forms/user_role.py:601
 msgid "First credentials: conditions"
 msgstr "Premiers droits : conditions"
 
@@ -909,7 +909,12 @@ msgstr "Pas de bouton"
 msgid "New value"
 msgstr "Nouvelle valeur"
 
-#: templates/creme_config/bricks/configurable-model.html:79
+#: templates/creme_config/bricks/configurable-model.html:45
+#, python-format
+msgid "Drag and drop to re-order this «%(type)s»"
+msgstr "Glissez-déposez pour réordonner ce(tte) «%(type)s»"
+
+#: templates/creme_config/bricks/configurable-model.html:81
 msgid "No value for the moment"
 msgstr "Aucune valeur enregistrée pour le moment"
 
