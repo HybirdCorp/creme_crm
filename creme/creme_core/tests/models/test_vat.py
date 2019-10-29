@@ -15,7 +15,7 @@ class VatTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls._vat_backup = list(Vat.objects.all())
+        cls._vat_backup = [*Vat.objects.all()]
         Vat.objects.all().delete()
 
     @classmethod

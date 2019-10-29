@@ -278,8 +278,8 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertEqual(cloned.id, cloned.billing_address.object_id)
         self.assertEqual(cloned.id, cloned.shipping_address.object_id)
 
-        addresses   = list(Address.objects.filter(object_id=bebop.id))
-        c_addresses = list(Address.objects.filter(object_id=cloned.id))
+        addresses   = [*Address.objects.filter(object_id=bebop.id)]
+        c_addresses = [*Address.objects.filter(object_id=cloned.id)]
         self.assertEqual(4, len(addresses))
         self.assertEqual(4, len(c_addresses))
 
@@ -314,7 +314,7 @@ class OrganisationTestCase(_BaseTestCase):
         # Test request-cache
         with self.assertNumQueries(0):
             qs2 = Organisation.get_all_managed_by_creme()
-            list(qs2)
+            __ = [*qs2]
 
         self.assertEqual(id(qs1), id(qs2))
 

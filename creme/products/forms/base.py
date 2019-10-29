@@ -63,7 +63,7 @@ class AddImagesForm(CremeForm):
         self.entity = entity
 
         images_f = self.fields['images']
-        images_f.q_filter = ~Q(id__in=list(entity.images.values_list('id', flat=True)))
+        images_f.q_filter = ~Q(id__in=[*entity.images.values_list('id', flat=True)])
         images_f.force_creation = True
 
     def save(self):

@@ -520,21 +520,21 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         Relation.objects.create(user=self.user, subject_entity=customer02,
                                 object_entity=mng_orga, type_id=constants.REL_SUB_INACTIVE
                                )
-        self.assertEqual([customer01], list(self._get_neglected_orgas()))
+        self.assertListEqual([customer01], [*self._get_neglected_orgas()])
 
     def test_neglected_brick08(self):
-        "Deleted customers are not counted"
+        "Deleted customers are not counted."
         mng_orga = Organisation.objects.all()[0]
         customer = self._build_customer_orga(mng_orga, 'Konoha')
         self._build_customer_orga(mng_orga, 'Suna', is_deleted=True)
-        self.assertEqual([customer], list(self._get_neglected_orgas()))
+        self.assertListEqual([customer], [*self._get_neglected_orgas()])
 
     def _oldify(self, entity, days_delta):
         entity.created -= timedelta(days=days_delta)
         return entity
 
     def test_neglected_indicator01(self):
-        "Young entity => special label"
+        "Young entity => special label."
         contact = self._oldify(Contact.objects.create(user=self.user, first_name='Gaara', last_name='???'),
                                days_delta=10
                               )
@@ -542,7 +542,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         self.assertEqual(_('Never contacted'), indicator.label)
 
     def test_neglected_indicator02(self):
-        "regular label for neglected"
+        "regular label for neglected."
         user = self.user
         contact = self._oldify(Contact.objects.create(user=self.user, first_name='Gaara', last_name='???'),
                                days_delta=16

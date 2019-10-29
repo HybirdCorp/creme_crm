@@ -84,9 +84,9 @@ class _PersonMassImportForm(ImportForm4CremeEntity):  # TODO: rename 'PersonCSVI
 
 
 def get_massimport_form_builder(header_dict, choices, model, base_form=_PersonMassImportForm):
-    address_field_names = list(Address.info_field_names())  # TODO: remove not-editable fields ??
+    address_field_names = [*Address.info_field_names()]  # TODO: remove not-editable fields ??
     try:
-       address_field_names.remove('name')
+        address_field_names.remove('name')
     except ValueError:
        pass
 

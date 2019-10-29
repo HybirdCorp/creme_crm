@@ -56,7 +56,7 @@ class Preview(generic.EntityDetail):
         context['lines'] = lines
         context['form'] = form
         context['limit_to'] = _PREVIEW_LIMIT_COUNT
-        context['flat_columns'] = list(report.get_children_fields_flat())
+        context['flat_columns'] = [*report.get_children_fields_flat()]
         context['empty_message'] = self.get_empty_message(form, lines)
 
         return context

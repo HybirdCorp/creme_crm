@@ -35,7 +35,7 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
         return d
 
     def choices(self, user):
-        choices = list(map(self.efilter_as_dict, self._queryset()))
+        choices = [*map(self.efilter_as_dict, self._queryset())]
 
         sort_key = collator.sort_key
         choices.sort(key=lambda d: sort_key('{}#{}'.format(d['group'], d['label'])))

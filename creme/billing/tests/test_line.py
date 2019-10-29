@@ -336,10 +336,10 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(product, product_line2.related_item)
 
         rel_filter = Relation.objects.filter
-        self.assertEqual([product_line2.pk],
-                         list(rel_filter(type=REL_SUB_HAS_LINE, subject_entity=invoice2)
-                                        .values_list('object_entity', flat=True)
-                             )
+        self.assertListEqual([product_line2.pk],
+                             [*rel_filter(type=REL_SUB_HAS_LINE, subject_entity=invoice2)
+                                         .values_list('object_entity', flat=True)
+                             ]
                         )
         self.assertEqual({product_line.pk, product_line2.pk},
                          set(rel_filter(type=REL_SUB_LINE_RELATED_ITEM, object_entity=product)
@@ -366,8 +366,14 @@ class LineTestCase(_BillingTestCase):
         self.assertNotEqual(service_line1, service_line2)
 
         rel_filter = Relation.objects.filter
-        self.assertEqual([service_line1.pk], list(rel_filter(type=REL_SUB_HAS_LINE, subject_entity=invoice1).values_list('object_entity', flat=True)))
-        self.assertEqual([service_line2.pk], list(rel_filter(type=REL_SUB_HAS_LINE, subject_entity=invoice2).values_list('object_entity', flat=True)))
+        self.assertListEqual(
+            [service_line1.pk],
+            [*rel_filter(type=REL_SUB_HAS_LINE, subject_entity=invoice1).values_list('object_entity', flat=True)]
+        )
+        self.assertEqual(
+            [service_line2.pk],
+            [*rel_filter(type=REL_SUB_HAS_LINE, subject_entity=invoice2).values_list('object_entity', flat=True)]
+        )
         self.assertEqual({service_line1.pk, service_line2.pk},
                          set(rel_filter(type=REL_SUB_LINE_RELATED_ITEM, object_entity=service)
                                        .values_list('subject_entity', flat=True)

@@ -50,7 +50,7 @@ class AssistantsTestCase(CremeTestCase):
 
         assertor(contact01)
 
-        hlines = list(HistoryLine.objects.order_by('id'))
+        hlines = [*HistoryLine.objects.order_by('id')]
         self.assertEqual(old_count + 1 + moved_count, len(hlines))  # 1 deletion line + N * TYPE_AUX_CREATION lines
 
         if moved_count:

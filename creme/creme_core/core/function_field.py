@@ -112,7 +112,7 @@ class FunctionField:
 
 class FunctionFieldResultsList(FunctionFieldResult):
     def __init__(self, iterable):
-        self._data = list(iterable)
+        self._data = [*iterable]
 
     def for_html(self):
         return format_html('<ul>{}</ul>',

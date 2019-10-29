@@ -217,7 +217,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
     def test_get_compatible_hat_bricks01(self):
         brick_registry = _BrickRegistry()
-        bricks = list(brick_registry.get_compatible_hat_bricks(FakeContact))
+        bricks = [*brick_registry.get_compatible_hat_bricks(FakeContact)]
         self.assertEqual(1, len(bricks))
 
         brick = bricks[0]
@@ -235,7 +235,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
         brick_registry = _BrickRegistry()
         brick_registry.register_hat(FakeContact, main_brick_cls=FakeContactHatBrick)
-        bricks = list(brick_registry.get_compatible_hat_bricks(FakeContact))
+        bricks = [*brick_registry.get_compatible_hat_bricks(FakeContact)]
         self.assertEqual(1, len(bricks))
 
         brick = bricks[0]
@@ -270,13 +270,13 @@ class BrickRegistryTestCase(CremeTestCase):
                                     secondary_brick_classes=(FakeContactHatBrick01, FakeContactHatBrick02),
                                    )
 
-        bricks = list(brick_registry.get_compatible_hat_bricks(FakeContact))
+        bricks = [*brick_registry.get_compatible_hat_bricks(FakeContact)]
         self.assertEqual(3, len(bricks))
 
         self.assertIsInstance(bricks[0], SimpleBrick)
-        self.assertEqual({FakeContactHatBrick01, FakeContactHatBrick02},
-                         {brick.__class__ for brick in bricks[1:]}
-                        )
+        self.assertSetEqual({FakeContactHatBrick01, FakeContactHatBrick02},
+                            {brick.__class__ for brick in bricks[1:]}
+                           )
 
     def test_get_compatible_hat_bricks03_error(self):
         class BaseFakeContactHatBrick(SimpleBrick):
@@ -336,7 +336,7 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = _BrickRegistry()
         brick_registry.register(FoobarBrick1, FoobarBrick2, FoobarBrick3)
 
-        blocks = list(brick_registry.get_compatible_home_bricks())
+        blocks = [*brick_registry.get_compatible_home_bricks()]
         self.assertEqual(1, len(blocks))
         self.assertIsInstance(blocks[0], FoobarBrick1)
 
@@ -365,10 +365,12 @@ class BrickRegistryTestCase(CremeTestCase):
             for brick_cls, brick in zip(brick_classes, bricks):
                 self.assertIsInstance(brick, brick_cls)
 
-        assertBricks([QuuxBrick1, QuuxBrick2], list(brick_registry.get_bricks([QuuxBrick1.id_, QuuxBrick2.id_])))
+        assertBricks([QuuxBrick1, QuuxBrick2],
+                     [*brick_registry.get_bricks([QuuxBrick1.id_, QuuxBrick2.id_])]
+                    )
 
         # Not registered -------------
-        bricks = list(brick_registry.get_bricks([SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_4')]))
+        bricks = [*brick_registry.get_bricks([SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_4')])]
         self.assertEqual(1, len(bricks))
         self.assertIsInstance(bricks[0], Brick)
 
@@ -383,7 +385,7 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry.register_4_model(FakeContact, ContactBrick)
 
         # No entity
-        self.assertFalse(list(brick_registry.get_bricks([MODELBRICK_ID])))
+        self.assertFalse([*brick_registry.get_bricks([MODELBRICK_ID])])
 
         # No registered model brick
         orga = FakeOrganisation.objects.create(user=user, name='Hawk')
@@ -412,7 +414,7 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = _BrickRegistry()
         brick_registry.register(QuuxBrick1)
 
-        bricks = list(brick_registry.get_bricks([QuuxBrick1.id_, rbi.brick_id, cbci.generate_id()]))
+        bricks = [*brick_registry.get_bricks([QuuxBrick1.id_, rbi.brick_id, cbci.generate_id()])]
         self.assertEqual(3, len(bricks))
 
         self.assertIsInstance(bricks[0], QuuxBrick1)
@@ -446,23 +448,24 @@ class BrickRegistryTestCase(CremeTestCase):
                                    )
 
         brick_id = SimpleBrick.GENERIC_HAT_BRICK_ID
-        self.assertFalse(list(brick_registry.get_bricks([brick_id])))
+        self.assertFalse([*brick_registry.get_bricks([brick_id])])
 
         # ----
-        bricks = list(brick_registry.get_bricks([brick_id], entity=casca))
+        bricks = [*brick_registry.get_bricks([brick_id], entity=casca)]
         self.assertEqual(1, len(bricks))
         self.assertIsInstance(bricks[0], FakeContactBasicHatBrick)
 
         # ----
-        bricks = list(brick_registry.get_bricks([FakeContactCardHatBrick.id_], entity=casca))
+        bricks = [*brick_registry.get_bricks([FakeContactCardHatBrick.id_], entity=casca)]
         self.assertEqual(1, len(bricks))
         self.assertIsInstance(bricks[0], FakeContactCardHatBrick)
 
         # ----
-        bricks = list(brick_registry.get_bricks([SimpleBrick._generate_hat_id('creme_core', 'invalid')],
-                                                entity=casca,
-                                               )
-                     )
+        bricks = [
+            *brick_registry.get_bricks([SimpleBrick._generate_hat_id('creme_core', 'invalid')],
+                                       entity=casca,
+                                      )
+        ]
         self.assertEqual(1, len(bricks))
         self.assertIsInstance(bricks[0], FakeContactBasicHatBrick)
 
@@ -546,7 +549,7 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = _BrickRegistry()
         brick_registry.register_4_instance(ContactBrick)
 
-        bricks = list(brick_registry.get_bricks([ibci.brick_id]))
+        bricks = [*brick_registry.get_bricks([ibci.brick_id])]
         self.assertEqual(1, len(bricks))
 
         brick = bricks[0]
@@ -572,7 +575,7 @@ class BrickRegistryTestCase(CremeTestCase):
                                                verbose='I am bad',
                                                data='',
                                               )
-        bricks = list(brick_registry.get_bricks([bad_brick_id]))
+        bricks = [*brick_registry.get_bricks([bad_brick_id])]
         self.assertEqual(1, len(bricks))
         self.assertIsInstance(bricks[0], Brick)
 
@@ -1003,7 +1006,7 @@ class BrickTestCase(CremeTestCase):
 
         with self.assertNoException():
             page = template_context['page']
-            list(page.object_list)
+            __ = [*page.object_list]
 
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
@@ -1022,7 +1025,7 @@ class BrickTestCase(CremeTestCase):
 
         with self.assertNoException():
             page = template_context['page']
-            list(page.object_list)
+            __ = [*page.object_list]
 
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 

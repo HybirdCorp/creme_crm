@@ -341,12 +341,12 @@ class RelationViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             semifixed_rtypes = self.client.get(url).context['form'].fields['semifixed_rtypes']
 
-        self.assertEqual([(sfrt3.id, sfrt3.predicate),
-                          (sfrt1.id, sfrt1.predicate),
-                          (sfrt2.id, sfrt2.predicate),
-                         ],
-                         list(semifixed_rtypes.choices)
-                        )
+        self.assertListEqual([(sfrt3.id, sfrt3.predicate),
+                              (sfrt1.id, sfrt1.predicate),
+                              (sfrt2.id, sfrt2.predicate),
+                             ],
+                             [*semifixed_rtypes.choices]
+                            )
 
         self.assertNoFormError(self.client.post(url, data={'semifixed_rtypes': [sfrt1.id, sfrt2.id]}))
         self.assertEqual(2, subject.relations.count())
@@ -447,10 +447,10 @@ class RelationViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             sfrt_field = response.context['form'].fields['semifixed_rtypes']
 
-        self.assertEqual([(sfrt2.id, sfrt2.predicate)], list(sfrt_field.choices))
+        self.assertListEqual([(sfrt2.id, sfrt2.predicate)], [*sfrt_field.choices])
 
     def test_add_relations_with_semi_fixed06(self):
-        "CremeProperty constraints on subject"
+        "CremeProperty constraints on subject."
         self._aux_test_add_relations()
 
         subject = self.subject01
@@ -550,13 +550,13 @@ class RelationViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             sfrt_field = self.client.get(url).context['form'].fields['semifixed_rtypes']
 
-        self.assertEqual([(sfrt1.id, sfrt1.predicate)], list(sfrt_field.choices))
+        self.assertListEqual([(sfrt1.id, sfrt1.predicate)], [*sfrt_field.choices])
 
         response = self.client.post(url, data={'relations': self.formfield_value_multi_relation_entity(
                                                                 [allowed_rtype.id, self.object02],
                                                               ),
                                                'semifixed_rtypes': [sfrt1.id],
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(2, subject.relations.count())

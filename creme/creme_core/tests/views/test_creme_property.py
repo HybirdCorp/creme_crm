@@ -67,7 +67,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             choices = context['form'].fields['types'].choices
 
         # Choices are sorted with 'text'
-        choices = list(choices)
+        choices = [*choices]
         i1 = self.assertIndex((ptype02.id, ptype02.text), choices)
         i2 = self.assertIndex((ptype01.id, ptype01.text), choices)
         i3 = self.assertIndex((ptype03.id, ptype03.text), choices)
@@ -80,7 +80,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         properties = entity.properties.all()
         self.assertEqual(2, len(properties))
-        self.assertEqual({ptype01, ptype02}, {p.type for p in properties})
+        self.assertSetEqual({ptype01, ptype02}, {p.type for p in properties})
 
         # ----------------------------------------------------------------------
         response = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]})  # One new and one old property
@@ -209,7 +209,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         ptype = self.refresh(ptype)
         self.assertEqual(text,      ptype.text)
-        self.assertEqual([ct_orga], list(ptype.subject_ctypes.all()))
+        self.assertListEqual([ct_orga], [*ptype.subject_ctypes.all()])
 
     def test_edit_type03(self):
         "Not allowed"

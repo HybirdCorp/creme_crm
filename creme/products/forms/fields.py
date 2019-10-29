@@ -136,7 +136,7 @@ class CategoryField(JSONField):
     @categories.setter
     def categories(self, categories):
         if not isinstance(categories, QuerySet):
-            categories = Category.objects.filter(id__in=list(categories))
+            categories = Category.objects.filter(id__in=[*categories])
 
         self._categories = categories
         self.widget.categories = ChoiceModelIterator(categories)

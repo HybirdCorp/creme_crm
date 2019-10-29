@@ -680,7 +680,7 @@ class HistoryLine(Model):
         encode = _JSONEncoder().encode
 
         try:
-            attrs = encode(value + list(modifs))
+            attrs = encode(value + [*modifs])
         except TypeError as e:
             logger.warning('HistoryLine._encode_attrs(): %s', e)
             attrs = encode(value)
@@ -721,11 +721,11 @@ class HistoryLine(Model):
 
     def get_verbose_modifications(self, user):
         try:
-            return list(self.line_type.verbose_modifications(self.modifications,
-                                                             self.entity_ctype,
-                                                             user,
-                                                            )
-                       )
+            return [*self.line_type.verbose_modifications(self.modifications,
+                                                          self.entity_ctype,
+                                                          user,
+                                                         )
+                   ]
         except Exception:
             logger.exception('Error in %s', self.__class__.__name__)
             return ['??']

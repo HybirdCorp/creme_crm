@@ -43,7 +43,7 @@ class FetcherInterface:
     FetcherInterface abstract those to act like one fetcher.
     """
     def __init__(self, fetchers):
-        self.fetchers = list(fetchers)
+        self.fetchers = [*fetchers]
         self._inputs = defaultdict(dict)
         self._default_backend = None
 
@@ -161,7 +161,7 @@ class CRUDityRegistry:
             fetcher_multiplex.add_fetchers(fetchers)
 
     def get_fetchers(self):  # TODO: iterator instead
-        return list(self._fetchers.values())
+        return [*self._fetchers.values()]
 
     def get_fetcher(self, source):
         return self._fetchers.get(source)

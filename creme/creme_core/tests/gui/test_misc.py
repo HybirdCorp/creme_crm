@@ -412,7 +412,7 @@ class GuiTestCase(CremeTestCase):
         fmt = 'There are {} Contacts'.format
         registry.register(s_id, label, lambda: [fmt(FakeContact.objects.count())])
 
-        stats = list(registry)
+        stats = [*registry]
         self.assertEqual(1, len(stats))
 
         stat = stats[0]
@@ -435,7 +435,7 @@ class GuiTestCase(CremeTestCase):
                     .register(id2, 'Organisations', lambda: [FakeOrganisation.objects.count()], priority=1) \
                     .register(id3, 'Images',        lambda: [FakeImage.objects.count()],        priority=3)
 
-        stats = list(registry)
+        stats = [*registry]
         self.assertEqual(id2, stats[0].id)
         self.assertEqual(id1, stats[1].id)
         self.assertEqual(id3, stats[2].id)
@@ -456,7 +456,7 @@ class GuiTestCase(CremeTestCase):
                     .register(id4, 'Invoices',      lambda: [FakeInvoice.objects.count()]) \
                     .register(id5, 'Campaigns',     lambda: [FakeInvoice.objects.count()],      priority=0)
 
-        stats = list(registry)
+        stats = [*registry]
         self.assertEqual(id5, stats[0].id)
         self.assertEqual(id1, stats[1].id)
         self.assertEqual(id3, stats[2].id)
@@ -464,7 +464,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(id4, stats[4].id)
 
     def test_statistics04(self):
-        "Duplicated ID"
+        "Duplicated ID."
         id1 = 'persons-contacts'
         id2 = 'persons-organisations'
         registry = _StatisticsRegistry() \
@@ -485,7 +485,7 @@ class GuiTestCase(CremeTestCase):
 
         registry.change_priority(1, id2, id3)
 
-        stats = list(registry)
+        stats = [*registry]
         self.assertEqual(id2, stats[0].id)
         self.assertEqual(id3, stats[1].id)
         self.assertEqual(id1, stats[2].id)
@@ -501,7 +501,7 @@ class GuiTestCase(CremeTestCase):
 
         registry.remove('invalid_id', id3, id1)
 
-        stats = list(registry)
+        stats = [*registry]
         self.assertEqual(1,   len(stats))
         self.assertEqual(id2, stats[0].id)
 
@@ -591,20 +591,21 @@ class GuiTestCase(CremeTestCase):
         self.assertIsNone(get(Button.generate_id('creme_core', 'test_button_registry_invalid')))
 
         c = FakeContact(first_name='Casca', last_name='Mylove')
-        buttons = list(registry.get_buttons([TestButton3.id_,
-                                             TestButton2.id_,  # No because ok_4_display() returns False
-                                             'test_button_registry_invalid',
-                                             TestButton1.id_,
-                                            ],
-                                            entity=c,
-                                           )
-                      )
+        buttons = [
+            *registry.get_buttons([TestButton3.id_,
+                                   TestButton2.id_,  # No because ok_4_display() returns False
+                                   'test_button_registry_invalid',
+                                   TestButton1.id_,
+                                  ],
+                                  entity=c,
+                                 ),
+        ]
         self.assertIsInstance(buttons, list)
         self.assertEqual(2, len(buttons))
         self.assertIsInstance(buttons[0], TestButton3)
         self.assertIsInstance(buttons[1], TestButton1)
 
-        all_button_items = list(registry)
+        all_button_items = [*registry]
         self.assertEqual(4, len(all_button_items))
 
         button_item = all_button_items[0]
@@ -615,7 +616,7 @@ class GuiTestCase(CremeTestCase):
         "Registration"
         registry = QuickFormsRegistry()
 
-        self.assertFalse(list(registry.iter_models()))
+        self.assertFalse([*registry.iter_models()])
         self.assertIsNone(registry.get_form(FakeContact))
 
         registry.register(FakeContact,      FakeContactQuickForm)

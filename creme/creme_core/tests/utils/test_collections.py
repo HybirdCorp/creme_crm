@@ -12,22 +12,22 @@ class LimitedListTestCase(CremeTestCase):
     def test_main(self):
         ll = LimitedList(3)
         self.assertEqual(0, len(ll))
-        self.assertEqual([], list(ll))
+        self.assertListEqual([], [*ll])
         self.assertIs(False, bool(ll))
 
         ll.append(5)
         self.assertEqual(1, len(ll))
-        self.assertEqual([5], list(ll))
+        self.assertListEqual([5], [*ll])
         self.assertIs(True, bool(ll))
 
         ll.append('6')
         self.assertEqual(2, len(ll))
-        self.assertEqual([5, '6'], list(ll))
+        self.assertListEqual([5, '6'], [*ll])
 
         ll.append(7)
         ll.append(8)
         self.assertEqual(4, len(ll))
-        self.assertEqual([5, '6', 7], list(ll))
+        self.assertListEqual([5, '6', 7], [*ll])
 
 
 class FluentListTestCase(CremeTestCase):
@@ -271,18 +271,18 @@ class InheritedDataChainTestCase(CremeTestCase):
         idc = InheritedDataChain(InnerClass)
 
         with self.assertNoException():
-            chain1 = list(idc.chain(Klass1))
+            chain1 = [*idc.chain(Klass1)]
 
         self.assertFalse(chain1)
 
         instance1 = idc[Klass1]
-        chain1 = list(idc.chain(Klass1))
+        chain1 = [*idc.chain(Klass1)]
         self.assertEqual(1, len(chain1))
         self.assertIs(instance1, chain1[0])
         self.assertIs(instance1, next(idc.chain(Klass1)))
 
         instance2 = idc[Klass2]
-        self.assertEqual([instance2], list(idc.chain(Klass2)))
+        self.assertListEqual([instance2], [*idc.chain(Klass2)])
 
     def test_chain02(self):
         "Inheritance."
@@ -299,19 +299,19 @@ class InheritedDataChainTestCase(CremeTestCase):
         idc = InheritedDataChain(InnerClass)
         instance1 = idc[Klass1]; instance1.data = Klass1.__name__
         instance2 = idc[Klass2]; instance2.data = Klass2.__name__
-        self.assertEqual([instance1, instance2],
-                         list(idc.chain(Klass2))
-                        )
+        self.assertListEqual([instance1, instance2],
+                             [*idc.chain(Klass2)]
+                            )
 
         instance3 = idc[Klass3]; instance3.data = Klass3.__name__
-        self.assertEqual([instance1, instance2, instance3],
-                         list(idc.chain(Klass3))
-                        )
+        self.assertListEqual([instance1, instance2, instance3],
+                             [*idc.chain(Klass3)]
+                            )
 
         # Reversed
-        self.assertEqual([instance3, instance2, instance1],
-                         list(idc.chain(Klass3, parent_first=False))
-                        )
+        self.assertListEqual([instance3, instance2, instance1],
+                             [*idc.chain(Klass3, parent_first=False)]
+                            )
 
     def test_get(self):
         class Klass1: pass
@@ -358,39 +358,39 @@ class InheritedDataChainTestCase(CremeTestCase):
 class OrderedSetTestCase(CremeTestCase):
     def test_main(self):
         s1 = OrderedSet('Futurama')
-        self.assertEqual(['F','u', 't', 'r', 'a', 'm'], list(s1))
+        self.assertListEqual(['F','u', 't', 'r', 'a', 'm'], [*s1])
 
         s2 = OrderedSet([2, 1, 6, 5, 4, 6, 5, 4, 2, 1])
-        self.assertEqual([2, 1, 6, 5, 4], list(s2))
+        self.assertListEqual([2, 1, 6, 5, 4], [*s2])
 
     def test_operator01(self):
-        "| operator and __eq__"
+        "| operator and __eq__."
         s3 = OrderedSet('Futurama') | OrderedSet('Simpsons')
         self.assertIsInstance(s3, OrderedSet)
 
         content = ['F', 'u', 't', 'r', 'a', 'm', 'S', 'i', 'p', 's', 'o', 'n']
-        self.assertEqual(content, list(s3))
+        self.assertListEqual(content, [*s3])
         self.assertEqual(OrderedSet(content), s3)
 
-        new_content = list(content)
+        new_content = [*content]
         new_content[3], new_content[4] = new_content[4], new_content[3]
         self.assertNotEqual(OrderedSet(new_content), s3)
 
         self.assertNotEqual(OrderedSet(content[:-1]), s3)
 
     def test_operator02(self):
-        "& operator"
+        "& operator."
         s3 = OrderedSet('Groening') & OrderedSet('Simpsons')
         self.assertIsInstance(s3, OrderedSet)
-        self.assertEqual(['i', 'o', 'n'], list(s3))
+        self.assertListEqual(['i', 'o', 'n'], [*s3])
 
     def test_operator03(self):
-        "- operator"
+        "- operator."
         s3 = OrderedSet('Groening') | OrderedSet('Simpsons')
         self.assertIsInstance(s3, OrderedSet)
-        self.assertEqual(['G', 'r', 'o', 'e', 'n', 'i', 'g', 'S', 'm', 'p', 's'],
-                         list(s3)
-                        )
+        self.assertListEqual(['G', 'r', 'o', 'e', 'n', 'i', 'g', 'S', 'm', 'p', 's'],
+                             [*s3]
+                            )
 
     def test_eq(self):
         "__eq__ with a list"
@@ -406,11 +406,11 @@ class OrderedSetTestCase(CremeTestCase):
             s.discard('z')
 
         s.discard('a')
-        self.assertEqual(['F','u', 't', 'r', 'm'], list(s))
+        self.assertListEqual(['F','u', 't', 'r', 'm'], [*s])
 
     def test_reversed(self):
         s = OrderedSet('Futurama')
-        self.assertEqual(['m', 'a', 'r', 't', 'u', 'F'], list(reversed(s)))
+        self.assertListEqual(['m', 'a', 'r', 't', 'u', 'F'], [*reversed(s)])
 
     def test_pop01(self):
         with self.assertRaises(KeyError):
@@ -419,10 +419,10 @@ class OrderedSetTestCase(CremeTestCase):
     def test_pop02(self):
         s = OrderedSet('Futurama')
         self.assertEqual('m', s.pop())
-        self.assertEqual(['F','u', 't', 'r', 'a'], list(s))
+        self.assertListEqual(['F','u', 't', 'r', 'a'], [*s])
 
         self.assertEqual('F', s.pop(last=False))
-        self.assertEqual(['u', 't', 'r', 'a'], list(s))
+        self.assertListEqual(['u', 't', 'r', 'a'], [*s])
 
     def test_repr(self):
         self.assertEqual('OrderedSet()', repr(OrderedSet()))

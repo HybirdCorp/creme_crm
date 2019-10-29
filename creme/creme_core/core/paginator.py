@@ -237,7 +237,7 @@ class FlowPaginator:
         move_type = page_info.get('type')
 
         if move_type == 'first' or self.count <= per_page:
-            entities = list(self.queryset[:per_page + 1])
+            entities = [*self.queryset[:per_page + 1]]
             next_item = None if len(entities) <= per_page else entities.pop()
             first_page = True
         elif move_type == 'last':
@@ -253,7 +253,7 @@ class FlowPaginator:
 
             if move_type == _FORWARD:
                 qs = self._get_qs(page_info, reverse=self._reverse_order)
-                entities = list(qs[offset:offset + per_page + 1])
+                entities = [*qs[offset:offset + per_page + 1]]
                 next_item = None if len(entities) <= per_page else entities.pop()
 
                 if not entities:
@@ -266,7 +266,7 @@ class FlowPaginator:
                 #  - if the second one exists, it indicates that there is at least one item before the page.
                 #    (so it is not the first one).
                 size = per_page + 2
-                entities = list(qs.reverse()[offset:offset + size])
+                entities = [*qs.reverse()[offset:offset + size]]
 
                 if len(entities) != size:
                     raise FirstPage()
@@ -321,7 +321,7 @@ class FlowPage(Sequence):
         @param first_page: Indicates if its the first page (so there is no previous page).
         """
         # QuerySets do not manage negative indexing, so we build a list.
-        self.object_list = list(object_list)
+        self.object_list = [*object_list]
         self.paginator = paginator
         self._key = key
         self._key_field_info = key_field_info
@@ -334,7 +334,7 @@ class FlowPage(Sequence):
 
     def __repr__(self):
         return '<Page key={} offset={} items[0]={}>'.format(
-            self._key, self._offset, self[0]
+            self._key, self._offset, self[0],
         )
 
     def __len__(self):

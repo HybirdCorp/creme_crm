@@ -406,7 +406,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.get_brick_node(self.get_html_tree(response.content), JobErrorsBrick.id_)
 
     def test_reminder02(self):
-        "Minimum hour (SettingValue) is in the future"
+        "Minimum hour (SettingValue) is in the future."
         now_value = now()
 
         next_hour = localtime(now_value).hour + 1
@@ -418,7 +418,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         sv.value = next_hour
         sv.save()
 
-        reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
+        reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
 
         ToDo.objects.create(creme_entity=self.entity, user=self.user,
                             title='Todo#1', deadline=now_value,
@@ -435,14 +435,14 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
 
     def test_reminder03(self):
-        "Mails error"
+        "Mails error."
         now_value = now()
 
         sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv.value = max(localtime(now_value).hour - 1, 0)
         sv.save()
 
-        reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
+        reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
 
         def create_todo(title):
             ToDo.objects.create(title=title, deadline=now_value,
@@ -597,7 +597,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(now_value + timedelta(minutes=20), job.type.next_wakeup(job, now_value))
 
     def _get_hlines(self):
-        return list(HistoryLine.objects.order_by('id'))
+        return [*HistoryLine.objects.order_by('id')]
 
     def test_history01(self):
         "Creation"

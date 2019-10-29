@@ -27,7 +27,7 @@ class RegistryTestCase(CremeTestCase):
 
     def test_get_app_registry(self):
         registry = _ConfigRegistry()
-        self.assertFalse(list(registry.apps()))
+        self.assertFalse([*registry.apps()])
 
         with self.assertRaises(KeyError):
             registry.get_app_registry('creme_core')
@@ -42,14 +42,14 @@ class RegistryTestCase(CremeTestCase):
                          app_registry.portal_url
                         )
 
-        self.assertEqual([app_registry], list(registry.apps()))
+        self.assertListEqual([app_registry], [*registry.apps()])
 
         self.assertIs(app_registry, registry.get_app_registry('creme_core', create=True))
         self.assertIs(app_registry, registry.get_app_registry('creme_core'))
 
         # --
         registry.get_app_registry('documents', create=True)
-        self.assertEqual(2, len(list(registry.apps())))
+        self.assertEqual(2, len([*registry.apps()]))
 
     def test_register_model01(self):
         user = self.login()
@@ -58,13 +58,13 @@ class RegistryTestCase(CremeTestCase):
 
         model_name = 'civility'
         registry.register_model(FakeCivility, model_name=model_name)
-        app_registries = list(registry.apps())
+        app_registries = [*registry.apps()]
         self.assertEqual(1, len(app_registries))
 
         app_registry = app_registries[0]
         self.assertEqual('creme_core', app_registry.name)
 
-        model_configs = list(app_registry.models())
+        model_configs = [*app_registry.models()]
         self.assertEqual(1, len(model_configs))
 
         model_config = model_configs[0]
@@ -155,7 +155,7 @@ class RegistryTestCase(CremeTestCase):
         user = self.login()
 
         registry = _ConfigRegistry()
-        self.assertFalse(list(registry.apps()))
+        self.assertFalse([*registry.apps()])
 
         registry.register_model(FakeCivility)
         model_config = registry.get_app_registry('creme_core').get_model_conf(FakeCivility)
@@ -491,7 +491,7 @@ class RegistryTestCase(CremeTestCase):
         registry = _ConfigRegistry(brick_registry)
 
         registry.register_user_bricks(TestUserBrick1, TestUserBrick2)
-        bricks = list(registry.user_bricks)
+        bricks = [*registry.user_bricks]
         self.assertEqual(2, len(bricks))
         self.assertIsInstance(bricks[0], TestUserBrick1)
         self.assertIsInstance(bricks[1], TestUserBrick2)

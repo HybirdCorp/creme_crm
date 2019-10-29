@@ -94,7 +94,7 @@ class CurrentYearStatistics:
             #             )
             #         )
             # TODO: query by chunks if there are lots of managed Organisation ?
-            mngd_orgas = list(self.orga_model.objects.filter_managed_by_creme())
+            mngd_orgas = [*self.orga_model.objects.filter_managed_by_creme()]
             mngd_orga_ids = [o.id for o in mngd_orgas]
 
             agg_kwargs = {}

@@ -114,7 +114,7 @@ class DummyListBrick(PaginatedBrick):
 
         images = TEST_IMAGE_URLS
         image_count = len(images)
-        image_ids = list(range(0, image_count - 1))
+        image_ids = [*range(0, image_count - 1)]
 
         data = []
 

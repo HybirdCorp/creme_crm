@@ -140,9 +140,9 @@ class HeaderFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
         return get_from_GET_or_404(self.request.GET, self.ctype_id_arg, int)
 
     def get_choices(self):
-        return list(HeaderFilter.get_for_user(self.request.user, self.get_ctype())
-                                .values_list('id', 'name')
-                   )
+        return [*HeaderFilter.get_for_user(self.request.user, self.get_ctype())
+                             .values_list('id', 'name')
+               ]
 
     def get(self, request, *args, **kwargs):
         return self.response_class(

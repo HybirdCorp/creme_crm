@@ -121,7 +121,7 @@ class PollFormLineCreateForm(_PollFormLineForm):
                                            # their order have to be incremented
         self.empty_section_order = 1  # Order of the last line before our section (used if our section is empty)
 
-        nodes = list(SectionTree(self.pform))
+        nodes = [*SectionTree(self.pform)]
         section_id = section.id if section else None
 
         # Filling of 'section_lines' & 'next_lines'
@@ -171,12 +171,13 @@ class PollFormLineCreateForm(_PollFormLineForm):
                 ptype=cleaned_data['type'],
                 lower_bound=get_data('lower_bound'),
                 upper_bound=get_data('upper_bound'),
-                choices=list(enumerate(filter(None,
-                                              (choice.strip() for choice in get_data('choices', '').split('\n'))
-                                             ),
-                                       start=1
-                                      )
-                            ),
+                choices=[
+                    *enumerate(filter(None,
+                                      (choice.strip() for choice in get_data('choices', '').split('\n'))
+                                     ),
+                               start=1,
+                              )
+                ],
             )  # Can raise Validation errors
 
         return cleaned_data

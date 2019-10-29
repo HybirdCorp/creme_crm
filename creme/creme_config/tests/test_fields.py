@@ -94,7 +94,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
 
         with self.assertNoException():
-            choices = list(field.choices)
+            choices = [*field.choices]
 
         self.assertListEqual(
             [('', '---------'),
@@ -109,7 +109,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field.user = self._create_superuser()
 
         with self.assertNoException():
-            options = list(field.choices)
+            options = [*field.choices]
 
         self.assertListEqual(
             [('', '---------'),
@@ -131,7 +131,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.filter(pk=pk))
 
         with self.assertNoException():
-            choices = list(field.choices)
+            choices = [*field.choices]
 
         self.assertEqual([('', '---------'),
                           (pk, FakeSector.objects.get(pk=pk).title),
@@ -156,7 +156,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.none())
 
         self.assertFalse(hasattr(field.widget, 'actions'))
-        self.assertListEqual([('', '---------')], list(field.widget.choices))
+        self.assertListEqual([('', '---------')], [*field.widget.choices])
 
         field.queryset = FakeSector.objects.all()
 
@@ -165,7 +165,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
             [('', '---------'),
              *((s.pk, str(s)) for s in FakeSector.objects.all())
             ],
-            list(field.choices)
+            [*field.choices]
         )
 
     def test_queryset_property02(self):
@@ -174,11 +174,11 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field.user = self._create_superuser()
 
         sectors = [('', '---------')]
-        self.assertEqual(sectors, list(field.widget.choices))
+        self.assertListEqual(sectors, [*field.widget.choices])
 
         field.queryset = FakeSector.objects.all()
         sectors.extend((p.pk, str(p)) for p in FakeSector.objects.all())
-        self.assertEqual(sectors, list(field.widget.choices))
+        self.assertListEqual(sectors, [*field.widget.choices])
 
     def test_create_action_url(self):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
@@ -312,7 +312,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
 
         sectors = [(p.pk, str(p)) for p in FakeSector.objects.all()]
-        self.assertEqual(sectors, list(field.choices))
+        self.assertListEqual(sectors, [*field.choices])
 
         render_str = field.widget.render('position', None)
         self.assertNotIn(str(FakeSector.creation_label), render_str)
@@ -324,7 +324,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         field.user = user
 
         sectors = [(p.pk, str(p)) for p in FakeSector.objects.all()]
-        self.assertEqual(sectors, list(field.choices))
+        self.assertListEqual(sectors, [*field.choices])
 
         render_str = field.widget.render('sector', None)
         self.assertIn(str(FakeSector.creation_label), render_str)
@@ -335,7 +335,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.filter(pk=first_sector.pk))
 
         positions = [(first_sector.pk, first_sector.title)]
-        self.assertEqual(positions, list(field.choices))
+        self.assertListEqual(positions, [*field.choices])
 
         render_str = field.widget.render('position', None)
         self.assertNotIn(str(FakeSector.creation_label), render_str)
@@ -349,7 +349,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         field.user = user
 
         positions = [(first_sector.pk, first_sector.title)]
-        self.assertEqual(positions, list(field.choices))
+        self.assertListEqual(positions, [*field.choices])
 
         render_str = field.widget.render('Sector', None)
         self.assertIn(str(FakeSector.creation_label), render_str)
@@ -359,7 +359,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.none())
 
         self.assertFalse(hasattr(field.widget, 'actions'))
-        self.assertEqual([], list(field.widget.choices))
+        self.assertListEqual([], [*field.widget.choices])
 
         render_str = field.widget.render('sector', None)
         self.assertNotIn(str(FakeSector.creation_label), render_str)
@@ -367,7 +367,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         field.queryset = FakeSector.objects.all()
 
         positions = [(s.pk, str(s)) for s in FakeSector.objects.all()]
-        self.assertEqual(positions, list(field.choices))
+        self.assertListEqual(positions, [*field.choices])
 
         render_str = field.widget.render('sector', None)
         self.assertNotIn(str(FakeSector.creation_label), render_str)
@@ -379,7 +379,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.none())
         field.user = user
 
-        self.assertEqual([], list(field.widget.choices))
+        self.assertListEqual([], [*field.widget.choices])
         self.assertTrue(field.widget.creation_allowed)
 
         render_str = field.widget.render('position', None)
@@ -388,7 +388,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         field.queryset = FakeSector.objects.all()
 
         sectors = [(p.pk, str(p)) for p in FakeSector.objects.all()]
-        self.assertEqual(sectors, list(field.choices))
+        self.assertListEqual(sectors, [*field.choices])
 
         render_str = field.widget.render('sector', None)
         self.assertIn(str(FakeSector.creation_label), render_str)

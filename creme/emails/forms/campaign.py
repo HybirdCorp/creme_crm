@@ -49,7 +49,7 @@ class CampaignAddMLForm(CremeForm):
         super().__init__(*args, **kwargs)
         self.campaign = entity
         self.fields['mailing_lists'].q_filter = \
-            ~Q(id__in=list(entity.mailing_lists.values_list('id', flat=True)))
+            ~Q(id__in=[*entity.mailing_lists.values_list('id', flat=True)])
 
     def save(self):
         add_ml = self.campaign.mailing_lists.add

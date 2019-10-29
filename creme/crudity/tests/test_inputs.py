@@ -43,7 +43,7 @@ class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCas
         return input
 
     def _get_existing_q(self, model):
-        return ~Q(pk__in=list(model.objects.values_list('pk', flat=True)))
+        return ~Q(pk__in=[*model.objects.values_list('pk', flat=True)])
 
 
 class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
@@ -482,7 +482,7 @@ description3=[[<br>]]
                                            )
 
         c_count = Contact.objects.count()
-        existing_c = list(Contact.objects.values_list('pk', flat=True))
+        existing_c = [*Contact.objects.values_list('pk', flat=True)]
 
         self.assertEqual(0, WaitingAction.objects.count())
         self.assertEqual(0, History.objects.count())
@@ -518,7 +518,7 @@ description3=[[<br>]]
                                                      },
                                            )
         c_count = Contact.objects.count()
-        existing_c = list(Contact.objects.all().values_list('pk', flat=True))
+        existing_c = [*Contact.objects.all().values_list('pk', flat=True)]
         self.assertEqual(0, WaitingAction.objects.count())
         self.assertEqual(0, History.objects.count())
 
@@ -1108,7 +1108,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                                                   model=Contact
                                                  )
 
-        q_contact_existing_ids = ~Q(pk__in=list(Contact.objects.all().values_list('pk', flat=True)))
+        q_contact_existing_ids = ~Q(pk__in=[*Contact.objects.all().values_list('pk', flat=True)])
         self.assertEqual(0, WaitingAction.objects.count())
         infopath_input.create(self._get_pop_email(body='password=creme', senders=('user@cremecrm.com',),
                                                   subject='create_ce_infopath',
@@ -1160,7 +1160,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
             self.assertEqual(blob, f.read())
 
     def _get_languages(self):
-        languages = list(Language.objects.all())
+        languages = [*Language.objects.all()]
         length = len(languages)
 
         if length < 3:

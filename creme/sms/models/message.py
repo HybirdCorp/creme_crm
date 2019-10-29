@@ -159,7 +159,7 @@ class Message(CremeModel):
             not_accepted = []
 
             try:
-                res = ws.send_messages(content, list(numbers), sending_id)
+                res = ws.send_messages(content, [*numbers], sending_id)
                 not_accepted = res.get('not_accepted', [])
             except WSException as err:
                 # Message.objects.filter(pk__in=pks).update(status_message=str(err))
@@ -189,8 +189,10 @@ class Message(CremeModel):
             res = []
 
             try:
-                res = ws.list_messages(phone=list(numbers), user_data=sending_id,
-                                       aslist=True, fields=['phone', 'status', 'message'],
+                res = ws.list_messages(phone=[*numbers],
+                                       user_data=sending_id,
+                                       aslist=True,
+                                       fields=['phone', 'status', 'message'],
                                       )
             except WSException:
                 pass

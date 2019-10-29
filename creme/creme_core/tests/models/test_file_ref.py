@@ -109,7 +109,7 @@ class FileRefTestCase(base.CremeTestCase):
     def test_create_at_deletion01(self):
         user = self.login()
 
-        existing_ids = list(FileRef.objects.values_list('id', flat=True))
+        existing_ids = [*FileRef.objects.values_list('id', flat=True)]
         path = _create_file('FileRefTestCase_test_create_at_deletion.txt')
 
         folder = FakeFolder.objects.create(user=user, title='X-files')
@@ -130,8 +130,8 @@ class FileRefTestCase(base.CremeTestCase):
         self.assertTrue(exists(full_path))
 
     def test_create_at_deletion02(self):
-        "Empty FileField"
-        existing_ids = list(FileRef.objects.values_list('id', flat=True))
+        "Empty FileField."
+        existing_ids = [*FileRef.objects.values_list('id', flat=True)]
         embed_doc = FakeFileComponent.objects.create()
         self.assertNoException(embed_doc.delete)
         self.assertFalse(FileRef.objects.exclude(id__in=existing_ids))
@@ -141,7 +141,7 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
     def test_delete_model_with_file01(self):
         user = self.login()
 
-        existing_ids = list(FileRef.objects.values_list('id', flat=True))
+        existing_ids = [*FileRef.objects.values_list('id', flat=True)]
         path = _create_file('FileRefTestDeleteCase_test_delete_model_with_file01.txt')
 
         folder = FakeFolder.objects.create(user=user, title='X-files')
@@ -166,7 +166,7 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
     def test_delete_model_with_file02(self):
         user = self.login()
 
-        existing_ids = list(FileRef.objects.values_list('id', flat=True))
+        existing_ids = [*FileRef.objects.values_list('id', flat=True)]
         path = _create_file('FileRefTestDeleteCase_test_delete_model_with_file02.txt')
 
         folder = FakeFolder.objects.create(user=user, title='X-files')

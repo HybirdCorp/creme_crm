@@ -20,7 +20,7 @@ class QueriesTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls._civ_backup = list(FakeCivility.objects.all())
+        cls._civ_backup = [*FakeCivility.objects.all()]
         FakeCivility.objects.all().delete()
 
     @classmethod
@@ -30,9 +30,9 @@ class QueriesTestCase(CremeTestCase):
         FakeCivility.objects.bulk_create(cls._civ_backup)
 
     def _assertQEqual(self, model, q1, q2):
-        self.assertEqual(list(model.objects.filter(q1)),
-                         list(model.objects.filter(q2)),
-                        )
+        self.assertListEqual([*model.objects.filter(q1)],
+                             [*model.objects.filter(q2)],
+                            )
 
     def _assertQIsOK(self, q, entities, model=None):
         model = model or entities[0].__class__

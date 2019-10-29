@@ -130,10 +130,10 @@ class BricksConfigTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls._bdl_backup = list(BrickDetailviewLocation.objects.all())
-        cls._bpl_backup = list(BrickHomeLocation.objects.all())
-        cls._bml_backup = list(BrickMypageLocation.objects.all())
-        cls._rbi_backup = list(RelationBrickItem.objects.all())
+        cls._bdl_backup = [*BrickDetailviewLocation.objects.all()]
+        cls._bpl_backup = [*BrickHomeLocation.objects.all()]
+        cls._bml_backup = [*BrickMypageLocation.objects.all()]
+        cls._rbi_backup = [*RelationBrickItem.objects.all()]
 
         BrickDetailviewLocation.objects.all().delete()
         BrickHomeLocation.objects.all().delete()
@@ -254,7 +254,7 @@ class BricksConfigTestCase(CremeTestCase):
 
         self.assertNotIn('hat', fields)
 
-        bricks = list(self.brick_registry.get_compatible_bricks(model))
+        bricks = [*self.brick_registry.get_compatible_bricks(model)]
         self.assertGreaterEqual(len(bricks), 5)
         self._find_field_index(top_field, CompleteBrick1.id_)
 
@@ -347,7 +347,7 @@ class BricksConfigTestCase(CremeTestCase):
             response = self.assertGET200(url)
 
             with self.assertNoException():
-                return list(response.context['form'].fields['role'].choices)
+                return [*response.context['form'].fields['role'].choices]
 
         choices = get_choices()
         self.assertIn(('', '*{}*'.format(_('Superuser'))), choices)
@@ -355,7 +355,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertIn((role2.id, role2.name), choices)
 
         # Role ------------
-        bricks = list(self.brick_registry.get_compatible_bricks(model))
+        bricks = [*self.brick_registry.get_compatible_bricks(model)]
         self.assertGreaterEqual(len(bricks), 5, bricks)
 
         create_loc = partial(BrickDetailviewLocation.objects.create, content_type=ct, order=1)
@@ -469,7 +469,7 @@ class BricksConfigTestCase(CremeTestCase):
             right_field  = fields['right']
             bottom_field = fields['bottom']
 
-        bricks = list(self.brick_registry.get_compatible_bricks(model))
+        bricks = [*self.brick_registry.get_compatible_bricks(model)]
         self.assertGreaterEqual(len(bricks), 5)
         self._find_field_index(top_field, CompleteBrick1.id_)
         self._assertNotInChoices(top_field, HomePortalBrick.id_,
@@ -544,11 +544,11 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual([''], [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.HAT)])
 
     def test_edit_detailview01(self):
-        "Default configuration of a ContentType"
+        "Default configuration of a ContentType."
         self.login()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
-        brick_id = list(self.brick_registry.get_compatible_bricks(model))[0].id_
+        brick_id = [*self.brick_registry.get_compatible_bricks(model)][0].id_
 
         # These bricks should not be modified
         create_loc = partial(BrickDetailviewLocation.objects.create,
@@ -598,7 +598,7 @@ class BricksConfigTestCase(CremeTestCase):
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
-        bricks = list(self.brick_registry.get_compatible_bricks(model))
+        bricks = [*self.brick_registry.get_compatible_bricks(model)]
         self.assertGreaterEqual(len(bricks), 5, bricks)
 
         create_loc = partial(BrickDetailviewLocation.objects.create, content_type=ct, order=1)
@@ -666,7 +666,7 @@ class BricksConfigTestCase(CremeTestCase):
                              _('Your configuration is empty !')
                             )
 
-        bricks = list(self.brick_registry.get_compatible_bricks(None))
+        bricks = [*self.brick_registry.get_compatible_bricks(None)]
         self.assertGreaterEqual(len(bricks), 1, bricks)
         brick_id = bricks[0].id_
 
@@ -704,7 +704,7 @@ class BricksConfigTestCase(CremeTestCase):
             left_field  = fields['left']
             right_field = fields['right']
 
-        bricks = list(self.brick_registry.get_compatible_bricks(model))
+        bricks = [*self.brick_registry.get_compatible_bricks(model)]
         self.assertTrue(bricks)
 
         def post(brick_id, brick_vname):
@@ -964,7 +964,7 @@ class BricksConfigTestCase(CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        b_locs = list(BrickHomeLocation.objects.filter(role=role))
+        b_locs = [*BrickHomeLocation.objects.filter(role=role)]
         self.assertEqual(2, len(b_locs))
 
         b_loc1 = self._find_location(brick_id1, b_locs)
@@ -996,7 +996,7 @@ class BricksConfigTestCase(CremeTestCase):
             response = self.assertGET200(url)
 
             with self.assertNoException():
-                return list(response.context['form'].fields['role'].choices)
+                return [*response.context['form'].fields['role'].choices]
 
         choices = get_choices()
         self.assertIn(('', '*{}*'.format(_('Superuser'))), choices)
@@ -1004,7 +1004,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertIn((role2.id, role2.name), choices)
 
         # Role ------------
-        bricks = list(self.brick_registry.get_compatible_home_bricks())
+        bricks = [*self.brick_registry.get_compatible_home_bricks()]
         self.assertTrue(bricks)
 
         create_loc = partial(BrickHomeLocation.objects.create, order=1, brick_id=bricks[0].id_)
@@ -1089,7 +1089,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         # b_locs = list(BrickHomeLocation.objects.all())
-        b_locs = list(BrickHomeLocation.objects.filter(role__isnull=True, superuser=False))
+        b_locs = [*BrickHomeLocation.objects.filter(role__isnull=True, superuser=False)]
         self.assertEqual(2, len(b_locs))
         self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
         self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
@@ -1151,7 +1151,7 @@ class BricksConfigTestCase(CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        b_locs = list(BrickHomeLocation.objects.filter(role=role, superuser=False))
+        b_locs = [*BrickHomeLocation.objects.filter(role=role, superuser=False)]
         self.assertEqual(2, len(b_locs))
         self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
         self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
@@ -1213,7 +1213,7 @@ class BricksConfigTestCase(CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        b_locs = list(BrickHomeLocation.objects.filter(role=None, superuser=True))
+        b_locs = [*BrickHomeLocation.objects.filter(role=None, superuser=True)]
         self.assertEqual(2, len(b_locs))
         self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
         self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
@@ -1294,55 +1294,8 @@ class BricksConfigTestCase(CremeTestCase):
 
         choices = bricks_field.choices
         self.assertGreaterEqual(len(choices), 2)
-        self.assertEqual(list(BrickMypageLocation.objects.filter(user=None).values_list('brick_id', flat=True)),
-                         bricks_field.initial
-                        )
-
-        brick_id1 = choices[0][0]
-        brick_id2 = choices[1][0]
-
-        index1 = self._find_field_index(bricks_field, brick_id1)
-        index2 = self._find_field_index(bricks_field, brick_id2)
-
-        response = self.client.post(
-            url,
-            data={
-                'bricks_check_{}'.format(index1): 'on',
-                'bricks_value_{}'.format(index1): brick_id1,
-                'bricks_order_{}'.format(index1): 1,
-
-                'bricks_check_{}'.format(index2): 'on',
-                'bricks_value_{}'.format(index2): brick_id2,
-                'bricks_order_{}'.format(index2): 2,
-            }
-        )
-        self.assertNoFormError(response)
-
-        b_locs = list(BrickMypageLocation.objects.filter(user=None))
-        self.assertEqual(2, len(b_locs))
-        self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
-        self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
-
-    def test_edit_mypage01(self):
-        user = self.login()
-        url = reverse('creme_config__edit_mypage_bricks')
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-
-        context = response.context
-        self.assertEqual(_('Edit "My page"'),         context.get('title'))
-        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
-
-        with self.assertNoException():
-            # blocks_field = response.context['form'].fields['blocks']
-            bricks_field = response.context['form'].fields['bricks']
-
-        choices = bricks_field.choices
-        self.assertGreaterEqual(len(choices), 2)
         self.assertEqual(
-            list(BrickMypageLocation.objects.filter(user=None)
-                                            .values_list('brick_id', flat=True)
-                ),
+            [*BrickMypageLocation.objects.filter(user=None).values_list('brick_id', flat=True)],
             bricks_field.initial
         )
 
@@ -1366,7 +1319,55 @@ class BricksConfigTestCase(CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        b_locs = list(BrickMypageLocation.objects.filter(user=user))
+        b_locs = [*BrickMypageLocation.objects.filter(user=None)]
+        self.assertEqual(2, len(b_locs))
+        self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
+        self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
+
+    def test_edit_mypage01(self):
+        user = self.login()
+        url = reverse('creme_config__edit_mypage_bricks')
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
+
+        context = response.context
+        self.assertEqual(_('Edit "My page"'),         context.get('title'))
+        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
+
+        with self.assertNoException():
+            # blocks_field = response.context['form'].fields['blocks']
+            bricks_field = response.context['form'].fields['bricks']
+
+        choices = bricks_field.choices
+        self.assertGreaterEqual(len(choices), 2)
+        self.assertEqual(
+            [*BrickMypageLocation.objects.filter(user=None)
+                                         .values_list('brick_id', flat=True)
+            ],
+            bricks_field.initial
+        )
+
+        brick_id1 = choices[0][0]
+        brick_id2 = choices[1][0]
+
+        index1 = self._find_field_index(bricks_field, brick_id1)
+        index2 = self._find_field_index(bricks_field, brick_id2)
+
+        response = self.client.post(
+            url,
+            data={
+                'bricks_check_{}'.format(index1): 'on',
+                'bricks_value_{}'.format(index1): brick_id1,
+                'bricks_order_{}'.format(index1): 1,
+
+                'bricks_check_{}'.format(index2): 'on',
+                'bricks_value_{}'.format(index2): brick_id2,
+                'bricks_order_{}'.format(index2): 2,
+            }
+        )
+        self.assertNoFormError(response)
+
+        b_locs = [*BrickMypageLocation.objects.filter(user=user)]
         self.assertEqual(2, len(b_locs))
         self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
         self.assertEqual(2, self._find_location(brick_id2, b_locs).order)

@@ -112,7 +112,7 @@ class AbstractProjectTask(CremeEntity):
 
         # TODO: use prefetch_related() ??
         while level_tasks:
-            level_tasks = list(chain.from_iterable(task.children_set.all() for task in level_tasks))
+            level_tasks = [*chain.from_iterable(task.children_set.all() for task in level_tasks)]
             subtasks.extend(level_tasks)
 
         return subtasks

@@ -143,7 +143,7 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
                                                                    )
 
         # Default values content -------
-        cat_choices = list(self.categories)
+        cat_choices = [*self.categories]
 
         # A mapping between categories & their sub-categories (in order to avoid HTTP requests later)
         sub_cat_map = defaultdict(list)

@@ -12,7 +12,7 @@ class ReminderTestCase(CremeTestCase):
     def test_empty(self):
         registry = ReminderRegistry()
 
-        self.assertFalse(list(registry))
+        self.assertFalse([*registry])
         # self.assertFalse(list(registry.itervalues()))
 
     def test_register(self):

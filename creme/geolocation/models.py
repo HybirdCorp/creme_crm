@@ -204,7 +204,7 @@ class Town(Model):
         if not query_filter:
             return None
 
-        towns = list(towns.filter(query_filter))
+        towns = [*towns.filter(query_filter)]
 
         if len(towns) > 1 and slug:
             return next((t for t in towns if t.slug == slug), None)
@@ -213,14 +213,15 @@ class Town(Model):
 
     @classmethod
     def search_all(cls, addresses):
-        candidates = list(Town.objects.filter(Q(zipcode__in=(a.zipcode for a in addresses if a.zipcode)) |
-                                              Q(slug__in=(slugify(a.city) for a in addresses if a.city))
-                                             )
-                                      .order_by('zipcode')
-                         )
+        candidates = [
+            *Town.objects.filter(Q(zipcode__in=(a.zipcode for a in addresses if a.zipcode)) |
+                                 Q(slug__in=(slugify(a.city) for a in addresses if a.city))
+                                )
+                         .order_by('zipcode')
+        ]
 
-        cities = {key: list(c) for key, c in groupby(candidates, lambda c: c.slug)}
-        zipcodes = {key: list(c) for key, c in groupby(candidates, lambda c: c.zipcode)}
+        cities = {key: [*c] for key, c in groupby(candidates, lambda c: c.slug)}
+        zipcodes = {key: [*c] for key, c in groupby(candidates, lambda c: c.zipcode)}
 
         get_city = cities.get
         get_zipcode = zipcodes.get

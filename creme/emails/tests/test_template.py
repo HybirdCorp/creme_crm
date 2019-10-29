@@ -176,7 +176,7 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data, follow=True)
-        self.assertEqual([doc2], list(template.attachments.all()))
+        self.assertEqual([doc2], [*template.attachments.all()])
 
     @skipIfCustomDocument
     def test_delete_attachments02(self):

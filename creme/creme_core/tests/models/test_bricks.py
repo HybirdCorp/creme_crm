@@ -34,9 +34,9 @@ class BrickTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls._bdl_backup = list(BrickDetailviewLocation.objects.all())
-        cls._bpl_backup = list(BrickHomeLocation.objects.all())
-        cls._bml_backup = list(BrickMypageLocation.objects.all())
+        cls._bdl_backup = [*BrickDetailviewLocation.objects.all()]
+        cls._bpl_backup = [*BrickHomeLocation.objects.all()]
+        cls._bml_backup = [*BrickMypageLocation.objects.all()]
 
         BrickDetailviewLocation.objects.all().delete()
         BrickHomeLocation.objects.all().delete()
@@ -229,7 +229,7 @@ class BrickTestCase(CremeTestCase):
 
         self.assertListEqual(
             [loc],
-            list(BrickDetailviewLocation.objects.filter_for_model(FakeContact))
+            [*BrickDetailviewLocation.objects.filter_for_model(FakeContact)]
         )
 
     def test_detail_manager_create_if_needed03(self):

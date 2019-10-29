@@ -1320,7 +1320,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
             stree = SectionTree(pform)
 
         with self.assertNumQueries(0):
-            nodes = list(stree)
+            nodes = [*stree]
 
         self.assertEqual([], nodes)
 
@@ -1344,7 +1344,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
             stree = SectionTree(pform)
 
         with self.assertNumQueries(0):
-            nodes = list(stree)
+            nodes = [*stree]
 
         self.assertEqual([line0, line1, section1, line1_1, section11, line11_1, line11_2, section2],
                          nodes
@@ -1382,7 +1382,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
             stree = SectionTree(pform)
 
         with self.assertNumQueries(0):
-            nodes = list(stree)
+            nodes = [*stree]
 
         self.assertEqual([line0, section1, line1_1, section11, line11_1, line11_2, section2],
                          nodes
@@ -2176,8 +2176,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(count_lines + 4, PollFormLine.objects.count())
         self.assertEqual(count_conditions + 4, PollFormLineCondition.objects.count())
 
-        nodes = list(SectionTree(pform))
-        cloned_nodes = list(SectionTree(cloned_pform))
+        nodes = [*SectionTree(pform)]
+        cloned_nodes = [*SectionTree(cloned_pform)]
         self.assertEqual(len(nodes), len(cloned_nodes))
 
         line_attrs = ('order', 'type', 'type_args', 'conds_use_or', 'question')

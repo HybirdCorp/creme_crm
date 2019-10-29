@@ -42,7 +42,7 @@ class Searcher:
         """
         self.user = user
         self._search_map = search_map = {}
-        models = list(models)  # Several iterations
+        models = [*models]  # Several iterations
         fconfigs = FieldsConfig.get_4_models(models)
 
         for sci in SearchConfigItem.get_4_models(models, user):

@@ -230,7 +230,7 @@ class CremeEntity(CremeModel):
             relations = self.relations.filter(type=relation_type_id).order_by('id')
 
             if real_obj_entities:
-                relations = list(relations.select_related('object_entity'))
+                relations = [*relations.select_related('object_entity')]
                 Relation.populate_real_object_entities(relations)
 
             self._relations_map[relation_type_id] = relations
@@ -328,7 +328,7 @@ class CremeEntity(CremeModel):
     def get_properties(self):
         if self._properties is None:
             logger.debug('CremeEntity.get_properties(): Cache MISS for id=%s', self.id)
-            self._properties = list(self.properties.all().select_related('type'))
+            self._properties = [*self.properties.all().select_related('type')]
         else:
             logger.debug('CremeEntity.get_properties(): Cache HIT for id=%s', self.id)
 
@@ -371,7 +371,7 @@ class CremeEntity(CremeModel):
                 if hasattr(value, 'id'):
                     value = value.id
                 elif hasattr(value, 'all'):
-                    value = list(value.all())
+                    value = [*value.all()]
                 CustomFieldValue.save_values_for_entities(custom_field, [self], value)
 
     def _pre_save_clone(self, source):

@@ -559,7 +559,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data, follow=True)
-        self.assertEqual([img_2], list(product.images.all()))
+        self.assertListEqual([img_2], [*product.images.all()])
 
         # Not a Product/Service ---
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')

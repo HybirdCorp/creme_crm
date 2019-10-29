@@ -334,7 +334,7 @@ class EntityEmailLinking(RelationsAdding):
 
             # TODO: unit test
             # TODO: factorise with RelationsAdding
-            needed_property_types = list(rtype.subject_properties.all())
+            needed_property_types = [*rtype.subject_properties.all()]
             if needed_property_types:
                 if subjects_prop_ids is None:
                     subjects_prop_ids = set(subject.properties.values_list('type', flat=True))

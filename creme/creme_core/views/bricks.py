@@ -98,7 +98,7 @@ def bricks_render_info(request, bricks, context=None,
     # The sequence is iterated twice for knowing all imported bricks when rendering
     # (in order to cache the states notably...), so it cannot be a generator.
     if isinstance(bricks, Iterator):
-        bricks = list(bricks)
+        bricks = [*bricks]
 
     brick_renders = []
 
@@ -164,7 +164,7 @@ def reload_basic(request):
     brick_ids = get_brick_ids_or_404(request)
 
     return bricks_render_info(request,
-                              bricks=list(brick_registry.get_bricks(brick_ids)),
+                              bricks=[*brick_registry.get_bricks(brick_ids)],
                               check_permission=True,
                              )
 
@@ -178,7 +178,7 @@ def reload_detailview(request, entity_id):
     request.user.has_perm_to_view_or_die(entity)
 
     return bricks_render_info(request,
-                              bricks=list(brick_registry.get_bricks(brick_ids, entity=entity)),
+                              bricks=[*brick_registry.get_bricks(brick_ids, entity=entity)],
                               context=build_context(request, object=entity),
                              )
 
@@ -187,7 +187,7 @@ def reload_detailview(request, entity_id):
 @jsonify
 def reload_home(request):
     return bricks_render_info(request,
-                              bricks=list(brick_registry.get_bricks(get_brick_ids_or_404(request))),
+                              bricks=[*brick_registry.get_bricks(get_brick_ids_or_404(request))],
                               brick_render_function=render_home_brick,
                              )
 

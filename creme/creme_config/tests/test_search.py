@@ -57,7 +57,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                 self.fail('"{}" found in choices'.format(field_name))
 
     def _get_first_entity_ctype(self):
-        ctypes = list(creme_entity_content_types())
+        ctypes = [*creme_entity_content_types()]
         ctypes.sort(key=lambda ct: collator.sort_key(str(ct)))
 
         return ctypes[0]

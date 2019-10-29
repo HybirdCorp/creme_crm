@@ -326,7 +326,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         # ---
         name = 'Size'
         self.assertPOST200(url, data={'name': name})
-        self.assertEqual([name], list(strategy.assets.values_list('name', flat=True)))
+        self.assertListEqual([name], [*strategy.assets.values_list('name', flat=True)])
 
     def test_asset_edit(self):
         user = self.login()
@@ -373,7 +373,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         name = 'Size'
         self.assertPOST200(url, data={'name': name})
-        self.assertEqual([name], list(strategy.charms.values_list('name', flat=True)))
+        self.assertListEqual([name], [*strategy.charms.values_list('name', flat=True)])
 
     def test_charm_edit(self):
         user = self.login()
@@ -430,7 +430,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         # ---
         self.assertPOST200(url, data={'organisations': self.formfield_value_multi_creator_entity(orga)})
-        self.assertEqual([orga], list(strategy.evaluated_orgas.all()))
+        self.assertListEqual([orga], [*strategy.evaluated_orgas.all()])
 
         response = self.assertGET200(reverse('commercial__orga_evaluation', args=(strategy.id, orga.id)))
         self.assertTemplateUsed(response, 'commercial/orga_evaluation.html')
@@ -581,7 +581,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertPOST200(reverse('commercial__remove_evaluated_orga', args=(strategy1.id,)),
                            data={'id': orga1.id}, follow=True,
                           )
-        self.assertEqual([orga2], list(strategy1.evaluated_orgas.all()))
+        self.assertListEqual([orga2], [*strategy1.evaluated_orgas.all()])
 
         self.assertDoesNotExist(asset_score1)
         self.get_object_or_fail(CommercialAssetScore, pk=asset_score2.pk)  # Not deleted (other orga)
@@ -753,15 +753,15 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         def segment_ids(strategy, orga, cat):
             return (segment.id for segment in strategy.get_segments_for_category(orga, cat))
 
-        self.assertEqual([association.id], list(segment_ids(strategy, orga, 4)))
-        self.assertEqual([individual.id],  list(segment_ids(strategy, orga, 3)))
-        self.assertEqual([community.id],   list(segment_ids(strategy, orga, 2)))
-        self.assertEqual([industry.id],    list(segment_ids(strategy, orga, 1)))
+        self.assertListEqual([association.id], [*segment_ids(strategy, orga, 4)])
+        self.assertListEqual([individual.id],  [*segment_ids(strategy, orga, 3)])
+        self.assertListEqual([community.id],   [*segment_ids(strategy, orga, 2)])
+        self.assertListEqual([industry.id],    [*segment_ids(strategy, orga, 1)])
 
         self._set_segment_category(strategy, individual, orga, 4)
 
         strategy = self.refresh(strategy)
-        self.assertEqual([], list(segment_ids(strategy, orga, 3)))
+        self.assertListEqual([], [*segment_ids(strategy, orga, 3)])
         self.assertEqual({association.id, individual.id},
                          set(segment_ids(strategy, orga, 4))
                         )
@@ -770,9 +770,9 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self._set_segment_category(strategy, individual, orga, 2)
 
         strategy = self.refresh(strategy)  # (cache....)
-        self.assertEqual([association.id], list(segment_ids(strategy, orga, 4)))
-        self.assertEqual([],               list(segment_ids(strategy, orga, 3)))
-        self.assertEqual([industry.id],    list(segment_ids(strategy, orga, 1)))
+        self.assertListEqual([association.id], [*segment_ids(strategy, orga, 4)])
+        self.assertListEqual([],               [*segment_ids(strategy, orga, 3)])
+        self.assertListEqual([industry.id],    [*segment_ids(strategy, orga, 1)])
         self.assertEqual({community.id, individual.id},
                          set(segment_ids(strategy, orga, 2))
                         )

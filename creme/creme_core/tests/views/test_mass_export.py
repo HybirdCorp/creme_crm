@@ -216,7 +216,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.login()
         # cells = self._build_hf_n_contacts()
         cells = self._build_hf_n_contacts().cells
-        existing_hline_ids = list(HistoryLine.objects.values_list('id', flat=True))
+        existing_hline_ids = [*HistoryLine.objects.values_list('id', flat=True)]
 
         response = self.assertGET200(self._build_contact_dl_url(header=True))
 
@@ -236,7 +236,7 @@ class MassExportViewsTestCase(ViewsTestCase):
                                      follow=True,
                                     )
 
-        result = list(XlrdReader(None, file_contents=response.content))
+        result = [*XlrdReader(None, file_contents=response.content)]
         self.assertEqual(1, len(result))
         self.assertEqual(result[0], [hfi.title for hfi in cells])
 
@@ -244,7 +244,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         "csv."
         user = self.login()
         hf = self._build_hf_n_contacts()
-        existing_hline_ids = list(HistoryLine.objects.values_list('id', flat=True))
+        existing_hline_ids = [*HistoryLine.objects.values_list('id', flat=True)]
 
         response = self.assertGET200(self._build_contact_dl_url())
 
@@ -341,7 +341,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertTrue(user.has_perm_to_view(organisations['Swordfish']))
 
         response = self.assertGET200(self._build_contact_dl_url())
-        result = list(map(force_text, response.content.splitlines()))
+        result = [*map(force_text, response.content.splitlines())]
         self.assertEqual(result[1], '"","Black","Jet","",""')
         self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
         self.assertEqual(result[3], '"","Wong","Edward","","is a girl"')
@@ -487,7 +487,7 @@ class MassExportViewsTestCase(ViewsTestCase):
             ],
         )
 
-        existing_hline_ids = list(HistoryLine.objects.values_list('id', flat=True))
+        existing_hline_ids = [*HistoryLine.objects.values_list('id', flat=True)]
 
         url = FakeContact.get_lv_absolute_url()
         # self.assertPOST200(url, data={'filter': efilter.id})
@@ -524,7 +524,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.login()
         # cells = self._build_hf_n_contacts()
         cells = self._build_hf_n_contacts().cells
-        existing_fileref_ids = list(FileRef.objects.values_list('id', flat=True))
+        existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
 
         response = self.assertGET200(self._build_contact_dl_url(doc_type='xls'),
                                      follow=True,
@@ -532,12 +532,18 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         it = iter(XlrdReader(None, file_contents=response.content))
         self.assertEqual(next(it), [hfi.title for hfi in cells])
-        self.assertEqual(next(it), ["", "Black", "Jet", "Bebop", ""])
-        self.assertIn(next(it), (["", "Spiegel", "Spike", "Bebop/Swordfish", ""],
-                                  ["", "Spiegel", "Spike", "Swordfish/Bebop", ""]))
-        self.assertIn(next(it), (["", "Valentine", "Faye", "", "is a girl/is beautiful"],
-                                  ["", "Valentine", "Faye", "", "is beautiful/is a girl"]))
-        self.assertEqual(next(it), ["", "Wong", "Edward", "", "is a girl"])
+        self.assertEqual(next(it), ['', 'Black', 'Jet', 'Bebop', ''])
+        self.assertIn(next(it),
+                      (['', 'Spiegel', 'Spike', 'Bebop/Swordfish', ''],
+                       ['', 'Spiegel', 'Spike', 'Swordfish/Bebop', ''],
+                      )
+                     )
+        self.assertIn(next(it),
+                      (['', 'Valentine', 'Faye', '', 'is a girl/is beautiful'],
+                       ['', 'Valentine', 'Faye', '', 'is beautiful/is a girl'],
+                      )
+                     )
+        self.assertEqual(next(it), ['', 'Wong', 'Edward', '', 'is a girl'])
         with self.assertRaises(StopIteration):
             next(it)
 

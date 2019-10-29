@@ -16,7 +16,7 @@ class MutexTestCase(CremeTransactionTestCase):
         Mutex.graceful_release('dummy_lock')
 
     def _get_ids(self):
-        return list(Mutex.objects.order_by('id').values_list('id', flat=True))
+        return [*Mutex.objects.order_by('id').values_list('id', flat=True)]
 
     def test_mutex_lock(self):
         mutex = Mutex(id='mutex-01')
@@ -25,7 +25,7 @@ class MutexTestCase(CremeTransactionTestCase):
         self.get_object_or_fail(Mutex, pk=mutex.id)
 
         mutex.release()
-        self.assertEqual(0, Mutex.objects.count())
+        self.assertFalse(Mutex.objects.all())
 
     def test_mutex_lock_twice_same_instance(self):
         "Double lock (on same instance) causes an error"

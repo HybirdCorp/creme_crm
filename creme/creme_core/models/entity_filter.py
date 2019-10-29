@@ -680,7 +680,7 @@ class EntityFilter(models.Model):  # CremeModel ???
         @raises EntityFilter.DoesNotExist If there is none instance in this family
         """
         # efilters = list(EntityFilter.objects.filter(Q(pk=base_pk) | Q(pk__startswith=base_pk + '[')))
-        efilters = list(cls.objects.filter(Q(pk=base_pk) | Q(pk__startswith=base_pk + '[')))
+        efilters = [*cls.objects.filter(Q(pk=base_pk) | Q(pk__startswith=base_pk + '['))]
 
         if not efilters:
             # raise EntityFilter.DoesNotExist('No EntityFilter with pk="{}"'.format(base_pk))

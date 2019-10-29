@@ -75,11 +75,11 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(SimpleAlgo, registry.get_algo(SimpleBillingAlgo.ALGO_NAME))
         self.assertIsNone(registry.get_algo('billing-unknown'))
 
-        self.assertEqual([(SimpleBillingAlgo.ALGO_NAME, SimpleAlgo)],
-                         list(registry)
-                        )
+        self.assertListEqual([(SimpleBillingAlgo.ALGO_NAME, SimpleAlgo)],
+                             [*registry]
+                            )
         # self.assertEqual([SimpleAlgo], list(registry.itervalues()))
-        self.assertEqual([SimpleAlgo], list(registry.algorithms))
+        self.assertListEqual([SimpleAlgo], [*registry.algorithms])
 
         # ---
         with self.assertRaises(registry.RegistrationError):
@@ -132,7 +132,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(orga2)
 
     def _ids_list(self, queryset, length):
-        ids_list = list(queryset.values_list('id', flat=True))
+        ids_list = [*queryset.values_list('id', flat=True)]
         self.assertEqual(length, len(ids_list))
 
         return ids_list
@@ -156,11 +156,11 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
 
         self._merge_organisations(orga1, orga2)
 
-        cba_list1 = list(cba_filter(pk__in=cba_ids_list1))
+        cba_list1 = [*cba_filter(pk__in=cba_ids_list1)]
         self.assertEqual(3, len(cba_list1))
         self.assertEqual(orga1, cba_list1[0].organisation)
 
-        sba_list1 = list(sba_filter(pk__in=sba_ids_list1))
+        sba_list1 = [*sba_filter(pk__in=sba_ids_list1)]
         self.assertEqual(3, len(sba_list1))
         self.assertEqual(orga1, sba_list1[0].organisation)
 
@@ -267,11 +267,11 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
 
         self._merge_organisations(orga1, orga2)
 
-        cba_list1 = list(cba_filter(pk__in=cba_ids_list2))
+        cba_list1 = [*cba_filter(pk__in=cba_ids_list2)]
         self.assertEqual(3, len(cba_list1))
         self.assertEqual(orga1, cba_list1[0].organisation)
 
-        sba_list1 = list(sba_filter(pk__in=sba_ids_list2))
+        sba_list1 = [*sba_filter(pk__in=sba_ids_list2)]
         self.assertEqual(3, len(sba_list1))
         self.assertEqual(orga1, sba_list1[0].organisation)
 

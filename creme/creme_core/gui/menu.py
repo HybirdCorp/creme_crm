@@ -337,7 +337,7 @@ class ContainerItem(ViewableItem, ItemList):
         return res
 
     def __iter__(self):
-        items = list(ItemList.__iter__(self))
+        items = [*ItemList.__iter__(self)]
         first = True
         last_idx = len(items) - 1
         previous_is_group = False

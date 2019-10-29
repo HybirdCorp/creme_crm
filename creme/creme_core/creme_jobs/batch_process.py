@@ -93,7 +93,7 @@ class _BatchProcessType(JobType):
         paginator = FlowPaginator(queryset=entities.order_by('id'),
                                   key='id', per_page=1024,
                                  )
-        actions = list(self._get_actions(model, job_data))
+        actions = [*self._get_actions(model, job_data)]
         create_result = partial(EntityJobResult.objects.create, job=job)
 
         for entities_page in paginator.pages():

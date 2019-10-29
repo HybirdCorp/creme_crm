@@ -70,7 +70,7 @@ def set_address_info(request):
 def get_addresses_from_filter(request):  # TODO: rename 'get_addresses()'
     filter_id = request.GET.get('id')
     entity_filter = get_object_or_404(EntityFilter, pk=filter_id) if filter_id else None
-    owner_groups = (get_contact_model().objects, get_organisation_model().objects,)
+    owner_groups = (get_contact_model().objects, get_organisation_model().objects)
 
     user = request.user
 
@@ -78,6 +78,7 @@ def get_addresses_from_filter(request):  # TODO: rename 'get_addresses()'
         model = entity_filter.entity_type.model_class()
         owner_groups = (entity_filter.filter(model.objects, user),)
 
+    # TODO: chain.from_iterable
     addresses = list(chain(*(iter(addresses_from_persons(owners, user)) for owners in owner_groups)))
 
     GeoAddress.populate_geoaddresses(addresses)

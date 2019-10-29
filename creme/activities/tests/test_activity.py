@@ -137,9 +137,10 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         # Valid type
         response = self.assertGET200(build_url(constants.ACTIVITYTYPE_TASK))
-        self.assertListEqual(list(ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_TASK)
-                                                         .values_list('id', 'name')
-                                 ),
+        self.assertListEqual([*ActivitySubType.objects
+                                              .filter(type=constants.ACTIVITYTYPE_TASK)
+                                              .values_list('id', 'name')
+                             ],
                              response.json()
                             )
 
@@ -1660,7 +1661,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             # pcalls_page = response.context['entities']
             pcalls_page = response.context['page_obj']
 
-        self.assertEqual([acts[0]], list(pcalls_page.object_list))
+        self.assertListEqual([acts[0]], [*pcalls_page.object_list])
 
         # Meetings
         response = self.assertGET200(reverse('activities__list_meetings'))
@@ -1669,7 +1670,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             # meetings_page = response.context['entities']
             meetings_page = response.context['page_obj']
 
-        self.assertEqual([acts[1]], list(meetings_page.object_list))
+        self.assertListEqual([acts[1]], [*meetings_page.object_list])
 
     def test_listview_bulk_actions(self):
         user = self.login()

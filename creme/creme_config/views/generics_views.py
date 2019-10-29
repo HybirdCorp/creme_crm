@@ -341,7 +341,7 @@ class AppPortal(AppRegistryMixin, generic.BricksView):
     template_name = 'creme_config/generics/app-portal.html'
 
     def get_bricks(self):
-        return list(self.get_app_registry().bricks)  # Get config registered bricks
+        return [*self.get_app_registry().bricks]  # Get config registered bricks
 
     def get_bricks_reload_url(self):
         return reverse('creme_config__reload_app_bricks',
@@ -360,7 +360,7 @@ class AppPortal(AppRegistryMixin, generic.BricksView):
 
     def get_model_configs(self, app_registry):
         # list-> have the length in the template
-        model_configs = list(app_registry.models())
+        model_configs = [*app_registry.models()]
         sort_key = collator.sort_key
 
         model_configs.sort(key=lambda model_conf: sort_key(str(model_conf.verbose_name)))

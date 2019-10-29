@@ -640,8 +640,8 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(kage_bunshin.id, kage_bunshin.billing_address.object_id)
         self.assertEqual(kage_bunshin.id, kage_bunshin.shipping_address.object_id)
 
-        addresses   = list(Address.objects.filter(object_id=naruto.id))
-        c_addresses = list(Address.objects.filter(object_id=kage_bunshin.id))
+        addresses   = [*Address.objects.filter(object_id=naruto.id)]
+        c_addresses = [*Address.objects.filter(object_id=kage_bunshin.id)]
         self.assertEqual(7, len(addresses))
         self.assertEqual(7, len(c_addresses))
 
@@ -944,7 +944,7 @@ class ContactTestCase(_BaseTestCase):
         create_rel(subject_entity=deunan,   type_id=REL_SUB_EMPLOYED_BY, object_entity=deleted)
         create_rel(subject_entity=briareos, type_id=REL_SUB_EMPLOYED_BY, object_entity=club)
 
-        self.assertEqual(
+        self.assertListEqual(
             [eswat, olympus],
-            list(deunan.get_employers())
+            [*deunan.get_employers()]
         )

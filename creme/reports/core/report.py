@@ -558,7 +558,7 @@ class ExpandableLine:
 
         if values_to_build is not None:
             for future_node in values_to_build:
-                ExpandableLine(future_node)._visit(lines, list(current_line))
+                ExpandableLine(future_node)._visit(lines, [*current_line])
         else:
             lines.append(current_line)
 

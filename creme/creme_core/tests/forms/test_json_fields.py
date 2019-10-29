@@ -192,7 +192,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_default_ctypes(self):
         ctypes = GenericEntityField().get_ctypes()
-        self.assertEqual(list(creme_entity_content_types()), ctypes)
+        self.assertEqual([*creme_entity_content_types()], ctypes)
         self.assertTrue(ctypes)
 
     def test_models_property(self):
@@ -205,11 +205,11 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         ctype2 = orga.entity_type
 
         field = GenericEntityField()
-        self.assertEqual(list(), field.allowed_models)
-        self.assertEqual(list(creme_entity_content_types()), field.get_ctypes())
+        self.assertListEqual([], field.allowed_models)
+        self.assertListEqual([*creme_entity_content_types()], field.get_ctypes())
 
         field.allowed_models = [FakeContact, FakeOrganisation]
-        ctypes = list(field.get_ctypes())
+        ctypes = [*field.get_ctypes()]
         self.assertEqual(2, len(ctypes))
         self.assertIn(ctype1, ctypes)
         self.assertIn(ctype2, ctypes)
@@ -498,7 +498,7 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_default_ctypes(self):
         ctypes = MultiGenericEntityField().get_ctypes()
-        self.assertEqual(list(creme_entity_content_types()), ctypes)
+        self.assertListEqual([*creme_entity_content_types()], ctypes)
         self.assertTrue(ctypes)
 
     def test_format_object(self):
@@ -802,12 +802,12 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         with self.assertNumQueries(0):
             field = RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
 
-        rtypes = list(field._get_allowed_rtypes_objects())
+        rtypes = [*field._get_allowed_rtypes_objects()]
         self.assertEqual(2, len(rtypes))
         self.assertIn(rtype1, rtypes)
         self.assertIn(rtype2, rtypes)
 
-        rtypes_ids = list(field._get_allowed_rtypes_ids())
+        rtypes_ids = [*field._get_allowed_rtypes_ids()]
         self.assertEqual(2, len(rtypes_ids))
         self.assertIn(rtype1.id, rtypes_ids)
         self.assertIn(rtype2.id, rtypes_ids)
@@ -818,16 +818,15 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         with self.assertNumQueries(0):
             field = RelationEntityField(
-                        allowed_rtypes=RelationType.objects
-                                                   .filter(pk__in=[rtype1.id, rtype2.id])
-                     )
+                allowed_rtypes=RelationType.objects.filter(pk__in=[rtype1.id, rtype2.id]),
+            )
 
-        rtypes = list(field._get_allowed_rtypes_objects())
+        rtypes = [*field._get_allowed_rtypes_objects()]
         self.assertEqual(2, len(rtypes))
         self.assertIn(rtype1, rtypes)
         self.assertIn(rtype2, rtypes)
 
-        rtypes_ids = list(field._get_allowed_rtypes_ids())
+        rtypes_ids = [*field._get_allowed_rtypes_ids()]
         self.assertEqual(2, len(rtypes_ids))
         self.assertIn(rtype1.id, rtypes_ids)
         self.assertIn(rtype2.id, rtypes_ids)
@@ -836,27 +835,27 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype2 = self.create_hates_rtype()[0]
 
         field = RelationEntityField(allowed_rtypes=RelationType.objects.filter(pk__in=["test-subject_loves", rtype2.id]))
-        rtypes = list(field._get_allowed_rtypes_objects())
+        rtypes = [*field._get_allowed_rtypes_objects()]
         self.assertEqual(1, len(rtypes))
         self.assertIn(rtype2, rtypes)
 
         rtype1 = self.create_loves_rtype()[0]
 
-        rtypes_ids = list(field._get_allowed_rtypes_ids())
+        rtypes_ids = [*field._get_allowed_rtypes_ids()]
         self.assertEqual(2, len(rtypes_ids))
         self.assertIn(rtype1.id, rtypes_ids)
         self.assertIn(rtype2.id, rtypes_ids)
 
         rtype2.delete()
 
-        rtypes_ids = list(field._get_allowed_rtypes_ids())
+        rtypes_ids = [*field._get_allowed_rtypes_ids()]
         self.assertEqual(1, len(rtypes_ids))
         self.assertIn(rtype1.id, rtypes_ids)
 
     def test_default_rtypes(self):
-        self.assertEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
-                         list(RelationEntityField()._get_allowed_rtypes_objects())
-                        )
+        self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
+                             [*RelationEntityField()._get_allowed_rtypes_objects()]
+                            )
 
     def test_rtypes_property(self):
         rtype1 = self.create_loves_rtype()[0]
@@ -864,16 +863,16 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field = RelationEntityField()
         self.assertTrue(isinstance(field.allowed_rtypes, QuerySet))
-        self.assertEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
-                         list(field.allowed_rtypes)
-                        )
-        self.assertEqual([REL_SUB_HAS], list(field._get_allowed_rtypes_ids()))
-        self.assertEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
-                         list(field._get_allowed_rtypes_objects())
-                        )
+        self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
+                             [*field.allowed_rtypes]
+                            )
+        self.assertListEqual([REL_SUB_HAS], [*field._get_allowed_rtypes_ids()])
+        self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
+                             [*field._get_allowed_rtypes_objects()]
+                            )
 
         field.allowed_rtypes = [rtype1.id, rtype2.id] # <===
-        rtypes = list(field._get_allowed_rtypes_objects())
+        rtypes = [*field._get_allowed_rtypes_objects()]
         self.assertEqual(2, len(rtypes))
         self.assertIn(rtype1, rtypes)
         self.assertIn(rtype2, rtypes)
@@ -884,16 +883,16 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field = RelationEntityField()
         self.assertTrue(isinstance(field.allowed_rtypes, QuerySet))
-        self.assertEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
-                         list(field.allowed_rtypes)
-                        )
-        self.assertEqual([REL_SUB_HAS], list(field._get_allowed_rtypes_ids()))
-        self.assertEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
-                         list(field._get_allowed_rtypes_objects())
-                        )
+        self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
+                             [*field.allowed_rtypes]
+                            )
+        self.assertListEqual([REL_SUB_HAS], [*field._get_allowed_rtypes_ids()])
+        self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
+                             [*field._get_allowed_rtypes_objects()]
+                            )
 
         field.allowed_rtypes = RelationType.objects.filter(pk__in=[rtype1.id, rtype2.id]) # <===
-        rtypes = list(field._get_allowed_rtypes_objects())
+        rtypes = [*field._get_allowed_rtypes_objects()]
         self.assertEqual(2, len(rtypes))
         self.assertIn(rtype1, rtypes)
         self.assertIn(rtype2, rtypes)
@@ -1147,7 +1146,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         with self.assertNumQueries(0):
             field = MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
 
-        rtypes = list(field._get_allowed_rtypes_objects())
+        rtypes = [*field._get_allowed_rtypes_objects()]
         self.assertEqual(2, len(rtypes))
         self.assertIn(rtype1, rtypes)
         self.assertIn(rtype2, rtypes)
@@ -1162,12 +1161,12 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                                                    .filter(pk__in=[rtype1.id, rtype2.id])
                      )
 
-        rtypes = list(field._get_allowed_rtypes_objects())
+        rtypes = [*field._get_allowed_rtypes_objects()]
         self.assertEqual(2, len(rtypes))
         self.assertIn(rtype1, rtypes)
         self.assertIn(rtype2, rtypes)
 
-        rtypes_ids = list(field._get_allowed_rtypes_ids())
+        rtypes_ids = [*field._get_allowed_rtypes_ids()]
         self.assertEqual(2, len(rtypes_ids))
         self.assertIn(rtype1.id, rtypes_ids)
         self.assertIn(rtype2.id, rtypes_ids)
@@ -1175,28 +1174,31 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_rtypes_queryset_changes(self):
         rtype2 = self.create_hates_rtype()[0]
 
-        field = MultiRelationEntityField(allowed_rtypes=RelationType.objects.filter(pk__in=["test-subject_loves", rtype2.id]))
-        rtypes = list(field._get_allowed_rtypes_objects())
+        field = MultiRelationEntityField(
+            allowed_rtypes=RelationType.objects.filter(pk__in=['test-subject_loves', rtype2.id]),
+        )
+        rtypes = [*field._get_allowed_rtypes_objects()]
         self.assertEqual(1, len(rtypes))
         self.assertIn(rtype2, rtypes)
 
         rtype1 = self.create_loves_rtype()[0]
 
-        rtypes_ids = list(field._get_allowed_rtypes_ids())
+        rtypes_ids = [*field._get_allowed_rtypes_ids()]
         self.assertEqual(2, len(rtypes_ids))
         self.assertIn(rtype1.id, rtypes_ids)
         self.assertIn(rtype2.id, rtypes_ids)
 
         rtype2.delete()
 
-        rtypes_ids = list(field._get_allowed_rtypes_ids())
+        rtypes_ids = [*field._get_allowed_rtypes_ids()]
         self.assertEqual(1, len(rtypes_ids))
         self.assertIn(rtype1.id, rtypes_ids)
 
     def test_default_rtypes(self):
-        self.assertEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
-                         list(MultiRelationEntityField()._get_allowed_rtypes_objects())
-                        )
+        self.assertListEqual(
+            [RelationType.objects.get(pk=REL_SUB_HAS)],
+            [*MultiRelationEntityField()._get_allowed_rtypes_objects()]
+        )
 
     def test_clean_empty_required(self):
         clean = MultiRelationEntityField(required=True).clean

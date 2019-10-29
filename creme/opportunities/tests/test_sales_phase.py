@@ -24,7 +24,7 @@ class SalesPhaseTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls._phase_backup = list(SalesPhase.objects.all())
+        cls._phase_backup = [*SalesPhase.objects.all()]
         SalesPhase.objects.all().delete()
 
     @classmethod
@@ -41,7 +41,7 @@ class SalesPhaseTestCase(CremeTestCase):
         sp1 = create_phase(name='Forthcoming', order=2)
         sp2 = create_phase(name='Abandoned',   order=1)
 
-        self.assertEqual([sp2, sp1], list(SalesPhase.objects.all()))
+        self.assertListEqual([sp2, sp1], [*SalesPhase.objects.all()])
 
     def test_auto_order(self):
         create_phase = SalesPhase.objects.create

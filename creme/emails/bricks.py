@@ -238,7 +238,7 @@ class MailsBrick(QuerysetBrick):
         )
 
         CremeEntity.populate_real_entities(
-            list(filter(None, (lw_mail.recipient_entity for lw_mail in btc['page'].object_list)))
+            [*filter(None, (lw_mail.recipient_entity for lw_mail in btc['page'].object_list))]
         )
 
         return self._render(btc)

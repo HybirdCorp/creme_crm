@@ -152,7 +152,7 @@ class FieldInfo:
                 result = getattr(result, subfield.name)
 
                 if subfield.many_to_many:
-                    result = list(result.all())
+                    result = [*result.all()]
 
         return result
 

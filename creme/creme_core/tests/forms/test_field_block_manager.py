@@ -22,7 +22,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
                                                )
 
         blocks_group = TestFakeContactForm(user=user).get_blocks()
-        blocks = list(blocks_group)
+        blocks = [*blocks_group]
 
         self.assertEqual(5, len(blocks))
 
