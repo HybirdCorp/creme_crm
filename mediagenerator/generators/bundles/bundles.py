@@ -32,7 +32,7 @@ class Bundles(Generator):
                                          for key in sorted(variations.keys())))
                 for combination in combinations:
                     # variation_map = zip(sorted(variations.keys()), combination)
-                    variation_map = list(zip(sorted(variations.keys()), combination))
+                    variation_map = [*zip(sorted(variations.keys()), combination)]
                     variation = dict(variation_map)
                     name, content = self.generate_file(backend, bundle,
                                                        variation, combination)
@@ -76,7 +76,7 @@ class Bundles(Generator):
 
     def generate_file(self, backend, bundle, variation, combination=()):
         print('Generating {} with variation {!r}'.format(bundle, variation))
-        output = list(backend.get_output(variation))
+        output = [*backend.get_output(variation)]
         if len(output) == 0:
             output = ('',)
         assert len(output) == 1, \

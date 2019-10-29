@@ -62,7 +62,10 @@ class _ComApproachesEmailsSendType(JobType):
         ct_opp     = get_ct(Opportunity)
 
         now_value = now()
-        managed_orga_ids = list(Organisation.objects.filter(is_managed=True).values_list('id', flat=True))
+        managed_orga_ids = [*Organisation.objects
+                                         .filter(is_managed=True)
+                                         .values_list('id', flat=True)
+                           ]
         opp_filter = Opportunity.objects.filter
 
         EMAIL_SENDER = settings.EMAIL_SENDER

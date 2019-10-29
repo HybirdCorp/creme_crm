@@ -31,7 +31,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         QuerysetBrick.page_size = 10
 
-        cls._sci_backup = list(SearchConfigItem.objects.all())
+        cls._sci_backup = [*SearchConfigItem.objects.all()]
         SearchConfigItem.objects.all().delete()
 
     @classmethod

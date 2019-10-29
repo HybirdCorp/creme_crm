@@ -66,8 +66,8 @@ class Less(Filter):
         if isinstance(self.path, str):
             self.path = (self.path,)
 
-        # we need to be able to mutate self.path,
-        self.path = list(self.path)
+        # we need to be able to mutate self.path
+        self.path = [*self.path]
 
         # super(Less, self).__init__(**kwargs)
         super().__init__(**kwargs)

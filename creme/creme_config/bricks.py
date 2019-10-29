@@ -213,16 +213,16 @@ class FieldsConfigsBrick(PaginatedBrick):
 
     def detailview_display(self, context):
         # TODO: exclude CTs that user cannot see ? (should probably done everywhere in creme_config...)
-        fconfigs = list(FieldsConfig.objects.all())
+        fconfigs = [*FieldsConfig.objects.all()]
         sort_key = collator.sort_key
         fconfigs.sort(key=lambda fconf: sort_key(str(fconf.content_type)))
 
         used_models = {fconf.content_type.model_class() for fconf in fconfigs}
         btc = self.get_template_context(
-                    context, fconfigs,
-                    display_add_button=any(model not in used_models
-                                                for model in filter(FieldsConfig.is_model_valid, apps.get_models())
-                                          ),
+            context, fconfigs,
+            display_add_button=any(model not in used_models
+                                       for model in filter(FieldsConfig.is_model_valid, apps.get_models())
+                                  ),
         )
 
         for fconf in btc['page'].object_list:

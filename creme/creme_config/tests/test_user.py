@@ -884,7 +884,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
         root = self.get_object_or_fail(User, username='root')
 
-        superusers = list(User.objects.filter(is_superuser=True))
+        superusers = [*User.objects.filter(is_superuser=True)]
         self.assertEqual(2, len(superusers))
         self.assertIn(user, superusers)
 

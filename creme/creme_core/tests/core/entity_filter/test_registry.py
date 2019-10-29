@@ -55,7 +55,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         self.assertIsInstance(handler2, cls2)
 
         # assertListEqual => order must be kept
-        self.assertListEqual([cls1, cls2], list(registry.handler_classes))
+        self.assertListEqual([cls1, cls2], [*registry.handler_classes])
 
     def test_handlers02(self):
         "ID collision."

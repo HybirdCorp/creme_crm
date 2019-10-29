@@ -451,14 +451,14 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         AUBAGNE     = create_address(orga2,     address='Maire Aubagne', zipcode=town2.zipcode, town=town2.name, geoloc=(43.295783, 5.565589))
 
         self.assertFalse(ST_VICTOR.geoaddress.neighbours(distance=1000))
-        self.assertEqual(list(ST_VICTOR.geoaddress.neighbours(distance=10000)),
-                         [COMMANDERIE.geoaddress]
-                        )
+        self.assertListEqual([*ST_VICTOR.geoaddress.neighbours(distance=10000)],
+                            [COMMANDERIE.geoaddress]
+                           )
 
         self.assertFalse(COMMANDERIE.geoaddress.neighbours(distance=1000))
-        self.assertEqual(list(COMMANDERIE.geoaddress.neighbours(distance=10000)),
-                         [ST_VICTOR.geoaddress, AUBAGNE.geoaddress]
-                        )
+        self.assertListEqual([*COMMANDERIE.geoaddress.neighbours(distance=10000)],
+                             [ST_VICTOR.geoaddress, AUBAGNE.geoaddress]
+                            )
 
     @skipIfCustomContact
     def test_neighbours_with_same_owner(self):
@@ -473,12 +473,12 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         __          = create_address(contact,   address='Maire Aubagne', zipcode=town2.zipcode, town=town2.name, geoloc=(43.295783, 5.565589))
 
         self.assertFalse(ST_VICTOR.geoaddress.neighbours(distance=1000))
-        self.assertEqual(list(ST_VICTOR.geoaddress.neighbours(distance=10000)),
+        self.assertEqual([*ST_VICTOR.geoaddress.neighbours(distance=10000)],
                          [COMMANDERIE.geoaddress]
                         )
 
         self.assertFalse(COMMANDERIE.geoaddress.neighbours(distance=1000))
-        self.assertEqual(list(COMMANDERIE.geoaddress.neighbours(distance=10000)),
+        self.assertEqual([*COMMANDERIE.geoaddress.neighbours(distance=10000)],
                          [ST_VICTOR.geoaddress]
                         )  # ignore aubagne, same owner !
 
@@ -558,5 +558,5 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
                     ]
 
         self.assertEqual([town2, town1, town3, town3, None, None, town1, None],
-                         list(Town.search_all(addresses))
+                         [*Town.search_all(addresses)]
                         )

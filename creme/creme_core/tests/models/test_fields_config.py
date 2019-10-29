@@ -125,7 +125,7 @@ class FieldsConfigTestCase(CremeTestCase):
             # fc = FieldsConfig.get_4_model(CremeEntity)
             fc = FieldsConfig.get_4_model(FakeCivility)
 
-        self.assertFalse(list(fc.hidden_fields))
+        self.assertFalse([*fc.hidden_fields])
 
     def test_get_4_model03(self):
         "Cache not created."

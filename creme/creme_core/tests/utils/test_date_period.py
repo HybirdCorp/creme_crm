@@ -229,13 +229,13 @@ class DatePeriodTestCase(CremeTestCase):
                         )
 
     def test_choices01(self):
-        choices = list(self.registry.choices())
+        choices = [*self.registry.choices()]
         self.assertEqual(len(choices), 6)
         self.assertEqual(('minutes', _('Minute(s)')), choices[0])
 
     def test_choices02(self):
-        "Global registry"
-        choices = list(date_period_registry.choices())
+        "Global registry."
+        choices = [*date_period_registry.choices()]
         self.assertEqual(len(choices), 6)
 
     def test_eq(self):

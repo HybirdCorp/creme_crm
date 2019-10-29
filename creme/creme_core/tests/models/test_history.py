@@ -74,7 +74,7 @@ class HistoryTestCase(CremeTestCase):
                        )
 
     def _get_hlines(self):
-        return list(HistoryLine.objects.order_by('id'))
+        return [*HistoryLine.objects.order_by('id')]
 
     def test_creation01(self):
         old_count = HistoryLine.objects.count()
@@ -666,14 +666,14 @@ about this fantastic animation studio."""
         user = self.user
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei  = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-        olds_ids = list(HistoryLine.objects.values_list('id', flat=True))
+        olds_ids = [*HistoryLine.objects.values_list('id', flat=True)]
 
         rtype, srtype = RelationType.create(('test-subject_works5', 'is employed'),
                                             ('test-object_works5',  'employs')
                                            )
         Relation.objects.create(user=user, subject_entity=nerv, object_entity=rei, type=srtype)
 
-        hlines = list(HistoryLine.objects.exclude(id__in=olds_ids).order_by('id'))
+        hlines = [*HistoryLine.objects.exclude(id__in=olds_ids).order_by('id')]
         self.assertEqual(2, len(hlines))
 
         hline = hlines[-2]
@@ -895,7 +895,7 @@ about this fantastic animation studio."""
         rei.last_name = new_last_name
         rei.save()
 
-        hlines = list(HistoryLine.objects.filter(entity=rei.id).order_by('id'))
+        hlines = [*HistoryLine.objects.filter(entity=rei.id).order_by('id')]
         self.assertEqual(1, len(hlines))
         self.assertEqual(TYPE_CREATION, hlines[0].type)
 
@@ -912,7 +912,7 @@ about this fantastic animation studio."""
         rei.last_name = new_last_name
         rei.save()
 
-        hlines = list(HistoryLine.objects.filter(entity=rei.id).order_by('id'))
+        hlines = [*HistoryLine.objects.filter(entity=rei.id).order_by('id')]
         self.assertEqual(2, len(hlines))
 
         creation_hline = hlines[0]
@@ -927,7 +927,7 @@ about this fantastic animation studio."""
         rei.first_name = new_first_name
         rei.save()
 
-        hlines = list(HistoryLine.objects.filter(entity=rei.id).order_by('id'))
+        hlines = [*HistoryLine.objects.filter(entity=rei.id).order_by('id')]
         self.assertEqual(3, len(hlines))
         self.assertEqual(creation_hline,  hlines[0])
         self.assertEqual(edition_hline01, hlines[1])
@@ -1098,7 +1098,7 @@ about this fantastic animation studio."""
         HistoryLine.delete_lines(hayao_line_qs)
         self.assertFalse(hayao_line_qs.all())
 
-        ghibli_lines = list(ghibli_line_qs.all())
+        ghibli_lines = [*ghibli_line_qs.all()]
         self.assertEqual(1, len(ghibli_lines))
         self.assertEqual(TYPE_CREATION, ghibli_lines[0].type)
 

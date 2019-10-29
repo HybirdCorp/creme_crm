@@ -149,7 +149,7 @@ def json_rtype_ctypes(request, rtype_id):
     getters, range, sort = _clean_fields_values_args(request.GET, JSON_CONTENT_TYPE_FIELDS)
 
     if not content_types:
-        content_types = list(utils.creme_entity_content_types())
+        content_types = [*utils.creme_entity_content_types()]
 
     return _fields_values(content_types, getters, range, sort)
 
@@ -189,7 +189,7 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
                 )
 
             # TODO: make a method in RelationType (improve is_compatible() ?)
-            needed_property_types = list(rtype.subject_properties.all())
+            needed_property_types = [*rtype.subject_properties.all()]
             if needed_property_types:
                 subjects_prop_ids = set(subject.properties.values_list('type', flat=True))
                 missing_ptypes = [
@@ -506,17 +506,17 @@ class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
         #                ),
         # )
         extra_q = ~Q(
-            pk__in=list(CremeEntity.objects
-                                   .annotate(relations_w_entity=FilteredRelation(
-                                                'relations',
-                                                condition=Q(relations__object_entity=self.get_related_entity().id),
-                                            ))
-                                   .filter(relations_w_entity__type=rtype.symmetric_type_id)
-                                   .values_list('id', flat=True)
-                       ),
+            pk__in=[*CremeEntity.objects
+                                .annotate(relations_w_entity=FilteredRelation(
+                                             'relations',
+                                             condition=Q(relations__object_entity=self.get_related_entity().id),
+                                         ))
+                                .filter(relations_w_entity__type=rtype.symmetric_type_id)
+                                .values_list('id', flat=True)
+                   ],
         )
 
-        prop_types = list(rtype.object_properties.all())
+        prop_types = [*rtype.object_properties.all()]
         if prop_types:
             extra_q &= Q(properties__type__in=prop_types)
 
@@ -543,7 +543,7 @@ def add_relations_with_same_type(request):
     rtype.is_not_internal_or_die()
 
     entity_ids.append(subject_id)  # NB: so we can do only one query
-    entities = list(CremeEntity.objects.filter(pk__in=entity_ids))
+    entities = [*CremeEntity.objects.filter(pk__in=entity_ids)]
 
     subject_properties = frozenset(rtype.subject_properties.values_list('id', flat=True))
     object_properties  = frozenset(rtype.object_properties.values_list('id', flat=True))

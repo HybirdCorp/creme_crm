@@ -129,7 +129,7 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
                                                 .compatible(report_ct, include_internals=True)
                                                 .values_list('id', 'predicate')
                                    )
-        abscissa_predicates = list(rtypes.items())
+        abscissa_predicates = [*rtypes.items()]
         sort_key = collator.sort_key
         abscissa_predicates.sort(key=lambda k: sort_key(k[1]))
 

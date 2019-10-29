@@ -367,7 +367,7 @@ class GenericEntityField(EntityCredsJSONField):
     @allowed_models.setter
     def allowed_models(self, allowed):
         """@param allowed: An iterable of models (ie: classes inheriting django.db.Model)."""
-        self._allowed_models = list(allowed)
+        self._allowed_models = [*allowed]
         self._update_widget_choices()
 
     @EntityCredsJSONField.user.setter
@@ -471,7 +471,7 @@ class GenericEntityField(EntityCredsJSONField):
 
             return [get_ct(model) for model in models]
 
-        return list(creme_entity_content_types())
+        return [*creme_entity_content_types()]
 
 
 # TODO: Add a q_filter, see utilization in EntityEmailForm
@@ -493,7 +493,7 @@ class MultiGenericEntityField(GenericEntityField):
         return {}
 
     def _value_to_jsonifiable(self, value):
-        return list(map(super()._value_to_jsonifiable, value))
+        return [*map(super()._value_to_jsonifiable, value)]
 
     def _value_from_unjsonfied(self, data):
         # We want to to keep the global order (left by defaultdict)
@@ -647,7 +647,7 @@ class RelationEntityField(EntityCredsJSONField):
         #     raise ValidationError(self.error_messages['nopropertymatch'],
         #                           code='nopropertymatch',
         #                          )
-        needed_ptype_ids = list(rtype.object_properties.values_list('id', flat=True))
+        needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
 
         if needed_ptype_ids:
             ptype_ids = {p.type_id for p in entity.get_properties()}
@@ -686,7 +686,7 @@ class MultiRelationEntityField(RelationEntityField):
     value_type = list
 
     def _value_to_jsonifiable(self, value):
-        return list(map(super()._value_to_jsonifiable, value))
+        return [*map(super()._value_to_jsonifiable, value)]
 
     def _build_rtype_cache(self, rtype_pk):
         try:
@@ -698,7 +698,7 @@ class MultiRelationEntityField(RelationEntityField):
 
         allowed_ctype_ids   = frozenset(ct.pk for ct in rtype.object_ctypes.all())
         # needed_property_ids = frozenset(rtype.object_properties.values_list('id', flat=True))
-        needed_ptype_ids = list(rtype.object_properties.values_list('id', flat=True))
+        needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
 
         # return rtype, allowed_ctype_ids, needed_property_ids
         return rtype, allowed_ctype_ids, needed_ptype_ids
@@ -989,7 +989,7 @@ class MultiCreatorEntityField(CreatorEntityField):
 
             return value
 
-        return list(map(super()._value_to_jsonifiable, value))
+        return [*map(super()._value_to_jsonifiable, value)]
 
     def _value_from_unjsonfied(self, data):
         entities = []
@@ -1054,7 +1054,7 @@ class FilteredEntityTypeField(JSONField):
     def ctypes(self, ctypes):
         "See constructor."
         if not callable(ctypes):
-            ctypes_list = list(ctypes)  # We copy the sequence to avoid external modifications
+            ctypes_list = [*ctypes]  # We copy the sequence to avoid external modifications
             ctypes = lambda: ctypes_list
 
         self._ctypes = ctypes
@@ -1312,7 +1312,9 @@ class DatePeriodField(fields.MultiValueField):
         self.period_names = period_names
 
     def _update_choices(self):
-        self.fields[0].choices = self.widget.choices = list(self._period_registry.choices(choices=self._period_names))
+        self.fields[0].choices = self.widget.choices = [
+            *self._period_registry.choices(choices=self._period_names)
+        ]
 
     @property
     def choices(self):
@@ -1559,7 +1561,7 @@ class CTypeChoiceField(fields.Field):
     @ctypes.setter
     def ctypes(self, ctypes):
         if not callable(ctypes):
-            ctypes_list = list(ctypes)
+            ctypes_list = [*ctypes]
             ctypes = lambda: ctypes_list
 
         self._ctypes = ctypes

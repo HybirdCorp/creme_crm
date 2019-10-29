@@ -201,13 +201,13 @@ class SearchConfigTestCase(CremeTestCase):
         user = self.login()
 
         configs = SearchConfigItem.get_4_models([], user)
-        self.assertEqual([], list(configs))
+        self.assertListEqual([], [*configs])
 
     def test_get_4_models02(self):
         "One model, no config in BD"
         user = self.login()
 
-        configs = list(SearchConfigItem.get_4_models([FakeContact], user))
+        configs = [*SearchConfigItem.get_4_models([FakeContact], user)]
         self.assertEqual(1, len(configs))
 
         sc_item = configs[0]
@@ -224,7 +224,7 @@ class SearchConfigTestCase(CremeTestCase):
 
         sc_item = SearchConfigItem.create_if_needed(FakeContact, ['first_name', 'last_name'])
 
-        configs = list(SearchConfigItem.get_4_models([FakeContact], user))
+        configs = [*SearchConfigItem.get_4_models([FakeContact], user)]
         self.assertEqual(1, len(configs))
         self.assertEqual(sc_item, configs[0])
 
@@ -243,7 +243,7 @@ class SearchConfigTestCase(CremeTestCase):
         sc_item = create(FakeContact, ['last_name'], role=self.role)  # <===
         create(FakeContact, ['first_name', 'description'], role=role3)
 
-        configs = list(SearchConfigItem.get_4_models([FakeContact], self.other_user))
+        configs = [*SearchConfigItem.get_4_models([FakeContact], self.other_user)]
         self.assertEqual(1, len(configs))
         self.assertEqual(sc_item, configs[0])
 
@@ -294,7 +294,7 @@ class SearchConfigTestCase(CremeTestCase):
         "2 models"
         user = self.login()
 
-        configs = list(SearchConfigItem.get_4_models([FakeContact, FakeOrganisation], user))
+        configs = [*SearchConfigItem.get_4_models([FakeContact, FakeOrganisation], user)]
         self.assertEqual(2, len(configs))
         self.assertEqual(FakeContact, configs[0].content_type.model_class())
         self.assertEqual(FakeOrganisation, configs[1].content_type.model_class())

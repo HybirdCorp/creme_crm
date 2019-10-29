@@ -48,7 +48,7 @@ class UserSettings(generic.BricksView):
         context = super().get_context_data(**kwargs)
         context['theme_form'] = settings_forms.UserThemeForm(user=user, instance=user).as_span()
         context['tz_form'] = settings_forms.UserTimeZoneForm(user=user, instance=user).as_span()
-        context['apps_usersettings_bricks'] = list(self.config_registry.user_bricks)
+        context['apps_usersettings_bricks'] = [*self.config_registry.user_bricks]
 
         return context
 

@@ -38,7 +38,7 @@ class ExportTestCase(_BillingTestCase):
         for price in ('10', '20'):
             create_line(on_the_fly_item='Fly ' + price, unit_price=Decimal(price))
 
-        existing_fileref_ids = list(FileRef.objects.values_list('id', flat=True))
+        existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
 
         response = self.assertGET200(self._build_export_url(invoice), follow=True)
         self.assertEqual('application/pdf', response['Content-Type'])

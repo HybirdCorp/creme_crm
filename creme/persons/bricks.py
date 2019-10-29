@@ -332,7 +332,7 @@ class EmployeesBrick(ManagersBrick):
 
 # TODO: factorise (see CSV import) ? (exclude param in info_field_names())
 def _get_address_field_names():
-    field_names = list(Address.info_field_names())
+    field_names = [*Address.info_field_names()]
 
     try:
         field_names.remove('name')

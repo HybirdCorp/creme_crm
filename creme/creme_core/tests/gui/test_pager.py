@@ -12,8 +12,8 @@ except Exception as e:
 
 class PagerContextTestCase(CremeTestCase):
     def assertPagerLinks(self, links, expected):
-        self.assertListEqual(list(map(lambda e: e.__dict__, links)),
-                             list(map(lambda e: e.__dict__, expected))
+        self.assertListEqual([l.__dict__ for l in links],
+                             [e.__dict__ for e in expected],
                             )
 
     def test_empty_page(self):
@@ -57,7 +57,7 @@ class PagerContextTestCase(CremeTestCase):
         ], pager.links)
 
     def test_firstpage_under_show_all_limit(self):
-        page = Paginator(list(range(5 * 3)), 5).page(1)
+        page = Paginator([*range(5 * 3)], 5).page(1)
         pager = PagerContext(page)
 
         self.assertEqual(3, pager.count)
@@ -79,7 +79,7 @@ class PagerContextTestCase(CremeTestCase):
         ], pager.links)
 
     def test_under_show_all_limit(self):
-        page = Paginator(list(range(5 * 3)), 5).page(2)
+        page = Paginator([*range(5 * 3)], 5).page(2)
         pager = PagerContext(page)
 
         self.assertEqual(3, pager.count)
@@ -101,7 +101,7 @@ class PagerContextTestCase(CremeTestCase):
         ], pager.links)
 
     def test_lastpage_under_show_all_limit(self):
-        page = Paginator(list(range(5 * 3)), 5).page(3)
+        page = Paginator([*range(5 * 3)], 5).page(3)
         pager = PagerContext(page)
 
         self.assertEqual(3, pager.count)
@@ -123,7 +123,7 @@ class PagerContextTestCase(CremeTestCase):
         ], pager.links)
 
     def test_under_show_first_limit(self):
-        page = Paginator(list(range(5 * 10)), 5).page(3)
+        page = Paginator([*range(5 * 10)], 5).page(3)
         pager = PagerContext(page)
 
         self.assertEqual(10, pager.count)
@@ -148,7 +148,7 @@ class PagerContextTestCase(CremeTestCase):
         ], pager.links)
 
     def test_under_show_last_limit(self):
-        page = Paginator(list(range(5 * 10)), 5).page(8)
+        page = Paginator([*range(5 * 10)], 5).page(8)
         pager = PagerContext(page)
 
         self.assertEqual(10, pager.count)
@@ -174,7 +174,7 @@ class PagerContextTestCase(CremeTestCase):
 
 
     def test_middle_page(self):
-        page = Paginator(list(range(5 * 10)), 5).page(5)
+        page = Paginator([*range(5 * 10)], 5).page(5)
         pager = PagerContext(page)
 
         self.assertEqual(10, pager.count)
@@ -200,7 +200,7 @@ class PagerContextTestCase(CremeTestCase):
         ], pager.links)
 
     def test_middle_page_huge_count(self):
-        page = Paginator(list(range(5 * 100)), 5).page(50)
+        page = Paginator([*range(5 * 100)], 5).page(50)
         pager = PagerContext(page)
 
         self.assertEqual(100, pager.count)

@@ -235,10 +235,10 @@ class CalendarView(generic.CheckedTemplateView):
     def get_calendars(self, user):
         # NB: we retrieve all the user's Calendars to check the presence of the
         #     default one (& create it if needed) by avoiding an extra query.
-        calendars = list(Calendar.objects.filter(
+        calendars = [*Calendar.objects.filter(
             Q(user=user) |
             Q(is_public=True, user__is_staff=False, user__is_active=True)
-        ))
+        )]
 
         if next(self._filter_default_calendars(user, calendars), None) is None:
             calendars.append(Calendar.objects.create_default_calendar(user=user))
@@ -267,7 +267,7 @@ class CalendarView(generic.CheckedTemplateView):
         context['my_calendars'] = my_calendars
 
         sort_key = collator.sort_key
-        other_users = list(others_calendars.keys())
+        other_users = [*others_calendars.keys()]
         other_users.sort(key=lambda u: sort_key(str(u)))
         context['others_calendars'] = [(u, others_calendars[u]) for u in other_users]
 
@@ -343,7 +343,7 @@ class CalendarsMixin:
         return request.GET.getlist(self.calendar_id_arg)
 
     def get_calendars(self, request):
-        calendar_ids = list(self._str_ids_2_int_ids(self.get_calendar_raw_ids(request)))
+        calendar_ids = [*self._str_ids_2_int_ids(self.get_calendar_raw_ids(request))]
 
         return Calendar.objects.filter(
             (Q(is_public=True) | Q(user=request.user)) & Q(id__in=calendar_ids)

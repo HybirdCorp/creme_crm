@@ -71,7 +71,7 @@ class AddressFKField(listview.ListViewSearchField):
 
         # TODO: remove not-editable fields ??
         # TODO: factorise with mass_import
-        address_field_names = list(get_address_model().info_field_names())
+        address_field_names = [*get_address_model().info_field_names()]
         try:
             address_field_names.remove('name')
         except ValueError:

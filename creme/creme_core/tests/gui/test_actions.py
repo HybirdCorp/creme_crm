@@ -185,11 +185,11 @@ class ActionsTestCase(CremeTestCase):
         self.assertCountEqual([MockA],               achain.actions(FakeOrganisation))
 
     def test_action_is_registered_for_bulk01(self):
-        "Empty"
+        "Empty."
         user = self.user
         registry = self.registry
 
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeContact)])
 
         # TODO ?
         # self.assertIsNone(registry.bulk_action(FakeContact, MockBulkAction.id))
@@ -197,14 +197,14 @@ class ActionsTestCase(CremeTestCase):
         # self.assertFalse(MockBulkAction.is_registered_for_bulk(FakeContact, registry=registry))
 
     def test_action_is_registered_for_bulk02(self):
-        "One action registered"
+        "One action registered."
         user = self.user
         registry = self.registry
 
         registry.register_bulk_actions(MockBulkAction)
 
         # Entity ---
-        entity_actions = list(registry.bulk_actions(user, CremeEntity))
+        entity_actions = [*registry.bulk_actions(user, CremeEntity)]
         self.assertEqual(1, len(entity_actions))
 
         entity_action = entity_actions[0]
@@ -213,7 +213,7 @@ class ActionsTestCase(CremeTestCase):
         self.assertEqual(CremeEntity, entity_action.model)
 
         # Contact ---
-        contact_actions = list(registry.bulk_actions(user, FakeContact))
+        contact_actions = [*registry.bulk_actions(user, FakeContact)]
         self.assertEqual(1, len(contact_actions))
 
         contact_action = contact_actions[0]
@@ -226,12 +226,12 @@ class ActionsTestCase(CremeTestCase):
         # self.assertTrue(MockBulkAction.is_registered_for_bulk(FakeContact, registry=registry))
 
     def test_action_is_registered_for_instance01(self):
-        "Empty"
+        "Empty."
         user = self.user
         registry = self.registry
         instance = FakeContact(user=user, first_name='Yui', last_name='Kawa')
 
-        self.assertFalse(list(registry.instance_actions(user=user, instance=instance)))
+        self.assertFalse([*registry.instance_actions(user=user, instance=instance)])
 
         self.assertEqual([], registry.instance_action_classes(model=CremeEntity))
         self.assertEqual([], registry.instance_action_classes(model=FakeContact))
@@ -251,7 +251,7 @@ class ActionsTestCase(CremeTestCase):
         registry.register_instance_actions(MockAction)
 
         # Entity ---
-        entity_actions = list(registry.instance_actions(user=user, instance=entity))
+        entity_actions = [*registry.instance_actions(user=user, instance=entity)]
         self.assertEqual(1, len(entity_actions))
 
         entity_action = entity_actions[0]
@@ -263,7 +263,7 @@ class ActionsTestCase(CremeTestCase):
         self.assertEqual([MockAction], registry.instance_action_classes(model=CremeEntity))
 
         # Contact ---
-        contact_actions = list(registry.instance_actions(user=user, instance=contact))
+        contact_actions = [*registry.instance_actions(user=user, instance=contact)]
         self.assertEqual(1, len(contact_actions))
 
         contact_action = contact_actions[0]
@@ -410,23 +410,23 @@ class ActionsTestCase(CremeTestCase):
         contact = FakeContact(user=user)
         orga = FakeOrganisation(user=user)
 
-        self.assertFalse(list(registry.instance_actions(user=user, instance=contact)))
-        self.assertFalse(list(registry.instance_actions(user=user, instance=orga)))
+        self.assertFalse([*registry.instance_actions(user=user, instance=contact)])
+        self.assertFalse([*registry.instance_actions(user=user, instance=orga)])
 
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeContact)])
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeOrganisation)])
 
         # ---
         registry.register_instance_actions(MockContactAction)
 
         self.assertSortedActions(
             [MockContactAction],
-            list(registry.instance_actions(user=user, instance=contact))
+            [*registry.instance_actions(user=user, instance=contact)]
         )
-        self.assertFalse(list(registry.instance_actions(user=user, instance=orga)))
+        self.assertFalse([*registry.instance_actions(user=user, instance=orga)])
 
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeContact)])
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeOrganisation)])
 
         # ---
         registry.register_bulk_actions(MockContactBulkAction)
@@ -435,13 +435,13 @@ class ActionsTestCase(CremeTestCase):
             [MockContactAction],
             registry.instance_actions(user=user, instance=contact)
         )
-        self.assertFalse(list(registry.instance_actions(user=user, instance=orga)))
+        self.assertFalse([*registry.instance_actions(user=user, instance=orga)])
 
         self.assertSortedActions(
             [MockContactBulkAction],
             registry.bulk_actions(user=user, model=FakeContact)
         )
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeOrganisation)])
 
     def test_register_entity(self):
         user = self.user
@@ -450,11 +450,11 @@ class ActionsTestCase(CremeTestCase):
         contact = FakeContact(user=user)
         orga = FakeOrganisation(user=user)
 
-        self.assertFalse(list(registry.instance_actions(user=user, instance=contact)))
-        self.assertFalse(list(registry.instance_actions(user=user, instance=orga)))
+        self.assertFalse([*registry.instance_actions(user=user, instance=contact)])
+        self.assertFalse([*registry.instance_actions(user=user, instance=orga)])
 
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeContact)])
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeOrganisation)])
 
         # ---
         registry.register_instance_actions(MockAction)
@@ -468,8 +468,8 @@ class ActionsTestCase(CremeTestCase):
             registry.instance_actions(user=user, instance=orga)
         )
 
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeContact)])
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeOrganisation)])
 
         # ---
         registry.register_bulk_actions(MockBulkAction)
@@ -493,20 +493,20 @@ class ActionsTestCase(CremeTestCase):
         )
 
     def test_override01(self):
-        "Empty"
+        "Empty."
         user = self.user
         registry = self.registry
 
-        self.assertFalse(list(registry.instance_actions(user=user, instance=CremeEntity(user=user))))
-        self.assertFalse(list(registry.instance_actions(user=user, instance=FakeContact(user=user))))
-        self.assertFalse(list(registry.instance_actions(user=user, instance=FakeOrganisation(user=user))))
+        self.assertFalse([*registry.instance_actions(user=user, instance=CremeEntity(user=user))])
+        self.assertFalse([*registry.instance_actions(user=user, instance=FakeContact(user=user))])
+        self.assertFalse([*registry.instance_actions(user=user, instance=FakeOrganisation(user=user))])
 
-        self.assertFalse(list(registry.bulk_actions(user=user, model=CremeEntity)))
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
+        self.assertFalse([*registry.bulk_actions(user=user, model=CremeEntity)])
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeContact)])
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeOrganisation)])
 
     def test_override02(self):
-        "Instance action"
+        "Instance action."
         user = self.user
         registry = self.registry
 
@@ -526,9 +526,9 @@ class ActionsTestCase(CremeTestCase):
             registry.instance_actions(user=user, instance=FakeOrganisation(user=user))
         )
 
-        self.assertFalse(list(registry.bulk_actions(user=user, model=CremeEntity)))
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
-        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
+        self.assertFalse([*registry.bulk_actions(user=user, model=CremeEntity)])
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeContact)])
+        self.assertFalse([*registry.bulk_actions(user=user, model=FakeOrganisation)])
 
     def test_override03(self):
         "Bulk action"
@@ -538,9 +538,9 @@ class ActionsTestCase(CremeTestCase):
         registry.register_bulk_actions(MockBulkAction)
         registry.register_bulk_actions(MockContactBulkAction)
 
-        self.assertFalse(list(registry.instance_actions(user=user, instance=CremeEntity(user=user))))
-        self.assertFalse(list(registry.instance_actions(user=user, instance=FakeContact(user=user))))
-        self.assertFalse(list(registry.instance_actions(user=user, instance=FakeOrganisation(user=user))))
+        self.assertFalse([*registry.instance_actions(user=user, instance=CremeEntity(user=user))])
+        self.assertFalse([*registry.instance_actions(user=user, instance=FakeContact(user=user))])
+        self.assertFalse([*registry.instance_actions(user=user, instance=FakeOrganisation(user=user))])
 
         self.assertSortedActions(
             [MockBulkAction],

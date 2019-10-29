@@ -206,9 +206,9 @@ class EnumerableTestCase(CremeTestCase):
              {'value': 2, 'label': 'Not bad'},
              {'value': 3, 'label': 'Great'},
             ],
-            list(Enumerator.convert_choices(
+            [*Enumerator.convert_choices(
                 [(1, 'Bad'), (2, 'Not bad'), (3, 'Great')]
-            ))
+            )]
         )
 
     def test_convert_choices_with_group(self):
@@ -220,7 +220,7 @@ class EnumerableTestCase(CremeTestCase):
              {'value': 'unknown', 'label': 'Unknown'},
 
             ],
-            list(Enumerator.convert_choices(
+            [*Enumerator.convert_choices(
                 [('Audio',
                     (('vinyl', 'Vinyl'),
                      ('cd',    'CD'),
@@ -233,7 +233,7 @@ class EnumerableTestCase(CremeTestCase):
                  ),
                  ('unknown', 'Unknown'),
                 ]
-            ))
+            )]
         )
 
     def test_efilter_enumerator(self):

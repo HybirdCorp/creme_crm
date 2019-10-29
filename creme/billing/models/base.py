@@ -112,7 +112,7 @@ class Base(CremeEntity):
         return self.name
 
     def _pre_delete(self):
-        lines = list(self.iter_all_lines())
+        lines = [*self.iter_all_lines()]
 
         for relation in Relation.objects.filter(type__in=[REL_SUB_BILL_ISSUED,
                                                           REL_SUB_BILL_RECEIVED,

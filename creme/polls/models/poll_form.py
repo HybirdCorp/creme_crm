@@ -83,7 +83,7 @@ class AbstractPollForm(CremeEntity):
 
         matches = {}  # id = ID of PollFormSection instance ;
                       # value = corresponding PollReplySection or PollFormSection instance
-        fsections = list(self.sections.all())
+        fsections = [*self.sections.all()]
         parents = [None]  # set ??
 
         # At each loop, we take a level of PollFormSection (root, then their

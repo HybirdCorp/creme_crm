@@ -283,7 +283,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertSetEqual(set(), other_cal_ids)
 
         self.assertFalse(floating_acts)
-        self.assertEqual([def_cal], list(my_cals))
+        self.assertListEqual([def_cal], [*my_cals])
         # self.assertEqual(user.username, user_name)
 
         # self.assertEqual({}, others_calendars)
@@ -417,7 +417,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         with self.assertNoException():
             floating_acts = response.context['floating_activities']
 
-        self.assertEqual([act2], list(floating_acts))
+        self.assertListEqual([act2], [*floating_acts])
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_calendar_view04(self):
@@ -587,7 +587,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                         )
         self.assertListEqual(
             [(def_cal.id, str(def_cal))],
-            list(replace_field.choices)
+            [*replace_field.choices]
         )
 
         # POST ---
@@ -611,7 +611,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         deletor_type.execute(dcom.job)
         self.assertDoesNotExist(cal)
-        self.assertIn(def_cal, list(act.calendars.all()))
+        self.assertIn(def_cal, [*act.calendars.all()])
 
     def test_delete_calendar03(self):
         "No super user."
@@ -757,7 +757,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
         act = Activity.objects.create(user=user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
         act.calendars.add(default_calendar)
-        self.assertEqual([default_calendar], list(act.calendars.all()))
+        self.assertListEqual([default_calendar], [*act.calendars.all()])
 
         activity_url = act.get_absolute_url()
         response = self.assertGET200(activity_url)
@@ -774,7 +774,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertNoFormError(response)
 
         act = self.refresh(act)
-        self.assertEqual([cal], list(act.calendars.all()))
+        self.assertListEqual([cal], [*act.calendars.all()])
         response = self.assertGET200(activity_url)
         self.assertContains(response, cal.name)
 
@@ -820,7 +820,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         url = self.build_link_url(act.id)
         self.assertGET200(url)
         self.assertNoFormError(self.assertPOST200(url, data={'calendar': cal.id}))
-        self.assertEqual([cal], list(act.calendars.all()))
+        self.assertListEqual([cal], [*act.calendars.all()])
 
     def test_change_activity_calendar04(self):
         "App credentials needed"
@@ -1339,7 +1339,7 @@ class CalendarTestCase(_ActivitiesTestCase):
             [(cal1.id, str(cal1)),
              (cal2.id, str(cal2)),
             ],
-            list(replace_field.choices)
+            [*replace_field.choices]
         )
 
         # POST ---
@@ -1378,7 +1378,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         deletor_type.execute(job)
         self.assertDoesNotExist(cal3)
-        self.assertIn(cal2, list(act.calendars.all()))
+        self.assertIn(cal2, [*act.calendars.all()])
 
     def test_colorfield(self):
         user = self.login()

@@ -158,7 +158,7 @@ class AbstractStrategy(CremeEntity):
 
     def get_assets_list(self):
         if self._assets_list is None:
-            self._assets_list = list(self.assets.all())
+            self._assets_list = [*self.assets.all()]
 
         return self._assets_list
 
@@ -170,7 +170,7 @@ class AbstractStrategy(CremeEntity):
 
     def get_charms_list(self):
         if self._charms_list is None:
-            self._charms_list = list(self.charms.all())
+            self._charms_list = [*self.charms.all()]
 
         return self._charms_list
 
@@ -259,7 +259,7 @@ class AbstractStrategy(CremeEntity):
 
     def get_segment_descriptions_list(self):
         if self._segments_list is None:
-            self._segments_list = list(self.segment_info.select_related('segment'))
+            self._segments_list = [*self.segment_info.select_related('segment')]
 
         return self._segments_list
 

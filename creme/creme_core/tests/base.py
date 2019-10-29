@@ -230,7 +230,7 @@ class _CremeTestCase:
             if field_name not in form_errors:
                 self.fail('The error "{field}" has not been found in the form (fields: {fields})'.format(
                     field=field_name,
-                    fields=list(form_errors.keys()),
+                    fields=[*form_errors.keys()],
                 ))
 
             field_errors = form_errors[field_name]
@@ -367,7 +367,7 @@ class _CremeTestCase:
                         )
 
     def assertSameProperties(self, entity1, entity2):
-        properties_desc = lambda entity: list(entity.properties.values_list('type', flat=True))
+        properties_desc = lambda entity: [*entity.properties.values_list('type', flat=True)]
 
         pd1 = properties_desc(entity1)
         pd2 = properties_desc(entity2)
@@ -381,7 +381,7 @@ class _CremeTestCase:
             if exclude_internal:
                 qs = qs.exclude(type__is_internal=True)
 
-            return list(qs)
+            return [*qs]
 
         rd1 = relations_desc(entity1)
         rd2 = relations_desc(entity2)
@@ -461,10 +461,10 @@ class _CremeTestCase:
 
         get_ct = ContentType.objects.get_for_model
         self.assertListEqual(sorted((get_ct(model) for model in sub_models), key=lambda ct: ct.id),
-                             list(rt.subject_ctypes.order_by('id'))
+                             [*rt.subject_ctypes.order_by('id')]
                             )
         self.assertListEqual(sorted((get_ct(model) for model in obj_models), key=lambda ct: ct.id),
-                             list(rt.object_ctypes.order_by('id'))
+                             [*rt.object_ctypes.order_by('id')]
                             )
 
         self.assertEqual(set(sub_props), set(rt.subject_properties.values_list('id', flat=True)))

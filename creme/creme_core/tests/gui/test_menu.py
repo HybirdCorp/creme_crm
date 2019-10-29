@@ -82,12 +82,12 @@ class MenuTestCase(CremeTestCase):
         item2 = ViewableItem('add_orga')
 
         menu.add(item1).add(item2)
-        self.assertEqual([item1, item2], list(menu))
+        self.assertListEqual([item1, item2], [*menu])
 
         self.assertEqual(1, item1.priority)
 
     def test_add_items02(self):
-        "Duplicated ID"
+        "Duplicated ID."
         menu = Menu()
         id_ = 'add_contact'
         item1 = ViewableItem(id_)
@@ -121,7 +121,7 @@ class MenuTestCase(CremeTestCase):
 
         group.add(item2).add(item3)
         menu.add(item1).add(group)
-        self.assertEqual([item1, item2, item3], list(menu))
+        self.assertListEqual([item1, item2, item3], [*menu])
 
         # Add an Item already added
         with self.assertRaises(ValueError):
@@ -195,7 +195,7 @@ class MenuTestCase(CremeTestCase):
         group.add(item1)
         group.add(item2)
 
-        self.assertEqual([item1, item2], list(group))
+        self.assertListEqual([item1, item2], [*group])
 
     def test_add_items_to_group02(self):
         "Priority"
@@ -209,17 +209,17 @@ class MenuTestCase(CremeTestCase):
 
         group.add(item1)
         group.add(item2, priority=1)
-        self.assertEqual([item1, item2], list(group))
+        self.assertListEqual([item1, item2], [*group])
 
         group.add(item3, priority=3)
         group.add(item4, priority=2)
-        self.assertEqual([item1, item2, item4, item3], list(group))
+        self.assertListEqual([item1, item2, item4, item3], [*group])
         self.assertEqual(3, item3.priority)
 
         # Not property => end
         group.add(item5)
         group.add(item6, priority=2)  # priority of previous has been set
-        self.assertEqual([item1, item2, item4, item6, item3, item5], list(group))
+        self.assertListEqual([item1, item2, item4, item6, item3, item5], [*group])
 
     def test_add_items_to_group03(self):
         "Several items at once"
@@ -228,7 +228,7 @@ class MenuTestCase(CremeTestCase):
         item2 = ViewableItem('add_orga')
 
         group.add(item2, item1)
-        self.assertEqual([item2, item1], list(group))
+        self.assertListEqual([item2, item1], [*group])
 
     def test_add_items_to_group04(self):
         "First has priority"
@@ -238,7 +238,7 @@ class MenuTestCase(CremeTestCase):
 
         group.add(item1, priority=10)
         group.add(item2, priority=1)
-        self.assertEqual([item2, item1], list(group))
+        self.assertListEqual([item2, item1], [*group])
 
     def test_container_get01(self):
         group = ItemGroup('creations')
@@ -280,10 +280,10 @@ class MenuTestCase(CremeTestCase):
         group.add(item1, item2, item3, item4)
 
         group.remove(item2.id)
-        self.assertEqual([item1, item3, item4], list(group))
+        self.assertListEqual([item1, item3, item4], [*group])
 
         group.remove(item1.id, item4.id)
-        self.assertEqual([item3], list(group))
+        self.assertListEqual([item3], [*group])
 
         group.remove('unknown_id')  # TODO: exception ?? boolean ??
 
@@ -297,7 +297,7 @@ class MenuTestCase(CremeTestCase):
 
         group.add(item1).add(item2)
         group.clear()
-        self.assertFalse(list(group))
+        self.assertFalse([*group])
 
         with self.assertNoException():
             group.add(item1)
@@ -310,12 +310,12 @@ class MenuTestCase(CremeTestCase):
 
         item2b = group.pop(item2.id)
         self.assertEqual(item2, item2b)
-        self.assertEqual([item1], list(group))
+        self.assertListEqual([item1], [*group])
 
         self.assertRaises(KeyError, group.pop, item2.id)
 
         group.add(item2b, priority=1)
-        self.assertEqual([item2b, item1], list(group))
+        self.assertListEqual([item2b, item1], [*group])
 
     def test_change_priority_group(self):
         group = ItemGroup('creations')
@@ -325,7 +325,7 @@ class MenuTestCase(CremeTestCase):
         group.add(item1, priority=2).add(item2, priority=3).add(item3, priority=4)
 
         group.change_priority(1, item3.id, item2.id)
-        self.assertEqual([item3, item2, item1], list(group))
+        self.assertListEqual([item3, item2, item1], [*group])
 
     def test_container_item(self):
         my_label = 'Creations...'
@@ -336,7 +336,7 @@ class MenuTestCase(CremeTestCase):
         child2 = ViewableItem('persons-add_orga')
 
         container.add(child2, child1)
-        self.assertEqual([child2, child1], list(container))
+        self.assertListEqual([child2, child1], [*container])
 
     def test_get_or_create(self):
         menu = Menu()
@@ -355,7 +355,7 @@ class MenuTestCase(CremeTestCase):
                                        )
         self.assertIs(container1, container2)
         self.assertEqual(label, container2.label)
-        self.assertEqual([container1], list(menu))
+        self.assertListEqual([container1], [*menu])
 
         with self.assertRaises(ValueError):
             menu.get_or_create(ItemGroup, id_, priority=5,
@@ -757,7 +757,7 @@ class MenuTestCase(CremeTestCase):
         a_node = elt.find('.//a')
         self.assertEqual(url, a_node.get('href'))
 
-        children = list(a_node)
+        children = [*a_node]
         self.assertEqual(1, len(children))
 
         img_node = children[0]
@@ -796,7 +796,7 @@ class MenuTestCase(CremeTestCase):
         span_node = elt.find('.//span')
         self.assertEqual('ui-creme-navigation-text-entry forbidden', span_node.get('class'))
 
-        children = list(span_node)
+        children = [*span_node]
         self.assertEqual(1, len(children))
         self.assertEqual('img', children[0].tag)
 

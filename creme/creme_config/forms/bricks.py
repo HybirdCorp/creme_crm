@@ -82,7 +82,7 @@ class _BrickLocationsForm(CremeForm):
             locations_store = old_locations[:needed]
             location_model.objects.filter(pk__in=[loc.id for loc in old_locations[needed:]]).delete()
         else:
-            locations_store = list(old_locations)
+            locations_store = [*old_locations]
 
             if lendiff > 0:
                 locations_store.extend(location_builder() for __ in range(lendiff))

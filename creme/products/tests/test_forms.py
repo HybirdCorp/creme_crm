@@ -74,7 +74,7 @@ class CategoryFieldTestCase(FieldTestCase):
         cat2 = create_cat(name='cat2')
 
         field = CategoryField()
-        self.assertEqual([cat1, cat2], list(field.categories))
+        self.assertListEqual([cat1, cat2], [*field.categories])
 
     def test_categories02(self):
         "Fixed Categories"
@@ -85,7 +85,7 @@ class CategoryFieldTestCase(FieldTestCase):
 
         field = CategoryField(categories=[cat1.id, cat2.id])
 
-        self.assertEqual([cat1, cat2], list(field.categories))
+        self.assertListEqual([cat1, cat2], [*field.categories])
 
     def test_format_object(self):
         cat1 = Category.objects.create(name='cat1', description='description')

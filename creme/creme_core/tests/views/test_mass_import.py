@@ -237,8 +237,8 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertFalse(FakePosition.objects.filter(title=pos_title).exists())
         self.assertFalse(FakeSector.objects.filter(title=sctr_title).exists())
 
-        position_ids = list(FakePosition.objects.values_list('id', flat=True))
-        sector_ids   = list(FakeSector.objects.values_list('id', flat=True))
+        position_ids = [*FakePosition.objects.values_list('id', flat=True)]
+        sector_ids   = [*FakeSector.objects.values_list('id', flat=True)]
 
         ptype = CremePropertyType.create(str_pk='test-prop_cute', text='Really cute in her suit')
 
@@ -356,7 +356,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
     def _test_import03(self, builder):
         "Create entities to link with them"
         user = self.login()
-        contact_ids = list(FakeContact.objects.values_list('id', flat=True))
+        contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         orga_name = 'Nerv'
         self.assertFalse(FakeOrganisation.objects.filter(name=orga_name))
@@ -423,7 +423,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
     def test_mass_import04(self):
         "Other separator"
         user = self.login()
-        contact_ids = list(FakeContact.objects.values_list('id', flat=True))
+        contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         lines = [('First name', 'Last name'),
                  ('Unchô',      'Kan-u'),
@@ -434,7 +434,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         url = self._build_import_url(FakeContact)
         response = self.client.post(url, data={'step':     0,
                                                'document': doc.id,
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertIn('value="1"', str(response.context['form']['step']))
@@ -534,7 +534,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         cf_int.get_value_class()(custom_field=cf_dec, entity=kanu).set_value_n_save(Decimal('56'))
         cf_str.get_value_class()(custom_field=cf_str, entity=kanu).set_value_n_save('Kan')
 
-        contact_ids = list(FakeContact.objects.values_list('id', flat=True))
+        contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(FakeContact),
@@ -586,7 +586,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertEqual(1, len(jr_errors))
 
         jr_error = jr_errors[0]
-        self.assertEqual(list(lines[4]), jr_error.line)
+        self.assertEqual([*lines[4]], jr_error.line)
         self.assertEqual([_('Enter a whole number.')],  # TODO: add the field verbose name !!
                          jr_error.messages
                         )
@@ -595,7 +595,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
     def test_mass_import_customfields02(self):
         "CustomField.ENUM/MULTI_ENUM (no creation of choice)"
         user = self.login()
-        contact_ids = list(FakeContact.objects.values_list('id', flat=True))
+        contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
         cf_enum  = create_cf(name='Attack',  field_type=CustomField.ENUM)
@@ -648,7 +648,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         kanu = get_contact(2)
         self.assertFalse(cf_enum.get_value_class().objects.filter(entity=kanu))
-        self.assertEqual([spear], list(get_cf_values(cf_menum, kanu).value.all()))
+        self.assertListEqual([spear], [*get_cf_values(cf_menum, kanu).value.all()])
 
         results = self._get_job_results(job)
         self.assertEqual(2, len(results))
@@ -657,7 +657,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertEqual(1, len(jr_errors))
 
         jr_error = jr_errors[0]
-        self.assertEqual(list(lines[2]), jr_error.line)
+        self.assertEqual([*lines[2]], jr_error.line)
         self.assertEqual([_('Error while extracting value: tried to retrieve '
                             'the choice «{value}» (column {column}). '
                             'Raw error: [{raw_error}]').format(
@@ -671,9 +671,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertEqual(kanu, jr_error.entity.get_real_entity())
 
     def test_mass_import_customfields03(self):
-        "CustomField.ENUM (creation of choice if not found)"
+        "CustomField.ENUM (creation of choice if not found)."
         user = self.login()
-        contact_ids = list(FakeContact.objects.values_list('id', flat=True))
+        contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
         cf_enum  = create_cf(name='Attack',  field_type=CustomField.ENUM)
@@ -720,7 +720,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         get_cf_values = self._get_cf_values
         sonsaku = get_contact(1)
         self.assertEqual(punch,   get_cf_values(cf_enum, sonsaku).value)
-        self.assertEqual([sword], list(get_cf_values(cf_menum, sonsaku).value.all()))
+        self.assertListEqual([sword], [*get_cf_values(cf_menum, sonsaku).value.all()])
 
         kanu = get_contact(2)
         strang = self.get_object_or_fail(CustomFieldEnumValue, custom_field=cf_enum,
@@ -730,7 +730,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         spear = self.get_object_or_fail(CustomFieldEnumValue, custom_field=cf_menum,
                                         value='spear',
                                        )
-        self.assertEqual([spear], list(get_cf_values(cf_menum, kanu).value.all()))
+        self.assertListEqual([spear], [*get_cf_values(cf_menum, kanu).value.all()])
 
         self.assertEqual(2, CustomFieldEnumValue.objects.filter(custom_field=cf_enum).count())  # Not '' choice
 
@@ -801,7 +801,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
     def test_mass_import_customfields05(self):
         "Default value"
         user = self.login()
-        contact_ids = list(FakeContact.objects.values_list('id', flat=True))
+        contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
         cf_int  = create_cf(name='Size (cm)', field_type=CustomField.INT)
@@ -859,7 +859,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         get_cf_values = self._get_cf_values
         self.assertEqual(180,   get_cf_values(cf_int,  kanu).value)
         self.assertEqual(punch, get_cf_values(cf_enum, kanu).value)
-        self.assertEqual([sword], list(get_cf_values(cf_menum, kanu).value.all()))
+        self.assertListEqual([sword], [*get_cf_values(cf_menum, kanu).value.all()])
 
     def test_import_error01(self):
         "Form error: unknown extension"
@@ -1471,9 +1471,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
     @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_dl_errors03(self):
-        "XLS"
+        "XLS."
         def result_builder(response):
-            return list(XlrdReader(None, file_contents=response.content))
+            return [*XlrdReader(None, file_contents=response.content)]
 
         self._aux_test_dl_errors(self._build_xls_doc,
                                  result_builder=result_builder,

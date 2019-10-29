@@ -38,8 +38,8 @@ class DynamicSelectTestCase(FieldTestCase):
 
         select = DynamicSelect(options=FakeContact.objects.values_list('id', 'last_name'))
         self.assertIsInstance(select.options, QuerySet)
-        self.assertListEqual(list(FakeContact.objects.values_list('id', 'last_name')),
-                             list(select.choices)
+        self.assertListEqual([*FakeContact.objects.values_list('id', 'last_name')],
+                             [*select.choices]
                             )
 
     def test_options_function(self):

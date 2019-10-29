@@ -115,10 +115,11 @@ class AbstractReport(CremeEntity):
         return [column for column in self.columns if not column.hand.hidden]
 
     def get_ascendants_reports(self):
-        asc_reports = list(self.__class__.objects.filter(pk__in=Field.objects.filter(sub_report=self.id)
-                                                                     .values_list('report', flat=True)
-                                                        )
-                          )
+        asc_reports = [
+            *type(self).objects.filter(pk__in=Field.objects.filter(sub_report=self.id)
+                                                           .values_list('report', flat=True)
+                                      )
+        ]
 
         for report in asc_reports:
             asc_reports.extend(report.get_ascendants_reports())

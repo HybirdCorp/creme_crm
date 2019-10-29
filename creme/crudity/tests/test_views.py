@@ -314,7 +314,7 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
                         )
 
         with self.assertNoException():
-            bricks = list(context['bricks'])
+            bricks = [*context['bricks']]
 
         self.assertTrue(bricks)
         models = set()

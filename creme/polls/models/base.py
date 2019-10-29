@@ -35,13 +35,13 @@ class _PollLine:
 
     def get_conditions(self):
         if self._conditions_cache is None:
-            self._conditions_cache = list(self.conditions.all())
+            self._conditions_cache = [*self.conditions.all()]
 
         return self._conditions_cache
 
     def get_reversed_conditions(self):
         if self._rev_conditions_cache is None:
-            self._rev_conditions_cache = list(self._get_condition_class().objects.filter(source=self))
+            self._rev_conditions_cache = [*self._get_condition_class().objects.filter(source=self)]
 
         return self._rev_conditions_cache
 

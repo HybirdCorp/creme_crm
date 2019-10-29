@@ -512,10 +512,10 @@ class TypeChoices(base.CheckedView):
 
         get_object_or_404(ActivityType, pk=type_id)
 
-        return list(ActivitySubType.objects
-                                   .filter(type=type_id)
-                                   .values_list('id', 'name')
-                   )
+        return [*ActivitySubType.objects
+                                .filter(type=type_id)
+                                .values_list('id', 'name')
+               ]
 
     def get(self, request, *args, **kwargs):
         return self.response_class(

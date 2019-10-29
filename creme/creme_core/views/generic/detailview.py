@@ -34,7 +34,6 @@ from creme.creme_core.models import CremeModel, CremeEntity, BrickDetailviewLoca
 
 from . import base
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -70,7 +69,7 @@ def detailview_bricks(user, entity, registry=brick_registry):
     # We call the method block_registry.get_bricks() once to regroup additional queries
     bricks = {}
     model = entity.__class__
-    for brick in registry.get_bricks(list(chain.from_iterable(brick_ids for brick_ids in loc_map.values())),
+    for brick in registry.get_bricks([*chain.from_iterable(brick_ids for brick_ids in loc_map.values())],
                                      entity=entity,
                                     ):
         target_ctypes = brick.target_ctypes
@@ -86,9 +85,10 @@ def detailview_bricks(user, entity, registry=brick_registry):
         hat_bricks.append(hat_brick.id_)
         bricks[hat_brick.id_] = hat_brick
 
-    return {zone_name: list(filter(None, (bricks.get(brick_id) for brick_id in loc_map[zone])))
-                for zone, zone_name in BrickDetailviewLocation.ZONE_NAMES.items()
-           }
+    return {
+        zone_name: [*filter(None, (bricks.get(brick_id) for brick_id in loc_map[zone]))]
+            for zone, zone_name in BrickDetailviewLocation.ZONE_NAMES.items()
+    }
 
 
 # def view_entity(request, object_id, model,

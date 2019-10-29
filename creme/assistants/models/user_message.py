@@ -127,7 +127,7 @@ class UserMessage(CremeModel):
         from django.conf import settings
         from django.core.mail import EmailMessage, get_connection
 
-        usermessages = list(cls.objects.filter(email_sent=False))
+        usermessages = [*cls.objects.filter(email_sent=False)]
 
         if not usermessages:
             return

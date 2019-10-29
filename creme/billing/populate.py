@@ -77,7 +77,7 @@ class Populator(BasePopulator):
 
         # ---------------------------
         # line_entities = [ProductLine, ServiceLine]
-        line_entities = list(lines_registry)
+        line_entities = [*lines_registry]
         RelationType.create((constants.REL_SUB_BILL_ISSUED, _('issued by'),  BILLING_MODELS),
                             (constants.REL_OBJ_BILL_ISSUED, _('has issued'), [Organisation]),
                             is_internal=True,

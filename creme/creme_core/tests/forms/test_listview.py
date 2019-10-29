@@ -1014,7 +1014,7 @@ class SearchFieldsTestCase(CremeTestCase):
         q_hold = to_python(value=str(hold.id))
         k, v = q_hold.children[0]
         self.assertEqual('pk__in', k)
-        self.assertEqual([zangief.id], list(v))
+        self.assertListEqual([zangief.id], [*v])
 
         # ---
         q_null = to_python(value=lv_form.NULL)

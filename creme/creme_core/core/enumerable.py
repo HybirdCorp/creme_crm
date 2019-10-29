@@ -89,7 +89,7 @@ class QSEnumerator(Enumerator):
         return qs.complex_filter(limit_choices_to) if limit_choices_to else qs
 
     def choices(self, user):
-        return list(map(self.instance_as_dict, self._queryset()))
+        return [*map(self.instance_as_dict, self._queryset())]
 
 
 class _EnumerableRegistry:

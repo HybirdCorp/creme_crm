@@ -62,7 +62,7 @@ class _FieldBlock:
                or string '*' (wildcard->all remaining fields).
         """
         self.name = verbose_name
-        self.field_names = list(field_names) if field_names != '*' else field_names
+        self.field_names = [*field_names] if field_names != '*' else field_names
 
     def __str__(self):  # For debugging
         return '<_FieldBlock: {} {}>'.format(self.name, self.field_names)

@@ -170,7 +170,7 @@ class Brick:
     def _build_template_context(self, context, brick_id, brick_context, **extra_kwargs):
         context['brick_id'] = brick_id
         context['state'] = BricksManager.get(context).get_state(self.id_, context['user'])
-        context['dependencies'] = list(self._iter_dependencies_info())
+        context['dependencies'] = [*self._iter_dependencies_info()]
         context['reloading_info'] = self._reloading_info
         context['read_only'] = self.read_only
 
@@ -574,7 +574,7 @@ class BricksManager:
         return context[BricksManager.var_name]  # Will raise exception if not created: OK
 
     def get_remaining_groups(self):
-        return list(self._bricks_groups.keys())
+        return [*self._bricks_groups.keys()]
 
     def get_state(self, brick_id, user):
         "Get the state for a brick and fill a cache to avoid multiple SQL requests."
@@ -747,9 +747,9 @@ class _BrickRegistry:
         @param entity: if the bricks are displayed of the detail-view of an entity,
                        it should be given.
         """
-        specific_ids = list(filter(SpecificRelationsBrick.id_is_specific, brick_ids))
-        instance_ids = list(filter(InstanceBrickConfigItem.id_is_specific, brick_ids))
-        custom_ids   = list(filter(None, map(CustomBrickConfigItem.id_from_brick_id, brick_ids)))
+        specific_ids = [*filter(SpecificRelationsBrick.id_is_specific, brick_ids)]
+        instance_ids = [*filter(InstanceBrickConfigItem.id_is_specific, brick_ids)]
+        custom_ids   = [*filter(None, map(CustomBrickConfigItem.id_from_brick_id, brick_ids))]
 
         relation_bricks_items = {
             rbi.brick_id: rbi

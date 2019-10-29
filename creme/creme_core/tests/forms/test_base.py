@@ -235,7 +235,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             ptypes_choices = form.fields['property_types'].choices
 
         # Choices are sorted with 'text'
-        choices = list((choice[0].value, choice[1]) for choice in ptypes_choices)
+        choices = [(choice[0].value, choice[1]) for choice in ptypes_choices]
         i1 = self.assertIndex((ptype02.id, ptype02.text), choices)
         i2 = self.assertIndex((ptype01.id, ptype01.text), choices)
         i3 = self.assertIndex((ptype03.id, ptype03.text), choices)

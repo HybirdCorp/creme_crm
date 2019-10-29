@@ -10,11 +10,11 @@ except Exception as e:
 
 class SparsezipTestCase(CremeTestCase):
     def assertExpandsTo(self, sparse_collection, expected_result, default_value=-1):
-        expanded_collection = list(expand_sparse_iterator(iter(sparse_collection), default_value))
+        expanded_collection = [*expand_sparse_iterator(iter(sparse_collection), default_value)]
         self.assertListEqual(expanded_collection, expected_result)
 
     def assertSparsezipsTo(self, full_collection, sparse_collection, expected_result, default_value=-1):
-        zipped_sequence = list(sparsezip(full_collection, sparse_collection, default_value))
+        zipped_sequence = [*sparsezip(full_collection, sparse_collection, default_value)]
         self.assertListEqual(zipped_sequence, expected_result)
 
     def test_expand_empty_collection(self):

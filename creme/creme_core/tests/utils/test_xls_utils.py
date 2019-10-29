@@ -76,7 +76,7 @@ class XLSUtilsTestCase(CremeTestCase):
     def test_as_list(self):
         for filename in self.files:
             rd = XlrdReader(filedata=self.get_file_path(filename))
-            self.assertEqual(self.data, list(rd))
+            self.assertListEqual(self.data, [*rd])
 
     @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_open_file(self):
@@ -84,7 +84,7 @@ class XLSUtilsTestCase(CremeTestCase):
             with open(self.get_file_path(filename), mode='rb') as file_obj:
                 file_content = file_obj.read()
                 rd = XlrdReader(file_contents=file_content)
-                self.assertEqual(list(rd), self.data)
+                self.assertEqual([*rd], self.data)
 
     @skipIf(XlrdMissing or XlwtMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_write_and_read(self):
@@ -97,12 +97,12 @@ class XLSUtilsTestCase(CremeTestCase):
         wt.save(file.name)
 
         rd = XlrdReader(filedata=file.name)
-        self.assertEqual(list(rd), self.data)
+        self.assertEqual([*rd], self.data)
 
         with open(file.name, mode='rb') as file_obj:
             file_content = file_obj.read()
             rd = XlrdReader(file_contents=file_content)
-            self.assertEqual(list(rd), self.data)
+            self.assertEqual([*rd], self.data)
 
     @skipIf(XlrdMissing or XlwtMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_truncate(self):
@@ -124,7 +124,7 @@ Praesent blandit pharetra nulla, id ultrices diam molestie sed.
         with self.assertNoException():
             wt.save(file.name)
 
-        read_content = list(XlrdReader(filedata=file.name))
+        read_content = [*XlrdReader(filedata=file.name)]
         self.assertEqual(1, len(read_content))
 
         elt = read_content[0]

@@ -75,7 +75,7 @@ class DateRangeTestCase(CremeTestCase):
             registry.register(prev_range1, curr_range, prev_range2)
 
     def test_choices01(self):
-        choices = list(self.registry.choices())
+        choices = [*self.registry.choices()]
         self.assertEqual(14, len(choices))
 
         choice0 = choices[0]
@@ -93,8 +93,8 @@ class DateRangeTestCase(CremeTestCase):
         self.assertNotIn(date_range.NotEmptyRange.name,  names)
 
     def test_choices02(self):
-        "Global registry"
-        choices = list(date_range.date_range_registry.choices())
+        "Global registry."
+        choices = [*date_range.date_range_registry.choices()]
         self.assertEqual(14, len(choices))
 
     def test_future(self):

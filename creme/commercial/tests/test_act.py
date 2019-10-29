@@ -989,8 +989,8 @@ class ActTestCase(CommercialBaseTestCase):
         create_rel(subject_entity=opp01)
 
         act = self.refresh(act)  # Refresh cache
-        self.assertEqual([opp01], list(act.get_related_opportunities()))
-        self.assertEqual(0,       act.get_made_sales())
+        self.assertListEqual([opp01], [*act.get_related_opportunities()])
+        self.assertEqual(0, act.get_made_sales())
 
         opp01.made_sales = 1500; opp01.save()
         self.assertEqual(1500, self.refresh(act).get_made_sales())

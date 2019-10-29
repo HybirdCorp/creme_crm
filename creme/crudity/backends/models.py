@@ -153,7 +153,7 @@ class CrudityBackend:
 
         try:
             with atomic():
-                for field_name, field_value in list(data.items()):
+                for field_name, field_value in [*data.items()]:
                     try:
                         field = model_get_field(field_name)
                     except FieldDoesNotExist:

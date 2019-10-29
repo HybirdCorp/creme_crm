@@ -534,10 +534,10 @@ class EventsTestCase(CremeTestCase):
 
     @staticmethod
     def relations_types(contact, event):
-        return list(Relation.objects
-                            .filter(subject_entity=contact, object_entity=event)
-                            .values_list('type_id', flat=True)
-                   )
+        return [*Relation.objects
+                         .filter(subject_entity=contact, object_entity=event)
+                         .values_list('type_id', flat=True)
+               ]
 
     @skipIfCustomContact
     def test_link_contacts01(self):

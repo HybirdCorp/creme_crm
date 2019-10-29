@@ -133,7 +133,7 @@ class MergeViewsTestCase(ViewsTestCase):
         prop2 = create_prop(type=ptype02, creme_entity=orga02)
         prop3 = create_prop(type=ptype01, creme_entity=orga02)
 
-        orga02_hlines = list(HistoryLine.objects.filter(entity=orga02.id))
+        orga02_hlines = [*HistoryLine.objects.filter(entity=orga02.id)]
 
         last_hline_id = HistoryLine.objects.order_by('-id')[0].id
 
@@ -347,7 +347,7 @@ class MergeViewsTestCase(ViewsTestCase):
                                           'image_1':      image1.id,
                                           'image_2':      image2.id,
                                           'image_merged': image2.id,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
         self.assertRedirects(response, contact01.get_absolute_url())
@@ -357,7 +357,7 @@ class MergeViewsTestCase(ViewsTestCase):
         new_contact01 = self.refresh(contact01)
         self.assertEqual(contact01.first_name, new_contact01.first_name)
         self.assertEqual(contact01.last_name,  new_contact01.last_name)
-        self.assertEqual([language3],          list(new_contact01.languages.all()))
+        self.assertListEqual([language3],      [*new_contact01.languages.all()])
         self.assertEqual(image2,               new_contact01.image)
 
     def test_merge03(self):

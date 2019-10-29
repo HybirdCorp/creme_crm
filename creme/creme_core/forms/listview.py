@@ -156,7 +156,7 @@ class SelectLVSWidget(ListViewSearchWidget):
                 }
             )
 
-        return list(groups.items())
+        return [*groups.items()]
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)

@@ -397,7 +397,7 @@ class MailingListsTestCase(_EmailsTestCase):
         context = self.client.get(url).context
 
         with self.assertNoException():
-            choices = list(context['form'].fields['filters'].choices)
+            choices = [*context['form'].fields['filters'].choices]
 
         self.assertEqual(
             [('', _('All')),

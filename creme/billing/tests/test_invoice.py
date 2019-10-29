@@ -430,18 +430,19 @@ class InvoiceTestCase(_BillingTestCase):
                                           'discount':        invoice.discount,
                                           'source':          source.id,
                                           'target':          self.formfield_value_generic_entity(target),
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
         invoice = self.refresh(invoice)
         self.assertEqual(other_user, invoice.user)
 
-        self.assertEqual([other_user.id] * 4,
-                         list(CremeEntity.objects.filter(pk__in=[l.pk for l in lines])
+        self.assertListEqual([other_user.id] * 4,
+                             [*CremeEntity.objects
+                                          .filter(pk__in=[l.pk for l in lines])
                                           .values_list('user', flat=True)
-                             )  # Refresh
-                        )
+                             ]  # Refresh
+                            )
 
     def test_editview04(self):
         "Error on discount"
@@ -458,7 +459,7 @@ class InvoiceTestCase(_BillingTestCase):
                                             'discount': discount,
                                             'source':   source.id,
                                             'target':   self.formfield_value_generic_entity(target),
-                                           }
+                                           },
                                      )
 
         msg = _('Enter a number between 0 and 100 (it is a percentage).')
@@ -478,7 +479,7 @@ class InvoiceTestCase(_BillingTestCase):
         name = name.title()
         response = self.client.post(url, data={'entities_lbl': [str(invoice)],
                                                'field_value':  name,
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(invoice).name)
@@ -497,11 +498,12 @@ class InvoiceTestCase(_BillingTestCase):
 
         response = self.assertPOST200(url, data={'entities_lbl': [str(invoice)],
                                                  'field_value':  '110',
-                                                }
+                                                },
                                      )
-        self.assertFormError(response, 'form', 'field_value',
-                             _('Enter a number between 0 and 100 (it is a percentage).')
-                            )
+        self.assertFormError(
+            response, 'form', 'field_value',
+            _('Enter a number between 0 and 100 (it is a percentage).')
+        )
 
     def test_generate_number01(self):
         self.login()
@@ -564,8 +566,8 @@ class InvoiceTestCase(_BillingTestCase):
         product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
         service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
 
-        self.assertEqual([product_line.pk], list(invoice.get_lines(ProductLine).values_list('pk', flat=True)))
-        self.assertEqual([service_line.pk], list(invoice.get_lines(ServiceLine).values_list('pk', flat=True)))
+        self.assertListEqual([product_line.pk], [*invoice.get_lines(ProductLine).values_list('pk', flat=True)])
+        self.assertListEqual([service_line.pk], [*invoice.get_lines(ServiceLine).values_list('pk', flat=True)])
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
@@ -576,21 +578,21 @@ class InvoiceTestCase(_BillingTestCase):
 
         # ----
         product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
-        plines = list(invoice.get_lines(ProductLine))
+        plines = [*invoice.get_lines(ProductLine)]
 
         self.assertEqual([product_line], plines)
 
         with self.assertNumQueries(0):
-            list(invoice.get_lines(ProductLine))
+            __ = [*invoice.get_lines(ProductLine)]
 
         # ----
         service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
-        slines = list(invoice.get_lines(ServiceLine))
+        slines = [*invoice.get_lines(ServiceLine)]
 
         self.assertEqual([service_line], slines)
 
         with self.assertNumQueries(0):
-            list(invoice.get_lines(ServiceLine))
+            __ = [*invoice.get_lines(ServiceLine)]
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
@@ -602,9 +604,9 @@ class InvoiceTestCase(_BillingTestCase):
         product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
         service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
 
-        self.assertEqual([product_line, service_line],
-                         list(invoice.iter_all_lines())
-                        )
+        self.assertListEqual([product_line, service_line],
+                             [*invoice.iter_all_lines()]
+                            )
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine

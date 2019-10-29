@@ -173,8 +173,8 @@ class ClassKeyedMap:
 
     def __repr__(self):
         return 'ClassKeyedMap({}, default={})'.format(
-                    repr(list(self.items())),
-                    repr(self.default),
+            repr([*self.items()]),
+            repr(self.default),
         )
 
     @property
@@ -346,10 +346,10 @@ class OrderedSet(MutableSet):
         if not self:
             return '{}()'.format(self.__class__.__name__,)
 
-        return '{}({!r})'.format(self.__class__.__name__, list(self))
+        return '{}({!r})'.format(self.__class__.__name__, [*self])
 
     def __eq__(self, other):
         if isinstance(other, OrderedSet):
-            return len(self) == len(other) and list(self) == list(other)
+            return len(self) == len(other) and [*self] == [*other]
 
         return set(self) == set(other)

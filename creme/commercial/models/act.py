@@ -114,25 +114,26 @@ class AbstractAct(CremeEntity):
         relopps = self._related_opportunities
 
         if relopps is None:
-            relopps = list(get_opportunity_model().objects.filter(is_deleted=False,
-                                                                  relations__type=REL_SUB_COMPLETE_GOAL,
-                                                                  relations__object_entity=self.id,
-                                                                 )
-                          )
+            relopps = [
+                *get_opportunity_model().objects.filter(is_deleted=False,
+                                                        relations__type=REL_SUB_COMPLETE_GOAL,
+                                                        relations__object_entity=self.id,
+                                                       )
+            ]
             self._related_opportunities = relopps
 
         return relopps
 
     def _post_save_clone(self, source):
         ActObjective.objects.bulk_create([
-                ActObjective(name=objective.name,
-                             act=self,
-                             counter=objective.counter,
-                             counter_goal=objective.counter_goal,
-                             ctype=objective.ctype,
-                            )
+            ActObjective(name=objective.name,
+                         act=self,
+                         counter=objective.counter,
+                         counter_goal=objective.counter_goal,
+                         ctype=objective.ctype,
+                        )
                 for objective in ActObjective.objects.filter(act=source).order_by('id')
-            ])
+        ])
 
 
 class Act(AbstractAct):
@@ -317,7 +318,7 @@ class ActObjectivePatternComponent(CremeModel):
         children = self._children_cache
 
         if children is None:
-            self._children_cache = children = list(self.children.all())
+            self._children_cache = children = [*self.children.all()]
 
         return children
 

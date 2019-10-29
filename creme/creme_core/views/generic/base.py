@@ -306,9 +306,9 @@ class BricksMixin:
         return ()
 
     def get_bricks(self):
-        return list(self.brick_registry.get_bricks(
+        return [*self.brick_registry.get_bricks(
             [id_ for id_ in self.get_brick_ids() if id_]
-        ))
+        )]
 
     def get_bricks_reload_url(self):
         name = self.bricks_reload_url_name

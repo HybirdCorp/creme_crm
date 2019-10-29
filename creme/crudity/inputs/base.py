@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,15 +32,16 @@ class CrudityInput:
 
     def __init__(self):
         self._backends = {}
-        self._brickheader_actions = [TemplateBrickHeaderAction(template_name=tn)
-                                        for tn in self.brickheader_action_templates
-                                    ]
+        self._brickheader_actions = [
+            TemplateBrickHeaderAction(template_name=tn)
+                for tn in self.brickheader_action_templates
+        ]
 
     def add_backend(self, backend):
         self._backends[backend.subject] = backend
 
     def get_backends(self):  # TODO: rename 'backends' + property + generator ?
-        return list(self._backends.values())
+        return [*self._backends.values()]
 
     def get_backend(self, subject):
         return self._backends.get(subject)
@@ -50,8 +51,8 @@ class CrudityInput:
         return bool(self._backends)
 
     def handle(self, data):
-        """Call the method of the Input defined in subclasses
-        @return: The backend used if data were used else None
+        """Call the method of the Input defined in subclasses.
+        @return: The backend used if data were used else None.
         """
         fun = getattr(self, self.method, None)
         if fun:

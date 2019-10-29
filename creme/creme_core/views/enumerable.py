@@ -152,6 +152,6 @@ class CustomFieldEnumsView(base.CheckedView):
         cf = get_object_or_404(CustomField, pk=self.kwargs['cf_id'])
 
         return self.response_class(
-            list(CustomFieldEnumValue.objects.filter(custom_field=cf).values_list('id', 'value')),
+            [*CustomFieldEnumValue.objects.filter(custom_field=cf).values_list('id', 'value')],
             safe=False,  # Result is not a dictionary
         )

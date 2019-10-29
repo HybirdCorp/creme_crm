@@ -181,7 +181,7 @@ class GraphsTestCase(CremeTestCase):
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype.id]}))
 
-        existing_fileref_ids = list(FileRef.objects.values_list('id', flat=True))
+        existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
 
         response = self.assertGET200(reverse('graphs__dl_image', args=(graph.id,)), follow=True)
         self.assertEqual('image/png', response['Content-Type'])

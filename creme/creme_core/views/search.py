@@ -106,7 +106,7 @@ class SearcherMixin:
     searchable_models_registry = creme_registry
 
     def get_raw_models(self):
-        models = list(self.searchable_models_registry.iter_entity_models())
+        models = [*self.searchable_models_registry.iter_entity_models()]
         models.sort(key=lambda m: m._meta.verbose_name)
 
         return models
@@ -172,7 +172,7 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
         ctype = self.get_ctype()
 
         if ctype is None:
-            models = list(creme_registry.iter_entity_models())
+            models = [*creme_registry.iter_entity_models()]
             models.sort(key=lambda m: m._meta.verbose_name)
         else:
             models = [ctype.model_class()]

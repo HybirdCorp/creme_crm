@@ -240,7 +240,7 @@ class AlertTestCase(AssistantsTestCase):
         self.assertIsNone(job.user)
         self.assertIsNone(job.type.next_wakeup(job, now_value))
 
-        reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
+        reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
 
         create_alert = partial(Alert.objects.create, creme_entity=self.entity,
                                user=user, trigger_date=now_value,

@@ -171,7 +171,7 @@ class DatePeriodFieldTestCase(FieldTestCase):
                                        )
 
     def test_choices(self):
-        choices = list(DatePeriodField().choices)
+        choices = [*DatePeriodField().choices]
         self.assertIn((MinutesPeriod.name, MinutesPeriod.verbose_name), choices)
         self.assertIn((HoursPeriod.name,   HoursPeriod.verbose_name),   choices)
         self.assertIn((DaysPeriod.name,    DaysPeriod.verbose_name),    choices)
@@ -199,7 +199,9 @@ class DatePeriodFieldTestCase(FieldTestCase):
         )
 
     def test_registry_1(self):
-        self.assertEqual(list(date_period_registry.choices()), list(DatePeriodField().choices))
+        self.assertListEqual([*date_period_registry.choices()],
+                             [*DatePeriodField().choices]
+                            )
 
     def test_registry_2(self):
         registry = DatePeriodRegistry(MinutesPeriod, HoursPeriod)

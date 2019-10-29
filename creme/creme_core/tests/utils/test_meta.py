@@ -81,7 +81,7 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(_('Photograph') + ' - ' + _('Name'), fi.verbose_name)
 
         with self.assertNoException():
-            fi_as_list = list(meta.FieldInfo(FakeContact, 'image__user__username'))
+            fi_as_list = [*meta.FieldInfo(FakeContact, 'image__user__username')]
 
         self.assertEqual([FakeContact._meta.get_field('image'),
                           FakeImage._meta.get_field('user'),

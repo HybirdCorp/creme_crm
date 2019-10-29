@@ -63,9 +63,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         self.assertEqual(line1.conds_use_or, line2.conds_use_or)
         # Beware: source are not compared (would need a pk translation)
-        self.assertEqual(list(line1.conditions.values('operator', 'raw_answer')),
-                         list(line2.conditions.values('operator', 'raw_answer'))
-                        )
+        self.assertListEqual(
+            [*line1.conditions.values('operator', 'raw_answer')],
+            [*line2.conditions.values('operator', 'raw_answer')]
+        )
 
     def _build_linkto_url(self, entity):
         return reverse('polls__link_reply_to_person', args=(entity.id,))
@@ -334,7 +335,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         lines = preply.lines.all()
         self.assertEqual(4, len(lines))
 
-        line_ids = list(l.id for l in lines)
+        line_ids = [l.id for l in lines]
         self.assertEqual(sorted(line_ids), line_ids)
 
         self.assertRedirects(response, preply.get_absolute_url())
@@ -447,13 +448,13 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                     data={'user':  user.id,
                                           'name':  name,
                                           'pform': pform.id,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
         preply = self.get_object_or_fail(PollReply, name=name)
         self.assertFalse(preply.is_complete)
-        self.assertEqual([1, 2, 3], list(preply.lines.values_list('order', flat=True)))
+        self.assertEqual([1, 2, 3], [*preply.lines.values_list('order', flat=True)])
 
         # ---
         response = self.assertGET200(preply.get_absolute_url())
@@ -476,14 +477,16 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                           'name':   name,
                                           'pform':  pform.id,
                                           'number': reply_number,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
         for i in range(1, reply_number + 1):
             preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
             self.assertFalse(preply.is_complete)
-            self.assertEqual([1, 2, 3], list(preply.lines.values_list('order', flat=True)))
+            self.assertListEqual([1, 2, 3],
+                                 [*preply.lines.values_list('order', flat=True)]
+                                )
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -515,7 +518,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                           'persons': self.formfield_value_multi_generic_entity(
                                                         leina, claudette, gaimos, amara,
                                                      ),
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -546,7 +549,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         name = 'Reply#1'
         self.assertNoFormError(self.client.post(url, data={'user': user.id,
                                                            'name': name,
-                                                          }
+                                                          },
                                                )
                               )
 
@@ -620,7 +623,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                     data={'user':   user.id,
                                           'name':   name,
                                           'number': reply_number,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -682,7 +685,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                             EntityCredentials.DELETE |
                                             # EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
+                                      set_type=SetCredentials.ESET_ALL,
                                      )
 
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -1185,7 +1188,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             stree = SectionTree(preply)
 
         with self.assertNumQueries(0):
-            nodes = list(stree)
+            nodes = [*stree]
 
         with self.assertNoException():
             get_rline  = PollReplyLine.objects.get
@@ -2144,7 +2147,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             stree = StatsTree(pform)
 
         with self.assertNumQueries(0):
-            nodes = list(stree)
+            nodes = [*stree]
 
         self.assertEqual([fline1, fline2, fline3, fline4, fline5], nodes)
 

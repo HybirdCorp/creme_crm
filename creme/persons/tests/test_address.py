@@ -469,7 +469,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsNotNone(address)
         self.assertEqual(country, address.country)
 
-        hlines = list(HistoryLine.objects.order_by('id'))
+        hlines = [*HistoryLine.objects.order_by('id')]
         self.assertEqual(old_count + 2, len(hlines))  # 1 creation + 1 auxiliary (NB: not edition with double save)
 
         hline = hlines[-2]
@@ -638,7 +638,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertListEqual(
             [orga3],
-            list(Organisation.objects.filter(id__in=orga_ids)
-                                    .filter(field.to_python(value='towel'))
-                )
+            [*Organisation.objects.filter(id__in=orga_ids)
+                                  .filter(field.to_python(value='towel'))
+            ]
         )

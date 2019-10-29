@@ -174,7 +174,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         brick_registry = _BrickRegistry()
         brick_registry.register_4_instance(ContactBrick)
 
-        bricks = list(brick_registry.get_bricks([ibci.brick_id], entity=casca))
+        bricks = [*brick_registry.get_bricks([ibci.brick_id], entity=casca)]
         brick_id = bricks[0].id_
 
         self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1})

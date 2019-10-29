@@ -131,7 +131,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertGreaterEqual(status_count, 2)
         self.assertEqual(status_count, TaskStatus.objects.order_by('-order')[0].order)
 
-        pstatus_orders = list(ProjectStatus.objects.values_list('order', flat=True))
+        pstatus_orders = [*ProjectStatus.objects.values_list('order', flat=True)]
         self.assertTrue(pstatus_orders)
         self.assertTrue(range(len(pstatus_orders) + 1), pstatus_orders)
 
@@ -588,7 +588,7 @@ class ProjectsTestCase(CremeTestCase):
         task02 = self.create_task(project, 'Task02')
         task03 = self.create_task(project, 'Task03')
 
-        self.assertEqual([task01], list(task01.get_subtasks()))
+        self.assertEqual([task01], [*task01.get_subtasks()])
 
         build_url = self._build_add_parent_task_url
         field_value = self.formfield_value_multi_creator_entity
@@ -661,7 +661,7 @@ class ProjectsTestCase(CremeTestCase):
         worker = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
         self.create_resource(task, worker, hourly_cost=100)
 
-        resources = list(task.resources_set.all())
+        resources = [*task.resources_set.all()]
         self.assertEqual(1, len(resources))
         resource = resources[0]
 
@@ -722,7 +722,7 @@ class ProjectsTestCase(CremeTestCase):
                                     data={'user':        user.id,
                                           'contact':     worker.id,
                                           'hourly_cost': 200,
-                                         }
+                                         },
                                     )
         self.assertNoFormError(response)
 
@@ -733,9 +733,9 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(1, len(activities))
 
         activity = activities[0]
-        self.assertEqual([Calendar.objects.get_default_calendar(self.other_user)],
-                         list(activity.calendars.all())
-                        )
+        self.assertListEqual([Calendar.objects.get_default_calendar(self.other_user)],
+                             [*activity.calendars.all()]
+                            )
         url = self._build_edit_activity_url(activity)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
@@ -748,7 +748,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'duration':   10,
                                           'user':       user.id,
                                           'type_selector': self._build_type_value(),
-                                         }
+                                         },
                                     )
         self.assertNoFormError(response)
 
@@ -834,9 +834,9 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(1, len(activities))
 
         activity = activities[0]
-        self.assertEqual([Calendar.objects.get_default_calendar(self.other_user)],
-                         list(activity.calendars.all())
-                        )
+        self.assertListEqual([Calendar.objects.get_default_calendar(self.other_user)],
+                             [*activity.calendars.all()]
+                            )
 
         response = self.client.post(self._build_edit_activity_url(activity),
                                     follow=True,
@@ -896,9 +896,9 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(1, worker1, REL_SUB_PART_2_ACTIVITY, activity)
         self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
 
-        self.assertEqual([Calendar.objects.get_default_calendar(self.other_user)],
-                         list(activity.calendars.all())
-                        )
+        self.assertListEqual([Calendar.objects.get_default_calendar(self.other_user)],
+                             [*activity.calendars.all()]
+                            )
 
     @skipIfCustomActivity
     @skipIfCustomTask
@@ -914,7 +914,7 @@ class ProjectsTestCase(CremeTestCase):
         worker = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
         self.create_resource(task1, worker, hourly_cost=100)
 
-        resources = list(task1.resources_set.all())
+        resources = [*task1.resources_set.all()]
         self.assertEqual(1, len(resources))
         resource1 = resources[0]
 
@@ -1054,9 +1054,10 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(0, worker1, REL_SUB_PART_2_ACTIVITY, activity1)
         self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity1)
 
-        self.assertEqual([Calendar.objects.get_default_calendar(self.other_user)],
-                         list(activity1.calendars.all())
-                        )
+        self.assertListEqual(
+            [Calendar.objects.get_default_calendar(self.other_user)],
+            [*activity1.calendars.all()]
+        )
 
         # activity of the other resource => no change
         activities2 = task2.related_activities

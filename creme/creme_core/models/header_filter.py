@@ -225,7 +225,7 @@ class HeaderFilter(models.Model):  # CremeModel ???
         """List of EntityCell instances, but it excluded the ones which are
         related to fields hidden with FieldsConfig.
         """
-        return list(FieldsConfig.filter_cells(self.entity_type.model_class(), self.cells))
+        return [*FieldsConfig.filter_cells(self.entity_type.model_class(), self.cells)]
 
     def get_edit_absolute_url(self):
         return reverse('creme_core__edit_hfilter', args=(self.id,))

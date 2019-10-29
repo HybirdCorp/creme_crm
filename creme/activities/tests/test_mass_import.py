@@ -356,9 +356,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertRelationCount(0, act2, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
 
         self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, other_contact)
-        self.assertEqual([Calendar.objects.get_default_calendar(other_user)],
-                         list(act2.calendars.all())
-                        )
+        self.assertListEqual([Calendar.objects.get_default_calendar(other_user)],
+                             [*act2.calendars.all()]
+                            )
 
         # ---------
         act3 = self.get_object_or_fail(Activity, title=title3)
@@ -958,13 +958,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         create_contact = partial(Contact.objects.create, user=user, last_name=last_name)
         aoi = create_contact(first_name=first_name)
         contacts, err_msg = ext.extract_value([first_name, last_name], user)
-        self.assertEqual([aoi], list(contacts))
+        self.assertListEqual([aoi], [*contacts])
         self.assertFalse(err_msg)
 
         # -----
         ext = MultiColumnsParticipantsExtractor(0, 1)
         contacts, err_msg = ext.extract_value([last_name], user)
-        self.assertEqual([aoi], list(contacts))
+        self.assertListEqual([aoi], [*contacts])
         self.assertEqual((), err_msg)
 
         ittosai = create_contact(first_name='Ittôsai')
@@ -1001,7 +1001,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         ext = MultiColumnsParticipantsExtractor(0, 1)
         contacts, err_msg = ext.extract_value([last_name], user)
-        self.assertEqual([aoi], list(contacts))
+        self.assertListEqual([aoi], [*contacts])
         self.assertFalse(err_msg)
 
     @skipIfCustomContact
@@ -1056,7 +1056,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertFalse(err_msg)
 
         aoi = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        self.assertEqual([aoi], list(contacts))
+        self.assertListEqual([aoi], [*contacts])
 
         extract()
         self.assertEqual(1, Contact.objects.filter(first_name=first_name, last_name=last_name).count())

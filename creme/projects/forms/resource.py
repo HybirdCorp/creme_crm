@@ -56,7 +56,7 @@ class ResourceCreateForm(CremeModelForm):  # Not CremeEntityForm to avoid Relati
 
         contact_f = self.fields['contact']
         contact_f.q_filter = ~Q(
-            pk__in=list(other_resources.values_list('linked_contact_id', flat=True)),
+            pk__in=[*other_resources.values_list('linked_contact_id', flat=True)],
         )
 
         # The creation view cannot create a Contact already related to Resource (& so, excluded).

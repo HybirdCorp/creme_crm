@@ -24,7 +24,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         cls.contact_ct = ct = ContentType.objects.get_for_model(FakeContact)
         contact_conf = ButtonMenuItem.objects.filter(content_type=ct)
-        cls._buttonconf_backup = list(contact_conf)
+        cls._buttonconf_backup = [*contact_conf]
         contact_conf.delete()
 
     @classmethod

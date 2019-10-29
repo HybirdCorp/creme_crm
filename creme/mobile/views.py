@@ -465,7 +465,7 @@ def phonecall_panel(request):
         context['participant_contacts'] = [r.object_entity.get_real_entity()
                                               for r in pcall.get_participant_relations()
                                           ]
-        context['participant_organisations'] = list(orga_subjects(pcall))
+        context['participant_organisations'] = [*orga_subjects(pcall)]
 
     person = get_object_or_404(CremeEntity, pk=person_id).get_real_entity()
     user.has_perm_to_view_or_die(person)

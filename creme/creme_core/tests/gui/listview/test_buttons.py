@@ -34,7 +34,7 @@ class ListViewButtonListTestCase(CremeTestCase):
     def test_instances01(self):
         "No extra context."
         blist = ListViewButtonList([self.Button01, self.Button02])
-        instances = list(blist.instances)
+        instances = [*blist.instances]
         self.assertEqual(2, len(instances))
 
         button01 = instances[0]

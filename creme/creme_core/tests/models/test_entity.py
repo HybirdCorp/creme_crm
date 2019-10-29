@@ -47,12 +47,12 @@ class EntityTestCase(CremeTestCase):
 
         qs = FakeContact.objects.filter(pk__in=[c1.id, c2.id, c3.id, c4.id])
         expected = [c2, c3, c4, c1]
-        self.assertEqual(expected,
-                         list(qs.order_by('email', 'last_name'))
-                        )
-        self.assertEqual(list(reversed(expected)),
-                         list(qs.order_by('-email', 'last_name'))
-                        )
+        self.assertListEqual(expected,
+                             [*qs.order_by('email', 'last_name')]
+                            )
+        self.assertListEqual([*reversed(expected)],
+                             [*qs.order_by('-email', 'last_name')]
+                            )
 
     def test_manager02(self):
         "Ordering NULL values as 'low' (FK)"
@@ -68,12 +68,12 @@ class EntityTestCase(CremeTestCase):
 
         qs = FakeContact.objects.filter(pk__in=[c1.id, c2.id, c3.id, c4.id])
         expected = [c3, c2, c4, c1]
-        self.assertEqual(expected,
-                         list(qs.order_by('sector', 'last_name'))
-                        )
-        self.assertEqual(list(reversed(expected)),
-                         list(qs.order_by('-sector', '-last_name'))
-                        )
+        self.assertListEqual(expected,
+                             [*qs.order_by('sector', 'last_name')]
+                            )
+        self.assertListEqual([*reversed(expected)],
+                             [*qs.order_by('-sector', '-last_name')]
+                            )
 
     def _build_rtypes_n_ptypes(self):
         create_rtype = RelationType.create
@@ -259,7 +259,7 @@ class EntityTestCase(CremeTestCase):
     def test_clone04(self):
         "ManyToMany"
         image1 = FakeImage.objects.create(user=self.user, name='Konoha by night')
-        categories = list(FakeImageCategory.objects.all())
+        categories = [*FakeImageCategory.objects.all()]
         self.assertTrue(categories)
         image1.categories.set(categories)
 

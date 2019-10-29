@@ -33,7 +33,7 @@ def _element_iterator(tree):
 
             yield deep_change, element
 
-            children = list(element)
+            children = [*element]
             if children:
                 elements.append(children)
                 deep_change = 1

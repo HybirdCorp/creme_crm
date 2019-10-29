@@ -2158,7 +2158,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
                    }
         self.assertListEqual(
             [jsondict],
-            json_load(field.from_python(list(efilter.conditions.all())))
+            json_load(field.from_python([*efilter.conditions.all()]))
         )
 
         try:
@@ -2170,7 +2170,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         jsondict['ctype'] = 0
         self.assertEqual(
             [jsondict],
-            json_load(field.from_python(list(efilter.conditions.all())))
+            json_load(field.from_python([*efilter.conditions.all()]))
         )
 
     def test_ok06(self):

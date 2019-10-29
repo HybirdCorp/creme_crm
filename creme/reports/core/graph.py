@@ -782,7 +782,7 @@ class RGHCustomFK(_RGHCustomField):
         entities_filter = entities.filter
         y_value_func = self._y_calculator
         build_url = self._listview_url_builder()
-        related_instances = list(CustomFieldEnumValue.objects.filter(custom_field=self._cfield))
+        related_instances = [*CustomFieldEnumValue.objects.filter(custom_field=self._cfield)]
 
         if order == 'DESC':
             related_instances.reverse()

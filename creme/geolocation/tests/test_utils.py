@@ -206,12 +206,12 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         self.create_address(orga2, zipcode='01630', town='Péron')
 
         contact_address = self.create_address(contact, zipcode='01630', town='Péron')
-        self.assertListEqual(list(addresses_from_persons(Contact.objects.all(), user)),
+        self.assertListEqual([*addresses_from_persons(Contact.objects.all(), user)],
                              [contact_address]
                             )
 
         self.assertListEqual(
-            sorted(list(addresses_from_persons(Organisation.objects.all(), user)), key=lambda a: a.pk),
+            sorted([*addresses_from_persons(Organisation.objects.all(), user)], key=lambda a: a.pk),
             sorted([orga_address, orga2_address], key=lambda a: a.pk)
         )
 

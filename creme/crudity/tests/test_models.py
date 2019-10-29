@@ -26,9 +26,9 @@ class WaitingActionTestCase(CrudityTestCase):
         cls.ct_contact = get_ct(FakeContact)
 
         cls.User = get_user_model()
-        cls._staff_user_ids_backup = list(cls.User.objects.filter(is_staff=True)
-                                                          .values_list('id')
-                                         )
+        cls._staff_user_ids_backup = [*cls.User.objects.filter(is_staff=True)
+                                                       .values_list('id')
+                                     ]
 
     @classmethod
     def tearDownClass(cls):

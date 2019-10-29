@@ -131,9 +131,9 @@ class MobileTestCase(CremeTestCase):
         return activity
 
     def _existing_pcall_ids(self):
-        return list(Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL)
-                                    .values_list('id', flat=True)
-                   )
+        return [*Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL)
+                                 .values_list('id', flat=True)
+               ]
 
     def _get_created_pcalls(self, existing_pcall_ids):
         with self.assertNoException():
@@ -212,11 +212,11 @@ class MobileTestCase(CremeTestCase):
 
         with self.assertNoException():
             context = response.context
-            hot_activities   = list(context['hot_activities'])
-            today_activities = list(context['today_activities'])
+            hot_activities   = [*context['hot_activities']]
+            today_activities = [*context['today_activities']]
 
-        self.assertEqual([m2, m1, m4], hot_activities)
-        self.assertEqual([m3, m6, m5], today_activities)
+        self.assertListEqual([m2, m1, m4], hot_activities)
+        self.assertListEqual([m3, m6, m5], today_activities)
         self.assertContains(response, m1.title)
         self.assertContains(response, m3.title)
 
@@ -246,7 +246,7 @@ class MobileTestCase(CremeTestCase):
 
         with self.assertNoException():
             contacts = set(response.context['favorite_contacts'])
-            orgas    = list(response.context['favorite_organisations'])
+            orgas    = [*response.context['favorite_organisations']]
 
         self.assertEqual({may, joe}, contacts)
         self.assertContains(response, may.last_name)
@@ -319,7 +319,10 @@ class MobileTestCase(CremeTestCase):
         kof = self.get_object_or_fail(Organisation, name=orga_name)
         self.assertRelationCount(1, may, REL_SUB_EMPLOYED_BY, kof)
 
-        self.assertEqual([may], list(f.entity.get_real_entity() for f in self.user.mobile_favorite.all()))
+        self.assertListEqual(
+            [may],
+            [f.entity.get_real_entity() for f in self.user.mobile_favorite.all()]
+        )
 
     def test_create_contact03(self):
         "Not logged"
@@ -434,11 +437,11 @@ class MobileTestCase(CremeTestCase):
 
         url = self.SEARCH_PERSON_URL
         context = self.assertGET200(url, data={'search': kof.name.lower()[1:6]}).context
-        self.assertEqual([may], list(context['contacts']))
-        self.assertEqual([kof], list(context['organisations']))
+        self.assertListEqual([may], [*context['contacts']])
+        self.assertListEqual([kof], [*context['organisations']])
 
         response = self.assertGET200(url, data={'search': may.last_name[:4]})
-        self.assertEqual([may], list(response.context['contacts']))
+        self.assertListEqual([may], [*response.context['contacts']])
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -461,7 +464,7 @@ class MobileTestCase(CremeTestCase):
         response = self.assertGET200(self.SEARCH_PERSON_URL,
                                      data={'search': kof.name.lower()[1:6]}
                                     )
-        self.assertEqual([may], list(response.context['contacts']))
+        self.assertListEqual([may], [*response.context['contacts']])
 
 # TODO: smart word splitting ; special chars like " ??
 
@@ -626,9 +629,9 @@ class MobileTestCase(CremeTestCase):
 
         with self.assertNoException():
             context = response.context
-            pcalls       = list(context['phone_calls'])
-            factivities  = list(context['floating_activities'])
-            tomorrow_act = list(context['tomorrow_activities'])
+            pcalls       = [*context['phone_calls']]
+            factivities  = [*context['floating_activities']]
+            tomorrow_act = [*context['tomorrow_activities']]
             fact_count   = context['floating_activities_count']
 
         self.assertEqual(expected_pcalls, pcalls)

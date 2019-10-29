@@ -131,7 +131,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         for commapp in commapps:
             self.assertEqual(orga01, commapp.creme_entity)
 
-        hlines = list(HistoryLine.objects.order_by('id'))
+        hlines = [*HistoryLine.objects.order_by('id')]
         self.assertEqual(old_count + 1, len(hlines))  # No edition for 'entity_id'
 
         hline = hlines[-1]
@@ -279,9 +279,9 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         commapp1 = create_commapp(title='Commapp #1', creme_entity=nerv)
         create_commapp(title='Commapp #2', creme_entity=seele)
 
-        self.assertEqual([commapp1],
-                         list(CommercialApproach.get_approaches(nerv.id))
-                        )
+        self.assertListEqual([commapp1],
+                             [*CommercialApproach.get_approaches(nerv.id)]
+                            )
 
     def test_get_approaches02(self):
         "Not related to entity"
@@ -298,9 +298,9 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         create_commapp(title='Commapp #2', creme_entity=seele)
         commapp3 = create_commapp(title='Commapp #2', creme_entity=misato)
 
-        self.assertEqual([commapp1, commapp3],
-                         list(CommercialApproach.get_approaches().order_by('id'))
-                        )
+        self.assertListEqual([commapp1, commapp3],
+                             [*CommercialApproach.get_approaches().order_by('id')]
+                            )
 
     # @override_settings(BLOCK_SIZE=5) useless, because the setting value is already read when we override this
     @skipIfCustomOrganisation

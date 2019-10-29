@@ -82,12 +82,12 @@ class EnhancedSelectOptions:
         if options is None:
             self.options = ()
         elif isinstance(options, GeneratorType):
-            self.options = list(options)
+            self.options = [*options]
         else:
             self.options = options
 
     def _get_options(self):
-        return list(self.options()) if callable(self.options) else self.options
+        return [*self.options()] if callable(self.options) else self.options
 
     @property
     def choices(self):
@@ -162,7 +162,7 @@ class ActionButtonList(widgets.Widget):
     def __init__(self, delegate, attrs=None, actions=()):
         super().__init__(attrs)
         self.delegate = delegate
-        self.actions = list(actions)
+        self.actions = [*actions]
         self.from_python = None
 
     def __deepcopy__(self, memo):
@@ -991,7 +991,7 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
         widget_type = 'ui-creme-checklistselect'
 
         if value is not None:
-            value = list(value)
+            value = [*value]
 
         count = self._choice_count()
         context = super().get_context(name=name, value=value, attrs=attrs)

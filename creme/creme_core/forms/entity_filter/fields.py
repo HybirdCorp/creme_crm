@@ -717,7 +717,7 @@ class RelationsConditionsField(_ConditionsField):
 
     # TODO: test with deleted entity ??
     def _value_to_jsonifiable(self, value):
-        return list(map(self._condition_to_dict, value))
+        return [*map(self._condition_to_dict, value)]
 
     def _clean_ct(self, entry):
         ct_id = self.clean_value(entry, 'ctype', int)

@@ -243,7 +243,7 @@ class VcfImportForm(CremeModelForm):
                 del fields[prefix + form_fname]
 
         is_orga_field_hidden = fconfigs[Organisation].is_fieldname_hidden
-        for fname in list(fields):  # NB: Cannot mutate the OrderedDict during iteration.
+        for fname in [*fields]:  # NB: Cannot mutate the OrderedDict during iteration.
             # NB: 5 == len('work_')
             if fname.startswith('work_') and is_orga_field_hidden(fname[5:]):
                 del fields[fname]

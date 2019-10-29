@@ -126,7 +126,7 @@ def json_encode(value, cls=CremeJSONEncoder, **kwargs):
     @param cls: json encoder class.
     @param kwargs: see json.dumps().
     """
-    return json_dumps(list(value) if isinstance(value, GeneratorType) else value,
+    return json_dumps([*value] if isinstance(value, GeneratorType) else value,
                       cls=cls,
                       **kwargs
                      )

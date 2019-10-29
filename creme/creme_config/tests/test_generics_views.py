@@ -374,7 +374,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         with self.assertNoException():
             replace_field = context['form'].fields['replace_creme_core__fakecontact_civility']
-            choices = list(replace_field.choices)
+            choices = [*replace_field.choices]
 
         self.assertEqual('{} - {}'.format('Test Contact', _('Civility')),
                          replace_field.label
@@ -448,8 +448,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             fields = response.context['form'].fields
             replace_field1 = fields[fname1]
             replace_field2 = fields[fname2]
-            choices1 = list(replace_field1.choices)
-            choices2 = list(replace_field2.choices)
+            choices1 = [*replace_field1.choices]
+            choices2 = [*replace_field2.choices]
 
         self.assertIn(('', '---------'),          choices1)
         self.assertIn((sector1.id, str(sector1)), choices1)
@@ -860,7 +860,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             fields = response.context['form'].fields
             replace_field = fields['replace_creme_core__fakedocument_categories']
-            choices = list(replace_field.choices)
+            choices = [*replace_field.choices]
 
         self.assertEqual('{} - {}'.format('Test Document', _('Categories')),
                          replace_field.label
@@ -950,7 +950,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             fields = response.context['form'].fields
             replace_field = fields['replace_creme_core__fakerecipe_ingredients']
-            choices = list(replace_field.choices)
+            choices = [*replace_field.choices]
 
         self.assertTrue(replace_field.required)
         self.assertIn((ing1.id, str(ing1)), choices)
@@ -973,7 +973,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             replace_field = response.context['form'] \
                                     .fields['replace_creme_core__fakeorganisation_legal_form']
-            choices = list(replace_field.choices)
+            choices = [*replace_field.choices]
 
         self.assertEqual('{} - {}'.format('Test Organisation', _('Legal form')),
                          replace_field.label
@@ -1286,7 +1286,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         with self.assertNoException():
             replace_field = fields[fname2]
-            choices = list(replace_field.choices)
+            choices = [*replace_field.choices]
 
         self.assertTrue(replace_field.required)
 
