@@ -21,6 +21,7 @@
 import logging
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _, pgettext
 
@@ -168,8 +169,24 @@ class Populator(BasePopulator):
         SearchConfigItem.create_if_needed(Activity, ['title', 'description', 'type__name'])
 
         # ---------------------------
-        for user in get_user_model().objects.all():
-            Calendar.objects.get_default_calendar(user)
+        # for user in get_user_model().objects.all():
+        #     Calendar.objects.get_default_calendar(user)
+        # TODO: remove this code in Creme 2.2 (it avoids install of creme which
+        #       are upgraded to 2.1 to force using the command "activities_create_default_calendars")
+        cal_is_public = settings.ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC
+
+        if cal_is_public is not None:
+            if isinstance(cal_is_public, bool):
+                users = get_user_model().objects.filter(is_staff=False, is_active=True,
+                                                        calendar__is_default__isnull=True,
+                                                       )
+
+                for user in users:
+                    Calendar.objects.create_default_calendar(user=user, is_public=cal_is_public)
+            else:
+                logger.error('ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC is invalid '
+                             '(not in {None, True, False}) '
+                            )
 
         # ---------------------------
         create_svalue = SettingValue.objects.get_or_create
