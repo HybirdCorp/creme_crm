@@ -21,7 +21,7 @@
 from enum import Enum
 from functools import partial
 # from itertools import chain
-from json import loads as json_load  # dumps as json_dump
+from json import loads as json_load, JSONDecodeError  # dumps as json_dump
 import logging
 # import warnings
 
@@ -685,12 +685,21 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         return self.internal_q
 
     def get_requested_q(self):
-        json_q_filter = self.arguments.get(self.requested_q_arg)
+        arg_name = self.requested_q_arg
+        json_q_filter = self.arguments.get(arg_name)
 
         # TODO: better validation (eg: corresponding EntityCell allowed + searchable ?) ?
         #  - limit the max depth of sub-fields chain ?
         #  - do no allow all fields ?
-        return QSerializer().loads(json_q_filter) if json_q_filter else Q()
+        if json_q_filter:
+            try:
+                return QSerializer().loads(json_q_filter)
+            except JSONDecodeError:
+                logger.exception('Error when decoding the argument "%s": %s',
+                                 arg_name, json_q_filter,
+                                )
+
+        return Q()
 
     def get_fast_mode(self):
         return self.count >= settings.FAST_QUERY_MODE_THRESHOLD
