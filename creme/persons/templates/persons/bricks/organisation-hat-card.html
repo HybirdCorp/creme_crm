@@ -10,7 +10,7 @@
 {% block card_main %}
     <div class='card-main{% if object.is_managed or is_customer or is_supplier %} has-indicators{% endif %}'>
         <span class="card-name">{{object.name}}{% if object.legal_form and 'legal_form' not in hidden_fields %}, {{object.legal_form}}{% endif %}
-            {% if object.is_deleted %}<div class='business-card-indicator business-card-deleted-indicator'>{% trans 'Entity in the trash' %}</div>{% endif %}
+            {% include 'creme_core/bricks/frags/hat-card-title-indicators.html' %}
         </span>
         <div class='business-card-indicators'>
         {% if object.is_managed %}
