@@ -198,8 +198,27 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     @classmethod
     def _create_linked_contact(cls, user, **kwargs):
         # TODO: assert user is not a team + enforce non team clean() ?
+        owner = user
+
+        if user.is_staff:
+            superuser = type(user)._default_manager \
+                                  .filter(is_superuser=True, is_staff=False) \
+                                  .order_by('id') \
+                                  .first()
+            if superuser is None:
+                logger.critical(
+                    'No existing super-user found to assign the staff Contact '
+                    '(creme_populate has not been run?!) ; you should create a '
+                    'super-user & change the owner of this staff Contact in '
+                    'order to avoid some broken behaviours (eg: inner-edition '
+                    'fails).'
+                )
+            else:
+                owner = superuser
+
         # return get_contact_model().objects.create(user=user, is_user=user,
-        return cls.objects.create(user=user, is_user=user,
+        return cls.objects.create(user=owner,
+                                  is_user=user,
                                   last_name=user.last_name or user.username.title(),
                                   first_name=user.first_name or _('N/A'),
                                   email=user.email or _('complete@Me.com'),
