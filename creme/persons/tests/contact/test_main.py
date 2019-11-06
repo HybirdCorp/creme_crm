@@ -10,17 +10,27 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.field_printers import field_printers_registry
-    from creme.creme_core.models import (RelationType, Relation,
-            SetCredentials, FieldsConfig, CremeUser)
+    from creme.creme_core.models import (
+        RelationType, Relation,
+        SetCredentials, CremeUser,
+        FieldsConfig,
+    )
+    from creme.creme_core.tests.base import skipIfCustomUser
 
     from creme.documents.tests.base import skipIfCustomDocument
 
     from creme.persons.models import Position, Civility, Sector
-    from creme.persons.constants import (REL_OBJ_EMPLOYED_BY, REL_SUB_MANAGES,
-            REL_SUB_EMPLOYED_BY, UUID_FIRST_CONTACT)
+    from creme.persons.constants import (
+        REL_OBJ_EMPLOYED_BY, REL_SUB_MANAGES,
+        REL_SUB_EMPLOYED_BY, UUID_FIRST_CONTACT,
+    )
 
-    from ..base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
-            skipIfCustomOrganisation, Contact, Organisation, Address, Document)
+    from ..base import (
+        _BaseTestCase,
+        skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation,
+        Contact, Organisation, Address,
+        Document,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -948,3 +958,49 @@ class ContactTestCase(_BaseTestCase):
             [eswat, olympus],
             [*deunan.get_employers()]
         )
+
+    @skipIfCustomUser
+    def test_command_create_staffuser(self):
+        from django.core.management import call_command
+        from creme.creme_core.management.commands.creme_createstaffuser import Command as StaffCommand
+
+        super_users = CremeUser.objects.filter(is_superuser=True, is_staff=False)
+        self.assertEqual(1, len(super_users))
+
+        super_user1 = super_users[0]
+
+        # This superuser should not be used
+        username2 = 'kirika'
+        self.assertLess(username2, super_user1.username)
+        CremeUser.objects.create(
+            username=username2, email='kirika@noir.jp',
+            first_name='Kirika', last_name='Yumura',
+            is_superuser=True,
+        )
+
+        username = 'staff1'
+        first_name = 'John'
+        last_name = 'Staffman'
+        email = 'staffman@acme.com'
+
+        with self.assertNoException():
+            call_command(StaffCommand(),
+                         verbosity=0, interactive=False,
+                         username=username,
+                         first_name=first_name,
+                         last_name=last_name,
+                         email=email,
+                        )
+
+        user = self.get_object_or_fail(CremeUser, username=username)
+        self.assertEqual(first_name, user.first_name)
+        self.assertEqual(last_name,  user.last_name)
+        self.assertEqual(email,      user.email)
+        self.assertIs(user.is_superuser, True)
+        self.assertIs(user.is_staff, True)
+
+        contact = self.get_object_or_fail(Contact, is_user=user)
+        self.assertEqual(first_name,  contact.first_name)
+        self.assertEqual(last_name,   contact.last_name)
+        self.assertEqual(email,       contact.email)
+        self.assertEqual(super_user1, contact.user)

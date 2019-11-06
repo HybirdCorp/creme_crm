@@ -8,20 +8,32 @@ from unittest import skipIf
 from unittest.util import safe_repr
 import warnings
 
-from django.test import TestCase, TransactionTestCase
 from django.apps import apps
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
+from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils.timezone import utc, get_current_timezone, make_aware
 
 from ..global_info import clear_global_info
 from ..management.commands.creme_populate import Command as PopulateCommand
-from ..models import CremeUser, UserRole, RelationType, Relation, CremePropertyType, DeletionCommand
+from ..models import (
+    CremeUser, UserRole,
+    RelationType, Relation,
+    CremePropertyType,
+    DeletionCommand,
+)
 from ..utils import print_traceback
 from ..utils.xml_utils import xml_diff, XMLDiffError
+
+
+def skipIfCustomUser(test_func):
+    return skipIf(settings.AUTH_USER_MODEL != 'creme_core.CremeUser',
+                  'Custom User model in use'
+                 )(test_func)
 
 
 def skipIfNotInstalled(app_name):
