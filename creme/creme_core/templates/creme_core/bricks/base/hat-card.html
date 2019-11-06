@@ -34,12 +34,9 @@
                         {% endblock %}
                         {% block card_main %}
                         <div class='card-main'>
-                            <div class="card-name">{% block card_title %}{{object}}{% endblock %}
-                                {% if object.is_deleted %}
-                                <div class='business-card-indicator business-card-deleted-indicator'>{% trans 'Entity in the trash' %}</div>
-                                {% elif object.sandbox %}
-                                <div class='business-card-indicator business-card-sandboxed-indicator'>{{object.sandbox.type.verbose_name}}</div>
-                                {% endif %}
+                            <div class="card-name">
+                                {% block card_title %}{{object}}{% endblock %}
+                                {% block card_title_indicators %}{% include 'creme_core/bricks/frags/hat-card-title-indicators.html' %}{% endblock %}
                             </div>
                             <div class='business-card-indicators'>
                                 {% block card_indicators %}{# OVERRIDE !! --------------------------------- #}
