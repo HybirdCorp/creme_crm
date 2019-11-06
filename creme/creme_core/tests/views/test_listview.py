@@ -1052,7 +1052,7 @@ class ListViewTestCase(ViewsTestCase):
     #
     #     self.assertEqual(1, response.context['entities'].paginator.count)
 
-    def test_qfilter_GET(self):
+    def test_qfilter_GET01(self):
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1082,6 +1082,17 @@ class ListViewTestCase(ViewsTestCase):
 
         # TODO
         # self._assertNoDistinct(context.captured_sql)
+
+    def test_qfilter_GET02(self):
+        user = self.login()
+        bebop = FakeOrganisation.objects.create(user=user, name='Bebop')
+
+        self._build_hf()
+        response = self.assertGET200(self.url, data={'q_filter': 'invalid_serialized_q'})
+
+        lv_node = self._get_lv_node(response)
+        content = self._get_lv_content(lv_node)
+        self.assertCountOccurrences(bebop.name, content, count=1)
 
     # def test_qfilter_POST_legacy(self):
     #     user = self.login()
