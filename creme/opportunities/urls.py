@@ -52,9 +52,13 @@ if apps.is_installed('creme.billing'):
 
     urlpatterns += [
         re_path(r'^opportunity/generate_new_doc/(?P<opp_id>\d+)/(?P<ct_id>\d+)[/]?$',
-                billing.generate_new_doc, name='opportunities__generate_billing_doc',
+                # billing.generate_new_doc,
+                billing.BillingDocGeneration.as_view(),
+                name='opportunities__generate_billing_doc',
                ),
         re_path(r'^opportunity/(?P<opp_id>\d+)/linked/quote/(?P<quote_id>\d+)/(?P<action>set_current|unset_current)[/]?$',
-                billing.current_quote, name='opportunities__linked_quote_is_current',
+                # billing.current_quote,
+                billing.CurrentQuoteSetting.as_view(),
+                name='opportunities__linked_quote_is_current',
                ),
     ]
