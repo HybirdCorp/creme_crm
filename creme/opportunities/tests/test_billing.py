@@ -82,7 +82,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         opportunity, target, emitter = self._create_opportunity_n_organisations()
         url = self._build_gendoc_url(opportunity)
 
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET405(url)
         self.assertPOST200(url, follow=True)
 
         quotes = Quote.objects.all()
@@ -92,10 +93,9 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertDatetimesAlmostEqual(date.today(), quote.issuing_date)
         self.assertEqual(1, quote.status_id)
         self.assertTrue(quote.number)
-
-        name = quote.name
-        self.assertIn(str(quote.number), name)
-        self.assertIn(str(opportunity.name), name)
+        self.assertEqual('{} — {}'.format(quote.number, opportunity.name),
+                         quote.name
+                        )
 
         self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
@@ -215,7 +215,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC,   opportunity)
 
         url = self._build_currentquote_url(opportunity, quote1)
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET405(url)
         self.assertPOST200(url, follow=True)
 
         self.assertRelationCount(1, quote2, REL_SUB_BILL_ISSUED,   emitter)
