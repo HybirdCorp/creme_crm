@@ -27,7 +27,6 @@ from creme.creme_core.models import CremeEntity
 
 from .address import UnnamedAddressForm as AddressForm, _AuxiliaryAddressForm
 
-
 logger = logging.getLogger(__name__)
 
 _BILLING_ADDRESS_FIELD  = 'billing_address'

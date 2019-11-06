@@ -34,7 +34,6 @@ from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
 from . import get_opportunity_model, constants
 
-
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 Product = products.get_product_model()
@@ -222,18 +221,18 @@ class TargettingOpportunitiesBrick(QuerysetBrick):
         is_hidden = context['fields_configs'].get_4_model(Opportunity).is_fieldname_hidden
 
         return self._render(self.get_template_context(
-                    context,
-                    # TODO: filter deleted ??
-                    Opportunity.objects.filter(relations__object_entity=entity.id,
-                                               relations__type=constants.REL_SUB_TARGETS,
-                                              ),
-                    predicate_id=self.relation_type_deps[0],
-                    hidden_fields={fname
-                                    for fname in ('estimated_sales', 'made_sales')
-                                        if is_hidden(fname)
-                                  },
-                    is_organisation=isinstance(object, Organisation),
-                    is_contact=isinstance(object, Contact),
+            context,
+            # TODO: filter deleted ??
+            Opportunity.objects.filter(relations__object_entity=entity.id,
+                                       relations__type=constants.REL_SUB_TARGETS,
+                                      ),
+            predicate_id=self.relation_type_deps[0],
+            hidden_fields={fname
+                            for fname in ('estimated_sales', 'made_sales')
+                                if is_hidden(fname)
+                          },
+            is_organisation=isinstance(object, Organisation),
+            is_contact=isinstance(object, Contact),
         ))
 
 
@@ -263,10 +262,10 @@ class OppTargetBrick(Brick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context,
-                    # NB: we do not use .count() in order to use/fill the QuerySet cache ; it will probably
-                    #     be used several times in the same page (and if not, this query should be small).
-                    display_source=self.display_source,
+            context,
+            # NB: we do not use .count() in order to use/fill the QuerySet cache ; it will probably
+            #     be used several times in the same page (and if not, this query should be small).
+            display_source=self.display_source,
         ))
 
 

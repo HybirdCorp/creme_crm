@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/hat-card.html' %}
-{% load i18n creme_bricks creme_widgets persons_tags %}
+{% load i18n creme_core_tags creme_bricks creme_widgets persons_tags %}
 
 {% block brick_extra_class %}{{block.super}} persons-contact-card-brick{% endblock %}
 
@@ -8,7 +8,10 @@
 {% endblock %}
 
 {% block card_title %}
-{{object|persons_pretty_contact}}
+    {{object|persons_pretty_contact}}
+    {% if not object.is_deleted and not object.sandbox %}{% has_perm_to change object as edition_perm %}{% url 'persons__edit_contact_names' object.id as names_edition_url %}
+    {% brick_card_action url=names_edition_url enabled=edition_perm %}
+    {% endif %}
 {% endblock %}
 
 {% block card_indicators %}

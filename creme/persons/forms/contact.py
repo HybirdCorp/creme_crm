@@ -25,6 +25,7 @@ from django.forms import ModelChoiceField  # CharField
 # from django.forms.widgets import TextInput
 from django.utils.translation import gettext_lazy as _, gettext
 
+from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.validators import validate_linkable_model
 # from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import RelationType, Relation
@@ -34,6 +35,12 @@ from .base import _BasePersonForm
 
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
+
+
+class ContactNamesForm(CremeModelForm):
+    class Meta(CremeModelForm.Meta):
+        model = Contact
+        fields = ('last_name', 'first_name')
 
 
 class ContactForm(_BasePersonForm):
