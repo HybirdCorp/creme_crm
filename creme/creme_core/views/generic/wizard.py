@@ -50,7 +50,7 @@ class PopupWizardMixin:
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         warnings.warn('PopupWizardMixin is deprecated ; '
-                      'use a class inheriting AbstractWizardView instead.',
+                      'use a class inheriting CremeWizardView instead.',
                       DeprecationWarning
                      )
 
