@@ -28,9 +28,14 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.core.entity_filter import operators, condition_handler
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
-        BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem, ButtonMenuItem,
-        HeaderFilter, EntityFilter)  # EntityFilterCondition
+from creme.creme_core.models import (
+    RelationType,
+    SearchConfigItem,
+    SettingValue,
+    BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem,
+    ButtonMenuItem,
+    HeaderFilter, EntityFilter,
+)  # EntityFilterCondition
 
 from creme import persons, products
 

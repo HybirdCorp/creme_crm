@@ -24,7 +24,6 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
 
-
 logger = logging.getLogger(__name__)
 
 

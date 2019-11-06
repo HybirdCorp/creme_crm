@@ -7,6 +7,13 @@
 {% include 'persons/bricks/frags/card-last-activity.html' %}
 {% endblock %}
 
+{% block card_title %}
+    {{block.super}}
+    {% if not object.is_deleted and not object.sandbox %}
+    {% brick_card_action_for_field instance=object field='name' user=user %}
+    {% endif %}
+{% endblock %}
+
 {% block card_indicators %}
     {% if is_neglected %}
     <div class='business-card-indicator business-card-warning-indicator' title="{% trans 'Meeting, phone call…' %}">{% trans 'No activity since 30 days' %}</div>

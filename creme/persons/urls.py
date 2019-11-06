@@ -32,6 +32,7 @@ urlpatterns = [
         Swappable(re_path(r'^contact/add_related/(?P<orga_id>\d+)[/]?$',                      contact.RelatedContactCreation.as_view(), name='persons__create_related_contact'), check_args=Swappable.INT_ID),
         Swappable(re_path(r'^contact/add_related/(?P<orga_id>\d+)/(?P<rtype_id>[\w-]+)[/]?$', contact.RelatedContactCreation.as_view(), name='persons__create_related_contact'), check_args=(1, 'idxxx')),
         Swappable(re_path(r'^contact/edit/(?P<contact_id>\d+)[/]?$',                          contact.ContactEdition.as_view(),         name='persons__edit_contact'),           check_args=Swappable.INT_ID),
+        Swappable(re_path(r'^contact/edit_names/(?P<contact_id>\d+)[/]?$',                    contact.ContactNamesEdition.as_view(),    name='persons__edit_contact_names'),     check_args=Swappable.INT_ID),
         Swappable(re_path(r'^contact/(?P<contact_id>\d+)[/]?$',                               contact.ContactDetail.as_view(),          name='persons__view_contact'),           check_args=Swappable.INT_ID),
         app_name='persons',
     ).kept_patterns(),

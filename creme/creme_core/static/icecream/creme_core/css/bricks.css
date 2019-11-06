@@ -1165,7 +1165,8 @@ table.table_detail_view + table.table_detail_view {
     white-space: nowrap;
 }
 
-.brick-hat-card .card-info-field:hover .brick-card-action {
+.brick-hat-card .card-info-field:hover .brick-card-action,
+.brick-hat-card .card-name:hover .brick-card-action {
     opacity: 1;
     visibility: visible;
 }

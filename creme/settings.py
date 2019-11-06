@@ -205,7 +205,6 @@ TEMPLATES = [
                 # Creme additional processors
                 'django.template.context_processors.request',
 
-                # 'creme.creme_core.context_processors.get_logo_url',
                 'creme.creme_core.context_processors.get_version',
                 'creme.creme_core.context_processors.get_hidden_value',
                 'creme.creme_core.context_processors.get_django_version',
@@ -216,7 +215,6 @@ TEMPLATES = [
                 'creme.creme_core.context_processors.get_bricks_manager',
                 'creme.creme_core.context_processors.get_fields_configs',
                 'creme.creme_core.context_processors.get_shared_data',
-                # 'creme.creme_core.context_processors.get_old_menu',
             ],
             'loaders': [
                 # Don't use cached loader when developing (in your local_settings.py)
@@ -450,10 +448,6 @@ warnings.simplefilter('once')
 TEST_RUNNER = 'creme.creme_core.utils.test.CremeDiscoverRunner'
 
 # GUI ##########################################################################
-
-# Main menu
-# OLD_MENU = False  # True use pre 1.7 menu (left side menu, with items per app)
-# LOGO_URL = 'images/creme_256_cropped.png'  # Big image in the side menu (only used when OLD_MENU = True)
 
 BLOCK_SIZE = 10  # Lines number in common blocks
 MAX_LAST_ITEMS = 9  # Max number of items in the 'Last viewed items' bar

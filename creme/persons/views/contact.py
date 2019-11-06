@@ -242,6 +242,12 @@ class ContactEdition(generic.EntityEdition):
     pk_url_kwarg = 'contact_id'
 
 
+class ContactNamesEdition(generic.EntityEditionPopup):
+    model = Contact
+    form_class = c_forms.ContactNamesForm
+    pk_url_kwarg = 'contact_id'
+
+
 class ContactsList(generic.EntitiesList):
     model = Contact
     default_headerfilter_id = DEFAULT_HFILTER_CONTACT
