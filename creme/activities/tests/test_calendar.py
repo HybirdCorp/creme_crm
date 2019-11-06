@@ -427,11 +427,24 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         response = self.assertGET200(self.CALENDAR_URL)
         def_cal = self.assertUserHasDefaultCalendar(user)
+        self.assertFalse(def_cal.is_public)
         self.assertSetEqual(
             {def_cal.id},
             response.context.get('my_selected_calendar_ids'),
             Calendar.objects.values('id', 'name')
         )
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_calendar_view05(self):
+        "No calendar => a default public calendar is created."
+        user = self.login()
+        self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
+
+        with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True):
+            self.assertGET200(self.CALENDAR_URL)
+
+            def_cal = self.assertUserHasDefaultCalendar(user)
+            self.assertTrue(def_cal.is_public)
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_add_user_calendar01(self):

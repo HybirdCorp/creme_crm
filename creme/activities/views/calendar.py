@@ -26,6 +26,7 @@ from functools import partial
 import logging
 
 from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Prefetch
 from django.db.transaction import atomic
@@ -241,7 +242,10 @@ class CalendarView(generic.CheckedTemplateView):
         )]
 
         if next(self._filter_default_calendars(user, calendars), None) is None:
-            calendars.append(Calendar.objects.create_default_calendar(user=user))
+            calendars.append(Calendar.objects.create_default_calendar(
+                user=user,
+                is_public=bool(settings.ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC),
+            ))
 
         return calendars
 

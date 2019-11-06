@@ -27,8 +27,10 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, CREME_REPLACE_NULL  # SettingValue
 
-from ..constants import (NARROW, CREATION_LABELS,
-        REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
+from ..constants import (
+    NARROW, CREATION_LABELS,
+    REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY,
+)
 # from ..setting_keys import auto_subjects_key
 
 from . import other_models

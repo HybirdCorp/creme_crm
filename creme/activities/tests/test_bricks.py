@@ -15,8 +15,11 @@ try:
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from .base import (_ActivitiesTestCase, skipIfCustomActivity, Activity,
-           Contact, Organisation)
+    from .base import (
+        _ActivitiesTestCase,
+        skipIfCustomActivity, Activity,
+       Contact, Organisation,
+    )
     from .. import constants
     from ..models import Calendar
 except Exception as e:
@@ -497,7 +500,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
     @skipIfCustomContact
     def test_unlink03(self):
         "Can not unlink the contact."
-        self.login(is_superuser=False)
+        user = self.login(is_superuser=False)
 
         create_creds = partial(SetCredentials.objects.create, role=self.role)
         create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
@@ -513,7 +516,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         activity = self._create_meeting()
         contact = Contact.objects.create(user=self.other_user, first_name='Musashi', last_name='Miyamoto')
         relation = Relation.objects.create(subject_entity=contact, type_id=constants.REL_SUB_PART_2_ACTIVITY,
-                                           object_entity=activity, user=self.user
+                                           object_entity=activity, user=user,
                                           )
 
         self.assertPOST403(reverse('activities__unlink_activity'),

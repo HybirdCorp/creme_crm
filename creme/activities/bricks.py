@@ -201,8 +201,8 @@ class UserCalendarsBrick(QuerysetBrick):
     def detailview_display(self, context):
         # NB: credentials are OK, because we retrieve only Calendars related of the user.
         user = context['user']
-        # In case the user has just been created, creates his default calendar
-        Calendar.objects.get_default_calendar(user)
+        # # In case the user has just been created, creates his default calendar
+        # Calendar.objects.get_default_calendar(user)
         return self._render(self.get_template_context(
             context,
             Calendar.objects.filter(user=user),
