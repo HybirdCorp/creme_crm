@@ -2,8 +2,6 @@
 
 from django.conf import settings
 
-from creme.creme_core.models import CREME_REPLACE_NULL
-
 if not settings.TESTS_ON:
     __all__ = ()
 else:
@@ -15,7 +13,13 @@ else:
     from django.urls import reverse
     from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
-    from ..models import CremeModel, CremeEntity, Language, EntityFilter, fields as core_fields, deletion
+    from ..models import (
+        CremeModel, CremeEntity,
+        Language,
+        EntityFilter,
+        fields as core_fields,
+        deletion,
+    )
 
     from .fake_constants import FAKE_DISCOUNT_UNIT, FAKE_PERCENT_UNIT
 
@@ -404,7 +408,7 @@ else:
         legal_form      = models.ForeignKey(FakeLegalForm, verbose_name=_('Legal form'),
                                             blank=True, null=True,
                                             # on_delete=models.SET_NULL,
-                                            on_delete=CREME_REPLACE_NULL,
+                                            on_delete=deletion.CREME_REPLACE_NULL,
                                             related_name='+',  # NB: see creme_config.tests.test_generics_views
                                                                #                     .GenericModelConfigTestCase
                                                                #                     .test_delete_hidden_related()
