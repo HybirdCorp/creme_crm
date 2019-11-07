@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 03-10-2019 pour la version 2.1 de Creme
+:Version: 07-11-2019 pour la version 2.1 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -701,7 +701,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2018-10-30 18:24+0100\n"
+    "POT-Creation-Date: 2019-10-30 18:24+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -753,7 +753,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2018-10-30 18:24+0100\n"
+    "POT-Creation-Date: 2019-10-30 18:24+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1651,6 +1651,99 @@ telle que : ::
 aisé d'enrichir un modèle venu d'une autre app. Et comme les champs fonctions
 sont hérités, si vous en ajoutez un à ``CremeEntity``, il sera disponible dans
 tous les types d'entités.
+
+**Un peu plus loin** : il est possible de mettre un champ de recherche dans la
+colonne des vues en liste correspondant à votre ``FunctionField``. Pour cela,
+il faut renseigner l'attribut de classe ``search_field_builder`` avec une classe
+dérivant de ``creme.creme_core.forms.listview.ListViewSearchField``. Il s'agit
+globalement d'un champ de formulaire (qui possède notamment un widget associé)
+mais donc la méthode ``to_python()`` va renvoyer une instance de
+``django.db.models.query_utils.Q``. Vous trouverez des exemples d'utilisation
+dans les fichiers suivants :
+
+- ``creme/creme_core/function_fields.py`` : on peut chercher  les entités ayant
+  une Propriété parmi une liste de Propriétés disponibles.
+- ``creme/assistants/function_fields.py`` : on peut chercher les entités ayant
+  une Alerte via son titre.
+
+
+Recherche dans la vue de liste
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Dans le pararaphe précédant, on a expliqué comment coder dans une vue en liste
+une recherche relative à un champ fonction. Il est en fait possible de faire la
+même chose pour tout type de colonne. Des champs de recherche sont définis par
+défaut (voir ``creme/creme_core/gui/listview/search.py``), mais vous pouvez
+par exemple :
+
+- écraser les comportements existants.
+- définir les comportements pour vos propres types de champs de modèles.
+
+Vous devrez créer une classe dérivant de
+``creme.creme_core.forms.listview.ListViewSearchField`` (rappel: il s'agit
+d'un champ de formulaire mais qui génère une instance de
+``django.db.models.query_utils.Q``). Il faut aller l'enregistrer auprès de
+Creme, via la méthode ``register_search_fields()`` dans votre ``apps.py``.
+
+**Exemple** : dans l'app ``persons``, le comportement de la recherche pour les
+``ForeignKeys`` pointant vers le modèle ``Address`` a été personnalisé, afin de
+chercher dans les sous-champs des instances de ``Address``.
+
+Dans le fichier ``creme/persons/forms/listview.py`` est défini le champ de
+recherche : ::
+
+    from django.db.models.query_utils import Q
+
+    from creme.creme_core.forms import listview
+
+    # On dérive de la classe de base des champs de recherche de liste.
+    class AddressFKField(listview.ListViewSearchField):
+
+        # On veut un widget qui est un simple <input> de texte.
+        widget = listview.TextLVSWidget
+
+        def to_python(self, value):
+            # On traite le cas d'une recherche vide.
+            if not value:
+                return Q()
+
+            [...]
+
+            # Notez l'attribut "cell" de type 'creme_core.core.entity_cell.EntityCell' ;
+            # ici on s'en sert pour récupérér le nom de la 'ForeignKey'.
+            fk_name = self.cell.value
+
+            # On fabrique notre instance de Q(), que l'on renvoie enfin
+            q = Q()
+            for fname in address_field_names:
+                q |= Q(**{'{}__{}__icontains'.format(fk_name, fname): value})
+
+            return q
+
+
+Dans le fichier ``creme/persons/apps.py``, on enregistre le champ de recherche : ::
+
+    class PersonsConfig(CremeAppConfig):
+        [...]
+
+        def register_search_fields(self, search_field_registry):
+            from django.db.models import ForeignKey
+
+            from creme.creme_core.core.entity_cell import EntityCellRegularField
+
+            from .forms.listview import AddressFKField
+
+            # 'search_field_registry' est une registry aborescente ; on récupère
+            # dans l'ordre :
+            #  - la sous-registry des champs normaux.
+            #  - la sous-registry des 'ForeignKey'.
+            # Puis on déclare que notre champ de recherche est associé au
+            # modèle 'Address'.
+            search_field_registry[EntityCellRegularField.type_id]\
+                                 .builder_4_model_field_type(ForeignKey)\
+                                 .register_related_model(model=self.Address,
+                                                         sfield_builder=AddressFKField,
+                                                        )
 
 
 Actions dans la vue de liste
@@ -3093,7 +3186,6 @@ suivantes dans votre ``local_settings.py`` : ::
             'projects':       None,
             'tickets':        None,
             'cti':            None,
-            'activesync':     None,
             'vcfs':           None,
             'polls':          None,
             'mobile':         None,
