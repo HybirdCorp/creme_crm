@@ -531,7 +531,7 @@ class EntitySelectorTestCase(FieldTestCase):
         html = \
 '''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
           labelURL="{text_url}" label="{label}" popupURL="{url}" popupSelection="single">
-    <input name="{name}" type="hidden" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
+    <input name="{name}" type="text" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
     <button type="button">{label}</button>
 </span>'''.format(
             name=name,
@@ -583,7 +583,7 @@ class EntitySelectorTestCase(FieldTestCase):
 '''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
           labelURL="{text_url}" label="{label}" popupURL="{url}" popupSelection="single"
           qfilter="{q_filter}">
-    <input name="{name}" type="hidden" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
+    <input name="{name}" type="text" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
     <button type="button">{label}</button>
 </span>'''.format(
             name=name,
@@ -612,7 +612,7 @@ class EntitySelectorTestCase(FieldTestCase):
 '''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
           labelURL="{text_url}" label="{label}" popupURL="{url}" popupSelection="single"
           qfilter="{q_filter}">
-    <input name="{name}" type="hidden" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
+    <input name="{name}" type="text" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
     <button type="button">{label}</button>
 </span>'''.format(
             name=name,
@@ -631,7 +631,25 @@ class EntitySelectorTestCase(FieldTestCase):
 '''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
           labelURL="{text_url}" label="{label}"
           popupURL="{url}" popupSelection="multiple" popupAuto>
-    <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector" value="1"/>
+    <input name="field" type="text" class="ui-creme-input ui-creme-entityselector" value="1"/>
+    <button type="button">{label}</button>
+</span>'''.format(
+            label=_('Select…'),
+            text_url=TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}'))
+                                       .resolve('creme_core__entity_as_json'),
+            url=reverse('creme_core__listview_popup') + '?ct_id=12&selection=${selection}&q_filter=${qfilter}',
+        )
+        self.assertHTMLEqual(html, widget.render('field', '1', attrs={'multiple': True, 'autoselect': True}))
+
+    def test_render_is_required(self):
+        widget = EntitySelector(content_type=12)
+        widget.is_required = True
+
+        html = \
+'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
+          labelURL="{text_url}" label="{label}"
+          popupURL="{url}" popupSelection="multiple" popupAuto>
+    <input name="field" type="text" class="ui-creme-input ui-creme-entityselector" value="1" required/>
     <button type="button">{label}</button>
 </span>'''.format(
             label=_('Select…'),
@@ -736,7 +754,7 @@ class EntityCreatorWidgetTestCase(FieldTestCase):
         <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
               labelURL="{select_label_url}" label="{select_label}"
               popupURL="{select_url}" popupSelection="single">
-            <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector"/>
+            <input name="field" type="text" class="ui-creme-input ui-creme-entityselector"/>
             <button type="button">{select_label}</button>
         </span>
     </li>
@@ -783,7 +801,7 @@ class EntityCreatorWidgetTestCase(FieldTestCase):
         <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
               labelURL="{select_label_url}" label="{select_label}"
               popupURL="{select_url}" popupSelection="single">
-            <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
+            <input name="field" type="text" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
             <button type="button">{select_label}</button>
         </span>
     </li>

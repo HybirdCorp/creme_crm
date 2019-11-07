@@ -50,7 +50,7 @@
 
             var select = creme.widget.buildTag($('<span/>'), 'ui-creme-entityselector', options, !noauto)
                              .append($('<button type="button"/>'))
-                             .append($('<input type="hidden" class="ui-creme-entityselector ui-creme-input"/>'));
+                             .append($('<input type="text" class="ui-creme-entityselector ui-creme-input"/>'));
 
             return select;
         },

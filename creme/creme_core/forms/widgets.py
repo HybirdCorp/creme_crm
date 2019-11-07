@@ -451,7 +451,7 @@ class EntitySelector(widgets.Widget):
         @param content_type: Template variable which represent the ContentType ID in the URL. Default is '${ctype}'.
         @param attrs: see Widget.
         """
-        super().__init__(attrs)
+        super().__init__(attrs=attrs)
         self.url = self._build_listview_url(content_type)
         self.text_url = self._build_text_url()
         self.from_python = None
@@ -496,9 +496,12 @@ class EntitySelector(widgets.Widget):
             qfilter = Q(**qfilter)
 
         widget_cxt['qfilter'] = QSerializer().serialize(qfilter) if qfilter else None
-        widget_cxt['input'] = widgets.HiddenInput().get_context(name=name, value=value,
-                                                                attrs={'class': 'ui-creme-input ' + widget_type},
-                                                               )['widget']
+        widget_cxt['input'] = widgets.TextInput().get_context(name=name, value=value,
+                                                              attrs={
+                                                                  'class': 'ui-creme-input ' + widget_type,
+                                                                  'required': self.is_required,
+                                                              },
+                                                             )['widget']
 
         return context
 
@@ -507,7 +510,7 @@ class CTEntitySelector(ChainedInput):
     # template_name = ... TODO in order to override from apps ?
 
     def __init__(self, content_types=(), attrs=None, multiple=False, autocomplete=False, creator=False):
-        super().__init__(attrs)
+        super().__init__(attrs=attrs)
         self.content_types = content_types
         self.multiple = multiple
         self.autocomplete = autocomplete
@@ -521,12 +524,12 @@ class CTEntitySelector(ChainedInput):
         self.add_dselect('ctype', options=self.content_types, attrs=field_attrs)
 
         multiple = self.multiple
-        actions = ActionButtonList(delegate=EntitySelector(content_type='${ctype.id}',
-                                                           attrs={'auto':     False,
-                                                                  'multiple': multiple,
-                                                                 },
-                                                          ),
-                                  )
+        selector = EntitySelector(content_type='${ctype.id}',
+                                  attrs={'auto': False, 'multiple': multiple},
+                                 )
+        selector.is_required = self.is_required
+
+        actions = ActionButtonList(delegate=selector)
 
         if not self.is_required and not multiple:
             clear_label = _('Clear')
