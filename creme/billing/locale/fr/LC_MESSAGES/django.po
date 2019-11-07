@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-14 14:48+0200\n"
+"POT-Creation-Date: 2019-11-07 14:42+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1282,8 +1282,8 @@ msgstr "{} %"
 
 #: views/convert.py:80
 #, python-brace-format
-msgid "{src} (converted into {dest})"
-msgstr "{src} (converti en {dest})"
+msgid "{src} (converted into {dest._meta.verbose_name})"
+msgstr "{src} (converti en {dest._meta.verbose_name})"
 
 #: views/credit_note.py:189
 #, python-brace-format

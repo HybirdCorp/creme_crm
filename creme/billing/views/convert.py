@@ -77,27 +77,32 @@ class Conversion(generic.base.EntityRelatedMixin, generic.CheckedView):
     entity_id_url_kwarg = 'src_id'
     dest_type_arg = 'type'
 
-    dest_title = _('{src} (converted into {dest})')
+    dest_title = _('{src} (converted into {dest._meta.verbose_name})')
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)
 
         # TODO: move to EntityRelatedMixin ??
         if entity.is_deleted:
-            raise ConflictError('This entity cannot be converted because it is deleted.')
+            raise ConflictError(
+                'This entity cannot be converted because it is deleted.'
+            )
 
     def get_destination_model(self, src):
         request = self.request
 
         allowed_dests = CONVERT_MATRIX.get(src.__class__)
         if not allowed_dests:
-            raise ConflictError('This entity cannot be converted to a(nother) billing document.')
+            raise ConflictError(
+                'This entity cannot be converted to a(nother) billing document.'
+            )
 
         dest_class_id = get_from_POST_or_404(request.POST, self.dest_type_arg)
         if dest_class_id not in allowed_dests:
-            raise ConflictError('Invalid destination type '
-                                '[allowed destinations for this type: {}]'.format(allowed_dests)
-                               )
+            raise ConflictError(
+                'Invalid destination type '
+                '[allowed destinations for this type: {}]'.format(allowed_dests)
+           )
 
         dest_class = _CLASS_MAP[dest_class_id]
 
@@ -112,10 +117,7 @@ class Conversion(generic.base.EntityRelatedMixin, generic.CheckedView):
         with atomic():
             dest = dest_class()
             dest.build(src)
-            dest.name = self.dest_title.format(
-                src=src.name,
-                dest=dest._meta.verbose_name,
-            )
+            dest.name = self.dest_title.format(src=src, dest=dest)
             dest.generate_number()
             dest.save()
 
