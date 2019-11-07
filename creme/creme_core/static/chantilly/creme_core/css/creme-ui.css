@@ -95,6 +95,18 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 .ui-creme-chainedselect li[chained-name="searchfield"] .ui-creme-dselect { width:14em; }
 
 /*----------------------------------*/
+.ui-creme-entityselector > input {
+    -webkit-appearance: none;
+       -moz-appearance: none;
+            appearance: none;
+    width: 0;
+    height: 0;
+    border: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+    box-shadow: none !important;
+}
+
 .ui-creme-entityselector > button[type="button"] { min-width:10em; }
 
 /*----------------------------------*/
