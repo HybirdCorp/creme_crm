@@ -10,22 +10,32 @@ try:
     from django.urls import reverse
     from django.utils.encoding import force_text
     from django.utils.timezone import now
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (CremePropertyType, CremeProperty,
-            SetCredentials, Relation, RelationType, Currency)
+    from creme.creme_core.models import (
+        CremePropertyType, CremeProperty,
+        Relation, RelationType,
+        SetCredentials,
+        Currency,
+    )
 
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
-    from ..models import (AdditionalInformation, PaymentInformation, PaymentTerms,
-            InvoiceStatus, QuoteStatus, SalesOrderStatus)
+    from ..models import (
+        AdditionalInformation, PaymentInformation, PaymentTerms,
+        InvoiceStatus, QuoteStatus, SalesOrderStatus,
+    )
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from ..core import get_models_for_conversion
-    from .base import (_BillingTestCase, skipIfCustomQuote, skipIfCustomInvoice,
-            skipIfCustomSalesOrder, skipIfCustomProductLine, skipIfCustomServiceLine,
-            Organisation, Address,
-            Invoice, Quote, SalesOrder, ProductLine, ServiceLine)  # CreditNote
+    from .base import (
+        _BillingTestCase,
+        skipIfCustomQuote, skipIfCustomInvoice,
+        skipIfCustomSalesOrder, skipIfCustomProductLine, skipIfCustomServiceLine,
+        Organisation, Address,
+        Invoice, Quote, SalesOrder, ProductLine, ServiceLine,
+    )  # CreditNote
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -38,9 +48,10 @@ class ConvertTestCase(_BillingTestCase):
         if is_ajax:
             http_header = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
 
-        return self.assertPOST(status_code, reverse('billing__convert', args=(src.id,)),
-                               data={'type': dest_type}, follow=True, **http_header
-                              )
+        return self.assertPOST(
+            status_code, reverse('billing__convert', args=(src.id,)),
+            data={'type': dest_type}, follow=True, **http_header
+        )
 
     def test_get_models_for_conversion(self):
         self.assertListEqual([], [*get_models_for_conversion('unknown')])
@@ -67,29 +78,29 @@ class ConvertTestCase(_BillingTestCase):
         target = create_orga(name='Target Orga')
 
         create_address = Address.objects.create
-        target.billing_address = b_addr = \
-            create_address(name="Billing address 01",
-                           address="BA1 - Address", po_box="BA1 - PO box",
-                           zipcode="BA1 - Zip code", city="BA1 - City",
-                           department="BA1 - Department",
-                           state="BA1 - State", country="BA1 - Country",
-                           owner=target,
-                          )
-        target.shipping_address = s_addr = \
-            create_address(name="Shipping address 01",
-                           address="SA1 - Address", po_box="SA1 - PO box",
-                           zipcode="SA1 - Zip code", city="SA1 - City",
-                           department="SA1 - Department",
-                           state="SA1 - State", country="SA1 - Country",
-                           owner=target,
-                          )
+        target.billing_address = b_addr = create_address(
+            name='Billing address 01',
+            address='BA1 - Address', po_box='BA1 - PO box',
+            zipcode='BA1 - Zip code', city='BA1 - City',
+            department='BA1 - Department',
+            state='BA1 - State', country='BA1 - Country',
+            owner=target,
+        )
+        target.shipping_address = s_addr = create_address(
+            name='Shipping address 01',
+            address='SA1 - Address', po_box='SA1 - PO box',
+            zipcode='SA1 - Zip code', city='SA1 - City',
+            department='SA1 - Department',
+            state='SA1 - State', country='SA1 - Country',
+            owner=target,
+        )
         target.save()
 
         quote = self.create_quote('My Quote', source, target, currency)
         quote.additional_info = AdditionalInformation.objects.all()[0]
         quote.payment_terms = PaymentTerms.objects.all()[0]
         quote.payment_info  = PaymentInformation.objects.create(organisation=source,
-                                                                name="Bank details",
+                                                                name='Bank details',
                                                                 is_default=True,
                                                                )
         quote.save()
@@ -102,15 +113,23 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(1, len(invoices))
 
         invoice = invoices[0]
+        self.assertEqual(
+            _('{src} (converted into {dest._meta.verbose_name})').format(
+                src=quote.name, dest=Invoice,
+            ),
+            invoice.name
+        )
+
         today = date.today()
-        self.assertEqual(today,                 invoice.issuing_date)
-        self.assertEqual(today,                 invoice.expiration_date)
-        self.assertEqual(quote.discount,        invoice.discount)
-        self.assertEqual(quote.total_vat,       invoice.total_vat)
-        self.assertEqual(quote.total_no_vat,    invoice.total_no_vat)
-        self.assertEqual(currency,              invoice.currency)
-        self.assertEqual(1,                     invoice.status_id)
-        self.assertEqual(quote.payment_info,    invoice.payment_info)
+        self.assertEqual(today, invoice.issuing_date)
+        self.assertEqual(today, invoice.expiration_date)
+
+        self.assertEqual(quote.discount,     invoice.discount)
+        self.assertEqual(quote.total_vat,    invoice.total_vat)
+        self.assertEqual(quote.total_no_vat, invoice.total_no_vat)
+        self.assertEqual(currency,           invoice.currency)
+        self.assertEqual(1,                  invoice.status_id)
+        self.assertEqual(quote.payment_info, invoice.payment_info)
         self.assertIsNone(invoice.additional_info)
         self.assertIsNone(invoice.payment_terms)
 
@@ -134,17 +153,18 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomSalesOrder
     def test_convert02(self):
-        "SalesOrder + not superuser"
+        "SalesOrder + not superuser."
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes.set([get_ct(Quote), get_ct(SalesOrder)])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   | EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                  EntityCredentials.DELETE |
+                  EntityCredentials.LINK   | EntityCredentials.UNLINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         quote = self.create_quote_n_orgas('My Quote')[0]
 
@@ -155,17 +175,18 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomSalesOrder
     def test_convert02_ajax(self):
-        "SalesOrder + not superuser"
+        "SalesOrder + not superuser."
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes.set([get_ct(Quote), get_ct(SalesOrder)])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   | EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                  EntityCredentials.DELETE |
+                  EntityCredentials.LINK   | EntityCredentials.UNLINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         quote = self.create_quote_n_orgas('My Quote')[0]
 
@@ -174,21 +195,23 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(1, SalesOrder.objects.count())
 
         self.assertEqual(force_text(response.content),
-                         SalesOrder.objects.first().get_absolute_url())
+                         SalesOrder.objects.first().get_absolute_url()
+                        )
 
     @skipIfCustomQuote
     def test_convert03(self):
-        "Credentials (creation) errors"
+        "Credentials (creation) errors."
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes.set([get_ct(Quote)])  # Not get_ct(Invoice)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   | EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                  EntityCredentials.DELETE |
+                  EntityCredentials.LINK   | EntityCredentials.UNLINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         quote = self.create_quote_n_orgas('My Quote')[0]
         self._convert(403, quote, 'invoice')
@@ -196,17 +219,18 @@ class ConvertTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     def test_convert04(self):
-        "Credentials (view) errors"
+        "Credentials (view) errors."
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes.set([get_ct(Quote), get_ct(Invoice)])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   | EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                  EntityCredentials.DELETE |
+                  EntityCredentials.LINK   | EntityCredentials.UNLINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         quote = Quote.objects.create(user=self.other_user, name='My Quote',
                                      issuing_date=now(),
@@ -223,19 +247,19 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     def test_convert05(self):
-        "Quote to Invoice with lines"
+        "Quote to Invoice with lines."
         self.login()
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
         user = self.user
 
         create_pline = partial(ProductLine.objects.create, user=user, related_document=quote)
-        product_line_otf = create_pline(on_the_fly_item="otf1",             unit_price=Decimal("1"))
-        product_line     = create_pline(related_item=self.create_product(), unit_price=Decimal("2"))
+        product_line_otf = create_pline(on_the_fly_item='otf1',             unit_price=Decimal('1'))
+        product_line     = create_pline(related_item=self.create_product(), unit_price=Decimal('2'))
 
         create_sline = partial(ServiceLine.objects.create, user=user, related_document=quote)
-        service_line_otf = create_sline(on_the_fly_item="otf2",             unit_price=Decimal("4"))
-        service_line     = create_sline(related_item=self.create_service(), unit_price=Decimal("5"))
+        service_line_otf = create_sline(on_the_fly_item='otf2',             unit_price=Decimal('4'))
+        service_line     = create_sline(related_item=self.create_service(), unit_price=Decimal('5'))
 
         # quote.save() # To set total_vat...
         quote = self.refresh(quote)
@@ -287,7 +311,7 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomSalesOrder
     def test_convert06(self):
-        "Quote -> SalesOrder: status id can not be converted (bugfix)"
+        "Quote -> SalesOrder: status id can not be converted (bugfix)."
         self.login()
 
         status = QuoteStatus.objects.create(name='Cashing', order=5)
@@ -306,7 +330,7 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomInvoice
     def test_convert07(self):
-        "Quote -> Invoice : status id can not be converted (bugfix)"
+        "Quote -> Invoice : status id can not be converted (bugfix)."
         self.login()
 
         pk = 12
@@ -327,41 +351,49 @@ class ConvertTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     def test_not_copiable_relations(self):
-        self.login()
+        user = self.login()
         self.assertEqual(0, Relation.objects.count())
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
-        rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving', (Quote, Invoice)),
-                                             ('test-object_foobar',  'is loved by', (Organisation,)))
+        rtype1, rtype2 = RelationType.create(
+            ('test-subject_foobar', 'is loving',   (Quote, Invoice)),
+            ('test-object_foobar',  'is loved by', (Organisation,)),
+        )
 
         self.assertTrue(rtype1.is_copiable)
         self.assertTrue(rtype2.is_copiable)
 
-        Relation.objects.create(user=self.user, type=rtype1,
+        Relation.objects.create(user=user, type=rtype1,
                                 subject_entity=quote,
-                                object_entity=source)
+                                object_entity=source,
+                               )
         self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
 
-        rtype3, rtype4 = RelationType.create(('test-subject_foobar_not_copiable', 'is loving', (Quote, Invoice)),
-                                             ('test-object_foobar_not_copiable',  'is loved by', (Organisation,)),
-                                             is_copiable=False)
-
+        rtype3, rtype4 = RelationType.create(
+            ('test-subject_foobar_not_copiable', 'is loving', (Quote, Invoice)),
+            ('test-object_foobar_not_copiable',  'is loved by', (Organisation,)),
+            is_copiable=False,
+        )
         self.assertFalse(rtype3.is_copiable)
         self.assertFalse(rtype4.is_copiable)
 
-        Relation.objects.create(user=self.user, type=rtype3,
+        Relation.objects.create(user=user, type=rtype3,
                                 subject_entity=quote,
-                                object_entity=source)
+                                object_entity=source,
+                               )
         self.assertEqual(1, Relation.objects.filter(type=rtype3).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
 
-        rtype5, rtype6 = RelationType.create(('test-subject_foobar_wrong_ctype', 'is loving', (Quote,)),
-                                             ('test-object_foobar_wrong_ctype',  'is loved by', (Organisation,)))
+        rtype5, rtype6 = RelationType.create(
+            ('test-subject_foobar_wrong_ctype', 'is loving',   (Quote,)),
+            ('test-object_foobar_wrong_ctype',  'is loved by', (Organisation,)),
+        )
 
-        Relation.objects.create(user=self.user, type=rtype5,
+        Relation.objects.create(user=user, type=rtype5,
                                 subject_entity=quote,
-                                object_entity=source)
+                                object_entity=source,
+                               )
         self.assertEqual(1, Relation.objects.filter(type=rtype5).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype6).count())
 
@@ -381,10 +413,14 @@ class ConvertTestCase(_BillingTestCase):
 
         self.assertEqual(0, Relation.objects.count())
         quote, source, target = self.create_quote_n_orgas('My Quote')
-        rtype1, rtype2 = RelationType.create(('test-CONVERT-subject_foobar', 'is loving', (Quote,)),
-                                             ('test-CONVERT-object_foobar',  'is loved by', (Organisation,)))
-        rtype3, rtype4 = RelationType.create(('test-CONVERT-subject_foobar_not_copiable', 'is loving', (Invoice,)),
-                                             ('test-CONVERT-object_foobar_not_copiable',  'is loved by', (Organisation,)))
+        rtype1, rtype2 = RelationType.create(
+            ('test-CONVERT-subject_foobar', 'is loving',   [Quote]),
+            ('test-CONVERT-object_foobar',  'is loved by', [Organisation]),
+        )
+        rtype3, rtype4 = RelationType.create(
+            ('test-CONVERT-subject_foobar_not_copiable', 'is loving', [Invoice]),
+            ('test-CONVERT-object_foobar_not_copiable',  'is loved by', [Organisation]),
+        )
         relationtype_converter.register(Quote, rtype1, Invoice, rtype3)
 
         Relation.objects.create(user=self.user, type=rtype1,
@@ -403,7 +439,7 @@ class ConvertTestCase(_BillingTestCase):
 
     @skipIfCustomOrganisation
     def test_convert_error01(self):
-        "Source is not a billing document"
+        "Source is not a billing document."
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Arcadia')
 
@@ -411,14 +447,14 @@ class ConvertTestCase(_BillingTestCase):
 
     @skipIfCustomSalesOrder
     def test_convert_error02(self):
-        "Some combinations are forbidden"
+        "Some combinations are forbidden."
         self.login()
-        order = self.create_salesorder_n_orgas('Order for Acracadia')[0]
+        order = self.create_salesorder_n_orgas('Order for Arcadia')[0]
         self._convert(409, order, 'sales_order')
 
     @skipIfCustomQuote
     def test_convert_error03(self):
-        "Deleted entity"
+        "Deleted entity."
         self.login()
 
         quote = self.create_quote_n_orgas('My Quote')[0]
