@@ -217,7 +217,11 @@
                    + '<div class="list-header-container sticky-container sticky-container-standalone">'
                        + '<div class="list-header sticks-horizontally">'
                            + '<div class="list-title-container">'
-                               + '<span class="list-title">${title}</title>'
+                               + '<span class="list-title">'
+                                   + '<span class="list-main-title">${title}</span>'
+                                   + '<span class="list-sub-title">${subtitle}</span>'
+                                   + '<span class="list-title-stats">${titlestats}</span>'
+                               + '</span>'
                                + '<div class="list-controls">${hatbarcontrols}</div>'
                            + '</div>'
                            + '<div class="list-header-buttons clearfix">${hatbarbuttons}</div>'
@@ -261,6 +265,8 @@
                + '</form>').template({
                    id: options.id,
                    title: options.title || '',
+                   subtitle: options.subtitle || '',
+                   titlestats: options.titlestats || '',
                    selectionmode: options.mode,
                    reloadurl: options.reloadurl ? 'reload-url="' + options.reloadurl + '"' : '',
                    hatbarbuttons: options.hatbarbuttons.map(renderHatBarButton).join(''),

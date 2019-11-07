@@ -20,6 +20,8 @@ QUnit.module("creme.listview.dialog", new QUnitMixin(QUnitEventMixin,
         }));
         var multiSelectionListHtml = this.createListViewHtml(this.defaultListViewHtmlOptions({
             title: 'Multi-Selection List',
+            subtitle: 'Sub-title',
+            titlestats: '(1 / 3)',
             reloadurl: 'mock/listview/reload/multiple',
             mode: 'multiple'
         }));
@@ -283,31 +285,41 @@ QUnit.test('creme.listview.ListViewDialog (single, validate)', function(assert) 
     ], this.mockListenerCalls('validate'));
 });
 
-QUnit.test('creme.listview.ListViewDialog (useListTitle)', function(assert) {
+QUnit.test('creme.listview.ListViewDialog (empty title)', function(assert) {
+    var dialog = new creme.lv_widget.ListViewDialog({
+        url: 'mock/listview/selection/multiple'
+    });
+
+    dialog.open();
+
+    equal(true, Object.isEmpty(dialog.options.title));
+    this.assertDialogTitle('Multi-Selection List − Sub-title (1 / 3)');
+    equal(0, dialog.content().find('.list-title:not(.hidden)').length);
+});
+
+QUnit.test('creme.listview.ListViewDialog (with title)', function(assert) {
     var dialog = new creme.lv_widget.ListViewDialog({
         title: 'My title',
         url: 'mock/listview/selection/multiple'
     });
 
-    dialog.onValidate(this.mockListener('validate'));
     dialog.open();
 
-    equal(true, dialog.options.useListTitle);
-    this.assertDialogTitle('Multi-Selection List');
-    equal(0, dialog.content().find('.list-title:not(.hidden)').length);
+    equal(false, Object.isEmpty(dialog.options.title));
+    this.assertDialogTitle('My title − Sub-title (1 / 3)');
+    equal(1, dialog.content().find('.list-title.hidden').length);
 });
 
-QUnit.test('creme.listview.ListViewDialog (useListTitle disabled)', function(assert) {
+QUnit.test('creme.listview.ListViewDialog (with title, disabled)', function(assert) {
     var dialog = new creme.lv_widget.ListViewDialog({
         title: 'My title',
         url: 'mock/listview/selection/multiple',
         useListTitle: false
     });
 
-    dialog.onValidate(this.mockListener('validate'));
     dialog.open();
 
-    equal(false, dialog.options.useListTitle);
+    equal(false, Object.isEmpty(dialog.options.title));
     this.assertDialogTitle('My title');
     equal(1, dialog.content().find('.list-title:not(.hidden)').length);
 });

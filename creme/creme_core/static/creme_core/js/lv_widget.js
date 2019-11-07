@@ -336,16 +336,31 @@ creme.lv_widget.ListViewDialog = creme.dialog.Dialog.sub({
 
         this.on('frame-update', function() {
             self.content().on('listview-bind-complete', '.ui-creme-listview', function() {
-                if (self.options.useListTitle) {
-                    var listTitle = self.content().find('.list-title');
-                    /*
-                    var dialogHeader = self.content().parents('.ui-dialog:first').find('.ui-dialog-titlebar .ui-dialog-title');
-                    listTitle.appendTo(dialogHeader.empty());
-                    */
-                    self.title(listTitle.addClass('hidden').text());
-                }
+                self._updateDialogTitle();
             });
         });
+    },
+
+    _updateDialogTitle: function() {
+        var container = this.content().find('.list-title');
+
+        container.toggleClass('hidden', this.options.useListTitle);
+
+        if (this.options.useListTitle) {
+            var title = this.options.title;
+            var subtitle = container.find('.list-sub-title').text();
+            var stats = container.find('.list-title-stats').text();
+
+            if (Object.isEmpty(title)) {
+                title = container.find('.list-main-title').text();
+            }
+
+            this.title("${title}${subtitle} ${stats}".template({
+                title: title,
+                subtitle: Object.isEmpty(subtitle) ? '' : [' − ', subtitle].join(''),
+                stats: stats
+            }));
+        }
     },
 
     selectionMode: function(mode) {
