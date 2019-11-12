@@ -19,8 +19,12 @@ try:
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from ..models import QuoteStatus
 
-    from .base import (_BillingTestCase, skipIfCustomQuote, skipIfCustomServiceLine,
-           Organisation, Address, Quote, Invoice, SalesOrder, ServiceLine)
+    from .base import (
+        _BillingTestCase,
+        skipIfCustomQuote, skipIfCustomServiceLine,
+        Organisation, Address,
+        Quote, Invoice, SalesOrder, ServiceLine,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 

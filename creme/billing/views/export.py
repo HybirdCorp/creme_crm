@@ -40,7 +40,6 @@ from creme.creme_core.utils.secure_filename import secure_filename
 
 from creme import billing
 
-
 logger = logging.getLogger(__name__)
 TEMPLATE_PATHS = {
     billing.get_invoice_model():       'billing/templates/invoice.tex',

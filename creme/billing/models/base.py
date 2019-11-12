@@ -30,9 +30,11 @@ from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import CremeEntity, Relation, Currency, CREME_REPLACE_NULL
 from creme.creme_core.models.fields import MoneyField
 
-from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
-        REL_SUB_HAS_LINE, REL_OBJ_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
-        REL_OBJ_CREDIT_NOTE_APPLIED, DEFAULT_DECIMAL)
+from ..constants import (
+    REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
+    REL_SUB_HAS_LINE, REL_OBJ_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
+    REL_OBJ_CREDIT_NOTE_APPLIED, DEFAULT_DECIMAL,
+)
 
 from .algo import ConfigBillingAlgo
 from .fields import BillingDiscountField

@@ -12,16 +12,23 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui import actions
-    from creme.creme_core.models import (CremeEntity, RelationType, Relation,
-            SetCredentials, Currency, Vat)
+    from creme.creme_core.models import (
+        CremeEntity,
+        RelationType, Relation,
+        SetCredentials,
+        Currency, Vat,
+    )
     from creme.creme_core.tests.base import CremeTransactionTestCase
 
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
     from ..actions import ExportInvoiceAction, GenerateNumberAction
-    from ..constants import (REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED,
-            REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED, AMOUNT_PK, PERCENT_PK)
+    from ..constants import (
+        REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED,
+        REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED,
+        AMOUNT_PK, PERCENT_PK,
+    )
     from ..models import InvoiceStatus, AdditionalInformation, PaymentTerms
 
     from .base import (_BillingTestCase, _BillingTestCaseMixin, skipIfCustomInvoice,

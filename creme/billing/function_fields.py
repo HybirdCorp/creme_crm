@@ -33,7 +33,6 @@ from creme import persons
 from creme import billing
 from .constants import REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_ISSUED
 
-
 logger = logging.getLogger(__name__)
 
 Organisation = persons.get_organisation_model()

@@ -30,7 +30,6 @@ from creme.creme_core.models import Relation
 from .. import get_credit_note_model, constants
 from .base import BaseCreateForm, BaseEditForm
 
-
 CreditNote = get_credit_note_model()
 
 

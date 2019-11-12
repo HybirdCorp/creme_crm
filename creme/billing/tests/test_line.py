@@ -18,11 +18,16 @@ try:
     from creme.products.models import Product, Service, SubCategory
     from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
-    from ..constants import (REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM,
-            DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT, DISCOUNT_ITEM_AMOUNT)
-    from .base import (_BillingTestCase, skipIfCustomInvoice,
-            skipIfCustomProductLine, skipIfCustomServiceLine,
-            Invoice, ProductLine, ServiceLine)
+    from ..constants import (
+        REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM,
+        DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT, DISCOUNT_ITEM_AMOUNT,
+    )
+    from .base import (
+        _BillingTestCase,
+        skipIfCustomInvoice,
+        skipIfCustomProductLine, skipIfCustomServiceLine,
+        Invoice, ProductLine, ServiceLine,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 

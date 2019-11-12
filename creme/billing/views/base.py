@@ -22,14 +22,14 @@ from creme.creme_core.utils import bool_from_str_extended
 from creme.creme_core.views import generic
 
 from creme.billing.models import Base
-# from creme.billing.forms.base import BaseCreateForm
+# from creme.billing.forms import base as base_forms
 
 from creme import persons
 
 
 class BaseCreation(generic.EntityCreation):
     model = Base
-    # form_class = BaseCreateForm
+    # form_class = base_forms.BaseCreateForm
     template_name = 'billing/form/add.html'
     initial_status = 1
 
@@ -42,7 +42,7 @@ class BaseCreation(generic.EntityCreation):
 
 class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
     model = Base
-    # form_class = BaseCreateForm
+    # form_class = base_forms.BaseCreateForm
     permissions = 'billing'  # Need creation perm too
     initial_status = 1
     entity_id_url_kwarg = 'target_id'
@@ -67,5 +67,5 @@ class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
 
 
 class BaseEdition(generic.EntityEdition):
-    # form_class = BaseEditForm
+    # form_class = base_forms.BaseEditForm
     template_name = 'billing/form/edit.html'

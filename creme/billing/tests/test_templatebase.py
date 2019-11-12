@@ -12,12 +12,18 @@ try:
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..models import (InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
-            AdditionalInformation, PaymentTerms)
+    from ..models import (
+        InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
+        AdditionalInformation, PaymentTerms,
+    )
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from .base import (_BillingTestCase, skipIfCustomTemplateBase,
-            skipIfCustomInvoice, skipIfCustomQuote, skipIfCustomSalesOrder,
-            Organisation, TemplateBase, Invoice, Quote, SalesOrder, CreditNote)
+    from .base import (
+        _BillingTestCase,
+        skipIfCustomTemplateBase, skipIfCustomInvoice,
+        skipIfCustomQuote, skipIfCustomSalesOrder,
+        Organisation,
+        TemplateBase, Invoice, Quote, SalesOrder, CreditNote,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 

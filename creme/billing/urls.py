@@ -6,8 +6,10 @@ from django.urls import re_path, include
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
 from .. import billing
-from .views import (convert, credit_note, invoice, export, line,
-    payment_information, quote, sales_order, templatebase)
+from .views import (
+    convert, credit_note, invoice, export, line,
+    payment_information, quote, sales_order, templatebase,
+)
 
 
 urlpatterns = [
@@ -84,7 +86,7 @@ urlpatterns = [
                           credit_note.CreditNoteRemoving.as_view(),
                           name='billing__delete_related_cnote',
                          ),
-                  check_args=(1 ,2),
+                  check_args=(1, 2),
                  ),
         app_name='billing',
     ).kept_patterns(),

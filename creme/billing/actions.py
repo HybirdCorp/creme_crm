@@ -24,7 +24,6 @@ from django.utils.translation import gettext_lazy as _, gettext
 from creme import billing
 from creme.creme_core.gui.actions import UIAction
 
-
 Invoice = billing.get_invoice_model()
 Quote   = billing.get_quote_model()
 

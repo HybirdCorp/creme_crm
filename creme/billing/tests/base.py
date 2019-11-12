@@ -50,7 +50,6 @@ try:
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
-
 Address = get_address_model()
 Contact = get_contact_model()
 Organisation = get_organisation_model()

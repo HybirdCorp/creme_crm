@@ -23,7 +23,6 @@ from creme.persons.workflow import transform_target_into_prospect
 from .. import get_quote_model
 from .base import BaseCreateForm, BaseEditForm
 
-
 Quote = get_quote_model()
 
 
