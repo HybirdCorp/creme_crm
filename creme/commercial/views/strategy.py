@@ -39,8 +39,11 @@ from .. import get_strategy_model
 from ..bricks import AssetsMatrixBrick, CharmsMatrixBrick, AssetsCharmsMatrixBrick
 from ..constants import DEFAULT_HFILTER_STRATEGY
 from ..forms import strategy as forms
-from ..models import (MarketSegment, MarketSegmentDescription, CommercialAsset, CommercialAssetScore,
-        MarketSegmentCharm, MarketSegmentCharmScore)
+from ..models import (
+    MarketSegment, MarketSegmentDescription,
+    CommercialAsset, CommercialAssetScore,
+    MarketSegmentCharm, MarketSegmentCharmScore,
+)
 
 Strategy = get_strategy_model()
 

@@ -30,7 +30,6 @@ from creme.creme_core.views import generic
 from ..forms import market_segment as segment_forms
 from ..models import MarketSegment
 
-
 logger = logging.getLogger(__name__)
 
 

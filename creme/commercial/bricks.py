@@ -34,10 +34,13 @@ from creme.opportunities.constants import REL_SUB_TARGETS
 
 from creme import commercial
 from .constants import REL_OBJ_COMPLETE_GOAL
-from .models import (CommercialApproach, MarketSegment, MarketSegmentDescription,
-        CommercialAsset, MarketSegmentCharm, ActObjective, ActObjectivePatternComponent)
+from .models import (
+    CommercialApproach,
+    MarketSegment, MarketSegmentDescription,
+    CommercialAsset, MarketSegmentCharm,
+    ActObjective, ActObjectivePatternComponent,
+)
 from .setting_keys import orga_approaches_key
-
 
 get_ct = ContentType.objects.get_for_model
 Opportunity = get_opportunity_model()
@@ -114,7 +117,7 @@ class SegmentsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context, MarketSegment.objects.all(),
+            context, MarketSegment.objects.all(),
         ))
 
 
@@ -128,8 +131,8 @@ class SegmentDescriptionsBrick(PaginatedBrick):
     def detailview_display(self, context):
         strategy = context['object']
         return self._render(self.get_template_context(
-                    context, strategy.get_segment_descriptions_list(),
-                    ct_id=get_ct(MarketSegmentDescription).id,
+            context, strategy.get_segment_descriptions_list(),
+            ct_id=get_ct(MarketSegmentDescription).id,
         ))
 
 
@@ -144,7 +147,7 @@ class AssetsBrick(QuerysetBrick):
     def detailview_display(self, context):
         strategy = context['object']
         return self._render(self.get_template_context(
-                    context, strategy.assets.all(),
+            context, strategy.assets.all(),
         ))
 
 
@@ -159,7 +162,7 @@ class CharmsBrick(QuerysetBrick):
     def detailview_display(self, context):
         strategy = context['object']
         return self._render(self.get_template_context(
-                    context, strategy.charms.all(),
+            context, strategy.charms.all(),
         ))
 
 
@@ -175,7 +178,7 @@ class EvaluatedOrgasBrick(QuerysetBrick):
         strategy = context['object']
 
         return self._render(self.get_template_context(
-                context, strategy.evaluated_orgas.all(),
+            context, strategy.evaluated_orgas.all(),
         ))
 
 
@@ -191,12 +194,11 @@ class AssetsMatrixBrick(Brick):
         strategy = context['strategy']
         orga = context['orga']
         return self._render(self.get_template_context(
-                        context,
-                        assets=strategy.get_assets_list(),
-                        segment_info=strategy.get_segment_descriptions_list(),
-                        totals=strategy.get_assets_totals(orga),
-                       )
-                    )
+            context,
+            assets=strategy.get_assets_list(),
+            segment_info=strategy.get_segment_descriptions_list(),
+            totals=strategy.get_assets_totals(orga),
+        ))
 
 
 class CharmsMatrixBrick(Brick):
@@ -211,12 +213,11 @@ class CharmsMatrixBrick(Brick):
         strategy = context['strategy']
         orga = context['orga']
         return self._render(self.get_template_context(
-                        context,
-                        charms=strategy.get_charms_list(),
-                        segment_info=strategy.get_segment_descriptions_list(),
-                        totals=strategy.get_charms_totals(orga),
-                       )
-                    )
+            context,
+            charms=strategy.get_charms_list(),
+            segment_info=strategy.get_segment_descriptions_list(),
+            totals=strategy.get_charms_totals(orga),
+        ))
 
 
 class AssetsCharmsMatrixBrick(Brick):
@@ -230,10 +231,9 @@ class AssetsCharmsMatrixBrick(Brick):
         # NB: credentials are OK : we are sure to use the custom reload view if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         return self._render(self.get_template_context(
-                        context,
-                        segment_info=strategy.get_segment_descriptions_list(),
-                       )
-                    )
+            context,
+            segment_info=strategy.get_segment_descriptions_list(),
+        ))
 
 
 class ActObjectivesBrick(QuerysetBrick):
@@ -251,10 +251,10 @@ class ActObjectivesBrick(QuerysetBrick):
         act_id = context['object'].id
         # TODO: pre-populate EntityFilters ??
         return self._render(self.get_template_context(
-                    context,
-                    # NB: "act.objectives.all()" causes a strange additional query...
-                    ActObjective.objects.filter(act=act_id),
-                    ct_id=get_ct(ActObjective).id,
+            context,
+            # NB: "act.objectives.all()" causes a strange additional query...
+            ActObjective.objects.filter(act=act_id),
+            ct_id=get_ct(ActObjective).id,
         ))
 
 
@@ -270,8 +270,8 @@ class RelatedOpportunitiesBrick(PaginatedBrick):
         act = context['object']
 
         return self._render(self.get_template_context(
-                    context, act.get_related_opportunities(),
-                    predicate_id=REL_OBJ_COMPLETE_GOAL,
+            context, act.get_related_opportunities(),
+            predicate_id=REL_OBJ_COMPLETE_GOAL,
         ))
 
 
@@ -295,7 +295,7 @@ class PatternComponentsBrick(Brick):
         explore_tree(pattern.get_components_tree(), 0)
 
         return self._render(self.get_template_context(
-                    context,
-                    components=flattened_tree,
-                    ct_id=get_ct(ActObjectivePatternComponent).id,
+            context,
+            components=flattened_tree,
+            ct_id=get_ct(ActObjectivePatternComponent).id,
         ))
