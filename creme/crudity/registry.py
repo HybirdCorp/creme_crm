@@ -30,7 +30,6 @@ from django.core.serializers.python import _get_model
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.imports import import_apps_sub_modules
 
-
 logger = logging.getLogger(__name__)
 ALLOWED_ID_CHARS = OrderedSet('abcdefghijklmnopqrstuvwxyz'
                               'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.'

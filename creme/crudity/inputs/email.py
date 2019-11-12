@@ -237,7 +237,8 @@ class CreateInfopathInput(CreateEmailInput):
 
         try:
             xml = ET.fromstring(content)
-        except Exception as e:  # ExpatError in py2.6, ParseError in py2.7...
+        # except Exception as e:  # ExpatError in py2.6, ParseError in py2.7...
+        except ET.ParseError as e:
             logger.error('CreateInfopathInput.get_data_from_infopath_file(): %s', e)
             return None
 

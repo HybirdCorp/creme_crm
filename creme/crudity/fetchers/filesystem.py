@@ -25,7 +25,6 @@ from django.conf import settings
 
 from .base import CrudityFetcher
 
-
 logger = logging.getLogger(__name__)
 
 

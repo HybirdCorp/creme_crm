@@ -26,7 +26,6 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms.job import JobForm
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -34,7 +33,8 @@ class CruditySynchronizeJobForm(JobForm):
     user = ModelChoiceField(label=_('Default owner user'),
                             empty_label=None, queryset=None,
                             help_text=_('Eg: user owning emails/folder/documents '
-                                        'created during the emails synchronization.'),
+                                        'created during the emails synchronization.'
+                                       ),
                            )
 
     def __init__(self, *args, **kwargs):
