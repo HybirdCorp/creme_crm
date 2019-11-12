@@ -41,5 +41,5 @@ class Populator(BasePopulator):
                                             'periodicity': date_period_registry.get_period('minutes', 30),
                                             'status':      Job.STATUS_OK,
                                             'data':        {'user': user.id},
-                                           }
+                                           },
                                  )

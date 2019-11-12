@@ -23,8 +23,7 @@ from pickle import loads, dumps
 from django.db.models import BinaryField, CharField
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.models import CremeModel
-from creme.creme_core.models.fields import CremeUserForeignKey, CTypeForeignKey
+from creme.creme_core.models import CremeModel, fields as creme_fields
 
 
 class WaitingAction(CremeModel):
@@ -34,9 +33,9 @@ class WaitingAction(CremeModel):
     #     - If not  'fetcher_name - input_name'  (i.e: email - raw, email - infopath, sms - raw...).
     source  = CharField(_('Source'), max_length=100)
     raw_data = BinaryField(blank=True, null=True)  # Pickled data
-    ct      = CTypeForeignKey(verbose_name=_('Type of resource'))  # Redundant, but faster bd recovery
+    ct      = creme_fields.CTypeForeignKey(verbose_name=_('Type of resource'))  # Redundant, but faster bd recovery
     subject = CharField(_('Subject'), max_length=100)
-    user    = CremeUserForeignKey(verbose_name=_('Owner'), blank=True, null=True, default=None)  # If sandbox per user
+    user    = creme_fields.CremeUserForeignKey(verbose_name=_('Owner'), blank=True, null=True, default=None)  # If sandbox per user
 
     class Meta:
         app_label = 'crudity'

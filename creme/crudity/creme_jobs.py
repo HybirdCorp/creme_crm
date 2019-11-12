@@ -24,7 +24,6 @@ from django.utils.translation import gettext_lazy as _, gettext, ngettext
 from creme.creme_core.creme_jobs.base import JobType
 from creme.creme_core.models import JobResult
 
-
 CremeUser = get_user_model()
 
 
