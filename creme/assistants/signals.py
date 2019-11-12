@@ -24,7 +24,6 @@ from django.dispatch.dispatcher import receiver
 from . import models
 
 
-
 @receiver(post_save, sender=models.Alert)
 @receiver(post_save, sender=models.ToDo)
 def _refresh_alert_reminder_job(sender, instance, **kwargs):

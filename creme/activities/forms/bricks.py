@@ -27,7 +27,11 @@ from django.db.models.query_utils import Q
 from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext_lazy as _, ngettext
 
-from creme.creme_core.forms import CremeForm, MultiCreatorEntityField, MultiGenericEntityField, validators
+from creme.creme_core.forms import (
+    CremeForm,
+    MultiCreatorEntityField, MultiGenericEntityField,
+    validators,
+)
 from creme.creme_core.models import RelationType, Relation
 
 from creme.persons import get_contact_model
@@ -37,7 +41,6 @@ from ..models import Calendar
 from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
 
 from .fields import UserParticipationField
-
 
 logger = logging.getLogger(__name__)
 Contact = get_contact_model()
