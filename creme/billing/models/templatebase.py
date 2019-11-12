@@ -22,8 +22,8 @@ from datetime import timedelta
 import logging
 # import warnings
 
-from django.urls import reverse
 from django.db.models import PositiveIntegerField
+from django.urls import reverse
 from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.models.fields import CTypeForeignKey

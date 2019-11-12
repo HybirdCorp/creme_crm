@@ -5,21 +5,15 @@ from django.conf import settings
 from django.db import models, migrations
 from django.db.models.deletion import SET_NULL, PROTECT, CASCADE
 
-from creme.creme_core.models import (fields as creme_fields,
-    CREME_REPLACE_NULL, CREME_REPLACE)
+from creme.creme_core.models import (
+    fields as creme_fields,
+    CREME_REPLACE_NULL, CREME_REPLACE,
+)
 
 from creme.billing.models.fields import BillingDiscountField
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('billing', '0001_initial'),
-    #     ('billing', '0012_v1_7__charfields_not_null_1'),
-    #     ('billing', '0013_v1_7__charfields_not_null_2'),
-    #     ('billing', '0014_v1_7__textfields_not_null_1'),
-    #     ('billing', '0015_v1_7__textfields_not_null_2'),
-    # ]
-
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),

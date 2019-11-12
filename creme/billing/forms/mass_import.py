@@ -32,7 +32,6 @@ from creme import persons
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from .base import copy_or_create_address
 
-
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 

@@ -26,7 +26,6 @@ from django.db.transaction import atomic
 from .models import SimpleBillingAlgo
 from .registry import Algo
 
-
 logger = logging.getLogger(__name__)
 
 

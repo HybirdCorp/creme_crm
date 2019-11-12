@@ -81,8 +81,8 @@ creme.billing.exportAs = function(url, formats) {
 };
 */
 
-// TODO remove this after menu hat-bar refactor using action-links
 creme.billing.generateInvoiceNumber = function(url) {
+    console.warn('creme.billing.generateInvoiceNumber() is deprecated; use the action named "billing-hatmenubar-invoice-number" instead');
     return creme.utils.ajaxQuery(url, {
         action: 'post',
         warnOnFail: true,

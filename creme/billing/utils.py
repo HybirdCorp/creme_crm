@@ -26,7 +26,6 @@ from django.utils.translation import gettext as _
 
 from .constants import ROUND_POLICY
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -21,7 +21,6 @@
 from .. import get_sales_order_model
 from .base import BaseCreateForm, BaseEditForm
 
-
 SalesOrder = get_sales_order_model()
 
 
