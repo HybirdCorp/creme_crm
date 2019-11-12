@@ -17,7 +17,7 @@ urlpatterns = [
     re_path(r'^approach/add/(?P<entity_id>\d+)[/]?$',
         commercial_approach.CommercialApproachCreation.as_view(),
         name='commercial__create_approach',
-       ),
+    ),
 
     # Segments
     re_path(r'^market_segments[/]?$',                           market_segment.Segments.as_view(),        name='commercial__list_segments'),

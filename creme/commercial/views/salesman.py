@@ -30,15 +30,14 @@ from django.utils.translation import gettext_lazy as _
 # from creme.creme_core.models import CremeProperty
 # from creme.creme_core.views.generic import list_view, add_entity
 
-from creme.persons import get_contact_model
+# from creme.persons import get_contact_model
 from creme.persons.views import contact as contact_views
 
 from .. import gui
 from ..constants import PROP_IS_A_SALESMAN
 # from ..forms.salesman import SalesManCreateForm
 
-
-Contact = get_contact_model()
+# Contact = get_contact_model()
 
 
 # def abstract_add_salesman(request, form=SalesManCreateForm,

@@ -40,7 +40,6 @@ from .. import get_act_model, get_pattern_model, constants
 from ..forms import act as forms
 from ..models import ActType, ActObjective, MarketSegment, ActObjectivePatternComponent
 
-
 Opportunity = get_opportunity_model()
 Act = get_act_model()
 ActObjectivePattern = get_pattern_model()
