@@ -43,7 +43,6 @@ from ..models import ActivityType, Calendar
 from .activity_type import ActivityTypeField
 from .fields import UserParticipationField
 
-
 logger = logging.getLogger(__name__)
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()

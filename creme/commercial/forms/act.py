@@ -31,7 +31,6 @@ from creme.creme_core.models import EntityFilter
 from .. import get_act_model, get_pattern_model
 from ..models import ActObjective, ActObjectivePatternComponent
 
-
 ActObjectivePattern = get_pattern_model()
 
 

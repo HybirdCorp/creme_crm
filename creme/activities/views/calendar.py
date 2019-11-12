@@ -289,7 +289,7 @@ class CalendarView(generic.CheckedTemplateView):
         }
 
         context['enable_calendars_search'] = (
-                len(calendars) >= self.calendars_search_threshold
+            len(calendars) >= self.calendars_search_threshold
         )  # TODO: unit test for <True> case
 
         context['floating_activities'] = f_activities = self.get_floating_activities()
@@ -441,7 +441,8 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
             Activity.objects
                     .filter(is_deleted=False)
                     .filter(self.get_date_q(start=start, end=end))
-                    .filter(Q(calendars__in=calendar_ids)
+                    .filter(calendars__in=calendar_ids
+                            # Q(calendars__in=calendar_ids)
                             # | Q(type=constants.ACTIVITYTYPE_INDISPO,
                             #     relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
                             #     relations__object_entity__in=contacts,

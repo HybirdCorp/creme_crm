@@ -31,7 +31,6 @@ from creme.creme_core.models import SettingValue
 from .models import Alert, ToDo
 from .setting_keys import todo_reminder_key
 
-
 TODO_REMINDER_DAYS_BEFORE = 1  # TODO: in settings.py ? SettingValue (beware to refresh job on update) ? Job's data ?
 
 

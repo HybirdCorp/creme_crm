@@ -23,7 +23,6 @@ from django.utils.translation import gettext_lazy as _
 from creme import activities
 from creme.creme_core.gui.actions import BulkEntityAction
 
-
 Activity = activities.get_activity_model()
 
 
@@ -35,4 +34,3 @@ class BulkExportICalAction(BulkEntityAction):
     label = _('Download in iCalendar format')
     icon = 'calendar_ical'
     url_name = 'activities__dl_ical'
-
