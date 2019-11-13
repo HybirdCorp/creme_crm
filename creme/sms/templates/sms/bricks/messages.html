@@ -41,7 +41,7 @@
 {% has_perm_to change object.campaign as delete_perm %}{% url 'sms__delete_message' as delete_msg_url %}
     {% for message in page.object_list %}
     <tr {# TODO class="creme-sms-message content" #} >
-        <td {% brick_table_data_status primary %}>{{message.phone|formatphone}}</td>
+        <td {% brick_table_data_status primary %}>{{message.phone|sms_formatphone}}</td>
         <td {# TODO class="{{message.status}}" #}>{{message.statusname}}</td>
         <td>{{message.status_message}}</td>
         <td {% brick_table_data_status action %}>
