@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core import enumerable
@@ -25,17 +27,52 @@ from creme.creme_core.utils import build_ct_choices, creme_entity_content_types
 from creme.creme_core.utils.unicode_collation import collator
 
 
-class EntityFilterEnumerator(enumerable.QSEnumerator):
+class UserEnumerator(enumerable.QSEnumerator):
     @classmethod
-    def efilter_as_dict(cls, efilter):
-        d = cls.instance_as_dict(efilter)
-        d['group'] = str(efilter.entity_type)
-        d['help'] = _('Private ({})').format(efilter.user) if efilter.is_private else ''
+    def instance_as_dict(cls, instance):
+        d = {'value': instance.pk}
+
+        if instance.is_team:
+            # NB: we avoid the " (team)" suffix, because we create group> for teams.
+            d['label'] = instance.username
+            d['group'] = _('Teams')
+        else:
+            d['label'] = str(instance)
+
+            if not instance.is_active:
+                d['group'] = _('Inactive users')
 
         return d
 
     def choices(self, user):
-        choices = [*map(self.efilter_as_dict, self._queryset())]
+        choices = super().choices(user)
+
+        sort_key = collator.sort_key
+        choices.sort(key=lambda d: sort_key('{}#{}'.format(d.get('group', ''), d['label'])))
+
+        return choices
+
+
+class EntityFilterEnumerator(enumerable.QSEnumerator):
+    @classmethod
+    def efilter_as_dict(cls, efilter):
+        warnings.warn('EntityFilterEnumerator.efilter_as_dict() is deprecated ;'
+                      'use instance_as_dict() instead.',
+                      DeprecationWarning
+                     )
+        return cls.instance_as_dict(efilter)
+
+    @classmethod
+    def instance_as_dict(cls, instance):
+        d = super().instance_as_dict(instance)
+        d['group'] = str(instance.entity_type)
+        d['help'] = _('Private ({})').format(instance.user) if instance.is_private else ''
+
+        return d
+
+    def choices(self, user):
+        # choices = [*map(self.efilter_as_dict, self._queryset())]
+        choices = super().choices(user)
 
         sort_key = collator.sort_key
         choices.sort(key=lambda d: sort_key('{}#{}'.format(d['group'], d['label'])))

@@ -441,9 +441,13 @@ class CremeCoreConfig(CremeAppConfig):
         )
 
     def register_enumerable(self, enumerable_registry):
+        from django.contrib.auth import get_user_model
         from . import enumerators, models
 
         enumerable_registry.register_related_model(
+                                get_user_model(),
+                                enumerators.UserEnumerator,
+                            ).register_related_model(
                                 models.EntityFilter,
                                 enumerators.EntityFilterEnumerator,
                             ).register_field_type(

@@ -46,6 +46,14 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         other_user = self.other_user
         staff = CremeUser.objects.create(username='deunan', is_staff=True)
 
+        # Alphabetically-first user (__str__, not username)
+        first_user = CremeUser.objects.create_user(
+            username='noir', email='chloe@noir.jp',
+            first_name='Chloe', last_name='Noir',
+            password='uselesspw',
+        )
+        self.assertGreater(str(user), str(first_user))
+
         field = CremeUserChoiceField()
         self.assertIsNone(field.empty_label)
         self.assertIsNone(field.initial)
@@ -57,15 +65,36 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         active_group = choices[0]
         self.assertEqual('', active_group[0])
 
-        active_choices = active_group[1]
-        self.assertIn((user.id, str(user)),             active_choices)
-        self.assertIn((other_user.id, str(other_user)), active_choices)
-        self.assertIn((staff.id, str(staff)),           active_choices)
+        def find_user_choice(u, choices):
+            user_id = u.id
 
+            for i, choice in enumerate(choices):
+                if user_id == choice[0]:
+                    return i, choice[1]
+
+            self.fail('User "{}" not found in {}'.format(u, choices))
+
+        active_choices = active_group[1]
+        user_index, user_label = find_user_choice(user, active_choices)
+        self.assertEqual(str(user), user_label)
+
+        other_index, other_label = find_user_choice(other_user, active_choices)
+        self.assertEqual(str(other_user), other_label)
+
+        first_index, first_label = find_user_choice(first_user, active_choices)
+        self.assertEqual(str(first_user), first_label)
+
+        find_user_choice(staff, active_choices)
+
+        self.assertGreater(other_index, user_index)
+        self.assertGreater(user_index,  first_index)
+
+        # ---
         field.user = user
         self.assertEqual(user,    field.user)
         self.assertEqual(user.id, field.initial)
 
+        # ---
         clean = field.clean
         self.assertEqual(user,       clean(str(user.id)))
         self.assertEqual(other_user, clean(str(other_user.id)))
@@ -98,7 +127,18 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
     def test_inactive_users(self):
         user = self.login()
         other_user = self.other_user
-        inactive = CremeUser.objects.create(username='deunan', is_active=False)
+
+        create_inactive_user = partial(CremeUser.objects.create, is_active=False)
+        inactive1 = create_inactive_user(username='deunan',
+                                         first_name='Deunan',
+                                         last_name='Knut',
+                                        )
+        inactive2 = create_inactive_user(username='heca',
+                                         first_name='Briareos',
+                                         last_name='Hecatonchire',
+                                        )
+        self.assertGreater(inactive2.username, inactive1.username)
+        self.assertLess(str(inactive2), str(inactive1))
 
         field = CremeUserChoiceField()
 
@@ -111,14 +151,41 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         active_choices = active_group[1]
         self.assertIn((user.id, str(user)),             active_choices)
         self.assertIn((other_user.id, str(other_user)), active_choices)
-        self.assertNotIn((inactive.id, str(inactive)),  active_choices)
+        self.assertNotIn(inactive1.id, {c[0] for c in active_choices})
 
         inactive_group = choices[1]
         self.assertEqual(_('Inactive users'), inactive_group[0])
+        self.assertListEqual(
+            [(inactive2.id, str(inactive2)),
+             (inactive1.id, str(inactive1)),
+            ],
+            inactive_group[1]
+        )
 
-        inactive_choices = inactive_group[1]
-        self.assertIn((inactive.id, str(inactive)), inactive_choices)
-        self.assertNotIn((user.id, str(user)),      inactive_choices)
+    def test_teams(self):
+        user = self.login()
+        other_user = self.other_user
+
+        team_name = 'Team#1'
+        team = CremeUser.objects.create(username=team_name, is_team=True)
+        team.teammates = [user, self.other_user]
+
+        field = CremeUserChoiceField()
+
+        choices = [*field.choices]
+        self.assertEqual(2, len(choices))
+
+        active_group = choices[0]
+        self.assertEqual('', active_group[0])
+
+        active_choices = active_group[1]
+        self.assertIn((user.id, str(user)),             active_choices)
+        self.assertIn((other_user.id, str(other_user)), active_choices)
+        self.assertNotIn(team.id, {c[0] for c in active_choices})
+
+        team_group = choices[1]
+        self.assertEqual(_('Teams'), team_group[0])
+        self.assertListEqual([(team.id, team_name)], team_group[1])
 
 
 class DatePeriodFieldTestCase(FieldTestCase):

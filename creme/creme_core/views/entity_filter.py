@@ -40,6 +40,7 @@ from ..gui.listview import ListViewState
 from ..http import CremeJsonResponse
 from ..models import EntityFilter, RelationType
 from ..utils.db import is_db_case_sensitive
+from ..utils.unicode_collation import collator
 
 from . import generic
 from .decorators import jsonify
@@ -317,9 +318,15 @@ class UserChoicesView(base.CheckedView):
     response_class = CremeJsonResponse
 
     def get(self, request, *args, **kwargs):
+        sort_key = collator.sort_key
+
+        # TODO: return group for teams & inactive users (see UserEnumerator)
+        #       => fix the JavaScript side (it concatenates the group label at the end)
         return self.response_class(
             [(CurrentUserOperand.type_id, CurrentUserOperand.verbose_name),
-             *((e.id, str(e)) for e in get_user_model().objects.all()),
+             *sorted(((e.id, str(e)) for e in get_user_model().objects.all()),
+                     key=lambda c: sort_key(c[1]),
+                    )
             ],
             safe=False,  # Result is not a dictionary
         )
