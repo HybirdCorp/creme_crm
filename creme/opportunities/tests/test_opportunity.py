@@ -25,7 +25,7 @@ try:
 
     from creme import products
 
-    from creme.opportunities import constants
+    from creme.opportunities import constants, setting_keys
     from creme.opportunities.models import SalesPhase, Origin
 
     from .base import (
@@ -88,7 +88,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertTrue(SalesPhase.objects.exists())
         self.assertTrue(Origin.objects.exists())
 
-        self.assertEqual(1, SettingValue.objects.filter(key_id=constants.SETTING_USE_CURRENT_QUOTE).count())
+        # self.assertEqual(1, SettingValue.objects.filter(key_id=constants.SETTING_USE_CURRENT_QUOTE).count())
+        with self.assertNoException():
+            sv = SettingValue.objects.get_4_key(setting_keys.quote_key)
+        self.assertIs(sv.value, False)
 
         # Contribution to activities
         rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_ACTIVITY_SUBJECT)

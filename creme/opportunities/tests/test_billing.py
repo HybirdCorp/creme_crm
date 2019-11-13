@@ -13,7 +13,11 @@ try:
     from django.urls import reverse
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Relation, RelationType, SettingValue, SetCredentials
+    from creme.creme_core.models import (
+        Relation, RelationType,
+        SettingValue,
+        SetCredentials,
+    )
 
     from creme.persons.constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
     from creme.persons.tests.base import skipIfCustomOrganisation
@@ -32,6 +36,7 @@ try:
 
     from creme.opportunities import constants
 
+    from .. import setting_keys
     from .base import OpportunitiesBaseTestCase, skipIfCustomOpportunity, Opportunity, Contact
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -52,7 +57,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
                       )
 
     def _set_quote_config(self, use_current_quote):
-        sv = SettingValue.objects.get(key_id=constants.SETTING_USE_CURRENT_QUOTE)
+        # sv = SettingValue.objects.get(key_id=constants.SETTING_USE_CURRENT_QUOTE)
+        sv = SettingValue.objects.get_4_key(setting_keys.quote_key)
         sv.value = use_current_quote
         sv.save()
 
@@ -363,7 +369,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
         self.assertTrue(quote.pk)
 
-        key_id = constants.SETTING_USE_CURRENT_QUOTE
+        # key_id = constants.SETTING_USE_CURRENT_QUOTE
+        key_id = setting_keys.quote_key.id
 
         for query_info in context.captured_queries:
             self.assertNotIn(key_id, query_info['sql'])
