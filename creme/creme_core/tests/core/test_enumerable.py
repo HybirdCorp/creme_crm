@@ -8,8 +8,8 @@ try:
 
     from ..base import CremeTestCase
 
+    from creme.creme_core import enumerators
     from creme.creme_core.core.enumerable import _EnumerableRegistry, Enumerator
-    from creme.creme_core.enumerators import EntityFilterEnumerator
     from creme.creme_core.models import (
         EntityFilter, CremeUser,
         Language,
@@ -236,6 +236,75 @@ class EnumerableTestCase(CremeTestCase):
             )]
         )
 
+    def test_user_enumerator(self):
+        user = self.login()
+        other_user = self.other_user
+
+        # Alphabetically-first user (__str__, not username)
+        first_user = CremeUser.objects.create_user(
+            username='noir', email='chloe@noir.jp',
+            first_name='Chloe', last_name='Noir',
+            password='uselesspw',
+        )
+        self.assertGreater(str(user), str(first_user))
+
+        team_name = 'Team#1'
+        team = CremeUser.objects.create(username=team_name, is_team=True)
+        team.teammates = [user, other_user]
+
+        inactive = CremeUser.objects.create(username='deunan', is_active=False)
+
+        e = enumerators.UserEnumerator(FakeContact._meta.get_field('user'))
+        choices = e.choices(user)
+
+        self.assertIsInstance(choices, list)
+
+        first_choice = choices[0]
+        self.assertIsInstance(first_choice, dict)
+        self.assertIn('value', first_choice)
+
+        def find_user_dict(u):
+            user_as_dicts = [(i, c) for i, c in enumerate(choices) if c['value'] == u.id]
+            self.assertEqual(1, len(user_as_dicts))
+            return user_as_dicts[0]
+
+        user_index, user_dict = find_user_dict(user)
+        self.assertEqual({'value': user.pk,
+                          'label': str(user),
+                         },
+                         user_dict
+                        )
+
+        other_index, other_dict = find_user_dict(other_user)
+        self.assertEqual({'value': other_user.pk,
+                          'label': str(other_user),
+                         },
+                         other_dict
+                        )
+
+        first_index, first_dict = find_user_dict(first_user)
+        self.assertEqual({'value': first_user.pk,
+                          'label': str(first_user),
+                         },
+                         first_dict
+                        )
+
+        self.assertGreater(other_index, user_index)
+        self.assertGreater(user_index,  first_index)
+
+        self.assertEqual({'value': team.pk,
+                          'label': team_name,
+                          'group': _('Teams'),
+                         },
+                         find_user_dict(team)[1]
+                        )
+        self.assertEqual({'value': inactive.pk,
+                          'label': str(inactive),
+                          'group': _('Inactive users'),
+                         },
+                         find_user_dict(inactive)[1]
+                        )
+
     def test_efilter_enumerator(self):
         user = CremeUser.objects.create_user(
             username='Kanna', email='kanna@century.jp',
@@ -263,7 +332,7 @@ class EnumerableTestCase(CremeTestCase):
             filter_type=EntityFilter.EF_CREDENTIALS,  # <==
         )
 
-        e = EntityFilterEnumerator(FakeReport._meta.get_field('efilter'))
+        e = enumerators.EntityFilterEnumerator(FakeReport._meta.get_field('efilter'))
         choices = e.choices(user)
 
         self.assertIsInstance(choices, list)

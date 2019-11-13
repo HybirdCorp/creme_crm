@@ -2944,7 +2944,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(rgraph.chart,    cloned_rgraph.chart)
 
     def test_credentials01(self):
-        "Filter retrieved entities with permission"
+        "Filter retrieved entities with permission."
         user = self.login(is_superuser=False, allowed_apps=['creme_core', 'reports'])
         SetCredentials.objects.create(
             role=self.role,
@@ -2977,8 +2977,9 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
         data = response.json()
-        users = get_user_model().objects.all()
-        self.assertEqual([str(u) for u in users], data.get('x'))
+        # users = get_user_model().objects.all()
+        users = sorted(get_user_model().objects.all(), key=str)
+        self.assertListEqual([str(u) for u in users], data.get('x'))
 
         y_data = data.get('y')
 
@@ -2991,7 +2992,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(0,   y_data[get_user_index(other_user.id)][0])  # Not 300
 
     def test_credentials02(self):
-        "Filter retrieved entities with permission (brick + regular field version)"
+        "Filter retrieved entities with permission (brick + regular field version)."
         user = self.login(is_superuser=False, allowed_apps=['creme_core', 'reports'])
         SetCredentials.objects.create(
             role=self.role,

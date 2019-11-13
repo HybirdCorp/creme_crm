@@ -22,6 +22,7 @@ try:
     )
     from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.models import (
+        CremeUser,
         EntityFilter,  # EntityFilterCondition  EntityFilterVariable
         HeaderFilter, CustomField, RelationType, CremePropertyType,
         FakeContact, FakeOrganisation, FakeCivility, FakeImage,
@@ -1932,12 +1933,42 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(expected, response.json())
 
     def test_user_choices(self):
-        self.login()
+        user = self.login()
 
-        response = self.assertGET200(reverse('creme_core__efilter_user_choices'))
-        self.assertEqual(
-            [['__currentuser__', _('Current user')],
-             *([u.id, str(u)] for u in get_user_model().objects.all()),
-            ],
-            response.json()
+        # Alphabetically-first user (__str__, not username)
+        first_user = CremeUser.objects.create_user(
+            username='noir', email='chloe@noir.jp',
+            first_name='Chloe', last_name='Noir',
+            password='uselesspw',
         )
+        self.assertGreater(str(user), str(first_user))
+
+        choices = self.assertGET200(reverse('creme_core__efilter_user_choices')).json()
+        self.assertIsInstance(choices, list)
+        self.assertGreaterEqual(len(choices), 3, choices)
+
+        self.assertEqual(['__currentuser__', _('Current user')],
+                         choices[0]
+                        )
+
+        def find_user(u):
+            user_id = u.id
+
+            for i, choice in enumerate(choices):
+                if user_id == choice[0]:
+                    return i, choice[1]
+
+            self.fail('User "{}" not found in {}'.format(u, choices))
+
+        user_index, user_label = find_user(user)
+        self.assertEqual(user_label, str(user))
+
+        other_user = self.other_user
+        other_index, other_label = find_user(self.other_user)
+        self.assertEqual(other_label, str(other_user))
+
+        first_index, first_label = find_user(first_user)
+        self.assertEqual(first_label, str(first_user))
+
+        self.assertGreater(other_index, user_index)
+        self.assertGreater(user_index,  first_index)

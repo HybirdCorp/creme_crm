@@ -45,6 +45,7 @@ from ..utils.date_period import date_period_registry
 from ..utils.date_range import date_range_registry
 # from ..utils.queries import get_q_from_dict
 from ..utils.serializers import json_encode
+from ..utils.unicode_collation import collator
 
 from . import (
     validators as f_validators,
@@ -68,21 +69,35 @@ __all__ = (
 )
 
 
+# TODO: factorise with UserEnumerator ?
 class CremeUserChoiceIterator(mforms.ModelChoiceIterator):
-    """"Yields the inactive users after the active ones, a specific group."""
+    """"Groups the teams & the inactive users in specific groups."""
     def __iter__(self):
         regular_choices = []
         if self.field.empty_label is not None:
             regular_choices.append(('', self.field.empty_label))
 
+        sort_key = collator.sort_key
+
+        def user_key(c):
+            return sort_key(c[1])
+
         queryset = self.queryset
         choice = self.choice
-        regular_choices.extend(choice(u) for u in queryset if u.is_active)
+        regular_choices.extend(choice(u) for u in queryset if u.is_active and not u.is_team)
+        regular_choices.sort(key=user_key)
 
         yield ('', regular_choices)
+        del regular_choices
+
+        team_choices = [choice(u) for u in queryset if u.is_team]
+        if team_choices:
+            yield (_('Teams'), team_choices)
+        del team_choices
 
         inactive_choices = [choice(u) for u in queryset if not u.is_active]
         if inactive_choices:
+            inactive_choices.sort(key=user_key)
             yield (_('Inactive users'), inactive_choices)
 
 
@@ -110,6 +125,11 @@ class CremeUserChoiceField(mforms.ModelChoiceField):
         self._user = user
         if self.initial is None:
             self.initial = None if user is None else user.id
+
+    def label_from_instance(self, obj):
+        # NB: we avoid the " (team)" suffix, because CremeUserChoiceIterator
+        #     already creates an <optgroup> for teams.
+        return str(obj) if not obj.is_team else obj.username
 
 
 class JSONField(fields.CharField):
@@ -1600,8 +1620,6 @@ class MultiCTypeChoiceField(CTypeChoiceField):
     widget = core_widgets.UnorderedMultipleChoiceWidget  # Beware: use Choice inner class
 
     def _build_ctype_choices(self, ctypes):
-        from ..utils.unicode_collation import collator
-
         Choice = self.widget.Choice
         get_app_conf = apps.get_app_config
 
