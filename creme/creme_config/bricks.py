@@ -101,8 +101,6 @@ class GenericModelBrick(QuerysetBrick):
                     app_name=self.app_name,
                     model_config=model_config,
                     # model_name=self.model_name,
-                    # TODO: remove when deletion is managed by model_conf
-                    model_name=model_config.model_name,
 
                     model_is_reorderable=is_reorderable,
                     displayable_fields=displayable_fields,
@@ -365,13 +363,13 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
         ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
 
         btc = self.get_template_context(
-                    context, ctypes,
-                    max_conf_count=UserRole.objects.count() + 1,  # NB: '+ 1' is for super-users config.
+            context, ctypes,
+            max_conf_count=UserRole.objects.count() + 1,  # NB: '+ 1' is for super-users config.
         )
 
         ctypes_wrappers = btc['page'].object_list
 
-        block_counts = defaultdict(lambda: defaultdict(int)) # block_counts[content_type.id][(role_id, superuser)] -> count
+        brick_counts = defaultdict(lambda: defaultdict(int))  # brick_counts[content_type.id][(role_id, superuser)] -> count
         role_ids = set()
 
         for bdl in BrickDetailviewLocation.objects \
@@ -379,14 +377,14 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
                                           .exclude(zone=BrickDetailviewLocation.HAT):
             if bdl.brick_id:  # Do not count the 'place-holder' (empty block IDs which mean "no-block for this zone")
                 role_id = bdl.role_id
-                block_counts[bdl.content_type_id][(role_id, bdl.superuser)] += 1
+                brick_counts[bdl.content_type_id][(role_id, bdl.superuser)] += 1
                 role_ids.add(role_id)
 
         role_names = dict(UserRole.objects.filter(id__in=role_ids).values_list('id', 'name'))
         superusers_label = gettext('Superuser')  # TODO: cached_lazy_gettext
 
         for ctw in ctypes_wrappers:
-            count_per_role = block_counts[ctw.ctype.id]
+            count_per_role = brick_counts[ctw.ctype.id]
             ctw.default_count = count_per_role.pop((None, False), 0)
 
             ctw.locations_info = locations_info = []
