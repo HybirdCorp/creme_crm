@@ -32,4 +32,4 @@ REL_OBJ_CURRENT_DOC = 'opportunities-object_current_doc'
 
 DEFAULT_HFILTER_OPPORTUNITY = 'opportunities-hf'
 
-SETTING_USE_CURRENT_QUOTE = 'opportunities-use_current_quote'
+SETTING_USE_CURRENT_QUOTE = 'opportunities-use_current_quote'  # DEPRECATED
