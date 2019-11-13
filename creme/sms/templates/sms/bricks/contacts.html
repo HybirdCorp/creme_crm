@@ -28,7 +28,7 @@
         <td {% brick_table_data_status primary %}>
             {% widget_entity_hyperlink contact user %}
             {% if contact_perm %}
-                &nbsp;:&nbsp;{% if contact.mobile %}{{contact.mobile|phonenumber|formatphone}}{% else %}{% trans 'no number' %}{% endif %}
+                &nbsp;:&nbsp;{% if contact.mobile %}{{contact.mobile|sms_phonenumber|sms_formatphone}}{% else %}{% trans 'no number' %}{% endif %}
             {% endif %}
         </td>
         <td {% brick_table_data_status action %}>

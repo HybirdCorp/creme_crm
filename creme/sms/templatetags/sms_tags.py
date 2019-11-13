@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,14 +23,14 @@ from django.template import Library
 register = Library()
 
 
-# TODO: prefix with 'sms_'
-
-@register.filter(name="phonenumber")
+# @register.filter(name="phonenumber")
+@register.filter(name='sms_phonenumber')
 def phonenumber(value):
     return ''.join(c for c in value if c.isdigit())
 
 
-@register.filter(name="formatphone")
+# @register.filter(name="formatphone")
+@register.filter(name='sms_formatphone')
 def formatphone(value):
     if not value:
         return ''
