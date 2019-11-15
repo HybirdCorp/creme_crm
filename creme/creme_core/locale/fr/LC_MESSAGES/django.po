@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-12 19:13+0100\n"
+"POT-Creation-Date: 2019-11-15 10:20+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1077,15 +1077,24 @@ msgstr "A la relation"
 msgid "Does not have the relationship"
 msgstr "N'a pas la relation"
 
-#: forms/entity_filter/widgets.py:366
+#: forms/entity_filter/widgets.py:217
+#: templates/creme_core/forms/widgets/unordered-multiple.html:4
+msgid "No choice available."
+msgstr "Aucun choix disponible."
+
+#: forms/entity_filter/widgets.py:380
 msgid "No custom field at present."
 msgstr "Aucun champ personnalisé pour le moment."
 
-#: forms/entity_filter/widgets.py:390
+#: forms/entity_filter/widgets.py:404
 msgid "No date custom field at present."
 msgstr "Aucun champ personnalisé de date pour le moment."
 
-#: forms/entity_filter/widgets.py:458
+#: forms/entity_filter/widgets.py:466
+msgid "No relation type at present."
+msgstr "Aucun type de relation pour le moment."
+
+#: forms/entity_filter/widgets.py:493
 msgid "(no filter)"
 msgstr "(pas de filtre)"
 
@@ -3327,10 +3336,6 @@ msgid ""
 msgstr ""
 "Créer les fiches si elle ne sont pas trouvées ? (seuls les champs suivi de "
 "[CRÉATION] vous permettent de créer, si ils existent)"
-
-#: templates/creme_core/forms/widgets/unordered-multiple.html:4
-msgid "No choice available."
-msgstr "Aucun choix disponible."
 
 #: templates/creme_core/forms/widgets/unordered-multiple.html:12
 msgid "Check all"

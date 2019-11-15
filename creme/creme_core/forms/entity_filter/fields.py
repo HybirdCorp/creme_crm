@@ -178,7 +178,7 @@ class RegularFieldsConditionsField(_ConditionsField):
     def _value_to_jsonifiable(self, value):
         fields = self._get_fields()
         dicts = []
-        field_choicetype = widgets.FieldConditionWidget.field_choicetype
+        field_choicetype = widgets.FieldConditionSelector.field_choicetype
 
         for condition in value:
             search_info = condition.decoded_value  # TODO: use condition.handler
@@ -455,7 +455,7 @@ class DateFieldsConditionsField(_ConditionsField):
 
 
 class CustomFieldsConditionsField(_ConditionsField):
-    widget = widgets.CustomFieldConditionWidget
+    widget = widgets.CustomFieldsConditionsWidget
     default_error_messages = {
         'invalidcustomfield': _('This custom field is invalid with this model.'),
         'invalidoperator':    _('This operator is invalid.'),

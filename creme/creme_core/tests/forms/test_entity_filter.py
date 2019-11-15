@@ -36,12 +36,18 @@ try:
         PropertiesConditionsField,
         RelationsConditionsField, RelationSubfiltersConditionsField,
     )
+    from creme.creme_core.forms.entity_filter.widgets import (
+        CustomFieldsConditionsWidget,
+        DateCustomFieldsConditionsWidget,
+        RelationsConditionsWidget,
+        RelationSubfiltersConditionsWidget,
+    )
     from creme.creme_core.forms.entity_filter.forms import (
         EntityFilterCreateForm,
         EntityFilterEditForm,
     )
     from creme.creme_core.forms.entity_filter.widgets import (
-        FieldConditionWidget,
+        FieldConditionSelector,
         CustomFieldConditionSelector,
     )
 except Exception as e:
@@ -589,7 +595,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_choicetypes(self):
         "Field choice types"
-        field_choicetype = FieldConditionWidget.field_choicetype
+        field_choicetype = FieldConditionSelector.field_choicetype
         get_field = FakeContact._meta.get_field
 
         civility_field = get_field('civility')
@@ -1753,6 +1759,18 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(field_choicetype(self.cfield_int),   'number__null')
         self.assertEqual(field_choicetype(self.cfield_float), 'number__null')
 
+    def test_render_empty(self):
+        widget = CustomFieldsConditionsWidget()
+
+        self.assertHTMLEqual((
+                '<input type="text" name="test" style="display:none;">'
+                '<span>{no_customfield_label}</span>'
+            ).format(
+                no_customfield_label=_('No custom field at present.')
+            ),
+            widget.render('test', '')
+        )
+
 
 class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
@@ -1878,6 +1896,18 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertDictEqual({'rname': 'customfielddatetime', 'name': 'not_empty'},
                              condition.decoded_value
                             )
+
+    def test_render_empty(self):
+        widget = DateCustomFieldsConditionsWidget()
+
+        self.assertHTMLEqual((
+                '<input type="text" name="test" style="display:none;">'
+                '<span>{no_customfield_label}</span>'
+            ).format(
+                no_customfield_label=_('No date custom field at present.')
+            ),
+            widget.render('test', '')
+        )
 
 
 class PropertiesConditionsFieldTestCase(FieldTestCase):
@@ -2189,6 +2219,18 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(rt_id,                            condition.name)
         self.assertDictEqual({'has': True}, condition.decoded_value)
 
+    def test_render_empty(self):
+        widget = RelationsConditionsWidget()
+
+        self.assertHTMLEqual((
+                '<input type="text" name="test" style="display:none;">'
+                '<span>{no_customfield_label}</span>'
+            ).format(
+                no_customfield_label=_('No choice available.')
+            ),
+            widget.render('test', '')
+        )
+
 
 class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
@@ -2292,6 +2334,18 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         self.assertDictEqual({'has': True, 'filter_id': filter_id},
                              condition1.decoded_value
                             )
+
+    def test_render_empty(self):
+        widget = RelationSubfiltersConditionsWidget()
+
+        self.assertHTMLEqual((
+                '<input type="text" name="test" style="display:none;">'
+                '<span>{no_customfield_label}</span>'
+            ).format(
+                no_customfield_label=_('No relation type at present.')
+            ),
+            widget.render('test', '')
+        )
 
 
 class EntityFilterFormsTestCase(FieldTestCase):
