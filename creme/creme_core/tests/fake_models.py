@@ -13,6 +13,7 @@ else:
     from django.urls import reverse
     from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
+    from ..core.entity_filter import EF_USER
     from ..models import (
         CremeModel, CremeEntity,
         Language,
@@ -659,7 +660,7 @@ else:
         efilter = models.ForeignKey(EntityFilter, verbose_name=_('Filter'),
                                     blank=True, null=True,
                                     on_delete=models.PROTECT,
-                                    limit_choices_to={'filter_type': EntityFilter.EF_USER},
+                                    limit_choices_to={'filter_type': EF_USER},
                                    ).set_null_label(_('No filter'))
 
         # creation_label = _('Create a report')

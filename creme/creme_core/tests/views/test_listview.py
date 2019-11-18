@@ -31,7 +31,11 @@ try:
         EntityCellFunctionField,
         EntityCellRelation,
     )
-    from creme.creme_core.core.entity_filter import operators, condition_handler
+    from creme.creme_core.core.entity_filter import (
+        EF_CREDENTIALS,
+        condition_handler,
+        operators,
+    )
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.gui.listview import ListViewState
     from creme.creme_core.models import (
@@ -3353,14 +3357,14 @@ class ListViewTestCase(ViewsTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_listview',
             entity_type=FakeOrganisation,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeOrganisation,
                 operator=operators.ICONTAINS,
                 field_name='name', values=['Corp'],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -3415,13 +3419,13 @@ class ListViewTestCase(ViewsTestCase):
         cred_efilter = EntityFilter.objects.create(
             id='creme_core-test_listview01',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         cred_efilter.set_conditions(
             [condition_handler.RelationConditionHandler.build_condition(
                 model=FakeContact,
                 rtype=pilots,
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.

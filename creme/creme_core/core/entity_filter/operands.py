@@ -19,8 +19,10 @@
 ################################################################################
 
 from django.contrib.auth import get_user_model
-from django.db.models import ForeignKey
+from django.db.models import Model, ForeignKey
 from django.utils.translation import gettext_lazy as _
+
+User = get_user_model()
 
 
 # class EntityFilterVariable:
@@ -29,6 +31,7 @@ class ConditionDynamicOperand:
     # CURRENT_USER = '__currentuser__'
     type_id = None
     verbose_name = ''
+    model = Model  # OVERRIDE THIS -- model class related to the operand.
 
     def __init__(self, user):
         self.user = user
@@ -57,6 +60,7 @@ class CurrentUserOperand(ConditionDynamicOperand):
     """
     type_id = '__currentuser__'
     verbose_name = _('Current user')
+    model = User
 
     # def resolve(self, value, user=None):
     def resolve(self):
@@ -80,7 +84,7 @@ class CurrentUserOperand(ConditionDynamicOperand):
     #     return field.formfield().clean(value)
     def validate(self, *, field, value):
         if isinstance(field, ForeignKey) and \
-           issubclass(field.remote_field.model, get_user_model()) and \
+           issubclass(field.remote_field.model, User) and \
            value == self.type_id:
             return
 

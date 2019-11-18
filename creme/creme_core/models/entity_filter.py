@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import OrderedDict
 # from datetime import datetime
 from itertools import zip_longest
 from json import loads as json_load  # dumps as json_dump
@@ -27,19 +26,16 @@ from re import compile as compile_re
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-# from django.db.models import (Model, CharField, TextField, BooleanField,
-#         PositiveSmallIntegerField, ForeignKey, ManyToManyField, Q, CASCADE)
 from django.db import models
-from django.db.models.query_utils import Q
-# from django.db import models
 # from django.db.models.fields import FieldDoesNotExist
+from django.db.models.query_utils import Q
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy, ngettext
 # from django.utils.timezone import now
 
-from ..core import entity_filter as core_efilter
+from ..core.entity_filter import entity_filter_registries, EF_USER
 from ..global_info import get_global_info
 from ..utils import update_model_instance
 # from ..utils.date_range import date_range_registry
@@ -91,20 +87,12 @@ class EntityFilter(models.Model):  # CremeModel ???
      - The existence (or the not existence) of a kind of Relationship.
      - The holding (or the not holding) of a kind of CremeProperty
     """
-    EF_CREDENTIALS = 0
-    EF_USER = 1
-
-    REGISTRIES = OrderedDict([
-        (EF_CREDENTIALS, core_efilter.credentials_efilter_registry),
-        (EF_USER,        core_efilter.entity_filter_registry),
-    ])
-
     id   = models.CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
     name = models.CharField(max_length=100, verbose_name=_('Name'))
 
     filter_type = models.PositiveSmallIntegerField(
         editable=False, default=EF_USER,
-        choices=[(id_, registry.verbose_name) for id_, registry in REGISTRIES.items()],
+        choices=[(registry.id, registry.verbose_name) for registry in entity_filter_registries],
     ).set_tags(viewable=False)
 
     is_custom = models.BooleanField(editable=False, default=True).set_tags(viewable=False)
@@ -193,7 +181,7 @@ class EntityFilter(models.Model):  # CremeModel ???
     def can_edit(self, user):
         assert not user.is_team
 
-        if self.filter_type != self.EF_USER:
+        if self.filter_type != EF_USER:
             return False, gettext('You cannot edit/delete a system filter')
 
         if not self.user_id:  # All users allowed
@@ -505,7 +493,7 @@ class EntityFilter(models.Model):  # CremeModel ???
 
     @property
     def registry(self):
-        return self.REGISTRIES[self.filter_type]
+        return entity_filter_registries[self.filter_type]
 
     def filter(self, qs, user=None):
         qs = qs.filter(self.get_q(user))
@@ -589,7 +577,7 @@ class EntityFilter(models.Model):  # CremeModel ???
         assert not user.is_team
 
         # qs = EntityFilter.objects.all()
-        qs = cls.objects.filter(filter_type=cls.EF_USER)
+        qs = cls.objects.filter(filter_type=EF_USER)
 
         if content_type:
             qs = qs.filter(entity_type=content_type) if isinstance(content_type, ContentType) else \
@@ -864,7 +852,7 @@ class EntityFilterCondition(models.Model):
     # class ValueError(Exception):
     #     pass
 
-    def __init__(self, *args, model=None, filter_type=EntityFilter.EF_USER, **kwargs):
+    def __init__(self, *args, model=None, filter_type=EF_USER, **kwargs):
         self.filter_type = filter_type
         super().__init__(*args, **kwargs)
 
@@ -1109,7 +1097,7 @@ class EntityFilterCondition(models.Model):
         _handler = self._handler
 
         if _handler is None:
-            registry = self.filter.registry if self.filter_id else EntityFilter.REGISTRIES[self.filter_type]
+            registry = self.filter.registry if self.filter_id else entity_filter_registries[self.filter_type]
             self._handler = _handler = registry.get_handler(
                 type_id=self.type,
                 model=self.model,

@@ -23,7 +23,11 @@ try:
         EntityCellFunctionField,
         EntityCellRelation,
     )
-    from creme.creme_core.core.entity_filter import condition_handler, operators
+    from creme.creme_core.core.entity_filter import (
+        condition_handler,
+        operators,
+        EF_CREDENTIALS,
+    )
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.gui import actions
     from creme.creme_core.models import (
@@ -383,7 +387,7 @@ class ReportTestCase(BaseReportsTestCase):
             id='test-filter02',
             name='Agences',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
 
         # GET ---

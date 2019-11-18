@@ -13,7 +13,13 @@ try:
 
     from .base import ViewsTestCase
 
-    from creme.creme_core.core.entity_filter import operators, operands
+    from creme.creme_core.core.entity_filter import (
+        entity_filter_registries,
+        EF_CREDENTIALS, EF_USER,
+        _EntityFilterRegistry,
+        operators,
+        operands,
+    )
     from creme.creme_core.core.entity_filter.condition_handler import (
         SubFilterConditionHandler, RelationSubFilterConditionHandler,
         RegularFieldConditionHandler, DateRegularFieldConditionHandler,
@@ -1477,7 +1483,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter = EntityFilter.objects.create(
             id='test-system_filter', name='System filter',
             entity_type=FakeContact, is_custom=True,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         self.assertGET403(efilter.get_edit_absolute_url())
 
@@ -1932,7 +1938,47 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self.assertGET200(url + '&all=True')
         self.assertEqual(expected, response.json())
 
-    def test_user_choices(self):
+
+class UserChoicesTestCase(ViewsTestCase):
+    EF_TEST = 26
+    URL = reverse('creme_core__efilter_user_choices')
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        class CivOperand(operands.ConditionDynamicOperand):
+            type_id = '__mainciv__'
+            model = FakeCivility
+
+        class SuperUsersOperand(operands.ConditionDynamicOperand):
+            type_id = '__superusers__'
+            verbose_name = 'Super users'
+            model = CremeUser
+
+        class MainUserOperand(operands.ConditionDynamicOperand):
+            type_id = '__mainuser__'
+            verbose_name = 'Main user'
+            model = CremeUser
+
+        entity_filter_registries.register(_EntityFilterRegistry(
+            id=cls.EF_TEST,
+            verbose_name='Test registry',
+        ).register_operands(
+            CivOperand,
+            SuperUsersOperand,
+            MainUserOperand,
+        ))
+
+        cls.SuperUsersOperand = SuperUsersOperand
+        cls.MainUserOperand   = MainUserOperand
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        entity_filter_registries.unregister(cls.EF_TEST)
+
+    def test_user_choices01(self):
         user = self.login()
 
         # Alphabetically-first user (__str__, not username)
@@ -1943,22 +1989,23 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         )
         self.assertGreater(str(user), str(first_user))
 
-        choices = self.assertGET200(reverse('creme_core__efilter_user_choices')).json()
-        self.assertIsInstance(choices, list)
-        self.assertGreaterEqual(len(choices), 3, choices)
+        url = self.URL
+        choices1 = self.assertGET200(url).json()
+        self.assertIsInstance(choices1, list)
+        self.assertGreaterEqual(len(choices1), 3, choices1)
 
         self.assertEqual(['__currentuser__', _('Current user')],
-                         choices[0]
+                         choices1[0]
                         )
 
         def find_user(u):
             user_id = u.id
 
-            for i, choice in enumerate(choices):
+            for i, choice in enumerate(choices1):
                 if user_id == choice[0]:
                     return i, choice[1]
 
-            self.fail('User "{}" not found in {}'.format(u, choices))
+            self.fail('User "{}" not found in {}'.format(u, choices1))
 
         user_index, user_label = find_user(user)
         self.assertEqual(user_label, str(user))
@@ -1972,3 +2019,26 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         self.assertGreater(other_index, user_index)
         self.assertGreater(user_index,  first_index)
+
+        # "filter_type" ---
+        choices2 = self.assertGET200(
+            url + '?filter_type={}'.format(EF_USER)
+        ).json()
+        self.assertEqual(choices1, choices2)
+
+        choices3 = self.assertGET200(
+            url + '?filter_type={}'.format(EF_CREDENTIALS)
+        ).json()
+        self.assertEqual(choices1, choices3)
+
+        self.assertGET404(url + '?filter_type=1024')
+
+    def test_user_choices02(self):
+        "Other registered operands."
+        self.login()
+
+        choices = self.assertGET200(
+            self.URL + '?filter_type={}'.format(self.EF_TEST)
+        ).json()
+        self.assertEqual(self.MainUserOperand.type_id,   choices[0][0])
+        self.assertEqual(self.SuperUsersOperand.type_id, choices[1][0])

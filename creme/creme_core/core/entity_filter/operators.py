@@ -30,7 +30,7 @@ from django.utils.translation import gettext_lazy as _, gettext
 from creme.creme_core.utils.db import is_db_case_sensitive
 from creme.creme_core.utils.meta import FieldInfo
 
-from . import entity_filter_registry
+from . import entity_filter_registries, EF_USER
 
 # IDs
 EQUALS          =  1
@@ -218,7 +218,7 @@ class ConditionOperator:
 
     # def validate_field_values(self, field, values, user=None):
     def validate_field_values(self, *, field, values, user=None,
-                              efilter_registry=entity_filter_registry):
+                              efilter_registry=entity_filter_registries[EF_USER]):
         """Raises a ValidationError to notify of a problem with 'values'.
         @param field: Model field.
         @param values: Sequence of POSTed values to validate.
@@ -488,7 +488,7 @@ class IEndsWithNotOperator(IEndsWithOperator):
 class BooleanOperatorBase(ConditionOperator):
     # def validate_field_values(self, field, values, user=None):
     def validate_field_values(self, *, field, values, user=None,
-                              efilter_registry=entity_filter_registry):
+                              efilter_registry=entity_filter_registries[EF_USER]):
         if len(values) != 1 or not isinstance(values[0], bool):
             # raise ValueError(
             raise ValidationError(
@@ -570,7 +570,7 @@ class RangeOperator(ConditionOperator):
 
     # def validate_field_values(self, field, values, user=None):
     def validate_field_values(self, *, field, values, user=None,
-                              efilter_registry=entity_filter_registry):
+                              efilter_registry=entity_filter_registries[EF_USER]):
         if len(values) != 2:
             # raise ValueError(
             raise ValidationError(

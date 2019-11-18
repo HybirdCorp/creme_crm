@@ -24,7 +24,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from django.db.models.deletion import ProtectedError
-# from django.http import HttpResponse, HttpResponseRedirect
+from django.http import Http404  # HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -32,13 +32,13 @@ from django.utils.translation import gettext_lazy as _, gettext
 
 from .. import utils
 from ..auth.decorators import login_required
-from ..core.entity_filter import entity_filter_registry
-from ..core.entity_filter.operands import CurrentUserOperand
+from ..core.entity_filter import entity_filter_registries, EF_USER
 from ..core.exceptions import ConflictError
 from ..forms.entity_filter import forms as efilter_forms
 from ..gui.listview import ListViewState
 from ..http import CremeJsonResponse
 from ..models import EntityFilter, RelationType
+from ..utils import get_from_GET_or_404
 from ..utils.db import is_db_case_sensitive
 from ..utils.unicode_collation import collator
 
@@ -47,6 +47,7 @@ from .decorators import jsonify
 from .generic import base
 
 logger = logging.getLogger(__name__)
+User = get_user_model()
 
 
 class FilterMixin:
@@ -129,7 +130,7 @@ class FilterMixin:
 #
 #         return filter_
 class EntityFilterMixin(FilterMixin):
-    efilter_registry = entity_filter_registry
+    efilter_registry = entity_filter_registries[EF_USER]
 
     def get_efilter_registry(self):
         return self.efilter_registry
@@ -314,18 +315,44 @@ class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
         )
 
 
+# TODO: generalize this view to all enumerable models (inherit enumerable view ?)
+#       anyway, we need other examples of operand...
 class UserChoicesView(base.CheckedView):
     response_class = CremeJsonResponse
+    filter_type_arg = 'filter_type'
+
+    def get_registry(self):
+        ftype = get_from_GET_or_404(
+            self.request.GET, key=self.filter_type_arg, cast=int,
+            default=EF_USER,  # TODO: make mandatory ?
+        )
+
+        try:
+            return entity_filter_registries[ftype]
+        except KeyError as e:
+            raise Http404('Invalid filter type') from e
+
+    def get_operands(self):
+        user = self.request.user
+
+        for operand in self.get_registry().operands(user):
+            if issubclass(operand.model, User):
+                yield operand
 
     def get(self, request, *args, **kwargs):
         sort_key = collator.sort_key
 
+        def choice_key(c):
+            return sort_key(c[1])
+
         # TODO: return group for teams & inactive users (see UserEnumerator)
         #       => fix the JavaScript side (it concatenates the group label at the end)
         return self.response_class(
-            [(CurrentUserOperand.type_id, CurrentUserOperand.verbose_name),
-             *sorted(((e.id, str(e)) for e in get_user_model().objects.all()),
-                     key=lambda c: sort_key(c[1]),
+            [*sorted(((op.type_id, op.verbose_name) for op in self.get_operands()),
+                     key=choice_key,
+                    ),
+             *sorted(((e.id, str(e)) for e in User.objects.all()),
+                     key=choice_key,
                     )
             ],
             safe=False,  # Result is not a dictionary

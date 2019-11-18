@@ -22,6 +22,8 @@ from collections import OrderedDict
 import logging
 
 logger = logging.getLogger(__name__)
+EF_CREDENTIALS = 0
+EF_USER = 1
 
 
 class _EntityFilterRegistry:
@@ -33,7 +35,8 @@ class _EntityFilterRegistry:
     class RegistrationError(Exception):
         pass
 
-    def __init__(self, verbose_name):
+    def __init__(self, *, id, verbose_name):
+        self.id = id
         self.verbose_name = verbose_name
         self._handler_classes = OrderedDict()  # We keep the registration order for the form.
         self._operator_classes = {}
@@ -158,5 +161,45 @@ class _EntityFilterRegistry:
             yield op_cls()
 
 
-entity_filter_registry = _EntityFilterRegistry('Regular filter (usable in list-view...')
-credentials_efilter_registry = _EntityFilterRegistry('Credentials filter (internal use)')
+class _EntityFilterSuperRegistry:
+    class RegistrationError(Exception):
+        pass
+
+    def __init__(self):
+        self._registries = OrderedDict()
+
+    def __getitem__(self, registry_id):
+        return self._registries[registry_id]
+
+    def __iter__(self):
+        return iter(self._registries.values())
+
+    def register(self, *registries):
+        set_default= self._registries.setdefault
+
+        for registry in registries:
+            if set_default(registry.id, registry) is not registry:
+                raise self.RegistrationError(
+                    '_EntityFilterSuperRegistry.register(): '
+                    'the ID "{}" is already used.'.format(registry.id)
+                )
+
+        return self
+
+    def unregister(self, *registry_ids):
+        registries = self._registries
+
+        for registry_id in registry_ids:
+            del registries[registry_id]
+
+
+entity_filter_registries = _EntityFilterSuperRegistry().register(
+    _EntityFilterRegistry(
+        id=EF_CREDENTIALS,
+        verbose_name='Credentials filter (internal use)',
+    ),
+    _EntityFilterRegistry(
+        id=EF_USER,
+        verbose_name='Regular filter (usable in list-view...',
+    ),
+)

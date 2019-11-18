@@ -3,7 +3,10 @@
 try:
     from django.core.exceptions import ValidationError
 
-    from creme.creme_core.core.entity_filter import operands, entity_filter_registry
+    from creme.creme_core.core.entity_filter import (
+        operands,
+        entity_filter_registries, EF_USER,
+    )
     from creme.creme_core.models import CremeUser, FakeContact
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
@@ -13,7 +16,7 @@ except Exception as e:
 class OperandTestCase(CremeTestCase):
     def test_current_user01(self):
         "Registered."
-        operand = entity_filter_registry.get_operand(
+        operand = entity_filter_registries[EF_USER].get_operand(
             type_id=operands.CurrentUserOperand.type_id,
             user=None,
         )

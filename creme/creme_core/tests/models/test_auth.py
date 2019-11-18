@@ -17,7 +17,7 @@ try:
     from creme.creme_core import constants
     from creme.creme_core.auth import EntityCredentials, SUPERUSER_PERM
     from creme.creme_core.core.entity_filter import (
-        credentials_efilter_registry,
+        entity_filter_registries, EF_CREDENTIALS,
         condition_handler,
         operators,
         operands,
@@ -911,7 +911,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
 
         role = UserRole.objects.create(name='Test')
@@ -953,14 +953,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.IEQUALS,
                 field_name='last_name', values=[contact1.last_name],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -979,7 +979,7 @@ class CredentialsTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name=contact1.last_name)
 
         user = self.refresh(user)
-        self.assertEqual(credentials_efilter_registry,
+        self.assertEqual(entity_filter_registries[EF_CREDENTIALS],
                          user.role.credentials.first().efilter.registry,
                         )
 
@@ -1032,14 +1032,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.IEQUALS,
                 field_name='last_name', values=[contact1.last_name],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1083,14 +1083,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.IEQUALS,
                 field_name='last_name', values=[contact1.last_name],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1135,14 +1135,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.IEQUALS,
                 field_name='last_name', values=[contact1.last_name],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1182,14 +1182,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.IEQUALS,
                 field_name='last_name', values=[contact1.last_name],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1234,14 +1234,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.IEQUALS,
                 field_name='last_name', values=[contact1.last_name],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1287,14 +1287,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter1 = EntityFilter.objects.create(
             id='creme_core-test_auth1',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter1.set_conditions([
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
                     field_name='last_name', values=[contact1.last_name],
-                    filter_type=EntityFilter.EF_CREDENTIALS,
+                    filter_type=EF_CREDENTIALS,
                 ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1304,14 +1304,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter2 = EntityFilter.objects.create(
             id='creme_core-test_auth2',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter2.set_conditions([
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
                     field_name='first_name', values=[contact1.first_name],
-                    filter_type=EntityFilter.EF_CREDENTIALS,
+                    filter_type=EF_CREDENTIALS,
                 ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1358,14 +1358,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter1 = EntityFilter.objects.create(
             id='creme_core-test_auth1',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter1.set_conditions([
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
                     field_name='last_name', values=[contact1.last_name],
-                    filter_type=EntityFilter.EF_CREDENTIALS,
+                    filter_type=EF_CREDENTIALS,
                 ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1375,14 +1375,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter2 = EntityFilter.objects.create(
             id='creme_core-test_auth2',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter2.set_conditions([
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
                     field_name='first_name', values=[contact1.first_name],
-                    filter_type=EntityFilter.EF_CREDENTIALS,
+                    filter_type=EF_CREDENTIALS,
                 ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1432,14 +1432,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter1 = EntityFilter.objects.create(
             id='creme_core-test_auth1',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter1.set_conditions([
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
                     field_name='last_name', values=[contact1.last_name],
-                    filter_type=EntityFilter.EF_CREDENTIALS,
+                    filter_type=EF_CREDENTIALS,
                 ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1449,14 +1449,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter2 = EntityFilter.objects.create(
             id='creme_core-test_auth2',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter2.set_conditions([
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
                     field_name='first_name', values=[contact1.first_name],
-                    filter_type=EntityFilter.EF_CREDENTIALS,
+                    filter_type=EF_CREDENTIALS,
                 ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1504,14 +1504,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=CremeEntity,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
                 operator=operators.EQUALS,
                 field_name='user', values=[operands.CurrentUserOperand.type_id],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1576,14 +1576,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.EQUALS_NOT,
                 field_name='user', values=[operands.CurrentUserOperand.type_id],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -2168,14 +2168,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=CremeEntity,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
                 operator=operators.EQUALS,
                 field_name='user', values=[user.id],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -2380,14 +2380,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=CremeEntity,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
                 operator=operators.EQUALS,
                 field_name='user', values=[user.id],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -2434,14 +2434,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=CremeEntity,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
                 operator=operators.EQUALS,
                 field_name='user', values=[user.id],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -2477,14 +2477,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=CremeEntity,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
                 operator=operators.EQUALS,
                 field_name='user', values=[other.id],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -2538,7 +2538,7 @@ class CredentialsTestCase(CremeTestCase):
 
         create_efilter = partial(EntityFilter.objects.create,
                                  entity_type=CremeEntity,
-                                 filter_type=EntityFilter.EF_CREDENTIALS,
+                                 filter_type=EF_CREDENTIALS,
                                 )
         efilter1 = create_efilter(id='creme_core-test_auth1')
         efilter2 = create_efilter(id='creme_core-test_auth2')
@@ -2549,7 +2549,7 @@ class CredentialsTestCase(CremeTestCase):
                 model=CremeEntity,
                 operator=operators.EQUALS,
                 field_name='user', values=[user.id],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -2560,7 +2560,7 @@ class CredentialsTestCase(CremeTestCase):
                 model=CremeEntity,
                 operator=operators.ISEMPTY,
                 field_name='description', values=[False],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -2607,7 +2607,7 @@ class CredentialsTestCase(CremeTestCase):
 
         create_efilter = partial(EntityFilter.objects.create,
                                  entity_type=CremeEntity,
-                                 filter_type=EntityFilter.EF_CREDENTIALS,
+                                 filter_type=EF_CREDENTIALS,
                                 )
         efilter1 = create_efilter(id='creme_core-test_auth1')
         efilter2 = create_efilter(id='creme_core-test_auth2')
@@ -2618,7 +2618,7 @@ class CredentialsTestCase(CremeTestCase):
                 model=CremeEntity,
                 operator=operators.EQUALS,
                 field_name='user', values=[self.other_user.id],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -2629,7 +2629,7 @@ class CredentialsTestCase(CremeTestCase):
                 model=CremeEntity,
                 operator=operators.ISEMPTY,
                 field_name='description', values=[False],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -2696,14 +2696,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.EQUALS,
                 field_name='user', values=[operands.CurrentUserOperand.type_id],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -2751,14 +2751,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=Document,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=Document,
                 operator=operators.ICONTAINS,
                 field_name='title', values=['Picture'],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -2793,14 +2793,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter_4_contact = EntityFilter.objects.create(
             id='creme_core-test_auth01',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter_4_contact.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.EQUALS,
                 field_name='user', values=[user.id],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -2810,14 +2810,14 @@ class CredentialsTestCase(CremeTestCase):
         efilter_4_orga = EntityFilter.objects.create(
             id='creme_core-test_auth02',
             entity_type=FakeOrganisation,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter_4_orga.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeOrganisation,
                 operator=operators.ICONTAINS,
                 field_name='name', values=['Corp'],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
