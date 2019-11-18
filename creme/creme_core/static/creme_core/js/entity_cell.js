@@ -294,10 +294,10 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
             // reset the value, that will be recreated by calls to onColumnChanged()
             this.store.attr('value', '');
 
-            div.find('.selector_list input[type=checkbox]').each(function(i, checkbox) {
-                if (to_check.indexOf(checkbox.parentElement.getAttribute('data-column')) !== -1) {
-                    $(checkbox).prop('checked', true).change();
-                }
+            // recreate selection IN THE SAME ORDER !
+            to_check.forEach(function(column) {
+                var checkbox = div.find('.selector_list [data-column="' + column + '"] > input[type=checkbox]');
+                $(checkbox).prop('checked', true).change();
             });
         } else {
             this.updatePreview();
