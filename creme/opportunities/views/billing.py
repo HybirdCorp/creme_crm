@@ -20,6 +20,7 @@
 
 from functools import partial
 
+from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -27,9 +28,10 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 # from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.models import Relation, Vat
+from creme.creme_core.models import Relation, SettingValue, Vat
 # from creme.creme_core.utils import get_ct_or_404
 from creme.creme_core.views.generic import base
+from creme.creme_core.views.relation import RelationsObjectsSelectionPopup
 # from creme.creme_core.views.decorators import POST_only
 
 from creme.persons import workflow
@@ -39,8 +41,8 @@ from creme.products import get_product_model
 from creme import billing
 from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
-from .. import constants
-from .. import get_opportunity_model
+from .. import constants, get_opportunity_model
+from ..setting_keys import target_constraint_key, emitter_constraint_key
 
 Invoice     = billing.get_invoice_model()
 Quote       = billing.get_quote_model()
@@ -289,3 +291,78 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
             return HttpResponse()
 
         return redirect(opp)
+
+
+# NB: we create a customised view for selection instead of using RelationsObjectsSelectionPopup
+#     & the possibility to pass a q_filter (& change the title of client side) because
+#     q_filter is not great for a double relationships filter (we cannot pass a sub-queryset
+#     & pass a list of IDs in GET parameter is not scalable/straightforward)
+class RelatedObjectsSelectionPopup(RelationsObjectsSelectionPopup):
+    def __init__(self):
+        super().__init__()
+        self.constraints = None
+
+    def get_constraints(self):
+        constraints = self.constraints
+
+        if constraints is None:
+            svalues = SettingValue.objects.get_4_keys(
+                {'key': target_constraint_key,  'default': True},
+                {'key': emitter_constraint_key, 'default': True},
+            )
+            self.constraints = constraints = {
+                'target':  svalues[target_constraint_key.id].value,
+                'emitter': svalues[emitter_constraint_key.id].value,
+            }
+
+        return constraints
+
+    def get_internal_q(self):
+        extra_q = super().get_internal_q()
+        constraints = self.get_constraints()
+
+        if constraints['target']:
+            extra_q &= Q(
+                pk__in=Relation.objects
+                               .filter(object_entity=self.get_related_entity().target.id,
+                                       type=REL_SUB_BILL_RECEIVED,
+                                      )
+                               .values_list('subject_entity_id', flat=True)
+            )
+
+        if constraints['emitter']:
+            extra_q &= Q(
+                pk__in=Relation.objects
+                               .filter(object_entity=self.get_related_entity().emitter.id,
+                                       type=REL_SUB_BILL_ISSUED,
+                                      )
+                               .values_list('subject_entity_id', flat=True)
+            )
+
+        return extra_q
+
+    def get_title(self):
+        constraints = self.get_constraints()
+        same_target = constraints['target']
+        same_emitter = constraints['emitter']
+
+        if same_target:
+            models = self.model._meta.verbose_name_plural
+            opp = self.get_related_entity()
+
+            return _('List of {models} issued by {emitter} and received by {target}').format(
+                        models=models,
+                        target=opp.target,
+                        emitter=opp.emitter,
+                   ) if same_emitter else \
+                   _('List of {models} received by {target}').format(
+                        models=models,
+                        target=opp.target,
+                   )
+        elif same_emitter:
+            return _('List of {models} issued by {emitter}').format(
+                models=self.model._meta.verbose_name_plural,
+                emitter=self.get_related_entity().emitter,
+            )
+
+        return super().get_title()

@@ -6,5 +6,6 @@
 {# <div class="detailview"> #}
     <div class="listviews-breadcrumbs global-buttons">{% trans 'Commercial' %} <span class="listviews-breadcrumbs-separator">/</span>
         {% trans 'List of' context 'opportunities-breadcrumbs' %}
-        <a href="{% url 'opportunities__list_opportunities' %}" class="listview-breadcrumb">{% blocktrans count count=opportunities_count %}{{count}} opportunity{% plural %}{{count}} opportunities{% endblocktrans %}</a></div>
+        <a href="{% url 'opportunities__list_opportunities' %}" class="listview-breadcrumb">{% blocktrans count count=opportunities_count %}{{count}} opportunity{% plural %}{{count}} opportunities{% endblocktrans %}</a>
+    </div>
 {% endblock %}

@@ -89,9 +89,15 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertTrue(Origin.objects.exists())
 
         # self.assertEqual(1, SettingValue.objects.filter(key_id=constants.SETTING_USE_CURRENT_QUOTE).count())
-        with self.assertNoException():
-            sv = SettingValue.objects.get_4_key(setting_keys.quote_key)
-        self.assertIs(sv.value, False)
+        def assertSVEqual(key, value):
+            with self.assertNoException():
+                sv = SettingValue.objects.get_4_key(key)
+
+            self.assertIs(sv.value, value)
+
+        assertSVEqual(setting_keys.quote_key, False)
+        assertSVEqual(setting_keys.target_constraint_key, True)
+        assertSVEqual(setting_keys.emitter_constraint_key, True)
 
         # Contribution to activities
         rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_ACTIVITY_SUBJECT)

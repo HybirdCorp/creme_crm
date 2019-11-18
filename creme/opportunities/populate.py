@@ -39,10 +39,9 @@ from creme.creme_core.models import (
 
 from creme import persons, products
 
-from . import get_opportunity_model, bricks, constants
+from . import get_opportunity_model, bricks, constants, setting_keys
 from .buttons import LinkedOpportunityButton
 from .models import SalesPhase, Origin
-from .setting_keys import quote_key
 
 logger = logging.getLogger(__name__)
 Opportunity = get_opportunity_model()
@@ -106,7 +105,10 @@ class Populator(BasePopulator):
                          (constants.REL_OBJ_CURRENT_DOC,       _('has as current accounting document'),    [Opportunity]))
 
         # ---------------------------
-        SettingValue.objects.get_or_create(key_id=quote_key.id, defaults={'value': False})
+        create_sv = SettingValue.objects.get_or_create
+        create_sv(key_id=setting_keys.quote_key.id,              defaults={'value': False})
+        create_sv(key_id=setting_keys.target_constraint_key.id,  defaults={'value': True})
+        create_sv(key_id=setting_keys.emitter_constraint_key.id, defaults={'value': True})
 
         # ---------------------------
         create_efilter = partial(EntityFilter.create, model=Opportunity, user='admin')

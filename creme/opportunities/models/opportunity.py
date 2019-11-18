@@ -24,17 +24,23 @@ import warnings
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
-from django.db.models import (CharField, ForeignKey, PositiveIntegerField,
-        DateField, PROTECT, BooleanField)  # TextField
+from django.db.models import (
+    CharField, ForeignKey, PositiveIntegerField,
+    DateField, PROTECT, BooleanField,
+)  # TextField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-from creme.creme_core.models import (CremeEntity, CremeModel, Relation,
-        Currency, Vat, CREME_REPLACE_NULL)
+from creme.creme_core.models import (
+    CremeEntity, CremeModel,
+    Relation,
+    Currency, Vat,
+    CREME_REPLACE_NULL,
+)
 from creme.creme_core.models.fields import BasicAutoField
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme.persons import get_organisation_model
 from creme.persons.workflow import transform_target_into_prospect
 
 # from creme.products import get_product_model, get_service_model
@@ -225,6 +231,8 @@ class AbstractOpportunity(CremeEntity):
     def get_contacts(self):
         warnings.warn('AbstractOpportunity.get_contacts() is deprecated.', DeprecationWarning)
 
+        from creme.persons import get_contact_model
+
         return get_contact_model()\
                     .objects\
                     .filter(is_deleted=False,
@@ -234,6 +242,8 @@ class AbstractOpportunity(CremeEntity):
 
     def get_responsibles(self):
         warnings.warn('AbstractOpportunity.get_responsibles() is deprecated.', DeprecationWarning)
+
+        from creme.persons import get_contact_model
 
         return get_contact_model()\
                     .objects\

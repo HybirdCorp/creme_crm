@@ -159,9 +159,10 @@ class LinkedContactsBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     template_name = 'opportunities/bricks/contacts.html'
 
     def _get_queryset(self, entity):
-        return self.get_related_contacts(opportunity=entity,
-                                         rtype_id=constants.REL_SUB_LINKED_CONTACT,
-                                        )
+        return self.get_related_contacts(
+            opportunity=entity,
+            rtype_id=constants.REL_SUB_LINKED_CONTACT,
+        )
 
 
 class LinkedProductsBrick(_RelatedToOpportunity, _LinkedStuffBrick):
@@ -173,10 +174,11 @@ class LinkedProductsBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     order_by      = 'name'
 
     def _get_queryset(self, entity):
-        return self.get_related_queryset(opportunity=entity,
-                                         model=Product,
-                                         rtype_id=constants.REL_SUB_LINKED_PRODUCT,
-                                        )
+        return self.get_related_queryset(
+            opportunity=entity,
+            model=Product,
+            rtype_id=constants.REL_SUB_LINKED_PRODUCT,
+        )
 
 
 class LinkedServicesBrick(_RelatedToOpportunity, _LinkedStuffBrick):
@@ -188,10 +190,11 @@ class LinkedServicesBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     order_by      = 'name'
 
     def _get_queryset(self, entity):
-        return self.get_related_queryset(opportunity=entity,
-                                         model=Service,
-                                         rtype_id=constants.REL_SUB_LINKED_SERVICE,
-                                        )
+        return self.get_related_queryset(
+            opportunity=entity,
+            model=Service,
+            rtype_id=constants.REL_SUB_LINKED_SERVICE,
+        )
 
 
 class BusinessManagersBrick(_RelatedToOpportunity, _LinkedStuffBrick):
@@ -202,9 +205,10 @@ class BusinessManagersBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     template_name = 'opportunities/bricks/managers.html'
 
     def _get_queryset(self, entity):
-        return self.get_related_contacts(opportunity=entity,
-                                         rtype_id=constants.REL_SUB_RESPONSIBLE,
-                                        )
+        return self.get_related_contacts(
+            opportunity=entity,
+            rtype_id=constants.REL_SUB_RESPONSIBLE,
+        )
 
 
 class TargettingOpportunitiesBrick(QuerysetBrick):
@@ -298,9 +302,10 @@ if apps.is_installed('creme.billing'):
         def _get_queryset(self, entity):
             # TODO: test
             # TODO: filter deleted ?? what about current quote behaviour ??
-            return Quote.objects.filter(relations__object_entity=entity.id,
-                                        relations__type=constants.REL_SUB_LINKED_QUOTE,
-                                       )
+            return Quote.objects.filter(
+                relations__object_entity=entity.id,
+                relations__type=constants.REL_SUB_LINKED_QUOTE,
+            )
 
 
     class SalesOrdersBrick(_LinkedStuffBrick):
@@ -313,10 +318,11 @@ if apps.is_installed('creme.billing'):
 
         def _get_queryset(self, entity):
             # TODO: test
-            return SalesOrder.objects.filter(is_deleted=False,
-                                             relations__object_entity=entity.id,
-                                             relations__type=constants.REL_SUB_LINKED_SALESORDER,
-                                            )
+            return SalesOrder.objects.filter(
+                is_deleted=False,
+                relations__object_entity=entity.id,
+                relations__type=constants.REL_SUB_LINKED_SALESORDER,
+            )
 
 
     class InvoicesBrick(_LinkedStuffBrick):
@@ -329,10 +335,11 @@ if apps.is_installed('creme.billing'):
 
         def _get_queryset(self, entity):
             # TODO: test
-            return Invoice.objects.filter(is_deleted=False,
-                                          relations__object_entity=entity.id,
-                                          relations__type=constants.REL_SUB_LINKED_INVOICE,
-                                         )
+            return Invoice.objects.filter(
+                is_deleted=False,
+                relations__object_entity=entity.id,
+                relations__type=constants.REL_SUB_LINKED_INVOICE,
+            )
 
 
     bricks_list += (

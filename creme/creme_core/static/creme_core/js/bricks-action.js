@@ -193,6 +193,8 @@ creme.bricks.BrickActionBuilders = creme.action.DefaultActionBuilderRegistry.sub
             addto_url: url,
             selector_url: data.selector_url,
             multiple: data.multiple,
+            q_filter: data.q_filter,
+            list_title: data.list_title || '',
             reloadOnSuccess: data.reloadOnSuccess
         });
 

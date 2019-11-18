@@ -9,9 +9,9 @@
 
 {% block brick_header_actions %}
 {% has_perm_to link object as link_perm %}{% has_perm_to create objects_ctype as create_perm %}
-{% url 'opportunities__generate_billing_doc' object.id objects_ctype.id as create_url %}
+{% url 'opportunities__generate_billing_doc' object.id objects_ctype.id as create_url %}{% url 'opportunities__select_billing_objs_to_link' as selection_url %}
     {% brick_header_action id='update' url=create_url type='add'  label=_('Generate a salesorder') enabled=link_perm|and_op:create_perm %}
-    {% brick_header_action id='add-relationships'     icon='link' label=_('Link to a salesorder')  enabled=link_perm __subject_id=object.id __rtype_id=predicate_id __ctype_id=objects_ctype.id __multiple=True %}
+    {% brick_header_action id='add-relationships'     icon='link' label=_('Link to a salesorder')  enabled=link_perm __selector_url=selection_url __subject_id=object.id __rtype_id=predicate_id __ctype_id=objects_ctype.id __multiple=True %}
 {% endblock %}
 
 {% block brick_table_columns %}

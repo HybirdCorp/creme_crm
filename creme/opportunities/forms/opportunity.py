@@ -31,7 +31,6 @@ from creme import persons
 
 from .. import get_opportunity_model
 
-
 Opportunity = get_opportunity_model()
 Organisation = persons.get_organisation_model()
 Contact = persons.get_contact_model()

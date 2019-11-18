@@ -17,7 +17,6 @@ try:
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
-
 Organisation = get_organisation_model()
 Contact = get_contact_model()
 
