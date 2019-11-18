@@ -224,6 +224,40 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (regular, no selection)', functi
     deepEqual({}, widget.underlays);
 });
 
+QUnit.test('creme.entity_cell.EntityCellsWidget (regular, ordering)', function(assert) {
+    var element = $(this.createHFilterHtml({
+        id: 'test-id',
+        value: ['regular_field-firstname', 'regular_field-email', 'regular_field-lastname'],
+        regularfields: [
+            {name: 'regular_field-email', label: 'Email'},
+            {name: 'regular_field-firstname', label: 'First name'},
+            {name: 'regular_field-lastname', label: 'Last name'}
+        ]
+    })).appendTo(this.qunitFixture());
+
+    var widget = new creme.entity_cell.EntityCellsWidget({
+        samples: [{'regular_field-email': 'abc@unknown.com'}]
+    }).bind(element);
+
+    equal('regular_field-firstname,regular_field-email,regular_field-lastname', widget.store.val());
+    equal(true, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
+    equal(true, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
+    equal(true, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
+
+    deepEqual({
+        "regular_field-email": "Email",
+        "regular_field-firstname": "First name",
+        "regular_field-lastname": "Last name"
+    }, widget.column_titles);
+    deepEqual([
+        "regular_field-firstname",
+        "regular_field-email",
+        "regular_field-lastname"
+    ], widget.columns);
+
+    deepEqual({}, widget.underlays);
+});
+
 QUnit.test('creme.entity_cell.EntityCellsWidget (regular, filtered)', function(assert) {
     var element = $(this.createHFilterHtml({
         id: 'test-id',
