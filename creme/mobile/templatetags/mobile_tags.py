@@ -28,9 +28,12 @@ from django.template import Library
 from creme.persons import get_organisation_model
 from creme.persons import constants as persons_constants
 
-from creme.activities.constants import (STATUS_IN_PROGRESS, NARROW,
-        ACTIVITYTYPE_PHONECALL, REL_SUB_ACTIVITY_SUBJECT)
-
+from creme.activities.constants import (
+    STATUS_IN_PROGRESS,
+    NARROW,
+    ACTIVITYTYPE_PHONECALL,
+    REL_SUB_ACTIVITY_SUBJECT,
+)
 
 register = Library()
 Organisation = get_organisation_model()
@@ -49,9 +52,9 @@ def prepare_fields(context, instance, *field_names):
 
 
 _DOCUMENT_CLASSES = [
-        (re.compile('Android',          re.I), 'android'),
-        (re.compile('iPhone|iPad|iPod', re.I), 'ios'),
-    ]
+    (re.compile('Android',          re.I), 'android'),
+    (re.compile('iPhone|iPad|iPod', re.I), 'ios'),
+]
 
 
 @register.simple_tag
@@ -67,9 +70,10 @@ def document_class(request):
 
 
 # DEPRECATED
-_EMPLOYERS_RTYPE_IDS = (persons_constants.REL_OBJ_EMPLOYED_BY,
-                        persons_constants.REL_OBJ_MANAGES,
-                       )
+_EMPLOYERS_RTYPE_IDS = (
+    persons_constants.REL_OBJ_EMPLOYED_BY,
+    persons_constants.REL_OBJ_MANAGES,
+)
 
 
 @register.filter
