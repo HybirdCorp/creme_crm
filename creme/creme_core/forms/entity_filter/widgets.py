@@ -36,6 +36,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_filter import (
     _EntityFilterRegistry,
+    EF_USER,
     operators,
 )
 from creme.creme_core.models import CremeEntity, CustomField  # EntityFilterCondition
@@ -65,13 +66,15 @@ _HAS_RELATION_OPTIONS = OrderedDict([
     (FALSE, _('Does not have the relationship')),
 ])
 
-# Renamed FieldConditionWidget
+
+# class FieldConditionWidget(ChainedInput):
 class FieldConditionSelector(ChainedInput):
-    def __init__(self, model=CremeEntity, fields=(), operators=(), attrs=None, autocomplete=False):
+    def __init__(self, model=CremeEntity, fields=(), operators=(), filter_type=EF_USER, attrs=None, autocomplete=False):
         super().__init__(attrs)
         self.model = model
         self.fields = fields
         self.operators = operators
+        self.filter_type = filter_type
         self.autocomplete = autocomplete
 
     def _build_valueinput(self, field_attrs):
@@ -91,7 +94,10 @@ class FieldConditionSelector(ChainedInput):
                  )
 
         pinput.add_dselect('^user(__null)?.({})$'.format(EQUALS_OPS),
-                           reverse('creme_core__efilter_user_choices'),
+                           '{}?filter_type={}'.format(
+                               reverse('creme_core__efilter_user_choices'),
+                               self.filter_type,
+                           ),
                            attrs=field_attrs,
                           )
         add_input('^fk(__null)?.({})$'.format(EQUALS_OPS),
@@ -239,15 +245,20 @@ class RegularFieldsConditionsWidget(ConditionListWidget):
         super().__init__(None, attrs)
         self.model = model
         self.fields = fields
-        self.efilter_registry = efilter_registry or \
-                                _EntityFilterRegistry('Default for RegularFieldsConditionsWidget')
+        self.efilter_registry = efilter_registry or _EntityFilterRegistry(
+            id=None,
+            verbose_name='Default for RegularFieldsConditionsWidget',
+        )
 
     def get_selector(self, name, value, attrs):
+        registry = self.efilter_registry
+
         return FieldConditionSelector(
             model=self.model,
             fields=self.fields,
             # operators=EntityFilterCondition._OPERATOR_MAP,
-            operators=[*self.efilter_registry.operators],
+            operators=[*registry.operators],
+            filter_type=registry.id,
             autocomplete=True,
         )
 
@@ -375,7 +386,7 @@ class CustomFieldConditionSelector(FieldConditionSelector):
 
 
 # TODO: factorise RegularFieldsConditionsWidget ?
-# Renamed CustomFieldConditionWidget
+# class CustomFieldConditionWidget(SelectorList):
 class CustomFieldsConditionsWidget(ConditionListWidget):
     empty_selector_label = _('No custom field at present.')
 
@@ -383,8 +394,10 @@ class CustomFieldsConditionsWidget(ConditionListWidget):
     def __init__(self, fields=(), efilter_registry=None, attrs=None, enabled=True):
         super().__init__(None, attrs)
         self.fields = fields
-        self.efilter_registry = efilter_registry or \
-                                _EntityFilterRegistry('Default for RegularFieldsConditionsWidget')
+        self.efilter_registry = efilter_registry or _EntityFilterRegistry(
+            id=None,
+            verbose_name='Default for RegularFieldsConditionsWidget',
+        )
 
     def get_selector(self, name, value, attrs):
         fields = [*self.fields]
@@ -422,7 +435,7 @@ class DateCustomFieldsConditionsWidget(ConditionListWidget):
         return chained_input
 
 
-# Renamed RelationTargetWidget
+# class RelationTargetWidget(PolymorphicInput):
 class RelationTargetInput(PolymorphicInput):
     def __init__(self, key='', multiple=False, attrs=None):
         super().__init__(key=key, attrs=attrs)

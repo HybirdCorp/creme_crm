@@ -31,7 +31,10 @@ from creme.creme_core.apps import (
     CremeAppConfig,
 )
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.core.entity_filter import condition_handler
+from creme.creme_core.core.entity_filter import (
+    entity_filter_registries, EF_CREDENTIALS,
+    condition_handler,
+)
 from creme.creme_core.forms import (
     CremeForm, CremeModelForm, FieldBlockManager,
     MultiEntityCTypeChoiceField,
@@ -215,7 +218,7 @@ class CredentialsFilterStep(CremeModelForm):
         condition_handler.DateCustomFieldConditionHandler,
     )
 
-    def __init__(self, efilter_type = EntityFilter.EF_CREDENTIALS, *args, **kwargs):
+    def __init__(self, efilter_type=EF_CREDENTIALS, *args, **kwargs):
         super().__init__(*args, **kwargs)
         fields = self.fields
         self.efilter_type = efilter_type
@@ -223,7 +226,7 @@ class CredentialsFilterStep(CremeModelForm):
         instance = self.instance
 
         if instance.set_type == SetCredentials.ESET_FILTER:
-            efilter_registry = EntityFilter.REGISTRIES[efilter_type]
+            efilter_registry = entity_filter_registries[efilter_type]
             ctype = instance.ctype
 
             if ctype is None:

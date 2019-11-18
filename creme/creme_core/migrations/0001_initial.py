@@ -1126,7 +1126,7 @@ class Migration(migrations.Migration):
                     ('ctype', creme_fields.EntityCTypeForeignKey(verbose_name='Entity type', to='contenttypes.ContentType')),
                     ('efilter', models.ForeignKey(to='creme_core.EntityFilter', verbose_name='Filter',
                                                   on_delete=models.PROTECT, blank=True, null=True,
-                                                  limit_choices_to={'filter_type': 1},  # EntityFilter.EF_USER
+                                                  limit_choices_to={'filter_type': 1},  # core.entity_filter.EF_USER
                                                  )
                     ),
                 ],

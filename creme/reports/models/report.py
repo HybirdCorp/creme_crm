@@ -23,26 +23,30 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db.models import (CharField, PositiveIntegerField,
-        PositiveSmallIntegerField, BooleanField, ForeignKey, PROTECT, CASCADE)
+from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import CremeModel, CremeEntity, EntityFilter, FieldsConfig
+from creme.creme_core.core.entity_filter import EF_USER
+from creme.creme_core.models import (
+    CremeModel, CremeEntity,
+    EntityFilter,
+    FieldsConfig,
+)
 from creme.creme_core.models.fields import EntityCTypeForeignKey
 
 logger = logging.getLogger(__name__)
 
 
 class AbstractReport(CremeEntity):
-    name   = CharField(_('Name of the report'), max_length=100)
+    name   = models.CharField(_('Name of the report'), max_length=100)
     ct     = EntityCTypeForeignKey(verbose_name=_('Entity type'))
-    filter = ForeignKey(EntityFilter, verbose_name=_('Filter'),
-                        blank=True, null=True, on_delete=PROTECT,
-                        limit_choices_to={'filter_type': EntityFilter.EF_USER},
-                       ).set_null_label(_('No filter'))
+    filter = models.ForeignKey(EntityFilter, verbose_name=_('Filter'),
+                               blank=True, null=True, on_delete=models.PROTECT,
+                               limit_choices_to={'filter_type': EF_USER},
+                              ).set_null_label(_('No filter'))
 
     creation_label = _('Create a report')
     save_label     = _('Save the report')
@@ -200,14 +204,18 @@ class Report(AbstractReport):
 
 
 class Field(CremeModel):
-    report     = ForeignKey(settings.REPORTS_REPORT_MODEL, related_name='fields', on_delete=CASCADE)\
-                           .set_tags(viewable=False)
-    name       = CharField(_('Name of the column'), max_length=100).set_tags(viewable=False)
-    order      = PositiveIntegerField().set_tags(viewable=False)
-    type       = PositiveSmallIntegerField().set_tags(viewable=False)  # ==> see RFT_* in constants #Add in choices ?
-    selected   = BooleanField(default=False).set_tags(viewable=False)  # Use this field to expand
-    sub_report = ForeignKey(settings.REPORTS_REPORT_MODEL, blank=True, null=True, on_delete=CASCADE)\
-                           .set_tags(viewable=False)
+    report     = models.ForeignKey(settings.REPORTS_REPORT_MODEL,
+                                   related_name='fields',
+                                   on_delete=models.CASCADE,
+                                  ).set_tags(viewable=False)
+    name       = models.CharField(_('Name of the column'), max_length=100).set_tags(viewable=False)
+    order      = models.PositiveIntegerField().set_tags(viewable=False)
+    type       = models.PositiveSmallIntegerField().set_tags(viewable=False)  # ==> see RFT_* in constants #Add in choices ?
+    selected   = models.BooleanField(default=False).set_tags(viewable=False)  # Use this field to expand
+    sub_report = models.ForeignKey(settings.REPORTS_REPORT_MODEL,
+                                   blank=True, null=True,
+                                   on_delete=models.CASCADE,
+                                  ).set_tags(viewable=False)
 
     _hand = None
 

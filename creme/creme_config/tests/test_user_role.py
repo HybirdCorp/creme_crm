@@ -12,6 +12,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.forms.widgets import Label
     from creme.creme_core.core.entity_filter import (
+        EF_CREDENTIALS,
         condition_handler,
         operators,
         operands,
@@ -872,7 +873,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             'creme_core-credentials_{}-1'.format(role.id),
             efilter.id
         )
-        self.assertEqual(EntityFilter.EF_CREDENTIALS, efilter.filter_type)
+        self.assertEqual(EF_CREDENTIALS, efilter.filter_type)
 
         conditions = efilter.conditions.all()
         self.assertEqual(1, len(conditions))
@@ -1323,7 +1324,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             'creme_core-credentials_{}-1'.format(role.id),
             efilter.id
         )
-        self.assertEqual(EntityFilter.EF_CREDENTIALS, efilter.filter_type)
+        self.assertEqual(EF_CREDENTIALS, efilter.filter_type)
 
         conditions = efilter.conditions.all()
         self.assertEqual(1, len(conditions))
@@ -1356,7 +1357,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             id='creme_core-test_credentials_edition02',
             name='Agencies',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
             use_or=True,
         )
         efilter1.set_conditions(
@@ -1364,7 +1365,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 model=FakeContact,
                 operator=operators.ISTARTSWITH,
                 field_name='last_name', values=['Agency of'],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,   # There cannot be a cycle without sub-filter.
@@ -1459,7 +1460,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(name, efilter2.name)
         self.assertEqual(set_cred1.ctype, efilter2.entity_type)
         self.assertFalse(efilter2.use_or)
-        self.assertEqual(EntityFilter.EF_CREDENTIALS, efilter2.filter_type)
+        self.assertEqual(EF_CREDENTIALS, efilter2.filter_type)
         self.assertEqual(efilter1.id,            efilter2.id)
 
         conditions = efilter2.conditions.all()
@@ -1503,7 +1504,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             id='creme_core-test_credentials_edition02',
             name='Agencies',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
             use_or=False,
         )
         efilter1.set_conditions(
@@ -1511,7 +1512,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 model=FakeContact,
                 operator=operators.ISTARTSWITH,
                 field_name='last_name', values=['Agency of'],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,   # There cannot be a cycle without sub-filter.
@@ -1587,7 +1588,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(name, efilter2.name)
         self.assertEqual(ctype, efilter2.entity_type)
         self.assertTrue(efilter2.use_or)
-        self.assertEqual(EntityFilter.EF_CREDENTIALS, efilter2.filter_type)
+        self.assertEqual(EF_CREDENTIALS, efilter2.filter_type)
         self.assertEqual(efilter1.id,            efilter2.id)
 
         conditions = efilter2.conditions.all()
@@ -1609,14 +1610,14 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         efilter = EntityFilter.objects.create(
             id='creme_config-test_user_role',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.EQUALS,
                 field_name='last_name', values=['Agent#'],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1676,14 +1677,14 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             id='creme_core-test_credentials_edition04',
             name='My entities',
             entity_type=CremeEntity,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter1.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
                 operator=operators.ICONTAINS,
                 field_name='description', values=['Important'],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
@@ -1855,14 +1856,14 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             id='creme_core-test_credentials_edition04',
             name='My entities',
             entity_type=CremeEntity,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter1.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=CremeEntity,
                 operator=operators.ICONTAINS,
                 field_name='description', values=['Important'],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.

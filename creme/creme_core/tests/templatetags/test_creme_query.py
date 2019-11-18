@@ -5,7 +5,11 @@ try:
     from django.template import Template, Context
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_filter import condition_handler, operators
+    from creme.creme_core.core.entity_filter import (
+        EF_CREDENTIALS,
+        condition_handler,
+        operators,
+    )
     from creme.creme_core.models import (
         EntityFilter,
         SetCredentials,
@@ -74,14 +78,14 @@ class CremeQueryTagsTestCase(CremeTestCase):
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeOrganisation,
-            filter_type=EntityFilter.EF_CREDENTIALS,
+            filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
             [condition_handler.RegularFieldConditionHandler.build_condition(
                 model=FakeOrganisation,
                 operator=operators.EQUALS,
                 field_name='name', values=[name],
-                filter_type=EntityFilter.EF_CREDENTIALS,
+                filter_type=EF_CREDENTIALS,
              ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.

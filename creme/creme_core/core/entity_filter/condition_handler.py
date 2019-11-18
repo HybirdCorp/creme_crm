@@ -47,7 +47,7 @@ from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.utils.dates import make_aware_dt, date_2_dict
 from creme.creme_core.utils.meta import is_date_field, FieldInfo
 
-from . import operators, entity_filter_registry
+from . import operators, entity_filter_registries, EF_USER
 
 logger = logging.getLogger(__name__)
 
@@ -62,11 +62,11 @@ class FilterConditionHandler:
     by the presence of a CremeProperty are different behaviours of course.
     These behaviours are implemented in child-classes.
 
-    All child-classes are registered in
-    <creme_core.core.entity_filter.entity_filter_registry>.
+    All child-classes are registered in an instance of
+    <creme_core.core.entity_filter._EntityFilterRegistry>.
     """
     type_id = None
-    efilter_registry = entity_filter_registry
+    efilter_registry = entity_filter_registries[EF_USER]
 
     class DataError(Exception):
         pass
@@ -215,7 +215,7 @@ class SubFilterConditionHandler(FilterConditionHandler):
 
     @classmethod
     def build_condition(cls, subfilter,
-                        filter_type=EntityFilter.EF_USER,
+                        filter_type=EF_USER,
                         condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
@@ -388,7 +388,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
 
     @classmethod
     def build_condition(cls, *, model, field_name, operator, values, user=None,
-                        filter_type=EntityFilter.EF_USER,
+                        filter_type=EF_USER,
                         condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
@@ -659,7 +659,7 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
     @classmethod
     def build_condition(cls, model, field_name,
                         date_range=None, start=None, end=None,
-                        filter_type=EntityFilter.EF_USER,
+                        filter_type=EF_USER,
                         condition_cls=EntityFilterCondition,
                        ):
         """Build an (unsaved) EntityFilterCondition.
@@ -857,7 +857,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
 
     @classmethod
     def build_condition(cls, *, custom_field, operator, values, user=None,
-                        filter_type=EntityFilter.EF_USER,
+                        filter_type=EF_USER,
                         condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
@@ -1050,7 +1050,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
 
     @classmethod
     def build_condition(cls, *, custom_field, date_range=None, start=None, end=None,
-                        filter_type=EntityFilter.EF_USER,
+                        filter_type=EF_USER,
                         condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
@@ -1229,7 +1229,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
     @classmethod
     def build_condition(cls, *, model, rtype, has=True, ct=None, entity=None,
-                        filter_type=EntityFilter.EF_USER,
+                        filter_type=EF_USER,
                         condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
@@ -1385,7 +1385,7 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
 
     @classmethod
     def build_condition(cls, *, model, rtype, subfilter, has=True,
-                        filter_type=EntityFilter.EF_USER,
+                        filter_type=EF_USER,
                         condition_cls=EntityFilterCondition
                        ):
         """Build an (unsaved) EntityFilterCondition.
@@ -1515,7 +1515,7 @@ class PropertyConditionHandler(FilterConditionHandler):
 
     @classmethod
     def build_condition(cls, *, model, ptype, has=True,
-                        filter_type=EntityFilter.EF_USER,
+                        filter_type=EF_USER,
                         condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 

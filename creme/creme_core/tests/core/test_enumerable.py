@@ -9,12 +9,14 @@ try:
     from ..base import CremeTestCase
 
     from creme.creme_core import enumerators
+    from creme.creme_core.core.entity_filter import EF_CREDENTIALS
     from creme.creme_core.core.enumerable import _EnumerableRegistry, Enumerator
     from creme.creme_core.models import (
         EntityFilter, CremeUser,
         Language,
         FakeContact, FakeOrganisation, FakeCivility, FakeAddress,
-        FakeImageCategory, FakeImage, FakeReport)
+        FakeImageCategory, FakeImage, FakeReport,
+    )
     from creme.creme_core.models.fields import CTypeForeignKey, EntityCTypeForeignKey
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -329,7 +331,7 @@ class EnumerableTestCase(CremeTestCase):
             id='test-filter03',
             name='Filter 01',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,  # <==
+            filter_type=EF_CREDENTIALS,  # <==
         )
 
         e = enumerators.EntityFilterEnumerator(FakeReport._meta.get_field('efilter'))

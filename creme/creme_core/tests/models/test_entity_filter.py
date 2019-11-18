@@ -16,7 +16,8 @@ try:
     from ..base import CremeTestCase
 
     from creme.creme_core.core.entity_filter import (
-        entity_filter_registry,
+        entity_filter_registries,
+        EF_USER, EF_CREDENTIALS,
         operators,
         operands,
     )
@@ -155,16 +156,16 @@ class EntityFiltersTestCase(CremeTestCase):
         )
 
         self.assertIsInstance(efilter, EntityFilter)
-        self.assertEqual(pk,    efilter.id)
-        self.assertEqual(name,  efilter.name)
-        self.assertEqual(EntityFilter.EF_USER, efilter.filter_type)
+        self.assertEqual(pk,      efilter.id)
+        self.assertEqual(name,    efilter.name)
+        self.assertEqual(EF_USER, efilter.filter_type)
         self.assertEqual(model, efilter.entity_type.model_class())
         self.assertIsNone(efilter.user)
         self.assertIs(efilter.use_or,     False)
         self.assertIs(efilter.is_custom,  False)
         self.assertIs(efilter.is_private, False)
 
-        self.assertEqual(entity_filter_registry, efilter.registry)
+        self.assertEqual(entity_filter_registries[EF_USER], efilter.registry)
 
         conditions = efilter.conditions.all()
         self.assertEqual(1, len(conditions))
@@ -3915,7 +3916,7 @@ class EntityFiltersTestCase(CremeTestCase):
             pk='test-ef_contact5',
             name='My contacts',
             entity_type=FakeContact,
-            filter_type=EntityFilter.EF_CREDENTIALS,  # <==
+            filter_type=EF_CREDENTIALS,  # <==
         )
 
         efilters = EntityFilter.get_for_user(user, self.contact_ct)

@@ -35,6 +35,7 @@ from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_filter import (
+    EF_USER,
     _EntityFilterRegistry,
     condition_handler,
     operators,
@@ -66,7 +67,7 @@ class _ConditionsField(JSONField):
     def __init__(self, *,
                  model=CremeEntity,
                  efilter_registry=None,
-                 efilter_type=EntityFilter.EF_USER,
+                 efilter_type=EF_USER,
                  condition_cls=EntityFilterCondition,
                  **kwargs):
         """Constructor.
@@ -77,8 +78,10 @@ class _ConditionsField(JSONField):
         # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self.model = model
-        self.efilter_registry = efilter_registry or \
-                                _EntityFilterRegistry('Default for _ConditionsField')
+        self.efilter_registry = efilter_registry or _EntityFilterRegistry(
+            id=None,
+            verbose_name='Default for _ConditionsField',
+        )
         self.efilter_type = efilter_type
         self.condition_cls = condition_cls
 
@@ -938,15 +941,17 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
     def __init__(self, *,
                  model=CremeEntity,
                  efilter_registry=None,
-                 efilter_type=EntityFilter.EF_USER,
+                 efilter_type=EF_USER,
                  condition_cls=EntityFilterCondition,
                  user=None,
                  **kwargs):
         super().__init__(queryset=EntityFilter.objects.none(), **kwargs)
         self.user = user
         self.model = model
-        self.efilter_registry = efilter_registry or \
-                                _EntityFilterRegistry('Default for SubfiltersConditionsField')
+        self.efilter_registry = efilter_registry or _EntityFilterRegistry(
+            id=None,
+            verbose_name='Default for SubfiltersConditionsField',
+        )
         self.efilter_type = efilter_type
         self.condition_cls = condition_cls
 
