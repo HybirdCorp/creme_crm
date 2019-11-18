@@ -10,6 +10,7 @@
     <div class="list-header sticks-horizontally">
         <div class="list-title-container">
             <span class="list-title">
+              {% block lv_title %}
                 <span class="list-main-title">{{list_title}}</span>
                 {% if list_sub_title %}<span class="list-sub-title-separator">—</span><span class="list-sub-title">{{list_sub_title}}</span>{% endif %}
                 {% if paginator.count > 0 %}
@@ -21,29 +22,32 @@
                     {% endif %}
                 </span>
                 {% endif %}
+              {% endblock %}
             </span>
             <div class="list-controls">
+              {% block lv_controls %}
                 <div class="list-control-group list-filters">
                     {% listview_entity_filters model=model user=user efilters=entity_filters show_buttons=is_popup_view|not_op %}
                 </div>
                 <div class="list-control-group list-views">
                     {% listview_header_filters model=model user=user hfilters=header_filters show_buttons=is_popup_view|not_op %}
                 </div>
+              {% endblock %}
             </div>
         </div>
         <div class="list-header-buttons clearfix">
-          {% if not is_popup_view %}
-              {% listview_buttons model=model buttons=buttons %}
-          {% endif %}
-           <a class="with-icon do-search button-right" data-action="submit-lv-state">
+          {% block lv_header_buttons %}
+            {% if not is_popup_view %}{% listview_buttons model=model buttons=buttons %}{% endif %}
+            <a class="with-icon do-search button-right" data-action="submit-lv-state">
                 {% trans 'Search' context 'creme_core-verb' as label %}
                 {{label}}
                 {% widget_icon name='search' label=label size='listview-button' %}
             </a>
-            <a class="clear-search button-right {% if not search_form.search_q %}is-disabled{% endif %}" data-action="submit-lv-state">
+            <a class="clear-search button-right{% if not search_form.search_q %} is-disabled{% endif %}" data-action="submit-lv-state">
                 {% blockjsondata %}{"data": {"search": "clear"}}{% endblockjsondata %}
                 {% trans 'Clear search'%}
             </a>
+          {% endblock %}
         </div>
     </div>
 </div>
@@ -138,6 +142,7 @@
         <tr>
             <td colspan="{{colspan}}">
                 <div class='list-footer-container sticks-horizontally'>
+                  {% block lv_footer %}
                     <div class='list-footer-stats'>
                     {% with start_index=page_obj.start_index %}
                       {% if start_index %}{# TODO: per paginator-class footer-stats templatetag ?? (see similar question in title section #}
@@ -148,11 +153,7 @@
                     {% endwith %}
                     </div>
 
-                  {% if paginator.num_pages > 1 %}
-                    {% listview_pager page_obj %}
-                  {% else %}
-                    <div class='listview-pagination'></div>
-                  {% endif %}
+                    {% if paginator.num_pages > 1 %}{% listview_pager page_obj %}{% else %}<div class='listview-pagination'></div>{% endif %}
 
                     <div class='list-footer-page-selector'>
                         <label >{% trans 'Nb / Page' %} :
@@ -163,6 +164,7 @@
                         </select>
                         </label>
                     </div>
+                  {% endblock %}
                 </div>
             </td>
         </tr>

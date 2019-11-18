@@ -55,11 +55,10 @@ from . import base
 
 logger = logging.getLogger(__name__)
 
-# MODE_NORMAL = 0  # TODO ? (no selection)
+# MODE_NORMAL = 0
 # MODE_SINGLE_SELECTION = 1
 # MODE_MULTIPLE_SELECTION = 2
 
-# TODO: remove it later
 # def str_to_mode(value):
 #     """Convert a string to list-view mode.
 #     Useful to convert a GET parameter.
