@@ -36,7 +36,6 @@ from ..constants import DEFAULT_HFILTER_OPPORTUNITY
 from ..forms import opportunity as opp_forms
 from ..models import SalesPhase
 
-
 Opportunity = get_opportunity_model()
 
 # Function views --------------------------------------------------------------

@@ -847,7 +847,7 @@ class RelationViewsTestCase(ViewsTestCase):
     def _aux_relation_objects_to_link_selection(self):
         user = self.login()
 
-        self.subject   = CremeEntity.objects.create(user=user)
+        self.subject = CremeEntity.objects.create(user=user)
 
         create_user = partial(FakeContact.objects.create, user=user)
         self.contact01 = create_user(first_name='Laharl', last_name='Overlord')

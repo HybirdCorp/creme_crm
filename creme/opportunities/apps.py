@@ -116,9 +116,13 @@ class OpportunitiesConfig(CremeAppConfig):
             create_any.add_link('create_quote', Quote, priority=20)
 
     def register_setting_keys(self, setting_key_registry):
-        from .setting_keys import quote_key
+        from . import setting_keys
 
-        setting_key_registry.register(quote_key)
+        setting_key_registry.register(
+            setting_keys.quote_key,
+            setting_keys.target_constraint_key,
+            setting_keys.emitter_constraint_key,
+        )
 
     def register_smart_columns(self, smart_columns_registry):
         from .constants import REL_SUB_TARGETS

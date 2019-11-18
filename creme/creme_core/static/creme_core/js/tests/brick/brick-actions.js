@@ -785,6 +785,31 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single)', function(ass
     }, this.mockListenerCalls());
 });
 
+// TODO: test "list_title" option
+QUnit.test('creme.bricks.Brick.action (add relationships, q_filter)', function(assert) {
+    var brick = this.createBrickWidget('brick-for-test').brick();
+    var rtype_id = 'creme_core-subject_test_predicate';
+    var sel_url = 'mock/relation/selector';
+    var q_filter = '{"op":"AND","val":[["first_name","John"]]}';
+
+    brick.action('add-relationships', 'mock/relation/add', {}, {
+        subject_id: '74',
+        rtype_id: rtype_id,
+        ctype_id: '5',
+        selector_url: sel_url,
+        q_filter: q_filter,
+    }).on(this.brickActionListeners).start();
+
+    deepEqual([
+        ['GET',
+         {subject_id: '74', rtype_id: rtype_id, objects_ct_id: '5',
+          selection: 'single',
+          q_filter: q_filter
+         }
+        ]
+    ], this.mockBackendUrlCalls(sel_url));
+});
+
 QUnit.test('creme.bricks.Brick.action (add relationships, single, fail)', function(assert) {
     var brick = this.createBrickWidget('brick-for-test').brick();
     brick.action('add-relationships', 'mock/relation/add/fail', {}, {

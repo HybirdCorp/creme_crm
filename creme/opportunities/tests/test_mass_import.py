@@ -18,8 +18,11 @@ try:
 
     from creme.opportunities.models import SalesPhase
 
-    from .base import (OpportunitiesBaseTestCase, skipIfCustomOpportunity,
-            Opportunity, Organisation, Contact)
+    from .base import (
+        OpportunitiesBaseTestCase,
+        skipIfCustomOpportunity,
+        Opportunity, Organisation, Contact,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 

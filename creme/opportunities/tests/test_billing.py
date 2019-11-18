@@ -11,6 +11,7 @@ try:
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (
@@ -45,6 +46,8 @@ except Exception as e:
 @skipIf(skip_billing, '"Billing" app is not installed.')
 @skipIfCustomOpportunity
 class BillingTestCase(OpportunitiesBaseTestCase):
+    SELECTION_URL = reverse('opportunities__select_billing_objs_to_link')
+
     def _build_currentquote_url(self, opportunity, quote, action='set_current'):
         return reverse('opportunities__linked_quote_is_current',
                        args=(opportunity.id, quote.id, action),
@@ -392,9 +395,9 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.client.post(self._build_gendoc_url(opp2))
 
         linked_rel1 = self.get_object_or_fail(Relation,
-                                             subject_entity=opp1.id,
-                                             type=constants.REL_OBJ_LINKED_QUOTE,
-                                            )
+                                              subject_entity=opp1.id,
+                                              type=constants.REL_OBJ_LINKED_QUOTE,
+                                             )
         quote1 = linked_rel1.object_entity.get_real_entity()
         self.assertRelationCount(1, quote1, constants.REL_SUB_CURRENT_DOC, opp1)
 
@@ -416,3 +419,264 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC, opp2)  # Not deleted
 
         self.assertFalse(self.refresh(opp1).estimated_sales)  # estimated_sales refreshed
+
+    @skipIfCustomOrganisation
+    def test_select_relations_billing_objects01(self):
+        user = self.login()
+
+        get_4_key = SettingValue.objects.get_4_key
+
+        sv_target = get_4_key(setting_keys.target_constraint_key)
+        sv_target.value = False
+        sv_target.save()
+
+        sv_emitter = get_4_key(setting_keys.emitter_constraint_key)
+        sv_emitter.value = False
+        sv_emitter.save()
+
+        opp, target1, emitter1 = self._create_opportunity_n_organisations(name='Opp#1')
+        target2, emitter2 = self._create_target_n_emitter(managed=False)
+
+        qstatus = QuoteStatus.objects.all()[0]
+        create_rel = partial(Relation.objects.create, user=user)
+
+        def create_quote(name, emitter=emitter1, target=target1):
+            quote = Quote.objects.create(user=user, name=name, status=qstatus)
+            create_rel(subject_entity=quote, type_id=REL_SUB_BILL_ISSUED,   object_entity=emitter)
+            create_rel(subject_entity=quote, type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
+
+            return quote
+
+        quote1 = create_quote('Quote#1')
+        quote2 = create_quote('Quote#2')
+        quote3 = create_quote('Quote#3', target=target2)
+        quote4 = create_quote('Quote#4', emitter=emitter2)
+
+        # 'quote2' should not be proposed
+        create_rel(subject_entity=quote2, type_id=constants.REL_SUB_LINKED_QUOTE, object_entity=opp)
+
+        url = self.SELECTION_URL
+        get_ct = ContentType.objects.get_for_model
+        response = self.assertGET200(
+            url,
+            data={
+                'subject_id': opp.id,
+                'rtype_id': constants.REL_OBJ_LINKED_QUOTE,
+                'objects_ct_id': get_ct(Quote).id,
+            },
+        )
+        context = response.context
+
+        try:
+            entities = context['page_obj']
+        except KeyError:
+            self.fail(response.content)
+
+        quotes = entities.object_list
+        self.assertEqual(3, len(quotes))
+        self.assertTrue(all(isinstance(q, Quote) for q in quotes))
+        self.assertSetEqual({quote1, quote3, quote4}, {*quotes})
+
+        self.assertEqual(
+            _('List of {models}').format(models=_('Quotes')),
+            context.get('list_title')
+        )
+
+        # Other CT ---
+        response = self.assertGET200(
+            url,
+            data={
+                'subject_id': opp.id,
+                'rtype_id': constants.REL_OBJ_LINKED_INVOICE,
+                'objects_ct_id': get_ct(Invoice).id,
+            },
+        )
+        self.assertEqual(
+            _('List of {models}').format(models=_('Invoices')),
+            response.context.get('list_title')
+        )
+
+    @skipIfCustomOrganisation
+    def test_select_relations_billing_objects02(self):
+        "Same target."
+        user = self.login()
+
+        get_4_key = SettingValue.objects.get_4_key
+        self.assertTrue(get_4_key(setting_keys.target_constraint_key).value)
+
+        sv = get_4_key(setting_keys.emitter_constraint_key)
+        sv.value = False
+        sv.save()
+
+        opp, target1, emitter1 = self._create_opportunity_n_organisations(name='Opp#1')
+        target2, emitter2 = self._create_target_n_emitter(managed=False)
+
+        qstatus = QuoteStatus.objects.all()[0]
+        create_rel = partial(Relation.objects.create, user=user)
+
+        def create_quote(name, emitter=emitter1, target=target1):
+            quote = Quote.objects.create(user=user, name=name, status=qstatus)
+            create_rel(subject_entity=quote, type_id=REL_SUB_BILL_ISSUED,   object_entity=emitter)
+            create_rel(subject_entity=quote, type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
+
+            return quote
+
+        quote1 = create_quote('Quote#1')
+        quote2 = create_quote('Quote#2')
+        __     = create_quote('Quote#3', target=target2)
+        quote4 = create_quote('Quote#4', emitter=emitter2)
+
+        # 'quote2' should not be proposed
+        create_rel(subject_entity=quote2, type_id=constants.REL_SUB_LINKED_QUOTE, object_entity=opp)
+
+        url = self.SELECTION_URL
+        get_ct = ContentType.objects.get_for_model
+        response = self.assertGET200(
+            url,
+            data={
+                'subject_id': opp.id,
+                'rtype_id': constants.REL_OBJ_LINKED_QUOTE,
+                'objects_ct_id': get_ct(Quote).id,
+            },
+        )
+        context = response.context
+
+        try:
+            entities = context['page_obj']
+        except KeyError:
+            self.fail(response.content)
+
+        self.assertSetEqual({quote1, quote4}, {*entities.object_list})
+
+        fmt = _('List of {models} received by {target}').format
+        self.assertEqual(fmt(models=_('Quotes'), target=target1),
+                         context.get('list_title')
+                        )
+
+        # Other CT ---
+        response = self.assertGET200(
+            url,
+            data={
+                'subject_id': opp.id,
+                'rtype_id': constants.REL_OBJ_LINKED_INVOICE,
+                'objects_ct_id': get_ct(Invoice).id,
+            },
+        )
+        self.assertEqual(
+            fmt(models=_('Invoices'), target=target1),
+            response.context.get('list_title')
+        )
+
+    @skipIfCustomOrganisation
+    def test_select_relations_billing_objects03(self):
+        "Same emitter."
+        user = self.login()
+
+        get_4_key = SettingValue.objects.get_4_key
+        self.assertTrue(get_4_key(setting_keys.emitter_constraint_key).value)
+
+        sv = get_4_key(setting_keys.target_constraint_key)
+        sv.value = False
+        sv.save()
+
+        opp, target1, emitter1 = self._create_opportunity_n_organisations(name='Opp#1')
+        target2, emitter2 = self._create_target_n_emitter(managed=False)
+
+        qstatus = QuoteStatus.objects.all()[0]
+        create_rel = partial(Relation.objects.create, user=user)
+
+        def create_quote(name, emitter=emitter1, target=target1):
+            quote = Quote.objects.create(user=user, name=name, status=qstatus)
+            create_rel(subject_entity=quote, type_id=REL_SUB_BILL_ISSUED,   object_entity=emitter)
+            create_rel(subject_entity=quote, type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
+
+            return quote
+
+        quote1 = create_quote('Quote#1')
+        quote2 = create_quote('Quote#2')
+        quote3 = create_quote('Quote#3', target=target2)
+        __     = create_quote('Quote#4', emitter=emitter2)
+
+        # 'quote2' should not be proposed
+        create_rel(subject_entity=quote2, type_id=constants.REL_SUB_LINKED_QUOTE, object_entity=opp)
+
+        url = self.SELECTION_URL
+        get_ct = ContentType.objects.get_for_model
+        response = self.assertGET200(
+            url,
+            data={
+                'subject_id': opp.id,
+                'rtype_id': constants.REL_OBJ_LINKED_QUOTE,
+                'objects_ct_id': get_ct(Quote).id,
+            },
+        )
+        context = response.context
+
+        try:
+            entities = context['page_obj']
+        except KeyError:
+            self.fail(response.content)
+
+        self.assertSetEqual({quote1, quote3}, {*entities.object_list})
+
+        fmt = _('List of {models} issued by {emitter}').format
+        self.assertEqual(
+            fmt(models=_('Quotes'), emitter=emitter1),
+            context.get('list_title')
+        )
+
+        # Other CT ---
+        response = self.assertGET200(
+            url,
+            data={
+                'subject_id': opp.id,
+                'rtype_id': constants.REL_OBJ_LINKED_INVOICE,
+                'objects_ct_id': get_ct(Invoice).id,
+            },
+        )
+        self.assertEqual(
+            fmt(models=_('Invoices'), emitter=emitter1),
+            response.context.get('list_title')
+        )
+
+    @skipIfCustomOrganisation
+    def test_select_relations_billing_objects04(self):
+        "2 constraints."
+        self.login()
+
+        get_4_key = SettingValue.objects.get_4_key
+        self.assertTrue(get_4_key(setting_keys.emitter_constraint_key).value)
+        self.assertTrue(get_4_key(setting_keys.emitter_constraint_key).value)
+
+        opp, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+
+        url = self.SELECTION_URL
+        get_ct = ContentType.objects.get_for_model
+        response = self.assertGET200(
+            url,
+            data={
+                'subject_id': opp.id,
+                'rtype_id': constants.REL_OBJ_LINKED_QUOTE,
+                'objects_ct_id': get_ct(Quote).id,
+            },
+        )
+
+        fmt = _('List of {models} issued by {emitter} and received by {target}').format
+        self.assertEqual(
+            fmt(models=_('Quotes'), emitter=emitter, target=target),
+            response.context.get('list_title')
+        )
+
+        # Other CT ---
+        response = self.assertGET200(
+            url,
+            data={
+                'subject_id': opp.id,
+                'rtype_id': constants.REL_OBJ_LINKED_INVOICE,
+                'objects_ct_id': get_ct(Invoice).id,
+            },
+        )
+        self.assertEqual(
+            fmt(models=_('Invoices'), emitter=emitter, target=target),
+            response.context.get('list_title')
+        )

@@ -16,8 +16,11 @@ try:
 
     from creme.opportunities.constants import REL_SUB_LINKED_CONTACT
 
-    from .base import (OpportunitiesBaseTestCase, skipIfCustomOpportunity,
-            Contact, Organisation, Opportunity)
+    from .base import (
+        OpportunitiesBaseTestCase,
+        skipIfCustomOpportunity,
+        Contact, Organisation, Opportunity,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
