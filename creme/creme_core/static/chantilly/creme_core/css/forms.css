@@ -98,7 +98,6 @@ form .table_detail_view.dual_column .td_info > select,
 form .table_detail_view.dual_column .td_info > textarea,
 .ui-dialog-content form .table_detail_view .td_info > input,
 .ui-dialog-content form .table_detail_view .td_info > select,
-.ui-dialog-content form .table_detail_view .td_info span > select,
 .ui-dialog-content form .table_detail_view .td_info > textarea {
     width: 98.5%;
 }
