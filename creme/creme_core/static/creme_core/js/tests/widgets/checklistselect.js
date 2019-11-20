@@ -56,8 +56,8 @@ QUnit.module("creme.widgets.checklistselect.js", new QUnitMixin(QUnitEventMixin,
             select.attr(key, options[key]);
         }
 
-        if (options.less > 0) {
-            select.attr('less', options.less);
+        if (options.less) {
+            select.attr('less', options.less === true ? '' : options.less);
             select.append($('<div class="checklist-footer"><a class="checklist-toggle-less">More</a></div>'));
         }
 
@@ -923,6 +923,65 @@ QUnit.test('creme.widget.CheckListSelect.createItem', function(assert) {
              {label: 'Item A1', value: 'A1', help: 'Item A1', selected: false},
              {label: 'Item A2', value: 'A2', help: 'Item A2', selected: false}
             ]);
+});
+
+QUnit.test('creme.widget.CheckListSelect.less (initial, true)', function(assert) {
+    var element = this.createCheckListSelectElement({less: true});
+    var widget = creme.widget.create(element);
+
+    equal(true, widget.less());
+    equal(true, widget.isLessCollapsed());
+    equal(10, widget.lessCount());
+
+    element = this.createCheckListSelectElement();
+    widget = creme.widget.create(element, {less: true});
+
+    equal(true, widget.less());
+    equal(true, widget.isLessCollapsed());
+    equal(10, widget.lessCount());
+});
+
+QUnit.test('creme.widget.CheckListSelect.less (initial, false)', function(assert) {
+    var element = this.createCheckListSelectElement();
+    var widget = creme.widget.create(element);
+
+    equal(false, widget.less());
+    equal(false, widget.isLessCollapsed());
+    equal(10, widget.lessCount());
+
+    element = this.createCheckListSelectElement();
+    widget = creme.widget.create(element, {less: false});
+
+    equal(false, widget.less());
+    equal(false, widget.isLessCollapsed());
+    equal(10, widget.lessCount());
+});
+
+QUnit.test('creme.widget.CheckListSelect.less (setter)', function(assert) {
+    var element = this.createCheckListSelectElement();
+    var widget = creme.widget.create(element);
+
+    equal(false, widget.less());
+    equal(false, widget.isLessCollapsed());
+    equal(10, widget.lessCount());
+
+    widget.less(5);
+
+    equal(true, widget.less());
+    equal(true, widget.isLessCollapsed());
+    equal(5, widget.lessCount());
+
+    widget.less(1);
+
+    equal(true, widget.less());
+    equal(true, widget.isLessCollapsed());
+    equal(10, widget.lessCount());
+
+    widget.less(true);
+
+    equal(true, widget.less());
+    equal(true, widget.isLessCollapsed());
+    equal(10, widget.lessCount());
 });
 
 QUnit.test('creme.widget.CheckListSelect.less (count < threshold)', function(assert) {

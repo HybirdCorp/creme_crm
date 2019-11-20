@@ -294,8 +294,10 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
             return this._less;
         }
 
-        this._lessCount = less || 10;
-        this._less = less > 0 || less;
+        var isLess = less > 0 || Boolean(less);
+
+        this._lessCount = less > 1 ? less : 10;
+        this._less = isLess;
         this.toggleShowLess(element, this._less);
 
         return this;
