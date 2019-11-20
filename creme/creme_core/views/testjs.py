@@ -169,9 +169,10 @@ def test_http_response(request):
     if not settings.TESTS_ON and not settings.FORCE_JS_TESTVIEW:
         raise Http404('This is view is only reachable during javascript or server unittests')
 
-    logger.warning("Beware : If you are not running unittest this view shouldn't be reachable."
-                " Check your server configuration."
-               )
+    logger.warning(
+        "Beware : If you are not running unittest this view shouldn't be reachable."
+       " Check your server configuration."
+    )
 
     status = int(request.GET.get('status', 200))
     delay = int(request.GET.get('delay', 0))

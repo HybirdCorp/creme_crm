@@ -257,8 +257,8 @@ class DBTestCase(CremeTestCase):
         self.login()
 
         contacts = self._create_contacts()
-        contacts[0].sector
-        contacts[1].sector
+        __ = contacts[0].sector
+        __ = contacts[1].sector
 
         with self.assertNumQueries(1):
             populate_related(contacts, ['sector', 'civility'])
@@ -268,8 +268,8 @@ class DBTestCase(CremeTestCase):
         self.login()
 
         contacts = self._create_contacts()
-        contacts[0].sector
-        # contacts[1].sector # Not Cached
+        __ = contacts[0].sector
+        # __ = contacts[1].sector # Not Cached
 
         with self.assertNumQueries(2):
             populate_related(contacts, ['sector', 'civility'])

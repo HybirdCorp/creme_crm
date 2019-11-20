@@ -24,7 +24,6 @@ from django.db.models.base import Model
 
 from creme.creme_core.http import CremeJsonResponse
 
-
 # NB: old django.utils.http.PROTOCOL_TO_PORT
 PROTOCOL_TO_PORT = {
     'http': 80,

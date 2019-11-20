@@ -407,7 +407,6 @@ class CustomFieldsConditionsWidget(ConditionListWidget):
 
         return CustomFieldConditionSelector(
             fields=fields, autocomplete=True,
-            # TODO: given by form field ?
             # operators=EntityFilterCondition._OPERATOR_MAP,
             operators=[*self.efilter_registry.operators],
         )

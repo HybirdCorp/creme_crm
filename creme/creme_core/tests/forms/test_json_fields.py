@@ -2073,7 +2073,7 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field.q_filter = ['pk', contact.pk]
 
         with self.assertRaises(ValueError) as error:
-            field.q_filter_query
+            __ = field.q_filter_query
 
         qfilter_error = "Invalid type for q_filter (needs dict or Q): ['pk', {}]".format(contact.id)
         self.assertEqual(str(error.exception), qfilter_error)
@@ -2081,7 +2081,7 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = MultiCreatorEntityField(model=FakeContact, q_filter=['pk', contact.pk], create_action_url=action_url)
 
         with self.assertRaises(ValueError) as error:
-            field.q_filter_query
+            __ = field.q_filter_query
 
         self.assertEqual(str(error.exception), qfilter_error)
 

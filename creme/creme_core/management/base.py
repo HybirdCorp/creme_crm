@@ -112,13 +112,13 @@ class CSVImportCommand(BaseCommand):
 #         l_get = line_dict.get
 #
 #         try:
-#             organisation, is_created = Organisation.objects.get_or_create(name=l_get(u'Organisation'), user=self.user)
+#             organisation, is_created = Organisation.objects.get_or_create(name=l_get('Organisation'), user=self.user)
 #
-#             phone = l_get(u'Phone')
+#             phone = l_get('Phone')
 #             if phone and not organisation.phone:
 #                 organisation.phone = phone
 #
-#             email = l_get(u'Email')
+#             email = l_get('Email')
 #             if email and not organisation.email:
 #                 organisation.email = email
 #
@@ -126,15 +126,15 @@ class CSVImportCommand(BaseCommand):
 #                 organisation.billing_address = Address.objects.create(
 #                         owner=organisation,
 #                         address='{} {}'.format(l_get('Address 1'), l_get('Address 2')),
-#                         po_box=l_get(u'PO'),
-#                         city=l_get(u'City'),
-#                         zipcode=l_get(u'Zip'),
-#                         department=l_get(u'Department'),
+#                         po_box=l_get('PO'),
+#                         city=l_get('City'),
+#                         zipcode=l_get('Zip'),
+#                         department=l_get('Department'),
 #                     )
 #
 #             organisation.full_clean()
 #             organisation.save()
-#             self.handle_manager(l_get(u'Manager'), organisation)
+#             self.handle_manager(l_get('Manager'), organisation)
 #         except Exception as e:
 #             self.stderr.write('An error occurred at line: {}'.format(line))
 #             self.stderr.write(e)

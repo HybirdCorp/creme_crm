@@ -336,7 +336,8 @@ class CremeEntityForm(CremeModelForm):
         'subject_not_linkable': _('You are not allowed to link the created entity (wrong owner?).'),
     }
 
-    blocks = CremeModelWithUserForm.blocks.new(
+    # blocks = CremeModelWithUserForm.blocks.new(
+    blocks=CremeModelForm.blocks.new(
         ('description',   _('Description'),   ('description',)),
         ('properties',    _('Properties'),    ('property_types',)),
         ('relationships', _('Relationships'), ('rtypes_info', 'relation_types', 'semifixed_rtypes')),

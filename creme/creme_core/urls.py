@@ -4,10 +4,11 @@ from django.conf import settings
 # from django.conf.urls import url, include
 from django.urls import re_path, include
 
-from .views import (batch_process, bricks, creme_property, enumerable, entity,
-        entity_filter, file_handling, header_filter, index, job, mass_export,  #list_view_export,
-        mass_import, quick_forms, relation, search, testjs,
-       )
+from .views import (
+    batch_process, bricks, creme_property, enumerable, entity,
+    entity_filter, file_handling, header_filter, index, job, mass_export,  #list_view_export,
+    mass_import, quick_forms, relation, search, testjs,
+)
 
 
 entity_patterns = [

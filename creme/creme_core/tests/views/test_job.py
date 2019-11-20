@@ -86,8 +86,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             context = response.context
             cxt_job = context['job']
             cxt_url = context['list_url']
-            context['results_bricks']
-            context['bricks_reload_url']
+            __ = context['results_bricks']
+            __ = context['bricks_reload_url']
 
         self.assertEqual(job, cxt_job)
         self.assertEqual(self.MINE_URL, cxt_url)

@@ -35,9 +35,6 @@ creme.lv_widget.checkSelectionMode = function(mode) {
     }
 };
 
-// TODO: beware it won't work from a Popover element with would be displayed in a popup list-view
-//       (because popovers are detached from their original root in the DOM)
-//       It should be fixed with the new action system like the bricks' one.
 /*
 creme.lv_widget.findList = function(element) {
     var container = $(element).parents('.ui-dialog:first');

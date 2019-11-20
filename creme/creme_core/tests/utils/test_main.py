@@ -203,7 +203,7 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(['1234…', '12', '12'],
                          ellipsis_multi(['123456', '12', '12'], 9)
                         )
-        self.assertEqual(['12…', '12', '123…'],  # [u'123…', '12', u'12…'] would be better...
+        self.assertEqual(['12…', '12', '123…'],  # ['123…', '12', '12…'] would be better...
                          ellipsis_multi(['123456', '12', '12345'], 9)
                         )
 

@@ -226,8 +226,6 @@ class ConditionOperator:
         @param efilter_registry: Instance of <_EntityFilterRegistry>.
         @raise: ValidationError.
         """
-        # from . import entity_filter_registry
-
         # if not field.__class__ in self._NO_SUBPART_VALIDATION_FIELDS or not self.accept_subpart:
         if type(field) not in self._NO_SUBPART_VALIDATION_FIELDS or not self.accept_subpart:
             formfield = field.formfield()
