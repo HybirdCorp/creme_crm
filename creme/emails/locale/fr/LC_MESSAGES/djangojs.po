@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-23 14:03+0200\n"
+"POT-Creation-Date: 2019-11-20 14:35+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -17,13 +17,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
 # Already in creme_core
-#: static/emails/js/emails.js:72 static/emails/js/tests/emails-actions.js:75
+#: static/emails/js/emails.js:72
 msgid "Please select at least one entity."
 msgstr ""
 
 #: static/emails/js/emails.js:86 static/emails/js/emails.js:96
-#: static/emails/js/tests/emails-actions.js:285
-#: static/emails/js/tests/emails-actions.js:392
 msgid "Nothing is selected."
 msgstr "Rien n'est sélectionné."
 
@@ -32,7 +30,7 @@ msgstr "Rien n'est sélectionné."
 msgid "Error"
 msgstr ""
 
-#: static/emails/js/emails.js:172 static/emails/js/tests/emails-listview.js:31
+#: static/emails/js/emails.js:172
 msgid "Please select at least one e-mail."
 msgstr "Veuillez sélectionner au moins un e-mail."
 

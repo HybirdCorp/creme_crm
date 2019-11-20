@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'MOBILE' APP
-# Copyright (C) 2018 Hybird
+# Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i tests.py
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 15:04+0100\n"
+"POT-Creation-Date: 2019-11-20 14:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -280,37 +280,37 @@ msgstr "Commencer l'activité"
 msgid "Stop this activity"
 msgstr "Terminer l'activité"
 
-#: templates/mobile/frags/contact_card.html:9
-#: templates/mobile/frags/contact_card.html:94
+#: templates/mobile/frags/contact_card.html:10
+#: templates/mobile/frags/contact_card.html:95
 msgid "contact"
 msgstr "contact"
 
-#: templates/mobile/frags/contact_card.html:19
-#: templates/mobile/frags/contact_card.html:66
+#: templates/mobile/frags/contact_card.html:20
+#: templates/mobile/frags/contact_card.html:67
 #: templates/mobile/frags/orga_card.html:17
 msgid "phone"
 msgstr "tél."
 
-#: templates/mobile/frags/contact_card.html:25
+#: templates/mobile/frags/contact_card.html:26
 msgid "mobile"
 msgstr "mobile"
 
-#: templates/mobile/frags/contact_card.html:35
+#: templates/mobile/frags/contact_card.html:36
 msgid "email"
 msgstr "email"
 
-#: templates/mobile/frags/contact_card.html:41
-#: templates/mobile/frags/contact_card.html:72
+#: templates/mobile/frags/contact_card.html:42
+#: templates/mobile/frags/contact_card.html:73
 #: templates/mobile/frags/orga_card.html:26
 msgid "address"
 msgstr "adresse"
 
-#: templates/mobile/frags/contact_card.html:49
+#: templates/mobile/frags/contact_card.html:50
 msgid "position"
 msgstr "fonction"
 
-#: templates/mobile/frags/contact_card.html:61
-#: templates/mobile/frags/contact_card.html:81
+#: templates/mobile/frags/contact_card.html:62
+#: templates/mobile/frags/contact_card.html:82
 #: templates/mobile/frags/orga_card.html:7
 #: templates/mobile/frags/orga_card.html:38
 msgid "organisation"
@@ -537,7 +537,7 @@ msgstr "réussi"
 msgid "Failed"
 msgstr "échoué"
 
-#: views.py:695
+#: views.py:697
 msgid "Call to {} from Creme Mobile"
 msgstr "Appel vers {} depuis Creme Mobile"
 

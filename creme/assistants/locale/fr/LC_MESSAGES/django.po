@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'ASSISTANTS' APP
-# Copyright (C) 2018 Hybird
+# Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 14:46+0100\n"
+"POT-Creation-Date: 2019-11-20 14:15+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,17 +18,17 @@ msgstr ""
 msgid "Assistants (Todos, Memo, ...)"
 msgstr "Assistants (Todos, Mémo, ...)"
 
-#: bricks.py:83 function_fields.py:93 models/todo.py:58
+#: bricks.py:83 function_fields.py:173 models/todo.py:58
 #: templates/assistants/bricks/todos.html:7
 msgid "Todos"
 msgstr "Todos"
 
-#: bricks.py:99 function_fields.py:64 models/memo.py:57
+#: bricks.py:99 function_fields.py:121 models/memo.py:57
 #: templates/assistants/bricks/memos.html:7
 msgid "Memos"
 msgstr "Mémos"
 
-#: bricks.py:116 function_fields.py:34 models/alert.py:58
+#: bricks.py:116 function_fields.py:66 models/alert.py:58
 #: templates/assistants/bricks/alerts.html:7
 msgid "Alerts"
 msgstr "Alertes"
@@ -61,27 +61,27 @@ msgstr "Pas important"
 msgid "Send usermessages emails"
 msgstr "Envoyer les emails des messages utilisateurs"
 
-#: forms/action.py:36 forms/alert.py:36
+#: forms/action.py:37 forms/alert.py:37
 msgid "Hour"
 msgstr "Heure"
 
-#: forms/todo.py:35
+#: forms/todo.py:37
 msgid "Deadline hour"
 msgstr "Heure de l'échéance"
 
-#: forms/todo.py:38
+#: forms/todo.py:40
 msgid "The hour is used only if you set the deadline date."
 msgstr "L'heure n'est utilisée que si vous donnez une date d'échéance."
 
-#: forms/todo.py:64
+#: forms/todo.py:67
 msgid "The hour is required if you set a date."
 msgstr "L'heure est obligatoire si vous donnez une date."
 
-#: forms/user_message.py:32
+#: forms/user_message.py:33
 msgid "Recipients"
 msgstr "Destinataires"
 
-#: forms/user_message.py:33
+#: forms/user_message.py:34
 msgid ""
 "Each time a team is selected, a message is sent to each teammate (do not "
 "worry, there can not be any duplicate)."
@@ -265,21 +265,21 @@ msgstr ""
 "{user} vous a envoyé le message suivant:\n"
 "{body}"
 
-#: models/user_message.py:152
+#: models/user_message.py:154
 msgid "An error occurred while sending emails"
 msgstr "Une erreur s'est produite pendant l'envoi des e-mails"
 
 # Already in creme_core
-#: models/user_message.py:153
+#: models/user_message.py:155
 msgid "Original error: {}"
 msgstr ""
 
-#: reminders.py:53
+#: reminders.py:52
 #, python-brace-format
 msgid "Reminder concerning a Creme CRM alert related to {entity}"
 msgstr "Rappel concernant une alerte Crème CRM à propos de {entity}"
 
-#: reminders.py:56
+#: reminders.py:55
 #, python-brace-format
 msgid ""
 "This mail is automatically sent by Crème CRM to remind you that an alert "
@@ -296,12 +296,12 @@ msgstr ""
 "\n"
 "            qui est rattachée à la fiche : {entity}"
 
-#: reminders.py:88
+#: reminders.py:87
 #, python-brace-format
 msgid "Reminder concerning a Creme CRM todo related to {entity}"
 msgstr "Rappel concernant une todo Crème CRM à propos de {entity}"
 
-#: reminders.py:91
+#: reminders.py:90
 #, python-brace-format
 msgid ""
 "This mail is automatically sent by Crème CRM to remind you that a todo "
@@ -598,7 +598,7 @@ msgstr "Todo pour «{entity}»"
 msgid "New message about «{entity}»"
 msgstr "Nouveau message à propos de «{entity}»"
 
-#: views/user_message.py:51
+#: views/user_message.py:67
 msgid "You are not allowed to delete this message: {}"
 msgstr "Vous n'êtes pas autorisé à supprimer ce message: {}"
 

@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PROJECTS' APP
-# Copyright (C) 2018 Hybird
+# Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i tests.py
@@ -8,22 +8,22 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 15:12+0100\n"
+"POT-Creation-Date: 2019-11-20 14:52+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: actions.py:36 templates/projects/buttons/close-project.html:2
+#: actions.py:33 templates/projects/buttons/close-project.html:2
 msgid "Close project"
 msgstr "Clôturer le projet"
 
-#: apps.py:28 models/project.py:62
+#: apps.py:28 models/project.py:68
 msgid "Projects"
 msgstr "Projets"
 
-#: apps.py:70
+#: apps.py:77
 msgid "Tools"
 msgstr "Outils"
 
@@ -103,11 +103,11 @@ msgstr "Date de fin"
 msgid "Project leaders"
 msgstr "Responsable(s) du projet"
 
-#: forms/resource.py:38
+#: forms/resource.py:40
 msgid "Contact to be assigned to this task"
 msgstr "Contact à affecter à cette tâche"
 
-#: forms/resource.py:69 forms/task.py:153
+#: forms/resource.py:71 forms/task.py:153
 msgid ""
 "If the contact changes, the old one keeps participating to the activities."
 msgstr ""
@@ -129,45 +129,40 @@ msgstr "Type"
 msgid "Name of the project"
 msgstr "Nom du projet"
 
-#: models/project.py:36 models/projectstatus.py:31 models/task.py:47
-#: models/taskstatus.py:31
-msgid "Description"
-msgstr "Description"
-
 #: models/project.py:38 templates/projects/bricks/tasks.html:20
 msgid "Status"
 msgstr "Statut"
 
-#: models/project.py:39
+#: models/project.py:43
 msgid "Estimated start"
 msgstr "Début prévisionnel"
 
-#: models/project.py:41
+#: models/project.py:45
 msgid "Estimated end"
 msgstr "Fin prévisionnelle"
 
-#: models/project.py:43
+#: models/project.py:47
 msgid "Effective end date"
 msgstr "Fin effective"
 
 # Already in creme_core
-#: models/project.py:45
+#: models/project.py:50
 msgid "Currency"
 msgstr ""
 
-#: models/project.py:54
+#: models/project.py:60
 msgid "Create a project"
 msgstr "Créer un projet"
 
-#: models/project.py:55
+#: models/project.py:61
 msgid "Save the project"
 msgstr "Enregistrer le projet"
 
-#: models/project.py:61 models/task.py:38
+#: models/project.py:67 models/task.py:39
 msgid "Project"
 msgstr "Projet"
 
-#: models/project.py:97
+#: models/project.py:103
 #, python-brace-format
 msgid "Start ({start}) must be before end ({end})."
 msgstr "La date de début ({start}) doit être avant la date de fin ({end})."
@@ -182,7 +177,11 @@ msgstr "Nom"
 msgid "Color"
 msgstr "Couleur"
 
-#: models/projectstatus.py:32 models/task.py:40 models/taskstatus.py:33
+#: models/projectstatus.py:31 models/taskstatus.py:31
+msgid "Description"
+msgstr "Description"
+
+#: models/projectstatus.py:32 models/task.py:43 models/taskstatus.py:33
 #: templates/projects/bricks/tasks.html:16
 msgid "Order"
 msgstr "Ordre"
@@ -234,35 +233,35 @@ msgstr "Ressources de projet"
 msgid "Title"
 msgstr "Titre"
 
-#: models/task.py:44
+#: models/task.py:49
 msgid "Start"
 msgstr "Début"
 
-#: models/task.py:45
+#: models/task.py:50
 msgid "End"
 msgstr "Fin"
 
-#: models/task.py:46
+#: models/task.py:51
 msgid "Duration (in hours)"
 msgstr "Durée (en heures)"
 
-#: models/task.py:48
+#: models/task.py:54
 msgid "Task situation"
 msgstr "Situation de la tâche"
 
-#: models/task.py:50
+#: models/task.py:59
 msgid "Create a task"
 msgstr "Créer une tâche"
 
-#: models/task.py:51
+#: models/task.py:60
 msgid "Save the task"
 msgstr "Enregistrer la tâche"
 
-#: models/task.py:57
+#: models/task.py:66
 msgid "Task of project"
 msgstr "Tâche d'un projet"
 
-#: models/task.py:58
+#: models/task.py:67
 msgid "Tasks of project"
 msgstr "Tâches d'un projet"
 
@@ -289,88 +288,88 @@ msgstr "est un des responsables du projet"
 msgid "has as leader"
 msgstr "a pour responsable"
 
-#: populate.py:59
+#: populate.py:60
 msgid "is related to the task of project"
 msgstr "est lié à la tâche de projet"
 
-#: populate.py:60
+#: populate.py:61
 msgid "includes the activity"
 msgstr "inclut l'activité"
 
-#: populate.py:64
+#: populate.py:66
 msgid "is a resource of"
 msgstr "est une ressource de"
 
-#: populate.py:65
+#: populate.py:67
 msgid "has as a resource"
 msgstr "a en tant que ressource"
 
-#: populate.py:79
+#: populate.py:81
 msgid "Project view"
 msgstr "Vue de Projet"
 
-#: populate.py:89
+#: populate.py:91
 msgid "Task view"
 msgstr "Vue de Tâche"
 
-#: populate.py:96
+#: populate.py:98
 msgid "Resource view"
 msgstr "Vue de Ressource"
 
-#: populate.py:110
+#: populate.py:112
 msgid "Invitation to tender"
 msgstr "Appel d'offre"
 
-#: populate.py:110
+#: populate.py:112
 msgid "Response to an invitation to tender"
 msgstr "Un appel d'offre a été lancé"
 
-#: populate.py:111
+#: populate.py:113
 msgid "Initialization"
 msgstr "Initialisation"
 
-#: populate.py:111
+#: populate.py:113
 msgid "The project is starting"
 msgstr "Le projet démarre"
 
-#: populate.py:112
+#: populate.py:114
 msgid "Preliminary phase"
 msgstr "Avant-phase"
 
-#: populate.py:112
+#: populate.py:114
 msgid "The project is in the process of analysis and design"
 msgstr "Le projet est en phase d'analyse et de conception"
 
-#: populate.py:113
+#: populate.py:115
 msgid "Achievement"
 msgstr "Réalisation"
 
-#: populate.py:113
+#: populate.py:115
 msgid "The project is being implemented"
 msgstr "Le projet est en phase de réalisation"
 
-#: populate.py:114
+#: populate.py:116
 msgid "Tests"
 msgstr "Tests"
 
-#: populate.py:114
+#: populate.py:116
 msgid "The project is in the testing process (unit / integration / functional)"
 msgstr ""
 "Le projet est en phase de tests (unitaires / intégration / fonctionnels)"
 
-#: populate.py:115
+#: populate.py:117
 msgid "User acceptance tests"
 msgstr "Recette"
 
-#: populate.py:115
+#: populate.py:117
 msgid "The project is in the user acceptance testing process"
 msgstr "Le projet est en recette"
 
-#: populate.py:116
+#: populate.py:118
 msgid "Finished"
 msgstr "Terminé"
 
-#: populate.py:116
+#: populate.py:118
 msgid "The project is finished"
 msgstr "Le projet est terminé"
 
@@ -607,12 +606,12 @@ msgstr ""
 "Vous ne pouvez pas ajouter de ressource ou de période travaillée à une tâche "
 "en statut «{}»"
 
-#: views/resource.py:61
+#: views/resource.py:60
 #, python-brace-format
 msgid "Resource for «{entity}»"
 msgstr "Ressource pour «{entity}»"
 
-#: views/resource.py:77
+#: views/resource.py:95
 msgid "This resource cannot be deleted, because it is linked to activities."
 msgstr ""
 "Cette ressource ne peut pas être supprimée, car elle est liée à des "
@@ -628,23 +627,16 @@ msgstr "Créer une tâche à «{entity}»"
 msgid "Adding parents to «{object}»"
 msgstr "Ajouter des tâches parentes à «{object}»"
 
-#: views/task.py:193
+#: views/task.py:208
 #, python-brace-format
 msgid "New activity related to «{entity}»"
 msgstr "Nouvelle activité liée à «{entity}»"
 
-#: views/task.py:226
-msgid "Can not be deleted because of its dependencies."
-msgstr "Ne peut pas être supprimé à cause des ses dépendances."
+#~ msgid "Can not be deleted because of its dependencies."
+#~ msgstr "Ne peut pas être supprimé à cause des ses dépendances."
 
-#: views/task.py:229
-msgid "The deletion caused an unexpected error [{}]."
-msgstr "La suppression a provoqué une erreur inattendue [{}]."
-
-# Already in creme_core
-#: views/task.py:231
-msgid "Operation successfully completed"
-msgstr ""
+#~ msgid "The deletion caused an unexpected error [{}]."
+#~ msgstr "La suppression a provoqué une erreur inattendue [{}]."
 
 #~ msgid "Create a task for «%s»"
 #~ msgstr "Créer une tâche à «%s»"

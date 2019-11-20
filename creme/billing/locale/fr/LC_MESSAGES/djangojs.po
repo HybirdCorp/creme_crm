@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Billing(JS) 2.0\n"
+"Project-Id-Version: Creme Billing(JS) 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-16 09:21+0100\n"
+"POT-Creation-Date: 2019-11-20 14:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,6 +21,7 @@ msgid "Select the export format of your billing document"
 msgstr "Sélectionnez le format d'export de votre document comptable"
 
 #: static/billing/js/billing-actions.js:59
+#: static/billing/js/tests/billing-listview.js:25
 msgid "No such export format for billing documents."
 msgstr "Le document comptable n'a aucun format d'export."
 
@@ -28,11 +29,12 @@ msgstr "Le document comptable n'a aucun format d'export."
 msgid "Pdf file (PDF)"
 msgstr "Fichier Pdf (PDF)"
 
-#: static/billing/js/billing-actions.js:162
+#: static/billing/js/billing-actions.js:209
+#: static/billing/js/tests/billing-actions.js:114
 msgid "There are some errors in your lines."
 msgstr "Il y a des erreurs dans vos lignes."
 
-#: static/billing/js/billing-actions.js:179
+#: static/billing/js/billing-actions.js:226
 msgid "Errors report"
 msgstr "Rapport d'erreurs"
 

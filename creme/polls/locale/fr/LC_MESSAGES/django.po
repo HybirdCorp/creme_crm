@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Polls 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-05 11:20+0200\n"
+"POT-Creation-Date: 2019-11-20 14:50+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -220,11 +220,11 @@ msgstr "Fin de section"
 msgid "Order"
 msgstr "Ordre"
 
-#: forms/poll_form.py:218
+#: forms/poll_form.py:219
 msgid "Choices can not be empty."
 msgstr "Les choix ne peuvent pas être vides."
 
-#: forms/poll_form.py:219
+#: forms/poll_form.py:220
 #, python-format
 msgid ""
 "You can not delete the choice \"%(choice)s\" because it is used in a "
@@ -233,35 +233,35 @@ msgstr ""
 "vous ne pouvez pas supprimer le choix \"%(choice)s\" car il est utilisé dans "
 "une condition par la question \"%(question)s\"."
 
-#: forms/poll_form.py:234
+#: forms/poll_form.py:235
 msgid "Existing choices"
 msgstr "Choix existants"
 
-#: forms/poll_form.py:235
+#: forms/poll_form.py:236
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/poll_form.py:239
+#: forms/poll_form.py:240
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/poll_form.py:240
+#: forms/poll_form.py:241
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
-#: forms/poll_form.py:316 models/poll_form.py:207 models/poll_reply.py:119
+#: forms/poll_form.py:317 models/poll_form.py:207 models/poll_reply.py:119
 msgid "Use OR or AND between conditions"
 msgstr "Utiliser OU ou ET entre les conditions"
 
-#: forms/poll_form.py:317 models/poll_form.py:267
+#: forms/poll_form.py:318 models/poll_form.py:267
 msgid "AND"
 msgstr "ET"
 
-#: forms/poll_form.py:317 models/poll_form.py:267
+#: forms/poll_form.py:318 models/poll_form.py:267
 msgid "OR"
 msgstr "OU"
 
-#: forms/poll_form.py:321 templates/polls/bricks/pform-lines.html:67
+#: forms/poll_form.py:322 templates/polls/bricks/pform-lines.html:67
 msgid "Conditions"
 msgstr "Conditions"
 

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-14 15:09+0100\n"
+"POT-Creation-Date: 2019-11-20 14:45+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:32 models/opportunity.py:133 populate.py:313
+#: apps.py:32 models/opportunity.py:135 populate.py:313
 #: templates/opportunities/bricks/opportunities.html:8
 #: templates/opportunities/bricks/opportunities.html:10
 #: templates/opportunities/bricks/opportunities.html:12
@@ -86,11 +86,11 @@ msgstr "Est salarié chez «{}» ?"
 msgid "Target"
 msgstr "Cible"
 
-#: forms/mass_import.py:39 forms/opportunity.py:109
+#: forms/mass_import.py:39 forms/opportunity.py:108
 msgid "Concerned organisation"
 msgstr "Société concernée"
 
-#: forms/opportunity.py:98
+#: forms/opportunity.py:97
 msgid "Target organisation / contact"
 msgstr "Société / contact cible"
 
@@ -107,124 +107,124 @@ msgstr "Erreur: «CA estimé» est caché"
 msgid "Error: «% of chance to win» is hidden"
 msgstr "Erreur: «% de chance d'obtention»"
 
-#: models/opportunity.py:50 templates/opportunities/bricks/contacts.html:20
+#: models/opportunity.py:52 templates/opportunities/bricks/contacts.html:20
 #: templates/opportunities/bricks/managers.html:16
 #: templates/opportunities/bricks/opportunities.html:23
 msgid "Name"
 msgstr "Nom"
 
-#: models/opportunity.py:51
+#: models/opportunity.py:53
 msgid "Order"
 msgstr "Ordre"
 
-#: models/opportunity.py:52 populate.py:192
+#: models/opportunity.py:54 populate.py:192
 msgctxt "opportunities-sales_phase"
 msgid "Won"
 msgstr "Gagnée"
 
-#: models/opportunity.py:53 populate.py:193
+#: models/opportunity.py:55 populate.py:193
 msgctxt "opportunities-sales_phase"
 msgid "Lost"
 msgstr "Perdue"
 
-#: models/opportunity.py:55
+#: models/opportunity.py:57
 msgctxt "opportunities-sales_phase"
 msgid "Create a phase"
 msgstr "Créer une phase"
 
-#: models/opportunity.py:62
+#: models/opportunity.py:64
 msgid "Sale phase"
 msgstr "Phase de vente"
 
-#: models/opportunity.py:63
+#: models/opportunity.py:65
 msgid "Sale phases"
 msgstr "Phases de vente"
 
-#: models/opportunity.py:70
+#: models/opportunity.py:72
 msgid "A phase can not be won and lost at the same time."
 msgstr "Une phase ne peut pas être gagnée et perdu à la fois."
 
-#: models/opportunity.py:74 models/opportunity.py:110
+#: models/opportunity.py:76 models/opportunity.py:112
 msgid "Origin"
 msgstr "Origine"
 
-#: models/opportunity.py:76
+#: models/opportunity.py:78
 msgctxt "opportunities-origin"
 msgid "Create an origin"
 msgstr "Créer une origine"
 
-#: models/opportunity.py:83
+#: models/opportunity.py:85
 msgid "Origin of opportunity"
 msgstr "Origine d'opportunité"
 
-#: models/opportunity.py:84
+#: models/opportunity.py:86
 msgid "Origins of opportunity"
 msgstr "Origines d'opportunité"
 
-#: models/opportunity.py:89
+#: models/opportunity.py:91
 msgid "Name of the opportunity"
 msgstr "Nom de l'opportunité"
 
-#: models/opportunity.py:90
+#: models/opportunity.py:92
 msgid "Reference"
 msgstr "Référence"
 
-#: models/opportunity.py:92
+#: models/opportunity.py:94
 #: templates/opportunities/bricks/opportunity-hat-card.html:56
 msgid "Estimated sales"
 msgstr "CA estimé"
 
-#: models/opportunity.py:95
+#: models/opportunity.py:97
 #: templates/opportunities/bricks/opportunity-hat-card.html:69
 msgid "Made sales"
 msgstr "CA final"
 
-#: models/opportunity.py:97
+#: models/opportunity.py:99
 msgid "Currency"
 msgstr "Devise"
 
-#: models/opportunity.py:100
+#: models/opportunity.py:102
 #: templates/opportunities/bricks/opportunities.html:24
 #: templates/opportunities/bricks/opportunity-hat-card.html:48
 msgid "Sales phase"
 msgstr "Phase de vente"
 
-#: models/opportunity.py:103
+#: models/opportunity.py:105
 #, python-format
 msgid "% of chance to win"
 msgstr "% de chance d'obtention"
 
-#: models/opportunity.py:106
+#: models/opportunity.py:108
 msgid "Expected closing date"
 msgstr "Date de signature prévue"
 
-#: models/opportunity.py:108
+#: models/opportunity.py:110
 msgid "Actual closing date"
 msgstr "Date de signature réelle"
 
-#: models/opportunity.py:116
+#: models/opportunity.py:118
 msgid "Date of the first action"
 msgstr "Date de la première action"
 
-#: models/opportunity.py:119
+#: models/opportunity.py:121
 #: templates/opportunities/bricks/opportunities.html:19
 msgid "Create an opportunity"
 msgstr "Créer une opportunité"
 
-#: models/opportunity.py:120
+#: models/opportunity.py:122
 msgid "Save the opportunity"
 msgstr "Enregistrer l'opportunité"
 
-#: models/opportunity.py:132 templates/opportunities/buttons/linked-opp.html:4
+#: models/opportunity.py:134 templates/opportunities/buttons/linked-opp.html:4
 #: templates/opportunities/buttons/linked-opp.html:9
 msgid "Opportunity"
 msgstr "Opportunité"
 
-#: models/opportunity.py:142
+#: models/opportunity.py:144
 msgid "Emitter is required."
 msgstr "Un émetteur est requis."
 
-#: models/opportunity.py:145
+#: models/opportunity.py:147
 msgid "Target is required."
 msgstr "Une cible est requise."
 
@@ -801,7 +801,7 @@ msgstr "Liste des {models} émis par {emitter}"
 msgid "Create a contact linked to «{opportunity}»"
 msgstr "Créer un contact lié à «{opportunity}»"
 
-#: views/opportunity.py:192
+#: views/opportunity.py:191
 #, python-brace-format
 msgid "New opportunity targeting «{entity}»"
 msgstr "Nouvelle opportunité ciblant «{entity}»"

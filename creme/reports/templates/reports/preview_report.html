@@ -45,7 +45,7 @@
         <form>
         {% include 'reports/frags/report_preview_format.html' %}
         </form>
-        <button type="button" name="generate">{% trans 'Preview' %}</button>
+        <button type="button" name="generate">{% trans 'Preview' context 'reports-preview' as title %}</button>
         <button type="button" name="download">{% trans 'Download as file' %}</button>
     </div>
 

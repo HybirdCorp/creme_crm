@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-18 14:12+0100\n"
+"POT-Creation-Date: 2019-11-20 14:21+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1016,40 +1016,40 @@ msgstr ""
 msgid "Invoice information"
 msgstr "Informations sur la facture"
 
-#: populate.py:351
+#: populate.py:353
 msgid "Credit note information"
 msgstr "Informations sur l'avoir"
 
-#: populate.py:356
+#: populate.py:358
 msgid "Quote information"
 msgstr "Informations sur le devis"
 
-#: populate.py:364
+#: populate.py:367
 msgid "Salesorder information"
 msgstr "Informations sur le bon de commande"
 
-#: populate.py:369
+#: populate.py:375
 msgctxt "billing"
 msgid "Template information"
 msgstr "Informations sur le patron de document"
 
-#: populate.py:466
+#: populate.py:472
 msgid "All invoices of the current year"
 msgstr "Toutes les factures de l'année en cours"
 
-#: populate.py:472
+#: populate.py:478
 msgid "Sum of current year invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures de l'année en cours / mois"
 
-#: populate.py:478
+#: populate.py:484
 msgid "Sum of current year invoices total without taxes / invoices status"
 msgstr "Somme des totaux HT des factures de l'année en cours / statut"
 
-#: populate.py:488
+#: populate.py:494
 msgid "Invoices unpaid of the current year"
 msgstr "Factures impayées de l'année en cours"
 
-#: populate.py:494
+#: populate.py:500
 msgid "Sum of current year and unpaid invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures impayées de l'année en cours / mois"
 
@@ -1256,6 +1256,11 @@ msgstr "Contact récepteur"
 #: templates/billing/bricks/total.html:7
 msgid "Totals"
 msgstr "Totaux"
+
+# Already in creme_core
+#: templates/billing/form/add-popup.html:4
+msgid "Add"
+msgstr ""
 
 # Already in creme_core
 #: templates/billing/form/edit.html:4

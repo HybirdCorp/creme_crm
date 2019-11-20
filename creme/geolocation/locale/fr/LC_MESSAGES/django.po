@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Geolocation 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 15:03+0100\n"
+"POT-Creation-Date: 2019-11-20 14:38+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -48,11 +48,11 @@ msgstr "Localisation incomplète"
 msgid "Address"
 msgstr "Adresse"
 
-#: models.py:54 models.py:172
+#: models.py:54 models.py:174
 msgid "Latitude"
 msgstr "Latitude"
 
-#: models.py:55 models.py:173
+#: models.py:55 models.py:175
 msgid "Longitude"
 msgstr "Longitude"
 
@@ -84,39 +84,39 @@ msgctxt "geolocation-address"
 msgid "Addresses"
 msgstr "Adresses"
 
-#: models.py:168
+#: models.py:170
 msgid "Name of the town"
 msgstr "Nom de la ville"
 
-#: models.py:169
+#: models.py:171
 msgid "Slugified name of the town"
 msgstr "Nom normalisé de la ville"
 
-#: models.py:170
+#: models.py:172
 msgid "Zip code"
 msgstr "Code postal"
 
-#: models.py:171
+#: models.py:173
 msgid "Country"
 msgstr "Pays"
 
-#: models.py:175
+#: models.py:177
 msgid "Create a town"
 msgstr "Créer une ville"
 
-#: models.py:179
+#: models.py:181
 msgid "Town"
 msgstr "Ville"
 
-#: models.py:180
+#: models.py:182
 msgid "Towns"
 msgstr "Villes"
 
-#: setting_keys.py:9
+#: setting_keys.py:10
 msgid "Maximum distance to find neighbours in meters"
 msgstr "Distance maximale pour trouver des voisins en mètres"
 
-#: setting_keys.py:15
+#: setting_keys.py:17
 msgid "Google Maps ® API key (optional)"
 msgstr "Clé API Google Maps ® (optionnelle)"
 

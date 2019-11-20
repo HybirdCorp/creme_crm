@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP (JavaScript only)
-# Copyright (C) 2017 Hybird
+# Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr
@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme CTI 1.7\n"
+"Project-Id-Version: Creme CTI 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 14:49+0200\n"
+"POT-Creation-Date: 2019-11-20 14:31+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -17,10 +17,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/cti/js/cti.js:36
+#: static/cti/js/cti.js:39
 msgid "Failed to create the phone call entity !"
 msgstr "Impossible de créer l'appel téléphonique !"
 
-#: static/cti/js/cti.js:39
+#: static/cti/js/cti.js:42
 msgid "Phone call"
 msgstr "Appel téléphonique"
