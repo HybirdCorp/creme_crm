@@ -780,7 +780,7 @@ TEST_CREME_CORE_JS = ['testcore.js',
                         'creme_core/js/tests/widgets/selectorlist.js',
                         'creme_core/js/tests/widgets/actionlist.js',
                         'creme_core/js/tests/widgets/plotselector.js',
-                        'creme_core/js/tests/widgets/container.js',
+                        # 'creme_core/js/tests/widgets/container.js',
                         'creme_core/js/tests/widgets/entitycells.js',
 
                         'creme_core/js/tests/form/forms.js',
