@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import OrderedDict
 from functools import partial
 import logging
 
@@ -202,7 +203,8 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
     )
 
     def __init__(self, to_register=DEFAULT_SORTERS):
-        self._sorters_4_modelfields = {}
+        # self._sorters_4_modelfields = {}  # TODO: when order is kept (py3.6+)
+        self._sorters_4_modelfields = OrderedDict()
         self._sorters_4_modelfieldtypes = ClassKeyedMap(default=None)
 
         for model_field_cls, sorter_cls in to_register:
@@ -317,7 +319,8 @@ class CellSorterRegistry(AbstractCellSorter):
     )
 
     def __init__(self, to_register=DEFAULT_REGISTRIES):
-        self._registries = {}
+        # self._registries = {}  # TODO: when order is kept (py3.6+)
+        self._registries = OrderedDict()
 
         for cell_id, registry_class in to_register:
             self.register(cell_id=cell_id, registry_class=registry_class)

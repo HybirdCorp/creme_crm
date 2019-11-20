@@ -24,6 +24,7 @@
 #
 ################################################################################
 
+from collections import OrderedDict
 from collections.abc import MutableSet
 from sys import maxsize
 
@@ -109,7 +110,8 @@ class ClassKeyedMap:
     No get() method because there is no 'default' argument.
     """
     def __init__(self, items=(), default=None):
-        self._data = dict(items)
+        # self._data = dict(items)  # TODO: when order is kept (py3.6+)
+        self._data = OrderedDict(items)
         self._default = default
 
     @staticmethod

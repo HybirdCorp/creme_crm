@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
+from collections import OrderedDict  # defaultdict
 import decimal
 from functools import partial
 import logging
@@ -144,11 +144,27 @@ class SelectLVSWidget(ListViewSearchWidget):
         self.choices = choices
 
     def _build_groups(self, choices, selected_value):
-        groups = defaultdict(list)
+        # groups = defaultdict(list)  # TODO: when order is kept (py3.6?)
+        #
+        # for choice in choices:
+        #     value = str(choice['value'])
+        #     groups[choice.get('group')].append(
+        #         # todo: use "help" ? (need to display entirely our widget, not a regular <select>)
+        #         {'value': value,
+        #          'text': choice['label'],
+        #          'selected': selected_value == value,
+        #         }
+        #     )
+        groups = OrderedDict()
 
         for choice in choices:
             value = str(choice['value'])
-            groups[choice.get('group')].append(
+            group_name = choice.get('group')
+            group_choices = groups.get(group_name)
+            if group_choices is None:
+                groups[group_name] = group_choices = []
+
+            group_choices.append(
                 # TODO: use "help" ? (need to display entirely our widget, not a regular <select>)
                 {'value': value,
                  'text': choice['label'],

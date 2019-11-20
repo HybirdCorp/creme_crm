@@ -5,6 +5,7 @@ try:
     from decimal import Decimal
     from functools import partial
     from os import path as os_path
+    from urllib.parse import urlparse, unquote
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
@@ -815,7 +816,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self._assert_detailview(self.client.get(url, data=data, follow=True), onibaku)
 
     def test_search_and_view06(self):
-        "App credentials"
+        "App credentials."
         user = self.login(is_superuser=False, allowed_apps=['documents'])  # Not 'creme_core'
 
         phone = '31337'
@@ -828,12 +829,12 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET403(self.SEARCHNVIEW_URL, data=data)
 
     def test_search_and_view07(self):
-        "FieldsConfig"
+        "FieldsConfig."
         self.login()
 
         FieldsConfig.create(FakeContact,
                             descriptions=[('phone',  {FieldsConfig.HIDDEN: True})],
-                            )
+                           )
 
         self.assertGET409(self.SEARCHNVIEW_URL,
                           data={'models': 'creme_core-fakecontact',
@@ -843,24 +844,44 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                          )
 
     def test_search_and_view08(self):
-        "Not logged"
+        "Not logged."
         url = self.SEARCHNVIEW_URL
+        models = 'creme_core-fakecontact'
+        fields = 'phone'
+        value = '123456789'
         response = self.assertGET200(
             url, follow=True,
-            data={'models': 'creme_core-fakecontact',
-                  'fields': 'phone',
-                  'value':  '123456789',
+            data={'models': models,
+                  'fields': fields,
+                  'value':  value,
                  },
         )
-        self.assertRedirects(
-            response,
-            '{login_url}?next={search_url}'
-            '%3Fmodels%3Dcreme_core-fakecontact'
-            '%26fields%3Dphone'
-            '%26value%3D123456789'.format(
-                login_url=reverse(settings.LOGIN_URL),
-                search_url=url,
-            )
+        # NB: problem with order (only python3.5- ?)
+        # self.assertRedirects(
+        #     response,
+        #     '{login_url}?next={search_url}'
+        #     '%3Fmodels%3Dcreme_core-fakecontact'
+        #     '%26fields%3Dphone'
+        #     '%26value%3D123456789'.format(
+        #         login_url=reverse(settings.LOGIN_URL),
+        #         search_url=url,
+        #     )
+        # )
+        self.assertEqual(1, len(response.redirect_chain))
+
+        parsed_url = urlparse(response.redirect_chain[0][0])
+        self.assertEqual(reverse(settings.LOGIN_URL), parsed_url.path)
+
+        next_param = parsed_url.query
+        self.assertTrue(next_param.startswith('next='), next_param)
+        self.assertURLEqual(
+            '{url}?models={models}&fields={fields}&value={value}'.format(
+                url=url,
+                models=models,
+                fields=fields,
+                value=value,
+            ),
+            unquote(next_param[len('next='):])
         )
 
     def test_restrict_entity_2_superusers01(self):
