@@ -137,7 +137,6 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q, [self.adrian])
 
         str_q = QSerializer().dumps(q)
-        #print str_q
         self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
     def test_q_serializer_07(self): 
@@ -202,7 +201,6 @@ class QueriesTestCase(CremeTestCase):
 
         qsr = QSerializer()
         str_q = qsr.dumps(q)
-        #print str_q
         self._assertQEqual(FakeContact, q, qsr.loads(str_q))
 
     def test_q_serializer_11(self):

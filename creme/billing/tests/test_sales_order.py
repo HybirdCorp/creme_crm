@@ -8,13 +8,12 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Currency, SetCredentials, SettingValue
+    from creme.creme_core.models import Currency, SetCredentials
 
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from ..models import SalesOrderStatus
-    from ..setting_keys import button_redirection_key
 
     from .base import (
         _BillingTestCase,

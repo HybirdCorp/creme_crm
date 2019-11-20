@@ -710,7 +710,7 @@ about this fantastic animation studio."""
 
         hline = hlines[-2]
         self.assertEqual(rei,               hline.entity.get_real_entity())
-        self.assertEqual(str(rei),      hline.entity_repr)
+        self.assertEqual(str(rei),          hline.entity_repr)
         self.assertEqual(TYPE_RELATION_DEL, hline.type)
         self.assertEqual([rtype.id],        hline.modifications)
         self.assertEqual(True,              hline.line_type.is_about_relation)
@@ -718,7 +718,7 @@ about this fantastic animation studio."""
 
         hline_sym = hlines[-1]
         self.assertEqual(nerv,             hline_sym.entity.get_real_entity())
-        self.assertEqual(str(nerv),    hline_sym.entity_repr)
+        self.assertEqual(str(nerv),        hline_sym.entity_repr)
         self.assertEqual(TYPE_SYM_REL_DEL, hline_sym.type)
         self.assertEqual([srtype.id],      hline_sym.modifications)
         self.assertEqual(True,             hline_sym.line_type.is_about_relation)

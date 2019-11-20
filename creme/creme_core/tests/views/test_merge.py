@@ -449,12 +449,12 @@ class MergeViewsTestCase(ViewsTestCase):
 
         rel1 = self.refresh(rel1)
         self.assertEqual(contact01.id,  rel1.subject_entity_id)
-        self.assertEqual(rtype,       rel1.type)
+        self.assertEqual(rtype,         rel1.type)
         self.assertEqual(new_orga01.id, rel1.object_entity_id)
 
         rel2 = self.assertStillExists(rel2)
         self.assertEqual(contact02.id,  rel2.subject_entity_id)
-        self.assertEqual(rtype,       rel2.type)
+        self.assertEqual(rtype,         rel2.type)
         self.assertEqual(new_orga01.id, rel2.object_entity_id)
 
         sym_rel2 = rel2.symmetric_relation

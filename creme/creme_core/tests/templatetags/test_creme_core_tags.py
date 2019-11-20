@@ -479,7 +479,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                         )
 
     def test_url_join5(self):
-        "Already a GET parameter + list paratemeter"
+        "Already a GET parameter + list parameter."
         url = '/creme_core/foobar?arg1=value'
         brick_ids = ['brick-core-entities', 'brick-core-properties']
 

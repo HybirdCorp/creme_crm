@@ -1294,7 +1294,7 @@ class MultiEmailField(fields.Field):
     # def __init__(self, sep="\n", *args, **kwargs):
     def __init__(self, *, sep='\n', **kwargs):
         # super(MultiEmailField, self).__init__(*args, **kwargs)
-        super(MultiEmailField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.sep = sep
 
     def to_python(self, value):

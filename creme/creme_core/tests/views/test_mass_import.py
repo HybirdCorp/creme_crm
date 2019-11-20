@@ -110,7 +110,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            response.context['form']
+            __ = response.context['form']
 
         response = self.client.post(url, data={'step':     0,
                                                'document': doc.id,

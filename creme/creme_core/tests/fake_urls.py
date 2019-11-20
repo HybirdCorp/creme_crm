@@ -48,8 +48,9 @@ urlpatterns = [
     # url(r'^tests/mailing_lists[/]?$', fake_views.mailing_lists_listview, name='creme_core__list_fake_mlists'),
     re_path(r'^tests/mailing_lists[/]?$', fake_views.FakeMailingListsList.as_view(), name='creme_core__list_fake_mlists'),
 
-    re_path(r'^tests/whatever/(?P<useless>\d+)[/]?$',
+    re_path(
+        r'^tests/whatever/(?P<useless>\d+)[/]?$',
         ErrorView.as_view(message='Custom error message'),
         name='creme_core__fake_removed_view',
-       ),
+    ),
 ]

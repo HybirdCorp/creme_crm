@@ -758,7 +758,7 @@ class ListViewSearchForm(CremeForm):
         prefix = '{}-'.format(base_prefix) if base_prefix else ''
 
         # NB: we could filter in a better way, but it's probably not a real issue
-        #     that users can stored crappy data in their session...
+        #     that users can store crappy data in their session...
         # IDEA: a "spying" dictionary with monitors which keys have been accessed.
         return {
             k: v

@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.widget.CONTAINER_LAYOUTS = {
     'column': function(options) {
@@ -33,8 +34,7 @@ creme.widget.CONTAINER_LAYOUTS = {
         });
     },
 
-    'sort': function(options)
-    {
+    'sort': function(options) {
         var options = options || {}
         var orderby = Object.isEmpty(options['sort-by']) ? undefined : options['sort-by'];
 
@@ -71,15 +71,13 @@ creme.widget.Container = creme.widget.declare('ui-creme-container', {
         element.addClass('widget-ready');
     },
 
-    _destroy: function(element)
-    {
+    _destroy: function(element) {
         if (this._layout !== undefined) {
             this._layout.unbind(element);
         }
     },
 
-    layout: function(element, layout)
-    {
+    layout: function(element, layout) {
         if (layout === undefined)
             return this._layout;
 

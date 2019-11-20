@@ -277,7 +277,7 @@ class HeaderFiltersTestCase(CremeTestCase):
             hf.populate_entities(contacts, user)
 
         with self.assertNumQueries(1):
-            contacts[0].position
+            __ = contacts[0].position
 
     def test_populate_entities_fields02(self):
         "Regular fields: FK"
@@ -304,10 +304,10 @@ class HeaderFiltersTestCase(CremeTestCase):
             hf.populate_entities(contacts, user)
 
         with self.assertNumQueries(0):
-            contacts[0].position
-            contacts[1].position
-            contacts[0].civility
-            contacts[1].civility
+            __ = contacts[0].position
+            __ = contacts[1].position
+            __ = contacts[0].civility
+            __ = contacts[1].civility
 
     def test_populate_entities_fields03(self):
         "Regular fields: invalid fields are removed automatically."

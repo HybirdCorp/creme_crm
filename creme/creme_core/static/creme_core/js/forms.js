@@ -293,10 +293,8 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
         } else {
             var $parent = $sel.parent();
 
-//            if ($parent.attr('name') == $chosen.attr('name')) { /*TODO: comparison on name is ugly, but '==' and '===' don't work....*/
             if ($parent.attr('name') === 'chosen') {
                 $add_button.attr('disabled', 'disabled');
-//                $rem_button.attr('disabled', '');
                 $rem_button.removeAttr('disabled');
 
                 var sel_name = $sel.attr('name');
@@ -513,11 +511,9 @@ creme.forms.toOrderedMultiSelect = function(table_id, reduced) {
     creme.forms._toDualColumnMultiSelect(table_id, true, buildColumns, refreshTable, reduced);
 };
 
-//creme.forms.toImportField = function(table_id) {
 creme.forms.toImportField = function(table_id, target_query) {
     var $table = $('#' + table_id);
     var $csv_select    = $table.find('.csv_col_select');
-//    var $fields_select = $table.find('.csv_subfields_select');
     var $fields_select = $table.find(target_query);
 
     function not_in_csv() {

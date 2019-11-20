@@ -196,7 +196,7 @@ class _EnumerableRegistry:
     def enumerator_by_fieldname(self, model, field_name):
         """Get an Enumerator instance corresponding to a model field.
 
-        @param class: Model inheriting CremeEntity.
+        @param model: Model inheriting CremeEntity.
         @param field_name: Name of a field (string).
         @return: Instance of Enumerator.
         @raises: ValueError if the model or the field are invalid.
