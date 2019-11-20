@@ -146,10 +146,10 @@ class ChoicesView(base.ContentTypeRelatedMixin, base.CheckedView):
 #     return list(CustomFieldEnumValue.objects.filter(custom_field=cf).values_list('id', 'value'))
 class CustomFieldEnumsView(base.CheckedView):
     response_class = CremeJsonResponse
-    ctype_id_url_kwarg = 'ct_id'
+    cfield_id_url_kwarg = 'cf_id'
 
     def get(self, request, *args, **kwargs):
-        cf = get_object_or_404(CustomField, pk=self.kwargs['cf_id'])
+        cf = get_object_or_404(CustomField, pk=self.kwargs[self.cfield_id_url_kwarg])
 
         return self.response_class(
             [*CustomFieldEnumValue.objects.filter(custom_field=cf).values_list('id', 'value')],
