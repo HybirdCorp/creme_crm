@@ -1,3 +1,677 @@
+== Version 2.1 ==
+
+  UPGRADE NOTE :
+    - You should create a all new virtual environment based on Python 3.5+
+      (eg: "mkvirtualenv -p /usr/bin/python3XX" if you use 'mkvirtualenv')
+      and populate it with "pip install -r creme/requirements.txt" of course.
+    - If you override INSTALLED_DJANGO_APPS in you local settings, you should replace "django.contrib.contenttypes" by "creme.creme_core.apps.ContentTypesConfig" (see settings.py).
+    - Execute the well known commands "migrate", "generatemedia" & "creme_populate".
+
+  Users side :
+  ------------
+    # The version of Django has been upgraded to 2.2.
+    # A field "description" has been added to CremeEntity. Data has been migrated for entities classes which already had this field, of course.
+    # The credentials system has been improved :
+        - The credentials can now be configured to forbid some actions.
+          Eg: if you want a user to see all kinds of entities excepted one, you are not obliged to create all-minus-one credentials lines ; you can just allow all of types of entities & forbid this one.
+        - The credentials can now use an EntityFilter.
+            - These filters can check: regular-fields (not date ones), custom-field (not date ones), relationships, properties.
+            - These filters can be specific to a type on entities ; when there is no specific type
+                - Only regular-fields of CremeEntity are available (ie: user & description).
+                - Custom-fields are not available.
+            - These filters remain related to the credentials, & cannot be selected in list-views for example.
+    # In the list-views :
+        - The quick-search on numeric (integer/float/decimal) fields (regular & custom) has been improved : complex filter like ">100; <=250" can be used.
+        - The selector of HeaderFilter now uses <optgroup> to group views by owner.
+        - A description of the filter can be displayed (so you can see the conditions without editing the filter).
+    # In the forms :
+        - Most of the form for entities have now fields to add Relationships & Properties at creation.
+          The setting "FORMS_RELATION_FIELDS" can be set to False to remove these new fields.
+        - The inactive users are now in a specific <optgroup> in the "Owner" form-field.
+    # In the global search, the searched string is split in words, which can be contained in different fields. Words can be grouped with " (double quote). Double quotes can be searched with \" .
+    # The blocks configuration of "Home" can now be specific to a role.
+    # The inner-edition in hat-card bricks is now possible.
+    # A setting to initialize the field 'is_private' of creation forms for HeaderFilters & EntityFilters has ben added: "FILTERS_INITIAL_PRIVATE".
+    # The file "requirements.txt" has been split for different RDBMS.
+    # A command to create staff users has been added : "creme_createstaffuser".
+      Previously you had to modify manually (in DB or with Python code) the field 'is_staff'.
+    # Apps :
+        * Creme_config :
+            - The deletion of instance has been improved.
+              The removing of an instance (of a registered model) uses now a form which proposes a replacement value for the different kind of entities using it.
+              The replacement is then processed by a job.
+            - In the block to configure Users, inactive users can be hidden (from the block menu in its header).
+        * Persons :
+            - A view to create "suspect/prospects/customer" has been added.
+            - A new quick-search field for Address has been added. It searches in all (not-hidden) fields of the related addresses.
+            - A setting to hide the entry "My customers / prospects / suspects" in the main menu has been added : "PERSONS_MENU_CUSTOMERS_ENABLED".
+        * Activities :
+            - The calendar view has been improved :
+                - Selected Calendars are kept in session.
+                - Users are ordered alphabetically.
+                - Inactive & staff users are excluded from the users list.
+            - A default public calendar is now created when a user (not a staff one) is created.
+              The old behaviour can be set with "ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC = None" in your file '{local,project}_settings.py'.
+        * Billing :
+            - A field has been added in 'Invoice' : number of buyer's order. It's required by the french legislation.
+            - The buttons (in button bar) to create related Quote/Invoice/... redirects now to the new entity's detail-view.
+              The old behaviour (ie: staying on the Contact/Organisaton's detail-view) can be restored in the billing's configuration portal.
+        * Opportunities :
+            - The statuses of the billing documents are now display in the bricks of the detail-view.
+            - Two SettingKeys which add constraints on selected billing documents to link have been added : same emitter & same target than the Opportunity.
+            - The hat-card brick now only displays a maximum of 5 related Contacts.
+        * Reports :
+            - The chart's type and the order of a ReportGraph are saved when changed from the preview on a block.
+            - The description of the filter used by a Report can be seen in the list-view & the detail-view.
+        * Assistants :
+            - The FunctionFields have now the quick-search feature (to search related Alerts/ToDos/Memos from the list-views).
+        * Graphs :
+            - The module "pygraphviz" has been removed from the main 'requirements.txt'. The "download PNG" button is displayed only if the package is installed.
+        * Events :
+            - The buttons of the related contacts list-view have been improved.
+                - A button "Back to the event" has been added.
+                - Some buttons have been removed :
+                    - Mass import (imported contacts won't be linked to the event automatically which is confusing).
+                    - Batch process (process contacts won't be filtered to be linked to the event).
+                    - Export header (because it's mostly useful for mass import).
+
+  Developers side :
+  -----------------
+      In this version, there are 3 main changes for developers :
+        - The version of Django is now "2.2".
+          You should probably read the following releases notes for Django versions :
+            - https://docs.djangoproject.com/en/2.2/releases/2.0/
+            - https://docs.djangoproject.com/en/2.2/releases/2.1/
+            - https://docs.djangoproject.com/en/2.2/releases/2.2/
+        - The work on class-based views continues ; lots ot new function-views have been converted, but the biggest
+          changes happened for list-views.
+          The compatibility with function-views is totally broken, but migrating the code of your own list-views should be easy in most cases.
+          This new class-based list-view is more stronger ; for example you can now easily customise the buttons & the actions.
+        - The way the registration in 'creme_config' is done has heavily changed.
+          Now a method in the files "apps.py" is used instead of the files "creme_config_register.py".
+          Lot of things can now be configured about a model :
+            - The forms for creation & edition can now be different ; the deletion form can be customised now.
+            - The creation, edition & deletion URLs can be customised.
+            - The creation, edition & deletion can be disabled.
+            - The Brick used to display its instances can be customised.
+
+      Other important changes:
+        - The code related to EntityFilters have been heavily reworked (but it won't be a problem if you did not modified it) :
+            - A lot of code from 'creme_core.models.EntityFilterCondition' has moved to a new package : 'creme_core.core.entity_filter'.
+            - The code of the forms has notably been split (fields/widgets/forms).
+            - A new registry has been created to register handlers (which contain the behaviour code which was in 'EntityFilterCondition') & operands (new name for 'EntityFilterVariable').
+        -  The code of the search in list-views has been massively reworked.
+           The old code was monolithic ; the new one is more extensible & customisable : it is separated in form/fields/widgets (like regular forms, plus some specialization).
+           A tree-registry has been created in order to easily customise the search-fields used for each column of the list-views
+           (see 'AppConfig.register_search_fields()' & 'creme_core.gui.listview.search.search_field_registry').
+
+    Non breaking changes :
+    ----------------------
+        # Deprecations :
+            - In 'creme_core.models':
+                - The method 'CremePropertyType.get_compatible_ones()' is deprecated ; use 'CremePropertyType.objects.compatible()' instead.
+                - The method 'Relation.get_compatible_ones()' is deprecated ; use 'RelationType.objects.compatible()' instead.
+                - The method 'Relation.filter_in()' is deprecated.
+                - A custom object manager has been added to 'bricks.BrickDetailviewLocation' :
+                    - The method 'config_exists()' is deprecated ; use '.objects.filter_for_model()' instead.
+                    - The method 'create_if_needed()' is deprecated ; use '.objects.create_if_needed() instead.
+                    - The method 'create_4_model_brick()' is deprecated ; use '.objects.create_for_model_brick()' instead.
+                    - The method 'id_is_4_model()' is deprecated.
+                - A custom object manager has been added to 'bricks.BrickState' :
+                    - The method 'get_for_brick_id()' is deprecated ; use '.objects.get_for_brick_id()' instead.
+                    - The method 'get_for_brick_ids()' is deprecated ; use '.objects.get_for_brick_ids()' instead.
+                - The method 'bricks.RelationBrickItem.create()' is deprecated ; use '.objects.create_if_needed()' instead.
+            - In 'creme_core.forms' :
+                - The class 'base.CremeModelWithUserForm' is deprecated ; use 'CremeModelForm' instead.
+                  BEWARE : if you have a "Meta.fields" in you form, you may have to add "user".
+                - The method 'relation._RelationsCreateForm._hash_relation()' is deprecated.
+            - In 'creme_core.views' :
+                - In 'relation', these function-views are deprecated : 'delete_all()' & 'json_entity_rtypes()'.
+                - The mixin class 'generic.wizard.PopupWizardMixin' is deprecated ; use a class inheriting the base class 'generic.wizard.AbstractWizardView' instead.
+            - The method 'creme_core.enumerators.EntityFilterEnumerator.efilter_as_dict()' is deprecated ; use 'instance_as_dict()' instead.
+            - The function 'creme_core.utils.queries.get_q_from_dict()' is deprecated ; use 'django.db.models.query.Q(my_dict)' instead.
+            - The templatetags "{% get_export_backends %}" & "{% get_import_backends %}" (from the lib "creme_core_tags") are deprecated.
+            - These template files in "creme_core/generics/blockform/" are deprecated :
+                - add_wizard.html (use "add-wizard.html" instead).
+                - add_wizard_popup.html (use "add-wizard-popup.html" instead).
+                - edit_wizard_popup.html (use "edit-wizard-popup.html" instead).
+                - wizard_popup.html (use "base-wizard.html" instead).
+            - In JavaScript :
+                - The function 'creme.utils.appendInUrl()' is deprecated; use the function 'creme.utils.goTo()' or the class 'creme.ajax.URL' instead.
+                - The method 'creme.lv_widget.selectedLines()' is now deprecated; Use "$(list).list_view('selectedRows')" instead.
+            - Apps :
+                * Creme_config :
+                    - The use of a module "creme_config_register" in an app is deprecated ; add a method "register_creme_config()" in the AppConfig instead.
+                    - The function-view 'views.creme_property_type.delete()' (URL named "creme_config__delete_ptype") is deprecated ;
+                      use the class 'creme_core.views.creme_property.PropertyTypeDeletion' (URL named "creme_core__delete_ptype") instead.
+                * Persons :
+                    - The method 'models.AbstractOrganisation.get_all_managed_by_creme()' is deprecated ; use '.objects.filter_managed_by_creme()' instead.
+                * Activities :
+                    - The method 'models.AbstractActivity.is_auto_orga_subject_enabled()' is deprecated ; use the function 'utils.is_auto_orga_subject_enabled()' instead.
+                    - The method 'models.AbstractActivity.get_title_for_calendar()' is deprecated ; use the attribute 'title' instead.
+                    - Some class-methods of 'models.AbstractActivity' have ben moved to a new manager :
+                        - The method 'get_future_linked()' is deprecated ; use '.objects.future_linked()' instead.
+                        - The method 'get_future_linked_for_orga()' is deprecated ; use '.objects.future_linked_to_organisation()' instead.
+                        - The method 'get_past_linked()' is deprecated ; use '.objects.past_linked()' instead.
+                        - The method 'get_past_linked_for_orga()' is deprecated ; use '.objects.past_linked_to_organisation()' instead.
+                    - Several static-methods of 'models.Calendar' are deprecated :
+                        - get_user_calendars().
+                        - get_user_default_calendar() (use '.objects.get_default_calendar()' instead).
+                        - new_color() (use '.objects.new_color()' instead).
+                        - _create_default_calendar()' (use '.objects.create_default_calendar()' instead).
+                * Commercial :
+                    - The template filter "|has_quickform" (from the lib "commercial_tags") is deprecated ; use "|ctype_has_quickform" (lib "creme_ctype") instead.
+                * Billing :
+                    - 'constants.DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA' is deprecated ; use 'billing.settings_keys.payment_info_key.id' instead.
+                    - These templates are deprecated :
+                        - billing/frags/button_convert2invoice.html
+                        - billing/frags/button_convert2order.html
+                    - The JavaScript function 'creme.billing.generateInvoiceNumber()' is deprecated; use the action named "billing-hatmenubar-invoice-number" instead.
+                * Opportunities :
+                    - 'constants.SETTING_USE_CURRENT_QUOTE' is deprecated.
+                    - These methods of 'models.AbstractOpportunity' are deprecated: 'get_contacts()', 'get_products()', 'get_responsibles()', 'get_services()'.
+                * Reports :
+                    - The function 'views.graph.cast_order()' is deprecated ; use the class 'creme_core.utils.meta.Order' instead.
+                    - The JavaScript function 'creme.reports.exportReport()' is deprecated.
+                * Mobile :
+                    - The template filter "|employers" is deprecated ; use the method 'AbstractContact.get_employers()' (so "my_contact.get_employers" in the template) instead.
+                * Crudity :
+                    - The filter "|truncate" (from the lib "crudity_tags") is deprecated ; use "|truncatewords" and "|truncatewords" instead.
+                * Events :
+                    - The template file "creme/events/templates/events/lv_button_link_contacts.html" is deprecated.
+        # A string permission has been added : 'creme_core.auth.SUPERUSER_PERM'.
+        # In 'creme_core.models' :
+            - Two new values for the field attribute "on_delete" are available in 'creme_core.models.deletion' : 'CREME_REPLACE' & 'CREME_REPLACE_NULL'.
+              They act respectively like regular PROTECT & SET_NULL, but they indicate to 'creme_config' that a
+              replacement value can be proposed to the user when an instance is deleted.
+            - The model-fields 'fields.CTypeForeignKey' & 'fields.CTypeOneToOneField' accept now a model class directly.
+            - A new method 'get_4_keys()' ahs been added in the manager of 'SettingValue' to retrieve several values at once.
+            - The model 'BrickState' can now store extra data in a JSON field to manage specific states.
+            - It's now possible to check already retrieved entities with an EntityFilter (see the new method 'accept()').
+        # In 'creme_core.views' :
+            - Generic/base deletion views have been added.
+            - The list-views (& so their popup version) have now a <no-selection> mode.
+        # In 'creme_core.forms' :
+            - Two new form-fields have been added : 'fields.EnhancedMultipleChoiceField' & 'fields.EnhancedModelMultipleChoiceField'.
+              They are Multiple[model]ChoiceField which allow to force some values & add help text to each choice.
+            - The label of the creation button in selectors can now be customised.
+        # It's now possible to clean a 'FileField' in inner-edition. 'FileFields' are always excluded from choice of field in the bulk-update form.
+        # A shortcut function function has been added : 'creme_core.shortcuts.get_bulk_or_404()'.
+        # A decorator for the per-request cache has been added: 'creme_core.global_info.cached_per_request'.
+        # In 'creme_core.core' :
+            - A method 'paginator.FlowPaginator.get_page()' has been added.
+            - A new system for ordering query has been introduced : 'creme_core.core.sorter'.
+            - You can check if your DB server is case sensitive with this new function : 'db.is_db_case_sensitive()'.
+            - The calls to 'enumerable._EnumerableRegistry.register_*()' can now be chained.
+        # A new assertion has been added to help the unit testing of forms : 'assertFormInstanceErrors()'.
+        # In JavaScript, a method 'creme.component.Action.stack()', that returns previous actions chained by 'after()', has been added.
+
+    Breaking changes :
+    ------------------
+        # Deprecated stuffs which have been removed :
+            - In 'creme_core.models' :
+                - The class 'entity.EntityAction' has been removed.
+                - In 'entity.CremeEntity', these methods have been removed : 'allowed_unicode()' & 'get_entity_m2m_summary()'.
+                - The function 'lock.mutex_autolock()' has been removed.
+            - In 'creme_core.core' :
+                - The class 'function_field.FunctionFieldsManager' has been removed.
+                - The method 'reminder.ReminderRegistry.itervalues()' has been removed.
+            - In 'creme_core.templatetags.creme_core_tags' :
+                - These filters have been removed: "|get_tag", "|xrange", "|allowed_unicode".
+                - These tags have been removed: "{% get_field_verbose_name %}", "{% get_viewable_fields %}".
+            - In 'creme_core.views' :
+                - The argument "q_filter" of the list-view do not manage the old "dictionary" format (use 'QSerializer' instead).
+                - In 'generic', these functions have been removed :
+                    - add.add_entity(), add.add_to_entity(), add.add_model_with_popup().
+                    - edit.edit_entity(), edit.edit_related_to_entity(), edit.edit_model_with_popup().
+                    - popup.inner_popup(), portal.app_portal()
+                    - 'listview._clean_value()'.
+                - The function 'enumerable.json_list_enumerable()' has been removed.
+                - The function 'quick_forms.add()' has been removed.
+            - In 'creme_core.utils' :
+                - The function 'chunktools.iter_splitlinechunks()' has been removed.
+                - The function 'db.reorder_instances()' has been removed.
+                - In the function 'queries.get_q_from_dict()', the "~" feature has been removed.
+            - In the class 'creme_core.backends._BackendRegistry' these methods have been removed : 'iterbackends()' & 'iterkeys()'.
+            - The signal 'creme_core.signals.form_post_save' has been removed.
+            - The method 'creme_core.gui.menu.CreationFormsItem.verbose_unicode()' has been removed.
+            - The method 'creme_core.forms.creme_property._AddPropertiesForm._create_properties()' has been removed.
+            - 'creme_core.constants.MODELBLOCK_ID' has been removed.
+            - These template files of "creme/creme_core/templates/creme_core/" have been removed :
+                - generics/inner_popup.html
+                - generics/portal.html
+                - generics/blockform/add_popup.html, generics/blockform/edit_popup.html, generics/blockform/link_popup.html.
+                - generics/blockformset/add_popup.html, generics/blockformset/base.html.
+                - generics/form/add_innerpopup.html, generics/form/edit_innerpopup.html.
+                - templatetags/quickforms_panel.html
+            - In JavaScript, the function 'creme.relations.addRelationTo()' has been removed.
+            - Apps :
+                * Persons :
+                    - In 'forms.contact.RelatedContactForm' :
+                        - The argument "linked_orga" is mandatory.
+                        - The attribute "rtype" can not be set with the 'initial' data any more.
+                    - The deprecated function-views have been removed in :
+                        - views.address
+                        - views.contact
+                        - views.organisation
+                * Documents :
+                    - The function-views have been removed.
+                * Activities :
+                    - 'constants.DISPLAY_REVIEW_ACTIVITIES_BLOCKS' has been removed.
+                    - These methods of 'models.AbstractActivity' have been removed :
+                        - _get_linked_for_ctypes_aux(), get_future_linked_for_ctypes(), get_past_linked_for_ctypes()
+                        - display_review()
+                    - The deprecated function-views of 'views.activity' have been removed.
+                    - In 'views.bricks' :
+                        - The function-view 'delete_participant()' has been replaced by the class 'ParticipantRemoving'.
+                        - The function-view 'unlink_activity()' has been replaced by the class 'ActivityUnlinking'.
+                    - The JavaScript function 'creme.activities.exportAsICal()' have been removed.
+                    - These templates in "creme/activities/templates/activities/" : "add_popup_activity_form.html", "view_activity_popup.html" & "frags/ical_list_view_button.html".
+                * Products :
+                    - The deprecated function-views have been removed in :
+                        - views.product
+                        - views.service
+                * Billing :
+                    - 'constants.CURRENCY' has been removed.
+                    - The method 'registry.AlgoRegistry.itervalues()' has been removed.
+                    - In 'models.AbstractTemplateBase', the method 'get_verbose_status()' & the property 'verbose_status' have been removed.
+                    - The deprecated function-views have been removed in :
+                        - views.credit_note
+                        - views.invoice
+                        - views.line
+                        - views.quote
+                        - views.sales_order
+                        - views.templatebase
+                    - The module 'views.workflow' has been removed.
+                    - The JavaScript function 'creme.billing.exportAs()' has been removed.
+                * Opportunities :
+                    - These classes in 'forms.opportunity' have been removed : 'OpportunityEditForm' & 'OpportunityCreateForm'.
+                    - The method 'models.AbstractOpportunity.get_weighted_sales()' has been removed.
+                    - The function-views have been removed in 'views.opportunity'.
+                * Commercial :
+                    - The class 'forms.salesman.SalesManCreateForm' has been removed.
+                    - The method 'models.CommercialApproach.get_approaches_for_ctypes()' has been removed.
+                    - The deprecated function-views have been removed in :
+                        - views.act
+                        - views.salesman
+                        - views.strategy
+                * Reports :
+                    - In 'bricks.ReportGraphBrick', the variable "instance_block_id" is not injected in the context any more.
+                    - The method 'report_aggregation_registry.FieldAggregationRegistry.itervalues()' has been removed.
+                    - In 'models.graph.AbstractReportGraph' :
+                        - these methods have ben removed: 'get_fetcher_from_instance_block()' & 'create_instance_block_config_item()'.
+                        - The nested class 'InstanceBlockConfigItemError' has been removed.
+                    - The deprecated function-views have been removed in :
+                        - views.graph
+                        - views.report
+                    - The template file "creme/reports/templates/reports/frags/report_export_filter.html" has been removed.
+                * Assistants :
+                    - The methods 'models.Action.get_actions_*()' have been removed.
+                    - The methods 'models.Alert.get_alerts*()' have been removed.
+                    - The methods 'models.Memo.get_memos*()' have been removed.
+                    - The methods 'models.ToDo.get_todos*()' have been removed.
+                    - The methods 'models.UserMessage.get_messages*()' have been removed.
+                * Emails :
+                    - These classes in 'forms.mail' have been removed : 'TemplateSelectionForm' & 'EntityEmailFromTemplateForm'.
+                    - The deprecated function-views have been removed in :
+                        - views.campaign
+                        - views.mail
+                        - views.mailing_list
+                        - views.sending
+                        - views.template
+                    - These templates in "creme/emails/templates/emails": "popup_sending.html", "view_email.html" & "view_entity_mail_popup.html".
+                - Tickets :
+                    - The method 'models.AbstractTicket.get_resolving_duration()' has been removed.
+                    - The function-views have been removed.
+                * Geolocation :
+                    - The function 'utils.get_setting()' has been removed.
+                * Mobile :
+                    - The deprecated function-views have been removed.
+                * Events :
+                    - In 'views.event', the deprecated function-views have been removed.
+                * Graphs :
+                    - In 'views.graph', the deprecated function-views have been removed.
+                * Projects :
+                    - The deprecated function-views have been removed in :
+                        - views.project
+                        - views.task
+                * Polls :
+                    - The deprecated function-views have been removed in :
+                        - views.campaign
+                        - views.poll_form
+                        - views.poll_reply
+                * Recurrents :
+                    - The function-views have been removed.
+                * CTI :
+                    - The deprecated function-views have been removed ('abstract_add_*()' & 'add_*()').
+                * SMS :
+                    - The function-views have been removed in :
+                        - views.campaign
+                        - views.messaging_list
+                        - views.template
+                    - The template file "creme/sms/templates/sms/popup_sending.html" has been removed.
+        # About the upgrade to 'Django 2.0' :
+            - In form fields constructors, positional arguments must be replaced by keyword arguments.
+            - The imports <from django.conf.urls import url> should be replaced by <from django.urls import re_path>.
+            - In custom model fields, the argument "context" of method 'from_db_value()' should be removed.
+            - The internal cache management of 'ForeignKey' has slightly changed ; a internal '_state' attribute has been added in instances.
+        # About the upgrade to 'Django 2.1' :
+            - The function 'django.template.defaultfilters.linebreaks()' generates "<br>" instead of "<br />".
+        # About the upgrade to 'Django 2.2'.
+            - The function 'django.utils.http.urlencode()' now raises TypeError if None is passed as a value to encode.
+            - When performing queries like '.annotate().values()' (GROUP BY), an explicit order_by() should be made.
+        # If you have coded your own entity class with a "description" field, you should migrate it to store your data in CremeEntity table.
+        # If you have written a creation form/view which creates some (not internal) Relations,
+          it can now fail because of duplicated Relationships if you don't use the safe creation methods ('Relation.objects.safe_create()' & 'Relation.objects.safe_multi_save()').
+            - In forms, you should use the new method 'CremeEntityForm._get_relations_to_create()'.
+            - In views, use the argument "forced_relations" in 'get_form_kwargs()' instead of creating the Relation in the view.
+        # The "development" mode of the media generator has been removed. It was broken & so nobody used it.
+            - These settings have been removed from 'settings.py' : "MEDIA_DEV_MODE" & "DEV_MEDIA_URL".
+            - The middleware "mediagenerator.middleware.MediaMiddleware" is not available anymore.
+        # The method 'creme_core.auth.entity_credentials.EntityCredentials.filter_entities()' can now raise an exception ('EntityCredentials.FilteringError')
+          if the credentials use an EntityFilter on specific fields (so a 'QuerySet' on 'CremeEntity' is not possible).
+        # In 'creme_core.models' :
+            - The method 'base.CremeModel._delete_m2m()' has been removed.
+            - The argument of 'relation.RelationType.is_compatible()' is positional only now.
+            - In 'entity_filter.EntityFilterCondition' :
+                - The constructor expects the new argument "model" to be given if you don't pass the argument "filter".
+                - The nested class 'ValueError' has been removed.
+                - These attributes have been removed :
+                    - EFC_SUBFILTER, EFC_FIELD & other type IDs (see new module 'creme_core.core.entity_filter.condition_handler').
+                    - EQUALS, IEQUALS & other operator IDs (see new module 'creme_core.core.entity_filter.operators').
+                    - _subfilter_cache
+                    - _GET_Q_FUNCS, _GET_DISTINCT_FUNCS
+                    - _OPERATOR_MAP, _FIELDTYPES_ALL, _FIELDTYPES_ORDERABLE, _FIELDTYPES_RELATED, _FIELDTYPES_NULLABLE.
+                - These methods have been removed :
+                    - build_4_customfield() (use 'creme_core.core.entity_filter.condition_handler.CustomFieldConditionHandler.build_condition()' instead).
+                    - build_4_datecustomfield() (use 'creme_core.core.entity_filter.condition_handler.DateCustomFieldConditionHandler.build_condition()' instead).
+                    - build_4_field() (use 'creme_core.core.entity_filter.condition_handler.RegularFieldConditionHandler.build_condition()' instead).
+                    - build_4_date() (use 'creme_core.core.entity_filter.condition_handler.DateRegularFieldConditionHandler.build_condition()' instead).
+                    - build_4_property() (use 'creme_core.core.entity_filter.condition_handler.PropertyConditionHandler.build_condition()' instead).
+                    - build_4_relation() (use 'creme_core.core.entity_filter.condition_handler.RelationConditionHandler.build_condition()' instead).
+                    - build_4_relation_subfilter() (use 'creme_core.core.entity_filter.condition_handler.RelationSubFilterConditionHandler.build_condition()' instead).
+                    - build_4_subfilter() (use 'creme_core.core.entity_filter.condition_handler.SubFilterConditionHandler.build_condition()' instead).
+                    - _get_q_*(), _load_daterange(), _build_daterange_dict().
+            - In 'entity_filter.EntityFilter', these methods have been removed : 'resolve_variable()' & 'get_variable()'.
+            - In 'entity_filter', these classes have been removed :
+                - EntityFilterVariable & _CurrentUserVariable (see new module 'creme_core.core.entity_filter.operands').
+                - _ConditionOperator, _IsEmptyOperator, _RangeOperator (see new module 'creme_core.core.entity_filter.operators').
+        # In 'creme_core.core' :
+            - The class 'entity_cell.EntityCell' has been reworked (some parts are now useless) :
+                - These attributes of have been removed : 'editable', 'filter_string', 'has_a_filter', 'sortable'.
+                - The class attribute 'EntityCellCustomField._CF_PATTERNS' has been removed.
+            - In 'function_field.FunctionField' :
+                - The method 'populate_entities()' is now a regular method (it was a 'classmethod').
+                - The class attributes "has_filter" & "choices" have been removed.
+                - The class method "filter_in_result()" has been removed ; use the new class attribute "search_field_class" instead.
+        # In 'creme_core.views' :
+            - In 'generic.listview' :
+                - The constants 'MODE_SINGLE_SELECTION' & 'MODE_MULTIPLE_SELECTION' has been removed (see the enum 'SelectionMode').
+                - The function-views 'list_view()' has been replaced by the class 'EntitiesList'.
+                - The function-views 'list_view_popup()' has been replaced by the class 'BaseEntitiesListPopup'.
+                - These functions have been removed : 'list_view_content()', '_build_entities_page()', '_build_entity_queryset()', '_build_extrafilter()', '_select_entityfilter()', '_build_rowscount()'.
+                - The GET/POST argument "sort_field" has been renamed "sort_key".
+                - The GET/POST argument "sort_order" value should be "ASC"/"DESC" (instead of ""/"-") ("" -- for ASC -- still works by the way).
+                - The GET/POST argument "o2m" has been renamed "mode" & accept only "single", "multiple" & "none" values.
+            - These views of 'entity' are now class-based :
+                - 'clone()' has been replaced by the class 'Clone'.
+                - 'delete_related_to_entity()' has been replaced by the class 'RelatedToEntityDeletion'.
+                - 'list_view_popup()' has been replaced by the class 'EntitiesListPopup'.
+                - 'search_and_view()' has been replaced by the class 'SearchAndView'.
+                - 'select_entity_for_merge()' has been replaced by the class 'EntitiesToMergeSelection'.
+                - 'merge()' has been replaced by the class 'Merge'.
+            - These views of 'creme_property' are now class-based :
+                - 'delete_from_type()' has been replaced by the class 'PropertyFromFieldsDeletion'.
+                - 'delete_type()' has been replaced by the class 'PropertyTypeDeletion'.
+            - The function-view 'bricks.set_state()' has been replaced by the class 'BrickStateSetting'.
+            - These views of 'entity_filter' are now class-based :
+                - 'delete()' has been replaced by the class 'EntityFilterDeletion'.
+                - 'get_for_ctype()' has been replaced by the class 'EntityFilterChoices'.
+            - These views of 'header_filter' are now class-based :
+                - 'delete()' has been replaced by the class 'HeaderFilterDeletion'.
+                - 'get_for_ctype()' has been replaced by the class 'HeaderFilterChoices'.
+            - The function-view 'job.delete()' has been replaced by the class 'JobDeletion'.
+            - These views of 'relation' are now class-based :
+                - 'select_relations_objects()' has been replaced by the class 'RelationsObjectsSelectionPopup'.
+                - 'delete()' has been replaced by the class 'RelationDeletion'.
+                - 'delete_similar()' has been replaced by the class 'RelationFromFieldsDeletion'.
+            - The function-view 'search.light_search()' has been replaced by the class 'LightSearch'.
+            - In 'enumerable' :
+                - The function-view 'json_list_enumerable_custom()' has been replaced by the class 'CustomFieldEnumsView'.
+                - The function-view 'json_list_userfilter()' has been replaced by the class 'creme_core.views.entity_filter.UserChoicesView'.
+                - The method 'ChoicesView.get_model()' has been removed.
+                - The URL named "creme_core__efilter_user_choices" has changed (no change if you used 'reverse()' of course).
+            - The view which exports the data from list-views as CSV/XLS has changed :
+                - The function-view 'list_view_export.dl_listview()' has been replaced by the class-based view 'mass_export.MassExport'.
+                - The URL "creme_core/list_view/download" (named "creme_core__dl_listview") has been replaced by the URL "creme_core/mass_export" (named "creme_core__mass_export").
+                  Only GET arguments are used for filter, search ...etc (ie: stored state is not used any more) ; the GET argument "list_url" is not used anymore.
+        # In 'creme_core.gui' :
+            - The function 'field_printers.print_integer()' returns always a string now (it could return an integer).
+            - The method 'gui.bricks._BrickRegistry.register_4_model()' does not accept brick class with <id_ != constants.MODELBRICK_ID> (tips: inherit the class 'EntityBrick').
+            - In the class 'listview.ListViewState' :
+                - The attribute "sort_field" has been renamed "sort_cell_key".
+                - These methods have been removed: 'set_sort()', '_get_default_sort()', '_get_sortfield()', '_get_regular_sortfield()'.
+                - The internal class '_OrderedField' has been removed.
+        # In 'creme_core.forms' :
+            - The class 'base.CremeEntityForm' injected the "help_text" in widgets ; it's an old un-documented behaviour which has been removed (because it seems useless now).
+            - In 'entity_filter', the forms now use a registry to know available handlers & operators.
+                - The fields '*_conditions' have been removed & replaced by fields added in the constructor (with new names).
+                - The constructor has a new mandatory argument: "efilter_registry".
+                - The fields & widgets have now an attribute "efilter_registry" which should be filled to get a satisfactory behaviour (eg: classical operators are proposed).
+            - In 'header_filter' :
+                - The class 'FieldConditionWidget' has been renamed 'FieldConditionSelector'.
+                - The class 'CustomFieldConditionWidget' has been renamed 'CustomFieldsConditionsWidget'.
+        # In 'creme_core.utils.date_period.SimpleValueDatePeriod' (& child classes), the method '_ungettext()' has benn renamed '_ngettext()'.
+        # In 'creme_core.templatetags' :
+            - The template-filter "|isiterable" (from "creme_core_tags") has been renamed "|is_iterable".
+            - In the library "creme_listview" :
+                - The tag "{% get_listview_entity_filters %}" has been replaced by "{% listview_entity_filters %}" (the related template file has changed too).
+                - The tag "{% get_listview_headerfilters %}" has been replaced by "{% listview_header_filters %}" (the related template file has changed too).
+                - The tag "{% get_listview_columns_header %}" has been removed (and the related template file too).
+            - These template-tags take only keyword-arguments now :
+                - From the lib "creme_history" : "{% history_summary %}".
+                - From the lib "creme_listview" :
+                    - {% listview_entity_actions %}
+                    - {% listview_header_actions %}
+                    - {% listview_header_colspan %}
+                    - {% listview_td_action_for_cell %}
+                From the lib "creme_query" : "{% query_entities_count %}".
+                From the lib "creme_search" : "{% search_form %}".
+        # In 'creme_core.templates' :
+            - These template files have been removed :
+                - creme_core/generics/list_entities.html
+                - creme_core/frags/list_view.html
+                - creme_core/frags/list_view_content.html (see "creme_core/listview/content.html")
+                - "creme_core/forms/widgets/efilter-cfield-conditions.html" has been replaced by "creme_core/forms/widgets/efilter-conditions-list.html".
+            - In the template "creme_core/generics/blockform/base.html", the "persist" inputs have been removed.
+            - The structure of several pages has changed :
+                - In "creme_core/base.html", the node '<div id="sub_content">' has been removed.
+                - In "creme_core/detailview.html", the node '<div class="detailview">' has been removed.
+                - In "creme_core/my_page.html", the node '<div class="my_page">' has been removed.
+                - In "creme_config/portal.html", the node '<div class="portal ...">' has been removed.
+        # In JavaScript :
+            - The signature of 'creme.utils.goTo()' has changed ; the argument are now (url, data, target) instead of (url, target).
+            - The class 'creme.ajax.Query' now sends an "error" event instead of a "cancel" one when an empty URL is given.
+            - The actions of 'creme.widget.ActionList' have been renamed :
+                - 'creme.widget.ActionButton' became 'creme.widget.SelectorAction'.
+                - 'creme.widget.ResetActionButton' became 'creme.widget.ResetSelectorAction'.
+                - 'creme.widget.CreateActionButton' became 'creme.widget.CreateSelectorAction'.
+            - The constructor of 'creme.search.SearchBox' has been completely reworked ;
+              'creme.search.SearchBox(<element query string>, <search url>, <advanced search url>)' is replaced by 'creme.search.SearchBox({searchUrl: <search url>, advancedSearchUrl: <advanced search url>).bind(<element>)'
+            - The main menu controller has been reworked ; theses functions has been removed 'creme.menu.bindEvents', 'creme.menu.openQuickForm' & 'creme.menu.openCreateAnyDialog'.
+            - There are several changes in 'creme.component.Action' :
+                - In the method 'Action.after()', the arguments "done" of an action are given to the following one only if the option "passArgs" is <true>.
+                - The "source" action is no longer given as first 'Action.start()' argument to the following action.
+            - 'creme.entity_cell.EntityCellsWidget(<element_id>, <samples JSON>)' is replaced by 'creme.entity_cell.EntityCellsWidget({samples: <samples dict>}).bind(<element>)'
+            - In 'creme.jobs', the functions 'decorateJobStatus()' & 'checkJobManager()' have been removed ; use components '*JobsMonitor' instead.
+            - In 'list_view.core' :
+                - "list_view('options', <...>)" no longer exists and is replaced by "list_view('prop', <...>)".
+                - These methods have been removed :
+                    - The method 'countEntities()' (renamed to 'selectedRowsCount()').
+                    - 'getSelectedEntities()' & 'getSelectedEntitiesAsArray()' (use 'selectedRows()' instead).
+                    - 'getKdSubmit()' & 'setKdSubmit()'
+                    - 'setSubmit' & 'getSubmit' (see new method 'submitState()').
+                    - 'serializeMe()' (renamed to 'state()').
+                    - 'setReloadUrl()' & 'getReloadUrl()' (use "list_view('prop', 'reloadUrl', [<url>])" ).
+                    - 'isLoading()' (use "list_view('prop', 'isLoading')" ).
+                    - 'getActionBuilders()' (use "list_view('prop', 'actionBuilders', [<builders>])" ).
+                - These options have been removed :
+                    - "o2m" (renamed to "multiple").
+                    - "reload_url" (renamed to "reloadUrl").
+                    - "selected_rows", "selectable_class", "selected_class", "checkbox_selector", "all_boxes_selector" & "entity_separator".
+                    - "kd_submitHandler".
+                    - "beforeSubmit", "afterSubmit" & "submitHandler".
+                    - "user_page" & "id_container".
+            - In 'creme.lv_widget' :
+                - 'creme.lv_widget.initialize()' has moved to 'creme.lv_widget.ListViewLauncher._initController'.
+                - 'creme.lv_widget.listViewAction' has been replaced by 'creme.lv_widget.ListViewDialogAction'.
+                - Theses function have been removed : 'deleteFilter()', 'findList()' & 'handleSort()'.
+            - In 'creme.utils', these old inner-popup functions have been removed :
+                - innerPopupUUID()
+                - showInnerPopup()
+                - reloadDialog()
+                - innerPopupFormAction()
+                - closeDialog()
+                - handleDialogSubmit()
+        # The class 'creme_core.tests.views.base.CSVImportBaseTestCaseMixin' has been renamed 'MassImportBaseTestCaseMixin'.
+        # Apps :
+            * Creme_config :
+                - in 'urls' :
+                    - The URL "creme_config__edit_home_bricks" takes now an argument.
+                    - The URL "creme_config__delete_home_brick" has a different behaviour ; the argument "id" has been replaced by the argument "role".
+                    - The URL "creme_config__delete_instance" has changed ; it takes an argument "object_id", & returns a form.
+                - In 'creme_config.views' :
+                    - Almost all function-views have been replaced by class-based views.
+                    - All the wizard-views now inherit 'creme_core.views.generic.wizard.CremeWizardView' ;
+                      so the attribute "wizard_title" became "title", & "permission" became "permissions".
+                    - The nested class 'views.bricks.RelationCTypeBrickWizard._FieldsStep' has been removed.
+                    - The nested class 'views.fields_config.FieldsConfigWizard._ConfigStep' has been removed.
+                    - In 'views.user_role' :
+                        - The class 'CredentialsAdding' has been replaced by 'CredentialsAddingWizard'.
+                        - The class 'CredentialsEdition' has been replaced by 'CredentialsEditionWizard'.
+                        - The nested classes 'RoleCreationWizard._CredentialsStep' & 'RoleEditionWizard._ExportableCTypesStep' have been removed.
+                - In 'forms.user_role' :
+                    - The function 'forms.user_role.EmptyMultipleChoiceField()' has been removed.
+                    - Theses classes have been removed : 'CredentialsGeneralStep', 'UserRoleCredentialsStep' & 'AddCredentialsForm'.
+                    - The method '_UserRoleWizardFormStep.partial_save()' has been removed.
+                - The class 'forms.bricks.BrickHomeLocationsForm' has been removed.
+                - In 'bricks' :
+                    - Many changes in the class 'BrickHomeLocationsBrick' & its template.
+                    - In 'GenericModelBrick', the variable "model_name" is not injected in the context anymore.
+                - The template-filter "|is_custom" has been renamed "|config_is_custom".
+            * Persons :
+                - The method 'AbstractContact.get_employers()' now returns Organisations managed by the Contact too, and excludes deleted Organisations.
+                - The templatetag "{% persons_contact_first_employer %}" now excludes deleted Organisations.
+                - In the form 'forms.contact.RelatedContactForm', the fields "orga_overview" & "relation" have been removed.
+            * Documents :
+                - The template "documents/frags/previous.html" has been replaced by "documents/lv-button-previous.html".
+            * Activities :
+                - The function-view 'views.activity.get_types()' has been replaced by the class 'TypesChoices'.
+                - The function-view 'views.calendar.delete_user_calendar()' has been replaced by the class 'CalendarDeletion'.
+                - These function-views in 'views.calendar' have been removed :
+                    - update_activity_date() (use the class 'ActivityDatesSetting' instead).
+                    - user_calendar() (use the class 'CalendarView' instead -- beware, the template context has changed).
+                    - get_users_activities() (use the class 'ActivitiesData' instead -- beware, it's now a GET view & the JSON has slightly changed).
+                - 'constants.MAX_ELEMENT_SEARCH' has been removed ; use these attributes of 'CalendarView' instead : 'calendars_search_threshold' & 'floating_activities_search_threshold'.
+            * Products :
+                - The function-view 'views.product.remove_image()' has been replaced by the class 'ImageRemoving'.
+            * Billing :
+                - In the class 'function_fields._BaseTotalFunctionField' (& child classes), the class-attribute "cache_attr" has been removed.
+                - The view named "billing__delete_related_cnote" now accepts only POST requests.
+                - The function-view 'views.convert.convert()' has been removed ; use the class 'Conversion' instead.
+                - The function-view 'views.credit_note.delete_related_credit_note()' has been replaced by the class 'CreditNoteRemoving'.
+                - The function-view 'views.payment_information.set_default()' has been replaced by the class 'PaymentInformationAsDefault'.
+                - The conversion matrix has changed. These cases have been removed (they were not used in the UI):
+                    - CreditNote => Invoice
+                    - Invoice => SalesOrder
+            * Opportunities :
+                - The function-view 'views.billing.current_quote()' has been replaced by the class 'CurrentQuoteSetting'.
+                - The function-view 'views.billing.generate_new_doc()' has been replaced by the class 'BillingDocGeneration'.
+                - The dict 'views.billing._GEN_BEHAVIOURS' has been removed.
+            * Commercial :
+                - The function-view 'views.strategy.delete_evalorga()' has been replaced by the class 'OrganisationRemoving'.
+            * Reports :
+                - The registrations are made in "apps.py" now & the method 'FieldAggregationRegistry.register()' has only one argument now.
+                - The function-view 'views.graph.fetch_graph()' has been replaced by the class 'GraphFetching'. Beware this new view does not return the "graph_id" any more (because it was useless).
+                - The function-view 'views.graph.fetch_graph_from_instancebrick()' has been replaced by the class 'GraphFetchingForInstance'.
+                - The class 'ReportGraphForm' does not inherit 'CremeEntityForm' any more ('CremeModelForm' instead).
+            * Assistants :
+                - The function-view 'views.user_message.delete()' has been replaced by the class 'UserMessageDeletion'.
+            * Emails :
+                - The function-view 'views.campaign.delete_ml()' has been replaced by the class 'MailingListRemoving'.
+                - In 'views.mail':
+                    - The class 'EntityEmailWizard' now inherits 'AbstractWizardView' (so "permission" became "permissions" etc...).
+                    - The nested class 'EntityEmailWizard._EmailCreationFormStep' has been removed.
+                - In 'views.mailing_list':
+                    - The function '_delete_aux()' has been removed.
+                    - These function-views has been removed :
+                        - delete_contact() (replaced by the class 'ContactRemoving').
+                        - delete_organisation() (replaced by the class 'OrganisationRemoving').
+                        - delete_child() (replaced by the class 'ChildRemoving').
+                - The function-view 'views.signature.delete()' has been replaced by the class 'SignatureDeletion'.
+                - The function-view 'views.template.delete_attachment()' has been replaced by the class 'AttachmentRemoving'.
+                - The form class 'forms.mail.EntityEmailForm' inherits 'CremeModelForm' and not 'CremeEntityForm' anymore.
+                - In 'bricks.EmailRecipientsBrick' & 'bricks.SendingsBrick', "ct_id" is not injected in the context anymore.
+                - In 'buttons.EntityEmailLinkButton', "entity_email_ct_id" is not injected in the context anymore.
+            * Events :
+                - The constants 'INV_STATUS_MAP' & 'PRES_STATUS_MAP' have moved from 'views.event' to 'constants'.
+            * Graphs :
+                - The function-view 'views.graph.delete_relation_type()' has been replaced by the class 'RelationTypeRemoving'.
+                - The function-view 'views.root_node.delete()' has been replaced by the class 'RootNodeDeletion'.
+            * Polls :
+                - The function-view 'views.poll_form.get_choices()' has been replaced by the class 'LineChoices'.
+                - In 'forms.poll_reply.PollRepliesCreateForm' :
+                    - The attribute "instance" has been removed.
+                    - The special behaviour (removing related field & keeping the value fixed) of initial data for "pform", "campaign" & "persons" has been removed.
+            * Projects :
+                - The function-view 'views.resource.delete()' has been replaced by the class 'ResourceDeletion'.
+                - The function-view 'views.task.delete_parent()' has been replaced by the class 'ParentRemoving'.
+                - The function-view 'views.task.delete_activity()' has been replaced by the class 'ActivityDeletion'.
+                - The class 'forms.resource.ResourceCreateForm' does not inherit 'CremeEntityForm' any more.
+            * SMS :
+                - The function-view 'views.campaign.delete_messaging_list()' has been replaced by the class 'MessagingListRemoving'.
+                - The function-views 'views.messaging_list._delete_aux()/delete_contact()' have been replaced by the class 'ContactRemoving'.
+                - The templatetags "phonenumber" & "formatphone" have been renamed "sms_phonenumber" & "sms_formatphone".
+
+    Internal breaking changes :
+    ---------------------------
+    (they should not cause problem if you have not deeply modified the source code of Creme)
+
+        # 'creme.urls.handler403' is now a function (it was a string).
+        # In 'creme_core.models' :
+            - The method 'auth.SetCredentials.set_value()' uses now keyword-arguments only.
+            - In 'entity_filter' :
+                - There were some changes in the JSON of 'EntityFilterCondition' for 'CustomFields':
+                    - The key "value" became "values".
+                    - The values are now always a list (old data generated by an old form which are not using list have been migrated).
+                - These functions have been removed : '_delete_relationtype_efc()' & '_delete_customfield_efc()'.
+        # The return value of 'creme_core.forms.fields.MultiRelationEntityField._build_rtype_cache()' has changed : the IDs of CremePropertyTypes are now stored in a list.
+        # In 'creme_core.views.entity_filter' these mixins have been removed : 'FilterCreationMixin' & 'FilterEditionMixin'.
+        # About the module 'creme_core.gui.listview' :
+            - It has been split in several .py files.
+            - These methods of 'ListViewState' have been removed: 'clear_research()', 'handle_research()', 'get_q_with_research()', '_build_condition()', '_build_date_range_dict()', '_date_or_None()'.
+            - The function 'simple_value()' has been removed.
+        # The list-views no longer support "whoami" in both POST & GET requests.
+        # In the templatetag library "creme_listview", these functions have benn removed: '_build_bool_search_widget()', '_build_date_search_widget()' & '_build_select_search_widget()'.
+        # In JavaScrip, the class 'creme.action.ActionBuilderRegistry' has been renamed/moved as 'creme.component.FactoryRegistry'.
+        # Apps :
+            * Creme_config :
+                - There are many changes in 'registry'.
+                - These functions of 'views.user_settings' have been removed : '_set_usersetting()', 'set_theme()' & 'set_timezone()'.
+            * Activities :
+                - These method of 'models.AbstractActivity' are deprecated : '_get_linked_aux()' & '_get_linked_for_orga()'.
+                - These functions of 'views.calendar' have been removed : '_activity_2_dict()', '_filter_authorized_calendars()', '_get_datetime()' & '_get_one_activity_per_calendar()'.
+                - There are some changes in the template "activities/templates/activities/calendar.html" (see the new 'CalendarView' context).
+                - In JavaScript :
+                    - Some changes which follow the changes of "calendar.html".
+                    - There are some changes to use the view 'ActivitiesData': GET instead of POST, "color" key instead of "calendar_color".
+                    - The function 'creme.activities.calendar.loadCalendarEventListeners()' takes an additional argument ("select_calendars_url").
+            * Mobile :
+                - The instances of 'MobileFavorite' are now unique for the couple ('entity', 'user').
+            * Crudity :
+                - In JavaScript, the class 'creme.crudity.CrudityHatController' replaces the function 'refreshWaitingActions()'.
+
+
 == Version 2.0 ==
 
   UPGRADE NOTE :
@@ -530,7 +1204,7 @@
     ---------------------------
     (they should not cause problem if you have not deeply modified the source code of Creme)
 
-        # In 'creme_core.models
+        # In 'creme_core.models' :
             - In 'history', the attributes '_HLTPropertyCreation._fmt' & '_HLTRelation._fmt' use now {}-format strings.
             - In 'entity_filter._ConditionOperator', "key_pattern" (argument and property) is now a {}-format string.
         # In 'creme_core.views' :

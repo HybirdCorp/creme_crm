@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Model, TextField
+from django.db import models
 
 
-class Version(Model):
+class Version(models.Model):
     """Contains the version of Creme that was used to fill the DataBase.
     Useful for upgrade scripts (post Creme 1.3).
     """
-    value = TextField()
+    value = models.TextField()
 
     class Meta:
         app_label = 'creme_core'
