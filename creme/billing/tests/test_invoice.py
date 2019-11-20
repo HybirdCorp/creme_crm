@@ -193,7 +193,7 @@ class InvoiceTestCase(_BillingTestCase):
         source, target = self.create_orgas()
         url = reverse('billing__create_related_invoice', args=(target.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+        self.assertTemplateUsed(response, 'billing/form/add-popup.html')
 
         context = response.context
         self.assertEqual(_('Create an invoice for «{entity}»').format(entity=target),

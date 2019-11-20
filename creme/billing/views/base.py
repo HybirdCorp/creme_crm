@@ -43,6 +43,7 @@ class BaseCreation(generic.EntityCreation):
 class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
     model = Base
     # form_class = base_forms.BaseCreateForm
+    template_name = 'billing/form/add-popup.html'
     permissions = 'billing'  # Need creation perm too
     initial_status = 1
     entity_id_url_kwarg = 'target_id'
