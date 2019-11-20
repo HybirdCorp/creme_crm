@@ -98,7 +98,7 @@ class SalesOrderTestCase(_BillingTestCase):
         source, target = self.create_orgas()
         url = self._build_related_creation_url(target) + '?redirection=true'
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+        self.assertTemplateUsed(response, 'billing/form/add-popup.html')
 
         context = response.context
         self.assertEqual(_('Create a salesorder for «{entity}»').format(entity=target),

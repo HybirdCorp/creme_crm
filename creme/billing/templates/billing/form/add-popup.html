@@ -1,0 +1,5 @@
+{% extends 'creme_core/forms/popup-base.html' %}
+
+{% block content %}
+    {% include 'billing/form/base.html' with is_inner_popup=True icon_name='add' icon_label=_('Add') %}
+{% endblock %}
