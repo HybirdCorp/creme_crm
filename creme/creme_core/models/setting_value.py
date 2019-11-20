@@ -176,8 +176,8 @@ class SettingValue(models.Model):
 
     @property
     def key(self):
-        # TODO: pass setting_key_registry as argument ?
-        return setting_key_registry[self.key_id]
+        # return setting_key_registry[self.key_id]
+        return type(self).objects.key_registry[self.key_id]
 
     @key.setter
     def key(self, skey):
