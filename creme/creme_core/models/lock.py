@@ -109,14 +109,15 @@ class Mutex(models.Model):
 
 
 class MutexAutoLock(ContextDecorator):
-    def __init__(self, lock_name):
+    def __init__(self, lock_name, mutex_class=Mutex):
         self.lock_name = lock_name
         self.locked = False
+        self.mutex_class = mutex_class
 
     def __enter__(self):
-        Mutex.get_n_lock(self.lock_name)
+        self.mutex_class.get_n_lock(self.lock_name)
         self.locked = True
 
     def __exit__(self, exc_type, exc_value, traceback):
         if self.locked:
-            Mutex.graceful_release(self.lock_name)
+            self.mutex_class.graceful_release(self.lock_name)
