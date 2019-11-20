@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Events 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-15 12:37+0100\n"
+"POT-Creation-Date: 2019-11-20 14:37+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -84,11 +84,11 @@ msgctxt "events-opportunity"
 msgid "Target organisation"
 msgstr "Société cible"
 
-#: gui.py:77
+#: gui.py:86
 msgid "Invitation"
 msgstr "Invitation"
 
-#: gui.py:101
+#: gui.py:110
 msgid "Presence"
 msgstr "Présence"
 
@@ -113,47 +113,43 @@ msgstr "Types d'évènement"
 msgid "Type"
 msgstr "Type"
 
-#: models/event.py:56
-msgid "Description"
-msgstr "Description"
-
-#: models/event.py:57
+#: models/event.py:60
 msgctxt "events"
 msgid "Place"
 msgstr "Lieu"
 
-#: models/event.py:60
+#: models/event.py:63
 msgid "Start date"
 msgstr "Date de début"
 
-#: models/event.py:61
+#: models/event.py:64
 msgid "End date"
 msgstr "Date de fin"
 
-#: models/event.py:62
+#: models/event.py:65
 msgid "Budget (€)"
 msgstr "Budget prévisionnel (€)"
 
-#: models/event.py:65
+#: models/event.py:68
 msgid "Final cost (€)"
 msgstr "Coût final (€)"
 
-#: models/event.py:69
+#: models/event.py:72
 msgctxt "events"
 msgid "Create an event"
 msgstr "Créer un évènement"
 
-#: models/event.py:70
+#: models/event.py:73
 msgctxt "events"
 msgid "Save the event"
 msgstr "Enregistrer l'évènement"
 
-#: models/event.py:76
+#: models/event.py:79
 msgctxt "events"
 msgid "Event"
 msgstr "Évènement"
 
-#: models/event.py:77
+#: models/event.py:80
 msgctxt "events"
 msgid "Events"
 msgstr "Évènements"
@@ -284,16 +280,19 @@ msgstr "Créer une opportunité"
 msgid "List of contacts related to «{event}»"
 msgstr "Liste des contacts liés à «{event}»"
 
-#: views/event.py:448
+#: views/event.py:439
 #, python-brace-format
 msgid "Link some contacts to «{object}»"
 msgstr "Lier des contacts à «{object}»"
 
-#: views/event.py:449
+#: views/event.py:440
 msgid "Link these contacts"
 msgstr "Lier ces contacts"
 
-#: views/event.py:460
+#: views/event.py:451
 #, python-brace-format
 msgid "Create an opportunity related to «{contact}»"
 msgstr "Créer une opportunité lié à «{contact}»"
+
+#~ msgid "Description"
+#~ msgstr "Description"

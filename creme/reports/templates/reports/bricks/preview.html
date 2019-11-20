@@ -4,8 +4,8 @@
 {% block brick_extra_class %}{{block.super}} reports-preview-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% if empty_message %}
-        {% brick_header_title title=_('Preview') %}
+    {% if empty_message %}{% trans 'Preview' context 'reports-preview' as title %}
+        {% brick_header_title title=title %}
     {% elif lines|length < limit_to %}
         {% brick_header_title title=_('Preview ({count} line)') plural=_('Preview ({count} lines)') count=lines|length %}
     {% else %}

@@ -3,8 +3,8 @@
 
 {% block buttons %}
     <div class='bar-action'>
-        <a class="bar-button" href="{% url 'reports__export_report_preview' object.id %}">
-            {% widget_icon name='view' size='brick-hat-bar-button' label=_('Preview') %}
+        <a class="bar-button" href="{% url 'reports__export_report_preview' object.id %}">{% trans 'Preview' context 'reports-preview' as preview_label %}
+            {% widget_icon name='view' size='brick-hat-bar-button' label=preview_label %}
         </a>
     </div>
     <div class='bar-action'>

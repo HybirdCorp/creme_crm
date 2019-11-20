@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-28 16:56+0100\n"
+"POT-Creation-Date: 2019-11-20 14:26+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -53,24 +53,24 @@ msgstr "Rôles et droits"
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: bricks.py:147
+#: bricks.py:145
 msgid "Property types configuration"
 msgstr "Configuration des types de propriété"
 
-#: bricks.py:160
+#: bricks.py:158
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: bricks.py:176
+#: bricks.py:174
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: bricks.py:192
+#: bricks.py:190
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: bricks.py:386 bricks.py:616 forms/bricks.py:223 forms/bricks.py:299
-#: forms/search.py:68 forms/user.py:77 forms/user.py:118
+#: bricks.py:384 bricks.py:614 forms/bricks.py:224 forms/bricks.py:301
+#: forms/search.py:69 forms/user.py:77 forms/user.py:118
 #: templates/creme_config/bricks/bricklocations-home.html:42
 #: templates/creme_config/bricks/search-config.html:31
 #: templates/creme_config/bricks/users.html:39
@@ -106,7 +106,7 @@ msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: «%(block)s
 msgid "Your configuration is empty !"
 msgstr "Votre configuration est vide !"
 
-#: forms/bricks.py:202 forms/bricks.py:279 forms/search.py:45 forms/user.py:65
+#: forms/bricks.py:202 forms/bricks.py:280 forms/search.py:45 forms/user.py:65
 #: forms/user.py:108 templates/creme_config/bricks/bricklocations-home.html:17
 #: templates/creme_config/bricks/users.html:25
 msgid "Role"
@@ -131,32 +131,32 @@ msgstr "Rôle"
 msgid "Configuration"
 msgstr "Configuration"
 
-#: forms/bricks.py:283 forms/bricks.py:315
+#: forms/bricks.py:284 forms/bricks.py:317
 msgid "Blocks to display on the home"
 msgstr "Blocs à afficher sur l'accueil"
 
-#: forms/bricks.py:336
+#: forms/bricks.py:338
 msgid "Blocks to display on the «My Page» of the users"
 msgstr "Blocs à afficher sur le «Ma page» des utilisateurs"
 
-#: forms/bricks.py:378
+#: forms/bricks.py:380
 msgid "Customised resource"
 msgstr "Ressource personnalisée"
 
-#: forms/bricks.py:407
+#: forms/bricks.py:409
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/bricks.py:414
+#: forms/bricks.py:416
 msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
-#: forms/bricks.py:479 forms/button_menu.py:38 forms/custom_fields.py:79
+#: forms/bricks.py:481 forms/button_menu.py:38 forms/custom_fields.py:79
 #: forms/fields_config.py:35 forms/fields_config.py:74
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: forms/bricks.py:519
+#: forms/bricks.py:521
 msgid "Lines"
 msgstr "Lignes"
 
@@ -537,25 +537,25 @@ msgstr "Choisissez un utilisateur auquel transférer"
 msgid "Teams"
 msgstr "Équipes"
 
-#: forms/user_role.py:116
+#: forms/user_role.py:119
 msgid "View"
 msgstr "Voir"
 
-#: forms/user_role.py:117
+#: forms/user_role.py:120
 msgid "Change"
 msgstr "Changer"
 
-#: forms/user_role.py:118
-#: templates/creme_config/bricks/configurable-model.html:72
+#: forms/user_role.py:121
+#: templates/creme_config/bricks/configurable-model.html:73
 #: templates/creme_config/bricks/user-roles.html:77
 msgid "Delete"
 msgstr "Supprimer"
 
-#: forms/user_role.py:121
+#: forms/user_role.py:124
 msgid "Link"
 msgstr "Lier"
 
-#: forms/user_role.py:122
+#: forms/user_role.py:125
 msgid ""
 "You must have the permission to link on 2 entities to create a relationship "
 "between them. Beware: if you use «Filtered entities», you won't be able to "
@@ -566,11 +566,11 @@ msgstr ""
 "pas ajouter de relations dans les formulaires de création (vous devrez les "
 "ajouter plus tard)."
 
-#: forms/user_role.py:130
+#: forms/user_role.py:133
 msgid "Unlink"
 msgstr "Délier"
 
-#: forms/user_role.py:131
+#: forms/user_role.py:134
 msgid ""
 "You must have the permission to unlink on 2 entities to delete a "
 "relationship between them."
@@ -579,11 +579,11 @@ msgstr ""
 "entre elles."
 
 # Already in creme_core
-#: forms/user_role.py:146
+#: forms/user_role.py:149
 msgid "General information"
 msgstr ""
 
-#: forms/user_role.py:147
+#: forms/user_role.py:150
 #: templates/creme_config/bricks/configurable-model.html:35
 #: templates/creme_config/bricks/custombricks-configs.html:19
 #: templates/creme_config/bricks/fields-configs.html:19
@@ -596,68 +596,68 @@ msgstr ""
 msgid "Actions"
 msgstr "Actions"
 
-#: forms/user_role.py:164
+#: forms/user_role.py:167
 msgctxt "content_type"
 msgid "None"
 msgstr "Aucun"
 
-#: forms/user_role.py:179
+#: forms/user_role.py:182
 msgid "No action has been selected."
 msgstr "Aucune action n'a été sélectionnée."
 
-#: forms/user_role.py:194
+#: forms/user_role.py:197
 msgid "Name of the filter"
 msgstr "Nom du filtre"
 
 # Already in creme_core
-#: forms/user_role.py:202
+#: forms/user_role.py:205
 msgid "The filter must have at least one condition."
 msgstr ""
 
 # Already in creme_core
-#: forms/user_role.py:206
+#: forms/user_role.py:209
 msgid "Filter"
 msgstr ""
 
 # Already in creme_core
-#: forms/user_role.py:207 forms/user_role.py:272
+#: forms/user_role.py:210 forms/user_role.py:275
 msgid "Conditions"
 msgstr ""
 
-#: forms/user_role.py:210
+#: forms/user_role.py:213
 msgid ""
 "Beware to performances with conditions on custom fields or relationships."
 msgstr ""
 "Attention aux performances avec les conditions sur les champs personnalisés "
 "ou sur les relations."
 
-#: forms/user_role.py:274
+#: forms/user_role.py:277
 msgid "No filter, no condition."
 msgstr "Pas de filtre, pas de condition."
 
-#: forms/user_role.py:373
+#: forms/user_role.py:376
 msgid "Choose a role to transfer to"
 msgstr "Choisissez un rôle auquel transférer"
 
-#: forms/user_role.py:378
+#: forms/user_role.py:381
 msgid "Information"
 msgstr "Informations"
 
-#: forms/user_role.py:380
+#: forms/user_role.py:383
 msgid "This role is not used by any user, you can delete it safely."
 msgstr ""
 "Ce rôle n'est utilisé par aucun utilisateur, vous pouvez le supprimer en "
 "toute sécurité."
 
-#: forms/user_role.py:420 templates/creme_config/bricks/user-roles.html:24
+#: forms/user_role.py:423 templates/creme_config/bricks/user-roles.html:24
 msgid "Allowed applications"
 msgstr "Applications autorisées"
 
-#: forms/user_role.py:457 templates/creme_config/bricks/user-roles.html:25
+#: forms/user_role.py:460 templates/creme_config/bricks/user-roles.html:25
 msgid "Administrated applications"
 msgstr "Applications administrées"
 
-#: forms/user_role.py:458
+#: forms/user_role.py:461
 msgid ""
 "These applications can be configured. For example, the concerned users can "
 "create new choices available in forms (eg: position for contacts)."
@@ -666,15 +666,15 @@ msgstr ""
 "concernés peuvent créer de nouveaux choix disponibles dans les formulaires "
 "(ex: la fonction pour les contacts)."
 
-#: forms/user_role.py:496
+#: forms/user_role.py:499
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: forms/user_role.py:522
+#: forms/user_role.py:525
 msgid "Exportable resources"
 msgstr "Ressources exportables"
 
-#: forms/user_role.py:523
+#: forms/user_role.py:526
 msgid ""
 "This types of entities can be downloaded as CSV/XLS files (in the "
 "corresponding list-views)."
@@ -682,23 +682,23 @@ msgstr ""
 "Ces types de fiches peuvent être téléchargés en tant que fichiers CSV/XLS "
 "(dans les vues en liste correspondantes)."
 
-#: forms/user_role.py:570
+#: forms/user_role.py:573
 msgid "First credentials: main information"
 msgstr "Premiers droits : informations principales"
 
-#: forms/user_role.py:571
+#: forms/user_role.py:574
 msgid "First credentials: actions"
 msgstr "Premiers droits : actions"
 
-#: forms/user_role.py:584
+#: forms/user_role.py:587
 msgid "Yes"
 msgstr "Oui"
 
-#: forms/user_role.py:600
+#: forms/user_role.py:603
 msgid "First credentials: filter"
 msgstr "Premiers droits : filtre"
 
-#: forms/user_role.py:601
+#: forms/user_role.py:604
 msgid "First credentials: conditions"
 msgstr "Premiers droits : conditions"
 
@@ -909,12 +909,12 @@ msgstr "Pas de bouton"
 msgid "New value"
 msgstr "Nouvelle valeur"
 
-#: templates/creme_config/bricks/configurable-model.html:45
+#: templates/creme_config/bricks/configurable-model.html:46
 #, python-format
 msgid "Drag and drop to re-order this «%(type)s»"
 msgstr "Glissez-déposez pour réordonner ce(tte) «%(type)s»"
 
-#: templates/creme_config/bricks/configurable-model.html:81
+#: templates/creme_config/bricks/configurable-model.html:82
 msgid "No value for the moment"
 msgstr "Aucune valeur enregistrée pour le moment"
 

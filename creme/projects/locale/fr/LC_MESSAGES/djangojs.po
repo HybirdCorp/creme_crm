@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-21 10:47+0100\n"
+"POT-Creation-Date: 2019-11-20 14:53+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,6 +16,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/projects/js/projects.js:28
+#: static/projects/js/projects.js:29 static/projects/js/projects.js:43
 msgid "Do you really want to close this project?"
 msgstr "Voulez vous vraiment fermer ce projet ?"

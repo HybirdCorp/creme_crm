@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-03 18:07+0200\n"
+"POT-Creation-Date: 2019-11-20 14:35+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -44,7 +44,7 @@ msgstr "Synchronisation des e-mails externes"
 msgid "HTML body"
 msgstr "Corps HTML"
 
-#: bricks.py:107 forms/campaign.py:46 models/mailing_list.py:50
+#: bricks.py:107 forms/campaign.py:47 models/mailing_list.py:50
 #: templates/emails/bricks/mailing-lists.html:7
 msgid "Mailing lists"
 msgstr "Listes de diffusion d'e-mails"

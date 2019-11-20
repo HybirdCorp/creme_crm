@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 15:10+0100\n"
+"POT-Creation-Date: 2019-11-20 14:49+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -17,10 +17,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/persons/js/persons.js:44
+#: static/persons/js/persons.js:49
 msgid "Select the concerned organisation."
 msgstr "Sélectionnez la société concernée."
 
-#: static/persons/js/persons.js:45
+#: static/persons/js/persons.js:50
 msgid "Organisation"
 msgstr "Société"

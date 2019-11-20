@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'VCFS' APP
-# Copyright (C) 2018 Hybird
+# Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme VCFs 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 15:36+0100\n"
+"POT-Creation-Date: 2019-11-20 14:59+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,15 +24,15 @@ msgstr "Générer un fichier VCF"
 msgid "Vcfs"
 msgstr "Vcfs"
 
-#: apps.py:53
+#: apps.py:72
 msgid "Import from a VCF file"
 msgstr "Importer depuis un fichier VCF"
 
-#: forms/vcf.py:72
+#: forms/vcf.py:71
 msgid "VCF file"
 msgstr "Fichier VCF"
 
-#: forms/vcf.py:75
+#: forms/vcf.py:74
 #, python-format
 msgid "VCF file is invalid [%(error)s]"
 msgstr "Fichier VCF non valide [%(error)s]"
@@ -96,7 +96,7 @@ msgid "Create or attach organisation"
 msgstr "Créer ou attacher une société"
 
 # Already translated in persons app
-#: forms/vcf.py:122 forms/vcf.py:199
+#: forms/vcf.py:122 forms/vcf.py:200
 msgid "Organisation"
 msgstr ""
 
@@ -168,33 +168,33 @@ msgstr "Société non sélectionnée"
 msgid "Required, if you want to update organisation"
 msgstr "Requis, si vous voulez mettre à jour la société"
 
-#: forms/vcf.py:195
+#: forms/vcf.py:196
 msgid "Details"
 msgstr "Détails"
 
 # Already translated in persons app
-#: forms/vcf.py:196
+#: forms/vcf.py:197
 msgid "Billing address"
 msgstr ""
 
-#: forms/vcf.py:204
+#: forms/vcf.py:205
 msgid "Organisation billing address"
 msgstr "Adresse de facturation de la société"
 
-#: forms/vcf.py:209
+#: forms/vcf.py:210
 msgid "Read in VCF File without type : "
 msgstr "Lu dans le fichier VCF sans type précisé : "
 
-#: forms/vcf.py:210
+#: forms/vcf.py:211
 msgid "Read in VCF File : "
 msgstr "Lu dans le fichier VCF : "
 
-#: forms/vcf.py:492
+#: forms/vcf.py:493
 #, python-brace-format
 msgid "Image of {contact}"
 msgstr "Image de {contact}"
 
-#: forms/vcf.py:495
+#: forms/vcf.py:496
 msgid "Imported by VCFs"
 msgstr "Importé par VCFs"
 

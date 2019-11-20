@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-28 16:56+0100\n"
+"POT-Creation-Date: 2019-11-20 15:10+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -26,7 +26,7 @@ msgctxt "reports-report"
 msgid "Export «{object}»"
 msgstr "Exporter «{object}»"
 
-#: apps.py:28 models/report.py:57
+#: apps.py:28 models/report.py:61
 msgid "Reports"
 msgstr "Rapports"
 
@@ -343,7 +343,7 @@ msgstr ""
 "Si vous sélectionnez une vue de liste, les colonnes du rapport seront "
 "copiées depuis celle-ci."
 
-#: forms/report.py:94 models/report.py:42
+#: forms/report.py:94 models/report.py:46
 msgid "Filter"
 msgstr "Filtre"
 
@@ -420,39 +420,39 @@ msgstr "Graphiques de rapport"
 msgid "The instance block for «{graph}» with these parameters already exists!"
 msgstr "Le bloc d'instance pour «{graph}» avec ces paramètres existe déjà !"
 
-#: models/report.py:40
+#: models/report.py:44
 msgid "Name of the report"
 msgstr "Nom du rapport"
 
-#: models/report.py:41
+#: models/report.py:45
 msgid "Entity type"
 msgstr "Type de fiche"
 
-#: models/report.py:45
+#: models/report.py:49
 msgid "No filter"
 msgstr "Aucun filtre"
 
-#: models/report.py:47
+#: models/report.py:51
 msgid "Create a report"
 msgstr "Créer un rapport"
 
-#: models/report.py:48
+#: models/report.py:52
 msgid "Save the report"
 msgstr "Enregistrer le rapport"
 
-#: models/report.py:56
+#: models/report.py:60
 msgid "Report"
 msgstr "Rapport"
 
-#: models/report.py:204
+#: models/report.py:211
 msgid "Name of the column"
 msgstr "Nom de la colonne"
 
-#: models/report.py:215
+#: models/report.py:224
 msgid "Column of report"
 msgstr "Colonne de rapport"
 
-#: models/report.py:216
+#: models/report.py:225
 msgid "Columns of report"
 msgstr "Colonnes de rapport"
 
@@ -639,9 +639,10 @@ msgstr "Erreur"
 msgid "No brick for this graph"
 msgstr "Pas de bloc pour ce graphique"
 
-#: templates/reports/bricks/preview.html:8
-#: templates/reports/bricks/report-hat-bar.html:7
+#: templates/reports/bricks/preview.html:7
+#: templates/reports/bricks/report-hat-bar.html:6
 #: templates/reports/preview_report.html:48
+msgctxt "reports-preview"
 msgid "Preview"
 msgstr "Aperçu"
 
