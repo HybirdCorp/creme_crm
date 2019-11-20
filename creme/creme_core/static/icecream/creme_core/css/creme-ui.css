@@ -886,8 +886,8 @@ span.ui-creme-datepicker-trigger {
 /*----------------------------------*/
 
 /* Left-side menu overrides - until its removal */
-/* TODO: remove with old menu */
 
+/*
 .fg-menu-container, .fg-menu {
     background: #fff;
 }
@@ -944,6 +944,8 @@ span.ui-creme-datepicker-trigger {
     background: #ebebeb;
     border-color: #ccc;
 }
+
+*/
 
 /*----------------------------------*/
 .ui-creme-dselect[readonly] {
