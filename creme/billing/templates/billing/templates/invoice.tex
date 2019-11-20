@@ -73,6 +73,7 @@
         \hline Numéro & {#1} \\
         \hline Date & {\EditDate}\\
         \hline Réglement & À 30 jours \\
+        {% if object.buyers_order_number %}\hline Bon de commande acheteur & {{object.buyers_order_number}} \\{% endif %}
         \hline 
         \end{tabular}
 }

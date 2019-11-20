@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey, DateField  # PROTECT
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
@@ -29,13 +29,12 @@ from .other_models import QuoteStatus
 
 
 class AbstractQuote(Base):
-    status           = ForeignKey(QuoteStatus,
-                                  verbose_name=_('Status of quote'),
-                                  # on_delete=PROTECT,
-                                  on_delete=CREME_REPLACE,
-                                 )
-    acceptation_date = DateField(_('Acceptation date'), blank=True, null=True) \
-                                .set_tags(clonable=False, optional=True)
+    status = models.ForeignKey(
+        QuoteStatus, verbose_name=_('Status of quote'), on_delete=CREME_REPLACE,  # on_delete=models.PROTECT,
+    )
+    acceptation_date = models.DateField(
+        _('Acceptation date'), blank=True, null=True,
+    ).set_tags(clonable=False, optional=True)
 
     creation_label = _('Create a quote')
     save_label     = _('Save the quote')

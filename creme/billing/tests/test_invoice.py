@@ -31,9 +31,12 @@ try:
     )
     from ..models import InvoiceStatus, AdditionalInformation, PaymentTerms
 
-    from .base import (_BillingTestCase, _BillingTestCaseMixin, skipIfCustomInvoice,
-            skipIfCustomProductLine, skipIfCustomServiceLine,
-            Organisation, Address, Invoice, ProductLine, ServiceLine)
+    from .base import (
+        _BillingTestCase, _BillingTestCaseMixin,
+        skipIfCustomInvoice, skipIfCustomProductLine, skipIfCustomServiceLine,
+        Organisation, Address,
+        Invoice, ProductLine, ServiceLine,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -63,6 +66,8 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(1,        invoice.status_id)
         self.assertEqual(currency, invoice.currency)
         self.assertEqual(date(year=2010, month=10, day=13), invoice.expiration_date)
+        self.assertEqual('', invoice.description)
+        self.assertEqual('', invoice.buyers_order_number)
 
         self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,       source)
         self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED,     target)
@@ -76,12 +81,12 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertIsNone(target.shipping_address)
 
         b_addr = invoice.billing_address
-        self.assertEqual(invoice,                b_addr.owner)
+        self.assertEqual(invoice,               b_addr.owner)
         self.assertEqual(_('Billing address'),  b_addr.name)
         self.assertEqual(_('Billing address'),  b_addr.address)
 
         s_addr = invoice.shipping_address
-        self.assertEqual(invoice,                s_addr.owner)
+        self.assertEqual(invoice,               s_addr.owner)
         self.assertEqual(_('Shipping address'), s_addr.name)
         self.assertEqual(_('Shipping address'), s_addr.address)
 
@@ -97,14 +102,16 @@ class InvoiceTestCase(_BillingTestCase):
         target = Organisation.objects.create(user=user, name='Target Orga')
 
         create_addr = partial(Address.objects.create, owner=target)
-        target.shipping_address = create_addr(name='ShippingAddr', address='Temple of fire',
-                                              po_box='6565', zipcode='789', city='Konoha',
-                                              department='dep1', state='Stuff', country='Land of Fire'
-                                             )
-        target.billing_address  = create_addr(name='BillingAddr', address='Temple of sand',
-                                              po_box='8778', zipcode='123', city='Suna',
-                                              department='dep2', state='Foo', country='Land of Sand'
-                                             )
+        target.shipping_address = create_addr(
+            name='ShippingAddr', address='Temple of fire',
+            po_box='6565', zipcode='789', city='Konoha',
+            department='dep1', state='Stuff', country='Land of Fire',
+        )
+        target.billing_address  = create_addr(
+            name='BillingAddr', address='Temple of sand',
+            po_box='8778', zipcode='123', city='Suna',
+            department='dep2', state='Foo', country='Land of Sand',
+        )
         target.save()
 
         self.assertEqual(source.id,
@@ -112,7 +119,15 @@ class InvoiceTestCase(_BillingTestCase):
                                     .context['form']['source'].field.initial
                         )
 
-        invoice = self.create_invoice(name, source, target)
+        description = 'My fabulous invoice'
+        b_order = '123abc'
+        invoice = self.create_invoice(name, source, target,
+                                      description=description,
+                                      buyers_order_number=b_order,
+                                     )
+
+        self.assertEqual(description, invoice.description)
+        self.assertEqual(b_order,     invoice.buyers_order_number)
 
         self.assertAddressContentEqual(target.billing_address, invoice.billing_address)
         self.assertEqual(invoice, invoice.billing_address.owner)
@@ -149,17 +164,21 @@ class InvoiceTestCase(_BillingTestCase):
             form = response.context['form']
 
         self.assertIn('source', form.fields, 'Bad form ?!')
+        response = self.assertPOST200(
+            url, follow=True,
+            data={
+                'user':   user.id,
+                'name':  'Invoice001',
+                'status': 1,
 
-        response = self.assertPOST200(url, follow=True,
-                                      data={'user':            user.pk,
-                                            'name':            'Invoice001',
-                                            'issuing_date':    '2011-9-7',
-                                            'expiration_date': '2011-10-13',
-                                            'status':          1,
-                                            'source':          source.id,
-                                            'target':          self.formfield_value_generic_entity(target),
-                                           }
-                                     )
+                'issuing_date':    '2011-9-7',
+                'expiration_date': '2011-10-13',
+
+                'source': source.id,
+                'target': self.formfield_value_generic_entity(target),
+            },
+        )
+
         link_error = _('You are not allowed to link this entity: {}')
         not_viewable_error = _('Entity #{id} (not viewable)').format
         self.assertFormError(response, 'form', 'source',
@@ -195,18 +214,23 @@ class InvoiceTestCase(_BillingTestCase):
         name = 'Invoice#1'
         currency = Currency.objects.all()[0]
         status   = InvoiceStatus.objects.all()[1]
-        response = self.client.post(url, follow=True,
-                                    data={'user':            user.pk,
-                                          'name':            name,
-                                          'issuing_date':    '2013-12-15',
-                                          'expiration_date': '2014-1-22',
-                                          'status':          status.id,
-                                          'currency':        currency.id,
-                                          'discount':        Decimal(),
-                                          'source':          source.id,
-                                          'target':          self.formfield_value_generic_entity(target),
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':   user.pk,
+                'name':   name,
+                'status': status.id,
+
+                'issuing_date':    '2013-12-15',
+                'expiration_date': '2014-1-22',
+
+                'currency': currency.id,
+                'discount': Decimal(),
+
+                'source': source.id,
+                'target': self.formfield_value_generic_entity(target),
+            },
+        )
         self.assertNoFormError(response)
 
         invoice = self.get_object_or_fail(Invoice, name=name)
@@ -230,7 +254,7 @@ class InvoiceTestCase(_BillingTestCase):
                                             EntityCredentials.DELETE |
                                             EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
+                                      set_type=SetCredentials.ESET_ALL,
                                      )
 
         source, target = self.create_orgas()
@@ -248,7 +272,7 @@ class InvoiceTestCase(_BillingTestCase):
                                             EntityCredentials.DELETE |
                                             EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
+                                      set_type=SetCredentials.ESET_ALL,
                                      )
 
         source, target = self.create_orgas()
@@ -266,7 +290,7 @@ class InvoiceTestCase(_BillingTestCase):
                                             EntityCredentials.DELETE |
                                             EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
+                                      set_type=SetCredentials.ESET_ALL,
                                      )
 
         source, target = self.create_orgas()
@@ -332,8 +356,8 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual({
             'data': {},
             'options': {
-                'confirm': _('Do you really want to generate an invoice number?')
-            }
+                'confirm': _('Do you really want to generate an invoice number?'),
+            },
         }, number_action.action_data)
 
     def test_listview_generate_number_actions_disabled(self):
@@ -352,7 +376,10 @@ class InvoiceTestCase(_BillingTestCase):
         number_action = number_actions[0]
         self.assertEqual('billing-generate_number', number_action.id)
         self.assertEqual('billing-invoice-number', number_action.type)
-        self.assertEqual(reverse('billing__generate_invoice_number', args=(invoice.id,)), number_action.url)
+        self.assertEqual(
+            reverse('billing__generate_invoice_number', args=(invoice.id,)),
+            number_action.url
+        )
         self.assertFalse(number_action.is_enabled)
         self.assertTrue(number_action.is_visible)
 
@@ -382,19 +409,21 @@ class InvoiceTestCase(_BillingTestCase):
         target = create_orga(name='Target Orga 2')
 
         currency = Currency.objects.all()[0]
-        response = self.client.post(url, follow=True,
-                                    data={'user':            user.pk,
-                                          'name':            name,
-                                          'issuing_date':    '2010-9-7',
-                                          'expiration_date': '2011-11-14',
-                                          'status':          1,
-                                          'currency':        currency.pk,
-                                          'discount':        Decimal(),
-                                          # 'discount_unit':   1,
-                                          'source':          source.id,
-                                          'target':          self.formfield_value_generic_entity(target),
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':            user.pk,
+                'name':            name,
+                'issuing_date':    '2010-9-7',
+                'expiration_date': '2011-11-14',
+                'status':          1,
+                'currency':        currency.pk,
+                'discount':        Decimal(),
+                # 'discount_unit':   1,
+                'source':          source.id,
+                'target':          self.formfield_value_generic_entity(target),
+            },
+        )
         self.assertNoFormError(response)
         self.assertRedirects(response, invoice.get_absolute_url())
 
@@ -424,23 +453,29 @@ class InvoiceTestCase(_BillingTestCase):
 
         create_pline = partial(ProductLine.objects.create, user=user, related_document=invoice)
         create_sline = partial(ServiceLine.objects.create, user=user, related_document=invoice)
-        lines = [create_pline(on_the_fly_item="otf1",             unit_price=Decimal("1")),
-                 create_pline(related_item=self.create_product(), unit_price=Decimal("2")),
-                 create_sline(on_the_fly_item="otf2",             unit_price=Decimal("4")),
-                 create_sline(related_item=self.create_service(), unit_price=Decimal("5")),
-                ]
+        lines = [
+            create_pline(on_the_fly_item='otf1',             unit_price=Decimal('1')),
+            create_pline(related_item=self.create_product(), unit_price=Decimal('2')),
+            create_sline(on_the_fly_item='otf2',             unit_price=Decimal('4')),
+            create_sline(related_item=self.create_service(), unit_price=Decimal('5')),
+        ]
 
-        response = self.client.post(invoice.get_edit_absolute_url(), follow=True,
-                                    data={'user':            other_user.pk,
-                                          'name':            invoice.name,
-                                          'expiration_date': '2011-11-14',
-                                          'status':          invoice.status.id,
-                                          'currency':        invoice.currency.id,
-                                          'discount':        invoice.discount,
-                                          'source':          source.id,
-                                          'target':          self.formfield_value_generic_entity(target),
-                                         },
-                                   )
+        response = self.client.post(
+            invoice.get_edit_absolute_url(), follow=True,
+            data={
+                'user':   other_user.pk,
+                'name':   invoice.name,
+                'status': invoice.status.id,
+
+                'expiration_date': '2011-11-14',
+
+                'currency': invoice.currency.id,
+                'discount': invoice.discount,
+
+                'source': source.id,
+                'target': self.formfield_value_generic_entity(target),
+            },
+        )
         self.assertNoFormError(response)
 
         invoice = self.refresh(invoice)
@@ -460,16 +495,18 @@ class InvoiceTestCase(_BillingTestCase):
         url = invoice.get_edit_absolute_url()
 
         def post(discount):
-            return self.assertPOST200(url, follow=True,
-                                      data={'user':     user.id,
-                                            'name':     invoice.name,
-                                            'status':   invoice.status_id,
-                                            'currency': invoice.currency.pk,
-                                            'discount': discount,
-                                            'source':   source.id,
-                                            'target':   self.formfield_value_generic_entity(target),
-                                           },
-                                     )
+            return self.assertPOST200(
+                url, follow=True,
+                data={
+                    'user':     user.id,
+                    'name':     invoice.name,
+                    'status':   invoice.status_id,
+                    'currency': invoice.currency.pk,
+                    'discount': discount,
+                    'source':   source.id,
+                    'target':   self.formfield_value_generic_entity(target),
+                },
+            )
 
         msg = _('Enter a number between 0 and 100 (it is a percentage).')
         self.assertFormError(post('150'), 'form', 'discount', msg)
@@ -626,10 +663,10 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(0, invoice._get_total_with_tax())
 
         kwargs = {'user': user, 'related_document': invoice}
-        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product',
-                                                  quantity=3, unit_price=Decimal("5"),
-                                                  **kwargs
-                                                 )
+        product_line = ProductLine.objects.create(
+            on_the_fly_item='Flyyy product', quantity=3, unit_price=Decimal('5'),
+            **kwargs
+        )
         expected = product_line.get_price_inclusive_of_tax()
         self.assertEqual(Decimal('15.00'), expected)
 
@@ -638,11 +675,12 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(expected, invoice._get_total_with_tax())
         self.assertEqual(expected, invoice.total_vat)
 
-        service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service',
-                                                  quantity=9, unit_price=Decimal("10"),
-                                                  **kwargs
-                                                 )
-        expected = product_line.get_price_inclusive_of_tax() + service_line.get_price_inclusive_of_tax()
+        service_line = ServiceLine.objects.create(
+            on_the_fly_item='Flyyy service', quantity=9, unit_price=Decimal("10"),
+            **kwargs
+        )
+        expected = product_line.get_price_inclusive_of_tax() + \
+                   service_line.get_price_inclusive_of_tax()
         invoice.save()
         invoice = self.refresh(invoice)
         self.assertEqual(expected, invoice._get_total_with_tax())
@@ -659,22 +697,20 @@ class InvoiceTestCase(_BillingTestCase):
         target = create_orga(name='Target Orga')
 
         create_address = Address.objects.create
-        target.billing_address = b_addr = \
-            create_address(name="Billing address 01",
-                           address="BA1 - Address", po_box="BA1 - PO box",
-                           zipcode="BA1 - Zip code", city="BA1 - City",
-                           department="BA1 - Department",
-                           state="BA1 - State", country="BA1 - Country",
-                           owner=target,
-                          )
-        target.shipping_address = s_addr = \
-            create_address(name="Shipping address 01",
-                           address="SA1 - Address", po_box="SA1 - PO box",
-                           zipcode="SA1 - Zip code", city="SA1 - City",
-                           department="SA1 - Department",
-                           state="SA1 - State", country="SA1 - Country",
-                           owner=target,
-                          )
+        target.billing_address = b_addr = create_address(
+            name='Billing address 01', address='BA1 - Address',
+            po_box='BA1 - PO box', zipcode='BA1 - Zip code',
+            city='BA1 - City', department='BA1 - Department',
+            state='BA1 - State', country='BA1 - Country',
+            owner=target,
+        )
+        target.shipping_address = s_addr = create_address(
+            name='Shipping address 01', address='SA1 - Address',
+            po_box='SA1 - PO box', zipcode='SA1 - Zip code',
+            city='SA1 - City', department='SA1 - Department',
+            state='SA1 - State', country='SA1 - Country',
+            owner=target,
+        )
         target.save()
 
         currency = Currency.objects.create(name='Marsian dollar', local_symbol='M$',
@@ -687,9 +723,9 @@ class InvoiceTestCase(_BillingTestCase):
 
         kwargs = {'user': user, 'related_document': invoice}
         ServiceLine.objects.create(related_item=self.create_service(), **kwargs)
-        ServiceLine.objects.create(on_the_fly_item="otf service", **kwargs)
+        ServiceLine.objects.create(on_the_fly_item='otf service', **kwargs)
         ProductLine.objects.create(related_item=self.create_product(), **kwargs)
-        ProductLine.objects.create(on_the_fly_item="otf product", **kwargs)
+        ProductLine.objects.create(on_the_fly_item='otf product', **kwargs)
 
         cloned = self.refresh(invoice.clone())
         invoice = self.refresh(invoice)
@@ -697,8 +733,8 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertNotEqual(invoice, cloned)  # Not the same pk
         self.assertEqual(invoice.name,     cloned.name)
         self.assertEqual(currency,         cloned.currency)
-        self.assertIsNone(cloned.additional_info) # Should not be cloned
-        self.assertIsNone(cloned.payment_terms)   # Should not be cloned
+        self.assertIsNone(cloned.additional_info)  # Should not be cloned
+        self.assertIsNone(cloned.payment_terms)    # Should not be cloned
         self.assertEqual(source, cloned.get_source().get_real_entity())
         self.assertEqual(target, cloned.get_target().get_real_entity())
 
@@ -745,28 +781,28 @@ class InvoiceTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=10)[0]
 
         kwargs = {'user': user, 'related_document': invoice}
-        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product',
-                                                  unit_price=Decimal('1000.00'), quantity=2,
-                                                  discount=Decimal('10.00'),
-                                                  discount_unit=PERCENT_PK,
-                                                  total_discount=False,
-                                                  vat_value=Vat.get_default_vat(),
-                                                  **kwargs
-                                                 )
+        product_line = ProductLine.objects.create(
+            on_the_fly_item='Flyyy product',
+            unit_price=Decimal('1000.00'), quantity=2,
+            discount=Decimal('10.00'), discount_unit=PERCENT_PK,
+            total_discount=False,
+            vat_value=Vat.get_default_vat(),
+            **kwargs
+        )
         self.assertEqual(1620, product_line.get_price_exclusive_of_tax())
 
         invoice = self.refresh(invoice)
         self.assertEqual(1620, invoice._get_total())
         self.assertEqual(1620, invoice.total_no_vat)
 
-        service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service',
-                                                  unit_price=Decimal('20.00'), quantity=10,
-                                                  discount=Decimal('100.00'),
-                                                  discount_unit=AMOUNT_PK,
-                                                  total_discount=True,
-                                                  vat_value=Vat.get_default_vat(),
-                                                  **kwargs
-                                                 )
+        service_line = ServiceLine.objects.create(
+            on_the_fly_item='Flyyy service',
+            unit_price=Decimal('20.00'), quantity=10,
+            discount=Decimal('100.00'), discount_unit=AMOUNT_PK,
+            total_discount=True,
+            vat_value=Vat.get_default_vat(),
+            **kwargs
+        )
         self.assertEqual(90, service_line.get_price_exclusive_of_tax())
 
         invoice = self.refresh(invoice)
