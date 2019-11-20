@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey  # PROTECT SET_NULL
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -34,17 +34,24 @@ from .base import Base
 
 
 class AbstractInvoice(Base):
-    status       = ForeignKey(other_models.InvoiceStatus,
-                              verbose_name=_('Status of invoice'),
-                              # on_delete=PROTECT,
-                              on_delete=deletion.CREME_REPLACE,
-                             )
-    payment_type = ForeignKey(other_models.SettlementTerms,
-                              verbose_name=_('Settlement terms'),
-                              blank=True, null=True,
-                              # on_delete=SET_NULL,
-                              on_delete=deletion.CREME_REPLACE_NULL,
-                             ).set_tags(optional=True)
+    status = models.ForeignKey(
+        other_models.InvoiceStatus,
+        verbose_name=_('Status of invoice'),
+        # on_delete=models.PROTECT,
+        on_delete=deletion.CREME_REPLACE,
+    )
+    payment_type = models.ForeignKey(
+        other_models.SettlementTerms,
+        verbose_name=_('Settlement terms'),
+        blank=True, null=True,
+        # on_delete=models.SET_NULL,
+        on_delete=deletion.CREME_REPLACE_NULL,
+    ).set_tags(optional=True)
+    buyers_order_number = models.CharField(
+        _("Buyer's order"),
+        max_length=100, blank=True,
+        help_text=_("Number of buyer's order (french legislation)")
+    ).set_tags(optional=True)
 
     creation_label = _('Create an invoice')
     save_label     = _('Save the invoice')

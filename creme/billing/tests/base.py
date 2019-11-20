@@ -100,22 +100,27 @@ class _BillingTestCaseMixin:
         for f in ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country'):
             self.assertEqual(getattr(address1, f), getattr(address2, f))
 
-    def create_credit_note(self, name, source, target, currency=None, discount=Decimal(), user=None, status=None):
+    def create_credit_note(self, name, source, target, currency=None,
+                           discount=Decimal(), user=None, status=None):
         user = user or self.user
         status = status or CreditNoteStatus.objects.all()[0]
         currency = currency or Currency.objects.all()[0]
         response = self.client.post(
             reverse('billing__create_cnote'), follow=True,
-            data={'user':            user.id,
-                  'name':            name,
-                  'issuing_date':    '2010-9-7',
-                  'expiration_date': '2010-10-13',
-                  'status':          status.id,
-                  'currency':        currency.id,
-                  'discount':        discount,
-                  'source':          source.id,
-                  'target':          self.formfield_value_generic_entity(target),
-                 },
+            data={
+                'user':   user.id,
+                'name':   name,
+                'status': status.id,
+
+                'issuing_date':    '2010-9-7',
+                'expiration_date': '2010-10-13',
+
+                'currency': currency.id,
+                'discount': discount,
+
+                'source': source.id,
+                'target': self.formfield_value_generic_entity(target),
+            },
         )
         self.assertNoFormError(response)
 
@@ -134,21 +139,29 @@ class _BillingTestCaseMixin:
 
         return credit_note, source, target
 
-    def create_invoice(self, name, source, target, currency=None, discount=Decimal(), user=None):
+    def create_invoice(self, name, source, target,
+                       currency=None, discount=Decimal(), user=None,
+                       **kwargs):
         user = user or self.user
         currency = currency or Currency.objects.all()[0]
         response = self.client.post(
             reverse('billing__create_invoice'), follow=True,
-            data={'user':            user.pk,
-                  'name':            name,
-                  'issuing_date':    '2010-9-7',
-                  'expiration_date': '2010-10-13',
-                  'status':          1,
-                  'currency':        currency.id,
-                  'discount':        discount,
-                  'source':          source.id,
-                  'target':          self.formfield_value_generic_entity(target),
-                 },
+            data={
+                'user':   user.pk,
+                'name':   name,
+                'status': 1,
+
+                'issuing_date':    '2010-9-7',
+                'expiration_date': '2010-10-13',
+
+                'currency': currency.id,
+                'discount': discount,
+
+                'source': source.id,
+                'target': self.formfield_value_generic_entity(target),
+
+                **kwargs
+            },
         )
         self.assertNoFormError(response)
         invoice = self.get_object_or_fail(Invoice, name=name)
@@ -173,16 +186,20 @@ class _BillingTestCaseMixin:
         currency = currency or Currency.objects.all()[0]
         response = self.client.post(
             reverse('billing__create_quote'), follow=True,
-            data={'user':            self.user.pk,
-                  'name':            name,
-                  'issuing_date':    '2011-3-15',
-                  'expiration_date': '2012-4-22',
-                  'status':          status.id,
-                  'currency':        currency.id,
-                  'discount':        Decimal(),
-                  'source':          source.id,
-                  'target':          self.formfield_value_generic_entity(target),
-                 },
+            data={
+                'user':   self.user.pk,
+                'name':   name,
+                'status': status.id,
+
+                'issuing_date':    '2011-3-15',
+                'expiration_date': '2012-4-22',
+
+                'currency': currency.id,
+                'discount': Decimal(),
+
+                'source': source.id,
+                'target': self.formfield_value_generic_entity(target),
+            },
         )
         self.assertNoFormError(response)
 
@@ -222,16 +239,20 @@ class _BillingTestCaseMixin:
         currency = currency or Currency.objects.all()[0]
         response = self.client.post(
             reverse('billing__create_order'), follow=True,
-            data={'user':            self.user.pk,
-                  'name':            name,
-                  'issuing_date':    '2012-1-5',
-                  'expiration_date': '2012-2-15',
-                  'status':          status.id if status else 1,
-                  'currency':        currency.id,
-                  'discount':        Decimal(),
-                  'source':          source.id,
-                  'target':          self.formfield_value_generic_entity(target),
-                 },
+            data={
+                'user':    self.user.pk,
+                'name':    name,
+                'status': status.id if status else 1,
+
+                'issuing_date':    '2012-1-5',
+                'expiration_date': '2012-2-15',
+
+                'currency': currency.id,
+                'discount': Decimal(),
+
+                'source': source.id,
+                'target': self.formfield_value_generic_entity(target),
+            },
         )
         self.assertNoFormError(response)
 
@@ -304,14 +325,16 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
         target1 = create_orga(name='Acme')
         # TODO: factorise
         create_addr = partial(Address.objects.create, owner=target1)
-        target1.shipping_address = create_addr(name='ShippingAddr', address='Temple of fire',
-                                               po_box='6565', zipcode='789', city='Konoha',
-                                               department='dep1', state='Stuff', country='Land of Fire'
-                                              )
-        target1.billing_address  = create_addr(name='BillingAddr', address='Temple of sand',
-                                               po_box='8778', zipcode='123', city='Suna',
-                                               department='dep2', state='Foo', country='Land of Sand'
-                                              )
+        target1.shipping_address = create_addr(
+            name='ShippingAddr', address='Temple of fire',
+            po_box='6565', zipcode='789', city='Konoha',
+            department='dep1', state='Stuff', country='Land of Fire',
+        )
+        target1.billing_address = create_addr(
+            name='BillingAddr', address='Temple of sand',
+            po_box='8778', zipcode='123', city='Suna',
+            department='dep2', state='Foo', country='Land of Sand',
+        )
         target1.save()
 
         target2_name = 'NHK'
@@ -332,11 +355,12 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
                         ]
 
         date_fmt = settings.DATE_INPUT_FORMATS[0]
-        lines = [(names[0], numbers[0], issuing_dates[0].strftime(date_fmt), source1.name, target1.name, ''),
-                 (names[1], numbers[1], issuing_dates[1].strftime(date_fmt), source2_name, target2_name, ''),
-                 (names[2], numbers[2], issuing_dates[2].strftime(date_fmt), source2_name, '',           target3.last_name),
-                 (names[3], numbers[3], issuing_dates[3].strftime(date_fmt), source2_name, '',           target4_last_name),
-                ]
+        lines = [
+            (names[0], numbers[0], issuing_dates[0].strftime(date_fmt), source1.name, target1.name, ''),
+            (names[1], numbers[1], issuing_dates[1].strftime(date_fmt), source2_name, target2_name, ''),
+            (names[2], numbers[2], issuing_dates[2].strftime(date_fmt), source2_name, '',           target3.last_name),
+            (names[3], numbers[3], issuing_dates[3].strftime(date_fmt), source2_name, '',           target4_last_name),
+        ]
 
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(model)
@@ -344,66 +368,76 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
 
         def_status = status_model.objects.all()[0]
         def_currency = Currency.objects.all()[0]
-        data = {'step':     1,
-                'document': doc.id,
-                # has_header
+        data = {
+            'step':     1,
+            'document': doc.id,
+            # has_header
 
-                'user': self.user.id,
-                'key_fields': ['name'] if update else [],
+            'user': self.user.id,
+            'key_fields': ['name'] if update else [],
 
-                'name_colselect': 1,
-                'number_colselect': 2,
+            'name_colselect':   1,
+            'number_colselect': 2,
 
-                'issuing_date_colselect': 3,
-                'expiration_date_colselect': 0,
+            'issuing_date_colselect':    3,
+            'expiration_date_colselect': 0,
 
-                'status_colselect': 0,
-                'status_defval':    def_status.pk,
+            'status_colselect': 0,
+            'status_defval':    def_status.pk,
 
-                'discount_colselect': 0,
-                'discount_defval':    '0',
+            'discount_colselect': 0,
+            'discount_defval':    '0',
 
-                'currency_colselect': 0,
-                'currency_defval':    def_currency.pk,
+            'currency_colselect': 0,
+            'currency_defval':    def_currency.pk,
 
-                'acceptation_date_colselect':    0,
+            'acceptation_date_colselect': 0,
 
-                'comment_colselect':         0,
-                'additional_info_colselect': 0,
-                'payment_terms_colselect':   0,
-                'payment_type_colselect':    0,
+            'comment_colselect':         0,
+            'additional_info_colselect': 0,
+            'payment_terms_colselect':   0,
+            'payment_type_colselect':    0,
 
-                'description_colselect': 0,
+            'description_colselect':         0,
+            'buyers_order_number_colselect': 0,  # Invoice only...
 
-                # 'property_types',
-                # 'fixed_relations',
-                # 'dyn_relations',
-               }
+            # 'property_types',
+            # 'fixed_relations',
+            # 'dyn_relations',
+        }
         response = self.assertPOST200(url, data=data)
         self.assertFormError(response, 'form', 'source', _('Enter a valid value.'))
 
-        response = self.assertPOST200(url,
-                                      data={**data,
-                                            'source_persons_organisation_colselect': 0,
-                                            'source_persons_organisation_create': True,
-                                            'target_persons_organisation_colselect': 0,
-                                            'target_persons_organisation_create': True,
-                                            'target_persons_contact_colselect': 0,
-                                            'target_persons_contact_create': True,
-                                           },
-                                     )
+        response = self.assertPOST200(
+            url,
+            data={
+                **data,
+                'source_persons_organisation_colselect': 0,
+                'source_persons_organisation_create':    True,
+
+                'target_persons_organisation_colselect': 0,
+                'target_persons_organisation_create':    True,
+
+                'target_persons_contact_colselect': 0,
+                'target_persons_contact_create':    True,
+            },
+        )
         self.assertFormError(response, 'form', 'source', _('This field is required.'))
 
-        response = self.client.post(url, follow=True,
-                                    data={**data,
-                                          'source_persons_organisation_colselect': 4,
-                                          'source_persons_organisation_create': True,
-                                          'target_persons_organisation_colselect': 5,
-                                          'target_persons_organisation_create': True,
-                                          'target_persons_contact_colselect': 6,
-                                          'target_persons_contact_create': True,
-                                         },
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                **data,
+                'source_persons_organisation_colselect': 4,
+                'source_persons_organisation_create':    True,
+
+                'target_persons_organisation_colselect': 5,
+                'target_persons_organisation_create':    True,
+
+                'target_persons_contact_colselect': 6,
+                'target_persons_contact_create':    True,
+            },
+        )
         self.assertNoFormError(response)
 
         self._execute_job(response)
@@ -491,68 +525,75 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
 
         create_addr = Address.objects.create
         if target_billing_address:
-            target2.billing_address  = b_addr1 = create_addr(owner=target2, name='BillingAddr1',
-                                                             address='Temple of sand', city='Suna',
-                                                            )
-        target2.shipping_address = s_addr1 = create_addr(owner=target2, name='ShippingAddr1',
-                                                        address='Temple of fire', city='Konoha',
-                                                       )
+            target2.billing_address = b_addr1 = create_addr(
+                owner=target2,
+                name='BillingAddr1', address='Temple of sand', city='Suna',
+            )
+        target2.shipping_address = s_addr1 = create_addr(
+            owner=target2,
+            name='ShippingAddr1', address='Temple of fire', city='Konoha',
+        )
         target2.save()
 
-        bdoc.billing_address  = b_addr2 = create_addr(owner=bdoc, name='BillingAddr22',
-                                                      address='Temple of rain', city='Kiri',
-                                                     )
-        bdoc.shipping_address = s_addr2 = create_addr(owner=bdoc, name='ShippingAddr2',
-                                                      address='Temple of ligthning', city='Kumo',
-                                                     )
+        bdoc.billing_address  = b_addr2 = create_addr(
+            owner=bdoc,
+            name='BillingAddr22', address='Temple of rain', city='Kiri',
+        )
+        bdoc.shipping_address = s_addr2 = create_addr(
+            owner=bdoc,
+            name='ShippingAddr2', address='Temple of ligthning', city='Kumo',
+        )
         bdoc.save()
 
         addr_count = Address.objects.count()
 
         number = 'B0001'
         doc = self._build_csv_doc([(bdoc.name, number, source2.name, target2.name)])
-        response = self.client.post(self._build_import_url(model), follow=True,
-                                    data={'step':     1,
-                                          'document': doc.id,
+        response = self.client.post(
+            self._build_import_url(model), follow=True,
+            data={
+                'step':     1,
+                'document': doc.id,
 
-                                          'user': user.id,
-                                          'key_fields': ['name'],
+                'user': user.id,
+                'key_fields': ['name'],
 
-                                          'name_colselect':   1,
-                                          'number_colselect': 2,
+                'name_colselect':   1,
+                'number_colselect': 2,
 
-                                          'issuing_date_colselect':    0,
-                                          'expiration_date_colselect': 0,
+                'issuing_date_colselect':    0,
+                'expiration_date_colselect': 0,
 
-                                          'status_colselect': 0,
-                                          'status_defval':    def_status.pk,
+                'status_colselect': 0,
+                'status_defval':    def_status.pk,
 
-                                          'discount_colselect': 0,
-                                          'discount_defval':    '0',
+                'discount_colselect': 0,
+                'discount_defval':    '0',
 
-                                          'currency_colselect': 0,
-                                          'currency_defval':    Currency.objects.all()[0].pk,
+                'currency_colselect': 0,
+                'currency_defval':    Currency.objects.all()[0].pk,
 
-                                          'acceptation_date_colselect': 0,
+                'acceptation_date_colselect': 0,
 
-                                          'comment_colselect':         0,
-                                          'additional_info_colselect': 0,
-                                          'payment_terms_colselect':   0,
-                                          'payment_type_colselect':    0,
+                'comment_colselect':         0,
+                'additional_info_colselect': 0,
+                'payment_terms_colselect':   0,
+                'payment_type_colselect':    0,
 
-                                          'description_colselect': 0,
+                'description_colselect':         0,
+                'buyers_order_number_colselect': 0,
 
-                                          'source_persons_organisation_colselect': 3,
-                                          'source_persons_organisation_create':    True,
-                                          'target_persons_organisation_colselect': 4,
-                                          'target_persons_organisation_create':    True,
-                                          'target_persons_contact_colselect':      0,
-                                          # 'target_persons_contact_create':         True,
+                'source_persons_organisation_colselect': 3,
+                'source_persons_organisation_create':    True,
+                'target_persons_organisation_colselect': 4,
+                'target_persons_organisation_create':    True,
+                'target_persons_contact_colselect':      0,
+                # 'target_persons_contact_create':         True,
 
-                                          'override_billing_addr':  'on' if override_billing_addr else '',
-                                          'override_shipping_addr': 'on' if override_shipping_addr else '',
-                                         }
-                                   )
+                'override_billing_addr':  'on' if override_billing_addr else '',
+                'override_shipping_addr': 'on' if override_shipping_addr else '',
+            },
+        )
         self.assertNoFormError(response)
 
         self._execute_job(response)

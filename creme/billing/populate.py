@@ -76,7 +76,6 @@ class Populator(BasePopulator):
         Service = products.get_service_model()
 
         # ---------------------------
-        # line_entities = [ProductLine, ServiceLine]
         line_entities = [*lines_registry]
         RelationType.create((constants.REL_SUB_BILL_ISSUED, _('issued by'),  BILLING_MODELS),
                             (constants.REL_OBJ_BILL_ISSUED, _('has issued'), [Organisation]),
@@ -236,16 +235,18 @@ class Populator(BasePopulator):
 
         # ---------------------------
         def create_hf(hf_pk, name, model, status=True):
-            HeaderFilter.create(pk=hf_pk, name=name, model=model,
-                                cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                                            EntityCellRelation(model=model, rtype=rt_sub_bill_received),
-                                            (EntityCellRegularField, {'name': 'number'}),
-                                            (EntityCellRegularField, {'name': 'status'}) if status else None,
-                                            (EntityCellRegularField, {'name': 'total_no_vat'}),
-                                            (EntityCellRegularField, {'name': 'issuing_date'}),
-                                            (EntityCellRegularField, {'name': 'expiration_date'}),
-                                           ],
-                               )
+            HeaderFilter.create(
+                pk=hf_pk, name=name, model=model,
+                cells_desc=[
+                    (EntityCellRegularField, {'name': 'name'}),
+                    EntityCellRelation(model=model, rtype=rt_sub_bill_received),
+                    (EntityCellRegularField, {'name': 'number'}),
+                    (EntityCellRegularField, {'name': 'status'}) if status else None,
+                    (EntityCellRegularField, {'name': 'total_no_vat'}),
+                    (EntityCellRegularField, {'name': 'issuing_date'}),
+                    (EntityCellRegularField, {'name': 'expiration_date'}),
+                ],
+            )
 
         create_hf(constants.DEFAULT_HFILTER_INVOICE,  _('Invoice view'),     Invoice)
         create_hf(constants.DEFAULT_HFILTER_QUOTE,    _('Quote view'),       Quote)
@@ -255,12 +256,14 @@ class Populator(BasePopulator):
 
         def create_hf_lines(hf_pk, name, model):
             build_cell = EntityCellRegularField.build
-            HeaderFilter.create(pk=hf_pk, name=name, model=model,
-                                cells_desc=[build_cell(model=model, name='on_the_fly_item'),
-                                            build_cell(model=model, name='quantity'),
-                                            build_cell(model=model, name='unit_price'),
-                                           ]
-                               )
+            HeaderFilter.create(
+                pk=hf_pk, name=name, model=model,
+                cells_desc=[
+                    build_cell(model=model, name='on_the_fly_item'),
+                    build_cell(model=model, name='quantity'),
+                    build_cell(model=model, name='unit_price'),
+                ],
+            )
 
         create_hf_lines('billing-hg_product_lines', _('Product lines view'), ProductLine)
         create_hf_lines('billing-hg_service_lines', _('Service lines view'), ServiceLine)
@@ -300,7 +303,7 @@ class Populator(BasePopulator):
             create_bmi = ButtonMenuItem.create_if_needed
             create_bmi(pk='billing-generate_invoice_number', model=Invoice, button=buttons.GenerateInvoiceNumberButton, order=0)
 
-            create_bmi(pk='billing-convert_quote_to_invoice', model=Quote, button=buttons.ConvertToInvoiceButton, order=0)
+            create_bmi(pk='billing-convert_quote_to_invoice',    model=Quote, button=buttons.ConvertToInvoiceButton,    order=0)
             create_bmi(pk='billing-convert_quote_to_salesorder', model=Quote, button=buttons.ConvertToSalesOrderButton, order=1)
 
             create_bmi(pk='billing-convert_salesorder_to_invoice', model=SalesOrder, button=buttons.ConvertToInvoiceButton, order=0)
@@ -339,43 +342,51 @@ class Populator(BasePopulator):
             cbci_invoice = create_cbci(id='billing-invoice_info',
                                        name=_('Invoice information'),
                                        content_type=Invoice,
-                                       cells=build_cells(Invoice,
-                                                         build_cell(Invoice, 'status'),
-                                                         build_cell(Invoice, 'payment_type'),
-                                                        ),
+                                       cells=build_cells(
+                                           Invoice,
+                                           build_cell(Invoice, 'status'),
+                                           build_cell(Invoice, 'payment_type'),
+                                           build_cell(Invoice, 'buyers_order_number'),
+                                       ),
                                       )
-            cbci_c_note   = create_cbci(id='billing-creditnote_info',
-                                        name=_('Credit note information'),
-                                        content_type=CreditNote,
-                                        cells=build_cells(CreditNote, build_cell(CreditNote, 'status')),
-                                       )
+            cbci_c_note  = create_cbci(id='billing-creditnote_info',
+                                       name=_('Credit note information'),
+                                       content_type=CreditNote,
+                                       cells=build_cells(CreditNote, build_cell(CreditNote, 'status')),
+                                      )
             cbci_quote   = create_cbci(id='billing-quote_info',
                                        name=_('Quote information'),
                                        content_type=Quote,
-                                       cells=build_cells(Quote,
-                                                         build_cell(Quote, 'status'),
-                                                         build_cell(Quote, 'acceptation_date'),
-                                                        ),
+                                       cells=build_cells(
+                                           Quote,
+                                           build_cell(Quote, 'status'),
+                                           build_cell(Quote, 'acceptation_date'),
+                                       ),
                                       )
             cbci_s_order = create_cbci(id='billing-salesorder_info',
                                        name=_('Salesorder information'),
                                        content_type=SalesOrder,
-                                       cells=build_cells(SalesOrder, build_cell(SalesOrder, 'status')),
+                                       cells=build_cells(
+                                           SalesOrder,
+                                           build_cell(SalesOrder, 'status'),
+                                       ),
                                       )
             cbci_tbase   = create_cbci(id='billing-templatebase_info',
                                        name=pgettext('billing', 'Template information'),
                                        content_type=TemplateBase,
-                                       cells=build_cells(TemplateBase,
-                                                         EntityCellFunctionField.build(TemplateBase, 'get_verbose_status'),
-                                                        ),
+                                       cells=build_cells(
+                                           TemplateBase,
+                                           EntityCellFunctionField.build(TemplateBase, 'get_verbose_status'),
+                                       ),
                                       )
 
-            models_4_blocks = [(Invoice,      cbci_invoice, True),  # Boolean -> insert CreditNote block
-                               (CreditNote,   cbci_c_note,  False),
-                               (Quote,        cbci_quote,   True),
-                               (SalesOrder,   cbci_s_order, True),
-                               (TemplateBase, cbci_tbase,   False),
-                              ]
+            models_4_blocks = [
+                (Invoice,      cbci_invoice, True),  # Boolean -> insert CreditNote block
+                (CreditNote,   cbci_c_note,  False),
+                (Quote,        cbci_quote,   True),
+                (SalesOrder,   cbci_s_order, True),
+                (TemplateBase, cbci_tbase,   False),
+            ]
             create_bdl = BrickDetailviewLocation.objects.create_if_needed
             TOP   = BrickDetailviewLocation.TOP
             LEFT  = BrickDetailviewLocation.LEFT
@@ -463,18 +474,18 @@ class Populator(BasePopulator):
                                         )
         create_report_columns(invoices_report1)
 
-        rgraph1 = create_graph(name=_('Sum of current year invoices total without taxes / month'),
-                               # report=invoices_report1,
-                               linked_report=invoices_report1,
-                               abscissa='issuing_date', ordinate='total_no_vat__sum',
-                               type=RGT_MONTH, is_count=False,
-                              )
-        create_graph(name=_('Sum of current year invoices total without taxes / invoices status'),
-                     # report=invoices_report1,
-                     linked_report=invoices_report1,
-                     abscissa='status', ordinate='total_no_vat__sum',
-                     type=RGT_FK, is_count=False,
-                    )
+        rgraph1 = create_graph(
+            name=_('Sum of current year invoices total without taxes / month'),
+            linked_report=invoices_report1,
+            abscissa='issuing_date', ordinate='total_no_vat__sum',
+            type=RGT_MONTH, is_count=False,
+        )
+        create_graph(
+            name=_('Sum of current year invoices total without taxes / invoices status'),
+            linked_report=invoices_report1,
+            abscissa='status', ordinate='total_no_vat__sum',
+            type=RGT_FK, is_count=False,
+        )
         ibci = rgraph1.create_instance_brick_config_item()
 
         BrickHomeLocation.objects.create(brick_id=ibci.brick_id, order=11)
@@ -485,12 +496,12 @@ class Populator(BasePopulator):
                                         )
         create_report_columns(invoices_report2)
 
-        rgraph = create_graph(name=_('Sum of current year and unpaid invoices total without taxes / month'),
-                              # report=invoices_report2,
-                              linked_report=invoices_report2,
-                              abscissa='issuing_date', ordinate='total_no_vat__sum',
-                              type=RGT_MONTH, is_count=False,
-                             )
+        rgraph = create_graph(
+            name=_('Sum of current year and unpaid invoices total without taxes / month'),
+            linked_report=invoices_report2,
+            abscissa='issuing_date', ordinate='total_no_vat__sum',
+            type=RGT_MONTH, is_count=False,
+        )
         ibci = rgraph.create_instance_brick_config_item()
 
         BrickHomeLocation.objects.create(brick_id=ibci.brick_id, order=12)
