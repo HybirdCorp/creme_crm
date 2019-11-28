@@ -26,6 +26,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, CREME_REPLACE_NULL  # SettingValue
+from creme.creme_core.models.manager import CremeEntityManager
 
 from ..constants import (
     NARROW, CREATION_LABELS,
@@ -37,7 +38,7 @@ from . import other_models
 from .calendar import Calendar
 
 
-class ActivityManager(models.Manager):
+class ActivityManager(CremeEntityManager):
     linked_rtype_ids = (
         REL_OBJ_PART_2_ACTIVITY,
         REL_OBJ_ACTIVITY_SUBJECT,

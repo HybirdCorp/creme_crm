@@ -33,9 +33,11 @@ from django.utils.translation import gettext_lazy as _, gettext
 
 from .auth import Sandbox
 from .base import CremeModel
-from .fields import (CreationDateTimeField, ModificationDateTimeField,
-         CremeUserForeignKey, CTypeForeignKey)
-from .manager import LowNullsQuerySet
+from .fields import (
+    CreationDateTimeField, ModificationDateTimeField,
+    CremeUserForeignKey, CTypeForeignKey,
+)
+from .manager import CremeEntityManager  # LowNullsQuerySet
 
 logger = logging.getLogger(__name__)
 _SEARCH_FIELD_MAX_LENGTH = 200
@@ -78,7 +80,8 @@ class CremeEntity(CremeModel):
     sandbox = models.ForeignKey(Sandbox, null=True, editable=False, on_delete=models.PROTECT)\
                     .set_tags(viewable=False)
 
-    objects = LowNullsQuerySet.as_manager()
+    # objects = LowNullsQuerySet.as_manager()
+    objects = CremeEntityManager()
 
     _real_entity = None
 

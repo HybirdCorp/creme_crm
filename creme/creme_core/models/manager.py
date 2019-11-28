@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2013 Tim Babych
 # Copyright (c) 2016 Daniel Hahler
-# Copyright (c) 2016-2018 Hybird
+# Copyright (c) 2016-2019 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -63,3 +63,7 @@ class LowNullsQuerySet(models.QuerySet):
     def __init__(self, model=None, query=None, using=None, hints=None):
         super().__init__(model, query, using, hints)
         self.query = query or LowNullsQuery(self.model)
+
+
+class CremeEntityManager(models.Manager.from_queryset(LowNullsQuerySet)):
+    pass

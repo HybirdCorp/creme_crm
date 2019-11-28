@@ -28,6 +28,7 @@ from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.global_info import cached_per_request  # get_per_request_cache
 from creme.creme_core.models import CremeEntity, CREME_REPLACE_NULL
 from creme.creme_core.models.fields import PhoneField
+from creme.creme_core.models.manager import CremeEntityManager
 
 from creme.documents.models.fields import ImageEntityForeignKey
 
@@ -37,7 +38,7 @@ from .. import get_contact_model
 from . import base, other_models
 
 
-class OrganisationManager(models.Manager):
+class OrganisationManager(CremeEntityManager):
     @cached_per_request('persons-organisation-all_managed')
     def filter_managed_by_creme(self):
         return self.filter(is_managed=True, is_deleted=False)
