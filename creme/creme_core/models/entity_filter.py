@@ -387,7 +387,8 @@ class EntityFilter(models.Model):  # CremeModel ???
             try:
                 # ef = EntityFilter.objects.get(pk=pk)
                 ef = cls.objects.get(pk=pk)
-            except EntityFilter.DoesNotExist:
+            # except EntityFilter.DoesNotExist:
+            except cls.DoesNotExist:
                 # ef = EntityFilter.objects.create(pk=pk, name=name, is_custom=is_custom,
                 ef = cls.objects.create(pk=pk, name=name, is_custom=is_custom,
                                         user=user, use_or=use_or, entity_type=ct,
