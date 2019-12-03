@@ -199,7 +199,7 @@ def get_lightweight_mail_body(request, mail_id):
 @login_required
 @permission_required('emails')
 @jsonify
-def resend_mails(request):  # TODO: unit test
+def resend_mails(request):
     ids = get_from_POST_or_404(request.POST, 'ids').split(',')
 
     for email in EntityEmail.objects.filter(pk__in=ids):
