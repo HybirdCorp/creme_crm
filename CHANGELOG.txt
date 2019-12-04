@@ -127,6 +127,7 @@
                 - The method 'relation._RelationsCreateForm._hash_relation()' is deprecated.
             - In 'creme_core.views' :
                 - In 'relation', these function-views are deprecated : 'delete_all()' & 'json_entity_rtypes()'.
+                  The constant 'JSON_PREDICATE_FIELDS' is deprecated too.
                 - The mixin class 'generic.wizard.PopupWizardMixin' is deprecated ; use a class inheriting the base class 'generic.wizard.AbstractWizardView' instead.
             - The method 'creme_core.enumerators.EntityFilterEnumerator.efilter_as_dict()' is deprecated ; use 'instance_as_dict()' instead.
             - The function 'creme_core.utils.queries.get_q_from_dict()' is deprecated ; use 'django.db.models.query.Q(my_dict)' instead.

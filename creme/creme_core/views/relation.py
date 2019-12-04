@@ -109,6 +109,7 @@ def json_entity_get(request, entity_id):
     return _fields_values(instances, getters, (0, 1), sort, user)
 
 
+# DEPRECATED
 JSON_PREDICATE_FIELDS = {
     'unicode': lambda e, user: str(e),
     'id':      lambda e, user: e.id,
