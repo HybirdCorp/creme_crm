@@ -529,7 +529,7 @@ class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
 def add_relations_with_same_type(request):
     """Allow to create from a POST request several relations with the same
     relation type, between a subject and several other entities.
-    Tip: see the JS function creme.relations.addRelationTo()
+    Tip: see the JS class 'creme.relations.AddRelationToAction()'.
     """
     user = request.user
     POST = request.POST
