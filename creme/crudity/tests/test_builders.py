@@ -60,6 +60,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def setUp(self):
         super().setUp()
+        self.login()
+
         self.request = request = RequestFactory().get('/')  # Url doesn't matter
         request.user = self.user
         request.LANGUAGE_CODE = '1033'  # en
@@ -788,7 +790,7 @@ class InfopathFormFieldTestCase(CrudityTestCase):
         super().setUp()
         # TODO: factorise
         self.request = request = RequestFactory().get('/')  # Url doesn't matter
-        request.user = self.user
+        request.user = self.login()
 
     def _get_backend(self, backend_klass, **backend_cfg):
         return backend_klass(config=backend_cfg)

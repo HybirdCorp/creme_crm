@@ -32,6 +32,10 @@ except Exception as e:
 
 
 class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCase ?
+    def setUp(self):
+        super().setUp()
+        self.login()
+
     def _get_pop_email(self, body='', body_html='', senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
         return PopEmail(body=body, body_html=body_html, senders=senders, tos=tos, ccs=ccs,
                         subject=subject, dates=dates, attachments=attachments,
@@ -787,7 +791,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                                                   subject = 'create_ce_infopath',
                                                   body_map={'user_id': user.id,
                                                             'created': '',
-                                                           }
+                                                           },
                                                  )
 
         self.assertEqual(0, WaitingAction.objects.count())
@@ -807,7 +811,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                                                   subject='create_ce_infopath',
                                                   body_map={'user_id': user.id,
                                                             'created': '',
-                                                           }
+                                                           },
                                                  )
 
         self.assertEqual(0, WaitingAction.objects.count())
@@ -1398,6 +1402,10 @@ class FileSystemInputTestCase(CrudityTestCase):
         if cls.tmp_dir_path is not None:
             rmtree(cls.tmp_dir_path)
 
+    def setUp(self):
+        super().setUp()
+        self.login()
+
     @classmethod
     def get_deletable_file_path(cls, name):
         ext = '.ini'
@@ -1410,7 +1418,7 @@ class FileSystemInputTestCase(CrudityTestCase):
         return tmpfile.name
 
     def test_error01(self):
-        "Unknown file"
+        "Unknown file."
         inifile_input = IniFileInput()
         subject = CrudityBackend.normalize_subject('test_create_contact')
         backend = self.FakeContactBackend({'subject': subject})
@@ -1430,7 +1438,7 @@ class FileSystemInputTestCase(CrudityTestCase):
                         )
 
     def test_error02(self):
-        "Invalid format"
+        "Invalid format."
         inifile_input = IniFileInput()
         subject = CrudityBackend.normalize_subject('test_create_contact')
         backend = self.FakeContactBackend({'subject': subject})
@@ -1451,7 +1459,7 @@ class FileSystemInputTestCase(CrudityTestCase):
                         )
 
     def test_error03(self):
-        "No head"
+        "No head."
         inifile_input = IniFileInput()
         subject = CrudityBackend.normalize_subject('test_create_contact')
         backend = self.FakeContactBackend({'subject': subject})
@@ -1526,7 +1534,7 @@ class FileSystemInputTestCase(CrudityTestCase):
         self.assertFalse(exists(file_path))
 
     def test_sandbox02(self):
-        "Smaller body_map"
+        "Smaller body_map."
         self.assertFalse(WaitingAction.objects.all())
 
         inifile_input = IniFileInput()
@@ -1592,7 +1600,7 @@ class FileSystemInputTestCase(CrudityTestCase):
         self.assertEqual(self.other_user, waction.user)
 
     def test_sandbox_by_user02(self):
-        "Unknown username"
+        "Unknown username."
         self._set_sandbox_by_user()
 
         inifile_input = IniFileInput()
