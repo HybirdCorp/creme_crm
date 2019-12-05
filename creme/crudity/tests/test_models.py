@@ -36,28 +36,32 @@ class WaitingActionTestCase(CrudityTestCase):
         cls.User.objects.exclude(id__in=cls._staff_user_ids_backup).update(is_staff=False)
 
     def test_can_validate_or_delete01(self):
-        "Sandbox for everyone"
+        "Sandbox for everyone."
+        user = self.login()
         action = WaitingAction.objects.create(user=None, source='unknown',
                                               action='create', subject='',
                                               ct=self.ct_entity,
                                              )
-        self.assertTrue(action.can_validate_or_delete(self.user)[0])
+        self.assertTrue(action.can_validate_or_delete(user)[0])
         self.assertTrue(action.can_validate_or_delete(self.other_user)[0])
 
     def test_can_validate_or_delete02(self):
-        "Sandbox by user"
+        "Sandbox by user."
+        user = self.login()
+        other_user = self.other_user
+
         self._set_sandbox_by_user()
 
         create_waction = partial(WaitingAction.objects.create, source='unknown',
                                  action='create', subject='', ct=self.ct_entity,
                                 )
         action = create_waction(user=self.user)
-        self.assertTrue(action.can_validate_or_delete(self.user)[0])
-        self.assertFalse(action.can_validate_or_delete(self.other_user)[0])
+        self.assertTrue(action.can_validate_or_delete(user)[0])
+        self.assertFalse(action.can_validate_or_delete(other_user)[0])
 
         action2 = create_waction(user=self.other_user)
-        self.assertTrue(action2.can_validate_or_delete(self.user)[0])
-        self.assertTrue(action2.can_validate_or_delete(self.other_user)[0])
+        self.assertTrue(action2.can_validate_or_delete(user)[0])
+        self.assertTrue(action2.can_validate_or_delete(other_user)[0])
 
     def test_auto_assignation01(self):
         """If the sandbox was not by user, but now it is all WaitingAction has

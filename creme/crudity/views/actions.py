@@ -90,6 +90,7 @@ def delete(request):
 
 
 @jsonify
+@login_required
 @permission_required('crudity')
 @POST_only
 def validate(request):
@@ -126,6 +127,7 @@ def validate(request):
     return {}
 
 
+@login_required
 @permission_required('crudity')
 @jsonify
 def reload_bricks(request):

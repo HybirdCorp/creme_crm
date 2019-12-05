@@ -10,7 +10,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.test.utils import override_settings
     from django.urls import reverse
-    from django.utils.translation import ngettext
+    from django.utils.translation import gettext as _, ngettext
 
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
     from creme.creme_core.models import Job, JobResult, FakeContact, FakeImage
@@ -91,7 +91,7 @@ class FakePOP3_SSL(FakePOP3):
         self._certfile = certfile
 
 
-class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
+class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
     _original_POP3 = None
     _original_POP3_SSL = None
     _original_crudity_registry = None
@@ -133,7 +133,8 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
                                            settings.CRUDITY_BACKENDS
                                           )
 
-    def test_validate01(self):
+    def test_validate(self):
+        user = self.login()
         self._build_test_registry()
 
         first_name = 'Haruhi'
@@ -144,7 +145,7 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         wa.ct = ContentType.objects.get_for_model(FakeContact)
         wa.data = {'first_name': first_name,
                    'last_name':  last_name,
-                   'user_id':    self.user.id,
+                   'user_id':    user.id,
                   }
         wa.subject = subject
         wa.source = 'test_f - test_i'
@@ -172,7 +173,11 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         self.assertEqual(1, WaitingAction.objects.count())
         self.assertEqual(0, History.objects.count())
 
-        self.assertPOST200(reverse('crudity__validate_actions'), data={'ids': [wa.id]})
+        url = reverse('crudity__validate_actions')
+        data = {'ids': [wa.id]}
+        self.assertGET404(url, data=data)
+
+        self.assertPOST200(url, data=data)
         self.assertEqual(0, WaitingAction.objects.count())
         self.assertEqual(1, History.objects.count())
         self.assertEqual(c_count + 1, FakeContact.objects.count())
@@ -180,7 +185,75 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         contact = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
         self.assertEqual(self.user, contact.user)
 
+    def test_delete01(self):
+        user = self.login(is_superuser=False, allowed_apps=['crudity'])
+        subject = CrudityBackend.normalize_subject('test_create_contact')
+
+        def create_action(first_name, last_name):
+            return WaitingAction.objects.create(
+                ct=FakeContact,
+                data={
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'user_id':   user.id,
+                },
+                subject=subject,
+                source='test_f - test_i',
+            )
+
+        wa1 = create_action(first_name='Haruhi',  last_name='Suzumiya')
+        wa2 = create_action(first_name='Yuki',    last_name='Nagato')
+        wa3 = create_action(first_name=' Mikuru', last_name='Asahina')
+
+        url = reverse('crudity__delete_actions')
+        data = {'ids': [wa1.id, wa3.id]}
+        self.assertGET404(url, data=data)
+
+        response = self.assertPOST200(url, data=data)
+        self.assertDoesNotExist(wa1)
+        self.assertDoesNotExist(wa3)
+        self.assertStillExists(wa2)
+
+        self.assertEqual(_('Operation successfully completed'),
+                         response.content.decode()
+                        )
+
+    def test_delete02(self):
+        "Not allowed."
+        user = self.login(is_superuser=False, allowed_apps=['crudity'])
+        subject = CrudityBackend.normalize_subject('test_create_contact')
+
+        def create_action(first_name, last_name, owner):
+            return WaitingAction.objects.create(
+                ct=FakeContact,
+                data={
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'user_id':   user.id,
+                },
+                subject=subject,
+                source='test_f - test_i',
+                user=owner,
+            )
+
+        wa1 = create_action(first_name='Haruhi', last_name='Suzumiya', owner=user)
+        wa2 = create_action(first_name='Yuki', last_name='Nagato',     owner=self.other_user)
+
+        url = reverse('crudity__delete_actions')
+        data = {'ids': [wa1.id, wa2.id]}
+        self.assertGET404(url, data=data)
+
+        response = self.assertPOST(400, url, data=data)
+        self.assertDoesNotExist(wa1)
+        self.assertStillExists(wa2)
+
+        self.assertEqual(
+            _('You are not allowed to validate/delete the waiting action <{}>').format(wa2.id),
+            response.content.decode()
+        )
+
     def test_download_email_template(self):
+        self.login()
         self._build_test_registry()
 
         subject = 'create_contact'
@@ -211,12 +284,14 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'crudity/create_email_template.html')
 
     def test_download_ini_template01(self):
-        "Error"
+        "Error."
+        self.login()
         self._build_test_registry(FAKE_CRUDITY_BACKENDS)
         self.assertGET404(reverse('crudity__dl_fs_ini_template', args=('INVALID',)))  # No backend
         self.assertGET404(reverse('crudity__dl_fs_ini_template', args=('CREATECONTACT',)))  # Backend with bad type
 
     def test_download_ini_template02(self):
+        self.login()
         subject = 'CREATE_CONTACT'
         last_name = 'Suzumiya'
         description = 'The best waifu\nis here'
@@ -275,6 +350,7 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
 
     def test_download_ini_template03(self):
         "Sandbox per user"
+        user = self.login()
         self._set_sandbox_by_user()
 
         subject = 'CREATE_CONTACT'
@@ -302,9 +378,11 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
 
         with self.assertNoException():
             username = config.get('head', 'username')
-        self.assertEqual(self.user.username, username)
+        self.assertEqual(user.username, username)
 
     def test_history(self):
+        self.login()
+
         response = self.assertGET200(reverse('crudity__history'))
         self.assertTemplateUsed(response, 'crudity/history.html')
 
@@ -327,6 +405,8 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         self.assertNotIn(FakeImage, models)
 
     def test_history_reload01(self):
+        self.login()
+
         ct = ContentType.objects.get_for_model(FakeContact)
         brick_id = 'block_crudity-{}'.format(ct.id)
         response = self.assertGET200(reverse('crudity__reload_history_bricks'),
@@ -342,6 +422,8 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         # TODO: complete ?
 
     def test_history_reload02(self):
+        self.login()
+
         ct = ContentType.objects.get_for_model(FakeImage)
         self.assertGET200(reverse('crudity__reload_history_bricks'),
                           data={'brick_id': 'block_crudity-{}'.format(ct.id)},
@@ -368,7 +450,9 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
                        CREME_GET_EMAIL_PASSWORD='p4$$w0rD',
                       )
     def test_actions_portal01(self):
+        self.login()
         self._build_test_registry()
+
         response = self.assertGET200(reverse('crudity__actions'))
         self.assertTemplateUsed(response, 'emails/bricks/synchronization.html')
         self.assertTemplateUsed(response, 'emails/bricks/synchronization-spam.html')
@@ -380,6 +464,8 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         self.assertFalse(FakePOP3.instances)
 
     def test_actions_portal02(self):
+        self.login()
+
         self._build_test_registry(FAKE_CRUDITY_BACKENDS)
         response = self.assertGET200(reverse('crudity__actions'))
 
@@ -389,6 +475,8 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         # TODO: complete
 
     def test_actions_reload(self):
+        self.login()
+
         self._build_test_registry(FAKE_CRUDITY_BACKENDS)
         brick_id = 'block_crudity-waiting_actions-swallow|swallow|CREATECONTACT'
         response = self.assertGET200(reverse('crudity__reload_actions_bricks'),
@@ -424,6 +512,8 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
                        CREME_GET_EMAIL_PASSWORD='p4$$w0rD',
                       )
     def test_actions_fetch01(self):
+        self.login()
+
         self._build_test_registry()
         url = reverse('crudity__refresh_actions')
         self.assertGET404(url)
@@ -450,8 +540,10 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
     @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)
     def test_actions_fetch02(self):
         "Fetcher without backend are not used + not default backend"
+        user = self.login()
+
         self.SwallowFetcher.last_name = last_name = 'Suzumiya'
-        self.SwallowFetcher.user_id = self.user.id
+        self.SwallowFetcher.user_id = user.id
 
         self._build_test_registry()
 
@@ -462,7 +554,7 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         self.get_object_or_fail(FakeContact, last_name=last_name)
 
     def test_job01(self):
-        user = self.user
+        user = self.login()
 
         SwallowFetcher = self.SwallowFetcher
         SwallowFetcher.user_id = user.id
@@ -503,6 +595,7 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
 
     def test_job02(self):
         "Default backend + job configuration"
+        self.login()
         other_user = self.other_user
 
         queue = JobManagerQueue.get_main_queue()
