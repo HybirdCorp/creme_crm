@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2018  Hybird
+    Copyright (C) 2009-2019  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -51,22 +51,37 @@ creme.billing.checkValue = function(element) {
 creme.billing.checkDiscount = function(element) {
     var parent_tr      = element.closest('tr');
     var discount_unit  = parseInt($('select[name*=discount_unit]', parent_tr).val());
-    var total_discount = $('input[name*=total_discount]', parent_tr).is(':checked');
+//    var total_discount = $('input[name*=total_discount]', parent_tr).is(':checked');
     var discount_value = parseFloat($('input[name*=discount]', parent_tr).val());
     var unit_price     = parseFloat($('input[name*=unit_price]', parent_tr).val());
     var quantity       = parseInt($('input[name*=quantity]', parent_tr).val());
 
-    if (!creme.billing.checkPercent(element) && discount_unit === 1) {
-        return false;
-    }
-    if (total_discount && discount_unit === 2 && discount_value > unit_price * quantity) {
-        return false;
-    }
-    if (!total_discount && discount_unit === 2 && discount_value > unit_price) {
-        return false;
+//    if (!creme.billing.checkPercent(element) && discount_unit === 1) {
+//        return false;
+//    }
+//    if (total_discount && discount_unit === 2 && discount_value > unit_price * quantity) {
+//        return false;
+//    }
+//    if (!total_discount && discount_unit === 2 && discount_value > unit_price) {
+//        return false;
+//    }
+//
+//    return true;
+    switch (discount_unit) {
+        case 1: // DISCOUNT_PERCENT
+            return creme.billing.checkPercent(element);
+
+        case 2: // DISCOUNT_LINE_AMOUNT
+            return discount_value <= unit_price * quantity;
+
+        case 3: // DISCOUNT_ITEM_AMOUNT
+            return discount_value <= unit_price;
+
+        default:
+            console.log("checkDiscount(): Bad discount value ?!", discount_unit);
     }
 
-    return true;
+    return false;
 };
 
 creme.billing.markDelete = function(form_prefix, line_id) {
