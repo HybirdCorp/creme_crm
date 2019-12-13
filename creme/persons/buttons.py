@@ -101,8 +101,8 @@ class BecomeSupplierButton(CrmButton):
     what = 'supplier'
     url_name = 'persons__become_supplier'
 
-    def get_ctypes(self):
-        return (Organisation,)
+    # def get_ctypes(self):
+    #     return (Organisation,)
 
 
 class AddLinkedContactButton(Button):
