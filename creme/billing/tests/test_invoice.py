@@ -243,7 +243,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED, target)
 
     def test_create_related02(self):
-        "Not a super-user"
+        "Not a super-user."
         self.login(is_superuser=False,
                    allowed_apps=['persons', 'billing'],
                    creatable_models=[Invoice],
@@ -261,7 +261,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertGET200(reverse('billing__create_related_invoice', args=(target.id,)))
 
     def test_create_related03(self):
-        "Creation creds are needed"
+        "Creation creds are needed."
         self.login(is_superuser=False,
                    allowed_apps=['persons', 'billing'],
                    # creatable_models=[Invoice],
@@ -591,7 +591,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(date.today(), invoice.issuing_date)  # NB: this test can fail if run at midnight...
 
     def test_generate_number03(self):
-        "Managed orga"
+        "Managed organisation."
         self.login()
 
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')
@@ -761,7 +761,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(s_addr.department, shipping_address.department)
 
     def test_clone_source_n_target(self):
-        "Internal relationtypes should not be cloned"
+        "Internal relationtypes should not be cloned."
         self.login()
 
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')
