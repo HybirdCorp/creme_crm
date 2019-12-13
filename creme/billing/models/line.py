@@ -62,7 +62,8 @@ class Line(CremeEntity):
     discount_unit  = models.PositiveIntegerField(_('Discount Unit'),
                                                  blank=True, null=True, editable=False,
                                                  choices=constants.DISCOUNT_UNIT.items(),
-                                                 default=constants.PERCENT_PK,
+                                                 # default=constants.PERCENT_PK,
+                                                 default=constants.DISCOUNT_PERCENT,
                                                 )
     total_discount = models.BooleanField(_('Total discount ?'), editable=False, default=False)
     vat_value      = models.ForeignKey(Vat, verbose_name=_('VAT'),
@@ -95,7 +96,8 @@ class Line(CremeEntity):
         self.related_item     = source.related_item
 
     def clean(self):
-        if self.discount_unit == constants.PERCENT_PK:
+        # if self.discount_unit == constants.PERCENT_PK:
+        if self.discount_unit == constants.DISCOUNT_PERCENT:
             if not (0 <= self.discount <= 100):
                 raise ValidationError(
                     gettext('If you choose % for your discount unit, '
@@ -103,7 +105,7 @@ class Line(CremeEntity):
                            ),
                     code='invalid_percentage',
                 )
-        elif self.total_discount:  # Global discount
+        elif self.total_discount:  # DISCOUNT_LINE_AMOUNT (global discount)
             if self.discount > self.unit_price * self.quantity:
                 raise ValidationError(
                     gettext('Your overall discount is superior than'
@@ -111,7 +113,7 @@ class Line(CremeEntity):
                            ),
                     code='discount_gt_total',
                 )
-        else:  # Unitary discount
+        else:  # DISCOUNT_ITEM_AMOUNT (Unitary discount)
             if self.discount > self.unit_price:
                 raise ValidationError(
                     gettext('Your discount is superior than the unit price'),
@@ -154,17 +156,18 @@ class Line(CremeEntity):
         return round_to_2(self.quantity * self.unit_price)
 
     def get_price_exclusive_of_tax(self, document=None):
-        document                = document if document else self.related_document
-        discount_document       = document.discount if document else None
-        discount_line           = self.discount
-        global_discount_line    = self.total_discount
-        unit_price_line         = self.unit_price
+        document             = document if document else self.related_document
+        discount_document    = document.discount if document else None
+        discount_line        = self.discount
+        global_discount_line = self.total_discount
+        unit_price_line      = self.unit_price
 
-        if self.discount_unit == constants.PERCENT_PK and discount_line:
+        # if self.discount_unit == constants.PERCENT_PK and discount_line:
+        if self.discount_unit == constants.DISCOUNT_PERCENT:
             total_after_first_discount = self.quantity * (unit_price_line - (unit_price_line * discount_line / 100))
-        elif global_discount_line:
+        elif global_discount_line:  # DISCOUNT_LINE_AMOUNT
             total_after_first_discount = self.quantity * unit_price_line - discount_line
-        else:
+        else:  # DISCOUNT_ITEM_AMOUNT
             total_after_first_discount = self.quantity * (unit_price_line - discount_line)
 
         total_exclusive_of_tax = total_after_first_discount
