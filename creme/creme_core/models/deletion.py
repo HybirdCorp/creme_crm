@@ -68,7 +68,7 @@ class DeletionCommand(CremeModel):
     """
     # NB: using <content_type> as PK assures us that we cannot delete several
     #     instances of the same model concurrently, with potential issues like
-    #    dependency loops (eg: replace A with B, B with C, C with A arggg).
+    #    dependency loops (eg: replace A with B, B with C, C with A arg).
     content_type   = CTypeOneToOneField(editable=False, primary_key=True)
     job            = models.ForeignKey(Job, on_delete=models.CASCADE, editable=False)
     pk_to_delete   = models.TextField(editable=False)

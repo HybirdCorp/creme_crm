@@ -36,7 +36,7 @@ setup(
     zip_safe=False,
     long_description=README,
     install_requires=[
-        "django>=2.2.7,<2.2.1024",
+        "django>=2.2.8,<2.2.1024",
         "redis>=3.3.8,<3.3.1024",
         "Pillow>=6.2.0<6.2.1024",
         "python-dateutil>=2.8.0,<2.8.1024",
