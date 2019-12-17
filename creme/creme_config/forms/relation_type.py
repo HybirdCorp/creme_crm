@@ -146,7 +146,6 @@ class SemiFixedRelationTypeCreateForm(CremeModelForm):
         if not self._errors:
             rtype, entity = cdata['semi_relation']
 
-            # TODO: unique_together in model
             if SemiFixedRelationType.objects.filter(relation_type=rtype, object_entity=entity).exists():
                 raise ValidationError(_('A semi-fixed type of relationship with '
                                         'this type and this object already exists.'
