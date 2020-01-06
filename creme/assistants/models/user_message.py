@@ -20,7 +20,6 @@
 
 from functools import partial
 import logging
-# import warnings
 
 from django.db import models
 from django.db.transaction import atomic
@@ -28,7 +27,6 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel, CremeEntity, JobResult, fields as creme_fields
-
 
 logger = logging.getLogger(__name__)
 
@@ -79,21 +77,6 @@ class UserMessage(CremeModel):
 
     def __str__(self):
         return self.title
-
-    # @staticmethod
-    # def get_messages(entity, user):
-    #     warnings.warn('UserMessage.get_messages() is deprecated.', DeprecationWarning)
-    #     return UserMessage.objects.filter(entity_id=entity.id, recipient=user).select_related('sender')
-
-    # @staticmethod
-    # def get_messages_for_home(user):
-    #     warnings.warn('UserMessage.get_messages_for_home() is deprecated.', DeprecationWarning)
-    #     return UserMessage.objects.filter(recipient=user).select_related('sender')
-
-    # @staticmethod
-    # def get_messages_for_ctypes(ct_ids, user):
-    #     warnings.warn('UserMessage.get_messages_for_ctypes() is deprecated.', DeprecationWarning)
-    #     return UserMessage.objects.filter(entity_content_type__in=ct_ids, recipient=user).select_related('sender')
 
     @classmethod
     @atomic

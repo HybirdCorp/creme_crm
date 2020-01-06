@@ -18,14 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.creme_core.forms import CremeModelForm  # CremeModelWithUserForm
+from creme.creme_core.forms import CremeModelForm
 
 from ..models import Memo
 
 
-# class MemoForm(CremeModelWithUserForm):
 class MemoForm(CremeModelForm):
-    # class Meta(CremeModelWithUserForm.Meta):
     class Meta(CremeModelForm.Meta):
         model = Memo
 

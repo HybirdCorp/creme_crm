@@ -24,7 +24,7 @@ from django.forms.fields import TimeField
 from django.utils.timezone import localtime
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeModelForm  # CremeModelWithUserForm
+from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.widgets import CalendarWidget
 from creme.creme_core.utils.dates import make_aware_dt
 
@@ -32,11 +32,9 @@ from ..models import Action
 
 
 # TODO: alright, we need a real date time widget that does this shit !
-# class ActionForm(CremeModelWithUserForm):
 class ActionForm(CremeModelForm):
     deadline_time = TimeField(label=_('Hour'), required=False)
 
-    # class Meta(CremeModelWithUserForm.Meta):
     class Meta(CremeModelForm.Meta):
         model = Action
         widgets = {'deadline': CalendarWidget}
