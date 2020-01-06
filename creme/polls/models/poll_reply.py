@@ -38,10 +38,10 @@ class AbstractPollReply(CremeEntity):
                             )
     campaign    = ForeignKey(settings.POLLS_CAMPAIGN_MODEL,
                              verbose_name=pgettext_lazy('polls', 'Related campaign'),
-                             on_delete=PROTECT, null=True, blank=True,  # editable=False,
+                             on_delete=PROTECT, null=True, blank=True,
                             )
     person      = ForeignKey(CremeEntity, verbose_name=_('Person who filled'),
-                             on_delete=PROTECT,  # editable=False,
+                             on_delete=PROTECT,
                              null=True, blank=True, related_name='+',
                             )
     type        = ForeignKey(PollType, verbose_name=_('Type'),

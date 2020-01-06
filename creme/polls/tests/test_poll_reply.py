@@ -1138,7 +1138,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(PollReply.get_lv_absolute_url())
 
         with self.assertNoException():
-            # preply_page = response.context['entities']
             preply_page = response.context['page_obj']
 
         self.assertEqual(2, preply_page.paginator.count)
@@ -1150,10 +1149,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         ptype  = PollType.objects.create(name='Political poll')
         preply = self._build_preply(ptype=ptype)
 
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('polls', 'poll_type')),
-        #                    data={'id': ptype.pk}
-        #                   )
-        # self.assertDoesNotExist(ptype)
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('polls', 'poll_type', ptype.id)
                                            ),

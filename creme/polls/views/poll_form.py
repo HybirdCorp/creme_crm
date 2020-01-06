@@ -18,85 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.core.exceptions import PermissionDenied
 from django.db.models import ProtectedError
 from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404, redirect  # render
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.views import generic
-# from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic import base
 
 from .. import get_pollform_model
 from ..constants import DEFAULT_HFILTER_PFORM
 from ..forms import poll_form as pf_forms
-from ..models import PollFormSection, PollFormLine  # PollFormLineCondition
+from ..models import PollFormSection, PollFormLine
 from ..utils import StatsTree, NodeStyle  # TODO: templatetag instead ?
 
-
 PollForm = get_pollform_model()
-
-# def abstract_add_pollform(request, form=pf_forms.PollFormForm,
-#                           submit_label=PollForm.save_label,
-#                          ):
-#     warnings.warn('polls.views.poll_form.abstract_add_pollform() is deprecated ; '
-#                   'use the class-based view PollFormCreation instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.add_entity(request, form,
-#                               extra_template_dict={'submit_label': submit_label},
-#                              )
-
-
-# def abstract_edit_pollform(request, pform_id, form=pf_forms.PollFormForm):
-#     warnings.warn('polls.views.poll_form.abstract_edit_pollform() is deprecated ; '
-#                   'use the class-based view PollFormEdition instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.edit_entity(request, pform_id, PollForm, form)
-
-
-# def abstract_view_pollform(request, pform_id,
-#                            template='polls/view_pollform.html',
-#                           ):
-#     warnings.warn('polls.views.poll_form.abstract_view_pollform() is deprecated ; '
-#                   'use the class-based view PollFormDetail instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.view_entity(request, pform_id, PollForm, template=template)
-
-
-# @login_required
-# @permission_required(('polls', cperm(PollForm)))
-# def add(request):
-#     warnings.warn('polls.views.poll_form.add() is deprecated.', DeprecationWarning)
-#     return abstract_add_pollform(request)
-
-
-# @login_required
-# @permission_required('polls')
-# def edit(request, pform_id):
-#     warnings.warn('polls.views.poll_form.edit() is deprecated.', DeprecationWarning)
-#     return abstract_edit_pollform(request, pform_id)
-
-
-# @login_required
-# @permission_required('polls')
-# def detailview(request, pform_id):
-#     warnings.warn('polls.views.poll_form.detailview() is deprecated.', DeprecationWarning)
-#     return abstract_view_pollform(request, pform_id)
-
-
-# @login_required
-# @permission_required('polls')
-# def listview(request):
-#     return generic.list_view(request, PollForm, hf_pk=DEFAULT_HFILTER_PFORM)
 
 
 class LineEdition(generic.RelatedToEntityEditionPopup):
@@ -151,19 +90,6 @@ class Statistics(generic.EntityDetail):
         return context
 
 
-# @login_required
-# @permission_required('polls')
-# @jsonify
-# def get_choices(request, line_id):
-#     line = get_object_or_404(PollFormLine, pk=line_id)
-#     request.user.has_perm_to_view_or_die(line.pform)
-#
-#     choices = line.poll_line_type.get_choices()
-#
-#     if choices is None:
-#         raise Http404('This line type has no choices.')
-#
-#     return choices
 class LineChoices(base.CheckedView):
     response_class = CremeJsonResponse
     permissions = 'polls'

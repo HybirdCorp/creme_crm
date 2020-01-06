@@ -20,7 +20,7 @@
 
 from collections import OrderedDict
 from datetime import date
-from json import loads as json_load  # dumps as json_dump
+from json import loads as json_load
 
 from django.core.exceptions import ValidationError
 from django.forms.fields import (Field, IntegerField, CharField, TypedChoiceField,
@@ -84,7 +84,6 @@ class PollLineType:
     def cleaned_serialized_args(self):
         "Return a cleaned copy of the args (to be used in Replies)."
         args = self._cleaned_args()
-        # return json_dump(args) if args else None
         return json_encode(args) if args else None
 
     def decode_answer(self, raw_answer):
@@ -98,12 +97,10 @@ class PollLineType:
         return self.verbose_name
 
     def encode_answer(self, raw_answer):
-        # return json_dump(self._cast_answer_4_encoding(raw_answer)) if raw_answer is not None else None
         return json_encode(self._cast_answer_4_encoding(raw_answer)) if raw_answer is not None else None
 
     def encode_condition(self, cond_answer):
         """@param cond_answer Value of answer in condition."""
-        # return json_dump(cond_answer)
         return json_encode(cond_answer)
 
     def _formfield(self, initial):
@@ -150,7 +147,6 @@ class IntPollLineType(PollLineType):
     verbose_name = _('Integer')
 
     def __init__(self, **kwargs):
-        # super(IntPollLineType, self).__init__(**kwargs)
         super().__init__(**kwargs)
         args = self._args
 
@@ -341,7 +337,6 @@ class MultiEnumPollLineType(EnumPollLineType):
 
     def encode_condition(self, cond_answer):
         # TODO: cond_answer as list of choice (later with better operators)
-        # return json_dump([cond_answer])
         return json_encode([cond_answer])
 
     def _formfield(self, initial):
@@ -378,7 +373,6 @@ class EnumOrStringPollLineType(EnumPollLineType):
     def encode_condition(self, cond_answer):
         # NB: we use a (json) list, in order to encode complexier conditions later,
         #     eg: [0, 'My user string']
-        # return json_dump([cond_answer])
         return json_encode([cond_answer])
 
     def _formfield(self, initial):

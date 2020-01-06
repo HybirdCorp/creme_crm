@@ -35,7 +35,6 @@ from creme.creme_core.forms.widgets import Label
 
 from creme import persons, polls
 
-
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 PollCampaign = polls.get_pollcampaign_model()
@@ -62,7 +61,6 @@ class PollRepliesCreateForm(CremeForm):
 
     def __init__(self, entity=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.instance = None
         self.preplies = []
         fields = self.fields
         fields['user'].initial = self.user.id
@@ -78,24 +76,6 @@ class PollRepliesCreateForm(CremeForm):
                 del fields['persons']
                 del fields['number']
                 self.persons = [entity]
-
-        # get_initial = self.initial.get
-
-        # pform = get_initial('pform')
-        # if pform:
-        #     del fields['pform']
-        #     self._set_pform_n_validate(pform, Http404)
-
-        # campaign = get_initial('campaign')
-        # if campaign:
-        #     del fields['campaign']
-        #     self.campaign = campaign
-
-        # linked_persons = get_initial('persons')
-        # if linked_persons is not None:
-        #     del fields['persons']
-        #     del fields['number']
-        #     self.persons = linked_persons
 
     def clean_campaign(self):
         self.campaign = campaign = self.cleaned_data['campaign']
@@ -148,17 +128,12 @@ class PollRepliesCreateForm(CremeForm):
             linked_persons = repeat(None, reply_number)
 
         duplicate_tree = self.pform.duplicate_tree
-        # instance = None
 
         for i, person in enumerate(linked_persons, start=1):
             instance = self.create_preply(i, person, reply_number)
             instance.save()
             duplicate_tree(instance, self.pform_lines)
             self.preplies.append(instance)
-        # else:
-        #     self.instance = instance
-
-        # return self.instance
 
 
 class PollReplyEditForm(CremeEntityForm):

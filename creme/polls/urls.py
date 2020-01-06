@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# from django.conf.urls import url, include
 from django.urls import re_path, include
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
@@ -17,7 +16,6 @@ urlpatterns = [
     re_path(r'^pform_line/(?P<line_id>\d+)/edit[/]?$',            poll_form.LineEdition.as_view(),       name='polls__edit_form_line'),
     re_path(r'^pform_line/(?P<line_id>\d+)/disable[/]?$',         poll_form.disable_line,                name='polls__disable_form_line'),
     re_path(r'^pform_line/(?P<line_id>\d+)/conditions/edit[/]?$', poll_form.ConditionsEdition.as_view(), name='polls__edit_form_line_conditions'),
-    # re_path(r'^pform_line/(?P<line_id>\d+)/choices[/]?$',         poll_form.get_choices,                 name='polls__form_line_choices'),
     re_path(r'^pform_line/(?P<line_id>\d+)/choices[/]?$',         poll_form.LineChoices.as_view(),       name='polls__form_line_choices'),
 
     # Form section
@@ -41,7 +39,6 @@ urlpatterns = [
 
     *swap_manager.add_group(
         polls.pollcampaign_model_is_custom,
-        # Swappable(url(r'^campaigns[/]?$',                          campaign.listview,                       name='polls__list_campaigns')),
         Swappable(re_path(r'^campaigns[/]?$',                          campaign.PollCampaignsList.as_view(),    name='polls__list_campaigns')),
         Swappable(re_path(r'^campaign/add[/]?$',                       campaign.PollCampaignCreation.as_view(), name='polls__create_campaign')),
         Swappable(re_path(r'^campaign/edit/(?P<campaign_id>\d+)[/]?$', campaign.PollCampaignEdition.as_view(),  name='polls__edit_campaign'), check_args=Swappable.INT_ID),
@@ -51,7 +48,6 @@ urlpatterns = [
 
     *swap_manager.add_group(
         polls.pollform_model_is_custom,
-        # Swappable(url(r'^poll_forms[/]?$',                       poll_form.listview,                   name='polls__list_forms')),
         Swappable(re_path(r'^poll_forms[/]?$',                       poll_form.PollFormsList.as_view(),    name='polls__list_forms')),
         Swappable(re_path(r'^poll_form/add[/]?$',                    poll_form.PollFormCreation.as_view(), name='polls__create_form')),
         Swappable(re_path(r'^poll_form/edit/(?P<pform_id>\d+)[/]?$', poll_form.PollFormEdition.as_view(),  name='polls__edit_form'), check_args=Swappable.INT_ID),
@@ -61,7 +57,6 @@ urlpatterns = [
 
     *swap_manager.add_group(
         polls.pollreply_model_is_custom,
-        # Swappable(url(r'^poll_replies[/]?$', poll_reply.listview, name='polls__list_replies')),
         Swappable(re_path(r'^poll_replies[/]?$', poll_reply.PollRepliesList.as_view(), name='polls__list_replies')),
 
         # TODO: change url (reply->replies or add_several ??)
