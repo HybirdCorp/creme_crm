@@ -17,16 +17,15 @@ from creme.creme_core.models import fields as creme_fields, deletion as creme_de
 class Migration(migrations.Migration):
     # replaces = [
     #     ('creme_core', '0001_initial'),
-    #     ('creme_core', '0052_v2_1__home_bricks_per_role'),
-    #     ('creme_core', '0053_v2_1__setcredentials_forbidden'),
-    #     ('creme_core', '0054_v2_1__deletion_command'),
-    #     ('creme_core', '0055_v2_1__cremeentity_description'),
-    #     ('creme_core', '0056_v2_1__brickstate_json_extra_data'),
-    #     ('creme_core', '0057_v2_1__model_brick_id'),
-    #     ('creme_core', '0058_v2_1__casesensitivity'),
-    #     ('creme_core', '0059_v2_1__convert_old_filter_format'),
-    #     ('creme_core', '0060_v2_1__credentials_with_filter'),
-    #     ('creme_core', '0061_v2_1__set_version'),
+    #     ('creme_core', '0043_v2_0__rm_abstract_entity'),
+    #     ('creme_core', '0044_v2_0__rm_pref_menu_item'),
+    #     ('creme_core', '0045_v2_0__rm_portalbrick_app_name_1'),
+    #     ('creme_core', '0046_v2_0__rm_portalbrick_app_name_2'),
+    #     ('creme_core', '0047_v2_0__rename_bricks_models'),
+    #     ('creme_core', '0048_v2_0__relation_type_not_null'),
+    #     ('creme_core', '0049_v2_0__relations_uniqueness_1'),
+    #     ('creme_core', '0050_v2_0__relations_uniqueness_2'),
+    #     ('creme_core', '0051_v2_0__set_version'),
     # ]
 
     initial = True
@@ -37,13 +36,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='CaseSensitivity',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.CharField(max_length=4)),
-            ],
-        ),
         migrations.CreateModel(
             name='UserRole',
             fields=[
@@ -66,6 +58,16 @@ class Migration(migrations.Migration):
                 'verbose_name':        'Role',
                 'verbose_name_plural': 'Roles',
             },
+        ),
+        migrations.CreateModel(
+            name='SetCredentials',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('value', models.PositiveSmallIntegerField()),
+                ('set_type', models.PositiveIntegerField()),
+                ('ctype', creme_fields.CTypeForeignKey(blank=True, to='contenttypes.ContentType', null=True)),
+                ('role', models.ForeignKey(related_name='credentials', to='creme_core.UserRole', on_delete=models.CASCADE)),
+            ],
         ),
         migrations.CreateModel(
             name='CremeUser',
@@ -148,8 +150,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('brick_id', models.CharField(max_length=100)),
-                ('role', models.ForeignKey(default=None, null=True, on_delete=models.CASCADE, to='creme_core.UserRole', verbose_name='Related role')),
-                ('superuser', models.BooleanField(default=False, editable=False, verbose_name='related to superusers')),
                 ('order', models.PositiveIntegerField()),
             ],
             options={
@@ -164,7 +164,6 @@ class Migration(migrations.Migration):
                 ('is_open', models.BooleanField(default=True)),
                 ('show_empty_fields', models.BooleanField(default=True)),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
-                ('json_extra_data', models.TextField(default='{}', editable=False)),
             ],
             options={
                 'unique_together': {('user', 'brick_id')},
@@ -211,7 +210,6 @@ class Migration(migrations.Migration):
                 ('entity_type', creme_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
                 ('user', creme_fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
                 ('sandbox', models.ForeignKey(editable=False, null=True, on_delete=models.PROTECT, to='creme_core.Sandbox')),
-                ('description', models.TextField(blank=True, verbose_name='Description')),
             ],
             options={
                 'ordering': ('header_filter_search_field',),
@@ -380,14 +378,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.CharField(max_length=100, serialize=False, editable=False, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('filter_type', models.PositiveSmallIntegerField(choices=[
-                                                                    (0, 'Credentials filter (internal use)'),
-                                                                    (1, 'Regular filter (usable in list-view...'),
-                                                                 ],
-                                                                 default=1,
-                                                                 editable=False,
-                                                                )
-                 ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('is_private', models.BooleanField(default=False, verbose_name='Is private?',
                                                    help_text='A private filter can only be used by its owner (or the teammates if the owner is a team)',
@@ -583,42 +573,6 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='SetCredentials',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('value', models.PositiveSmallIntegerField()),
-                ('set_type', models.PositiveIntegerField(choices=[
-                    (1, 'All entities'),
-                    (2, "User's own entities"),
-                    (3, 'Filtered entities')
-                ],
-                    default=1,
-                    help_text='The choice «Filtered entities» allows to configure credentials based on values of fields or relationships for example.',
-                    verbose_name='Type of entities set',
-                )
-                 ),
-                ('ctype', creme_fields.CTypeForeignKey(to='contenttypes.ContentType',
-                                                       blank=True, null=True, on_delete=models.CASCADE,
-                                                       verbose_name='Apply to a specific type',
-                                                       )
-                 ),
-                ('role',
-                 models.ForeignKey(related_name='credentials', to='creme_core.UserRole', on_delete=models.CASCADE,
-                                   editable=False)),
-                ('forbidden', models.BooleanField(choices=[
-                    (False, 'The users are allowed to perform the selected actions'),
-                    (True, 'The users are NOT allowed to perform the selected actions'),
-                ],
-                    default=False,
-                    help_text='Notice that actions which are forbidden & allowed at the same time are considered as forbidden when final permissions are computed.',
-                    verbose_name='Allow or forbid?',
-                )
-                 ),
-                ('efilter',
-                 models.ForeignKey(editable=False, null=True, on_delete=models.PROTECT, to='creme_core.EntityFilter')),
-            ],
-        ),
-        migrations.CreateModel(
             name='SettingValue',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -723,22 +677,6 @@ class Migration(migrations.Migration):
                 ('job', models.ForeignKey(to='creme_core.Job', on_delete=models.CASCADE)),
             ],
             options={},
-        ),
-        migrations.CreateModel(
-            name='DeletionCommand',
-            fields=[
-                ('content_type', creme_fields.CTypeOneToOneField(editable=False, on_delete=models.CASCADE,
-                                                                 primary_key=True, serialize=False,
-                                                                 to='contenttypes.ContentType',
-                                                                )
-                ),
-                ('job', models.ForeignKey(on_delete=models.CASCADE, to='creme_core.Job', editable=False)),
-                ('pk_to_delete', models.TextField(editable=False)),
-                ('deleted_repr', models.TextField(editable=False)),
-                ('json_replacers', models.TextField(default='[]', editable=False)),
-                ('total_count', models.PositiveIntegerField(default=0, editable=False)),
-                ('updated_count', models.PositiveIntegerField(default=0, editable=False)),
-            ],
         ),
     ]
 
