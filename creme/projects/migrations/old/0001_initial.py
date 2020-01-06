@@ -8,13 +8,6 @@ from creme.creme_core.models import fields as creme_fields, CREME_REPLACE
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('projects', '0001_initial'),
-    #     ('projects', '0016_v2_1__move_description_to_entity_1'),
-    #     ('projects', '0017_v2_1__move_description_to_entity_2'),
-    #     ('projects', '0018_v2_1__move_description_to_entity_3'),
-    # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -47,7 +40,7 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the project')),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
+                ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('start_date', models.DateTimeField(null=True, verbose_name='Estimated start', blank=True)),
                 ('end_date', models.DateTimeField(null=True, verbose_name='Estimated end', blank=True)),
                 ('effective_end_date', models.DateTimeField(null=True, verbose_name='Effective end date', blank=True)),
@@ -100,7 +93,7 @@ class Migration(migrations.Migration):
                 ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
                 ('end',   models.DateTimeField(null=True, verbose_name='End', blank=True)),
                 ('duration', models.PositiveIntegerField(null=True, verbose_name='Duration (in hours)', blank=True)),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
+                ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('tstatus', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Task situation', to='projects.TaskStatus')),
             ],
             options={
