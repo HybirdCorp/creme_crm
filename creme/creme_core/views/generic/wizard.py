@@ -19,60 +19,60 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db.transaction import atomic
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils.decorators import method_decorator
+# from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.detail import SingleObjectMixin
 
 from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core import models
-from creme.creme_core.auth.decorators import login_required
+# from creme.creme_core.auth.decorators import login_required
 
 from . import base
 
 logger = logging.getLogger(__name__)
 
 
-class PopupWizardMixin:
-    """
-        Convenient mixin class for wizard popups.
-        Handle permissions and build common template context.
-    """
-    template_name = 'creme_core/generics/blockform/wizard_popup.html'
-    wizard_title = ''
-    permission = None
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        warnings.warn('PopupWizardMixin is deprecated ; '
-                      'use a class inheriting CremeWizardView instead.',
-                      DeprecationWarning
-                     )
-
-        perm = self.permission
-        if perm and not self.request.user.has_perm(perm):
-            from django.core.exceptions import PermissionDenied
-
-            raise PermissionDenied('You are not allowed to view this form')
-
-        return super().dispatch(*args, **kwargs)
-
-    def get_context_data(self, form, **kwargs):
-        context = super().get_context_data(form=form, **kwargs)
-        context['title'] = getattr(form, 'step_title', self.wizard_title)
-        context['prev_label']   = getattr(form, 'step_prev_label',   '')
-        context['first_label']  = getattr(form, 'step_first_label',  '')
-        context['submit_label'] = getattr(form, 'step_submit_label', '')
-
-        return context
-
-    def get_form_kwargs(self, step):
-        return {'user': self.request.user}
+# class PopupWizardMixin:
+#     """
+#         Convenient mixin class for wizard popups.
+#         Handle permissions and build common template context.
+#     """
+#     template_name = 'creme_core/generics/blockform/wizard_popup.html'
+#     wizard_title = ''
+#     permission = None
+#
+#     @method_decorator(login_required)
+#     def dispatch(self, *args, **kwargs):
+#         warnings.warn('PopupWizardMixin is deprecated ; '
+#                       'use a class inheriting CremeWizardView instead.',
+#                       DeprecationWarning
+#                      )
+#
+#         perm = self.permission
+#         if perm and not self.request.user.has_perm(perm):
+#             from django.core.exceptions import PermissionDenied
+#
+#             raise PermissionDenied('You are not allowed to view this form')
+#
+#         return super().dispatch(*args, **kwargs)
+#
+#     def get_context_data(self, form, **kwargs):
+#         context = super().get_context_data(form=form, **kwargs)
+#         context['title'] = getattr(form, 'step_title', self.wizard_title)
+#         context['prev_label']   = getattr(form, 'step_prev_label',   '')
+#         context['first_label']  = getattr(form, 'step_first_label',  '')
+#         context['submit_label'] = getattr(form, 'step_submit_label', '')
+#
+#         return context
+#
+#     def get_form_kwargs(self, step):
+#         return {'user': self.request.user}
 
 
 class CremeWizardView(base.TitleMixin,

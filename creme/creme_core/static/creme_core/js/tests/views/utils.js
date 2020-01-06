@@ -93,6 +93,7 @@ QUnit.test('creme.utils.goTo', function(assert) {
     ], this.mockRedirectCalls());
 });
 
+/*
 QUnit.test('creme.utils.appendInUrl', function(assert) {
     equal(creme.utils.appendInUrl('/', ''), '/');
     equal(creme.utils.appendInUrl('/test', '?foo=1'), '/test?foo=1');
@@ -100,6 +101,7 @@ QUnit.test('creme.utils.appendInUrl', function(assert) {
     equal(creme.utils.appendInUrl('/test?bar=0&plop=2', '?foo=1'), '/test?foo=1&bar=0&plop=2');
     equal(creme.utils.appendInUrl('/test?bar=0#id_node', '?foo=1&plop=2'), '/test?foo=1&plop=2&bar=0#id_node');
 });
+*/
 
 QUnit.test('creme.utils.clickOnce', function(assert) {
     var once = $('<a onclick="creme.utils.clickOnce(this, QUnit.mockInlineHtmlEvent, \'once call\', 12)"></a>');

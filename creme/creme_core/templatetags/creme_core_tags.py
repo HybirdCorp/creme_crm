@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from itertools import zip_longest
 from re import compile as compile_re
@@ -529,27 +529,27 @@ class MediaNode(TemplateNode):
         return _render_include_media(context['THEME_NAME'] + bundle, variation={})
 
 
-@register.simple_tag
-def get_export_backends():
-    warnings.warn('The templatetag {% get_export_backends %} is deprecated.', DeprecationWarning)
-
-    from json import dumps as json_dump
-    from ..backends import export_backend_registry
-
-    return json_dump([[backend.id, str(backend.verbose_name)]
-                        for backend in export_backend_registry.backends
-                     ]
-                    )
-
-
-@register.simple_tag
-def get_import_backends():
-    warnings.warn('The templatetag {% get_import_backends %} is deprecated.', DeprecationWarning)
-
-    from json import dumps as json_dump
-    from ..backends import import_backend_registry
-
-    return json_dump([[backend.id] for backend in import_backend_registry.backends])
+# @register.simple_tag
+# def get_export_backends():
+#     warnings.warn('The templatetag {% get_export_backends %} is deprecated.', DeprecationWarning)
+#
+#     from json import dumps as json_dump
+#     from ..backends import export_backend_registry
+#
+#     return json_dump([[backend.id, str(backend.verbose_name)]
+#                         for backend in export_backend_registry.backends
+#                      ]
+#                     )
+#
+#
+# @register.simple_tag
+# def get_import_backends():
+#     warnings.warn('The templatetag {% get_import_backends %} is deprecated.', DeprecationWarning)
+#
+#     from json import dumps as json_dump
+#     from ..backends import import_backend_registry
+#
+#     return json_dump([[backend.id] for backend in import_backend_registry.backends])
 
 
 @register.simple_tag(name='hg_info')

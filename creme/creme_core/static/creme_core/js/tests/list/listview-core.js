@@ -246,7 +246,7 @@ QUnit.test('creme.listview.core (select)', function(assert) {
     equal(true, controller.isMultipleSelectionMode());
 
     deepEqual(controller.selectedRows(), []);
-    deepEqual(creme.lv_widget.selectedLines(element), []);
+//    deepEqual(creme.lv_widget.selectedLines(element), []);
     equal(controller.isLoading(), false);
     equal(controller.hasSelectedRows(), false);
 
@@ -261,7 +261,7 @@ QUnit.test('creme.listview.core (select)', function(assert) {
     equal(true, $(lines[1]).is('.selected'));
     equal(false, $(lines[2]).is('.selected'));
     deepEqual(controller.selectedRows(), ['1', '2']);
-    deepEqual(creme.lv_widget.selectedLines(element), ['1', '2']);
+//    deepEqual(creme.lv_widget.selectedLines(element), ['1', '2']);
     equal(controller.hasSelectedRows(), true);
 
     $(lines[2]).click();
@@ -270,7 +270,7 @@ QUnit.test('creme.listview.core (select)', function(assert) {
     equal(true, $(lines[1]).is('.selected'));
     equal(true, $(lines[2]).is('.selected'));
     deepEqual(controller.selectedRows(), ['1', '2', '3']);
-    deepEqual(creme.lv_widget.selectedLines(element), ['1', '2', '3']);
+//    deepEqual(creme.lv_widget.selectedLines(element), ['1', '2', '3']);
     equal(controller.hasSelectedRows(), true);
 
     $(lines[1]).click();
@@ -279,7 +279,7 @@ QUnit.test('creme.listview.core (select)', function(assert) {
     equal(false, $(lines[1]).is('.selected'));
     equal(true, $(lines[2]).is('.selected'));
     deepEqual(controller.selectedRows(), ['1', '3']);
-    deepEqual(creme.lv_widget.selectedLines(element), ['1', '3']);
+//    deepEqual(creme.lv_widget.selectedLines(element), ['1', '3']);
     equal(controller.hasSelectedRows(), true);
 });
 

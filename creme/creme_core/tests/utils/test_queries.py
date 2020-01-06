@@ -231,5 +231,3 @@ class QueriesTestCase(CremeTestCase):
              )
         self._assertQIsOK(q, [self.richard, self.marianne])
         self.assertRaises(SerializationError, qsr.dumps, q)
-
-    # TODO: test get_q_from_dict()

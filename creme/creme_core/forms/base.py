@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from collections import OrderedDict
 from functools import partial
 import logging
-import warnings
+# import warnings
 
 from django import forms
 from django.conf import settings
@@ -42,7 +42,8 @@ from . import fields, widgets
 
 __all__ = (
     'FieldBlockManager', 'CremeForm', 'CremeModelForm',
-    'CremeModelWithUserForm', 'CremeEntityForm',
+    # 'CremeModelWithUserForm',
+    'CremeEntityForm',
 )
 
 logger = logging.getLogger(__name__)
@@ -283,21 +284,21 @@ class CremeModelForm(forms.ModelForm, HookableForm):
         return instance
 
 
-class CremeModelWithUserForm(CremeModelForm):
-    user = forms.ModelChoiceField(label=_('Owner user'), empty_label=None, queryset=None)
-
-    def __init__(self, user, *args, **kwargs):
-        warnings.warn('CremeModelWithUserForm is deprecated ; '
-                      'use CremeModelForm instead.',
-                      DeprecationWarning
-                     )
-
-        from django.contrib.auth import get_user_model
-
-        super().__init__(user=user, *args, **kwargs)
-        user_f = self.fields['user']
-        user_f.queryset = get_user_model().objects.filter(is_staff=False)
-        user_f.initial = user.id
+# class CremeModelWithUserForm(CremeModelForm):
+#     user = forms.ModelChoiceField(label=_('Owner user'), empty_label=None, queryset=None)
+#
+#     def __init__(self, user, *args, **kwargs):
+#         warnings.warn('CremeModelWithUserForm is deprecated ; '
+#                       'use CremeModelForm instead.',
+#                       DeprecationWarning
+#                      )
+#
+#         from django.contrib.auth import get_user_model
+#
+#         super().__init__(user=user, *args, **kwargs)
+#         user_f = self.fields['user']
+#         user_f.queryset = get_user_model().objects.filter(is_staff=False)
+#         user_f.initial = user.id
 
 
 class CremeEntityForm(CremeModelForm):

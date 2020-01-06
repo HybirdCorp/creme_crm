@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, IntegrityError
@@ -209,13 +209,13 @@ class CremePropertyType(CremeModel):
 
         return property_type
 
-    @staticmethod
-    def get_compatible_ones(ct):
-        warnings.warn('CremePropertyType.get_compatible_ones() is deprecated ; '
-                      'use CremePropertyType.objects.compatible() instead.',
-                      DeprecationWarning
-                     )
-        return CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
+    # @staticmethod
+    # def get_compatible_ones(ct):
+    #     warnings.warn('CremePropertyType.get_compatible_ones() is deprecated ; '
+    #                   'use CremePropertyType.objects.compatible() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     return CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
 
 
 class CremeProperty(CremeModel):

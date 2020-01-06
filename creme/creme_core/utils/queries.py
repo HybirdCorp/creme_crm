@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from datetime import datetime, date
 import json
 import logging
-import warnings
+# import warnings
 
 from django.core.serializers.base import SerializationError
 from django.db.models import Q, Model
@@ -32,28 +32,28 @@ from .dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
 logger = logging.getLogger(__name__)
 
 
-def get_q_from_dict(dict, is_or=False):
-    """
-    @return: A Q instance from {'attr1': 'val1', 'attr2': 'val2',...}
-             If 'is_or' is True, it returns <Q(attr1=val1) | Q(attr2=val2)>
-             else it returns <Q(attr1=val1) & Q(attr2=val2)>
-    """
-    warnings.warn('creme_core.utils.queries.get_q_from_dict() is deprecated ; '
-                  'use django.db.models.query.Q(**my_dict) instead.',
-                  DeprecationWarning
-                 )
-
-    q = Q()
-
-    for k, v in dict.items():
-        sub_q = Q(**{str(k): v})
-
-        if is_or:
-            q |= sub_q
-        else:
-            q &= sub_q
-
-    return q
+# def get_q_from_dict(dict, is_or=False):
+#     """
+#     @return: A Q instance from {'attr1': 'val1', 'attr2': 'val2',...}
+#              If 'is_or' is True, it returns <Q(attr1=val1) | Q(attr2=val2)>
+#              else it returns <Q(attr1=val1) & Q(attr2=val2)>
+#     """
+#     warnings.warn('creme_core.utils.queries.get_q_from_dict() is deprecated ; '
+#                   'use django.db.models.query.Q(**my_dict) instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     q = Q()
+#
+#     for k, v in dict.items():
+#         sub_q = Q(**{str(k): v})
+#
+#         if is_or:
+#             q |= sub_q
+#         else:
+#             q &= sub_q
+#
+#     return q
 
 
 # The following code is an heavy modification of:

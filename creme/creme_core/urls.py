@@ -54,10 +54,10 @@ relation_patterns = [
 
     re_path(r'^delete[/]?$',         relation.RelationDeletion.as_view(),           name='creme_core__delete_relation'),
     re_path(r'^delete/similar[/]?$', relation.RelationFromFieldsDeletion.as_view(), name='creme_core__delete_similar_relations'),  # TODO: change "name"
-    re_path(r'^delete/all[/]?$',     relation.delete_all,     name='creme_core__delete_all_relations'),
+    # re_path(r'^delete/all[/]?$',     relation.delete_all,     name='creme_core__delete_all_relations'),
 
     re_path(r'^entity/(?P<entity_id>\d+)/json[/]?$',               relation.json_entity_get,    name='creme_core__entity_as_json'),  # TODO: move to entity_patterns ?
-    re_path(r'^entity/(?P<entity_id>\d+)/rtypes/json[/]?$',        relation.json_entity_rtypes, name='creme_core__rtypes_compatible_with_entity'),
+    # re_path(r'^entity/(?P<entity_id>\d+)/rtypes/json[/]?$',        relation.json_entity_rtypes, name='creme_core__rtypes_compatible_with_entity'),
     re_path(r'^type/(?P<rtype_id>[\w-]+)/content_types/json[/]?$', relation.json_rtype_ctypes,  name='creme_core__ctypes_compatible_with_rtype'),
 ]
 
