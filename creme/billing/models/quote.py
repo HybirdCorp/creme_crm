@@ -30,7 +30,7 @@ from .other_models import QuoteStatus
 
 class AbstractQuote(Base):
     status = models.ForeignKey(
-        QuoteStatus, verbose_name=_('Status of quote'), on_delete=CREME_REPLACE,  # on_delete=models.PROTECT,
+        QuoteStatus, verbose_name=_('Status of quote'), on_delete=CREME_REPLACE,
     )
     acceptation_date = models.DateField(
         _('Acceptation date'), blank=True, null=True,

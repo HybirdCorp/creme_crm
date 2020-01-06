@@ -20,7 +20,6 @@
 
 from datetime import timedelta
 import logging
-# import warnings
 
 from django.db.models import PositiveIntegerField
 from django.urls import reverse
@@ -65,36 +64,6 @@ class AbstractTemplateBase(Base):
     @staticmethod
     def get_lv_absolute_url():
         return reverse('billing__list_templates')
-
-    # def get_verbose_status(self):
-    #     warnings.warn('models.AbstractTemplateBase.get_verbose_status() is deprecated ; '
-    #                   'use function_fields.TemplateBaseVerboseStatusField instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     vstatus = self._verbose_status_cache
-    #
-    #     if vstatus is None or vstatus.id != self.status_id:
-    #         status_model = self.ct.model_class()._meta.get_field('status').remote_field.model
-    #
-    #         try:
-    #             vstatus = status_model.objects.get(id=self.status_id)
-    #         except status_model.DoesNotExist as e:
-    #             logger.warning('Invalid status in TemplateBase(id=%s) [%s]', self.id, e)
-    #             vstatus = status_model(id=self.status_id, name='')
-    #
-    #         self._verbose_status_cache = vstatus
-    #
-    #     return vstatus.name
-
-    # @property
-    # def verbose_status(self):
-    #     warnings.warn('AbstractTemplateBase.verbose_status is deprecated '
-    #                   '(see get_verbose_status() warning).',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return self.get_verbose_status()
 
     def create_entity(self):
         "This method is used by the generation job"

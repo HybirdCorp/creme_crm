@@ -9,16 +9,3 @@
         }
     }{% endblockjsondata %}
 </a>
-{% comment %}
-{% if link_perm %}
-    <a class="menu_button menu-button-icon" onclick="creme.dialogs.form('{% url url_name object.id %}').onFormSuccess(function() {new creme.bricks.BricksReloader().dependencies(['creme_core.relation', 'creme_core.relation.{{rtype_id}}', '{{model_id}}']).action().start();}).open({width: '80%'});">
-        {% widget_icon name='invoice' size='instance-button' label=model_vname %}
-        {{verbose_name}}
-    </a>
-{% else %}
-    <span class="menu_button menu-button-icon forbidden" title="{% trans 'forbidden' %}">
-        {% widget_icon name='invoice' size='instance-button' label=model_vname %}
-        {{verbose_name}}
-    </span>
-{% endif %}
-{% endcomment %}

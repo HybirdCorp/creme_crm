@@ -35,7 +35,7 @@ try:
         skipIfCustomSalesOrder, skipIfCustomProductLine, skipIfCustomServiceLine,
         Organisation, Address,
         Invoice, Quote, SalesOrder, ProductLine, ServiceLine,
-    )  # CreditNote
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -56,11 +56,9 @@ class ConvertTestCase(_BillingTestCase):
     def test_get_models_for_conversion(self):
         self.assertListEqual([], [*get_models_for_conversion('unknown')])
 
-        # self.assertEqual([CreditNote, Quote, SalesOrder], list(get_models_for_conversion('invoice')))
         self.assertListEqual([Quote, SalesOrder], [*get_models_for_conversion('invoice')])
         self.assertListEqual([], [*get_models_for_conversion('credit_note')])
         self.assertListEqual([Invoice], [*get_models_for_conversion('quote')])
-        # self.assertEqual([Invoice, Quote], list(get_models_for_conversion('sales_order')))
         self.assertListEqual([Quote], [*get_models_for_conversion('sales_order')])
 
     @skipIfCustomAddress

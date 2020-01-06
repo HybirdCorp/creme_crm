@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey  # PROTECT
+from django.db.models import ForeignKey
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -34,7 +34,6 @@ from .other_models import CreditNoteStatus
 class AbstractCreditNote(Base):
     status = ForeignKey(CreditNoteStatus,
                         verbose_name=_('Status of credit note'),
-                        # on_delete=PROTECT,
                         on_delete=CREME_REPLACE,
                        )
 

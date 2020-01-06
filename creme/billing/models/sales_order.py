@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey  # PROTECT
+from django.db.models import ForeignKey
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -32,7 +32,6 @@ from .other_models import SalesOrderStatus
 class AbstractSalesOrder(Base):
     status = ForeignKey(SalesOrderStatus,
                         verbose_name=_('Status of salesorder'),
-                        # on_delete=PROTECT,
                         on_delete=CREME_REPLACE,
                        )
 

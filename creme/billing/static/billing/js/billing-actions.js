@@ -70,17 +70,6 @@ creme.billing.EXPORT_FORMATS = [
    {value: 'pdf', label: gettext("Pdf file (PDF)")}
 ];
 
-
-/*
-creme.billing.exportAs = function(url, formats) {
-    console.warn('creme.billing.exportAs is deprecated; use action ExportDocumentAction instead');
-    new creme.billing.ExportDocumentAction({
-        url: url,
-        formats: formats || creme.billing.EXPORT_FORMATS
-    }).start();
-};
-*/
-
 creme.billing.generateInvoiceNumber = function(url) {
     console.warn('creme.billing.generateInvoiceNumber() is deprecated; use the action named "billing-hatmenubar-invoice-number" instead');
     return creme.utils.ajaxQuery(url, {

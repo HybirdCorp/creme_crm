@@ -37,7 +37,7 @@ from creme.creme_core.models import (
     SearchConfigItem,
     ButtonMenuItem,
     HeaderFilter,
-    EntityFilter,  # EntityFilterCondition
+    EntityFilter,
     BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem,
 )
 from creme.creme_core.utils import create_if_needed
@@ -151,11 +151,6 @@ class Populator(BasePopulator):
             'billing-invoices_unpaid', name=_('Invoices unpaid'),
             model=Invoice, user='admin',
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=Invoice,
-                #     operator=EntityFilterCondition.EQUALS,
-                #     name='status__pending_payment', values=[True],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Invoice,
                     operator=operators.EqualsOperator,
@@ -168,21 +163,12 @@ class Populator(BasePopulator):
             'billing-invoices_unpaid_late', name=_('Invoices unpaid and late'),
             model=Invoice, user='admin',
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=Invoice,
-                #     operator=EntityFilterCondition.EQUALS,
-                #     name='status__pending_payment', values=[True],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Invoice,
                     operator=operators.EqualsOperator,
                     field_name='status__pending_payment',
                     values=[True],
                 ),
-                # EntityFilterCondition.build_4_date(
-                #     model=Invoice,
-                #     name='expiration_date', date_range='in_past',
-                # ),
                 condition_handler.DateRegularFieldConditionHandler.build_condition(
                     model=Invoice,
                     field_name='expiration_date',
@@ -194,10 +180,6 @@ class Populator(BasePopulator):
             'billing-current_year_invoices', name=_('Current year invoices'),
             model=Invoice, user='admin',
             conditions=[
-                # EntityFilterCondition.build_4_date(
-                #     model=Invoice,
-                #     name='issuing_date', date_range='current_year',
-                # ),
                 condition_handler.DateRegularFieldConditionHandler.build_condition(
                     model=Invoice,
                     field_name='issuing_date',
@@ -210,20 +192,11 @@ class Populator(BasePopulator):
             name=_('Current year and unpaid invoices'),
             model=Invoice, user='admin',
             conditions=[
-                # EntityFilterCondition.build_4_date(
-                #     model=Invoice,
-                #     name='issuing_date', date_range='current_year',
-                # ),
                 condition_handler.DateRegularFieldConditionHandler.build_condition(
                     model=Invoice,
                     field_name='issuing_date',
                     date_range='current_year',
                 ),
-                # EntityFilterCondition.build_4_field(
-                #     model=Invoice,
-                #     operator=EntityFilterCondition.EQUALS,
-                #     name='status__pending_payment', values=[True],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Invoice,
                     operator=operators.EqualsOperator,

@@ -290,27 +290,6 @@ QUnit.test('creme.billing.brick (billing-line-clearonfly)', function(assert) {
     equal(false, addonflyLink.is('.forbidden'));
 });
 
-/*
-QUnit.test('creme.billing.exportAs (single format)', function(assert) {
-    creme.billing.exportAs('mock/export/12');
-
-    this.assertClosedDialog();
-
-    deepEqual(['/mock/export/12?format=pdf'], this.mockRedirectCalls());
-});
-
-QUnit.test('creme.billing.exportAs (multiple formats, choose one)', function(assert) {
-    creme.billing.exportAs('mock/export/12', [{value: 'pdf'}, {value: 'html'}, {value: 'xml'}]);
-
-    this.assertOpenedDialog();
-
-    $('.ui-dialog select').val('html');
-    this.acceptConfirmDialog();
-
-    deepEqual(['/mock/export/12?format=html'], this.mockRedirectCalls());
-});
-*/
-
 QUnit.test('creme.billing.hatmenubar.export', function(assert) {
     var brick = this.createBrickWidget({
         classes: ['brick-hat-bar']

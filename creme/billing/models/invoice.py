@@ -37,14 +37,12 @@ class AbstractInvoice(Base):
     status = models.ForeignKey(
         other_models.InvoiceStatus,
         verbose_name=_('Status of invoice'),
-        # on_delete=models.PROTECT,
         on_delete=deletion.CREME_REPLACE,
     )
     payment_type = models.ForeignKey(
         other_models.SettlementTerms,
         verbose_name=_('Settlement terms'),
         blank=True, null=True,
-        # on_delete=models.SET_NULL,
         on_delete=deletion.CREME_REPLACE_NULL,
     ).set_tags(optional=True)
     buyers_order_number = models.CharField(

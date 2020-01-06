@@ -50,7 +50,6 @@ class TemplateBaseVerboseStatusField(FunctionField):
         self._cache = defaultdict(list)
 
     def __call__(self, entity, user):
-        # vstatus = entity._verbose_status_cache
         cache = self._cache
         e_id = entity.id
         vstatus = cache.get(e_id)
@@ -61,11 +60,9 @@ class TemplateBaseVerboseStatusField(FunctionField):
             try:
                 vstatus = status_model.objects.get(id=entity.status_id)
             except status_model.DoesNotExist as e:
-                # logger.warning('Invalid status in TemplateBase(id=%s) [%s]', entity.id, e)
                 logger.warning('Invalid status in TemplateBase(id=%s) [%s]', e_id, e)
                 vstatus = status_model(id=entity.status_id, name='')
 
-            # entity._verbose_status_cache = vstatus
             cache[e_id] = vstatus
 
         return self.result_type(vstatus.name)
@@ -183,25 +180,12 @@ def get_total_won_quote_this_year_multi(entities, user):
 
 class _BaseTotalFunctionField(FunctionField):
     result_type = FunctionFieldDecimal  # Useful to get the right CSS class in list-view
-    # cache_attr  = None  # OVERLOAD ME
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._cache = defaultdict(dict)
 
     def __call__(self, entity, user):
-        # total = None
-        # cache_attr = self.cache_attr
-        # cache = getattr(entity, cache_attr, None)
-        #
-        # if cache is None:
-        #     cache = {}
-        #     setattr(entity, cache_attr, cache)
-        # else:
-        #     total = cache.get(user.id)
-        #
-        # if total is None:
-        #     total = cache[user.id] = self.single_func()(entity, user)
         e_cache = self._cache[entity.id]
         total = e_cache.get(user.id)
 
@@ -210,19 +194,6 @@ class _BaseTotalFunctionField(FunctionField):
 
         return FunctionFieldDecimal(total)
 
-    # @classmethod
-    # def populate_entities(cls, entities, user):
-    #     cache_attr = cls.cache_attr
-    #     user_id = user.id
-    #
-    #     for entity, total in cls.multi_func()(entities, user):
-    #         cache = getattr(entity, cache_attr, None)
-    #
-    #         if cache is None:
-    #             cache = {}
-    #             setattr(entity, cache_attr, cache)
-    #
-    #         cache[user_id] = total
     def populate_entities(self, entities, user):
         cache = self._cache
         user_id = user.id
@@ -245,7 +216,6 @@ class _BaseTotalFunctionField(FunctionField):
 class _TotalPendingPayment(_BaseTotalFunctionField):
     name         = 'total_pending_payment'
     verbose_name = _('Total Pending Payment')
-    # cache_attr   = '_cached_billing_total_pending_payment'
 
     @classmethod
     def single_func(cls):
@@ -259,7 +229,6 @@ class _TotalPendingPayment(_BaseTotalFunctionField):
 class _TotalWonQuoteThisYear(_BaseTotalFunctionField):
     name         = 'total_won_quote_this_year'
     verbose_name = _('Total Won Quote This Year')
-    # cache_attr   = '_cached_billing_total_won_quote_this_year'
 
     @classmethod
     def single_func(cls):
@@ -273,7 +242,6 @@ class _TotalWonQuoteThisYear(_BaseTotalFunctionField):
 class _TotalWonQuoteLastYear(_BaseTotalFunctionField):
     name         = 'total_won_quote_last_year'
     verbose_name = _('Total Won Quote Last Year')
-    # cache_attr   = '_cached_billing_total_won_quote_last_year'
 
     @classmethod
     def single_func(cls):
