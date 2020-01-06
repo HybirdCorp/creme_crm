@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />{# <meta http-equiv="X-UA-Compatible" content="IE=8" /> #}
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <title>{% block page_title %}{% endblock %}Creme CRM</title>
     <script type='text/javascript'>
         var THEME_NAME = "{{THEME_NAME}}";
@@ -24,28 +24,26 @@
 {#  Popups will use this <div> as bounds for drag-n-drop and resize. Fix some positioning issues with horizontal menu. #}
     <div class="ui-dialog-within-container"></div>
     <div id="content" class="main_content main-content {% block content_extra_class %}{% endblock %}">
-{#        <div id="sub_content"> #}
-            {% block before_content_1 %}
-            {% endblock %}
+        {% block before_content_1 %}
+        {% endblock %}
 
-            {% block before_content_2 %}
-            {% endblock %}
+        {% block before_content_2 %}
+        {% endblock %}
 
-            {% block before_content_3 %}
-            {% endblock %}
+        {% block before_content_3 %}
+        {% endblock %}
 
-            {% block content %}
-            {% endblock %}
+        {% block content %}
+        {% endblock %}
 
-            {% block after_content_1 %}
-            {% endblock %}
+        {% block after_content_1 %}
+        {% endblock %}
 
-            {% block after_content_2 %}
-            {% endblock %}
+        {% block after_content_2 %}
+        {% endblock %}
 
-            {% block after_content_3 %}
-            {% endblock %}
-{#        </div> #}
+        {% block after_content_3 %}
+        {% endblock %}
     </div>
     {% include 'footer/footer.html' %}
 </body>

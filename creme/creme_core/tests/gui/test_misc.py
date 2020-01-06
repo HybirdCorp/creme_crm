@@ -123,7 +123,6 @@ class GuiTestCase(CremeTestCase):
         cat2 = create_cat(name='Photo of product')
 
         img = FakeImage.objects.create(name="Casca's face", user=user, description="Casca's selfie")
-        # img.categories = [cat1, cat2]
         img.categories.set([cat1, cat2])
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -194,7 +193,6 @@ class GuiTestCase(CremeTestCase):
         lang2 = create_lang(name='Namek')
 
         goku = FakeContact.objects.create(user=user, first_name='Goku', last_name='Son')
-        # goku.languages = [lang1, lang2]
         goku.languages.set([lang1, lang2])
 
         get_html_val = field_printers_registry.get_html_field_value
@@ -267,7 +265,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(csv_value, get_csv_val(camp1, 'mailing_lists__name', user))
 
         HIDDEN_VALUE = settings.HIDDEN_VALUE
-        html_value = '<ul><li>{}</li></ul>'.format(HIDDEN_VALUE)  #_('Entity #%s (not viewable)') % ml3.id,
+        html_value = '<ul><li>{}</li></ul>'.format(HIDDEN_VALUE)
         self.assertEqual(html_value, get_html_val(camp2, 'mailing_lists', user))
         self.assertEqual(html_value, get_html_val(camp2, 'mailing_lists__name', user))
 
@@ -308,7 +306,7 @@ class GuiTestCase(CremeTestCase):
                         )
 
         HIDDEN_VALUE = settings.HIDDEN_VALUE
-        self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image', user)) #_('Entity #%s (not viewable)') % casca_face.id
+        self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image', user))
         self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image__description', user))
         self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image__categories', user))
 
@@ -351,7 +349,6 @@ class GuiTestCase(CremeTestCase):
         orga2 = create_orga(name='God hand')
 
         get_csv_val = field_printers_registry.get_csv_field_value
-        # self.assertEqual(capital, get_csv_val(orga1, 'capital', user))
         self.assertEqual(str(capital), get_csv_val(orga1, 'capital', user))
         self.assertEqual('',           get_csv_val(orga2, 'capital', user))
 
@@ -628,7 +625,6 @@ class GuiTestCase(CremeTestCase):
                            )
 
         # ---
-        # class OtherContactQuickForm(CremeModelWithUserForm):
         class OtherContactQuickForm(CremeModelForm):
             class Meta:
                 model = FakeContact

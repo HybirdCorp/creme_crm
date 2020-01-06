@@ -20,7 +20,7 @@
 
 from functools import wraps
 from itertools import chain
-from json import loads as json_load  # dumps as json_dump
+from json import loads as json_load
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
@@ -209,7 +209,6 @@ def _uninstall_user_setting_values(sender, **kwargs):
                 new_d[k] = v
 
         if save:
-            # user.json_settings = json_dump(new_d)
             user.json_settings = json_encode(new_d)
             user.save()
 
@@ -381,7 +380,6 @@ class Command(AppCommand):
 
         if verbosity > 1:
             self.stdout.write(' [OK] All related ContentTypes have been deleted.',
-                              # self.style.MIGRATE_SUCCESS
                               self.style.SUCCESS,
                              )
 
@@ -484,7 +482,6 @@ class Command(AppCommand):
         if verbosity:
             self.stdout.write('\nUninstall is OK.\n'
                               'You should now remove "{}" from your settings.\n'.format(app_config.name),
-                              # self.style.MIGRATE_SUCCESS
                               self.style.SUCCESS,
                              )
 

@@ -186,17 +186,6 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
 
         self._populateSVGActions(element, target, options);
 
-//        if (this._issavable)
-//        {
-//            var button = $('<button>').text(gettext('View as image'))
-//                                      .addClass()
-//                                      .bind('click', function() {self._popupRasterImage();})
-//                                      .css('position', 'absolute')
-//                                      .css('z-index', '1')
-//                                      .css('right', 5);
-//            target.append(button);
-//        }
-
         self._bindPlotHandlers(self._plot, options);
         creme.object.invoke(cb, element);
     },

@@ -23,7 +23,6 @@ import logging
 from django.db import IntegrityError
 from django.db.transaction import atomic
 
-
 logger = logging.getLogger(__name__)
 
 

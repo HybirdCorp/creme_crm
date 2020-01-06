@@ -2,7 +2,6 @@
     width: 100%;
     border: 1px solid #548295;
     padding: 2px;
-     /* margin-bottom: 5px; */
 }
 
 .table_detail_view th,
@@ -131,13 +130,6 @@ div.dual_column-container + table.table_detail_view {
 .table_detail_view.dual_column.last {
     float: right;
 }
-
-/*
-.table_detail_view.dual_column.last:after {
-    clear: both;
-    content: "";
-}
-*/
 
 .block_header tbody tr td:hover {
     background-color: transparent;

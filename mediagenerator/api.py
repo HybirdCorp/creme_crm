@@ -19,10 +19,6 @@ def generate_media():
     if os.path.exists(GENERATED_MEDIA_DIR):
         shutil.rmtree(GENERATED_MEDIA_DIR)
 
-    # # This will make media_url() generate production URLs
-    # was_dev_mode = settings.MEDIA_DEV_MODE
-    # settings.MEDIA_DEV_MODE = False
-
     utils.NAMES = {}
 
     for backend_name in MEDIA_GENERATORS:
@@ -40,8 +36,6 @@ def generate_media():
             if not os.path.exists(parent):
                 os.makedirs(parent)
 
-            # if isinstance(content, unicode):
-            #     content = content.encode('utf8')
             if isinstance(content, str):
                 content = content.encode('utf8')
 
@@ -50,14 +44,10 @@ def generate_media():
 
             utils.NAMES[key] = urlquote(url)
 
-    # settings.MEDIA_DEV_MODE = was_dev_mode
-
     # Generate a module with media file name mappings
     with open(GENERATED_MEDIA_NAMES_FILE, 'w') as fp:
         fp.write('NAMES = %r' % utils.NAMES)
 
     for category, errors in global_errors.items():
-        # logger.warn('Error(s) in "%s"', category)
-
         for error in errors.values():
             logger.warning('%s - %s', category, error)

@@ -14,7 +14,7 @@ try:
         EntityCellRegularField,
         EntityCellCustomField,
         EntityCellRelation,
-    )  # EntityCellFunctionField
+    )
     from creme.creme_core.core.enumerable import _EnumerableRegistry, QSEnumerator
     from creme.creme_core.forms import listview as lv_form
     from creme.creme_core.gui.listview import ListViewSearchFieldRegistry
@@ -653,12 +653,6 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value=None))
 
         # ---
-        # value = 'ken'
-        # self.assertEqual(Q(customfieldstring__value__icontains=value,
-        #                    customfieldstring__custom_field=cfield.id,
-        #                   ),
-        #                  to_python(value=value)
-        #                 )
         q = to_python(value='ken')
         self.assertIsInstance(q, Q)
         self.assertFalse(q.negated)
@@ -696,11 +690,6 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value=None))
 
         # ---
-        # self.assertEqual(Q(customfieldboolean__value=True,
-        #                    customfieldboolean__custom_field=cfield.id,
-        #                   ),
-        #                  to_python(value=True)
-        #                 )
         q_true = to_python(value=True)
         self.assertIsInstance(q_true, Q)
         self.assertFalse(q_true.negated)
@@ -712,11 +701,6 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertSetEqual({ryu.id, ken.id}, {*v})
 
         # ---
-        # self.assertEqual(Q(customfieldboolean__value=False,
-        #                    customfieldboolean__custom_field=cfield.id,
-        #                   ),
-        #                  to_python(value=False)
-        #                 )
         q_false = to_python(value=False)
         k, v = q_false.children[0]
         self.assertEqual('pk__in', k)
@@ -901,13 +885,6 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value=['', '']))
 
         # ---
-        # self.assertEqual(
-        #     Q(created__range=(
-        #         dt(day=22, month=2, year=2019),
-        #         dt(day=28, month=2, year=2019, hour=23, minute=59, second=59),
-        #     )),
-        #     to_python(value=['22-02-2019', '28-02-2019'])
-        # )
         q_range = to_python(value=['01-02-2019', '28-02-2019'])
         self.assertIsInstance(q_range, Q)
         self.assertFalse(q_range.negated)
@@ -919,19 +896,11 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertSetEqual({ryu.id, ken.id}, {*v})
 
         # ---
-        # self.assertEqual(
-        #     Q(created__gte=dt(day=21, month=2, year=2019)),
-        #     to_python(value=['21-02-2019', ''])
-        # )
         q_start = to_python(value=['01-02-2019', ''])
         k, v = q_start.children[0]
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id, blanka.id}, {*v})
 
-        # self.assertEqual(
-        #     Q(created__lte=dt(day=25, month=2, year=2019, hour=23, minute=59, second=59)),
-        #     to_python(value=['', '25-02-2019'])
-        # )
         q_end = to_python(value=['', '01-03-2019'])
         k, v = q_end.children[0]
         self.assertEqual('pk__in', k)
@@ -940,18 +909,10 @@ class SearchFieldsTestCase(CremeTestCase):
         # Invalid dates ---------------------------
         self.assertEqual(Q(), to_python(value=['abc', 'def']))
 
-        # self.assertEqual(
-        #     Q(created__gte=dt(day=22, month=2, year=2019)),
-        #     to_python(value=['22-02-2019', 'zblu'])
-        # )
         k, v = to_python(value=['01-02-2019', 'zblu']).children[0]
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id, blanka.id}, {*v})
 
-        # self.assertEqual(
-        #     Q(created__lte=dt(day=26, month=2, year=2019, hour=23, minute=59, second=59)),
-        #     to_python(value=['123', '26-02-2019'])
-        # )
         v = to_python(value=['123', '28-02-2019']).children[0][1]
         self.assertSetEqual({ryu.id, ken.id, zangief.id}, {*v})
 
@@ -1129,13 +1090,6 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value=''))
 
         # ---
-        # value = 'foo'
-        # self.assertEqual(
-        #     Q(relations__type=rtype,
-        #       relations__object_entity__header_filter_search_field__icontains=value,
-        #      ),
-        #     to_python(value=value)
-        # )
         q = to_python(value='dojo')
         self.assertIsInstance(q, Q)
         self.assertFalse(q.negated)

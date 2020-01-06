@@ -508,7 +508,6 @@ QUnit.test('creme.widget.Frame.submit (empty action)', function(assert) {
         'submit-fail': this.mockListener('error')
     };
 
-
     // <form> action is empty. returns 404
     this.resetMockListenerCalls();
     this.setMockBackendPOST({

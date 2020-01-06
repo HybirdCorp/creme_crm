@@ -29,7 +29,6 @@ register = template.Library()
 
 
 @register.inclusion_tag('creme_core/templatetags/search-form.html')
-# def search_form(user, selected_ct_id=None, search_terms=''):
 def search_form(*, user, selected_ct_id, search_terms):
     get_ct = ContentType.objects.get_for_model
     content_types = [

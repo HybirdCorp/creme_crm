@@ -33,7 +33,6 @@ from random import randint
 
 from ..utils.secure_filename import secure_filename
 
-
 logger = logging.getLogger(__name__)
 
 

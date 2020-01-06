@@ -24,7 +24,7 @@ try:
     from creme.creme_core.models import (
         HeaderFilter, FieldsConfig,
         RelationType, CustomField,
-        EntityFilter,   # EntityFilterCondition
+        EntityFilter,
         FakeContact, FakeOrganisation, FakeProduct, FakeMailingList,
     )
 except Exception as e:
@@ -89,7 +89,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         cell = cells[0]
         self.assertIsInstance(cell, EntityCellRegularField)
         self.assertEqual('created', cell.value)
-        # self.assertEqual('created__range', cell.filter_string)
         self.assertIs(cell.is_hidden, False)
 
         lv_url = FakeMailingList.get_lv_absolute_url()
@@ -124,11 +123,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             name='Misato', model=FakeContact,
             is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeContact,
-                #     operator=EntityFilterCondition.EQUALS,
-                #     name='first_name', values=['Misato'],
-                # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact, field_name='first_name',
                     operator=EQUALS, values=['Misato'],
@@ -147,7 +141,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                                  field_type=CustomField.INT,
                                                  content_type=ct,
                                                 )
-        # funcfield = FakeContact.function_fields.get('get_pretty_properties')
         funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
 
         url = self._build_add_url(ct)

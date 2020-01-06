@@ -269,7 +269,6 @@ class Job(Model):
             if self.user_id is None:  # System job
                 self.reference_run = round_hour(self.reference_run)
 
-        # super(Job, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
         queue_error = False

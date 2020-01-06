@@ -192,8 +192,6 @@ class BulkForm(CremeForm):
                 if isinstance(mfield, FileField):
                     file_field_info.append((mfield, value))
                 else:
-                    # if not getattr(mfield, 'many_to_many', False):
-                    #     setattr(entity, key, value)
                     mfield.save_form_data(entity, value)
 
         for mfield, value in file_field_info:

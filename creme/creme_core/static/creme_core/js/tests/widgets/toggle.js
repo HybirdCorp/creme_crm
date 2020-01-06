@@ -39,13 +39,6 @@ function assertReady(element) {
     equal(element.hasClass('widget-ready'), true, 'is widget ready');
 }
 
-/*
-function assertNotReady(element) {
-    assertActive(element);
-    equal(element.hasClass('widget-ready'), false, 'is widget not ready');
-}
-*/
-
 function assertToggleOpen(element) {
     equal(element.hasClass('toggle-collapsed'), false, 'element opened');
 }

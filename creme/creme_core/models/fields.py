@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from json import loads as jsonloads, dumps as jsondumps
 from json import loads as json_load
 
 from django.conf import settings
@@ -70,19 +69,16 @@ class DatePeriodField(TextField):  # TODO: inherit from a JSONField
             return None
 
         if isinstance(value, str):
-            # return date_period_registry.deserialize(jsonloads(value))
             return date_period_registry.deserialize(json_load(value))
 
         # DatePeriod instance
         return value
 
-    # def from_db_value(self, value, expression, connection, context):
     def from_db_value(self, value, expression, connection):
         if value is None:
             return None
 
         # 'basestring' instance
-        # return date_period_registry.deserialize(jsonloads(value))
         return date_period_registry.deserialize(json_load(value))
 
     def get_db_prep_value(self, value, connection, prepared=False):
@@ -92,7 +88,6 @@ class DatePeriodField(TextField):  # TODO: inherit from a JSONField
         if not isinstance(value, DatePeriod):
             raise ValueError('DatePeriodField: value must be a DatePeriod')
 
-        # return jsondumps(value.as_dict())
         return json_encode(value.as_dict())
 
     def formfield(self, **kwargs):

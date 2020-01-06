@@ -47,13 +47,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 1})
         self.assertFalse(BrickState.objects.all())
-        # bstates = BrickState.objects.all()
-        # self.assertEqual(1, len(bstates))
-        #
-        # bstate = bstates[0]
-        # self.assertEqual(brick_id, bstate.brick_id)
-        # self.assertEqual(user,     bstate.user)
-        # self.assertTrue(bstate.is_open)
 
         self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 0})
         self.assertEqual(1, BrickState.objects.count())
@@ -82,9 +75,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertPOST200(self.SET_STATE_URL,
                            data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
                           )
-        # bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
-        # self.assertTrue(bstate.is_open)
-        # self.assertTrue(bstate.show_empty_fields)
         self.assertFalse(BrickState.objects.all())
 
         # ---
@@ -95,28 +85,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(bstate.is_open)
         self.assertFalse(bstate.show_empty_fields)
 
-    # def test_set_state03(self):
-    #     user = self.login()
-    #     brick_id = RelationsBrick.id_
-    #     self.client.post(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1})
-    #
-    #     self.client.logout()
-    #     self.client.login(username=self.other_user.username, password='test')
-    #
-    #     self.client.post(self.SET_STATE_URL,
-    #                      data={'id': brick_id, 'is_open': 0, 'show_empty_fields': 0}
-    #                     )
-    #
-    #     blocks_states = BrickState.objects.filter(brick_id=brick_id)
-    #
-    #     block_state_user = blocks_states.get(user=user)
-    #     block_state_other_user = blocks_states.get(user=self.other_user)
-    #
-    #     self.assertTrue(block_state_user.is_open)
-    #     self.assertTrue(block_state_user.show_empty_fields)
-    #
-    #     self.assertFalse(block_state_other_user.is_open)
-    #     self.assertFalse(block_state_other_user.show_empty_fields)
     def test_set_state03(self):
         user = self.login()
         other_user = self.other_user
@@ -235,7 +203,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login()
         extra_data = [1, 2]
 
-        # errors = []
         received_extra_data = None
 
         class FoobarBrick(self.TestBrick):
@@ -258,7 +225,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                         )
 
         self.assertEqual(extra_data, received_extra_data)
-        # self.assertFalse(errors)
 
     def test_reload_basic05(self):
         "Invalid extra data"
@@ -666,7 +632,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                           first_name='Naru', phone='1122334455',
                                          )
 
-        # content_node = self._get_contact_brick_content(naru, brick_id='modelblock_creme_core-fakecontact')
         content_node = self._get_contact_brick_content(naru, brick_id=MODELBRICK_ID)
         self.assertEqual(naru.last_name, self.get_brick_tile(content_node, 'regular_field-last_name').text)
         self._assertNoBrickTile(content_node, 'regular_field-phone')

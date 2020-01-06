@@ -64,9 +64,6 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
             $('button', element).toggleClass('is-field-invalid', $(this).is(':invalid'));
         });
 
-        // TODO: "_popupSelectMode" useful ??
-//        var selection = this._popupSelectMode = creme.widget.cleanval(options.popupSelection, creme.widget.EntitySelectorMode.SINGLE);
-
         this._popupURL = new creme.utils.Template(options.popupURL, {
                                                        qfilter: options.qfilter,
                                                        selection: options.popupSelection

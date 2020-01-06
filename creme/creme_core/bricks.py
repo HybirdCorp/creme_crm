@@ -33,7 +33,6 @@ from .models import (CremeEntity, RelationType, Relation, CremeProperty, CustomF
         Job, JobResult, MassImportJobResult, EntityJobResult)
 from .models.history import HistoryLine, TYPE_SYM_RELATION, TYPE_SYM_REL_DEL
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -61,7 +60,6 @@ class RelationsBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/relations.html'
 
     def __init__(self):
-        # super(RelationsBrick, self).__init__()
         super().__init__()
         self._included_rtype_ids = []
         self._excluded_rtype_ids = []
@@ -155,8 +153,7 @@ class HistoryBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('creme_core', 'history')
     dependencies  = '*'
     read_only     = True
-    # order_by      = '-date'
-    order_by      = '-id'
+    order_by      = '-id'  # faster than '-date'
     verbose_name  = _('History')
     template_name = 'creme_core/bricks/history.html'
 

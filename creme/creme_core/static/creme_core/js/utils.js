@@ -26,12 +26,6 @@ creme.utils.openWindow = function (url, name, params) {
     window[name] = window.open(url, name, params || 'menubar=no, status=no, scrollbars=yes, menubar=no, width=800, height=600');
 };
 
-/*
-creme.utils.reload = function (target) {
-    target = target || window;
-    creme.utils.goTo(target.location.href, target);
-}
-*/
 creme.utils.reload = function () {
     // reload without adding lines to history
     window.location.replace(window.location.href);
@@ -41,12 +35,6 @@ creme.utils.redirect = function(url) {
     window.location.assign(url);
 };
 
-/*
-creme.utils.goTo = function(url, target) {
-    target = target || window;
-    target.location.href = url;
-}
-*/
 creme.utils.goTo = function(url, data) {
     if (Object.isEmpty(data)) {
         creme.utils.redirect(url);
@@ -94,38 +82,6 @@ creme.utils.loading = function(div_id, is_loaded, params) {
     overlay.update(visible, null, visible ? 100 : 0);
 };
 
-/*
-creme.utils.showDialog = function(text, options, div_id) {
-    div_id = Object.isEmpty(div_id) ? creme.utils.innerPopupUUID() : div_id;
-    var $div = $('#' + div_id);
-
-    if ($div.size() === 0) {
-        $div = $('<div id="' + div_id + '"  style="display:none;"></div>');
-        $(document.body).append($div);
-    }
-    $div.html(text);
-
-    __stackedPopups.push('#' + div_id);
-
-    $div.dialog(jQuery.extend({
-        buttons: [{text: gettext("Ok"),
-                   click: function() {
-                            $(this).dialog("close");
-                   }
-                 }
-        ],
-        closeOnEscape: false,
-        title: '',
-        modal: true,
-        width: 'auto',
-        close: function(event, ui) {
-                $(this).dialog("destroy");
-                $(this).remove();
-        }
-    }, options));
-};
-*/
-
 creme.utils.confirmSubmit = function(atag, msg) {
     creme.dialogs.confirm(msg || gettext('Are you sure ?'))
                  .onOk(function() {
@@ -133,141 +89,6 @@ creme.utils.confirmSubmit = function(atag, msg) {
                   })
                  .open();
 };
-
-/*
-var __stackedPopups = [];
-
-creme.utils.innerPopupUUID = function() {
-    var d = new Date();
-    return d.getTime().toString() + Math.ceil(Math.random() * 1000000);
-};
-
-creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload) {
-    reload = reload || false;
-    div_id = Object.isEmpty(div_id) ? creme.utils.innerPopupUUID() : div_id;
-
-    options = $.extend({
-        reloadOnClose: false,
-        buttons: [{
-            text: gettext("Cancel"),
-            click: function() {
-                if ($.isFunction(options.cancel)) {
-                    options.cancel($(this));
-                }
-
-                creme.utils.closeDialog($(this), reload);
-            }
-        }],
-        close: function(event, ui) {
-            creme.utils.closeDialog($(this), false);
-        },
-        open: function(event, ui) {
-             var $me = $(event.target);
-             var $form = $('[name=inner_body]', $me).find('form');
-             var send_button = options.send_button; // function or boolean (if defined)
-
-             // HACK : initialize widgets AFTER dialog opening.
-             creme.widget.ready($me);
-
-             if ($form.size() || send_button) {
-                 var submit_handler;
-
-                 if (Object.isFunc(send_button)) {
-                     submit_handler = function(e) {
-                         e.preventDefault();
-                         e.stopPropagation();
-                         send_button($me);
-                     };
-                 } else {
-                     submit_handler = function(e) {
-                         e.preventDefault();
-                         e.stopPropagation();
-                         creme.utils.handleDialogSubmit($me);
-                     };
-                 }
-
-                 var buttons = $me.dialog('option', 'buttons');
-
-                 // todo: use the OS order for 'Cancel'/'OK' buttons
-                 buttons.push({
-                     text: options['send_button_label'] || gettext("Save"),
-                     click: submit_handler
-                 });
-
-                 $me.dialog('option', 'buttons', buttons);
-             }
-        },
-        closeOnEscape: false
-    }, options || {});
-
-    var query = creme.ajax.query(url, ajax_options);
-    query.onDone(function(e, data) {
-        creme.utils.showDialog(data, options, div_id);
-    });
-
-    query.onFail(function(e, data, error) {
-        creme.dialogs.warning(data || gettext("Error during loading the page."))
-                     .onClose(function() {
-                         ajax_options.error(data, error);
-                     })
-                     .open();
-    });
-
-    query.get(ajax_options.data);
-    return div_id;
-};
-
-creme.utils.handleDialogSubmit = function(dialog) {
-    console.warn('creme.utils.handleDialogSubmit() is deprecated.');
-
-    var div_id = dialog.attr('id');
-    var $form = $('[name=inner_body]', dialog).find('form');
-    var post_url = $('[name=inner_header_from_url]', dialog).val();
-
-    var data = $form.serialize();
-
-    $.ajax({
-          type: $form.attr('method'),
-          url: post_url,
-          data: data,
-          beforeSend: function(request) {
-              creme.utils.loading('loading', false, {});
-          },
-          success: function(data, status) {
-              var is_closing = data.startsWith('<div class="in-popup" closing="true"');
-
-              if (!is_closing) {
-                  creme.widget.shutdown(dialog);
-                  $('[name=inner_body]', '#' + div_id).html(data);
-                  creme.widget.ready(dialog);
-
-                  creme.utils.scrollTo($('.errorlist:first', '.non_field_errors'));
-              } else {
-                  var content = $(data);
-                  var redirect_url = content.attr('redirect');
-                  var force_reload = content.is('[force-reload]');
-                  var delegate_reload = content.is('[delegate-reload]');
-
-                  if (redirect_url) {
-                      creme.utils.closeDialog(dialog, force_reload, undefined, redirect_url);
-                  } else if (!delegate_reload) {
-                      creme.utils.closeDialog(dialog, force_reload);
-                  } else {
-                      dialog.dialog('close');
-                  }
-              }
-          },
-          error: function(request, status, error) {
-            creme.utils.showErrorNReload();
-          },
-          complete: function(XMLHttpRequest, textStatus) {
-              creme.utils.loading('loading', true, {});
-          }
-    });
-
-    return false;
-};
-*/
 
 creme.utils.scrollTo = function(element) {
     if (Object.isNone(element) === false) {
@@ -295,44 +116,6 @@ creme.utils.scrollBack = function(position, speed) {
         document.documentElement.scrollTop = position;
     }
 };
-
-/*
-creme.utils.closeDialog = function(dial, reload, beforeReloadCb, redirect_url) {
-    $(dial).dialog("destroy");
-
-    creme.widget.shutdown($(dial));
-    $(dial).remove();
-
-    // Remove dial from opened dialog array
-    __stackedPopups.pop();
-
-    if (Object.isFunc(beforeReloadCb)) {
-        beforeReloadCb();
-    }
-
-    // Added by Jonathan 20/05/2010 in order to have a different callback url for inner popup if needs
-    if (Object.isNotEmpty(redirect_url)) {
-        creme.utils.goTo(redirect_url);
-    } else if (reload === true) {
-        // Get the dial's parent dialog or window
-        creme.utils.reloadDialog(__stackedPopups[__stackedPopups.length - 1] || window);
-    }
-};
-
-creme.utils.reloadDialog = function(dial) {
-    if (dial === window) {
-        creme.utils.reload();
-        return;
-    }
-
-    var reload_url = $(dial).find('[name=inner_header_from_url]').val();
-
-    creme.ajax.query(reload_url)
-              .onDone(function(event, data) {
-                  $(dial).html(data);
-              }).get();
-};
-*/
 
 creme.utils.appendInUrl = function(url, strToAppend) {
     console.warn('creme.utils.appendInUrl() is deprecated; use creme.utils.goTo() or creme.ajax.URL class instead.');
@@ -458,54 +241,6 @@ creme.utils.ajaxQuery = function(url, options, data) {
     return action;
 };
 
-/*
-creme.utils.innerPopupFormAction = function(url, options, data) {
-    options = $.extend({
-        submit_label: gettext("Save"),
-        submit: function(dialog) {
-            creme.utils.handleDialogSubmit(dialog);
-        },
-        validator: function(data) {
-            return true;
-        },
-        reloadOnSuccess: false
-    }, options || {});
-
-    return new creme.component.Action(function() {
-        var self = this;
-
-        creme.utils.showInnerPopup(url, {
-               send_button_label: options.submit_label,
-               send_button: function(dialog) {
-                   try {
-                       var submitdata = options.submit.apply(this, arguments);
-
-                       if (submitdata && options.validator(submitdata)) {
-                           self.done(submitdata);
-                           creme.utils.closeDialog(dialog, options.reloadOnSuccess);
-                       }
-                   } catch (e) {
-                       self.fail(e);
-                   }
-               },
-               cancel: function(event, ui) {
-                   self.cancel();
-               },
-               close: function(event, ui) {
-                   creme.utils.closeDialog($(this), false);
-                   self.cancel();
-               },
-               closeOnEscape: options.closeOnEscape
-           },
-           null, {
-               error: function(data, error) {
-                   self.fail(data, error);
-               },
-               data: data
-           });
-    });
-};
-*/
 creme.utils.isHTMLDataType = function(dataType) {
     return Object.isString(dataType) &&
            ['html', 'text/html'].indexOf(dataType.toLowerCase()) !== -1;

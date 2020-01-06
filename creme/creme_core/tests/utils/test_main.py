@@ -159,19 +159,11 @@ class MiscTestCase(CremeTestCase):
             def __str__(self):
                 return 'aé‡ae15'
 
-        # class false_unicode_object:
-        #     def __init__(self, text):
-        #         self.text = text
-        #
-        #     def __str__(self):
-        #         return self.text
-
         self.assertEqual("<class 'creme.creme_core.tests.utils."
                          "test_main.MiscTestCase.test_safe_unicode_object.<locals>.no_unicode_object'>",
                          safe_unicode(no_unicode_object)
                         )
         self.assertEqual('aé‡ae15', safe_unicode(unicode_object()))
-        # self.assertEqual(u"aé‡ae15", safe_unicode(false_unicode_object("a\xe9\x87ae15")))
 
     def test_date_2_dict(self):
         d = {'year': 2012, 'month': 6, 'day': 6}

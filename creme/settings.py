@@ -229,8 +229,6 @@ TEMPLATES = [
 ]
 
 MIDDLEWARE = [
-    # 'mediagenerator.middleware.MediaMiddleware',  # Must be the first
-
     'creme.creme_core.middleware.exceptions.Ajax500Middleware',  # It must be last middleware that catches all exceptions
     'creme.creme_core.middleware.exceptions.Ajax404Middleware',
     'creme.creme_core.middleware.exceptions.Ajax403Middleware',
@@ -475,10 +473,6 @@ REPOSITORY = 'https://bitbucket.org/hybird/creme_crm/src/'
 # GUI [END]#####################################################################
 
 # MEDIA GENERATOR & THEME SETTINGS #############################################
-# http://www.allbuttonspressed.com/projects/django-mediagenerator
-
-# MEDIA_DEV_MODE = False
-# DEV_MEDIA_URL = '/devmedia/'
 PRODUCTION_MEDIA_URL = '/static_media/'
 
 GENERATED_MEDIA_DIR = join(MEDIA_ROOT, 'static')
@@ -780,7 +774,6 @@ TEST_CREME_CORE_JS = ['testcore.js',
                         'creme_core/js/tests/widgets/selectorlist.js',
                         'creme_core/js/tests/widgets/actionlist.js',
                         'creme_core/js/tests/widgets/plotselector.js',
-                        # 'creme_core/js/tests/widgets/container.js',
                         'creme_core/js/tests/widgets/entitycells.js',
 
                         'creme_core/js/tests/form/forms.js',

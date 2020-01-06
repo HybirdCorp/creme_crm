@@ -23,7 +23,6 @@ import logging
 
 from django.apps import apps
 
-
 logger = logging.getLogger(__name__)
 
 

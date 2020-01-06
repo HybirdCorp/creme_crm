@@ -225,29 +225,6 @@ QUnit.test('creme.model.SelectionController.unselect (default)', function(assert
     deepEqual([{value: 1, selected: true}], controller.selected());
 });
 
-/*
-QUnit.test('creme.model.SelectionController.select (custom itemKey)', function(assert) {
-    var model = new creme.model.Array([{value:1}, {value:5}, {value:3}])
-    var controller = new creme.model.SelectionController().model(model);
-
-    var itemKey = function(item) {return item.value;};
-
-    equal(model, controller.model());
-    deepEqual([], controller.selected());
-    deepEqual(2, itemKey({value:2}));
-    deepEqual([{value:1}, {value:5}, {value:3}], controller.selectables());
-
-    controller.select(['unknown'], itemKey);
-    deepEqual([], controller.selected());
-
-    controller.select([5], itemKey);
-    deepEqual([{value: 5, selected:true}], controller.selected());
-
-    controller.select([1, 3], itemKey);
-    deepEqual([{value: 1, selected:true}, {value:3, selected:true}], controller.selected());
-});
-*/
-
 QUnit.test('creme.model.SelectionController.select (not selectable)', function(assert) {
     var model = new creme.model.Array([{value: 2}, {value: 5}, {value: 4}, {value: 3}]);
     var controller = new creme.model.SelectionController().model(model);

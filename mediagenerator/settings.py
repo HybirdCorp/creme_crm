@@ -22,9 +22,6 @@ GENERATED_MEDIA_NAMES_FILE = os_path.abspath(
     getattr(settings, 'GENERATED_MEDIA_NAMES_FILE', _map_file_path)
 )
 
-# DEV_MEDIA_URL = getattr(settings, 'DEV_MEDIA_URL',
-#                         getattr(settings, 'STATIC_URL', settings.MEDIA_URL))
-# PRODUCTION_MEDIA_URL = getattr(settings, 'PRODUCTION_MEDIA_URL', DEV_MEDIA_URL)
 PRODUCTION_MEDIA_URL = getattr(settings, 'PRODUCTION_MEDIA_URL',
                                getattr(settings, 'STATIC_URL', settings.MEDIA_URL)
                               )
@@ -43,5 +40,3 @@ GLOBAL_MEDIA_DIRS = [
 ]
 
 IGNORE_APP_MEDIA_DIRS = getattr(settings, 'IGNORE_APP_MEDIA_DIRS', ('django.contrib.admin',))
-
-# MEDIA_DEV_MODE = getattr(settings, 'MEDIA_DEV_MODE', settings.DEBUG)

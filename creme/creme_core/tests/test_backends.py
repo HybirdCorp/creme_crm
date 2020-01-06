@@ -20,17 +20,9 @@ class BackendsTestCase(CremeTestCase):
         self.assertEqual(CSVImportBackend, registry.get_backend(CSVImportBackend.id))
         self.assertEqual(XLSImportBackend, registry.get_backend(XLSImportBackend.id))
         self.assertIsNone(registry.get_backend('unknown'))
-
-        # self.assertEqual({CSVImportBackend, XLSImportBackend},
-        #                  set(registry.iterbackends())
-        #                 )
         self.assertSetEqual({CSVImportBackend, XLSImportBackend},
                             {*registry.backends}
                            )
-
-        # self.assertEqual({CSVImportBackend.id, XLSImportBackend.id},
-        #                  set(registry.iterkeys())
-        #                 )
         self.assertSetEqual({CSVImportBackend.id, XLSImportBackend.id},
                             {*registry.extensions}
                            )

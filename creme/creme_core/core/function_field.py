@@ -18,9 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
-# from django.db.models.query_utils import Q
 from django.utils.formats import number_format
 from django.utils.html import escape, format_html, format_html_join
 
@@ -76,9 +73,7 @@ class FunctionField:
     """
     name         = ''  # Name of the attr if the related model class
     verbose_name = ''  # Verbose name (used by HeaderFilter)
-    # has_filter   = False
     is_hidden    = False  # See EntityCell.is_hidden
-    # choices      = None
     result_type  = FunctionFieldResult  # TODO: what about FunctionFieldResultsList([FunctionFieldDecimal(...), ...])
                                         #         ==> FunctionFieldResultsList or FunctionFieldDecimal ??
 
@@ -93,18 +88,12 @@ class FunctionField:
     # <None> means no sorting.
     sorter_class = None
 
-    # @classmethod
-    # def filter_in_result(cls, search_string):
-    #     return Q()
-
     def __call__(self, entity, user):
         """"@return An instance of FunctionField object
         (so you can call for_html()/for_csv() on the result).
         """
         return self.result_type(getattr(entity, self.name)())
 
-    # @classmethod
-    # def populate_entities(cls, entities, user):
     def populate_entities(self, entities, user):
         """Optimisation used for list-views ; see HeaderFilter."""
         pass
@@ -124,46 +113,6 @@ class FunctionFieldResultsList(FunctionFieldResult):
 
     def for_csv(self):
         return '/'.join(e.for_csv() for e in self._data)
-
-
-# class FunctionFieldsManager:
-#     def __init__(self, *function_fields):
-#         warnings.warn('FunctionFieldsManager is deprecated ; '
-#                       'use the new method CremeAppConfig.register_function_fields() instead.',
-#                       DeprecationWarning,
-#                      )
-#
-#         self._function_fields = {f_field.name: f_field for f_field in function_fields}
-#         self._parent = None
-#
-#     def __iter__(self):
-#         manager = self
-#
-#         while manager:
-#             for func_field in manager._function_fields.values():
-#                 yield func_field
-#
-#             manager = manager._parent
-#
-#     def add(self, *function_fields):
-#         self._function_fields.update((f_field.name, f_field) for f_field in function_fields)
-#
-#     def get(self, name):
-#         func_field = self._function_fields.get(name)
-#
-#         if not func_field and self._parent:
-#             func_field = self._parent.get(name)
-#
-#         return func_field
-#
-#     def new(self, *function_fields):
-#         """Use this method when you inherit a class, and you want to add new
-#         function fields to the inherited class, but not to the base class.
-#         """
-#         ffm = FunctionFieldsManager(*function_fields)
-#         ffm._parent = self
-#
-#         return ffm
 
 
 class _FunctionFieldRegistry:

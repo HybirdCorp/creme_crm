@@ -434,7 +434,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         jresult = EntityJobResult.objects.create(job=job, entity=orga)
 
         del_url = self._build_delete_url(job)
-        # self.assertGET404(del_url)
         self.assertGET405(del_url)
 
         response = self.assertPOST200(del_url, follow=True)

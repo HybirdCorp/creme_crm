@@ -11,7 +11,7 @@
 }
 
 .ui-state-default, .ui-widget-content .ui-state-default {
-    font-size: 1.1em; /* Old 1.2em */
+    font-size: 1.1em;
 }
 
 .ui-dialog.ui-widget {
@@ -446,26 +446,6 @@ span.ui-creme-datepicker-trigger {
     background-position: center;
 }
 
-/*----------------------------------*/
-/*
-.ui-creme-autosave .autosave-status {
-    background-image: none;
-    width:16px;
-    height:16px;
-    display:none;
-}
-
-.ui-creme-autosave.autosave-wait .autosave-status {
-    background-image: url("icecream/images/wait.gif");
-    display:block;
-}
-
-.ui-creme-autosave.autosave-modified .autosave-status {
-    background-image: url("icecream/images/edit_16.png");
-    display:block;
-}
-*/
-
 /*---------------------------------*/
 .checklist-header {
     float: right;
@@ -795,21 +775,6 @@ span.ui-creme-datepicker-trigger {
     height: calc(100vh - 35px);
     pointer-events: none;
 }
-
-/* The block margins are useful only when there's more than one block on the page, which is almost never the case in dialog forms.
-   Maybe the 'block' abstraction shouldn't be used here. In any case the templates need to be cleaned up to remove the override, to differentiate between blocks in pages vs. blocks in dialogs.
-(The thinking in this rule is if there's only one block in a container, it'll pick up the margin 0.
- If there are more than one block, only the last one will have its margin overridden, the others would still be visually separated)
-
-  REMOVED the 6 November 2018:
-     - it seems the rule "table.table_detail_view + table.table_detail_view" from bricks.css does the job better.
-     - these rule caused problems in the activities form in calendar.
-*/
-/*
-.ui-dialog .table_detail_view:last-child {
-    margin: 0;
-}
-*/
 
 .ui-dialog-content .ui-creme-dialog-action {
     display: none;

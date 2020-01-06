@@ -42,14 +42,6 @@ Those templates need to be cleaned up */
     margin-bottom: 0;
 }
 
-/*
-table.table_detail_view + .brick,
-table.table_detail_view + table.table_detail_view {
-    margin-top: 15px;
-    margin-bottom: 0;
-}
-*/
-
 .brick.is-empty {
     display: none;
 }
@@ -330,21 +322,17 @@ table.table_detail_view + table.table_detail_view {
 
 .brick.brick-table .brick-content {
     padding: 0;
-    /* border-left: 0;  reset left border of the block */
-    /* border-right: 0;  reset right border of the block */
 }
 
 /* .brick-content padding and block left border distributed into the table's first column */
 .brick-table .brick-table-content > tbody > tr > :first-child,
 .brick-table .brick-table-content > thead > tr > :first-child {
     padding-left: 10px;
-    /* border-left: 1px solid #d9d9d9;  left border of the block */
 }
 
 /* distribute block right border into the table's last column */
 .brick-table .brick-table-content > tbody > tr > :last-child,
 .brick-table .brick-table-content > thead > tr > :last-child {
-    /* border-right: 1px solid #d9d9d9;  right border of the block */
     padding-right: 10px;
 }
 
@@ -1150,7 +1138,6 @@ table.table_detail_view + table.table_detail_view {
 /* brick types - hat-card */
 
 .brick-hat-card .brick-card-action {
-    /* display: inline-block; */
     max-height: 16px;
     padding: 0px 7px 0px 5px;
     margin-left: 5px;

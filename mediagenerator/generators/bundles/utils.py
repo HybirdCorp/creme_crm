@@ -2,7 +2,6 @@ import os
 
 from .settings import ROOT_MEDIA_FILTERS, MEDIA_BUNDLES, BASE_ROOT_MEDIA_FILTERS
 
-# from mediagenerator.settings import MEDIA_DEV_MODE
 from mediagenerator.utils import load_backend, media_urls
 
 _cache = {}
@@ -69,17 +68,6 @@ def _render_include_media(bundle, variation):
     if filetype == 'css':
         media_types = variation.pop('media', None)
 
-    # if MEDIA_DEV_MODE:
-    #     root = _load_root_filter(bundle)
-    #     variations = root._get_variations_with_input()
-    #     variation_map = [(key, variation.pop(key)) for key in sorted(variations.keys())]
-    #
-    #     if variation:
-    #         raise ValueError('Bundle {} does not support the following variation(s): {}'.format(
-    #                             bundle, ', '.join(variation.keys())
-    #         ))
-    # else:
-    #     variation_map = tuple((key, variation[key]) for key in sorted(variation.keys()))
     variation_map = tuple((key, variation[key]) for key in sorted(variation.keys()))
 
     urls = media_urls(_get_key(bundle, variation_map))

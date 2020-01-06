@@ -7,14 +7,11 @@ import re
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-# from django.utils.importlib import import_module
 from django.utils.http import urlquote
 
-# from . import settings as media_settings
 from .settings import (
     GLOBAL_MEDIA_DIRS, PRODUCTION_MEDIA_URL,
     IGNORE_APP_MEDIA_DIRS, MEDIA_GENERATORS,
-    # DEV_MEDIA_URL,
     GENERATED_MEDIA_NAMES_MODULE,
 )
 
@@ -92,12 +89,10 @@ def get_production_mapping():
 
 
 def get_media_mapping():
-    # return _generated_names if media_settings.MEDIA_DEV_MODE else get_production_mapping()
     return get_production_mapping()  # TODO: inline ?
 
 
 def get_media_url_mapping():
-    # base_url = DEV_MEDIA_URL if media_settings.MEDIA_DEV_MODE else PRODUCTION_MEDIA_URL
     base_url = PRODUCTION_MEDIA_URL
     mapping = {}
 
@@ -110,12 +105,6 @@ def get_media_url_mapping():
 
 
 def media_urls(key, refresh=False):
-    # if media_settings.MEDIA_DEV_MODE:
-    #     if refresh:
-    #         _refresh_dev_names()
-    #
-    #     return [DEV_MEDIA_URL + url for url in _generated_names[key]]
-
     return [PRODUCTION_MEDIA_URL + get_production_mapping()[key]]
 
 
@@ -130,17 +119,6 @@ def media_url(key, refresh=False):
     )
 
 
-# def get_media_dirs():
-#     if not _media_dirs_cache:
-#         media_dirs = GLOBAL_MEDIA_DIRS[:]
-#         for app in settings.INSTALLED_APPS:
-#             if app in IGNORE_APP_MEDIA_DIRS:
-#                 continue
-#             for name in (u'static', u'media'):
-#                 app_root = os.path.dirname(import_module(app).__file__)
-#                 media_dirs.append(os.path.join(app_root, name))
-#         _media_dirs_cache.extend(media_dirs)
-#     return _media_dirs_cache
 def get_media_dirs():
     if not _media_dirs_cache:
         if not apps.ready:
@@ -164,27 +142,19 @@ def find_file(name, media_dirs=None):
         media_dirs = get_media_dirs()
 
     for root in media_dirs:
-        # path = os.path.normpath(os.path.join(root, name))
         path = os_path.normpath(os_path.join(root, name))
-        # if os.path.isfile(path):
         if os_path.isfile(path):
             return path
 
 
 # TODO: remove & use "with" directly ?
 def read_text_file(path):
-    # fp = open(path, 'r')
-    # output = fp.read()
-    # fp.close()
-    # # return output.decode('utf8')
-    # return output
     with open(path, 'r', encoding='utf-8') as fp:
         return fp.read()
 
 
 def load_backend(backend):
     if backend not in _backends_cache:
-        # module_name, func_name = backend.rsplit('.', 1)
         _backends_cache[backend] = _load_backend(backend)
 
     return _backends_cache[backend]

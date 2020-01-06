@@ -110,9 +110,7 @@ class MergeWidget(Widget):
 
 
 class MergeField(Field):
-    # def __init__(self, modelform_field, model_field, user=None, *args, **kwargs):
     def __init__(self, *, modelform_field, model_field, user=None, **kwargs):  # TODO: remove 'model_field' ?
-        # super().__init__(widget=MergeWidget(modelform_field.widget), *args, **kwargs)
         super().__init__(widget=MergeWidget(modelform_field.widget), **kwargs)
 
         self.required = modelform_field.required
@@ -176,7 +174,6 @@ class MergeEntitiesBaseForm(CremeForm):
 
         for i, (cfield, cvalue1, cvalue2) in enumerate(customs):
             formfield1 = cfield.get_formfield(cvalue1)
-            # fields[_CUSTOM_NAME % i] = merge_field = MergeField(formfield1,
             fields[_CUSTOM_NAME.format(i)] = merge_field = MergeField(
                 modelform_field=formfield1,
                 model_field=None,

@@ -24,7 +24,6 @@ from django.conf import settings
 from django.utils.encoding import force_text
 from django.utils.html import mark_safe
 
-
 IMG_SAFE_ATTRIBUTES = {'title', 'alt', 'width', 'height'}
 ALLOWED_ATTRIBUTES = {
     **bleach.ALLOWED_ATTRIBUTES,

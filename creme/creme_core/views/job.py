@@ -19,14 +19,14 @@
 ################################################################################
 
 from django.db.transaction import atomic
-from django.http import HttpResponse, Http404  # HttpResponseRedirect
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.http import is_safe_url
 from django.utils.translation import gettext_lazy as _, gettext
 
 from ..auth import SUPERUSER_PERM
-from ..auth.decorators import login_required, superuser_required  # _check_superuser
+from ..auth.decorators import login_required, superuser_required
 from ..bricks import JobBrick
 from ..core.exceptions import ConflictError
 from ..core.job import JobManagerQueue
@@ -41,10 +41,6 @@ from . import generic
 class Jobs(generic.BricksView):
     template_name = 'creme_core/job/list-all.html'
     permissions = SUPERUSER_PERM
-
-    # def check_view_permissions(self, user):
-    #     super().check_view_permissions(user=user)
-    #     _check_superuser(user)
 
 
 class MyJobs(generic.BricksView):
@@ -100,10 +96,6 @@ class JobEdition(generic.CremeModelEditionPopup):
         if instance.user_id is not None:
             raise ConflictError('A non-system job cannot be edited')
 
-    # def check_view_permissions(self, user):
-    #     super().check_view_permissions(user=user)
-    #     _check_superuser(user)
-
     def get_form_class(self):
         config_form = self.object.get_config_form_class()
         if config_form is None:
@@ -128,27 +120,6 @@ def enable(request, job_id, enabled=True):
     return HttpResponse()
 
 
-# @login_required
-# @POST_only
-# def delete(request, job_id):
-#     job = get_object_or_404(Job, id=job_id)
-#
-#     if job.user_id is None:
-#         raise ConflictError('A system job cannot be cleared')
-#
-#     job.check_owner_or_die(request.user)
-#
-#     if not job.is_finished:
-#         raise ConflictError('A non finished job cannot be cleared')
-#
-#     job.delete()
-#
-#     url = request.POST.get('back_url') or reverse('creme_core__my_jobs')
-#
-#     if request.is_ajax():
-#         return HttpResponse(content=url)
-#
-#     return HttpResponseRedirect(url)
 class JobDeletion(generic.CremeModelDeletion):
     model = Job
     job_id_url_kwarg = 'job_id'

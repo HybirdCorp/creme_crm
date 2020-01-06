@@ -10,7 +10,7 @@ try:
 
     from creme.creme_core.global_info import set_global_info
     from creme.creme_core.models import (FieldsConfig,
-        FakeContact, FakeOrganisation, FakeCivility, FakeSector, FakeAddress)  # CremeEntity FakeEmailCampaign
+        FakeContact, FakeOrganisation, FakeCivility, FakeSector, FakeAddress)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -80,16 +80,10 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertTrue(is_valid(FakeContact))
         self.assertTrue(is_valid(FakeOrganisation))
         self.assertTrue(is_valid(FakeAddress))
-        # self.assertFalse(is_valid(CremeEntity))       # No optional field
-        # self.assertFalse(is_valid(FakeEmailCampaign)) # Idem
         self.assertFalse(is_valid(FakeCivility))  # No optional field
         self.assertFalse(is_valid(FakeSector))    # Idem
 
         create_fc = FieldsConfig.create
-
-        # with self.assertRaises(FieldsConfig.InvalidModel):
-        #     create_fc(CremeEntity)
-
         with self.assertRaises(FieldsConfig.InvalidModel):
             create_fc(FakeCivility)
 
@@ -122,7 +116,6 @@ class FieldsConfigTestCase(CremeTestCase):
         ContentType.objects.get_for_model(FakeCivility)  # Fill cache if needed
 
         with self.assertNumQueries(0):
-            # fc = FieldsConfig.get_4_model(CremeEntity)
             fc = FieldsConfig.get_4_model(FakeCivility)
 
         self.assertFalse([*fc.hidden_fields])

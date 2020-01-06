@@ -3,7 +3,6 @@
 try:
     from xml.etree import ElementTree
 
-    # import html5lib
     from bleach._vendor import html5lib  # Avoid a dependence only for test
 
     from django.test.client import RequestFactory
@@ -179,13 +178,6 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(label, item.label)
         self.assertEqual(url,   item.url)
         self.assertEqual(perm,  item.perm)
-
-    # def test_onclick_item(self):
-    #     my_label = 'Add a contact'
-    #     js = 'creme.utils.popupCreation()'
-    #     item = OnClickItem('add_contact', label=my_label, onclick=js)
-    #     self.assertEqual(my_label, item.label)
-    #     self.assertEqual(js,       item.onclick)
 
     def test_add_items_to_group01(self):
         group = ItemGroup('persons')
@@ -364,9 +356,7 @@ class MenuTestCase(CremeTestCase):
 
         # defaults is None
         gid = 'my_group'
-        group = menu.get_or_create(ItemGroup, gid, priority=5,
-                                        # defaults={'label': label},
-                                  )
+        group = menu.get_or_create(ItemGroup, gid, priority=5)
         self.assertIsInstance(group, ItemGroup)
         self.assertEqual(gid, group.id)
         self.assertFalse(group.label)

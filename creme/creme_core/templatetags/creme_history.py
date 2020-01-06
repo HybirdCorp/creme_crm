@@ -28,7 +28,6 @@ register = template.Library()
 
 
 @register.simple_tag
-# def history_summary(entity, user):
 def history_summary(*, entity, user):
     lines = HistoryLine.objects.filter(entity=entity.id)
     stored_hlines = []

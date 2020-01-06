@@ -29,7 +29,6 @@ from ..core.exceptions import ConflictError
 from ..models import FieldsConfig
 from ..utils.serializers import json_encode
 
-
 logger = logging.getLogger(__name__)
 
 

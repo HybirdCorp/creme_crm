@@ -1,14 +1,11 @@
-/* .home .hat-bar-container { */
 .content-home .hat-bar-container {
     border: 0;
 }
 
-/* .home .hat-bar .bar-title { */
 .content-home .hat-bar .bar-title {
     width: 100%;
 }
 
-/* .home .hat-bar .bar-title h1 { */
 .content-home .hat-bar .bar-title h1 {
     text-align: center;
 }

@@ -177,9 +177,6 @@ class CremeAppConfig(AppConfig):
 
     def all_apps_ready(self):
         if not self.MIGRATION_MODE:
-            # if hasattr(self, 'register_creme_app'):
-            #     logger.critical('The AppConfig for "%s" has a method register_creme_app() which is now useless.', self.name)
-
             from .core import (
                 entity_filter, enumerable, function_field, imprint, reminder,
                 sandbox, setting_key, sorter,

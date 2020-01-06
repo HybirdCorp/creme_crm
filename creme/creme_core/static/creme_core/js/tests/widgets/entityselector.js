@@ -147,7 +147,6 @@ QUnit.test('creme.widget.EntitySelector.create (not empty, invalid label url, au
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-//    equal("select a mock", $('button', element).text());
     equal($('button', element).text(), gettext('Entity #%s (not viewable)').format('1'));
     equal("1", widget.val());
     equal("", widget.options().popupURL);
@@ -237,7 +236,6 @@ QUnit.test('creme.widget.EntitySelector.val', function(assert) {
     equal("1", widget.val());
 
     widget.val('unknown');
-//    equal("select a mock", $('button', element).text());
     equal($('button', element).text(), gettext('Entity #%s (not viewable)').format('unknown'));
     equal("unknown", widget.val());
 });

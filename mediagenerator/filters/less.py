@@ -11,7 +11,6 @@ from django.conf import settings
 from mediagenerator.generators.bundles.base import Filter
 from mediagenerator.utils import find_file, read_text_file, get_media_dirs
 
-
 _RE_FLAGS = re.MULTILINE | re.UNICODE
 multi_line_comment_re = re.compile(r'/\*.*?\*/', _RE_FLAGS | re.DOTALL)
 one_line_comment_re = re.compile(r'//.*', _RE_FLAGS)
@@ -69,7 +68,6 @@ class Less(Filter):
         # we need to be able to mutate self.path
         self.path = [*self.path]
 
-        # super(Less, self).__init__(**kwargs)
         super().__init__(**kwargs)
 
         assert self.filetype == 'css', (

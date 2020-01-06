@@ -33,8 +33,6 @@ class Home(BaseHome):
     template_name = 'creme_core/home.html'
 
     def get_brick_ids(self):
-        # return BrickHomeLocation.objects.order_by('order') \
-        #                                 .values_list('brick_id', flat=True)
         user = self.request.user
         is_superuser = user.is_superuser
 

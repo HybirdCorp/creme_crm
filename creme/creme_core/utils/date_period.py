@@ -21,7 +21,7 @@
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
-from dateutil.rrule import rrule, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY  # SECONDLY
+from dateutil.rrule import rrule, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY
 
 from django.utils.translation import gettext_lazy as _, ngettext
 
@@ -71,10 +71,8 @@ class SimpleValueDatePeriod(DatePeriod):
 
     def __str__(self):
         value = self._value
-        # return self._ungettext(self._value).format(number=value)
         return self._ngettext(self._value).format(number=value)
 
-    # def _ungettext(self, value):
     def _ngettext(self, value):
         raise NotImplementedError
 
@@ -103,7 +101,6 @@ class HoursPeriod(SimpleValueDatePeriod):
     verbose_name = _('Hour(s)')
     frequency = HOURLY
 
-    # def _ungettext(self, value):
     def _ngettext(self, value):
         return ngettext('{number} hour', '{number} hours', value)
 
@@ -113,7 +110,6 @@ class DaysPeriod(SimpleValueDatePeriod):
     verbose_name = _('Day(s)')
     frequency = DAILY
 
-    # def _ungettext(self, value):
     def _ngettext(self, value):
         return ngettext('{number} day', '{number} days', value)
 
@@ -123,7 +119,6 @@ class WeeksPeriod(SimpleValueDatePeriod):
     verbose_name = _('Week(s)')
     frequency = WEEKLY
 
-    # def _ungettext(self, value):
     def _ngettext(self, value):
         return ngettext('{number} week', '{number} weeks', value)
 
@@ -133,7 +128,6 @@ class MonthsPeriod(SimpleValueDatePeriod):
     verbose_name = _('Month(s)')
     frequency = MONTHLY
 
-    # def _ungettext(self, value):
     def _ngettext(self, value):
         return ngettext('{number} month', '{number} months', value)
 
@@ -143,7 +137,6 @@ class YearsPeriod(SimpleValueDatePeriod):
     verbose_name = _('Year(s)')
     frequency = YEARLY
 
-    # def _ungettext(self, value):
     def _ngettext(self, value):
         return ngettext('{number} year', '{number} years', value)
 

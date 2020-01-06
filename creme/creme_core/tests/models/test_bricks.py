@@ -538,7 +538,6 @@ class BrickTestCase(CremeTestCase):
                                     ('test-object_rented',  'rents'),
                                    )[0]
         ct_contact = ContentType.objects.get_for_model(FakeContact)
-        # rbi = RelationBrickItem.create(rtype.id)
         rbi = RelationBrickItem.objects.create_if_needed(rtype.id)
 
         build = partial(EntityCellRegularField.build, model=FakeContact)

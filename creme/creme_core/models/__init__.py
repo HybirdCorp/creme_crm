@@ -17,7 +17,7 @@ from .custom_field import *
 
 from .fields_config import FieldsConfig  # NOQA
 from .header_filter import HeaderFilter  # NOQA
-from .entity_filter import EntityFilter, EntityFilterCondition  # EntityFilterVariable   # NOQA
+from .entity_filter import EntityFilter, EntityFilterCondition  # NOQA
 
 from .lock import Mutex, MutexAutoLock  # NOQA
 

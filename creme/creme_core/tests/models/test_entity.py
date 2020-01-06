@@ -11,7 +11,7 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_models import (FakeContact, FakeOrganisation, FakeCivility, FakeSector,
-           FakeImage, FakeImageCategory)  # FakeFileComponent
+           FakeImage, FakeImageCategory)
     from creme.creme_core.core.field_tags import InvalidFieldTag
     from creme.creme_core.core.function_field import (FunctionField,
             FunctionFieldResult, FunctionFieldResultsList, function_field_registry)
@@ -163,7 +163,6 @@ class EntityTestCase(CremeTestCase):
         self.assertNotEqual(original_ce.modified, clone_ce.modified)
 
         self.assertEqual(original_ce.is_deleted,  clone_ce.is_deleted)
-        # self.assertEqual(original_ce.is_actived,  clone_ce.is_actived)
         self.assertEqual(original_ce.entity_type, clone_ce.entity_type)
         self.assertEqual(original_ce.user,        clone_ce.user)
         self.assertEqual(original_ce.header_filter_search_field, clone_ce.header_filter_search_field)
@@ -316,9 +315,7 @@ class EntityTestCase(CremeTestCase):
         self.assertIsInstance(pp_ff, FunctionField)
 
         self.assertEqual(_('Properties'), str(pp_ff.verbose_name))
-        # self.assertTrue(pp_ff.has_filter)
         self.assertFalse(pp_ff.is_hidden)
-        # self.assertIsNone(pp_ff.choices)
 
         ptype1 = CremePropertyType.create(str_pk='test-prop_awesome', text='Awesome')
         CremeProperty.objects.create(type=ptype1, creme_entity=entity)
@@ -339,14 +336,12 @@ class EntityTestCase(CremeTestCase):
                         )
         self.assertEqual('Awesome/Wonderful', result.for_csv())
 
-    # def test_prettypropertiesfield02(self):
     def test_properties_functionfield02(self):  # Prefetch with populate_entities()
         user = self.user
         create_entity = CremeEntity.objects.create
         entity1 = create_entity(user=user)
         entity2 = create_entity(user=user)
 
-        # pp_ff = CremeEntity.function_fields.get('get_pretty_properties')
         pp_ff = function_field_registry.get(CremeEntity, 'get_pretty_properties')
 
         ptype1 = CremePropertyType.create(str_pk='test-prop_awesome',   text='Awesome')

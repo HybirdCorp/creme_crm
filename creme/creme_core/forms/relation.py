@@ -132,8 +132,6 @@ class _RelationsCreateForm(CremeForm):
 
         for subject in subjects:
             for rtype, needed_properties in ptypes_contraints.values():
-                # if needed_properties and \
-                #    not any(p.type_id in needed_properties for p in subject.get_properties()):
                 if not needed_properties:
                     continue
 

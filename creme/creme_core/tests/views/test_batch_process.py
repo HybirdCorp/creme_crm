@@ -19,8 +19,12 @@ try:
     from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
     from creme.creme_core.core.job import job_type_registry, JobManagerQueue  # Should be a test queue
     from creme.creme_core.creme_jobs.batch_process import batch_process_type
-    from creme.creme_core.models import (EntityFilter,  # EntityFilterCondition
-            SetCredentials, Job, EntityJobResult, FakeContact, FakeOrganisation)
+    from creme.creme_core.models import (
+        EntityFilter,
+        SetCredentials,
+        Job, EntityJobResult,
+        FakeContact, FakeOrganisation,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -261,11 +265,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             'test-filter01', 'Contains "club"',
             FakeOrganisation, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeOrganisation,
-                #     operator=EntityFilterCondition.CONTAINS,
-                #     name='name', values=['club'],
-                # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation, field_name='name',
                     operator=operators.CONTAINS, values=['club'],
@@ -334,11 +333,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             'test-filter01', 'Contains "club"',
             FakeOrganisation, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeOrganisation,
-                #     operator=EntityFilterCondition.CONTAINS,
-                #     name='name', values=['club'],
-                # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation, field_name='name',
                     operator=operators.CONTAINS, values=['club'],
@@ -396,11 +390,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             FakeOrganisation, is_custom=True,
             is_private=True, user=self.other_user,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeOrganisation,
-                #     operator=EntityFilterCondition.CONTAINS,
-                #     name='name', values=['club'],
-                # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation, field_name='name',
                     operator=operators.CONTAINS, values=['club'],
@@ -436,12 +425,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             'test-filter01', 'Assigned to me',
             FakeOrganisation, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeOrganisation,
-                #     operator=EntityFilterCondition.EQUALS,
-                #     name='user',
-                #     values=['__currentuser__'],
-                # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation, field_name='user',
                     operator=operators.EQUALS,
@@ -520,12 +503,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             'test-filter01', 'Belongs to Genshiken',
             FakeContact, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeContact,
-                #     operator=EntityFilterCondition.EQUALS,
-                #     name='description',
-                #     values=[description],
-                # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     field_name='description',
@@ -592,7 +569,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         def assertStrOps(fieldname):
             response = self.assertGET200(self.build_ops_url(self.contact_ct_id, fieldname))
 
-            # json_data = load_json(response.content)
             json_data = response.json()
             self.assertIsInstance(json_data, list)
             self.assertTrue(json_data)
@@ -643,11 +619,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         efilter = EntityFilter.create(
             'test-filter01', 'Contains "club"', FakeOrganisation, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeOrganisation,
-                #     operator=EntityFilterCondition.CONTAINS,
-                #     name='description', values=['club']
-                # ),
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
                     operator=operators.CONTAINS,

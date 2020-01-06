@@ -60,7 +60,6 @@ class SettingKeyTestCase(CremeTestCase):
         self.assertNotIn(sk1.id, all_key_ids)
         self.assertNotIn(sk3.id, all_key_ids)
 
-        # with self.assertNoException():
         with self.assertRaises(registry.RegistrationError):
             registry.unregister(sk3)
 

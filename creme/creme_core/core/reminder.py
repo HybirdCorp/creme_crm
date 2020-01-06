@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# import warnings
 
 from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
@@ -150,13 +149,6 @@ class ReminderRegistry:
 
     def __iter__(self):
         return iter(self._reminders.values())
-
-    # def itervalues(self):
-    #     warnings.warn('ReminderRegistry.itervalues() is deprecated; use __iter__() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return iter(self._reminders.values())
 
 
 reminder_registry = ReminderRegistry()

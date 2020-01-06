@@ -132,7 +132,6 @@
 .list-header-buttons a.with-icon img,
 .list-header-buttons button.with-icon img {
     position: absolute;
-/*    top: calc(50% - 7px); */
     left: 13px;
     top: 3px;
 }
@@ -232,9 +231,7 @@
 }
 
 .listview .lv-search-header th.search input,
-.listview .lv-search-header th.search select /*,
-.listview .lv-columns-header th.search input,
-.listview .lv-columns-header th.search select */ {
+.listview .lv-search-header th.search select {
     background-color: #FCD3CF;
     color: #C05C50;
     border: 1px solid #D87D72;

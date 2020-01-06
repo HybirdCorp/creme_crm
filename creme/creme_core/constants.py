@@ -4,7 +4,6 @@ from decimal import Decimal
 
 from django.conf import settings
 
-
 DEFAULT_VAT = Decimal(getattr(settings, 'DEFAULT_VAT', '20.0'))  # TODO: depends on country...
 
 REL_SUB_HAS = 'creme_core-subject_has'
@@ -19,4 +18,3 @@ DEFAULT_CURRENCY_PK = 1
 DISPLAY_CURRENCY_LOCAL_SYMBOL = 'creme_core-display_currency_local_symbol'
 
 MODELBRICK_ID = 'modelblock'
-# MODELBLOCK_ID = MODELBRICK_ID

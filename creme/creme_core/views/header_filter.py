@@ -22,12 +22,8 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-# from django.http import HttpResponse, HttpResponseRedirect
-# from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy as _  # gettext
+from django.utils.translation import gettext_lazy as _
 
-# from .. import utils
-# from ..auth.decorators import login_required
 from ..forms import header_filter as hf_forms
 from ..http import CremeJsonResponse
 from ..models import HeaderFilter
@@ -35,14 +31,10 @@ from ..utils import get_from_GET_or_404
 
 from . import generic, entity_filter
 from .generic import base
-# from .decorators import jsonify
 
 logger = logging.getLogger(__name__)
 
 
-# class HeaderFilterCreation(entity_filter.FilterCreationMixin,
-#                            generic.CremeModelCreation,
-#                           ):
 class HeaderFilterCreation(base.EntityCTypeRelatedMixin,
                            entity_filter.FilterMixin,
                            generic.CremeModelCreation,
@@ -71,7 +63,6 @@ class HeaderFilterCreation(base.EntityCTypeRelatedMixin,
         return initial
 
 
-# class HeaderFilterEdition(entity_filter.FilterEditionMixin,
 class HeaderFilterEdition(entity_filter.FilterMixin,
                           generic.CremeModelEdition,
                          ):
@@ -88,25 +79,6 @@ class HeaderFilterEdition(entity_filter.FilterMixin,
         return hfilter
 
 
-# @login_required
-# def delete(request):
-#     hf           = get_object_or_404(HeaderFilter, pk=utils.get_from_POST_or_404(request.POST, 'id'))
-#     callback_url = hf.entity_type.model_class().get_lv_absolute_url()
-#     allowed, msg = hf.can_delete(request.user)
-#
-#     if allowed:
-#         hf.delete()
-#
-#         return_msg = gettext('View successfully deleted')
-#         status = 200
-#     else:
-#         return_msg = msg
-#         status = 400
-#
-#     if request.is_ajax():
-#         return HttpResponse(return_msg, status=status)
-#
-#     return HttpResponseRedirect(callback_url)
 class HeaderFilterDeletion(generic.CremeModelDeletion):
     model = HeaderFilter
 
@@ -119,16 +91,6 @@ class HeaderFilterDeletion(generic.CremeModelDeletion):
         return self.object.entity_type.model_class().get_lv_absolute_url()
 
 
-# @login_required
-# @jsonify
-# def get_for_ctype(request):
-#     ct_id = utils.get_from_GET_or_404(request.GET, 'ct_id', int)
-#     ct = utils.get_ct_or_404(ct_id)
-#     user = request.user
-#
-#     user.has_perm_to_access_or_die(ct.app_label)
-#
-#     return list(HeaderFilter.get_for_user(user, ct).values_list('id', 'name'))
 class HeaderFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
     response_class = CremeJsonResponse
     ctype_id_arg = 'ct_id'

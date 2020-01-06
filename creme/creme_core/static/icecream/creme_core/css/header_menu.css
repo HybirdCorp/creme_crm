@@ -21,7 +21,6 @@
     position: fixed;
     width: 100%;
 
-    /*  z-index: 100;*/
     z-index: 2000; /* tmp: the floatThead header is defined in js at 10001 ... */
 }
 
@@ -48,7 +47,6 @@
 
     height: 100%;
 
-/*  padding-right: 50px;*/
     padding-right: 5px;
 }
 
@@ -207,7 +205,6 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
     height: 1px;
     border: 0;
 
-    /*   margin: 1em 0;*/
     margin: 5px 0;
     padding: 0;
 
@@ -246,13 +243,6 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 }
 */
 
-/*
-.ui-creme-navigation .horizontal-ruler {
-   border-top: 1px solid #a29d9d;
-}
-*/
-
-/* .ui-creme-navigation-right-separated-menu */
 .ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creme {
     margin-right: 11px;
 }

@@ -7,7 +7,6 @@ from ..forms.merge import MergeEntitiesBaseForm
 from .fake_models import FakeContact, FakeOrganisation, FakeAddress, FakeEmailCampaign, FakeProduct
 
 
-# class FakeContactQuickForm(CremeModelWithUserForm):
 class FakeContactQuickForm(CremeModelForm):  # Not CremeEntityForm to ignore custom fields
     class Meta:
         model = FakeContact

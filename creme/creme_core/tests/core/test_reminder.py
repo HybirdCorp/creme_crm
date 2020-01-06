@@ -13,7 +13,6 @@ class ReminderTestCase(CremeTestCase):
         registry = ReminderRegistry()
 
         self.assertFalse([*registry])
-        # self.assertFalse(list(registry.itervalues()))
 
     def test_register(self):
         registry = ReminderRegistry()
@@ -30,9 +29,6 @@ class ReminderTestCase(CremeTestCase):
         self.assertEqual({TestReminder1, TestReminder2},
                          {r.__class__ for r in registry}
                         )
-        # self.assertEqual({TestReminder1, TestReminder2},
-        #                  {r.__class__ for r in registry.itervalues()}
-        #                 )
 
         # --
         registry.unregister(TestReminder1)

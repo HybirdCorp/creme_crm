@@ -250,26 +250,6 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
 
         this._updateViewCounter(element);
         this._updateViewLess(element);
-
-        /*
-        if ($.browser.msie)
-        {
-            var layout = new creme.layout.ColumnSortLayout();
-            var column_width = content.get()[0].currentStyle['column-width'] || '200px';
-
-            content.addClass('ie-layout-fallback');
-
-            layout.comparator(function(a, b) {
-                                  return $('.checkbox-label', a).html().localeCompare($('.checkbox-label', b).html());
-                              })
-                  .columns(column_width)
-                  .resizable(true)
-                  .bind(content)
-                  .layout();
-        }
-        */
-
-        // this._layout.columns(3).resizable(true).bind(content).layout();
     },
 
     toggleShowLess: function(element, state) {

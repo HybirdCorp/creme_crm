@@ -37,7 +37,6 @@ from ..utils.dates import make_aware_dt
 from ..utils.imports import import_apps_sub_modules
 from ..utils.system import python_subprocess, enable_exit_handler
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -205,7 +204,6 @@ if settings.TESTS_ON:
             pass
 else:
     from functools import wraps
-    # from json import dumps as json_dump, loads as json_load
     from json import loads as json_load
     import traceback
     from time import sleep
@@ -598,7 +596,6 @@ class JobManager:
         if verbose:
             if system_jobs:
                 print('System jobs:')
-                # for dt, job in system_jobs:
                 for dt, __, job in system_jobs:
                     if not job.enabled:
                         print(' - {job} (id={job_id}) -> disabled'.format(job=job, job_id=job.id))

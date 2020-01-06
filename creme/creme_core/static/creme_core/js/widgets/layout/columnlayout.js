@@ -38,13 +38,6 @@ creme.layout.ColumnSortLayout = creme.layout.Layout.sub({
         this.onResize(this.layout);
     },
 
-    /*
-     * Only needed by sub lists as columns algorithm
-     * 
-    children: function() {
-        return $('> *:not(.ui-layout), > .ui-layout > *', this._target).filter(this._filter);
-    },
-    */
     comparator: function(comparator) {
         if (comparator === undefined) {
             return this._comparator;
@@ -92,41 +85,6 @@ creme.layout.ColumnSortLayout = creme.layout.Layout.sub({
         sortables.forEach(function(item, index) {
             column_list[Math.floor(index / column_item_count)].push($(item));
         });
-
-        /*
-        column_list.forEach(function(column, index) {
-            console.log('column: ', index, ' ', column.map(function(item) {return $(item).attr('name');}));
-        });
-        */
-
-        /*
-         * Create sub lists as columns
-         * 
-        $('> .ui-layout-column', container).remove();
-
-        column_list.forEach(function(column, index) {
-            var column_container = $('<ul>').addClass('ui-layout-column').appendTo(container);
-
-            column.forEach(function(item, index) {
-                $(item).remove().appendTo(column_container);
-            });
-        });
-        */
-
-        /*
-         * Order lines by column and eval item size.
-         * 
-        for(var line = 0; line < column_item_count; ++line)
-        {
-            column_list.forEach(function(column) {
-                if (column.length > line) {
-                    $(column[line]).css('min-width', '%f%%'.format(100/column_count)).remove().appendTo(container);
-                } else {
-                    $('<li>').addClass('ui-layout-column empty').appendTo(container);
-                }
-            });
-        }
-        */
 
         /*
          * Order lines by column
@@ -182,8 +140,8 @@ creme.layout.CSSColumnLayout = creme.layout.Layout.sub({
 
         container = this.container();
         container.attr('style', '-webkit-column-width:' + column_width +
-                                '-moz-column-width:' + column_width +
-                                '-column-width:' + column_width);
+                                   '-moz-column-width:' + column_width +
+                                       '-column-width:' + column_width);
     }
 });
 }(jQuery));

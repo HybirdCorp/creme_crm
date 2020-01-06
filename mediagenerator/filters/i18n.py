@@ -19,7 +19,6 @@ class I18N(Filter):
     takes_input = False
 
     def __init__(self, **kwargs):
-        # super(I18N, self).__init__(**kwargs)
         super().__init__(**kwargs)
         assert self.filetype == 'js', (
             'I18N only supports compilation to js. '
@@ -44,22 +43,6 @@ class I18N(Filter):
         hash = sha1(smart_str(content)).hexdigest()
         yield language, hash
 
-    # def _generate(self, language):
-    #     language_bidi = language.split('-')[0] in settings.LANGUAGES_BIDI
-    #     request = HttpRequest()
-    #     request.GET['language'] = language
-    #     # Add some JavaScript data
-    #     content = 'var LANGUAGE_CODE = "%s";\n' % language
-    #     content += 'var LANGUAGE_BIDI = ' + \
-    #         (language_bidi and 'true' or 'false') + ';\n'
-    #     content += javascript_catalog(request,
-    #         packages=settings.INSTALLED_APPS).content
-    #     # The hgettext() function just calls gettext() internally, but
-    #     # it won't get indexed by makemessages.
-    #     content += '\nwindow.hgettext = function(text) { return gettext(text); };\n'
-    #     # Add a similar hngettext() function
-    #     content += 'window.hngettext = function(singular, plural, count) { return ngettext(singular, plural, count); };\n'
-    #     return content
     def _generate(self, language):
         language_bidi = language.split('-')[0] in settings.LANGUAGES_BIDI
 

@@ -5,8 +5,7 @@
     font-style: normal;
     font-weight: 400;
     src: url('common/fonts/OpenSans-Regular-400.eot'); /* IE9 Compat Modes */
-    src: /* url('common/fonts/OpenSans-Regular-400.eot?#iefix') format('embedded-opentype'), IE6-IE8 */
-         url('common/fonts/OpenSans-Regular-400.woff') format('woff'), /* Modern Browsers */
+    src: url('common/fonts/OpenSans-Regular-400.woff') format('woff'), /* Modern Browsers */
          url('common/fonts/OpenSans-Regular.ttf') format('truetype'); /* Safari, Android, iOS */
 }
 
@@ -15,8 +14,7 @@
     font-style: normal;
     font-weight: 600;
     src: url('common/fonts/OpenSans-Semibold-600.eot'); /* IE9 Compat Modes */
-    src: /* url('common/fonts/OpenSans-Semibold-600.eot?#iefix') format('embedded-opentype'), IE6-IE8 */
-         url('common/fonts/OpenSans-Semibold-600.woff') format('woff'), /* Modern Browsers */
+    src: url('common/fonts/OpenSans-Semibold-600.woff') format('woff'), /* Modern Browsers */
          url('common/fonts/OpenSans-Semibold.ttf') format('truetype'); /* Safari, Android, iOS */
 }
 
@@ -25,8 +23,7 @@
     font-style: normal;
     font-weight: 700;
     src: url('common/fonts/OpenSans-Bold-700.eot'); /* IE9 Compat Modes */
-    src: /* url('common/fonts/OpenSans-Bold-700.eot?#iefix') format('embedded-opentype'), IE6-IE8 */
-         url('common/fonts/OpenSans-Bold-700.woff') format('woff'), /* Modern Browsers */
+    src: url('common/fonts/OpenSans-Bold-700.woff') format('woff'), /* Modern Browsers */
          url('common/fonts/OpenSans-Bold.ttf') format('truetype'); /* Safari, Android, iOS */
 }
 
@@ -254,7 +251,6 @@ button {
 
 .buttons-list.instance-buttons {
     margin-top: -10px;
-    /* padding: 5px; */
 }
 
 .buttons-list.instance-buttons .menu_button,
@@ -308,15 +304,13 @@ button {
     /* 269px = 269px footer
        39px = page decoration
        40px = main-content's padding-top
-       10px = weird margin between content and the page decoration - wtf ?! 5px in IE, 0px in IE(?!); & depends on the page
+       // 10px = weird margin between content and the page decoration - wtf ?! 5px in IE, 0px in IE(?!); & depends on the page
      */
-/*    min-height: calc(100vh - 284px - 39px - 40px - 10px); TODO: check if we can remove this '10px', at least in js ? */
     min-height: calc(100vh - 284px - 39px - 40px);
 
     width: 98%;
 
     margin-left: 1.2%;
-/*    padding-top: 3px; */
     padding-top: 40px;
 
     clear: both;
@@ -440,7 +434,6 @@ span.enumerator-item {
 }
 
 .hat-bar-container {
-    /* margin: 10px 0 0 0; */
     padding: 10px;
 }
 
@@ -530,8 +523,6 @@ div.hat-bar {
 }
 
 .footer .footer-baseline-version {
-/*    float: right;*/
-
     margin-left: 10px;
 
     text-transform: uppercase;

@@ -43,7 +43,6 @@ class CremeTestSuite(unittest.TestSuite):
         call_command(PopulateCommand(), verbosity=0)
         ContentType.objects.clear_cache()  # The cache seems corrupted when we switch to the test DB
 
-        # return super(CremeTestSuite, self).run(*args, **kwargs)
         return super().run(*args, **kwargs)
 
 

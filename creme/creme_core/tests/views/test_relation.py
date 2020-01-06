@@ -640,7 +640,6 @@ class RelationViewsTestCase(ViewsTestCase):
         url = reverse('creme_core__create_relations_bulk', args=(ct_id,))
 
         if kwargs.get('GET', False):
-            # url += '?persist=ids' + ''.join('&ids={}'.format(e.id) for e in subjects)
             url += '?' + '&'.join('ids={}'.format(e.id) for e in subjects)
 
         return url
@@ -862,9 +861,6 @@ class RelationViewsTestCase(ViewsTestCase):
                                          ('test-object_foobar',  'is loved by', [FakeContact])
                                         )[0]
 
-    # def _build_selection_url(self, rtype, subject, ct):
-    #     return reverse('creme_core__select_entities_to_link', args=(rtype.id, subject.id, ct.id))
-
     def test_select_relations_objects01(self):
         self._aux_relation_objects_to_link_selection()
 
@@ -876,7 +872,6 @@ class RelationViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self.SELECTION_URL, data=data)
 
         try:
-            # entities = response.context['entities']
             entities = response.context['page_obj']
         except KeyError:
             self.fail(response.content)
@@ -906,7 +901,6 @@ class RelationViewsTestCase(ViewsTestCase):
                                           },
                                     )
 
-        # contacts = response.context['entities'].object_list
         contacts = response.context['page_obj'].object_list
         self.assertEqual(2, len(contacts))
         self.assertSetEqual({self.contact01, self.contact02}, {*contacts})
@@ -939,7 +933,6 @@ class RelationViewsTestCase(ViewsTestCase):
                                           },
                                     )
 
-        # contacts = response.context['entities'].object_list
         contacts = response.context['page_obj'].object_list
         self.assertEqual(3, len(contacts))
         self.assertSetEqual({self.contact01, self.contact03, contact04}, {*contacts})

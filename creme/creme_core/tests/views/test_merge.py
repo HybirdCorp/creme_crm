@@ -44,7 +44,6 @@ class MergeViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_select_url(orga01))
 
         with self.assertNoException():
-            # contacts = response.context['entities'].object_list
             contacts = response.context['page_obj'].object_list
 
         contacts = {*contacts}
@@ -169,7 +168,6 @@ class MergeViewsTestCase(ViewsTestCase):
                                           'description_2':      orga02.description,
                                           'description_merged': description,  # <======
 
-                                          # 'email_1':      orga01.email,
                                           'email_1':      '',
                                           'email_2':      orga02.email,
                                           'email_merged': orga02.email,  # <======

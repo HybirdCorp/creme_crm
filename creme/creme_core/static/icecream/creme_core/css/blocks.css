@@ -1,14 +1,9 @@
 /* Blocks */
 .table_detail_view {
     width: 100%;
-
     padding: 0;  /* no padding removes the white border inside blocks */
 
     border-spacing: 0px;
-
-    /*margin-left: 5px; problem with address blocks in contact form */
-    /* margin-bottom: 10px; */
-
     border: 1px solid #ccc;
     border-radius: 0; /* disable rounded corners forced by .ui-corner-all hardcoded in the html templates */
 
@@ -43,7 +38,7 @@ div.dual_column-container + table.table_detail_view {
     font-size: 1em;
     font-weight: bolder;
     color: #376e86;
-    background: #f5f5f5; /* 96% */
+    background: #f5f5f5;
 }
 
 .table_detail_view thead .title {
@@ -170,13 +165,6 @@ th_info {
 .table_detail_view.dual_column.last {
     float: right;
 }
-
-/*
-.table_detail_view.dual_column.last:after {
-    clear: both;
-    content: "";
-}
-*/
 
 table.collapsed .collapsable {
     display: none;

@@ -181,13 +181,10 @@ class CustomFieldValue(CremeModel):
     def is_empty_value(value):
         return value in EMPTY_VALUES
 
-    # @staticmethod
     @classmethod
-    # def save_values_for_entities(custom_field, entities, value):
     def save_values_for_entities(cls, custom_field, entities, value):
         cfv_klass = custom_field.get_value_class()
 
-        # if CustomFieldValue.is_empty_value(value):
         if cls.is_empty_value(value):
             cfv_klass.objects.filter(custom_field=custom_field, entity__in=entities).delete()
 

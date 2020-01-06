@@ -210,7 +210,6 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                                      data={'brick_id': brick_id},
                                     )
         with self.assertNoException():
-            # result = json_load(response.content)
             result = response.json()
 
         self.assertIsInstance(result, list)

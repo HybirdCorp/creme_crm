@@ -4,7 +4,6 @@ try:
     from tempfile import NamedTemporaryFile
     from unittest import skipIf
 
-    # import html5lib
     from bleach._vendor import html5lib  # Avoid a dependence only for test
 
     from django.contrib.contenttypes.models import ContentType

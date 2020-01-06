@@ -32,7 +32,6 @@ import subprocess
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import localtime
 
-
 logger = logging.getLogger(__name__)
 
 
