@@ -86,9 +86,7 @@ class CategoryField(JSONField):
     }
     value_type = dict
 
-    # def __init__(self, categories=Category.objects.all(), *args, **kwargs):
     def __init__(self, *, categories=Category.objects.all(), **kwargs):
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self.categories = categories
 

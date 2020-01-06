@@ -186,7 +186,6 @@ class ProductTestCase(_ProductsTestCase):
         response = self.assertGET200(Product.get_lv_absolute_url())
 
         with self.assertNoException():
-            # products_page = response.context['entities']
             products_page = response.context['page_obj']
 
         self.assertEqual(2, products_page.paginator.count)
@@ -198,9 +197,6 @@ class ProductTestCase(_ProductsTestCase):
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
         sub_cat = SubCategory.objects.create(name='Eva', description='Fake gods', category=cat)
 
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
-        #                    data={'id': sub_cat.pk}
-        #                   )
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('products', 'subcategory', sub_cat.id)
                                            ),
@@ -226,14 +222,6 @@ class ProductTestCase(_ProductsTestCase):
         self.login()
 
         product, cat, sub_cat = self._build_product_cat_subcat()
-
-        # self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
-        #                    data={'id': sub_cat.pk}
-        #                   )
-        # self.assertStillExists(sub_cat)
-        #
-        # product = self.assertStillExists(product)
-        # self.assertEqual(sub_cat, product.sub_category)
         response = self.assertPOST200(reverse('creme_config__delete_instance',
                                               args=('products', 'subcategory', sub_cat.id)
                                              ),
@@ -248,16 +236,6 @@ class ProductTestCase(_ProductsTestCase):
         self.login()
 
         product, cat, sub_cat = self._build_product_cat_subcat()
-
-        # self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'category')),
-        #                    data={'id': cat.pk}
-        #                   )
-        # self.assertStillExists(sub_cat)
-        # self.assertStillExists(cat)
-        #
-        # product = self.assertStillExists(product)
-        # self.assertEqual(sub_cat, product.sub_category)
-        # self.assertEqual(cat,     product.category)
         response = self.assertPOST200(reverse('creme_config__delete_instance',
                                               args=('products', 'category', cat.id)
                                              ),
@@ -556,7 +534,6 @@ class ProductTestCase(_ProductsTestCase):
 
         url = reverse('products__remove_image', args=(product.id,))
         data = {'id': img_1.id}
-        # self.assertGET404(url, data=data)
         self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data, follow=True)

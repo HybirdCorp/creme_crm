@@ -31,9 +31,8 @@ from . import other_models
 
 # TODO: use an abstract base class for Service and Products ??
 class AbstractService(CremeEntity):
-    name        = models.CharField(_('Name'), max_length=100)
-    # description = models.CharField(_('Description'), max_length=200)
-    reference   = models.CharField(_('Reference'), max_length=100)
+    name      = models.CharField(_('Name'), max_length=100)
+    reference = models.CharField(_('Reference'), max_length=100)
 
     category     = models.ForeignKey(other_models.Category,
                                      verbose_name=_('Category'),
