@@ -23,7 +23,6 @@ try:
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
-
 Contact = get_contact_model()
 Organisation = get_organisation_model()
 Activity = get_activity_model()
