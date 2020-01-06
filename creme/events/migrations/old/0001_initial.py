@@ -7,13 +7,6 @@ from creme.creme_core.models import CREME_REPLACE
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('events', '0001_initial'),
-    #     ('events', '0002_v2_1__move_description_to_entity_1'),
-    #     ('events', '0003_v2_1__move_description_to_entity_2'),
-    #     ('events', '0004_v2_1__move_description_to_entity_3'),
-    # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -41,7 +34,7 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
+                ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('place', models.CharField(max_length=100, verbose_name='Place', blank=True)),
                 ('start_date', models.DateTimeField(verbose_name='Start date')),
                 ('end_date', models.DateTimeField(null=True, verbose_name='End date', blank=True)),
