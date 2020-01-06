@@ -249,10 +249,8 @@ class GraphsTestCase(CremeTestCase):
         rnode = rnodes[1]
         url = reverse('graphs__remove_root')
         data = {'id': rnode.id}
-        # self.assertGET404(url, data=data)
         self.assertGET405(url, data=data)
 
-        # self.assertPOST200(url, data=data)
         self.assertPOST200(url, data=data, follow=True)
         self.assertDoesNotExist(rnode)
 
