@@ -27,7 +27,6 @@ from creme import persons
 
 from .models import MobileFavorite
 
-
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 

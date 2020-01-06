@@ -30,7 +30,6 @@ from creme.persons.forms.quick import ContactQuickForm
 
 from .models import MobileFavorite
 
-
 Organisation = get_organisation_model()
 
 
@@ -67,10 +66,8 @@ class MobileContactCreateForm(ContactQuickForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.instance.user = self.user
-        # del self.fields['user']
 
         errors = self.errors
-
         for fname, field in self.fields.items():
             if fname != 'is_favorite':
                 attrs = field.widget.attrs
