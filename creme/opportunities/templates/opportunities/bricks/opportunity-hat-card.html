@@ -81,24 +81,6 @@
 
 {% block card_summary %}
     {% include 'persons/bricks/frags/card-summary-acts.html' %}
-{% comment %}
-    {% with contacts=object.get_contacts %}
-        <div class="card-info-field">
-            <div class="card-info-field">
-                <span class='card-info-key'>
-                    {% if contacts|length == 0 %}
-                        {% trans 'Linked contacts' %}
-                    {% else %}
-                        {% blocktrans count count=contacts|length %}{{count}} Linked contact{% plural %}{{count}} Linked contacts{% endblocktrans %}
-                    {% endif %}
-                </span>
-                <span class='card-info-value'>
-                    {% for contact in contacts %}{% widget_join %}{% widget_entity_hyperlink contact user %}{% end_widget_join %}{% empty %}—{% endfor %}
-                </span>
-            </div>
-        </div>
-    {% endwith %}
-{% endcomment %}
     {% with paginator=contacts.paginator %}
         <div class="card-info-field">
             <div class="card-info-field">

@@ -35,7 +35,7 @@ from creme.creme_core.models import (
     BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem,
     ButtonMenuItem,
     HeaderFilter, EntityFilter,
-)  # EntityFilterCondition
+)
 
 from creme import persons, products
 
@@ -112,7 +112,6 @@ class Populator(BasePopulator):
 
         # ---------------------------
         create_efilter = partial(EntityFilter.create, model=Opportunity, user='admin')
-        # create_cond    = partial(EntityFilterCondition.build_4_field, model=Opportunity)
         build_cond = partial(condition_handler.RegularFieldConditionHandler.build_condition,
                              model=Opportunity,
                             )
@@ -120,10 +119,6 @@ class Populator(BasePopulator):
             'opportunities-opportunities_won',
             name=_('Opportunities won'),
             conditions=[
-                # create_cond(operator=EntityFilterCondition.EQUALS,
-                #             name='sales_phase__won',
-                #             values=[True],
-                #            ),
                 build_cond(operator=operators.EqualsOperator,
                            field_name='sales_phase__won',
                            values=[True],
@@ -134,10 +129,6 @@ class Populator(BasePopulator):
             'opportunities-opportunities_lost',
             name=_('Opportunities lost'),
             conditions=[
-                # create_cond(operator=EntityFilterCondition.EQUALS,
-                #             name='sales_phase__lost',
-                #             values=[True],
-                #            ),
                 build_cond(operator=operators.EqualsOperator,
                            field_name='sales_phase__lost',
                            values=[True],
@@ -148,18 +139,10 @@ class Populator(BasePopulator):
             'opportunities-neither_won_nor_lost_opportunities',
             name=_('Neither won nor lost opportunities'),
             conditions=[
-                # create_cond(operator=EntityFilterCondition.EQUALS_NOT,
-                #             name='sales_phase__won',
-                #             values=[True],
-                #           ),
                 build_cond(operator=operators.EqualsNotOperator,
                            field_name='sales_phase__won',
                            values=[True],
                           ),
-                # create_cond(operator=EntityFilterCondition.EQUALS_NOT,
-                #             name='sales_phase__lost',
-                #             values=[True],
-                #            ),
                 build_cond(operator=operators.EqualsNotOperator,
                            field_name='sales_phase__lost',
                            values=[True],

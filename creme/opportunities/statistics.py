@@ -19,7 +19,6 @@
 ################################################################################
 
 from datetime import date
-# from functools import partial
 
 from django.db.models import Q, FilteredRelation, Count
 from django.utils.translation import gettext_lazy as _, ngettext
@@ -49,20 +48,7 @@ class CurrentYearStatistics:
             stats.append(str(self.invalid_message))
         else:
             # TODO: use this previous code when there is only one managed organisation ??
-            # # filter_opp = partial(
-            # #     opp_model.objects.filter,
-            # #     relations__type_id=self.relation_type_id,
-            # #     closing_date__gte=date.today().replace(month=1, day=1),
-            # # )
-            #
             # for orga in self.orga_model.get_all_managed_by_creme():
-            #     # won_count = filter_opp(sales_phase__won=True,
-            #     #                        relations__object_entity_id=orga.id,
-            #     #                       ).count()
-            #     # lost_count = filter_opp(sales_phase__lost=True,
-            #     #                         relations__object_entity_id=orga.id,
-            #     #                        ).count()
-            #
             #     agg = opp_model.objects \
             #              .annotate(relations_w_orga=FilteredRelation(
             #                             'relations',

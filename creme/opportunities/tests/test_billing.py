@@ -60,7 +60,6 @@ class BillingTestCase(OpportunitiesBaseTestCase):
                       )
 
     def _set_quote_config(self, use_current_quote):
-        # sv = SettingValue.objects.get(key_id=constants.SETTING_USE_CURRENT_QUOTE)
         sv = SettingValue.objects.get_4_key(setting_keys.quote_key)
         sv.value = use_current_quote
         sv.save()
@@ -224,7 +223,6 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC,   opportunity)
 
         url = self._build_currentquote_url(opportunity, quote1)
-        # self.assertGET404(url)
         self.assertGET405(url)
         self.assertPOST200(url, follow=True)
 
@@ -372,7 +370,6 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
         self.assertTrue(quote.pk)
 
-        # key_id = constants.SETTING_USE_CURRENT_QUOTE
         key_id = setting_keys.quote_key.id
 
         for query_info in context.captured_queries:

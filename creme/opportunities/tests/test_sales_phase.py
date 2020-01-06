@@ -17,7 +17,6 @@ except Exception as e:
 
 
 class SalesPhaseTestCase(CremeTestCase):
-    # DELETE_URL = reverse('creme_config__delete_instance', args=('opportunities', 'sales_phase'))
     PORTAL_URL = reverse('creme_config__model_portal', args=('opportunities', 'sales_phase'))
 
     @classmethod
@@ -91,7 +90,6 @@ class SalesPhaseTestCase(CremeTestCase):
         self.login()
 
         sp = SalesPhase.objects.create(name='Forthcoming', order=1)
-        # self.assertPOST200(self.DELETE_URL, data={'id': sp.pk})
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('opportunities', 'sales_phase', sp.id),
                                            ),
@@ -109,17 +107,11 @@ class SalesPhaseTestCase(CremeTestCase):
         sp = SalesPhase.objects.create(name='Forthcoming', order=1)
 
         create_orga = partial(Organisation.objects.create, user=user)
-        # opp = \
         Opportunity.objects.create(
             user=user, name='Opp', sales_phase=sp,
             emitter=create_orga(name='My society'),
             target=create_orga(name='Target renegade'),
         )
-        # self.assertPOST404(self.DELETE_URL, data={'id': sp.pk})
-        # self.assertStillExists(sp)
-        #
-        # opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
-        # self.assertEqual(sp, opp.sales_phase)
         response = self.assertPOST200(reverse('creme_config__delete_instance',
                                               args=('opportunities', 'sales_phase', sp.id)
                                              ),

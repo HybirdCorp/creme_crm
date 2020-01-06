@@ -32,15 +32,6 @@ class OriginTestCase(CremeTestCase):
             target=create_orga(name='Target renegade'),
         )
 
-        # self.assertPOST200(reverse('creme_config__delete_instance',
-        #                            args=('opportunities', 'origin'),
-        #                           ),
-        #                    data={'id': origin.pk},
-        #                   )
-        # self.assertDoesNotExist(origin)
-        #
-        # opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
-        # self.assertIsNone(opp.origin)
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('opportunities', 'origin', origin.id)
                                            ),
