@@ -33,7 +33,6 @@ from creme.persons import get_contact_model
 from ..forms.vcf import VcfForm, VcfImportForm
 from ..vcfgenerator import VcfGenerator
 
-
 Contact = get_contact_model()
 
 

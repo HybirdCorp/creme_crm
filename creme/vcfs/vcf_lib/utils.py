@@ -22,7 +22,6 @@ def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
             raise ParseError(msg)
         else:
             logger.error(msg)
-            #print msg
 
     # vars which control state machine
     charIterator = enumerate(s)
