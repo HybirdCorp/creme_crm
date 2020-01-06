@@ -10,13 +10,6 @@ from creme.creme_core.models import CREME_REPLACE_NULL
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('documents', '0001_initial'),
-    #     ('documents', '0016_v2_1__move_description_to_entity_1.py'),
-    #     ('documents', '0017_v2_1__move_description_to_entity_2.py'),
-    #     ('documents', '0018_v2_1__move_description_to_entity_3.py'),
-    # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -45,7 +38,7 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
+                ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('category', models.ForeignKey(to='documents.FolderCategory',
                                                on_delete=CREME_REPLACE_NULL, null=True, blank=True,
                                                related_name='folder_category_set',
@@ -101,7 +94,7 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('title', models.CharField(max_length=100, verbose_name='Name')),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
+                ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('filedata', models.FileField(upload_to='upload/documents', max_length=500, verbose_name='File')),
                 ('linked_folder', models.ForeignKey(to=settings.DOCUMENTS_FOLDER_MODEL, on_delete=PROTECT, verbose_name='Folder')),
                 ('categories', models.ManyToManyField(to='documents.DocumentCategory', verbose_name='Categories', blank=True)),
