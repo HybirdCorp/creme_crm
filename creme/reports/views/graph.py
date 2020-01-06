@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.db.models import FieldDoesNotExist, DateField, DateTimeField, ForeignKey
 from django.shortcuts import get_object_or_404
@@ -117,16 +117,16 @@ def get_available_report_graph_types(request, ct_id):
     return {'result': result}
 
 
-def cast_order(order):
-    warnings.warn('reports.views.graph.cast_order() is deprecated ; '
-                  'use creme_core.utils.meta.Order instead.',
-                  DeprecationWarning
-                 )
-
-    if order not in {'ASC', 'DESC'}:
-        raise ValueError('Order must be in {"ASC", "DESC"}')
-
-    return order
+# def cast_order(order):
+#     warnings.warn('reports.views.graph.cast_order() is deprecated ; '
+#                   'use creme_core.utils.meta.Order instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     if order not in {'ASC', 'DESC'}:
+#         raise ValueError('Order must be in {"ASC", "DESC"}')
+#
+#     return order
 
 
 # Class-based views  ----------------------------------------------------------
