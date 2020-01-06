@@ -41,7 +41,6 @@ except Exception as e:
 class ActivityTestCase(_ActivitiesTestCase):
     ADD_POPUP_URL   = reverse('activities__create_activity_popup')
     ADD_INDISPO_URL = reverse('activities__create_indispo')
-    # DEL_ACTTYPE_URL = reverse('creme_config__delete_instance', args=('activities', 'activity_type'))
 
     def _build_add_related_uri(self, related, act_type_id=None):
         url = reverse('activities__create_related_activity', args=(related.id,))
@@ -1647,7 +1646,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         response = self.assertGET200(Activity.get_lv_absolute_url())
 
         with self.assertNoException():
-            # activities_page = response.context['entities']
             activities_page = response.context['page_obj']
 
         self.assertEqual(1, activities_page.number)
@@ -1658,7 +1656,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         response = self.assertGET200(reverse('activities__list_phone_calls'))
 
         with self.assertNoException():
-            # pcalls_page = response.context['entities']
             pcalls_page = response.context['page_obj']
 
         self.assertListEqual([acts[0]], [*pcalls_page.object_list])
@@ -1667,7 +1664,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         response = self.assertGET200(reverse('activities__list_meetings'))
 
         with self.assertNoException():
-            # meetings_page = response.context['entities']
             meetings_page = response.context['page_obj']
 
         self.assertListEqual([acts[1]], [*meetings_page.object_list])
@@ -1806,9 +1802,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                       'is_custom':             True,
                      },
         )[0]
-
-        # self.assertPOST200(self.DEL_ACTTYPE_URL, data={'id': atype.pk})
-        # self.assertDoesNotExist(atype)
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('activities', 'activity_type', atype.id)
                                            ),
@@ -1831,14 +1824,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                      },
         )[0]
 
-        # activity = \
         Activity.objects.create(user=user, type=atype)
 
-        # self.assertPOST404(self.DEL_ACTTYPE_URL, data={'id': atype.pk})
-        # self.get_object_or_fail(ActivityType, pk=atype.pk)
-        #
-        # activity = self.get_object_or_fail(Activity, pk=activity.pk)
-        # self.assertEqual(atype, activity.type)
         response = self.assertPOST200(reverse('creme_config__delete_instance',
                                               args=('activities', 'activity_type', atype.id)
                                              ),
@@ -2017,7 +2004,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview_popup6(self):
         "Creation perm is needed"
-        self.login(is_superuser=False)  #creatable_models=[Activity]
+        self.login(is_superuser=False)  # creatable_models=[Activity]
         self.assertGET403(self.ADD_POPUP_URL)
 
     def test_dl_ical(self):

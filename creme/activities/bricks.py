@@ -125,10 +125,8 @@ class FutureActivitiesBrick(QuerysetBrick):
 
     def _get_queryset_for_entity(self, entity, context):
         if isinstance(entity, Organisation):
-            # return Activity.get_future_linked_for_orga(entity, context['today'])
             return Activity.objects.future_linked_to_organisation(entity, context['today'])
         else:
-            # return Activity.get_future_linked(entity, context['today'])
             return Activity.objects.future_linked(entity=entity, today=context['today'])
 
     def get_template_context(self, *args, **kwargs):
@@ -181,10 +179,8 @@ class PastActivitiesBrick(FutureActivitiesBrick):
 
     def _get_queryset_for_entity(self, entity, context):
         if isinstance(entity, Organisation):
-            # return Activity.get_past_linked_for_orga(entity, context['today'])
             return Activity.objects.past_linked_to_organisation(entity, context['today'])
         else:
-            # return Activity.get_past_linked(entity, context['today'])
             return Activity.objects.past_linked(entity, context['today'])
 
 
@@ -201,8 +197,7 @@ class UserCalendarsBrick(QuerysetBrick):
     def detailview_display(self, context):
         # NB: credentials are OK, because we retrieve only Calendars related of the user.
         user = context['user']
-        # # In case the user has just been created, creates his default calendar
-        # Calendar.objects.get_default_calendar(user)
+
         return self._render(self.get_template_context(
             context,
             Calendar.objects.filter(user=user),

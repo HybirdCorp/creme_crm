@@ -13,10 +13,6 @@
     }{% endblockjsondata %}
     <script type='text/javascript'>
         $(document).ready(function() {
-{% comment %}
-            creme.activities.calendar.fullCalendar('{{events_url}}', '{% url "activities__create_activity_popup" %}', '{% url "activities__set_activity_dates" %}');
-            creme.activities.calendar.loadCalendarEventListeners('{{user_username}}', {{creme_calendars_by_user|safe}});
-{% endcomment %}
             creme.activities.calendar.fullCalendar('{% url "activities__calendars_activities" %}', '{% url "activities__create_activity_popup" %}', '{% url "activities__set_activity_dates" %}');
 
             /* Not a widget, so we cannot embed the <script> node with our data ; so we retrieve it manually. */
@@ -35,7 +31,6 @@
                         <span class="toggle-icon">&nbsp;</span>
                         <span>&nbsp;&nbsp;{% trans 'Floating activities' %}</span>
                     </h4>
-{#                    {% if floating_activities|length >= max_element_search %} #}
                     {% if enable_floating_activities_search %}
                         <div class='floating_event_filter toggle-target'><input type='search' placeholder="{% trans 'FILTER FLOATING ACTIVITIES' %}" /></div>
                     {% endif %}
@@ -59,7 +54,6 @@
                     {% for calendar in my_calendars %}
                         <div class="calendar_item">
                             <div class="colored_square" style="background-color:#{{calendar.get_color}};"></div>
-{#                            <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="selected_calendars" {% if calendar.id|str in current_calendars %} checked {% endif %} /> #}
                             <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="calendar_id"{% if calendar.id in my_selected_calendar_ids %} checked{% endif %}/>
                             <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
                         </div>
@@ -74,12 +68,10 @@
                     <span class="toggle-icon">&nbsp;</span>
                     <span>&nbsp;&nbsp;{% trans 'Collaborators calendars' %}</span>
                 </h4>
-{#                {% if n_others_calendars >= max_element_search %} #}
                 {% if enable_calendars_search %}
                     <div class='calendar_filter toggle-target'><input type='search' placeholder="{% trans 'FILTER CALENDARS OR COLLABORATORS' %}" /></div>
                 {% endif %}
                 <div class="other_calendars menu_sub_element_list toggle-target">
-{#                    {% for user, calendars in others_calendars.items %} #}
                     {% for user, calendars in others_calendars %}
                     {% with user_key=user|activities_user_key %}
                         <h5 class="calendar_label_owner" data-user="{{user_key}}">{{user}}</h5>
@@ -87,7 +79,6 @@
                             {% for calendar in calendars %}
                                 <div class="calendar_item calendar_label_container" data-user="{{user_key}}" data-calendar="{{calendar.id}}">
                                     <div class="colored_square" style="background-color:#{{calendar.get_color}};"></div>
-{#                                    <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="selected_calendars" {% if calendar.id|str in current_calendars %} checked {% endif %} /> #}
                                     <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="calendar_id"{% if calendar.id in others_selected_calendar_ids %} checked{% endif %}/>
                                     <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
                                 </div>

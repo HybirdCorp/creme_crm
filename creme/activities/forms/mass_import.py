@@ -309,9 +309,7 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
 
 
 class ParticipantsExtractorField(Field):
-    # def __init__(self, choices, *args, **kwargs):
     def __init__(self, *, choices, **kwargs):
-        # super().__init__(widget=ParticipantsExtractorWidget, *args, **kwargs)
         super().__init__(widget=ParticipantsExtractorWidget, **kwargs)
         self._user = None
         self._can_create = False
@@ -505,7 +503,6 @@ class SubjectsExtractorWidget(BaseExtractorWidget):
 
 
 class SubjectsExtractorField(Field):
-    # def __init__(self, choices, *args, **kwargs):
     def __init__(self, *, choices, **kwargs):
         super().__init__(widget=SubjectsExtractorWidget, **kwargs)
         self._user = None

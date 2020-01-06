@@ -188,7 +188,6 @@ class Calendar(CremeModel):
         mngr = type(self).objects
 
         if not self.color:
-            # self.color = self.new_color()
             self.color = mngr.new_color()
 
         check = self._enable_default_checking

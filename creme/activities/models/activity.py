@@ -25,14 +25,13 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import CremeEntity, CREME_REPLACE_NULL  # SettingValue
+from creme.creme_core.models import CremeEntity, CREME_REPLACE_NULL
 from creme.creme_core.models.manager import CremeEntityManager
 
 from ..constants import (
     NARROW, CREATION_LABELS,
     REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY,
 )
-# from ..setting_keys import auto_subjects_key
 
 from . import other_models
 from .calendar import Calendar
@@ -82,7 +81,6 @@ class AbstractActivity(CremeEntity):
     title = models.CharField(_('Title'), max_length=100)
     start = models.DateTimeField(_('Start'), blank=True, null=True)
     end   = models.DateTimeField(_('End'), blank=True, null=True)
-    # description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
 
     minutes  = models.TextField(_('Minutes'), blank=True)
     place    = models.CharField(_('Activity place'), max_length=500, blank=True)\
@@ -102,12 +100,10 @@ class AbstractActivity(CremeEntity):
                                 )
     status   = models.ForeignKey(other_models.Status, verbose_name=_('Status'),
                                  blank=True, null=True,
-                                 # on_delete=models.SET_NULL,
                                  on_delete=CREME_REPLACE_NULL,
                                 )
 
     calendars = models.ManyToManyField(Calendar, verbose_name=_('Calendars'),
-                                       # blank=True,
                                        editable=False,
                                       )
 
@@ -210,19 +206,6 @@ END:VEVENT
                                  ) \
                           .distinct()
 
-    # @classmethod
-    # def _get_linked_for_ctypes_aux(cls, ct_ids):
-    #     warnings.warn('AbstractActivity._get_linked_for_ctypes_aux() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-    #     return cls.objects.filter(is_deleted=False,
-    #                               relations__object_entity__entity_type__in=ct_ids,
-    #                               relations__type__in=types,
-    #                              ) \
-    #                       .distinct()
-
     @classmethod
     def _get_linked_for_orga(cls, orga):
         warnings.warn('AbstractActivity._get_linked_for_orga() is deprecated.',
@@ -250,13 +233,6 @@ END:VEVENT
 
         return cls._get_linked_aux(entity).filter(end__gt=today).order_by('start')
 
-    # @classmethod
-    # def get_future_linked_for_ctypes(cls, ct_ids, today):
-    #     warnings.warn('AbstractActivity.get_future_linked_for_ctypes() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #     return cls._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today).order_by('start')
-
     @classmethod
     def get_future_linked_for_orga(cls, orga, today):
         warnings.warn('AbstractActivity.get_future_linked_for_orga() is deprecated ; '
@@ -273,14 +249,7 @@ END:VEVENT
                       DeprecationWarning,
                      )
 
-        return cls._get_linked_aux(entity).filter(end__lte=today)  # .order_by('-start')
-
-    # @classmethod
-    # def get_past_linked_for_ctypes(cls, ct_ids, today):
-    #     warnings.warn('AbstractActivity.get_past_linked_for_ctypes() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #     return cls._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today).order_by('-start')
+        return cls._get_linked_aux(entity).filter(end__lte=today)
 
     @classmethod
     def get_past_linked_for_orga(cls, orga, today):
@@ -289,7 +258,7 @@ END:VEVENT
                       DeprecationWarning,
                      )
 
-        return cls._get_linked_for_orga(orga).filter(end__lte=today)  # .order_by('-start')
+        return cls._get_linked_for_orga(orga).filter(end__lte=today)
 
     def handle_all_day(self):
         if self.is_all_day:
@@ -309,16 +278,6 @@ END:VEVENT
         from creme.activities.utils import is_auto_orga_subject_enabled
 
         return is_auto_orga_subject_enabled()
-
-    # @staticmethod
-    # def display_review():
-    #     warnings.warn('AbstractActivity.display_review() is deprecated ; '
-    #                   'use "SettingValue.objects.get_4_key(setting_keys.review_key).value" instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     from ..constants import SETTING_DISPLAY_REVIEW
-    #
-    #     return SettingValue.objects.get(key_id=SETTING_DISPLAY_REVIEW).value
 
     def _copy_relations(self, source):
         super()._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])

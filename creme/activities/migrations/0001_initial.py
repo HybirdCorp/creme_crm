@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.conf import settings
 from django.db import models, migrations
 from django.db.models.deletion import PROTECT, SET_NULL, CASCADE
@@ -9,15 +7,6 @@ from creme.creme_core.models import fields as creme_fields, CREME_REPLACE_NULL
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('activities', '0001_initial'),
-    #     ('activities', '0006_v1_7__charfields_not_nullable_1'),
-    #     ('activities', '0007_v1_7__charfields_not_nullable_2'),
-    #     ('activities', '0008_v1_7__textfields_not_null_1'),
-    #     ('activities', '0009_v1_7__textfields_not_null_2'),
-    #     ('activities', '0010_v1_7__colorfield'),
-    # ]
-
     initial = True
     dependencies = [
         ('auth', '0001_initial'),
@@ -80,7 +69,6 @@ class Migration(migrations.Migration):
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('is_public', models.BooleanField(default=False, verbose_name='Is public?')),
-                # ('color', models.CharField(default='c1d9ec', max_length=100, verbose_name='Color')),
                 ('color', creme_fields.ColorField(max_length=6, verbose_name='Color')),
                 ('user', creme_fields.CremeUserForeignKey(verbose_name='Calendar owner', to=settings.AUTH_USER_MODEL)),
             ],
@@ -110,9 +98,8 @@ class Migration(migrations.Migration):
                 ('floating_type', models.PositiveIntegerField(default=1, verbose_name='Floating type', editable=False)),
                 ('type', models.ForeignKey(on_delete=PROTECT, verbose_name='Activity type', to='activities.ActivityType')),
                 ('sub_type',models.ForeignKey(on_delete=SET_NULL, verbose_name='Activity sub-type', blank=True, to='activities.ActivitySubType', null=True)),
-                # ('status', models.ForeignKey(on_delete=SET_NULL, verbose_name='Status', blank=True, to='activities.Status', null=True)),
                 ('status', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Status', blank=True, to='activities.Status', null=True)),
-                ('calendars', models.ManyToManyField(verbose_name='Calendars', editable=False, to='activities.Calendar')),  # blank=True
+                ('calendars', models.ManyToManyField(verbose_name='Calendars', editable=False, to='activities.Calendar')),
             ],
             options={
                 'swappable': 'ACTIVITIES_ACTIVITY_MODEL',

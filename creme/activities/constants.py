@@ -54,7 +54,6 @@ STATUS_CANCELLED   = 5
 SETTING_DISPLAY_REVIEW     = 'activities-display_review_activities_blocks'
 SETTING_AUTO_ORGA_SUBJECTS = 'activities-auto_orga_subjects'
 SETTING_FORM_USERS_MSG     = 'activities-form_user_messages'
-# DISPLAY_REVIEW_ACTIVITIES_BLOCKS = SETTING_DISPLAY_REVIEW
 
 # Floating styles
 NARROW        = 1
@@ -77,5 +76,3 @@ COLOR_POOL = ('c1d9ec', '94c6db',  # Blue icecream
               'f9b3ff', 'f36bff',  # Pink-mallow
               'ffcea6', 'ffab66',  # Oranges
              )
-
-# MAX_ELEMENT_SEARCH = 10

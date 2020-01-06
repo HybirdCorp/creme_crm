@@ -37,7 +37,7 @@ from creme.creme_core.models import (
     SettingValue,
     HeaderFilter,
     EntityFilter,
-)  # EntityFilterCondition
+)
 from creme.creme_core.utils import create_if_needed
 
 from creme import persons
@@ -134,12 +134,6 @@ class Populator(BasePopulator):
             create_efilter(
                 pk, name=name, model=Activity, is_custom=False, user='admin',
                 conditions=[
-                    # EntityFilterCondition.build_4_field(
-                    #     model=Activity,
-                    #     operator=EntityFilterCondition.EQUALS,
-                    #     name='type',
-                    #     values=[atype_id],
-                    # ),
                     condition_handler.RegularFieldConditionHandler.build_condition(
                         model=Activity,
                         operator=operators.EqualsOperator,
@@ -153,10 +147,6 @@ class Populator(BasePopulator):
             constants.EFILTER_PARTICIPATE, name=_('In which I participate'),
             model=Activity, is_custom=False, user='admin',
             conditions=[
-                # EntityFilterCondition.build_4_relation_subfilter(
-                #     rtype=rt_obj_part_2_activity,
-                #     subfilter=EntityFilter.get_latest_version(FILTER_CONTACT_ME)
-                # ),
                 condition_handler.RelationSubFilterConditionHandler.build_condition(
                     model=Activity,
                     rtype=rt_obj_part_2_activity,
@@ -169,8 +159,6 @@ class Populator(BasePopulator):
         SearchConfigItem.create_if_needed(Activity, ['title', 'description', 'type__name'])
 
         # ---------------------------
-        # for user in get_user_model().objects.all():
-        #     Calendar.objects.get_default_calendar(user)
         # TODO: remove this code in Creme 2.2 (it avoids install of creme which
         #       are upgraded to 2.1 to force using the command "activities_create_default_calendars")
         cal_is_public = settings.ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC

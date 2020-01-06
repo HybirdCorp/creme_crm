@@ -40,19 +40,3 @@ QUnit.test('creme.activities.ExportAsICalAction (ok)', function(assert) {
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual(['/mock/activities/export/ical?id=1&id=2&id=3'], this.mockRedirectCalls());
 });
-
-/*
-QUnit.test('creme.activities.exportAsICal', function(assert) {
-    var list = this.createDefaultListView().controller();
-
-    $(list).find('#selected_rows').val('1,2,3');
-    equal(3, list.selectedRowsCount());
-    deepEqual(['1', '2', '3'], list.selectedRows());
-
-    deepEqual([], this.mockRedirectCalls());
-
-    creme.activities.exportAsICal(list, 'mock/activities/export/ical');
-
-    deepEqual(['/mock/activities/export/ical?id=1&id=2&id=3'], this.mockRedirectCalls());
-});
-*/

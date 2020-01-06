@@ -32,7 +32,6 @@ Activity = get_activity_model()
 
 class AddRelatedActivityButton(Button):
     id_           = Button.generate_id('activities', 'add_activity')
-    # template_name = 'activities/templatetags/button_add_related.html'
     template_name = 'activities/buttons/add-related.html'
     permission    = build_creation_perm(Activity)
     verbose_name  = _('Create a related activity')
