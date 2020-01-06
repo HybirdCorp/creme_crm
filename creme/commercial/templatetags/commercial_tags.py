@@ -22,9 +22,6 @@ import warnings
 
 from django.template import Library
 
-# from creme.creme_core.gui.quick_forms import quickforms_registry
-
-
 register = Library()
 
 
@@ -36,7 +33,6 @@ def has_quickform(ctype):
                   DeprecationWarning
                  )
 
-    # return quickforms_registry.get_form(ctype.model_class()) is not None
     from creme.creme_core.templatetags.creme_ctype import ctype_has_quickform
     return ctype_has_quickform(ctype)
 

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.conf import settings
 from django.db import models, migrations
 from django.db.models.deletion import PROTECT, CASCADE
@@ -10,14 +8,6 @@ from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('commercial', '0001_initial'),
-    #     ('commercial', '0009_v2_0__real_entity_fks_1'),
-    #     ('commercial', '0010_v2_0__real_entity_fks_2'),
-    #     ('commercial', '0011_v2_0__real_entity_fks_3'),
-    #     ('commercial', '0012_v2_0__rm_commapp_ok_or_in_futur'),
-    # ]
-
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),
@@ -145,7 +135,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=200, verbose_name='Title')),
-                # ('ok_or_in_futur', models.BooleanField(default=False, verbose_name='Done?', editable=False)),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('creation_date', creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
                 # ('entity_id', models.PositiveIntegerField(editable=False)),
@@ -153,7 +142,6 @@ class Migration(migrations.Migration):
                                              to='creme_core.CremeEntity', related_name='commercial_approaches',
                                             )
                 ),
-                # ('entity_content_type', models.ForeignKey(related_name='comapp_entity_set', editable=False, to='contenttypes.ContentType', on_delete=CASCADE)),
                 ('entity_content_type', creme_fields.EntityCTypeForeignKey(editable=False, on_delete=CASCADE, related_name='+',
                                                                            to='contenttypes.ContentType',
                                                                           )

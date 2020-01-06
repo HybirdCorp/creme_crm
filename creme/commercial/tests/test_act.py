@@ -14,7 +14,7 @@ try:
     from creme.creme_core.core.entity_filter import condition_handler, operators
     from creme.creme_core.forms.widgets import Label
     from creme.creme_core.models import (RelationType, Relation,
-            EntityFilter, SetCredentials, FakeOrganisation)  # EntityFilterCondition
+            EntityFilter, SetCredentials, FakeOrganisation)
 
     from creme.persons.constants import FILTER_MANAGED_ORGA
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
@@ -211,7 +211,6 @@ class ActTestCase(CommercialBaseTestCase):
         response = self.assertGET200(Act.get_lv_absolute_url())
 
         with self.assertNoException():
-            # acts_page = response.context['entities']
             acts_page = response.context['page_obj']
 
         self.assertEqual(1, acts_page.number)
@@ -753,11 +752,6 @@ class ActTestCase(CommercialBaseTestCase):
         efilter = EntityFilter.create(
             'test-filter01', 'Acme', Organisation, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=Organisation,
-                #     operator=EntityFilterCondition.ICONTAINS,
-                #     name='name', values=['Ferraille'],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Organisation,
                     operator=operators.ICONTAINS,
@@ -893,11 +887,6 @@ class ActTestCase(CommercialBaseTestCase):
         efilter = EntityFilter.create(
             'test-filter01', 'Acme', Organisation, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=Organisation,
-                #     operator=EntityFilterCondition.ICONTAINS,
-                #     name='name', values=['Ferraille'],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Organisation,
                     operator=operators.ICONTAINS,
@@ -1012,15 +1001,6 @@ class ActTestCase(CommercialBaseTestCase):
     def test_delete_type(self):
         self.login()
         act = self.create_act()
-        # atype = act.act_type
-        #
-        # self.assertPOST404(reverse('creme_config__delete_instance', args=('commercial', 'act_type')),
-        #                    data={'id': atype.pk}
-        #                   )
-        # self.get_object_or_fail(ActType, pk=atype.pk)
-        #
-        # act = self.get_object_or_fail(Act, pk=act.pk)
-        # self.assertEqual(atype, act.act_type)
         response = self.assertPOST200(reverse('creme_config__delete_instance',
                                               args=('commercial', 'act_type', act.act_type_id)
                                              ),
