@@ -38,7 +38,6 @@ MAXINT = 100000
 class AbstractFolder(CremeEntity):
     """Folder: contains Documents."""
     title         = models.CharField(_('Title'), max_length=100)
-    # description   = models.TextField(_('Description'), blank=True).set_tags(optional=True)
     parent_folder = models.ForeignKey('self', verbose_name=_('Parent folder'),
                                       blank=True, null=True,
                                       related_name='children',
@@ -47,7 +46,6 @@ class AbstractFolder(CremeEntity):
 
     category = models.ForeignKey(FolderCategory, verbose_name=_('Category'),
                                  blank=True, null=True,
-                                 # on_delete=models.SET_NULL,
                                  on_delete=CREME_REPLACE_NULL,
                                  related_name='folder_category_set',
                                 )

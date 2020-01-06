@@ -29,7 +29,6 @@ from creme.creme_core.utils.queries import QSerializer
 from creme import documents
 from .constants import REL_SUB_RELATED_2_DOC
 
-
 Folder   = documents.get_folder_model()
 Document = documents.get_document_model()
 

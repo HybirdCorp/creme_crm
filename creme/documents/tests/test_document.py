@@ -90,9 +90,6 @@ class DocumentTestCase(_DocumentsTestCase):
 
         filedata = doc.filedata
         self.assertEqual('upload/documents/' + file_obj.base_name, filedata.name)
-        # filedata.open('r')
-        # self.assertEqual([content], filedata.readlines())
-        # filedata.close()
         with filedata.open('r') as f:
             self.assertEqual([content], f.readlines())
 
@@ -459,7 +456,6 @@ class DocumentTestCase(_DocumentsTestCase):
         response = self.assertGET200(Document.get_lv_absolute_url())
 
         with self.assertNoException():
-            # docs = response.context['entities'].object_list
             docs = response.context['page_obj'].object_list
 
         self.assertIn(doc1, docs)
@@ -492,9 +488,6 @@ class DocumentTestCase(_DocumentsTestCase):
         cat = FolderCategory.objects.create(name='Manga')
         folder = Folder.objects.create(user=user, title='One piece', category=cat)
 
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('documents', 'category')),
-        #                    data={'id': cat.pk}
-        #                   )
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('documents', 'category', cat.id)
                                            ),
@@ -605,37 +598,6 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
                            }
                           )
 
-    # def test_create_legacy(self):
-    #     user = self.login()
-    #
-    #     self.assertFalse(Document.objects.exists())
-    #     self.assertTrue(Folder.objects.exists())
-    #
-    #     url = reverse('creme_core__quick_forms', args=(ContentType.objects.get_for_model(Document).id, 1))
-    #     self.assertGET200(url)
-    #
-    #     content = 'Yes I am the content (DocumentQuickFormTestCase.test_create_legacy)'
-    #     file_obj = self._build_filedata(content)
-    #     folder = Folder.objects.all()[0]
-    #
-    #     data = self.quickform_data(1)
-    #     self.quickform_data_append(data, 0, user=user.pk, filedata=file_obj, folder_id=folder.id)
-    #
-    #     self.assertNoFormError(self.client.post(url, follow=True, data=data))
-    #
-    #     docs = Document.objects.all()
-    #     self.assertEqual(1, len(docs))
-    #
-    #     doc = docs[0]
-    #     self.assertEqual('upload/documents/' + file_obj.base_name, doc.filedata.name)
-    #     self.assertEqual('', doc.description)
-    #     self.assertEqual(folder, doc.linked_folder)
-    #
-    #     filedata = doc.filedata
-    #     filedata.open('r')
-    #     self.assertEqual([content], filedata.readlines())
-    #     filedata.close()
-
     def test_create(self):
         user = self.login()
 
@@ -667,10 +629,6 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.linked_folder)
 
-        # filedata = doc.filedata
-        # filedata.open('r')
-        # self.assertEqual([content], filedata.readlines())
-        # filedata.close()
         with doc.filedata.open('r') as f:
             self.assertEqual([content], f.readlines())
 
@@ -717,10 +675,6 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
                          response.json()
                         )
 
-        # filedata = doc.filedata
-        # filedata.open('r')
-        # self.assertEqual([content], filedata.readlines())
-        # filedata.close()
         with doc.filedata.open('r') as f:
             self.assertEqual([content], f.readlines())
 

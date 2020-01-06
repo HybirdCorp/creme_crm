@@ -482,10 +482,8 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         with self.assertNoException():
             context = response.context
-            # folders   = context['entities'].object_list
             folders   = context['page_obj'].object_list
             title     = context['list_title']
-            # sub_title = context['list_sub_title']
             sub_title = context['sub_title']
 
         self.assertIn(folder1, folders)
@@ -495,7 +493,6 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertNotIn(folder3, folders)
         self.assertNotIn(parent2, folders)
 
-        # self.assertEqual(_('List sub-folders of «{}»').format(parent), title)
         self.assertEqual(_('List of sub-folders for «{parent}»').format(parent=parent), title)
         self.assertEqual('{} > {}'.format(grand_parent.title, parent.title),
                          sub_title
@@ -505,7 +502,6 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(self.LIST_URL, data={'parent_id': 'invalid'})
 
         with self.assertNoException():
-            # folders = response.context['entities'].object_list
             folders = response.context['page_obj'].object_list
 
         self.assertNotIn(folder1,   folders)

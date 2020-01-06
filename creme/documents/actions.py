@@ -24,7 +24,6 @@ from django.utils.translation import gettext_lazy as _
 from creme import documents
 from creme.creme_core.gui.actions import UIAction
 
-
 Folder   = documents.get_folder_model()
 Document = documents.get_document_model()
 
@@ -72,7 +71,3 @@ class DownloadAction(UIAction):
     @property
     def is_enabled(self):
         return self.user.has_perm_to_view(self.instance)
-
-    # @property
-    # def help_text(self):
-    #     return _('Download the file')

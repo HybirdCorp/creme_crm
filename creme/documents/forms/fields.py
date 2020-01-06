@@ -23,7 +23,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core import forms
-from creme.creme_core.utils.queries import QSerializer  # get_q_from_dict
+from creme.creme_core.utils.queries import QSerializer
 
 from .. import get_document_model
 from ..constants import MIMETYPE_PREFIX_IMG
@@ -40,7 +40,6 @@ class ImageFieldMixin:
 
         if q_filter is not None:
             if isinstance(q_filter, dict):
-                # q_filter = get_q_from_dict(q_filter)
                 q_filter = Q(**q_filter)
 
             # NB: Q has not method __equal__(), so we compare serialized Q objects.
@@ -82,7 +81,6 @@ class ImageFieldMixin:
 
 
 class ImageEntityField(ImageFieldMixin, forms.CreatorEntityField):
-    # def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
     def __init__(self, *, q_filter=None,
                  create_action_url='',
                  create_action_label=_('Create an image'),
@@ -102,13 +100,11 @@ class ImageEntityField(ImageFieldMixin, forms.CreatorEntityField):
             create_action_url=create_action_url,
             create_action_label=create_action_label,
             force_creation=force_creation,
-            # *args, **kwargs
             **kwargs
         )
 
 
 class MultiImageEntityField(ImageFieldMixin, forms.MultiCreatorEntityField):
-    # def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
     def __init__(self, *, q_filter=None,
                  create_action_url='',
                  create_action_label=_('Create an image'),
@@ -128,6 +124,5 @@ class MultiImageEntityField(ImageFieldMixin, forms.MultiCreatorEntityField):
             create_action_url=create_action_url,
             create_action_label=create_action_label,
             force_creation=force_creation,
-            # *args, **kwargs
             **kwargs
         )
