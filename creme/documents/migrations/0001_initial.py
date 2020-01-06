@@ -4,18 +4,12 @@ import uuid
 
 from django.conf import settings
 from django.db import models, migrations
-from django.db.models.deletion import PROTECT, CASCADE  # SET_NULL
+from django.db.models.deletion import PROTECT, CASCADE
 
 from creme.creme_core.models import CREME_REPLACE_NULL
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('documents', '0001_initial'),
-    #     ('documents', '0014_v1_8__linked_folder_field_1'),
-    #     ('documents', '0015_v1_8__linked_folder_field_2'),
-    # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -46,14 +40,12 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('category', models.ForeignKey(to='documents.FolderCategory',
-                                               # on_delete=SET_NULL, null=True, blank=True,
                                                on_delete=CREME_REPLACE_NULL, null=True, blank=True,
                                                related_name='folder_category_set',
                                                verbose_name='Category',
                                               )
                 ),
                 ('parent_folder', models.ForeignKey(to=settings.DOCUMENTS_FOLDER_MODEL, null=True,
-                                                    # blank=True, related_name='parent_folder_set', verbose_name='Parent folder',
                                                     blank=True, related_name='children', verbose_name='Parent folder',
                                                     on_delete=PROTECT,
                                                    )

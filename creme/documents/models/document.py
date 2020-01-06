@@ -35,7 +35,6 @@ from . import other_models
 
 class AbstractDocument(CremeEntity):
     title         = models.CharField(_('Name'), max_length=100)
-    # description   = models.TextField(_('Description'), blank=True).set_tags(optional=True)
     filedata      = models.FileField(_('File'), max_length=500,
                                      upload_to='upload/documents',
                                     )

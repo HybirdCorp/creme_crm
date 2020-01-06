@@ -35,7 +35,7 @@ from creme.creme_core.models import (
     SearchConfigItem,
     HeaderFilter,
     EntityFilter,
-)  # EntityFilterCondition
+)
 from creme.creme_core.utils import create_if_needed
 
 from . import (
@@ -130,12 +130,6 @@ class Populator(BasePopulator):
             constants.EFILTER_IMAGES, name=_('Images'), model=Document,
             is_custom=False, user='admin',
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=Document,
-                #     operator=EntityFilterCondition.STARTSWITH,
-                #     name='mime_type__name',
-                #     values=[constants.MIMETYPE_PREFIX_IMG],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Document,
                     operator=operators.StartsWithOperator,
