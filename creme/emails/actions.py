@@ -23,7 +23,6 @@ from django.utils.translation import gettext_lazy as _
 from creme import emails
 from creme.creme_core.gui import actions
 
-
 EntityEmail = emails.get_entityemail_model()
 
 

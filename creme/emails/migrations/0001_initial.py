@@ -14,9 +14,6 @@ import creme.emails.utils
 class Migration(migrations.Migration):
     # replaces = [
     #     ('emails', '0001_initial'),
-    #     ('emails', '0012_v2_0__lwmail_body_json01'),
-    #     ('emails', '0013_v2_0__lwmail_body_json02'),
-    #     ('emails', '0014_v2_0__lwmail_body_json03'),
     # ]
 
     initial = True

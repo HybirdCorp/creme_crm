@@ -27,7 +27,6 @@ from creme.creme_core.creme_jobs.base import JobType
 from .. import get_entityemail_model
 from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
 
-
 ENTITY_EMAILS_RETRY = 15  # In minutes  TODO: in settings ? Setting value ? Job data ?
 EntityEmail = get_entityemail_model()
 

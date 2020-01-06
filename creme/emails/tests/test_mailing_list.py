@@ -11,7 +11,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.entity_filter import condition_handler, operators
     from creme.creme_core.models import (
-        EntityFilter,  # EntityFilterCondition
+        EntityFilter,
         SetCredentials,
         FieldsConfig,
         FakeOrganisation,
@@ -86,7 +86,6 @@ class MailingListsTestCase(_EmailsTestCase):
         response = self.assertGET200(MailingList.get_lv_absolute_url())
 
         with self.assertNoException():
-            # response.context['entities']
             __ = response.context['page_obj']
 
     def test_ml_and_campaign01(self):
@@ -375,11 +374,6 @@ class MailingListsTestCase(_EmailsTestCase):
         efilter = EntityFilter.create(
             'test-filter01', 'Saotome', Contact, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=Contact,
-                #     operator=EntityFilterCondition.IEQUALS,
-                #     name='last_name', values=['Saotome'],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Contact,
                     operator=operators.IEQUALS,
@@ -546,11 +540,6 @@ class MailingListsTestCase(_EmailsTestCase):
             EntityFilter.create, name='Has email',
             model=Organisation, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=Organisation,
-                #     operator=EntityFilterCondition.ISEMPTY,
-                #     name='email', values=[False],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Organisation,
                     operator=operators.ISEMPTY,

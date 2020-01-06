@@ -21,13 +21,11 @@
 from functools import partial
 from itertools import chain
 import logging
-# import warnings
 
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.transaction import atomic
-from django.forms.fields import EmailField, BooleanField, CharField  # IntegerField
-# from django.forms.widgets import HiddenInput
+from django.forms.fields import EmailField, BooleanField, CharField
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -52,7 +50,6 @@ EmailTemplate = emails.get_emailtemplate_model()
 
 
 # NB: CremeModelForm, not CremeEntityForm, to avoid CustomFields, Relations & CremeProperties
-# class EntityEmailForm(base_forms.CremeEntityForm):
 class EntityEmailForm(base_forms.CremeModelForm):
     """Mails are related to the selected contacts/organisations & the 'current' entity.
     Mails are send to selected contacts/organisations.
@@ -193,19 +190,6 @@ class EntityEmailForm(base_forms.CremeModelForm):
             entity_emails_send_type.refresh_job()
 
 
-# class TemplateSelectionForm(CremeForm):
-#     step     = IntegerField(widget=HiddenInput, initial=1)
-#     template = CreatorEntityField(label=pgettext_lazy('emails', 'Template'), model=EmailTemplate,
-#                                   credentials=EntityCredentials.VIEW,
-#                                  )
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         warnings.warn('emails.forms.mail.TemplateSelectionForm is deprecated.',
-#                       DeprecationWarning
-#                      )
-
-
 class TemplateSelectionFormStep(base_forms.CremeForm):
     template = CreatorEntityField(label=pgettext_lazy('emails', 'Template'),
                                   model=EmailTemplate,
@@ -216,13 +200,3 @@ class TemplateSelectionFormStep(base_forms.CremeForm):
 
     def save(self):
         pass
-
-
-# class EntityEmailFromTemplateForm(EntityEmailForm):
-#     step = IntegerField(widget=HiddenInput, initial=2)
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         warnings.warn('emails.forms.mail.EntityEmailFromTemplateForm is deprecated.',
-#                       DeprecationWarning
-#                      )

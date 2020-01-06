@@ -20,13 +20,15 @@
 
 from django.db.models.query_utils import Q
 from django.utils.timezone import now
-from django.utils.translation import gettext_lazy as _  # ugettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.creme_jobs.base import JobType
 
 from ..models import EmailSending
-from ..models.sending import (SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
-        SENDING_STATE_DONE, SENDING_STATE_INPROGRESS)
+from ..models.sending import (
+    SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
+    SENDING_STATE_DONE, SENDING_STATE_INPROGRESS,
+)
 
 
 class _CampaignEmailsSendType(JobType):
@@ -52,9 +54,6 @@ class _CampaignEmailsSendType(JobType):
             # TODO: move in send_mails() ???
             sending.state = status or SENDING_STATE_DONE
             sending.save()
-
-    # def get_description(self, job):
-    #     return [ugettext('Send all un-sent mails that have to be.')]
 
     def next_wakeup(self, job, now_value):  # We have to implement it because it is a PSEUDO_PERIODIC JobType
         qs = EmailSending.objects.exclude(campaign__is_deleted=True) \

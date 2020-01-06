@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_link_perm
@@ -45,7 +44,6 @@ class EntityEmailLinkButton(Button):
         return (EntityEmail,)
 
     def render(self, context):
-        # context['entity_email_ct_id'] = ContentType.objects.get_for_model(EntityEmail).id
         context['rtypes'] = self.rtype_ids
 
         return super().render(context)

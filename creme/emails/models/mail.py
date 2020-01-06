@@ -34,7 +34,6 @@ from .. import constants, utils
 
 from .signature import EmailSignature
 
-
 logger = logging.getLogger(__name__)
 ID_LENGTH = 32
 
@@ -82,7 +81,6 @@ class AbstractEntityEmail(_Email, CremeEntity):
     body_html   = UnsafeHTMLField(_('Body (HTML)'))
     signature   = models.ForeignKey(EmailSignature, verbose_name=_('Signature'),
                                     blank=True, null=True,
-                                    # on_delete=models.CASCADE,
                                     on_delete=models.SET_NULL,
                                    )  # TODO: merge with body ????
     attachments = models.ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL,
