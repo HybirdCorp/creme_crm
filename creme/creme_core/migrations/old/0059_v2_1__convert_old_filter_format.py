@@ -2,7 +2,7 @@ from django.db import migrations
 
 from json import loads as json_load
 
-from ..utils.serializers import json_encode
+from creme.creme_core.utils.serializers import json_encode
 
 EFC_CUSTOMFIELD = 20
 
