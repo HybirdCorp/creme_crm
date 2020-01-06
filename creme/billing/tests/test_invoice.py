@@ -826,16 +826,6 @@ class InvoiceTestCase(_BillingTestCase):
                                   doc=invoice,
                                  )
 
-    # def test_delete_status02(self):
-    #     self.login()
-    #
-    #     status = InvoiceStatus.objects.create(name='OK')
-    #     invoice = self.create_invoice_n_orgas('Nerv')[0]
-    #     invoice.status = status
-    #     invoice.save()
-    #
-    #     self.assertDeleteStatusKO(status, 'invoice_status', invoice)
-
     def test_delete_paymentterms(self):
         self.login()
 
@@ -847,13 +837,6 @@ class InvoiceTestCase(_BillingTestCase):
         invoice.payment_terms = pterms
         invoice.save()
 
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('billing', 'payment_terms')),
-        #                    data={'id': pterms.pk}
-        #                   )
-        # self.assertDoesNotExist(pterms)
-        #
-        # invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
-        # self.assertIsNone(invoice.payment_terms)
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('billing', 'payment_terms', pterms.id)
                                            ),
@@ -873,10 +856,6 @@ class InvoiceTestCase(_BillingTestCase):
         currency = Currency.objects.create(name='Berry', local_symbol='B', international_symbol='BRY')
         invoice = self.create_invoice_n_orgas('Nerv', currency=currency)[0]
 
-        # self.assertPOST404(reverse('creme_config__delete_instance', args=('creme_core', 'currency')),
-        #                    data={'id': currency.pk}
-        #                   )
-        # self.get_object_or_fail(Currency, pk=currency.pk)
         response = self.assertPOST200(reverse('creme_config__delete_instance',
                                               args=('creme_core', 'currency', currency.id)
                                              ),
@@ -898,10 +877,6 @@ class InvoiceTestCase(_BillingTestCase):
         invoice.additional_info = info
         invoice.save()
 
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('billing', 'additional_information')),
-        #                    data={'id': info.pk}
-        #                   )
-        # self.assertDoesNotExist(info)
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('billing', 'additional_information', info.id)
                                            ),

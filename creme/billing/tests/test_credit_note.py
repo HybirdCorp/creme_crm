@@ -25,9 +25,6 @@ except Exception as e:
 @skipIfCustomOrganisation
 @skipIfCustomCreditNote
 class CreditNoteTestCase(_BillingTestCase):
-    # def setUp(self):
-    #     self.login()
-
     def _build_editcomment_url(self, credit_note):
         return reverse('billing__edit_cnote_comment', args=(credit_note.id,))
 
@@ -168,8 +165,6 @@ class CreditNoteTestCase(_BillingTestCase):
     # def test_delete_status01(self):
     def test_delete_status(self):
         self.login()
-        # status = CreditNoteStatus.objects.create(name='OK')
-        # self.assertDeleteStatusOK(status, 'credit_note_status')
 
         new_status = CreditNoteStatus.objects.first()
         status2del = CreditNoteStatus.objects.create(name='OK')
@@ -181,13 +176,6 @@ class CreditNoteTestCase(_BillingTestCase):
                                   new_status=new_status,
                                   doc=credit_note,
                                  )
-
-    # def test_delete_status02(self):
-    #     self.login()
-    #     status = CreditNoteStatus.objects.create(name='OK')
-    #     credit_note = self.create_credit_note_n_orgas('Credit Note 001', status=status)[0]
-    #
-    #     self.assertDeleteStatusKO(status, 'credit_note_status', credit_note)
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
@@ -404,10 +392,7 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 50)
 
-        # response = self.client.post(self._build_deleterelated_url(credit_note, invoice), follow=True)
-        # self.assertNoFormError(response)
         url = self._build_deleterelated_url(credit_note, invoice)
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         response = self.assertPOST200(url, follow=True)
@@ -478,7 +463,6 @@ class CreditNoteTestCase(_BillingTestCase):
         url = self._build_editcomment_url(credit_note)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        # self.assertEqual(_('Edit «%s»') % credit_note, response.context.get('title'))
         self.assertEqual(_('Edit «{object}»').format(object=credit_note),
                          response.context.get('title')
                         )

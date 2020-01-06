@@ -204,52 +204,6 @@ th.bline-item {
     top: 3px;
 }
 
-/* Experiments
-.billing-list-brick .billing-warning {
-    color: #FF4136; // red
-    color: #FF851B; // orange
-    cursor: default;
-}
-
-.billing-list-brick .billing-warning .billing-warning-icon {
-    width: 16px;
-    height: 16px;
-
-    margin-top: -2px;
-    position: relative;
-    top: 4px;
-
-    fill: currentColor;
-}
-
-.billing-list-brick .billing-warning-label {
-    display: inline-block;
-
-    margin-left: 3px;
-    padding-top: 2px;
-
-    text-transform: uppercase;
-    font-size: 11px;
-    font-weight: 700;
-}
-
-.billing-list-brick .billing-relation {
-    font-weight: 600;
-    color: #333;
-}
-
-.billing-list-brick .billing-group .billing-type-icon {
-    width: 14px;
-    height: 14px;
-
-    margin-top: -2px;
-    position: relative;
-    top: 3px;
-
-    fill: #666;
-}
-*/
-
 .billing-item .billing-select-account {
     opacity: 0;
     visibility: hidden;
@@ -261,7 +215,6 @@ th.bline-item {
     display: inline-block;
     transition: all 0.1s ease-in;
     white-space: nowrap;
-    /* max-height: 16px; */
 
     text-transform: uppercase;
     white-space: nowrap;
@@ -334,7 +287,6 @@ th.bline-item {
 }
 
 .billing-lines-brick .linetable.readonly {
-    /* background-color: #f7f7f7; */
     color: #666;
 
     font-size: 12px;

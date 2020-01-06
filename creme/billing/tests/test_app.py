@@ -4,7 +4,6 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
-    # from django.urls import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -78,7 +77,6 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertListEqual([(SimpleBillingAlgo.ALGO_NAME, SimpleAlgo)],
                              [*registry]
                             )
-        # self.assertEqual([SimpleAlgo], list(registry.itervalues()))
         self.assertListEqual([SimpleAlgo], [*registry.algorithms])
 
         # ---
@@ -275,14 +273,10 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(3, len(sba_list1))
         self.assertEqual(orga1, sba_list1[0].organisation)
 
-    # def _get_setting_value(self):
-    #     return self.get_object_or_fail(SettingValue, key_id=constants.DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
-
     @skipIfCustomOrganisation
     def test_brick_orga01(self):
         self.login()
 
-        # sv = self._get_setting_value()
         sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.payment_info_key.id)
         self.assertIs(True, sv.value)
 
@@ -314,7 +308,6 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'billing/bricks/received-invoices.html')
         self.assertTemplateUsed(response, 'billing/bricks/received-billing-documents.html')
 
-        # sv = self._get_setting_value()
         sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.payment_info_key.id)
         sv.value = False
         sv.save()

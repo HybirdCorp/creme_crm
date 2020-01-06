@@ -281,19 +281,13 @@ class SalesOrderTestCase(_BillingTestCase):
         response = self.assertGET200(reverse('billing__list_orders'))
 
         with self.assertNoException():
-            # orders_page = response.context['entities']
             orders_page = response.context['page_obj']
 
         self.assertEqual(2, orders_page.paginator.count)
         self.assertSetEqual({order1, order2}, {*orders_page.paginator.object_list})
 
-    # def test_delete_status01(self):
     def test_delete_status(self):
         self.login()
-
-        # status = SalesOrderStatus.objects.create(name='OK')
-        # self.assertDeleteStatusOK(status, 'sales_order_status')
-
         new_status = SalesOrderStatus.objects.first()
         status2del = SalesOrderStatus.objects.create(name='OK')
 
@@ -304,14 +298,6 @@ class SalesOrderTestCase(_BillingTestCase):
                                   new_status=new_status,
                                   doc=order,
                                  )
-
-    # def test_delete_status02(self):
-    #     self.login()
-    #
-    #     status = SalesOrderStatus.objects.create(name='OK')
-    #     order = self.create_salesorder_n_orgas('Order', status=status)[0]
-    #
-    #     self.assertDeleteStatusKO(status, 'sales_order_status', order)
 
     @skipIfCustomAddress
     def test_mass_import(self):

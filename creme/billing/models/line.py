@@ -62,7 +62,6 @@ class Line(CremeEntity):
     discount_unit  = models.PositiveIntegerField(_('Discount Unit'),
                                                  blank=True, null=True, editable=False,
                                                  choices=constants.DISCOUNT_UNIT.items(),
-                                                 # default=constants.PERCENT_PK,
                                                  default=constants.DISCOUNT_PERCENT,
                                                 )
     total_discount = models.BooleanField(_('Total discount ?'), editable=False, default=False)
@@ -96,7 +95,6 @@ class Line(CremeEntity):
         self.related_item     = source.related_item
 
     def clean(self):
-        # if self.discount_unit == constants.PERCENT_PK:
         if self.discount_unit == constants.DISCOUNT_PERCENT:
             if not (0 <= self.discount <= 100):
                 raise ValidationError(
@@ -140,7 +138,6 @@ class Line(CremeEntity):
         # BEWARE: CremeProperty and Relation are not cloned (except our 2 internal relations)
         self._new_related_document = new_related_document or self.related_document
 
-        # return super(Line, self).clone()
         return super().clone()
 
     def get_absolute_url(self):
@@ -162,7 +159,6 @@ class Line(CremeEntity):
         global_discount_line = self.total_discount
         unit_price_line      = self.unit_price
 
-        # if self.discount_unit == constants.PERCENT_PK and discount_line:
         if self.discount_unit == constants.DISCOUNT_PERCENT:
             total_after_first_discount = self.quantity * (unit_price_line - (unit_price_line * discount_line / 100))
         elif global_discount_line:  # DISCOUNT_LINE_AMOUNT

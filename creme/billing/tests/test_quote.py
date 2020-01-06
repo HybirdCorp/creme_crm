@@ -360,9 +360,6 @@ class QuoteTestCase(_BillingTestCase):
     # def test_delete_status01(self):
     def test_delete_status(self):
         self.login()
-        # status = QuoteStatus.objects.create(name='OK')
-        # self.assertDeleteStatusOK(status, 'quote_status')
-
         new_status = QuoteStatus.objects.first()
         status2del = QuoteStatus.objects.create(name='OK')
 
@@ -373,13 +370,6 @@ class QuoteTestCase(_BillingTestCase):
                                   new_status=new_status,
                                   doc=quote,
                                  )
-
-    # def test_delete_status02(self):
-    #     self.login()
-    #     status = QuoteStatus.objects.create(name='OK')
-    #     quote = self.create_quote_n_orgas('Nerv', status=status)[0]
-    #
-    #     self.assertDeleteStatusKO(status, 'quote_status', quote)
 
     @skipIfCustomAddress
     def test_mass_import(self):

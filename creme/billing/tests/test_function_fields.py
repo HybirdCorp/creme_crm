@@ -257,7 +257,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(invoice02, 2500, 1)
         self.create_line(invoice03, 750, 1)  # Not used
 
-        # funf = target.function_fields.get('total_pending_payment')
         funf = function_field_registry.get(Organisation, 'total_pending_payment')
         funf.populate_entities([target], user)
         self.assertEqual(number_format('5500.00', use_l10n=True), funf(target, user).for_csv())

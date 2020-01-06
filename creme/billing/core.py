@@ -43,8 +43,6 @@ CLASS_MAP = {
 }
 
 CONVERT_MATRIX = {
-    # CreditNote: {'invoice'},
-    # Invoice:    {'quote', 'sales_order'},
     Invoice:    {'quote'},
     Quote:      {'sales_order', 'invoice'},
     SalesOrder: {'invoice'},

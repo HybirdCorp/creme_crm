@@ -36,8 +36,6 @@ except Exception as e:
 @skipIfCustomOrganisation
 @skipIfCustomInvoice
 class LineTestCase(_BillingTestCase):
-    # DEL_VAT_URL = reverse('creme_config__delete_instance', args=('creme_core', 'vat_value'))
-
     def _build_msave_url(self, bdocument):
         return reverse('billing__multi_save_lines', args=(bdocument.id,))
 
@@ -319,7 +317,6 @@ class LineTestCase(_BillingTestCase):
         response = self.assertGET200(reverse('billing__list_product_lines'))
 
         with self.assertNoException():
-            # plines_page = response.context['entities']
             plines_page = response.context['page_obj']
 
         self.assertEqual(2, plines_page.paginator.count)
@@ -331,7 +328,6 @@ class LineTestCase(_BillingTestCase):
         response = self.assertGET200(reverse('billing__list_service_lines'))
 
         with self.assertNoException():
-            # slines_page = response.context['entities']
             slines_page = response.context['page_obj']
 
         self.assertEqual(2, slines_page.paginator.count)
@@ -346,7 +342,6 @@ class LineTestCase(_BillingTestCase):
         product_line = ProductLine.objects.create(user=self.user, related_document=invoice,
                                                   on_the_fly_item='Flyyyyy',
                                                  )
-        # self.assertPOST404(reverse('creme_core__delete_related_to_entity',
         self.assertPOST409(reverse('creme_core__delete_related_to_entity',
                                    args=(product_line.entity_type_id,),
                                   ),
@@ -593,7 +588,6 @@ class LineTestCase(_BillingTestCase):
         self.login()
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
-        # self.assertPOST200(self.DEL_VAT_URL, data={'id': vat.pk})
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('creme_core', 'vat_value', vat.id)
                                            ),
@@ -610,18 +604,10 @@ class LineTestCase(_BillingTestCase):
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
         invoice = self.create_invoice_n_orgas('Nerv')[0]
-        # line = \
         ProductLine.objects.create(user=user, related_document=invoice,
                                    on_the_fly_item='Flyyyyy', vat_value=vat,
                                   )
 
-        # self.assertPOST404(self.DEL_VAT_URL, data={'id': vat.pk})
-        # self.assertStillExists(vat)
-        #
-        # self.get_object_or_fail(Invoice, pk=invoice.pk)
-        #
-        # line = self.get_object_or_fail(ProductLine, pk=line.pk)
-        # self.assertEqual(vat, line.vat_value)
         response = self.assertPOST200(reverse('creme_config__delete_instance',
                                               args=('creme_core', 'vat_value', vat.id)
                                              ),

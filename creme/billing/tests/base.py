@@ -265,10 +265,6 @@ class _BillingTestCaseMixin:
         return order, source, target
 
     def assertDeleteStatusOK(self, *, status2del, short_name, new_status, doc):
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('billing', short_name)),
-        #                    data={'id': status.pk}
-        #                   )
-        # self.assertDoesNotExist(status)
         response = self.client.post(
             reverse('creme_config__delete_instance',
                     args=('billing', short_name, status2del.id)
@@ -283,26 +279,6 @@ class _BillingTestCaseMixin:
 
         doc = self.assertStillExists(doc)
         self.assertEqual(new_status, doc.status)
-
-    # def assertDeleteStatusKO(self, status, short_name, doc):
-    #     # self.assertPOST404(reverse('creme_config__delete_instance', args=('billing', short_name)),
-    #     #                    data={'id': status.pk}
-    #     #                   )
-    #     # self.assertStillExists(status)
-    #     # doc = self.get_object_or_fail(doc.__class__, pk=doc.pk)
-    #     # self.assertEqual(status, doc.status)
-    #     response = self.assertPOST200(reverse('creme_config__delete_instance',
-    #                                           args=('billing', short_name, status.id)
-    #                                          ),
-    #                                  )
-    #     self.assertFormError(
-    #         response, 'form',
-    #         'replace_billing__{}_status'.format(type(doc).__name__.lower()),
-    #         _('Deletion is not possible.')
-    #     )
-    #
-    #     doc = self.assertStillExists(doc)
-    #     self.assertEqual(status, doc.status)
 
     def _set_managed(self, orga, managed=True):
         orga.is_managed = managed
