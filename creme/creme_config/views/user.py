@@ -29,11 +29,9 @@ from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core import utils
 from creme.creme_core.auth import SUPERUSER_PERM
-# from creme.creme_core.auth.decorators import _check_superuser login_required superuser_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import lock, BrickState
 from creme.creme_core.views import generic
-# from creme.creme_core.views.decorators import POST_only
 
 from ..bricks import UsersBrick
 from ..constants import BRICK_STATE_HIDE_INACTIVE_USERS
@@ -49,18 +47,10 @@ class PasswordChange(generic.CremeModelEditionPopup):
     permissions = SUPERUSER_PERM
     title = _('Change password for «{object}»')
 
-    # def check_view_permissions(self, user):
-    #     super().check_view_permissions(user=user)
-    #     _check_superuser(user)
-
 
 class BaseUserCreation(generic.CremeModelCreationPopup):
     model = get_user_model()
     permissions = SUPERUSER_PERM
-
-    # def check_view_permissions(self, user):
-    #     super().check_view_permissions(user=user)
-    #     _check_superuser(user)
 
 
 class UserCreation(BaseUserCreation):
@@ -81,10 +71,6 @@ class BaseUserEdition(generic.CremeModelEditionPopup):
     model = get_user_model()
     pk_url_kwarg = 'user_id'
     permissions = SUPERUSER_PERM
-
-    # def check_view_permissions(self, user):
-    #     super().check_view_permissions(user=user)
-    #     _check_superuser(user)
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -135,26 +121,6 @@ class UserDeletion(BaseUserEdition):
             )
 
 
-# @login_required
-# @superuser_required
-# @POST_only
-# @atomic
-# def deactivate(request, user_id):
-#     user = request.user
-#
-#     if int(user_id) == user.id:
-#         raise ConflictError(gettext("You can't deactivate the current user."))
-#
-#     user_to_deactivate = get_object_or_404(get_user_model().objects.select_for_update(), id=user_id)
-#
-#     if user_to_deactivate.is_staff and not user.is_staff:
-#         return HttpResponse(gettext("You can't deactivate a staff user."), status=400)
-#
-#     if user_to_deactivate.is_active:
-#         user_to_deactivate.is_active = False
-#         user_to_deactivate.save()
-#
-#     return HttpResponse()
 class UserDeactivation(generic.CheckedView):
     user_id_url_kwarg = 'user_id'
     permissions = SUPERUSER_PERM
@@ -179,21 +145,6 @@ class UserDeactivation(generic.CheckedView):
         return HttpResponse()
 
 
-# @login_required
-# @superuser_required
-# @POST_only
-# @atomic
-# def activate(request, user_id):
-#     user_to_activate = get_object_or_404(get_user_model().objects.select_for_update(), id=user_id)
-#
-#     if user_to_activate.is_staff and not request.user.is_staff:
-#         return HttpResponse(gettext("You can't activate a staff user."), status=400)
-#
-#     if not user_to_activate.is_active:
-#         user_to_activate.is_active = True
-#         user_to_activate.save()
-#
-#     return HttpResponse()
 class UserActivation(generic.CheckedView):
     user_id_url_kwarg = 'user_id'
     permissions = SUPERUSER_PERM

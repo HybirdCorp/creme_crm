@@ -159,7 +159,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         # Step 5
         context5 = response.context
-        # self.assertEqual(_('Save the role'), context5.get('submit_label'))
 
         with self.assertNoException():
             cred_ctypes = {*context5['form'].fields['ctype'].ctypes}
@@ -233,13 +232,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         apps = ['persons']
 
         # Step 1 ---
-        # self.assertGET200(url)
-
         step_key = 'role_creation_wizard-current_step'
         response = self.client.post(url,
                                     {step_key: '0',
                                      '0-name': name,
-                                     # '0-allowed_apps': apps,
                                      '0-allowed_apps': apps,
                                     },
                                    )
@@ -248,7 +244,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # Step 2 ---
         response = self.client.post(url,
                                     {step_key: '1',
-                                     # '1-admin_4_apps': adm_apps,
                                      '1-admin_4_apps': [],
                                     },
                                    )
@@ -490,7 +485,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # GET (Step 1) ---
         url = self._build_add_creds_url(role)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-wizard-popup.html')
 
         context = response.context
@@ -499,21 +493,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                         )
         self.assertFalse(context.get('help_message'))
 
-        # self.assertEqual(_('Add the credentials'), context.get('submit_label'))
         self.assertEqual(_('Next step'), context.get('submit_label'))
 
         # POST (Step 1) ---
         set_type = SetCredentials.ESET_ALL
-        # response = self.client.post(url, data={'can_view':   True,
-        #                                        'can_change': False,
-        #                                        'can_delete': False,
-        #                                        'can_link':   False,
-        #                                        'can_unlink': False,
-        #                                        'set_type':   set_type,
-        #                                        'ctype':      '',
-        #                                        'forbidden': 'False',
-        #                                       },
-        #                            )
         step_key = 'credentials_adding_wizard-current_step'
         response = self.client.post(
             url,
@@ -597,17 +580,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         # POST (Step 1) ---
         set_type = SetCredentials.ESET_OWN
-        # response = self.client.post(url,
-        #                             data={'can_view':   True,
-        #                                   'can_change': True,
-        #                                   'can_delete': False,
-        #                                   'can_link':   False,
-        #                                   'can_unlink': False,
-        #                                   'set_type':   set_type,
-        #                                   'ctype':      ct_contact.id,
-        #                                   'forbidden': 'False',
-        #                                  },
-        #                            )
         step_key = 'credentials_adding_wizard-current_step'
         response = self.client.post(
             url,
@@ -655,16 +627,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = self._build_add_creds_url(role)
         self.assertGET403(url)
-        # self.assertPOST403(url, data={'can_view':   True,
-        #                               'can_change': False,
-        #                               'can_delete': False,
-        #                               'can_link':   False,
-        #                               'can_unlink': False,
-        #                               'set_type':   SetCredentials.ESET_ALL,
-        #                               'ctype':      0,
-        #                               'forbidden': 'False',
-        #                              },
-        #                   )
         step_key = 'credentials_adding_wizard-current_step'
         self.assertPOST403(
             url,
@@ -688,9 +650,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         "Forbidden."
         self.login()
 
-        # role = UserRole(name='CEO')
-        # role.allowed_apps = ['persons']
-        # role.save()
         role = UserRole.objects.create(name='CEO', allowed_apps=['persons'])
 
         url = self._build_add_creds_url(role)
@@ -698,17 +657,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         # POST (Step 1) ---
         set_type = SetCredentials.ESET_OWN
-        # response = self.client.post(self._build_add_creds_url(role),
-        #                             data={'can_view':   True,
-        #                                   'can_change': True,
-        #                                   'can_delete': False,
-        #                                   'can_link':   False,
-        #                                   'can_unlink': False,
-        #                                   'set_type':   set_type,
-        #                                   'ctype':      ct_contact.id,
-        #                                   'forbidden':  'True',
-        #                                  },
-        #                            )
         step_key = 'credentials_adding_wizard-current_step'
         response = self.client.post(
             url,
@@ -756,12 +704,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         role.allowed_apps = ['persons']
         role.save()
 
-        url = self._build_add_creds_url(role)
-        # self.assertGET200(url)  # NB: init session
-
         step_key = 'credentials_adding_wizard-current_step'
         response = self.assertPOST200(
-            url,
+            self._build_add_creds_url(role),
             data={
                 step_key: '0',
 
@@ -1001,7 +946,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
         url = self._build_add_creds_url(role)
-        # self.assertGET200(url)
 
         # Step 1 ---
         set_type = SetCredentials.ESET_FILTER
@@ -1140,14 +1084,12 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = reverse('creme_config__edit_role_credentials', args=(creds.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-wizard-popup.html')
 
         context = response.context
         self.assertEqual(_('Edit credentials for «{role}»').format(role=role),
                          context.get('title')
                         )
-        # self.assertEqual(_('Save the modifications'), context.get('submit_label'))
         self.assertEqual(_('Next step'), context.get('submit_label'))
 
         with self.assertNoException():
@@ -1161,17 +1103,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNotIn(get_ct(Activity), cred_ctypes)  # App not allowed
 
         # POST (step 1) ---
-        # response = self.client.post(url,
-        #                             data={'can_view':   True,
-        #                                   'can_change': True,
-        #                                   'can_delete': True,
-        #                                   'can_link':   False,
-        #                                   'can_unlink': False,
-        #                                   'set_type':   SetCredentials.ESET_OWN,
-        #                                   'ctype':      ct_contact.id,
-        #                                   'forbidden':  'True',
-        #                                  },
-        #                            )
         set_type = SetCredentials.ESET_OWN
         step_key = 'credentials_edition_wizard-current_step'
         response = self.client.post(
@@ -1250,8 +1181,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                                              )
 
         url = reverse('creme_config__edit_role_credentials', args=(creds.id,))
-
-        # self.assertGET200(url)  # Init session storage
 
         # POST (step 1) ---
         set_type = SetCredentials.ESET_FILTER
@@ -1381,8 +1310,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         url = reverse('creme_config__edit_role_credentials', args=(set_cred1.id,))
-
-        # self.assertGET200(url)  # Init session storage
 
         # POST (step 1) ---
         step_key = 'credentials_edition_wizard-current_step'
@@ -1529,8 +1456,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = reverse('creme_config__edit_role_credentials', args=(creds.id,))
 
-        # self.assertGET200(url)  # Init session storage
-
         # POST (step 1) ---
         ctype = ContentType.objects.get_for_model(FakeOrganisation)
         step_key = 'credentials_edition_wizard-current_step'
@@ -1634,8 +1559,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = reverse('creme_config__edit_role_credentials', args=(creds.id,))
 
-        # self.assertGET200(url)  # Init session storage
-
         # POST (step 1) ---
         set_type = SetCredentials.ESET_ALL
         step_key = 'credentials_edition_wizard-current_step'
@@ -1700,7 +1623,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         url = reverse('creme_config__edit_role_credentials', args=(creds.id,))
-        # self.assertGET200(url)  # Init session storage
 
         # POST (step 1) ---
         step_key = 'credentials_edition_wizard-current_step'
@@ -1784,8 +1706,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                                              )
 
         url = reverse('creme_config__edit_role_credentials', args=(creds.id,))
-
-        # self.assertGET200(url)  # Init session storage
 
         # POST (step 1) ---
         set_type = SetCredentials.ESET_FILTER
@@ -1874,12 +1794,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             role=role,
             set_type=SetCredentials.ESET_FILTER,
             value=EntityCredentials.VIEW,
-            # ctype=ctype,
             efilter=efilter1,
         )
 
         url = reverse('creme_config__edit_role_credentials', args=(creds.id,))
-        # self.assertGET200(url)  # Init session storage
 
         # POST (step 1) ---
         ctype = ContentType.objects.get_for_model(FakeContact)
@@ -1925,7 +1843,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         sc2 = create_creds(value=EntityCredentials.CHANGE)
 
         url = self.DEL_CREDS_URL
-        # self.assertGET404(url)
         self.assertGET405(url)
         self.assertPOST404(url)
         self.assertPOST200(url, data={'id': sc1.id})

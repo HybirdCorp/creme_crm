@@ -18,11 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _, gettext
 
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CustomField
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import BricksView
@@ -67,13 +65,6 @@ class CustomFieldEdition(base.ConfigModelEdition):
     pk_url_kwarg = 'field_id'
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def delete_ct(request):
-#     for field in CustomField.objects.filter(content_type=get_from_POST_or_404(request.POST, 'id')):
-#         field.delete()
-#
-#     return HttpResponse()
 class CTypeCustomFieldsDeletion(base.ConfigDeletion):
     ct_id_arg = 'id'
 
@@ -84,13 +75,6 @@ class CTypeCustomFieldsDeletion(base.ConfigDeletion):
             field.delete()
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def delete(request):
-#     field = CustomField.objects.get(pk=get_from_POST_or_404(request.POST, 'id'))
-#     field.delete()
-#
-#     return HttpResponse()
 class CustomFieldDeletion(base.ConfigDeletion):
     id_arg = 'id'
 

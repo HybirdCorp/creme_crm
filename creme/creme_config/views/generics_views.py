@@ -23,7 +23,6 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.db.models import FieldDoesNotExist, IntegerField
-# from django.db.models.deletion import ProtectedError
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -32,7 +31,6 @@ from django.utils.translation import gettext_lazy as _, gettext
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.creme_jobs.deletor import _DeletorType
-# from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.models import DeletionCommand, Job, JobResult
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views import bricks as bricks_views, generic
@@ -40,19 +38,16 @@ from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic.order import ReorderInstances
 from creme.creme_core.views.utils import json_update_from_widget_response
 
-from ..bricks import SettingsBrick  # GenericModelBrick
+from ..bricks import SettingsBrick
 from ..registry import config_registry
 
 logger = logging.getLogger(__name__)
 
 
 def _get_appconf(user, app_name):  # TODO: get_appconf_or_404() ?
-    # from ..registry import config_registry
-
     user.has_perm_to_admin_or_die(app_name)
 
     try:
-        # app_config = config_registry.get_app(app_name)
         app_config = config_registry.get_app_registry(app_name)
     except LookupError as e:
         raise Http404('Invalid app [{}]'.format(e)) from e
@@ -63,7 +58,6 @@ def _get_appconf(user, app_name):  # TODO: get_appconf_or_404() ?
 def _get_modelconf(app_config, model_name):  # TODO: get_modelconf_or_404() ?
     # TODO: use only ct instead of model_name ???
     for modelconf in app_config.models():
-        # if modelconf.name_in_url == model_name:
         if modelconf.model_name == model_name:
             return modelconf
 
@@ -105,7 +99,6 @@ class GenericCreation(ModelConfMixin, generic.CremeModelCreationPopup):
     submit_label = _('Save')
 
     def get_form_class(self):
-        # return self.get_model_conf().model_form
         creator = self.get_model_conf().creator
 
         if not creator.enable_func(user=self.request.user):
@@ -143,7 +136,6 @@ class GenericEdition(ModelConfMixin, generic.CremeModelEditionPopup):
     template_name = 'creme_core/generics/form/edit-popup.html'
 
     def get_form_class(self):
-        # return self.get_model_conf().model_form
         editor = self.get_model_conf().editor
 
         if not editor.enable_func(instance=self.object, user=self.request.user):
@@ -187,18 +179,11 @@ class ModelPortal(ModelConfMixin, generic.BricksView):
     def get_bricks(self):
         model_conf = self.get_model_conf()
 
-        return [
-            # GenericModelBrick(app_name=self.get_app_registry().name,
-            #                   model_name=model_conf.name_in_url,
-            #                   model=model_conf.model,
-            #                  ),
-            model_conf.get_brick(),
-        ]
+        return [model_conf.get_brick()]
 
     def get_bricks_reload_url(self):
         return reverse('creme_config__reload_model_brick',
                        args=(self.get_app_registry().name,
-                             # self.get_model_conf().name_in_url,
                              self.get_model_conf().model_name,
                             ),
                       )
@@ -218,25 +203,6 @@ class ModelPortal(ModelConfMixin, generic.BricksView):
         return context
 
 
-# @login_required
-# def delete_model(request, app_name, model_name):
-#     model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
-#     instance = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
-#
-#     if not getattr(instance, 'is_custom', True):
-#         raise Http404('Can not delete (is not custom)')
-#
-#     try:
-#         instance.delete()
-#     except ProtectedError as e:
-#         msg = gettext('{} can not be deleted because of its dependencies.').format(instance)
-#
-#         if request.is_ajax():
-#             return HttpResponse(msg, status=400)
-#
-#         raise Http404(msg) from e
-#
-#     return HttpResponse()
 class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
     template_name = 'creme_core/generics/blockform/delete-popup.html'
     job_template_name = 'creme_config/deletion-job-popup.html'
@@ -373,7 +339,6 @@ class AppPortal(AppRegistryMixin, generic.BricksView):
 def reload_model_brick(request, app_name, model_name):
     user = request.user
     app_registry = _get_appconf(user, app_name)
-    # model = _get_modelconf(app_registry, model_name).model
     model_config = _get_modelconf(app_registry, model_name)
 
     user.has_perm_to_admin_or_die(app_name)
@@ -381,7 +346,6 @@ def reload_model_brick(request, app_name, model_name):
     return bricks_views.bricks_render_info(
         request,
         context=bricks_views.build_context(request),
-        # bricks=[GenericModelBrick(app_name=app_name, model_name=model_name, model=model)],
         bricks=[model_config.get_brick()],
     )
 

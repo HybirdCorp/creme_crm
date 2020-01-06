@@ -38,7 +38,6 @@ from creme.creme_core.core.entity_filter import (
 from creme.creme_core.forms import (
     CremeForm, CremeModelForm, FieldBlockManager,
     MultiEntityCTypeChoiceField,
-    # entity_filter as ef_forms,
 )
 from creme.creme_core.forms import widgets as creme_widgets
 from creme.creme_core.models import (
@@ -61,60 +60,6 @@ def filtered_entity_ctypes(app_labels):  # TODO: move to creme_core.utils ?? (im
             yield get_ct(model)
 
 
-# def EmptyMultipleChoiceField(required=False, *args, **kwargs):
-#     return MultipleChoiceField(required=required, choices=(), *args, **kwargs)
-
-# class EditCredentialsForm(CremeModelForm):
-#     can_view   = BooleanField(label=_('Can view'),   required=False)
-#     can_change = BooleanField(label=_('Can change'), required=False)
-#     can_delete = BooleanField(label=_('Can delete'), required=False)
-#     can_link   = BooleanField(label=_('Can link'),   required=False,
-#                               help_text=_('You must have the permission to link on 2 entities'
-#                                           ' to create a relationship between them.'
-#                                          ),
-#                              )
-#     can_unlink = BooleanField(label=_('Can unlink'), required=False,
-#                               help_text=_('You must have the permission to unlink on 2 entities'
-#                                           ' to delete a relationship between them.'
-#                                          ),
-#                              )
-#     set_type   = ChoiceField(label=_('Type of entities set'),
-#                              choices=SetCredentials.ESETS_MAP.items(),
-#                              widget=CremeRadioSelect,
-#                             )
-#     ctype      = EntityCTypeChoiceField(label=_('Apply to a specific type'),
-#                                         widget=DynamicSelect(attrs={'autocomplete': True}),
-#                                         required=False,
-#                                         empty_label=pgettext('content_type', 'None'),
-#                                        )
-#
-#     class Meta:
-#         model = SetCredentials
-#         exclude = ('role', 'value')  # fields ??
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         fields = self.fields
-#         fields['ctype'].ctypes = filtered_entity_ctypes(self._get_allowed_apps())
-#
-#         value = self.instance.value or 0
-#         fields['can_view'].initial   = bool(value & EntityCredentials.VIEW)
-#         fields['can_change'].initial = bool(value & EntityCredentials.CHANGE)
-#         fields['can_delete'].initial = bool(value & EntityCredentials.DELETE)
-#         fields['can_link'].initial   = bool(value & EntityCredentials.LINK)
-#         fields['can_unlink'].initial = bool(value & EntityCredentials.UNLINK)
-#
-#     def _get_allowed_apps(self):
-#         return self.instance.role.allowed_apps
-#
-#     def save(self, *args, **kwargs):
-#         get_data = self.cleaned_data.get
-#
-#         self.instance.set_value(get_data('can_view'), get_data('can_change'), get_data('can_delete'),
-#                                 get_data('can_link'), get_data('can_unlink')
-#                                )
-#
-#         return super().save(*args, **kwargs)
 class CredentialsGeneralStep(CremeModelForm):
     can_view   = forms.BooleanField(label=_('View'),   required=False)
     can_change = forms.BooleanField(label=_('Change'), required=False)
@@ -351,20 +296,6 @@ class CredentialsFilterStep(CremeModelForm):
         return instance
 
 
-# class AddCredentialsForm(EditCredentialsForm):
-#     def __init__(self, instance, *args, **kwargs):
-#         self.role = instance
-#         super().__init__(*args, **kwargs)
-#         self.fields['set_type'].initial = SetCredentials.ESET_ALL
-#
-#     def _get_allowed_apps(self):
-#         return self.role.allowed_apps
-#
-#     def save(self, *args, **kwargs):
-#         self.instance.role = self.role
-#         return super().save(*args, **kwargs)
-
-
 class UserRoleDeleteForm(CremeForm):
     def __init__(self, user, instance, *args, **kwargs):
         super().__init__(user, *args, **kwargs)
@@ -409,12 +340,6 @@ class _UserRoleWizardFormStep(CremeModelForm):
                           key=lambda t: sort_key(t[1])
                      )
 
-    # def partial_save(self):
-    #     pass
-
-    # def save(self, *args, **kwargs):
-    #     self.partial_save()
-    #     return super().save(*args, **kwargs)
     def save(self, commit=False, *args, **kwargs):
         return super().save(*args, **kwargs) if commit else self.instance
 
@@ -444,17 +369,8 @@ class UserRoleAppsStep(_UserRoleWizardFormStep):
 
         return cdata
 
-    # def partial_save(self):
-    #     self.instance.allowed_apps = self.cleaned_data['allowed_apps']
-
 
 class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
-    # admin_4_apps = EmptyMultipleChoiceField(label=_('Administrated applications'),
-    #                                         help_text=_('These applications can be configured. '
-    #                                                     'For example, the concerned users can create new choices '
-    #                                                     'available in forms (eg: position for contacts).'
-    #                                                    )
-    #                                        )
     admin_4_apps = forms.MultipleChoiceField(
         required=False, choices=(),
         label=_('Administrated applications'),
@@ -467,12 +383,10 @@ class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
     class Meta(_UserRoleWizardFormStep.Meta):
         fields = ('admin_4_apps',)
 
-    # def __init__(self, allowed_app_names, *args, **kwargs):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         CRED_ADMIN = CremeAppConfig.CRED_ADMIN
-        # labels = set(allowed_app_names)
         labels = self.instance.allowed_apps
         admin_4_apps_f = self.fields['admin_4_apps']
         admin_4_apps_f.choices = self.app_choices(app for app in creme_app_configs()
@@ -489,8 +403,6 @@ class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
 
         return cdata
 
-    # def partial_save(self):
-    #     self.instance.admin_4_apps = self.cleaned_data['admin_4_apps']
     def save(self, commit=True, *args, **kwargs):
         return super().save(commit=commit, *args, **kwargs)
 
@@ -501,15 +413,10 @@ class UserRoleCreatableCTypesStep(_UserRoleWizardFormStep):
     class Meta(_UserRoleWizardFormStep.Meta):
         fields = ('creatable_ctypes',)
 
-    # def __init__(self, allowed_app_names, *args, **kwargs):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.fields['creatable_ctypes'].ctypes = filtered_entity_ctypes(allowed_app_names)
         self.fields['creatable_ctypes'].ctypes = filtered_entity_ctypes(self.instance.allowed_apps)
 
-    # def save(self, *args, **kwargs):
-    #     # Optimisation: we only save the M2M
-    #     self.instance.creatable_ctypes.set(self.cleaned_data['creatable_ctypes'])
     def save(self, commit=True, *args, **kwargs):
         instance = self.instance
 
@@ -531,15 +438,11 @@ class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
     class Meta(_UserRoleWizardFormStep.Meta):
         fields = ('exportable_ctypes',)
 
-    # def __init__(self, allowed_app_names, *args, **kwargs):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # self.fields['exportable_ctypes'].ctypes = filtered_entity_ctypes(allowed_app_names)
         self.fields['exportable_ctypes'].ctypes = filtered_entity_ctypes(self.instance.allowed_apps)
 
-    # def save(self, *args, **kwargs):
-    #     # Optimisation: we only save the M2M
-    #     self.instance.exportable_ctypes.set(self.cleaned_data['exportable_ctypes'])
     def save(self, commit=True, *args, **kwargs):
         instance = self.instance
 
@@ -550,24 +453,6 @@ class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
         return instance
 
 
-# class UserRoleCredentialsStep(AddCredentialsForm):
-#     blocks = FieldBlockManager(('general', _('First credentials'), '*'))
-#
-#     def __init__(self, allowed_app_names, *args, **kwargs):
-#         self.allowed_app_names = allowed_app_names
-#         super().__init__(*args, **kwargs)
-#         fields = self.fields
-#         fields['can_view'] = forms.CharField(
-#             label=fields['can_view'].label,
-#             required=False, widget=Label,
-#             initial=_('Yes'),
-#         )
-#
-#     def _get_allowed_apps(self):
-#         return self.allowed_app_names
-#
-#     def clean_can_view(self):
-#         return True
 class UserRoleCredentialsGeneralStep(CredentialsGeneralStep):
     blocks = FieldBlockManager(
         ('general', _('First credentials: main information'), '*'),

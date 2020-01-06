@@ -18,17 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import Http404  # HttpResponse
+from django.http import Http404
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
-# from formtools.wizard.views import SessionWizardView
-
-# from creme.creme_core.auth import decorators
 from creme.creme_core.models import ButtonMenuItem
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
-# from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import button_menu as button_forms
 
@@ -39,7 +35,6 @@ class Portal(generic.BricksView):
     template_name = 'creme_config/button_menu_portal.html'
 
 
-# class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
 class ButtonMenuWizard(generic.wizard.CremeWizardViewPopup):
     class _ResourceStep(button_forms.ButtonMenuAddForm):
         step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
@@ -47,27 +42,13 @@ class ButtonMenuWizard(generic.wizard.CremeWizardViewPopup):
         def save(self, commit=False):
             return super().save(commit=commit)
 
-    # class _ConfigStep(button_forms.ButtonMenuEditForm):
-    #     step_prev_label = _('Previous step')
-    #     step_submit_label = _('Save the configuration')
-
     form_list = (
         _ResourceStep,
-        # _ConfigStep,
         button_forms.ButtonMenuEditForm,
     )
-    # wizard_title = _('New buttons configuration')
     title = _('New buttons configuration')
     submit_label = _('Save the configuration')
-    # template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
-    # permission = 'creme_core.can_admin'
     permissions = 'creme_core.can_admin'
-
-    # def done(self, form_list, **kwargs):
-    #     _resource_form, config_form = form_list
-    #     config_form.save()
-    #
-    #     return HttpResponse()
 
     def get_form_kwargs(self, step=None):
         kwargs = super().get_form_kwargs(step)
@@ -119,13 +100,6 @@ class ButtonMenuEdition(EntityCTypeRelatedMixin, base.ConfigEdition):
                gettext('Edit default configuration')
 
 
-# @decorators.login_required
-# @decorators.permission_required('creme_core.can_admin')
-# def delete(request):
-#     ct_id = get_from_POST_or_404(request.POST, 'id')
-#     ButtonMenuItem.objects.filter(content_type=ct_id).delete()
-#
-#     return HttpResponse()
 class ButtonMenuDeletion(base.ConfigDeletion):
     ct_id_arg = 'id'
 

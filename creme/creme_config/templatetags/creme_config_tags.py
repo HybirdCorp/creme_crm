@@ -26,7 +26,6 @@ from creme.creme_core.templatetags.creme_bricks import _brick_menu_state_action 
 register = Library()
 
 
-# @register.filter(name='is_custom')
 @register.filter(name='config_is_custom')
 def is_custom(obj):
     return getattr(obj, 'is_custom', True)

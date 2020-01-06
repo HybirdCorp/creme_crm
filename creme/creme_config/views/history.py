@@ -18,11 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
 
-# from creme.creme_core.auth import decorators
 from creme.creme_core.models import HistoryConfigItem
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import BricksView
@@ -42,12 +40,6 @@ class Portal(BricksView):
     template_name = 'creme_config/history_portal.html'
 
 
-# @decorators.login_required
-# @decorators.permission_required('creme_core.can_admin')
-# def delete(request):
-#     get_object_or_404(HistoryConfigItem, pk=get_from_POST_or_404(request.POST, 'id')).delete()
-#
-#     return HttpResponse()
 class HistoryItemDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
