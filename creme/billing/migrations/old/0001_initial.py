@@ -14,12 +14,6 @@ from creme.billing.models.fields import BillingDiscountField
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('billing', '0001_initial'),
-    #     ('billing', '0016_v2_1__convert_buttons'),
-    #     ('billing', '0017_v2_1__invoice_buyers_order_number'),
-    # ]
-
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),
@@ -199,7 +193,6 @@ class Migration(migrations.Migration):
 
                 ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status of invoice', to='billing.InvoiceStatus')),
                 ('payment_type', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Settlement terms', blank=True, to='billing.SettlementTerms', null=True)),
-                ('buyers_order_number', models.CharField(blank=True, help_text="Number of buyer's order (french legislation)", max_length=100, verbose_name="Buyer's order")),
             ],
             options={
                 'swappable': 'BILLING_INVOICE_MODEL',
