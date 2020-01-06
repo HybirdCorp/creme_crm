@@ -7,13 +7,6 @@ from creme.creme_core.models import fields as creme_fields, CREME_REPLACE_NULL
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('activities', '0001_initial'),
-    #     ('activities', '0011_v2_1__move_description_to_entity_1.py'),
-    #     ('activities', '0012_v2_1__move_description_to_entity_2.py'),
-    #     ('activities', '0013_v2_1__move_description_to_entity_3.py'),
-    # ]
-
     initial = True
     dependencies = [
         ('auth', '0001_initial'),
@@ -96,7 +89,7 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
                 ('end', models.DateTimeField(null=True, verbose_name='End', blank=True)),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
+                ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('minutes', models.TextField(verbose_name='Minutes', blank=True)),
                 ('place', models.CharField(max_length=500, verbose_name='Activity place', blank=True)),
                 ('duration', models.PositiveIntegerField(null=True, verbose_name='Duration (in hour)', blank=True)),
