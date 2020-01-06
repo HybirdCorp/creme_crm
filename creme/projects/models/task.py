@@ -49,10 +49,8 @@ class AbstractProjectTask(CremeEntity):
     start    = models.DateTimeField(_('Start'), blank=True, null=True)
     end      = models.DateTimeField(_('End'), blank=True, null=True)
     duration = models.PositiveIntegerField(_('Duration (in hours)'), blank=True, null=True)  # TODO: null=False (required in form) (idem with start/end)
-    # description = models.TextField(_('Description'), blank=True)
 
     tstatus = models.ForeignKey(TaskStatus, verbose_name=_('Task situation'),
-                                # on_delete=models.PROTECT
                                 on_delete=CREME_REPLACE,
                                )
 

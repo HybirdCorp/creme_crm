@@ -19,16 +19,12 @@
 ################################################################################
 
 import logging
-# import warnings
 
 from django.db.models import ProtectedError, Q
 from django.db.transaction import atomic
-# from django.http import HttpResponse
-# from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy as _  # gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
@@ -44,92 +40,6 @@ logger = logging.getLogger(__name__)
 Activity = get_activity_model()
 ProjectTask = projects.get_task_model()
 
-
-# def abstract_add_ptask(request, project_id, form=task_forms.TaskCreateForm,
-#                        title=_('Create a task for «%s»'),
-#                        submit_label=ProjectTask.save_label,
-#                       ):
-#     warnings.warn('projects.views.task.abstract_add_ptask() is deprecated ; '
-#                   'use the class-based view TaskCreation instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.add_to_entity(request, project_id, form, title,
-#                                  entity_class=projects.get_project_model(),
-#                                  submit_label=submit_label,
-#                                 )
-
-
-# def abstract_edit_ptask(request, task_id, form=task_forms.TaskEditForm):
-#     warnings.warn('projects.views.task.abstract_edit_ptask() is deprecated ; '
-#                   'use the class-based view TaskEdition instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.edit_entity(request, task_id, ProjectTask, form)
-
-
-# def abstract_edit_ptask_popup(request, task_id, form=task_forms.TaskEditForm):
-#     warnings.warn('projects.views.task.abstract_edit_ptask_popup() is deprecated ; '
-#                   'use the class-based view TaskEditionPopup instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.edit_model_with_popup(request, {'pk': task_id}, ProjectTask, form)
-
-
-# def abstract_view_ptask(request, task_id,
-#                         template='projects/view_task.html',
-#                        ):
-#     warnings.warn('projects.views.task.abstract_view_ptask() is deprecated ; '
-#                   'use the class-based view TaskDetail instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.view_entity(request, task_id, ProjectTask, template=template)
-
-
-# @login_required
-# @permission_required(('projects', cperm(ProjectTask)))
-# def add(request, project_id):
-#     warnings.warn('projects.views.task.add() is deprecated.', DeprecationWarning)
-#     return abstract_add_ptask(request, project_id)
-
-
-# @login_required
-# @permission_required('projects')
-# def detailview(request, task_id):
-#     warnings.warn('projects.views.task.detailview() is deprecated.', DeprecationWarning)
-#     return abstract_view_ptask(request, task_id)
-
-
-# @login_required
-# @permission_required('projects')
-# def edit(request, task_id):
-#     warnings.warn('projects.views.task.edit() is deprecated.', DeprecationWarning)
-#     return abstract_edit_ptask(request, task_id)
-
-
-# @login_required
-# @permission_required('projects')
-# def edit_popup(request, task_id):
-#     warnings.warn('projects.views.task.edit_popup() is deprecated.', DeprecationWarning)
-#     return abstract_edit_ptask_popup(request, task_id)
-
-
-# @login_required
-# @permission_required('projects')
-# def delete_parent(request):
-#     POST = request.POST
-#     parent_id = get_from_POST_or_404(POST, 'parent_id')
-#     task = get_object_or_404(ProjectTask, pk=get_from_POST_or_404(POST, 'id'))
-#     user = request.user
-#
-#     # user.has_perm_to_change_or_die(task.project) #beware: modify block_tasks.html template if uncommented....
-#     user.has_perm_to_change_or_die(task)
-#
-#     task.parent_tasks.remove(parent_id)
-#
-#     return HttpResponse()
-
-
-# Class-based views  ----------------------------------------------------------
 
 class TaskCreation(generic.AddingInstanceToEntityPopup):
     model = ProjectTask
@@ -192,13 +102,6 @@ class ActivityEditionPopup(generic.EntityEditionPopup):
 
 # Activities -------------------------------------------------------------------
 
-# def abstract_edit_activity(request, activity_id, form=task_forms.RelatedActivityEditForm):
-#     warnings.warn('projects.views.task.abstract_edit_activity() is deprecated ; '
-#                   'use the class-based view ActivityEditionPopup instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.edit_model_with_popup(request, {'pk': activity_id}, Activity, form)
-
 
 # TODO: LINK perm instead of CHANGE ?
 class RelatedActivityCreation(generic.AddingInstanceToEntityPopup):
@@ -210,44 +113,6 @@ class RelatedActivityCreation(generic.AddingInstanceToEntityPopup):
     entity_classes = ProjectTask
 
 
-# @login_required
-# @permission_required('projects')
-# def edit_activity(request, activity_id):
-#     warnings.warn('projects.views.task.edit_activity() is deprecated.', DeprecationWarning)
-#     return abstract_edit_activity(request, activity_id)
-
-
-# @login_required
-# @permission_required('projects')
-# def delete_activity(request):
-#     activity = get_object_or_404(Activity, pk=request.POST.get('id'))
-#     get_rel = Relation.objects.get
-#
-#     try:
-#         rel1 = get_rel(type=constants.REL_SUB_PART_AS_RESOURCE, object_entity=activity)
-#         rel2 = get_rel(subject_entity=activity, type=constants.REL_SUB_LINKED_2_PTASK)
-#     except Relation.DoesNotExist as e:
-#         raise ConflictError('This activity is not related to a project task.') from e
-#
-#     request.user.has_perm_to_change_or_die(rel2.object_entity.get_real_entity())  # Project task
-#
-#     try:
-#         with atomic():
-#             rel1.delete()
-#             rel2.delete()
-#             activity.delete()
-#     except ProtectedError:
-#         logger.exception('Error when deleting an activity of project')
-#         status = 409
-#         msg = gettext('Can not be deleted because of its dependencies.')
-#     except Exception as e:
-#         status = 400
-#         msg = gettext('The deletion caused an unexpected error [{}].').format(e)
-#     else:
-#         msg = gettext('Operation successfully completed')
-#         status = 200
-#
-#     return HttpResponse(msg, status=status)
 class ActivityDeletion(generic.CremeModelDeletion):
     model = Activity
     permissions = 'projects'
