@@ -29,7 +29,6 @@ from creme.creme_core.utils.meta import ModelFieldEnumerator
 
 from .. import get_rgraph_model
 
-
 InstanceBrickConfigItemError = get_rgraph_model().InstanceBrickConfigItemError
 
 

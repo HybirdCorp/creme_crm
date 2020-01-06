@@ -29,7 +29,6 @@ from creme import reports
 from .models import Field
 from .report_chart_registry import report_chart_registry
 
-
 Report = reports.get_report_model()
 ReportGraph = reports.get_rgraph_model()
 
@@ -128,7 +127,6 @@ class ReportGraphBrick(Brick):
                     x=x, y=y,
                     error=fetcher.error,
                     volatile_column=fetcher.verbose_volatile_column,
-                    # instance_block_id=self.instance_brick_id,
                     instance_brick_id=self.instance_brick_id,
                     report_charts=report_chart_registry,
         ))

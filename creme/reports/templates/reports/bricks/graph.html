@@ -21,7 +21,6 @@
 
              var initial = {
                  chart: {% if graph.chart %}'{{graph.chart}}'{% else %}Object.keys(properties.charts)[0]{% endif %},
-{#                 sort:  Object.keys(properties.sorts)[0] #}
                  sort:  '{% if graph.asc %}ASC{% else %}DESC{% endif %}'
              };
 

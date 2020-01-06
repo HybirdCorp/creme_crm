@@ -25,7 +25,7 @@ from django.forms.utils import ValidationError
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.forms.base import CremeModelForm  # CremeEntityForm
+from creme.creme_core.forms.base import CremeModelForm
 from creme.creme_core.forms.fields import AjaxChoiceField
 from creme.creme_core.forms.widgets import DependentSelect
 from creme.creme_core.models import CremeEntity, RelationType, CustomField, FieldsConfig
@@ -55,7 +55,6 @@ class AbscissaGroupBySelect(forms.Select):
         return super().get_context(name=name, value=value, attrs=extra_args)
 
 
-# class ReportGraphForm(CremeEntityForm):
 class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Relationships & CremeProperties
     chart = forms.ChoiceField(label=_('Chart type'), choices=report_chart_registry.choices())
 
@@ -83,13 +82,11 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         ),
     )
 
-    # blocks = CremeEntityForm.blocks.new(
     blocks = CremeModelForm.blocks.new(
         ('abscissa', _('X axis'), ['abscissa_field', 'abscissa_group_by', 'days']),
         ('ordinate', _('Y axis'), ['is_count', 'aggregate', 'aggregate_field']),
     )
 
-    # class Meta(CremeEntityForm.Meta):
     class Meta(CremeModelForm.Meta):
         model = get_rgraph_model()
 

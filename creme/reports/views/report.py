@@ -19,14 +19,12 @@
 ################################################################################
 
 import logging
-# import warnings
 
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.utils import get_from_POST_or_404
@@ -38,69 +36,8 @@ from ..constants import DEFAULT_HFILTER_REPORT
 from ..forms import report as report_forms
 from ..models import Field
 
-
 logger = logging.getLogger(__name__)
 Report = get_report_model()
-
-# Function views --------------------------------------------------------------
-
-
-# def abstract_add_report(request, form=report_forms.ReportCreateForm,
-#                         template='reports/add_report.html',
-#                         submit_label=Report.save_label,
-#                        ):
-#     warnings.warn('reports.views.report.abstract_add_report() is deprecated ; '
-#                   'use the class-based view ReportCreation instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.add_entity(request, form, template=template,
-#                               extra_template_dict={'submit_label': submit_label},
-#                              )
-
-
-# def abstract_edit_report(request, report_id, form=report_forms.ReportEditForm):
-#     warnings.warn('reports.views.report.abstract_edit_report() is deprecated ; '
-#                   'use the class-based view ReportEdition instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.edit_entity(request, report_id, Report, form)
-
-
-# def abstract_view_report(request, report_id,
-#                          template='reports/view_report.html',
-#                         ):
-#     warnings.warn('reports.views.report.abstract_view_report() is deprecated ; '
-#                   'use the class-based view ReportDetail instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.view_entity(request, report_id, Report, template=template)
-
-
-# @login_required
-# @permission_required(('reports', cperm(Report)))
-# def add(request):
-#     warnings.warn('reports.views.report.add() is deprecated.', DeprecationWarning)
-#     return abstract_add_report(request)
-
-
-# @login_required
-# @permission_required('reports')
-# def edit(request, report_id):
-#     warnings.warn('reports.views.report.edit() is deprecated.', DeprecationWarning)
-#     return abstract_edit_report(request, report_id)
-
-
-# @login_required
-# @permission_required('reports')
-# def detailview(request, report_id):
-#     warnings.warn('reports.views.report.detailview() is deprecated.', DeprecationWarning)
-#     return abstract_view_report(request, report_id)
-
-
-# @login_required
-# @permission_required('reports')
-# def listview(request):
-#     return generic.list_view(request, Report, hf_pk=DEFAULT_HFILTER_REPORT)
 
 
 @login_required
@@ -218,9 +155,6 @@ def set_selected(request):
             rfield.save()
 
     return HttpResponse()
-
-
-# Class-based views  ----------------------------------------------------------
 
 
 class ReportCreation(generic.EntityCreation):

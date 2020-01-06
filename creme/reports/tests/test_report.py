@@ -100,12 +100,6 @@ class ReportTestCase(BaseReportsTestCase):
         self.efilter = EntityFilter.create(
             'test-filter', 'Starks', FakeContact, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeContact,
-                #     operator=EntityFilterCondition.IEQUALS,
-                #     name='last_name',
-                #     values=[self.ned.last_name],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -261,11 +255,6 @@ class ReportTestCase(BaseReportsTestCase):
         efilter = EntityFilter.create(
             'test-filter', 'Mihana family', FakeContact, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeContact,
-                #     operator=EntityFilterCondition.IEQUALS,
-                #     name='last_name', values=['Mihana'],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -653,14 +642,11 @@ class ReportTestCase(BaseReportsTestCase):
 
         url = reverse('creme_core__delete_efilter')
         data = {'id': efilter.id}
-        # response = self.assertPOST200(url, data=data, follow=True)
-        response = self.assertPOST409(url, data=data, follow=True)
+        self.assertPOST409(url, data=data, follow=True)
         self.assertStillExists(efilter)
         self.assertStillExists(report)
-        # self.assertRedirects(response, FakeContact.get_lv_absolute_url())
 
         # AJAX version
-        # self.assertPOST(400, url, data=data, follow=True, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertPOST(409, url, data=data, follow=True, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertStillExists(efilter)
         self.assertStillExists(report)
@@ -739,11 +725,6 @@ class ReportTestCase(BaseReportsTestCase):
         efilter = EntityFilter.create(
             'test-filter', 'Kasuga family', FakeContact, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeContact,
-                #     operator=EntityFilterCondition.IEQUALS,
-                #     name='last_name', values=['Kasuga'],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -805,7 +786,6 @@ class ReportTestCase(BaseReportsTestCase):
         report2 = self._create_report('Spencer')
 
         rfield = self.get_field_or_fail(report1, 'user')
-        # self.assertPOST409(reverse('reports__reorder_field', args=(report2.id, rfield.id,)),
         self.assertPOST404(reverse('reports__reorder_field', args=(report2.id, rfield.id,)),
                            data={'target': 1}
                           )
@@ -1874,11 +1854,6 @@ class ReportTestCase(BaseReportsTestCase):
         efilter = EntityFilter.create(
             'test-filter', 'Houses', FakeOrganisation, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeOrganisation,
-                #     operator=EntityFilterCondition.ISTARTSWITH,
-                #     name='name', values=['House '],
-                # )
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
                     operator=operators.ISTARTSWITH,
@@ -2030,11 +2005,6 @@ class ReportTestCase(BaseReportsTestCase):
         efilter = EntityFilter.create(
             'test-filter', 'Internal folders', FakeReportsFolder, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeReportsFolder,
-                #     operator=EntityFilterCondition.ISTARTSWITH,
-                #     name='title', values=['Inter'],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeReportsFolder,
                     operator=operators.ISTARTSWITH,
@@ -2147,12 +2117,6 @@ class ReportTestCase(BaseReportsTestCase):
         efilter = EntityFilter.create(
             'test-filter', 'Bebop member', FakeContact, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeContact,
-                #     operator=EntityFilterCondition.IEQUALS,
-                #     name='description',
-                #     values=[description],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -2192,10 +2156,6 @@ class ReportTestCase(BaseReportsTestCase):
         efilter = EntityFilter.create(
             'test-filter', 'Starks', FakeContact, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeContact, name='last_name',
-                #     operator=EntityFilterCondition.IEQUALS, values=[ned.last_name]
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact, field_name='last_name',
                     operator=operators.IEQUALS, values=[ned.last_name]
@@ -2752,7 +2712,6 @@ class ReportTestCase(BaseReportsTestCase):
 
         dwarves_filter = EntityFilter.create(
             'test-filter_dwarves', 'Dwarves', FakeContact, is_custom=True,
-            # conditions=[EntityFilterCondition.build_4_property(ptype, has=True)]
             conditions=[
                 condition_handler.PropertyConditionHandler.build_condition(
                     model=FakeContact, ptype=ptype, has=True,

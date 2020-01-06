@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.utils.translation import gettext_lazy as _
-
 
 class ReportChart:
     def __init__(self, name, label, template=None):
@@ -49,6 +47,3 @@ class ReportChartRegistry:
 
 
 report_chart_registry = ReportChartRegistry()
-# report_chart_registry.register(ReportChart('barchart',  _('Histogram')))
-# report_chart_registry.register(ReportChart('piechart',  _('Pie')))
-# report_chart_registry.register(ReportChart('tubechart', _('Tube')))
