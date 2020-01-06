@@ -34,7 +34,7 @@ from django.forms import (IntegerField,FileField, ModelChoiceField, CharField,
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms import (CremeForm, CremeModelForm,
-        CreatorEntityField)  # CremeModelWithUserForm CremeEntityForm
+        CreatorEntityField)
 from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models import RelationType, Relation, FieldsConfig
 from creme.creme_core.utils.secure_filename import secure_filename
@@ -90,7 +90,6 @@ class VcfForm(CremeForm):
 _get_ct = ContentType.objects.get_for_model
 
 
-# class VcfImportForm(CremeModelWithUserForm):
 class VcfImportForm(CremeModelForm):
     class Meta:
         model = Contact

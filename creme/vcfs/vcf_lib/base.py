@@ -35,7 +35,6 @@ class VBase:
         vCards, according to RFC2426
     """
     def __init__(self, group=None, *args, **kwds):
-        # super(VBase, self).__init__(*args, **kwds)
         super().__init__(*args, **kwds)
         self.group      = group
         self.behavior   = None
@@ -261,7 +260,6 @@ class ContentLine(VBase):
         # self.value should be unicode for iCalendar, but if quoted-printable
         # is used, or if the quoted-printable state machine is used, text may be
         # encoded
-        # if type(self.value) is str:
         if isinstance(self.value, bytes):
             charset = 'iso-8859-1'
             if 'CHARSET' in self.params:
