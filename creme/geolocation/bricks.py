@@ -32,7 +32,6 @@ from creme import persons
 from .models import GeoAddress
 from .utils import address_as_dict, get_radius, get_google_api_key
 
-
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 Address      = persons.get_address_model()

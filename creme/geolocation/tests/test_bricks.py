@@ -30,11 +30,6 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
             user=owner,
             is_private=True, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=model,
-                #     operator=operator,
-                #     name=field, values=values,
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=model,
                     operator=operator,
@@ -75,7 +70,6 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         contact_me    = get_efilter(pk=FILTER_CONTACT_ME)
         managed_orgas = get_efilter(pk=FILTER_MANAGED_ORGA)
 
-        # EQUALS = EntityFilterCondition.EQUALS
         EQUALS = operators.EQUALS
         efilter1 = self.create_filter('filter-1', 'Contact filter', user, Contact,      'first_name', EQUALS, 'John')
         efilter2 = self.create_filter('filter-2', 'Orga filter',    user, Organisation, 'name',       EQUALS, 'Le spectre')
@@ -108,7 +102,6 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
 
         managed_orgas = EntityFilter.objects.get(pk=FILTER_MANAGED_ORGA)
         efilter = self.create_filter('filter-2', 'Orga filter', other_user, Organisation, 'name',
-                                     # EntityFilterCondition.EQUALS, 'Le spectre',
                                      operators.EQUALS, 'Le spectre',
                                     )
 
