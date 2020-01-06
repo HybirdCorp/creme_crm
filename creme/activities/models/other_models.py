@@ -35,7 +35,7 @@ class ActivityType(CremeModel):
     default_day_duration  = IntegerField(_('Default day duration')).set_tags(viewable=False)
     default_hour_duration = DurationField(_('Default hour duration'), max_length=15)\
                                          .set_tags(viewable=False)
-    is_custom             = BooleanField(default=True, editable=False).set_tags(viewable=False) # Used by creme_config
+    is_custom             = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
 
     creation_label = pgettext_lazy('activities-type', 'Create a type')
 

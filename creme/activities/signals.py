@@ -66,7 +66,6 @@ def _set_orga_as_subject(sender, instance, **kwargs):
 
     activity = instance.object_entity.get_real_entity()
 
-    # if not activity.is_auto_orga_subject_enabled():
     if not is_auto_orga_subject_enabled():
         return
 

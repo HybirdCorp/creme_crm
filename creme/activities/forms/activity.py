@@ -302,7 +302,6 @@ class ActivityCreateForm(_ActivityCreateForm):
                                                                   .get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
                                                                   .subject_ctypes.all()
                                         ]
-        # if self.instance.is_auto_orga_subject_enabled():
         if is_auto_orga_subject_enabled():
             subjects_field.help_text = _('The organisations of the participants will be automatically added as subjects')
 

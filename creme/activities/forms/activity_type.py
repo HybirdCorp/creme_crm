@@ -98,7 +98,6 @@ class ActivityTypeField(JSONField):
     }
     value_type = dict
 
-    # def __init__(self, types=ActivityType.objects.all(), empty_label='---------', *args, **kwargs):
     def __init__(self, *, types=ActivityType.objects.all(), empty_label='---------', **kwargs):
         self.empty_label = empty_label
 

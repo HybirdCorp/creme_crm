@@ -26,11 +26,9 @@ from ..models import Calendar
 
 
 class UserParticipationField(OptionalModelChoiceField):
-    # def __init__(self, user=None, sub_label=_(u'Appears on the calendar:'), *args, **kwargs):
     def __init__(self, *, user=None, sub_label=_('Appears on the calendar:'), **kwargs):
         super().__init__(sub_label=sub_label,
                          queryset=Calendar.objects.none(),
-                         # *args, **kwargs
                          **kwargs
                         )
         self.user = user

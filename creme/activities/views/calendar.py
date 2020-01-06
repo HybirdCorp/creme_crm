@@ -22,7 +22,6 @@ from collections import defaultdict
 from copy import copy
 from datetime import datetime, timedelta
 from functools import partial
-# from json import dumps as jsondumps
 import logging
 
 from django.contrib.contenttypes.models import ContentType
@@ -30,25 +29,19 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Prefetch
 from django.db.transaction import atomic
-from django.http import HttpResponse  # Http404
-from django.shortcuts import render  # get_object_or_404
+from django.http import HttpResponse
+from django.shortcuts import render
 from django.urls import reverse
-# from django.utils.html import escape
 from django.utils.timezone import now, make_naive, get_current_timezone
 from django.utils.translation import gettext_lazy as _, gettext
 
-# from creme.creme_core.auth import build_creation_perm as cperm
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import EntityCredentials, Job, DeletionCommand
 from creme.creme_core.utils import get_from_POST_or_404, bool_from_str_extended
 from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.utils.unicode_collation import collator
-from creme.creme_core.views import generic  # decorators
-# from creme.creme_core.views.decorators import jsonify
-
-# from creme.persons import get_contact_model
+from creme.creme_core.views import generic
 
 from .. import get_activity_model, constants
 from ..forms import calendar as calendar_forms
@@ -59,129 +52,11 @@ logger = logging.getLogger(__name__)
 Activity = get_activity_model()
 
 
-# def _activity_2_dict(activity, user):
-#     "Returns a 'jsonifiable' dictionary"
-#     tz = get_current_timezone()
-#     start = make_naive(activity.start, tz)
-#     end   = make_naive(activity.end, tz)
-#
-#     is_all_day = activity.is_all_day or activity.floating_type == constants.FLOATING_TIME
-#
-#     if start == end and not is_all_day:
-#         end += timedelta(seconds=1)
-#
-#     calendar = activity.calendar  # NB: _get_one_activity_per_calendar() adds this 'attribute'
-#
-#     return {
-#         'id':           activity.id,
-#         'title':        activity.get_title_for_calendar(),
-#         'start':        start.isoformat(),
-#         'end':          end.isoformat(),
-#         'url':          reverse('activities__view_activity_popup', args=(activity.id,)),
-#         'calendar_color': '#{}'.format(calendar.get_color),
-#         'allDay':       is_all_day,
-#         'editable':     user.has_perm_to_change(activity),
-#         'calendar':     calendar.id,
-#         'type':         activity.type.name,
-#     }
-
-
-# def _get_datetime(data, key, default_func):
-#     timestamp = data.get(key)
-#     if timestamp is not None:
-#         try:
-#             return make_aware_dt(datetime.fromtimestamp(float(timestamp)))
-#         except Exception:
-#             logger.exception('_get_datetime(key=%s)', key)
-#
-#     return default_func()
-
-
-# def _get_one_activity_per_calendar(calendar_ids, activities):
-#     for activity in activities:
-#         for calendar in activity.calendars.filter(id__in=calendar_ids):
-#             copied = copy(activity)
-#             copied.calendar = calendar
-#             yield copied
-
-
 def _js_timestamp_to_datetime(timestamp):
     "@raise ValueError"
     return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000))  # JS gives us milliseconds
 
 
-# def _filter_authorized_calendars(user, calendar_ids):
-#     return list(Calendar.objects.filter((Q(is_public=True) | Q(user=user)) &
-#                                          Q(id__in=[cal_id
-#                                                      for cal_id in calendar_ids
-#                                                        if cal_id.isdigit()
-#                                                   ]
-#                                           )
-#                                         )
-#                                 .values_list('id', flat=True)
-#                )
-
-
-# @login_required
-# @permission_required('activities')
-# def user_calendar(request):
-#     user = request.user
-#     getlist = request.POST.getlist  # todo: post ??
-#
-#     # We don't really need the default calendar but this line creates one when the user has no calendar.
-#     Calendar.get_user_default_calendar(user)
-#
-#     selected_calendars = getlist('selected_calendars')
-#     if selected_calendars:
-#         selected_calendars = _filter_authorized_calendars(user, selected_calendars)
-#
-#     calendar_ids = selected_calendars or [c.id for c in Calendar.get_user_calendars(user)]
-#
-#     others_calendars = defaultdict(list)
-#     creme_calendars_by_user = defaultdict(list)
-#
-#     calendars = Calendar.objects.exclude(user=user).filter(is_public=True)
-#
-#     for calendar in calendars:
-#         cal_user = calendar.user
-#         filter_key = escape('{} {} {}'.format(
-#                                 cal_user.username,
-#                                 cal_user.first_name,
-#                                 cal_user.last_name,
-#                            ))
-#         cal_user.filter_key = filter_key
-#         others_calendars[cal_user].append(calendar)
-#         creme_calendars_by_user[filter_key].append({'name': escape(calendar.name),
-#                                                     'id': calendar.id,
-#                                                    })
-#
-#     floating_activities = []
-#     for activity in Activity.objects.filter(floating_type=constants.FLOATING,
-#                                             relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
-#                                             relations__object_entity=user.linked_contact.id,
-#                                             is_deleted=False,
-#                                            ):
-#         try:
-#             activity.calendar = activity.calendars.get(user=user)
-#         except Calendar.DoesNotExist:
-#             pass
-#         else:
-#             floating_activities.append(activity)
-#
-#     return render(request, 'activities/calendar.html',
-#                   {'user_username':           user.username,
-#                    'events_url':              reverse('activities__calendars_activities'),
-#                    'max_element_search':      constants.MAX_ELEMENT_SEARCH,
-#                    'my_calendars':            Calendar.objects.filter(user=user),
-#                    'others_calendars':        dict(others_calendars),
-#                    'n_others_calendars':      len(calendars),
-#                    'creme_calendars_by_user': jsondumps(creme_calendars_by_user),  # todo: use '|jsonify' ?
-#                    'current_calendars':       [str(id) for id in calendar_ids],
-#                    'creation_perm':           user.has_perm(cperm(Activity)),
-#                    # todo only floating activities assigned to logged user ??
-#                    'floating_activities':     floating_activities,
-#                   }
-#                  )
 class CalendarView(generic.CheckedTemplateView):
     template_name = 'activities/calendar.html'
     permissions = 'activities'
@@ -300,40 +175,6 @@ class CalendarView(generic.CheckedTemplateView):
         return context
 
 
-# @login_required
-# @permission_required('activities')
-# @jsonify
-# def get_users_activities(request):
-#     GET = request.GET
-#     calendar_ids = GET.getlist('calendar_id')
-#
-#     user = request.user
-#     contacts = list(get_contact_model().objects.exclude(is_user=None)
-#                                        .values_list('id', flat=True)
-#                    )  # NB: list() to avoid inner query
-#     users_cal_ids = _filter_authorized_calendars(user, calendar_ids)
-#
-#     start = _get_datetime(GET, 'start', (lambda: now().replace(day=1)))
-#     end   = _get_datetime(GET, 'end',   (lambda: get_last_day_of_a_month(start)))
-#
-#     activities = EntityCredentials.filter(
-#         user,
-#         Activity.objects.filter(is_deleted=False)
-#                         .filter(Q(start__range=(start, end)) |
-#                                 Q(end__gt=start, start__lt=end)
-#                                )
-#                         .filter(Q(calendars__pk__in=users_cal_ids) |
-#                                 Q(type=constants.ACTIVITYTYPE_INDISPO,
-#                                   relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
-#                                   relations__object_entity__in=contacts,
-#                                  )
-#                                ).distinct()
-#     )
-#
-#     return [
-#         _activity_2_dict(activity, user)
-#             for activity in _get_one_activity_per_calendar(calendar_ids, activities)
-#     ]
 class CalendarsMixin:
     calendar_id_arg = 'calendar_id'
 
@@ -386,7 +227,6 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
 
         return {
             'id':    activity.id,
-            # 'title': activity.get_title_for_calendar(),
             'title': activity.title,
 
             'start':  start.isoformat(),
@@ -395,7 +235,6 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
 
             'url': reverse('activities__view_activity_popup', args=(activity.id,)),
 
-            # 'calendar_color': '#{}'.format(calendar.get_color),
             'color':    '#{}'.format(calendar.get_color),
             'editable': user.has_perm_to_change(activity),
             'calendar': calendar.id,
@@ -427,11 +266,6 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
         calendar_ids = [cal.id for cal in self.get_calendars(request)]
         self.save_calendar_ids(request, calendar_ids)
 
-        # contacts = [*get_contact_model().objects
-        #                                 .exclude(is_user=None)
-        #                                 .values_list('id', flat=True)
-        #            ]  # NB: list to avoid inner query
-
         start = self.get_start(request)
         end   = self.get_end(request=request, start=start)
 
@@ -441,13 +275,7 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
             Activity.objects
                     .filter(is_deleted=False)
                     .filter(self.get_date_q(start=start, end=end))
-                    .filter(calendars__in=calendar_ids
-                            # Q(calendars__in=calendar_ids)
-                            # | Q(type=constants.ACTIVITYTYPE_INDISPO,
-                            #     relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
-                            #     relations__object_entity__in=contacts,
-                            #    )
-                           )
+                    .filter(calendars__in=calendar_ids)
                     .distinct()
                     # NB: we already filter by calendars ; maybe a future Django version
                     #     will allow us to annotate the calendar ID directly
@@ -517,52 +345,6 @@ class CalendarsSelection(CalendarsMixin, generic.CheckedView):
         return HttpResponse()
 
 
-# @login_required
-# @permission_required('activities')
-# @jsonify
-# @decorators.POST_only
-# @atomic
-# def update_activity_date(request):
-#     POST = request.POST
-#
-#     act_id          = POST['id']
-#     start_timestamp = POST['start']
-#     end_timestamp   = POST['end']
-#     is_all_day      = POST.get('allDay')
-#
-#     is_all_day = is_all_day.lower() in {'1', 'true'} if is_all_day else False
-#
-#     try:
-#         activity = Activity.objects.select_for_update().get(pk=act_id)
-#     except Activity.DoesNotExist as e:
-#         raise Http404(str(e)) from e
-#
-#     request.user.has_perm_to_change_or_die(activity)
-#
-#     # This view is used when drag and dropping event comming from calendar
-#     # or external events (floating events).
-#     # Dropping a floating event on the calendar fixes it.
-#     if activity.floating_type == constants.FLOATING:
-#         activity.floating_type = constants.NARROW
-#
-#     activity.start = _js_timestamp_to_datetime(start_timestamp)
-#     activity.end   = _js_timestamp_to_datetime(end_timestamp)
-#
-#     if is_all_day is not None and activity.floating_type != constants.FLOATING_TIME:
-#         activity.is_all_day = is_all_day
-#         activity.handle_all_day()
-#
-#     collisions = check_activity_collisions(
-#         activity.start, activity.end,
-#         participants=[r.object_entity for r in activity.get_participant_relations()],
-#         busy=activity.busy,
-#         exclude_activity_id=activity.id,
-#     )
-#
-#     if collisions:
-#         raise ConflictError(', '.join(collisions))
-#
-#     activity.save()
 class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView):
     """This view is used when drag & dropping Activities in the Calendar."""
     permissions = 'activities'
@@ -635,34 +417,6 @@ class CalendarEdition(generic.CremeModelEditionPopup):
             raise PermissionDenied('You cannot edit this Calendar (it is not yours).')
 
 
-# @login_required
-# @permission_required('activities')
-# @jsonify
-# @decorators.POST_only
-# def delete_user_calendar(request):
-#     calendar = get_object_or_404(Calendar, pk=get_from_POST_or_404(request.POST, 'id'))
-#     user = request.user
-#
-#     # todo: factorise calendar credentials functions ?
-#     if not calendar.is_custom or (not user.is_superuser and calendar.user_id != user.id):
-#         raise PermissionDenied(gettext('You are not allowed to delete this calendar.'))
-#
-#     # Attach all existing activities to the default calendar
-#     # replacement_calendar = Calendar.get_user_default_calendar(user)
-#     replacement_calendar = Calendar.objects.get_default_calendar(user)
-#     if replacement_calendar == calendar:
-#         replacement_calendar = Calendar.objects.filter(user=user)\
-#                                                .exclude(id=calendar.id)\
-#                                                .order_by('id')\
-#                                                .first()
-#
-#         if replacement_calendar is None:
-#             raise ConflictError(gettext('You cannot delete your last calendar.'))
-#
-#     for activity in calendar.activity_set.all():
-#         activity.calendars.add(replacement_calendar)
-#
-#     calendar.delete()
 class CalendarDeletion(generic.CremeModelEditionPopup):
     model = Calendar
     form_class = calendar_forms.CalendarDeletionForm

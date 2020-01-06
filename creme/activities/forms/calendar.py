@@ -43,7 +43,6 @@ class CalendarForm(base.CremeModelForm):
         super().__init__(*args, **kwargs)
 
         if not self.instance.pk:
-            # self.fields['color'].initial = Calendar.new_color()
             self.fields['color'].initial = Calendar.objects.new_color()
 
     def get_user(self):

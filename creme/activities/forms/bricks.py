@@ -72,7 +72,6 @@ class ParticipantCreateForm(CremeForm):
                                        Q(is_user__isnull=True)
         participants_field.force_creation = True  # TODO: in constructor ?
 
-        # if entity.is_auto_orga_subject_enabled():
         if is_auto_orga_subject_enabled():
             participants_field.help_text = _('The organisations of the participants will '
                                              'be automatically added as subjects'
