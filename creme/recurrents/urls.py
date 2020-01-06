@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# from django.conf.urls import url
 from django.urls import re_path
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
@@ -12,7 +11,6 @@ from .views import recurrentgenerator
 urlpatterns = [
     *swap_manager.add_group(
         rgenerator_model_is_custom,
-        # Swappable(url(r'^generators[/]?$', recurrentgenerator.listview, name='recurrents__list_generators')),
         Swappable(re_path(r'^generators[/]?$',
                       recurrentgenerator.RecurrentGeneratorsList.as_view(),
                       name='recurrents__list_generators',

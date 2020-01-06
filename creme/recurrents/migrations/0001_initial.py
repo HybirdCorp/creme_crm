@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.db import models, migrations
 from django.db.models.deletion import CASCADE
@@ -9,11 +8,7 @@ from creme.creme_core.models import fields as creme_fields
 
 class Migration(migrations.Migration):
     # replaces = [
-    #     (b'recurrents', '0001_initial'),
-    #     (b'recurrents', '0002_v1_7__name_not_null_1'),
-    #     (b'recurrents', '0003_v1_7__name_not_null_2'),
-    #     (b'recurrents', '0004_v1_7__description_not_null_1'),
-    #     (b'recurrents', '0005_v1_7__description_not_null_2'),
+    #     ('recurrents', '0001_initial'),
     # ]
 
     initial = True
