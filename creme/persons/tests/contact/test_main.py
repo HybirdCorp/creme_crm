@@ -445,8 +445,6 @@ class ContactTestCase(_BaseTestCase):
         response = self.client.post(
             url, follow=True,
             data={
-                # 'orga_overview': 'dontcare',
-                # 'relation':      REL_SUB_EMPLOYED_BY,
                 'user':       user.id,
                 'first_name': first_name,
                 'last_name':  last_name,
@@ -485,12 +483,9 @@ class ContactTestCase(_BaseTestCase):
         self.assertGET200(url)
 
         response = self.assertPOST200(url, follow=True,
-                                      data={'user':          self.other_user.pk,
-                                            # 'orga_overview': 'dontcare',
-                                            # 'relation':      'dontcare',
-
-                                            'first_name':    'Bugs',
-                                            'last_name':     'Bunny',
+                                      data={'user':       self.other_user.pk,
+                                            'first_name': 'Bugs',
+                                            'last_name':  'Bunny',
                                            },
                                      )
         self.assertFormError(
@@ -603,19 +598,15 @@ class ContactTestCase(_BaseTestCase):
 
         response = self.assertPOST200(self._build_addrelated_url(orga.id),
                                       follow=True,
-                                      data={'user':          user.pk,
+                                      data={'user': user.pk,
 
-                                            # 'orga_overview': 'dontcare',
-                                            # 'relation':      rtype.id,
-
-                                            'first_name':    'Bugs',
-                                            'last_name':     'Bunny',
+                                            'first_name': 'Bugs',
+                                            'last_name':  'Bunny',
 
                                             'rtype_for_organisation': rtype.id,
                                            },
                                       )
         self.assertFormError(
-            # response, 'form', 'relation',
             response, 'form', 'rtype_for_organisation',
             _('Select a valid choice. That choice is not one of the available choices.')
         )
@@ -699,13 +690,6 @@ class ContactTestCase(_BaseTestCase):
                                          last_name='Matsumoto', civility=captain,
                                         )
 
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'civility')),
-        #                    data={'id': captain.pk}
-        #                   )
-        # self.assertDoesNotExist(captain)
-        #
-        # harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
-        # self.assertIsNone(harlock.civility)
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('persons', 'civility', captain.id)
                                            ),
@@ -751,13 +735,6 @@ class ContactTestCase(_BaseTestCase):
                                          last_name='Matsumoto', position=captain,
                                         )
 
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'position')),
-        #                    data={'id': captain.pk}
-        #                   )
-        # self.assertDoesNotExist(captain)
-        #
-        # harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
-        # self.assertIsNone(harlock.position)
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('persons', 'position', captain.id)
                                            ),
@@ -803,13 +780,6 @@ class ContactTestCase(_BaseTestCase):
                                          last_name='Matsumoto', sector=piracy,
                                         )
 
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'sector')),
-        #                    data={'id': piracy.pk}
-        #                   )
-        # self.assertDoesNotExist(piracy)
-        #
-        # harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
-        # self.assertIsNone(harlock.sector)
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('persons', 'sector', piracy.id)
                                            ),

@@ -32,7 +32,7 @@ from creme.creme_core.core.entity_filter import (
     operators,
 )
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import EntityFilter  # EntityFilterVariable EntityFilterCondition
+from creme.creme_core.models import EntityFilter
 from creme.creme_core.utils import create_if_needed
 
 from creme import persons
@@ -90,12 +90,6 @@ class Populator(BasePopulator):
             constants.FILTER_MANAGED_ORGA, name=_('Managed by creme'),
             model=Organisation, user='admin',
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=Organisation,
-                #     operator=EntityFilterCondition.EQUALS,
-                #     name='is_managed',
-                #     values=[True],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Organisation,
                     operator=operators.EqualsOperator,
@@ -108,12 +102,6 @@ class Populator(BasePopulator):
             constants.FILTER_CONTACT_ME, name=_('Me'),
             model=Contact, user='admin',
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=Contact,
-                #     operator=EntityFilterCondition.EQUALS,
-                #     name='is_user',
-                #     values=[EntityFilterVariable.CURRENT_USER],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Contact,
                     operator=operators.EqualsOperator,

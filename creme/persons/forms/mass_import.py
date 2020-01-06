@@ -25,7 +25,6 @@ from creme.creme_core.models import FieldsConfig
 
 from .. import get_address_model
 
-
 Address = get_address_model()
 
 # TODO: factorise (MergeForm) ?

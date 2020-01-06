@@ -36,7 +36,6 @@ Organisation = persons.get_organisation_model()
 
 
 # NB: not CremeEntityForm to ignore custom fields, relationships & properties
-# class ContactQuickForm(CremeModelWithUserForm):
 class ContactQuickForm(CremeModelForm):
     organisation = CharField(label=_('Organisation'), required=False,
                              help_text=_('If no organisation is found, a new one will be created.'),
@@ -149,7 +148,6 @@ class ContactQuickForm(CremeModelForm):
         return contact
 
 
-# class OrganisationQuickForm(CremeModelWithUserForm):
 class OrganisationQuickForm(CremeModelForm):
     class Meta:
         model = Organisation

@@ -18,16 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.contrib.contenttypes.models import ContentType
-from django.forms import ModelChoiceField  # CharField
-# from django.forms.widgets import TextInput
+from django.forms import ModelChoiceField
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.validators import validate_linkable_model
-# from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import RelationType, Relation
 
 from creme import persons
@@ -64,7 +60,6 @@ class ContactForm(_BasePersonForm):
 
 
 class RelatedContactForm(ContactForm):
-    # orga_overview = CharField(label=_('Concerned organisation'), widget=Label, initial=_('No one'))
     # TODO: move the block "relationships" ? (need to improve the block-manager
     #       in order to avoid duplicating all the list of fields here)
     rtype_for_organisation = ModelChoiceField(
@@ -72,7 +67,6 @@ class RelatedContactForm(ContactForm):
         queryset=RelationType.objects.none(),
     )
 
-    # def __init__(self, linked_orga=None, rtype=None, *args, **kwargs):
     def __init__(self, linked_orga, rtype=None, *args, **kwargs):
         if rtype:
             kwargs['forced_relations'] = [
@@ -80,50 +74,8 @@ class RelatedContactForm(ContactForm):
             ]
 
         super().__init__(*args, **kwargs)
-        # if not linked_orga:
-        #     linked_orga = self.initial.get('linked_orga')
-        #     if linked_orga:
-        #         warnings.warn('RelatedContactForm: the use of initial for "linked_orga" is deprecated ; '
-        #                       'use constructor argument "linked_orga" instead.',
-        #                       DeprecationWarning
-        #                      )
-
         self.linked_orga = linked_orga
-
-        # if not self.linked_orga:
-        #     warnings.warn('RelatedContactForm: empty "linked_orga" argument is deprecated ;.',
-        #                   DeprecationWarning
-        #                  )
-        #     return
-
-        # fields = self.fields
-        # fields['orga_overview'].initial = self.linked_orga
-        # if not rtype:
-        #     rtype = self.initial.get('relation_type')
-        #     if rtype:
-        #         warnings.warn('RelatedContactForm: the use of initial for "rtype" is deprecated ; ',
-        #                       'use constructor argument "rtype" instead.',
-        #                       DeprecationWarning
-        #                      )
-
         self.relation_type = rtype
-
-        # if rtype:
-        #     relation_field = CharField(label=gettext('Relation type'),
-        #                                widget=TextInput(attrs={'readonly': 'readonly'}),
-        #                                initial=self.relation_type,  # todo: required=False ??
-        #                               )
-        # else:
-        #     get_ct = ContentType.objects.get_for_model
-        #     relation_field = ModelChoiceField(label=gettext('Status in the organisation'),
-        #                                       queryset=RelationType.objects.filter(
-        #                                                     subject_ctypes=get_ct(Contact),
-        #                                                     object_ctypes=get_ct(Organisation),
-        #                                                     is_internal=False,
-        #                                                   ),
-        #                                      )
-        #
-        # fields['relation'] = relation_field
 
         if rtype:
             del self.fields['rtype_for_organisation']
@@ -157,15 +109,3 @@ class RelatedContactForm(ContactForm):
             ))
 
         return relations
-
-    # def save(self, *args, **kwargs):
-    #     instance = super().save(*args, **kwargs)
-    #
-    #     if self.linked_orga:
-    #         Relation.objects.create(subject_entity=instance,
-    #                                 type=self.relation_type or self.cleaned_data.get('relation'),
-    #                                 object_entity=self.linked_orga,
-    #                                 user=instance.user,
-    #                                )
-    #
-    #     return instance

@@ -34,7 +34,6 @@ from creme.creme_core.utils.db import populate_related
 from creme import persons
 from . import constants
 
-
 Address = persons.get_address_model()
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
@@ -62,14 +61,10 @@ if apps.is_installed('creme.activities'):
             user = context['user']
 
             if isinstance(entity, Organisation):
-                # past = Activity.get_past_linked_for_orga
                 past = Activity.objects.past_linked_to_organisation
-                # future = Activity.get_future_linked_for_orga
                 future = Activity.objects.future_linked_to_organisation
             else:
-                # past = Activity.get_past_linked
                 past = Activity.objects.past_linked
-                # future = Activity.get_future_linked
                 future = Activity.objects.future_linked
 
             return {
@@ -94,7 +89,6 @@ if apps.is_installed('creme.activities'):
             if not contact.is_user_id:
                 time_limit = self.context['today'] - self.delta
 
-                # if not Activity.get_future_linked(contact, today=time_limit).exists():
                 if not Activity.objects.future_linked(contact, today=time_limit).exists():
                     return self.label_not if time_limit > contact.created else self.label_never
 
@@ -130,12 +124,6 @@ if apps.is_installed('creme.opportunities'):
 
         @staticmethod
         def get(context, entity):
-            # return EntityCredentials.filter(context['user'],
-            #                                 Opportunity.objects.filter(is_deleted=False,
-            #                                                            relations__type=opp_constants.REL_SUB_TARGETS,
-            #                                                            relations__object_entity=entity.id,
-            #                                                           )
-            #                                )
             return EntityCredentials.filter(
                 context['user'],
                 Opportunity.objects
@@ -168,12 +156,6 @@ if apps.is_installed('creme.commercial'):
 
         @staticmethod
         def get(context, entity):
-            # return EntityCredentials.filter(context['user'],
-            #                                 Act.objects.filter(is_deleted=False,
-            #                                                    relations__type=commercial_constants.REL_OBJ_COMPLETE_GOAL,
-            #                                                    relations__object_entity=entity.id,
-            #                                                   )
-            #                                )
             return EntityCredentials.filter(
                 context['user'],
                 Act.objects

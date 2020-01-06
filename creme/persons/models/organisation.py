@@ -25,7 +25,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
-from creme.creme_core.global_info import cached_per_request  # get_per_request_cache
+from creme.creme_core.global_info import cached_per_request
 from creme.creme_core.models import CremeEntity, CREME_REPLACE_NULL
 from creme.creme_core.models.fields import PhoneField
 from creme.creme_core.models.manager import CremeEntityManager
@@ -47,7 +47,6 @@ class OrganisationManager(CremeEntityManager):
 class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     name = models.CharField(_('Name'), max_length=200)
 
-    # description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
     is_managed  = models.BooleanField(_('Managed by Creme'), default=False, editable=False)
 
     phone    = PhoneField(_('Phone number'), max_length=100, blank=True).set_tags(optional=True)
@@ -58,19 +57,16 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     sector     = models.ForeignKey(other_models.Sector,
                                    verbose_name=_('Sector'),
                                    blank=True, null=True,
-                                   # on_delete=SET_NULL,
                                    on_delete=CREME_REPLACE_NULL,
                                   ).set_tags(optional=True)
     legal_form = models.ForeignKey(other_models.LegalForm,
                                    verbose_name=_('Legal form'),
                                    blank=True, null=True,
-                                   # on_delete=SET_NULL,
                                    on_delete=CREME_REPLACE_NULL,
                                   ).set_tags(optional=True)
     staff_size = models.ForeignKey(other_models.StaffSize,
                                    verbose_name=_('Staff size'),
                                    blank=True, null=True,
-                                   # on_delete=SET_NULL,
                                    on_delete=CREME_REPLACE_NULL,
                                   ).set_tags(optional=True)
 
@@ -164,14 +160,6 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
                       DeprecationWarning
                      )
 
-        # cache = get_per_request_cache()
-        # cache_key = 'persons-organisation-all_managed'
-        # qs = cache.get(cache_key)
-        #
-        # if qs is None:
-        #     cache[cache_key] = qs = cls.objects.filter(is_managed=True, is_deleted=False)
-        #
-        # return qs
         return cls.objects.filter_managed_by_creme()
 
     def _post_save_clone(self, source):

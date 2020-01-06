@@ -240,7 +240,6 @@ class OrganisationTestCase(_BaseTestCase):
         response = self.assertGET200(Organisation.get_lv_absolute_url())
 
         with self.assertNoException():
-            # orgas_page = response.context['entities']
             orgas_page = response.context['page_obj']
 
         self.assertEqual(3, orgas_page.paginator.count)  # 3: our 2 orgas + default orga
@@ -458,7 +457,6 @@ class OrganisationTestCase(_BaseTestCase):
         response = self.assertGET200(reverse('persons__leads_customers'))
 
         with self.assertNoException():
-            # orgas_page = response.context['entities']
             orgas_page = response.context['page_obj']
 
         self.assertEqual(0, orgas_page.paginator.count)
@@ -498,7 +496,6 @@ class OrganisationTestCase(_BaseTestCase):
         self.client.post(reverse('persons__become_customer', args=(nerv.id,)), data={'id': acme.id})
 
         response = self.client.get(reverse('persons__leads_customers'))
-        # self.assertEqual(0, response.context['entities'].paginator.count)
         self.assertEqual(0, response.context['page_obj'].paginator.count)
 
     def test_create_customer01(self):
@@ -665,13 +662,6 @@ class OrganisationTestCase(_BaseTestCase):
         hunting = Sector.objects.create(title='Bounty hunting')
         bebop = Organisation.objects.create(user=user, name='Bebop', sector=hunting)
 
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'sector')),
-        #                    data={'id': hunting.pk}
-        #                   )
-        # self.assertDoesNotExist(hunting)
-        #
-        # bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
-        # self.assertIsNone(bebop.sector)
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('persons', 'sector', hunting.id)
                                            ),
@@ -692,18 +682,6 @@ class OrganisationTestCase(_BaseTestCase):
         hunting = Sector.objects.create(title='Bounty hunting')
         bebop = Organisation.objects.create(user=user, name='Bebop', sector=hunting)
 
-        # response = self.client.post(reverse('creme_config__delete_instance',
-        #                                     args=('persons', 'sector', hunting.id)
-        #                                    ),
-        #                            )
-        # self.assertNoFormError(response)
-        #
-        # job = self.get_deletion_command_or_fail(Sector).job
-        # job.type.execute(job)
-        # self.assertDoesNotExist(hunting)
-        #
-        # bebop = self.assertStillExists(bebop)
-        # self.assertIsNone(bebop.sector)
         response = self.client.post(
             reverse('creme_config__delete_instance',
                     args=('persons', 'sector', hunting.id)
@@ -725,13 +703,6 @@ class OrganisationTestCase(_BaseTestCase):
         band = LegalForm.objects.create(title='Bounty hunting band')
         bebop = Organisation.objects.create(user=user, name='Bebop', legal_form=band)
 
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'legal_form')),
-        #                    data={'id': band.pk}
-        #                   )
-        # self.assertDoesNotExist(band)
-        #
-        # bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
-        # self.assertIsNone(bebop.legal_form)
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('persons', 'legal_form', band.id)
                                            ),
@@ -773,13 +744,6 @@ class OrganisationTestCase(_BaseTestCase):
         size = StaffSize.objects.create(size='4 and a dog')
         bebop = Organisation.objects.create(user=user, name='Bebop', staff_size=size)
 
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'staff_size')),
-        #                    data={'id': size.pk}
-        #                   )
-        # self.assertDoesNotExist(size)
-        #
-        # bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
-        # self.assertIsNone(bebop.staff_size)
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('persons', 'staff_size', size.id)
                                            ),
