@@ -199,9 +199,7 @@ class CategoriesExtractorField(Field):
         'empty_sub_cat':   _('Select a column for the sub-category if you select a column for the category.'),
     }
 
-    # def __init__(self, choices, categories, *args, **kwargs):
     def __init__(self, *, choices, categories, **kwargs):
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self._user = None
         self._can_create = False

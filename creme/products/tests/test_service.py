@@ -114,7 +114,6 @@ class ServiceTestCase(_ProductsTestCase):
         response = self.assertGET200(Service.get_lv_absolute_url())
 
         with self.assertNoException():
-            # services_page = response.context['entities']
             services_page = response.context['page_obj']
 
         self.assertEqual(2, services_page.paginator.count)
@@ -133,14 +132,6 @@ class ServiceTestCase(_ProductsTestCase):
         self.login()
 
         service, cat, sub_cat = self._build_service_cat_subcat()
-
-        # self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
-        #                    data={'id': sub_cat.pk}
-        #                   )
-        # self.get_object_or_fail(SubCategory, pk=sub_cat.pk)
-        #
-        # service = self.assertStillExists(service)
-        # self.assertEqual(sub_cat, service.sub_category)
         response = self.assertPOST200(reverse('creme_config__delete_instance',
                                               args=('products', 'subcategory', sub_cat.id)
                                              ),
@@ -155,16 +146,6 @@ class ServiceTestCase(_ProductsTestCase):
         self.login()
 
         service, cat, sub_cat = self._build_service_cat_subcat()
-
-        # self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'category')),
-        #                    data={'id': cat.pk}
-        #                   )
-        # self.get_object_or_fail(SubCategory, pk=sub_cat.pk)
-        # self.get_object_or_fail(Category, pk=cat.pk)
-        #
-        # service = self.assertStillExists(service)
-        # self.assertEqual(sub_cat, service.sub_category)
-        # self.assertEqual(cat,     service.category)
         response = self.assertPOST200(reverse('creme_config__delete_instance',
                                               args=('products', 'category', cat.id)
                                              ),
@@ -236,7 +217,6 @@ class ServiceTestCase(_ProductsTestCase):
 
         url = reverse('products__remove_image', args=(service.id,))
         data = {'id': img_1.id}
-        # self.assertGET404(url, data=data)
         self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data, follow=True)

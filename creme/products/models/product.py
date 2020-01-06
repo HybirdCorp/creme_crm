@@ -30,9 +30,8 @@ from . import other_models
 
 
 class AbstractProduct(CremeEntity):
-    name        = models.CharField(_('Name'), max_length=100)
-    code        = models.IntegerField(_('Code'), default=0)
-    # description = models.CharField(_('Description'), max_length=200)
+    name = models.CharField(_('Name'), max_length=100)
+    code = models.IntegerField(_('Code'), default=0)
 
     category     = models.ForeignKey(other_models.Category,
                                      verbose_name=_('Category'),
