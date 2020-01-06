@@ -19,8 +19,6 @@
 ################################################################################
 
 from urllib.parse import urlencode
-# from urllib2 import (HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler,
-#         build_opener, Request, URLError, HTTPError, HTTPRedirectHandler)
 from urllib.request import (HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler,
         build_opener, Request, URLError, HTTPError, HTTPRedirectHandler)
 
