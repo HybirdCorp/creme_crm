@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from collections import OrderedDict
-import warnings
+# import warnings
 
 from django.db.models import Q
 from django.forms import CharField, ModelMultipleChoiceField, ValidationError
@@ -201,13 +201,13 @@ class _RelationsCreateForm(CremeForm):
 
         return cdata
 
-    @staticmethod
-    def _hash_relation(subject_id, rtype_id, object_id):
-        warnings.warn('The method _RelationsCreateForm._hash_relation() is deprecated.',
-                      DeprecationWarning
-                     )
-
-        return '{}#{}#{}'.format(subject_id, rtype_id, object_id)
+    # @staticmethod
+    # def _hash_relation(subject_id, rtype_id, object_id):
+    #     warnings.warn('The method _RelationsCreateForm._hash_relation() is deprecated.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return '{}#{}#{}'.format(subject_id, rtype_id, object_id)
 
     def save(self):
         user = self.user

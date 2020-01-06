@@ -117,6 +117,7 @@ creme.utils.scrollBack = function(position, speed) {
     }
 };
 
+/*
 creme.utils.appendInUrl = function(url, strToAppend) {
     console.warn('creme.utils.appendInUrl() is deprecated; use creme.utils.goTo() or creme.ajax.URL class instead.');
 
@@ -141,6 +142,7 @@ creme.utils.appendInUrl = function(url, strToAppend) {
 
     return url + anchor;
 };
+*/
 
 creme.utils.showErrorNReload = function(delay) {
     delay = Object.isNone(delay) ? 3000 : delay;

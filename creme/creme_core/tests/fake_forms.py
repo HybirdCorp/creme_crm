@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ..forms import CremeModelWithUserForm, CremeModelForm, CremeEntityForm
+from ..forms import CremeModelForm, CremeEntityForm  # CremeModelWithUserForm
 from ..forms.mass_import import ImportForm4CremeEntity, extractorfield_factory
 from ..forms.merge import MergeEntitiesBaseForm
 
@@ -19,8 +19,8 @@ class FakeContactForm(CremeEntityForm):
         fields = '__all__'
 
 
-# NB: we keep the deprecated CremeModelWithUserForm until Creme 2.2
-class FakeOrganisationQuickForm(CremeModelWithUserForm):
+# class FakeOrganisationQuickForm(CremeModelWithUserForm):
+class FakeOrganisationQuickForm(CremeModelForm):
     class Meta:
         model = FakeOrganisation
         fields = ('name', 'user')

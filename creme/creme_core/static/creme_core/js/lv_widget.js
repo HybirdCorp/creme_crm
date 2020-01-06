@@ -35,10 +35,12 @@ creme.lv_widget.checkSelectionMode = function(mode) {
     }
 };
 
+/*
 creme.lv_widget.selectedLines = function(element) {
     console.warn('creme.lv_widget.selectedLines() is deprecated; use directly $(list).list_view("selectedRows") instead');
     return $(element).list_view('selectedRows');
 };
+*/
 
 creme.lv_widget.DeleteSelectedAction = creme.component.Action.sub({
     _init_: function(list, options) {

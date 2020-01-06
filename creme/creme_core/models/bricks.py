@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from functools import partial
 from json import loads as json_load
 import logging
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -137,65 +137,65 @@ class BrickDetailviewLocation(CremeModel):
             zone=self.zone,
         )
 
-    @staticmethod
-    def create_if_needed(brick_id, order, zone, model=None, role=None):
-        """Create an instance of BrickDetailviewLocation, but if only if the related
-        brick is not already on the configuration.
-        @param zone: Value in BrickDetailviewLocation.{TOP|LEFT|RIGHT|BOTTOM}
-        @param model: A class inheriting CremeEntity ; None means default configuration.
-        @param role: Can be None (ie: 'Default configuration'), a UserRole instance,
-                     or the string 'superuser'.
-        """
-        warnings.warn('BrickDetailviewLocation.create_if_needed() is deprecated ; '
-                      'use BrickDetailviewLocation.objects.create_if_needed() instead.',
-                      DeprecationWarning
-                     )
+    # @staticmethod
+    # def create_if_needed(brick_id, order, zone, model=None, role=None):
+    #     """Create an instance of BrickDetailviewLocation, but if only if the related
+    #     brick is not already on the configuration.
+    #     @param zone: Value in BrickDetailviewLocation.{TOP|LEFT|RIGHT|BOTTOM}
+    #     @param model: A class inheriting CremeEntity ; None means default configuration.
+    #     @param role: Can be None (ie: 'Default configuration'), a UserRole instance,
+    #                  or the string 'superuser'.
+    #     """
+    #     warnings.warn('BrickDetailviewLocation.create_if_needed() is deprecated ; '
+    #                   'use BrickDetailviewLocation.objects.create_if_needed() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     kwargs = {'role': None, 'superuser': False}
+    #
+    #     if role:
+    #         if model is None:
+    #             raise ValueError('The default configuration cannot have a related role.')
+    #
+    #         if role == 'superuser':
+    #             kwargs['superuser'] = True
+    #         else:
+    #             kwargs['role'] = role
+    #
+    #     return BrickDetailviewLocation.objects.get_or_create(
+    #                 content_type=ContentType.objects.get_for_model(model) if model else None,
+    #                 brick_id=brick_id,
+    #                 defaults={'order': order, 'zone': zone},
+    #                 **kwargs
+    #             )[0]
 
-        kwargs = {'role': None, 'superuser': False}
+    # @staticmethod
+    # def create_4_model_brick(order, zone, model=None, role=None):
+    #     warnings.warn('BrickDetailviewLocation.create_4_model_brick() is deprecated ; '
+    #                   'use BrickDetailviewLocation.objects.create_for_model_brick() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return BrickDetailviewLocation.create_if_needed(brick_id=MODELBRICK_ID, order=order,
+    #                                                     zone=zone, model=model, role=role,
+    #                                                    )
 
-        if role:
-            if model is None:
-                raise ValueError('The default configuration cannot have a related role.')
+    # @staticmethod
+    # def id_is_4_model(brick_id):
+    #     warnings.warn('BrickDetailviewLocation.id_is_4_model() is deprecated.',
+    #                   DeprecationWarning
+    #                  )
+    #     return brick_id == MODELBRICK_ID
 
-            if role == 'superuser':
-                kwargs['superuser'] = True
-            else:
-                kwargs['role'] = role
-
-        return BrickDetailviewLocation.objects.get_or_create(
-                    content_type=ContentType.objects.get_for_model(model) if model else None,
-                    brick_id=brick_id,
-                    defaults={'order': order, 'zone': zone},
-                    **kwargs
-                )[0]
-
-    @staticmethod
-    def create_4_model_brick(order, zone, model=None, role=None):
-        warnings.warn('BrickDetailviewLocation.create_4_model_brick() is deprecated ; '
-                      'use BrickDetailviewLocation.objects.create_for_model_brick() instead.',
-                      DeprecationWarning
-                     )
-
-        return BrickDetailviewLocation.create_if_needed(brick_id=MODELBRICK_ID, order=order,
-                                                        zone=zone, model=model, role=role,
-                                                       )
-
-    @staticmethod
-    def id_is_4_model(brick_id):
-        warnings.warn('BrickDetailviewLocation.id_is_4_model() is deprecated.',
-                      DeprecationWarning
-                     )
-        return brick_id == MODELBRICK_ID
-
-    @staticmethod
-    def config_exists(model):
-        warnings.warn('BrickDetailviewLocation.config_exists() is deprecated ; '
-                      'use BrickDetailviewLocation.filter_for_model() instead.',
-                      DeprecationWarning
-                     )
-
-        ct = ContentType.objects.get_for_model(model)
-        return BrickDetailviewLocation.objects.filter(content_type=ct).exists()
+    # @staticmethod
+    # def config_exists(model):
+    #     warnings.warn('BrickDetailviewLocation.config_exists() is deprecated ; '
+    #                   'use BrickDetailviewLocation.filter_for_model() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     ct = ContentType.objects.get_for_model(model)
+    #     return BrickDetailviewLocation.objects.filter(content_type=ct).exists()
 
 
 class BrickHomeLocation(CremeModel):
@@ -351,23 +351,23 @@ class RelationBrickItem(CremeModel):
 
         return not bool(compat_ctype_ids)
 
-    @staticmethod
-    def create(relation_type_id):
-        warnings.warn('RelationBrickItem.create() is deprecated ; '
-                      'use RelationBrickItem.objects.create_if_needed() instead.',
-                      DeprecationWarning
-                     )
-
-        try:
-            rbi = RelationBrickItem.objects.get(relation_type=relation_type_id)
-        except RelationBrickItem.DoesNotExist:
-            from creme.creme_core.gui.bricks import SpecificRelationsBrick
-            rbi = RelationBrickItem.objects.create(
-                brick_id=SpecificRelationsBrick.generate_id('creme_config', relation_type_id),
-                relation_type_id=relation_type_id,
-            )
-
-        return rbi
+    # @staticmethod
+    # def create(relation_type_id):
+    #     warnings.warn('RelationBrickItem.create() is deprecated ; '
+    #                   'use RelationBrickItem.objects.create_if_needed() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     try:
+    #         rbi = RelationBrickItem.objects.get(relation_type=relation_type_id)
+    #     except RelationBrickItem.DoesNotExist:
+    #         from creme.creme_core.gui.bricks import SpecificRelationsBrick
+    #         rbi = RelationBrickItem.objects.create(
+    #             brick_id=SpecificRelationsBrick.generate_id('creme_config', relation_type_id),
+    #             relation_type_id=relation_type_id,
+    #         )
+    #
+    #     return rbi
 
     def _dump_cells_map(self):
         self.json_cells_map = json_encode(
@@ -648,61 +648,60 @@ class BrickState(CremeModel):
             json=self.json_extra_data,
         )
 
-    @staticmethod
-    def get_for_brick_id(brick_id, user):
-        """Returns current state of a brick."""
-        warnings.warn('BrickState.get_for_brick_id() is deprecated; '
-                      'use BrickState.objects.get_for_brick_id() instead.',
-                      DeprecationWarning
-                     )
+    # @staticmethod
+    # def get_for_brick_id(brick_id, user):
+    #     """Returns current state of a brick."""
+    #     warnings.warn('BrickState.get_for_brick_id() is deprecated; '
+    #                   'use BrickState.objects.get_for_brick_id() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     try:
+    #         return BrickState.objects.get(brick_id=brick_id, user=user)
+    #     except BrickState.DoesNotExist:
+    #         states = {
+    #             sv.key_id: sv.value
+    #                 for sv in SettingValue.objects.filter(key_id__in=[SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
+    #                                                                   SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
+    #                                                                  ],
+    #                                                      )
+    #         }
+    #
+    #         return BrickState(
+    #             brick_id=brick_id, user=user,
+    #             is_open=states[SETTING_BRICK_DEFAULT_STATE_IS_OPEN],
+    #             show_empty_fields=states[SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS],
+    #         )
 
-        try:
-            return BrickState.objects.get(brick_id=brick_id, user=user)
-        except BrickState.DoesNotExist:
-            states = {
-                sv.key_id: sv.value
-                    for sv in SettingValue.objects.filter(key_id__in=[SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
-                                                                      SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
-                                                                     ],
-                                                         )
-            }
-
-            return BrickState(
-                brick_id=brick_id, user=user,
-                is_open=states[SETTING_BRICK_DEFAULT_STATE_IS_OPEN],
-                show_empty_fields=states[SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS],
-            )
-
-    @staticmethod
-    def get_for_brick_ids(brick_ids, user):
-        """Get current states of bricks.
-        @param brick_ids: a list of brick ids.
-        @param user: owner of a BrickState.
-        @returns: A dict with brick_id as key and state as value.
-        """
-        warnings.warn('BrickState.get_for_brick_ids() is deprecated; '
-                      'use BrickState.objects.get_for_brick_ids() instead.',
-                      DeprecationWarning
-                     )
-
-        states = {}
-
-        # TODO: Method for get_default_states?
-        get_sv = SettingValue.objects.get  # TODO: group queries ?? + cache ?
-        is_default_open             = get_sv(key_id=SETTING_BRICK_DEFAULT_STATE_IS_OPEN).value
-        is_default_fields_displayed = get_sv(key_id=SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
-
-        for state in BrickState.objects.filter(brick_id__in=brick_ids, user=user):
-            states[state.brick_id] = state
-
-        block_state = partial(BrickState, is_open=is_default_open, user=user,
-                              show_empty_fields=is_default_fields_displayed,
-                             )
-
-        for brick_id in {*brick_ids} - {*states.keys()}:  # Bricks with unset state
-            states[brick_id] = block_state(brick_id=brick_id)
-
-        return states
+    # @staticmethod
+    # def get_for_brick_ids(brick_ids, user):
+    #     """Get current states of bricks.
+    #     @param brick_ids: a list of brick ids.
+    #     @param user: owner of a BrickState.
+    #     @returns: A dict with brick_id as key and state as value.
+    #     """
+    #     warnings.warn('BrickState.get_for_brick_ids() is deprecated; '
+    #                   'use BrickState.objects.get_for_brick_ids() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     states = {}
+    #
+    #     get_sv = SettingValue.objects.get
+    #     is_default_open             = get_sv(key_id=SETTING_BRICK_DEFAULT_STATE_IS_OPEN).value
+    #     is_default_fields_displayed = get_sv(key_id=SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
+    #
+    #     for state in BrickState.objects.filter(brick_id__in=brick_ids, user=user):
+    #         states[state.brick_id] = state
+    #
+    #     block_state = partial(BrickState, is_open=is_default_open, user=user,
+    #                           show_empty_fields=is_default_fields_displayed,
+    #                          )
+    #
+    #     for brick_id in {*brick_ids} - {*states.keys()}:  # Bricks with unset state
+    #         states[brick_id] = block_state(brick_id=brick_id)
+    #
+    #     return states
 
     def del_extra_data(self, key):
         del self._extra_data[key]
