@@ -144,7 +144,6 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertNotEqual(number, ticket.number)
 
         self.assertFalse(ticket.closing_date)
-        # self.assertFalse(ticket.get_resolving_duration())
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
         self.assertIsNotNone(funf)
@@ -188,14 +187,12 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertIsNone(ticket.closing_date)
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
-        # self.assertEqual('', ticket.get_resolving_duration())
         self.assertEqual('', funf(ticket, user).for_html())
 
         ticket.status = get_status(pk=CLOSED_PK)
         ticket.save()
         self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
         self.assertEqual(timedelta_pprint(ticket.closing_date - ticket.created),
-                         # ticket.get_resolving_duration()
                          funf(ticket, user).for_html()
                         )
 
@@ -212,7 +209,6 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
                                       )
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
-        # self.assertEqual('?', ticket.get_resolving_duration())
         self.assertEqual('?', funf(ticket, user).for_html())
 
     def test_editview01(self):
@@ -250,7 +246,6 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertEqual(title,        ticket.title)
         self.assertEqual(description,  ticket.description)
         self.assertEqual(INVALID_PK,   ticket.status.id)
-        # self.assertFalse(ticket.get_resolving_duration())
 
         self.assertRedirects(response, ticket.get_absolute_url())
 
@@ -285,7 +280,6 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertEqual(CLOSED_PK, ticket.status_id)
 
         self.assertTrue(ticket.closing_date)
-        # self.assertTrue(ticket.get_resolving_duration())
         self.assertTrue(function_field_registry.get(Ticket, 'get_resolving_duration')(ticket, user))
 
     def test_listview01(self):
@@ -294,7 +288,6 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         response = self.assertGET200(Ticket.get_lv_absolute_url())
 
         with self.assertNoException():
-            # tickets_page = response.context['entities']
             tickets_page = response.context['page_obj']
 
         self.assertEqual(1, tickets_page.number)
@@ -314,7 +307,6 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         response = self.assertGET200(Ticket.get_lv_absolute_url())
 
         with self.assertNoException():
-            # tickets_page = response.context['entities']
             tickets_page = response.context['page_obj']
 
         self.assertEqual(1, tickets_page.paginator.count)
@@ -379,13 +371,7 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
                                        priority=Priority.objects.all()[0],
                                        criticity=Criticity.objects.all()[0],
                                       )
-        # self.assertPOST404(reverse('creme_config__delete_instance', args=('tickets', 'status')),
-        #                    data={'id': status.pk}
-        #                   )
-        # self.assertStillExists(status)
-        #
-        # ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
-        # self.assertEqual(status, ticket.status)
+
         response = self.client.post(
             reverse('creme_config__delete_instance',
                     args=('tickets', 'status', status.id)
@@ -418,13 +404,6 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
                                        priority=priority,
                                        criticity=Criticity.objects.all()[0],
                                       )
-        # self.assertPOST404(reverse('creme_config__delete_instance', args=('tickets', 'priority')),
-        #                    data={'id': priority.pk}
-        #                   )
-        # self.assertStillExists(priority)
-        #
-        # ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
-        # self.assertEqual(priority, ticket.priority)
         response = self.client.post(
             reverse('creme_config__delete_instance',
                     args=('tickets', 'priority', priority.id)
@@ -457,13 +436,6 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
                                        priority=Priority.objects.all()[0],
                                        criticity=criticity,
                                       )
-        # self.assertPOST404(reverse('creme_config__delete_instance', args=('tickets', 'criticity')),
-        #                    data={'id': criticity.pk}
-        #                   )
-        # self.assertStillExists(criticity)
-        #
-        # ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
-        # self.assertEqual(criticity, ticket.criticity)
         response = self.client.post(
             reverse('creme_config__delete_instance',
                     args=('tickets', 'criticity', criticity.id)
@@ -558,7 +530,7 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
     def test_ticket_color(self):
         user = self.login()
         get_status = Status.objects.get
-        create_ticket = partial(Ticket,  # .objects.create,
+        create_ticket = partial(Ticket,
                                 user=user,
                                 title='My ticket',
                                 description='Test description',

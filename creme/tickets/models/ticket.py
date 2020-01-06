@@ -19,7 +19,6 @@
 ################################################################################
 
 from datetime import timedelta
-# import warnings
 
 from django.conf import settings
 from django.db import models
@@ -51,17 +50,13 @@ class TicketNumber(models.Model):
 
 class TicketMixin(CremeEntity):
     title     = models.CharField(_('Title'), max_length=100, blank=True, null=False)
-    # description = models.TextField(_('Description'))
     status    = models.ForeignKey(Status, verbose_name=_('Status'),
-                                  # on_delete=models.PROTECT
                                   on_delete=CREME_REPLACE,
                                  ).set_tags(clonable=False)
     priority  = models.ForeignKey(Priority, verbose_name=_('Priority'),
-                                  # on_delete=models.PROTECT
                                   on_delete=CREME_REPLACE,
                                  )
     criticity = models.ForeignKey(Criticity, verbose_name=_('Criticity'),
-                                  # on_delete=models.PROTECT
                                   on_delete=CREME_REPLACE,
                                  )
     solution  = models.TextField(_('Solution'), blank=True, null=False)
@@ -123,21 +118,6 @@ class AbstractTicket(TicketMixin):
             attrs['data-color'] = 'tickets-important'
 
         return attrs
-
-    # def get_resolving_duration(self):
-    #     warnings.warn('tickets.models.AbstractTicket.get_resolving_duration() is deprecated ; '
-    #                   'use tickets.function_fields.ResolvingDurationField instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     from creme.creme_core.templatetags.creme_date import timedelta_pprint
-    #
-    #     if self.status_id == CLOSED_PK:
-    #         closing_date = self.closing_date
-    #
-    #         return timedelta_pprint(closing_date - self.created) if closing_date else '?'
-    #
-    #     return ''
 
     @atomic
     def save(self, *args, **kwargs):
