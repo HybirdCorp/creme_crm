@@ -295,27 +295,27 @@ class OrganisationTestCase(_BaseTestCase):
     def _build_managed_orga(self, user=None, name='Bebop'):
         return Organisation.objects.create(user=user or self.user, name=name, is_managed=True)
 
-    def test_get_all_managed_by_creme(self):  # DEPRECATED
-        user = self.login()
-
-        mng_orga1 = self._build_managed_orga()
-        mng_orga2 = self._build_managed_orga(name='NERV')
-        orga = Organisation.objects.create(user=user, name='Seele')
-
-        with self.assertNumQueries(1):
-            qs1 = Organisation.get_all_managed_by_creme()
-            mng_orgas = {*qs1}
-
-        self.assertIn(mng_orga1, mng_orgas)
-        self.assertIn(mng_orga2, mng_orgas)
-        self.assertNotIn(orga,   mng_orgas)
-
-        # Test request-cache
-        with self.assertNumQueries(0):
-            qs2 = Organisation.get_all_managed_by_creme()
-            __ = [*qs2]
-
-        self.assertEqual(id(qs1), id(qs2))
+    # def test_get_all_managed_by_creme(self):
+    #     user = self.login()
+    #
+    #     mng_orga1 = self._build_managed_orga()
+    #     mng_orga2 = self._build_managed_orga(name='NERV')
+    #     orga = Organisation.objects.create(user=user, name='Seele')
+    #
+    #     with self.assertNumQueries(1):
+    #         qs1 = Organisation.get_all_managed_by_creme()
+    #         mng_orgas = {*qs1}
+    #
+    #     self.assertIn(mng_orga1, mng_orgas)
+    #     self.assertIn(mng_orga2, mng_orgas)
+    #     self.assertNotIn(orga,   mng_orgas)
+    #
+    #     # Test request-cache
+    #     with self.assertNumQueries(0):
+    #         qs2 = Organisation.get_all_managed_by_creme()
+    #         __ = [*qs2]
+    #
+    #     self.assertEqual(id(qs1), id(qs2))
 
     def test_manager_filter_managed_by_creme(self):
         user = self.login()
