@@ -57,9 +57,7 @@ class PollFormLineConditionsField(JSONField):
     }
     value_type = list
 
-    # def __init__(self, sources=(), *args, **kwargs):
     def __init__(self, *, sources=(), **kwargs):
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self.sources = sources
 

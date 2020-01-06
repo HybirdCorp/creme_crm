@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from json import dumps as json_dump
 import logging
 
 from django import template
@@ -28,7 +27,6 @@ from django.utils.translation import gettext as _
 from creme.creme_core.utils.serializers import json_encode
 
 from creme.polls.core import PollLineType
-
 
 logger = logging.getLogger(__name__)
 register = template.Library()
@@ -81,7 +79,6 @@ def poll_stats_chart(node):
 
         context = {
             'node': node,
-            # 'data': mark_safe(json_dump(data)),
             'data': mark_safe(json_encode(data)),  # TODO: use the template-filter 'jsonify' ?
             'count': len(node.answer_stats),
         }

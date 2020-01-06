@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
@@ -9,12 +8,6 @@ import creme.polls.models.base
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     (b'polls', '0001_initial'),
-    #     (b'polls', '0002_v1_7__textfields_not_null_1'),
-    #     (b'polls', '0003_v1_7__textfields_not_null_2'),
-    # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),

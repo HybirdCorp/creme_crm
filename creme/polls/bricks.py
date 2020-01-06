@@ -28,7 +28,6 @@ from creme import polls
 from .models import PollFormLine, PollReplyLine
 from .utils import SectionTree, ReplySectionTree, NodeStyle
 
-
 PollCampaign = polls.get_pollcampaign_model()
 PollForm     = polls.get_pollform_model()
 PollReply    = polls.get_pollreply_model()
