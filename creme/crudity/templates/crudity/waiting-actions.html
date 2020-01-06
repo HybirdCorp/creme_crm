@@ -9,47 +9,6 @@
         $(document).ready(function() {
             new creme.crudity.CrudityHatController().bind($('.crudity-hat-bar')).refresh(1000);
         });
-
-{% comment %}
-        function refreshWaitingActions(refresh_url) {
-            $.ajax({url: refresh_url,
-                    type: 'POST',
-                    dataType: 'json',
-                    // TODO ??
-                    // error: function(request, status, error) {
-                    //    var error_panel = ...;
-                    //    error_panel.css('display', '');
-                    //    error_panel.text(gettext(...));
-                    // },
-                    success: function(data, status) {
-                        if (!data.length) return;
-
-                        // Build a 'Set' (indeed an Object) of backend IDS.
-                        // TODO: Use true Set() when available in all browsers.
-                        var backend_ids = {};
-                        for (var i = 0; i < data.length; ++i) {
-                            backend_ids[data[i]] = true;
-                        }
-
-                        var dependencies = new creme.bricks.Dependencies([]);
-
-                        $('.brick').each(function() {
-                            var brick_node = $(this);
-
-                            if (backend_ids[brick_node.attr('data-crudity-backend')]) {
-                                dependencies.add(brick_node.creme().widget().brick().dependencies());
-                            }
-                        });
-
-                        new creme.bricks.BricksReloader().dependencies(dependencies).action().start();
-                    }
-            });
-        }
-
-        $(document).ready(function() {
-            setTimeout(refreshWaitingActions, 500, "{% url 'crudity__refresh_actions' %}");
-        });
-{% endcomment %}
     </script>
 {% endblock %}
 

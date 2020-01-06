@@ -351,13 +351,9 @@ class InfopathFormBuilder:
                 os.unlink(path_join(settings.CREME_ROOT, 'setup.inf'))
                 os.unlink(path_join(settings.CREME_ROOT, 'setup.rpt'))
             else:
-                # subprocess.call(chain(['lcab', '-qn'], final_files_paths, [infopath_form_filepath]))
                 subprocess.call(['lcab', '-qn', *final_files_paths, infopath_form_filepath])
 
             with open(infopath_form_filepath, 'rb') as f:
-                # NB: does not work with Py3.
-                # for chunk in f.read(File.DEFAULT_CHUNK_SIZE):
-                #     yield chunk
                 return f.read()
         finally:
             if backend_path:
@@ -366,11 +362,6 @@ class InfopathFormBuilder:
     def render(self):
         file_name = '{}.xsn'.format(secure_filename(CrudityBackend.normalize_subject(self.backend.subject)))
         response = HttpResponse(self._render(file_name), content_type='application/vnd.ms-infopath')
-        # response['Content-Disposition'] = 'attachment; filename={}.xsn'.format(
-        #     normalize('NFKD',
-        #               unicode(CrudityBackend.normalize_subject(self.backend.subject))
-        #              ).encode('ascii', 'ignore')
-        # )
         response['Content-Disposition'] = 'attachment; filename={}'.format(file_name)
 
         return response

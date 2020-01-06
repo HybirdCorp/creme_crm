@@ -213,7 +213,6 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
                           'created': '01/02/2003',
                           'description': 'I\n want to\n create a    \ncreme entity\n',
                          },
-                         # WaitingAction.objects.all()[0].get_data()
                          WaitingAction.objects.all()[0].data
                         )
 
@@ -1028,7 +1027,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         infopath_input.create(self._get_pop_email(body='password=creme',
                                                   senders=('other_user@cremecrm.com',),
                                                   subject='create_ce_infopath',
-                                                  # attachments=[self._build_attachment(content=xml_content)],
                                                   attachments=[self._build_attachment(content=xml_content.encode())],
                                                  )
                              )
@@ -1155,11 +1153,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('A plumber', contact.description)
         self.assertTrue(contact.image)
 
-        # f = contact.image.filedata
-        # try:
-        #     self.assertEqual(blob, f.read())
-        # finally:
-        #     f.close()
         with contact.image.filedata.open() as f:
             self.assertEqual(blob, f.read())
 
@@ -1377,11 +1370,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertTrue(document.filedata)
 
         blob = decode_b64binary(img_content)[1]
-        # f = document.filedata
-        # try:
-        #     self.assertEqual(blob, f.read())
-        # finally:
-        #     f.close()
         with document.filedata.open() as f:
             self.assertEqual(blob, f.read())
 
