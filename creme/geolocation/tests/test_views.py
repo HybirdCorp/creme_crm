@@ -82,7 +82,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         self.assertEqual(1, GeoAddress.objects.count())
         self.assertEqual(address.geoaddress, GeoAddress.objects.get())
         self.assertGeoAddress(GeoAddress.objects.get(), address=address,
-                              # draggable=True, **data
                               draggable=True, **data
                              )
 
@@ -303,11 +302,6 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         efilter = EntityFilter.create(
             'test-filter', 'Orga 1', Organisation, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=Organisation,
-                #     operator=EntityFilterCondition.EQUALS,
-                #     name='name', values=['Orga 1'],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Organisation,
                     operator=operators.EQUALS,
@@ -455,11 +449,6 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         efilter = EntityFilter.create(
             'test-filter', 'test', Organisation, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=Organisation,
-                #     operator=EntityFilterCondition.EQUALS_NOT,
-                #     name='name', values=['C'],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Organisation,
                     operator=operators.EQUALS_NOT,

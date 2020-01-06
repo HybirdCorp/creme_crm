@@ -6,12 +6,6 @@ from django.db.models.deletion import CASCADE
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('geolocation', '0001_initial'),
-    #     ('geolocation', '0003_v1_7__charfields_not_null_1'),
-    #     ('geolocation', '0004_v1_7__charfields_not_null_2'),
-    # ]
-
     initial = True
     dependencies = [
         migrations.swappable_dependency(settings.PERSONS_ADDRESS_MODEL),
