@@ -18,12 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.http import HttpResponse
-# from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.auth.decorators import login_required, permission_required
-# from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
 from .. import get_graph_model
@@ -48,15 +44,6 @@ class RootNodeEdition(generic.RelatedToEntityEditionPopup):
     title = _('Edit root node for «{entity}»')
 
 
-# @login_required
-# @permission_required('graphs')
-# def delete(request):
-#     root_node = get_object_or_404(RootNode, pk=get_from_POST_or_404(request.POST, 'id'))
-#
-#     request.user.has_perm_to_change_or_die(root_node.graph)
-#     root_node.delete()
-#
-#     return HttpResponse()
 class RootNodeDeletion(generic.CremeModelDeletion):
     model = RootNode
     permissions = 'graphs'
