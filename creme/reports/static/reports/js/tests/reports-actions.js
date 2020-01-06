@@ -108,6 +108,7 @@ QUnit.test('creme.reports.hatbar.actions (reports-export, ok)', function(assert)
     deepEqual([download_url], this.mockRedirectCalls());
 });
 
+/*
 QUnit.test('creme.reports.exportReport (deprecated)', function(assert) {
     creme.reports.exportReport('mock/reports/filterform');
 
@@ -137,5 +138,6 @@ QUnit.test('creme.reports.exportReport (deprecated)', function(assert) {
 
     deepEqual([download_url], this.mockRedirectCalls());
 });
+*/
 
 }(jQuery));
