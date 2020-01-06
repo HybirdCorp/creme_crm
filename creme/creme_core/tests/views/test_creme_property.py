@@ -52,7 +52,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                subject_ctypes=[FakeOrganisation],
                               )
 
-        # entity = CremeEntity.objects.create(user=user)
         entity = FakeContact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
         self.assertFalse(entity.properties.all())
 

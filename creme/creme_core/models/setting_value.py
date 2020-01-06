@@ -53,38 +53,6 @@ class SettingValueManager(models.Manager):
         @raise: SettingValue.DoesNotExist.
         @raise: KeyError if the SettingKey is not registered.
         """
-        # if isinstance(key, str):
-        #     key_id = key
-        #     __key = self.key_registry[key_id]
-        # else:
-        #     key_id = key.id
-        #     # self.key_registry[key_id] todo ?
-        #
-        # cache = get_per_request_cache()
-        #
-        # cache_key = 'creme_core-setting_value-{}'.format(key_id)
-        # sv = cache.get(cache_key)
-        #
-        # if sv is None:
-        #     try:
-        #         sv = cache[cache_key] = self.get(key_id=key_id)
-        #     except self.model.DoesNotExist:
-        #         logger.critical('SettingValue with key_id="%s" cannot be found ! '
-        #                         '(maybe "creme_populate" command has not been run correctly).',
-        #                         key_id
-        #                        )
-        #         if 'default' not in kwargs:
-        #             raise
-        #
-        #         class DummySettingValue:
-        #             def __init__(self, key_id, value):
-        #                 # self.id = None
-        #                 self.key_id = key_id
-        #                 self.value  = value
-        #
-        #         sv = cache[cache_key] = DummySettingValue(key_id=key_id, value=kwargs['default'])
-        #
-        # return sv
         return next(iter(self.get_4_keys({'key': key, **kwargs}).values()))
 
     def get_4_keys(self, *values_info):

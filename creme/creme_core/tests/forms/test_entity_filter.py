@@ -25,7 +25,7 @@ try:
     )
     from creme.creme_core.models import (
         RelationType, CremePropertyType,
-        EntityFilter, FieldsConfig,  # EntityFilterCondition
+        EntityFilter, FieldsConfig,
         CustomField, CustomFieldEnumValue, Language,
         CremeEntity, FakeContact, FakeCivility, FakePosition,
         FakeOrganisation, FakeImage, FakeInvoice, FakeInvoiceLine,
@@ -120,7 +120,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # EQUALS = EntityFilterCondition.EQUALS
         EQUALS = operators.EQUALS
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidvalue',    clean, '[{"operator": {"id": "%s"}, "field": {"name": "first_name"}}]' % EQUALS)
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield',    clean, '[{"operator": {"id": "%s"}, "value": "Rei"}]' % EQUALS)
@@ -133,49 +132,42 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
         build_data = self.build_data
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        # build_data({'operator': EntityFilterCondition.EQUALS,
                                         build_data({'operator': operators.EQUALS,
                                                     'name':     '  boobies_size',  # <---
                                                     'value':    90,
                                                    },
                                        ))
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        # build_data({'operator': EntityFilterCondition.IEQUALS,
                                         build_data({'operator': operators.IEQUALS,
                                                     'name':     'is_deleted',
                                                     'value':    '"Faye"',
                                                    },
                                        ))
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        # build_data({'operator': EntityFilterCondition.IEQUALS,
                                         build_data({'operator': operators.IEQUALS,
                                                     'name':     'created',
                                                     'value':    '"2011-5-12"',
                                                    },
                                        ))
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        # build_data({'operator': EntityFilterCondition.IEQUALS,
                                         build_data({'operator': operators.IEQUALS,
                                                     'name':     'civility__id',
                                                     'value':    5,
                                                    },
                                        ))
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        # build_data({'operator': EntityFilterCondition.IEQUALS,
                                         build_data({'operator': operators.IEQUALS,
                                                     'name':     'image__id',
                                                     'value':    5,
                                                    },
                                        ))
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        # build_data({'operator': EntityFilterCondition.IEQUALS,
                                         build_data({'operator': operators.IEQUALS,
                                                     'name':     'image__is_deleted',
                                                     'value':    5,
                                                    },
                                        ))
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        # build_data({'operator': EntityFilterCondition.IEQUALS,
                                         build_data({'operator': operators.IEQUALS,
                                                     'name':     'image__modified',
                                                     'value':    "2011-5-12",
@@ -187,7 +179,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact).clean
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidoperator', clean,
                                         self.build_data({
-                                                # 'operator': EntityFilterCondition.EQUALS + 1000,  # <--
                                                 'operator': operators.EQUALS + 1000,  # <--
                                                 'name':     'first_name',
                                                 'value':    'Nana',
@@ -201,7 +192,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                             ).clean
         err = self.assertFieldRaises(ValidationError, clean,
                                      self.build_data({
-                                             # 'operator': EntityFilterCondition.EQUALS,
                                              'operator': operators.EQUALS,
                                              'name':     'civility',
                                              'value':    'unknown',
@@ -218,7 +208,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                             ).clean
         err = self.assertFieldRaises(ValidationError, clean,
                                      self.build_data({
-                                             # 'operator': EntityFilterCondition.EQUALS,
                                              'operator': operators.EQUALS,
                                              'name':     'languages',
                                              'value':    '12445',
@@ -238,7 +227,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                                  efilter_registry=efilter_registry,
                                                 )
 
-        # operator = EntityFilterCondition.IEQUALS
         operator = operators.IEQUALS
         name = 'first_name'
         value = 'Faye'
@@ -251,7 +239,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertEqual(EF_USER,                              condition.filter_type)
@@ -268,7 +255,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         )
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact))
 
-        # operator = EntityFilterCondition.IEQUALS
         operator = operators.IEQUALS
         name = 'first_name'
         value = 'Faye'
@@ -281,7 +267,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertEqual(EF_CREDENTIALS,                       condition.filter_type)
@@ -294,7 +279,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.IEQUALS
         operator = operators.IEQUALS
         name = 'first_name'
         faye_name = 'Faye'
@@ -308,7 +292,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -320,7 +303,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.IEQUALS
         operator = operators.IEQUALS
         name = 'first_name'
         faye_name = 'Faye'
@@ -334,7 +316,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -347,7 +328,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.ISEMPTY
         operator = operators.ISEMPTY
         name = 'description'
         conditions = clean(self.build_data({
@@ -359,7 +339,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD,          condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -372,7 +351,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.ISEMPTY
         operator = operators.ISEMPTY
         name = 'description'
         conditions = clean(self.build_data({
@@ -384,7 +362,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': [False]},
@@ -395,7 +372,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeOrganisation,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         name = 'subject_to_vat'
         conditions = clean(self.build_data({
@@ -407,7 +383,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD,          condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': [True]},
@@ -419,7 +394,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.ISTARTSWITH
         operator = operators.ISTARTSWITH
         name = 'civility__title'
         value = 'Miss'
@@ -432,7 +406,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': [value]},
@@ -444,7 +417,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         name = 'civility'
         value = FakeCivility.objects.all()[0].pk
@@ -457,7 +429,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': [str(value)]},
@@ -468,7 +439,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         name = 'civility'
         values = [c.pk for c in FakeCivility.objects.all()]
@@ -481,7 +451,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator,
@@ -494,7 +463,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         name = 'civility'
         values = [str(c.pk) for c in FakeCivility.objects.all()]
@@ -507,7 +475,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator,
@@ -521,7 +488,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         name = 'languages'
         value = Language.objects.all()[0].pk
@@ -534,7 +500,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': [str(value)]},
@@ -546,7 +511,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         name = 'languages'
         values = [str(v) for v in Language.objects.all().values_list('pk', flat=True)]
@@ -559,7 +523,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator,
@@ -573,7 +536,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         name = 'languages'
         values = Language.objects.all().values_list('pk', flat=True)
@@ -586,7 +548,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator,
@@ -625,7 +586,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.IENDSWITH
         operator = operators.IENDSWITH
         name = 'last_name'
         values = ['nagi', 'sume']
@@ -638,7 +598,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD,          condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': values},
@@ -651,12 +610,10 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                             ).clean
 
         name1     = 'last_name'
-        # operator1 = EntityFilterCondition.IENDSWITH
         operator1 = operators.IENDSWITH
         value1    = 'Valentine'
 
         name2     = 'first_name'
-        # operator2 = EntityFilterCondition.EQUALS
         operator2 = operators.EQUALS
         value2    = 'Faye'
 
@@ -672,10 +629,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                           ))
         self.assertEqual(2, len(conditions))
 
-        # EFC_FIELD = EntityFilterCondition.EFC_FIELD
         type_id = RegularFieldConditionHandler.type_id
         condition1 = conditions[0]
-        # self.assertEqual(EFC_FIELD, condition1.type)
         self.assertEqual(type_id, condition1.type)
         self.assertEqual(name1,   condition1.name)
         self.assertDictEqual({'operator': operator1, 'values': [value1]},
@@ -683,7 +638,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                             )
 
         condition2 = conditions[1]
-        # self.assertEqual(EFC_FIELD, condition2.type)
         self.assertEqual(type_id, condition2.type)
         self.assertEqual(name2,   condition2.name)
         self.assertDictEqual({'operator': operator2, 'values': [value2]},
@@ -695,7 +649,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
                                             ).clean
-        # operator = EntityFilterCondition.IEQUALS
         operator = operators.IEQUALS
         name = 'languages__name'
         value = 'French'
@@ -708,7 +661,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': [value]},
@@ -726,7 +678,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                              efilter_registry=efilter_registry,
                                             ).clean
 
-        # EQUALS = EntityFilterCondition.EQUALS
         EQUALS = operators.EQUALS
         data = [{'name':     'last_name',
                  'operator': EQUALS,
@@ -741,10 +692,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         conditions = clean(self.build_data(*data))
         self.assertEqual(2, len(conditions))
 
-        # EFC_FIELD = EntityFilterCondition.EFC_FIELD
         type_id = RegularFieldConditionHandler.type_id
-        # self.assertEqual(EFC_FIELD, conditions[0].type)
-        # self.assertEqual(EFC_FIELD, conditions[1].type)
         self.assertEqual(type_id, conditions[0].type)
         self.assertEqual(type_id, conditions[1].type)
 
@@ -767,7 +715,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                      field.clean,
                                      self.build_data({
                                         'name':     'image__name',
-                                        # 'operator': EntityFilterCondition.EQUALS,
                                         'operator': operators.EQUALS,
                                         'value':    'selfie',
                                      },
@@ -784,11 +731,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         field = RegularFieldsConditionsField(efilter_registry=efilter_registry)
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact),
                          conditions=[
-                             # EntityFilterCondition.build_4_field(
-                             #    model=FakeContact,
-                             #    operator=EntityFilterCondition.EQUALS,
-                             #    name=hidden_fname, values=['Ikari'],
-                             # ),
                              RegularFieldConditionHandler.build_condition(
                                  model=FakeContact,
                                  operator=operators.EQUALS,
@@ -798,7 +740,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                         )
 
         conditions = field.clean(self.build_data({
-                                      # 'operator': EntityFilterCondition.EQUALS,
                                       'operator': operators.EQUALS,
                                       'name':     hidden_fname,
                                       'value':    'Faye',
@@ -807,7 +748,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_fname,                         condition.name)
 
@@ -821,11 +761,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         field = RegularFieldsConditionsField(efilter_registry=efilter_registry)
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact),
                          conditions=[
-                             # EntityFilterCondition.build_4_field(
-                             #     model=FakeContact,
-                             #     operator=EntityFilterCondition.EQUALS,
-                             #     name=hidden_sfname, values=['Ikari'],
-                             # ),
                              RegularFieldConditionHandler.build_condition(
                                  model=FakeContact,
                                  operator=operators.EQUALS,
@@ -837,7 +772,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         with self.assertNoException():
             conditions = field.clean(self.build_data({
                                           'name':     hidden_sfname,
-                                          # 'operator': EntityFilterCondition.EQUALS,
                                           'operator': operators.EQUALS,
                                           'value':    'Faye',
                                       },
@@ -846,7 +780,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_sfname,                        condition.name)
 
@@ -860,11 +793,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         field = RegularFieldsConditionsField(efilter_registry=efilter_registry)
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact),
                          conditions=[
-                             # EntityFilterCondition.build_4_field(
-                             #     model=FakeContact,
-                             #     operator=EntityFilterCondition.EQUALS,
-                             #     name=hidden_sfname, values=['Ikari'],
-                             # ),
                              RegularFieldConditionHandler.build_condition(
                                  model=FakeContact,
                                  operator=operators.EQUALS,
@@ -876,7 +804,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         with self.assertNoException():
             conditions = field.clean(self.build_data({
                                           'name':     hidden_sfname,
-                                          # 'operator': EntityFilterCondition.EQUALS,
                                           'operator': operators.EQUALS,
                                           'value':    'Faye',
                                       },
@@ -885,7 +812,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_sfname,                        condition.name)
 
@@ -900,11 +826,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         field = RegularFieldsConditionsField(efilter_registry=efilter_registry)
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact),
                          conditions=[
-                             # EntityFilterCondition.build_4_field(
-                             #     model=FakeContact,
-                             #     operator=EntityFilterCondition.EQUALS,
-                             #     name=hidden_fname, values=[position.id],
-                             # ),
                              RegularFieldConditionHandler.build_condition(
                                  model=FakeContact,
                                  operator=operators.EQUALS,
@@ -915,7 +836,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
         with self.assertNoException():
             conditions = field.clean(self.build_data({
-                                          # 'operator': EntityFilterCondition.EQUALS,
                                           'operator': operators.EQUALS,
                                           'name':     hidden_fname,
                                           'value':    str(position.id),
@@ -924,7 +844,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_fname,                         condition.name)
 
@@ -985,17 +904,14 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         ]))
         self.assertEqual(2, len(conditions))
 
-        # EFC_DATEFIELD = EntityFilterCondition.EFC_DATEFIELD
         type_id = DateRegularFieldConditionHandler.type_id
         condition1 = conditions[0]
-        # self.assertEqual(EFC_DATEFIELD,    condition1.type)
         self.assertEqual(type_id, condition1.type)
         self.assertEqual(name01,  condition1.name)
         self.assertEqual(EF_USER, condition1.filter_type)
         self.assertDictEqual({'name': type01}, condition1.decoded_value)
 
         condition2 = conditions[1]
-        # self.assertEqual(EFC_DATEFIELD,    condition2.type)
         self.assertEqual(type_id,  condition2.type)
         self.assertEqual(name02,   condition2.name)
         self.assertDictEqual({'name': type02}, condition2.decoded_value)
@@ -1014,10 +930,8 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         ]))
         self.assertEqual(2, len(conditions))
 
-        # EFC_DATEFIELD = EntityFilterCondition.EFC_DATEFIELD
         type_id = DateRegularFieldConditionHandler.type_id
         condition1 = conditions[0]
-        # self.assertEqual(EFC_DATEFIELD, condition1.type)
         self.assertEqual(type_id,         condition1.type)
         self.assertEqual(name01,          condition1.name)
         self.assertEqual(EF_CREDENTIALS,  condition1.filter_type)
@@ -1026,7 +940,6 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                             )
 
         condition2 = conditions[1]
-        # self.assertEqual(EFC_DATEFIELD, condition2.type)
         self.assertEqual(type_id, condition2.type)
         self.assertEqual(name02,  condition2.name)
         self.assertDictEqual({'end': {'year': 2012, 'month': 6, 'day': 13}},
@@ -1045,7 +958,6 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                     condition.name)
         self.assertDictEqual({'start': {'year': 2010, 'month': 3, 'day': 24},
@@ -1064,13 +976,11 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
 
         condition = conditions[0]
         type_id = DateRegularFieldConditionHandler.type_id
-        # self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual(type_id,    condition.type)
         self.assertEqual('birthday', condition.name)
         self.assertDictEqual({'name': 'empty'},condition.decoded_value)
 
         condition = conditions[1]
-        # self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual(type_id,    condition.type)
         self.assertEqual('modified', condition.name)
         self.assertDictEqual({'name': 'not_empty'}, condition.decoded_value)
@@ -1096,7 +1006,6 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(valid_fname,                              condition.name)
 
@@ -1127,7 +1036,6 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(valid_fname,                              condition.name)
 
@@ -1167,10 +1075,6 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         field = DateFieldsConditionsField()
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact),
                          conditions=[
-                             # EntityFilterCondition.build_4_date(
-                             #     model=FakeContact, name=hidden_fname,
-                             #     start=date(year=2000, month=1, day=1),
-                             # ),
                              DateRegularFieldConditionHandler.build_condition(
                                  model=FakeContact, field_name=hidden_fname,
                                  start=date(year=2000, month=1, day=1),
@@ -1188,7 +1092,6 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_fname,                             condition.name)
 
@@ -1202,10 +1105,6 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         field = DateFieldsConditionsField()
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact),
                          conditions=[
-                             # EntityFilterCondition.build_4_date(
-                             #     model=FakeContact, name=hidden_sfname,
-                             #     start=date(year=2000, month=1, day=1),
-                             # ),
                              DateRegularFieldConditionHandler.build_condition(
                                  model=FakeContact, field_name=hidden_sfname,
                                  start=date(year=2000, month=1, day=1),
@@ -1223,7 +1122,6 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_sfname,                            condition.name)
 
@@ -1237,10 +1135,6 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         field = DateFieldsConditionsField()
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact),
                          conditions=[
-                             # EntityFilterCondition.build_4_date(
-                             #     model=FakeContact, name=hidden_sfname,
-                             #     start=date(year=2000, month=1, day=1),
-                             # ),
                              DateRegularFieldConditionHandler.build_condition(
                                  model=FakeContact, field_name=hidden_sfname,
                                  start=date(year=2000, month=1, day=1),
@@ -1258,7 +1152,6 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_sfname,                            condition.name)
 
@@ -1295,18 +1188,14 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.cfield_multienum_G = create_evalue(value='G')
         self.cfield_multienum_H = create_evalue(value='H')
 
-    # def _get_allowed_types(self, operator):
     def _get_allowed_types(self, operator_id):
-        # return ' '.join(EntityFilterCondition._OPERATOR_MAP[operator].allowed_fieldtypes)
         return ' '.join(efilter_registry.get_operator(operator_id).allowed_fieldtypes)
 
     def test_frompython_custom_int(self):
-        # EQUALS = EntityFilterCondition.EQUALS
         EQUALS = operators.EQUALS
         field = CustomFieldsConditionsField(model=FakeContact,
                                             efilter_registry=efilter_registry,
                                            )
-        # condition = EntityFilterCondition.build_4_customfield(self.cfield_int, EQUALS, [150])
         condition = CustomFieldConditionHandler.build_condition(
             custom_field=self.cfield_int, operator=EQUALS, values=[150],
         )
@@ -1324,12 +1213,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_frompython_custom_string(self):
-        # EQUALS = EntityFilterCondition.EQUALS
         EQUALS = operators.EQUALS
         field = CustomFieldsConditionsField(model=FakeContact,
                                             efilter_registry=efilter_registry,
                                            )
-        # condition = EntityFilterCondition.build_4_customfield(self.cfield_str, EQUALS, ['abc'])
         condition = CustomFieldConditionHandler.build_condition(
             custom_field=self.cfield_str, operator=EQUALS, values=['abc'],
         )
@@ -1347,12 +1234,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_frompython_custom_bool(self):
-        # EQUALS = EntityFilterCondition.EQUALS
         EQUALS = operators.EQUALS
         field = CustomFieldsConditionsField(model=FakeContact,
                                             efilter_registry=efilter_registry,
                                            )
-        # condition = EntityFilterCondition.build_4_customfield(self.cfield_bool, EQUALS, [False])
         condition = CustomFieldConditionHandler.build_condition(
             custom_field=self.cfield_bool, operator=EQUALS, values=[False],
         )
@@ -1370,7 +1255,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
         # Old format
-        # condition = EntityFilterCondition.build_4_customfield(self.cfield_bool, EQUALS, ['False'])
         condition = CustomFieldConditionHandler.build_condition(
             custom_field=self.cfield_bool, operator=EQUALS, values=['False'],
         )
@@ -1388,12 +1272,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_frompython_custom_enum(self):
-        # EQUALS = EntityFilterCondition.EQUALS
         EQUALS = operators.EQUALS
         field = CustomFieldsConditionsField(model=FakeContact,
                                             efilter_registry=efilter_registry,
                                            )
-        # condition = EntityFilterCondition.build_4_customfield(self.cfield_enum, EQUALS, [self.cfield_enum_A.id])
         condition = CustomFieldConditionHandler.build_condition(
             custom_field=self.cfield_enum, operator=EQUALS, values=[self.cfield_enum_A.id],
         )
@@ -1417,7 +1299,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(
             CustomFieldsConditionsField, 'invalidformat', field.clean,
             self.build_data(field='notanumber',
-                            # operator=EntityFilterCondition.EQUALS,
                             operator=operators.EQUALS,
                             value=170,
                            ),
@@ -1430,7 +1311,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(
             CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
             self.build_data(field=2054,
-                            # operator=EntityFilterCondition.EQUALS,
                             operator=operators.EQUALS,
                             value=170,
                            ),
@@ -1438,7 +1318,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
         self.assertFieldValidationError(
             CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
-            # json_dump([{'operator': {'id': str(EntityFilterCondition.EQUALS)},
             json_dump([{'operator': {'id': str(operators.EQUALS)},
                         'value': [170],
                        },
@@ -1467,7 +1346,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             CustomFieldsConditionsField, 'invalidvalue', field.clean,
             json_dump([
                 {'field':    {'id': str(self.cfield_int.id)},
-                 # 'operator': {'id': str(EntityFilterCondition.EQUALS)},
                  'operator': {'id': str(operators.EQUALS)},
                 }
             ])
@@ -1479,7 +1357,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                                                 efilter_registry=efilter_registry,
                                                )
 
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         value = 180
         conditions = field.clean(self.build_data(field=self.cfield_int.id,
@@ -1490,13 +1367,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_int.id),             condition.name)
         self.assertEqual(EF_USER,                             condition.filter_type)
         self.assertDictEqual({'operator': operator,
                               'rname': 'customfieldinteger',
-                              # 'value': [str(value)],
                               'values': [str(value)],
                              },
                              condition.decoded_value
@@ -1511,7 +1386,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             )
             field.model = FakeContact
 
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         value = 180
         conditions = field.clean(self.build_data(field=self.cfield_int.id,
@@ -1522,13 +1396,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_int.id),             condition.name)
         self.assertEqual(EF_CREDENTIALS             ,         condition.filter_type)
         self.assertDictEqual({'operator': operator,
                               'rname': 'customfieldinteger',
-                              # 'value': [str(value)],
                               'values': [str(value)],
                              },
                              condition.decoded_value
@@ -1538,7 +1410,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         clean = CustomFieldsConditionsField(model=FakeContact,
                                             efilter_registry=efilter_registry,
                                            ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         value = str(self.cfield_enum_A.pk)
         conditions = clean(self.build_data(field=self.cfield_enum.id,
@@ -1549,7 +1420,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_enum.id),            condition.name)
         self.assertDictEqual({'operator': operator,
@@ -1564,7 +1434,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         clean = CustomFieldsConditionsField(model=FakeContact,
                                             efilter_registry=efilter_registry,
                                            ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         conditions = clean(self.build_data(
                                 field=self.cfield_enum.id,
@@ -1577,12 +1446,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_enum.id),            condition.name)
         self.assertDictEqual({'operator': operator,
                               'rname': 'customfieldenum',
-                              # 'value': [str(self.cfield_enum_A.pk),
                               'values': [str(self.cfield_enum_A.pk),
                                          str(self.cfield_enum_B.pk)
                                         ],
@@ -1594,7 +1461,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         clean = CustomFieldsConditionsField(model=FakeContact,
                                             efilter_registry=efilter_registry,
                                            ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         conditions = clean(self.build_data(
                                 field=self.cfield_enum.id,
@@ -1605,12 +1471,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_enum.id),            condition.name)
         self.assertDictEqual({'operator': operator,
                               'rname': 'customfieldenum',
-                              # 'value': [str(self.cfield_enum_A.pk),
                               'values': [str(self.cfield_enum_A.pk),
                                          str(self.cfield_enum_B.pk),
                                         ],
@@ -1622,7 +1486,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         clean = CustomFieldsConditionsField(model=FakeContact,
                                             efilter_registry=efilter_registry,
                                            ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         value = str(self.cfield_multienum_F.pk)
         conditions = clean(self.build_data(field=self.cfield_multienum.id,
@@ -1633,12 +1496,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_multienum.id),       condition.name)
         self.assertDictEqual({'operator': operator,
                               'rname': 'customfieldmultienum',
-                              # 'value': [value],
                               'values': [value],
                              },
                              condition.decoded_value
@@ -1648,7 +1509,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         clean = CustomFieldsConditionsField(model=FakeContact,
                                             efilter_registry=efilter_registry,
                                            ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         conditions = clean(self.build_data(
                                 field=self.cfield_multienum.id,
@@ -1661,12 +1521,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_multienum.id),       condition.name)
         self.assertEqual({'operator': operator,
                           'rname': 'customfieldmultienum',
-                          # 'value': [str(self.cfield_multienum_F.pk),
                           'values': [str(self.cfield_multienum_F.pk),
                                      str(self.cfield_multienum_H.pk)
                                     ],
@@ -1678,7 +1536,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         clean = CustomFieldsConditionsField(model=FakeContact,
                                             efilter_registry=efilter_registry,
                                            ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         conditions = clean(self.build_data(
                                 field=self.cfield_multienum.id,
@@ -1691,12 +1548,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_multienum.id),       condition.name)
         self.assertEqual({'operator': operator,
                           'rname': 'customfieldmultienum',
-                          # 'value': [str(self.cfield_multienum_F.pk),
                           'values': [str(self.cfield_multienum_F.pk),
                                      str(self.cfield_multienum_H.pk)
                                     ],
@@ -1709,7 +1564,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             model=FakeContact,
             efilter_registry=efilter_registry,
         ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         conditions = clean(self.build_data(field=self.cfield_str.id,
                                            operator=operator,
@@ -1719,11 +1573,9 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_str.id),             condition.name)
         self.assertDictEqual(
-            # {'operator': operator, 'rname': 'customfieldstring', 'value': []},
             {'operator': operator, 'rname': 'customfieldstring', 'values': []},
             condition.decoded_value
         )
@@ -1732,7 +1584,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         clean = CustomFieldsConditionsField(model=FakeContact,
                                             efilter_registry=efilter_registry,
                                            ).clean
-        # operator = EntityFilterCondition.EQUALS
         operator = operators.EQUALS
         conditions = clean(self.build_data(field=self.cfield_bool.id,
                                            operator=operator,
@@ -1742,11 +1593,9 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_bool.id),            condition.name)
         self.assertDictEqual(
-            # {'operator': operator, 'rname': 'customfieldboolean', 'value': ['False']},
             {'operator': operator, 'rname': 'customfieldboolean', 'values': ['False']},
             condition.decoded_value
         )
@@ -1826,10 +1675,8 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         ]))
         self.assertEqual(4, len(conditions))
 
-        # EFC_DATECUSTOMFIELD = EntityFilterCondition.EFC_DATECUSTOMFIELD
         type_id = DateCustomFieldConditionHandler.type_id
         condition1 = conditions[0]
-        # self.assertEqual(EFC_DATECUSTOMFIELD,   condition1.type)
         self.assertEqual(type_id,          condition1.type)
         self.assertEqual(str(cfield01.id), condition1.name)
         self.assertEqual(EF_USER,          condition1.filter_type)
@@ -1838,7 +1685,6 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
                             )
 
         condition2 = conditions[1]
-        # self.assertEqual(EFC_DATECUSTOMFIELD,   condition2.type)
         self.assertEqual(type_id,          condition2.type)
         self.assertEqual(str(cfield02.id), condition2.name)
         self.assertDictEqual({'rname': 'customfielddatetime',
@@ -1848,7 +1694,6 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
                             )
 
         condition3 = conditions[2]
-        # self.assertEqual(EFC_DATECUSTOMFIELD,   condition3.type)
         self.assertEqual(type_id,          condition3.type)
         self.assertEqual(str(cfield01.id), condition3.name)
         self.assertDictEqual({'rname': 'customfielddatetime',
@@ -1858,7 +1703,6 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
                             )
 
         condition4 = conditions[3]
-        # self.assertEqual(EFC_DATECUSTOMFIELD,   condition4.type)
         self.assertEqual(type_id,          condition4.type)
         self.assertEqual(str(cfield02.id), condition4.name)
         self.assertDictEqual({'rname': 'customfielddatetime',
@@ -1880,10 +1724,8 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         ]))
         self.assertEqual(2, len(conditions))
 
-        # EFC_DATECUSTOMFIELD = EntityFilterCondition.EFC_DATECUSTOMFIELD
         type_id = DateCustomFieldConditionHandler.type_id
         condition = conditions[0]
-        # self.assertEqual(EFC_DATECUSTOMFIELD,   condition.type)
         self.assertEqual(type_id,               condition.type)
         self.assertEqual(str(self.cfield01.id), condition.name)
         self.assertEqual(EF_CREDENTIALS,        condition.filter_type)
@@ -1892,7 +1734,6 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
                             )
 
         condition = conditions[1]
-        # self.assertEqual(EFC_DATECUSTOMFIELD,   condition.type)
         self.assertEqual(type_id,               condition.type)
         self.assertEqual(str(self.cfield02.id), condition.name)
         self.assertDictEqual({'rname': 'customfielddatetime', 'name': 'not_empty'},
@@ -1960,16 +1801,13 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
                                 )
         self.assertEqual(2, len(conditions))
 
-        # EFC_PROPERTY = EntityFilterCondition.EFC_PROPERTY
         type_id = PropertyConditionHandler.type_id
         condition1 = conditions[0]
-        # self.assertEqual(EFC_PROPERTY,    condition1.type)
         self.assertEqual(type_id,         condition1.type)
         self.assertEqual(self.ptype01.id, condition1.name)
         self.assertIs(condition1.decoded_value, True)
 
         condition2 = conditions[1]
-        # self.assertEqual(EFC_PROPERTY,    condition2.type)
         self.assertEqual(type_id,         condition2.type)
         self.assertEqual(self.ptype02.id, condition2.name)
         self.assertEqual(EF_USER,         condition2.filter_type)
@@ -1986,7 +1824,6 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_PROPERTY, condition.type)
         self.assertEqual(PropertyConditionHandler.type_id, condition.type)
         self.assertEqual(ptype.id,                         condition.name)
         self.assertEqual(EF_CREDENTIALS,                   condition.filter_type)
@@ -2076,17 +1913,14 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         ]))
         self.assertEqual(2, len(conditions))
 
-        # EFC_RELATION = EntityFilterCondition.EFC_RELATION
         type_id = RelationConditionHandler.type_id
         condition1 = conditions[0]
-        # self.assertEqual(EFC_RELATION,        condition1.type)
         self.assertEqual(type_id,         condition1.type)
         self.assertEqual(self.rtype01.id, condition1.name)
         self.assertEqual(EF_USER,         condition1.filter_type)
         self.assertDictEqual({'has': True}, condition1.decoded_value)
 
         condition2 = conditions[1]
-        # self.assertEqual(EFC_RELATION,    condition2.type)
         self.assertEqual(type_id,         condition2.type)
         self.assertEqual(self.rtype02.id, condition2.name)
         self.assertDictEqual({'has': False},  condition2.decoded_value)
@@ -2104,17 +1938,14 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         ]))
         self.assertEqual(2, len(conditions))
 
-        # EFC_RELATION = EntityFilterCondition.EFC_RELATION
         type_id = RelationConditionHandler.type_id
         condition1 = conditions[0]
-        # self.assertEqual(EFC_RELATION, condition1.type)
         self.assertEqual(type_id,         condition1.type)
         self.assertEqual(self.rtype01.id, condition1.name)
         self.assertEqual(EF_CREDENTIALS,  condition1.filter_type)
         self.assertDictEqual({'has': True, 'ct_id': ct.id}, condition1.decoded_value)
 
         condition2 = conditions[1]
-        # self.assertEqual(EFC_RELATION, condition2.type)
         self.assertEqual(type_id,         condition2.type)
         self.assertEqual(self.rtype02.id, condition2.name)
         self.assertDictEqual({'has': False, 'ct_id': ct.id}, condition2.decoded_value)
@@ -2132,7 +1963,6 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_RELATION,  condition.type)
         self.assertEqual(RelationConditionHandler.type_id, condition.type)
         self.assertEqual(self.rtype01.id,                  condition.name)
         self.assertDictEqual({'has': True, 'entity_id': naru.id}, condition.decoded_value)
@@ -2150,16 +1980,13 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         ]))
         self.assertEqual(2, len(conditions))
 
-        # EFC_RELATION = EntityFilterCondition.EFC_RELATION
         type_id = RelationConditionHandler.type_id
         condition = conditions[0]
-        # self.assertEqual(EFC_RELATION,                  condition.type)
         self.assertEqual(type_id,         condition.type)
         self.assertEqual(self.rtype01.id, condition.name)
         self.assertDictEqual({'has': True, 'ct_id': ct_id}, condition.decoded_value)
 
         condition = conditions[1]
-        # self.assertEqual(EFC_RELATION,                         condition.type)
         self.assertEqual(type_id,         condition.type)
         self.assertEqual(self.rtype02.id, condition.name)
         self.assertDictEqual({'has': False, 'entity_id': naru.id}, condition.decoded_value)
@@ -2173,9 +2000,6 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
             pk='test-filter01', name='Filter 01',
             model=FakeContact, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_relation(
-                #     rtype=self.rtype01, has=True, entity=naru,
-                # ),
                 RelationConditionHandler.build_condition(
                     model=FakeContact, rtype=self.rtype01, has=True, entity=naru,
                 ),
@@ -2216,7 +2040,6 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        # self.assertEqual(EntityFilterCondition.EFC_RELATION, condition.type)
         self.assertEqual(RelationConditionHandler.type_id, condition.type)
         self.assertEqual(rt_id,                            condition.name)
         self.assertDictEqual({'has': True}, condition.decoded_value)
@@ -2290,10 +2113,8 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         ]))
         self.assertEqual(2, len(conditions))
 
-        # EFC_RELATION_SUBFILTER = EntityFilterCondition.EFC_RELATION_SUBFILTER
         type_id = RelationSubFilterConditionHandler.type_id
         condition1 = conditions[0]
-        # self.assertEqual(EFC_RELATION_SUBFILTER, condition1.type)
         self.assertEqual(type_id,         condition1.type)
         self.assertEqual(self.rtype01.id, condition1.name)
         self.assertEqual(EF_USER,         condition1.filter_type)
@@ -2302,7 +2123,6 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
                             )
 
         condition2 = conditions[1]
-        # self.assertEqual(EFC_RELATION_SUBFILTER, condition2.type)
         self.assertEqual(type_id,         condition2.type)
         self.assertEqual(self.rtype02.id, condition2.name)
         self.assertDictEqual({'has': False, 'filter_id': filter_id2},

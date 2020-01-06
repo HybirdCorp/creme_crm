@@ -69,7 +69,6 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             render = template.render(RequestContext(self._build_request(), {'object': motoko}))
 
         document = self.get_html_tree(render)
-        # brick_node = self.get_brick_node(document, brick_registry._generate_modelbrick_id(FakeContact))
         brick_node = self.get_brick_node(document, MODELBRICK_ID)
 
         content_node = brick_node.find('.//div[@class="brick-content "]')

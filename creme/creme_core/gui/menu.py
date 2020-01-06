@@ -18,10 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from json import dumps as json_dump
 import logging
 import math
-# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse_lazy as reverse
@@ -34,7 +32,6 @@ from ..templatetags.creme_widgets import get_icon_size_px, get_icon_by_name
 from ..utils.media import get_current_theme_from_context
 from ..utils.unicode_collation import collator
 from ..utils.serializers import json_encode
-
 
 logger = logging.getLogger(__name__)
 
@@ -740,14 +737,6 @@ class CreationFormsItem(ViewableItem):
             icon=self.render_icon(context),
             label=self.render_label(context),
         )
-
-    # @property
-    # def verbose_unicode(self):
-    #     warnings.warn('CreationFormsItem.verbose_unicode() is deprecated ; '
-    #                   'use CreationFormsItem.verbose_str() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return self.verbose_str
 
     @property
     def verbose_str(self):

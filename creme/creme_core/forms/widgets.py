@@ -32,7 +32,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _, gettext_lazy, pgettext_lazy, pgettext
 
 from ..utils.date_range import date_range_registry
-from ..utils.queries import QSerializer  # get_q_from_dict
+from ..utils.queries import QSerializer
 from ..utils.url import TemplateURLBuilder
 
 logger = logging.getLogger(__name__)

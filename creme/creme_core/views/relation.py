@@ -25,7 +25,7 @@ import warnings
 from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q, FilteredRelation
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, get_list_or_404  # redirect
+from django.shortcuts import get_object_or_404, get_list_or_404
 from django.utils.translation import gettext_lazy as _, gettext, ngettext
 
 from .. import utils
@@ -269,23 +269,6 @@ class RelationsBulkAdding(base.EntityCTypeRelatedMixin, base.CremeFormPopup):
         return kwargs
 
 
-# @login_required
-# def delete(request):
-#     relation = get_object_or_404(Relation, pk=utils.get_from_POST_or_404(request.POST, 'id'))
-#     subject = relation.subject_entity
-#     user = request.user
-#
-#     has_perm = user.has_perm_to_unlink_or_die
-#     has_perm(subject)
-#     has_perm(relation.object_entity)
-#     relation.type.is_not_internal_or_die()
-#
-#     relation.delete()
-#
-#     if request.is_ajax():
-#         return HttpResponse()
-#
-#     return redirect(subject.get_real_entity())
 class RelationDeletion(CremeModelDeletion):
     model = Relation
 
@@ -301,31 +284,6 @@ class RelationDeletion(CremeModelDeletion):
         return self.object.subject_entity.get_real_entity().get_absolute_url()
 
 
-# @login_required
-# def delete_similar(request):
-#     "Delete relations with the same type between 2 entities"
-#     get = partial(utils.get_from_POST_or_404, request.POST)
-#     subject_id = get('subject_id', int)
-#     rtype_id   = get('type')
-#     object_id  = get('object_id', int)
-#
-#     user = request.user
-#     subject = get_object_or_404(CremeEntity, pk=subject_id)
-#
-#     has_perm = user.has_perm_to_unlink_or_die
-#     has_perm(subject)
-#     has_perm(get_object_or_404(CremeEntity, pk=object_id))
-#
-#     rtype = get_object_or_404(RelationType, pk=rtype_id)
-#     rtype.is_not_internal_or_die()
-#
-#     for relation in Relation.objects.filter(subject_entity=subject.id, type=rtype, object_entity=object_id):
-#         relation.delete()
-#
-#     if request.is_ajax():
-#         return HttpResponse()
-#
-#     return redirect(subject.get_real_entity())
 class RelationFromFieldsDeletion(CremeModelDeletion):
     "Delete a Relation which we retrieve from the subject/object/type."
     model = Relation
@@ -411,50 +369,6 @@ def delete_all(request):
     return HttpResponse(message, status=status)
 
 
-# @login_required
-# def select_relations_objects(request):
-#     """Display an inner popup to select entities to link as relations' objects for a given subject entity.
-#
-#     GET parameters:
-#      - rtype_id: RelationType ID of the future relations. Required.
-#      - subject_id: ID of the entity used as subject for relations. Integer. Required.
-#      - object_ct_id: ID of the ContentType of the future relations' objects. Integer. Required.
-#      - selection: 'single'/'multiple'. Optional. Default to 'single'.
-#
-#     Tip: use the JS function creme.relations.addRelationTo().
-#     """
-#     get = partial(utils.get_from_GET_or_404, request.GET)
-#     subject_id    = get('subject_id', int)
-#     rtype_id      = get('rtype_id')
-#     objects_ct_id = get('objects_ct_id', int)
-#     mode          = get('selection', cast=generic.listview.str_to_mode, default='single')
-#
-#     objects_ct = utils.get_ct_or_404(objects_ct_id)
-#
-#     subject = get_object_or_404(CremeEntity, pk=subject_id)
-#     request.user.has_perm_to_link_or_die(subject)
-#
-#     rtype = get_object_or_404(RelationType, pk=rtype_id)
-#     rtype.is_not_internal_or_die()
-#
-#     # NB: list() because the serialization of sub-QuerySet does not work with the JSON session
-#     extra_q = ~Q(pk__in=list(CremeEntity.objects
-#                                         .filter(relations__type=rtype.symmetric_type_id,
-#                                                 relations__object_entity=subject_id,
-#                                                )
-#                                         .values_list('id', flat=True)
-#                             )
-#                 )
-#
-#     prop_types = list(rtype.object_properties.all())
-#     if prop_types:
-#         extra_q &= Q(properties__type__in=prop_types)
-#
-#     return generic.list_view_popup(request,
-#                                    model=objects_ct.model_class(),
-#                                    mode=mode,
-#                                    extra_q=extra_q,
-#                                   )
 class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
                                      base.EntityCTypeRelatedMixin,
                                      BaseEntitiesListPopup):
@@ -591,7 +505,6 @@ def add_relations_with_same_type(request):
                        if object_properties else \
                        lambda e: True
 
-    # create_relation = Relation.objects.create
     create_relation = Relation.objects.safe_create
     for entity in entities:
         if not check_ctype(entity):

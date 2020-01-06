@@ -34,7 +34,7 @@ from django.db.models.signals import post_save, post_init, pre_delete
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.utils.formats import date_format, number_format
-from django.utils.timezone import localtime  # make_naive, utc
+from django.utils.timezone import localtime
 from django.utils.translation import gettext_lazy as _, gettext
 
 from ..global_info import get_global_info, set_global_info

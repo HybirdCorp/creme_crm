@@ -580,7 +580,6 @@ class BricksManager:
         "Get the state for a brick and fill a cache to avoid multiple SQL requests."
         _state_cache = self._state_cache
         if not _state_cache:
-            # _state_cache = self._state_cache = BrickState.get_for_brick_ids([brick.id_ for brick in self._bricks], user)
             _state_cache = self._state_cache = BrickState.objects.get_for_brick_ids(
                 brick_ids=[brick.id_ for brick in self._bricks],
                 user=user,
@@ -661,9 +660,6 @@ class _BrickRegistry:
         return self
 
     def register_4_model(self, model, brick_cls):  # TODO: had an 'overload' arg ??
-        # if brick_cls.id_ != MODELBRICK_ID:
-        #     logger.warning('register_4_model(): <%s> should have an id_== MODELBRICK_ID', brick_cls)
-        #     brick_cls.id_ = MODELBRICK_ID
         assert brick_cls.id_ == MODELBRICK_ID
 
         # NB: the key is the class, not the ContentType.id because it can cause
@@ -837,8 +833,6 @@ class _BrickRegistry:
                 # TODO: warning ??
                 brick.verbose_name = _('Information on the entity')
 
-        # brick.id_ = self._generate_modelbrick_id(model)
-
         return brick
 
     def get_generic_hat_brick(self, model):
@@ -871,8 +865,6 @@ class _BrickRegistry:
                and (not brick.target_ctypes or model in brick.target_ctypes):
                 yield brick
 
-        # for rbi in RelationBrickItem.objects.all():
-        #     yield SpecificRelationsBrick(rbi)
         for rbi in RelationBrickItem.objects.select_related('relation_type'):
             brick = SpecificRelationsBrick(rbi)
 

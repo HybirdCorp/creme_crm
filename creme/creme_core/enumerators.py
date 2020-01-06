@@ -71,7 +71,6 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
         return d
 
     def choices(self, user):
-        # choices = [*map(self.efilter_as_dict, self._queryset())]
         choices = super().choices(user)
 
         sort_key = collator.sort_key

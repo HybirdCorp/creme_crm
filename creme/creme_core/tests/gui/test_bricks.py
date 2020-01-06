@@ -56,11 +56,9 @@ class BrickRegistryTestCase(CremeTestCase):
 
             def home_display(self, context): return '<table id="{}"></table>'.format(self.id_)
 
-        # class FakeContactBrick(SimpleBrick):
         class FakeContactBrick(EntityBrick):
             verbose_name = 'Fake Contact block'
 
-        # class FakeOrganisationBrick(SimpleBrick):
         class FakeOrganisationBrick(EntityBrick):
             verbose_name = 'Fake Organisation block'
 
@@ -473,7 +471,6 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = _BrickRegistry()
 
         brick = brick_registry.get_brick_4_object(FakeOrganisation)
-        # self.assertEqual('modelblock_creme_core-fakeorganisation', brick.id_)
         self.assertEqual(MODELBRICK_ID, brick.id_)
         self.assertEqual((FakeOrganisation,), brick.dependencies)
 
@@ -484,7 +481,6 @@ class BrickRegistryTestCase(CremeTestCase):
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
         brick = brick_registry.get_brick_4_object(casca)
-        # self.assertEqual('modelblock_creme_core-fakecontact', brick.id_)
         self.assertEqual(brick.__class__, EntityBrick)
         self.assertEqual(MODELBRICK_ID, brick.id_)
         self.assertEqual((FakeContact,), brick.dependencies)
@@ -498,7 +494,6 @@ class BrickRegistryTestCase(CremeTestCase):
 
         brick = brick_registry.get_brick_4_object(FakeContact)
         self.assertIsInstance(brick, ContactBrick)
-        # self.assertEqual('modelblock_creme_core-fakecontact', brick.id_)
         self.assertEqual(MODELBRICK_ID, brick.id_)
         self.assertEqual((FakeContact,), brick.dependencies)
 
@@ -508,14 +503,8 @@ class BrickRegistryTestCase(CremeTestCase):
             template_name = 'persons/bricks/my_contact.html'
 
         brick_registry = _BrickRegistry()
-        # brick_registry.register_4_model(FakeContact, ContactBrick)
         with self.assertRaises(AssertionError):
             brick_registry.register_4_model(FakeContact, ContactBrick)
-
-        # brick = brick_registry.get_brick_4_object(FakeContact)
-        # self.assertIsInstance(brick, ContactBrick)
-        # self.assertEqual(MODELBRICK_ID, brick.id_)
-        # self.assertEqual((FakeContact,), brick.dependencies)
 
     def test_brick_4_instance01(self):
         user = self.login()

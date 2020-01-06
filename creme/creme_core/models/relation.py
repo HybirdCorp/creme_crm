@@ -332,9 +332,6 @@ class RelationType(CremeModel):
 
         return sub_relation_type, obj_relation_type
 
-    # def is_compatible(self, ctype_id):
-    #     subject_ctype_ids = frozenset(self.subject_ctypes.values_list('id', flat=True))
-    #     return not subject_ctype_ids or ctype_id in subject_ctype_ids
     def is_compatible(self, *args):  # TODO: use the '/' (positional-only argument) in Python 3.8
         """Can an instance of a given model be the subject of a Relation with this type.
 
@@ -390,7 +387,7 @@ class Relation(CremeModel):
     user    = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
     type               = models.ForeignKey(RelationType, on_delete=models.CASCADE)
-    symmetric_relation = models.ForeignKey('self', null=True, on_delete=models.CASCADE)  # blank=True
+    symmetric_relation = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
     subject_entity     = models.ForeignKey(CremeEntity, related_name='relations', on_delete=models.PROTECT)
     object_entity      = models.ForeignKey(CremeEntity, related_name='relations_where_is_object', on_delete=models.PROTECT)
 

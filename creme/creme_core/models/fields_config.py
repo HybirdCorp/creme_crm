@@ -19,7 +19,7 @@
 ################################################################################
 
 from functools import partial
-from json import loads as json_load  # dumps as json_dump
+from json import loads as json_load
 import logging
 
 from django.contrib.contenttypes.models import ContentType
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 class FieldsConfig(CremeModel):
     content_type     = CTypeOneToOneField(editable=False, primary_key=True)  # verbose_name=_('Related type')
-    raw_descriptions = TextField(editable=False)  # null=True  #TODO: JSONField ?
+    raw_descriptions = TextField(editable=False)  # TODO: JSONField ?
 
     creation_label = _('Create a fields configuration')
     save_label     = _('Save the configuration')
@@ -165,7 +165,6 @@ class FieldsConfig(CremeModel):
 
     @descriptions.setter
     def descriptions(self, value):
-        # self.raw_descriptions = json_dump(
         self.raw_descriptions = json_encode(
             self._check_descriptions(self.content_type.model_class(), value)[1]
         )

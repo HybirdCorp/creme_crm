@@ -35,7 +35,6 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.utils.encoding import smart_text
 
-
 APP_NAME = 'locale_overload'  # TODO: can configure it with command options ??
 
 

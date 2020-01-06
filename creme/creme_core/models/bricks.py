@@ -19,7 +19,7 @@
 ################################################################################
 
 from functools import partial
-from json import loads as json_load  # dumps as json_dump
+from json import loads as json_load
 import logging
 import warnings
 
@@ -125,12 +125,6 @@ class BrickDetailviewLocation(CremeModel):
     class Meta:
         app_label = 'creme_core'
         ordering = ('order',)
-
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #
-    #     if self.brick_id.startswith(MODELBRICK_ID):
-    #         self.brick_id = MODELBRICK_ID
 
     def __repr__(self):
         return 'BrickDetailviewLocation(id={id}, content_type_id={ct_id}, role={role}, ' \
@@ -247,19 +241,13 @@ class BrickMypageLocation(CremeModel):
             id=self.id, user=self.user_id,
         )
 
-    # @staticmethod
     @classmethod
-    # def _copy_default_config(sender, instance, created, **kwargs):
     def _copy_default_config(cls, sender, instance, created, **kwargs):
         if created:
-            # from django.db.transaction import atomic
-
-            # create = BrickMypageLocation.objects.create
             create = cls.objects.create
 
             with atomic():
                 try:
-                    # for loc in BrickMypageLocation.objects.filter(user=None):
                     for loc in cls.objects.filter(user=None):
                         create(user=instance, brick_id=loc.brick_id, order=loc.order)
                 except Exception:
@@ -382,7 +370,6 @@ class RelationBrickItem(CremeModel):
         return rbi
 
     def _dump_cells_map(self):
-        # self.json_cells_map = json_dump(
         self.json_cells_map = json_encode(
                 {ct_id: [cell.to_dict() for cell in cells]
                     for ct_id, cells in self._cells_map.items()
@@ -546,7 +533,6 @@ class CustomBrickConfigItem(CremeModel):
         return None if prefix != 'customblock' else cbci_id
 
     def _dump_cells(self, cells):
-        # self.json_cells = json_dump([cell.to_dict() for cell in cells])
         self.json_cells = json_encode([cell.to_dict() for cell in cells])
 
     # TODO: factorise with HeaderFilter.cells

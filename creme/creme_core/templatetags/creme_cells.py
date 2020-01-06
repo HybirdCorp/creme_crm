@@ -26,7 +26,6 @@ from django.utils.safestring import mark_safe
 from ..core.entity_cell import EntityCellRegularField
 from . import KWARG_RE
 
-
 register = Library()
 logger = logging.getLogger(__name__)
 

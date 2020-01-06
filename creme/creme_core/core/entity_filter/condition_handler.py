@@ -37,7 +37,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.models import (
     CremeEntity,
     CremePropertyType, CremeProperty,
-    CustomField, CustomFieldEnumValue,  # CustomFieldBoolean
+    CustomField, CustomFieldEnumValue,
     EntityFilter, EntityFilterCondition,
     RelationType, Relation,
 )
@@ -845,7 +845,6 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             kwargs = {
                 'operator_id':  int(data['operator']),
                 'related_name': data['rname'],  # NB: we could remove it...
-                # 'values':       data['value'],
                 'values':       data['values'],  # TODO: check if it's a list ? check content ?
             }
         except (TypeError, KeyError, ValueError) as e:
@@ -921,7 +920,6 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
 
         value = {
             'operator': operator_id,
-            # 'value':    value,
             'values':   value,
             'rname':    cf_value_class.get_related_name(),
         }
@@ -979,16 +977,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         related_name = self._related_name
         fname = '{}__value'.format(related_name)
         values = self._values
-
-        # # HACK : compatibility code which converts old filters values into array.
-        # if not isinstance(values, (list, tuple)):
-        #     values = [values]
-
         resolved_values = self.resolve_operands(values=values, user=user)
-
-        # if CustomFieldBoolean.get_related_name() == related_name:
-        #     clean_bool = BooleanField().to_python
-        #     resolved_values = [clean_bool(v) for v in resolved_values]
 
         # TODO: move more code in operator ??
         if isinstance(operator, operators.IsEmptyOperator):

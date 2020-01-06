@@ -7,8 +7,6 @@
 }
 
 .header-menu {
-/*     font: 12px 'Open Sans', sans-serif; */
-
     height: 35px;
     background: #fcffff;
     top: 0;
@@ -21,7 +19,6 @@
     position: fixed;
     width: 100%;
 
-    /*  z-index: 100;*/
     z-index: 2000; /* tmp: the floatThead header is defined in js at 10001 ... */
 }
 

@@ -26,7 +26,6 @@ from django.db import models
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext_lazy as _, gettext
 
-# from creme.creme_core.models import EntityFilter
 from creme.creme_core.utils.db import is_db_case_sensitive
 from creme.creme_core.utils.meta import FieldInfo
 
@@ -85,7 +84,6 @@ FIELDTYPES_STRING = {
 }
 
 
-# class _ConditionOperator:
 class ConditionOperator:
     """Some child classes of
     <creme_core.core.entity_filter.condition_handler.FilterConditionHandler> can
@@ -127,14 +125,6 @@ class ConditionOperator:
     # (Boolean) Are the filtered objects included or excluded?
     exclude = False
 
-    # def __init__(self, name, key_pattern, exclude=False, accept_subpart=True, allowed_fieldtypes=None):
-    #     self._key_pattern    = key_pattern
-    #     self._exclude        = exclude
-    #     self._accept_subpart = accept_subpart
-    #     self._description_pattern = description_pattern
-    #     self.name = name
-    #     self._allowed_fieldtypes = allowed_fieldtypes or ()
-
     def _accept_value(self, *, field_value, value):
         raise NotImplementedError
 
@@ -151,10 +141,6 @@ class ConditionOperator:
         accepted = any(accept_value(value=value) for value in values)
 
         return not accepted if self.exclude else accepted
-
-    # @property
-    # def allowed_fieldtypes(self):
-    #     return self._allowed_fieldtypes
 
     def description(self, *, field_vname, values):
         """Description of the operation for human.
@@ -183,22 +169,9 @@ class ConditionOperator:
                if first_part else \
                value_format(enum_value=values[-1])
 
-    # @property
-    # def exclude(self):
-    #     return self._exclude
-
-    # @property
-    # def key_pattern(self):
-    #     return self._key_pattern
-
-    # @property
-    # def accept_subpart(self):
-    #     return self._accept_subpart
-
     def __str__(self):
         return str(self.verbose_name)
 
-    # def get_q(self, efcondition, values):
     def get_q(self, *, model, field_name, values):
         """Get the query to filter instance.
 
@@ -207,7 +180,6 @@ class ConditionOperator:
         @param values: Sequence of values the field can have.
         @return: An instance of <django.db.models.Q>.
         """
-        # key = self.key_pattern.format(efcondition.name)
         key = self.key_pattern.format(field_name)
         query = Q()
 
@@ -216,7 +188,6 @@ class ConditionOperator:
 
         return query
 
-    # def validate_field_values(self, field, values, user=None):
     def validate_field_values(self, *, field, values, user=None,
                               efilter_registry=entity_filter_registries[EF_USER]):
         """Raises a ValidationError to notify of a problem with 'values'.
@@ -226,17 +197,14 @@ class ConditionOperator:
         @param efilter_registry: Instance of <_EntityFilterRegistry>.
         @raise: ValidationError.
         """
-        # if not field.__class__ in self._NO_SUBPART_VALIDATION_FIELDS or not self.accept_subpart:
         if type(field) not in self._NO_SUBPART_VALIDATION_FIELDS or not self.accept_subpart:
             formfield = field.formfield()
             formfield.user = user
 
             clean = formfield.clean
-            # variable = None
             is_multiple = isinstance(field, models.ManyToManyField)
 
             for value in values:
-                # variable = EntityFilter.get_variable(value)
                 operand = efilter_registry.get_operand(type_id=value, user=user)
 
                 if operand is not None:
@@ -275,19 +243,6 @@ class EqualsOperator(ConditionOperator):
 
         return self._accept_single_value(field_value=field_value, value=value)
 
-    # def get_q(self, efcondition, values):
-    #     name = efcondition.name
-    #     query = Q()
-    #
-    #     for value in values:
-    #         if isinstance(value, (list, tuple)):
-    #             q = Q(**{'{}__in'.format(name): value})
-    #         else:
-    #             q = Q(**{self.key_pattern.format(name): value})
-    #
-    #         query |= q
-    #
-    #     return query
     def get_q(self, *, model, field_name, values):
         if not values:
             q = Q()
@@ -482,13 +437,10 @@ class IEndsWithNotOperator(IEndsWithOperator):
     exclude = True
 
 
-# class _ConditionBooleanOperator(_ConditionOperator):
 class BooleanOperatorBase(ConditionOperator):
-    # def validate_field_values(self, field, values, user=None):
     def validate_field_values(self, *, field, values, user=None,
                               efilter_registry=entity_filter_registries[EF_USER]):
         if len(values) != 1 or not isinstance(values[0], bool):
-            # raise ValueError(
             raise ValidationError(
                 'A list with one bool is expected for boolean operator {}'.format(self.verbose_name)
             )
@@ -496,7 +448,6 @@ class BooleanOperatorBase(ConditionOperator):
         return values
 
 
-# class _IsEmptyOperator(_ConditionBooleanOperator):
 class IsEmptyOperator(BooleanOperatorBase):
     type_id = ISEMPTY
     verbose_name = _('Is empty')
@@ -507,12 +458,6 @@ class IsEmptyOperator(BooleanOperatorBase):
         False: _('«{field}» is not empty'),
     }
     key_pattern = '{}__isnull'  # NB: have not real meaning here
-
-    # def __init__(self, name, exclude=False, **kwargs):
-    #     super().__init__(name, key_pattern='{}__isnull',
-    #                      exclude=exclude, accept_subpart=False,
-    #                      **kwargs
-    #                     )
 
     def _accept_value(self, *, field_value, value):
         # NB: we should only use with strings
@@ -525,16 +470,11 @@ class IsEmptyOperator(BooleanOperatorBase):
 
         return super().description(field_vname=field_vname, values=values)
 
-    # def get_q(self, efcondition, values):
     def get_q(self, *, model, field_name, values):
-        # field_name = efcondition.name
-
         # As default, set isnull operator (always true, negate is done later)
-        # query = Q(**{self.key_pattern % field_name: True})
         query = Q(**{self.key_pattern.format(field_name): True})
 
         # Add filter for text fields, "isEmpty" should mean null or empty string
-        # finfo = FieldInfo(efcondition.filter.entity_type.model_class(), field_name)
         finfo = FieldInfo(model, field_name)  # TODO: what about CustomField ?!
         if isinstance(finfo[-1], (models.CharField, models.TextField)):
             query |= Q(**{field_name: ''})
@@ -546,7 +486,6 @@ class IsEmptyOperator(BooleanOperatorBase):
         return query
 
 
-# class _RangeOperator(_ConditionOperator):
 class RangeOperator(ConditionOperator):
     type_id = RANGE
     verbose_name = _('Range')
@@ -566,11 +505,9 @@ class RangeOperator(ConditionOperator):
             ) if len(values) == 2 else \
             super().description(field_vname=field_vname, values=None)
 
-    # def validate_field_values(self, field, values, user=None):
     def validate_field_values(self, *, field, values, user=None,
                               efilter_registry=entity_filter_registries[EF_USER]):
         if len(values) != 2:
-            # raise ValueError(
             raise ValidationError(
                 'A list with 2 elements is expected for condition {}'.format(self.verbose_name)
             )
@@ -578,34 +515,6 @@ class RangeOperator(ConditionOperator):
         return [super().validate_field_values(field=field, values=values)]
 
 
-# _OPERATOR_MAP = {
-#     EQUALS:          _ConditionOperator(_(u'Equals'),                                 '{}__exact',
-#                                         accept_subpart=False, allowed_fieldtypes=_FIELDTYPES_ALL),
-#     IEQUALS:         _ConditionOperator(_(u'Equals (case insensitive)'),              '{}__iexact',
-#                                         accept_subpart=False, allowed_fieldtypes=('string',)),
-#     EQUALS_NOT:      _ConditionOperator(_(u'Does not equal'),                         '{}__exact',
-#                                         exclude=True, accept_subpart=False, allowed_fieldtypes=_FIELDTYPES_ALL),
-#     IEQUALS_NOT:     _ConditionOperator(_(u'Does not equal (case insensitive)'),      '{}__iexact',
-#                                         exclude=True, accept_subpart=False, allowed_fieldtypes=('string',)),
-#     CONTAINS:        _ConditionOperator(_(u'Contains'),                               '{}__contains', allowed_fieldtypes=('string',)),
-#     ICONTAINS:       _ConditionOperator(_(u'Contains (case insensitive)'),            '{}__icontains', allowed_fieldtypes=('string',)),
-#     CONTAINS_NOT:    _ConditionOperator(_(u'Does not contain'),                       '{}__contains', exclude=True, allowed_fieldtypes=('string',)),
-#     ICONTAINS_NOT:   _ConditionOperator(_(u'Does not contain (case insensitive)'),    '{}__icontains', exclude=True, allowed_fieldtypes=('string',)),
-#     GT:              _ConditionOperator(_(u'>'),                                      '{}__gt', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
-#     GTE:             _ConditionOperator(_(u'>='),                                     '{}__gte', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
-#     LT:              _ConditionOperator(_(u'<'),                                      '{}__lt', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
-#     LTE:             _ConditionOperator(_(u'<='),                                     '{}__lte', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
-#     STARTSWITH:      _ConditionOperator(_(u'Starts with'),                            '{}__startswith', allowed_fieldtypes=('string',)),
-#     ISTARTSWITH:     _ConditionOperator(_(u'Starts with (case insensitive)'),         '{}__istartswith', allowed_fieldtypes=('string',)),
-#     STARTSWITH_NOT:  _ConditionOperator(_(u'Does not start with'),                    '{}__startswith', exclude=True, allowed_fieldtypes=('string',)),
-#     ISTARTSWITH_NOT: _ConditionOperator(_(u'Does not start with (case insensitive)'), '{}__istartswith', exclude=True, allowed_fieldtypes=('string',)),
-#     ENDSWITH:        _ConditionOperator(_(u'Ends with'),                              '{}__endswith', allowed_fieldtypes=('string',)),
-#     IENDSWITH:       _ConditionOperator(_(u'Ends with (case insensitive)'),           '{}__iendswith', allowed_fieldtypes=('string',)),
-#     ENDSWITH_NOT:    _ConditionOperator(_(u'Does not end with'),                      '{}__endswith', exclude=True, allowed_fieldtypes=('string',)),
-#     IENDSWITH_NOT:   _ConditionOperator(_(u'Does not end with (case insensitive)'),   '{}__iendswith', exclude=True, allowed_fieldtypes=('string',)),
-#     ISEMPTY:         _IsEmptyOperator(_(u'Is empty'), allowed_fieldtypes=_FIELDTYPES_NULLABLE),
-#     RANGE:           _RangeOperator(_(u'Range')),
-# }
 all_operators = (
     EqualsOperator,
     EqualsNotOperator,

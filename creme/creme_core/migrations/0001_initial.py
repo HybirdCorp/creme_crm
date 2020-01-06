@@ -119,7 +119,6 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            # name='BlockDetailviewLocation',
             name='BrickDetailviewLocation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -135,7 +134,6 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            # name='BlockMypageLocation',
             name='BrickMypageLocation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -148,11 +146,9 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            # name='BlockPortalLocation',
             name='BrickHomeLocation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                # ('app_name', models.CharField(max_length=40)),
                 ('brick_id', models.CharField(max_length=100)),
                 ('order', models.PositiveIntegerField()),
             ],
@@ -161,7 +157,6 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            # name='BlockState',
             name='BrickState',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -269,7 +264,6 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            # name='CustomBlockConfigItem',
             name='CustomBrickConfigItem',
             fields=[
                 ('id', models.CharField(max_length=100, serialize=False, editable=False, primary_key=True)),
@@ -502,16 +496,6 @@ class Migration(migrations.Migration):
                 ('id', models.CharField(max_length=100, serialize=False, primary_key=True)),
             ],
         ),
-        # migrations.CreateModel(
-        #     name='PreferedMenuItem',
-        #     fields=[
-        #         ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-        #         ('label', models.CharField(max_length=100, verbose_name='Label', blank=True)),
-        #         ('url', models.CharField(max_length=100, verbose_name='Url', blank=True)),
-        #         ('order', models.PositiveIntegerField(verbose_name='Order')),
-        #         ('user', models.ForeignKey(verbose_name='User', to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
-        #     ],
-        # ),
         migrations.CreateModel(
             name='RelationType',
             fields=[
@@ -538,14 +522,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
-                # ('modified', creme_fields.ModificationDateTimeField(default=now, verbose_name='Last modification', editable=False, blank=True)),
-                # ('header_filter_search_field', models.CharField(max_length=200, editable=False)),
-                # ('is_deleted', models.BooleanField(default=False, editable=False)),
-                # ('entity_type', creme_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
                 ('object_entity', models.ForeignKey(related_name='relations_where_is_object', on_delete=models.PROTECT, to='creme_core.CremeEntity')),
                 ('subject_entity', models.ForeignKey(related_name='relations', on_delete=models.PROTECT, to='creme_core.CremeEntity')),
-                ('symmetric_relation', models.ForeignKey(to='creme_core.Relation', null=True, on_delete=models.CASCADE)), # blank=True
-                ('type', models.ForeignKey(to='creme_core.RelationType', on_delete=models.CASCADE)),  # blank=True, null=True,
+                ('symmetric_relation', models.ForeignKey(to='creme_core.Relation', null=True, on_delete=models.CASCADE)),
+                ('type', models.ForeignKey(to='creme_core.RelationType', on_delete=models.CASCADE)),
                 ('user', creme_fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -759,7 +739,7 @@ class Migration(migrations.Migration):
                                                             )
                     ),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
-                    ('category', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Category', blank=True, to='creme_core.FakeFolderCategory', null=True)), #related_name='folder_category_set'
+                    ('category', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Category', blank=True, to='creme_core.FakeFolderCategory', null=True)),
                     ('parent', models.ForeignKey(related_name='children', verbose_name='Parent folder', blank=True, to='creme_core.FakeFolder', null=True, on_delete=models.CASCADE)),
                 ],
                 options={
@@ -855,7 +835,6 @@ class Migration(migrations.Migration):
                                                             )
                     ),
                     ('name', models.CharField(max_length=100, null=True, verbose_name='Name', blank=True)),
-                    # ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                     ('filedata', models.FileField(upload_to=b'upload/creme_core-tests', max_length=100, verbose_name='File', editable=False)),
                     ('categories', models.ManyToManyField(related_name='+', verbose_name='Categories', to='creme_core.FakeImageCategory', blank=True)),
                     ('exif_date', models.DateField(null=True, verbose_name='Exif date', blank=True)),
@@ -937,17 +916,14 @@ class Migration(migrations.Migration):
                     ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),  # null=True
                     ('is_a_nerd', models.BooleanField(default=False, verbose_name='Is a Nerd')),
                     ('loves_comics', models.BooleanField(default=None, null=True, blank=True, verbose_name='Loves comics')),
-                    # ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                     ('phone', creme_fields.PhoneField(max_length=100, null=True, verbose_name='Phone number', blank=True)),
                     ('mobile', creme_fields.PhoneField(max_length=100, null=True, verbose_name='Mobile', blank=True)),
                     ('email', models.EmailField(max_length=100, null=True, verbose_name='Email address', blank=True)),
                     ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
                     ('birthday', models.DateField(null=True, verbose_name='Birthday', blank=True)),
                     ('address', models.ForeignKey(related_name='+', blank=True, editable=False, to='creme_core.FakeAddress', null=True, verbose_name='Billing address', on_delete=models.SET_NULL)),
-                    # ('civility', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Civility', blank=True, to='creme_core.FakeCivility', null=True)),
                     ('civility', models.ForeignKey(on_delete=creme_deletion.CREME_REPLACE_NULL, verbose_name='Civility', blank=True, to='creme_core.FakeCivility', null=True)),
                     ('position', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Position', blank=True, to='creme_core.FakePosition', null=True)),
-                    # ('sector', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Line of business', blank=True, to='creme_core.FakeSector', null=True)),
                     ('sector', models.ForeignKey(on_delete=creme_deletion.CREME_REPLACE_NULL, verbose_name='Line of business', blank=True, to='creme_core.FakeSector', null=True)),
                     ('is_user', models.ForeignKey(related_name='+', on_delete=models.SET_NULL, blank=True, editable=False, to=settings.AUTH_USER_MODEL, null=True, verbose_name='Related user')),
                     ('languages', models.ManyToManyField(to='creme_core.Language', verbose_name='Spoken language(s)', blank=True)),
@@ -1063,13 +1039,10 @@ class Migration(migrations.Migration):
                     ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
                     ('capital', models.PositiveIntegerField(null=True, verbose_name='Capital', blank=True)),
                     ('subject_to_vat', models.BooleanField(default=True, verbose_name='Subject to VAT')),
-                    # ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                     ('creation_date', models.DateField(null=True, verbose_name='Date of creation', blank=True)),
                     ('address', models.ForeignKey(related_name='+', blank=True, editable=False, to='creme_core.FakeAddress', null=True, verbose_name='Billing address', on_delete=models.SET_NULL)),
                     ('image', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Logo', blank=True, to='creme_core.FakeImage', null=True)),
-                    # ('legal_form', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Legal form', blank=True, to='creme_core.FakeLegalForm', null=True)),
                     ('legal_form', models.ForeignKey(related_name='+', on_delete=creme_deletion.CREME_REPLACE_NULL, verbose_name='Legal form', blank=True, to='creme_core.FakeLegalForm', null=True)),
-                    # ('sector', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Sector', blank=True, to='creme_core.FakeSector', null=True)),
                     ('sector', models.ForeignKey(on_delete=creme_deletion.CREME_REPLACE, verbose_name='Sector', blank=True, to='creme_core.FakeSector', null=True)),
                 ],
                 options={

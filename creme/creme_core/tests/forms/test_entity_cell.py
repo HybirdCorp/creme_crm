@@ -47,8 +47,7 @@ class EntityCellsFieldTestCase(FieldTestCase):
 
         cell = cells[0]
         self.assertIsInstance(cell, EntityCellRegularField)
-        self.assertEqual('first_name',            cell.value)
-        # self.assertEqual('first_name__icontains', cell.filter_string)
+        self.assertEqual('first_name', cell.value)
         self.assertIs(cell.is_hidden, False)
 
     def assertCellOK(self, cell, expected_cls, expected_value):

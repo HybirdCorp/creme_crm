@@ -192,30 +192,6 @@ def reload_home(request):
                              )
 
 
-# @login_required
-# @jsonify
-# def set_state(request):
-#     POST = request.POST
-#
-#     brick_id = get_from_POST_or_404(POST, 'id')
-#
-#     POST_get = POST.get
-#     is_open           = POST_get('is_open')
-#     show_empty_fields = POST_get('show_empty_fields')
-#     state_changed = False
-#
-#     bs = BrickState.objects.get_or_create(brick_id=brick_id, user=request.user)[0]
-#
-#     if is_open is not None:
-#         bs.is_open = bool(int(is_open))
-#         state_changed = True
-#
-#     if show_empty_fields is not None:
-#         bs.show_empty_fields = bool(int(show_empty_fields))
-#         state_changed = True
-#
-#     if state_changed:
-#         bs.save()
 class BrickStateSetting(CheckedView):
     brick_id_arg = 'id'
     FIELDS = [

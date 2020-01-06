@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.forms import ModelMultipleChoiceField, CharField
 from django.utils.translation import gettext_lazy as _, gettext
 
@@ -34,18 +32,6 @@ class _AddPropertiesForm(CremeForm):
     types = ModelMultipleChoiceField(label=_('Type of property'),
                                      queryset=CremePropertyType.objects.none(),
                                     )
-
-    # def _create_properties(self, entities, ptypes):
-    #     warnings.warn('creme_core.forms.creme_property._AddPropertiesForm._create_properties() is deprecated ;'
-    #                   'use CremeProperty.objects.safe_multi_save() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     property_get_or_create = CremeProperty.objects.get_or_create
-    #
-    #     for entity in entities:
-    #         for ptype in ptypes:
-    #             property_get_or_create(type=ptype, creme_entity=entity)
 
 
 class AddPropertiesForm(_AddPropertiesForm):

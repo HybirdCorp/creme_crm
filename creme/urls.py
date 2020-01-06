@@ -12,8 +12,6 @@ from creme.creme_core.apps import creme_app_configs
 from creme.creme_core.views.exceptions import permission_denied
 
 logger = logging.getLogger(__name__)
-
-# handler403 = 'creme.creme_core.views.exceptions.permission_denied'
 handler403 = permission_denied
 
 urlpatterns = [

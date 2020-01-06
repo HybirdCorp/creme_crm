@@ -113,15 +113,4 @@ creme.relations.AddRelationToAction = creme.component.Action.sub({
     }
 });
 
-/*
-creme.relations.addRelationTo = function(subject_id, rtype_id, ctype_id, options) {
-    console.warn('creme.relations.addRelationTo is deprecated. Use AddRelationToAction or <a data-action="add-relationships" ...> in bricks');
-    return new creme.relations.AddRelationToAction($.extend({
-        subject_id: subject_id,
-        rtype_id: rtype_id,
-        ctype_id: ctype_id
-    }, options || {})).start();
-};
-*/
-
 }(jQuery));

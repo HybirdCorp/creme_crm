@@ -19,7 +19,6 @@
 ################################################################################
 
 from collections import defaultdict
-# from json import dumps as json_dumps
 import logging
 
 from django.contrib.contenttypes.models import ContentType
@@ -59,7 +58,6 @@ from ..utils.translation import get_model_verbose_name
 from . import generic
 from .decorators import jsonify, POST_only
 from .generic import base, listview
-# from .utils import build_cancel_path
 
 logger = logging.getLogger(__name__)
 
@@ -141,24 +139,6 @@ def get_info_fields(request, ct_id):
                                       .choices(**kwargs)
 
 
-# @login_required
-# def clone(request):
-#     entity_id = get_from_POST_or_404(request.POST, 'id')
-#     entity    = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-#
-#     if entity.get_clone_absolute_url() != CremeEntity.get_clone_absolute_url():
-#         raise Http404(ugettext('This model does not use the generic clone view.'))
-#
-#     user = request.user
-#     user.has_perm_to_create_or_die(entity)
-#     user.has_perm_to_view_or_die(entity)
-#
-#     new_entity = entity.clone()
-#
-#     if request.is_ajax():
-#         return HttpResponse(new_entity.get_absolute_url())
-#
-#     return redirect(new_entity)
 class Clone(base.EntityRelatedMixin, base.CheckedView):
     entity_id_arg = 'id'
 
@@ -181,59 +161,6 @@ class Clone(base.EntityRelatedMixin, base.CheckedView):
         return redirect(new_entity)
 
 
-# @login_required
-# def search_and_view(request):
-#     GET = request.GET
-#     model_ids = get_from_GET_or_404(GET, 'models').split(',')
-#     fields    = get_from_GET_or_404(GET, 'fields').split(',')
-#     value     = get_from_GET_or_404(GET, 'value')
-#
-#     if not value:  # Avoid useless queries
-#         raise Http404('Void "value" arg')
-#
-#     user = request.user
-#     check_app = user.has_perm_to_access_or_die
-#     models = []
-#
-#     for model_id in model_ids:
-#         try:
-#             ct = ContentType.objects.get_by_natural_key(*model_id.split('-'))
-#         except (ContentType.DoesNotExist, TypeError) as e:
-#             raise Http404('This model does not exist: {}'.format(model_id)) from e
-#
-#         check_app(ct.app_label)
-#
-#         model = ct.model_class()
-#
-#         if issubclass(model, CremeEntity):
-#             models.append(model)
-#
-#     if not models:
-#         raise Http404('No valid model')
-#
-#     fconfigs = FieldsConfig.get_4_models(models)
-#
-#     for model in models:
-#         query = Q()
-#
-#         for field_name in fields:
-#             try:
-#                 field = model._meta.get_field(field_name)
-#             except FieldDoesNotExist:
-#                 pass
-#             else:
-#                 if fconfigs[model].is_field_hidden(field):
-#                     raise ConflictError(ugettext('This field is hidden.'))
-#
-#                 query |= Q(**{field.name: value})
-#
-#         if query:  # Avoid useless query
-#             found = EntityCredentials.filter(user, model.objects.filter(query)).first()
-#
-#             if found:
-#                 return redirect(found)
-#
-#     raise Http404(ugettext('No entity corresponding to your search was found.'))
 class SearchAndView(base.CheckedView):
     allowed_classes = CremeEntity
     value_arg = 'value'
@@ -502,22 +429,6 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
         return self.get_ctype().model_class()._default_manager.all()
 
 
-# @login_required
-# def select_entity_for_merge(request):
-#     entity1_id = get_from_GET_or_404(request.GET, 'id1', cast=int)
-#     entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
-#
-#     if merge_form_factory(entity1.entity_type.model_class()) is None:
-#         raise ConflictError('This type of entity cannot be merged')
-#
-#     user = request.user
-#     user.has_perm_to_view_or_die(entity1); user.has_perm_to_change_or_die(entity1)
-#
-#     return listview.list_view_popup(request,
-#                                     model=entity1.entity_type.model_class(),  # NB: avoid retrieving real entity...
-#                                     mode=listview.MODE_SINGLE_SELECTION,
-#                                     extra_q=~Q(pk=entity1_id),
-#                                    )
 class MergeFormMixin:
     merge_form_registry = merge_form_registry
 
@@ -563,93 +474,6 @@ class EntitiesToMergeSelection(base.EntityRelatedMixin,
         return ~Q(pk=self.get_related_entity().id)
 
 
-# @login_required
-# @atomic
-# def merge(request):
-#     GET = request.GET
-#     entity1_id = get_from_GET_or_404(GET, 'id1', cast=int)
-#     entity2_id = get_from_GET_or_404(GET, 'id2', cast=int)
-#
-#     if entity1_id == entity2_id:
-#         raise ConflictError('You can not merge an entity with itself.')
-#
-#     entities = CremeEntity.objects.all()
-#
-#     if request.method == 'POST':
-#         entities = entities.select_for_update()
-#
-#     entities_per_id = entities.in_bulk((entity1_id, entity2_id))
-#
-#     try:
-#         entity1 = entities_per_id[entity1_id]
-#         entity2 = entities_per_id[entity2_id]
-#     except IndexError as e:
-#         raise Http404('Entity not found: {}'.format(e)) from e
-#
-#     if entity1.entity_type_id != entity2.entity_type_id:
-#         raise ConflictError('You can not merge entities of different types.')
-#
-#     user = request.user
-#     can_view = user.has_perm_to_view_or_die
-#     can_view(entity1); user.has_perm_to_change_or_die(entity1)
-#     can_view(entity2); user.has_perm_to_delete_or_die(entity2)
-#
-#     # todo: try to swap 1 & 2
-#
-#     real_entity1 = entity1.get_real_entity()
-#     real_entity2 = entity2.get_real_entity()
-#
-#     # todo: 'merge_form_registry' as attribute in the future CBV + pass it as argument here
-#     EntitiesMergeForm = merge_form_factory(real_entity1.__class__)
-#
-#     if EntitiesMergeForm is None:
-#         raise ConflictError('This type of entity cannot be merged')
-#
-#     if request.method == 'POST':
-#         POST = request.POST
-#         merge_form = EntitiesMergeForm(user=request.user, data=POST,
-#                                        entity1=real_entity1,
-#                                        entity2=real_entity2,
-#                                       )
-#
-#         if merge_form.is_valid():
-#             merge_form.save()
-#
-#             # NB: we get the entity1 attribute (ie: not the local variable),
-#             # because the entities can be swapped in the form (but form.entity1
-#             # is always kept & form.entity2 deleted).
-#             return redirect(merge_form.entity1)
-#
-#         cancel_url = POST.get('cancel_url')
-#     else:
-#         try:
-#             merge_form = EntitiesMergeForm(user=request.user,
-#                                            entity1=real_entity1,
-#                                            entity2=real_entity2,
-#                                           )
-#         except MergeEntitiesBaseForm.CanNotMergeError as e:
-#             raise ConflictError(e) from e
-#
-#         cancel_url = build_cancel_path(request)
-#
-#     return render(request,
-#                   'creme_core/forms/merge.html',
-#                   {'form':   merge_form,
-#                    'title': ugettext('Merge «{entity1}» with «{entity2}»').format(
-#                                    entity1=real_entity1,
-#                                    entity2=real_entity2,
-#                                 ),
-#                    'help_message': _('You are going to merge two entities into a new one.\n'
-#                                      'Choose which information you want the old entities '
-#                                      'give to the new entity.\n'
-#                                      'The relationships, the properties and the other links '
-#                                      'with any of old entities will be automatically '
-#                                      'available in the new merged entity.'
-#                                     ),
-#                    'submit_label': _('Merge'),
-#                    'cancel_url': cancel_url,
-#                   }
-#                  )
 class Merge(MergeFormMixin, generic.CremeFormView):
     template_name = 'creme_core/forms/merge.html'
     title = _('Merge «{entity1}» with «{entity2}»')
@@ -985,7 +809,6 @@ def delete_entities(request):
         content_type = None
     else:
         status = min(errors)
-        # message = json_dumps({
         message = json_encode({
             'count': len(entity_ids),
             'errors': [msg for error_messages in errors.values() for msg in error_messages],
@@ -1024,30 +847,6 @@ def delete_entity(request, entity_id):
     return HttpResponseRedirect(url)
 
 
-# @login_required
-# def delete_related_to_entity(request, ct_id):
-#     """Delete a model related to a CremeEntity.
-#     @param request: Request with POST method ; POST data should contain an 'id'(=pk) value.
-#     @param ct_id: ContentType ID of a django model class which implements the method get_related_entity().
-#     """
-#     model = get_ct_or_404(ct_id).model_class()
-#     if issubclass(model, CremeEntity):
-#         raise Http404('This view can not delete CremeEntities.')
-#
-#     auxiliary = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
-#     entity = auxiliary.get_related_entity()
-#
-#     request.user.has_perm_to_change_or_die(entity)
-#
-#     try:
-#         auxiliary.delete()
-#     except ProtectedError as e:
-#         raise PermissionDenied(e.args[0]) from e
-#
-#     if request.is_ajax():
-#         return HttpResponse()
-#
-#     return redirect(entity)
 class RelatedToEntityDeletion(generic.base.ContentTypeRelatedMixin,
                               generic.CremeModelDeletion,
                              ):
@@ -1107,27 +906,6 @@ def restrict_to_superusers(request):
     return HttpResponse()
 
 
-# @login_required
-# def list_view_popup(request):
-#     """ Displays a list-view selector in an inner popup.
-#
-#     GET arguments are:
-#       - 'ct_id': the ContentType ID of the model we want. Required (if not given in the URL -- which is deprecated).
-#       - 'selection': The selection mode, which can be "single" or "multiple". Optional (default is "single").
-#     """
-#     if request.method == 'POST':
-#         POST = request.POST
-#         ct_id = get_from_POST_or_404(POST, 'ct_id', cast=int)
-#         mode  = get_from_POST_or_404(POST, 'selection', cast=listview.str_to_mode, default='single')
-#     else:
-#         GET = request.GET
-#         ct_id = get_from_GET_or_404(GET, 'ct_id', cast=int)
-#         mode  = get_from_GET_or_404(GET, 'selection', cast=listview.str_to_mode, default='single')
-#
-#     ct = get_ct_or_404(ct_id)
-#     lv_state_id = '{}#{}'.format(ct_id, request.path)
-#
-#     return listview.list_view_popup(request, model=ct.model_class(), mode=mode, lv_state_id=lv_state_id)
 # TODO: only GET ?
 class EntitiesListPopup(base.EntityCTypeRelatedMixin, listview.BaseEntitiesListPopup):
     """ Displays a list-view selector in an inner popup, to select one or more

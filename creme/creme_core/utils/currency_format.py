@@ -67,20 +67,6 @@ def currency(val, currency_or_id=None):
     @param val: Amount as a numeric value.
     @param currency_or_id: Instance of creme_core.models.Currency, or an ID of Currency instance.
     """
-    # LC_MONETARY = locale.LC_MONETARY
-    # lang = standardized_locale_code(settings.LANGUAGE_CODE)
-    #
-    # try:
-    #     # Will certainly fail on Windows (because of utf-8)
-    #     locale.setlocale(LC_MONETARY, (lang, settings.DEFAULT_ENCODING))
-    # except:
-    #     try:
-    #         locale.setlocale(LC_MONETARY, lang)
-    #     except:
-    #         logger.warning('currency(): fail when setting "%s"', lang)
-    #         locale.setlocale(LC_MONETARY, '')
-    #
-    # conv = locale.localeconv()
     conv = _get_locale_conv(category=locale.LC_MONETARY,
                             locale_code=standardized_locale_code(settings.LANGUAGE_CODE),
                            )

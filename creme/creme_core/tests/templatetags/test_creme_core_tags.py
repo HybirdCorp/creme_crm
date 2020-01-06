@@ -288,7 +288,6 @@ class CremeCoreTagsTestCase(CremeTestCase):
             template = Template('{% load creme_core_tags %}{% jsondata data ' + args + ' %}')
             output = template.render(Context({'data': data, 'name': 'script#1'}))
 
-        # self.assertEqual(expected, output)
         self.assertHTMLEqual(expected, output)
         # if expected != output:
         #     self.fail('{} != {}'.format(expected, output))  # TODO: if self.maxDiff is None ??
@@ -300,7 +299,6 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                )
             output = template.render(Context({'name': 'script#1'}))
 
-        # self.assertEqual(expected, output)
         self.assertHTMLEqual(expected, output)
 
     def test_jsondata_tag(self):

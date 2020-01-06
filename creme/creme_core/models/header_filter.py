@@ -19,7 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
-from json import loads as json_load  # dumps as json_dump
+from json import loads as json_load
 import logging
 
 from django.db import models
@@ -135,9 +135,7 @@ class HeaderFilter(models.Model):  # CremeModel ???
         return self.can_edit(user)
 
     # TODO: move to a manager ?
-    # @staticmethod
     @classmethod
-    # def create(pk, name, model, is_custom=False, user=None, is_private=False, cells_desc=()):
     def create(cls, pk, name, model, is_custom=False, user=None, is_private=False, cells_desc=()):
         """Creation helper ; useful for populate.py scripts.
         @param cells_desc: List of objects where each one can other:
@@ -162,9 +160,7 @@ class HeaderFilter(models.Model):  # CremeModel ???
                 raise ValueError('HeaderFilter.create(): a private filter must be custom.')
 
         try:
-            # hf = HeaderFilter.objects.get(pk=pk)
             hf = cls.objects.get(pk=pk)
-        # except HeaderFilter.DoesNotExist:
         except cls.DoesNotExist:
             cells = []
 
@@ -180,7 +176,6 @@ class HeaderFilter(models.Model):  # CremeModel ???
                     if cell is not None:
                         cells.append(cell)
 
-            # hf = HeaderFilter.objects.create(
             hf = cls.objects.create(
                 pk=pk, name=name, user=user,
                 is_custom=is_custom, is_private=is_private,
@@ -191,7 +186,6 @@ class HeaderFilter(models.Model):  # CremeModel ???
         return hf
 
     def _dump_cells(self, cells):
-        # self.json_cells = json_dump([cell.to_dict() for cell in cells])
         self.json_cells = json_encode([cell.to_dict() for cell in cells])
 
     @property

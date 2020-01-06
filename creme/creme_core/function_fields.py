@@ -46,14 +46,8 @@ class PropertiesSearchField(BaseChoiceField):
 class PropertiesField(FunctionField):
     name         = 'get_pretty_properties'
     verbose_name = _('Properties')
-    # has_filter   = True
     result_type  = FunctionFieldResultsList
     search_field_builder = PropertiesSearchField
-
-    # @classmethod
-    # def filter_in_result(cls, search_string):
-    #     # Should we make a separated query to retrieve first the searched types ?
-    #     return Q(properties__type__text__icontains=search_string)
 
     def __call__(self, entity, user):
         return FunctionFieldResultsList(

@@ -97,7 +97,7 @@
                         <span class='lv-search-title'>{% trans 'Quick search' %}</span>
                     </th>
                 {% else %}
-                    <th class="lv-column {{cell.header_listview_css_class}} {{cell.listview_css_class}}{% if search_form.cleaned_data|get_by_index:cell.key %} search{% endif %}{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %}"{# {{widget.type}} {% if cell|cell_is_sortable:cell_sorter_registry %} sortable{% endif %} #}
+                    <th class="lv-column {{cell.header_listview_css_class}} {{cell.listview_css_class}}{% if search_form.cleaned_data|get_by_index:cell.key %} search{% endif %}{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %}"
                         colspan="{{cell|listview_column_colspan:is_popup_view}}">
                         {{search_form|get_by_index:cell.key}}
                     </th>

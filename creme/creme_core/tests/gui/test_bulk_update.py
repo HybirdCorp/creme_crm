@@ -529,7 +529,6 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         field_value_f = form.fields['field_value']
         self.assertIsInstance(field_value_f, MultiCreatorEntityField)
-        # self.assertIsNone(field_value_f.q_filter)
         self.assertFalse(field_value_f.q_filter)
 
     def test_manytomany_entity_innerform02(self):

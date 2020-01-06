@@ -3,7 +3,6 @@
 /* Apply a natural box layout model to all elements */
 .brick * {
     -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-    /* font-family: 'Open Sans', sans-serif; */
 }
 
 .brick a img {
@@ -41,14 +40,6 @@ Those templates need to be cleaned up */
     margin-top: 15px;
     margin-bottom: 0;
 }
-
-/*
-table.table_detail_view + .brick,
-table.table_detail_view + table.table_detail_view {
-    margin-top: 15px;
-    margin-bottom: 0;
-}
-*/
 
 .brick.is-empty {
     display: none;
@@ -895,12 +886,6 @@ table.table_detail_view + table.table_detail_view {
     font-weight: 700;
 }
 
-/*
-.brick.is-loading .brick-content {
-    opacity: 0.6;
-}
-*/
-
 .brick.is-collapsed .brick-content,
 .brick.is-collapsed .brick-footer {
     display: none;
@@ -1096,8 +1081,6 @@ table.table_detail_view + table.table_detail_view {
 /* brick types - hat-card */
 
 .brick-hat-card .brick-card-action {
-    /* display: inline-block; */
-
     max-height: 16px;
     padding: 0px 7px 0px 5px;
     margin-left: 5px;

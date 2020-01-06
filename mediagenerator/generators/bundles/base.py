@@ -151,7 +151,6 @@ class FileFilter(Filter):
     def __init__(self, **kwargs):
         self.config(kwargs, name=None)
         self.mtime = self.hash = None
-        # super(FileFilter, self).__init__(**kwargs)
         super().__init__(**kwargs)
 
     @classmethod
@@ -189,7 +188,6 @@ class RawFileFilter(FileFilter):
 
     def __init__(self, **kwargs):
         self.config(kwargs, path=None)
-        # super(RawFileFilter, self).__init__(**kwargs)
         super().__init__(**kwargs)
 
     def get_dev_output(self, name, variation):

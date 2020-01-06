@@ -243,7 +243,6 @@ class _BulkUpdateRegistry:
 
         if subfield_name:
             parent_field = status.get_expandable_field(field_basename)
-            # field = self.get_field(parent_field.rel.to, subfield_name)
             field = self.get_field(parent_field.remote_field.model, subfield_name)
         else:
             field = status.get_field(field_basename)
@@ -256,7 +255,6 @@ class _BulkUpdateRegistry:
 
         if subfield_name:
             field = status.get_expandable_field(field_basename)
-            # substatus = self.status(field.rel.to)
             substatus = self.status(field.remote_field.model)
             subfield = substatus.get_field(subfield_name)
             form = substatus.get_form(subfield_name, default)
@@ -305,7 +303,6 @@ class _BulkUpdateRegistry:
 
             fields = [
                 (field,
-                 # related_fields(model=field.rel.to, exclude_unique=exclude_unique) if expandable else None
                  related_fields(model=field.remote_field.model, exclude_unique=exclude_unique) if expandable else None,
                 ) for field, expandable, updatable in field_states
                       if expandable or updatable

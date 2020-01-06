@@ -28,7 +28,7 @@ from ..backends import export_backend_registry
 from ..core import sorter
 from ..core.paginator import FlowPaginator
 from ..forms.listview import ListViewSearchForm
-from ..gui.listview import search_field_registry  # ListViewState
+from ..gui.listview import search_field_registry
 from ..models import EntityFilter, EntityCredentials, HeaderFilter
 from ..models.history import _HLTEntityExport
 from ..utils import get_from_GET_or_404, bool_from_str_extended

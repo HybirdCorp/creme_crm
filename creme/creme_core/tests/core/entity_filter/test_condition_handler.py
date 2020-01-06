@@ -668,21 +668,17 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_condition03(self):
         "Build condition + errors."
-        # ValueError = EntityFilterCondition.ValueError
         ValueError = FilterConditionHandler.ValueError
-        # build_4_field = EntityFilterCondition.build_4_field
         build_4_field = RegularFieldConditionHandler.build_condition
 
         self.assertRaises(
             ValueError, build_4_field,
-            # model=FakeContact, operator=EntityFilterCondition.CONTAINS, name='unknown_field', values=['Misato'],
             model=FakeContact, field_name='unknown_field',
             operator=operators.CONTAINS,
             values=['Misato'],
         )
         self.assertRaises(
             ValueError, build_4_field,
-            # model=FakeOrganisation, operator=EntityFilterCondition.GT, name='capital', values=['Not an integer']
             model=FakeOrganisation, field_name='capital',
             operator=operators.GT,
             values=['Not an integer'],
@@ -690,7 +686,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertRaises(
             ValueError, build_4_field,
             # NB: ISEMPTY => boolean
-            # model=FakeContact, operator=EntityFilterCondition.ISEMPTY, name='description', values=['Not a boolean'],
             model=FakeContact, field_name='description',
             operator=operators.ISEMPTY,
             values=['Not a boolean'],
@@ -698,14 +693,12 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertRaises(
             ValueError, build_4_field,
             # NB: only one boolean is expected
-            # model=FakeContact, operator=EntityFilterCondition.ISEMPTY, name='description', values=[True, True],
             model=FakeContact, field_name='description',
             operator=operators.ISEMPTY,
             values=[True, True],
         )
         self.assertRaises(
             ValueError, build_4_field,
-            # model=FakeContact, operator=EntityFilterCondition.STARTSWITH, name='civility__unknown', values=['Mist']
             model=FakeContact, field_name='civility__unknown',
             operator=operators.STARTSWITH,
             values=['Mist'],
@@ -718,21 +711,18 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertRaises(
             ValueError, build_4_field,
-            # model=FakeOrganisation, operator=EntityFilterCondition.RANGE, name='capital', values=[5000, 50000, 100000]
             model=FakeOrganisation, field_name='capital',
             operator=operators.RANGE,
             values=[5000, 50000, 100000],
         )
         self.assertRaises(
             ValueError, build_4_field,
-            # model=FakeOrganisation, operator=EntityFilterCondition.RANGE, name='capital', values=['not an integer', 500000]
             model=FakeOrganisation, field_name='capital',
             operator=operators.RANGE,
             values=['not an integer', 500000],
         )
         self.assertRaises(
             ValueError, build_4_field,
-            # model=FakeOrganisation, operator=EntityFilterCondition.RANGE, name='capital', values=[500000, 'not an integer']
             model=FakeOrganisation, field_name='capital',
             operator=operators.RANGE,
             values=[500000, 'not an integer'],
@@ -770,22 +760,16 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         folder       = create_folder(title='Folder 01', user=user)
         other_folder = create_folder(title='Folder 02', user=other_user)
 
-        # build_4_field = partial(EntityFilterCondition.build_4_field,
         build_4_field = partial(RegularFieldConditionHandler.build_condition,
                                 model=FakeDocument,
-                                # operator=EntityFilterCondition.EQUALS,
                                 operator=operators.EQUALS,
-                                # name='linked_folder',
                                 field_name='linked_folder',
                                )
 
-        # user can link Document on "Folder 01" (owner=user)
         self.assertNoException(lambda: build_4_field(values=[str(folder.id)], user=user))
-        # user can link Document on "Folder 02" (owner=other_user)
         self.assertNoException(lambda: build_4_field(values=[str(other_folder.id)], user=user))
 
         # other_user cannot link (not authenticated)
-        # with self.assertRaises(EntityFilterCondition.ValueError):
         with self.assertRaises(FilterConditionHandler.ValueError):
             build_4_field(values=[str(folder.id)], user=other_user)
 
@@ -1176,29 +1160,23 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_dateregularfield_condition02(self):
         "Build condition + errors."
-        # ValueError = EntityFilterCondition.ValueError
         ValueError = FilterConditionHandler.ValueError
-        # build_cond = EntityFilterCondition.build_4_date
         build_cond = DateRegularFieldConditionHandler.build_condition
 
         self.assertRaises(
             ValueError, build_cond,
-            # model=FakeContact, name='unknown_field', start=date(year=2001, month=1, day=1)
             model=FakeContact, field_name='unknown_field', start=date(year=2001, month=1, day=1)
         )
         self.assertRaises(
             ValueError, build_cond,
-            # model=FakeContact, name='first_name', start=date(year=2001, month=1, day=1)  # Not a date
             model=FakeContact, field_name='first_name', start=date(year=2001, month=1, day=1)  # Not a date
         )
         self.assertRaises(
             ValueError, build_cond,
-            # model=FakeContact, name='birthday',  # No date given
             model=FakeContact, field_name='birthday',  # No date given
         )
         self.assertRaises(
             ValueError, build_cond,
-            # model=FakeContact, name='birthday', date_range='unknown_range',
             model=FakeContact, field_name='birthday', date_range='unknown_range',
         )
 
@@ -1835,33 +1813,27 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         create_cf = partial(CustomField.objects.create, content_type=FakeContact)
         cf_int = create_cf(name='size (cm)', field_type=CustomField.INT)
 
-        # ValueError = EntityFilterCondition.ValueError
         ValueError = FilterConditionHandler.ValueError
-        # build_cond = EntityFilterCondition.build_4_customfield
         build_cond = CustomFieldConditionHandler.build_condition
 
         self.assertRaises(
             ValueError, build_cond,
-            # custom_field=cf_int, operator=1216, value=155,  # Invalid operator
             custom_field=cf_int, operator=1216, values=155,  # Invalid operator
         )
         self.assertRaises(
             ValueError, build_cond,
-            # custom_field=cf_int, operator=EntityFilterCondition.CONTAINS, value='not an int',
             custom_field=cf_int, operator=operators.CONTAINS, values='not an int',
         )
 
         cf_date = create_cf(name='Day', field_type=CustomField.DATETIME)
         self.assertRaises(
             ValueError, build_cond,
-            # custom_field=cf_date, operator=EntityFilterCondition.EQUALS, value=2011,  # DATE
             custom_field=cf_date, operator=operators.EQUALS, values=2011,  # DATE
         )
 
         cf_bool = create_cf(name='Cute ?', field_type=CustomField.BOOL)
         self.assertRaises(
             ValueError, build_cond,
-            # custom_field=cf_bool, operator=EntityFilterCondition.CONTAINS, value=True,  # Bad operator
             custom_field=cf_bool, operator=operators.CONTAINS, values=True,  # Bad operator
         )
 
@@ -1873,11 +1845,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             field_type=CustomField.BOOL,
         )
 
-        # with self.assertRaises(EntityFilterCondition.ValueError) as err:
-        #     EntityFilterCondition.build_4_customfield(custom_field=custom_field,
-        #                                               operator=EntityFilterCondition.GT,
-        #                                               value=[True],
-        #                                              )
         with self.assertRaises(FilterConditionHandler.ValueError) as err:
             CustomFieldConditionHandler.build_condition(custom_field=custom_field,
                                                         operator=operators.GT,
@@ -2295,9 +2262,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_datecustomfield_condition02(self):
         "Build condition + errors."
-        # ValueError = EntityFilterCondition.ValueError
         ValueError = FilterConditionHandler.ValueError
-        # build_cond = EntityFilterCondition.build_4_datecustomfield
         build_cond = DateCustomFieldConditionHandler.build_condition
 
         create_cf = partial(CustomField.objects.create, content_type=FakeContact)
@@ -2787,13 +2752,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                                             rtype=loves.id,
                                             exclude=True,
                                            )
-        # self.assertQEqual(
-        #     ~Q(pk__in=Relation.objects
-        #                       .filter(id__in=[rel1.id, rel2.id, rel3.id])
-        #                       .values_list('subject_entity_id', flat=True)
-        #       ),
-        #     handler2.get_q(user=user)
-        # )
         self.assertQPkIn(handler2.get_q(user=user),
                          shinji, asuka, misato,
                          negated=True,
@@ -2805,13 +2763,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             rtype=loves.id,
             ctype=ContentType.objects.get_for_model(FakeContact),
         )
-        # self.assertQEqual(
-        #     Q(pk__in=Relation.objects
-        #                      .filter(id__in=[rel1.id, rel2.id])
-        #                      .values_list('subject_entity_id', flat=True)
-        #      ),
-        #     handler3.get_q(user=user)
-        # )
         self.assertQPkIn(handler3.get_q(user=user),
                          shinji, asuka,
                         )
@@ -3498,9 +3449,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         misato = create_contact(last_name='Katsuragi', first_name='Misato')
 
         create_rel = partial(Relation.objects.create, user=user)
-        rel1 = create_rel(subject_entity=shinji, type=loves, object_entity=yui)
-        rel2 = create_rel(subject_entity=asuka,  type=loves, object_entity=shinji)
-        ___  = create_rel(subject_entity=rei,    type=loves, object_entity=misato)
+        create_rel(subject_entity=shinji, type=loves, object_entity=yui)
+        create_rel(subject_entity=asuka,  type=loves, object_entity=shinji)
+        create_rel(subject_entity=rei,    type=loves, object_entity=misato)
 
         sub_filter = EntityFilter.create(
             pk='test-filter01', name='Filter Ikari', model=FakeContact, is_custom=True,
@@ -3517,13 +3468,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             subfilter=sub_filter.id,
             rtype=loves.id,
         )
-        # self.assertQEqual(
-        #     Q(pk__in=Relation.objects
-        #                      .filter(id__in=[rel1.id, rel2.id])
-        #                      .values_list('subject_entity_id', flat=True)
-        #      ),
-        #     handler1.get_q(user=user)
-        # )
         self.assertQPkIn(handler1.get_q(user=user),
                          shinji, asuka,
                         )
@@ -3535,13 +3479,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             rtype=loves.id,
             exclude=True,
         )
-        # self.assertQEqual(
-        #     ~Q(pk__in=Relation.objects
-        #                       .filter(id__in=[rel1.id, rel2.id])
-        #                       .values_list('subject_entity_id', flat=True)
-        #       ),
-        #     handler2.get_q(user=user)
-        # )
         self.assertQPkIn(handler2.get_q(user=user),
                          shinji, asuka,
                          negated=True,
@@ -3892,7 +3829,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_operand_currentuser(self):
         user = self.login()
-        # efilter = EntityFilter.create('test-filter01', 'Spike & Faye', FakeContact, is_custom=True)
 
         user2 = CremeUser.objects.create(
             username='chloe', email='chloe@noir.jp',
@@ -3908,7 +3844,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 model=FakeContact,
                 operator=operators.EQUALS,
                 field_name='user',
-                # values=['__currentuser__'],
                 values=[value],
             )
 
@@ -3927,14 +3862,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         # ---
         with self.assertNoException():
-            # efilter.set_conditions([
-            #     EntityFilterCondition.build_4_field(
-            #         model=FakeContact,
-            #         operator=EntityFilterCondition.EQUALS,
-            #         name='last_name',
-            #         values=['__currentuser__'],
-            #     ),
-            # ])
             RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.EQUALS,
@@ -3943,16 +3870,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 values=[value],
             )
 
-        # with self.assertRaises(EntityFilterCondition.ValueError):
         with self.assertRaises(FilterConditionHandler.ValueError):
-            # efilter.set_conditions([
-            #     EntityFilterCondition.build_4_field(
-            #         model=FakeContact,
-            #         operator=EntityFilterCondition.EQUALS,
-            #         name='birthday',
-            #         values=['__currentuser__'],
-            #     ),
-            # ])
             RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.EQUALS,

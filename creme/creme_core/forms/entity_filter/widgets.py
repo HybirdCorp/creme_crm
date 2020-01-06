@@ -39,7 +39,7 @@ from creme.creme_core.core.entity_filter import (
     EF_USER,
     operators,
 )
-from creme.creme_core.models import CremeEntity, CustomField  # EntityFilterCondition
+from creme.creme_core.models import CremeEntity, CustomField
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.utils.url import TemplateURLBuilder
 
@@ -67,7 +67,6 @@ _HAS_RELATION_OPTIONS = OrderedDict([
 ])
 
 
-# class FieldConditionWidget(ChainedInput):
 class FieldConditionSelector(ChainedInput):
     def __init__(self, model=CremeEntity, fields=(), operators=(), filter_type=EF_USER, attrs=None, autocomplete=False):
         super().__init__(attrs)
@@ -80,7 +79,6 @@ class FieldConditionSelector(ChainedInput):
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
 
-        # EQUALS_OPS = '{}|{}'.format(EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT)
         EQUALS_OPS = '{}|{}'.format(operators.EQUALS, operators.EQUALS_NOT)
         add_input = pinput.add_input
         add_input('^enum(__null)?.({})$'.format(EQUALS_OPS),
@@ -104,7 +102,6 @@ class FieldConditionSelector(ChainedInput):
                   widget=EntitySelector, attrs={'auto': False},
                   content_type='${field.ctype}',
                  )
-        # add_input('^date(__null)?.{}$'.format(EntityFilterCondition.RANGE),
         add_input('^date(__null)?.{}$'.format(operators.RANGE),
                   widget=NullableDateRangeSelect, attrs={'auto': False},
                  )
@@ -114,7 +111,6 @@ class FieldConditionSelector(ChainedInput):
         add_input('^boolean(__null)?.*', widget=DynamicSelect,
                   options=_BOOL_OPTIONS, attrs=field_attrs,
                  )
-        # add_input('(string|.*__null).({})$'.format(EntityFilterCondition.ISEMPTY),
         add_input('(string|.*__null).({})$'.format(operators.ISEMPTY),
                   widget=DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
                  )
@@ -123,11 +119,6 @@ class FieldConditionSelector(ChainedInput):
         return pinput
 
     def _build_operatorchoices(self, operators):
-        # return [
-        #     (json.dumps({'id': id, 'types': ' '.join(op.allowed_fieldtypes)}),
-        #      op.name,
-        #     ) for id, op in operators.items()
-        # ]
         return [
             (json.dumps({'id': op.type_id, 'types': ' '.join(op.allowed_fieldtypes)}),
              op.verbose_name,
@@ -145,7 +136,6 @@ class FieldConditionSelector(ChainedInput):
             choice_label = '[{}] - {}'.format(category, subfield.verbose_name)
             choice_value = {'name': name, 'type': choice_type}
 
-            # if choice_type in EntityFilterCondition._FIELDTYPES_RELATED:
             if choice_type in operators.FIELDTYPES_RELATED:
                 choice_value['ctype'] = ContentType.objects.get_for_model(subfield.remote_field.model).id
         else:
@@ -153,7 +143,6 @@ class FieldConditionSelector(ChainedInput):
             choice_label = field.verbose_name
             choice_value = {'name': name, 'type': choice_type}
 
-            # if choice_type in EntityFilterCondition._FIELDTYPES_RELATED:
             if choice_type in operators.FIELDTYPES_RELATED:
                 choice_value['ctype'] = ContentType.objects.get_for_model(field.remote_field.model).id
 
@@ -239,7 +228,6 @@ class ConditionListWidget(SelectorList):
 
 
 class RegularFieldsConditionsWidget(ConditionListWidget):
-    # def __init__(self, model=CremeEntity, fields=(), attrs=None, enabled=True):
     def __init__(self, model=CremeEntity, fields=(), efilter_registry=None,
                  attrs=None, enabled=True):  # TODO: use 'enabled'
         super().__init__(None, attrs)
@@ -256,7 +244,6 @@ class RegularFieldsConditionsWidget(ConditionListWidget):
         return FieldConditionSelector(
             model=self.model,
             fields=self.fields,
-            # operators=EntityFilterCondition._OPERATOR_MAP,
             operators=[*registry.operators],
             filter_type=registry.id,
             autocomplete=True,
@@ -336,9 +323,6 @@ class CustomFieldConditionSelector(FieldConditionSelector):
 
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
-        # pinput.add_input('^enum(__null)?.({}|{})$'.format(EntityFilterCondition.EQUALS,
-        #                                                   EntityFilterCondition.EQUALS_NOT,
-        #                                                  ),
         pinput.add_input('^enum(__null)?.({}|{})$'.format(operators.EQUALS,
                                                           operators.EQUALS_NOT,
                                                          ),
@@ -348,17 +332,13 @@ class CustomFieldConditionSelector(FieldConditionSelector):
                                                .resolve('creme_core__cfield_enums'),
                          attrs=field_attrs,
                         )
-        # pinput.add_input('^date(__null)?.{}$'.format(EntityFilterCondition.RANGE),
         pinput.add_input('^date(__null)?.{}$'.format(operators.RANGE),
                          NullableDateRangeSelect, attrs={'auto': False},
                         )
         pinput.add_input('^boolean(__null)?.*',
-                         # DynamicSelect, options=((TRUE, _('True')), (FALSE, _('False'))), attrs=field_attrs,
                          DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
                         )
-        # pinput.add_input('(string|.*__null)?.({})$'.format(EntityFilterCondition.ISEMPTY),
         pinput.add_input('(string|.*__null)?.({})$'.format(operators.ISEMPTY),
-                         # DynamicSelect, options=((TRUE, _('True')), (FALSE, _('False'))), attrs=field_attrs,
                          DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
                         )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
@@ -386,11 +366,9 @@ class CustomFieldConditionSelector(FieldConditionSelector):
 
 
 # TODO: factorise RegularFieldsConditionsWidget ?
-# class CustomFieldConditionWidget(SelectorList):
 class CustomFieldsConditionsWidget(ConditionListWidget):
     empty_selector_label = _('No custom field at present.')
 
-    # def __init__(self, fields=(), attrs=None, enabled=True):
     def __init__(self, fields=(), efilter_registry=None, attrs=None, enabled=True):
         super().__init__(None, attrs)
         self.fields = fields
@@ -407,7 +385,6 @@ class CustomFieldsConditionsWidget(ConditionListWidget):
 
         return CustomFieldConditionSelector(
             fields=fields, autocomplete=True,
-            # operators=EntityFilterCondition._OPERATOR_MAP,
             operators=[*self.efilter_registry.operators],
         )
 
@@ -434,7 +411,6 @@ class DateCustomFieldsConditionsWidget(ConditionListWidget):
         return chained_input
 
 
-# class RelationTargetWidget(PolymorphicInput):
 class RelationTargetInput(PolymorphicInput):
     def __init__(self, key='', multiple=False, attrs=None):
         super().__init__(key=key, attrs=attrs)

@@ -57,7 +57,6 @@ else:
 
     class FakeFolder(CremeEntity):
         title     = models.CharField(_('Title'), max_length=100)
-#        description   = models.TextField(_('Description'), null=True, blank=True).set_tags(optional=True)
         parent    = models.ForeignKey('self', verbose_name=_('Parent folder'),
                                       blank=True, null=True, related_name='children',
                                       on_delete=models.CASCADE,  # TODO: PROTECT
@@ -96,7 +95,6 @@ else:
 
     class FakeDocument(CremeEntity):
         title         = models.CharField(_('Title'), max_length=100)
-#        description = models.TextField(_('Description'), blank=True, null=True).set_tags(optional=True)
         filedata      = models.FileField(_('File'), max_length=100, upload_to='upload/creme_core-tests')
         linked_folder = models.ForeignKey(FakeFolder, verbose_name=_('Folder'), on_delete=models.PROTECT)
         categories    = models.ManyToManyField(FakeDocumentCategory,
@@ -167,8 +165,6 @@ else:
 
     class FakeImage(CremeEntity):
         name        = models.CharField(_('Name'), max_length=100, blank=True, null=True)
-#        description = models.TextField(_('Description'), blank=True, null=True)\
-#                             .set_tags(optional=True)
         # image       = models.ImageField(_('Image'), height_field='height', width_field='width',
         #                                 upload_to='upload/images', max_length=500
         #                                )
@@ -302,8 +298,6 @@ else:
                                       ).set_tags(optional=True)
         is_a_nerd   = models.BooleanField(_('Is a Nerd'), default=False)
         loves_comics = models.BooleanField(_('Loves comics'), default=None, null=True, blank=True)
-#        description = models.TextField(_('Description'), blank=True, null=True) \
-#                            .set_tags(optional=True)
         phone       = core_fields.PhoneField(_('Phone number'), max_length=100,
                                              blank=True, null=True,
                                             ).set_tags(optional=True)
@@ -419,7 +413,6 @@ else:
                                             blank=True, null=True, editable=False,
                                             related_name='+', on_delete=models.SET_NULL,
                                            ).set_tags(enumerable=False)
-        # description     = models.TextField(_('Description'), blank=True, null=True)
         creation_date   = models.DateField(_('Date of creation'), blank=True, null=True)
         image           = models.ForeignKey(FakeImage, verbose_name=_('Logo'),
                                             blank=True, null=True, on_delete=models.SET_NULL,

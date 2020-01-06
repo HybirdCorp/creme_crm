@@ -5,15 +5,6 @@ import os
 from .settings import MEDIA_BUNDLES
 from .utils import _load_root_filter, _get_key
 
-# try:
-#     from itertools import product
-# except ImportError:
-#     try:
-#         from django.utils.itercompat import product
-#     except ImportError:
-#         # Needed for Django 1.0 and 1.1 support.
-#         from .itercompat import product
-
 from mediagenerator.base import Generator
 
 
@@ -31,7 +22,6 @@ class Bundles(Generator):
                 combinations = product(*(variations[key]
                                          for key in sorted(variations.keys())))
                 for combination in combinations:
-                    # variation_map = zip(sorted(variations.keys()), combination)
                     variation_map = [*zip(sorted(variations.keys()), combination)]
                     variation = dict(variation_map)
                     name, content = self.generate_file(backend, bundle,

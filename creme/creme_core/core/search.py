@@ -55,13 +55,6 @@ class Searcher:
                                             if not is_hidden(sfield.name.split('__', 1)[0])
                                     ]
 
-    # def _build_query(self, research, fields):
-    #     result_q = Q()
-    #
-    #     for f in fields:
-    #         result_q |= Q(**{'{}__icontains'.format(f.name): research})
-    #
-    #     return result_q
     def _build_query(self, words, fields):
         """Build a Q with given fields for the given search.
         Each word must be contained in (at least) one field.
@@ -103,7 +96,5 @@ class Searcher:
         strings = smart_split(research)
 
         # TODO: distinct() only if there is a JOIN...
-        # return model.objects.filter(self._build_query(research, searchfields)).distinct() \
-        #        if searchfields else None
         return model.objects.filter(self._build_query(strings, searchfields)).distinct() \
                if searchfields else None

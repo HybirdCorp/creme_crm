@@ -102,7 +102,6 @@ def print_integer(entity, fval, user, field):
     if field.choices:  # TODO: manage 'choices' for other types...
         fval = getattr(entity, 'get_{}_display'.format(field.name))()
 
-    # return fval if fval is not None else ''
     return str(fval) if fval is not None else ''
 
 

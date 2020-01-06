@@ -35,28 +35,6 @@ creme.lv_widget.checkSelectionMode = function(mode) {
     }
 };
 
-/*
-creme.lv_widget.findList = function(element) {
-    var container = $(element).parents('.ui-dialog:first');
-
-    if (container.length === 0) {
-        container = $('body');
-    }
-
-    return container.find('form.ui-creme-listview:first');
-};
-*/
-
-/*
-creme.lv_widget.deleteFilter = function(list, filter_id, url) {
-    return creme.utils.confirmPOSTQuery(url, {}, {id: filter_id})
-                      .onDone(function(event, data) {
-                          list.list_view('reload');
-                       })
-                      .start();
-};
-*/
-
 creme.lv_widget.selectedLines = function(element) {
     console.warn('creme.lv_widget.selectedLines() is deprecated; use directly $(list).list_view("selectedRows") instead');
     return $(element).list_view('selectedRows');
@@ -266,51 +244,6 @@ creme.lv_widget.MergeSelectedAction = creme.component.Action.sub({
     }
 });
 
-/*
-creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, input, callback) {
-    var $sort_field = $(sort_field);
-    var $sort_order = $(sort_order);
-
-    if ($sort_field.val() === new_sort_field) {
-        if ($sort_order.val() === '') {
-            $sort_order.val('-');
-        } else {
-            $sort_order.val('');
-        }
-    } else {
-        $sort_order.val('');
-    }
-
-    $sort_field.val(new_sort_field);
-
-    if (Object.isFunc(callback)) {
-        callback(input);
-    }
-};
-*/
-/*
-creme.lv_widget.handleSort = function(sort_key, sort_order, new_sort_key, input, callback) {
-    var $sort_key = $(sort_key);
-    var $sort_order = $(sort_order);
-
-    if ($sort_key.val() === new_sort_key) {
-        if ($sort_order.val() === 'ASC') {
-            $sort_order.val('DESC');
-        } else {
-            $sort_order.val('ASC');
-        }
-    } else {
-        $sort_order.val('ASC');
-    }
-
-    $sort_key.val(new_sort_key);
-
-    if (Object.isFunc(callback)) {
-        callback(input);
-    }
-};
-*/
-
 creme.lv_widget.ListViewDialog = creme.dialog.Dialog.sub({
     _init_: function(options) {
         options = $.extend({
@@ -489,37 +422,6 @@ creme.lv_widget.ListViewDialogAction = creme.component.Action.sub({
         this._buildPopup(options).open();
     }
 });
-
-/*
-creme.lv_widget.listViewAction = function(url, options, data) {
-    options = options || {};
-
-    var selector = function(dialog) {
-        return creme.lv_widget.selectedLines($('.ui-creme-listview', dialog)) || [];
-    };
-
-    var validator = function(data) {
-          if (Object.isEmpty(data)) {
-              creme.dialogs.warning(gettext('Please select at least one entity.'), {'title': gettext("Error")}).open();
-              return false;
-          }
-
-          if (!options.multiple && data.length > 1) {
-              creme.dialogs.warning(gettext('Please select only one entity.'), {'title': gettext("Error")}).open();
-              return false;
-          }
-
-          return true;
-    };
-
-    return creme.utils.innerPopupFormAction(url, {
-               submit_label: gettext("Validate the selection"),
-               submit: selector,
-               validator: validator,
-               closeOnEscape: options.closeOnEscape
-           }, data);
-};
-*/
 
 creme.lv_widget.ListViewActionLink = creme.action.ActionLink.sub({
     _init_: function(list, options) {

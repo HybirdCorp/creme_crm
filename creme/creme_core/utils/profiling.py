@@ -27,12 +27,10 @@ from contextlib import ContextDecorator
 
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.test.utils import CaptureQueriesContext as DjangoCaptureQueriesContext
-# from django.utils.decorators import ContextDecorator
 
 
 class CaptureQueriesContext(DjangoCaptureQueriesContext):
     def __init__(self, connection=None):
-        # super().__init__(connection if connection is not None else connections[DEFAULT_DB_ALIAS])
         self.default_connection = connection is None
         super().__init__(connection)
         self._captured_sql = None

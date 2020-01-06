@@ -38,7 +38,6 @@ from ..utils.unicode_collation import collator
 
 from .base import CremeModelForm
 
-
 logger = logging.getLogger(__name__)
 _RFIELD_PREFIX = EntityCellRegularField.type_id + '-'
 _CFIELD_PREFIX = EntityCellCustomField.type_id + '-'
@@ -131,9 +130,7 @@ class EntityCellsField(Field):
         'invalid': _('Enter a valid value.'),
     }
 
-    # def __init__(self, content_type=None, function_field_registry=None, *args, **kwargs):
     def __init__(self, *, content_type=None, function_field_registry=None, **kwargs):
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self.function_field_registry = function_field_registry or function_field.function_field_registry
         self._non_hiddable_cells = []
@@ -164,7 +161,6 @@ class EntityCellsField(Field):
     def _choices_4_functionfields(self, ct, builders):
         self.widget.function_fields = ffields_choices = []  # TODO: sort ?
 
-        # for f in ct.model_class().function_fields:
         for f in self.function_field_registry.fields(ct.model_class()):
             field_id = _FFIELD_PREFIX + f.name
             ffields_choices.append((field_id, f.verbose_name))

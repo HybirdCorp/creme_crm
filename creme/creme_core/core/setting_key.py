@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from json import dumps as jsondumps, loads as jsonloads
 from json import loads as json_load
 import logging
 
@@ -142,7 +141,6 @@ class _SettingKeyRegistry:
 
         for skey in skeys:
             if pop(skey.id, None) is None:
-                # logger.warn('This Setting is not registered (already un-registered ?): %s', skey.id)
                 raise self.RegistrationError(
                     'This Setting is not registered (already un-registered ?): {}'.format(
                         skey.id,
@@ -161,7 +159,6 @@ class UserSettingValueManager:
     def __init__(self, user_class, user_id, json_settings):
         self._user_class = user_class
         self._user_id = user_id
-        # self._values = jsonloads(json_settings)
         self._values = json_load(json_settings)
         self._read_only = True
 
@@ -180,7 +177,6 @@ class UserSettingValueManager:
 
         self._user_class.objects.filter(pk=self._user_id)\
                                 .update(json_settings=json_encode(self._values))
-                                # .update(json_settings=jsondumps(self._values))
 
         return True
 

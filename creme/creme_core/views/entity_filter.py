@@ -24,7 +24,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from django.db.models.deletion import ProtectedError
-from django.http import Http404  # HttpResponse, HttpResponseRedirect
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -101,34 +101,6 @@ class FilterMixin:
         lvs.register_in_session(request)
 
 
-# class FilterCreationMixin(base.EntityCTypeRelatedMixin, FilterMixin):
-#     ctype_form_kwarg = 'ctype'
-#
-#     def get_form_kwargs(self):
-#         kwargs = super().get_form_kwargs()
-#         kwargs[self.ctype_form_kwarg] = self.get_ctype()
-#
-#         return kwargs
-#
-#     def save_in_session(self, lvs_attr):
-#         request = self.request
-#         lv_url = self.build_lv_url()
-#         lvs = ListViewState.get_state(request, lv_url) or \
-#               ListViewState(url=lv_url)
-#
-#         setattr(lvs, lvs_attr, self.object.id)
-#         lvs.register_in_session(request)
-
-
-# class FilterEditionMixin(FilterMixin):
-#     def get_object(self, *args, **kwargs):
-#         filter_ = super().get_object(*args, **kwargs)
-#
-#         allowed, msg = filter_.can_edit(self.request.user)
-#         if not allowed:
-#             raise PermissionDenied(msg)
-#
-#         return filter_
 class EntityFilterMixin(FilterMixin):
     efilter_registry = entity_filter_registries[EF_USER]
 
@@ -136,7 +108,6 @@ class EntityFilterMixin(FilterMixin):
         return self.efilter_registry
 
 
-# class EntityFilterCreation(FilterCreationMixin, generic.CremeModelCreation):
 class EntityFilterCreation(base.EntityCTypeRelatedMixin,
                            EntityFilterMixin,
                            generic.CremeModelCreation):
@@ -171,7 +142,6 @@ class EntityFilterCreation(base.EntityCTypeRelatedMixin,
         return initial
 
 
-# class EntityFilterEdition(FilterEditionMixin, generic.CremeModelEdition):
 class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
     model = EntityFilter
     form_class = efilter_forms.EntityFilterEditForm
@@ -198,34 +168,6 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
         return kwargs
 
 
-# @login_required
-# def delete(request):
-#     efilter      = get_object_or_404(EntityFilter, pk=utils.get_from_POST_or_404(request.POST, 'id'))
-#     callback_url = efilter.entity_type.model_class().get_lv_absolute_url()
-#     allowed, msg = efilter.can_delete(request.user)
-#     status = 400  # todo: 409 ??
-#
-#     if allowed:
-#         try:
-#             efilter.delete()
-#         except EntityFilter.DependenciesError as e:
-#             return_msg = str(e)
-#         except ProtectedError as e:
-#             return_msg = gettext('«{}» can not be deleted because of its dependencies.').format(efilter)
-#             return_msg += render_to_string('creme_core/templatetags/widgets/list_instances.html',
-#                                            {'objects': e.args[1][:25], 'user': request.user},
-#                                            request=request,
-#                                           )
-#         else:
-#             return_msg = gettext('Filter successfully deleted')
-#             status = 200
-#     else:
-#         return_msg = msg
-#
-#     if request.is_ajax():
-#         return HttpResponse(return_msg, status=status)
-#
-#     return HttpResponseRedirect(callback_url)
 class EntityFilterDeletion(generic.CremeModelDeletion):
     model = EntityFilter
 
@@ -266,21 +208,6 @@ def get_content_types(request, rtype_id):
     ]
 
 
-# @login_required
-# @jsonify
-# def get_for_ctype(request):
-#     GET = request.GET
-#     ct_id = utils.get_from_GET_or_404(GET, 'ct_id', int)
-#     include_all = utils.get_from_GET_or_404(GET, 'all', cast=utils.bool_from_str_extended, default='0')
-#     ct = utils.get_ct_or_404(ct_id)
-#     user = request.user
-#
-#     user.has_perm_to_access_or_die(ct.app_label)
-#
-#     choices = [('', ugettext('All'))] if include_all else []
-#     choices.extend(EntityFilter.get_for_user(user, ct).values_list('id', 'name'))
-#
-#     return choices
 class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
     response_class = CremeJsonResponse
     ctype_id_arg = 'ct_id'

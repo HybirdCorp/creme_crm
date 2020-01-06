@@ -26,11 +26,9 @@
 from collections import defaultdict
 from fnmatch import fnmatch
 from functools import lru_cache
-# import warnings
 
 from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.models import ForeignKey
-# from django.db.transaction import atomic
 
 from ..models import CaseSensitivity
 
@@ -201,14 +199,12 @@ def populate_related(instances, field_names):
         # Step 1: we group all FK related to the same model, in order to group queries.
         for instances, field_info, field in _iter_works(works):
             attr_name  = field.get_attname()
-            # cache_name = field.get_cache_name()
 
             rel_model = field.remote_field.model
             cached = global_cache[rel_model]
             new_ids = new_ids_per_model[rel_model]
 
             for instance in instances:
-                # if not hasattr(instance, cache_name):
                 if not field.is_cached(instance):
                     attr_id = getattr(instance, attr_name)
 
@@ -237,13 +233,6 @@ def populate_related(instances, field_names):
                 attr_id = getattr(instance, attr_name)
 
                 if attr_id:
-                    # if hasattr(instance, cache_name):
-                    #     rel_instance = getattr(instance, fname)
-                    # else:
-                    #     rel_instance = get_cached(attr_id)
-                    #     setattr(instance, fname, rel_instance)
-                    #
-                    # related_instances.append(rel_instance)
                     try:
                         rel_instance = field.get_cached_value(instance)
                     except KeyError:
@@ -266,48 +255,6 @@ def populate_related(instances, field_names):
 
     while works:
         works = _populate_depth(works)
-
-
-# @atomic
-# def reorder_instances(moved_instance, new_order, queryset=None, order_field='order'):
-#     """ Change the order of an instance inside a set of ordered instances (ie:
-#     a QuerySet on a model with an integer field used for ordering).
-#
-#     @param moved_instance: The instance which moves inside the sequence.
-#     @param new_order: The new order (integer) of 'moved_instance'. BEWARE, this order is a
-#                       1-based index in the sequence, and NOT the value of the ordering field.
-#                       (but after the call, it's teh same thing ; see below).
-#     @param queryset: The sequence to reorder. If not given, all the instances of the model are used.
-#     @param order_field: Name of the ordering field. Default is 'order'.
-#
-#     @raises ValueError if 'moved_instance' is not found in the queryset.
-#
-#     Notice: the values for 'order_field' are automatically re-mapped on [1, 2 ...]
-#             (so even if the global ordering of an instance has not changed, its field's value
-#              could have changed).
-#     """
-#     warnings.warn('creme_core.utils.db.reorder_instances() is deprecated ; '
-#                   'use creme_core.views.generic.order.ReorderInstances instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     if queryset is None:
-#         queryset = moved_instance.__class__._default_manager.all()
-#
-#     instances = list(queryset.order_by(order_field).select_for_update())
-#
-#     if new_order < 1 or new_order > len(instances):
-#         raise IndexError('Next order is out of range.')
-#
-#     instances.pop(instances.index(moved_instance))
-#     instances.insert(new_order - 1, moved_instance)
-#
-#     for index, instance in enumerate(instances, start=1):
-#         old_order = getattr(instance, order_field)
-#
-#         if old_order != index:
-#             setattr(instance, order_field, index)
-#             instance.save(force_update=True, update_fields=(order_field,))
 
 
 # NB: 'maxsize=None' => avoid locking (number of models is small)

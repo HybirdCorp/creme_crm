@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 try:
-    # from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
     from django.utils.translation import gettext as _
@@ -9,110 +8,15 @@ try:
     from creme.creme_core import models
     from creme.creme_core.core.entity_filter import operators
     from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
-    # from creme.creme_core.utils.unicode_collation import collator
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
 class EnumerableViewsTestCase(ViewsTestCase):
-    # def _build_enum_url(self, model):
-    #     return reverse('creme_core__list_enumerable', args=(ContentType.objects.get_for_model(model).id,))
-
     def _build_choices_url(self, model, field_name):
         return reverse('creme_core__enumerable_choices',
                        args=(ContentType.objects.get_for_model(model).id, field_name),
                       )
-
-    # def test_list_enum_model_not_registered(self):
-    #     self.login()
-    #
-    #     url = self._build_enum_url(models.FakeContact)
-    #     response = self.assertGET404(url)
-    #     self.assertContains(response, 'Content type is not registered in config', status_code=404)
-    #
-    # def test_list_enum_model_app_not_allowed(self):
-    #     user = self.login(is_superuser=False, allowed_apps=('documents',))  # not 'creme_core'
-    #
-    #     self.assertFalse(user.has_perm(ContentType.objects.get_for_model(models.FakeCivility).app_label))
-    #
-    #     url = self._build_enum_url(models.FakeCivility)
-    #     response = self.assertGET404(url)
-    #     self.assertContains(response, "You are not allowed to access to the app 'creme_core'", status_code=404)
-    #
-    # def test_list_enum_contenttype_not_exists(self):
-    #     self.login()
-    #
-    #     url = reverse('creme_core__list_enumerable', args=(1045,))
-    #     response = self.assertGET404(url)
-    #     self.assertContains(response, 'No content type with this id', status_code=404)
-    #
-    # def test_list_enum_model_enumerable(self):
-    #     self.login()
-    #
-    #     self.assertTrue(self.user.has_perm(ContentType.objects.get_for_model(models.FakeCivility).app_label))
-    #
-    #     url = self._build_enum_url(models.FakeCivility)
-    #     response = self.assertGET200(url)
-    #     self.assertEqual([[c.id, str(c)] for c in models.FakeCivility.objects.all()], response.json())
-    #
-    # def test_list_enum_model_user(self):
-    #     self.login()
-    #
-    #     User = get_user_model()
-    #     url = self._build_enum_url(User)
-    #     response = self.assertGET200(url)
-    #     self.assertEqual([[c.id, str(c)] for c in User.objects.all()], response.json())
-    #
-    # def test_list_enum_model_contenttype(self):
-    #     self.login()
-    #
-    #     url = self._build_enum_url(ContentType)
-    #     response = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         choices = dict(response.json())
-    #
-    #     get_ct = ContentType.objects.get_for_model
-    #     self.assertEqual(choices.get(get_ct(models.FakeContact).id),      str(models.FakeContact._meta.verbose_name))
-    #     self.assertEqual(choices.get(get_ct(models.FakeOrganisation).id), str(models.FakeOrganisation._meta.verbose_name))
-    #     self.assertIsNone(choices.get(get_ct(models.FakeCivility).id))
-    #
-    # def test_model_entityfilter(self):
-    #     self.maxDiff = None
-    #     user = self.login()
-    #
-    #     # Create at least one filter
-    #     create_filter = models.EntityFilter.create
-    #     efilter = create_filter('test-filter01', 'Filter 01', models.FakeContact, is_custom=True)
-    #     efilter.set_conditions([models.EntityFilterCondition.build_4_field(
-    #                                     model=models.FakeContact,
-    #                                     operator=models.EntityFilterCondition.EQUALS,
-    #                                     name='first_name', values=['Misato'],
-    #                                ),
-    #                            ])
-    #
-    #     efilter_private = create_filter('test-filter02', 'Filter 02', models.FakeContact, is_custom=True,
-    #                                     user=user, is_private=True,
-    #                                    )
-    #     efilter_private.set_conditions([models.EntityFilterCondition.build_4_field(
-    #                                         model=models.FakeContact,
-    #                                         operator=models.EntityFilterCondition.EQUALS,
-    #                                         name='first_name', values=['Misato'],
-    #                                       ),
-    #                                    ])
-    #
-    #     response = self.assertGET200(self._build_enum_url(models.EntityFilter))
-    #     sort_key = collator.sort_key
-    #     self.assertEqual(sorted([{'value': f.id,
-    #                               'label': f.name,
-    #                               'group': str(f.entity_type),
-    #                               'help':  _('Private ({})').format(f.user) if f.is_private else '',
-    #                              } for f in models.EntityFilter.objects.all()
-    #                             ],
-    #                             key=lambda e: sort_key(e['group'] + e['label'])
-    #                            ),
-    #                      response.json()
-    #                     )
 
     def test_choices_success_fk(self):
         self.login()
@@ -154,7 +58,6 @@ class EnumerableViewsTestCase(ViewsTestCase):
         user = self.login()
 
         create_filter = models.EntityFilter.create
-        # build_cond = models.EntityFilterCondition.build_4_field
         build_cond = RegularFieldConditionHandler.build_condition
         efilter1 = create_filter(
             'test-filter01',
@@ -164,9 +67,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
             conditions=[
                 build_cond(
                    model=models.FakeContact,
-                   # operator=models.EntityFilterCondition.EQUALS,
                    operator=operators.EQUALS,
-                   # name='first_name',
                    field_name='first_name',
                    values=['Misato'],
                 ),
@@ -180,9 +81,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
             conditions=[
                 build_cond(
                     model=models.FakeOrganisation,
-                    # operator=models.EntityFilterCondition.CONTAINS,
                     operator=operators.CONTAINS,
-                    # name='name',
                     field_name='name',
                     values=['NERV'],
                 ),
@@ -270,15 +169,6 @@ class EnumerableViewsTestCase(ViewsTestCase):
         self.login()
         response = self.assertGET404(self._build_choices_url(models.FakeContact, 'unknown'))
         self.assertIn('This field does not exist.', response.content.decode())
-
-    # def test_userfilter_list(self):
-    #     self.login()
-    #
-    #     response = self.assertGET200(reverse('creme_core__efilter_user_choices'))
-    #     self.assertEqual([['__currentuser__', _('Current user')]] +
-    #                      [[u.id, str(u)] for u in get_user_model().objects.all()],
-    #                      response.json()
-    #                     )
 
     def test_custom_enum_not_exists(self):
         self.login()

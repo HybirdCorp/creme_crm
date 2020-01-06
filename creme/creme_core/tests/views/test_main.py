@@ -127,11 +127,9 @@ class MiscViewsTestCase(ViewsTestCase):
 
         settings.FORCE_JS_TESTVIEW = True
         self.assertTrue(settings.FORCE_JS_TESTVIEW)
-        # self.assertTrue(is_testenvironment(request))
 
         request.META['SERVER_NAME'] = 'otherserver'
         self.assertTrue(settings.FORCE_JS_TESTVIEW)
-        # self.assertFalse(is_testenvironment(request))
 
     def test_400_middleware(self):
         self.login()
@@ -291,10 +289,6 @@ class LanguageTestCase(ViewsTestCase):
     def test_delete(self):
         language = Language.objects.create(name='Klingon', code='KLN')
 
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('creme_core', 'language')),
-        #                    data={'id': language.id}
-        #                   )
-        # self.assertDoesNotExist(language)
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('creme_core', 'language', language.id)
                                            ),
@@ -362,12 +356,6 @@ class CurrencyTestCase(ViewsTestCase):
         currency = Currency.objects.create(name='Berry', local_symbol='B',
                                            international_symbol='BRY',
                                           )
-        # self.assertPOST200(reverse('creme_config__delete_instance',
-        #                            args=('creme_core', 'currency'),
-        #                           ),
-        #                    data={'id': currency.id}
-        #                   )
-        # self.assertDoesNotExist(currency)
         response = self.client.post(reverse('creme_config__delete_instance',
                                             args=('creme_core', 'currency', currency.id)
                                            ),

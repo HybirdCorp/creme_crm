@@ -28,7 +28,6 @@ from django.utils.translation import gettext_lazy as _
 
 from ..models import CremeEntity, RelationType, CustomField
 from ..models import fields as core_fields
-# from ..models.fields import DatePeriodField
 from ..utils.collections import ClassKeyedMap
 from ..utils.db import populate_related
 from ..utils.meta import FieldInfo
@@ -126,21 +125,11 @@ class EntityCell:
     _listview_css_class = None
     _header_listview_css_class = None
 
-    def __init__(self, model, value='', title='Title',
-                 # has_a_filter=False,
-                 # editable=False,
-                 # sortable=False,
-                 is_hidden=False,
-                 # filter_string='',
-                ):
+    def __init__(self, model, value='', title='Title', is_hidden=False):
         self._model = model
         self.value = value
         self.title = title
-        # self.has_a_filter = has_a_filter
-        # self.editable = editable
-        # self.sortable = sortable
         self.is_hidden = is_hidden
-        # self.filter_string = filter_string
 
     def __repr__(self):
         return "<EntityCell(type={}, value='{}')>".format(self.type_id, self.value)
@@ -272,46 +261,13 @@ class EntityCellRegularField(EntityCell):
         self._field_info = field_info
         self._printer_html = self._printer_csv = None
 
-        # field = field_info[0]
-        # has_a_filter = True
-        # sortable = True
-        # pattern = '{}__icontains'
-        #
-        # if len(field_info) > 1:
-        #     field = field_info[-1]  # The sub-field is considered as the main field
-        #
-        # if isinstance(field, DateField):
-        #     pattern = '{}__range'
-        # elif isinstance(field, BooleanField):
-        #     pattern = '{}__creme-boolean'
-        # elif isinstance(field, DatePeriodField):
-        # if isinstance(field, DatePeriodField):
-        #     has_a_filter = False
-        #     sortable = False
-        # elif field.is_relation:
-        #     if not field.related_model:
-        #         has_a_filter = False
-        #         sortable = False
-        #     else:
-        #         pattern = '{}__header_filter_search_field__icontains' \
-        #                   if issubclass(field.remote_field.model, CremeEntity) else '{}'
-        #
-        # if any(f.many_to_many or f.one_to_many for f in field_info):
-        #     sortable = False
-
         super().__init__(model=model,
                          value=name,
                          title=field_info.verbose_name,
-                         # has_a_filter=has_a_filter,
-                         # editable=True,
-                         # sortable=sortable,
                          is_hidden=is_hidden,
-                         # filter_string=pattern.format(name) if has_a_filter else '',
                         )
 
-    # @staticmethod
     @classmethod
-    # def build(model, name, is_hidden=False):
     def build(cls, model, name, is_hidden=False):
         """ Helper function to build EntityCellRegularField instances.
 
@@ -326,7 +282,6 @@ class EntityCellRegularField(EntityCell):
             logger.warning('EntityCellRegularField(): problem with field "%s" ("%s")', name, e)
             return None
 
-        # return EntityCellRegularField(model, name, field_info, is_hidden)
         return cls(model, name, field_info, is_hidden)
 
     @property
@@ -377,38 +332,25 @@ class EntityCellRegularField(EntityCell):
 class EntityCellCustomField(EntityCell):
     type_id = 'custom_field'
 
-    # _CF_PATTERNS = {
-    #         CustomField.BOOL:       '{}__value__creme-boolean',
-    #         CustomField.DATETIME:   '{}__value__range',
-    #         CustomField.ENUM:       '{}__value__exact',
-    #         CustomField.MULTI_ENUM: '{}__value__exact',
-    #     }
     _CF_CSS = {
-            CustomField.DATETIME:   models.DateTimeField,
-            CustomField.INT:        models.PositiveIntegerField,
-            CustomField.FLOAT:      models.DecimalField,
-            CustomField.BOOL:       BooleanField,
-            CustomField.ENUM:       models.ForeignKey,
-            CustomField.MULTI_ENUM: models.ManyToManyField,
-        }
+        CustomField.DATETIME:   models.DateTimeField,
+        CustomField.INT:        models.PositiveIntegerField,
+        CustomField.FLOAT:      models.DecimalField,
+        CustomField.BOOL:       BooleanField,
+        CustomField.ENUM:       models.ForeignKey,
+        CustomField.MULTI_ENUM: models.ManyToManyField,
+    }
 
     def __init__(self, customfield):
         self._customfield = customfield
-        # pattern = self._CF_PATTERNS.get(customfield.field_type, '{}__value__icontains')
 
         super().__init__(model=customfield.content_type.model_class(),
                          value=str(customfield.id),
                          title=customfield.name,
-                         # has_a_filter=True,
-                         # editable=False,
-                         # sortable=False,
                          is_hidden=False,
-                         # filter_string=pattern.format(customfield.get_value_class().get_related_name()),
                         )
 
-    # @staticmethod
     @classmethod
-    # def build(model, customfield_id):
     def build(cls, model, customfield_id):
         ct = ContentType.objects.get_for_model(model)
 
@@ -418,7 +360,6 @@ class EntityCellCustomField(EntityCell):
             logger.warning('EntityCellCustomField: custom field "%s" does not exist', customfield_id)
             return None
 
-        # return EntityCellCustomField(cfield)
         return cls(cfield)
 
     @property
@@ -455,13 +396,10 @@ class EntityCellFunctionField(EntityCell):
         super().__init__(model=model,
                          value=func_field.name,
                          title=str(func_field.verbose_name),
-                         # has_a_filter=func_field.has_filter,
                          is_hidden=func_field.is_hidden,
                         )
 
-    # @staticmethod
     @classmethod
-    # def build(model, func_field_name):
     def build(cls, model, func_field_name):
         # TODO: pass the 'function_field_registry' in a context
         func_field = function_field_registry.get(model, func_field_name)
@@ -470,7 +408,6 @@ class EntityCellFunctionField(EntityCell):
             logger.warning('EntityCellFunctionField: function field "%s" does not exist', func_field_name)
             return None
 
-        # return EntityCellFunctionField(model=model, func_field=func_field)
         return cls(model=model, func_field=func_field)
 
     @property
@@ -505,13 +442,10 @@ class EntityCellRelation(EntityCell):
         super().__init__(model=model,
                          value=str(rtype.id),
                          title=rtype.predicate,
-                         # has_a_filter=True,
                          is_hidden=is_hidden,
                         )
 
-    # @staticmethod
     @classmethod
-    # def build(model, rtype_id, is_hidden=False):
     def build(cls, model, rtype_id, is_hidden=False):
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
@@ -519,7 +453,6 @@ class EntityCellRelation(EntityCell):
             logger.warning('EntityCellRelation: relation type "%s" does not exist', rtype_id)
             return None
 
-        # return EntityCellRelation(model=model, rtype=rtype, is_hidden=is_hidden)
         return cls(model=model, rtype=rtype, is_hidden=is_hidden)
 
     @property
@@ -569,7 +502,6 @@ class EntityCellVolatile(EntityCell):
         super().__init__(model=model,
                          value=value,
                          title=title,
-                         # has_a_filter=True,
                          is_hidden=is_hidden,
                         )
 

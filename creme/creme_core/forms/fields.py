@@ -21,7 +21,7 @@
 from collections import defaultdict
 from copy import deepcopy
 from functools import partial
-from json import loads as json_load  # dumps as json_dump
+from json import loads as json_load
 import warnings
 
 from django.apps import apps
@@ -43,7 +43,6 @@ from ..utils import creme_entity_content_types, build_ct_choices, find_first
 from ..utils.collections import OrderedSet
 from ..utils.date_period import date_period_registry
 from ..utils.date_range import date_range_registry
-# from ..utils.queries import get_q_from_dict
 from ..utils.serializers import json_encode
 from ..utils.unicode_collation import collator
 
@@ -145,9 +144,7 @@ class JSONField(fields.CharField):
     }
     value_type = None  # Overload this: type of the value returned by the field.
 
-    # def __init__(self, user=None, *args, **kwargs):
     def __init__(self, *, user=None, **kwargs):
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self._user = user
         self.widget.from_python = self.from_python
@@ -231,7 +228,6 @@ class JSONField(fields.CharField):
         return data
 
     def format_json(self, value):
-        # return json_dump(value)
         return json_encode(value)
 
     # TODO: can we remove this hack with the new widget api (since django 1.2) ??
@@ -321,13 +317,11 @@ class EntityCredsJSONField(JSONField):
         (EntityCredentials.LINK,   f_validators.validate_linkable_entity, f_validators.validate_linkable_entities),
     ]
 
-    # def __init__(self, credentials=EntityCredentials.LINK, quickforms_registry=None, *args, **kwargs):
     def __init__(self, *, credentials=EntityCredentials.LINK, quickforms_registry=None, **kwargs):
         """Constructor.
         @param credentials: Binary combination of EntityCredentials.{VIEW, CHANGE, LINK}.
                             Default value is EntityCredentials.LINK.
         """
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self._credentials = credentials
         self.quickforms_registry = quickforms_registry or quick_forms.quickforms_registry
@@ -371,9 +365,7 @@ class GenericEntityField(EntityCredsJSONField):
     widget = core_widgets.CTEntitySelector
     value_type = dict
 
-    # def __init__(self, models=(), autocomplete=False, creator=True, user=None, *args, **kwargs):
     def __init__(self, *, models=(), autocomplete=False, creator=True, user=None, **kwargs):
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self.creator = creator
         self.autocomplete = autocomplete
@@ -475,7 +467,6 @@ class GenericEntityField(EntityCredsJSONField):
 
     def _get_ctypes_options(self):
         create_url = partial(self._create_url, self._user)
-        # return ((json_dump({'id': ctype.pk,
         return ((json_encode({'id': ctype.pk,
                               'create': create_url(ctype),
                               'create_label': str(ctype.model_class().creation_label),
@@ -500,11 +491,9 @@ class MultiGenericEntityField(GenericEntityField):
     widget = core_widgets.MultiCTEntitySelector
     value_type = list
 
-    # def __init__(self, models=(), autocomplete=False, unique=True, creator=True, user=None, *args, **kwargs):
     def __init__(self, *, models=(), autocomplete=False, unique=True, creator=True, user=None, **kwargs):
         super().__init__(models=models, autocomplete=autocomplete,
                          creator=creator, user=user,
-                         # *args, **kwargs
                          **kwargs
                         )
         self.unique = unique
@@ -595,9 +584,7 @@ class RelationEntityField(EntityCredsJSONField):
     }
     value_type = dict
 
-    # def __init__(self, allowed_rtypes=(REL_SUB_HAS, ), autocomplete=False, *args, **kwargs):
     def __init__(self, *, allowed_rtypes=(REL_SUB_HAS, ), autocomplete=False, **kwargs):
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self.autocomplete = autocomplete
         self.allowed_rtypes = allowed_rtypes
@@ -661,12 +648,6 @@ class RelationEntityField(EntityCredsJSONField):
                                  )
 
     def _validate_properties_constraints(self, rtype, entity):
-        # ptype_ids = frozenset(rtype.object_properties.values_list('id', flat=True))
-        #
-        # if ptype_ids and not any(p.type_id in ptype_ids for p in entity.get_properties()):
-        #     raise ValidationError(self.error_messages['nopropertymatch'],
-        #                           code='nopropertymatch',
-        #                          )
         needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
 
         if needed_ptype_ids:
@@ -717,10 +698,8 @@ class MultiRelationEntityField(RelationEntityField):
                                  ) from e
 
         allowed_ctype_ids   = frozenset(ct.pk for ct in rtype.object_ctypes.all())
-        # needed_property_ids = frozenset(rtype.object_properties.values_list('id', flat=True))
         needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
 
-        # return rtype, allowed_ctype_ids, needed_property_ids
         return rtype, allowed_ctype_ids, needed_ptype_ids
 
     def _build_ctype_cache(self, ctype_pk):
@@ -818,15 +797,9 @@ class MultiRelationEntityField(RelationEntityField):
             CremeEntity.populate_properties(entities_cache.values())
 
         for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
-            # rtype, rtype_allowed_ctypes, rtype_allowed_properties = rtypes_cache.get(rtype_pk)
             rtype, allowed_ctype_ids, needed_ptype_ids = rtypes_cache.get(rtype_pk)
             entity = entities_cache.get(entity_pk)
 
-            # if rtype_allowed_properties and \
-            #    not any(p.type_id in rtype_allowed_properties for p in entity.get_properties()):
-            #     raise ValidationError(self.error_messages['nopropertymatch'],
-            #                           code='nopropertymatch',
-            #                          )
             if needed_ptype_ids:
                 ptype_ids = {p.type_id for p in entity.get_properties()}
 
@@ -848,14 +821,11 @@ class CreatorEntityField(EntityCredsJSONField):
                                                # model, q_filter, creation_url, creation_allowed
     value_type = int
 
-    # def __init__(self, model=None, q_filter=None,
     def __init__(self, *, model=None, q_filter=None,
                  create_action_url='',
                  create_action_label=None,
-                 # user=None, force_creation=False, *args, **kwargs
                  user=None, force_creation=False, **kwargs
                 ):
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         widget = self.widget
         self._model = widget.model = model
@@ -909,10 +879,6 @@ class CreatorEntityField(EntityCredsJSONField):
                 q_filter = q_filter()
 
             if isinstance(q_filter, dict):
-                # try:
-                #     q = get_q_from_dict(q_filter)
-                # except Exception as e:
-                #     raise ValueError('Invalid q_filter: {}'.format(q_filter)) from e
                 q = Q(**q_filter)
             elif isinstance(q_filter, Q):
                 q = q_filter
@@ -1043,14 +1009,12 @@ class FilteredEntityTypeField(JSONField):
     }
     value_type = dict
 
-    # def __init__(self, ctypes=creme_entity_content_types, empty_label=None, *args, **kwargs):
     def __init__(self, *, ctypes=creme_entity_content_types, empty_label=None, **kwargs):
         """Constructor.
         @param ctypes: Allowed types.
                         - A callable which returns an iterable of ContentType IDs / instances.
                         - Sequence of ContentType IDs / instances.
         """
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self._empty_label = empty_label
         self.ctypes = ctypes
@@ -1134,10 +1098,8 @@ class OptionalField(fields.MultiValueField):
         'subfield_required': _('Enter a value if you check the box.'),
     }
 
-    # def __init__(self, widget=None, label=None, initial=None, help_text='', sub_label='', *args, **kwargs):
     def __init__(self, *, widget=None, label=None, initial=None, help_text='', sub_label='', **kwargs):
         super().__init__(fields=(fields.BooleanField(required=False),
-                                 # self._build_subfield(*args, **kwargs),
                                  self._build_subfield(**kwargs),
                                 ),
                          required=False,
@@ -1291,9 +1253,7 @@ class MultiEmailField(fields.Field):
     # Original code at http://docs.djangoproject.com/en/1.3/ref/forms/validation/#form-field-default-cleaning
     widget = widgets.Textarea
 
-    # def __init__(self, sep="\n", *args, **kwargs):
     def __init__(self, *, sep='\n', **kwargs):
-        # super(MultiEmailField, self).__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self.sep = sep
 
@@ -1317,14 +1277,12 @@ class MultiEmailField(fields.Field):
 class DatePeriodField(fields.MultiValueField):
     widget = core_widgets.DatePeriodWidget
 
-    # def __init__(self, period_registry=date_period_registry, period_names=None, *args, **kwargs):
     def __init__(self, *, period_registry=date_period_registry, period_names=None, **kwargs):
         """Constructor.
         @param period_registry: see property 'period_registry'.
         @param period_names: see property 'period_names'.
         """
         super().__init__((fields.ChoiceField(), fields.IntegerField(min_value=1)),
-                         # *args, **kwargs
                          **kwargs
                         )
 
@@ -1394,7 +1352,6 @@ class DateRangeField(fields.MultiValueField):
         'customized_invalid': _('Start date has to be before end date.'),
     }
 
-    # def __init__(self, render_as='table', *args, **kwargs):
     def __init__(self, *, render_as='table', **kwargs):
         # TODO: are these attributes useful ??
         self.ranges = ranges = fields.ChoiceField(
@@ -1411,7 +1368,6 @@ class DateRangeField(fields.MultiValueField):
                                  self.start_date,
                                  self.end_date,
                                 ),
-                         # require_all_fields=False, *args, **kwargs
                          require_all_fields=False, **kwargs
                         )
 
@@ -1448,13 +1404,10 @@ class ColorField(fields.CharField):
         'invalid': _('Enter a valid value (eg: DF8177).'),
     }
 
-    # def __init__(self, max_length=6, min_length=6, *args, **kwargs):
     def __init__(self, *, max_length=6, min_length=6, **kwargs):
-        # super().__init__(max_length=max_length, min_length=min_length, *args, **kwargs)
         super().__init__(max_length=max_length, min_length=min_length, **kwargs)
 
     def clean(self, value):
-        # return super(ColorField, self).clean(value).upper()
         return super().clean(value).upper()
 
 
@@ -1465,14 +1418,12 @@ class DurationField(fields.MultiValueField):
         'min_value': _('Ensure this value is greater than or equal to %(limit_value)s.'),
     }
 
-    # def __init__(self, *args, **kwargs):
     def __init__(self, **kwargs):
         IntegerField = fields.IntegerField
         self.hours   = IntegerField(min_value=0)
         self.minutes = IntegerField(min_value=0)
         self.seconds = IntegerField(min_value=0)
 
-        # super().__init__(fields=(self.hours, self.minutes, self.seconds), *args, **kwargs)
         super().__init__(fields=(self.hours, self.minutes, self.seconds), **kwargs)
 
     def compress(self, data_list):
@@ -1490,7 +1441,6 @@ class ChoiceOrCharField(fields.MultiValueField):
         'invalid_other': _('Enter a value for "Other" choice.'),
     }
 
-    # def __init__(self, choices=(), *args, **kwargs):
     def __init__(self, *, choices=(), **kwargs):
         """@param choices Sequence of tuples (id, value).
                           BEWARE: id should not be a null value (like '', 0, etc..).
@@ -1498,7 +1448,6 @@ class ChoiceOrCharField(fields.MultiValueField):
         self.choice_field = choice_field = fields.ChoiceField()
         super().__init__(fields=(choice_field, fields.CharField(required=False)),
                          require_all_fields=False,
-                         # *args, **kwargs
                          **kwargs
                         )
         self.choices = choices
@@ -1550,18 +1499,12 @@ class CTypeChoiceField(fields.Field):
     }
 
     # TODO: ctypes_or_models ??
-    # def __init__(self, ctypes=(), empty_label='---------',
     def __init__(self, *, ctypes=(), empty_label='---------',
                  required=True, widget=None, label=None, initial=None,
-                 # help_text=None,
                  help_text='',
                  to_field_name=None, limit_choices_to=None,  # TODO: manage ?
-                 # *args, **kwargs):
                  **kwargs):
         "@param ctypes: A sequence of ContentTypes or a callable which returns one."
-        # super().__init__(required, widget, label, initial, help_text,
-        #                  *args, **kwargs
-        #                 )
         super().__init__(required=required, widget=widget, label=label,
                          initial=initial, help_text=help_text,
                          **kwargs
@@ -1653,18 +1596,14 @@ class MultiCTypeChoiceField(CTypeChoiceField):
 
 
 class EntityCTypeChoiceField(CTypeChoiceField):
-    # def __init__(self, ctypes=None, *args, **kwargs):
     def __init__(self, *, ctypes=None, **kwargs):
         ctypes = ctypes or creme_entity_content_types
-        # super().__init__(ctypes=ctypes, *args, **kwargs)
         super().__init__(ctypes=ctypes, **kwargs)
 
 
 class MultiEntityCTypeChoiceField(MultiCTypeChoiceField):
-    # def __init__(self, ctypes=None, *args, **kwargs):
     def __init__(self, *, ctypes=None, **kwargs):
         ctypes = ctypes or creme_entity_content_types
-        # super().__init__(ctypes=ctypes, *args, **kwargs)
         super().__init__(ctypes=ctypes, **kwargs)
 
 

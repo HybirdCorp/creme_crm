@@ -29,7 +29,6 @@ from django.db.models.query import QuerySet
 
 from .dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -47,17 +46,7 @@ def get_q_from_dict(dict, is_or=False):
     q = Q()
 
     for k, v in dict.items():
-        k = str(k)
-
-        # if k.startswith('~'):
-        #     warnings.warn('creme_core.utils.queries.get_q_from_dict(): the "~" feature is deprecated ; '
-        #                   'use a django.db.models.query.Q instead.',
-        #                   DeprecationWarning
-        #                  )
-        #     sub_q = ~Q(**{k[1:]: v})
-        # else:
-        #     sub_q = Q(**{k: v})
-        sub_q = Q(**{k: v})
+        sub_q = Q(**{str(k): v})
 
         if is_or:
             q |= sub_q

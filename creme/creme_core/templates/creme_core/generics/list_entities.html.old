@@ -1,9 +1,0 @@
-{% extends 'creme_core/base.html' %}
-
-{% block page_title %}{{list_title}} - {% endblock %}
-
-{% block content_extra_class %}content-list-view{% endblock %}
-
-{% block content %}
-    {% include 'creme_core/frags/list_view.html' %}
-{% endblock %}

@@ -1427,7 +1427,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                                             content_type=self.contact_ct,
                                             field_type=CustomField.INT,
                                            )
-        # mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_int.id)
         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT.format(cf_int.id))
 
         # Int
@@ -1457,7 +1456,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                                               content_type=self.contact_ct,
                                               field_type=CustomField.FLOAT,
                                              )
-        # mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_float.id)
         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT.format(cf_float.id))
 
         # Float
@@ -1490,7 +1488,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT.format(cf_bool.id))
 
         # Bool
-        # response = self.client.post(url, data={'field_value': True,
         response = self.client.post(url, data={'field_value': 'true',
                                                'entities': [mario.pk, luigi.pk],
                                               },
@@ -1500,7 +1497,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertEqual(True, self.get_cf_values(cf_bool, self.refresh(luigi)).value)
 
         # Bool false
-        # response = self.client.post(url, data={'field_value': False,
         response = self.client.post(url, data={'field_value': 'false',
                                                'entities': [mario.pk, luigi.pk],
                                               },
@@ -1510,7 +1506,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertEqual(False, self.get_cf_values(cf_bool, self.refresh(luigi)).value)
 
         # Bool empty
-        # response = self.client.post(url, data={'field_value': None,
         response = self.client.post(url, data={'field_value': 'unknown',
                                                'entities': [mario.pk, luigi.pk],
                                               },

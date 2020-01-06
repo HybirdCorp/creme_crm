@@ -19,15 +19,15 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-from django.http import Http404  # HttpResponseRedirect HttpResponse
-from django.shortcuts import get_list_or_404, get_object_or_404  # redirect render
+from django.http import Http404
+from django.shortcuts import get_list_or_404, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 # TODO: move them to creme_core ?
 from creme.creme_config.forms import creme_property_type as ptype_forms
 
-from ..auth.decorators import login_required  # permission_required
+from ..auth.decorators import login_required
 from ..forms import creme_property as prop_forms
 from ..gui.bricks import QuerysetBrick, Brick
 from ..models import CremeEntity, CremePropertyType, CremeProperty
@@ -100,20 +100,6 @@ class PropertyTypeEdition(generic.CremeModelEdition):
     permissions = 'creme_core.can_admin'
 
 
-# @login_required
-# def delete_from_type(request):
-#     POST = request.POST
-#     ptype = get_object_or_404(CremePropertyType, id=get_from_POST_or_404(POST, 'ptype_id'))
-#     entity = get_object_or_404(CremeEntity, id=get_from_POST_or_404(POST, 'entity_id'))
-#
-#     request.user.has_perm_to_change_or_die(entity)
-#
-#     ptype.cremeproperty_set.filter(creme_entity=entity).delete()
-#
-#     if request.is_ajax():
-#         return HttpResponse()
-#
-#     return redirect(ptype)
 class PropertyFromFieldsDeletion(generic.base.EntityRelatedMixin,
                                  generic.CremeModelDeletion,
                                 ):
@@ -152,17 +138,6 @@ class PropertyFromFieldsDeletion(generic.base.EntityRelatedMixin,
         return self.get_property_type().get_absolute_url()
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def delete_type(request, ptype_id):
-#     ptype = get_object_or_404(CremePropertyType, pk=ptype_id)
-#
-#     if not ptype.is_custom:
-#         raise Http404("Can't delete a standard PropertyType")
-#
-#     ptype.delete()
-#
-#     return HttpResponseRedirect(CremePropertyType.get_lv_absolute_url())
 class PropertyTypeDeletion(generic.CremeModelDeletion):
     model = CremePropertyType
     permissions = 'creme_core.can_admin'

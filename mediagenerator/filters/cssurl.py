@@ -1,6 +1,5 @@
 from base64 import b64encode
 from mimetypes import guess_type
-# import logging
 import os
 import posixpath
 import re
@@ -11,9 +10,7 @@ from mediagenerator.generators.bundles.base import Filter, FileFilter
 from mediagenerator.utils import media_url, prepare_patterns, find_file
 from ..api import global_errors
 
-
 url_re = re.compile(r'url\s*\(["\']?([\w\.][^:]*?)["\']?\)', re.UNICODE)
-# logger = logging.getLogger(__name__)
 
 # Whether to rewrite CSS URLs, at all
 REWRITE_CSS_URLS = getattr(settings, 'REWRITE_CSS_URLS', True)
@@ -61,9 +58,7 @@ class URLRewriter:
                         return 'url(data:{};base64,{})'.format(mime, data)
 
                 url = media_url(rebased_url)
-            # except:
             except KeyError:
-                # logger.error('URL not found: %s' % url)
                 global_errors['filters.cssurl'][original_url] = 'URL not found: ' + original_url
             else:
                 global_errors['filters.cssurl'].pop(original_url, None)
@@ -81,7 +76,6 @@ class URLRewriter:
 class CSSURL(Filter):
     """Rewrites URLs relative to media folder ("absolute" rewriting)."""
     def __init__(self, **kwargs):
-        # super(CSSURL, self).__init__(**kwargs)
         super().__init__(**kwargs)
 
         assert self.filetype == 'css', (
@@ -94,7 +88,6 @@ class CSSURL(Filter):
             yield rewriter.rewrite_urls(input)
 
     def get_dev_output(self, name, variation):
-        # content = super(CSSURL, self).get_dev_output(name, variation)
         content = super().get_dev_output(name, variation)
 
         return URLRewriter().rewrite_urls(content)
@@ -103,7 +96,6 @@ class CSSURL(Filter):
 class CSSURLFileFilter(FileFilter):
     """Rewrites URLs relative to input file's location."""
     def get_dev_output(self, name, variation):
-        # content = super(CSSURLFileFilter, self).get_dev_output(name, variation)
         content = super().get_dev_output(name, variation)
         if not REWRITE_CSS_URLS_RELATIVE_TO_SOURCE:
             return content

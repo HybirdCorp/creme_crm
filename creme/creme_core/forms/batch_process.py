@@ -85,9 +85,7 @@ class BatchActionsField(JSONField):
     value_type = list
     _fields = None
 
-    # def __init__(self, model=CremeEntity, bulk_update_registry=None, *args, **kwargs):
     def __init__(self, *, model=CremeEntity, bulk_update_registry=None, **kwargs):
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self.model = model
         self.bulk_update_registry = bulk_update_registry or bulk_update.bulk_update_registry

@@ -53,7 +53,6 @@ from .base import CremeForm, CremeModelForm, FieldBlockManager, _CUSTOM_NAME
 from .fields import MultiRelationEntityField, CreatorEntityField
 from .widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
 
-
 logger = logging.getLogger(__name__)
 Document = get_document_model()
 
@@ -285,9 +284,7 @@ class ExtractorField(Field):
     }
 
     # TODO: default values + properties which update widget
-    # def __init__(self, choices, modelfield, modelform_field, *args, **kwargs):
     def __init__(self, *, choices, modelfield, modelform_field, **kwargs):
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self.required = modelform_field.required
         modelform_field.required = False
@@ -320,7 +317,6 @@ class ExtractorField(Field):
             app_name = model._meta.app_label
 
             try:
-                # config_registry.get_app(app_name).get_model_conf(model=model)
                 config_registry.get_app_registry(app_name).get_model_conf(model=model)
             except (KeyError, NotRegisteredInConfig):
                 pass
@@ -546,7 +542,6 @@ class EntityExtractorField(Field):
     }
 
     # TODO: default values + properties which update widget
-    # def __init__(self, models_info, choices, *args, **kwargs):
     def __init__(self, *, models_info, choices, **kwargs):
         """@param model_info: Sequence of tuple (Entity class, field name)
                   Field name if used to get or create class instances.
@@ -719,7 +714,6 @@ class RelationExtractorField(MultiRelationEntityField):
         'invalidcolunm':     _('This column is not a valid choice.'),
     }
 
-    # def __init__(self, columns=(), *args, **kwargs):
     def __init__(self, *, columns=(), **kwargs):
         super().__init__(**kwargs)
         self.columns = columns
@@ -893,11 +887,9 @@ class CustomFieldExtractorWidget(ExtractorWidget):
 
 # TODO: factorise
 class CustomfieldExtractorField(Field):
-    # def __init__(self, choices, custom_field, user, *args, **kwargs):
     def __init__(self, *, choices, custom_field, user, **kwargs):
         super().__init__(widget=CustomFieldExtractorWidget,
                          label=custom_field.name,
-                         # *args, **kwargs
                          **kwargs
                         )
 
@@ -1002,11 +994,6 @@ class ImportForm(CremeModelForm):
             return False
 
         # TODO: exclude not extractor fields ?
-        # self.fields['key_fields'].choices = \
-        #     ModelFieldEnumerator(self._meta.model, deep=1, only_leafs=False) \
-        #         .filter(viewable=True) \
-        #         .exclude(lambda field, deep: get_fconf(field.model).is_field_hidden(field)) \
-        #         .choices()
         self.fields['key_fields'].choices = \
             ModelFieldEnumerator(self._meta.model, deep=0, only_leafs=False) \
                 .filter(viewable=True) \
@@ -1266,7 +1253,6 @@ class ImportForm4CremeEntity(ImportForm):
 
         # Properties -----
         create_prop = partial(CremeProperty.objects.create if not updated else
-                              # CremeProperty.objects.get_or_create,
                               CremeProperty.objects.safe_get_or_create,
                               creme_entity=instance,
                              )

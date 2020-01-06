@@ -33,7 +33,6 @@ from creme.creme_core.utils.dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
 from creme.creme_core.utils.db import populate_related
 from creme.creme_core.utils.meta import FieldInfo
 
-
 _FORWARD = 'forward'
 _BACKWARD = 'backward'
 

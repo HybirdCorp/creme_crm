@@ -27,35 +27,13 @@ from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from ..base import CremeModelForm, FieldBlockManager
 from ..widgets import CremeRadioSelect
 
-# from . import fields
-
 
 class _EntityFilterForm(CremeModelForm):
-    # fields_conditions           = fields.RegularFieldsConditionsField(label=_('On regular fields'), required=False,
-    #                                                            help_text=_('You can write several values, separated by commas.')
-    #                                                           )
-    # datefields_conditions       = fields.DateFieldsConditionsField(label=_('On date fields'), required=False)
-    # customfields_conditions     = fields.CustomFieldsConditionsField(label=_('On custom fields'), required=False)
-    # datecustomfields_conditions = fields.DateCustomFieldsConditionsField(label=_('On date custom fields'), required=False)
-    # relations_conditions        = fields.RelationsConditionsField(label=_('On relationships'), required=False,
-    #                                                        help_text=_('Do not select any entity if you want to match them all.')
-    #                                                       )
-    # relsubfilfers_conditions    = fields.RelationSubfiltersConditionsField(label=_('On relationships with results of other filters'), required=False)
-    # properties_conditions       = fields.PropertiesConditionsField(label=_('On properties'), required=False)
-    # subfilters_conditions       = fields.SubfiltersConditionsField(label=_('Sub-filters'), required=False)
-
     error_messages = {
         'no_condition':    _('The filter must have at least one condition.'),
         'foreign_private': _('A private filter must belong to you (or one of your teams).')
     }
 
-    # _CONDITIONS_FIELD_NAMES = ('fields_conditions', 'datefields_conditions',
-    #                            'customfields_conditions', 'datecustomfields_conditions',
-    #                            'relations_conditions', 'relsubfilfers_conditions',
-    #                            'properties_conditions', 'subfilters_conditions',
-    #                           )
-
-    # blocks = CremeModelForm.blocks.new(('conditions', _('Conditions'), _CONDITIONS_FIELD_NAMES))
     blocks = FieldBlockManager(
         ('general',    _('General information'), ('name', 'user', 'is_private', 'use_or')),
         ('conditions', _('Conditions'),          '*'),
@@ -94,7 +72,6 @@ class _EntityFilterForm(CremeModelForm):
         cdata = self.cleaned_data
         conditions = []
 
-        # for fname in self._CONDITIONS_FIELD_NAMES:
         for fname in self.conditions_field_names:
             conditions.extend(cdata[fname])
 
@@ -104,7 +81,6 @@ class _EntityFilterForm(CremeModelForm):
         cdata = super().clean()
 
         if not self._errors:
-            # if not any(cdata[f] for f in self._CONDITIONS_FIELD_NAMES):
             if not any(cdata[f] for f in self.conditions_field_names):
                 raise ValidationError(self.error_messages['no_condition'],
                                       code='no_condition',
@@ -135,15 +111,12 @@ class EntityFilterCreateForm(_EntityFilterForm):
         self._entity_type = self.instance.entity_type = ctype
         fields = self.fields
 
-        # for field_name in self._CONDITIONS_FIELD_NAMES:
         for field_name in self.conditions_field_names:
             fields[field_name].initialize(ctype)
 
     def save(self, *args, **kwargs):
         instance = self.instance
         ct = self._entity_type
-
-        # instance.is_custom = True
 
         super().save(commit=False, *args, **kwargs)
         generate_string_id_and_save(
@@ -169,7 +142,6 @@ class EntityFilterEditForm(_EntityFilterForm):
         instance = self.instance
         args = (instance.entity_type, instance.conditions.all(), instance)
 
-        # for field_name in self._CONDITIONS_FIELD_NAMES:
         for field_name in self.conditions_field_names:
             fields[field_name].initialize(*args)
 

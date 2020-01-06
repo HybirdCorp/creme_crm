@@ -5,8 +5,6 @@
 
 {% block content_extra_class %}content-my_page{% endblock %}
 
-{# {% block before_content_1 %}<div class="my_page">{% endblock %} #}
-
 {% block content %}
     <div class="hat-bar-container">
         <div class="hat-bar">{% trans 'My page' as title %}
@@ -19,5 +17,3 @@
     {% brick_display bricks render='home' %}
     {% brick_end %}
 {% endblock %}
-
-{# {% block after_content_3 %}</div>{% endblock %} #}

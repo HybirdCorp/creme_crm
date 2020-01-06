@@ -21,7 +21,6 @@
 from collections import defaultdict
 from itertools import chain
 import logging
-# import warnings
 
 from django.db.models import Q
 from django.urls import reverse
@@ -51,7 +50,6 @@ def detailview_bricks(user, entity, registry=brick_registry):
     # We fallback to the default config is there is no config for this content type.
     locs = [loc for loc in locs
             # NB: useless as long as default conf cannot have a related role
-            # if loc.content_type_id is not None
             if loc.superuser == is_superuser and loc.role == role
            ] or [loc for loc in locs if loc.content_type_id is not None] or locs
     loc_map = defaultdict(list)
@@ -60,10 +58,6 @@ def detailview_bricks(user, entity, registry=brick_registry):
         brick_id = loc.brick_id
 
         if brick_id:  # Populate scripts can leave void brick ids
-            # if BrickDetailviewLocation.id_is_4_model(brick_id):
-            #     # brick_id = brick_registry.get_brick_4_object(entity).id_
-            #     brick_id = registry.get_brick_4_object(entity).id_
-
             loc_map[loc.zone].append(brick_id)
 
     # We call the method block_registry.get_bricks() once to regroup additional queries
@@ -89,36 +83,6 @@ def detailview_bricks(user, entity, registry=brick_registry):
         zone_name: [*filter(None, (bricks.get(brick_id) for brick_id in loc_map[zone]))]
             for zone, zone_name in BrickDetailviewLocation.ZONE_NAMES.items()
     }
-
-
-# def view_entity(request, object_id, model,
-#                 template='creme_core/generics/view_entity.html',
-#                 extra_template_dict=None):
-#     warnings.warn('creme_core.views.generics.detailview.view_entity() is deprecated ; '
-#                   'use the class-based view EntityDetail instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     from django.shortcuts import get_object_or_404, render
-#
-#     entity = get_object_or_404(model, pk=object_id)
-#
-#     user = request.user
-#     user.has_perm_to_view_or_die(entity)
-#
-#     LastViewedItem(request, entity)
-#     imprint.imprint_manager.create_imprint(entity=entity, user=user)
-#
-#     template_dict = {
-#         'object': entity,
-#         'bricks': detailview_bricks(user, entity),
-#         'bricks_reload_url': reverse('creme_core__reload_detailview_bricks', args=(entity.id,)),
-#     }
-#
-#     if extra_template_dict is not None:
-#         template_dict.update(extra_template_dict)
-#
-#     return render(request, template, template_dict)
 
 
 class CremeModelDetail(base.PermissionsMixin, base.BricksMixin, DetailView):

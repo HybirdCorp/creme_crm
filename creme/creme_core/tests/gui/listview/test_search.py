@@ -560,7 +560,6 @@ class ListViewSearchTestCase(CremeTestCase):
 
         field = registry.get_field(cell=cell1, user=self.user)
         self.assertIsInstance(field, lv_form.ListViewSearchField)
-        # self.assertFalse(field.widget.type)
         self.assertIsNone(registry.builder(funfield1))
 
         # ---
@@ -867,7 +866,6 @@ class ListViewSearchTestCase(CremeTestCase):
 
         field = registry.get_field(cell=cell, user=self.user)
         self.assertIsInstance(field, lv_form.ListViewSearchField)
-        # self.assertFalse(field.widget.type)
 
         class MyField(lv_form.RelationField):
             pass

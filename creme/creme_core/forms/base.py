@@ -25,7 +25,7 @@ import warnings
 
 from django import forms
 from django.conf import settings
-from django.db.models import Q  # FieldDoesNotExist
+from django.db.models import Q
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _, gettext
 
@@ -300,7 +300,6 @@ class CremeModelWithUserForm(CremeModelForm):
         user_f.initial = user.id
 
 
-# class CremeEntityForm(CremeModelWithUserForm):
 class CremeEntityForm(CremeModelForm):
     property_types = fields.EnhancedModelMultipleChoiceField(
         queryset=CremePropertyType.objects.none(),
@@ -336,7 +335,6 @@ class CremeEntityForm(CremeModelForm):
         'subject_not_linkable': _('You are not allowed to link the created entity (wrong owner?).'),
     }
 
-    # blocks = CremeModelWithUserForm.blocks.new(
     blocks=CremeModelForm.blocks.new(
         ('description',   _('Description'),   ('description',)),
         ('properties',    _('Properties'),    ('property_types',)),
@@ -374,16 +372,6 @@ class CremeEntityForm(CremeModelForm):
             (r.type, r.object_entity) for r in forced_relations
         ]
         self._build_relations_fields(forced_relations_info=forced_relations_info)
-
-        # # Populate help_text in form widgets
-        # # Rule is form field help text or model field help text
-        # for field_name, form_field in self.fields.items():
-        #     try:
-        #         model_field = self.instance._meta.get_field(field_name)
-        #         help_text = form_field.help_text if form_field.help_text not in (None, '') else model_field.help_text
-        #         form_field.widget.help_text = help_text
-        #     except FieldDoesNotExist:
-        #         form_field.widget.help_text = form_field.help_text
 
     def _build_customfields(self):
         self._customs = self.instance.get_custom_fields_n_values()

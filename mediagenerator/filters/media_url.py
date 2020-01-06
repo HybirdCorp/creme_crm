@@ -6,7 +6,6 @@ from django.utils.encoding import smart_str
 from mediagenerator.generators.bundles.base import Filter
 from mediagenerator.utils import get_media_url_mapping
 
-
 _CODE = """
 _$MEDIA_URLS = %s;
 
@@ -30,7 +29,6 @@ class MediaURL(Filter):
     takes_input = False
 
     def __init__(self, **kwargs):
-        # super(MediaURL, self).__init__(**kwargs)
         super().__init__(**kwargs)
         assert self.filetype == 'js', (
             'MediaURL only supports JS output. '

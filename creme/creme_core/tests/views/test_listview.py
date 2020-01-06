@@ -8,7 +8,6 @@ try:
     from random import shuffle
     import re
 
-    # import html5lib
     from bleach._vendor import html5lib  # Avoid a dependence only for test
 
     from django.conf import settings
@@ -39,7 +38,7 @@ try:
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.gui.listview import ListViewState
     from creme.creme_core.models import (
-        EntityFilter,   # EntityFilterCondition
+        EntityFilter,
         SetCredentials,
         HeaderFilter,
         RelationType, Relation,
@@ -154,7 +153,6 @@ class ListViewTestCase(ViewsTestCase):
         tr_node = thead_node.find(".//tr[@class='lv-search-header']")
         self.assertIsNotNone(tr_node)
 
-        # widget_nodes = tr_node.findall(".//{}[@name='{}']".format(input_type, cell_key))
         widget_nodes = tr_node.findall(".//{}[@name='search-{}']".format(input_type, cell_key))
         self.assertEqual(count, len(widget_nodes))
 
@@ -442,10 +440,8 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        # def post(first, second, sort_order='', sort_field='regular_field-name', **kwargs):
         def post(first, second, sort_order='', sort_key='regular_field-name', **kwargs):
             response = self.assertPOST200(self.url,
-                                          # data={'sort_field': sort_field,
                                           data={'sort_key': sort_key,
                                                 'sort_order': sort_order,
                                                },
@@ -458,22 +454,16 @@ class ListViewTestCase(ViewsTestCase):
             self.assertLess(first_idx, second_idx)
 
         post(bebop, swordfish)
-        # post(swordfish, bebop, '-')
         post(swordfish, bebop, 'DESC')
-        # post(bebop, swordfish, '*')  # Invalid value
-        # post(bebop, swordfish, sort_field='unknown')  # Invalid value
         post(bebop, swordfish, sort_key='unknown')  # Invalid value
 
         # ajax POST request
         post(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        # post(swordfish, bebop, '-', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         post(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         state = ListViewState.get_state(self.client, url=self.url)
         self.assertIsNotNone(state)
-        # self.assertEqual('regular_field-name', state.sort_field)
         self.assertEqual('regular_field-name', state.sort_cell_key)
-        # self.assertEqual('-', state.sort_order)
         self.assertEqual('DESC', state.sort_order)
 
     def test_ordering_regularfield_invalid_order(self):
@@ -496,10 +486,8 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        # def get(first, second, sort_order='', sort_field='regular_field-name', **kwargs):
         def get(first, second, sort_order='ASC', sort_key='regular_field-name', **kwargs):
             response = self.assertGET200(self.url,
-                                         # data={'sort_field': sort_field,
                                          data={'sort_key': sort_key,
                                                'sort_order': sort_order,
                                               },
@@ -511,10 +499,7 @@ class ListViewTestCase(ViewsTestCase):
             self.assertLess(first_idx, second_idx)
 
         get(bebop, swordfish)
-        # get(swordfish, bebop, '-')
         get(swordfish, bebop, 'DESC')
-        # get(bebop, swordfish, '*')  # Invalid value
-        # get(bebop, swordfish, sort_field='unknown')  # Invalid value
         get(bebop, swordfish, sort_key='unknown')  # Invalid value
 
         state = ListViewState.get_state(self.client, url=self.url)
@@ -522,7 +507,6 @@ class ListViewTestCase(ViewsTestCase):
 
         # ajax GET request
         get(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        # get(swordfish, bebop, '-', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         get(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         # state is not saved or update by GET requests.
@@ -538,10 +522,8 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        # def post(first, second, sort_order='', sort_field='regular_field-name', **kwargs):
         def post(first, second, sort_order='ASC', sort_key='regular_field-name', **kwargs):
             response = self.assertPOST200(self.url,
-                                          # data={'sort_field': sort_field,
                                           data={'sort_key': sort_key,
                                                 'sort_order': sort_order,
                                                 'transient': '1',
@@ -554,10 +536,7 @@ class ListViewTestCase(ViewsTestCase):
             self.assertLess(first_idx, second_idx)
 
         post(bebop, swordfish)
-        # post(swordfish, bebop, '-')
         post(swordfish, bebop, 'DESC')
-        # post(bebop, swordfish, '*')  # Invalid value
-        # post(bebop, swordfish, sort_field='unknown')  # Invalid value
         post(bebop, swordfish, sort_key='unknown')  # Invalid value
 
         state = ListViewState.get_state(self.client, url=self.url)
@@ -565,7 +544,6 @@ class ListViewTestCase(ViewsTestCase):
 
         # ajax GET request
         post(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        # post(swordfish, bebop, '-', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         post(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         # state is not saved or update by GET requests.
@@ -615,11 +593,6 @@ class ListViewTestCase(ViewsTestCase):
         cell_civ      = build_cell(name='civility')
         cell_civ_name = build_cell(name='civility__title')
 
-        # self.assertTrue(cell_civ.sortable)
-        # self.assertTrue(cell_image.sortable)
-        # self.assertTrue(cell_img_name.sortable)
-        # self.assertTrue(cell_civ_name.sortable)
-
         hf.cells = [build_cell(name='last_name'),
                     cell_image, cell_img_name, cell_civ, cell_civ_name,
                    ]
@@ -637,17 +610,13 @@ class ListViewTestCase(ViewsTestCase):
 
         # ---------------------------------------------------------------------
         # FK on CremeEntity we just check that it does not crash
-        # self.assertPOST200(url, data={'sort_field': 'regular_field-image'})
         self.assertPOST200(url, data={'sort_key': 'regular_field-image'})
 
         # ---------------------------------------------------------------------
 
-        # def post(field_name, reverse, *contacts):
         def post(sort_key, reverse, *contacts):
             response = self.assertPOST200(url,
-                                          # data={'sort_field': field_name,
                                           data={'sort_key': sort_key,
-                                                # 'sort_order': '-' if reverse else '',
                                                 'sort_order': 'DESC' if reverse else 'ASC',
                                                }
                                          )
@@ -687,9 +656,7 @@ class ListViewTestCase(ViewsTestCase):
 
         url = FakeEmailCampaign.get_lv_absolute_url()
         # We just check that it does not crash
-        # self.assertPOST200(url, data={'sort_field': 'regular_field-' + fname})
         self.assertPOST200(url, data={'sort_key': 'regular_field-' + fname})
-        # self.assertPOST200(url, data={'sort_field': 'function_field-' + func_field_name})
         self.assertPOST200(url, data={'sort_key': 'function_field-' + func_field_name})
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
@@ -713,13 +680,10 @@ class ListViewTestCase(ViewsTestCase):
 
         with self.assertNoException():
             lvs = response.context['list_view_state']
-            # sort_field = lvs.sort_field
             sort_cell_key = lvs.sort_cell_key
             sort_order = lvs.sort_order
 
-        # self.assertEqual('regular_field-start', sort_field)
         self.assertEqual('regular_field-start', sort_cell_key)
-        # self.assertEqual('-',  sort_order)
         self.assertEqual('DESC',  sort_order)
 
         self.assertRegex(
@@ -748,9 +712,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         listview_state = response.context['list_view_state']
-        # self.assertEqual('regular_field-last_name', listview_state.sort_field)
         self.assertEqual('regular_field-last_name', listview_state.sort_cell_key)
-        # self.assertEqual('', listview_state.sort_order)
         self.assertEqual('ASC', listview_state.sort_order)
 
         self.assertRegex(
@@ -788,7 +750,6 @@ class ListViewTestCase(ViewsTestCase):
         contacts = FakeContact.objects.filter(pk__in=(spike, faye, ed))
         url = FakeContact.get_lv_absolute_url()
         response = self.assertPOST200(url, data={'hfilter': hf.id,
-                                                 # 'sort_field': cell_civ.key,
                                                  'sort_key': cell_civ.key,
                                                  'sort_order': '',
                                                 },
@@ -798,9 +759,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         response = self.assertPOST200(url, data={'hfilter': hf.id,
-                                                 # 'sort_field': cell_civ.key,
                                                  'sort_key': cell_civ.key,
-                                                 # 'sort_order': '-',
                                                  'sort_order': 'DESC',
                                                 },
                                      )
@@ -809,9 +768,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         response = self.assertPOST200(url, data={'hfilter': hf.id,
-                                                 # 'sort_field': cell_fname.key,
                                                  'sort_key': cell_fname.key,
-                                                 # 'sort_order': '',
                                                  'sort_order': 'ASC',
                                                 },
                                      )
@@ -820,9 +777,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         response = self.assertPOST200(url, data={'hfilter': hf.id,
-                                                 # 'sort_field': cell_fname.key,
                                                  'sort_key': cell_fname.key,
-                                                 # 'sort_order': '-',
                                                  'sort_order': 'DESC',
                                                 },
                                      )
@@ -858,7 +813,6 @@ class ListViewTestCase(ViewsTestCase):
         url = FakeContact.get_lv_absolute_url()
         # For the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
         response = self.assertPOST200(url, {'hfilter':    hf.id,
-                                            # 'sort_field': cell.key,
                                             'sort_key': cell.key,
                                             # 'sort_order': '',
                                            })
@@ -867,9 +821,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         listview_state = response.context['list_view_state']
-        # self.assertEqual(cell.key, listview_state.sort_field)
         self.assertEqual(cell.key, listview_state.sort_cell_key)
-        # self.assertEqual('', listview_state.sort_order)
         self.assertEqual('ASC', listview_state.sort_order)
         self.assertRegex(self._get_sql(response),
                          r'ORDER BY '
@@ -906,7 +858,6 @@ class ListViewTestCase(ViewsTestCase):
 
         url = FakeOrganisation.get_lv_absolute_url()
         response = self.assertPOST200(url, {'hfilter': hf.pk,
-                                            # 'sort_field': cfield_cell.key,
                                             'sort_key': cfield_cell.key,
                                             'sort_order': '',
                                            }
@@ -938,7 +889,6 @@ class ListViewTestCase(ViewsTestCase):
         with CaptureQueriesContext() as context:
             self.assertPOST200(FakeContact.get_lv_absolute_url(),
                                data={'hfilter': hf.pk,
-                                     # 'sort_field': cell1.key,
                                      'sort_key': cell1.key,
                                      'sort_order': '',
                                     }
@@ -966,7 +916,6 @@ class ListViewTestCase(ViewsTestCase):
                          r'.creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?, '
                          r'.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
                          r'.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?, '
-                         # r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
                          r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?  LIMIT'
                         )
 
@@ -977,7 +926,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertRegex(sql,
                          r'ORDER BY'
                          r' .creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?,'
-                         # r' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
                          r' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?  LIMIT'
                         )
 
@@ -995,11 +943,6 @@ class ListViewTestCase(ViewsTestCase):
             'test-filter01', 'Red', FakeOrganisation,
             user=user, is_custom=False,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeOrganisation,
-                #     operator=EntityFilterCondition.ISTARTSWITH,
-                #     name='name', values=['Red'],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation, field_name='name',
                     operator=operators.ISTARTSWITH, values=['Red'],
@@ -1017,7 +960,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertCountOccurrences(redtail.name, content, count=1)
         self.assertCountOccurrences(dragons.name, content, count=1)
 
-        # self.assertEqual(2, response.context['entities'].paginator.count)
         self.assertEqual(2, response.context['page_obj'].paginator.count)
 
         self._assertNoDistinct(context.captured_sql)
@@ -1028,33 +970,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertCountOccurrences(bebop.name,   content, count=1)
         self.assertCountOccurrences(redtail.name, content, count=1)
         self.assertCountOccurrences(dragons.name, content, count=1)
-
-    # def test_qfilter_GET_legacy(self):
-    #     "Old format"
-    #     user = self.login()
-    #
-    #     create_orga = partial(FakeOrganisation.objects.create, user=user)
-    #     bebop   = create_orga(name='Bebop')
-    #     redtail = create_orga(name='Redtail')
-    #     dragons = create_orga(name='Red Dragons')
-    #
-    #     self._build_hf()
-    #
-    #     context = CaptureQueriesContext()
-    #
-    #     with context:
-    #         response = self.assertGET200(self.url, data={'q_filter': '{"name":  "Bebop" }'})
-    #
-    #     lv_node = self._get_lv_node(response)
-    #     inputs_content = self._get_lv_inputs_content(lv_node)
-    #     self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
-    #
-    #     content = self._get_lv_content(lv_node)
-    #     self.assertCountOccurrences(bebop.name, content, count=1)
-    #     self.assertNotIn(redtail.name, content)
-    #     self.assertNotIn(dragons.name, content)
-    #
-    #     self.assertEqual(1, response.context['entities'].paginator.count)
 
     def test_qfilter_GET01(self):
         user = self.login()
@@ -1081,7 +996,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        # self.assertEqual(1, response.context['entities'].paginator.count)
         self.assertEqual(1, response.context['page_obj'].paginator.count)
 
         # TODO
@@ -1097,29 +1011,6 @@ class ListViewTestCase(ViewsTestCase):
         lv_node = self._get_lv_node(response)
         content = self._get_lv_content(lv_node)
         self.assertCountOccurrences(bebop.name, content, count=1)
-
-    # def test_qfilter_POST_legacy(self):
-    #     user = self.login()
-    #
-    #     create_orga = partial(FakeOrganisation.objects.create, user=user)
-    #     bebop   = create_orga(name='Bebop')
-    #     redtail = create_orga(name='Redtail')
-    #     dragons = create_orga(name='Red Dragons')
-    #
-    #     self._build_hf()
-    #
-    #     response = self.assertPOST200(self.url, data={'q_filter': '{"name":"Bebop"}'})
-    #
-    #     lv_node = self._get_lv_node(response)
-    #     inputs_content = self._get_lv_inputs_content(lv_node)
-    #     self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
-    #
-    #     content = self._get_lv_content(lv_node)
-    #     self.assertCountOccurrences(bebop.name, content, count=1)
-    #     self.assertNotIn(redtail.name, content)
-    #     self.assertNotIn(dragons.name, content)
-    #
-    #     self.assertEqual(1, response.context['entities'].paginator.count)
 
     def test_qfilter_POST(self):
         user = self.login()
@@ -1143,26 +1034,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        # self.assertEqual(1, response.context['entities'].paginator.count)
         self.assertEqual(1, response.context['page_obj'].paginator.count)
-
-    # def test_qfilter_invalid_json(self):
-    #     user = self.login()
-    #
-    #     create_orga = partial(FakeOrganisation.objects.create, user=user)
-    #     bebop   = create_orga(name='Bebop')
-    #     redtail = create_orga(name='Redtail')
-    #     dragons = create_orga(name='Red Dragons')
-    #
-    #     self._build_hf()
-    #
-    #     # Invalid json : ignore filter
-    #     response = self.assertGET200(self.url, data={'q_filter': '{"name":"Bebop"'})
-    #
-    #     content = self._get_lv_content(self._get_lv_node(response))
-    #     self.assertIn(bebop.name, content)
-    #     self.assertIn(redtail.name, content)
-    #     self.assertIn(dragons.name, content)
 
     # TODO: with new QSerializer format ?
     # def test_qfilter_invalid_Q(self):
@@ -1188,9 +1060,7 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf()
         ct_id = self.ctype.id
 
-        # qdict = {'name': 'Bebop'}
         q_filter = QSerializer().dumps(Q(name='Bebop'))
-        # response = self.assertGET200(self.url, data={'hfilter': hf.id, 'q_filter': json_dump(qdict)})
         searched_phone = '#123'
         response = self.assertGET200(
             self.url,
@@ -1209,20 +1079,15 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(FakeOrganisation.get_create_absolute_url(), hrefs[0])
 
         data_hrefs = [button_node.attrib.get('data-href') for button_node in buttons_node.findall('a')]
-        # dl_url = '{}?ct_id={}'.format(reverse('creme_core__dl_listview'), ct_id)
         dl_url = '{}?ct_id={}'.format(reverse('creme_core__mass_export'), ct_id)
-        # dl_uri = hrefs[1]
         dl_uri = data_hrefs[1]
         self.assertTrue(dl_uri.startswith(dl_url),
                         'URI <{}> does not starts with <{}>'.format(dl_uri, dl_url)
                        )
-        # self.assertIn('list_url={}'.format(self.url), dl_uri)
         self.assertIn('hfilter={}'.format(hf.id),     dl_uri)
-        # self.assertIn('extra_q={}'.format(urlquote(QSerializer().dumps(Q(**qdict)))), dl_uri)
         self.assertIn('&extra_q={}'.format(urlquote(q_filter)), dl_uri)
         self.assertIn('&search-regular_field-phone={}'.format(urlquote(searched_phone)), dl_uri)
 
-        # dl_header_uri = hrefs[2]
         dl_header_uri = data_hrefs[2]
         self.assertTrue(dl_header_uri.startswith(dl_url),
                         'URI <{}> does not starts with <{}>'.format(dl_header_uri, dl_url)
@@ -1247,11 +1112,6 @@ class ListViewTestCase(ViewsTestCase):
 
         url = self.url
 
-        # def build_data(name='', phone='', clear=0):
-        #     return {'clear_search': clear,
-        #             'regular_field-name': name,
-        #             phone_cell.key: phone,
-        #            }
         def build_data(name='', phone='', clear=False):
             return {
                 'search': 'clear' if clear else '',
@@ -1269,10 +1129,8 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(swordfish.name, content)
         self.assertCountOccurrences(redtail.name, content, count=1)
         self.assertCountOccurrences(dragons.name, content, count=1)
-        # self.assertEqual(2, response.context['entities'].paginator.count)
         self.assertEqual(2, response.context['page_obj'].paginator.count)
 
-        # response = self.assertPOST200(url, data=build_data('', '88', clear=1))
         response = self.assertPOST200(url, data=build_data('', '88'))
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertNotIn(bebop.name,   content)
@@ -1280,7 +1138,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name,    content)
         self.assertNotIn(dragons.name, content)
 
-        # response = self.assertPOST200(url, data=build_data('Red', '88', clear=1))
         response = self.assertPOST200(url, data=build_data('Red', '88'))
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertNotIn(bebop.name,     content)
@@ -1291,7 +1148,6 @@ class ListViewTestCase(ViewsTestCase):
         context = CaptureQueriesContext()
 
         with context:
-            # response = self.assertPOST200(url, data=build_data(clear=1))
             response = self.assertPOST200(url, data=build_data(clear=True))
 
         content = self._get_lv_content(self._get_lv_node(response))
@@ -1299,7 +1155,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(swordfish.name, content)
         self.assertIn(redtail.name,   content)
         self.assertIn(dragons.name,   content)
-        # self.assertEqual(4, response.context['entities'].paginator.count)
         self.assertEqual(4, response.context['page_obj'].paginator.count)
 
         self._assertFastCount(context.captured_sql)
@@ -1316,7 +1171,6 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf(cell)
         url = self.url
         data = {'hfilter': hf.id}
-        # response = self.assertPOST200(url, data=dict(data, **{cell.key: '1'}))
         response = self.assertPOST200(url, data={**data, 'search-' + cell.key: '1'})
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop, orgas_set)
@@ -1324,10 +1178,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(seele,    orgas_set)
 
         # -------------------------------
-        # context = CaptureQueriesContext()
-        # with context:
         # with CaptureQueriesContext() as context:  TODO
-        # response = self.assertPOST200(url, data=dict(data, **{cell.key: '0'}))
         response = self.assertPOST200(url, data={**data, 'search-' + cell.key: '0'})
 
         orgas_set = self._get_entities_set(response)
@@ -1369,7 +1220,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn((str(robotics.id),  robotics.title),  options)
 
         # ----------------------------------------------------------------------
-        # response = self.assertPOST200(url, data=dict(data, **{cell.key: str(mercenary.id)}))
         response = self.assertPOST200(url, data={**data, 'search-' + cell.key: str(mercenary.id)})
         orgas_set = self._get_entities_set(response)
         self.assertIn(bebop,    orgas_set)
@@ -1377,7 +1227,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(seele, orgas_set)
 
         # ----------------------------------------------------------------------
-        # response = self.assertPOST200(url, data=dict(data, **{cell.key: 'NULL'}))
         response = self.assertPOST200(url, data={**data, 'search-' + cell.key: 'NULL'})
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop, orgas_set)
@@ -1412,7 +1261,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(3, len(options))
 
         # ----------------------------------------------------------------------
-        # response = self.assertPOST200(url, data=dict(data, **{cell.key: '1'}))
         response = self.assertPOST200(url, data={**data, 'search-' + cell.key: '1'})
         orgas_set = self._get_entities_set(response)
         self.assertIn(bebop, orgas_set)
@@ -1420,7 +1268,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(nerv, orgas_set)
 
         # ----------------------------------------------------------------------
-        # response = self.assertPOST200(url, data=dict(data, **{cell.key: '0'}))
         response = self.assertPOST200(url, data={**data, 'search-' + cell.key: '0'})
         orgas_set = self._get_entities_set(response)
         self.assertIn(nerv, orgas_set)
@@ -1441,21 +1288,6 @@ class ListViewTestCase(ViewsTestCase):
         url = self.url
 
         # ----------------------------------------------------------------------
-        # response = self.assertGET200(url, data={'hfilter': hf.id})
-        # widget_nodes = self._get_lv_header_widget_nodes(self._get_lv_node(response),
-        #                                                 cell_key=cell.key,
-        #                                                 input_type='input',
-        #                                                 count=2,
-        #                                                )
-        # attrs = widget_nodes[0].attrib
-        # self.assertEqual('datefield',           attrs.get('type'))
-        # self.assertEqual(_('Date of creation'), attrs.get('title'))
-        # self.assertEqual(settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT),
-        #                  attrs.get('data-format')
-        #                 )
-
-        # ----------------------------------------------------------------------
-        # build_data = lambda cdate: {'hfilter': hf.id, cell.key: cdate}
         def post(start, end=''):
             ckey = cell.key
             return self.assertPOST200(
@@ -1466,7 +1298,6 @@ class ListViewTestCase(ViewsTestCase):
                      }
             )
 
-        # response = self.assertPOST200(url, data=build_data(['1-1-2075']))
         response = post('1-1-2075')
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertIn(bebop.name,        content)
@@ -1474,7 +1305,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name,      content)
         self.assertNotIn(dragons.name,   content)
 
-        # response = self.assertPOST200(url, data=build_data(['', '1-1-2075']))
         response = post('', '1-1-2075')
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertNotIn(bebop.name,   content)
@@ -1482,7 +1312,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        # response = self.assertPOST200(url, data=build_data(['1-1-2074', '31-12-2074']))
         response = post('1-1-2074', '31-12-2074')
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertNotIn(bebop.name,   content)
@@ -1490,7 +1319,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        # response = self.assertPOST200(url, data=build_data(['notadate']))
         response = post('notadate')
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertIn(bebop.name,     content)
@@ -1522,37 +1350,31 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf(cell)
         url = self.url
 
-        # def post(created):
         def post(start='', end=''):
             response = self.assertPOST200(
                 url,
                 data={'hfilter': hf.id,
-                      # cell.key: created,
                       'search-{}-start'.format(cell.key): start,
                       'search-{}-end'.format(cell.key): end,
                      },
             )
             return self._get_lv_content(self._get_lv_node(response))
 
-        # content = post(['1-1-2075'])
         content = post('1-1-2075')
         self.assertIn(bebop.name,        content)
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
 
-        # content = post(['', '1-1-2075'])
         content = post('', '1-1-2075')
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
 
-        # content = post(['1-1-2074', '31-12-2074'])
         content = post('1-1-2074', '31-12-2074')
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
 
-        # content = post(['5-6-2074', '5-6-2074'])
         content = post('5-6-2074', '5-6-2074')
         self.assertNotIn(bebop.name,      content)
         self.assertIn(swordfish.name,     content)
@@ -1592,7 +1414,6 @@ class ListViewTestCase(ViewsTestCase):
         response = self.assertPOST200(
             url,
             data={'hfilter': hf.id,
-                  # du_cell.key: fake_constants.FAKE_PERCENT_UNIT,
                   'search-' + du_cell.key: fake_constants.FAKE_PERCENT_UNIT,
                  },
         )
@@ -1626,14 +1447,6 @@ class ListViewTestCase(ViewsTestCase):
         cell_civ      = build_cell(name='civility')
         cell_civ_name = build_cell(name='civility__title')
 
-        # self.assertTrue(cell_civ.has_a_filter)
-        # self.assertTrue(cell_civ_name.has_a_filter)
-        # self.assertTrue(cell_img_name.has_a_filter)
-        # self.assertTrue(cell_image.has_a_filter)
-        # self.assertEqual('image__header_filter_search_field__icontains',
-        #                  cell_image.filter_string
-        #                 )
-
         hf.cells = [build_cell(name='last_name'),
                     cell_image, cell_img_name, cell_civ, cell_civ_name,
                    ]
@@ -1664,7 +1477,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(hf, selected_hf)
 
         # ---------------------------------------------------------------------
-        # response = self.assertPOST200(url, data={cell_civ.key: mister.id})
         response = self.assertPOST200(url, data={'search-' + cell_civ.key: mister.id})
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertCountOccurrences(spike.last_name, content, count=1)
@@ -1672,7 +1484,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(ed.last_name,   content)
 
         # ---------------------------------------------------------------------
-        # response = self.assertPOST200(url, data={cell_civ_name.key: 'iss'})
         response = self.assertPOST200(url, data={'search-' + cell_civ_name.key: 'iss'})
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertNotIn(spike.last_name, content)
@@ -1680,7 +1491,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(ed.last_name,    content)
 
         # ---------------------------------------------------------------------
-        # response = self.assertPOST200(url, data={cell_img_name.key: img_ed.name})
         response = self.assertPOST200(url, data={'search-' + cell_img_name.key: img_ed.name})
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertNotIn(spike.last_name, content)
@@ -1688,7 +1498,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(ed.last_name,       content)
 
         # ---------------------------------------------------------------------
-        # response = self.assertPOST200(url, data={cell_image.key: img_ed.name})
         response = self.assertPOST200(url, data={'search-' + cell_image.key: img_ed.name})
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertNotIn(spike.last_name, content)
@@ -1723,7 +1532,6 @@ class ListViewTestCase(ViewsTestCase):
 
         response = self.assertPOST200(FakeDocument.get_lv_absolute_url(),
                                       data={'hfilter': hf.id,
-                                            # cell.key: cat1.id,
                                             'search-' + cell.key: cat1.id,
                                            },
                                      )
@@ -1789,12 +1597,6 @@ class ListViewTestCase(ViewsTestCase):
         build_cell = partial(EntityCellRegularField.build, model=FakeEmailCampaign)
 
         cell_m2m = build_cell(name='mailing_lists')
-        # self.assertTrue(cell_m2m.has_a_filter)
-        # self.assertFalse(cell_m2m.sortable)
-        # self.assertEqual('mailing_lists__header_filter_search_field__icontains',
-        #                  cell_m2m.filter_string
-        #                 )
-
         hf = HeaderFilter.create(pk='test-hf_camp', name='Campaign view',
                                  model=FakeEmailCampaign,
                                  cells_desc=[build_cell(name='name'), cell_m2m]
@@ -1809,8 +1611,6 @@ class ListViewTestCase(ViewsTestCase):
         camp2 = create_camp(name='Bonzais')
         camp3 = create_camp(name='Mushrooms')
 
-        # camp1.mailing_lists = [ml1, ml2]
-        # camp2.mailing_lists = [ml1]
         camp1.mailing_lists.set([ml1, ml2])
         camp2.mailing_lists.set([ml1])
 
@@ -1825,7 +1625,6 @@ class ListViewTestCase(ViewsTestCase):
         def search(term):
             response = self.assertPOST200(url,
                                           data={'hfilter': hf.id,
-                                                # cell_m2m.key: term,
                                                 'search-' + cell_m2m.key: term,
                                                }
                                          )
@@ -1851,8 +1650,6 @@ class ListViewTestCase(ViewsTestCase):
         build_cell = partial(EntityCellRegularField.build, model=FakeImage)
 
         cell_m2m = build_cell(name='categories')
-        # self.assertTrue(cell_m2m.has_a_filter)
-        # self.assertEqual('categories', cell_m2m.filter_string)
 
         hf.cells = [build_cell(name='name'), cell_m2m]
         hf.save()
@@ -1864,15 +1661,12 @@ class ListViewTestCase(ViewsTestCase):
         img2 = create_img(name='Dragon logo')
         img3 = create_img(name='Mushrooms image')
 
-        # img1.categories = [cat1, cat2]
-        # img2.categories = [cat1]
         img1.categories.set([cat1, cat2])
         img2.categories.set([cat1])
 
         def search(searched):
             response = self.assertPOST200(FakeImage.get_lv_absolute_url(),
                                           data={'hfilter': hf.id,
-                                                # cell_m2m.key: searched,
                                                 'search-' + cell_m2m.key: searched,
                                                },
                                          )
@@ -1904,7 +1698,6 @@ class ListViewTestCase(ViewsTestCase):
         build_cell = partial(EntityCellRegularField.build, model=FakeImage)
 
         cell_m2m = build_cell(name='categories__name')
-        # self.assertTrue(cell_m2m.has_a_filter)
 
         hf.cells = [build_cell(name='name'), cell_m2m]
         hf.save()
@@ -1966,7 +1759,6 @@ class ListViewTestCase(ViewsTestCase):
                                         )
 
         # ----------------------------------------------------------------------
-        # data = {'hfilter': hf.id, 'name': '', cell.key: 'Spiege'}
         data = {
             'hfilter': hf.id,
             'search-regular_field-name': '',
@@ -2023,8 +1815,6 @@ class ListViewTestCase(ViewsTestCase):
 
         response = self.assertPOST200(self.url,
                                       data={'hfilter': hf.id,
-                                            # cell1.key: 'Jet',
-                                            # cell2.key: 'Jet',
                                             'search-' + cell1.key: 'Jet',
                                             'search-' + cell2.key: 'Jet',
                                            },
@@ -2068,8 +1858,6 @@ class ListViewTestCase(ViewsTestCase):
 
         # ----------------------------------------------------------------------
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      # 'regular_field-name': '',
-                                                      # cell.key: '4',
                                                       'search-regular_field-name': '',
                                                       'search-' + cell.key: '>10',
                                                      },
@@ -2109,9 +1897,6 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf(cell1, cell2)
 
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      # 'regular_field-name': '',
-                                                      # cell1.key: '4',
-                                                      # cell2.key: '#05',
                                                       'search-regular_field-name': '',
                                                       'search-' + cell1.key: '4',
                                                       'search-' + cell2.key: '#05',
@@ -2153,9 +1938,6 @@ class ListViewTestCase(ViewsTestCase):
         cell2 = EntityCellCustomField(cfield2)
         hf = self._build_hf(cell1, cell2)
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      # 'regular_field-name': '',
-                                                      # cell1.key: '4',
-                                                      # cell2.key: '2000',
                                                       'search-regular_field-name': '',
                                                       'search-' + cell1.key: '4',
                                                       'search-' + cell2.key: '2000',
@@ -2209,8 +1991,6 @@ class ListViewTestCase(ViewsTestCase):
 
         # ----------------------------------------------------------------------
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      # 'regular_field-name': '',
-                                                      # cell.key: type1.id,
                                                       'search-regular_field-name': '',
                                                       'search-' + cell.key: type1.id,
                                                      }
@@ -2222,8 +2002,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(dragons, orgas_set)
 
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      # 'name': '',
-                                                      # cell.key: 'NULL',
                                                       'search-' + cell.key: 'NULL',
                                                      }
                                      )
@@ -2274,8 +2052,6 @@ class ListViewTestCase(ViewsTestCase):
 
         # ----------------------------------------------------------------------
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      # 'regular_field-name': '',
-                                                      # cell.key: can_walk.id,
                                                       'search-regular_field-name': '',
                                                       'search-' + cell.key: can_walk.id,
                                                      },
@@ -2287,8 +2063,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(valkyrie,   orgas_set)
 
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      # 'regular_field-name': '',
-                                                      # cell.key: 'NULL',
                                                       'search-regular_field-name': '',
                                                       'search-' + cell.key: 'NULL',
                                                      },
@@ -2338,9 +2112,6 @@ class ListViewTestCase(ViewsTestCase):
         cell_color = EntityCellCustomField(cfield_color)
         hf = self._build_hf(cell_type, cell_color)
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      # 'regular_field-name': '',
-                                                      # cell_type.key:  type1.id,
-                                                      # cell_color.key: color2.id,
                                                       'search-regular_field-name': '',
                                                       'search-' + cell_type.key:  type1.id,
                                                       'search-' + cell_color.key: color2.id,
@@ -2355,9 +2126,6 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(cfield_color, dragons, color1.id)  # Type is NULL
 
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      # 'regular_field-name': '',
-                                                      # cell_type.key:  'NULL',
-                                                      # cell_color.key: color1.id,
                                                       'search-regular_field-name': '',
                                                       'search-' + cell_type.key:  'NULL',
                                                       'search-' + cell_color.key: color1.id,
@@ -2412,9 +2180,6 @@ class ListViewTestCase(ViewsTestCase):
         cell_color = EntityCellCustomField(cfield_color)
         hf = self._build_hf(cell_cap, cell_color)
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      # 'regular_field-name': '',
-                                                      # cell_cap.key:   can_walk.id,
-                                                      # cell_color.key: red.id,
                                                       'search-regular_field-name': '',
                                                       'search-' + cell_cap.key:   can_walk.id,
                                                       'search-' + cell_color.key: red.id,
@@ -2427,9 +2192,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(valkyrie,  orgas_set)
 
         response = self.assertPOST200(self.url, data={
-                                                      # 'regular_field-name': '',
-                                                      # cell_cap.key:   can_walk.id,
-                                                      # cell_color.key: 'NULL',
                                                       'search-regular_field-name': '',
                                                       'search-' + cell_cap.key:   can_walk.id,
                                                       'search-' + cell_color.key: 'NULL',
@@ -2465,50 +2227,35 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf(cell)
 
         # ----------------------------------------------------------------------
-        # response = self.assertGET200(self.url, data={'hfilter': hf.id})
-        # widget_nodes = self._get_lv_header_widget_nodes(self._get_lv_node(response),
-        #                                                 cell_key=cell.key,
-        #                                                 input_type='input',
-        #                                                 count=2,
-        #                                                )
-        # self.assertEqual('datefield', widget_nodes[0].attrib.get('type'))
 
-        # ----------------------------------------------------------------------
-
-        # def post(dates):
         def post(start, end=''):
             ckey = cell.key
             response = self.assertPOST200(self.url,
                                           data={'hfilter': hf.id,
-                                                # cell.key: dates,
                                                 'search-{}-start'.format(ckey): start,
                                                 'search-{}-end'.format(ckey): end,
                                                },
                                          )
             return self._get_lv_content(self._get_lv_node(response))
 
-        # content = post(['2075-1-1'])
         content = post('2075-1-1')
         self.assertIn(bebop.name,        content)
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
         self.assertNotIn(dragons.name,   content)
 
-        # content = post(['', '1-1-2075'])
         content = post('', '1-1-2075')
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        # content = post(['1-1-2074', '31-12-2074'])
         content = post('1-1-2074', '31-12-2074')
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        # content = post(['5-6-2074', '5-6-2074'])
         content = post('5-6-2074', '5-6-2074')
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
@@ -2547,8 +2294,6 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf(cell_flight, cell_blood)
         response = self.assertPOST200(self.url,
                                       data={'hfilter': hf.id,
-                                            # cell_flight.key: ['1-1-2074', '31-12-2074'],
-                                            # cell_blood.key:  ['',         '1-1-2075'],
                                             'search-{}-start'.format(cell_flight.key): '1-1-2074',
                                             'search-{}-end'.format(cell_flight.key): '31-12-2074',
 
@@ -2601,7 +2346,6 @@ class ListViewTestCase(ViewsTestCase):
 
         # ----------------------------------------------------------------------
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      # cell.key: '1',
                                                       'search-' + cell.key: '1',
                                                      },
                                      )
@@ -2612,7 +2356,6 @@ class ListViewTestCase(ViewsTestCase):
 
         # ----------------------------------------------------------------------
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      # cell.key: '0',
                                                       'search-' + cell.key: '0',
                                                      },
                                      )
@@ -2648,16 +2391,13 @@ class ListViewTestCase(ViewsTestCase):
 
         # ----------------------------------------------------------------------
         response = self.assertGET200(self.url, data={'hfilter': hf.id})
-        widget_node = self._get_lv_header_widget_nodes(self._get_lv_node(response),
-                                                       cell.key,
-                                                       # input_type='input',
-                                                       input_type='select',
-                                                      )[0]
-        # self.assertEqual(_('Properties'), widget_node.attrib.get('title'))
+        self._get_lv_header_widget_nodes(self._get_lv_node(response),
+                                         cell.key,
+                                         input_type='select',
+                                        )
 
         # ----------------------------------------------------------------------
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      # cell.key: 'red',
                                                       'search-' + cell.key: is_red.id,
                                                      }
                                      )
@@ -2672,77 +2412,15 @@ class ListViewTestCase(ViewsTestCase):
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        bebop     = create_orga(name='Bebop')
-        swordfish = create_orga(name='Swordfish')
+        create_orga(name='Bebop')
+        create_orga(name='Swordfish')
 
-        # func_field = FakeOrganisation.function_fields.get('tests-get_fake_todos')
         func_field = function_field_registry.get(FakeOrganisation, 'tests-fake_todos')
         cell = EntityCellFunctionField(model=FakeOrganisation, func_field=func_field)
         hf = self._build_hf(cell)
 
-        # ----------------------------------------------------------------------
         response = self.assertGET200(self.url, data={'hfilter': hf.id})
         self._assert_no_lv_header_widget_node(self._get_lv_node(response), cell.key)
-
-        # # ----------------------------------------------------------------------
-        # response = self.assertPOST200(self.url,
-        #                               data={'hfilter': hf.id,
-        #                                     'regular_field-name': '',
-        #                                     cell.key: bebop.name,
-        #                                    }
-        #                              )
-        # orgas_set = self._get_entities_set(response)
-        # self.assertIn(bebop,     orgas_set)
-        # self.assertIn(swordfish, orgas_set)
-
-    # def test_search_functionfield03(self):
-    #     "FunctionField with choices"
-    #     user = self.login()
-    #
-    #     invoice = FakeInvoice.objects.create(user=user, name='Invoice #1')
-    #     create_line = partial(FakeInvoiceLine.objects.create, user=user, linked_invoice=invoice)
-    #     line1 = create_line(item='Item #1', discount_unit=fake_constants.FAKE_PERCENT_UNIT, discount='0.5')
-    #     line2 = create_line(item='Item #2', discount_unit=fake_constants.FAKE_AMOUNT_UNIT)
-    #     line3 = create_line(item='Item #3', discount_unit=fake_constants.FAKE_PERCENT_UNIT)
-    #     line4 = create_line(item='Item #4', discount_unit=fake_constants.FAKE_PERCENT_UNIT, discount='5.0')
-    #
-    #     cell = EntityCellFunctionField.build(model=FakeInvoiceLine,
-    #                                          func_field_name='tests-great_discount'
-    #                                         )
-    #     hf = HeaderFilter.create(
-    #         pk='test-hf_invoiceline', name='Line view', model=FakeInvoiceLine,
-    #         cells_desc=[
-    #             (EntityCellRegularField, {'name': 'item'}),
-    #             (EntityCellRegularField, {'name': 'discount'}),
-    #             (EntityCellRegularField, {'name': 'discount_unit'}),
-    #             cell,
-    #         ]
-    #     )
-    #
-    #     url = FakeInvoiceLine.get_lv_absolute_url()
-    #
-    #     # ----------------------------------------------------------------------
-    #     response = self.assertGET200(url, data={'hfilter': hf.id})
-    #     widget_node = self._get_lv_header_widget_nodes(self._get_lv_node(response),
-    #                                                    cell.key, input_type='select',
-    #                                                   )[0]
-    #     self.assertEqual('Great discount', widget_node.attrib.get('title'))
-    #
-    #     options = self._get_options_for_select_node(widget_node)
-    #     self.assertIn(('',  _('All')), options)
-    #     self.assertIn(('1', 'Bad'),    options)
-    #
-    #     # ----------------------------------------------------------------------
-    #     response = self.assertPOST200(url,
-    #                                   data={'hfilter': hf.id,
-    #                                         cell.key: 3,
-    #                                        },
-    #                                  )
-    #     content = self._get_lv_content(self._get_lv_node(response))
-    #     self.assertCountOccurrences(line4.item, content, count=1)
-    #     self.assertNotIn(line1.item, content)
-    #     self.assertNotIn(line2.item, content)
-    #     self.assertNotIn(line3.item, content)
 
     def _build_orgas(self):
         count = FakeOrganisation.objects.count()
@@ -2775,7 +2453,6 @@ class ListViewTestCase(ViewsTestCase):
         # Page 1 --------------------
         response = post(page=1)
         with self.assertNoException():
-            # entities_page = response.context['entities']
             entities_page = response.context['page_obj']
 
         self.assertEqual(10, len(entities_page))
@@ -2796,7 +2473,6 @@ class ListViewTestCase(ViewsTestCase):
 
         # Page 2 --------------------
         response = post(page=2)
-        # entities_page = response.context['entities']
         entities_page = response.context['page_obj']
 
         self.assertEqual(3, len(entities_page))
@@ -2808,12 +2484,10 @@ class ListViewTestCase(ViewsTestCase):
         # Change 'rows' parameter -------------
         rows = 25
         response = post(page=1, rows=rows)
-        # self.assertEqual(rows, response.context['entities'].paginator.per_page)
         self.assertEqual(rows, response.context['page_obj'].paginator.per_page)
 
         # Check invalid page size
         response = post(page=1, rows=1000)
-        # self.assertEqual(10, response.context['entities'].paginator.per_page)
         self.assertEqual(10, response.context['page_obj'].paginator.per_page)
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000, PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
@@ -2837,14 +2511,12 @@ class ListViewTestCase(ViewsTestCase):
 
         # Go to page 2...
         response = post(page=2)
-        # entities_page = response.context['entities']
         entities_page = response.context['page_obj']
         self.assertEqual(2, entities_page.number)
         self.assertIndex(organisations[10], [*entities_page.object_list])
 
         # ... which should be kept in session
         response = post()
-        # entities_page = response.context['entities']
         entities_page = response.context['page_obj']
         self.assertEqual(2, entities_page.number)
         self.assertIndex(organisations[10], [*entities_page.object_list])
@@ -2867,7 +2539,6 @@ class ListViewTestCase(ViewsTestCase):
         # Page 1 --------------------
         response = post()
         with self.assertNoException():
-            # entities_page1 = response.context['entities']
             entities_page1 = response.context['page_obj']
 
         self.assertEqual(10, len(entities_page1))
@@ -2934,7 +2605,6 @@ class ListViewTestCase(ViewsTestCase):
         # Page 1 --------------------
         response = post()
         with self.assertNoException():
-            # entities_page1 = response.context['entities']
             entities_page1 = response.context['page_obj']
 
         self.assertEqual(rows, len(entities_page1))
@@ -2955,7 +2625,6 @@ class ListViewTestCase(ViewsTestCase):
 
         # Page 2 --------------------
         response = post(entities_page1.next_page_info())
-        # entities_page2 = response.context['entities']
         entities_page2 = response.context['page_obj']
 
         self.assertEqual(3, len(entities_page2))
@@ -2999,7 +2668,6 @@ class ListViewTestCase(ViewsTestCase):
             return self.assertPOST200(
                 FakeContact.get_lv_absolute_url(),
                 data={'hfilter': hf.id,
-                      # 'sort_field': cell2.key,
                       'sort_key': cell2.key,
                       'sort_order': '',  # TODO: 'DESC'
                       'page': json_dump(page_info) if page_info else '',
@@ -3009,7 +2677,6 @@ class ListViewTestCase(ViewsTestCase):
 
         # Page 1 --------------------
         response = post()
-        # entities_page1 = response.context['entities']
         entities_page1 = response.context['page_obj']
         entities = [*entities_page1.object_list]
         idx1 = self.assertIndex(contacts[0], entities)
@@ -3020,7 +2687,6 @@ class ListViewTestCase(ViewsTestCase):
 
         # Page 2 --------------------
         response = post(entities_page1.next_page_info())
-        # entities_page2 = response.context['entities']
         entities_page2 = response.context['page_obj']
 
         self.assertEqual(3, len(entities_page2))
@@ -3065,14 +2731,12 @@ class ListViewTestCase(ViewsTestCase):
 
         # Page 1 --------------------
         response = post()
-        # entities_page1 = response.context['entities']
         entities_page1 = response.context['page_obj']
         idx10 = self.assertIndex(contacts[9], [*entities_page1.object_list])
         self.assertEqual(9, idx10)
 
         # Page 2 --------------------
         response = post(entities_page1.next_page_info())
-        # entities_page2 = response.context['entities']
         entities_page2 = response.context['page_obj']
 
         self.assertEqual(3, len(entities_page2))
@@ -3107,7 +2771,6 @@ class ListViewTestCase(ViewsTestCase):
                                                 'rows': rows,
                                                },
                                          )
-            # return response.context['entities']
             return response.context['page_obj']
 
         page1 = post()
@@ -3157,7 +2820,6 @@ class ListViewTestCase(ViewsTestCase):
                                                 'rows': rows,
                                                },
                                          )
-            # return response.context['entities']
             return response.context['page_obj']
 
         page1 = post()
@@ -3189,7 +2851,6 @@ class ListViewTestCase(ViewsTestCase):
                    }
 
             response = self.assertPOST200(url, data=data)
-            # return response.context['entities']
             return response.context['page_obj']
 
         page1 = post()
@@ -3216,7 +2877,6 @@ class ListViewTestCase(ViewsTestCase):
                                                 'rows': 10,
                                                },
                                          )
-            # return response.context['entities']
             return response.context['page_obj']
 
         page1_slow = post()
@@ -3225,36 +2885,6 @@ class ListViewTestCase(ViewsTestCase):
         FakeOrganisation.objects.create(user=user, name='Zalem')  # We exceed the threshold
         page1_fast = post()
         self.assertTrue(hasattr(page1_fast, 'next_page_info'))  # Means fast mode
-
-    # def test_listview_popup_GET_legacy(self):
-    #     user = self.login()
-    #
-    #     create_orga = partial(FakeOrganisation.objects.create, user=user)
-    #     bebop   = create_orga(name='Bebop')
-    #     redtail = create_orga(name='Redtail')
-    #     dragons = create_orga(name='Red Dragons')
-    #
-    #     self._build_hf()
-    #
-    #     context = CaptureQueriesContext()
-    #
-    #     with context:
-    #         response = self.assertGET200(reverse('creme_core__listview_popup'), data={
-    #             'ct_id': self.ctype.id,
-    #             'q_filter': '{"name":  "Bebop" }',  # JSON with strange format
-    #         })
-    #
-    #     lv_node = self._get_lv_node(response)
-    #     inputs_content = self._get_lv_inputs_content(lv_node)
-    #     # self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
-    #     self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
-    #
-    #     content = self._get_lv_content(lv_node)
-    #     self.assertCountOccurrences(bebop.name, content, count=1)
-    #     self.assertNotIn(redtail.name, content)
-    #     self.assertNotIn(dragons.name, content)
-    #
-    #     self.assertEqual(1, response.context['entities'].paginator.count)
 
     def test_listview_popup_GET(self):
         user = self.login()
@@ -3285,37 +2915,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        # self.assertEqual(1, response.context['entities'].paginator.count)
         self.assertEqual(1, response.context['page_obj'].paginator.count)
-
-    # def test_listview_popup_POST_legacy(self):
-    #     user = self.login()
-    #
-    #     create_orga = partial(FakeOrganisation.objects.create, user=user)
-    #     bebop   = create_orga(name='Bebop')
-    #     redtail = create_orga(name='Redtail')
-    #     dragons = create_orga(name='Red Dragons')
-    #
-    #     self._build_hf()
-    #
-    #     context = CaptureQueriesContext()
-    #
-    #     with context:
-    #         response = self.assertPOST200(reverse('creme_core__listview_popup'), data={
-    #             'ct_id': self.ctype.id,
-    #             'q_filter': '{"name":  "Bebop" }',
-    #         })
-    #
-    #     lv_node = self._get_lv_node(response)
-    #     inputs_content = self._get_lv_inputs_content(lv_node)
-    #     self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
-    #
-    #     content = self._get_lv_content(lv_node)
-    #     self.assertCountOccurrences(bebop.name, content, count=1)
-    #     self.assertNotIn(redtail.name, content)
-    #     self.assertNotIn(dragons.name, content)
-    #
-    #     self.assertEqual(1, response.context['entities'].paginator.count)
 
     def test_listview_popup_POST(self):
         user = self.login()
@@ -3346,7 +2946,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        # self.assertEqual(1, response.context['entities'].paginator.count)
         self.assertEqual(1, response.context['page_obj'].paginator.count)
 
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
