@@ -50,7 +50,6 @@ class Migration(migrations.Migration):
                 ('start_date', models.DateTimeField(null=True, verbose_name='Estimated start', blank=True)),
                 ('end_date', models.DateTimeField(null=True, verbose_name='Estimated end', blank=True)),
                 ('effective_end_date', models.DateTimeField(null=True, verbose_name='Effective end date', blank=True)),
-                # ('status', models.ForeignKey(on_delete=PROTECT, verbose_name='Status', to='projects.ProjectStatus')),
                 ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status', to='projects.ProjectStatus')),
                 ('currency', models.ForeignKey(related_name='+', on_delete=PROTECT, default=1,
                                                verbose_name='Currency', to='creme_core.Currency',
@@ -101,7 +100,6 @@ class Migration(migrations.Migration):
                 ('end',   models.DateTimeField(null=True, verbose_name='End', blank=True)),
                 ('duration', models.PositiveIntegerField(null=True, verbose_name='Duration (in hours)', blank=True)),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
-                # ('tstatus', models.ForeignKey(on_delete=PROTECT, verbose_name='Task situation', to='projects.TaskStatus')),
                 ('tstatus', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Task situation', to='projects.TaskStatus')),
             ],
             options={

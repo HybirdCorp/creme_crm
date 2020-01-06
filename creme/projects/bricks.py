@@ -30,7 +30,6 @@ from creme import projects
 from .constants import REL_OBJ_LINKED_2_PTASK
 from .models import Resource
 
-
 Activity = get_activity_model()
 
 Project     = projects.get_project_model()

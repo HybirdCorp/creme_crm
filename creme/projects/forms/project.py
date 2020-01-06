@@ -55,16 +55,3 @@ class ProjectCreateForm(ProjectEditForm):
             build_relation(object_entity=contact)
                 for contact in self.cleaned_data['responsibles']
         )
-
-    # def save(self, *args, **kwargs):
-    #     instance = super().save(*args, **kwargs)
-    #     cleaned_data = self.cleaned_data
-    #     create_relation = partial(Relation.objects.create, user=cleaned_data['user'],
-    #                               type_id=REL_OBJ_PROJECT_MANAGER,
-    #                               subject_entity=instance,
-    #                              )
-    #
-    #     for contact in cleaned_data['responsibles']:
-    #         create_relation(object_entity=contact)
-    #
-    #     return instance

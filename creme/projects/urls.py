@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# from django.conf.urls import url
 from django.urls import re_path
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
@@ -17,18 +16,15 @@ urlpatterns = [
     # TODO: change url ?? project/close/(?P<project_id>\d+) ? 'id' as POST argument ?
     re_path(r'^project/(?P<project_id>\d+)/close[/]?$', project.close, name='projects__close_project'),
 
-    # re_path(r'^task/parent/delete[/]?$',               task.delete_parent,           name='projects__remove_parent_task'),
     re_path(r'^task/parent/delete[/]?$',               task.ParentRemoving.as_view(), name='projects__remove_parent_task'),
     re_path(r'^task/(?P<task_id>\d+)/parent/add[/]?$', task.ParentsAdding.as_view(),  name='projects__add_parent_task'),
 
     # Task: Resource brick
     re_path(r'^task/(?P<task_id>\d+)/resource/add[/]?$', resource.ResourceCreation.as_view(), name='projects__create_resource'),
     re_path(r'^resource/edit/(?P<resource_id>\d+)[/]?$', resource.ResourceEdition.as_view(),  name='projects__edit_resource'),
-    # re_path(r'^resource/delete[/]?$',                    resource.delete,                     name='projects__delete_resource'),
     re_path(r'^resource/delete[/]?$',                    resource.ResourceDeletion.as_view(), name='projects__delete_resource'),
 
     # Task: related activities brick
-    # re_path(r'^activity/delete[/]?$', task.delete_activity, name='projects__delete_activity'),
     re_path(r'^activity/delete[/]?$', task.ActivityDeletion.as_view(), name='projects__delete_activity'),
 
     *swap_manager.add_group(
@@ -50,7 +46,6 @@ urlpatterns = [
 
     *swap_manager.add_group(
         project_model_is_custom,
-        # Swappable(url(r'^projects[/]?$',                         project.listview,                  name='projects__list_projects')),
         Swappable(re_path(r'^projects[/]?$',                         project.ProjectsList.as_view(),    name='projects__list_projects')),
         Swappable(re_path(r'^project/add[/]?$',                      project.ProjectCreation.as_view(), name='projects__create_project')),
         Swappable(re_path(r'^project/edit/(?P<project_id>\d+)[/]?$', project.ProjectEdition.as_view(),  name='projects__edit_project'), check_args=Swappable.INT_ID),

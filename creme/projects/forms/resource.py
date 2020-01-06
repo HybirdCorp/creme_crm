@@ -22,7 +22,7 @@ from django.db.models.query_utils import Q
 from django.forms.fields import BooleanField
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeModelForm, CreatorEntityField  # CremeEntityForm
+from creme.creme_core.forms import CremeModelForm, CreatorEntityField
 from creme.creme_core.models import Relation
 
 from creme.persons import get_contact_model
@@ -35,7 +35,6 @@ from ..models import Resource
 from .task import _link_contact_n_activity
 
 
-# class ResourceCreateForm(CremeEntityForm):
 class ResourceCreateForm(CremeModelForm):  # Not CremeEntityForm to avoid Relations/CremeProperties fields
     contact = CreatorEntityField(label=_('Contact to be assigned to this task'),
                                  model=get_contact_model(),

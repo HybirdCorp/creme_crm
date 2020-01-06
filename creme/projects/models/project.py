@@ -33,10 +33,8 @@ from .projectstatus import ProjectStatus
 
 class AbstractProject(CremeEntity):
     name = models.CharField(_('Name of the project'), max_length=100)
-    # description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
 
     status = models.ForeignKey(ProjectStatus, verbose_name=_('Status'),
-                               # on_delete=models.PROTECT
                                on_delete=CREME_REPLACE,
                               )
 
