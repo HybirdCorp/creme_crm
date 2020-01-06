@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.db import models
 from django.urls import reverse
@@ -152,12 +152,12 @@ END:VEVENT
            status='',
           )
 
-    def get_title_for_calendar(self):
-        warnings.warn("AbstractActivity.get_title_for_calendar() is deprecated ; "
-                      "use the attribute 'title' instead.",
-                      DeprecationWarning,
-                     )
-        return self.title
+    # def get_title_for_calendar(self):
+    #     warnings.warn("AbstractActivity.get_title_for_calendar() is deprecated ; "
+    #                   "use the attribute 'title' instead.",
+    #                   DeprecationWarning,
+    #                  )
+    #     return self.title
 
     @classmethod
     def get_creation_title(cls, type_id):
@@ -193,72 +193,72 @@ END:VEVENT
     def get_linkedto_relations(self):
         return self.get_relations(REL_OBJ_LINKED_2_ACTIVITY, real_obj_entities=True)
 
-    @classmethod
-    def _get_linked_aux(cls, entity):
-        warnings.warn('AbstractActivity._get_linked_aux() is deprecated.',
-                      DeprecationWarning,
-                     )
+    # @classmethod
+    # def _get_linked_aux(cls, entity):
+    #     warnings.warn('AbstractActivity._get_linked_aux() is deprecated.',
+    #                   DeprecationWarning,
+    #                  )
+    #
+    #     types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
+    #     return cls.objects.filter(is_deleted=False,
+    #                               relations__object_entity=entity,
+    #                               relations__type__in=types,
+    #                              ) \
+    #                       .distinct()
 
-        types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-        return cls.objects.filter(is_deleted=False,
-                                  relations__object_entity=entity,
-                                  relations__type__in=types,
-                                 ) \
-                          .distinct()
+    # @classmethod
+    # def _get_linked_for_orga(cls, orga):
+    #     warnings.warn('AbstractActivity._get_linked_for_orga() is deprecated.',
+    #                   DeprecationWarning,
+    #                  )
+    #
+    #     types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
+    #     entities = [orga,
+    #                 *orga.get_managers().values_list('id', flat=True),
+    #                 *orga.get_employees().values_list('id', flat=True),
+    #                ]
+    #
+    #     return cls.objects.filter(is_deleted=False,
+    #                               relations__object_entity__in=entities,
+    #                               relations__type__in=types,
+    #                              ) \
+    #                       .distinct()
 
-    @classmethod
-    def _get_linked_for_orga(cls, orga):
-        warnings.warn('AbstractActivity._get_linked_for_orga() is deprecated.',
-                      DeprecationWarning,
-                     )
+    # @classmethod
+    # def get_future_linked(cls, entity, today):
+    #     warnings.warn('AbstractActivity.get_future_linked() is deprecated ; '
+    #                   'use .objects.future_linked() instead.',
+    #                   DeprecationWarning,
+    #                  )
+    #
+    #     return cls._get_linked_aux(entity).filter(end__gt=today).order_by('start')
 
-        types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-        entities = [orga,
-                    *orga.get_managers().values_list('id', flat=True),
-                    *orga.get_employees().values_list('id', flat=True),
-                   ]
+    # @classmethod
+    # def get_future_linked_for_orga(cls, orga, today):
+    #     warnings.warn('AbstractActivity.get_future_linked_for_orga() is deprecated ; '
+    #                   'use .objects.future_linked_to_organisation() instead.',
+    #                   DeprecationWarning,
+    #                  )
+    #
+    #     return cls._get_linked_for_orga(orga).filter(end__gt=today).order_by('start')
 
-        return cls.objects.filter(is_deleted=False,
-                                  relations__object_entity__in=entities,
-                                  relations__type__in=types,
-                                 ) \
-                          .distinct()
+    # @classmethod
+    # def get_past_linked(cls, entity, today):
+    #     warnings.warn('AbstractActivity.get_past_linked() is deprecated ; '
+    #                   'use .objects.past_linked() instead.',
+    #                   DeprecationWarning,
+    #                  )
+    #
+    #     return cls._get_linked_aux(entity).filter(end__lte=today)
 
-    @classmethod
-    def get_future_linked(cls, entity, today):
-        warnings.warn('AbstractActivity.get_future_linked() is deprecated ; '
-                      'use .objects.future_linked() instead.',
-                      DeprecationWarning,
-                     )
-
-        return cls._get_linked_aux(entity).filter(end__gt=today).order_by('start')
-
-    @classmethod
-    def get_future_linked_for_orga(cls, orga, today):
-        warnings.warn('AbstractActivity.get_future_linked_for_orga() is deprecated ; '
-                      'use .objects.future_linked_to_organisation() instead.',
-                      DeprecationWarning,
-                     )
-
-        return cls._get_linked_for_orga(orga).filter(end__gt=today).order_by('start')
-
-    @classmethod
-    def get_past_linked(cls, entity, today):
-        warnings.warn('AbstractActivity.get_past_linked() is deprecated ; '
-                      'use .objects.past_linked() instead.',
-                      DeprecationWarning,
-                     )
-
-        return cls._get_linked_aux(entity).filter(end__lte=today)
-
-    @classmethod
-    def get_past_linked_for_orga(cls, orga, today):
-        warnings.warn('AbstractActivity.get_past_linked_for_orga() is deprecated ; '
-                      'use .objects.past_linked_to_organisation() instead.',
-                      DeprecationWarning,
-                     )
-
-        return cls._get_linked_for_orga(orga).filter(end__lte=today)
+    # @classmethod
+    # def get_past_linked_for_orga(cls, orga, today):
+    #     warnings.warn('AbstractActivity.get_past_linked_for_orga() is deprecated ; '
+    #                   'use .objects.past_linked_to_organisation() instead.',
+    #                   DeprecationWarning,
+    #                  )
+    #
+    #     return cls._get_linked_for_orga(orga).filter(end__lte=today)
 
     def handle_all_day(self):
         if self.is_all_day:
@@ -270,14 +270,14 @@ END:VEVENT
         if source.busy:
             self.busy = False
 
-    def is_auto_orga_subject_enabled(self):
-        warnings.warn('AbstractActivity.is_auto_orga_subject_enabled() is deprecated ; '
-                      'use activities.utils.is_auto_orga_subject_enabled() instead.',
-                      DeprecationWarning
-                     )
-        from creme.activities.utils import is_auto_orga_subject_enabled
-
-        return is_auto_orga_subject_enabled()
+    # def is_auto_orga_subject_enabled(self):
+    #     warnings.warn('AbstractActivity.is_auto_orga_subject_enabled() is deprecated ; '
+    #                   'use activities.utils.is_auto_orga_subject_enabled() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     from creme.activities.utils import is_auto_orga_subject_enabled
+    #
+    #     return is_auto_orga_subject_enabled()
 
     def _copy_relations(self, source):
         super()._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
