@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import logging
 import re
 
 from django.apps import apps
@@ -29,12 +28,8 @@ from django.urls import reverse
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.gui.bricks import brick_registry
-# from creme.creme_core.utils.imports import import_apps_sub_modules
 
 from .bricks import GenericModelBrick
-
-# logger = logging.getLogger(__name__)
-
 
 class NotRegisteredInConfig(Exception):
     pass
@@ -149,7 +144,6 @@ class _ModelConfigDeletor(_ModelConfigAction):
                    reverse(url_name, args=(instance.id,))
 
 
-# class ModelConfig:
 class _ModelConfig:
     """ Contains the configuration information for a model :
      - Creation form/URL  (the creation can be disabled too).
@@ -163,42 +157,19 @@ class _ModelConfig:
 
     _SHORT_NAME_RE = re.compile(r'^\w+$')
 
-    # def __init__(self, model, name_in_url, form_class=None):
     def __init__(self, model, model_name):
         """ Constructor.
 
         @param model: Class inheriting django.db.Model
         @param model_name: Short name for the model, used in URLs (String).
         """
-        # if not self._SHORT_NAME_RE.match(name_in_url):
-        #     raise ValueError('The argument "name_in_url" should only contain alphanumeric characters or _')
         if not self._SHORT_NAME_RE.match(model_name):
             raise ValueError('The argument "model_name" should only contain alphanumeric characters or _')
 
-        # self.model = model
-        # self.name_in_url = name_in_url
-        # self._form_class = form_class
         self.creator = _ModelConfigCreator(model=model, model_name=model_name)
         self.editor  = _ModelConfigEditor(model=model, model_name=model_name)
         self.deletor = _ModelConfigDeletor(model=model, model_name=model_name)
         self.brick_cls = GenericModelBrick
-
-    # @property
-    # def model_form(self):
-    #     if self._form_class is None:
-    #         model = self.model
-    #         get_field = model._meta.get_field
-    #
-    #         try:
-    #             get_field('is_custom')
-    #         except FieldDoesNotExist:
-    #             exclude = None
-    #         else:
-    #             exclude = ('is_custom',)
-    #
-    #         self._form_class = modelform_factory(model, form=CremeModelForm, exclude=exclude)
-    #
-    #     return self._form_class
 
     def brick_class(self, brick_cls):
         """ Set the Brick class to use ; can be used in a fluent way.
@@ -308,7 +279,6 @@ class _ModelConfig:
 
 
 # TODO: __slots__ ???
-# class AppConfigRegistry:
 class _AppConfigRegistry:
     """ Contains the configuration information for an app :
      - Models to configure.
@@ -319,22 +289,13 @@ class _AppConfigRegistry:
         self.name = name
         self.verbose_name = verbose_name
         self._models = {}
-        # self._excluded_models = set()
         self._config_registry = config_registry
-        # self._bricks_classes = []
         self._brick_ids = []
 
     @property
     def portal_url(self):
         return reverse('creme_config__app_portal', args=(self.name,))
 
-    # def register_model(self, model, model_name_in_url, form_class=None):
-    #     # NB: the key is the model & not the ContentType.id, because these IDs
-    #     #     are not always consistent with the test-models.
-    #     if model not in self._excluded_models:
-    #         self._models[model] = ModelConfig(model, model_name_in_url, form_class)
-    #
-    #     return self
     def _register_model(self, model, model_name):
         # NB: the key is the model & not the ContentType.id, because these IDs
         #     are not always consistent with the test-models.
@@ -364,22 +325,15 @@ class _AppConfigRegistry:
     def models(self):
         return iter(self._models.values())
 
-    # def register_brick(self, brick_cls):
-    #     self._bricks_classes.append(brick_cls)
     def _register_bricks(self, brick_ids):
         self._brick_ids.extend(brick_ids)
 
-    # def unregister_model(self, model):
-    #     self._models.pop(model, None)
-    #     self._excluded_models.add(model)
     def _unregister_model(self, model):
         self._models.pop(model, None)
 
     @property
     def bricks(self):
         """Generator yielding the extra-bricks to configure the app."""
-        # for brick_cls in self._bricks_classes:
-        #     yield brick_cls()
         return self._config_registry._brick_registry.get_bricks(self._brick_ids)
 
     @property
@@ -409,21 +363,9 @@ class _ConfigRegistry:
         self._brick_registry = brick_registry
         self._skey_registry = setting_key_registry
         self._apps = _apps = {}
-        # self._user_brick_classes = []
         self._user_brick_ids = []
-        # self._portal_brick_classes = []
         self._portal_brick_ids = []
 
-        # # Add an app to creme_config if it has at least a visible SettingKey
-        # # (to be sure that even app without registered models appear)
-        # for app_label in {skey.app_label for skey in setting_key_registry if not skey.hidden}:
-        #     _apps[app_label] = self._build_app_conf_registry(self._get_app_name(app_label))
-
-    # def _build_app_conf_registry(self, app_name):
-    #     return AppConfigRegistry(app_name, apps.get_app_config(app_name).verbose_name)
-    #
-    # def get_app(self, app_label):
-    #     return self._apps[self._get_app_name(app_label)]
     def get_app_registry(self, app_label, create=False):
         """ Get the instance of AppConfigRegistry related to a specific app.
 
@@ -470,20 +412,6 @@ class _ConfigRegistry:
 
         return app_label
 
-    # def register(self, *to_register):
-    #     """
-    #     @param to_register: Sequence of tuples (DjangoModel, short_name_for_url [, ModelForm])
-    #     """
-    #     app_registries = self._apps
-    #
-    #     for args in to_register:
-    #         app_name = self._get_app_name(args[0]._meta.app_label)
-    #         app_conf = app_registries.get(app_name)
-    #
-    #         if app_conf is None:
-    #             app_registries[app_name] = app_conf = self._build_app_conf_registry(app_name)
-    #
-    #         app_conf.register_model(*args)
     def register_model(self, model, model_name=None):
         """ Register a model in order to make it available in the configuration.
         @param model: Class inheriting <django.db.Model>.
@@ -513,23 +441,6 @@ class _ConfigRegistry:
 
         return brick_id
 
-    # def register_bricks(self, *bricks_to_register):
-    #     app_registries = self._apps
-    #
-    #     for app_label, brick_cls in bricks_to_register:
-    #         assert hasattr(brick_cls, 'detailview_display'), \
-    #               'brick with id="{}" has no detailview_display() method'.format(brick_cls.id_)
-    #         # todo: need a method is_registered() ?
-    #         assert brick_cls.id_ in self._brick_registry._brick_classes, \
-    #                'brick with id="{}" is not registered'.format(brick_cls.id_)
-    #
-    #         app_name = self._get_app_name(app_label)
-    #         app_conf = app_registries.get(app_name)
-    #
-    #         if app_conf is None:
-    #             app_registries[app_name] = app_conf = self._build_app_conf_registry(app_name)
-    #
-    #         app_conf.register_brick(brick_cls)
     def register_app_bricks(self, app_label, *brick_classes):
         """ Register some Brick classes which will be used in the configuration
         portal of a specific app.
@@ -541,14 +452,6 @@ class _ConfigRegistry:
         self.get_app_registry(app_label=app_label, create=True) \
             ._register_bricks(map(self._get_brick_id, brick_classes))
 
-    # def register_portal_bricks(self, *bricks_to_register):
-    #    for brick_cls in bricks_to_register:
-    #        assert hasattr(brick_cls, 'detailview_display'), \
-    #               'brick with id="{}" has no detailview_display() method'.format(brick_cls.id_)
-    #        assert brick_cls.id_ in self._brick_registry._brick_classes, \
-    #               'brick with id="{}" is not registered'.format(brick_cls.id_)
-    #
-    #    self._portal_brick_classes.extend(bricks_to_register)
     def register_portal_bricks(self, *brick_classes):
         """Register the extra Brick classes to display of the portal of
         creme_config ("General configuration").
@@ -558,14 +461,6 @@ class _ConfigRegistry:
         """
         self._portal_brick_ids.extend(map(self._get_brick_id, brick_classes))
 
-    # def register_user_bricks(self, *bricks_to_register):
-    #    for brick_cls in bricks_to_register:
-    #        assert hasattr(brick_cls, 'detailview_display'), \
-    #               'brick with id="{}" has no detailview_display() method'.format(brick_cls.id_)
-    #        assert brick_cls.id_ in self._brick_registry._brick_classes, \
-    #               'brick with id="{}" is not registered'.format(brick_cls.id_)
-    #
-    #        self._user_brick_classes.append(brick_cls)
     def register_user_bricks(self, *brick_classes):
         """Register the extra Brick classes to display of the configuration page
         of each user ("My configuration").
@@ -575,20 +470,6 @@ class _ConfigRegistry:
         """
         self._user_brick_ids.extend(map(self._get_brick_id, brick_classes))
 
-    # def unregister(self, *to_unregister):
-    #     """
-    #     @param to_unregister: Sequence of DjangoModels.
-    #     """
-    #     app_registries = self._apps
-    #
-    #     for model in to_unregister:
-    #         app_name = self._get_app_name(model._meta.app_label)
-    #         app_conf = app_registries.get(app_name)
-    #
-    #         if app_conf is None:
-    #             app_registries[app_name] = app_conf = self._build_app_conf_registry(app_name)
-    #
-    #         app_conf.unregister_model(model)
     def unregister_models(self, *models):
         """Un-register some models which have been registered.
 
@@ -606,15 +487,11 @@ class _ConfigRegistry:
     @property
     def portal_bricks(self):
         """Get the instances of extra Bricks to display on "General configuration" page."""
-        # for brick_cls in self._portal_brick_classes:
-        #     yield brick_cls()
         return self._brick_registry.get_bricks(self._portal_brick_ids)
 
     @property
     def user_bricks(self):
         """Get the instances of extra Bricks to display on "My configuration" page."""
-        # for brick_cls in self._user_brick_classes:
-        #     yield brick_cls()
         return self._brick_registry.get_bricks(self._user_brick_ids)
 
     # TODO: find a better name ?
@@ -629,22 +506,6 @@ class _ConfigRegistry:
         @param user: Instance of 'django.contrib.auth.get_user_model()'.
         @return: Tuple (URL, allowed) ; 'URL' is a string or None ; allowed is a boolean.
         """
-        # app_label = model._meta.app_label
-        # allowed = user.has_perm_to_admin(app_label)
-        # url = None
-        #
-        # try:
-        #     model_name = self.get_app(app_label) \
-        #                      .get_model_conf(model=model) \
-        #                      .name_in_url
-        # except (KeyError, NotRegisteredInConfig):
-        #     allowed = False
-        # else:
-        #     url = reverse('creme_config__create_instance_from_widget',
-        #                   args=(app_label, model_name),
-        #                  )
-        #
-        # return url, allowed
         app_label = model._meta.app_label
         allowed = user.has_perm_to_admin(app_label)
         url = None
@@ -667,12 +528,3 @@ class _ConfigRegistry:
 
 
 config_registry = _ConfigRegistry()
-
-# logger.debug('creme_config: populate registry')
-
-# for config_import in import_apps_sub_modules('creme_config_register'):
-#     config_registry.register(*getattr(config_import, 'to_register', ()))
-#     config_registry.unregister(*getattr(config_import, 'to_unregister', ()))
-#     config_registry.register_bricks(*getattr(config_import, 'blocks_to_register', ()))  # todo: rename 'bricks'
-#     config_registry.register_user_bricks(*getattr(config_import, 'userblocks_to_register', ()))  # todo: rename 'userbricks_to_register'
-#     config_registry.register_portal_bricks(*getattr(config_import, 'portalbricks_to_register', ()))

@@ -143,7 +143,6 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNotIn(get_ct(CremeEntity), ctypes)
 
         response = self.client.post(self.WIZARD_URL,
-                                    # {'field_config_wizard-current_step': '0',
                                     {'fields_config_wizard-current_step': '0',
                                      '0-ctype': contact_ct.pk,
                                     },
@@ -163,7 +162,6 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
 
         response = self.client.post(self.WIZARD_URL,
-                                    # {'field_config_wizard-current_step': '0',
                                     {'fields_config_wizard-current_step': '0',
                                      '0-ctype': 'unknown',
                                     },
@@ -184,7 +182,6 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
 
         response = self.assertPOST200(self.WIZARD_URL,
-                                      # {'field_config_wizard-current_step': '0',
                                       {'fields_config_wizard-current_step': '0',
                                        '0-ctype': ctype.pk,
                                       },
@@ -197,7 +194,6 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
 
         response = self.client.post(self.WIZARD_URL,
-                                    # {'field_config_wizard-current_step': '1',
                                     {'fields_config_wizard-current_step': '1',
                                      '1-hidden': ['phone', 'birthday'],
                                     },
@@ -221,7 +217,6 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
 
         self.assertPOST200(self.WIZARD_URL,
-                           # {'field_config_wizard-current_step': '0',
                            {'fields_config_wizard-current_step': '0',
                             '0-ctype': ctype.pk,
                            },
@@ -229,7 +224,6 @@ class FieldsConfigTestCase(CremeTestCase):
 
         # return to first step
         response = self.assertPOST200(self.WIZARD_URL,
-                                      # {'field_config_wizard-current_step': '1',
                                       {'fields_config_wizard-current_step': '1',
                                        'wizard_goto_step': '0',
                                        '1-hidden': ['phone', 'last_name'],

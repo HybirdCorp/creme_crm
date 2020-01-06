@@ -191,7 +191,6 @@ class RelationTypeTestCase(CremeTestCase):
                                  ('test-subfoo', 'object_predicate'),
                                  is_custom=False
                                 )[0]
-        # self.assertGET404(self.DEL_URL, data={'id': rt.id})
         self.assertGET405(self.DEL_URL, data={'id': rt.id})
 
     def test_delete02(self):

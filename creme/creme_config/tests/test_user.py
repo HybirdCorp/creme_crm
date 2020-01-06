@@ -269,7 +269,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                             'password_2': 'passwd',
                                            },
                                      )
-        # self.assertFormError(response, 'form', 'password_2', _('Passwords are different'))
         self.assertFormError(response, 'form', 'password_2',
                              _("The two password fields didn't match."),
                             )
@@ -570,7 +569,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Post only & Current user."
         user = self.login()
         url = self._build_activation_url(user.id, activation=False)
-        # self.assertGET404(url)
         self.assertGET405(url)
         self.assertPOST409(url)
 

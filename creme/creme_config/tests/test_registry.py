@@ -21,10 +21,6 @@ except Exception as e:
 
 
 class RegistryTestCase(CremeTestCase):
-    # def setUp(self):
-    #     super().setUp()
-    #     self.login()
-
     def test_get_app_registry(self):
         registry = _ConfigRegistry()
         self.assertFalse([*registry.apps()])
@@ -98,7 +94,6 @@ class RegistryTestCase(CremeTestCase):
         self.assertIsNone(editor.url_name)
 
         civ = FakeCivility.objects.first()
-        # self.assertTrue(editor.is_enabled(civ))
         self.assertEqual(
             editor.get_url(civ, user),
             reverse('creme_config__edit_instance', args=('creme_core', 'civility', civ.id))
@@ -215,7 +210,7 @@ class RegistryTestCase(CremeTestCase):
 
         creation_url_name = 'creme_config__create_team'
         edition_url_name  = 'creme_config__edit_team'   # NB: need an URL with an int arg
-        deletion_url_name  = 'creme_config__edit_user'  # idem
+        deletion_url_name = 'creme_config__edit_user'  # idem
 
         registry.register_model(FakeCivility) \
                 .edition(url_name=edition_url_name) \
@@ -388,19 +383,13 @@ class RegistryTestCase(CremeTestCase):
 
     def test_unregister_model01(self):
         registry = _ConfigRegistry()
-        # registry.register((FakeCivility, 'civility'),
-        #                   (FakeSector, 'sector'),
-        #                   (FakePosition, 'position'),
-        #                  )
         registry.register_model(FakeCivility)
         registry.register_model(FakeSector)
         registry.register_model(FakePosition)
 
-        # registry.unregister(FakeCivility, FakePosition)
         registry.unregister_models(FakeCivility, FakePosition)
 
         with self.assertNoException():
-            # app_conf = registry.get_app('creme_core')
             app_conf = registry.get_app_registry('creme_core')
 
         get_model_conf = app_conf.get_model_conf
@@ -411,27 +400,6 @@ class RegistryTestCase(CremeTestCase):
         self.assertRaises(NotRegisteredInConfig, get_model_conf, model=FakeCivility)
         self.assertRaises(NotRegisteredInConfig, get_model_conf, model=FakePosition)
 
-    # def test_registry_unregister_model02(self):
-    #     "Unregister before the registration"
-    #     registry = self._ConfigRegistry()
-    #     registry.unregister(FakeCivility, FakePosition)
-    #     registry.register((FakeCivility, 'civility'),
-    #                       (FakeSector, 'sector'),
-    #                       (FakePosition, 'position'),
-    #                      )
-    #
-    #     with self.assertNoException():
-    #         app_conf = registry.get_app('creme_core')
-    #
-    #     get_model_conf = app_conf.get_model_conf
-    #
-    #     with self.assertNoException():
-    #         get_model_conf(model=FakeSector)
-    #
-    #     self.assertRaises(self.NotRegisteredInConfig, get_model_conf, model=FakeCivility)
-    #     self.assertRaises(self.NotRegisteredInConfig, get_model_conf, model=FakePosition)
-
-    # def test_registry_register_bricks(self):
     def test_register_app_brick(self):
         class TestBrick(SimpleBrick):
             pass
@@ -449,9 +417,6 @@ class RegistryTestCase(CremeTestCase):
         brick_registry.register(TestBrick1, TestBrick2, TestBrick3)
 
         registry = _ConfigRegistry(brick_registry)
-        # registry.register_bricks(('creme_core', TestBrick1),
-        #                          ('documents',  TestBrick2),
-        #                         )
         registry.register_app_bricks('creme_core', TestBrick1, TestBrick2)
         registry.register_app_bricks('documents', TestBrick3)
 
@@ -590,9 +555,7 @@ class RegistryTestCase(CremeTestCase):
     def test_get_model_creation_info01(self):
         "Not registered model."
         user = self.login()
-
         registry = _ConfigRegistry()
-        # registry.register_model(FakeCivility)
 
         url, allowed = registry.get_model_creation_info(model=FakeCivility, user=user)
         self.assertIs(False, allowed)

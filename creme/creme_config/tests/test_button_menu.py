@@ -13,13 +13,11 @@ except Exception as e:
 
 
 class ButtonMenuConfigTestCase(CremeTestCase):
-    # ADD_URL = reverse('creme_config__add_buttons_to_ctype_legacy')
     WIZARD_URL = reverse('creme_config__add_buttons_to_ctype')
     DEL_URL = reverse('creme_config__delete_ctype_buttons')
 
     @classmethod
     def setUpClass(cls):
-        # super(ButtonMenuConfigTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls.contact_ct = ct = ContentType.objects.get_for_model(FakeContact)
@@ -29,7 +27,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # super(ButtonMenuConfigTestCase, cls).tearDownClass()
         super().tearDownClass()
 
         ButtonMenuItem.objects.bulk_create(cls._buttonconf_backup)
@@ -44,25 +41,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
                          response.context.get('bricks_reload_url')
                         )
 
-    # def test_add_detailview(self):
-    #     ct = self.contact_ct
-    #
-    #     url = self.ADD_URL
-    #     self.assertGET200(url)
-    #
-    #     self.assertNoFormError(self.client.post(url, data={'ctype': ct.id}))
-    #
-    #     self.assertEqual([('', 1)],
-    #                      [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=ct)]
-    #                     )
-    #
-    #     response = self.client.get(url)
-    #
-    #     with self.assertNoException():
-    #         ctypes = response.context['form'].fields['ctype'].ctypes
-    #
-    #     self.assertNotIn(ct, ctypes)
-
     def _find_field_index(self, formfield, button_id):
         for i, (f_button_id, f_button_vname) in enumerate(formfield.choices):
             if f_button_id == button_id:
@@ -75,8 +53,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             id_          = Button.generate_id('creme_config', 'test_wizard')
             verbose_name = 'Testing purpose'
 
-        # button = TestButton()
-        # button_registry.register(button)
         button_registry.register(TestButton)
 
         ct = self.contact_ct
@@ -97,20 +73,17 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         with self.assertNoException():
             button_ids = response.context['form'].fields['button_ids']
 
-        # button_index = self._find_field_index(button_ids, button.id_)
         button_index = self._find_field_index(button_ids, TestButton.id_)
 
         response = self.client.post(url,
                                     data={
                                         step_key: '1',
                                         '1-button_ids_check_{}'.format(button_index): 'on',
-                                        # '1-button_ids_value_%s' % button_index: button.id_,
                                         '1-button_ids_value_{}'.format(button_index): TestButton.id_,
                                         '1-button_ids_order_{}'.format(button_index): 1,
                                     },
                                    )
         self.assertNoFormError(response)
-        # self.assertEqual([(button.id_, 1000)],
         self.assertEqual([(TestButton.id_, 1000)],
                          [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=ct)]
                         )
@@ -127,13 +100,10 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             verbose_name = 'Testing purpose'
 
 
-        # button = TestButton()
-        # button_registry.register(button)
         button_registry.register(TestButton)
 
         url = reverse('creme_config__edit_ctype_buttons', args=(0,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
@@ -143,12 +113,10 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         with self.assertNoException():
             button_ids = context['form'].fields['button_ids']
 
-        # button_index = self._find_field_index(button_ids, button.id_)
         button_index = self._find_field_index(button_ids, TestButton.id_)
 
         response = self.client.post(url,
                                     data={'button_ids_check_{}'.format(button_index): 'on',
-                                          # 'button_ids_value_%s' % button_index: button.id_,
                                           'button_ids_value_{}'.format(button_index): TestButton.id_,
                                           'button_ids_order_{}'.format(button_index): 1,
                                          }
@@ -182,15 +150,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             def get_ctypes(self):
                 return [FakeOrganisation]  # No Contact
 
-
-        # button01 = TestButton01()
-        # button02 = TestButton02()
-        # button03 = TestButton03()
-        # button_registry.register(button01, button02, button03)
         button_registry.register(TestButton01, TestButton02, TestButton03)
 
-        # self.client.post(self.ADD_URL, data={'ctype': ct.id})
-        # self.assertEqual(1, ButtonMenuItem.objects.filter(content_type=ct).count())
         ButtonMenuItem.objects.create(content_type=ct, order=1)
 
         url = reverse('creme_config__edit_ctype_buttons', args=(ct.id,))
@@ -202,30 +163,24 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         with self.assertNoException():
             button_ids = context['form'].fields['button_ids']
 
-        # button01_index = self._find_field_index(button_ids, button01.id_)
-        # button02_index = self._find_field_index(button_ids, button02.id_)
         button01_index = self._find_field_index(button_ids, TestButton01.id_)
         button02_index = self._find_field_index(button_ids, TestButton02.id_)
 
         for i, (f_button_id, f_button_vname) in enumerate(button_ids.choices):
-            # if f_button_id == button03.id_:
             if f_button_id == TestButton03.id_:
                 self.fail('Button03 is incompatible with Contact')
 
         response = self.client.post(url,
                                     data={'button_ids_check_{}'.format(button01_index): 'on',
-                                          # 'button_ids_value_%s' % button01_index: button01.id_,
                                           'button_ids_value_{}'.format(button01_index): TestButton01.id_,
                                           'button_ids_order_{}'.format(button01_index): 1,
 
                                           'button_ids_check_{}'.format(button02_index): 'on',
-                                          # 'button_ids_value_%s' % button02_index: button02.id_,
                                           'button_ids_value_{}'.format(button02_index): TestButton02.id_,
                                           'button_ids_order_{}'.format(button02_index): 2,
                                          }
                                    )
         self.assertNoFormError(response)
-        # self.assertEqual([(button01.id_, 1000), (button02.id_, 1001)],
         self.assertEqual([(TestButton01.id_, 1000), (TestButton02.id_, 1001)],
                          [(bmi.button_id, bmi.order)
                             for bmi in ButtonMenuItem.objects.filter(content_type=ct)
@@ -243,8 +198,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_delete_detailview02(self):
         ct = self.contact_ct
-        # self.client.post(self.ADD_URL, data={'ctype': ct.id})
-        # self.get_object_or_fail(ButtonMenuItem, content_type=ct)
         ButtonMenuItem.objects.create(content_type=ct, order=1)
 
         self.assertPOST200(self.DEL_URL, data={'id': ct.id})

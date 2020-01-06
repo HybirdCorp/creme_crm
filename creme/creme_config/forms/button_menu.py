@@ -34,12 +34,7 @@ _PREFIX = 'creme_config-userbmi'
 
 
 class ButtonMenuAddForm(CremeForm):
-    ctype = EntityCTypeChoiceField(
-                        label=_('Related resource'),
-                        # help_text=_('The buttons related to this type of resource '
-                        #             'will be chosen by editing the configuration'
-                        #            ),
-                       )
+    ctype = EntityCTypeChoiceField(label=_('Related resource'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -24,7 +24,6 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms.base import CremeModelForm
 
-
 User = get_user_model()
 
 

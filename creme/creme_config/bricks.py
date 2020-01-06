@@ -57,16 +57,12 @@ class GenericModelBrick(QuerysetBrick):
     configurable  = False
 
     # NB: credentials are OK : we are sure to use the custom reloading view because of the specific constructor.
-    # def __init__(self, app_name, model_name, model):
     def __init__(self, app_name, model_config):
         super().__init__()
         self.app_name = app_name
-        # self.model_name = model_name
-        # self.model = model
         self.model_config = model_config
 
     def detailview_display(self, context):
-        # model = self.model
         model_config = self.model_config
         model = model_config.model
         meta = model._meta
@@ -100,7 +96,6 @@ class GenericModelBrick(QuerysetBrick):
 
                     app_name=self.app_name,
                     model_config=model_config,
-                    # model_name=self.model_name,
 
                     model_is_reorderable=is_reorderable,
                     displayable_fields=displayable_fields,
@@ -414,10 +409,6 @@ class BrickHomeLocationsBrick(_ConfigAdminBrick):
     template_name = 'creme_config/bricks/bricklocations-home.html'
 
     def detailview_display(self, context):
-        # return self._render(self.get_template_context(
-        #             context,
-        #             BrickHomeLocation.objects.all(),
-        # ))
         superuser_count = BrickHomeLocation.objects.filter(superuser=True).count()
 
         btc = self.get_template_context(

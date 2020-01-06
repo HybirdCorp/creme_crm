@@ -48,10 +48,6 @@ __all__ = (
 
 
 class BrickLocationsField(MultipleChoiceField):
-    # def __init__(self, required=False, choices=(), widget=OrderedMultipleChoiceWidget, *args, **kwargs):
-    #     super().__init__(required=required, choices=choices,
-    #                      widget=widget, *args, **kwargs
-    #                     )
     def __init__(self, *, required=False, choices=(), widget=OrderedMultipleChoiceWidget, **kwargs):
         super().__init__(required=required, choices=choices,
                          widget=widget, **kwargs
@@ -259,23 +255,6 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
             hat_f.initial = selected[0] if selected else hat_f.choices[0][0]
 
 
-# class BrickHomeLocationsForm(_BrickLocationsForm):
-#     bricks = BrickLocationsField(label=_('Blocks to display on the home'))
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.locations = locations = BrickHomeLocation.objects.all()
-#
-#         self._build_home_locations_field(field_name='bricks', brick_locations=locations)
-#
-#     def save(self, *args, **kwargs):
-#         self._save_locations(location_model=BrickHomeLocation,
-#                              location_builder=lambda: BrickHomeLocation(),
-#                              bricks_partitions={1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
-#                              old_locations=self.locations,
-#                             )
-
-
 class BrickHomeLocationsAddingForm(_BrickLocationsForm):
     role = ModelChoiceField(label=_('Role'),
                             queryset=UserRole.objects.none(),
@@ -476,14 +455,10 @@ class _CustomBrickConfigItemBaseForm(CremeModelForm):
         return instance
 
 
-# class CustomBrickConfigItemCreateForm(CremeModelForm):
 class CustomBrickConfigItemCreateForm(_CustomBrickConfigItemBaseForm):
     ctype = EntityCTypeChoiceField(label=_('Related resource'),
                                    widget=DynamicSelect(attrs={'autocomplete': True}),
                                   )
-
-    # class Meta(CremeModelForm.Meta):
-    #     model = CustomBrickConfigItem
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -503,27 +478,11 @@ class CustomBrickConfigItemCreateForm(_CustomBrickConfigItemBaseForm):
 
         return cdata
 
-    # def save(self, *args, **kwargs):
-    #     instance = self.instance
-    #     ct = self.cleaned_data['ctype']
-    #     instance.content_type = ct
-    #
-    #     super().save(commit=False)
-    #     generate_string_id_and_save(CustomBrickConfigItem, [instance],
-    #                                 'creme_core-user_customblock_{}-{}'.format(ct.app_label, ct.model)
-    #                                )
-    #
-    #     return instance
 
-
-# class CustomBrickConfigItemEditForm(CremeModelForm):
 class CustomBrickConfigItemEditForm(_CustomBrickConfigItemBaseForm):
     cells = EntityCellsField(label=_('Lines'))
 
     blocks = CremeModelForm.blocks.new(('cells', 'Columns', ['cells']))
-
-    # class Meta(CremeModelForm.Meta):
-    #     model = CustomBrickConfigItem
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -542,8 +501,3 @@ class CustomBrickConfigItemEditForm(_CustomBrickConfigItemBaseForm):
             self.instance.cells = self.cleaned_data['cells']
 
         return cdata
-
-    # def save(self, *args, **kwargs):
-    #     self.instance.cells = self.cleaned_data['cells']
-    #
-    #     return super().save(*args, **kwargs)

@@ -23,13 +23,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.forms import fields
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeModelForm  # CremeForm
+from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.fields import CTypeChoiceField
 from creme.creme_core.forms.widgets import DynamicSelect, Label
 from creme.creme_core.models import CremeEntity, FieldsConfig
 
 
-# class FieldsConfigAddForm(CremeForm):
 class FieldsConfigAddForm(CremeModelForm):
     ctype = CTypeChoiceField(
         label=_('Related resource'),
@@ -86,11 +85,6 @@ class FieldsConfigAddForm(CremeModelForm):
 
         return cdata
 
-    # def save(self):
-    #     if self.ctypes:
-    #         return FieldsConfig.objects.create(content_type=self.cleaned_data['ctype'],
-    #                                            descriptions=(),
-    #                                           )
     def save(self, *args, **kwargs):
         if self.ctypes:  # NB: remove if we raise a ValidationError in clean()
             super().save(*args, **kwargs)
@@ -126,11 +120,3 @@ class FieldsConfigEditForm(CremeModelForm):
             ]
 
         return cdata
-
-    # def save(self, *args, **kwargs):
-    #     HIDDEN = FieldsConfig.HIDDEN
-    #     self.instance.descriptions = [
-    #         (field_name, {HIDDEN: True})
-    #             for field_name in self.cleaned_data['hidden']
-    #     ]
-    #     return super().save(*args, **kwargs)

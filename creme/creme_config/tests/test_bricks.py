@@ -742,7 +742,6 @@ class BricksConfigTestCase(CremeTestCase):
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
-        # rtype = RelationType.objects.all()[0]
         rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
                                     ('test-objfoo', 'object_predicate'),
                                    )[0]
@@ -1041,7 +1040,6 @@ class BricksConfigTestCase(CremeTestCase):
         instance_brick_id = InstanceBrickConfigItem.generate_id(HomeInstanceBrick, naru, '')
         InstanceBrickConfigItem.objects.create(brick_id=instance_brick_id, entity=naru, verbose='All stuffes')
 
-        # url = reverse('creme_config__edit_home_bricks')
         url = reverse('creme_config__edit_home_bricks', args=('default',))
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
@@ -1088,7 +1086,6 @@ class BricksConfigTestCase(CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        # b_locs = list(BrickHomeLocation.objects.all())
         b_locs = [*BrickHomeLocation.objects.filter(role__isnull=True, superuser=False)]
         self.assertEqual(2, len(b_locs))
         self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
@@ -1221,16 +1218,6 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(1, BrickHomeLocation.objects.filter(role=None, superuser=False).count())
         self.assertEqual(1, BrickHomeLocation.objects.filter(role=role).count())
 
-    # def test_delete_home_location_item(self):
-    #     self.login()
-    #     bricks = [block for brick_id, block in self.brick_registry
-    #                         if hasattr(block, 'home_display')
-    #              ]
-    #     self.assertGreaterEqual(len(bricks), 1)
-    #
-    #     bpl = BrickHomeLocation.objects.create(brick_id=bricks[0].id_, order=1)
-    #     self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'id': bpl.id})
-    #     self.assertDoesNotExist(bpl)
     def test_delete_home01(self):
         "Role."
         self.login()
@@ -1246,9 +1233,7 @@ class BricksConfigTestCase(CremeTestCase):
         bhl03 = create_bhl(superuser=True)
         bhl04 = create_bhl(role=role, brick_id=bricks[1].id_, order=2)
 
-        # self.assertGET404(reverse('creme_config__delete_home_brick'))
         self.assertGET405(reverse('creme_config__delete_home_brick'))
-        # self.assertGET404(reverse('creme_config__delete_home_brick'), data={'role': role.id})
         self.assertGET405(reverse('creme_config__delete_home_brick'), data={'role': role.id})
         self.assertPOST404(reverse('creme_config__delete_home_brick'))
 
@@ -1476,7 +1461,6 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertIsNone(rb_item.get_cells(ct_contact))
         context = response.context
         self.assertEqual(
-            # _('New customised type for «{predicate}»').format(predicate=rt.predicate),
             _('New customised type for «{object}»').format(object=rt.predicate),
             context.get('title')
         )
@@ -1820,7 +1804,6 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertPOST404(url, data={'id': get_ct(FakeOrganisation).id})
 
         data = {'id': ct.id}
-        # self.assertGET404(url, data=data)  # Only POST
         self.assertGET405(url, data=data)  # Only POST
 
         self.assertPOST200(url, data=data)

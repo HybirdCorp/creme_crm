@@ -19,23 +19,18 @@
 ################################################################################
 
 from django.db.transaction import atomic
-from django.http import Http404  # HttpResponse
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
-# from formtools.wizard.views import SessionWizardView
-
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.models import (UserRole,
         BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
         RelationBrickItem, InstanceBrickConfigItem, CustomBrickConfigItem)
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
-# from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import BricksView
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
-# from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import bricks as bricks_forms
 
@@ -47,12 +42,10 @@ class Portal(BricksView):
 
 
 class BrickDetailviewLocationsCreation(EntityCTypeRelatedMixin,
-                                       # base.ConfigEdition,
                                        base.ConfigCreation,
                                       ):
     # model = BrickDetailviewLocation
     form_class = bricks_forms.BrickDetailviewLocationsAddForm
-    # submit_label = _('Save the configuration')
 
     def check_related_ctype(self, ctype):
         super().check_related_ctype(ctype)
@@ -77,7 +70,6 @@ class RelationTypeBrickCreation(base.ConfigModelCreation):
     form_class = bricks_forms.RTypeBrickAddForm
 
 
-# class CustomBrickWizard(PopupWizardMixin, SessionWizardView):
 class CustomBrickWizard(base.ConfigModelCreationWizard):
     class _ResourceStep(bricks_forms.CustomBrickConfigItemCreateForm):
         step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
@@ -89,38 +81,17 @@ class CustomBrickWizard(base.ConfigModelCreationWizard):
         class Meta(bricks_forms.CustomBrickConfigItemEditForm.Meta):
             exclude = ('name',)
 
-        # step_prev_label = _('Previous step')
-        # step_submit_label = _('Save the block')
-
     form_list = (
         _ResourceStep,
         _ConfigStep,
     )
-    # wizard_title = _('New custom block')
     title = _('New custom block')
     submit_label = _('Save the block')
-    # template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
-    # permission = 'creme_core.can_admin'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cbci = CustomBrickConfigItem()
 
-    # def done(self, form_list, **kwargs):
-    #     resource_step, conf_step = form_list
-    #
-    #     with atomic():
-    #         conf_step.instance = resource_step.save()
-    #         conf_step.save()
-    #
-    #     return HttpResponse()
-
-    # def get_form_instance(self, step):
-    #     if step == '1':
-    #         cleaned_data = self.get_cleaned_data_for_step('0')
-    #         return CustomBrickConfigItem(name=cleaned_data['name'],
-    #                                      content_type=cleaned_data['ctype'],
-    #                                     )
     def get_form_instance(self, step):
         # We fill the instance with the previous step (so recursively all previous should be used)
         self.validate_previous_steps(step)
@@ -168,13 +139,8 @@ class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
                                      ):
     # model = BrickDetailviewLocation
     form_class = bricks_forms.BrickDetailviewLocationsEditForm
-    # template_name = 'creme_core/generics/blockform/edit-popup.html'
     submit_label = _('Save the configuration')
     ct_id_0_accepted = True
-
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.role_info = None
 
     # TODO: factorise + remove _get_configurable_ctype()
     def check_related_ctype(self, ctype):
@@ -223,7 +189,6 @@ class HomeCreation(base.ConfigCreation):
 
 class HomeEdition(RoleRelatedMixin, base.ConfigEdition):
     model = BrickHomeLocation  # TODO: useful ?
-    # form_class = bricks_forms.BrickHomeLocationsForm
     form_class = bricks_forms.BrickHomeLocationsEditionForm
     title = _('Edit home configuration')
 
@@ -254,7 +219,6 @@ class MyPageEdition(BaseMyPageEdition):
         return kwargs
 
 
-# class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):
 class RelationCTypeBrickWizard(base.ConfigModelEditionWizard):
     model = RelationBrickItem
     pk_url_kwarg = 'rbi_id'
@@ -262,34 +226,12 @@ class RelationCTypeBrickWizard(base.ConfigModelEditionWizard):
     class _ContentTypeStep(bricks_forms.RTypeBrickItemAddCtypeForm):
         step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
 
-    # class _FieldsStep(bricks_forms.RTypeBrickItemEditCtypeForm):
-    #     step_prev_label = _('Previous step')
-    #     step_submit_label = _('Save the configuration')
-
     form_list = (
         _ContentTypeStep,
-        # _FieldsStep,
         bricks_forms.RTypeBrickItemEditCtypeForm,
     )
-    # wizard_title = 'New customised type'  # Overridden by get_context_data()
     title = _('New customised type for «{object}»')
     submit_label = _('Save the configuration')
-    # template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
-    # permission = 'creme_core.can_admin'
-
-    # def done(self, form_list, **kwargs):
-    #     _ct_form, fields_form = form_list
-    #     fields_form.save()
-    #
-    #     return HttpResponse()
-
-    # def get_context_data(self, form, **kwargs):
-    #     context = super().get_context_data(form, **kwargs)
-    #     context['title'] = ugettext('New customised type for «{predicate}»').format(
-    #                             predicate=form.instance,
-    #                         )
-    #
-    #     return context
 
     def get_form_kwargs(self, step=None):
         kwargs = super().get_form_kwargs(step=step)
@@ -325,22 +267,6 @@ class RelationCTypeBrickEdition(EntityCTypeRelatedMixin, base.ConfigModelEdition
         return data
 
 
-# @POST_only
-# @login_required
-# @permission_required('creme_core.can_admin')
-# @atomic
-# def delete_cells_of_rtype_brick(request, rbi_id):
-#     ctype = get_ct_or_404(get_from_POST_or_404(request.POST, 'id'))
-#     rbi = get_object_or_404(RelationBrickItem.objects.select_for_update(), id=rbi_id)
-#
-#     try:
-#         rbi.delete_cells(ctype)
-#     except KeyError:
-#         raise Http404('This ContentType is not set in the RelationBrickItem.')
-#
-#     rbi.save()
-#
-#     return HttpResponse()
 class CellsOfRtypeBrickDeletion(base.ConfigDeletion):
     rbi_id_url_kwarg = 'rbi_id'
     ct_id_arg = 'id'
@@ -367,33 +293,6 @@ class CustomBrickEdition(base.ConfigModelEdition):
     title = _('Edit the block «{object}»')
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def delete_detailview(request):
-#     POST = request.POST
-#     ct_id = get_from_POST_or_404(POST, 'id', int)
-#
-#     if not ct_id:
-#         raise Http404('Default config can not be deleted')
-#
-#     role_id = None
-#     superuser = False
-#
-#     role_str = POST.get('role')
-#     if role_str:
-#         if role_str == 'superuser':
-#             superuser = True
-#         else:
-#             try:
-#                 role_id = int(role_str)
-#             except ValueError:
-#                 raise Http404('"role" argument must be "superuser" or an integer')
-#
-#     BrickDetailviewLocation.objects.filter(content_type=ct_id,
-#                                            role=role_id, superuser=superuser,
-#                                           ).delete()
-#
-#     return HttpResponse()
 class BrickDetailviewLocationsDeletion(base.ConfigDeletion):
     ct_id_arg = 'id'
     role_arg = 'role'
@@ -423,14 +322,6 @@ class BrickDetailviewLocationsDeletion(base.ConfigDeletion):
                                               ).delete()
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def delete_home(request):
-#     get_object_or_404(BrickHomeLocation,
-#                       pk=get_from_POST_or_404(request.POST, 'id'),
-#                      ).delete()
-#
-#     return HttpResponse()
 class HomeDeletion(base.ConfigDeletion):
     role_arg = 'role'
 
@@ -451,15 +342,6 @@ class HomeDeletion(base.ConfigDeletion):
         BrickHomeLocation.objects.filter(role=role_id, superuser=superuser).delete()
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def delete_default_mypage(request):
-#     get_object_or_404(BrickMypageLocation,
-#                       pk=get_from_POST_or_404(request.POST, 'id'),
-#                       user=None,
-#                      ).delete()
-#
-#     return HttpResponse()
 class DefaultMyPageDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
@@ -470,14 +352,6 @@ class DefaultMyPageDeletion(base.ConfigDeletion):
                          ).delete()
 
 
-# @login_required
-# def delete_mypage(request):
-#     get_object_or_404(BrickMypageLocation,
-#                       pk=get_from_POST_or_404(request.POST, 'id'),
-#                       user=request.user,
-#                      ).delete()
-#
-#     return HttpResponse()
 class MyPageDeletion(base.ConfigDeletion):
     permissions = ''
     id_arg = 'id'
@@ -489,14 +363,6 @@ class MyPageDeletion(base.ConfigDeletion):
                          ).delete()
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def delete_rtype_brick(request):
-#     get_object_or_404(RelationBrickItem,
-#                       pk=get_from_POST_or_404(request.POST, 'id'),
-#                      ).delete()
-#
-#     return HttpResponse()
 class RelationTypeBrickDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
@@ -506,14 +372,6 @@ class RelationTypeBrickDeletion(base.ConfigDeletion):
                          ).delete()
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def delete_instance_brick(request):
-#     get_object_or_404(InstanceBrickConfigItem,
-#                       pk=get_from_POST_or_404(request.POST, 'id'),
-#                      ).delete()
-#
-#     return HttpResponse()
 class InstanceBrickDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
@@ -523,13 +381,6 @@ class InstanceBrickDeletion(base.ConfigDeletion):
                          ).delete()
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def delete_custom_brick(request):
-#     cbci_id = get_from_POST_or_404(request.POST, 'id')
-#     get_object_or_404(CustomBrickConfigItem, pk=cbci_id).delete()
-#
-#     return HttpResponse()
 class CustomBrickDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
