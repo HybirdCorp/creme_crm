@@ -32,8 +32,7 @@ DEFAULT_HFILTER_ORDER    = 'billing-hf_salesorder'
 DEFAULT_HFILTER_CNOTE    = 'billing-hf_creditnote'
 DEFAULT_HFILTER_TEMPLATE = 'billing-hf_template'
 
-# DEPRECATED: use payment_info_key.id instead
-DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA = 'billing-display_payment_info_only_creme_orga'
+# DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA = 'billing-display_payment_info_only_creme_orga'
 
 ############################################
 # DEPRECATED

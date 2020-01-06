@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2018  Hybird
+    Copyright (C) 2018-2020  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -70,6 +70,7 @@ creme.billing.EXPORT_FORMATS = [
    {value: 'pdf', label: gettext("Pdf file (PDF)")}
 ];
 
+/*
 creme.billing.generateInvoiceNumber = function(url) {
     console.warn('creme.billing.generateInvoiceNumber() is deprecated; use the action named "billing-hatmenubar-invoice-number" instead');
     return creme.utils.ajaxQuery(url, {
@@ -78,6 +79,7 @@ creme.billing.generateInvoiceNumber = function(url) {
         reloadOnSuccess: true
     }).start();
 };
+*/
 
 creme.billing.AddDocumentAction = creme.component.Action.sub({
     _init_: function(options) {
