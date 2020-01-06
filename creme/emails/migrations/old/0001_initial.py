@@ -12,11 +12,6 @@ import creme.emails.utils
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('emails', '0001_initial'),
-    #     ('emails', '0015_v2_1__signature_fk_setnull'),
-    # ]
-
     initial = True
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -160,7 +155,7 @@ class Migration(migrations.Migration):
                 ('identifier', models.CharField(default=creme.emails.utils.generate_id, verbose_name='Email ID', unique=True, max_length=32, editable=False)),
                 ('body_html', creme.creme_core.models.fields.UnsafeHTMLField(verbose_name='Body (HTML)')),
                 ('attachments', models.ManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Attachments', blank=True)),
-                ('signature', models.ForeignKey(verbose_name='Signature', blank=True, to='emails.EmailSignature', null=True, on_delete=SET_NULL)),
+                ('signature', models.ForeignKey(verbose_name='Signature', blank=True, to='emails.EmailSignature', null=True, on_delete=CASCADE)),
             ],
             options={
                 'swappable': 'EMAILS_EMAIL_MODEL',
