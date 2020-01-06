@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# from django.conf.urls import url, include
 from django.urls import re_path, include
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
@@ -12,7 +11,6 @@ from .views import event
 
 
 urlpatterns = [
-    # url(r'^event/(?P<event_id>\d+)/contacts[/]?$', event.list_contacts, name='events__list_related_contacts'),
     re_path(r'^event/(?P<event_id>\d+)/contacts[/]?$',
         event.RelatedContactsList.as_view(),
         name='events__list_related_contacts',
@@ -29,7 +27,6 @@ urlpatterns = [
 
     *swap_manager.add_group(
         event_model_is_custom,
-        # Swappable(url(r'^events[/]?$',                       event.listview,                name='events__list_events')),
         Swappable(re_path(r'^events[/]?$',                       event.EventsList.as_view(),    name='events__list_events')),
         Swappable(re_path(r'^event/add[/]?$',                    event.EventCreation.as_view(), name='events__create_event')),
         Swappable(re_path(r'^event/edit/(?P<event_id>\d+)[/]?$', event.EventEdition.as_view(),  name='events__edit_event'), check_args=Swappable.INT_ID),

@@ -31,7 +31,6 @@ from creme.persons import get_contact_model
 
 from . import constants
 
-
 Contact = get_contact_model()
 
 

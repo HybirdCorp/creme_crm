@@ -33,7 +33,6 @@ try:
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
-
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 
@@ -176,7 +175,6 @@ class EventsTestCase(CremeTestCase):
         response = self.assertGET200(Event.get_lv_absolute_url())
 
         with self.assertNoException():
-            # events_page = response.context['entities']
             events_page = response.context['page_obj']
 
         self.assertEqual(2, events_page.paginator.count)
@@ -673,12 +671,6 @@ class EventsTestCase(CremeTestCase):
 
         event = self._create_event('Eclipse', etype)
 
-        # self.assertPOST404(reverse('creme_config__delete_instance', args=('events', 'event_type')),
-        #                    data={'id': etype.pk}
-        #                   )
-        # self.get_object_or_fail(EventType, pk=etype.pk)
-        # event = self.assertStillExists(event)
-        # self.assertEqual(etype, event.type)
         response = self.client.post(
             reverse('creme_config__delete_instance',
                     args=('events', 'event_type', etype.id),

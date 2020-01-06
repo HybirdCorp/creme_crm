@@ -40,7 +40,6 @@ class Migration(migrations.Migration):
                 ('end_date', models.DateTimeField(null=True, verbose_name='End date', blank=True)),
                 ('budget', models.DecimalField(null=True, verbose_name='Budget (\u20ac)', max_digits=10, decimal_places=2, blank=True)),
                 ('final_cost', models.DecimalField(null=True, verbose_name='Final cost (\u20ac)', max_digits=10, decimal_places=2, blank=True)),
-                # ('type', models.ForeignKey(on_delete=PROTECT, verbose_name='Type', to='events.EventType')),
                 ('type', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Type', to='events.EventType')),
             ],
             options={
