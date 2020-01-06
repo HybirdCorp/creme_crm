@@ -105,7 +105,6 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
     def detailview_display(self, context):
         # Credentials are OK: block is not registered in block registry,
         # so reloading is necessarily done with the custom view
-        # super(CrudityHistoryBrick, self).detailview_display(context)
         super().detailview_display(context)
         ct = self.ct
 

@@ -31,7 +31,7 @@ from creme.documents import get_document_model
 from ..backends.models import CrudityBackend
 from ..constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
 from ..models import WaitingAction
-from ..utils import strip_html, decode_b64binary  # strip_html_
+from ..utils import strip_html, decode_b64binary
 from .base import CrudityInput
 
 Document = get_document_model()
@@ -54,7 +54,6 @@ class EmailInput(CrudityInput):
         # TODO: improve strip_html() to give custom replacement ?
         html = re.sub(re_html_br, '\n', html).replace('&nbsp;', ' ')
         html = strip_html(html)
-        # html = strip_html_(html)
 
         return html
 
@@ -110,7 +109,6 @@ class CreateEmailInput(EmailInput):
 
                         if r:
                             # TODO: Check if the target field is a simple-line field ?
-                            # data[key] = (r.groupdict().get(key).replace('\\n', '\n')).encode('utf8')
                             data[key] = r.groupdict().get(key).replace('\\n', '\n')
                             split_body.pop(i)
                             break
@@ -237,7 +235,6 @@ class CreateInfopathInput(CreateEmailInput):
 
         try:
             xml = ET.fromstring(content)
-        # except Exception as e:  # ExpatError in py2.6, ParseError in py2.7...
         except ET.ParseError as e:
             logger.error('CreateInfopathInput.get_data_from_infopath_file(): %s', e)
             return None
@@ -249,7 +246,6 @@ class CreateInfopathInput(CreateEmailInput):
             except AttributeError:
                 continue
 
-            # if data.has_key(tag):
             if tag in data:
                 children = [*node]
 

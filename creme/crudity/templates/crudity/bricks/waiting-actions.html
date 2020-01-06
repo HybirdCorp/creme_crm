@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_widgets creme_bricks %}{# crudity_tags creme_core_tags #}
+{% load i18n creme_widgets creme_bricks %}
 
 {% block brick_extra_class %}{{block.super}} brick-selectable crudity-actions-brick{% endblock %}
 
@@ -7,7 +7,6 @@
 
 {% block brick_header_title %}
     {% widget_icon ctype=waiting_ct size='brick-header' as ct_icon %}{% trans '%s Action selected' as sel_fmt %}{% trans '%s Actions selected' as sel_plural_fmt %}
-{#    {% brick_header_title title=title icon=ct_icon selection_title=_('%s Action selected') selection_plural=_('%s Actions selected') %} TODO + use '{}' format instead #}
     {% with count=page.paginator.count %}
     {% if count %}
         {% blocktrans count count=count with model=waiting_ct source=backend.verbose_source asvar title %}{{count}} Waiting action - {{model}} - {{source}}{% plural %}{{count}} Waiting actions - {{model}} - {{source}}{% endblocktrans %}
@@ -50,14 +49,6 @@
             {% else %}
              /
             {% endif %}
-{% comment %} TODO: fix this feature ? (in Py3 str is iterable ; can we have list ?)
-            {% if v|is_iterable %}
-                {{k}} : {{v.0|truncate:50}}
-            {% else %}
-                {{k}} : {{v|truncate:50}}
-            {% endif %}
-{% endcomment %}
-{#            {{k}} : {{v|truncate:50}} #}
             {{k}} : {{v|truncatewords:50|truncatechars:500}}
             {% if forloop.counter|divisibleby:4 %}
             </p>
@@ -65,7 +56,7 @@
         {% endfor %}
         </td>
         <td>{{backend.verbose_method}}</td>
-        <td {% brick_table_data_status action %}>{# {% templatize '.row-selector[value={{waiting_action.id}}]' as selector %} #}
+        <td {% brick_table_data_status action %}>
             {% brick_table_action id='crudity-validate-row' url=validate_url __id=waiting_action.pk label=_('Validate') icon='ok' %}
         </td>
         <td {% brick_table_data_status action %}>
