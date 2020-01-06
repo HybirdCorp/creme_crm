@@ -7,13 +7,6 @@ from creme.creme_core.models import fields as creme_fields, CREME_REPLACE
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('tickets', '0001_initial'),
-    #     ('tickets', '0005_v2_1__move_description_to_entity_1'),
-    #     ('tickets', '0006_v2_1__move_description_to_entity_2'),
-    #     ('tickets', '0007_v2_1__move_description_to_entity_3'),
-    # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -78,7 +71,7 @@ class Migration(migrations.Migration):
                 ),
                 ('number', models.PositiveIntegerField(verbose_name='Number', unique=True, editable=False)),
                 ('title', models.CharField(max_length=100, verbose_name='Title', blank=True)),
-                # ('description', models.TextField(verbose_name='Description')),
+                ('description', models.TextField(verbose_name='Description')),
                 ('solution', models.TextField(verbose_name='Solution', blank=True)),
                 ('closing_date', models.DateTimeField(verbose_name='Closing date', null=True, editable=False, blank=True)),
                 ('criticity', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticity', to='tickets.Criticity')),
@@ -101,7 +94,7 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('title', models.CharField(max_length=100, verbose_name='Title', blank=True)),
-                # ('description', models.TextField(verbose_name='Description')),
+                ('description', models.TextField(verbose_name='Description')),
                 ('solution', models.TextField(verbose_name='Solution', blank=True)),
                 ('criticity', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticity', to='tickets.Criticity')),
                 ('priority', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Priority', to='tickets.Priority')),
