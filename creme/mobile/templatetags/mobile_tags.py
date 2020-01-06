@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2019  Hybird
+#    Copyright (C) 2014-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,14 +19,14 @@
 ################################################################################
 
 import re
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.template import Library
 
 from creme.persons import get_organisation_model
-from creme.persons import constants as persons_constants
+# from creme.persons import constants as persons_constants
 
 from creme.activities.constants import (
     STATUS_IN_PROGRESS,
@@ -69,23 +69,22 @@ def document_class(request):
     return 'all'
 
 
-# DEPRECATED
-_EMPLOYERS_RTYPE_IDS = (
-    persons_constants.REL_OBJ_EMPLOYED_BY,
-    persons_constants.REL_OBJ_MANAGES,
-)
-
-
-@register.filter
-def employers(contact):
-    warnings.warn('The template filter "|employers" is deprecated ; '
-                  'use ".get_employers" instead.',
-                  DeprecationWarning
-                 )
-
-    return Organisation.objects.filter(relations__type__in=_EMPLOYERS_RTYPE_IDS,
-                                       relations__object_entity=contact.id,
-                                      )
+# _EMPLOYERS_RTYPE_IDS = (
+#     persons_constants.REL_OBJ_EMPLOYED_BY,
+#     persons_constants.REL_OBJ_MANAGES,
+# )
+#
+#
+# @register.filter
+# def employers(contact):
+#     warnings.warn('The template filter "|employers" is deprecated ; '
+#                   'use ".get_employers" instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     return Organisation.objects.filter(relations__type__in=_EMPLOYERS_RTYPE_IDS,
+#                                        relations__object_entity=contact.id,
+#                                       )
 
 
 # TODO: remove when Organisations can participate
