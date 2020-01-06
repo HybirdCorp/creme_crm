@@ -21,7 +21,7 @@ try:
         CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger,
         FakeContact, FakeOrganisation,
         FakeInvoice, FakePosition, FakeSector,
-    )  # EntityFilterCondition
+    )
     from creme.creme_core.tests import fake_constants
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
     from creme.creme_core.utils.queries import QSerializer
@@ -164,11 +164,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         efilter = EntityFilter.create(
             'test-filter', 'Names', FakeContact, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeContact,
-                #     operator=EntityFilterCondition.IENDSWITH,
-                #     name='last_name', values=['Stark'],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IENDSWITH,
@@ -278,9 +273,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         data = response.json()
 
         self.assertIsInstance(data, dict)
-        # self.assertEqual(3, len(data))
         self.assertEqual(2, len(data))
-        # self.assertEqual(str(rgraph.id), data.get('graph_id'))
 
         sectors = FakeSector.objects.all()
         x_asc = data.get('x')
@@ -975,11 +968,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         efilter = EntityFilter.create(
             'test-filter', 'Starks', FakeContact, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeContact,
-                #     operator=EntityFilterCondition.IEQUALS,
-                #     name='last_name', values=[last_name],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -996,7 +984,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                                            )
 
         with self.assertNoException():
-            # x_asc, y_asc = rgraph.fetch()
             x_asc, y_asc = rgraph.fetch(user)
 
         self.assertListEqual([*FakePosition.objects.values_list('title', flat=True)], x_asc)
@@ -1032,11 +1019,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         efilter = EntityFilter.create(
             'test-filter', 'Houses', FakeOrganisation, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeOrganisation,
-                #     operator=EntityFilterCondition.ISTARTSWITH,
-                #     name='name', values=['House '],
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
                     operator=operators.ISTARTSWITH,
@@ -1123,7 +1105,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         )
 
         with self.assertNoException():
-            # x_asc, y_asc = rgraph.fetch()
             x_asc, y_asc = rgraph.fetch(user)
 
         sectors = FakeSector.objects.all()
@@ -1175,11 +1156,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         efilter = EntityFilter.create(
             'test-filter', 'Starks', FakeContact, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeContact,
-                #     operator=EntityFilterCondition.IEQUALS,
-                #     name='last_name', values=[last_name]
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -1831,11 +1807,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         efilter = EntityFilter.create(
             'test-filter', 'Not bastard', FakeContact, is_custom=True,
             conditions=[
-                # EntityFilterCondition.build_4_field(
-                #     model=FakeContact,
-                #     operator=EntityFilterCondition.IEQUALS,
-                #     name='last_name', values=[tyrion.last_name, ned.last_name]
-                # ),
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact, field_name='last_name',
                     operator=operators.IEQUALS,
@@ -2242,27 +2213,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(chart, rgraph.chart)
         self.assertFalse(rgraph.asc)
 
-    # def test_create_instance_block_config_item(self):
-    #     "Legacy"
-    #     self.login()
-    #     rgraph = self._create_documents_rgraph()
-    #
-    #     ibci = rgraph.create_instance_block_config_item()
-    #     self.assertEqual('instanceblock_reports-graph|{}-'.format(rgraph.id), ibci.brick_id)
-    #     self.assertEqual('', ibci.data)
-    #
-    #     volatile = _('No volatile column')
-    #     self.assertEqual('{} - {}'.format(rgraph.name, volatile),
-    #                      ReportGraphBrick(ibci).verbose_name
-    #                     )
-    #
-    #     # Brick verbose name should be dynamically computed
-    #     rgraph.name = rgraph.name.upper()
-    #     rgraph.save()
-    #     self.assertEqual('{} - {}'.format(rgraph.name, volatile),
-    #                      ReportGraphBrick(ibci).verbose_name
-    #                     )
-
     def test_create_instance_brick_config_item01(self):
         "No link"
         self.login()
@@ -2529,16 +2479,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
             y
         )
 
-        # # Legacy ----------------
-        # fetcher = ReportGraph.get_fetcher_from_instance_block(item)
-        # self.assertIsNone(fetcher.error)
-        #
-        # x, y = fetcher.fetch_4_entity(entity=folder1, user=user)
-        #
-        # year = doc1.created.year
-        # self.assertEqual([str(year)], x)
-        # self.assertEqual([[2, reverse('reports__list_fake_documents') + '?q_filter={}'.format(self._serialize_qfilter(created__year=year))]], y)
-
     def test_add_graph_instance_brick_not_superuser01(self):
         self.login(is_superuser=False,
                    allowed_apps=['reports'],
@@ -2716,7 +2656,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         )
 
         fetcher = ReportGraph.get_fetcher_from_instance_brick(ibci)
-        # x, y = fetcher.fetch_4_entity(user.linked_contact)
         x, y = fetcher.fetch_4_entity(entity=user.linked_contact, user=user)
         self.assertEqual([], x)
         self.assertEqual([], y)
@@ -2977,7 +2916,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
         data = response.json()
-        # users = get_user_model().objects.all()
         users = sorted(get_user_model().objects.all(), key=str)
         self.assertListEqual([str(u) for u in users], data.get('x'))
 

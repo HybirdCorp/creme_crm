@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
-# from django.conf.urls import url
 from django.urls import re_path
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
@@ -29,12 +28,10 @@ urlpatterns = [
     ),
 
     re_path(r'^graph/fetch/(?P<graph_id>\d+)[/]?$',
-            # graph.fetch_graph,
             graph.GraphFetching.as_view(),
             name='reports__fetch_graph'
     ),
     re_path(r'^graph/fetch/from_instance_brick/(?P<instance_brick_id>\d+)/(?P<entity_id>\d+)[/]?$',
-            # graph.fetch_graph_from_instancebrick,
             graph.GraphFetchingForInstance.as_view(),
             name='reports__fetch_graph_from_brick',
     ),
@@ -50,7 +47,6 @@ urlpatterns = [
 
     *swap_manager.add_group(
         report_model_is_custom,
-        # Swappable(url(r'^reports[/]?$',                        report.listview,                 name='reports__list_reports')),
         Swappable(re_path(r'^reports[/]?$',                        report.ReportsList.as_view(),    name='reports__list_reports')),
         Swappable(re_path(r'^report/add[/]?$',                     report.ReportCreation.as_view(), name='reports__create_report')),
         Swappable(re_path(r'^report/edit/(?P<report_id>\d+)[/]?$', report.ReportEdition.as_view(),  name='reports__edit_report'), check_args=Swappable.INT_ID),
@@ -76,7 +72,6 @@ if settings.TESTS_ON:
                 name='reports__view_fake_folder',
         ),
 
-        # url(r'^tests/documents[/]?$', fake_views.document_listview, name='reports__list_fake_documents'),
         re_path(r'^tests/documents[/]?$',
                 fake_views.FakeReportsDocumentsList.as_view(),
                 name='reports__list_fake_documents',

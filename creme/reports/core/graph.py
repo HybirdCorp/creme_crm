@@ -36,7 +36,6 @@ from ..constants import *
 from ..report_aggregation_registry import field_aggregation_registry
 from ..utils import sparsezip
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -61,7 +60,6 @@ class ListViewURLBuilder:
         fmt = getattr(model, 'get_lv_absolute_url', None)
 
         if fmt:
-            # fmt = model.get_lv_absolute_url() + r'?q_filter={}'
             fmt = '{url}?{arg}={value}'.format(
                 url=model.get_lv_absolute_url(),
                 arg=self.requested_q_arg,
@@ -69,7 +67,6 @@ class ListViewURLBuilder:
             )
 
             if filter:
-                # fmt += '&filter=' + filter.id
                 fmt += '&{arg}={value}'.format(
                     arg=self.entity_filter_id_arg,
                     value=filter.id,
@@ -316,7 +313,6 @@ class _RGHRegularField(ReportGraphHand):
             # TODO: When using extras/sql functions on dates and sqlite, the ORM returns strings instead of datetimes
             # This can probably be fixed/improved when we migrate to Django 1.8, using custom annotation operators.
             if connection.vendor == 'sqlite' and isinstance(key, str):
-                # date = datetime.strptime(key, '%Y-%m-%d %H:%M:%S')
                 date = datetime.strptime(key, '%Y-%m-%d')  # NB: it seems the string format has changed in django1.6
 
             qdict = qdict_builder(date)
@@ -632,7 +628,6 @@ class _RGHCustomField(ReportGraphHand):
             # TODO: When using extras/sql functions on dates and sqlite, the ORM returns strings instead of datetimes
             # This can probably be fixed/improved when we migrate to Django 1.8, using custom annotation operators.
             if connection.vendor == 'sqlite' and isinstance(key, str):
-                # date = datetime.strptime(key, '%Y-%m-%d %H:%M:%S')
                 date = datetime.strptime(key, '%Y-%m-%d')
 
             qdict = qdict_builder(date)

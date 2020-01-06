@@ -228,11 +228,6 @@ class Field(CremeModel):
     def __str__(self):
         return self.title
 
-    # def __repr__(self):
-    #     return '<Field id=%s name=%s title=%s order=%s type=%s selected=%s report_id=%s>' % (
-    #                 self.id, self.name, self.title, self.order, self.type, self.selected, self.report_id,
-    #             )
-
     def _build_children(self, allow_selected):
         """Force the tree to be built, and fix the 'selected' attributes.
         Only root fields (ie: deep==0), or children a selected root field,

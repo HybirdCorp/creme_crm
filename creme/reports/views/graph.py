@@ -28,7 +28,7 @@ from django.utils.translation import gettext_lazy as _, gettext
 from creme.creme_core import utils
 from creme.creme_core.auth.decorators import login_required  # permission_required
 from creme.creme_core.http import CremeJsonResponse
-from creme.creme_core.models import InstanceBrickConfigItem, RelationType, CustomField  # CremeEntity
+from creme.creme_core.models import InstanceBrickConfigItem, RelationType, CustomField
 from creme.creme_core.utils.meta import Order
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import jsonify
@@ -44,66 +44,8 @@ from ..report_chart_registry import report_chart_registry
 logger = logging.getLogger(__name__)
 ReportGraph = reports.get_rgraph_model()
 
+
 # Function views --------------------------------------------------------------
-
-
-# def abstract_add_rgraph(request, report_id, form=ReportGraphForm,
-#                         title=_('Create a graph for «%s»'),
-#                         submit_label=ReportGraph.save_label,
-#                        ):
-#     warnings.warn('reports.views.graph.abstract_add_rgraph() is deprecated ; '
-#                   'use the class-based view GraphCreation instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.add_to_entity(request,
-#                                  entity_id=report_id,
-#                                  entity_class=get_report_model(),
-#                                  form_class=form,
-#                                  title=title, submit_label=submit_label,
-#                                 )
-
-
-# def abstract_edit_rgraph(request, graph_id, form=ReportGraphForm,
-#                          title=_('Edit a graph for «%s»'),
-#                         ):
-#     warnings.warn('reports.views.graph.abstract_edit_rgraph() is deprecated ; '
-#                   'use the class-based view GraphEdition instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.edit_related_to_entity(request, graph_id, ReportGraph, form, title)
-
-
-# def abstract_view_rgraph(request, graph_id, template='reports/view_graph.html'):
-#     warnings.warn('reports.views.graph.abstract_view_rgraph() is deprecated ; '
-#                   'use the class-based view GraphDetail instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.view_entity(request, graph_id, ReportGraph,
-#                                template=template,
-#                                extra_template_dict={'report_charts': report_chart_registry},
-#                               )
-
-
-# @login_required
-# @permission_required('reports')
-# def add(request, report_id):
-#     warnings.warn('reports.views.graph.add() is deprecated.', DeprecationWarning)
-#     return abstract_add_rgraph(request, report_id)
-
-
-# @login_required
-# @permission_required('reports')
-# def edit(request, graph_id):
-#     warnings.warn('reports.views.graph.edit() is deprecated.', DeprecationWarning)
-#     return abstract_edit_rgraph(request, graph_id)
-
-
-# @login_required
-# @permission_required('reports')
-# def detailview(request, graph_id):
-#     warnings.warn('reports.views.graph.detailview() is deprecated.', DeprecationWarning)
-#     return abstract_view_rgraph(request, graph_id)
-
 
 # TODO: use prefix ?? (rfield-, ctield-, rtype-)
 def _get_available_report_graph_types(ct, name):
@@ -185,37 +127,6 @@ def cast_order(order):
         raise ValueError('Order must be in {"ASC", "DESC"}')
 
     return order
-
-# @login_required
-# @jsonify
-# # @permission_required('reports') ??
-# def fetch_graph(request, graph_id):
-#     order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
-#     x, y = get_object_or_404(ReportGraph, pk=graph_id).fetch(user=request.user, order=order)
-#
-#     return {'x': x, 'y': y, 'graph_id': graph_id}
-
-
-# def fetch_graph_from_instanceblock(request, instance_block_id, entity_id):
-#     warnings.warn('reports.views.graph.fetch_graph_from_instanceblock() is deprecated ; '
-#                   'use fetch_graph_from_instancebrick() instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     return fetch_graph_from_instancebrick(request, instance_brick_id=instance_block_id, entity_id=entity_id)
-
-
-# @login_required
-# @jsonify
-# # @permission_required('reports') ??
-# def fetch_graph_from_instancebrick(request, instance_brick_id, entity_id):
-#     order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
-#     instance_brick = get_object_or_404(InstanceBrickConfigItem, pk=instance_brick_id)
-#     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-#     x, y = ReportGraph.get_fetcher_from_instance_brick(instance_brick) \
-#                       .fetch_4_entity(entity=entity, order=order, user=request.user)
-#
-#     return {'x': x, 'y': y}
 
 
 # Class-based views  ----------------------------------------------------------
