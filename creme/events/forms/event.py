@@ -20,7 +20,6 @@
 
 from collections import defaultdict
 
-# from django.db.transaction import atomic
 from django.forms import ModelChoiceField, ValidationError
 from django.utils.translation import gettext_lazy as _, gettext, pgettext
 
@@ -168,14 +167,3 @@ class RelatedOpportunityCreateForm(OpportunityCreationForm):
                      object_entity=self.event,
                     )
         )
-
-    # @atomic
-    # def save(self, *args, **kwargs):
-    #     opp = super().save(*args, **kwargs)
-    #
-    #     Relation.objects.create(user=self.user, subject_entity=opp,
-    #                             type_id=constants.REL_SUB_GEN_BY_EVENT,
-    #                             object_entity=self.event,
-    #                            )
-    #
-    #     return opp

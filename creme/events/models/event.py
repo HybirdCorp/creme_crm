@@ -53,10 +53,8 @@ class EventType(CremeModel):
 class AbstractEvent(CremeEntity):
     name        = models.CharField(_('Name'), max_length=100)
     type        = models.ForeignKey(EventType, verbose_name=_('Type'),
-                                    # on_delete=models.PROTECT
                                     on_delete=CREME_REPLACE,
                                    )
-    # description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
     place       = models.CharField(pgettext_lazy('events', 'Place'), max_length=100,
                                    blank=True,
                                   ).set_tags(optional=True)
