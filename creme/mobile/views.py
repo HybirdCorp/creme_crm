@@ -22,7 +22,6 @@ from copy import deepcopy  # copy
 from datetime import datetime, time, timedelta
 from functools import partial, wraps
 import logging
-# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q
@@ -35,15 +34,13 @@ from django.utils.encoding import smart_text
 from django.utils.timezone import now, localtime
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required  # permission_required
+from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, Relation, EntityCredentials
 from creme.creme_core.utils import (get_from_GET_or_404, get_from_POST_or_404,
         split_filter)
 from creme.creme_core.utils.dates import make_aware_dt, dt_from_ISO8601
 from creme.creme_core.views.decorators import POST_only, jsonify
-# from creme.creme_core.views.generic import add_entity
 from creme.creme_core.views.utils import build_cancel_path
 
 from creme import persons
@@ -56,7 +53,6 @@ from creme.activities.models import Calendar
 from . import forms as mobile_forms
 from .models import MobileFavorite
 from .templatetags.mobile_tags import orga_subjects
-
 
 logger = logging.getLogger(__name__)
 Activity = get_activity_model()
@@ -210,23 +206,6 @@ def persons_portal(request):
     )
 
 
-# def abstract_create_contact(request, form=mobile_forms.MobileContactCreateForm,
-#                             template='mobile/add_contact.html',
-#                            ):
-#     warnings.warn('mobile.views.abstract_create_contact() is deprecated ; '
-#                   'use the class-based view MobileContactCreation instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     last_name = request.GET.get('last_name')
-#
-#     return add_entity(request, form,
-#                       url_redirect=reverse('mobile__directory'),
-#                       template=template,
-#                       extra_initial={'last_name': last_name.title()} if last_name else None,
-#                      )
-
-
 class MobileBase:
     login_url_name = 'mobile__login'
 
@@ -247,44 +226,11 @@ class MobilePersonBase(MobileBase):
         return reverse('mobile__directory')
 
 
-# @lw_exceptions
-# @mobile_login_required
-# @permission_required(cperm(Contact))
-# def create_contact(request):
-#     warnings.warn('mobile.views.create_contact() is deprecated.', DeprecationWarning)
-#     return abstract_create_contact(request)
-
-
 @method_decorator(lw_exceptions, name='dispatch')
 class MobileContactCreation(MobilePersonBase, persons.views.contact.ContactCreation):
     form_class = mobile_forms.MobileContactCreateForm
     template_name = 'mobile/add_contact.html'
     field_to_init = 'last_name'
-
-
-# def abstract_create_organisation(request, form=mobile_forms.MobileOrganisationCreateForm,
-#                                  template='mobile/add_orga.html',
-#                                 ):
-#     warnings.warn('mobile.views.abstract_create_organisation() is deprecated ; '
-#                   'use the class-based view MobileOrganisationCreation instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     name = request.GET.get('name')
-#
-#     return add_entity(request, form,
-#                       url_redirect=reverse('mobile__directory'),
-#                       template=template,
-#                       extra_initial={'name': name.title()} if name else None,
-#                      )
-
-
-# @lw_exceptions
-# @mobile_login_required
-# @permission_required(cperm(Organisation))
-# def create_organisation(request):
-#     warnings.warn('mobile.views.create_organisation() is deprecated.', DeprecationWarning)
-#     return abstract_create_organisation(request)
 
 
 @method_decorator(lw_exceptions, name='dispatch')
@@ -685,14 +631,12 @@ def phonecall_workflow_postponed(request):
 
     if pcall is not None:
         # NB: we avoid a double save here (clone() + save()) by modifying our live copy before cloning
-        # postponed = copy(pcall)
         postponed = deepcopy(pcall)  # NB: deepcopy to copy cache too (_state)
 
         _set_pcall_as_failed(pcall, request)
     else:
         pcall, me, person = _create_failed_pcall(request)
 
-        # postponed = copy(pcall)  # NB: idem
         postponed = deepcopy(pcall)  # NB: idem
         postponed.title = _('Call to {} from Creme Mobile').format(person)
         postponed.sub_type_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING

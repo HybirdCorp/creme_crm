@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# from django.conf.urls import url
 from django.urls import re_path
 from django.contrib.auth import REDIRECT_FIELD_NAME, views as auth_views
 
