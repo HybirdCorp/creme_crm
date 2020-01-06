@@ -25,7 +25,6 @@ from creme.creme_core.models import FieldsConfig
 
 from creme import persons
 
-
 Contact = persons.get_contact_model()
 Address = persons.get_address_model()
 

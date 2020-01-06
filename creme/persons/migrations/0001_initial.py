@@ -12,9 +12,6 @@ from creme.documents.models.fields import ImageEntityForeignKey
 class Migration(migrations.Migration):
     # replaces = [
     #     ('persons', '0001_initial'),
-    #     ('persons', '0020_v2_0__real_entity_fks_1'),
-    #     ('persons', '0021_v2_0__real_entity_fks_2'),
-    #     ('persons', '0022_v2_0__real_entity_fks_3'),
     # ]
 
     initial = True
@@ -105,9 +102,7 @@ class Migration(migrations.Migration):
                 ('department', models.CharField(max_length=100, verbose_name='Department', blank=True)),
                 ('state', models.CharField(max_length=100, verbose_name='State', blank=True)),
                 ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
-                # ('object_id', models.PositiveIntegerField(editable=False)),
                 ('object', models.ForeignKey(editable=False, on_delete=CASCADE, to='creme_core.CremeEntity', related_name='persons_addresses')),
-                # ('content_type', models.ForeignKey(related_name='object_set', editable=False, to='contenttypes.ContentType', on_delete=CASCADE)),
                 ('content_type', creme_fields.EntityCTypeForeignKey(editable=False, on_delete=CASCADE, related_name='+', to='contenttypes.ContentType')),
             ],
             options={
@@ -125,7 +120,6 @@ class Migration(migrations.Migration):
                                                          to='creme_core.CremeEntity', on_delete=CASCADE,
                                                         )
                 ),
-                # ('civility', models.ForeignKey(on_delete=SET_NULL, verbose_name='Civility', blank=True, to='persons.Civility', null=True)),
                 ('civility', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Civility', blank=True, to='persons.Civility', null=True)),
                 ('last_name', models.CharField(max_length=100, verbose_name='Last name')),
                 ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
@@ -145,10 +139,8 @@ class Migration(migrations.Migration):
                                                ),
                 ),
                 ('is_user', models.ForeignKey(related_name='related_contact', on_delete=SET_NULL, blank=True, editable=False, to=settings.AUTH_USER_MODEL, null=True, verbose_name='Related user')),
-                # ('position', models.ForeignKey(on_delete=SET_NULL, verbose_name='Position', blank=True, to='persons.Position', null=True)),
                 ('position', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Position', blank=True, to='persons.Position', null=True)),
                 ('full_position', models.CharField(max_length=500, verbose_name='Detailed position', blank=True)),
-                # ('sector', models.ForeignKey(on_delete=SET_NULL, verbose_name='Line of business', blank=True, to='persons.Sector', null=True)),
                 ('sector', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Line of business', blank=True, to='persons.Sector', null=True)),
                 ('language', models.ManyToManyField(verbose_name='Spoken language(s)', editable=False, to='creme_core.Language', blank=True)),
             ],
@@ -191,11 +183,8 @@ class Migration(migrations.Migration):
                                                 # limit_choices_to=models.Q(mime_type__name__startswith='image/'),
                                                )
                 ),
-                # ('legal_form', models.ForeignKey(on_delete=SET_NULL, verbose_name='Legal form', blank=True, to='persons.LegalForm', null=True)),
                 ('legal_form', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Legal form', blank=True, to='persons.LegalForm', null=True)),
-                # ('sector', models.ForeignKey(on_delete=SET_NULL, verbose_name='Sector', blank=True, to='persons.Sector', null=True)),
                 ('sector', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Sector', blank=True, to='persons.Sector', null=True)),
-                # ('staff_size', models.ForeignKey(on_delete=SET_NULL, verbose_name='Staff size', blank=True, to='persons.StaffSize', null=True)),
                 ('staff_size', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Staff size', blank=True, to='persons.StaffSize', null=True)),
             ],
             options={

@@ -34,7 +34,6 @@ from creme.creme_core.utils import update_model_instance
 from creme.documents.models.fields import ImageEntityForeignKey
 
 from ..import constants, get_contact_model, get_organisation_model
-# from ..constants import REL_OBJ_EMPLOYED_BY
 
 from . import other_models
 from .base import PersonWithAddressesMixin
@@ -46,13 +45,10 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     civility   = models.ForeignKey(other_models.Civility,
                                    verbose_name=_('Civility'),
                                    blank=True, null=True,
-                                   # on_delete=models.SET_NULL,
                                    on_delete=CREME_REPLACE_NULL,
                                   )
     last_name  = models.CharField(_('Last name'), max_length=100)  # NB: same max_length than CremeUser.last_name
     first_name = models.CharField(_('First name'), max_length=100, blank=True)  # NB: same max_length than CremeUser.first_name
-
-    # description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
 
     skype    = models.CharField('Skype', max_length=100, blank=True).set_tags(optional=True)
     phone    = PhoneField(_('Phone number'), max_length=100, blank=True).set_tags(optional=True)
@@ -165,9 +161,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     # TODO: use FilteredRelation ?
     def get_employers(self):
-        # return get_organisation_model().objects.filter(relations__type=REL_OBJ_EMPLOYED_BY,
-        #                                                relations__object_entity=self.id,
-        #                                               )
         return get_organisation_model().objects.filter(
             is_deleted=False,
             relations__type__in=(constants.REL_OBJ_EMPLOYED_BY, constants.REL_OBJ_MANAGES),
@@ -194,7 +187,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         self._check_deletion()
         super().trash()
 
-    # @staticmethod
     @classmethod
     def _create_linked_contact(cls, user, **kwargs):
         # TODO: assert user is not a team + enforce non team clean() ?
@@ -216,7 +208,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
             else:
                 owner = superuser
 
-        # return get_contact_model().objects.create(user=user, is_user=user,
         return cls.objects.create(user=owner,
                                   is_user=user,
                                   last_name=user.last_name or user.username.title(),
