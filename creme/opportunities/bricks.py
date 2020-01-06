@@ -43,11 +43,6 @@ Opportunity = get_opportunity_model()
 
 class _RelatedToOpportunity:
     def get_related_queryset(self, *, opportunity, model, rtype_id):
-        # return model.objects\
-        #             .filter(is_deleted=False,
-        #                     relations__object_entity=opportunity.id,
-        #                     relations__type=rtype_id,
-        #                    )
         return model.objects \
                     .annotate(relations_w_opp=FilteredRelation(
                                     'relations',
@@ -90,9 +85,6 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
         if apps.is_installed('creme.activities'):
             from creme.activities import get_activity_model
 
-            # is_neglected = not get_activity_model().get_future_linked(opportunity,
-            #                                                           today=context['today'] - timedelta(days=30),
-            #                                                          ).exists()
             is_neglected = not get_activity_model().objects.future_linked(
                 entity=opportunity,
                 today=context['today'] - timedelta(days=30),

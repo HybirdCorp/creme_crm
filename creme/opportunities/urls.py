@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from django.apps import apps
-# from django.conf.urls import url
 from django.urls import re_path
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
@@ -15,7 +14,6 @@ from .views import opportunity, contact
 urlpatterns = [
     *swap_manager.add_group(
         opportunity_model_is_custom,
-        # Swappable(url(r'^opportunities[/]?$',   opportunity.listview,                      name='opportunities__list_opportunities')),
         Swappable(re_path(r'^opportunities[/]?$',   opportunity.OpportunitiesList.as_view(),   name='opportunities__list_opportunities')),
         Swappable(re_path(r'^opportunity/add[/]?$', opportunity.OpportunityCreation.as_view(), name='opportunities__create_opportunity')),
         Swappable(re_path(r'^opportunity/add_to/(?P<person_id>\d+)[/]?$',
@@ -53,13 +51,11 @@ if apps.is_installed('creme.billing'):
     urlpatterns += [
         re_path(
             r'^opportunity/generate_new_doc/(?P<opp_id>\d+)/(?P<ct_id>\d+)[/]?$',
-            # billing.generate_new_doc,
             billing.BillingDocGeneration.as_view(),
             name='opportunities__generate_billing_doc',
         ),
         re_path(
             r'^opportunity/(?P<opp_id>\d+)/linked/quote/(?P<quote_id>\d+)/(?P<action>set_current|unset_current)[/]?$',
-            # billing.current_quote,
             billing.CurrentQuoteSetting.as_view(),
             name='opportunities__linked_quote_is_current',
         ),

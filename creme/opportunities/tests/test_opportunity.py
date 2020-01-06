@@ -88,7 +88,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertTrue(SalesPhase.objects.exists())
         self.assertTrue(Origin.objects.exists())
 
-        # self.assertEqual(1, SettingValue.objects.filter(key_id=constants.SETTING_USE_CURRENT_QUOTE).count())
         def assertSVEqual(key, value):
             with self.assertNoException():
                 sv = SettingValue.objects.get_4_key(key)
@@ -570,7 +569,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         response = self.assertGET200(reverse('opportunities__list_opportunities'))
 
         with self.assertNoException():
-            # opps_page = response.context['entities']
             opps_page = response.context['page_obj']
 
         self.assertEqual(2, opps_page.paginator.count)
@@ -634,14 +632,12 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         self.assertIsNone(opportunity.estimated_sales)
         self.assertIsNone(opportunity.chance_to_win)
-        # self.assertEqual(0, opportunity.get_weighted_sales())
         self.assertEqual(number_format('0.0', use_l10n=True),
                          funf(opportunity, user).for_html()
                         )
 
         opportunity.estimated_sales = 1000
         opportunity.chance_to_win   =  10
-        # self.assertEqual(100, opportunity.get_weighted_sales())
         self.assertEqual(number_format('100.0', use_l10n=True),
                          funf(opportunity, user).for_html()
                         )
@@ -659,10 +655,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         FieldsConfig.get_4_model(Opportunity)
 
-        # with self.assertNumQueries(0):
-        #     w_sales = opportunity.get_weighted_sales()
-        #
-        # self.assertEqual(_('Error: «Estimated sales» is hidden'), w_sales)
         funf = function_field_registry.get(Opportunity, 'get_weighted_sales')
 
         with self.assertNumQueries(0):
@@ -676,18 +668,12 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         currency = Currency.objects.create(name='Berry', local_symbol='B', international_symbol='BRY')
 
         create_orga = partial(Organisation.objects.create, user=user)
-        opp = Opportunity.objects.create(user=user, name='Opp', currency=currency,
-                                         sales_phase=SalesPhase.objects.all()[0],
-                                         emitter=create_orga(name='My society'),
-                                         target=create_orga(name='Target renegade'),
-                                        )
-        # self.assertPOST404(reverse('creme_config__delete_instance', args=('creme_core', 'currency')),
-        #                    data={'id': currency.pk}
-        #                   )
-        # self.assertStillExists(currency)
-        #
-        # opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
-        # self.assertEqual(currency, opp.currency)
+        Opportunity.objects.create(user=user, name='Opp', currency=currency,
+                                   sales_phase=SalesPhase.objects.all()[0],
+                                   emitter=create_orga(name='My society'),
+                                   target=create_orga(name='Target renegade'),
+                                  )
+
         response = self.assertPOST200(reverse('creme_config__delete_instance',
                                               args=('creme_core', 'currency', currency.id)
                                              ),

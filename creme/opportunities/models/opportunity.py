@@ -27,7 +27,7 @@ from django.db.transaction import atomic
 from django.db.models import (
     CharField, ForeignKey, PositiveIntegerField,
     DateField, PROTECT, BooleanField,
-)  # TextField
+)
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
@@ -42,8 +42,6 @@ from creme.creme_core.models.fields import BasicAutoField
 
 from creme.persons import get_organisation_model
 from creme.persons.workflow import transform_target_into_prospect
-
-# from creme.products import get_product_model, get_service_model
 
 from .. import constants
 
@@ -111,10 +109,8 @@ class AbstractOpportunity(CremeEntity):
                                      .set_tags(optional=True)
     origin                = ForeignKey(Origin, verbose_name=_('Origin'),
                                        blank=True, null=True,
-                                       # on_delete=SET_NULL,
                                        on_delete=CREME_REPLACE_NULL,
                                       ).set_tags(optional=True)
-    # description           = TextField(_('Description'), blank=True).set_tags(optional=True)
     first_action_date     = DateField(_('Date of the first action'), blank=True, null=True)\
                                      .set_tags(optional=True)
 
@@ -171,24 +167,6 @@ class AbstractOpportunity(CremeEntity):
     @staticmethod
     def get_lv_absolute_url():
         return reverse('opportunities__list_opportunities')
-
-    # def get_weighted_sales(self):
-    #     warnings.warn('models.AbstractOpportunity.get_weighted_sales() is deprecated ; '
-    #                   'use function_fields.TurnoverField instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     from creme.creme_core.models import FieldsConfig
-    #
-    #     is_hidden = FieldsConfig.get_4_model(self.__class__).is_fieldname_hidden
-    #
-    #     if is_hidden('estimated_sales'):
-    #         return ugettext('Error: «Estimated sales» is hidden')
-    #
-    #     if is_hidden('chance_to_win'):
-    #         return ugettext(r'Error: «% of chance to win» is hidden')
-    #
-    #     return (self.estimated_sales or 0) * (self.chance_to_win or 0) / 100.0
 
     def get_total(self):
         if self.made_sales:

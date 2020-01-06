@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models, migrations
-from django.db.models.deletion import CASCADE, PROTECT  # SET_NULL
+from django.db.models.deletion import CASCADE, PROTECT
 
 from creme.creme_core.models import fields as creme_fields, CREME_REPLACE_NULL
 
@@ -69,7 +69,6 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('first_action_date', models.DateField(null=True, verbose_name='Date of the first action', blank=True)),
                 ('currency', models.ForeignKey(on_delete=PROTECT, default=1, verbose_name='Currency', to='creme_core.Currency')),
-                # ('origin', models.ForeignKey(on_delete=SET_NULL, verbose_name='Origin', blank=True, to='opportunities.Origin', null=True)),
                 ('origin', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Origin', blank=True, to='opportunities.Origin', null=True)),
                 ('sales_phase', models.ForeignKey(on_delete=PROTECT, verbose_name='Sales phase', to='opportunities.SalesPhase')),
             ],
