@@ -80,7 +80,7 @@ property_type_patterns = [
     re_path(r'^portal[/]?$',                    creme_property_type.Portal.as_view(),               name='creme_config__ptypes'),
     re_path(r'^add[/]?$',                       creme_property_type.PropertyTypeCreation.as_view(), name='creme_config__create_ptype'),
     re_path(r'^edit/(?P<ptype_id>[\w-]+)[/]?$', creme_property_type.PropertyTypeEdition.as_view(),  name='creme_config__edit_ptype'),
-    re_path(r'^delete[/]?$',                    creme_property_type.delete,                         name='creme_config__delete_ptype'),
+    # re_path(r'^delete[/]?$',                    creme_property_type.delete,                         name='creme_config__delete_ptype'),
 ]
 
 fields_config_patterns = [
