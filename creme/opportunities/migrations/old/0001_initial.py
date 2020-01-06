@@ -7,13 +7,6 @@ from creme.creme_core.models import fields as creme_fields, CREME_REPLACE_NULL
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('opportunities', '0001_initial'),
-    #     ('opportunities', '0008_v2_1__move_description_to_entity_1'),
-    #     ('opportunities', '0009_v2_1__move_description_to_entity_2'),
-    #     ('opportunities', '0010_v2_1__move_description_to_entity_3'),
-    # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -63,7 +56,7 @@ class Migration(migrations.Migration):
                 ('chance_to_win', models.PositiveIntegerField(null=True, verbose_name='% of chance to win', blank=True)),
                 ('expected_closing_date', models.DateField(null=True, verbose_name='Expected closing date', blank=True)),
                 ('closing_date', models.DateField(null=True, verbose_name='Actual closing date', blank=True)),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
+                ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('first_action_date', models.DateField(null=True, verbose_name='Date of the first action', blank=True)),
                 ('currency', models.ForeignKey(on_delete=PROTECT, default=1, verbose_name='Currency', to='creme_core.Currency')),
                 ('origin', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Origin', blank=True, to='opportunities.Origin', null=True)),
