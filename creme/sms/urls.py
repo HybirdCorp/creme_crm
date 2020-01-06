@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# from django.conf.urls import url
 from django.urls import re_path
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
@@ -12,7 +11,6 @@ from .views import campaign, sending, recipient, messaging_list, template
 urlpatterns = [
     # Campaign: messaging_lists brick
     re_path(r'^campaign/(?P<campaign_id>\d+)/messaging_list/add[/]?$',    campaign.MessagingListsAdding.as_view(),  name='sms__add_mlists_to_campaign'),
-    # re_path(r'^campaign/(?P<campaign_id>\d+)/messaging_list/delete[/]?$', campaign.delete_messaging_list,          name='sms__remove_mlist_from_campaign'),
     re_path(r'^campaign/(?P<campaign_id>\d+)/messaging_list/delete[/]?$', campaign.MessagingListRemoving.as_view(), name='sms__remove_mlist_from_campaign'),
 
     # Campaign: sending brick
@@ -33,12 +31,10 @@ urlpatterns = [
     # MessagingList list: contacts brick
     re_path(r'^messaging_list/(?P<mlist_id>\d+)/contact/add[/]?$',             messaging_list.ContactsAdding.as_view(),           name='sms__add_contacts_to_mlist'),
     re_path(r'^messaging_list/(?P<mlist_id>\d+)/contact/add_from_filter[/]?$', messaging_list.ContactsAddingFromFilter.as_view(), name='sms__add_contacts_to_mlist_from_filter'),
-    # re_path(r'^messaging_list/(?P<mlist_id>\d+)/contact/delete[/]?',           messaging_list.delete_contact,                     name='sms__remove_contact_from_mlist'),
     re_path(r'^messaging_list/(?P<mlist_id>\d+)/contact/delete[/]?',           messaging_list.ContactRemoving.as_view(),          name='sms__remove_contact_from_mlist'),
 
     *swap_manager.add_group(
         sms.smscampaign_model_is_custom,
-        # Swappable(url(r'^campaigns[/]?$',                          campaign.listview,                      name='sms__list_campaigns')),
         Swappable(re_path(r'^campaigns[/]?$',                          campaign.SMSCampaignsList.as_view(),    name='sms__list_campaigns')),
         Swappable(re_path(r'^campaign/add[/]?$',                       campaign.SMSCampaignCreation.as_view(), name='sms__create_campaign')),
         Swappable(re_path(r'^campaign/edit/(?P<campaign_id>\d+)[/]?$', campaign.SMSCampaignEdition.as_view(),  name='sms__edit_campaign'), check_args=Swappable.INT_ID),
@@ -48,7 +44,6 @@ urlpatterns = [
 
     *swap_manager.add_group(
         sms.messaginglist_model_is_custom,
-        # Swappable(url(r'^messaging_lists[/]?$',                       messaging_list.listview,                        name='sms__list_mlists')),
         Swappable(re_path(r'^messaging_lists[/]?$',                       messaging_list.MessagingListsList.as_view(),    name='sms__list_mlists')),
         Swappable(re_path(r'^messaging_list/add[/]?$',                    messaging_list.MessagingListCreation.as_view(), name='sms__create_mlist')),
         Swappable(re_path(r'^messaging_list/edit/(?P<mlist_id>\d+)[/]?$', messaging_list.MessagingListEdition.as_view(),  name='sms__edit_mlist'), check_args=Swappable.INT_ID),
@@ -58,7 +53,6 @@ urlpatterns = [
 
     *swap_manager.add_group(
         sms.messagetemplate_model_is_custom,
-        # Swappable(url(r'^templates[/]?$',                          template.listview,                          name='sms__list_templates')),
         Swappable(re_path(r'^templates[/]?$',                          template.MessageTemplatesList.as_view(),    name='sms__list_templates')),
         Swappable(re_path(r'^template/add[/]?$',                       template.MessageTemplateCreation.as_view(), name='sms__create_template')),
         Swappable(re_path(r'^template/edit/(?P<template_id>\d+)[/]?$', template.MessageTemplateEdition.as_view(),  name='sms__edit_template'), check_args=Swappable.INT_ID),

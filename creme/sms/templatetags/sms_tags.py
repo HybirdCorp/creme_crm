@@ -23,13 +23,11 @@ from django.template import Library
 register = Library()
 
 
-# @register.filter(name="phonenumber")
 @register.filter(name='sms_phonenumber')
 def phonenumber(value):
     return ''.join(c for c in value if c.isdigit())
 
 
-# @register.filter(name="formatphone")
 @register.filter(name='sms_formatphone')
 def formatphone(value):
     if not value:

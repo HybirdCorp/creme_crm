@@ -20,13 +20,11 @@
 
 from django.forms import RegexField, ValidationError
 
-
 PHONE_REGEX = r'^[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*$'
 PHONE_LIST_REGEX = r'^[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*([%s]{0,1}[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*)*$'
 
 
 class PhoneField(RegexField):
-    # def __init__(self, max_length=None, min_length=None, error_message=None, *args, **kwargs):
     def __init__(self, *, max_length=None, min_length=None, error_message=None, **kwargs):
         super().__init__(
             regex=PHONE_REGEX,
@@ -50,13 +48,11 @@ class PhoneField(RegexField):
 
 class PhoneListField(RegexField):
     # TODO: rename 'error_message' as 'error_messageS' ?
-    # def __init__(self, max_length=None, min_length=None, error_message=None, separator='\n', *args, **kwargs):
     def __init__(self, *, max_length=None, min_length=None, error_message=None, separator='\n', **kwargs):
         regex = PHONE_LIST_REGEX % separator
         self.separator = separator
 
         super().__init__(regex=regex, max_length=max_length, min_length=min_length,
-                         # error_messages=error_message, *args, **kwargs)
                          error_messages=error_message, **kwargs)
 
     def clean(self, value):

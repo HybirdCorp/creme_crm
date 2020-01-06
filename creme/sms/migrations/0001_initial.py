@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
@@ -7,12 +6,6 @@ from django.db.models.deletion import CASCADE
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     (b'sms', '0001_initial'),
-    #     (b'sms', '0002_v1_7__charfields_not_null_1'),
-    #     (b'sms', '0003_v1_7__charfields_not_null_2'),
-    # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),

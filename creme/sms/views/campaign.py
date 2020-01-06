@@ -18,14 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
-# from django.http import HttpResponse
-# from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.auth import build_creation_perm as cperm
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
@@ -36,89 +30,6 @@ from ..forms import campaign as camp_forms
 SMSCampaign = get_smscampaign_model()
 
 
-# def abstract_add_smscampaign(request, form=camp_forms.CampaignCreateForm,
-#                              submit_label=SMSCampaign.save_label,
-#                             ):
-#     warnings.warn('sms.views.campaign.abstract_add_smscampaign() is deprecated ; '
-#                   'use the class-based view SMSCampaignCreation instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.add_entity(request, form,
-#                               extra_template_dict={'submit_label': submit_label},
-#                              )
-
-
-# def abstract_edit_smscampaign(request, campaign_id, form=camp_forms.CampaignEditForm):
-#     warnings.warn('sms.views.campaign.abstract_edit_smscampaign() is deprecated ; '
-#                   'use the class-based view SMSCampaignEdition instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.edit_entity(request, campaign_id, SMSCampaign, form)
-
-
-# def abstract_view_smscampaign(request, campaign_id,
-#                               template='sms/view_campaign.html',
-#                              ):
-#     warnings.warn('sms.views.campaign.abstract_view_smscampaign() is deprecated ; '
-#                   'use the class-based view SMSCampaignDetail instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.view_entity(request, campaign_id, SMSCampaign, template=template)
-
-
-# @login_required
-# @permission_required(('sms', cperm(SMSCampaign)))
-# def add(request):
-#     warnings.warn('sms.views.campaign.add() is deprecated.', DeprecationWarning)
-#     return abstract_add_smscampaign(request)
-
-
-# @login_required
-# @permission_required('sms')
-# def edit(request, campaign_id):
-#     warnings.warn('sms.views.campaign.edit() is deprecated.', DeprecationWarning)
-#     return abstract_edit_smscampaign(request, campaign_id)
-
-
-# TODO : perhaps more reliable to forbid delete for campaigns with sendings.
-# @login_required
-# @permission_required('sms')
-# def delete(request, id):
-#     campaign = get_object_or_404(SMSCampaign, pk=id)
-#     request.user.has_perm_to_delete_or_die(campaign)
-#
-#     callback_url = campaign.get_lv_absolute_url()
-#
-#     campaign.delete()
-#
-#     return HttpResponseRedirect(callback_url)
-
-
-# @login_required
-# @permission_required('sms')
-# def detailview(request, campaign_id):
-#     warnings.warn('sms.views.campaign.detailview() is deprecated.', DeprecationWarning)
-#     return abstract_view_smscampaign(request, campaign_id)
-
-
-# @login_required
-# @permission_required('sms')
-# def listview(request):
-#     return generic.list_view(request, SMSCampaign, hf_pk=DEFAULT_HFILTER_SMSCAMPAIGN)
-
-
-# @login_required
-# @permission_required('sms')
-# def delete_messaging_list(request, campaign_id):
-#     campaign = get_object_or_404(SMSCampaign, pk=campaign_id)
-#     request.user.has_perm_to_change_or_die(campaign)
-#
-#     campaign.lists.remove(request.POST.get('id'))
-#
-#     if request.is_ajax():
-#         return HttpResponse()
-#
-#     return redirect(campaign)
 class MessagingListRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
     permissions = 'sms'
     entity_classes = SMSCampaign
