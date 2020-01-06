@@ -20,7 +20,6 @@
 
 from datetime import timedelta
 from functools import partial
-# import warnings
 
 from django.db.transaction import atomic
 from django.http import Http404
@@ -80,19 +79,6 @@ def abstract_create_phonecall_as_caller(request, pcall_creator=_create_phonecall
                       )
 
 
-# def abstract_add_contact(request, number,
-#                          form=persons.forms.contact.ContactForm,
-#                          template='persons/add_contact_form.html',
-#                         ):
-#     warnings.warn('cti.views.abstract_add_contact() is deprecated ; '
-#                   'use the class-based view CTIContactCreation instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.add_entity(request, form, template=template,
-#                               extra_initial={'phone': number},
-#                              )
-
-
 class CTIPersonMixin:
     number_url_kwarg = 'number'
 
@@ -107,19 +93,6 @@ class CTIContactCreation(CTIPersonMixin, persons.views.contact.ContactCreation):
     pass
 
 
-# def abstract_add_organisation(request, number,
-#                               form=persons.forms.organisation.OrganisationForm,
-#                               template='persons/add_organisation_form.html',
-#                              ):
-#     warnings.warn('cti.views.abstract_add_organisation() is deprecated ; '
-#                   'use the class-based view CTIOrganisationCreation instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.add_entity(request, form, template=template,
-#                               extra_initial={'phone': number},
-#                              )
-
-
 class CTIOrganisationCreation(CTIPersonMixin, persons.views.organisation.OrganisationCreation):
     pass
 
@@ -127,7 +100,6 @@ class CTIOrganisationCreation(CTIPersonMixin, persons.views.organisation.Organis
 def abstract_add_phonecall(request, entity_id, pcall_creator=_create_phonecall):
     pcall = _build_related_phonecall(request.user, entity_id,
                                      act_constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                                     # _('Call from %s'),
                                      _('Call from {entity}'),
                                      pcall_creator=pcall_creator,
                                     )
@@ -208,20 +180,6 @@ def reload_callers_brick(request, number):
     return bricks_render_info(request, bricks=[CallersBrick()],
                               context=build_context(request, number=number),
                              )
-
-
-# @login_required
-# @permission_required(('persons', cperm(Contact)))
-# def add_contact(request, number):
-#     warnings.warn('cti.views.add_contact() is deprecated.', DeprecationWarning)
-#     return abstract_add_contact(request, number)
-
-
-# @login_required
-# @permission_required(('persons', cperm(Organisation)))
-# def add_orga(request, number):
-#     warnings.warn('cti.views.add_orga() is deprecated.', DeprecationWarning)
-#     return abstract_add_organisation(request, number)
 
 
 @login_required
