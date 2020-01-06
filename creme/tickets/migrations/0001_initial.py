@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models, migrations
-from django.db.models.deletion import CASCADE  # PROTECT
+from django.db.models.deletion import CASCADE
 
 from creme.creme_core.models import fields as creme_fields, CREME_REPLACE
 
@@ -74,11 +74,8 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(verbose_name='Description')),
                 ('solution', models.TextField(verbose_name='Solution', blank=True)),
                 ('closing_date', models.DateTimeField(verbose_name='Closing date', null=True, editable=False, blank=True)),
-                # ('criticity', models.ForeignKey(on_delete=PROTECT, verbose_name='Criticity', to='tickets.Criticity')),
                 ('criticity', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticity', to='tickets.Criticity')),
-                # ('priority', models.ForeignKey(on_delete=PROTECT, verbose_name='Priority', to='tickets.Priority')),
                 ('priority', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Priority', to='tickets.Priority')),
-                # ('status', models.ForeignKey(on_delete=PROTECT, verbose_name='Status', to='tickets.Status')),
                 ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status', to='tickets.Status')),
             ],
             options={
@@ -99,11 +96,8 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=100, verbose_name='Title', blank=True)),
                 ('description', models.TextField(verbose_name='Description')),
                 ('solution', models.TextField(verbose_name='Solution', blank=True)),
-                # ('criticity', models.ForeignKey(on_delete=PROTECT, verbose_name='Criticity', to='tickets.Criticity')),
                 ('criticity', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticity', to='tickets.Criticity')),
-                # ('priority', models.ForeignKey(on_delete=PROTECT, verbose_name='Priority', to='tickets.Priority')),
                 ('priority', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Priority', to='tickets.Priority')),
-                # ('status', models.ForeignKey(on_delete=PROTECT, verbose_name='Status', to='tickets.Status')),
                 ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status', to='tickets.Status')),
             ],
             options={
