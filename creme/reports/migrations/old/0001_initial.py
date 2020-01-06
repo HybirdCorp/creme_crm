@@ -10,11 +10,6 @@ EF_USER = 1
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('reports', '0001_initial'),
-    #     ('reports', '0006_v2_1__reportgraph_asc'),
-    # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -85,7 +80,6 @@ class Migration(migrations.Migration):
                 ('days', models.PositiveIntegerField(null=True, verbose_name='Days', blank=True)),
                 ('is_count', models.BooleanField(default=False, verbose_name='Make a count instead of aggregate?')),
                 ('chart', models.CharField(max_length=100, null=True, verbose_name='Chart type')),
-                ('asc', models.BooleanField(default=True, editable=False, verbose_name='ASC order')),
                 ('linked_report', models.ForeignKey(editable=False, to=settings.REPORTS_REPORT_MODEL, on_delete=CASCADE)),
             ],
             options={
