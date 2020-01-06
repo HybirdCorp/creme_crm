@@ -18,16 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404  # redirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.views import bricks
-# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404 
 from creme.creme_core.views import generic
@@ -47,66 +44,6 @@ from ..models import (
 
 Strategy = get_strategy_model()
 
-# Function views --------------------------------------------------------------
-
-
-# def abstract_add_strategy(request, form=forms.StrategyForm,
-#                           submit_label=Strategy.save_label,
-#                          ):
-#     warnings.warn('commercial.views.strategy.abstract_add_strategy() is deprecated ; '
-#                   'use the class-based view StrategyCreation instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.add_entity(request, form,
-#                               extra_template_dict={'submit_label': submit_label},
-#                              )
-
-
-# def abstract_edit_strategy(request, strategy_id, form=forms.StrategyForm):
-#     warnings.warn('commercial.views.strategy.abstract_edit_strategy() is deprecated ; '
-#                   'use the class-based view StrategyCreation instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.edit_entity(request, strategy_id, Strategy, form)
-
-
-# def abstract_view_strategy(request, strategy_id,
-#                            template='commercial/view_strategy.html',
-#                           ):
-#     warnings.warn('commercial.views.strategy.abstract_view_strategy() is deprecated ; '
-#                   'use the class-based view StrategyDetail instead.',
-#                   DeprecationWarning
-#                  )
-#     return generic.view_entity(request, strategy_id, Strategy, template=template)
-
-
-# @login_required
-# @permission_required(('commercial', cperm(Strategy)))
-# def add(request):
-#     warnings.warn('commercial.views.strategy.add() is deprecated.', DeprecationWarning)
-#     return abstract_add_strategy(request)
-
-
-# @login_required
-# @permission_required('commercial')
-# def edit(request, strategy_id):
-#     warnings.warn('commercial.views.strategy.edit() is deprecated.', DeprecationWarning)
-#     return abstract_edit_strategy(request, strategy_id)
-
-
-# @login_required
-# @permission_required('commercial')
-# def detailview(request, strategy_id):
-#     warnings.warn('commercial.views.strategy.detailview() is deprecated.', DeprecationWarning)
-#     return abstract_view_strategy(request, strategy_id)
-
-
-# @login_required
-# @permission_required('commercial')
-# def listview(request):
-#     return generic.list_view(request, Strategy, hf_pk=DEFAULT_HFILTER_STRATEGY)
-
-# Class-based views  ----------------------------------------------------------
 
 class StrategyCreation(generic.EntityCreation):
     model = Strategy
@@ -192,25 +129,6 @@ class CharmEdition(generic.RelatedToEntityEditionPopup):
     title = _('Charm for «{entity}»')
 
 
-# Other views  ----------------------------------------------------------------
-
-
-# @login_required
-# @permission_required('commercial')
-# @atomic
-# def delete_evalorga(request, strategy_id):
-#     strategy = get_object_or_404(Strategy, pk=strategy_id)
-#     request.user.has_perm_to_change_or_die(strategy)
-#
-#     orga_id = get_from_POST_or_404(request.POST, 'id', int)
-#     strategy.evaluated_orgas.remove(orga_id)
-#     CommercialAssetScore.objects.filter(asset__strategy=strategy, organisation=orga_id).delete()
-#     MarketSegmentCharmScore.objects.filter(charm__strategy=strategy, organisation=orga_id).delete()
-#
-#     if request.is_ajax():
-#         return HttpResponse()
-#
-#     return redirect(strategy)
 class OrganisationRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
     permissions = 'emails'
     entity_classes = Strategy

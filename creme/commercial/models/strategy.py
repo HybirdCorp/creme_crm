@@ -28,7 +28,6 @@ from creme.creme_core.models import CremeEntity, CremeModel
 
 from .market_segment import MarketSegment
 
-
 __all__ = ('AbstractStrategy', 'Strategy',
            'MarketSegmentDescription', 'MarketSegmentCategory',
            'CommercialAsset', 'CommercialAssetScore',
@@ -36,11 +35,11 @@ __all__ = ('AbstractStrategy', 'Strategy',
           )
 
 _CATEGORY_MAP = {
-         0: 4,  # Weak charms   & weak assets
-         1: 2,  # Strong charms & weak assets
-        10: 3,  # Weak charms   & strong assets
-        11: 1,  # Strong charms & strong assets
-    }
+     0: 4,  # Weak charms   & weak assets
+     1: 2,  # Strong charms & weak assets
+    10: 3,  # Weak charms   & strong assets
+    11: 1,  # Strong charms & strong assets
+}
 
 
 class AbstractStrategy(CremeEntity):

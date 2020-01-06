@@ -92,7 +92,6 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         response = self.assertGET200(reverse('commercial__list_strategies'))
 
         with self.assertNoException():
-            # strategies_page = response.context['entities']
             strategies_page = response.context['page_obj']
 
         self.assertSetEqual(strategies, {*strategies_page.object_list})

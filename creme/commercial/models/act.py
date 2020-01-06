@@ -34,7 +34,6 @@ from creme.opportunities import get_opportunity_model
 from ..constants import REL_SUB_COMPLETE_GOAL
 from .market_segment import MarketSegment
 
-
 _NAME_LENGTH = 100
 
 

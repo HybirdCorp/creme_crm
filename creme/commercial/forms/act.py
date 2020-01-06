@@ -61,7 +61,6 @@ class ObjectiveForm(CremeModelForm):
             efilter = instance.filter
 
             # TODO: add a method EntityFilter.can_list(self.user) to avoid a query
-            # if efilter and not efilter.can_view(self.user)[0]:
             if efilter and not EntityFilter.get_for_user(self.user, content_type=instance.ctype)\
                                            .filter(id=efilter.id).exists():
                 fields['ec_label'] = CharField(label=fields['entity_counting'].label,
