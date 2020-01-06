@@ -46,5 +46,4 @@ class CampaignTestCase(_EmailsTestCase):
         response = self.assertGET200(EmailCampaign.get_lv_absolute_url())
 
         with self.assertNoException():
-            # response.context['entities']
             response.context['page_obj']

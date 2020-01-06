@@ -32,7 +32,6 @@ from creme.documents import get_document_model
 
 from .. import get_emailtemplate_model
 
-
 Document = get_document_model()
 
 TEMPLATES_VARS = {'last_name', 'first_name', 'civility', 'name'}

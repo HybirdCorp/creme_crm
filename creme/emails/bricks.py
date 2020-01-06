@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.apps import apps
-# from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -125,7 +124,6 @@ class EmailRecipientsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             EmailRecipient.objects.filter(ml=mailing_list.id),  # get_recipients() ???
-            # ct_id=ContentType.objects.get_for_model(EmailRecipient).id,
         ))
 
 
@@ -209,7 +207,6 @@ class SendingsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             EmailSending.objects.filter(campaign=campaign.id),  # TODO: use related_name i.e:campaign.sendings_set.all()
-            # ct_id=ContentType.objects.get_for_model(EmailSending).id,
         ))
 
 

@@ -31,7 +31,6 @@ from creme.crudity import registry
 from .. import bricks, constants, get_entityemail_model
 from ..crudity_register import EntityEmailBackend
 
-
 EntityEmail = get_entityemail_model()
 
 

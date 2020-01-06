@@ -4,7 +4,6 @@
 {% block brick_extra_class %}{{block.super}} brick-detailview-popup emails-email-brick{% endblock %}
 
 {% block brick_header %}
-{#    {% brick_action id='redirect' url=object.get_absolute_url label=_('Full detailview') class='brick-dialog-action' display='text' %} #}
     <a class="complete-detailview" href="{{object.get_absolute_url}}">{% trans 'Full detailview' %}</a>
 {% endblock %}
 

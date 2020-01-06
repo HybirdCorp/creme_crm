@@ -42,7 +42,6 @@ from ..utils import generate_id, EMailSender, ImageFromHTMLError
 from .mail import _Email, ID_LENGTH
 from .signature import EmailSignature
 
-
 logger = logging.getLogger(__name__)
 
 # TODO: move to constants.py ???
@@ -115,7 +114,6 @@ class EmailSending(CremeModel):
         return self.mails_set.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]).count()
 
     def get_absolute_url(self):
-        # return self.campaign.get_absolute_url()
         return reverse('emails__view_sending', args=(self.id,))
 
     def get_related_entity(self):  # For generic views

@@ -30,7 +30,6 @@ from creme import persons
 
 from .. import get_mailinglist_model
 
-
 MailingList   = get_mailinglist_model()
 Contact       = persons.get_contact_model()
 Organisation  = persons.get_organisation_model()

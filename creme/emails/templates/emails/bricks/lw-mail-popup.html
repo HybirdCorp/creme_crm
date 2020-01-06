@@ -5,7 +5,6 @@
 
 {% block brick_header %}
     {% with campaign=object.sending.campaign %}
-{#    {% brick_action id='redirect' url=campaign.get_absolute_url label=_('Full detailview') class='brick-dialog-action' display='text' %} #}
     {# NB: 'view' credentials checked in the view function #}
     <a class="complete-detailview" href="{{campaign.get_absolute_url}}">{% blocktrans %}Full detailview of the campaign «{{campaign}}»{% endblocktrans %}</a>
     {% endwith %}
@@ -34,7 +33,7 @@
     <div class="brick-tile brick-tile-multiline-value" data-type="html" data-key="regular_field-body_html">
         <span class="brick-tile-name">{% cell_4_regularfield instance=sending field='body_html' %}</span>
         <span class="brick-tile-value">
-            <iframe src="{% url 'emails__lw_mail_body' object.id %}" frameborder="0" width="100%" {#height="100%"#} {#style="min-height:350px"#}></iframe>
+            <iframe src="{% url 'emails__lw_mail_body' object.id %}" frameborder="0" width="100%"></iframe>
         </span>
     </div>
     {% else %}

@@ -546,7 +546,6 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         url = self._build_send_from_template_url(contact)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_wizard_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-wizard-popup.html')
 
         context = response.context
@@ -711,7 +710,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         response = self.assertGET200(reverse('emails__list_emails'))
 
         with self.assertNoException():
-            # emails = response.context['entities']
             emails = response.context['page_obj']
 
         self.assertEqual(4, emails.object_list.count())

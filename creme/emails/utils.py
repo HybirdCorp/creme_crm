@@ -31,7 +31,6 @@ from django.utils.timezone import now
 
 from .constants import MAIL_STATUS_SENT, MAIL_STATUS_SENDINGERROR
 
-
 logger = logging.getLogger(__name__)
 ALLOWED_CHARS = ascii_letters + digits
 
@@ -62,12 +61,6 @@ def get_mime_image(image_entity):
         mime_image = getattr(image_entity, _MIME_IMG_CACHE)
     except AttributeError:
         try:
-            # image_file = image_entity.filedata.file
-            # image_file.open()  # NB: 'with' seems not working
-            # mime_image = MIMEImage(image_file.read())
-            # mime_image.add_header('Content-ID','<img_{}>'.format(image_entity.id))
-            # mime_image.add_header('Content-Disposition', 'inline', filename=basename(image_file.name))
-            # image_file.close()
             with image_entity.filedata.open() as image_file:
                 mime_image = MIMEImage(image_file.read())
                 mime_image.add_header('Content-ID','<img_{}>'.format(image_entity.id))
