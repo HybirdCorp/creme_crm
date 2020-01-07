@@ -57,7 +57,7 @@
             - The buttons (in button bar) to create related Quote/Invoice/... redirects now to the new entity's detail-view.
               The old behaviour (ie: staying on the Contact/Organisaton's detail-view) can be restored in the billing's configuration portal.
         * Opportunities :
-            - The statuses of the billing documents are now display in the bricks of the detail-view.
+            - The statuses of the billing documents are now displayed in the bricks of the detail-view.
             - Two SettingKeys which add constraints on selected billing documents to link have been added : same emitter & same target than the Opportunity.
             - The hat-card brick now only displays a maximum of 5 related Contacts.
         * Reports :
