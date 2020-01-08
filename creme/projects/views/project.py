@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,11 +19,13 @@
 ################################################################################
 
 from django.db.transaction import atomic
-from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect
+# from django.http import Http404
+from django.shortcuts import redirect  # get_object_or_404
+from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.decorators import POST_only
+# from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.core.exceptions import ConflictError
+# from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views import generic
 
 from .. import get_project_model
@@ -34,21 +36,38 @@ from ..models import ProjectStatus
 Project = get_project_model()
 
 
-@login_required
-@POST_only
-@permission_required('projects')
-@atomic
-def close(request, project_id):
-    project = get_object_or_404(Project.objects.select_for_update(), id=project_id)
+# @login_required
+# @POST_only
+# @permission_required('projects')
+# @atomic
+# def close(request, project_id):
+#     project = get_object_or_404(Project.objects.select_for_update(), id=project_id)
+#
+#     request.user.has_perm_to_change_or_die(project)
+#
+#     if not project.close():
+#         raise Http404('Project is already closed: {}'.format(project))
+#
+#     project.save()
+#
+#     return redirect(project)
+class ProjectClosure(generic.base.EntityRelatedMixin, generic.CheckedView):
+    permissions = 'projects'
+    entity_id_url_kwarg = 'project_id'
+    entity_classes = Project
+    entity_select_for_update = True
 
-    request.user.has_perm_to_change_or_die(project)
+    @atomic
+    def post(self, *args, **kwargs):
+        project = self.get_related_entity()
 
-    if not project.close():
-        raise Http404('Project is already closed: {}'.format(project))
+        if not project.close():
+            raise ConflictError(_('Project is already closed.'))
 
-    project.save()
+        project.save()
 
-    return redirect(project)
+        # TODO: if Ajax...
+        return redirect(project)
 
 
 class ProjectCreation(generic.EntityCreation):

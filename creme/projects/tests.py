@@ -1120,7 +1120,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertIsNone(project.effective_end_date)
 
         url = reverse('projects__close_project', args=(project.id,))
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET405(url)
         self.assertPOST200(url, follow=True)
 
         project = self.refresh(project)
@@ -1130,7 +1131,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertDatetimesAlmostEqual(now(), project.effective_end_date)
 
         # Already closed
-        self.assertPOST404(url, follow=True)
+        # self.assertPOST404(url, follow=True)
+        self.assertPOST409(url, follow=True)
 
     def _create_parented_task(self, title, project, parents=None):
         status = TaskStatus.objects.get_or_create(name='status', description="")[0]
