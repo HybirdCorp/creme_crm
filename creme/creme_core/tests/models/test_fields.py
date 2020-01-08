@@ -106,6 +106,24 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
 
         self.assertEqual(self.entity, creme_entity)
 
+    def test_update_fk_cache(self):
+        entity = self.entity
+        todo = FakeTodo.objects.create(title='My todo',
+                                       # creme_entity=self.entity,
+                                       entity_id=entity.id,
+                                       entity_content_type=entity.entity_type,
+                                      )
+
+        todo = self.refresh(todo)
+
+        with self.assertNumQueries(1):
+            __ = todo.creme_entity
+
+        with self.assertNumQueries(0):  # <= cache
+            creme_entity = todo.entity
+
+        self.assertEqual(self.entity, creme_entity)
+
     def test_fk_cache(self):
         "Do not retrieve real entity if already stored/retrieved in 'entity' attribute."
         entity = self.entity
@@ -151,7 +169,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
             error_context.exception.args[0]
         )
 
-    def test_cache_for_set(self):
+    def test_cache_for_set01(self):
         "After a '__set__' with a real entity, '__get__' uses no query."
         entity = self.entity
         todo = FakeTodo(title='My todo')
@@ -163,6 +181,21 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
             creme_entity = todo.creme_entity
 
         self.assertEqual(entity, creme_entity)
+
+    def test_cache_for_set02(self):
+        "After a '__set__' with a real entity, '__get__' uses no query (base entity version)."
+        entity = CremeEntity.objects.get(id=self.entity.id)
+        real_entity = entity.get_real_entity()
+
+        todo = FakeTodo(title='My todo')
+
+        with self.assertNumQueries(0):
+            todo.creme_entity = entity
+
+        with self.assertNumQueries(0):
+            creme_entity = todo.creme_entity
+
+        self.assertEqual(real_entity, creme_entity)
 
     def test_get_real_entity(self):
         "Set a base entity, so '__get__' uses a query to retrieve the real entity."
@@ -182,8 +215,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
             creme_entity2 = todo.creme_entity
         self.assertEqual(entity, creme_entity2)
 
-    def test_set_none(self):
-        "Set None."
+    def test_set_none01(self):
         entity = self.entity
         todo = FakeTodo(title='My todo',
                         entity=entity,
@@ -193,6 +225,27 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         todo.creme_entity = None
         self.assertIsNone(todo.entity_id)
         self.assertIsNone(todo.entity_content_type_id)
+
+        with self.assertNumQueries(0):
+            creme_entity = todo.creme_entity
+
+        self.assertIsNone(creme_entity)
+
+    def test_set_none02(self):
+        "Set None after not None on virtual field (cache invalidation)."
+        entity = self.entity.get_real_entity()
+        todo = FakeTodo(title='My todo',
+                        creme_entity=entity,
+                       )
+
+        todo.creme_entity = None
+        self.assertIsNone(todo.entity_id)
+        self.assertIsNone(todo.entity_content_type_id)
+
+        with self.assertNumQueries(0):
+            creme_entity = todo.creme_entity
+
+        self.assertIsNone(creme_entity)
 
     def test_get_none01(self):
         "Get initial None."

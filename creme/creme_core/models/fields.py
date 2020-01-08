@@ -27,6 +27,7 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.db.models.deletion import SET, CASCADE
 from django.db.models.aggregates import Max
+from django.db.models.fields.mixins import FieldCacheMixin
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
@@ -241,7 +242,8 @@ class CTypeOneToOneField(models.OneToOneField):
         )
 
 
-class RealEntityForeignKey:
+# class RealEntityForeignKey:
+class RealEntityForeignKey(FieldCacheMixin):
     """ Provide a "virtual" field which uses & combines 2 ForeignKeys :
      - a ForeignKey to CremeEntity.
      - a ForeignKey to ContentType (tips: it work  well with a EntityCTypeForeignKey).
@@ -282,7 +284,7 @@ class RealEntityForeignKey:
 
         self.name = None
         self.model = None
-        self.cache_attr = None
+        # self.cache_attr = None
 
     def __str__(self):
         model = self.model
@@ -296,7 +298,7 @@ class RealEntityForeignKey:
     def contribute_to_class(self, cls, name, **kwargs):
         self.name = name
         self.model = cls
-        self.cache_attr = '_{}_cache'.format(name)
+        # self.cache_attr = '_{}_cache'.format(name)
         cls._meta.add_field(self, private=True)  # TODO: test ?
         setattr(cls, name, self)
 
@@ -358,7 +360,8 @@ class RealEntityForeignKey:
         # if instance is None:
         #     return self
 
-        real_entity = getattr(instance, self.cache_attr, None)
+        # real_entity = getattr(instance, self.cache_attr, None)
+        real_entity = self.get_cached_value(instance, default=None)
 
         if real_entity is None:
             get_field = self.model._meta.get_field
@@ -383,7 +386,8 @@ class RealEntityForeignKey:
 
                     real_entity = ct.model_class()._default_manager.get(id=entity_id)
 
-                setattr(instance, self.cache_attr, real_entity)
+                setattr(instance, self._fk_field_name, real_entity)
+                # setattr(instance, self.cache_attr, real_entity)
             else:
                 if entity is None:
                     real_entity = None
@@ -395,6 +399,8 @@ class RealEntityForeignKey:
 
                     real_entity = entity.get_real_entity()
 
+            self.set_cached_value(instance, real_entity)
+
         return real_entity
 
     def __set__(self, instance, value):
@@ -402,10 +408,23 @@ class RealEntityForeignKey:
 
         if value is not None:
             ct = value.entity_type
+            real_entity = value._real_entity
+
+            # NB: if the entity is not real & the real entity has not been
+            #     retrieved yet, we do not cache it to retrieve it lazily in __get__
+            if real_entity is not None:
+                self.set_cached_value(instance,
+                                      value if real_entity is True else real_entity,
+                                     )
+        else:
+            self.set_cached_value(instance, value)
 
         setattr(instance, self._ct_field_name, ct)
         setattr(instance, self._fk_field_name, value)
-        # setattr(instance, self.cache_attr, value)  # We use the cache of FK/entity instead.
+        # # setattr(instance, self.cache_attr, value)  # We use the cache of FK/entity instead.
+
+    def get_cache_name(self):  # See FieldCacheMixin
+        return self.name
 
 
 class BasicAutoField(models.PositiveIntegerField):
