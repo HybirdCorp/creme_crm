@@ -835,8 +835,10 @@ class OrganisationTestCase(_BaseTestCase):
 
         url = reverse('persons__orga_unset_managed')
         data = {'id': orga2.id}
-        self.assertGET404(url)
-        self.assertGET404(url, data=data)
+        # self.assertGET404(url)
+        self.assertGET405(url)
+        # self.assertGET404(url, data=data)
+        self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data)
         self.assertFalse(self.refresh(orga2).is_managed)
