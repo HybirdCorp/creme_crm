@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -806,7 +806,9 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
             all_kwargs.append(kwargs)
 
         if filter_ids:
-            filters = EntityFilter.get_for_user(self.user).filter(pk__in=filter_ids).in_bulk()
+            # filters = EntityFilter.get_for_user(self.user).filter(pk__in=filter_ids).in_bulk()
+            filters = EntityFilter.objects.filter_by_user(self.user)\
+                                          .filter(pk__in=filter_ids).in_bulk()
 
             if len(filters) != len(filter_ids):
                 raise ValidationError(self.error_messages['invalidfilter'], code='invalidfilter')
@@ -920,7 +922,8 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
         return [build_condition(subfilter) for subfilter in super().clean(value)]
 
     def initialize(self, ctype, conditions=None, efilter=None):
-        qs = EntityFilter.get_for_user(self.user, ctype)
+        # qs = EntityFilter.get_for_user(self.user, ctype)
+        qs = EntityFilter.objects.filter_by_user(self.user).filter(entity_type=ctype)
 
         if efilter:
             qs = qs.exclude(pk__in=efilter.get_connected_filter_ids())

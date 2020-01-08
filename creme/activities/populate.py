@@ -125,7 +125,7 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        create_efilter = EntityFilter.create
+        create_efilter = EntityFilter.objects.smart_update_or_create
 
         for pk, name, atype_id in ((constants.EFILTER_MEETINGS,   _('Meetings'),    constants.ACTIVITYTYPE_MEETING),
                                    (constants.EFILTER_PHONECALLS, _('Phone calls'), constants.ACTIVITYTYPE_PHONECALL),
@@ -150,7 +150,7 @@ class Populator(BasePopulator):
                 condition_handler.RelationSubFilterConditionHandler.build_condition(
                     model=Activity,
                     rtype=rt_obj_part_2_activity,
-                    subfilter=EntityFilter.get_latest_version(FILTER_CONTACT_ME),
+                    subfilter=EntityFilter.objects.get_latest_version(FILTER_CONTACT_ME),
                 ),
             ],
         )

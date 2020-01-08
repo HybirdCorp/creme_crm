@@ -147,7 +147,7 @@ class Populator(BasePopulator):
             create_if_needed(CreditNoteStatus, {'pk': 4}, name=pgettext('billing-creditnote', 'Out of date'), order=4)
 
         # ---------------------------
-        EntityFilter.create(
+        EntityFilter.objects.smart_update_or_create(
             'billing-invoices_unpaid', name=_('Invoices unpaid'),
             model=Invoice, user='admin',
             conditions=[
@@ -159,7 +159,7 @@ class Populator(BasePopulator):
                 ),
             ],
         )
-        EntityFilter.create(
+        EntityFilter.objects.smart_update_or_create(
             'billing-invoices_unpaid_late', name=_('Invoices unpaid and late'),
             model=Invoice, user='admin',
             conditions=[
@@ -176,7 +176,7 @@ class Populator(BasePopulator):
                 ),
             ],
         )
-        current_year_invoice_filter = EntityFilter.create(
+        current_year_invoice_filter = EntityFilter.objects.smart_update_or_create(
             'billing-current_year_invoices', name=_('Current year invoices'),
             model=Invoice, user='admin',
             conditions=[
@@ -187,7 +187,7 @@ class Populator(BasePopulator):
                 ),
             ],
         )
-        current_year_unpaid_invoice_filter = EntityFilter.create(
+        current_year_unpaid_invoice_filter = EntityFilter.objects.smart_update_or_create(
             'billing-current_year_unpaid_invoices',
             name=_('Current year and unpaid invoices'),
             model=Invoice, user='admin',

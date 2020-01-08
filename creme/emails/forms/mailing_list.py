@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -92,7 +92,9 @@ class _AddPersonsFromFilterForm(CremeForm):
         self.ml = entity
 
         ct = ContentType.objects.get_for_model(self.person_model)
-        self.fields['filters'].queryset = EntityFilter.get_for_user(self.user, ct)
+        self.fields['filters'].queryset = EntityFilter.objects\
+                                                      .filter_by_user(self.user)\
+                                                      .filter(entity_type=ct)
 
     def get_persons_m2m(self):
         raise NotImplementedError

@@ -97,7 +97,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.robb = create_contact(first_name='Robb',   last_name='Stark', user=self.other_user)
         self.aria = create_contact(first_name='Aria',   last_name='Stark', image=self.aria_face)
 
-        self.efilter = EntityFilter.create(
+        self.efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Starks', FakeContact, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -250,9 +250,9 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(RFT_CUSTOM, field.type)
 
     def test_createview02(self):
-        "With EntityFilter"
+        "With EntityFilter."
         self.login()
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Mihana family', FakeContact, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -287,8 +287,9 @@ class ReportTestCase(BaseReportsTestCase):
 
         # ------
         create_hf = HeaderFilter.objects.create_if_needed
+        create_efilter = EntityFilter.objects.smart_update_or_create
         hf_orga = create_hf(pk='test_hf-orga', name='name', model=FakeOrganisation)
-        efilter = EntityFilter.create('test-filter', 'Bad filter', FakeOrganisation, is_custom=True)
+        efilter = create_efilter('test-filter', 'Bad filter', FakeOrganisation, is_custom=True)
         response = post(hf_orga.id, efilter.id)
         self.assertFormError(response, 'form', 'hf',     msg)
         self.assertFormError(response, 'form', 'filter', msg)
@@ -302,15 +303,15 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFormError(response, 'form', 'hf', msg)
 
         # ------
-        ef_priv = EntityFilter.create('test-private_filter', 'Private filter',
-                                      FakeContact, is_custom=True,
-                                      user=self.other_user, is_private=True,
-                                     )
+        ef_priv = create_efilter('test-private_filter', 'Private filter',
+                                 FakeContact, is_custom=True,
+                                 user=self.other_user, is_private=True,
+                                )
         response = post('', ef_priv.id)
         self.assertFormError(response, 'form', 'filter', msg)
 
     def test_createview04(self):
-        "No HeaderFilter -> no column"
+        "No HeaderFilter -> no column."
         user = self.login()
 
         name = 'Report #1'
@@ -373,7 +374,7 @@ class ReportTestCase(BaseReportsTestCase):
         report = self._create_report(name)
 
         name = name.title()
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Filter', FakeContact, is_custom=True,
             is_private=True, user=user,
         )
@@ -411,17 +412,18 @@ class ReportTestCase(BaseReportsTestCase):
         "Cannot edit the 'filter' field when its a private filter which belongs to another user"
         user = self.login()
 
-        ef_priv = EntityFilter.create('test-private_filter', 'Private filter',
-                                      FakeContact, is_custom=True,
-                                      user=self.other_user, is_private=True,
-                                     )
+        create_efilter = EntityFilter.objects.smart_update_or_create
+        ef_priv = create_efilter('test-private_filter', 'Private filter',
+                                 FakeContact, is_custom=True,
+                                 user=self.other_user, is_private=True,
+                                )
         report = Report.objects.create(name='Report', user=user, filter=ef_priv,
                                        ct=self.ct_contact,
                                       )
 
-        ef_pub = EntityFilter.create('test-public_filter', 'Public filter',
-                                     FakeContact, is_custom=True,
-                                    )
+        ef_pub = create_efilter('test-public_filter', 'Public filter',
+                                FakeContact, is_custom=True,
+                               )
         response = self.client.post(report.get_edit_absolute_url(), follow=True, 
                                     data={'user': user.pk,
                                           'name': 'Report edited',
@@ -434,7 +436,7 @@ class ReportTestCase(BaseReportsTestCase):
     def test_report_inneredit_filter01(self):
         self.login()
 
-        create_ef = partial(EntityFilter.create, is_custom=True)
+        create_ef = partial(EntityFilter.objects.smart_update_or_create, is_custom=True)
         contact_filter = create_ef('test-filter1', 'Mihana family', FakeContact)
         orga_filter    = create_ef('test-filter2', 'Mihana house', FakeOrganisation)
         private_filter = create_ef('test-filter3', 'XXX', FakeContact,
@@ -464,9 +466,10 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
         other_user = self.other_user
 
-        efilter = EntityFilter.create('test-filter', 'Mihana family', FakeContact,
-                                      is_custom=True, is_private=True, user=other_user,
-                                     )
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter', 'Mihana family', FakeContact,
+            is_custom=True, is_private=True, user=other_user,
+        )
         report = Report.objects.create(user=other_user, name="Other's report",
                                        ct=efilter.entity_type, filter=efilter,
                                       )
@@ -491,7 +494,7 @@ class ReportTestCase(BaseReportsTestCase):
         "Reports are related to the same ContentType -> OK"
         self.login()
 
-        create_ef = partial(EntityFilter.create, is_custom=True)
+        create_ef = partial(EntityFilter.objects.smart_update_or_create, is_custom=True)
         contact_filter = create_ef('test-filter1', 'Mihana family', FakeContact)
         orga_filter    = create_ef('test-filter2', 'Mihana house', FakeOrganisation)
 
@@ -524,7 +527,9 @@ class ReportTestCase(BaseReportsTestCase):
         "Reports are related to different ContentTypes -> error"
         self.login()
 
-        contact_filter = EntityFilter.create('test-filter', 'Mihana family', FakeContact, is_custom=True)
+        contact_filter = EntityFilter.objects.smart_update_or_create(
+            'test-filter', 'Mihana family', FakeContact, is_custom=True,
+        )
 
         report_1 = self._create_report('Contact report')
         report_2 = self._create_simple_organisations_report('Orga report')
@@ -547,7 +552,9 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login()
         other_user = self.other_user
 
-        create_ef = partial(EntityFilter.create, is_custom=True, model=FakeContact)
+        create_ef = partial(EntityFilter.objects.smart_update_or_create,
+                            is_custom=True, model=FakeContact,
+                           )
         efilter1 = create_ef('test-filter1', name='Filter #1')
         efilter2 = create_ef('test-filter2', name='Filter #2', is_private=True, user=other_user)
         efilter3 = create_ef('test-filter3', name='Filter #3', is_private=True, user=user)
@@ -610,7 +617,9 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_clone(self):
         user = self.login()
-        efilter = EntityFilter.create('test-filter', 'Mihana family', FakeContact, is_custom=True)
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter', 'Mihana family', FakeContact, is_custom=True,
+        )
         report = Report.objects.create(user=user, name='Contact report', ct=FakeContact, filter=efilter)
 
         create_field = partial(Field.objects.create, report=report)
@@ -642,7 +651,9 @@ class ReportTestCase(BaseReportsTestCase):
         "The filter should not be deleted."
         self.login()
 
-        efilter = EntityFilter.create('test-filter', 'Mihana family', FakeContact, is_custom=True)
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter', 'Mihana family', FakeContact, is_custom=True,
+        )
         report = self._create_report('My awesome report', efilter)
 
         url = reverse('creme_core__delete_efilter')
@@ -727,7 +738,7 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login()
         tomo = FakeContact.objects.create(user=user, first_name='Tomo', last_name='Takino')
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Kasuga family', FakeContact, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -1866,7 +1877,7 @@ class ReportTestCase(BaseReportsTestCase):
             create_rel(subject_entity=self.starks, object_entity=self.robb)
             create_rel(subject_entity=self.lannisters, object_entity=self.tyrion)
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Houses', FakeOrganisation, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -2014,10 +2025,10 @@ class ReportTestCase(BaseReportsTestCase):
         )
 
     def test_fetch_fk_02(self):
-        "Sub report: sub-filter"
+        "Sub report: sub-filter."
         self.login()
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Internal folders', FakeReportsFolder, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -2129,7 +2140,7 @@ class ReportTestCase(BaseReportsTestCase):
         jet   = create_contact(last_name='Black',     image=img3)
         ed    = create_contact(last_name='Wong')
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Bebop member', FakeContact, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -2168,7 +2179,7 @@ class ReportTestCase(BaseReportsTestCase):
         robb = create_contact(first_name='Robb',   last_name='Stark')
         aria = create_contact(first_name='Aria',   last_name='Stark')
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Starks', FakeContact, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -2727,7 +2738,7 @@ class ReportTestCase(BaseReportsTestCase):
         ptype = CremePropertyType.create(str_pk='test-prop_dwarf', text='Is a dwarf')
         CremeProperty.objects.create(type=ptype, creme_entity=self.tyrion)
 
-        dwarves_filter = EntityFilter.create(
+        dwarves_filter = EntityFilter.objects.smart_update_or_create(
             'test-filter_dwarves', 'Dwarves', FakeContact, is_custom=True,
             conditions=[
                 condition_handler.PropertyConditionHandler.build_condition(

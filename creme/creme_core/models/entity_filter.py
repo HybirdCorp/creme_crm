@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from itertools import zip_longest
 from json import loads as json_load
 import logging
 from re import compile as compile_re
+import warnings
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -48,7 +49,11 @@ class EntityFilterList(list):
     Indeed, it's as a cache.
     """
     def __init__(self, content_type, user):
-        super().__init__(EntityFilter.get_for_user(user, content_type))
+        # super().__init__(EntityFilter.get_for_user(user, content_type))
+        super().__init__(EntityFilter.objects
+                                     .filter_by_user(user)
+                                     .filter(entity_type=content_type)
+                        )
         self._selected = None
 
     @property
@@ -65,6 +70,200 @@ class EntityFilterList(list):
                     return efilter
 
         return self._selected
+
+
+class EntityFilterManager(models.Manager):
+    def get_latest_version(self, base_pk):
+        """Get the latest EntityFilter from the family which uses the 'base_pk'.
+        @raises EntityFilter.DoesNotExist If there is none instance in this family
+        """
+        efilters = [*self.filter(Q(pk=base_pk) | Q(pk__startswith=base_pk + '['))]
+
+        if not efilters:
+            raise self.model.DoesNotExist('No EntityFilter with pk="{}"'.format(base_pk))
+
+        VERSION_RE = compile_re(
+            r'([\w,-]+)(\[(?P<version_num>\d[\d\.]+)( (?P<version_mod>alpha|beta|rc)(?P<version_modnum>\d+)?)?\](?P<copy_num>\d+)?)?$'
+        )
+
+        def key(efilter):
+            # We build a tuple which can easily compared with the other generated tuples.
+            # Example of PKs: 'base_pk' 'base_pk[1.15]' 'base_pk[1.15 alpha]'
+            #                 'base_pk[1.15 rc]' 'base_pk[1.15 rc11]' 'base_pk[1.15 rc11]2'
+            # eg: 'base_pk[1.15 rc11]2'
+            #   ==> we extract '1.15', 'aplha', '11' & '2' and build ((1, 15), 'rc', 11, 2)
+            search = VERSION_RE.search(efilter.pk)
+
+            if not search:
+                logger.critical('Malformed %s PK/version: %s', self.model.__name__, efilter.pk)
+                return ((-1,),)
+
+            groupdict = search.groupdict()
+            version_num = groupdict['version_num']  # eg '1.5'
+            if not version_num:
+                return ((0,),)
+
+            version_num_tuple = tuple(int(x) for x in version_num.split('.'))
+
+            # '', alpha', 'beta' or 'rc' -> yeah, they are already alphabetically sorted.
+            version_mod = groupdict['version_mod'] or ''
+
+            version_modnum_str = groupdict['version_modnum']  # eg '11' in 'rc11'
+            version_modnum = int(version_modnum_str) if version_modnum_str else 1
+
+            copy_num_str = groupdict['copy_num']  # eg '11' in 'base_pk[1.5]11'
+            copy_num = int(copy_num_str) if copy_num_str else 0
+
+            return (version_num_tuple, version_mod, version_modnum, copy_num)
+
+        efilters.sort(key=key)
+
+        return efilters[-1]  # TODO: max()
+
+    def filter_by_user(self, user):
+        """Get the EntityFilter queryset corresponding of filters which a user can see.
+        @param user: A User instance.
+        """
+        if user.is_team:
+            raise ValueError(
+                'EntityFilterManager.filter_by_user(): '
+                'user cannot be a team ({})'.format(user)
+            )
+
+        qs = self.filter(filter_type=EF_USER)
+
+        return qs if user.is_staff else \
+               qs.filter(Q(is_private=False) |
+                         Q(is_private=True, user__in=[user, *user.teams])
+                        )
+
+    def smart_update_or_create(self, pk, name, model,
+                               is_custom=False, user=None, use_or=False,
+                               is_private=False, conditions=(),
+                              ):
+        """Creation helper ; useful for populate.py scripts.
+        @param user: Can be None (ie: 'All users'), a User instance, or the string
+                     'admin', which means 'the first admin user'.
+        """
+        forbidden = {'[', ']', '#', '?'}  # '&'
+
+        if any((c in forbidden) for c in pk):
+            raise ValueError(
+                'EntityFilterManager.smart_update_or_create(): '
+                'invalid character in "pk" (forbidden: {})'.format(forbidden)
+            )
+
+        if is_private:
+            if not user:
+                raise ValueError(
+                    'EntityFilterManager.smart_update_or_create(): '
+                    'a private filter must belong to a User.'
+                )
+
+            if not is_custom:
+                # It should not be useful to create a private EntityFilter (so it
+                # belongs to a user) which cannot be deleted.
+                raise ValueError(
+                    'EntityFilterManager.smart_update_or_create(): '
+                    'a private filter must be custom.'
+                )
+
+        User = get_user_model()
+
+        if isinstance(user, User):
+            if user.is_staff:
+                # Staff users cannot be owner in order to stay 'invisible'.
+                raise ValueError(
+                    'EntityFilterManager.smart_update_or_create(): '
+                    'the owner cannot be a staff user.'
+                )
+        elif user == 'admin':
+            user = User.objects.get_admin()
+
+        ct = ContentType.objects.get_for_model(model)
+
+        if is_custom:
+            try:
+                ef = self.get(pk=pk)
+            except EntityFilter.DoesNotExist:
+                ef = self.create(pk=pk, name=name, is_custom=is_custom,
+                                 user=user, use_or=use_or, entity_type=ct,
+                                 is_private=is_private,
+                                )
+            else:
+                if ef.entity_type != ct:
+                    # Changing the ContentType would create mess in related Report for example.
+                    raise ValueError(
+                        'You cannot change the entity type of an existing filter'
+                    )
+
+                if not ef.is_custom:
+                    raise ValueError(
+                        'You cannot change the "is_custom" value of an existing filter'
+                    )
+
+                update_model_instance(ef, name=name, user=user, use_or=use_or)
+        else:
+            if not conditions:
+                raise ValueError(
+                    'You must provide conditions for a non-custom Filter '
+                    '(in order to compare with existing ones)'
+                )
+
+            try:
+                ef = self.get_latest_version(pk)
+            except self.model.DoesNotExist:
+                ef = self.create(pk=pk, name=name, is_custom=is_custom,
+                                 user=user, use_or=use_or, entity_type=ct,
+                                )
+            else:
+                if ef.entity_type != ct:
+                    raise ValueError(
+                        'You cannot change the entity type of an existing filter'
+                    )
+
+                if ef.is_custom:
+                    raise ValueError(
+                        'You cannot change the "is_custom" value of an existing filter'
+                    )
+
+                if use_or != ef.use_or or \
+                   not EntityFilterCondition.conditions_equal(conditions, ef.get_conditions()):
+                    from creme import __version__
+
+                    new_pk = '{}[{}]'.format(pk, __version__)
+                    new_name = '{} [{}]'.format(name, __version__)
+
+                    latest_pk = ef.pk
+
+                    if latest_pk.startswith(new_pk):
+                        copy_num_str = latest_pk[len(new_pk):]
+
+                        if not copy_num_str:
+                            new_pk += '2'
+                            new_name += '(2)'
+                        else:
+                            try:
+                                copy_num = int(copy_num_str) + 1
+                            except ValueError as e:
+                                raise ValueError(
+                                    'Malformed EntityFilter PK/version: {}'.format(latest_pk)
+                                ) from e
+
+                            new_pk += str(copy_num)
+                            new_name += '({})'.format(copy_num)
+
+                    ef = self.create(pk=new_pk, name=new_name,
+                                     is_custom=is_custom,
+                                     user=user, use_or=use_or, entity_type=ct,
+                                    )
+                else:
+                    update_model_instance(ef, name=name)
+
+        ef.set_conditions(conditions)
+
+        return ef
+
 
 
 class EntityFilter(models.Model):  # CremeModel ???
@@ -106,6 +305,8 @@ class EntityFilter(models.Model):  # CremeModel ???
         ],
         default=False,
     ).set_tags(viewable=False)
+
+    objects = EntityFilterManager()
 
     creation_label = _('Create a filter')
     save_label     = _('Save the filter')
@@ -326,7 +527,6 @@ class EntityFilter(models.Model):  # CremeModel ???
         self._check_privacy_sub_filters(conditions, is_private, owner)
         self._check_privacy_parent_filters(is_private, owner)
 
-    # TODO: move to a manager ?
     @classmethod
     def create(cls, pk, name, model, is_custom=False, user=None, use_or=False,
                is_private=False, conditions=(),
@@ -335,120 +535,17 @@ class EntityFilter(models.Model):  # CremeModel ???
         @param user: Can be None (ie: 'All users'), a User instance, or the string
                      'admin', which means 'the first admin user'.
         """
-        forbidden = {'[', ']', '#', '?'}  # '&'
+        warnings.warn(
+            'EntityFilter.create() is deprecated ; '
+            'use EntityFilter.objects.smart_update_or_create() instead.',
+            DeprecationWarning
+        )
 
-        if any((c in forbidden) for c in pk):
-            raise ValueError(
-                'EntityFilter.create(): invalid character in "pk" (forbidden: {})'.format(forbidden)
-            )
-
-        if is_private:
-            if not user:
-                raise ValueError(
-                    'EntityFilter.create(): a private filter must belong to a User.'
-                )
-
-            if not is_custom:
-                # It should not be useful to create a private EntityFilter (so it
-                # belongs to a user) which cannot be deleted.
-                raise ValueError(
-                    'EntityFilter.create(): a private filter must be custom.'
-                )
-
-        User = get_user_model()
-
-        if isinstance(user, User):
-            if user.is_staff:
-                # Staff users cannot be owner in order to stay 'invisible'.
-                raise ValueError(
-                    'EntityFilter.create(): the owner cannot be a staff user.'
-                )
-        elif user == 'admin':
-            user = User.objects.get_admin()
-
-        ct = ContentType.objects.get_for_model(model)
-
-        if is_custom:
-            try:
-                ef = cls.objects.get(pk=pk)
-            except cls.DoesNotExist:
-                ef = cls.objects.create(pk=pk, name=name, is_custom=is_custom,
-                                        user=user, use_or=use_or, entity_type=ct,
-                                        is_private=is_private,
-                                       )
-            else:
-                if ef.entity_type != ct:
-                    # Changing the ContentType would create mess in related Report for example.
-                    raise ValueError(
-                        'You cannot change the entity type of an existing filter'
-                    )
-
-                if not ef.is_custom:
-                    raise ValueError(
-                        'You cannot change the "is_custom" value of an existing filter'
-                    )
-
-                update_model_instance(ef, name=name, user=user, use_or=use_or)
-        else:
-            if not conditions:
-                raise ValueError(
-                    'You must provide conditions for a non-custom Filter '
-                    '(in order to compare with existing ones)'
-                )
-
-            try:
-                ef = cls.get_latest_version(pk)
-            except EntityFilter.DoesNotExist:
-                ef = cls.objects.create(pk=pk, name=name, is_custom=is_custom,
-                                        user=user, use_or=use_or, entity_type=ct,
-                                       )
-            else:
-                if ef.entity_type != ct:
-                    raise ValueError(
-                        'You cannot change the entity type of an existing filter'
-                    )
-
-                if ef.is_custom:
-                    raise ValueError(
-                        'You cannot change the "is_custom" value of an existing filter'
-                    )
-
-                if use_or != ef.use_or or \
-                   not EntityFilterCondition.conditions_equal(conditions, ef.get_conditions()):
-                    from creme import __version__
-
-                    new_pk = '{}[{}]'.format(pk, __version__)
-                    new_name = '{} [{}]'.format(name, __version__)
-
-                    latest_pk = ef.pk
-
-                    if latest_pk.startswith(new_pk):
-                        copy_num_str = latest_pk[len(new_pk):]
-
-                        if not copy_num_str:
-                            new_pk += '2'
-                            new_name += '(2)'
-                        else:
-                            try:
-                                copy_num = int(copy_num_str) + 1
-                            except ValueError as e:
-                                raise ValueError(
-                                    'Malformed EntityFilter PK/version: {}'.format(latest_pk)
-                                ) from e
-
-                            new_pk += str(copy_num)
-                            new_name += '({})'.format(copy_num)
-
-                    ef = cls.objects.create(pk=new_pk, name=new_name,
-                                            is_custom=is_custom,
-                                            user=user, use_or=use_or, entity_type=ct,
-                                           )
-                else:
-                    update_model_instance(ef, name=name)
-
-        ef.set_conditions(conditions)
-
-        return ef
+        return cls.objects.smart_update_or_create(
+            pk=pk, name=name, model=model,
+            is_custom=is_custom, user=user,
+            use_or=use_or, is_private=is_private, conditions=conditions,
+        )
 
     def delete(self, check_orphan=True, *args, **kwargs):
         if check_orphan:
@@ -534,8 +631,6 @@ class EntityFilter(models.Model):  # CremeModel ???
     def get_edit_absolute_url(self):
         return reverse('creme_core__edit_efilter', args=(self.id,))
 
-    # TODO: move to a manager + rename (filter_...) + accept models
-    #       possible to separate into 2 methods (filter by user & filter by ct) ??
     @classmethod
     def get_for_user(cls, user, content_type=None):
         """Get the EntityFilter queryset corresponding of filters which a user can see.
@@ -544,6 +639,12 @@ class EntityFilter(models.Model):  # CremeModel ???
                A ContentType instance (means 'filters related to this CT').
                An iterable of ContentType instances (means 'filters related to these CT').
         """
+        warnings.warn(
+            'EntityFilter.get_for_user() is deprecated ; '
+            'use EntityFilter.objects.filter_by_user(...).filter(entity_type[__in]=...) instead.',
+            DeprecationWarning
+        )
+
         assert not user.is_team
 
         qs = cls.objects.filter(filter_type=EF_USER)
@@ -626,54 +727,17 @@ class EntityFilter(models.Model):  # CremeModel ???
 
         self._build_conditions_cache(conditions)
 
-    # TODO: in the manager ?
     @classmethod
     def get_latest_version(cls, base_pk):
         """Get the latest EntityFilter from the family which uses the 'base_pk'.
         @raises EntityFilter.DoesNotExist If there is none instance in this family
         """
-        efilters = [*cls.objects.filter(Q(pk=base_pk) | Q(pk__startswith=base_pk + '['))]
+        warnings.warn('EntityFilter.get_latest_version() is deprecated ; '
+                      'use EntityFilter.objects.get_latest_version() instead.',
+                      DeprecationWarning
+                     )
 
-        if not efilters:
-            raise cls.DoesNotExist('No EntityFilter with pk="{}"'.format(base_pk))
-
-        VERSION_RE = compile_re(
-            r'([\w,-]+)(\[(?P<version_num>\d[\d\.]+)( (?P<version_mod>alpha|beta|rc)(?P<version_modnum>\d+)?)?\](?P<copy_num>\d+)?)?$'
-        )
-
-        def key(efilter):
-            # We build a tuple which can easily compared with the other generated tuples.
-            # Example of PKs: 'base_pk' 'base_pk[1.15]' 'base_pk[1.15 alpha]'
-            #                 'base_pk[1.15 rc]' 'base_pk[1.15 rc11]' 'base_pk[1.15 rc11]2'
-            # eg: 'base_pk[1.15 rc11]2'
-            #   ==> we extract '1.15', 'aplha', '11' & '2' and build ((1, 15), 'rc', 11, 2)
-            search = VERSION_RE.search(efilter.pk)
-
-            if not search:
-                logger.critical('Malformed %s PK/version: %s', cls.__name__, efilter.pk)
-                return ((-1,),)
-
-            groupdict = search.groupdict()
-            version_num = groupdict['version_num']  # eg '1.5'
-            if not version_num:
-                return ((0,),)
-
-            version_num_tuple = tuple(int(x) for x in version_num.split('.'))
-
-            # '', alpha', 'beta' or 'rc' -> yeah, they are already alphabetically sorted.
-            version_mod = groupdict['version_mod'] or ''
-
-            version_modnum_str = groupdict['version_modnum']  # eg '11' in 'rc11'
-            version_modnum = int(version_modnum_str) if version_modnum_str else 1
-
-            copy_num_str = groupdict['copy_num']  # eg '11' in 'base_pk[1.5]11'
-            copy_num = int(copy_num_str) if copy_num_str else 0
-
-            return (version_num_tuple, version_mod, version_modnum, copy_num)
-
-        efilters.sort(key=key)
-
-        return efilters[-1]  # TODO: max()
+        return cls.objects.get_latest_version(base_pk)
 
     def get_verbose_conditions(self, user):
         "Generators of human-readable strings explaining the conditions."
@@ -701,7 +765,7 @@ class EntityFilterCondition(models.Model):
     type   = models.PositiveSmallIntegerField()  # NB: see core.entity_filter.condition_handler.FilterConditionHandler.type_id
     name   = models.CharField(max_length=100)
     value  = models.TextField()  # TODO: use a JSONField ?
-                                 # TODO: rename json_value + prperty "value" to encode/decode.
+                                 # TODO: rename json_value + property "value" to encode/decode.
 
     _handler = None  # Cache for FilterConditionHandler instance.
     _model = None

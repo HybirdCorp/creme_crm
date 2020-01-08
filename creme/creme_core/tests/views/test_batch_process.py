@@ -261,7 +261,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_select_efilter(self):
         self.login()
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Contains "club"',
             FakeOrganisation, is_custom=True,
             conditions=[
@@ -329,7 +329,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         orga02 = create_orga(name='Manga club')
         orga03 = create_orga(name='Anime club')
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Contains "club"',
             FakeOrganisation, is_custom=True,
             conditions=[
@@ -385,7 +385,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         "Private filters (which belong to other users) are forbidden."
         self.login()
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Contains "club"',
             FakeOrganisation, is_custom=True,
             is_private=True, user=self.other_user,
@@ -421,7 +421,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         orga02 = create_orga(name='Manga club')
         orga03 = create_orga(name='Anime club', user=self.other_user)
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Assigned to me',
             FakeOrganisation, is_custom=True,
             conditions=[
@@ -499,7 +499,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         user = self.login()
 
         description = 'Genshiken member'
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Belongs to Genshiken',
             FakeContact, is_custom=True,
             conditions=[
@@ -617,7 +617,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         orga02 = create_orga(name='Manga club')
         orga03 = create_orga(name='Anime club')
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Contains "club"', FakeOrganisation, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
@@ -676,9 +676,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     def test_fatalerror(self):
         self.login()
 
-        efilter = EntityFilter.create('test-filter01', 'Contains "club"',
-                                      FakeOrganisation, is_custom=True,
-                                     )
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter01', 'Contains "club"', FakeOrganisation, is_custom=True,
+        )
         response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
                                     data={'filter':  efilter.id,
                                           'actions': self.build_formfield_value(

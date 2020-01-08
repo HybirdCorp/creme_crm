@@ -57,7 +57,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
         "Model is EntityFilter."
         user = self.login()
 
-        create_filter = models.EntityFilter.create
+        create_filter = models.EntityFilter.objects.smart_update_or_create
         build_cond = RegularFieldConditionHandler.build_condition
         efilter1 = create_filter(
             'test-filter01',

@@ -155,13 +155,16 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         pattern = self._create_pattern()
         name = 'Called contacts'
         ct = ContentType.objects.get_for_model(FakeContact)
-        efilter = EntityFilter.create('test-filter01', 'Ninja', FakeContact, is_custom=True)
-        response = self.client.post(self._build_addcomp_url(pattern),
-                                    data={'name':            name,
-                                          'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
-                                          'success_rate':    15,
-                                         },
-                                   )
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter01', 'Ninja', FakeContact, is_custom=True,
+        )
+        response = self.client.post(
+            self._build_addcomp_url(pattern),
+            data={'name':            name,
+                  'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
+                  'success_rate':    15,
+                 },
+        )
         self.assertNoFormError(response)
 
         with self.assertNoException():
@@ -394,7 +397,9 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         ct_contact = ContentType.objects.get_for_model(FakeContact)
         ct_orga    = ContentType.objects.get_for_model(FakeOrganisation)
-        efilter = EntityFilter.create('test-filter01', 'Ninja', FakeContact, is_custom=True)
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter01', 'Ninja', FakeContact, is_custom=True,
+        )
 
         create_comp = partial(ActObjectivePatternComponent.objects.create,
                               pattern=pattern, success_rate=1,

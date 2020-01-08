@@ -111,7 +111,9 @@ class Populator(BasePopulator):
         create_sv(key_id=setting_keys.emitter_constraint_key.id, defaults={'value': True})
 
         # ---------------------------
-        create_efilter = partial(EntityFilter.create, model=Opportunity, user='admin')
+        create_efilter = partial(EntityFilter.objects.smart_update_or_create,
+                                 model=Opportunity, user='admin',
+                                )
         build_cond = partial(condition_handler.RegularFieldConditionHandler.build_condition,
                              model=Opportunity,
                             )

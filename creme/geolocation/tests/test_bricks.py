@@ -25,7 +25,7 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         self.organisations_title = str(Organisation._meta.verbose_name_plural)
 
     def create_filter(self, pk, name, owner, model, field, operator, *values):
-        return EntityFilter.create(
+        return EntityFilter.objects.smart_update_or_create(
             pk, name, model=model,
             user=owner,
             is_private=True, is_custom=True,

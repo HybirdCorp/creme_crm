@@ -118,7 +118,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         )
 
         # Set a filter in the session (should be kept)
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'creme_core-tests_views_header_filter_test_create02',
             name='Misato', model=FakeContact,
             is_custom=True,
