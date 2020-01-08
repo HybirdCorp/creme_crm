@@ -274,6 +274,7 @@ class EventsTestCase(CremeTestCase):
 
         url = self._build_invitation_url(event, casca)
         self.assertPOST404(url, data={'status': 'not_an_int'})
+        self.assertGET405(url, data={'status': constants.INV_STATUS_NO_ANSWER})
         self.assertPOST200(url, data={'status': constants.INV_STATUS_NO_ANSWER})
 
         stats = event.get_stats()
