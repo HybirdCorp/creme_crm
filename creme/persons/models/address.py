@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -90,7 +90,7 @@ class AbstractAddress(CremeModel):
 
     @classmethod
     def info_field_names(cls):
-        is_field_hidden = FieldsConfig.get_4_model(cls).is_field_hidden
+        is_field_hidden = FieldsConfig.objects.get_for_model(cls).is_field_hidden
         excluded = {'id', 'content_type', 'object'}  # TODO: just exclude not viewable ?
         return tuple(f.name
                         for f in cls._meta.fields

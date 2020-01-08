@@ -170,12 +170,13 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
         )
 
     def test_current_year05(self):
-        "closing_date is hidden"
+        "closing_date is hidden."
         user = self.login()
 
-        FieldsConfig.create(Opportunity,
-                            descriptions=[('closing_date', {FieldsConfig.HIDDEN: True})]
-                           )
+        FieldsConfig.objects.create(
+            content_type=Opportunity,
+            descriptions=[('closing_date', {FieldsConfig.HIDDEN: True})],
+        )
 
         create_orga = partial(Organisation.objects.create, user=user)
         emitter = create_orga(name='Emitter', is_managed=True)
@@ -189,7 +190,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
                                    emitter=emitter, target=target,
                                   )
 
-        self.assertEqual(
+        self.assertListEqual(
             [_('The field «Actual closing date» is hidden ; these statistics are not available.')],
             CurrentYearStatistics(Opportunity, Organisation)()
         )

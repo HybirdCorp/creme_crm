@@ -298,11 +298,13 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         model = FakeContact
         hidden_fname1 = 'description'
         hidden_fname2 = 'position'
-        FieldsConfig.create(model,
-                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
-                                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
-                                         ]
-                           )
+        FieldsConfig.objects.create(
+            content_type=model,
+            descriptions=[
+                (hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+            ]
+        )
         sci = SearchConfigItem.create_if_needed(model, fields=['first_name'])
 
         response = self.assertGET200(self._build_edit_url(sci))
@@ -328,14 +330,15 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                                                 fields=['first_name',
                                                         hidden_fname1,
                                                         hidden_sub_fname2,
-                                                       ]
+                                                       ],
                                                )
 
-        FieldsConfig.create(model,
-                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
-                                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
-                                         ]
-                           )
+        FieldsConfig.objects.create(
+            content_type=model,
+            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
 
         response = self.assertGET200(self._build_edit_url(sci))
 

@@ -323,9 +323,10 @@ class MailingListsTestCase(_EmailsTestCase):
         user = self.login()
         mlist = MailingList.objects.create(user=user, name='ml01')
 
-        FieldsConfig.create(Contact,
-                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+        )
         self.assertGET409(self._build_addcontact_url(mlist))
 
     def test_ml_contacts03(self):
@@ -410,9 +411,10 @@ class MailingListsTestCase(_EmailsTestCase):
         "'email' is hidden."
         user = self.login()
         mlist = MailingList.objects.create(user=user, name='ml01')
-        FieldsConfig.create(Contact,
-                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+        )
         self.assertGET409(self._build_addcontactfilter_url(mlist))
 
     def test_ml_contacts_filter04(self):
@@ -487,9 +489,10 @@ class MailingListsTestCase(_EmailsTestCase):
         user = self.login()
         mlist = MailingList.objects.create(user=user, name='ml01')
 
-        FieldsConfig.create(Organisation,
-                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Organisation,
+            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+        )
         self.assertGET409(self._build_addorga_url(mlist))
 
     def test_ml_orgas03(self):
@@ -572,9 +575,10 @@ class MailingListsTestCase(_EmailsTestCase):
         user = self.login()
         mlist = MailingList.objects.create(user=user, name='ml01')
 
-        FieldsConfig.create(Organisation,
-                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Organisation,
+            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+        )
         self.assertGET409(self._build_addorgafilter_url(mlist))
 
     def test_ml_orgas_filter04(self):

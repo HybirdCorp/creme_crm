@@ -20,7 +20,7 @@ class FieldsConfigTestCase(CremeTestCase):
         super().setUp()
         set_global_info(per_request_cache={})
 
-    def test_create01(self):
+    def test_create(self):  # DEPRECATED
         h_field1 = 'phone'
         h_field2 = 'mobile'
         fconf = FieldsConfig.create(FakeContact,
@@ -38,43 +38,7 @@ class FieldsConfigTestCase(CremeTestCase):
 
         self.assertEqual(2, len(fconf.descriptions))
 
-    def test_create_errors_01(self):
-        "Invalid field: ignored"
-        h_field = 'phone'
-        fconf = FieldsConfig.create(FakeContact,
-                                    descriptions=[(h_field,   {FieldsConfig.HIDDEN: True}),
-                                                  ('invalid', {FieldsConfig.HIDDEN: True}),
-                                                 ],
-                                   )
-
-        self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
-        self.assertEqual(1, len(fconf.descriptions))
-
-    def test_create_errors_02(self):
-        "Field is not optional: ignored"
-        h_field = 'phone'
-        fconf = FieldsConfig.create(FakeContact,
-                                    descriptions=[(h_field,     {FieldsConfig.HIDDEN: True}),
-                                                  ('last_name', {FieldsConfig.HIDDEN: True}),
-                                                 ],
-                                   )
-
-        self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
-        self.assertEqual(1, len(fconf.descriptions))
-
-    def test_create_errors_03(self):
-        "Invalid attribute name"
-        with self.assertRaises(FieldsConfig.InvalidAttribute):
-            FieldsConfig.create(FakeContact, descriptions=[('phone', {'invalid': True})])
-
-    def test_create_errors_04(self):
-        "Invalid attribute value"
-        with self.assertRaises(FieldsConfig.InvalidAttribute):
-            FieldsConfig.create(FakeContact,
-                                descriptions=[('phone', {FieldsConfig.HIDDEN: 5})],
-                               )
-
-    def test_create_errors_05(self):
+    def test_create_errors(self):  # DEPRECATED
         "Invalid model."
         is_valid = FieldsConfig.is_model_valid
         self.assertTrue(is_valid(FakeContact))
@@ -90,7 +54,82 @@ class FieldsConfigTestCase(CremeTestCase):
         with self.assertRaises(FieldsConfig.InvalidModel):
             create_fc(FakeSector)
 
-    def test_get_4_model01(self):
+    def test_manager_create(self):
+        h_field1 = 'phone'
+        h_field2 = 'mobile'
+        fconf = FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(h_field1, {FieldsConfig.HIDDEN: True}),
+                          (h_field2, {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
+        self.assertIsInstance(fconf, FieldsConfig)
+
+        fconf = self.refresh(fconf)
+        get_field = FakeContact._meta.get_field
+        self.assertFalse(fconf.is_field_hidden(get_field('last_name')))
+        self.assertTrue(fconf.is_field_hidden(get_field(h_field1)))
+        self.assertTrue(fconf.is_field_hidden(get_field(h_field2)))
+
+        self.assertEqual(2, len(fconf.descriptions))
+
+    def test_manager_create_errors_01(self):
+        "Invalid field: ignored."
+        h_field = 'phone'
+        fconf = FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(h_field,   {FieldsConfig.HIDDEN: True}),
+                          ('invalid', {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
+
+        self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
+        self.assertEqual(1, len(fconf.descriptions))
+
+    def test_manager_create_errors_02(self):
+        "Field is not optional: ignored."
+        h_field = 'phone'
+        fconf = FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(h_field,     {FieldsConfig.HIDDEN: True}),
+                          ('last_name', {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
+
+        self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
+        self.assertEqual(1, len(fconf.descriptions))
+
+    def test_manager_create_errors_03(self):
+        "Invalid attribute name."
+        with self.assertRaises(FieldsConfig.InvalidAttribute):
+            FieldsConfig.objects.create(
+                content_type=FakeContact,
+                descriptions=[('phone', {'invalid': True})],
+            )
+
+    def test_manager_create_errors_04(self):
+        "Invalid attribute value."
+        with self.assertRaises(FieldsConfig.InvalidAttribute):
+            FieldsConfig.objects.create(
+                content_type=FakeContact,
+                descriptions=[('phone', {FieldsConfig.HIDDEN: 5})],
+            )
+
+    def test_manager_create_errors_05(self):
+        "Invalid model."
+        is_valid = FieldsConfig.objects.is_model_valid
+        self.assertTrue(is_valid(FakeContact))
+        self.assertFalse(is_valid(FakeCivility))  # No optional field
+        self.assertFalse(is_valid(FakeSector))    # Idem
+
+        create_fc = FieldsConfig.objects.create
+        with self.assertRaises(FieldsConfig.InvalidModel):
+            create_fc(content_type=FakeCivility)
+
+        with self.assertRaises(FieldsConfig.InvalidModel):
+            create_fc(content_type=FakeSector)
+
+    def test_get_4_model(self):  # DEPRECATED
         model = FakeContact
         h_field1 = 'phone'
         h_field2 = 'mobile'
@@ -108,43 +147,66 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertTrue(is_hidden(h_field2))
         self.assertFalse(is_hidden('description'))
 
-        with self.assertNumQueries(0): # cache
+        with self.assertNumQueries(0):  # Cache
             FieldsConfig.get_4_model(model)
 
-    def test_get_4_model02(self):
+    def test_manager_get_for_model01(self):
+        model = FakeContact
+        h_field1 = 'phone'
+        h_field2 = 'mobile'
+        FieldsConfig.objects.create(
+            content_type=model,
+            descriptions=[(h_field1, {FieldsConfig.HIDDEN: True}),
+                          (h_field2, {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
+
+        with self.assertNumQueries(1):
+            fc = FieldsConfig.objects.get_for_model(model)
+
+        is_hidden = fc.is_fieldname_hidden
+        self.assertTrue(is_hidden(h_field1))
+        self.assertTrue(is_hidden(h_field2))
+        self.assertFalse(is_hidden('description'))
+
+        with self.assertNumQueries(0):  # Cache
+            FieldsConfig.objects.get_for_model(model)
+
+    def test_manager_get_for_model02(self):
         "No query for model which cannot be registered."
         ContentType.objects.get_for_model(FakeCivility)  # Fill cache if needed
 
         with self.assertNumQueries(0):
-            fc = FieldsConfig.get_4_model(FakeCivility)
+            fc = FieldsConfig.objects.get_for_model(FakeCivility)
 
         self.assertFalse([*fc.hidden_fields])
 
-    def test_get_4_model03(self):
+    def test_manager_get_for_model03(self):
         "Cache not created."
         model = FakeContact
-        FieldsConfig.create(model,
-                            descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=model,
+            descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
+        )
 
         set_global_info(per_request_cache=None)
 
         with self.assertNumQueries(1):
-            FieldsConfig.get_4_model(model)
+            FieldsConfig.objects.get_for_model(model)
 
         with self.assertNumQueries(0):
-            FieldsConfig.get_4_model(model)
+            FieldsConfig.objects.get_for_model(model)
 
-    def test_get_4_models(self):
+    def test_get_4_models(self):  # DEPRECATED
         model1 = FakeContact
         model2 = FakeOrganisation
 
         h_field1 = 'phone'
         h_field2 = 'url_site'
 
-        create_fc = FieldsConfig.create
-        create_fc(model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
-        create_fc(model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
+        create_fc = FieldsConfig.objects.create
+        create_fc(content_type=model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
+        create_fc(content_type=model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
 
         with self.assertNumQueries(1):
             fconfigs = FieldsConfig.get_4_models([model1, model2])
@@ -165,12 +227,52 @@ class FieldsConfigTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             FieldsConfig.get_4_model(model1)
 
+    def test_manager_get_for_models(self):
+        model1 = FakeContact
+        model2 = FakeOrganisation
+
+        h_field1 = 'phone'
+        h_field2 = 'url_site'
+
+        create_fc = FieldsConfig.objects.create
+        create_fc(content_type=model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
+        create_fc(content_type=model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
+
+        with self.assertNumQueries(1):
+            fconfigs = FieldsConfig.objects.get_for_models([model1, model2])
+
+        self.assertIsInstance(fconfigs, dict)
+        self.assertEqual(2, len(fconfigs))
+
+        fc1 = fconfigs.get(model1)
+        self.assertIsInstance(fc1, FieldsConfig)
+        self.assertEqual(model1, fc1.content_type.model_class())
+        self.assertTrue(fc1.is_fieldname_hidden(h_field1))
+
+        self.assertTrue(fconfigs.get(model2).is_fieldname_hidden(h_field2))
+
+        with self.assertNumQueries(0):
+            FieldsConfig.objects.get_for_models([model1, model2])
+
+        with self.assertNumQueries(0):
+            FieldsConfig.objects.get_for_model(model1)
+
+    def test_manager_is_model_valid(self):
+        is_valid = FieldsConfig.objects.is_model_valid
+        self.assertTrue(is_valid(FakeContact))
+        self.assertTrue(is_valid(FakeOrganisation))
+        self.assertTrue(is_valid(FakeAddress))
+        self.assertFalse(is_valid(FakeCivility))  # No optional field
+        self.assertFalse(is_valid(FakeSector))    # Idem
+
     def _create_contact_conf(self):
-        FieldsConfig.create(FakeContact,
-                            descriptions=[('phone',  {FieldsConfig.HIDDEN: True}),
-                                          ('mobile', {FieldsConfig.HIDDEN: True}),
-                                         ],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[
+                ('phone',  {FieldsConfig.HIDDEN: True}),
+                ('mobile', {FieldsConfig.HIDDEN: True}),
+            ],
+        )
 
     def test_form_update01(self):
         user = self.login()
@@ -266,9 +368,10 @@ class FieldsConfigTestCase(CremeTestCase):
         model = FakeContact
         ContentType.objects.get_for_model(model)  # Ensure that ContentType is filled
 
-        fconf = FieldsConfig.create(model,
-                                    descriptions=[('last_name', {FieldsConfig.HIDDEN: True})],
-                                   )
+        fconf = FieldsConfig.objects.create(
+            content_type=model,
+            descriptions=[('last_name', {FieldsConfig.HIDDEN: True})],
+        )
         fconf = self.refresh(fconf)
 
         with self.assertNumQueries(0):
@@ -283,9 +386,9 @@ class FieldsConfigTestCase(CremeTestCase):
         h_field1 = 'phone'
         h_field2 = 'url_site'
 
-        create_fc = FieldsConfig.create
-        create_fc(model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
-        create_fc(model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
+        create_fc = FieldsConfig.objects.create
+        create_fc(content_type=model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
+        create_fc(content_type=model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
 
         lc = FieldsConfig.LocalCache()
 
@@ -311,9 +414,9 @@ class FieldsConfigTestCase(CremeTestCase):
         h_field1 = 'phone'
         h_field2 = 'url_site'
 
-        create_fc = FieldsConfig.create
-        create_fc(model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
-        create_fc(model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
+        create_fc = FieldsConfig.objects.create
+        create_fc(content_type=model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
+        create_fc(content_type=model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
 
         lc = FieldsConfig.LocalCache()
         fconfigs = lc.get_4_models([model1, model2])

@@ -625,7 +625,10 @@ class MergeViewsTestCase(ViewsTestCase):
         user = self.login()
 
         hidden_fname = 'phone'
-        FieldsConfig.create(FakeContact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
 
         create_contact = partial(FakeContact.objects.create, user=user)
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka')

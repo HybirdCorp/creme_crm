@@ -1322,7 +1322,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         user = self.login()
 
         hidden_fname = 'phone'
-        FieldsConfig.create(FakeContact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
 
         rei_info = {'first_name': 'Rei', 'last_name': 'Ayanami',
                     hidden_fname: '111111', 'email': 'rei.ayanami@nerv.jp',

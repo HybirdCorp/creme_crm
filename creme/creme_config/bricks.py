@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,14 +29,18 @@ from django.db.models import Count
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.core import setting_key
-from creme.creme_core.gui.bricks import (Brick, PaginatedBrick, QuerysetBrick,
-        brick_registry, BricksManager)
-from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingValue,
-        CremePropertyType, RelationType, SemiFixedRelationType, FieldsConfig,
-        CustomField, CustomFieldEnumValue,
-        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
-        RelationBrickItem, InstanceBrickConfigItem, CustomBrickConfigItem,
-        ButtonMenuItem, SearchConfigItem, HistoryConfigItem)
+from creme.creme_core.gui.bricks import (
+    Brick, PaginatedBrick, QuerysetBrick,
+    brick_registry, BricksManager,
+)
+from creme.creme_core.models import (
+    CremeModel, CremeEntity, UserRole, SettingValue,
+    CremePropertyType, RelationType, SemiFixedRelationType, FieldsConfig,
+    CustomField, CustomFieldEnumValue,
+    BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
+    RelationBrickItem, InstanceBrickConfigItem, CustomBrickConfigItem,
+    ButtonMenuItem, SearchConfigItem, HistoryConfigItem,
+)
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.utils.unicode_collation import collator
@@ -213,9 +217,10 @@ class FieldsConfigsBrick(PaginatedBrick):
         used_models = {fconf.content_type.model_class() for fconf in fconfigs}
         btc = self.get_template_context(
             context, fconfigs,
-            display_add_button=any(model not in used_models
-                                       for model in filter(FieldsConfig.is_model_valid, apps.get_models())
-                                  ),
+            display_add_button=any(
+                model not in used_models
+                    for model in filter(FieldsConfig.objects.is_model_valid, apps.get_models())
+            ),
         )
 
         for fconf in btc['page'].object_list:

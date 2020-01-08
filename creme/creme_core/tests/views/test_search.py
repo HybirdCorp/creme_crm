@@ -256,11 +256,12 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         alan   = create_contact(first_name='Alan',   last_name='Cox',      description="Linus' friend")
         andrew = create_contact(first_name='Andrew', last_name='Morton',   sector=sector)
 
-        FieldsConfig.create(FakeContact,
-                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
-                                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
-                                         ]
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
 
         response = self._search('Linu', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
@@ -275,14 +276,15 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotContains(response, _('Sector'))
 
     def test_search11(self):
-        "With FieldsConfig: all fields are hidden"
+        "With FieldsConfig: all fields are hidden."
         self.login()
 
         hidden_fname = 'description'
         SearchConfigItem.create_if_needed(FakeContact, [hidden_fname])
-        FieldsConfig.create(FakeContact,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})]
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
         self._build_contacts()
 
         response = self._search('Cool', self.contact_ct_id)
@@ -297,7 +299,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
                            )
 
     def test_search12(self):
-        "Model is not a CremeEntity"
+        "Model is not a CremeEntity."
         self.login()
 
         response = self._search('john', ContentType.objects.get_for_model(ContentType).id)

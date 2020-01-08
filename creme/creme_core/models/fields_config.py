@@ -21,9 +21,10 @@
 from functools import partial
 from json import loads as json_load
 import logging
+import warnings
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import TextField, FieldDoesNotExist
+from django.db.models import TextField, FieldDoesNotExist, Manager
 from django.utils.translation import gettext_lazy as _, gettext
 
 from ..core.entity_cell import EntityCellRegularField
@@ -36,9 +37,61 @@ from .fields import CTypeOneToOneField
 logger = logging.getLogger(__name__)
 
 
+class FieldsConfigManager(Manager):
+    def field_enumerator(self, model):
+        from ..utils.meta import ModelFieldEnumerator
+
+        return ModelFieldEnumerator(
+            model, deep=0, only_leafs=False,
+        ).filter(viewable=True, optional=True)
+
+    def get_for_model(self, model):
+        return self.get_for_models((model,))[model]
+
+    def get_for_models(self, models):
+        result = {}
+        get_ct = ContentType.objects.get_for_model
+        cache_key_fmt = 'creme_core-fields_config-{}'.format
+        not_cached_ctypes = []
+
+        cache = get_per_request_cache()
+
+        # Step 1: fill 'result' with cached configs
+        for model in models:
+            ct = get_ct(model)
+            fc = cache.get(cache_key_fmt(ct.id))
+
+            if fc is None:
+                if self.is_model_valid(model):  # Avoid useless queries
+                    not_cached_ctypes.append(ct)
+            else:
+                result[model] = fc
+
+        # Step 2: fill 'result' with configs in DB
+        for fc in self.filter(content_type__in=not_cached_ctypes):
+            ct = fc.content_type
+            result[ct.model_class()] = cache[cache_key_fmt(ct.id)] = fc
+
+        # Step 3: fill 'result' with empty configs for remaining models
+        for model in models:
+            if model not in result:
+                ct = get_ct(model)
+                result[model] = cache[cache_key_fmt(ct.id)] = self.model(
+                    content_type=ct,
+                    descriptions=(),
+                )
+
+        return result
+
+    def is_model_valid(self, model):
+        return any(self.field_enumerator(model))
+
+
 class FieldsConfig(CremeModel):
     content_type     = CTypeOneToOneField(editable=False, primary_key=True)  # verbose_name=_('Related type')
     raw_descriptions = TextField(editable=False)  # TODO: JSONField ?
+
+    objects = FieldsConfigManager()
 
     creation_label = _('Create a fields configuration')
     save_label     = _('Save the configuration')
@@ -62,10 +115,10 @@ class FieldsConfig(CremeModel):
         def __init__(self):
             self._configs = {}
 
-        def get_4_model(self, model):
+        def get_4_model(self, model):  # TODO: rename get_for_model
             return self.get_4_models((model,))[model]
 
-        def get_4_models(self, models):
+        def get_4_models(self, models):  # TODO: rename get_for_models
             result = {}
             configs = self._configs
             missing_models = []
@@ -78,7 +131,7 @@ class FieldsConfig(CremeModel):
                 else:
                     result[model] = fconf
 
-            retrieved_configs = FieldsConfig.get_4_models(missing_models)
+            retrieved_configs = FieldsConfig.objects.get_for_models(missing_models)
             configs.update(retrieved_configs)
             result.update(retrieved_configs)
 
@@ -135,9 +188,11 @@ class FieldsConfig(CremeModel):
         return errors, safe_descriptions
 
     @classmethod
-    def create(cls, model, descriptions=()):  # TODO: in a manager ?
-        if not cls.is_model_valid(model):
-            raise cls.InvalidModel("This model cannot have a FieldsConfig")
+    def create(cls, model, descriptions=()):
+        warnings.warn('FieldsConfig.create() is deprecated ; '
+                      'use FieldsConfig.objects.create() instead.',
+                      DeprecationWarning
+                     )
 
         return cls.objects.create(content_type=model, descriptions=descriptions)
 
@@ -174,7 +229,7 @@ class FieldsConfig(CremeModel):
         """Are some hidden fields needed ?
         @return List of unicode strings.
         """
-        # TODO: would be better to pas the registry as argument
+        # TODO: pass the registry as argument/store it in an (class?) attribute
         from ..gui.fields_config import fields_config_registry
 
         get_apps = partial(fields_config_registry.get_needing_apps,
@@ -199,11 +254,16 @@ class FieldsConfig(CremeModel):
 
         return excluded
 
-    @staticmethod
-    def field_enumerator(model):
-        from ..utils.meta import ModelFieldEnumerator
+    # @staticmethod
+    # def field_enumerator(model):
+    @classmethod
+    def field_enumerator(cls, model):
+        warnings.warn('FieldsConfig.field_enumerator() is deprecated ; '
+                      'use FieldsConfig.objects.field_enumerator() instead.',
+                      DeprecationWarning
+                     )
 
-        return ModelFieldEnumerator(model, deep=0, only_leafs=False).filter(viewable=True, optional=True)
+        return cls.objects.field_enumerator(model)
 
     @classmethod
     def filter_cells(cls, model, cells):
@@ -218,47 +278,23 @@ class FieldsConfig(CremeModel):
                not fconfigs.is_fieldinfo_hidden(model, cell.field_info):
                 yield cell
 
-    # TODO: in a manager ?
     @classmethod
     def get_4_model(cls, model):
-        return cls.get_4_models((model,))[model]
+        warnings.warn('FieldsConfig.get_4_model() is deprecated ; '
+                      'use FieldsConfig.objects.get_for_model() instead.',
+                      DeprecationWarning
+                     )
 
-    # TODO: in a manager ?
+        return cls.objects.get_for_model(model)
+
     @classmethod
     def get_4_models(cls, models):
-        result = {}
-        get_ct = ContentType.objects.get_for_model
-        cache_key_fmt = 'creme_core-fields_config-{}'.format
-        not_cached_ctypes = []
+        warnings.warn('FieldsConfig.get_4_models() is deprecated ; '
+                      'use FieldsConfig.objects.get_for_models() instead.',
+                      DeprecationWarning
+                     )
 
-        cache = get_per_request_cache()
-
-        # Step 1: fill 'result' with cached configs
-        for model in models:
-            ct = get_ct(model)
-            fc = cache.get(cache_key_fmt(ct.id))
-
-            if fc is None:
-                if cls.is_model_valid(model):  # Avoid useless queries
-                    not_cached_ctypes.append(ct)
-            else:
-                result[model] = fc
-
-        # Step 2: fill 'result' with configs in DB
-        for fc in cls.objects.filter(content_type__in=not_cached_ctypes):
-            ct = fc.content_type
-            result[ct.model_class()] = cache[cache_key_fmt(ct.id)] = fc
-
-        # Step 3: fill 'result' with empty configs for remaining models
-        for model in models:
-            if model not in result:
-                ct = get_ct(model)
-                result[model] = cache[cache_key_fmt(ct.id)] = cls(
-                    content_type=ct,
-                    descriptions=(),
-                )
-
-        return result
+        return cls.objects.get_for_models(models)
 
     @property
     def hidden_fields(self):
@@ -281,7 +317,18 @@ class FieldsConfig(CremeModel):
 
     @classmethod
     def is_model_valid(cls, model):
-        return any(cls.field_enumerator(model))
+        warnings.warn('FieldsConfig.is_model_valid() is deprecated ; '
+                      'use FieldsConfig.objects.is_model_valid() instead.',
+                      DeprecationWarning
+                     )
+
+        return cls.objects.is_model_valid(model)
+
+    def save(self, *args, **kwargs):
+        if not type(self).objects.is_model_valid(self.content_type.model_class()):
+            raise self.InvalidModel("This model cannot have a FieldsConfig")
+
+        super().save(*args, **kwargs)
 
     def update_form_fields(self, form_fields):
         for field_name in self._get_hidden_field_names():

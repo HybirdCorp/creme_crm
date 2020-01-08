@@ -670,9 +670,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def test_fields_config01(self):
         hidden_fname = 'description'
 
-        create_fc = FieldsConfig.create
-        create_fc(FakeContact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
-        create_fc(FakeImage,   descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
+        create_fc = FieldsConfig.objects.create
+        create_fc(content_type=FakeContact,
+                  descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+                 )
+        create_fc(content_type=FakeImage,
+                  descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+                 )
 
         clean = RegularFieldsConditionsField(model=FakeContact,
                                              efilter_registry=efilter_registry,
@@ -708,7 +712,10 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_fields_config02(self):
         "FK hidden => sub-fields hidden."
-        FieldsConfig.create(FakeContact, descriptions=[('image', {FieldsConfig.HIDDEN: True})])
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[('image', {FieldsConfig.HIDDEN: True})],
+        )
         field = RegularFieldsConditionsField(model=FakeContact, efilter_registry=efilter_registry)
 
         err = self.assertFieldRaises(ValidationError,
@@ -724,9 +731,10 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def test_fields_config03(self):
         "Field is already used => still proposed."
         hidden_fname = 'description'
-        FieldsConfig.create(FakeContact,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
 
         field = RegularFieldsConditionsField(efilter_registry=efilter_registry)
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact),
@@ -754,9 +762,10 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def test_fields_config04(self):
         "Sub-field is already used => still proposed"
         hidden_sfname = 'image__description'
-        FieldsConfig.create(FakeImage,
-                            descriptions=[('description', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeImage,
+            descriptions=[('description', {FieldsConfig.HIDDEN: True})],
+        )
 
         field = RegularFieldsConditionsField(efilter_registry=efilter_registry)
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact),
@@ -786,9 +795,10 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def test_fields_config05(self):
         "Sub-field is already used => still proposed (FK hidden)"
         hidden_sfname = 'image__description'
-        FieldsConfig.create(FakeContact,
-                            descriptions=[('image', {FieldsConfig.HIDDEN: True})]
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[('image', {FieldsConfig.HIDDEN: True})]
+        )
 
         field = RegularFieldsConditionsField(efilter_registry=efilter_registry)
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact),
@@ -818,9 +828,10 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def test_fields_config06(self):
         "Field (ForeignKey) is already used => still proposed."
         hidden_fname = 'position'
-        FieldsConfig.create(FakeContact,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
 
         position = FakePosition.objects.all()[0]
         field = RegularFieldsConditionsField(efilter_registry=efilter_registry)
@@ -988,9 +999,10 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
     def test_fields_config01(self):
         valid_fname  = 'issuing_date'
         hidden_fname = 'expiration_date'
-        FieldsConfig.create(FakeInvoice,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeInvoice,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
 
         field = DateFieldsConditionsField()
         field.initialize(ctype=ContentType.objects.get_for_model(FakeInvoice))
@@ -1018,9 +1030,10 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
     def test_fields_config02(self):
         "Sub-fields."
         hidden_fname = 'expiration_date'
-        FieldsConfig.create(FakeInvoice,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeInvoice,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
 
         valid_fname = 'linked_invoice__issuing_date'
 
@@ -1050,9 +1063,10 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
     def test_fields_config03(self):
         "FK hidden => sub-fields hidden."
         hidden_fname = 'exif_date'
-        FieldsConfig.create(FakeImage,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeImage,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
         err = self.assertFieldRaises(
             ValidationError,
             DateFieldsConditionsField(model=FakeContact).clean,
@@ -1068,9 +1082,10 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
     def test_fields_config04(self):
         "Field is already used => still proposed."
         hidden_fname = 'birthday'
-        FieldsConfig.create(FakeContact,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
 
         field = DateFieldsConditionsField()
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact),
@@ -1098,9 +1113,10 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
     def test_fields_config05(self):
         "Sub-field is already used => still proposed."
         hidden_sfname = 'image__exif_date'
-        FieldsConfig.create(FakeImage,
-                            descriptions=[('exif_date', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeImage,
+            descriptions=[('exif_date', {FieldsConfig.HIDDEN: True})],
+        )
 
         field = DateFieldsConditionsField()
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact),
@@ -1128,9 +1144,10 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
     def test_fields_config06(self):
         "Sub-field is already used => still proposed (FK hidden)"
         hidden_sfname = 'image__exif_date'
-        FieldsConfig.create(FakeContact,
-                            descriptions=[('image', {FieldsConfig.HIDDEN: True})]
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[('image', {FieldsConfig.HIDDEN: True})]
+        )
 
         field = DateFieldsConditionsField()
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact),

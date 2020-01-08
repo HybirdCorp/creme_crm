@@ -112,8 +112,8 @@ class CremeModelFormTestCase(CremeTestCase):
     def test_fields_config(self):
         user = self.login()
 
-        FieldsConfig.create(
-            FakeAddress,
+        FieldsConfig.objects.create(
+            content_type=FakeAddress,
             descriptions=[('department', {FieldsConfig.HIDDEN: True})],
         )
 

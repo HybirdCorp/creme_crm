@@ -713,11 +713,12 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         report = self._create_simple_organisations_report()
 
         hidden_fname1 = 'sector'
-        FieldsConfig.create(FakeOrganisation,
-                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
-                                          ('capital',     {FieldsConfig.HIDDEN: True}),
-                                         ],
-                            )
+        FieldsConfig.objects.create(
+            content_type=FakeOrganisation,
+            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                          ('capital',     {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
 
         response = self.assertGET200(self._build_add_graph_url(report))
 
@@ -826,11 +827,12 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rgraph = self._create_invoice_report_n_graph(ordinate='total_vat__sum')
 
         hidden_fname1 = 'expiration_date'
-        FieldsConfig.create(FakeInvoice,
-                            descriptions=[(hidden_fname1,  {FieldsConfig.HIDDEN: True}),
-                                          ('total_no_vat', {FieldsConfig.HIDDEN: True}),
-                                         ]
-                            )
+        FieldsConfig.objects.create(
+            content_type=FakeInvoice,
+            descriptions=[(hidden_fname1,  {FieldsConfig.HIDDEN: True}),
+                          ('total_no_vat', {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
 
         response = self.assertGET200(self._build_edit_url(rgraph))
 
@@ -856,9 +858,10 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         hidden_fname = 'expiration_date'
         rgraph = self._create_invoice_report_n_graph(abscissa=hidden_fname)
 
-        FieldsConfig.create(FakeInvoice,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                            )
+        FieldsConfig.objects.create(
+            content_type=FakeInvoice,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
 
         url = self._build_edit_url(rgraph)
         response = self.assertGET200(url)
@@ -899,9 +902,10 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         hidden_fname = 'total_no_vat'
         rgraph = self._create_invoice_report_n_graph(ordinate=hidden_fname + '__sum')
 
-        FieldsConfig.create(FakeInvoice,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                            )
+        FieldsConfig.objects.create(
+            content_type=FakeInvoice,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
 
         response = self.assertGET200(self._build_edit_url(rgraph))
 

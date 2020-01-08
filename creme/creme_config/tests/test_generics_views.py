@@ -972,8 +972,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             SET_NULL
         )
 
-        FieldsConfig.create(
-            FakeContact,
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
             descriptions=[('position', {FieldsConfig.HIDDEN: True})],
         )
 
@@ -1014,8 +1014,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_delete_hiddenfields02(self):
         "SET."
-        FieldsConfig.create(
-            FakeTicket,
+        FieldsConfig.objects.create(
+            content_type=FakeTicket,
             descriptions=[('priority', {FieldsConfig.HIDDEN: True})],
         )
 
@@ -1039,8 +1039,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_delete_hiddenfields03(self):
         "SET_DEFAULT."
-        FieldsConfig.create(
-            FakeTicket,
+        FieldsConfig.objects.create(
+            content_type=FakeTicket,
             descriptions=[('status', {FieldsConfig.HIDDEN: True})],
         )
 
@@ -1067,8 +1067,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_delete_hiddenfields04(self):
         "CASCADE."
-        FieldsConfig.create(
-            FakeProduct,
+        FieldsConfig.objects.create(
+            content_type=FakeProduct,
             descriptions=[('type', {FieldsConfig.HIDDEN: True})],
         )
 
@@ -1112,8 +1112,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_delete_hiddenfields05(self):
         "PROTECT + no related entity."
-        FieldsConfig.create(
-            FakeActivity,
+        FieldsConfig.objects.create(
+            content_type=FakeActivity,
             descriptions=[('type', {FieldsConfig.HIDDEN: True})],
         )
 
@@ -1137,8 +1137,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_delete_hiddenfields06(self):
         "PROTECT + related entity."
-        FieldsConfig.create(
-            FakeActivity,
+        FieldsConfig.objects.create(
+            content_type=FakeActivity,
             descriptions=[('type', {FieldsConfig.HIDDEN: True})],
         )
 
@@ -1175,8 +1175,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_delete_hiddenfields07(self):
         "CREME_REPLACE_NULL."
-        FieldsConfig.create(
-            FakeContact,
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
             descriptions=[('civility', {FieldsConfig.HIDDEN: True})],
         )
 
@@ -1207,8 +1207,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_delete_hiddenfields08(self):
         "CREME_REPLACE + no related entity."
-        FieldsConfig.create(
-            FakeOrganisation,
+        FieldsConfig.objects.create(
+            content_type=FakeOrganisation,
             descriptions=[('sector', {FieldsConfig.HIDDEN: True})],
         )
 
@@ -1242,8 +1242,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_delete_hiddenfields09(self):
         "CREME_REPLACE + some related entity."
-        FieldsConfig.create(
-            FakeOrganisation,
+        FieldsConfig.objects.create(
+            content_type=FakeOrganisation,
             descriptions=[('sector', {FieldsConfig.HIDDEN: True})],
         )
 
@@ -1295,8 +1295,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     def test_delete_hidden_m2m(self):
-        FieldsConfig.create(
-            FakeDocument,
+        FieldsConfig.objects.create(
+            content_type=FakeDocument,
             descriptions=[('categories', {FieldsConfig.HIDDEN: True})],
         )
 

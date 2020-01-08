@@ -135,11 +135,12 @@ class OrganisationTestCase(_BaseTestCase):
 
     @skipIfCustomAddress
     def test_createview03(self):
-        "FieldsConfig on Address sub-fields"
+        "FieldsConfig on Address sub-fields."
         user = self.login()
-        FieldsConfig.create(Address,
-                            descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Address,
+            descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
+        )
 
         response = self.assertGET200(reverse('persons__create_organisation'))
 
@@ -191,9 +192,10 @@ class OrganisationTestCase(_BaseTestCase):
     def test_createview04(self):
         "FieldsConfig on 'billing_address' FK field"
         self.login()
-        FieldsConfig.create(Organisation,
-                            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Organisation,
+            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+        )
 
         response = self.assertGET200(reverse('persons__create_organisation'))
 

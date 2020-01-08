@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2019  Hybird
+#    Copyright (C) 2013-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,7 +43,7 @@ class Searcher:
         self.user = user
         self._search_map = search_map = {}
         models = [*models]  # Several iterations
-        fconfigs = FieldsConfig.get_4_models(models)
+        fconfigs = FieldsConfig.objects.get_for_models(models)
 
         for sci in SearchConfigItem.get_4_models(models, user):
             if not sci.disabled:

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2019  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,8 +42,8 @@ class FieldsConfigAddForm(CremeModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        models = [*filter(FieldsConfig.is_model_valid, apps.get_models())]
-        # NB: we use <FieldsConfig.get_4_models()> to take advantage of its cache ;
+        models = [*filter(FieldsConfig.objects.is_model_valid, apps.get_models())]
+        # NB: we use <FieldsConfig.objects.get_for_models()> to take advantage of its cache ;
         #     it useful because this constructor can be called several times in a request
         #     because of our wizard (which fill the instance by calling all
         #     previous steps' validation).
@@ -55,7 +55,7 @@ class FieldsConfigAddForm(CremeModelForm):
 
             # Exclude ContentType which already have a configuration
             *(fc.content_type_id
-                for fc in FieldsConfig.get_4_models(models).values()
+                for fc in FieldsConfig.objects.get_for_models(models).values()
                     if not fc._state.adding  # <True> means the FieldsConfig is in DB
              )
         }
@@ -104,7 +104,7 @@ class FieldsConfigEditForm(CremeModelForm):
         super().__init__(*args, **kwargs)
         instance = self.instance
         hidden_f = self.fields['hidden']
-        hidden_f.choices = FieldsConfig.field_enumerator(instance.content_type.model_class()).choices()
+        hidden_f.choices = FieldsConfig.objects.field_enumerator(instance.content_type.model_class()).choices()
 
         if instance.pk:
             hidden_f.initial = [f.name for f in instance.hidden_fields]

@@ -276,9 +276,10 @@ class ContactTestCase(_BaseTestCase):
         user = self.login()
         contact = self.get_object_or_fail(Contact, is_user=user)
 
-        FieldsConfig.create(Contact,
-                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+        )
 
         url = contact.get_edit_absolute_url()
         response = self.assertGET200(url)

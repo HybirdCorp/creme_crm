@@ -348,9 +348,10 @@ class OrganisationMergeTestCase(_BaseTestCase):
     def test_merge04(self):
         "FieldsConfig on Address sub-field."
         user = self.login()
-        FieldsConfig.create(Address,
-                            descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Address,
+            descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
+        )
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='NERV')
@@ -371,8 +372,8 @@ class OrganisationMergeTestCase(_BaseTestCase):
         "FieldsConfig on 'billing_address' FK field."
         user = self.login()
 
-        FieldsConfig.create(
-            Organisation,
+        FieldsConfig.objects.create(
+            content_type=Organisation,
             descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
         )
 
@@ -407,8 +408,8 @@ class OrganisationMergeTestCase(_BaseTestCase):
         "FieldsConfig on 'shipping_address' FK field."
         user = self.login()
 
-        FieldsConfig.create(
-            Organisation,
+        FieldsConfig.objects.create(
+            content_type=Organisation,
             descriptions=[('shipping_address', {FieldsConfig.HIDDEN: True})],
         )
 

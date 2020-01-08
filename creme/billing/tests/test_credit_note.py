@@ -454,9 +454,10 @@ class CreditNoteTestCase(_BillingTestCase):
 
     def test_editcomment01(self):
         self.login()
-        FieldsConfig.create(CreditNote,
-                            descriptions=[('issuing_date', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=CreditNote,
+            descriptions=[('issuing_date', {FieldsConfig.HIDDEN: True})],
+        )
 
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
 
@@ -475,9 +476,10 @@ class CreditNoteTestCase(_BillingTestCase):
     def test_editcomment02(self):
         "'comment' is hidden"
         self.login()
-        FieldsConfig.create(CreditNote,
-                            descriptions=[('comment', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=CreditNote,
+            descriptions=[('comment', {FieldsConfig.HIDDEN: True})],
+        )
 
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
         self.assertGET409(self._build_editcomment_url(credit_note))

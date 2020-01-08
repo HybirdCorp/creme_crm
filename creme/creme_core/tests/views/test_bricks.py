@@ -643,9 +643,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         "With FieldsConfig"
         user = self.login()
 
-        FieldsConfig.create(FakeContact,
-                            descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
+        )
         naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
                                           first_name='Naru', phone='1122334455',
                                          )
@@ -682,13 +683,14 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(naru.phone, self.get_brick_tile(content_node, 'regular_field-phone').text)
 
     def test_display_custombrick02(self):
-        "With FieldsConfig"
+        "With FieldsConfig."
         user = self.login()
 
         hidden_fname = 'phone'
-        FieldsConfig.create(FakeContact,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBrickConfigItem.objects.create(
             id='tests-contacts1', name='Contact info',
@@ -716,9 +718,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
 
         hidden_fname = 'zipcode'
-        FieldsConfig.create(FakeAddress,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeAddress,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBrickConfigItem.objects.create(
             id='tests-contacts1', name='Contact info',
