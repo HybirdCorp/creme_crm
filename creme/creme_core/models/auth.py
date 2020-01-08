@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,7 @@ from ..auth.entity_credentials import EntityCredentials
 from ..utils import split_filter
 from ..utils.unicode_collation import collator
 
-from .fields import CTypeForeignKey
+from .fields import EntityCTypeForeignKey  # CTypeForeignKey
 
 logger = logging.getLogger(__name__)
 
@@ -287,10 +287,11 @@ class SetCredentials(models.Model):
                     'based on values of fields or relationships for example.'
                    ),
     )
-    ctype = CTypeForeignKey(
+    # ctype = CTypeForeignKey(
+    ctype = EntityCTypeForeignKey(
         verbose_name=_('Apply to a specific type'),
-        null=True, blank=True
-    )  # TODO: EntityCTypeForeignKey ?
+        null=True, blank=True,  # NB: NULL means "No specific type" (ie: any kind of CremeEntity)
+    )
     # entity  = models.ForeignKey(CremeEntity, null=True) ??
     forbidden = models.BooleanField(
         verbose_name=_('Allow or forbid?'),
@@ -409,8 +410,9 @@ class SetCredentials(models.Model):
 
     @classmethod
     def _aux_filter(cls, model, sc_sequence, user, queryset, perm):
-        get_ct = ContentType.objects.get_for_model
-        allowed_ctype_ids = {None, get_ct(CremeEntity).id, get_ct(model).id}
+        # get_ct = ContentType.objects.get_for_model
+        # allowed_ctype_ids = {None, get_ct(CremeEntity).id, get_ct(model).id}
+        allowed_ctype_ids = {None, ContentType.objects.get_for_model(model).id}
         ESET_ALL = cls.ESET_ALL
         ESET_OWN = cls.ESET_OWN
 
@@ -504,7 +506,7 @@ class SetCredentials(models.Model):
         assert queryset.model is CremeEntity
 
         get_for_model = ContentType.objects.get_for_model
-        entity_ct_id = get_for_model(CremeEntity).id
+        # entity_ct_id = get_for_model(CremeEntity).id
 
         def _check_efilters(sc_seq):
             if any(sc.efilter_id and not sc.efilter.applicable_on_entity_base for sc in sc_seq):
@@ -517,7 +519,8 @@ class SetCredentials(models.Model):
         if as_model is not None:
             assert issubclass(as_model, CremeEntity)
 
-            narrowed_ct_ids = {None, entity_ct_id, get_for_model(as_model).id}
+            # narrowed_ct_ids = {None, entity_ct_id, get_for_model(as_model).id}
+            narrowed_ct_ids = {None, get_for_model(as_model).id}
             narrowed_sc = [sc for sc in sc_sequence if sc.ctype_id in narrowed_ct_ids]
             _check_efilters(narrowed_sc)
 
@@ -528,7 +531,7 @@ class SetCredentials(models.Model):
 
         all_ct_ids = {
             None,
-            entity_ct_id,
+            # entity_ct_id,
             *(get_for_model(model).id for model in models),
         }
         sorted_sc = sorted((sc for sc in sc_sequence if sc.ctype_id in all_ct_ids),
@@ -571,7 +574,8 @@ class SetCredentials(models.Model):
 
         for model in models:
             ct_id = get_for_model(model).id
-            model_ct_ids = (None, entity_ct_id, ct_id)   # <None> == CremeEntity too
+            # model_ct_ids = (None, entity_ct_id, ct_id)   # <None> == CremeEntity too
+            model_ct_ids = {None, ct_id}   # <None> means <CremeEntity>
 
             forbidden, allowed = split_filter(
                 lambda sc: sc.forbidden,
@@ -629,6 +633,17 @@ class SetCredentials(models.Model):
         return queryset
 
     def save(self, *args, **kwargs):
+        ct = self.ctype
+        if ct is None:
+            model = CremeEntity
+        else:
+            model = ct.model_class()
+            if model is CremeEntity:
+                raise ValueError(
+                    '{}: <ctype> cannot be <CremeEntity> (use <None> instead).'.format(
+                        type(self).__name__,
+                ))
+
         if self.set_type == self.ESET_FILTER:
             if not self.efilter_id:
                 raise ValueError(
@@ -636,11 +651,9 @@ class SetCredentials(models.Model):
                         type(self).__name__,
                     ))
 
-            ct = self.ctype
-            model = ct.model_class() if ct else CremeEntity
             filter_model = self.efilter.entity_type.model_class()
 
-            if filter_model != model :
+            if filter_model != model:
                 raise ValueError(
                     '{cls} must have a filter related to the same type: {model} != {filter_model}'.format(
                         cls=type(self).__name__,

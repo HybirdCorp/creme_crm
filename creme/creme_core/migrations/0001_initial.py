@@ -588,34 +588,32 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('value', models.PositiveSmallIntegerField()),
                 ('set_type', models.PositiveIntegerField(choices=[
-                    (1, 'All entities'),
-                    (2, "User's own entities"),
-                    (3, 'Filtered entities')
-                ],
-                    default=1,
-                    help_text='The choice «Filtered entities» allows to configure credentials based on values of fields or relationships for example.',
-                    verbose_name='Type of entities set',
-                )
-                 ),
-                ('ctype', creme_fields.CTypeForeignKey(to='contenttypes.ContentType',
-                                                       blank=True, null=True, on_delete=models.CASCADE,
-                                                       verbose_name='Apply to a specific type',
-                                                       )
-                 ),
-                ('role',
-                 models.ForeignKey(related_name='credentials', to='creme_core.UserRole', on_delete=models.CASCADE,
-                                   editable=False)),
+                                                             (1, 'All entities'),
+                                                             (2, "User's own entities"),
+                                                             (3, 'Filtered entities')
+                                                         ],
+                                                         default=1,
+                                                         help_text='The choice «Filtered entities» allows to configure credentials based on values of fields or relationships for example.',
+                                                         verbose_name='Type of entities set',
+                                                        )
+                ),
+                # ('ctype', creme_fields.CTypeForeignKey(to='contenttypes.ContentType',
+                ('ctype', creme_fields.EntityCTypeForeignKey(to='contenttypes.ContentType',
+                                                             blank=True, null=True, on_delete=models.CASCADE,
+                                                             verbose_name='Apply to a specific type',
+                                                            )
+                ),
+                ('role', models.ForeignKey(related_name='credentials', to='creme_core.UserRole', on_delete=models.CASCADE, editable=False)),
                 ('forbidden', models.BooleanField(choices=[
-                    (False, 'The users are allowed to perform the selected actions'),
-                    (True, 'The users are NOT allowed to perform the selected actions'),
-                ],
-                    default=False,
-                    help_text='Notice that actions which are forbidden & allowed at the same time are considered as forbidden when final permissions are computed.',
-                    verbose_name='Allow or forbid?',
-                )
-                 ),
-                ('efilter',
-                 models.ForeignKey(editable=False, null=True, on_delete=models.PROTECT, to='creme_core.EntityFilter')),
+                                                      (False, 'The users are allowed to perform the selected actions'),
+                                                      (True, 'The users are NOT allowed to perform the selected actions'),
+                                                  ],
+                                                  default=False,
+                                                  help_text='Notice that actions which are forbidden & allowed at the same time are considered as forbidden when final permissions are computed.',
+                                                  verbose_name='Allow or forbid?',
+                                                 )
+                ),
+                ('efilter', models.ForeignKey(editable=False, null=True, on_delete=models.PROTECT, to='creme_core.EntityFilter')),
             ],
         ),
         migrations.CreateModel(
