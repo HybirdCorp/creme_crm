@@ -1,6 +1,12 @@
-{% load i18n creme_core_tags %}{% has_perm_to link object as link_perm %}
-{% if link_perm %}
-    <a class="menu_button" onclick="creme.utils.clickOnce(this, creme.persons.become, '{{become_url}}', {{managed_orga|optionize_model_iterable:'dict'|jsonify}});">{{verbose_name}}</a>
-{% else %}
-    <span class="menu_button forbidden" title="{% trans 'forbidden' %}">{{verbose_name}}</span>
-{% endif %}
+{% load i18n creme_core_tags creme_widgets %}
+{% has_perm_to link object as link_perm %}
+<a class="menu_button {% if not link_perm %}is-disabled{% endif %}" data-action="persons-hatmenubar-become">
+    {{verbose_name}}
+    {% blockjsondata %}{
+        "data": {
+            "organisations": {{managed_orga|optionize_model_iterable:'dict'|jsonify|safe}},
+            "subject_id": {{object.id}},
+            "rtype_id": "{{rtype_id}}"
+        }
+    }{% endblockjsondata %}
+</a>

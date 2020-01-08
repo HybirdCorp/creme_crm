@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,8 +36,8 @@ class CrmButton(Button):
     __managed_orga   = False
     relation_type_id = 'OVERLOADME'
     template_name    = 'persons/buttons/become.html'
-    what             = 'OVERLOADME'
-    url_name         = 'OVERLOADME'
+    # what             = 'OVERLOADME'
+    # url_name         = 'OVERLOADME'
 
     def ok_4_display(self, entity):
         # TODO: only one query ??
@@ -55,9 +55,10 @@ class CrmButton(Button):
 
     def render(self, context):
         context['managed_orga'] = self.__managed_orga
-        context['what'] = self.what
+        # context['what'] = self.what
         context['verbose_name'] = self.verbose_name
-        context['become_url'] = reverse(self.url_name, args=(context['object'].id,))
+        # context['become_url'] = reverse(self.url_name, args=(context['object'].id,))
+        context['rtype_id'] = self.relation_type_id
 
         return super().render(context)
 
@@ -66,40 +67,40 @@ class BecomeCustomerButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_customer')
     verbose_name     = _('Transform into a customer')
     relation_type_id = constants.REL_SUB_CUSTOMER_SUPPLIER
-    what = 'customer'
-    url_name = 'persons__become_customer'
+    # what = 'customer'
+    # url_name = 'persons__become_customer'
 
 
 class BecomeProspectButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_prospect')
     verbose_name     = _('Transform into a prospect')
     relation_type_id = constants.REL_SUB_PROSPECT
-    what = 'prospect'
-    url_name = 'persons__become_prospect'
+    # what = 'prospect'
+    # url_name = 'persons__become_prospect'
 
 
 class BecomeSuspectButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_suspect')
     verbose_name     = _('Transform into a suspect')
     relation_type_id = constants.REL_SUB_SUSPECT
-    what = 'suspect'
-    url_name = 'persons__become_suspect'
+    # what = 'suspect'
+    # url_name = 'persons__become_suspect'
 
 
 class BecomeInactiveButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_inactive')
     verbose_name     = _('Transform into an inactive customer')
     relation_type_id = constants.REL_SUB_INACTIVE
-    what = 'inactive_customer'
-    url_name = 'persons__become_inactive_customer'
+    # what = 'inactive_customer'
+    # url_name = 'persons__become_inactive_customer'
 
 
 class BecomeSupplierButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_supplier')
     verbose_name     = _('Transform into a supplier')
     relation_type_id = constants.REL_OBJ_CUSTOMER_SUPPLIER
-    what = 'supplier'
-    url_name = 'persons__become_supplier'
+    # what = 'supplier'
+    # url_name = 'persons__become_supplier'
 
 
 class AddLinkedContactButton(Button):
