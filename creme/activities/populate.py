@@ -156,7 +156,7 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        SearchConfigItem.create_if_needed(Activity, ['title', 'description', 'type__name'])
+        SearchConfigItem.objects.create_if_needed(Activity, ['title', 'description', 'type__name'])
 
         # ---------------------------
         # cal_is_public = settings.ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC

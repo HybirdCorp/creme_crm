@@ -96,7 +96,7 @@ class Populator(BasePopulator):
                  )
 
         # ---------------------------
-        create_searchconf = SearchConfigItem.create_if_needed
+        create_searchconf = SearchConfigItem.objects.create_if_needed
         create_searchconf(EmailCampaign, ['name', 'mailing_lists__name'])
         create_searchconf(MailingList,   ['name', 'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name'])
         create_searchconf(EmailTemplate, ['name', 'subject', 'body', 'attachments__title'])

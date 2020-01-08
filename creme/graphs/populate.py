@@ -46,7 +46,7 @@ class Populator(BasePopulator):
             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
         )
 
-        SearchConfigItem.create_if_needed(Graph, ['name'])
+        SearchConfigItem.objects.create_if_needed(Graph, ['name'])
 
         # NB: no straightforward way to test that this populate script has not been already run
         if not BrickDetailviewLocation.objects.filter_for_model(Graph).exists():

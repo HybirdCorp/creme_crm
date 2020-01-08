@@ -92,11 +92,16 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        SearchConfigItem.create_if_needed(Ticket,
-                                          ['title', 'number', 'description',
-                                           'status__name', 'priority__name', 'criticity__name',
-                                          ]
-                                         )
+        SearchConfigItem.objects.create_if_needed(
+            Ticket,
+            ['title',
+             'number',
+             'description',
+             'status__name',
+             'priority__name',
+             'criticity__name',
+            ],
+        )
 
         # ---------------------------
         if not already_populated:

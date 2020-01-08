@@ -45,15 +45,16 @@ class Searcher:
         models = [*models]  # Several iterations
         fconfigs = FieldsConfig.objects.get_for_models(models)
 
-        for sci in SearchConfigItem.get_4_models(models, user):
+        for sci in SearchConfigItem.objects.iter_for_models(models, user):
             if not sci.disabled:
                 model = sci.content_type.model_class()
                 is_hidden = fconfigs[model].is_fieldname_hidden
                 # TODO: work with FieldInfo instead of strings + split() (see creme_config too)
-                search_map[model] = [sfield
-                                        for sfield in sci.searchfields
-                                            if not is_hidden(sfield.name.split('__', 1)[0])
-                                    ]
+                search_map[model] = [
+                    sfield
+                        for sfield in sci.searchfields
+                            if not is_hidden(sfield.name.split('__', 1)[0])
+                ]
 
     def _build_query(self, words, fields):
         """Build a Q with given fields for the given search.

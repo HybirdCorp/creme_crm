@@ -145,7 +145,7 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        create_sci = SearchConfigItem.create_if_needed
+        create_sci = SearchConfigItem.objects.create_if_needed
         create_sci(Document, ['title', 'description', 'linked_folder__title', 'categories__name'])
         create_sci(Folder,   ['title', 'description', 'category__name'])
 

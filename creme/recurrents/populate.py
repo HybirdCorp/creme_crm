@@ -42,7 +42,7 @@ class Populator(BasePopulator):
             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
         )
 
-        SearchConfigItem.create_if_needed(RecurrentGenerator, ['name', 'description'])
+        SearchConfigItem.objects.create_if_needed(RecurrentGenerator, ['name', 'description'])
 
         Job.objects.get_or_create(type_id=recurrents_gendocs_type.id,
                                   defaults={'language': settings.LANGUAGE_CODE,

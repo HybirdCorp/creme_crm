@@ -50,7 +50,7 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        SearchConfigItem.create_if_needed(Report, ['name'])
+        SearchConfigItem.objects.create_if_needed(Report, ['name'])
 
         # ---------------------------
         # NB: no straightforward way to test that this populate script has not been already run

@@ -176,9 +176,10 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_add04(self):
         "Unique configuration (super-user)"
         ct = self.ct_contact
-        SearchConfigItem.create_if_needed(FakeContact, role='superuser',
-                                          fields=['first_name', 'last_name'],
-                                         )
+        SearchConfigItem.objects.create_if_needed(
+            FakeContact, role='superuser',
+            fields=['first_name', 'last_name'],
+        )
 
         response = self.assertGET200(self._build_add_url(ct))
 
@@ -207,7 +208,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         return sci
 
     def test_edit01(self):
-        sci = SearchConfigItem.create_if_needed(FakeContact, fields=['last_name'])
+        sci = SearchConfigItem.objects.create_if_needed(FakeContact, fields=['last_name'])
         self.assertIsNone(sci.role)
 
         url = self._build_edit_url(sci)
@@ -305,7 +306,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                 (hidden_fname2, {FieldsConfig.HIDDEN: True}),
             ]
         )
-        sci = SearchConfigItem.create_if_needed(model, fields=['first_name'])
+        sci = SearchConfigItem.objects.create_if_needed(model, fields=['first_name'])
 
         response = self.assertGET200(self._build_edit_url(sci))
 
@@ -321,23 +322,22 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self._assertNotInChoices(fields_f, 'position__title')
 
     def test_edit07(self):
-        "With FieldsConfig + selected hidden fields"
+        "With FieldsConfig + selected hidden fields."
         model = FakeContact
         hidden_fname1 = 'description'
         hidden_fname2 = 'position'
         hidden_sub_fname2 = hidden_fname2 + '__title'
-        sci = SearchConfigItem.create_if_needed(model,
-                                                fields=['first_name',
-                                                        hidden_fname1,
-                                                        hidden_sub_fname2,
-                                                       ],
-                                               )
+        sci = SearchConfigItem.objects.create_if_needed(
+            model,
+            fields=['first_name', hidden_fname1, hidden_sub_fname2],
+        )
 
         FieldsConfig.objects.create(
             content_type=model,
-            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
-                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
-                         ],
+            descriptions=[
+                (hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+            ],
         )
 
         response = self.assertGET200(self._build_edit_url(sci))
@@ -354,22 +354,22 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self._find_field_index(fields_f, hidden_sub_fname2)
 
     def test_delete01(self):
-        sci = SearchConfigItem.create_if_needed(FakeContact, role=self.role,
-                                                fields=['first_name', 'last_name'],
-                                                )
+        sci = SearchConfigItem.objects.create_if_needed(
+            FakeContact, role=self.role, fields=['first_name', 'last_name'],
+        )
         self.assertPOST200(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertDoesNotExist(sci)
 
     def test_delete02(self):
         "Super users"
-        sci = SearchConfigItem.create_if_needed(FakeContact, role='superuser',
-                                                fields=['first_name', 'last_name'],
-                                                )
+        sci = SearchConfigItem.objects.create_if_needed(
+            FakeContact, role='superuser', fields=['first_name', 'last_name'],
+        )
         self.assertPOST200(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertDoesNotExist(sci)
 
     def test_delete03(self):
         "Cannot delete the default configuration"
-        sci = SearchConfigItem.create_if_needed(FakeContact, ['first_name', 'last_name'])
+        sci = SearchConfigItem.objects.create_if_needed(FakeContact, ['first_name', 'last_name'])
         self.assertPOST409(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertStillExists(sci)

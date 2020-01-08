@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -93,21 +93,26 @@ class Populator(BasePopulator):
                  )
 
         # ---------------------------
-        create_searchconf = SearchConfigItem.create_if_needed
+        create_searchconf = SearchConfigItem.objects.create_if_needed
         create_searchconf(Act, ['name', 'expected_sales', 'cost', 'goal'])
         create_searchconf(Strategy, ['name'])
         create_searchconf(ActObjectivePattern, [], disabled=True)
 
         # ---------------------------
-        SettingValue.objects.get_or_create(key_id=setting_keys.orga_approaches_key.id, defaults={'value': True})
+        SettingValue.objects.get_or_create(
+            key_id=setting_keys.orga_approaches_key.id,
+            defaults={'value': True},
+        )
 
         # ---------------------------
-        Job.objects.get_or_create(type_id=creme_jobs.com_approaches_emails_send_type.id,
-                                  defaults={'language':    settings.LANGUAGE_CODE,
-                                            'periodicity': date_period_registry.get_period('days', 1),
-                                            'status':      Job.STATUS_OK,
-                                           }
-                                 )
+        Job.objects.get_or_create(
+            type_id=creme_jobs.com_approaches_emails_send_type.id,
+            defaults={
+                'language':    settings.LANGUAGE_CODE,
+                'periodicity': date_period_registry.get_period('days', 1),
+                'status':      Job.STATUS_OK,
+            },
+        )
 
         # ---------------------------
         if not already_populated:
