@@ -38,6 +38,7 @@ else:
         'FakeReport',
         'FakeTicketStatus', 'FakeTicketPriority', 'FakeTicket',
         'FakeIngredient', 'FakeRecipe',
+        'FakeTodo',
     )
 
 
@@ -753,3 +754,39 @@ else:
 
         def __str__(self):
             return self.name
+
+    class FakeTodo(CremeModel):
+        title         = models.CharField(_('Title'), max_length=200)
+        # is_ok         = models.BooleanField(_('Done ?'), editable=False, default=False)
+        # reminded      = models.BooleanField(_('Notification sent'), editable=False, default=False)  # Needed by creme_core.core.reminder
+        description   = models.TextField(_('Description'), blank=True)
+        # creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
+        # deadline      = models.DateTimeField(_('Deadline'), blank=True, null=True)
+        # user          = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
+
+        entity_content_type = core_fields.EntityCTypeForeignKey(related_name='+', editable=False)
+        entity              = models.ForeignKey(CremeEntity,  related_name='fake_todos',
+                                                editable=False, on_delete=models.CASCADE,
+                                               ).set_tags(viewable=False)
+        creme_entity        = core_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
+
+        # creation_label = _('Create a todo')
+        # save_label     = _('Save the todo')
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = 'Test Todo'
+            verbose_name_plural = 'Test Todos'
+
+        def __str__(self):
+            return self.title
+
+        # def get_edit_absolute_url(self):
+        #     return reverse('assistants__edit_todo', args=(self.id,))
+        #
+        # def get_related_entity(self):  # For generic views
+        #     return self.creme_entity
+        #
+        # @property
+        # def to_be_reminded(self):
+        #     return self.deadline and not self.is_ok and not self.reminded

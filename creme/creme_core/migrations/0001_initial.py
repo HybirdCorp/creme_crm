@@ -1259,4 +1259,25 @@ class Migration(migrations.Migration):
                 },
                 bases=('creme_core.cremeentity',),
             ),
+            migrations.CreateModel(
+                name='FakeTodo',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('title', models.CharField(max_length=200, verbose_name='Title')),
+                    ('description', models.TextField(verbose_name='Description', blank=True)),
+                    ('entity', models.ForeignKey(editable=False, on_delete=models.CASCADE,
+                                                 to='creme_core.CremeEntity', related_name='fake_todos',
+                                                )
+                    ),
+                    ('entity_content_type', creme_fields.EntityCTypeForeignKey(editable=False, on_delete=models.CASCADE,
+                                                                               related_name='+', to='contenttypes.ContentType',
+                                                                              )
+                    ),
+                ],
+                options={
+                    'verbose_name': 'Test Todo',
+                    'verbose_name_plural': 'Test Todos',
+                },
+                bases=(models.Model,),
+            ),
         ])
