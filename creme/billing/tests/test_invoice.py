@@ -27,7 +27,8 @@ try:
     from ..constants import (
         REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED,
         REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED,
-        AMOUNT_PK, PERCENT_PK,
+        # AMOUNT_PK, PERCENT_PK,
+        DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT, DISCOUNT_ITEM_AMOUNT
     )
     from ..models import InvoiceStatus, AdditionalInformation, PaymentTerms
 
@@ -784,8 +785,9 @@ class InvoiceTestCase(_BillingTestCase):
         product_line = ProductLine.objects.create(
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('1000.00'), quantity=2,
-            discount=Decimal('10.00'), discount_unit=PERCENT_PK,
-            total_discount=False,
+            discount=Decimal('10.00'),
+            # discount_unit=PERCENT_PK, total_discount=False,
+            discount_unit=DISCOUNT_PERCENT,
             vat_value=Vat.get_default_vat(),
             **kwargs
         )
@@ -798,8 +800,9 @@ class InvoiceTestCase(_BillingTestCase):
         service_line = ServiceLine.objects.create(
             on_the_fly_item='Flyyy service',
             unit_price=Decimal('20.00'), quantity=10,
-            discount=Decimal('100.00'), discount_unit=AMOUNT_PK,
-            total_discount=True,
+            discount=Decimal('100.00'),
+            # discount_unit=AMOUNT_PK, total_discount=True,
+            discount_unit=DISCOUNT_LINE_AMOUNT,
             vat_value=Vat.get_default_vat(),
             **kwargs
         )

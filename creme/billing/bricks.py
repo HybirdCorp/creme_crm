@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -96,13 +96,15 @@ class _LinesBrick(SimpleBrick):
         from .views.line import LINE_FORMSET_PREFIX
 
         document = context['object']
+        user = context['user']
         lines = self._get_document_lines(document)
 
         class _LineForm(LineEditForm):
             def __init__(self, *args, **kwargs):
                 self.empty_permitted = False
                 super().__init__(
-                    user=context['user'],
+                    # user=context['user'],
+                    user=user,
                     related_document=document,
                     *args, **kwargs
                 )
@@ -147,7 +149,7 @@ class ServiceLinesBrick(_LinesBrick):
     verbose_name       = _('Service lines')
     template_name      = 'billing/bricks/service-lines.html'
     line_model         = ServiceLine
-    related_item_model  = ServiceLine.related_item_class()
+    related_item_model = ServiceLine.related_item_class()
     related_item_label = related_item_model._meta.verbose_name
 
     def _get_document_lines(self, document):
