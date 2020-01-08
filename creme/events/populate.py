@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,8 +27,12 @@ from django.utils.translation import gettext as _
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import (SearchConfigItem, RelationType, HeaderFilter,
-        BrickDetailviewLocation)
+from creme.creme_core.models import (
+    RelationType,
+    HeaderFilter,
+    SearchConfigItem,
+    BrickDetailviewLocation,
+)
 from creme.creme_core.utils import create_if_needed
 
 from creme.persons import get_contact_model
@@ -78,13 +82,15 @@ class Populator(BasePopulator):
                     )
 
         # ---------------------------
-        HeaderFilter.create(pk=constants.DEFAULT_HFILTER_EVENT, name=_('Event view'), model=Event,
-                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                                        (EntityCellRegularField, {'name': 'type'}),
-                                        (EntityCellRegularField, {'name': 'start_date'}),
-                                        (EntityCellRegularField, {'name': 'end_date'}),
-                                       ],
-                           )
+        HeaderFilter.objects.create_if_needed(
+            pk=constants.DEFAULT_HFILTER_EVENT, name=_('Event view'), model=Event,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'type'}),
+                (EntityCellRegularField, {'name': 'start_date'}),
+                (EntityCellRegularField, {'name': 'end_date'}),
+            ],
+        )
 
         # ---------------------------
         SearchConfigItem.create_if_needed(Event, ['name', 'description', 'type__name'])

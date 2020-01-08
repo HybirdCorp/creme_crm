@@ -286,17 +286,18 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFormError(response, 'form', 'filter', msg)
 
         # ------
-        hf_orga = HeaderFilter.create(pk='test_hf-orga', name='name', model=FakeOrganisation)
+        create_hf = HeaderFilter.objects.create_if_needed
+        hf_orga = create_hf(pk='test_hf-orga', name='name', model=FakeOrganisation)
         efilter = EntityFilter.create('test-filter', 'Bad filter', FakeOrganisation, is_custom=True)
         response = post(hf_orga.id, efilter.id)
         self.assertFormError(response, 'form', 'hf',     msg)
         self.assertFormError(response, 'form', 'filter', msg)
 
         # ------
-        hf_priv = HeaderFilter.create(pk='test_hf-private', name='name', model=FakeContact,
-                                      is_private=True, user=self.other_user,
-                                      is_custom=True,
-                                     )
+        hf_priv = create_hf(pk='test_hf-private', name='name', model=FakeContact,
+                            is_private=True, user=self.other_user,
+                            is_custom=True,
+                           )
         response = post(hf_priv.id, '')
         self.assertFormError(response, 'form', 'hf', msg)
 
@@ -332,11 +333,13 @@ class ReportTestCase(BaseReportsTestCase):
         valid_fname = 'last_name'
         hidden_fname = 'phone'
         build_cell =  partial(EntityCellRegularField.build, model=FakeContact)
-        hf = HeaderFilter.create(pk='test_hf', name='Contact view', model=FakeContact,
-                                 cells_desc=[build_cell(name=valid_fname),
-                                             build_cell(name=hidden_fname),
-                                            ],
-                                 )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test_hf', name='Contact view', model=FakeContact,
+            cells_desc=[
+                build_cell(name=valid_fname),
+                build_cell(name=hidden_fname),
+            ],
+        )
 
         FieldsConfig.create(FakeContact,
                             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})]
@@ -344,11 +347,12 @@ class ReportTestCase(BaseReportsTestCase):
 
         name = 'Report #1'
         response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'user': user.pk,
-                                          'name': name,
-                                          'ct':   self.ct_contact.id,
-                                          'hf':   hf.id,
-                                         }
+                                    data={
+                                        'user': user.pk,
+                                        'name': name,
+                                        'ct':   self.ct_contact.id,
+                                        'hf':   hf.id,
+                                    },
                                    )
         self.assertNoFormError(response)
 
@@ -931,13 +935,15 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFalse(FakeInvoice.objects.all())
 
         rt = RelationType.objects.get(pk=REL_SUB_HAS)
-        hf = HeaderFilter.create(pk='test_hf', name='Invoice view', model=FakeInvoice,
-                                 cells_desc=[EntityCellRegularField.build(model=FakeInvoice, name='name'),
-                                             EntityCellRegularField.build(model=FakeInvoice, name='user'),
-                                             EntityCellRelation(model=FakeInvoice, rtype=rt),
-                                             EntityCellFunctionField.build(model=FakeInvoice, func_field_name='get_pretty_properties'),
-                                            ],
-                                 )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test_hf', name='Invoice view', model=FakeInvoice,
+            cells_desc=[
+                EntityCellRegularField.build(model=FakeInvoice, name='name'),
+                EntityCellRegularField.build(model=FakeInvoice, name='user'),
+                EntityCellRelation(model=FakeInvoice, rtype=rt),
+                EntityCellFunctionField.build(model=FakeInvoice, func_field_name='get_pretty_properties'),
+            ],
+        )
 
         report = self.create_from_view('Report on invoices', FakeInvoice, hf)
 
@@ -2234,11 +2240,13 @@ class ReportTestCase(BaseReportsTestCase):
         "No sub report"
         user = self.login()
 
-        hf = HeaderFilter.create(pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                                             (EntityCellRegularField, {'name': 'mailing_lists__name'}),
-                                            ],
-                                 )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'mailing_lists__name'}),
+            ],
+        )
 
         report = self.create_from_view('Campaign Report', FakeEmailCampaign, hf)
 
@@ -2264,7 +2272,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.ptype1 = create_ptype(str_pk='test-prop_important',    text='Important')
         self.ptype2 = create_ptype(str_pk='test-prop_notimportant', text='Not important')
 
-        create_hf = HeaderFilter.create
+        create_hf = HeaderFilter.objects.create_if_needed
         hf_camp = create_hf(
             pk='test_hf_camp', name='Campaign view', model=FakeEmailCampaign,
             cells_desc=[

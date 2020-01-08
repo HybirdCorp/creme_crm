@@ -99,7 +99,9 @@ class CremeListViewTagsTestCase(CremeTestCase):
         ctype = ContentType.objects.get_for_model(FakeMailingList)
         self.assertFalse(HeaderFilter.objects.filter(entity_type=ctype).first())
 
-        hf = HeaderFilter.create(pk='test_hf-ml01', name='View', model=FakeMailingList)
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test_hf-ml01', name='View', model=FakeMailingList,
+        )
 
         hfilters = HeaderFilterList(
             content_type=ctype,
@@ -132,7 +134,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
         ctype = ContentType.objects.get_for_model(FakeMailingList)
         self.assertFalse(HeaderFilter.objects.filter(entity_type=ctype).first())
 
-        create_hf = partial(HeaderFilter.create, model=FakeMailingList)
+        create_hf = partial(HeaderFilter.objects.create_if_needed, model=FakeMailingList)
         hf01 = create_hf(pk='test_hf-ml01', name='View')
         hf02 = create_hf(pk='test_hf-ml02', name='My view',    user=user,       is_custom=True)
         hf03 = create_hf(pk='test_hf-ml03', name='Other view', user=other_user, is_custom=True)

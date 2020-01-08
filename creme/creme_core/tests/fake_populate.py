@@ -57,7 +57,7 @@ def populate():
     create_priority(id=2, defaults={'name': 'Medium', 'is_custom': False})
     create_priority(id=3, defaults={'name': 'Low',    'is_custom': False})
 
-    create_hf = HeaderFilter.create
+    create_hf = HeaderFilter.objects.create_if_needed
     create_hf(pk='creme_core-hf_fakeimage', name='FakeImage view',
               model=fake_models.FakeImage,
               cells_desc=[(EntityCellRegularField, {'name': 'name'})],

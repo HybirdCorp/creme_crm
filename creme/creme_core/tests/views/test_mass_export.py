@@ -109,9 +109,10 @@ class MassExportViewsTestCase(ViewsTestCase):
             # TODO: EntityCellCustomField
             EntityCellFunctionField.build(model=FakeContact, func_field_name='get_pretty_properties'),
         ]
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Contact view',
-                                 model=FakeContact, cells_desc=cells,
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_contact', name='Contact view',
+            model=FakeContact, cells_desc=cells,
+        )
 
         return hf
 
@@ -171,7 +172,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertGET404(build_url(hfilter_id='test-hf_contact-unknown'))
 
         # HeaderFilter with wrong content type
-        hf = HeaderFilter.create(
+        hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact_test_invalid_hfilter',
             name='Contact view', model=FakeContact,
             cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
@@ -183,7 +184,7 @@ class MassExportViewsTestCase(ViewsTestCase):
     def test_export_error_invalid_efilter(self):
         self.login()
         build_cell = EntityCellRegularField.build
-        HeaderFilter.create(
+        HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact', name='Contact view',
             model=FakeContact,
             cells_desc=[
@@ -329,11 +330,12 @@ class MassExportViewsTestCase(ViewsTestCase):
         "Datetime field."
         user = self.login()
 
-        hf = HeaderFilter.create(
+        hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact_test_export05', name='Contact view', model=FakeContact,
-            cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
-                        (EntityCellRegularField, {'name': 'created'}),
-                       ],
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'last_name'}),
+                (EntityCellRegularField, {'name': 'created'}),
+            ],
         )
 
         spike = FakeContact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
@@ -365,12 +367,13 @@ class MassExportViewsTestCase(ViewsTestCase):
         create_contact(first_name='Jet',   last_name='Black',   image=jet_face)
         create_contact(first_name='Faye',  last_name='Valentine')
 
-        hf = HeaderFilter.create(
+        hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact_test_export06', name='Contact view', model=FakeContact,
-            cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
-                        (EntityCellRegularField, {'name': 'image'}),
-                        (EntityCellRegularField, {'name': 'image__description'}),
-                       ],
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'last_name'}),
+                (EntityCellRegularField, {'name': 'image'}),
+                (EntityCellRegularField, {'name': 'image__description'}),
+            ],
         )
 
         response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
@@ -395,11 +398,12 @@ class MassExportViewsTestCase(ViewsTestCase):
         camp1.mailing_lists.set([create_ml(name='ML#1'), create_ml(name='ML#2')])
         camp2.mailing_lists.set([create_ml(name='ML#3')])
 
-        hf = HeaderFilter.create(
+        hf = HeaderFilter.objects.create_if_needed(
             pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
-            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                        (EntityCellRegularField, {'name': 'mailing_lists__name'}),
-                       ],
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'mailing_lists__name'}),
+            ],
         )
 
         response = self.assertGET200(
@@ -545,9 +549,10 @@ class MassExportViewsTestCase(ViewsTestCase):
                  build_cell(name='creation_date'),
                 ]
 
-        hf = HeaderFilter.create(pk='test-hf_orga', name='Organisation view',
-                                 model=FakeOrganisation, cells_desc=cells,
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_orga', name='Organisation view',
+            model=FakeOrganisation, cells_desc=cells,
+        )
 
         response = self.assertGET200(
             self._build_dl_url(FakeOrganisation,
@@ -574,10 +579,11 @@ class MassExportViewsTestCase(ViewsTestCase):
             create_orga(name=name, capital=capital)
 
         build = partial(EntityCellRegularField.build, model=FakeOrganisation)
-        hf = HeaderFilter.create(pk='test-hf_orga', name='Organisation view',
-                                 model=FakeOrganisation,
-                                 cells_desc=[build(name='name'), build(name='capital')],
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_orga', name='Organisation view',
+            model=FakeOrganisation,
+            cells_desc=[build(name='name'), build(name='capital')],
+        )
 
         lv_url = FakeOrganisation.get_lv_absolute_url()
         response = self.assertGET200(
@@ -603,12 +609,13 @@ class MassExportViewsTestCase(ViewsTestCase):
         create_pline(item='Swordfish', discount_unit=FAKE_AMOUNT_UNIT)
 
         build = partial(EntityCellRegularField.build, model=FakeInvoiceLine)
-        hf = HeaderFilter.create(pk='test-hf_fakeinvoiceline', name='InvoiceLine view',
-                                 model=FakeInvoiceLine,
-                                 cells_desc=[build(name='item'),
-                                             build(name='discount_unit'),
-                                            ],
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_fakeinvoiceline', name='InvoiceLine view',
+            model=FakeInvoiceLine,
+            cells_desc=[build(name='item'),
+                        build(name='discount_unit'),
+                       ],
+        )
 
         response = self.assertGET200(
             self._build_dl_url(FakeInvoiceLine,
@@ -653,7 +660,7 @@ class MassExportViewsTestCase(ViewsTestCase):
     def test_quick_search(self):
         user = self.login()
 
-        hf = HeaderFilter.create(
+        hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact_test_quick_search', name='Contact view',
             model=FakeContact,
             cells_desc=[(EntityCellRegularField, {'name': 'phone'}),
@@ -685,7 +692,7 @@ class MassExportViewsTestCase(ViewsTestCase):
     def test_sorting(self):
         user = self.login()
 
-        hf = HeaderFilter.create(
+        hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact_test_sorting', name='Contact view',
             model=FakeContact,
             cells_desc=[(EntityCellRegularField, {'name': 'phone'}),
@@ -730,7 +737,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         camp1.mailing_lists.set([ml1, ml2])
         camp2.mailing_lists.set([ml1])
 
-        HeaderFilter.create(
+        HeaderFilter.objects.create_if_needed(
             pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
             cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                         (EntityCellRegularField, {'name': 'mailing_lists'}),

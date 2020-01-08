@@ -339,7 +339,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         # Set a header filter in the session (should be kept)
         hfilter1 = HeaderFilter.objects.filter(entity_type=ct).first()
         self.assertIsNotNone(hfilter1)
-        hfilter2 = HeaderFilter.create(
+        hfilter2 = HeaderFilter.objects.create_if_needed(
             pk='creme_core-tests_views_entity_filter_test_create03',
             name='Ze last FakeContact view',
             model=FakeOrganisation,

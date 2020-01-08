@@ -218,7 +218,7 @@ class ListViewTestCase(ViewsTestCase):
         return page.paginator.object_list.query.get_compiler('default').as_sql()[0]
 
     def _build_hf(self, *cells):
-        return HeaderFilter.create(
+        return HeaderFilter.objects.create_if_needed(
             pk='test-hf_orga', name='Orga view',
             model=FakeOrganisation,
             cells_desc=[
@@ -585,7 +585,9 @@ class ListViewTestCase(ViewsTestCase):
         faye  = create_contact(first_name='Faye',   last_name='Valentine', civility=miss)
         ed    = create_contact(first_name='Edward', last_name='Wong')
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact)
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_contact', name='Order02 view', model=FakeContact,
+        )
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell_image    = build_cell(name='image')
@@ -645,7 +647,7 @@ class ListViewTestCase(ViewsTestCase):
 
         fname = 'mailing_lists'
         func_field_name = 'get_pretty_properties'
-        HeaderFilter.create(
+        HeaderFilter.objects.create_if_needed(
             pk='test-hf_camp', name='Campaign view', model=FakeEmailCampaign,
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
@@ -740,12 +742,14 @@ class ListViewTestCase(ViewsTestCase):
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell_civ   = build_cell(name='civility')
         cell_fname = build_cell(name='first_name')
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
-                                 cells_desc=[cell_civ,
-                                             (EntityCellRegularField, {'name': 'last_name'}),
-                                             cell_fname,
-                                            ],
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells_desc=[
+                cell_civ,
+                (EntityCellRegularField, {'name': 'last_name'}),
+                cell_fname,
+            ],
+        )
 
         contacts = FakeContact.objects.filter(pk__in=(spike, faye, ed))
         url = FakeContact.get_lv_absolute_url()
@@ -802,13 +806,15 @@ class ListViewTestCase(ViewsTestCase):
         create_contact(first_name='Edward', last_name='Wong',      address='A')
 
         cell = EntityCellRegularField.build(model=FakeContact, name='address')
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'civility'}),
-                                             (EntityCellRegularField, {'name': 'last_name'}),
-                                             (EntityCellRegularField, {'name': 'first_name'}),
-                                             cell,
-                                         ],
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'civility'}),
+                (EntityCellRegularField, {'name': 'last_name'}),
+                (EntityCellRegularField, {'name': 'first_name'}),
+                cell,
+            ],
+        )
 
         url = FakeContact.get_lv_absolute_url()
         # For the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
@@ -876,13 +882,13 @@ class ListViewTestCase(ViewsTestCase):
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell1 = build_cell(name='birthday')
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Contact view',
-                                 model=FakeContact,
-                                 cells_desc=[cell1,
-                                             build_cell(name='last_name'),
-                                             build_cell(name='first_name'),
-                                            ],
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_contact', name='Contact view', model=FakeContact,
+            cells_desc=[cell1,
+                        build_cell(name='last_name'),
+                        build_cell(name='first_name'),
+                       ],
+        )
 
         # context = CaptureQueriesContext()
         # with context:
@@ -891,7 +897,7 @@ class ListViewTestCase(ViewsTestCase):
                                data={'hfilter': hf.pk,
                                      'sort_key': cell1.key,
                                      'sort_order': '',
-                                    }
+                                    },
                                )
 
         main_sql_match = re.compile(r'SELECT .creme_core_cremeentity.\..id., .*'
@@ -1393,7 +1399,7 @@ class ListViewTestCase(ViewsTestCase):
 
         build_cell = partial(EntityCellRegularField.build, model=FakeInvoiceLine)
         du_cell = build_cell(name='discount_unit')
-        hf = HeaderFilter.create(
+        hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_invoiceline', name='Line view', model=FakeInvoiceLine,
             cells_desc=[build_cell(name='item'),
                         build_cell(name='discount'),
@@ -1439,7 +1445,9 @@ class ListViewTestCase(ViewsTestCase):
         faye  = create_contact(first_name='Faye',   last_name='Valentine', civility=miss, image=img_faye)
         ed    = create_contact(first_name='Edward', last_name='Wong',                     image=img_ed)
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact)
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_contact', name='Order02 view', model=FakeContact,
+        )
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell_image    = build_cell(name='image')
@@ -1526,9 +1534,10 @@ class ListViewTestCase(ViewsTestCase):
 
         build_cell = partial(EntityCellRegularField.build, model=FakeDocument)
         cell = build_cell(name='linked_folder__category')
-        hf = HeaderFilter.create(pk='test-hf_doc', name='Doc view', model=FakeDocument,
-                                 cells_desc=[build_cell(name='title'), cell],
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_doc', name='Doc view', model=FakeDocument,
+            cells_desc=[build_cell(name='title'), cell],
+        )
 
         response = self.assertPOST200(FakeDocument.get_lv_absolute_url(),
                                       data={'hfilter': hf.id,
@@ -1575,15 +1584,16 @@ class ListViewTestCase(ViewsTestCase):
 
         build_cell = partial(EntityCellRegularField.build, model=FakeDocument)
         cell = build_cell(name='linked_folder__parent')
-        hf = HeaderFilter.create(pk='test-hf_doc', name='Doc view', model=FakeDocument,
-                                 cells_desc=[build_cell(name='title'), cell],
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_doc', name='Doc view', model=FakeDocument,
+            cells_desc=[build_cell(name='title'), cell],
+        )
 
         response = self.assertPOST200(FakeDocument.get_lv_absolute_url(),
                                       data={'hfilter': hf.id,
                                             # cell.key: p_folder1.title,
                                             'search-' + cell.key: p_folder1.title,
-                                           }
+                                           },
                                      )
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertIn(doc1.title, content)
@@ -1597,10 +1607,11 @@ class ListViewTestCase(ViewsTestCase):
         build_cell = partial(EntityCellRegularField.build, model=FakeEmailCampaign)
 
         cell_m2m = build_cell(name='mailing_lists')
-        hf = HeaderFilter.create(pk='test-hf_camp', name='Campaign view',
-                                 model=FakeEmailCampaign,
-                                 cells_desc=[build_cell(name='name'), cell_m2m]
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_camp', name='Campaign view',
+            model=FakeEmailCampaign,
+            cells_desc=[build_cell(name='name'), cell_m2m],
+        )
 
         create_mlist = partial(FakeMailingList.objects.create, user=user)
         ml1 = create_mlist(name='Bebop staff')
@@ -1646,7 +1657,9 @@ class ListViewTestCase(ViewsTestCase):
     def test_search_m2mfields02(self):
         "M2M to basic model."
         user = self.login()
-        hf = HeaderFilter.create(pk='test-hf_img', name='Image view', model=FakeImage)
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_img', name='Image view', model=FakeImage,
+        )
         build_cell = partial(EntityCellRegularField.build, model=FakeImage)
 
         cell_m2m = build_cell(name='categories')
@@ -1694,7 +1707,7 @@ class ListViewTestCase(ViewsTestCase):
     def test_search_m2mfields03(self):
         "M2M to basic model + sub-field."
         user = self.login()
-        hf = HeaderFilter.create(pk='test-hf_img', name='Image view', model=FakeImage)
+        hf = HeaderFilter.objects.create_if_needed(pk='test-hf_img', name='Image view', model=FakeImage)
         build_cell = partial(EntityCellRegularField.build, model=FakeImage)
 
         cell_m2m = build_cell(name='categories__name')
@@ -1713,12 +1726,14 @@ class ListViewTestCase(ViewsTestCase):
         img2.categories.set([cat1])
 
         def search(searched):
-            response = self.assertPOST200(FakeImage.get_lv_absolute_url(),
-                                          data={'hfilter': hf.id,
-                                                # cell_m2m.key: searched,
-                                                'search-' + cell_m2m.key: searched,
-                                               },
-                                         )
+            response = self.assertPOST200(
+                FakeImage.get_lv_absolute_url(),
+                data={
+                    'hfilter': hf.id,
+                    # cell_m2m.key: searched,
+                    'search-' + cell_m2m.key: searched,
+                },
+            )
             return self._get_lv_content(self._get_lv_node(response))
 
         content = search(cat1.name[:5])
@@ -2588,11 +2603,13 @@ class ListViewTestCase(ViewsTestCase):
         contacts = [*FakeContact.objects.all()]
         self.assertEqual(expected_count, len(contacts))
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
-                                             (EntityCellRegularField, {'name': 'first_name'}),
-                                            ],
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'last_name'}),
+                (EntityCellRegularField, {'name': 'first_name'}),
+            ],
+        )
 
         def post(page_info=None):
             return self.assertPOST200(FakeContact.get_lv_absolute_url(),
@@ -2659,10 +2676,10 @@ class ListViewTestCase(ViewsTestCase):
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell2 = build_cell(name=ordering_fname)
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view',
-                                 model=FakeContact,
-                                 cells_desc=[build_cell(name='last_name'), cell2],
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells_desc=[build_cell(name='last_name'), cell2],
+        )
 
         def post(page_info=None):
             return self.assertPOST200(
@@ -2713,11 +2730,12 @@ class ListViewTestCase(ViewsTestCase):
         contacts = [*FakeContact.objects.order_by('last_name', 'first_name', 'cremeentity_ptr_id')]
         self.assertEqual(expected_count, len(contacts))
 
-        hf = HeaderFilter.create(
+        hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact', name='Order02 view', model=FakeContact,
-            cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
-                        (EntityCellRegularField, {'name': 'first_name'}),
-                       ],
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'last_name'}),
+                (EntityCellRegularField, {'name': 'first_name'}),
+            ],
         )
 
         def post(page_info=None):
@@ -2758,11 +2776,13 @@ class ListViewTestCase(ViewsTestCase):
         for i in range(expected_count - count):
             create_contact(first_name='Gally', last_name='Tuned#{:02}'.format(i))
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
-                                             (EntityCellRegularField, {'name': 'first_name'}),
-                                            ],
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'last_name'}),
+                (EntityCellRegularField, {'name': 'first_name'}),
+            ],
+        )
 
         def post(page_info=''):
             response = self.assertPOST200(FakeContact.get_lv_absolute_url(),
@@ -2807,11 +2827,13 @@ class ListViewTestCase(ViewsTestCase):
         for i in range(expected_count - count):
             create_contact(first_name='Gally', last_name='Tuned#{:02}'.format(i))
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
-                                             (EntityCellRegularField, {'name': 'first_name'}),
-                                            ],
-                                )
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'last_name'}),
+                (EntityCellRegularField, {'name': 'first_name'}),
+            ],
+        )
 
         def post(page_info=''):
             response = self.assertPOST200(FakeContact.get_lv_absolute_url(),

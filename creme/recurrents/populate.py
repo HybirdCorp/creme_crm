@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,11 +35,12 @@ class Populator(BasePopulator):
     def populate(self):
         RecurrentGenerator = get_rgenerator_model()
 
-        HeaderFilter.create(pk=constants.DEFAULT_HFILTER_RGENERATOR,
-                            model=RecurrentGenerator,
-                            name=_('Generator view'),
-                            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-                           )
+        HeaderFilter.objects.create_if_needed(
+            pk=constants.DEFAULT_HFILTER_RGENERATOR,
+            model=RecurrentGenerator,
+            name=_('Generator view'),
+            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+        )
 
         SearchConfigItem.create_if_needed(RecurrentGenerator, ['name', 'description'])
 
