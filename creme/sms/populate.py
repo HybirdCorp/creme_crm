@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,22 +42,22 @@ class Populator(BasePopulator):
         MessagingList   = sms.get_messaginglist_model()
         MessageTemplate = sms.get_messagetemplate_model()
 
-        create_hf = HeaderFilter.create
+        create_hf = HeaderFilter.objects.create_if_needed
         create_hf(pk=constants.DEFAULT_HFILTER_MLIST,
                   model=MessagingList,
                   name=_('Messaging list view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-                  )
+                 )
         create_hf(pk=constants.DEFAULT_HFILTER_SMSCAMPAIGN,
                   model=SMSCampaign,
                   name=_('Campaign view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-                  )
+                 )
         create_hf(pk=constants.DEFAULT_HFILTER_MTEMPLATE,
                   model=MessageTemplate,
                   name=_('Message template view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-                  )
+                 )
 
         # ---------------------------
         create_searchconf = SearchConfigItem.create_if_needed

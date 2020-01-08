@@ -27,8 +27,10 @@ from django.utils.translation import gettext as _
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import (RelationType, CremePropertyType, SettingValue,
-        Job, BrickDetailviewLocation, SearchConfigItem, ButtonMenuItem, HeaderFilter)
+from creme.creme_core.models import (
+    RelationType, CremePropertyType, SettingValue, Job,
+    BrickDetailviewLocation, SearchConfigItem, ButtonMenuItem, HeaderFilter,
+)
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.utils.date_period import date_period_registry
 
@@ -71,7 +73,7 @@ class Populator(BasePopulator):
             create_if_needed(ActType, {'pk': i}, title=title, is_custom=False)
 
         # ---------------------------
-        create_hf = HeaderFilter.create
+        create_hf = HeaderFilter.objects.create_if_needed
         create_hf(pk=constants.DEFAULT_HFILTER_ACT, model=Act,
                   name=_('Com Action view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),

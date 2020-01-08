@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -110,20 +110,25 @@ class Populator(BasePopulator):
                              )
 
         # ---------------------------
-        HeaderFilter.create(pk=constants.DEFAULT_HFILTER_DOCUMENT, model=Document,
-                            name=_('Document view'),
-                            cells_desc=[(EntityCellRegularField, {'name': 'title'}),
-                                        (EntityCellRegularField, {'name': 'linked_folder__title'}),
-                                        (EntityCellRegularField, {'name': 'mime_type'}),
-                                       ]
-                                )
-        HeaderFilter.create(pk=constants.DEFAULT_HFILTER_FOLDER, model=Folder,
-                            name=_('Folder view'),
-                            cells_desc=[(EntityCellRegularField, {'name': 'title'}),
-                                        (EntityCellRegularField, {'name': 'description'}),
-                                        (EntityCellRegularField, {'name': 'category'}),
-                                       ]
-                           )
+        create_hf = HeaderFilter.objects.create_if_needed
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_DOCUMENT, model=Document,
+            name=_('Document view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'title'}),
+                (EntityCellRegularField, {'name': 'linked_folder__title'}),
+                (EntityCellRegularField, {'name': 'mime_type'}),
+            ],
+        )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_FOLDER, model=Folder,
+            name=_('Folder view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'title'}),
+                (EntityCellRegularField, {'name': 'description'}),
+                (EntityCellRegularField, {'name': 'category'}),
+            ],
+        )
 
         # ---------------------------
         EntityFilter.create(

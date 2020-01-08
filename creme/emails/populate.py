@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,9 +27,11 @@ from django.utils.translation import gettext as _
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
-        BrickDetailviewLocation, CustomBrickConfigItem,
-        ButtonMenuItem, HeaderFilter, Job)
+from creme.creme_core.models import (
+    RelationType, SearchConfigItem, SettingValue,
+    BrickDetailviewLocation, CustomBrickConfigItem,
+    ButtonMenuItem, HeaderFilter, Job,
+)
 
 from creme import persons, emails
 
@@ -66,7 +68,7 @@ class Populator(BasePopulator):
                             (constants.REL_OBJ_RELATED_TO,    _('related to the email'), []))
 
         # ---------------------------
-        create_hf = HeaderFilter.create
+        create_hf = HeaderFilter.objects.create_if_needed
         create_hf(pk=constants.DEFAULT_HFILTER_MAILINGLIST,
                   model=MailingList,
                   name=_('Mailing list view'),

@@ -766,7 +766,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         User = get_user_model()
         teammate = User.objects.create(username='fulbertc',
-                                       email='fulbnert@creme.org', role=self.role,
+                                       email='fulbert@creme.org', role=self.role,
                                        first_name='Fulbert', last_name='Creme',
                                       )
 
@@ -811,7 +811,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         User = get_user_model()
         teammate = User.objects.create(username='fulbertc',
-                                       email='fulbnert@creme.org', role=self.role,
+                                       email='fulbert@creme.org', role=self.role,
                                        first_name='Fulbert', last_name='Creme',
                                       )
 
@@ -3457,7 +3457,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         User = get_user_model()
         teammate = User.objects.create(username='fulbertc',
-                                       email='fulbnert@creme.org', role=self.role,
+                                       email='fulbert@creme.org', role=self.role,
                                        first_name='Fulbert', last_name='Creme',
                                       )
 

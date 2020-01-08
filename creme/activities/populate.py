@@ -109,7 +109,7 @@ class Populator(BasePopulator):
         create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_FAILED},     name=_('Outgoing - Failed'), type=phone_call_type, is_custom=False)
 
         # ---------------------------
-        HeaderFilter.create(
+        HeaderFilter.objects.create_if_needed(
             pk=constants.DEFAULT_HFILTER_ACTIVITY,
             name=_('Activity view'),
             model=Activity,

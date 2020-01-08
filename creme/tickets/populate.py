@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,8 +27,10 @@ from django.utils.translation import gettext as _
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import (RelationType, HeaderFilter,
-        SearchConfigItem, BrickDetailviewLocation, RelationBrickItem, ButtonMenuItem)
+from creme.creme_core.models import (
+    RelationType, HeaderFilter, SearchConfigItem,
+    BrickDetailviewLocation, RelationBrickItem, ButtonMenuItem,
+)
 from creme.creme_core.utils import create_if_needed
 
 from . import constants, get_ticket_model, get_tickettemplate_model
@@ -64,27 +66,30 @@ class Populator(BasePopulator):
             create_if_needed(Status, {'pk': pk}, name=str(name), is_custom=False, order=pk)
 
         # ---------------------------
-        create_hf = HeaderFilter.create
+        create_hf = HeaderFilter.objects.create_if_needed
         create_hf(pk=constants.DEFAULT_HFILTER_TICKET,
-                  model=Ticket,
-                  name=_('Ticket view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'number'}),
-                              (EntityCellRegularField, {'name': 'title'}),
-                              (EntityCellRegularField, {'name': 'status'}),
-                              (EntityCellRegularField, {'name': 'priority'}),
-                              (EntityCellRegularField, {'name': 'criticity'}),
-                              (EntityCellRegularField, {'name': 'closing_date'}),
-                             ],
-                 )
-        create_hf(pk=constants.DEFAULT_HFILTER_TTEMPLATE,
-                  model=TicketTemplate,
-                  name=_('Ticket template view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'title'}),
-                              (EntityCellRegularField, {'name': 'status'}),
-                              (EntityCellRegularField, {'name': 'priority'}),
-                              (EntityCellRegularField, {'name': 'criticity'}),
-                             ],
-                 )
+            model=Ticket,
+            name=_('Ticket view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'number'}),
+                (EntityCellRegularField, {'name': 'title'}),
+                (EntityCellRegularField, {'name': 'status'}),
+                (EntityCellRegularField, {'name': 'priority'}),
+                (EntityCellRegularField, {'name': 'criticity'}),
+                (EntityCellRegularField, {'name': 'closing_date'}),
+            ],
+        )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_TTEMPLATE,
+            model=TicketTemplate,
+            name=_('Ticket template view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'title'}),
+                (EntityCellRegularField, {'name': 'status'}),
+                (EntityCellRegularField, {'name': 'priority'}),
+                (EntityCellRegularField, {'name': 'criticity'}),
+            ],
+        )
 
         # ---------------------------
         SearchConfigItem.create_if_needed(Ticket,

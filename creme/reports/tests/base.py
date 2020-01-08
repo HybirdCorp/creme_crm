@@ -71,7 +71,9 @@ class BaseReportsTestCase(CremeTestCase):
             *extra_cells,
         ]
 
-        hf = HeaderFilter.create(pk='test_hf', name='name', model=FakeContact, cells_desc=cells)
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test_hf', name='name', model=FakeContact, cells_desc=cells,
+        )
 
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':   self.user.pk,

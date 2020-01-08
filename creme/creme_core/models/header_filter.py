@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@
 from collections import defaultdict
 from json import loads as json_load
 import logging
+import warnings
 
 from django.db import models
 from django.db.models.query_utils import Q
@@ -40,7 +41,11 @@ class HeaderFilterList(list):
     Indeed, it's a cache.
     """
     def __init__(self, content_type, user):
-        super().__init__(HeaderFilter.get_for_user(user, content_type))
+        # super().__init__(HeaderFilter.get_for_user(user, content_type))
+        super().__init__(
+            HeaderFilter.objects.filter_by_user(user)
+                                .filter(entity_type=content_type)
+        )
         self._selected = None
 
     @property
@@ -64,6 +69,72 @@ class HeaderFilterList(list):
         return self._selected
 
 
+class HeaderFilterManager(models.Manager):
+    def filter_by_user(self, user):
+        if user.is_team:
+            raise ValueError(
+                'HeaderFilterManager.filter_by_user(): '
+                'user cannot be a team ({})'.format(user)
+            )
+
+        qs = self.all()
+
+        return qs if user.is_staff else \
+               qs.filter(Q(is_private=False) |
+                         Q(is_private=True, user__in=[user, *user.teams]),
+                        )
+
+    def create_if_needed(self, pk, name, model,
+                         is_custom=False, user=None, is_private=False, cells_desc=()):
+        """Creation helper ; useful for populate.py scripts.
+        @param cells_desc: List of objects where each one can other:
+            - an instance of EntityCell (one of its child class of course).
+            - a tuple (class, args)
+              where 'class' is child class of EntityCell, & 'args' is a dict
+              containing parameters for the build() method of the previous class.
+        """
+        from ..core.entity_cell import EntityCell
+
+        if user and user.is_staff:
+            # Staff users cannot be owner in order to stay 'invisible'.
+            raise ValueError('HeaderFilter.create(): the owner cannot be a staff user.')
+
+        if is_private:
+            if not user:
+                raise ValueError('HeaderFilter.create(): a private filter must belong to a User.')
+
+            if not is_custom:
+                # It should not be useful to create a private HeaderFilter (so it
+                # belongs to a user) which cannot be deleted.
+                raise ValueError('HeaderFilter.create(): a private filter must be custom.')
+
+        try:
+            hf = self.get(pk=pk)
+        except self.model.DoesNotExist:
+            cells = []
+
+            for cell_desc in cells_desc:
+                if cell_desc is None:
+                    continue
+
+                if isinstance(cell_desc, EntityCell):
+                    cells.append(cell_desc)
+                else:
+                    cell = cell_desc[0].build(model=model, **cell_desc[1])
+
+                    if cell is not None:
+                        cells.append(cell)
+
+            hf = self.create(
+                pk=pk, name=name, user=user,
+                is_custom=is_custom, is_private=is_private,
+                entity_type=model,
+                cells=cells,
+            )
+
+        return hf
+
+
 class HeaderFilter(models.Model):  # CremeModel ???
     """View of list : sets of columns (see EntityCell) stored for a specific
     ContentType of CremeEntity.
@@ -81,6 +152,8 @@ class HeaderFilter(models.Model):  # CremeModel ???
     is_private = models.BooleanField(pgettext_lazy('creme_core-header_filter', 'Is private?'), default=False)
 
     json_cells = models.TextField(editable=False, null=True)  # TODO: JSONField ? CellsField ?
+
+    objects = HeaderFilterManager()
 
     creation_label = _('Create a view')
     save_label     = _('Save the view')
@@ -134,7 +207,6 @@ class HeaderFilter(models.Model):  # CremeModel ???
 
         return self.can_edit(user)
 
-    # TODO: move to a manager ?
     @classmethod
     def create(cls, pk, name, model, is_custom=False, user=None, is_private=False, cells_desc=()):
         """Creation helper ; useful for populate.py scripts.
@@ -144,46 +216,15 @@ class HeaderFilter(models.Model):  # CremeModel ???
               where 'class' is child class of EntityCell, & 'args' is a dict
               containing parameters for the build() method of the previous class.
         """
-        from ..core.entity_cell import EntityCell
+        warnings.warn('HeaderFilter.create() is deprecated ; '
+                      'use HeaderFilter.objects.create_if_needed() instead.',
+                      DeprecationWarning
+                     )
 
-        if user and user.is_staff:
-            # Staff users cannot be owner in order to stay 'invisible'.
-            raise ValueError('HeaderFilter.create(): the owner cannot be a staff user.')
-
-        if is_private:
-            if not user:
-                raise ValueError('HeaderFilter.create(): a private filter must belong to a User.')
-
-            if not is_custom:
-                # It should not be useful to create a private HeaderFilter (so it
-                # belongs to a user) which cannot be deleted.
-                raise ValueError('HeaderFilter.create(): a private filter must be custom.')
-
-        try:
-            hf = cls.objects.get(pk=pk)
-        except cls.DoesNotExist:
-            cells = []
-
-            for cell_desc in cells_desc:
-                if cell_desc is None:
-                    continue
-
-                if isinstance(cell_desc, EntityCell):
-                    cells.append(cell_desc)
-                else:
-                    cell = cell_desc[0].build(model=model, **cell_desc[1])
-
-                    if cell is not None:
-                        cells.append(cell)
-
-            hf = cls.objects.create(
-                pk=pk, name=name, user=user,
-                is_custom=is_custom, is_private=is_private,
-                entity_type=model,
-                cells=cells,
-            )
-
-        return hf
+        return cls.objects.create_if_needed(
+            pk=pk, name=name, model=model, is_custom=is_custom, user=user,
+            is_private=is_private, cells_desc=cells_desc,
+        )
 
     def _dump_cells(self, cells):
         self.json_cells = json_encode([cell.to_dict() for cell in cells])
@@ -224,10 +265,13 @@ class HeaderFilter(models.Model):  # CremeModel ???
     def get_edit_absolute_url(self):
         return reverse('creme_core__edit_hfilter', args=(self.id,))
 
-    # TODO: move to a manager ? + rename (filter_...) + accept models
-    #       possible to separate into 2 methods (filter by user & filter by ct) ??
     @staticmethod
     def get_for_user(user, content_type=None):
+        warnings.warn('HeaderFilter.get_for_user() is deprecated ; '
+                      'use HeaderFilter.objects.filter_by_user(...).filter(entity_type=...) instead.',
+                      DeprecationWarning
+                     )
+
         assert not user.is_team
 
         qs = HeaderFilter.objects.all()
