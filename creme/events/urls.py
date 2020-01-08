@@ -21,8 +21,10 @@ urlpatterns = [
     ),
 
     re_path(r'^event/(?P<event_id>\d+)/contact/(?P<contact_id>\d+)/', include([
-        re_path(r'^set_invitation_status[/]?$', event.set_invitation_status, name='events__set_invitation_status'),
-        re_path(r'^set_presence_status[/]?$',   event.set_presence_status,   name='events__set_presence_status'),
+        # re_path(r'^set_invitation_status[/]?$', event.set_invitation_status, name='events__set_invitation_status'),
+        re_path(r'^set_invitation_status[/]?$', event.InvitationStatusSetting.as_view(), name='events__set_invitation_status'),
+        # re_path(r'^set_presence_status[/]?$',   event.set_presence_status,   name='events__set_presence_status'),
+        re_path(r'^set_presence_status[/]?$',   event.PresenceStatusSetting.as_view(),   name='events__set_presence_status'),
     ])),
 
     *swap_manager.add_group(

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.actions import ViewAction
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.entity_cell import EntityCellRelation
 from creme.creme_core.gui.actions import EntityAction
 from creme.creme_core.gui import listview as lv_gui
@@ -74,54 +74,53 @@ class AddRelatedOpportunityAction(EntityAction):
                user.has_perm_to_link(self.event)
 
 
-def _get_status(request, valid_status):
-    status_str = get_from_POST_or_404(request.POST, 'status')
-
-    try:
-        status = int(status_str)
-    except Exception as e:
-        raise Http404('Status is not an integer: {}'.format(status_str)) from e
-
-    if not status in valid_status:
-        raise Http404('Unknown status: {}'.format(status))
-
-    return status
-
-
-def _get_event_n_contact(event_id, contact_id, user):
-    event   = get_object_or_404(Event, pk=event_id)
-    contact = get_object_or_404(Contact, pk=contact_id)
-
-    has_perm_or_die = user.has_perm_to_link_or_die
-    has_perm_or_die(event)
-    has_perm_or_die(contact)
-
-    return event, contact
-
-
-# TODO: use jsonify ??
-@login_required
-@permission_required('events')
-def set_invitation_status(request, event_id, contact_id):
-    status = _get_status(request, constants.INV_STATUS_MAP)
-    user = request.user
-    event, contact = _get_event_n_contact(event_id, contact_id, user)
-
-    event.set_invitation_status(contact, status, user)
-
-    return HttpResponse()
-
-
-@login_required
-@permission_required('events')
-def set_presence_status(request, event_id, contact_id):
-    status = _get_status(request, constants.PRES_STATUS_MAP)
-    user = request.user
-    event, contact = _get_event_n_contact(event_id, contact_id, user)
-
-    event.set_presence_status(contact, status, user)
-
-    return HttpResponse()
+# def _get_status(request, valid_status):
+#     status_str = get_from_POST_or_404(request.POST, 'status')
+#
+#     try:
+#         status = int(status_str)
+#     except Exception as e:
+#         raise Http404('Status is not an integer: {}'.format(status_str)) from e
+#
+#     if not status in valid_status:
+#         raise Http404('Unknown status: {}'.format(status))
+#
+#     return status
+#
+#
+# def _get_event_n_contact(event_id, contact_id, user):
+#     event   = get_object_or_404(Event, pk=event_id)
+#     contact = get_object_or_404(Contact, pk=contact_id)
+#
+#     has_perm_or_die = user.has_perm_to_link_or_die
+#     has_perm_or_die(event)
+#     has_perm_or_die(contact)
+#
+#     return event, contact
+#
+#
+# @login_required
+# @permission_required('events')
+# def set_invitation_status(request, event_id, contact_id):
+#     status = _get_status(request, constants.INV_STATUS_MAP)
+#     user = request.user
+#     event, contact = _get_event_n_contact(event_id, contact_id, user)
+#
+#     event.set_invitation_status(contact, status, user)
+#
+#     return HttpResponse()
+#
+#
+# @login_required
+# @permission_required('events')
+# def set_presence_status(request, event_id, contact_id):
+#     status = _get_status(request, constants.PRES_STATUS_MAP)
+#     user = request.user
+#     event, contact = _get_event_n_contact(event_id, contact_id, user)
+#
+#     event.set_presence_status(contact, status, user)
+#
+#     return HttpResponse()
 
 
 class EventCreation(generic.EntityCreation):
@@ -280,3 +279,59 @@ class RelatedOpportunityCreation(generic.EntityCreation):
         # data['event'] = self.get_event()  TODO ?
 
         return data
+
+
+class BaseStatusSetting(generic.CheckedView):
+    permissions = 'events'
+    status_map = constants.INV_STATUS_MAP
+    status_arg = 'status'
+    event_id_url_kwarg = 'event_id'
+    contact_id_url_kwarg = 'contact_id'
+
+    def check_contact_permissions(self, contact, user):
+        user.has_perm_to_link_or_die(contact)
+
+    def check_event_permissions(self, event, user):
+        user.has_perm_to_link_or_die(event)
+
+    def get_contact(self):
+        contact = get_object_or_404(Contact, pk=self.kwargs[self.contact_id_url_kwarg])
+        self.check_contact_permissions(contact, self.request.user)
+
+        return contact
+
+    def get_event(self):
+        event = get_object_or_404(Event, pk=self.kwargs[self.event_id_url_kwarg])
+        self.check_event_permissions(event, self.request.user)
+
+        return event
+
+    def get_status(self):
+        status = get_from_POST_or_404(self.request.POST, self.status_arg, cast=int)
+
+        if status not in self.status_map:
+            raise Http404('Unknown status: {}'.format(status))
+
+        return status
+
+    def post(self, *args, **kwargs):
+        self.update(
+            status=self.get_status(),
+            event=self.get_event(),
+            contact=self.get_contact(),
+        )
+
+        return HttpResponse()
+
+    def update(self, *, event, contact, status):
+        raise NotImplementedError()
+
+
+class InvitationStatusSetting(BaseStatusSetting):
+    def update(self, *, event, contact, status):
+        event.set_invitation_status(contact=contact, status=status, user=self.request.user)
+
+
+class PresenceStatusSetting(BaseStatusSetting):
+    def update(self, *, event, contact, status):
+        event.set_presence_status(contact=contact, status=status, user=self.request.user)
