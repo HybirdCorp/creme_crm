@@ -10,10 +10,7 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import (
-        CremeEntity, BrickDetailviewLocation,
-        FakeContact, FakeOrganisation,
-    )
+    from creme.creme_core.models import BrickDetailviewLocation, FakeContact
 
     from ..bricks import ActionsOnTimeBrick, ActionsNotOnTimeBrick
     from ..models import Action
@@ -43,7 +40,7 @@ class ActionTestCase(AssistantsTestCase):
                                           'description':       descr,
                                           'expected_reaction': reaction,
                                           'deadline':          deadline,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -109,23 +106,27 @@ class ActionTestCase(AssistantsTestCase):
         descr    += '_edited'
         reaction += '_edited'
         deadline = '2011-11-25'
-        response = self.client.post(url, data={'user':              self.user.pk,
-                                               'title':             title,
-                                               'description':       descr,
-                                               'expected_reaction': reaction,
-                                               'deadline':          deadline,
-                                               'deadline_time':     '17:37:00',
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'user':              self.user.pk,
+                'title':             title,
+                'description':       descr,
+                'expected_reaction': reaction,
+                'deadline':          deadline,
+                'deadline_time':     '17:37:00',
+            },
+        )
         self.assertNoFormError(response)
 
         action = self.refresh(action)
         self.assertEqual(title,    action.title)
         self.assertEqual(descr,    action.description)
         self.assertEqual(reaction, action.expected_reaction)
-        self.assertEqual(self.create_datetime(year=2011, month=11, day=25, hour=17, minute=37),
-                         action.deadline
-                        )
+        self.assertEqual(
+            self.create_datetime(year=2011, month=11, day=25, hour=17, minute=37),
+            action.deadline
+        )
 
     def test_delete_entity01(self):
         action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
@@ -136,9 +137,11 @@ class ActionTestCase(AssistantsTestCase):
         action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
         ct = self.get_ct(Action)
         kwargs = {} if not ajax else {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
-        response = self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
-                                    data={'id': action.id}, **kwargs
-                                   )
+        response = self.client.post(
+            reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+            data={'id': action.id},
+            **kwargs
+        )
         self.assertDoesNotExist(action)
 
         return response
@@ -157,7 +160,10 @@ class ActionTestCase(AssistantsTestCase):
         self.assertFalse(action.is_ok)
         self.assertIsNone(action.validation_date)
 
-        response = self.assertPOST200(reverse('assistants__validate_action', args=(action.id,)), follow=True)
+        response = self.assertPOST200(
+            reverse('assistants__validate_action', args=(action.id,)),
+            follow=True,
+        )
         self.assertRedirects(response, self.entity.get_absolute_url())
 
         action = self.refresh(action)
@@ -211,245 +217,3 @@ class ActionTestCase(AssistantsTestCase):
         self.assertCountEqual([action1, action3],
                               Action.objects.filter_by_user(user)
                              )
-
-
-# TODO: create a fake model with a RealEntityForeignKey & move these test case to 'creme_core' ??
-class RealEntityForeignKeyTestCase(AssistantsTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        cls.get_ct = get_ct = ContentType.objects.get_for_model
-        get_ct(FakeContact)
-        get_ct(CremeEntity)
-
-    def test_basic_get_n_set(self):
-        action = Action(title='My action',
-                        deadline=now() + timedelta(days=7),
-                        user=self.user,
-                       )
-
-        with self.assertNumQueries(0):
-            action.creme_entity = self.entity
-
-        with self.assertNumQueries(0):
-            ct = action.entity_content_type
-        self.assertEqual(self.get_ct(FakeContact), ct)
-
-        with self.assertNumQueries(0):
-            entity = action.entity
-        self.assertEqual(self.entity, entity)
-
-        with self.assertNoException():
-            action.save()
-
-        # ----
-        action = self.refresh(action)
-        self.assertEqual(self.entity.id, action.entity_id)
-        self.assertEqual(ct.id,          action.entity_content_type_id)
-
-        with self.assertNumQueries(1):
-            creme_entity = action.creme_entity
-        self.assertEqual(self.entity, creme_entity)
-
-    def test_get_with_cache(self):
-        action = Action.objects.create(title='My action',
-                                       deadline=now() + timedelta(days=7),
-                                       user=self.user,
-                                       creme_entity=self.entity,
-                                      )
-
-        action = self.refresh(action)
-
-        with self.assertNumQueries(1):
-            __ = action.creme_entity
-
-        with self.assertNumQueries(0):  # <= cache
-            creme_entity = action.creme_entity
-
-        self.assertEqual(self.entity, creme_entity)
-
-    def test_fk_cache(self):
-        "Do not retrieve real entity if already stored/retrieved in 'entity' attribute."
-        entity = self.entity
-        action = Action(title='My action',
-                        deadline=now() + timedelta(days=7),
-                        user=self.user,
-                        entity=entity,  # <== real entity
-                        entity_content_type=entity.entity_type,  # Must be set (consistency protection)
-                       )
-
-        with self.assertNumQueries(0):
-            creme_entity = action.creme_entity
-
-        self.assertEqual(entity, creme_entity)
-
-    def test_missing_ctype01(self):
-        "CT not set + base entity set => error"
-        action = Action(title='My action',
-                        deadline=now() + timedelta(days=7),
-                        user=self.user,
-                        entity=CremeEntity.objects.get(id=self.entity.id),  # Not real entity...
-                       )
-
-        with self.assertRaises(ValueError) as error_context:
-            __ = action.creme_entity
-
-        self.assertEqual('The content type is not set while the entity is. '
-                         'HINT: set both by hand or just use the RealEntityForeignKey setter.',
-                         error_context.exception.args[0]
-                        )
-
-    def test_missing_ctype02(self):
-        "CT not set + entity ID set => error"
-        action = Action(title='My action',
-                        deadline=now() + timedelta(days=7),
-                        user=self.user,
-                        entity_id=self.entity.id
-                       )
-
-        with self.assertRaises(ValueError) as error_context:
-            __ = action.creme_entity
-
-        self.assertEqual('The content type is not set while the entity is. '
-                         'HINT: set both by hand or just use the RealEntityForeignKey setter.',
-                         error_context.exception.args[0]
-                        )
-
-    def test_cache_for_set(self):
-        "After a '__set__' with a real entity, '__get__' uses no query."
-        entity = self.entity
-        action = Action(title='My action',
-                        deadline=now() + timedelta(days=7),
-                        user=self.user,
-                       )
-
-        with self.assertNumQueries(0):
-            action.creme_entity = entity
-
-        with self.assertNumQueries(0):
-            creme_entity = action.creme_entity
-
-        self.assertEqual(entity, creme_entity)
-
-    def test_get_real_entity(self):
-        "Set a base entity, so '__get__' uses a query to retrieve the real entity."
-        entity = self.entity
-        action = Action(title='My action',
-                        deadline=now() + timedelta(days=7),
-                        user=self.user,
-                       )
-
-        base_entity = CremeEntity.objects.get(id=entity.id)
-
-        with self.assertNumQueries(0):
-            action.creme_entity = base_entity
-
-        with self.assertNumQueries(1):
-            creme_entity = action.creme_entity
-        self.assertEqual(entity, creme_entity)
-
-        with self.assertNumQueries(0):
-            creme_entity2 = action.creme_entity
-        self.assertEqual(entity, creme_entity2)
-
-    def test_set_none(self):
-        "Set None"
-        entity = self.entity
-        action = Action(title='My action',
-                        deadline=now() + timedelta(days=7),
-                        user=self.user,
-                        entity=entity,
-                        entity_content_type=entity.entity_type,
-                       )
-
-        action.creme_entity = None
-        self.assertIsNone(action.entity_id)
-        self.assertIsNone(action.entity_content_type_id)
-
-    def test_get_none01(self):
-        "Get initial None"
-        action = Action(title='My action',
-                        deadline=now() + timedelta(days=7),
-                        user=self.user,
-                        # entity=entity,  # Not set
-                       )
-
-        with self.assertNumQueries(0):
-            creme_entity = action.creme_entity
-
-        self.assertIsNone(creme_entity)
-
-        #  --
-        action.entity = entity = self.entity
-
-        with self.assertRaises(ValueError):
-            __ = action.creme_entity
-
-        # --
-        action.entity_content_type_id = entity.entity_type_id
-
-        with self.assertNumQueries(0):
-            creme_entity2 = action.creme_entity
-
-        self.assertEqual(entity, creme_entity2)
-
-    def test_get_none02(self):
-        "Get initial None (explicitly set)"
-        action = Action(title='My action',
-                        deadline=now() + timedelta(days=7),
-                        user=self.user,
-                        entity=None,
-                       )
-
-        with self.assertNumQueries(0):
-            creme_entity = action.creme_entity
-
-        self.assertIsNone(creme_entity)
-
-    def test_bad_ctype01(self):
-        "Bad CT id + base entity id"
-        action = Action(title='My action',
-                        deadline=now() + timedelta(days=7),
-                        user=self.user,
-                        entity_id=self.entity.id,
-                        entity_content_type=self.get_ct(FakeOrganisation),  # Does not correspond to 'self.entity'
-                       )
-
-        with self.assertRaises(FakeOrganisation.DoesNotExist):
-            __ = action.creme_entity
-
-    def test_bad_ctype02(self):
-        "Bad CT + base entity"
-        action = Action(title='My action',
-                        deadline=now() + timedelta(days=7),
-                        user=self.user,
-                        entity=CremeEntity.objects.get(id=self.entity.id),  # Not real entity...
-                        entity_content_type=self.get_ct(FakeOrganisation),  # Does not correspond to 'self.entity'
-                       )
-
-        with self.assertRaises(ValueError) as error_context:
-            __ = action.creme_entity
-
-        self.assertEqual('The content type does not match this entity.',
-                         error_context.exception.args[0]
-                        )
-
-    def test_change_entity(self):
-        "New entity with new CT"
-        action = Action.objects.create(
-            title='My action',
-            deadline=now() + timedelta(days=7),
-            user=self.user,
-            creme_entity=self.entity,
-        )
-        orga = FakeOrganisation.objects.create(user=self.user, name='Tendô no dojo')
-
-        action = self.refresh(action)
-        action.creme_entity = orga
-        action.save()
-
-        action = self.refresh(action)
-        self.assertEqual(orga, action.creme_entity)
-        self.assertEqual(orga.id, action.entity_id)
-        self.assertEqual(FakeOrganisation, action.entity_content_type.model_class())

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,8 +24,9 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core import checks
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import (DateTimeField, CharField, TextField, DecimalField,
-        PositiveIntegerField, OneToOneField, ForeignKey, SET, CASCADE, Max)
+from django.db import models
+from django.db.models.deletion import SET, CASCADE
+from django.db.models.aggregates import Max
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
@@ -36,20 +37,20 @@ from ..utils.serializers import json_encode
 
 # TODO: add a form field ?? (validation)
 # TODO: fix the max_length value ?
-class PhoneField(CharField):
+class PhoneField(models.CharField):
     pass
 
 
 # TODO: Make a real API for this
-class DurationField(CharField):
+class DurationField(models.CharField):
     pass
 
 
-class UnsafeHTMLField(TextField):
+class UnsafeHTMLField(models.TextField):
     pass
 
 
-class ColorField(CharField):
+class ColorField(models.CharField):
     default_validators = [validators.validate_color]
     description = _('HTML Color')
 
@@ -63,7 +64,7 @@ class ColorField(CharField):
         return super().formfield(**{'form_class': ColorFormField, **kwargs})
 
 
-class DatePeriodField(TextField):  # TODO: inherit from a JSONField
+class DatePeriodField(models.TextField):  # TODO: inherit from a JSONField
     def to_python(self, value):
         if not value:  # if value is None: ??
             return None
@@ -95,10 +96,10 @@ class DatePeriodField(TextField):  # TODO: inherit from a JSONField
 
         # BEWARE: we do not call TextField.formfield because it overload 'widget'
         # (we could define the 'widget' key in 'defaults'...)
-        return super(TextField, self).formfield(**{'form_class': DatePeriodFormField, **kwargs})
+        return super(models.TextField, self).formfield(**{'form_class': DatePeriodFormField, **kwargs})
 
 
-class MoneyField(DecimalField):
+class MoneyField(models.DecimalField):
     pass
 
 
@@ -106,7 +107,7 @@ def _transfer_assignation():
     return CremeUserForeignKey._TRANSFER_TO_USER
 
 
-class CremeUserForeignKey(ForeignKey):
+class CremeUserForeignKey(models.ForeignKey):
     _TRANSFER_TO_USER = None
 
     def __init__(self, **kwargs):
@@ -133,7 +134,7 @@ class CremeUserForeignKey(ForeignKey):
         return 'ForeignKey'
 
 
-class CTypeForeignKey(ForeignKey):
+class CTypeForeignKey(models.ForeignKey):
     def __init__(self, **kwargs):
         kwargs['to'] = 'contenttypes.ContentType'
         # In a normal use, ContentType instances are never deleted ; so CASCADE by default should be OK
@@ -175,7 +176,9 @@ class CTypeForeignKey(ForeignKey):
 
         # BEWARE: we don't call super(CTypeForeignKey, self).formfield(**defaults)
         # to avoid useless/annoying 'queryset' arg
-        return super(ForeignKey, self).formfield(**{'form_class': CTypeChoiceField, **kwargs})
+        return super(models.ForeignKey, self).formfield(
+            **{'form_class': CTypeChoiceField, **kwargs}
+        )
 
 
 class EntityCTypeForeignKey(CTypeForeignKey):
@@ -190,7 +193,7 @@ class EntityCTypeForeignKey(CTypeForeignKey):
 
 
 # TODO: factorise with CTypeForeignKey
-class CTypeOneToOneField(OneToOneField):
+class CTypeOneToOneField(models.OneToOneField):
     def __init__(self, **kwargs):
         kwargs['to'] = 'contenttypes.ContentType'
 
@@ -233,7 +236,9 @@ class CTypeOneToOneField(OneToOneField):
 
         # BEWARE: we don't call super(CTypeOneToOneField, self).formfield(**defaults)
         # to avoid useless/annoying 'queryset' arg
-        return super(OneToOneField, self).formfield(**{'form_class': CTypeChoiceField, **kwargs})
+        return super(models.OneToOneField, self).formfield(
+            **{'form_class': CTypeChoiceField, **kwargs}
+        )
 
 
 class RealEntityForeignKey:
@@ -324,7 +329,7 @@ class RealEntityForeignKey:
                 id='creme.E007',
             )
         else:
-            if not isinstance(field, ForeignKey):
+            if not isinstance(field, models.ForeignKey):
                 yield checks.Error(
                     '"{}.{}" is not a ForeignKey.'.format(meta.object_name, fname),
                     obj=self,
@@ -403,7 +408,7 @@ class RealEntityForeignKey:
         # setattr(instance, self.cache_attr, value)  # We use the cache of FK/entity instead.
 
 
-class BasicAutoField(PositiveIntegerField):
+class BasicAutoField(models.PositiveIntegerField):
     """BasicAutoField is a PositiveIntegerField which uses an auto-incremented
     value when no value is given.
 
@@ -458,7 +463,7 @@ class BasicAutoField(PositiveIntegerField):
 ################################################################################
 #  Copyright (c) 2007  Michael Trier
 #  Copyright (C) 2014  http://trbs.net
-#  Copyright (C) 2009-2018  Hybird
+#  Copyright (C) 2009-2020  Hybird
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -479,7 +484,7 @@ class BasicAutoField(PositiveIntegerField):
 #  THE SOFTWARE.
 ################################################################################
 
-class CreationDateTimeField(DateTimeField):
+class CreationDateTimeField(models.DateTimeField):
     """ CreationDateTimeField
 
     By default, sets editable=False, blank=True, default=now
