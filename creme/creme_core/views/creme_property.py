@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,14 +27,14 @@ from django.utils.translation import gettext_lazy as _
 # TODO: move them to creme_core ?
 from creme.creme_config.forms import creme_property_type as ptype_forms
 
-from ..auth.decorators import login_required
+# from ..auth.decorators import login_required
 from ..forms import creme_property as prop_forms
 from ..gui.bricks import QuerysetBrick, Brick
 from ..models import CremeEntity, CremePropertyType, CremeProperty
 from ..utils import creme_entity_content_types, get_from_POST_or_404
 
 from . import generic, bricks as bricks_views
-from .decorators import jsonify
+# from .decorators import jsonify
 from .generic.base import EntityCTypeRelatedMixin
 
 # TODO: Factorise with views in creme_config
@@ -273,28 +273,73 @@ class PropertyTypeDetail(generic.CremeModelDetail):
         return reverse(self.bricks_reload_url_name, args=(self.object.id,))
 
 
-@login_required
-@jsonify
-def reload_bricks(request, ptype_id):
-    brick_ids = bricks_views.get_brick_ids_or_404(request)
-    ptype = get_object_or_404(CremePropertyType, id=ptype_id)
-    bricks = []
-    ctypes = ptype.subject_ctypes.all()
+# @login_required
+# @jsonify
+# def reload_bricks(request, ptype_id):
+#     brick_ids = bricks_views.get_brick_ids_or_404(request)
+#     ptype = get_object_or_404(CremePropertyType, id=ptype_id)
+#     bricks = []
+#     ctypes = ptype.subject_ctypes.all()
+#
+#     for b_id in brick_ids:
+#         if b_id == PropertyTypeInfoBrick.id_:
+#             brick = PropertyTypeInfoBrick(ptype, ctypes)
+#         elif b_id == TaggedMiscEntitiesBrick.id_:
+#             brick = TaggedMiscEntitiesBrick(ptype, ctypes)
+#         else:
+#             ctype = TaggedEntitiesBrick.parse_brick_id(b_id)
+#             if ctype is None:
+#                 raise Http404('Invalid brick id "{}"'.format(b_id))
+#
+#             brick = TaggedEntitiesBrick(ptype, ctype)
+#
+#         bricks.append(brick)
+#
+#     return bricks_views.bricks_render_info(request, bricks=bricks,
+#                                            context=bricks_views.build_context(request, object=ptype),
+#                                           )
+class PropertyTypeBricksReloading(bricks_views.BricksReloading):
+    check_bricks_permission = False
+    ptype_id_url_kwarg = 'ptype_id'
 
-    for b_id in brick_ids:
-        if b_id == PropertyTypeInfoBrick.id_:
-            brick = PropertyTypeInfoBrick(ptype, ctypes)
-        elif b_id == TaggedMiscEntitiesBrick.id_:
-            brick = TaggedMiscEntitiesBrick(ptype, ctypes)
-        else:
-            ctype = TaggedEntitiesBrick.parse_brick_id(b_id)
-            if ctype is None:
-                raise Http404('Invalid brick id "{}"'.format(b_id))
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.ptype = None
 
-            brick = TaggedEntitiesBrick(ptype, ctype)
+    def get_bricks(self):
+        ptype = self.get_property_type()
+        bricks = []
+        ctypes = ptype.subject_ctypes.all()
 
-        bricks.append(brick)
+        for brick_id in self.get_brick_ids():
+            if brick_id == PropertyTypeInfoBrick.id_:
+                brick = PropertyTypeInfoBrick(ptype, ctypes)
+            elif brick_id == TaggedMiscEntitiesBrick.id_:
+                brick = TaggedMiscEntitiesBrick(ptype, ctypes)
+            else:
+                ctype = TaggedEntitiesBrick.parse_brick_id(brick_id)
+                if ctype is None:
+                    raise Http404('Invalid brick id "{}"'.format(brick_id))
 
-    return bricks_views.bricks_render_info(request, bricks=bricks,
-                                           context=bricks_views.build_context(request, object=ptype),
-                                          )
+                brick = TaggedEntitiesBrick(ptype, ctype)
+
+            bricks.append(brick)
+
+        return bricks
+
+    def get_bricks_context(self):
+        context = super().get_bricks_context()
+        context['object'] = self.get_property_type()
+
+        return context
+
+    def get_property_type(self):
+        ptype = self.ptype
+
+        if ptype is None:
+            self.ptype = ptype = get_object_or_404(
+                CremePropertyType,
+                id=self.kwargs[self.ptype_id_url_kwarg],
+            )
+
+        return ptype

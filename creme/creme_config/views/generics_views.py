@@ -28,13 +28,13 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.auth.decorators import login_required
+# from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.creme_jobs.deletor import _DeletorType
 from creme.creme_core.models import DeletionCommand, Job, JobResult
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views import bricks as bricks_views, generic
-from creme.creme_core.views.decorators import jsonify
+# from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic.order import ReorderInstances
 from creme.creme_core.views.utils import json_update_from_widget_response
 
@@ -44,37 +44,42 @@ from ..registry import config_registry
 logger = logging.getLogger(__name__)
 
 
-def _get_appconf(user, app_name):  # TODO: get_appconf_or_404() ?
-    user.has_perm_to_admin_or_die(app_name)
+# def _get_appconf(user, app_name):
+#     user.has_perm_to_admin_or_die(app_name)
+#
+#     try:
+#         app_config = config_registry.get_app_registry(app_name)
+#     except LookupError as e:
+#         raise Http404('Invalid app [{}]'.format(e)) from e
+#
+#     return app_config
 
-    try:
-        app_config = config_registry.get_app_registry(app_name)
-    except LookupError as e:
-        raise Http404('Invalid app [{}]'.format(e)) from e
 
-    return app_config
-
-
-def _get_modelconf(app_config, model_name):  # TODO: get_modelconf_or_404() ?
-    # TODO: use only ct instead of model_name ???
-    for modelconf in app_config.models():
-        if modelconf.model_name == model_name:
-            return modelconf
-
-    raise Http404('Unknown model')
+# def _get_modelconf(app_config, model_name):
+#     for modelconf in app_config.models():
+#         if modelconf.model_name == model_name:
+#             return modelconf
+#
+#     raise Http404('Unknown model')
 
 
 class AppRegistryMixin:
     app_name_url_kwarg = 'app_name'
+    config_registry = config_registry
 
     def get_app_registry(self):
         try:
             app_registry = getattr(self, 'app_registry')
         except AttributeError:
-            self.app_registry = app_registry = _get_appconf(
-                user=self.request.user,
-                app_name=self.kwargs[self.app_name_url_kwarg],
-            )
+            app_name = self.kwargs[self.app_name_url_kwarg]
+            self.request.user.has_perm_to_admin_or_die(app_name)
+
+            try:
+                app_registry = self.config_registry.get_app_registry(app_name)
+            except LookupError as e:
+                raise Http404('Invalid app [{}]'.format(e)) from e
+
+            self.app_registry = app_registry
 
         return app_registry
 
@@ -86,10 +91,14 @@ class ModelConfMixin(AppRegistryMixin):
         try:
             mconf = getattr(self, 'model_conf')
         except AttributeError:
-            self.model_conf = mconf = \
-                _get_modelconf(app_config=self.get_app_registry(),
-                               model_name=self.kwargs[self.model_name_url_kwarg],
-                              )
+            model_name = self.kwargs[self.model_name_url_kwarg]
+
+            for modelconf in self.get_app_registry().models():
+                if modelconf.model_name == model_name:
+                    self.model_conf = mconf = modelconf
+                    break
+            else:
+                raise Http404('Unknown model')
 
         return mconf
 
@@ -334,44 +343,76 @@ class AppPortal(AppRegistryMixin, generic.BricksView):
         return model_configs
 
 
-@login_required
-@jsonify
-def reload_model_brick(request, app_name, model_name):
-    user = request.user
-    app_registry = _get_appconf(user, app_name)
-    model_config = _get_modelconf(app_registry, model_name)
+# @login_required
+# @jsonify
+# def reload_model_brick(request, app_name, model_name):
+#     user = request.user
+#     app_registry = _get_appconf(user, app_name)
+#     model_config = _get_modelconf(app_registry, model_name)
+#
+#     user.has_perm_to_admin_or_die(app_name)
+#
+#     return bricks_views.bricks_render_info(
+#         request,
+#         context=bricks_views.build_context(request),
+#         bricks=[model_config.get_brick()],
+#     )
+class ModelBrickReloading(ModelConfMixin, bricks_views.BricksReloading):
+    check_bricks_permission = False
 
-    user.has_perm_to_admin_or_die(app_name)
-
-    return bricks_views.bricks_render_info(
-        request,
-        context=bricks_views.build_context(request),
-        bricks=[model_config.get_brick()],
-    )
+    def get_bricks(self):
+        return [self.get_model_conf().get_brick()]
 
 
-@login_required
-@jsonify
-def reload_app_bricks(request, app_name):
-    brick_ids = bricks_views.get_brick_ids_or_404(request)
-    app_registry = _get_appconf(request.user, app_name)
-    bricks = []
+# @login_required
+# @jsonify
+# def reload_app_bricks(request, app_name):
+#     brick_ids = bricks_views.get_brick_ids_or_404(request)
+#     app_registry = _get_appconf(request.user, app_name)
+#     bricks = []
+#
+#     for b_id in brick_ids:
+#         if b_id == SettingsBrick.id_:
+#             brick = SettingsBrick()
+#         else:
+#             for registered_brick in app_registry.bricks:
+#                 if b_id == registered_brick.id_:
+#                     brick = registered_brick
+#                     break
+#             else:
+#                 raise Http404('Invalid brick id "{}"'.format(b_id))
+#
+#         bricks.append(brick)
+#
+#     return bricks_views.bricks_render_info(
+#         request,
+#         bricks=bricks,
+#         context=bricks_views.build_context(request, app_name=app_name),
+#     )
+class AppBricksReloading(AppRegistryMixin, bricks_views.BricksReloading):
+    check_bricks_permission = False
 
-    for b_id in brick_ids:
-        if b_id == SettingsBrick.id_:
-            brick = SettingsBrick()
-        else:
-            for registered_brick in app_registry.bricks:
-                if b_id == registered_brick.id_:
-                    brick = registered_brick
-                    break
+    def get_bricks(self):
+        bricks = []
+        app_registry = self.get_app_registry()
+
+        for brick_id in self.get_brick_ids():
+            if brick_id == SettingsBrick.id_:
+                brick = SettingsBrick()
             else:
-                raise Http404('Invalid brick id "{}"'.format(b_id))
+                for registered_brick in app_registry.bricks:
+                    if brick_id == registered_brick.id_:
+                        brick = registered_brick
+                        break
+                else:
+                    raise Http404('Invalid brick id "{}"'.format(brick_id))
 
-        bricks.append(brick)
+            bricks.append(brick)
 
-    return bricks_views.bricks_render_info(
-        request,
-        bricks=bricks,
-        context=bricks_views.build_context(request, app_name=app_name),
-    )
+        return bricks
+
+    def get_bricks_context(self):
+        context = super().get_bricks_context()
+        context['app_name'] = self.get_app_registry().name
+
+        return context

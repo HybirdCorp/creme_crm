@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2019  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -855,6 +855,10 @@ def brick_declare(context, *bricks):
     return ''
 
 
+_DISPLAY_METHODS = {
+    'detail': 'detailview_display',
+    'home':   'home_display',
+}
 @register.simple_tag(takes_context=True)
 def brick_display(context, *bricks, **kwargs):
     """ Display some Brick instances.
@@ -876,19 +880,40 @@ def brick_display(context, *bricks, **kwargs):
        - 'detail'  => detailview_display() (default value)
        - 'home'    => home_display()
     """
-    from creme.creme_core.views.bricks import render_detailview_brick, render_home_brick
+    # from creme.creme_core.views.bricks import render_detailview_brick, render_home_brick
 
     context_dict = context.flatten()
     render_type = kwargs.get('render', 'detail')
 
-    if render_type == 'detail':
-        render = render_detailview_brick
-    elif render_type == 'home':
-        render = render_home_brick
-    else:
+    # if render_type == 'detail':
+    #     render = render_detailview_brick
+    # elif render_type == 'home':
+    #     render = render_home_brick
+    # else:
+    #     raise ValueError(
+    #         '{% brick_display %}: "render" argument must be in {detail|home}.'
+    #     )
+    try:
+        brick_render_method = _DISPLAY_METHODS[render_type]
+    except KeyError as e:
         raise ValueError(
-            '{% brick_display %}: "render" argument must be in {detail|home}.'
-        )
+            '{{% brick_display %}}: "render" argument must be in [{}].'.format(
+                ', '.join(_DISPLAY_METHODS.keys())
+            )
+        ) from e
+
+    def render(brick):
+        fun = getattr(brick, brick_render_method, None)
+
+        if fun:
+            # NB: the context is copied is order to a 'fresh' one for each brick,
+            #     & so avoid annoying side-effects.
+            return fun({**context_dict})
+
+        logger.warning(
+            'Brick without %s(): %s (id=%s)',
+            brick_render_method, brick.__class__, brick.id_,
+       )
 
     bricks_to_render = []
 
@@ -916,10 +941,10 @@ def brick_display(context, *bricks, **kwargs):
             pop_group(brick_or_seq.id_)
             bricks_to_render.append(brick_or_seq)
 
-    # NB: the context is copied is order to a 'fresh' one for each brick, & so avoid annoying side-effects.
     return mark_safe(
         ''.join(filter(None,
-                       (render(brick, context={**context_dict})
+                       # (render(brick, context={**context_dict})
+                       (render(brick)
                            for brick in bricks_to_render
                        )
     )))

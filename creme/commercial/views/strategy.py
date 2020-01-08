@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,16 +24,15 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.views import bricks
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404 
-from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import jsonify, POST_only
+from creme.creme_core.utils import get_from_POST_or_404  # get_from_GET_or_404
+from creme.creme_core.views import generic, bricks as bricks_views
+from creme.creme_core.views.decorators import POST_only  # jsonify
 
 from creme.persons import get_organisation_model
 
-from .. import get_strategy_model
-from ..bricks import AssetsMatrixBrick, CharmsMatrixBrick, AssetsCharmsMatrixBrick
+from .. import get_strategy_model, bricks as com_bricks
+# from ..bricks import AssetsMatrixBrick, CharmsMatrixBrick, AssetsCharmsMatrixBrick
 from ..constants import DEFAULT_HFILTER_STRATEGY
 from ..forms import strategy as forms
 from ..models import (
@@ -146,16 +145,15 @@ class OrganisationRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletio
             MarketSegmentCharmScore.objects.filter(charm__strategy=strategy, organisation=orga_id).delete()
 
 
-# TODO: used once => inline
-def _get_strategy_n_orga(request, strategy_id, orga_id):
-    strategy = get_object_or_404(Strategy, pk=strategy_id)
-    has_perm = request.user.has_perm_to_view_or_die
-    has_perm(strategy)
-
-    orga = get_object_or_404(get_organisation_model(), pk=orga_id)
-    has_perm(orga)
-
-    return strategy, orga
+# def _get_strategy_n_orga(request, strategy_id, orga_id):
+#     strategy = get_object_or_404(Strategy, pk=strategy_id)
+#     has_perm = request.user.has_perm_to_view_or_die
+#     has_perm(strategy)
+#
+#     orga = get_object_or_404(get_organisation_model(), pk=orga_id)
+#     has_perm(orga)
+#
+#     return strategy, orga
 
 
 class BaseEvaluatedOrganisationView(generic.BricksView):
@@ -270,23 +268,83 @@ def set_segment_category(request, strategy_id):
     return HttpResponse()
 
 
-@login_required
-@permission_required('commercial')
-@jsonify
-def reload_matrix_brick(request, strategy_id, orga_id):
-    brick_id = get_from_GET_or_404(request.GET, 'brick_id')
+# @login_required
+# @permission_required('commercial')
+# @jsonify
+# def reload_matrix_brick(request, strategy_id, orga_id):
+#     brick_id = get_from_GET_or_404(request.GET, 'brick_id')
+#
+#     if brick_id == AssetsMatrixBrick.id_:
+#         brick = AssetsMatrixBrick()
+#     elif brick_id == CharmsMatrixBrick.id_:
+#         brick = CharmsMatrixBrick()
+#     elif brick_id == AssetsCharmsMatrixBrick.id_:
+#         brick = AssetsCharmsMatrixBrick()
+#     else:
+#         raise Http404('Invalid brick ID')
+#
+#     strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
+#
+#     return bricks_views.bricks_render_info(
+#         request, bricks=[brick],
+#         context=bricks_views.build_context(request, orga=orga, strategy=strategy),
+#     )
+class MatrixBricksReloading(bricks_views.BricksReloading):
+    check_bricks_permission = False
+    strategy_id_url_kwarg = 'strategy_id'
+    orga_id_url_kwarg     = 'orga_id'
+    allowed_bricks = {
+        com_bricks.AssetsMatrixBrick.id_:       com_bricks.AssetsMatrixBrick,
+        com_bricks.CharmsMatrixBrick.id_:       com_bricks.CharmsMatrixBrick,
+        com_bricks.AssetsCharmsMatrixBrick.id_: com_bricks.AssetsCharmsMatrixBrick,
+    }
 
-    if brick_id == AssetsMatrixBrick.id_:
-        brick = AssetsMatrixBrick()
-    elif brick_id == CharmsMatrixBrick.id_:
-        brick = CharmsMatrixBrick()
-    elif brick_id == AssetsCharmsMatrixBrick.id_:
-        brick = AssetsCharmsMatrixBrick()
-    else:
-        raise Http404('Invalid brick ID')
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.strategy     = None
+        self.organisation = None
 
-    strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
+    def get_bricks(self):
+        bricks = []
+        allowed_bricks = self.allowed_bricks
 
-    return bricks.bricks_render_info(request, bricks=[brick],
-                                     context=bricks.build_context(request, orga=orga, strategy=strategy),
-                                    )
+        for brick_id in self.get_brick_ids():
+            try:
+                brick_cls = allowed_bricks[brick_id]
+            except KeyError as e:
+                raise Http404('Invalid brick ID') from e
+
+            bricks.append(brick_cls())
+
+        return bricks
+
+    def get_bricks_context(self):
+        context = super().get_bricks_context()
+        context['orga'] = self.get_organisation()
+        context['strategy'] = self.get_strategy()
+
+        return context
+
+    def get_organisation(self):
+        orga = self.organisation
+
+        if orga is None:
+            self.organisation = orga = get_object_or_404(
+                get_organisation_model(),
+                pk=self.kwargs[self.orga_id_url_kwarg],
+            )
+            self.request.user.has_perm_to_view_or_die(orga)
+
+        return orga
+
+    def get_strategy(self):
+        strategy = self.strategy
+
+        if strategy is None:
+            self.strategy = strategy = get_object_or_404(
+                Strategy,
+                pk=self.kwargs[self.strategy_id_url_kwarg],
+            )
+            self.request.user.has_perm_to_view_or_die(strategy)
+
+        return strategy

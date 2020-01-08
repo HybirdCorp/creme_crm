@@ -18,9 +18,10 @@ urlpatterns = [
     re_path(r'^campaign/(?P<campaign_id>\d+)/sending/add[/]?$', sending.SendingCreation.as_view(), name='emails__create_sending'),
 
     # Campaign: sending details brick
-    re_path(r'^sending/(?P<sending_id>\d+)[/]?$',          sending.SendingDetail.as_view(), name='emails__view_sending'),
-    re_path(r'^sending/(?P<sending_id>\d+)/get_body[/]?$', sending.SendingBody.as_view(),   name='emails__sending_body'),
-    re_path(r'^sending/(?P<sending_id>\d+)/reload[/]?$',   sending.reload_sending_bricks,   name='emails__reload_sending_bricks'),
+    re_path(r'^sending/(?P<sending_id>\d+)[/]?$',          sending.SendingDetail.as_view(),          name='emails__view_sending'),
+    re_path(r'^sending/(?P<sending_id>\d+)/get_body[/]?$', sending.SendingBody.as_view(),            name='emails__sending_body'),
+    # re_path(r'^sending/(?P<sending_id>\d+)/reload[/]?$',   sending.reload_sending_bricks,   name='emails__reload_sending_bricks'),
+    re_path(r'^sending/(?P<sending_id>\d+)/reload[/]?$',   sending.SendingBricksReloading.as_view(), name='emails__reload_sending_bricks'),
 
     # Mailing list: recipients brick
     re_path(r'^mailing_list/(?P<ml_id>\d+)/recipient/add[/]?$',     recipient.RecipientsAdding.as_view(),        name='emails__add_recipients'),

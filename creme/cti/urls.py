@@ -10,8 +10,9 @@ from creme.cti import views
 
 
 urlpatterns = [
-    re_path(r'^respond_to_a_call[/]?$',                     views.AnswerToACall.as_view(), name='cti__respond_to_a_call'),
-    re_path(r'^bricks/reload/callers/(?P<number>\w+)[/]?$', views.reload_callers_brick,    name='cti__reload_callers_brick'),
+    re_path(r'^respond_to_a_call[/]?$',                     views.AnswerToACall.as_view(),         name='cti__respond_to_a_call'),
+    # re_path(r'^bricks/reload/callers/(?P<number>\w+)[/]?$', views.reload_callers_brick,    name='cti__reload_callers_brick'),
+    re_path(r'^bricks/reload/callers/(?P<number>\w+)[/]?$', views.CallersBrickReloading.as_view(), name='cti__reload_callers_brick'),
 
     *swap_manager.add_group(
         persons.contact_model_is_custom,

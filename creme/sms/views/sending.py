@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,9 +24,9 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.bricks import build_context, bricks_render_info
+from creme.creme_core.views.bricks import BricksReloading  # build_context, bricks_render_info
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import jsonify
+# from creme.creme_core.views.decorators import jsonify
 
 from .. import get_smscampaign_model
 from ..bricks import MessagesBrick
@@ -118,16 +118,45 @@ def delete_message(request):
     return redirect(campaign)
 
 
-@login_required
-@permission_required('sms')
-@jsonify
-def reload_messages_brick(request, id):
-    # TODO: factorise
-    sending = get_object_or_404(Sending, id=id)
-    request.user.has_perm_to_view_or_die(sending.campaign)
+# @login_required
+# @permission_required('sms')
+# @jsonify
+# def reload_messages_brick(request, id):
+#     sending = get_object_or_404(Sending, id=id)
+#     request.user.has_perm_to_view_or_die(sending.campaign)
+#
+#     return bricks_render_info(
+#         request,
+#         bricks=[MessagesBrick()],
+#         context=build_context(request, object=sending),
+#     )
+class MessagesBrickReloading(BricksReloading):
+    permissions = 'sms'
+    check_bricks_permission = False
+    sending_id_url_kwarg = 'sending_id'
 
-    return bricks_render_info(
-        request,
-        bricks=[MessagesBrick()],  # TODO: retrieve by 'id_' to allow complete overriding
-        context=build_context(request, object=sending),
-    )
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.sending = None
+
+    def get_bricks(self):
+        # TODO: map of allowed bricks ?
+        return [MessagesBrick()]
+
+    def get_bricks_context(self):
+        context = super().get_bricks_context()
+        context['object'] = self.get_sending()
+
+        return context
+
+    def get_sending(self):
+        sending = self.sending
+
+        if sending is None:
+            self.sending = sending = get_object_or_404(
+                Sending,
+                id=self.kwargs[self.sending_id_url_kwarg],
+            )
+            self.request.user.has_perm_to_view_or_die(sending.campaign)
+
+        return sending

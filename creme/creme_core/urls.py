@@ -71,17 +71,21 @@ property_patterns = [
     re_path(r'^delete_from_type[/]?$',       creme_property.PropertyFromFieldsDeletion.as_view(), name='creme_core__remove_property'),
 
     # Property type
-    re_path(r'^type/add[/]?$',                                creme_property.PropertyTypeCreation.as_view(), name='creme_core__create_ptype'),
-    re_path(r'^type/(?P<ptype_id>[\w-]+)[/]?$',               creme_property.PropertyTypeDetail.as_view(),   name='creme_core__ptype'),
-    re_path(r'^type/(?P<ptype_id>[\w-]+)/edit[/]?$',          creme_property.PropertyTypeEdition.as_view(),  name='creme_core__edit_ptype'),
-    re_path(r'^type/(?P<ptype_id>[\w-]+)/delete[/]?$',        creme_property.PropertyTypeDeletion.as_view(), name='creme_core__delete_ptype'),
-    re_path(r'^type/(?P<ptype_id>[\w-]+)/reload_bricks[/]?$', creme_property.reload_bricks,                  name='creme_core__reload_ptype_bricks'),
+    re_path(r'^type/add[/]?$',                                creme_property.PropertyTypeCreation.as_view(),        name='creme_core__create_ptype'),
+    re_path(r'^type/(?P<ptype_id>[\w-]+)[/]?$',               creme_property.PropertyTypeDetail.as_view(),          name='creme_core__ptype'),
+    re_path(r'^type/(?P<ptype_id>[\w-]+)/edit[/]?$',          creme_property.PropertyTypeEdition.as_view(),         name='creme_core__edit_ptype'),
+    re_path(r'^type/(?P<ptype_id>[\w-]+)/delete[/]?$',        creme_property.PropertyTypeDeletion.as_view(),        name='creme_core__delete_ptype'),
+    # re_path(r'^type/(?P<ptype_id>[\w-]+)/reload_bricks[/]?$', creme_property.reload_bricks,                  name='creme_core__reload_ptype_bricks'),
+    re_path(r'^type/(?P<ptype_id>[\w-]+)/reload_bricks[/]?$', creme_property.PropertyTypeBricksReloading.as_view(), name='creme_core__reload_ptype_bricks'),
 ]
 
 bricks_patterns = [
-    re_path(r'^reload[/]?$',                               bricks.reload_basic,      name='creme_core__reload_bricks'),
-    re_path(r'^reload/detailview/(?P<entity_id>\d+)[/]?$', bricks.reload_detailview, name='creme_core__reload_detailview_bricks'),
-    re_path(r'^reload/home[/]?$',                          bricks.reload_home,       name='creme_core__reload_home_bricks'),
+    # re_path(r'^reload[/]?$',                               bricks.reload_basic,      name='creme_core__reload_bricks'),
+    re_path(r'^reload[/]?$',                               bricks.BricksReloading.as_view(),           name='creme_core__reload_bricks'),
+    # re_path(r'^reload/detailview/(?P<entity_id>\d+)[/]?$', bricks.reload_detailview, name='creme_core__reload_detailview_bricks'),
+    re_path(r'^reload/detailview/(?P<entity_id>\d+)[/]?$', bricks.DetailviewBricksReloading.as_view(), name='creme_core__reload_detailview_bricks'),
+    # re_path(r'^reload/home[/]?$',                          bricks.reload_home,       name='creme_core__reload_home_bricks'),
+    re_path(r'^reload/home[/]?$',                          bricks.HomeBricksReloading.as_view(),       name='creme_core__reload_home_bricks'),
 
     re_path(r'^set_state[/]?$', bricks.BrickStateSetting.as_view(), name='creme_core__set_brick_state'),
 ]
@@ -119,11 +123,12 @@ job_patterns = [
     re_path(r'^(?P<job_id>\d+)[/]?$', job.JobDetail.as_view(), name='creme_core__job'),
 
     re_path(r'^(?P<job_id>\d+)/', include([
-        re_path(r'^edit[/]?$',    job.JobEdition.as_view(),       name='creme_core__edit_job'),
-        re_path(r'^delete[/]?$',  job.JobDeletion.as_view(),      name='creme_core__delete_job'),
-        re_path(r'^enable[/]?$',  job.enable,                     name='creme_core__enable_job'),
-        re_path(r'^disable[/]?$', job.enable, {'enabled': False}, name='creme_core__disable_job'),
-        re_path(r'^reload[/]?$',  job.reload_bricks,              name='creme_core__reload_job_bricks'),
+        re_path(r'^edit[/]?$',    job.JobEdition.as_view(),         name='creme_core__edit_job'),
+        re_path(r'^delete[/]?$',  job.JobDeletion.as_view(),        name='creme_core__delete_job'),
+        re_path(r'^enable[/]?$',  job.enable,                       name='creme_core__enable_job'),
+        re_path(r'^disable[/]?$', job.enable, {'enabled': False},   name='creme_core__disable_job'),
+        # re_path(r'^reload[/]?$',  job.reload_bricks,              name='creme_core__reload_job_bricks'),
+        re_path(r'^reload[/]?$',  job.JobBricksReloading.as_view(), name='creme_core__reload_job_bricks'),
     ])),
 ]
 
@@ -153,8 +158,9 @@ creme_core_patterns = [
     # Search
     re_path(r'^search[/]?$', search.Search.as_view(), name='creme_core__search'),
     re_path(r'^search/', include([
-        re_path(r'^light[/]?$',        search.LightSearch.as_view(), name='creme_core__light_search'),
-        re_path(r'^reload_brick[/]?$', search.reload_brick, name='creme_core__reload_search_brick'),
+        re_path(r'^light[/]?$',        search.LightSearch.as_view(),           name='creme_core__light_search'),
+        # re_path(r'^reload_brick[/]?$', search.reload_brick, name='creme_core__reload_search_brick'),
+        re_path(r'^reload_brick[/]?$', search.SearchBricksReloading.as_view(), name='creme_core__reload_search_brick'),
     ])),
 
     re_path(r'^quickforms/', include([
