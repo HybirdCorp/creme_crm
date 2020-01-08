@@ -200,21 +200,21 @@ def fill(request, preply_id):
                  )
 
 
-@login_required
-@permission_required('polls')
-def clean(request):
-    preply = get_object_or_404(PollReply, pk=get_from_POST_or_404(request.POST, 'id'))
-
-    request.user.has_perm_to_change_or_die(preply)
-
-    with atomic():
-        preply.lines.update(raw_answer=None, applicable=True)  # Avoids statistics artifacts
-        update_model_instance(preply, is_complete=False)
-
-    if request.is_ajax():
-        return HttpResponse()
-
-    return redirect(preply)
+# @login_required
+# @permission_required('polls')
+# def clean(request):
+#     preply = get_object_or_404(PollReply, pk=get_from_POST_or_404(request.POST, 'id'))
+#
+#     request.user.has_perm_to_change_or_die(preply)
+#
+#     with atomic():
+#         preply.lines.update(raw_answer=None, applicable=True)  # Avoids statistics artifacts
+#         update_model_instance(preply, is_complete=False)
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return redirect(preply)
 
 
 def _clear_dependant_answers(tree, line_node):
@@ -359,3 +359,27 @@ class LineEdition(generic.EntityEditionPopup):
 class PollRepliesList(generic.EntitiesList):
     model = PollReply
     default_headerfilter_id = DEFAULT_HFILTER_PREPLY
+
+
+class PollReplyCleaning(generic.base.EntityRelatedMixin, generic.CheckedView):
+    permissions = 'polls'
+    entity_classes = PollReply
+    preply_id_arg = 'id'
+    entity_select_for_update = True
+
+    def clean(self, preply):
+        preply.lines.update(raw_answer=None, applicable=True)  # Avoids statistics artifacts
+        update_model_instance(preply, is_complete=False)
+
+    def get_related_entity_id(self):
+        return get_from_POST_or_404(self.request.POST, self.preply_id_arg)
+
+    def post(self, request, *args, **kwargs):
+        with atomic():
+            preply = self.get_related_entity()
+            self.clean(preply)
+
+        if request.is_ajax():
+            return HttpResponse()
+
+        return redirect(preply)

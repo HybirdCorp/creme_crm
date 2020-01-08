@@ -25,17 +25,26 @@ urlpatterns = [
     re_path(r'^pform_section/(?P<section_id>\d+)/add/line[/]?$',  poll_form.AddingLineToSection.as_view(),  name='polls__create_form_line_in_section'),
 
     # Replies
-    re_path(r'^poll_reply/fill/(?P<preply_id>\d+)[/]?$',           poll_reply.fill,           name='polls__fill_reply'),
-    re_path(r'^poll_reply/clean[/]?$',                             poll_reply.clean,          name='polls__clean_reply'),
-    re_path(r'^poll_reply/link_to_person/(?P<person_id>\d+)[/]?$',
+    re_path(r'^poll_reply/fill/(?P<preply_id>\d+)[/]?$', poll_reply.fill, name='polls__fill_reply'),
+    re_path(
+        r'^poll_reply/clean[/]?$',
+        # poll_reply.clean
+        poll_reply.PollReplyCleaning.as_view(),
+        name='polls__clean_reply',
+    ),
+    re_path(
+        r'^poll_reply/link_to_person/(?P<person_id>\d+)[/]?$',
         poll_reply.LinkingRepliesToPerson.as_view(),
         name='polls__link_reply_to_person',
     ),
 
-    re_path(r'^poll_reply/(?P<preply_id>\d+)/line/(?P<line_id>\d+)/', include([
-        re_path(r'^edit[/]?$',        poll_reply.LineEdition.as_view(), name='polls__edit_reply_line'),
-        re_path(r'^edit_wizard[/]?$', poll_reply.edit_line_wizard,      name='polls__edit_reply_line_wizard'),
-    ])),
+    re_path(
+        r'^poll_reply/(?P<preply_id>\d+)/line/(?P<line_id>\d+)/',
+        include([
+            re_path(r'^edit[/]?$',        poll_reply.LineEdition.as_view(), name='polls__edit_reply_line'),
+            re_path(r'^edit_wizard[/]?$', poll_reply.edit_line_wizard,      name='polls__edit_reply_line_wizard'),
+        ]),
+    ),
 
     *swap_manager.add_group(
         polls.pollcampaign_model_is_custom,
