@@ -435,7 +435,6 @@ class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
         return extra_q
 
 
-# TODO: factorise code (with RelatedEntitiesField for example) ?  With a smart static method method in RelationType ?
 @login_required
 def add_relations_with_same_type(request):
     """Allow to create from a POST request several relations with the same
@@ -446,7 +445,7 @@ def add_relations_with_same_type(request):
     POST = request.POST
     subject_id = utils.get_from_POST_or_404(POST, 'subject_id', int)
     rtype_id   = utils.get_from_POST_or_404(POST, 'predicate_id')  # TODO: rename POST arg
-    entity_ids = POST.getlist('entities')  # TODO: rename 'entity' ?
+    entity_ids = POST.getlist('entities')  # TODO: rename 'object_id' ?
 
     if not entity_ids:
         raise Http404('Void "entities" parameter.')
@@ -485,7 +484,7 @@ def add_relations_with_same_type(request):
                     ).format(count=len_diff),
         )
 
-    # TODO: move in a RelationType method ??
+    # TODO: improve RelationType.is_compatible()
     subject_ctypes = frozenset(int(ct_id) for ct_id in rtype.subject_ctypes.values_list('id', flat=True))
     if subject_ctypes and subject.entity_type_id not in subject_ctypes:
         raise ConflictError('Incompatible type for subject')
@@ -493,7 +492,7 @@ def add_relations_with_same_type(request):
     if subject_properties and not any(p.type_id in subject_properties for p in subject.get_properties()):
         raise ConflictError('Missing compatible property for subject')
 
-    # TODO: move in a RelationType method ??
+    # TODO: idem
     object_ctypes = frozenset(int(ct_id) for ct_id in rtype.object_ctypes.values_list('id', flat=True))
     check_ctype = (lambda e: e.entity_type_id in object_ctypes) if object_ctypes else \
                   lambda e: True
