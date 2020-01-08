@@ -11,7 +11,7 @@ QUnit.module("creme.billing.brick.actions", new QUnitMixin(QUnitEventMixin,
         backend.options.enableUriSearch = true;
 
         this.setMockBackendGET({
-            'mock/billing/document/add': backend.response(200, ''),
+            'mock/billing/document/add': backend.response(200, '')
         });
 
         this.setMockBackendPOST({
@@ -21,7 +21,7 @@ QUnit.module("creme.billing.brick.actions", new QUnitMixin(QUnitEventMixin,
             'mock/invoice/generatenumber/12/fail': backend.response(400, 'Unable to generate invoice number'),
             'mock/quote/convert/12': backend.response(200, 'mock/quote/invoice', {'content-type': 'text/plain'}),
             'mock/quote/convert/12/fail': backend.response(400, 'Unable to convert this quote'),
-            'mock/billing/document/add': backend.response(200, ''),
+            'mock/billing/document/add': backend.response(200, '')
         });
 
         this.brickActionListeners = {
@@ -409,7 +409,7 @@ QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, ok)', function(ass
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
     deepEqual([current_url], this.mockReloadCalls());
 });
-
+/*
 QUnit.test('creme.billing.generateInvoiceNumber', function(assert) {
     var current_url = window.location.href;
 
@@ -420,7 +420,7 @@ QUnit.test('creme.billing.generateInvoiceNumber', function(assert) {
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
     deepEqual([current_url], this.mockReloadCalls());
 });
-
+*/
 QUnit.test('creme.billing.hatmenubar.convert (fail)', function(assert) {
     var widget = this.createHatMenuBar({
         buttons: [
@@ -470,7 +470,7 @@ QUnit.test('creme.billing.AddDocumentAction', function(assert) {
     }).brick();
 
     var action = new creme.billing.AddDocumentAction({
-        url: 'mock/billing/document/add',
+        url: 'mock/billing/document/add'
     }).on({
         'cancel': this.mockListener('action-cancel'),
         'done': this.mockListener('action-done')
@@ -555,7 +555,7 @@ QUnit.test('creme.billing.AddDocumentAction (cancel)', function(assert) {
     }).brick();
 
     var action = new creme.billing.AddDocumentAction({
-        url: 'mock/billing/document/add',
+        url: 'mock/billing/document/add'
     }).on({
         'cancel': this.mockListener('action-cancel'),
         'done': this.mockListener('action-done')
@@ -675,7 +675,9 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document (with redir
 
     deepEqual([
         ['GET', {"redirection": "true"}],
-        ['POST', {"URI-SEARCH": {"redirection": "true" }}]
+        ['POST', {
+            "URI-SEARCH": {"redirection": "true"}
+        }]
     ], this.mockBackendUrlCalls(creationURL));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
     deepEqual([quoteURL], this.mockRedirectCalls());
