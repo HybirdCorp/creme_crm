@@ -11,10 +11,11 @@ from .views import project, task, resource
 
 
 urlpatterns = [
-    # TODO: Define what user could do or not if projet is 'close'
+    # TODO: Define what user could do or not if project is 'close'
     #       (with the use of the button that sets an effective end date)
     # TODO: change url ?? project/close/(?P<project_id>\d+) ? 'id' as POST argument ?
-    re_path(r'^project/(?P<project_id>\d+)/close[/]?$', project.close, name='projects__close_project'),
+    # re_path(r'^project/(?P<project_id>\d+)/close[/]?$', project.close, name='projects__close_project'),
+    re_path(r'^project/(?P<project_id>\d+)/close[/]?$', project.ProjectClosure.as_view(), name='projects__close_project'),
 
     re_path(r'^task/parent/delete[/]?$',               task.ParentRemoving.as_view(), name='projects__remove_parent_task'),
     re_path(r'^task/(?P<task_id>\d+)/parent/add[/]?$', task.ParentsAdding.as_view(),  name='projects__add_parent_task'),
