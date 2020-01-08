@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.conf import settings
+from django.core.exceptions import FieldDoesNotExist
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -26,12 +27,15 @@ from django.utils.translation import gettext as _
 
 from ..auth.decorators import login_required
 from ..core.batch_process import batch_operator_manager
+from ..core.exceptions import BadRequestError
 from ..forms.batch_process import BatchProcessForm
+from ..http import CremeJsonResponse
 from ..models import Job
 from ..utils import get_ct_or_404
 
+from . import generic
+# from .decorators import jsonify
 from .utils import build_cancel_path
-from .decorators import jsonify
 
 
 @login_required
@@ -66,19 +70,42 @@ def batch_process(request, ct_id):
                   {'form':          bp_form,
                    'submit_label':  _('Run'),
                    'cancel_url':    cancel_url,
-                  }
+                  },
                  )
 
 
-@login_required
-@jsonify
-def get_ops(request, ct_id, field):
-    ct = get_ct_or_404(ct_id)
+# @login_required
+# @jsonify
+# def get_ops(request, ct_id, field):
+#     ct = get_ct_or_404(ct_id)
+#
+#     request.user.has_perm_to_access_or_die(ct.app_label)
+#
+#     field_class = ct.model_class()._meta.get_field(field).__class__
+#
+#     return [(op_name, str(op))
+#                 for op_name, op in batch_operator_manager.operators(field_class)
+#            ]
+class OperatorChoices(generic.base.EntityCTypeRelatedMixin, generic.CheckedView):
+    response_class = CremeJsonResponse
+    field_url_kwarg = 'field'
+    operator_manager = batch_operator_manager
 
-    request.user.has_perm_to_access_or_die(ct.app_label)
+    def get_field_name(self):
+        return self.kwargs[self.field_url_kwarg]
 
-    field_class = ct.model_class()._meta.get_field(field).__class__
+    def get_field_class(self):
+        model = self.get_ctype().model_class()
 
-    return [(op_name, str(op))
-                for op_name, op in batch_operator_manager.operators(field_class)
-           ]
+        try:
+            return type(model._meta.get_field(self.get_field_name()))
+        except FieldDoesNotExist as e:
+            raise BadRequestError(str(e))
+
+    def get(self, *args, **kwargs):
+        return self.response_class(
+            [(op_name, str(op))
+                for op_name, op in self.operator_manager.operators(self.get_field_class())
+            ],
+            safe=False,  # Result is not a dictionary
+        )

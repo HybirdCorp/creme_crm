@@ -181,8 +181,9 @@ creme_core_patterns = [
     ])),
 
     # TODO: change url (remove 'list_view'...)?? (then group other "list_view/" URLs)
-    re_path(r'^list_view/batch_process/(?P<ct_id>\d+)[/]?$',                          batch_process.batch_process, name='creme_core__batch_process'),
-    re_path(r'^list_view/batch_process/(?P<ct_id>\d+)/get_ops/(?P<field>[\w]+)[/]?$', batch_process.get_ops,       name='creme_core__batch_process_ops'),
+    re_path(r'^list_view/batch_process/(?P<ct_id>\d+)[/]?$',                          batch_process.batch_process,             name='creme_core__batch_process'),
+    # re_path(r'^list_view/batch_process/(?P<ct_id>\d+)/get_ops/(?P<field>[\w]+)[/]?$', batch_process.get_ops,       name='creme_core__batch_process_ops'),
+    re_path(r'^list_view/batch_process/(?P<ct_id>\d+)/get_ops/(?P<field>[\w]+)[/]?$', batch_process.OperatorChoices.as_view(), name='creme_core__batch_process_ops'),
 
     # Search
     re_path(r'^search[/]?$', search.Search.as_view(), name='creme_core__search'),
