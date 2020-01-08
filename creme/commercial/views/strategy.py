@@ -24,10 +24,10 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404  # get_from_GET_or_404
 from creme.creme_core.views import generic, bricks as bricks_views
-from creme.creme_core.views.decorators import POST_only  # jsonify
+# from creme.creme_core.views.decorators import POST_only, jsonify
 
 from creme.persons import get_organisation_model
 
@@ -215,57 +215,127 @@ class OrgaSynthesis(BaseEvaluatedOrganisationView):
     template_name = 'commercial/orga_synthesis.html'
 
 
-@POST_only
-@login_required
-@permission_required('commercial')
-@atomic
-def _set_score(request, strategy_id, method_name):
-    strategy = get_object_or_404(Strategy.objects.select_for_update(), pk=strategy_id)
+# @POST_only
+# @login_required
+# @permission_required('commercial')
+# @atomic
+# def _set_score(request, strategy_id, method_name):
+#     strategy = get_object_or_404(Strategy.objects.select_for_update(), pk=strategy_id)
+#
+#     request.user.has_perm_to_change_or_die(strategy)
+#
+#     POST = request.POST
+#     model_id   = get_from_POST_or_404(POST, 'model_id', int)
+#     segment_desc_id = get_from_POST_or_404(POST, 'segment_desc_id', int)
+#     orga_id    = get_from_POST_or_404(POST, 'orga_id', int)
+#     score      = get_from_POST_or_404(POST, 'score', int)
+#
+#     try:
+#         getattr(strategy, method_name)(model_id, segment_desc_id, orga_id, score)
+#     except Exception as e:
+#         raise Http404(str(e)) from e
+#
+#     return HttpResponse()
+class BaseScoreSetting(generic.base.EntityRelatedMixin, generic.CheckedView):
+    permissions = 'commercial'
+    entity_id_url_kwarg = 'strategy_id'
+    entity_classes = Strategy
+    entity_select_for_update = True
 
-    request.user.has_perm_to_change_or_die(strategy)
+    model_id_arg = 'model_id'
+    segment_desc_id_arg = 'segment_desc_id'
+    score_arg = 'score'
+    orga_id_arg = 'orga_id'
 
-    POST = request.POST
-    model_id   = get_from_POST_or_404(POST, 'model_id', int)
-    segment_desc_id = get_from_POST_or_404(POST, 'segment_desc_id', int)
-    orga_id    = get_from_POST_or_404(POST, 'orga_id', int)
-    score      = get_from_POST_or_404(POST, 'score', int)
+    def get_update_kwargs(self):
+        POST = self.request.POST
 
-    try:
-        getattr(strategy, method_name)(model_id, segment_desc_id, orga_id, score)
-    except Exception as e:
-        raise Http404(str(e)) from e
+        return {
+            'segment_desc_id': get_from_POST_or_404(POST, self.segment_desc_id_arg, int),
+            'orga_id':         get_from_POST_or_404(POST, self.orga_id_arg, int),
+            'score':           get_from_POST_or_404(POST, self.score_arg, int),
+        }
 
-    return HttpResponse()
+    @atomic
+    def post(self, request, **kwargs):
+        strategy = self.get_related_entity()
+        model_id = get_from_POST_or_404(request.POST, self.model_id_arg, int)
+
+        try:
+            self.update_stategy(
+                strategy=strategy,
+                model_id=model_id,
+                **self.get_update_kwargs()
+            )
+        except Exception as e:
+            print(e, type(e))
+            raise Http404(str(e)) from e
+
+        return HttpResponse()
+
+    def update_stategy(self, *, strategy, model_id, **kwargs):
+        raise NotImplementedError
 
 
-def set_asset_score(request, strategy_id):
-    return _set_score(request, strategy_id, 'set_asset_score')
+# def set_asset_score(request, strategy_id):
+#     return _set_score(request, strategy_id, 'set_asset_score')
+class AssetScoreSetting(BaseScoreSetting):
+    def update_stategy(self, *, strategy, model_id, **kwargs):
+        strategy.set_asset_score(asset_id=model_id, **kwargs)
 
 
-def set_charm_score(request, strategy_id):
-    return _set_score(request, strategy_id, 'set_charm_score')
+# def set_charm_score(request, strategy_id):
+#     return _set_score(request, strategy_id, 'set_charm_score')
+class CharmScoreSetting(BaseScoreSetting):
+    def update_stategy(self, *, strategy, model_id, **kwargs):
+        strategy.set_charm_score(charm_id=model_id, **kwargs)
 
 
-@POST_only
-@login_required
-@permission_required('commercial')
-@atomic
-def set_segment_category(request, strategy_id):
-    strategy = get_object_or_404(Strategy.objects.select_for_update(), pk=strategy_id)
+# @POST_only
+# @login_required
+# @permission_required('commercial')
+# @atomic
+# def set_segment_category(request, strategy_id):
+#     strategy = get_object_or_404(Strategy.objects.select_for_update(), pk=strategy_id)
+#
+#     request.user.has_perm_to_change_or_die(strategy)
+#
+#     POST = request.POST
+#     segment_desc_id = get_from_POST_or_404(POST, 'segment_desc_id', int)
+#     orga_id         = get_from_POST_or_404(POST, 'orga_id', int)
+#     category        = get_from_POST_or_404(POST, 'category', int)
+#
+#     try:
+#         strategy.set_segment_category(segment_desc_id, orga_id, category)
+#     except Exception as e:
+#         raise Http404(str(e)) from e
+#
+#     return HttpResponse()
+class SegmentCategorySetting(generic.base.EntityRelatedMixin, generic.CheckedView):
+    permissions = 'commercial'
+    entity_id_url_kwarg = 'strategy_id'
+    entity_classes = Strategy
+    entity_select_for_update = True
 
-    request.user.has_perm_to_change_or_die(strategy)
+    segment_desc_id_arg = 'segment_desc_id'
+    orga_id_arg = 'orga_id'
+    category_id_arg = 'category'
 
-    POST = request.POST
-    segment_desc_id = get_from_POST_or_404(POST, 'segment_desc_id', int)
-    orga_id         = get_from_POST_or_404(POST, 'orga_id', int)
-    category        = get_from_POST_or_404(POST, 'category', int)
+    @atomic
+    def post(self, request, **kwargs):
+        strategy = self.get_related_entity()
 
-    try:
-        strategy.set_segment_category(segment_desc_id, orga_id, category)
-    except Exception as e:
-        raise Http404(str(e)) from e
+        POST = request.POST
+        segment_desc_id = get_from_POST_or_404(POST, self.segment_desc_id_arg, int)
+        orga_id         = get_from_POST_or_404(POST, self.orga_id_arg,         int)
+        category        = get_from_POST_or_404(POST, self.category_id_arg,     int)
 
-    return HttpResponse()
+        try:
+            strategy.set_segment_category(segment_desc_id, orga_id, category)
+        except Exception as e:
+            raise Http404(str(e)) from e
+
+        return HttpResponse()
 
 
 # @login_required

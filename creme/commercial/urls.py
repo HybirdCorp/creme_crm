@@ -14,9 +14,9 @@ from .views import commercial_approach, market_segment, act, salesman, strategy
 
 urlpatterns = [
     re_path(r'^approach/add/(?P<entity_id>\d+)[/]?$',
-        commercial_approach.CommercialApproachCreation.as_view(),
-        name='commercial__create_approach',
-    ),
+            commercial_approach.CommercialApproachCreation.as_view(),
+            name='commercial__create_approach',
+           ),
 
     # Segments
     re_path(r'^market_segments[/]?$',                           market_segment.Segments.as_view(),        name='commercial__list_segments'),
@@ -56,9 +56,12 @@ urlpatterns = [
     re_path(r'^strategy/(?P<strategy_id>\d+)/organisation/(?P<orga_id>\d+)/synthesis[/]?$',  strategy.OrgaSynthesis.as_view(),        name='commercial__orga_synthesis'),
 
     # Scores & category
-    re_path(r'^strategy/(?P<strategy_id>\d+)/set_asset_score[/]?$', strategy.set_asset_score,      name='commercial__set_asset_score'),
-    re_path(r'^strategy/(?P<strategy_id>\d+)/set_charm_score[/]?$', strategy.set_charm_score,      name='commercial__set_charm_score'),
-    re_path(r'^strategy/(?P<strategy_id>\d+)/set_segment_cat[/]?$', strategy.set_segment_category, name='commercial__set_segment_category'),
+    # re_path(r'^strategy/(?P<strategy_id>\d+)/set_asset_score[/]?$', strategy.set_asset_score,      name='commercial__set_asset_score'),
+    re_path(r'^strategy/(?P<strategy_id>\d+)/set_asset_score[/]?$', strategy.AssetScoreSetting.as_view(),      name='commercial__set_asset_score'),
+    # re_path(r'^strategy/(?P<strategy_id>\d+)/set_charm_score[/]?$', strategy.set_charm_score,      name='commercial__set_charm_score'),
+    re_path(r'^strategy/(?P<strategy_id>\d+)/set_charm_score[/]?$', strategy.CharmScoreSetting.as_view(),      name='commercial__set_charm_score'),
+    # re_path(r'^strategy/(?P<strategy_id>\d+)/set_segment_cat[/]?$', strategy.set_segment_category, name='commercial__set_segment_category'),
+    re_path(r'^strategy/(?P<strategy_id>\d+)/set_segment_cat[/]?$', strategy.SegmentCategorySetting.as_view(), name='commercial__set_segment_category'),
 
     # Bricks reloading
     re_path(r'^bricks/reload/matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)[/]?$',
@@ -86,9 +89,9 @@ urlpatterns = [
     *swap_manager.add_group(
         opportunity_model_is_custom,
         Swappable(re_path(r'^act/(?P<act_id>\d+)/add/opportunity[/]?$',
-                      act.RelatedOpportunityCreation.as_view(),
-                      name='commercial__create_opportunity',
-                     ),
+                          act.RelatedOpportunityCreation.as_view(),
+                          name='commercial__create_opportunity',
+                         ),
                   check_args=Swappable.INT_ID,
                  ),
         app_name='commercial',
