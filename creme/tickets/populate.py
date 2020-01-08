@@ -146,7 +146,7 @@ class Populator(BasePopulator):
                 else:
                     from creme.tickets.buttons import Linked2TicketButton
 
-                    create_bmi = ButtonMenuItem.create_if_needed
+                    create_bmi = ButtonMenuItem.objects.create_if_needed
                     create_bmi(pk='tickets-linked_contact_button', model=get_contact_model(),      button=Linked2TicketButton, order=50)
                     create_bmi(pk='tickets-linked_orga_button',    model=get_organisation_model(), button=Linked2TicketButton, order=50)
 

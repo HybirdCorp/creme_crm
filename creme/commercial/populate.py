@@ -111,9 +111,10 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            ButtonMenuItem.create_if_needed(pk='commercial-complete_goal_button',
-                                            model=None, button=buttons.CompleteGoalButton, order=60,
-                                           )
+            ButtonMenuItem.objects.create_if_needed(
+                pk='commercial-complete_goal_button',
+                button=buttons.CompleteGoalButton, order=60,
+            )
 
             create_bdl           = BrickDetailviewLocation.objects.create_if_needed
             create_bdl_for_model = BrickDetailviewLocation.objects.create_for_model_brick

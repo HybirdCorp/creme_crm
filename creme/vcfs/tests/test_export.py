@@ -55,9 +55,10 @@ class VcfExportTestCase(CremeTestCase):
 
     def test_button(self):
         self.login()
-        ButtonMenuItem.create_if_needed(pk='vcfs-test_button', model=Contact,
-                                        button=GenerateVcfButton, order=100,
-                                       )
+        ButtonMenuItem.objects.create_if_needed(
+            pk='vcfs-test_button', model=Contact,
+            button=GenerateVcfButton, order=100,
+        )
 
         contact = self.create_contact()
         response = self.assertGET200(contact.get_absolute_url())

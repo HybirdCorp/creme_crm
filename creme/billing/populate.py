@@ -273,7 +273,7 @@ class Populator(BasePopulator):
                             )
 
             # ---------------------------
-            create_bmi = ButtonMenuItem.create_if_needed
+            create_bmi = ButtonMenuItem.objects.create_if_needed
             create_bmi(pk='billing-generate_invoice_number', model=Invoice, button=buttons.GenerateInvoiceNumberButton, order=0)
 
             create_bmi(pk='billing-convert_quote_to_invoice',    model=Quote, button=buttons.ConvertToInvoiceButton,    order=0)
