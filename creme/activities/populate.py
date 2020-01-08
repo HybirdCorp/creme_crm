@@ -224,7 +224,7 @@ class Populator(BasePopulator):
             BrickHomeLocation.objects.create(brick_id=past_id, order=21)
 
             # ---------------------------
-            create_button = ButtonMenuItem.create_if_needed
-            create_button('activities-add_activity_button',  model=None, button=buttons.AddRelatedActivityButton, order=10)
-            create_button('activities-add_meeting_button',   model=None, button=buttons.AddMeetingButton,         order=11)
-            create_button('activities-add_phonecall_button', model=None, button=buttons.AddPhoneCallButton,       order=12)
+            create_button = ButtonMenuItem.objects.create_if_needed
+            create_button('activities-add_activity_button',  button=buttons.AddRelatedActivityButton, order=10)
+            create_button('activities-add_meeting_button',   button=buttons.AddMeetingButton,         order=11)
+            create_button('activities-add_phonecall_button', button=buttons.AddPhoneCallButton,       order=12)

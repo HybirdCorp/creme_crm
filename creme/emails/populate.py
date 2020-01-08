@@ -214,4 +214,8 @@ class Populator(BasePopulator):
                 create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=EmailCampaign)
 
             # ---------------------------
-            ButtonMenuItem.create_if_needed(pk='emails-entity_email_link_button', model=EntityEmail, button=buttons.EntityEmailLinkButton, order=20)
+            ButtonMenuItem.objects.create_if_needed(
+                pk='emails-entity_email_link_button',
+                model=EntityEmail, button=buttons.EntityEmailLinkButton,
+                order=20,
+            )

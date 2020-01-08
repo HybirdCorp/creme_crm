@@ -199,7 +199,7 @@ class Populator(BasePopulator):
             create_if_needed(StaffSize, {'pk': 6}, size='> 500',     order=6)
 
             # ---------------------------
-            create_bmi = core_models.ButtonMenuItem.create_if_needed
+            create_bmi = core_models.ButtonMenuItem.objects.create_if_needed
             create_bmi(pk='persons-customer_contact_button', model=Contact, button=buttons.BecomeCustomerButton, order=20)
             create_bmi(pk='persons-prospect_contact_button', model=Contact, button=buttons.BecomeProspectButton, order=21)
             create_bmi(pk='persons-suspect_contact_button',  model=Contact, button=buttons.BecomeSuspectButton,  order=22)

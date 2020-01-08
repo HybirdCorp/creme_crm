@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,20 +18,45 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, PositiveIntegerField
+import warnings
+
+from django.db import models
 from django.utils.translation import gettext_lazy as _, gettext
-from django.contrib.contenttypes.models import ContentType
 
 from .base import CremeModel
 from .fields import CTypeForeignKey
 
 
+class ButtonMenuItemManager(models.Manager):
+    def create_if_needed(self, pk, *, model=None, button, order):
+        """Creation helper ; useful for populate.py scripts.
+        @param pk: Unique string.
+        @param model: Class inheriting CremeEntity, or <None> for "all models".
+        @param button: class inheriting <creme_core.gui.button_menu.Button>,
+               or button's ID (string -- see Button.id_).
+        @param order: Order of the button if the menu (see ButtonMenuItem.order).
+        @return A ButtonMenuItem instance.
+        """
+        return self.get_or_create(
+            pk=pk,
+            defaults={
+                'content_type': model,
+                'button_id': button if isinstance(button, str) else button.id_,
+                'order': order,
+            },
+        )[0]
+
+
+# TODO: remove pkstring & use ('content_type', 'button_id') as PK ?
+#       (what about button per role ?)
 class ButtonMenuItem(CremeModel):
-    id           = CharField(primary_key=True, max_length=100)  # TODO: pk string still useful ???
+    id           = models.CharField(primary_key=True, max_length=100)
     # 'null' means: all ContentTypes are accepted.
     content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)
-    button_id    = CharField(_('Button ID'), max_length=100, blank=False, null=False)
-    order        = PositiveIntegerField(_('Priority'))
+    button_id    = models.CharField(_('Button ID'), max_length=100, blank=False, null=False)
+    order        = models.PositiveIntegerField(_('Priority'))
+
+    objects = ButtonMenuItemManager()
 
     class Meta:
         app_label = 'creme_core'
@@ -45,11 +70,17 @@ class ButtonMenuItem(CremeModel):
         return str(button.verbose_name) if button else gettext('Deprecated button')
 
     @staticmethod
-    def create_if_needed(pk, model, button, order):  # TODO: rename 'button_class'
+    def create_if_needed(pk, model, button, order):
         """Creation helper ; useful for populate.py scripts.
         @param model: Can be None for 'all models'.
         """
-        # TODO: remove pkstring & use ('content_type', 'button_id') as PK
+        warnings.warn('ButtonMenuItem.create_if_needed() is deprecated ; '
+                      'use ButtonMenuItem.objects.create_if_needed() instead.',
+                      DeprecationWarning,
+                     )
+
+        from django.contrib.contenttypes.models import ContentType
+
         return ButtonMenuItem.objects.get_or_create(
             pk=pk,
             defaults={

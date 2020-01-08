@@ -195,7 +195,7 @@ class Populator(BasePopulator):
             create_origin(name=pgettext('opportunities-origin', 'Other'))
 
             # ---------------------------
-            create_button = ButtonMenuItem.create_if_needed
+            create_button = ButtonMenuItem.objects.create_if_needed
             create_button(pk='opportunities-linked_opp_button',         model=Organisation, button=LinkedOpportunityButton, order=30)  # TODO: This pk is kept for compatibility
             create_button(pk='opportunities-linked_opp_button_contact', model=Contact,      button=LinkedOpportunityButton, order=30)
 
