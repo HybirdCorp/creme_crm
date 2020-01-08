@@ -167,7 +167,7 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        SearchConfigItem.create_if_needed(
+        SearchConfigItem.objects.create_if_needed(
             Opportunity,
             ['name', 'made_sales', 'sales_phase__name', 'origin__name'],
         )

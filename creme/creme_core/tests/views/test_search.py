@@ -54,14 +54,15 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.andrew = create_contact(first_name='Andrew', last_name='Morton',   sector=sector)
 
     def _setup_contacts(self, disabled=False, user=None):
-        SearchConfigItem.create_if_needed(FakeContact,
-                                          ['first_name', 'last_name', 'sector__title'],
-                                          disabled=disabled,
-                                         )
+        SearchConfigItem.objects.create_if_needed(
+            FakeContact,
+            ['first_name', 'last_name', 'sector__title'],
+            disabled=disabled,
+        )
         self._build_contacts(user)
 
     def _setup_orgas(self):
-        SearchConfigItem.create_if_needed(FakeOrganisation, ['name'])
+        SearchConfigItem.objects.create_if_needed(FakeOrganisation, ['name'])
 
         create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         self.linusfo = create_orga(name='FoobarLinusFoundation')
@@ -212,7 +213,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Use Role's config if it exists"
         self.login(is_superuser=False, allowed_apps=['creme_core'])
 
-        SearchConfigItem.create_if_needed(FakeContact, ['description'], role=self.role)
+        SearchConfigItem.objects.create_if_needed(FakeContact, ['description'], role=self.role)
         self._setup_contacts()
 
         response = self._search('bear', self.contact_ct_id)
@@ -226,7 +227,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Use Role's config if it exists (super-user)"
         self.login()
 
-        SearchConfigItem.create_if_needed(FakeContact, ['description'], role='superuser')
+        SearchConfigItem.objects.create_if_needed(FakeContact, ['description'], role='superuser')
         self._setup_contacts()
 
         response = self._search('bear', self.contact_ct_id)
@@ -242,12 +243,12 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         hidden_fname1 = 'description'
         hidden_fname2 = 'sector'
-        SearchConfigItem.create_if_needed(FakeContact,
-                                          ['first_name', 'last_name',
-                                           hidden_fname1,
-                                           hidden_fname2 + '__title',
-                                          ],
-                                         )
+        SearchConfigItem.objects.create_if_needed(FakeContact,
+                                                  ['first_name', 'last_name',
+                                                   hidden_fname1,
+                                                   hidden_fname2 + '__title',
+                                                  ],
+                                                 )
 
         sector = FakeSector.objects.create(title='Linux dev')
 
@@ -280,7 +281,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         hidden_fname = 'description'
-        SearchConfigItem.create_if_needed(FakeContact, [hidden_fname])
+        SearchConfigItem.objects.create_if_needed(FakeContact, [hidden_fname])
         FieldsConfig.objects.create(
             content_type=FakeContact,
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
@@ -330,7 +331,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Grouped words."
         self.login()
 
-        SearchConfigItem.create_if_needed(FakeOrganisation, ['name'])
+        SearchConfigItem.objects.create_if_needed(FakeOrganisation, ['name'])
 
         create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         orga1 = create_orga(name='Foobar Foundation')

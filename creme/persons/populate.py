@@ -151,7 +151,7 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        create_sci = core_models.SearchConfigItem.create_if_needed
+        create_sci = core_models.SearchConfigItem.objects.create_if_needed
         create_sci(Contact, ['last_name', 'first_name', 'phone', 'mobile', 'email'])
         create_sci(Organisation, ['name', 'phone', 'email', 'sector__title', 'legal_form__title'])
 

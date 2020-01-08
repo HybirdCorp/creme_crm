@@ -93,7 +93,7 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        SearchConfigItem.create_if_needed(Event, ['name', 'description', 'type__name'])
+        SearchConfigItem.objects.create_if_needed(Event, ['name', 'description', 'type__name'])
 
         # ---------------------------
         if not already_populated:

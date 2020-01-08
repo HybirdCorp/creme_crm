@@ -71,7 +71,7 @@ class Populator(BasePopulator):
                   )
 
         # ---------------------------
-        create_searchconf = SearchConfigItem.create_if_needed
+        create_searchconf = SearchConfigItem.objects.create_if_needed
         create_searchconf(PollForm,     ['name'])
         create_searchconf(PollReply,    ['name'])
         create_searchconf(PollCampaign, ['name'])

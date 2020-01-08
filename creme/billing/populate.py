@@ -243,10 +243,10 @@ class Populator(BasePopulator):
 
         # ---------------------------
         for model in (Invoice, CreditNote, Quote, SalesOrder):
-            SearchConfigItem.create_if_needed(model, ['name', 'number', 'status__name'])
+            SearchConfigItem.objects.create_if_needed(model, ['name', 'number', 'status__name'])
 
         for model in (ProductLine, ServiceLine):
-            SearchConfigItem.create_if_needed(model, [], disabled=True)
+            SearchConfigItem.objects.create_if_needed(model, [], disabled=True)
 
         # ---------------------------
         create_svalue = SettingValue.objects.get_or_create

@@ -67,7 +67,7 @@ class Populator(BasePopulator):
                   )
 
         # ---------------------------
-        create_searchconf = SearchConfigItem.create_if_needed
+        create_searchconf = SearchConfigItem.objects.create_if_needed
         create_searchconf(Product, ['name', 'description', 'category__name', 'sub_category__name'])
         create_searchconf(Service, ['name', 'description', 'category__name', 'sub_category__name'])
 

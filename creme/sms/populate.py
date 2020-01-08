@@ -60,7 +60,7 @@ class Populator(BasePopulator):
                  )
 
         # ---------------------------
-        create_searchconf = SearchConfigItem.create_if_needed
+        create_searchconf = SearchConfigItem.objects.create_if_needed
         create_searchconf(SMSCampaign, ['name'])
         create_searchconf(MessagingList, ['name'])
         create_searchconf(MessageTemplate, ['name', 'subject', 'body'])
