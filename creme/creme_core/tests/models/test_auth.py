@@ -672,7 +672,7 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(perm=EntityCredentials.LINK))
         self.assertFalse(efilter(perm=EntityCredentials.UNLINK))
 
-    def test_ct_credentials(self):
+    def test_ct_credentials01(self):
         user = self.user
         self._create_role('Coder', ['creme_core'], users=[user],
                           set_creds=[
@@ -712,6 +712,17 @@ class CredentialsTestCase(CremeTestCase):
                                  perm=EntityCredentials.VIEW,
                                 )
                         )
+
+    def test_ct_credentials02(self):
+        "Cannot set CremeEntity."
+        role = self._create_role('Coder', ['creme_core'])
+        sc = SetCredentials(role=role,
+                            value=EntityCredentials.VIEW,
+                            set_type=SetCredentials.ESET_ALL,
+                            ctype=CremeEntity,
+                           )
+        with self.assertRaises(ValueError):
+            sc.save()
 
     def test_role_forbidden01(self):
         "ESET_ALL."
@@ -1522,7 +1533,7 @@ class CredentialsTestCase(CremeTestCase):
             'Coder', ['creme_core'], users=[user],
             set_creds=[
                 SetCredentials(value=VIEW, set_type=SetCredentials.ESET_FILTER,
-                               ctype=CremeEntity,
+                               # ctype=CremeEntity,
                                efilter=efilter,
                               ),
             ],
@@ -2399,7 +2410,7 @@ class CredentialsTestCase(CremeTestCase):
             set_creds=[
                 SetCredentials(value=VIEW,
                                set_type=SetCredentials.ESET_FILTER,
-                               ctype=CremeEntity,
+                               # ctype=CremeEntity,
                                efilter=efilter,
                               ),
             ],
@@ -2453,7 +2464,7 @@ class CredentialsTestCase(CremeTestCase):
             set_creds=[
                 SetCredentials(value=VIEW,
                                set_type=SetCredentials.ESET_FILTER,
-                               ctype=CremeEntity,
+                               # ctype=CremeEntity,
                                efilter=efilter,
                                forbidden=True,
                               ),
@@ -2496,7 +2507,7 @@ class CredentialsTestCase(CremeTestCase):
             set_creds=[
                 SetCredentials(value=VIEW,
                                set_type=SetCredentials.ESET_FILTER,
-                               ctype=CremeEntity,
+                               # ctype=CremeEntity,
                                efilter=efilter,
                                forbidden=True,
                               ),
@@ -2572,7 +2583,7 @@ class CredentialsTestCase(CremeTestCase):
             set_creds=[
                 SetCredentials(value=VIEW,
                                set_type=SetCredentials.ESET_FILTER,
-                               ctype=CremeEntity,
+                               # ctype=CremeEntity,
                                efilter=efilter1,
                               ),
                 SetCredentials(value=VIEW,
@@ -2644,7 +2655,7 @@ class CredentialsTestCase(CremeTestCase):
                               ),
                 SetCredentials(value=VIEW,
                                set_type=SetCredentials.ESET_FILTER,
-                               ctype=CremeEntity,
+                               # ctype=CremeEntity,
                                efilter=efilter1,
                                forbidden=True,
                               ),
