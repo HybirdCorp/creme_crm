@@ -24,6 +24,8 @@ from django.utils.translation import gettext_lazy as _, gettext, ngettext
 from creme.creme_core.creme_jobs.base import JobType
 from creme.creme_core.models import JobResult
 
+from .registry import crudity_registry
+
 CremeUser = get_user_model()
 
 
@@ -31,6 +33,8 @@ class _CruditySynchronizeType(JobType):
     id           = JobType.generate_id('crudity', 'synchronization')
     verbose_name = _('Synchronize externals data sent to Creme')
     periodic     = JobType.PERIODIC
+
+    crudity_registry = crudity_registry
 
     def _execute(self, job):
         try:
@@ -47,9 +51,10 @@ class _CruditySynchronizeType(JobType):
 
             user = CremeUser.objects.get_admin()
 
-        from . import registry
+        # from . import registry
 
-        count = len(registry.crudity_registry.fetch(user))
+        # count = len(registry.crudity_registry.fetch(user))
+        count = len(self.crudity_registry.fetch(user))
         JobResult.objects.create(
             job=job,
             messages=[

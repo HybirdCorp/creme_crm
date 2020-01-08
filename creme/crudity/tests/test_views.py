@@ -21,6 +21,8 @@ try:
     from ..bricks import CrudityHistoryBrick
     from ..creme_jobs import crudity_synchronize_type
     from ..models import WaitingAction, History
+    from ..views.actions import RegistryMixin
+
     from .base import CrudityTestCase, FakeFetcher, FakeInput
     from .fake_crudity_register import Swallow
 except Exception as e:
@@ -111,8 +113,16 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
     def setUp(self):
         super().setUp()
 
-        registry.crudity_registry = crudity_registry = registry.CRUDityRegistry()
+        crudity_registry = registry.CRUDityRegistry()
         crudity_registry.autodiscover()
+
+        # TODO: remove <registry.crudity_registry = ...> when
+        #       download_ini_template() is class-based (& set its "crudity_registry" attr of course)
+        self.registry = \
+            registry.crudity_registry = \
+            RegistryMixin.crudity_registry = \
+            crudity_synchronize_type.crudity_registry = \
+            crudity_registry
 
     @classmethod
     def tearDownClass(cls):
@@ -121,7 +131,10 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         poplib.POP3     = cls._original_POP3
         poplib.POP3_SSL = cls._original_POP3_SSL
 
-        registry.crudity_registry = cls._original_crudity_registry
+        registry.crudity_registry = \
+            RegistryMixin.crudity_registry = \
+            crudity_synchronize_type.crudity_registry = \
+            cls._original_crudity_registry
 
     def tearDown(self):
         super().tearDown()
@@ -129,9 +142,12 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         FakePOP3.instances.clear()
 
     def _build_test_registry(self, backend_configs=None):
-        registry.crudity_registry.dispatch(backend_configs if backend_configs is not None else
-                                           settings.CRUDITY_BACKENDS
-                                          )
+        # registry.crudity_registry.dispatch(
+        self.registry.dispatch(
+            backend_configs
+            if backend_configs is not None else
+            settings.CRUDITY_BACKENDS
+        )
 
     def test_validate(self):
         user = self.login()
@@ -161,7 +177,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         backend = self.FakeContactBackend({'subject': subject})
         crudity_input.add_backend(backend)
 
-        crudity_registry = registry.crudity_registry
+        # crudity_registry = registry.crudity_registry
+        crudity_registry = self.registry
         crudity_registry.register_fetchers('test_f', [fetcher])
         crudity_registry.register_inputs('test_f', [crudity_input])
         crudity_registry.register_backends([backend])
@@ -175,7 +192,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         url = reverse('crudity__validate_actions')
         data = {'ids': [wa.id]}
-        self.assertGET404(url, data=data)
+        # self.assertGET404(url, data=data)
+        self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data)
         self.assertEqual(0, WaitingAction.objects.count())
@@ -207,7 +225,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         url = reverse('crudity__delete_actions')
         data = {'ids': [wa1.id, wa3.id]}
-        self.assertGET404(url, data=data)
+        # self.assertGET404(url, data=data)
+        self.assertGET405(url, data=data)
 
         response = self.assertPOST200(url, data=data)
         self.assertDoesNotExist(wa1)
@@ -241,7 +260,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         url = reverse('crudity__delete_actions')
         data = {'ids': [wa1.id, wa2.id]}
-        self.assertGET404(url, data=data)
+        # self.assertGET404(url, data=data)
+        self.assertGET405(url, data=data)
 
         response = self.assertPOST(400, url, data=data)
         self.assertDoesNotExist(wa1)
@@ -251,6 +271,14 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
             _('You are not allowed to validate/delete the waiting action <{}>').format(wa2.id),
             response.content.decode()
         )
+
+    def test_delete03(self):
+        "Errors."
+        self.login()
+        url = reverse('crudity__delete_actions')
+        self.assertPOST404(url, data={'ids': [1235]})
+        self.assertPOST(400, url, data={'ids': ['notanint']})
+        self.assertPOST(400, url, data={'ids': []})
 
     def test_download_email_template(self):
         self.login()
@@ -516,7 +544,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         self._build_test_registry()
         url = reverse('crudity__refresh_actions')
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET405(url)
 
         response = self.assertPOST200(url)
         ldata = response.json()
