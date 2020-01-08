@@ -39,12 +39,14 @@ urlpatterns = [
     *swap_manager.add_group(
         activities.activity_model_is_custom,
         Swappable(re_path(r'^add_phonecall[/]?$',
-                          views.create_phonecall_as_caller,
+                          # views.create_phonecall_as_caller,
+                          views.AsCallerPhoneCallCreation.as_view(),
                           name='cti__create_phonecall_as_caller',
-                         )
+                         ),
                   ),
         Swappable(re_path(r'^phonecall/add/(?P<entity_id>\d+)[/]?$',
-                          views.add_phonecall,
+                          # views.add_phonecall,
+                          views.PhoneCallCreation.as_view(),
                           name='cti__create_phonecall',
                          ),
                   check_args=Swappable.INT_ID
