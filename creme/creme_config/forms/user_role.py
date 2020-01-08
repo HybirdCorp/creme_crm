@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from collections import OrderedDict
+import warnings
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -35,6 +36,8 @@ from creme.creme_core.core.entity_filter import (
     entity_filter_registries, EF_CREDENTIALS,
     condition_handler,
 )
+from creme.creme_core.creme_jobs import deletor_type
+from creme.creme_core.core import deletion
 from creme.creme_core.forms import (
     CremeForm, CremeModelForm, FieldBlockManager,
     MultiEntityCTypeChoiceField,
@@ -44,6 +47,7 @@ from creme.creme_core.models import (
     CremeEntity,
     CremeUser, UserRole, SetCredentials,
     EntityFilter,
+    Job, DeletionCommand,
 )  # Mutex
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import update_model_instance
@@ -298,6 +302,11 @@ class CredentialsFilterStep(CremeModelForm):
 
 class UserRoleDeleteForm(CremeForm):
     def __init__(self, user, instance, *args, **kwargs):
+        warnings.warn('UserRoleDeleteForm is deprecated ; '
+                      'use UserRoleDeletionForm instead.',
+                      DeprecationWarning
+                     )
+
         super().__init__(user, *args, **kwargs)
         self.role_to_delete = instance
         self.using_users = users = CremeUser.objects.filter(role=instance)
@@ -323,6 +332,52 @@ class UserRoleDeleteForm(CremeForm):
             self.using_users.update(role=to_role)
 
         self.role_to_delete.delete()
+
+
+class UserRoleDeletionForm(CremeModelForm):
+    class Meta:
+        model = DeletionCommand
+        fields = ()
+
+    def __init__(self, role_to_delete, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.role_to_delete = role_to_delete
+
+        if CremeUser.objects.filter(role=role_to_delete).exists():
+            self.fields['to_role'] = forms.ModelChoiceField(
+                label=_('Choose a role to transfer to'),
+                help_text=_('The chosen role will replace the deleted one in users which use it.'),
+                queryset=UserRole.objects.exclude(id=role_to_delete.id),
+            )
+        else:
+            self.fields['info'] = forms.CharField(
+                label=gettext('Information'), required=False,
+                widget=creme_widgets.Label,
+                initial=gettext('This role is not used by any user, '
+                                'you can delete it safely.'
+                               ),
+            )
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        instance.instance_to_delete = self.role_to_delete
+
+        # TODO: check other FK ?
+        replacement = self.cleaned_data.get('to_role')
+        if replacement:
+            instance.replacers = [
+                deletion.FixedValueReplacer(
+                    model_field=CremeUser._meta.get_field('role'),
+                    value=replacement,
+                )
+            ]
+        instance.total_count = CremeUser.objects.filter(role=self.role_to_delete).count()
+        instance.job = Job.objects.create(
+            type_id=deletor_type.id,
+            user=self.user,
+        )
+
+        return super().save(*args, **kwargs)
 
 
 # Wizard steps -----------------------------------------------------------------

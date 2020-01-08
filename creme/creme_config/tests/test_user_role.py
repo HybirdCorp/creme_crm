@@ -10,6 +10,7 @@ try:
     from django.forms import CharField
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.creme_jobs.deletor import deletor_type
     from creme.creme_core.forms.widgets import Label
     from creme.creme_core.core.entity_filter import (
         EF_CREDENTIALS,
@@ -25,6 +26,7 @@ try:
         CremeEntity, RelationType, CremePropertyType,
         UserRole, SetCredentials,
         CustomField,
+        Job, DeletionCommand,
         FakeContact, FakeOrganisation,
     )
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
@@ -1980,10 +1982,15 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertPOST403(url)
 
     def test_delete02(self):
-        "Role is not used"
-        self.login()
+        "Role is not used."
+        user = self.login()
 
         role = UserRole.objects.create(name='CEO')
+        creds = SetCredentials.objects.create(role=role,
+                                              set_type=SetCredentials.ESET_ALL,
+                                              value=EntityCredentials.VIEW,
+                                             )
+
         url = self._build_del_role_url(role)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete-popup.html')
@@ -1999,18 +2006,37 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(info.required)
         self.assertNotIn('to_role', fields)
 
-        self.assertNoFormError(self.client.post(url))
+        response = self.client.post(url)
+        self.assertNoFormError(response)
+        # self.assertDoesNotExist(role)
+        # self.assertFalse(SetCredentials.objects.filter(role=role.id))
+        self.assertTemplateUsed(response, 'creme_config/deletion-job-popup.html')
+
+        dcom = self.get_deletion_command_or_fail(UserRole)
+        self.assertEqual(role,      dcom.instance_to_delete)
+        self.assertEqual(role.name, dcom.deleted_repr)
+        self.assertFalse(
+            dcom.replacers
+        )
+        self.assertEqual(0, dcom.total_count)
+        self.assertEqual(0, dcom.updated_count)
+
+        job = dcom.job
+        self.assertEqual(deletor_type.id, job.type_id)
+        self.assertEqual(user, job.user)
+
+        deletor_type.execute(job)
         self.assertDoesNotExist(role)
-        self.assertFalse(SetCredentials.objects.filter(role=role.id))
+        self.assertDoesNotExist(creds)
 
     def test_delete03(self):
-        "To replace by another role"
-        self.login()
+        "To replace by another role."
+        user = self.login()
 
         replacing_role = self.role
         role_2_del = UserRole.objects.create(name='CEO')
         other_role = UserRole.objects.create(name='Coder')
-        user = User.objects.create(username='chloe', role=role_2_del)  # <= role is used
+        user_2_update = User.objects.create(username='chloe', role=role_2_del)  # <= role is used
 
         url = self._build_del_role_url(role_2_del)
         response = self.assertGET200(url)
@@ -2027,12 +2053,32 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         response = self.client.post(url, data={'to_role': replacing_role.id})
         self.assertNoFormError(response)
+        # self.assertDoesNotExist(role_2_del)
+        # self.assertFalse(SetCredentials.objects.filter(role=role_2_del.id))
+        # self.assertEqual(replacing_role, self.refresh(user).role)
+
+        dcom = self.get_deletion_command_or_fail(UserRole)
+        self.assertEqual(role_2_del,      dcom.instance_to_delete)
+        self.assertEqual(role_2_del.name, dcom.deleted_repr)
+        self.assertListEqual(
+            [('fixed_value', user.__class__, 'role', replacing_role)],
+            [(r.type_id, r.model_field.model, r.model_field.name, r.get_value())
+                for r in dcom.replacers
+            ]
+        )
+        self.assertEqual(1, dcom.total_count)
+        self.assertEqual(0, dcom.updated_count)
+
+        job = dcom.job
+        self.assertEqual(deletor_type.id, job.type_id)
+        self.assertEqual(user, job.user)
+
+        deletor_type.execute(job)
         self.assertDoesNotExist(role_2_del)
-        self.assertFalse(SetCredentials.objects.filter(role=role_2_del.id))
-        self.assertEqual(replacing_role, self.refresh(user).role)
+        self.assertEqual(self.refresh(user_2_update).role, replacing_role)
 
     def test_delete04(self):
-        "Role is used -> replacing role is required"
+        "Role is used -> replacing role is required."
         self.login()
 
         role = UserRole.objects.create(name='CEO')
@@ -2040,3 +2086,38 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         response = self.assertPOST200(self._build_del_role_url(role))
         self.assertFormError(response, 'form', 'to_role', _('This field is required.'))
+
+    def test_delete05(self):
+        "Uniqneness."
+        user = self.login()
+        self.assertFalse(DeletionCommand.objects.first())
+
+        job = Job.objects.create(type_id=deletor_type.id, user=user)
+        self.assertEqual(Job.STATUS_WAIT, job.status)
+
+        role_2_del1 = UserRole.objects.create(name='CEO')
+        dcom = DeletionCommand.objects.create(
+            job=job,
+            instance_to_delete=role_2_del1,
+        )
+
+        role_2_del2 = UserRole.objects.create(name='Coder')
+        url = self._build_del_role_url(role_2_del2)
+
+        response = self.assertGET409(url)
+        msg = _('A deletion process for a role already exists.')
+        self.assertIn(msg, response.content.decode())
+
+        # ---
+        job.status = Job.STATUS_ERROR
+        job.save()
+        response = self.assertGET409(url)
+        self.assertIn(msg, response.content.decode())
+
+        # ---
+        job.status = Job.STATUS_OK
+        job.save()
+        response = self.assertGET200(url)
+        self.assertIn('form', response.context)
+        self.assertDoesNotExist(job)
+        self.assertDoesNotExist(dcom)
