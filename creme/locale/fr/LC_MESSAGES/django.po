@@ -1,14 +1,14 @@
 # FR LOCALISATION OF ROOT TEMPLATES
-# Copyright (C) 2019 Hybird
+# Copyright (C) 2020 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "activesync/*" -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*"
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme 2.1\n"
+"Project-Id-Version: Creme 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-19 19:42+0100\n"
+"POT-Creation-Date: 2019-11-28 13:27+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,13 +24,21 @@ msgstr "Format : Jour-Mois-Année (Ex:31-12-2017)"
 msgid "Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2017 23:59:59)"
 msgstr "Format : Jour-Mois-Année Heure:Minute:Seconde (Ex:31-12-2017 23:59:59)"
 
-#: settings.py:491
+#: settings.py:485
 msgid "Ice cream"
 msgstr "Crème glacée"
 
-#: settings.py:492
+#: settings.py:486
 msgid "Chantilly"
 msgstr "Chantilly"
+
+#: templates/400.html:6
+msgid "Creme — 400 Error"
+msgstr "Creme — Erreur 400"
+
+#: templates/400.html:8
+msgid "Bad request."
+msgstr "Mauvaise requête."
 
 #: templates/403.html:6
 msgid "Creme — 403 Error"

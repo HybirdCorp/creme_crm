@@ -233,6 +233,7 @@ MIDDLEWARE = [
     'creme.creme_core.middleware.exceptions.Ajax404Middleware',
     'creme.creme_core.middleware.exceptions.Ajax403Middleware',
     'creme.creme_core.middleware.exceptions.Beautiful409Middleware',
+    'creme.creme_core.middleware.exceptions.BadRequestMiddleware',
 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

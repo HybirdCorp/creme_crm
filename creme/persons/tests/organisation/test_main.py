@@ -637,7 +637,8 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertEqual(1, len(managed_orgas))
 
         managed_orga = managed_orgas[0]
-        self.assertPOST403(managed_orga.get_delete_absolute_url())  # follow=True
+        # self.assertPOST403(managed_orga.get_delete_absolute_url())  # follow=True
+        self.assertPOST409(managed_orga.get_delete_absolute_url())  # follow=True
         self.assertStillExists(managed_orga)
 
     def test_delete03(self):

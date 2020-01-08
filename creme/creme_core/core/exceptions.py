@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2013-2016 Hybird
+# Copyright (c) 2013-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +26,13 @@
 from django.db.models import ProtectedError
 
 
+class BadRequestError(Exception):
+    "Corresponds to HTTP error 400."
+    pass
+
+
 class ConflictError(Exception):
-    "Corresponds to HTTP error 409"
+    "Corresponds to HTTP error 409."
     pass
 
 

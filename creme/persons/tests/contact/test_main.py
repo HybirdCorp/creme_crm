@@ -674,13 +674,15 @@ class ContactTestCase(_BaseTestCase):
         "Can not delete if the Contact corresponds to an user"
         user = self.login()
         contact = user.linked_contact
-        self.assertPOST403(contact.get_delete_absolute_url(), follow=True)
+        # self.assertPOST403(contact.get_delete_absolute_url(), follow=True)
+        self.assertPOST409(contact.get_delete_absolute_url(), follow=True)
 
     def test_delete03(self):
         "Can not trash if the Contact corresponds to an user"
         user = self.login()
         contact = user.linked_contact
-        self.assertPOST403(contact.get_delete_absolute_url(), follow=True)
+        # self.assertPOST403(contact.get_delete_absolute_url(), follow=True)
+        self.assertPOST409(contact.get_delete_absolute_url(), follow=True)
 
     def test_delete_civility01(self):
         "Set to NULL."

@@ -1258,7 +1258,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     @skipIfCustomContact
     def test_delete01(self):
-        "Cannot delete a participant"
+        "Cannot delete a participant."
         user = self.login()
 
         activity = self._create_meeting()
@@ -1270,14 +1270,15 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       object_entity=activity,
                                      )
 
-        self.assertPOST403(musashi.get_delete_absolute_url(), follow=True)
+        # self.assertPOST403(musashi.get_delete_absolute_url(), follow=True)
+        self.assertPOST409(musashi.get_delete_absolute_url(), follow=True)
         self.assertStillExists(musashi)
         self.assertStillExists(activity)
         self.assertStillExists(rel)
 
     @skipIfCustomContact
     def test_delete02(self):
-        "Relations constants.REL_SUB_PART_2_ACTIVITY are removed when the Activity is deleted"
+        "Relations constants.REL_SUB_PART_2_ACTIVITY are removed when the Activity is deleted."
         user = self.login()
 
         activity = self._create_meeting()

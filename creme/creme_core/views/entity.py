@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,33 +19,47 @@
 ################################################################################
 
 from collections import defaultdict
+from itertools import islice
 import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.conf import settings
 from django.db.models import Q, FieldDoesNotExist, ProtectedError
 from django.db.transaction import atomic
 from django.db.utils import NotSupportedError
 from django.forms.models import modelform_factory
-from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
+from django.http import HttpResponse, Http404, HttpResponseBadRequest  # HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _, gettext, ngettext
 
 from .. import constants
-from ..auth.decorators import login_required, superuser_required
-from ..core.exceptions import ConflictError, SpecificProtectedError
+from ..auth import SUPERUSER_PERM
+from ..auth.decorators import login_required  # superuser_required
+from ..auth.entity_credentials import EntityCredentials
+from ..core.exceptions import (
+    BadRequestError,
+    ConflictError,
+    SpecificProtectedError,
+)
 from ..core.paginator import FlowPaginator
 from ..forms import CremeEntityForm
 from ..forms.bulk import BulkDefaultEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
 from ..gui import bulk_update  # NB: do no import <bulk_update_registry> to facilitate unit testing
 from ..gui.merge import merge_form_registry
-from ..models import CremeEntity, EntityCredentials, FieldsConfig, Sandbox
+from ..http import CremeJsonResponse
+from ..models import (
+    CremeEntity,
+    Relation,
+    FieldsConfig,
+    Sandbox,
+)
 from ..models.fields import UnsafeHTMLField
 from ..utils import (
-    get_ct_or_404,
+    # get_ct_or_404,
     get_from_POST_or_404, get_from_GET_or_404,
     bool_from_str_extended,
 )
@@ -84,59 +98,121 @@ def get_creme_entities_repr(request, entities_ids):
     ]
 
 
-@login_required
-def get_sanitized_html_field(request, entity_id, field_name):
+# @login_required
+# def get_sanitized_html_field(request, entity_id, field_name):
+#     entity = get_object_or_404(CremeEntity, pk=entity_id)
+#     request.user.has_perm_to_view_or_die(entity)
+#
+#     entity = entity.get_real_entity()
+#
+#     try:
+#         field = entity._meta.get_field(field_name)
+#     except FieldDoesNotExist as e:
+#         raise ConflictError('This field does not exist.') from e
+#
+#     if not isinstance(field, UnsafeHTMLField):
+#         raise ConflictError('This field is not an HTMLField.')
+#
+#     unsafe_value = getattr(entity, field_name)
+#
+#     return HttpResponse('' if not unsafe_value else
+#                         sanitize_html(unsafe_value,
+#                                       allow_external_img=request.GET.get('external_img', False),
+#                                      )
+#                        )
+class HTMLFieldSanitizing(generic.base.EntityRelatedMixin,
+                          generic.CheckedView):
     """Used to show an HTML document in an <iframe>."""
-    entity = get_object_or_404(CremeEntity, pk=entity_id)
-    request.user.has_perm_to_view_or_die(entity)
+    field_name_url_kwarg = 'field_name'
 
-    entity = entity.get_real_entity()
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_view_or_die(entity)
 
-    try:
-        field = entity._meta.get_field(field_name)
-    except FieldDoesNotExist as e:
-        raise ConflictError('This field does not exist.') from e
+    def get(self, request, *args, **kwargs):
+        entity = self.get_related_entity()
+        field_name = kwargs[self.field_name_url_kwarg]
 
-    if not isinstance(field, UnsafeHTMLField):
-        raise ConflictError('This field is not an HTMLField.')
+        try:
+            field = entity._meta.get_field(field_name)
+        except FieldDoesNotExist as e:
+            raise ConflictError('This field does not exist.') from e
 
-    unsafe_value = getattr(entity, field_name)
+        if not isinstance(field, UnsafeHTMLField):
+            raise ConflictError('This field is not an HTMLField.')
 
-    return HttpResponse('' if not unsafe_value else
-                        sanitize_html(unsafe_value,
-                                      allow_external_img=request.GET.get('external_img', False),
-                                     )
-                       )
+        unsafe_value = getattr(entity, field_name)
+
+        return HttpResponse(
+            '' if not unsafe_value else
+            sanitize_html(
+                unsafe_value,
+                allow_external_img=request.GET.get('external_img', False),
+            )
+        )
 
 
 # TODO: bake the result in HTML instead of ajax view ??
-@jsonify
-@login_required
-def get_info_fields(request, ct_id):
-    ct = get_ct_or_404(ct_id)
-    model = ct.model_class()
+# @jsonify
+# @login_required
+# def get_info_fields(request, ct_id):
+#     ct = get_ct_or_404(ct_id)
+#     model = ct.model_class()
+#
+#     if not issubclass(model, CremeEntity):
+#         raise Http404('No a CremeEntity subclass: {}'.format(model))
+#
+#     form = modelform_factory(model, CremeEntityForm)(user=request.user)
+#     required_fields = [name for name, field in form.fields.items()
+#                            if field.required and name != 'user'
+#                       ]
+#
+#     kwargs = {}
+#     if len(required_fields) == 1:
+#         required_field = required_fields[0]
+#         kwargs['printer'] = lambda field: str(field.verbose_name) \
+#                                           if field.name != required_field else \
+#                                           gettext('{field} [CREATION]').format(field=field.verbose_name)
+#
+#     is_hidden = FieldsConfig.get_4_model(model).is_field_hidden
+#
+#     return ModelFieldEnumerator(model).filter(viewable=True)\
+#                                       .exclude(lambda f, deep: is_hidden(f))\
+#                                       .choices(**kwargs)
+class FieldsInformation(generic.base.EntityCTypeRelatedMixin,
+                        generic.CheckedView):
+    response_class = CremeJsonResponse
 
-    if not issubclass(model, CremeEntity):
-        raise Http404('No a CremeEntity subclass: {}'.format(model))
+    def get_info(self):
+        model = self.get_ctype().model_class()
 
-    # TODO: use django.forms.models.fields_for_model ?
-    form = modelform_factory(model, CremeEntityForm)(user=request.user)
-    required_fields = [name for name, field in form.fields.items()
-                           if field.required and name != 'user'
-                      ]
+        # TODO: use django.forms.models.fields_for_model ?
+        form = modelform_factory(model, CremeEntityForm)(user=self.request.user)
+        required_fields = [
+            name
+                for name, field in form.fields.items()
+                    if field.required and name != 'user'
+        ]
 
-    kwargs = {}
-    if len(required_fields) == 1:
-        required_field = required_fields[0]
-        kwargs['printer'] = lambda field: str(field.verbose_name) \
-                                          if field.name != required_field else \
-                                          gettext('{field} [CREATION]').format(field=field.verbose_name)
+        kwargs = {}
+        if len(required_fields) == 1:
+            required_field = required_fields[0]
+            kwargs['printer'] = lambda field: (
+                str(field.verbose_name)
+                if field.name != required_field else
+                gettext('{field} [CREATION]').format(field=field.verbose_name)
+            )
 
-    is_hidden = FieldsConfig.get_4_model(model).is_field_hidden
+        is_hidden = FieldsConfig.get_4_model(model).is_field_hidden
 
-    return ModelFieldEnumerator(model).filter(viewable=True)\
-                                      .exclude(lambda f, deep: is_hidden(f))\
-                                      .choices(**kwargs)
+        return ModelFieldEnumerator(model).filter(viewable=True) \
+                                          .exclude(lambda f, deep: is_hidden(f)) \
+                                          .choices(**kwargs)
+
+    def get(self, *args, **kwargs):
+        return self.response_class(
+            self.get_info(),
+            safe=False,  # Result is not a dictionary
+        )
 
 
 class Clone(base.EntityRelatedMixin, base.CheckedView):
@@ -693,158 +769,389 @@ def empty_trash(request):
     return HttpResponse(message, status=status)
 
 
-@login_required
-@POST_only
-@atomic
-def restore_entity(request, entity_id):
-    entity = get_object_or_404(CremeEntity.objects.select_for_update(),
-                               pk=entity_id, is_deleted=True,
-                              ).get_real_entity()
+# @login_required
+# @POST_only
+# @atomic
+# def restore_entity(request, entity_id):
+#     entity = get_object_or_404(CremeEntity.objects.select_for_update(),
+#                                pk=entity_id, is_deleted=True,
+#                               ).get_real_entity()
+#
+#     if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
+#         raise Http404(gettext('This model does not use the generic deletion view.'))
+#
+#     if hasattr(entity, 'get_related_entity'):
+#         raise Http404('Can not restore an auxiliary entity')  # See trash_entity()
+#
+#     request.user.has_perm_to_delete_or_die(entity)
+#     entity.restore()
+#
+#     if request.is_ajax():
+#         return HttpResponse()
+#
+#     return redirect(entity)
+class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
+    entity_select_for_update = True
 
-    if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
-        raise Http404(gettext('This model does not use the generic deletion view.'))
+    def build_related_entity_queryset(self, model):
+        return super().build_related_entity_queryset(model=model).filter(is_deleted=True)
 
-    if hasattr(entity, 'get_related_entity'):
-        raise Http404('Can not restore an auxiliary entity')  # See trash_entity()
+    def check_related_entity_permissions(self, entity, user):
+        if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
+            raise Http404(gettext('This model does not use the generic deletion view.'))
 
-    request.user.has_perm_to_delete_or_die(entity)
-    entity.restore()
+        if hasattr(entity, 'get_related_entity'):
+            raise Http404('Can not restore an auxiliary entity')  # See trash_entity()
 
-    if request.is_ajax():
-        return HttpResponse()
+        user.has_perm_to_delete_or_die(entity)
 
-    return redirect(entity)
+    @atomic
+    def post(self, request, *args, **kwargs):
+        entity = self.get_related_entity()
+
+        entity.restore()
+
+        if request.is_ajax():
+            return HttpResponse()
+
+        return redirect(entity)
 
 
-def _delete_entity(user, entity):
-    if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
-        return (404,
+# def _delete_entity(user, entity):
+#     if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
+#         return (404,
+#                 gettext('«{entity}» does not use the generic deletion view.').format(
+#                         entity=entity.allowed_str(user),
+#                     )
+#                )
+#
+#     if hasattr(entity, 'get_related_entity'):
+#         related = entity.get_related_entity()
+#
+#         if related is None:
+#             logger.critical('delete_entity(): an auxiliary entity seems orphan (id=%s)', entity.id)
+#             return 403, gettext('You are not allowed to delete this entity: {}').format(entity.allowed_str(user))
+#
+#         if not user.has_perm_to_change(related):
+#             return 403, gettext('{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
+#
+#         trash = False
+#     else:
+#         if not user.has_perm_to_delete(entity):
+#             return 403, gettext('{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
+#
+#         trash = not entity.is_deleted
+#
+#     try:
+#         if trash:
+#             entity.trash()
+#         else:
+#             entity.delete()
+#     except SpecificProtectedError as e:
+#         return (400,
+#                 '{} {}'.format(
+#                     gettext('«{entity}» can not be deleted.').format(entity=entity.allowed_str(user)),
+#                     e.args[0],
+#                   ),
+#                )
+#     except ProtectedError as e:
+#         return (400,
+#                 gettext('«{entity}» can not be deleted because of its dependencies.').format(
+#                         entity=entity.allowed_str(user),
+#                     ),
+#                 {'protected_objects': e.args[1]},
+#                )
+#     except Exception as e:
+#         logger.exception('Error when trying to empty the trash')
+#         return (400,
+#                 gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
+#                         entity=entity.allowed_str(user),
+#                         error=e,
+#                     )
+#                )
+class EntityDeletionMixin:
+    dependencies_limit = 3
+
+    def check_entity_for_deletion(self, entity, user):
+        if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
+            raise ConflictError(
                 gettext('«{entity}» does not use the generic deletion view.').format(
+                    entity=entity.allowed_str(user),
+                )
+           )
+
+        if hasattr(entity, 'get_related_entity'):
+            related = entity.get_related_entity()
+
+            if related is None:
+                logger.critical(
+                    'delete_entity(): an auxiliary entity seems orphan (id=%s)',
+                    entity.id,
+                )
+                raise PermissionDenied(
+                    gettext('You are not allowed to delete this entity: {}').format(
+                        entity.allowed_str(user),
+                    )
+                )
+
+            if not user.has_perm_to_change(related):
+                raise PermissionDenied(
+                    gettext('{entity} : <b>Permission denied</b>').format(
                         entity=entity.allowed_str(user),
                     )
-               )
-
-    if hasattr(entity, 'get_related_entity'):
-        related = entity.get_related_entity()
-
-        if related is None:
-            logger.critical('delete_entity(): an auxiliary entity seems orphan (id=%s)', entity.id)
-            return 403, gettext('You are not allowed to delete this entity: {}').format(entity.allowed_str(user))
-
-        if not user.has_perm_to_change(related):
-            return 403, gettext('{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
-
-        trash = False
-    else:
-        if not user.has_perm_to_delete(entity):
-            return 403, gettext('{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
-
-        trash = not entity.is_deleted
-
-    try:
-        if trash:
-            entity.trash()
+                )
         else:
-            entity.delete()
-    except SpecificProtectedError as e:
-        return (400,
+            if not user.has_perm_to_delete(entity):
+                raise PermissionDenied(
+                    gettext('{entity} : <b>Permission denied</b>').format(
+                        entity=entity.allowed_str(user),
+                    )
+                )
+
+    def delete_entity(self, entity, user):
+        try:
+            if self.move_to_trash(entity):
+                entity.trash()
+            else:
+                entity.delete()
+        except SpecificProtectedError as e:
+            raise ConflictError(
                 '{} {}'.format(
-                    gettext('«{entity}» can not be deleted.').format(entity=entity.allowed_str(user)),
-                    e.args[0],
-                  ),
-               )
-    except ProtectedError as e:
-        return (400,
-                gettext('«{entity}» can not be deleted because of its dependencies.').format(
+                    gettext('«{entity}» can not be deleted.').format(
                         entity=entity.allowed_str(user),
                     ),
-                {'protected_objects': e.args[1]},
-               )
-    except Exception as e:
-        logger.exception('Error when trying to empty the trash')
-        return (400,
-                gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
+                    e.args[0],
+                ),
+            ) from e
+        except ProtectedError as e:
+            raise ConflictError(
+                gettext('«{entity}» can not be deleted because of its dependencies ({dependencies}).').format(
                         entity=entity.allowed_str(user),
-                        error=e,
-                    )
-               )
+                        dependencies=self.dependencies_to_str(
+                            dependencies=e.args[1],
+                            user=user,
+                        ),
+                ),
+            ) from e
+        except Exception as e:
+            logger.exception('Error when trying to empty the trash')
+            raise ConflictError(
+                gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
+                    entity=entity.allowed_str(user),
+                    error=e,
+                ),
+            ) from e
+
+    def dependencies_to_str(self, *, dependencies, user):
+        def deps_generator():
+            not_viewable_count = 0
+            can_view = user.has_perm_to_view
+
+            for dep in dependencies:
+                if isinstance(dep, CremeEntity):
+                    if can_view(dep):
+                        yield str(dep)
+                    else:
+                        not_viewable_count += 1
+
+            for dep in dependencies:
+                if isinstance(dep, Relation) and can_view(dep.object_entity):
+                    yield '{} «{}»'.format(dep.type.predicate, dep.object_entity)
+
+            if not_viewable_count:
+                yield ngettext(
+                    '{count} not viewable entity',
+                    '{count} not viewable entities',
+                    not_viewable_count
+                ).format(count=not_viewable_count)
+
+            for dep in dependencies:
+                if isinstance(dep, Relation) and not can_view(dep.object_entity):
+                    yield '{} «{}»'.format(dep.type.predicate, settings.HIDDEN_VALUE)
+
+            for dep in dependencies:
+                if not isinstance(dep, (CremeEntity, Relation)):
+                    yield str(dep)
+
+        limit = self.dependencies_limit
+        str_deps = [*islice(deps_generator(), limit + 1)]
+
+        do_ellipsis = False
+        if len(str_deps) > limit:
+            str_deps.pop()
+            do_ellipsis = True
+
+        result = ', '.join(str_deps[:limit])
+
+        return result + '…' if do_ellipsis else result
+
+    def move_to_trash(self, entity):
+        return False if hasattr(entity, 'get_related_entity') else not entity.is_deleted
 
 
-@login_required
-@atomic
-def delete_entities(request):
+# @login_required
+# @atomic
+# def delete_entities(request):
+#     "Delete several CremeEntities, with a Ajax call (POST method)."
+#     try:
+#         entity_ids = [int(e_id) for e_id in get_from_POST_or_404(request.POST, 'ids').split(',') if e_id]
+#     except ValueError:
+#         return HttpResponse('Bad POST argument', status=400)
+#
+#     if not entity_ids:
+#         return HttpResponse(gettext('No selected entities'), status=400)
+#
+#     logger.debug('delete_entities() -> ids: %s ', entity_ids)
+#
+#     user     = request.user
+#     entities = [*CremeEntity.objects.select_for_update().filter(pk__in=entity_ids)]
+#     errors   = defaultdict(list)
+#
+#     len_diff = len(entity_ids) - len(entities)
+#     if len_diff:
+#         errors[404].append(ngettext("{count} entity doesn't exist or has been removed.",
+#                                     "{count} entities don't exist or have been removed.",
+#                                     len_diff
+#                                    ).format(count=len_diff)
+#                           )
+#
+#     CremeEntity.populate_real_entities(entities)
+#
+#     for entity in entities:
+#         error = _delete_entity(user, entity.get_real_entity())
+#         if error:
+#             errors[error[0]].append(error[1])
+#
+#     if not errors:
+#         status = 200
+#         message = gettext('Operation successfully completed')
+#         content_type = None
+#     else:
+#         status = min(errors)
+#         message = json_encode({
+#             'count': len(entity_ids),
+#             'errors': [msg for error_messages in errors.values() for msg in error_messages],
+#         })
+#         content_type = 'application/json'
+#
+#     return HttpResponse(message, content_type=content_type, status=status)
+class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
     "Delete several CremeEntities, with a Ajax call (POST method)."
-    try:
-        entity_ids = [int(e_id) for e_id in get_from_POST_or_404(request.POST, 'ids').split(',') if e_id]
-    except ValueError:
-        return HttpResponse('Bad POST argument', status=400)
 
-    if not entity_ids:
-        return HttpResponse(gettext('No selected entities'), status=400)
+    def get_entity_ids(self):
+        try:
+            entity_ids = [int(e_id) for e_id in get_from_POST_or_404(self.request.POST, 'ids').split(',') if e_id]
+        except ValueError as e:
+            raise BadRequestError('Bad POST argument ({})'.format(e)) from e
 
-    logger.debug('delete_entities() -> ids: %s ', entity_ids)
+        if not entity_ids:
+            raise BadRequestError('Empty "ids" argument.')
 
-    user     = request.user
-    entities = [*CremeEntity.objects.select_for_update().filter(pk__in=entity_ids)]
-    errors   = defaultdict(list)
+        logger.debug('delete_entities() -> ids: %s ', entity_ids)
 
-    len_diff = len(entity_ids) - len(entities)
-    if len_diff:
-        errors[404].append(ngettext("{count} entity doesn't exist or has been removed.",
-                                    "{count} entities don't exist or have been removed.",
-                                    len_diff
-                                   ).format(count=len_diff)
-                          )
+        return entity_ids
 
-    CremeEntity.populate_real_entities(entities)
+    def post(self, request, *args, **kwargs):
+        entity_ids = self.get_entity_ids()
+        user = request.user
+        errors = defaultdict(list)
 
-    for entity in entities:
-        error = _delete_entity(user, entity.get_real_entity())
-        if error:
-            errors[error[0]].append(error[1])  # TODO: use error[2] if exists ??
+        with atomic():
+            entities = [*CremeEntity.objects.select_for_update().filter(pk__in=entity_ids)]
 
-    if not errors:
-        status = 200
-        message = gettext('Operation successfully completed')
-        content_type = None
-    else:
-        status = min(errors)
-        message = json_encode({
-            'count': len(entity_ids),
-            'errors': [msg for error_messages in errors.values() for msg in error_messages],
-        })
-        content_type = 'application/json'
+            len_diff = len(entity_ids) - len(entities)
+            if len_diff:
+                errors[404].append(
+                    ngettext("{count} entity doesn't exist or has been removed.",
+                             "{count} entities don't exist or have been removed.",
+                             len_diff
+                            ).format(count=len_diff)
+                )
 
-    return HttpResponse(message, content_type=content_type, status=status)
+            CremeEntity.populate_real_entities(entities)
+
+            for entity in entities:
+                real_entity = entity.get_real_entity()
+
+                try:
+                    self.check_entity_for_deletion(entity=real_entity, user=user)
+                    self.delete_entity(entity=entity.get_real_entity(), user=user)
+                except PermissionDenied as e:
+                    errors[403].append(e.args[0])
+                except ConflictError as e:
+                    errors[409].append(e.args[0])
+
+        if not errors:
+            status = 200
+            message = gettext('Operation successfully completed')
+            content_type = None
+        else:
+            status = min(errors)
+            message = json_encode({
+                'count': len(entity_ids),
+                'errors': [msg for error_messages in errors.values() for msg in error_messages],
+            })
+            content_type = 'application/json'
+
+        return HttpResponse(message, content_type=content_type, status=status)
 
 
-@login_required
-@POST_only
-@atomic
-def delete_entity(request, entity_id):
-    entity = get_object_or_404(CremeEntity.objects.select_for_update(),
-                               pk=entity_id,
-                              ).get_real_entity()
-    error = _delete_entity(request.user, entity)
+# @login_required
+# @POST_only
+# @atomic
+# def delete_entity(request, entity_id):
+#     entity = get_object_or_404(CremeEntity.objects.select_for_update(),
+#                                pk=entity_id,
+#                               ).get_real_entity()
+#     error = _delete_entity(request.user, entity)
+#
+#     if error:
+#         code, msg, *args = error
+#
+#         if code == 404: raise Http404(msg)
+#
+#         raise PermissionDenied(msg, args)
+#
+#     url = (entity.get_lv_absolute_url()                   if hasattr(entity, 'get_lv_absolute_url') else
+#            entity.get_related_entity().get_absolute_url() if hasattr(entity, 'get_related_entity') else
+#            reverse('creme_core__home'))
+#
+#     if request.is_ajax():
+#         # NB: we redirect because this view can be used from the detail-view
+#         #     (if it's a definitive deletion, we MUST go to a new page anyway)
+#         return HttpResponse(url, content_type='text/plain')
+#
+#     return HttpResponseRedirect(url)
+class EntityDeletion(EntityDeletionMixin,
+                     base.EntityRelatedMixin,
+                     generic.CremeDeletion):
+    entity_select_for_update = True
 
-    if error:
-        code, msg, *args = error
+    def check_related_entity_permissions(self, entity, user):
+        self.check_entity_for_deletion(entity, user)
 
-        if code == 404: raise Http404(msg)
-        # TODO: 400 => ConflictError ??
+    def get_url_for_entity(self):
+        entity = self.get_related_entity()
 
-        raise PermissionDenied(msg, args)
+        if hasattr(entity, 'get_lv_absolute_url'):
+            return entity.get_lv_absolute_url()
 
-    url = (entity.get_lv_absolute_url()                   if hasattr(entity, 'get_lv_absolute_url') else
-           entity.get_related_entity().get_absolute_url() if hasattr(entity, 'get_related_entity') else
-           reverse('creme_core__home'))
+        if hasattr(entity, 'get_related_entity'):
+            return entity.get_related_entity().get_absolute_url()
 
-    if request.is_ajax():
+        return reverse('creme_core__home')
+
+    def get_ajax_success_url(self):
         # NB: we redirect because this view can be used from the detail-view
         #     (if it's a definitive deletion, we MUST go to a new page anyway)
-        return HttpResponse(url, content_type='text/plain')
+        return self.get_url_for_entity()
 
-    return HttpResponseRedirect(url)
+    def get_success_url(self):
+        return self.get_url_for_entity()
+
+    @atomic
+    def perform_deletion(self, request):
+        self.delete_entity(entity=self.get_related_entity(), user=request.user)
 
 
 class RelatedToEntityDeletion(generic.base.ContentTypeRelatedMixin,
@@ -876,34 +1183,82 @@ class RelatedToEntityDeletion(generic.base.ContentTypeRelatedMixin,
             raise PermissionDenied(e.args[0]) from e
 
 
-@login_required
-@superuser_required
-@POST_only
-@atomic
-def restrict_to_superusers(request):
-    POST = request.POST
-    set_sandbox = get_from_POST_or_404(POST, 'set', cast=bool_from_str_extended, default='1')
-    entity = get_object_or_404(
-        CremeEntity.objects.select_for_update(),
-        id=get_from_POST_or_404(POST, 'id', cast=int),
-    )
+# @login_required
+# @superuser_required
+# @POST_only
+# @atomic
+# def restrict_to_superusers(request):
+#     POST = request.POST
+#     set_sandbox = get_from_POST_or_404(POST, 'set', cast=bool_from_str_extended, default='1')
+#     entity = get_object_or_404(
+#         CremeEntity.objects.select_for_update(),
+#         id=get_from_POST_or_404(POST, 'id', cast=int),
+#     )
+#
+#     if set_sandbox:
+#         if entity.sandbox_id:
+#             raise ConflictError('This entity is already in a sandbox.')
+#
+#         entity.sandbox = Sandbox.objects.get(uuid=constants.UUID_SANDBOX_SUPERUSERS)
+#         entity.save()
+#     else:
+#         sandbox = entity.sandbox
+#
+#         if not sandbox or str(sandbox.uuid) != constants.UUID_SANDBOX_SUPERUSERS:
+#             raise ConflictError('This entity is not in the "Restricted to superusers" sandbox.')
+#
+#         entity.sandbox = None
+#         entity.save()
+#
+#     return HttpResponse()
+class SuperusersRestriction(base.CheckedView):
+    permissions = SUPERUSER_PERM
+    enable_sandbox_arg = 'set'
+    entity_id_arg = 'id'
+    sandbox_uuid = constants.UUID_SANDBOX_SUPERUSERS
 
-    if set_sandbox:
-        if entity.sandbox_id:
-            raise ConflictError('This entity is already in a sandbox.')
+    def get_enable_sandbox(self):
+        return get_from_POST_or_404(
+            self.request.POST,
+            key=self.enable_sandbox_arg,
+            cast=bool_from_str_extended,
+            default='1',
+        )
 
-        entity.sandbox = Sandbox.objects.get(uuid=constants.UUID_SANDBOX_SUPERUSERS)
-        entity.save()
-    else:
-        sandbox = entity.sandbox
+    def get_entity_id(self):
+        return get_from_POST_or_404(
+            self.request.POST,
+            key=self.entity_id_arg,
+            cast=int,
+        )
 
-        if not sandbox or str(sandbox.uuid) != constants.UUID_SANDBOX_SUPERUSERS:
-            raise ConflictError('This entity is not in the "Restricted to superusers" sandbox.')
+    def get_entity(self):
+        return get_object_or_404(
+            CremeEntity.objects.select_for_update(),
+            id=self.get_entity_id(),
+        )
 
-        entity.sandbox = None
-        entity.save()
+    @atomic
+    def post(self, request, *args, **kwargs):
+        set_sandbox = self.get_enable_sandbox()
+        entity = self.get_entity()
 
-    return HttpResponse()
+        if set_sandbox:
+            if entity.sandbox_id:
+                raise ConflictError('This entity is already in a sandbox.')
+
+            entity.sandbox = Sandbox.objects.get(uuid=self.sandbox_uuid)
+            entity.save()
+        else:
+            sandbox = entity.sandbox
+
+            if not sandbox or str(sandbox.uuid) != self.sandbox_uuid:
+                raise ConflictError('This entity is not in the "Restricted to superusers" sandbox.')
+
+            entity.sandbox = None
+            entity.save()
+
+        return HttpResponse()
 
 
 # TODO: only GET ?

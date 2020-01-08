@@ -576,26 +576,28 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_delete01(self):
-        "Cannot delete the target & the source"
+        "Cannot delete the target & the source."
         self.login()
 
         opp, target, emitter = self._create_opportunity_n_organisations('My Opp')
         target.trash()
         emitter.trash()
 
-        self.assertPOST403(target.get_delete_absolute_url(), follow=True)
+        # self.assertPOST403(target.get_delete_absolute_url(), follow=True)
+        self.assertPOST409(target.get_delete_absolute_url(), follow=True)
         self.assertStillExists(target)
         self.assertStillExists(opp)
         self.assertEqual(target, self.refresh(opp).target)
 
-        self.assertPOST403(emitter.get_delete_absolute_url(), follow=True)
+        # self.assertPOST403(emitter.get_delete_absolute_url(), follow=True)
+        self.assertPOST409(emitter.get_delete_absolute_url(), follow=True)
         self.assertStillExists(emitter)
         self.assertStillExists(opp)
         self.assertEqual(emitter, self.refresh(opp).emitter)
 
     @skipIfCustomOrganisation
     def test_delete02(self):
-        "Can delete the Opportunity"
+        "Can delete the Opportunity."
         self.login()
 
         opp, target, emitter = self._create_opportunity_n_organisations('My Opp')
