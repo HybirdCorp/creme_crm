@@ -17,7 +17,7 @@ try:
     from .base import ViewsTestCase, BrickTestCaseMixin
 
     from creme.creme_core.bricks import JobBrick, JobErrorsBrick, EntityJobErrorsBrick
-    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
     from creme.creme_core.creme_jobs import batch_process_type, reminder_type, temp_files_cleaner_type
     from creme.creme_core.creme_jobs.base import JobType
     from creme.creme_core.models import Job, EntityJobResult
@@ -35,7 +35,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.queue = queue = JobManagerQueue.get_main_queue()
+        cls.queue = queue = JobSchedulerQueue.get_main_queue()
         cls._original_queue_ping = queue.ping
 
         cls.ct_orga_id = ContentType.objects.get_for_model(FakeOrganisation).id
@@ -166,7 +166,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_editview03(self):
         "Periodic: edit periodicity + specific data"
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         # user = \
@@ -229,7 +229,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_editview04(self):
         "Periodic: edit reference_run"
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         self.login()
@@ -262,7 +262,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_editview05(self):
         "No change of periodicity/reference_run"
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         self.login()
@@ -490,7 +490,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertPOST409(self._build_delete_url(job), follow=True)
 
     def test_disable01(self):
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         self.login()

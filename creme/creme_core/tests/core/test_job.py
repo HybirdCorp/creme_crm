@@ -8,7 +8,7 @@ try:
 
     from ..base import CremeTestCase
 
-    from creme.creme_core.core.job import JobManager
+    from creme.creme_core.core.job import JobScheduler
     from creme.creme_core.core.reminder import Reminder, reminder_registry
     from creme.creme_core.creme_jobs import reminder_type
     from creme.creme_core.models import Job
@@ -18,7 +18,7 @@ except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
-class JobManagerTestCase(CremeTestCase):
+class JobSchedulerTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
         self.reminders = []
@@ -45,7 +45,7 @@ class JobManagerTestCase(CremeTestCase):
 
         self.assertEqual(HoursPeriod(value=1), job.real_periodicity)
 
-        next_wakeup = JobManager()._next_wakeup
+        next_wakeup = JobScheduler()._next_wakeup
 
         next_hour = rounded_hour + timedelta(hours=1)
         self.assertEqual(next_hour, next_wakeup(job))
@@ -70,7 +70,7 @@ class JobManagerTestCase(CremeTestCase):
                 return wake_up
 
         self._register_reminder(TestReminder)
-        self.assertEqual(wake_up, JobManager()._next_wakeup(job))
+        self.assertEqual(wake_up, JobScheduler()._next_wakeup(job))
 
     @override_settings(PSEUDO_PERIOD=1)
     def test_next_wake_up03(self):
@@ -89,5 +89,5 @@ class JobManagerTestCase(CremeTestCase):
         self._register_reminder(TestReminder)
 
         self.assertEqual(rounded_hour + timedelta(hours=1),
-                         JobManager()._next_wakeup(job)
+                         JobScheduler()._next_wakeup(job)
                         )

@@ -12,7 +12,7 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
     from creme.creme_core.models import (
         HistoryLine, SetCredentials, SettingValue, Job,
         FakeOrganisation,
@@ -367,7 +367,7 @@ class SendingsTestCase(_EmailsTestCase):
     @override_settings(EMAILCAMPAIGN_SLEEP_TIME=0.1)
     def test_create03(self):
         "Job + outbox"
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         job = self._get_job()
@@ -763,7 +763,7 @@ class SendingsTestCase(_EmailsTestCase):
                                     sending_date=now() - timedelta(hours=1),
                                    )
 
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         camp.restore()
@@ -783,7 +783,7 @@ class SendingsTestCase(_EmailsTestCase):
                                     sending_date=now() - timedelta(hours=1),
                                    )
 
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         camp.restore()

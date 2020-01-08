@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2019  Hybird
+#    Copyright (C) 2016-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -97,7 +97,8 @@ class Command:
         self.data = data
 
 
-class _BaseJobManagerQueue:
+# class _BaseJobManagerQueue:
+class _BaseJobSchedulerQueue:
     verbose_name = 'Abstract queue'  # Overload me
     _main_queue = None
     _manager_error = _('The job manager does not respond.\n'
@@ -170,8 +171,9 @@ class _BaseJobManagerQueue:
 
 
 if settings.TESTS_ON:
-    class JobManagerQueue(_BaseJobManagerQueue):
-        "Mocking JobManagerQueue"
+    # class JobManagerQueue(_BaseJobManagerQueue):
+    class JobSchedulerQueue(_BaseJobSchedulerQueue):
+        "Mocking JobShedulerQueue"
         verbose_name = 'Test queue'
 
         def __init__(self):
@@ -255,7 +257,8 @@ else:
     # TODO: should we rely on a watch dog ??
     # TODO: pub-sub allows to watch the numbers of readers -> use it to (re-)launch the command ?
     # TODO: base class -> children: Redis, AMQP, etc...
-    class JobManagerQueue(_BaseJobManagerQueue):
+    # class JobManagerQueue(_BaseJobManagerQueue):
+    class JobSchedulerQueue(_BaseJobSchedulerQueue):
         verbose_name = _('Redis queue')
         JOBS_COMMANDS_KEY = 'creme_jobs'
         JOBS_PONG_KEY_PREFIX = 'creme_jobs_pong'
@@ -269,24 +272,24 @@ else:
 
         @_redis_errors_2_bool
         def start_job(self, job):
-            logger.info('Job manager queue: request START "%s"', job)
+            logger.info('Job scheduler queue: request START "%s"', job)
             self._redis.lpush(self.JOBS_COMMANDS_KEY, '{}-{}'.format(CMD_START, job.id))
 
         # def stop_job(self, job): TODO: ?
 
         def end_job(self, job):  # TODO: factorise
-            logger.info('Job manager queue: request END "%s"', job)
+            logger.info('Job scheduler queue: request END "%s"', job)
             self._redis.lpush(self.JOBS_COMMANDS_KEY, '{}-{}'.format(CMD_END, job.id))
 
         @_redis_errors_2_bool
         def refresh_job(self, job, data):  # TODO: factorise
-            logger.info('Job manager queue: request REFRESH "%s" (data=%s)', job, data)
+            logger.info('Job scheduler queue: request REFRESH "%s" (data=%s)', job, data)
             # self._redis.lpush(self.JOBS_COMMANDS_KEY, '{}-{}-{}'.format(CMD_REFRESH, job.id, json_dump(data)))
             self._redis.lpush(self.JOBS_COMMANDS_KEY, '{}-{}-{}'.format(CMD_REFRESH, job.id, json_encode(data)))
 
         def get_command(self, timeout):
             # NB: can raise RedisError (ConnectionError, TimeoutError, other ?!)
-            # TODO: wrap in _BaseJobManagerQueue.Error ??
+            # TODO: wrap in _BaseJobSchedulerQueue.Error ??
 
             cmd = None
             result = self._redis.brpop(self.JOBS_COMMANDS_KEY, timeout)
@@ -297,7 +300,7 @@ else:
                     cmd_type, data = result[1].decode().split('-', 1)
                     cmd = COMMANDS[cmd_type](data)
                 except Exception:
-                    logger.warning('Job manager queue: invalid command "%s"\n%s',
+                    logger.warning('Job scheduler queue: invalid command "%s"\n%s',
                                    result, traceback.format_exc(),
                                   )
 
@@ -305,7 +308,7 @@ else:
 
         def ping(self):
             value = str(uuid1())
-            logger.info('Job manager queue: request PING id="%s"', value)
+            logger.info('Job scheduler queue: request PING id="%s"', value)
             _redis = self._redis
             pong_result = None
 
@@ -336,10 +339,11 @@ else:
             self._redis.setex(self._build_pong_key(ping_value), value=1, time=10)  # TODO: '10' in settings ?
 
 
-class JobManager:
-    """Job scheduler ; it should run it its own process (see 'creme_job_manager'
-    command), receive command (START...) from an inter-process queue, and spawn
-    jobs in their own process.
+# class JobManager:
+class JobScheduler:
+    """It should run it its own process (see 'creme_job_manager' command),
+    receive command (START...) from an inter-process queue, and spawn jobs
+    in their own process.
 
     System Jobs & User Jobs are not managed in the same way
         - System Jobs are always run when their periodic time has arrived, so
@@ -358,7 +362,7 @@ class JobManager:
     """
     def __init__(self):
         self._max_user_jobs = settings.MAX_USER_JOBS
-        self._queue = JobManagerQueue.get_main_queue()
+        self._queue = JobSchedulerQueue.get_main_queue()
         self._procs = {}  # key: job.id; value: subprocess.Popen instance
 
         self._system_jobs = []  # Heap, which elements are (wakeup_date, job_instance) => closer wakeup in the first element.
@@ -402,12 +406,12 @@ class JobManager:
             jtype = job.type
 
             if jtype is None:
-                logger.info('JobManager: job id="%s" has an invalid type -> ignored.', job.id)
+                logger.info('JobScheduler: job id="%s" has an invalid type -> ignored.', job.id)
                 continue
 
             if job.user:
                 if jtype.periodic != JobType.NOT_PERIODIC:
-                    logger.warning('JobManager: job "%s" is a user job and should be'
+                    logger.warning('JobScheduler: job "%s" is a user job and should be'
                                    ' not periodic -> period is ignored.', repr(job),
                                   )
 
@@ -416,7 +420,7 @@ class JobManager:
                 if jtype.periodic != JobType.NOT_PERIODIC:
                     heappush(system_jobs, (self._next_wakeup(job, now_value), job.id, job))
                 else:
-                    logger.warning('JobManager: job "%s" is a system job and should be'
+                    logger.warning('JobScheduler: job "%s" is a system job and should be'
                                    ' (pseudo-)periodic -> job is ignored.', repr(job),
                                   )
 
@@ -451,12 +455,12 @@ class JobManager:
             if user_job.id not in (j.id for j in users_jobs):
                 users_jobs.appendleft(user_job)
         else:
-            logger.warning('JobManager: try to start the job "%s", which is a'
+            logger.warning('JobScheduler: try to start the job "%s", which is a'
                            ' system job -> command is ignored.', repr(user_job),
                           )
 
     def _start_job(self, job):
-        logger.info('JobManager: start %s', repr(job))
+        logger.info('JobScheduler: start %s', repr(job))
 
         self._procs[job.id] = python_subprocess('import django; '
                                                 'django.setup(); '
@@ -465,7 +469,7 @@ class JobManager:
                                                )
 
     def _end_job(self, job):
-        logger.info('JobManager: end %s', repr(job))
+        logger.info('JobScheduler: end %s', repr(job))
         proc = self._procs.pop(job.id, None)
         if proc is not None:
             proc.wait()  # TODO: use return code ??
@@ -480,13 +484,13 @@ class JobManager:
         try:
             job = Job.objects.get(id=job_id)
         except Job.DoesNotExist:
-            logger.warning('JobManager.handle_command_end() -> invalid jod ID: %s', job_id)
+            logger.warning('JobScheduler.handle_command_end() -> invalid jod ID: %s', job_id)
         else:
             if job.user:
                 self._running_userjob_ids.discard(job.id)
             else:
                 if job.type.periodic == JobType.NOT_PERIODIC:
-                    logger.critical('JobManager.handle_command_end() -> '
+                    logger.critical('JobScheduler.handle_command_end() -> '
                                     'job "%s" is a system job and should be '
                                     '(pseudo-)periodic -> job is ignored.', repr(job),
                                     )
@@ -494,7 +498,7 @@ class JobManager:
                     try:
                         reference_run = self._system_jobs_starts.pop(job.id)
                     except KeyError:
-                        logger.warning('JobManager.handle_command_end() ->  try to end '
+                        logger.warning('JobScheduler.handle_command_end() ->  try to end '
                                        'the job "%s" which was not started -> command is ignored', repr(job),
                                       )
                     else:
@@ -505,7 +509,7 @@ class JobManager:
 
     def _handle_command_ping(self, cmd):
         ping_uid = cmd.data_id
-        logger.info('JobManager.handle_command_ping() -> PING id "%s"', ping_uid)
+        logger.info('JobScheduler.handle_command_ping() -> PING id "%s"', ping_uid)
         self._queue.pong(ping_uid)
 
     def _handle_command_refresh(self, cmd):
@@ -513,7 +517,7 @@ class JobManager:
 
         if job_id in self._system_jobs_starts:
             # If the job is running -> the new wake up is computed at the end of its execution ; so we ignore it.
-            logger.info('JobManager.handle_command_refresh() -> try to REFRESH the job "%s",'
+            logger.info('JobScheduler.handle_command_refresh() -> try to REFRESH the job "%s",'
                         ' which is already running: command is useless.',
                         job_id,
                        )
@@ -530,7 +534,7 @@ class JobManager:
                 heapify(system_jobs)
                 break
         else:
-            logger.warning('JobManager.handle_command_refresh() -> invalid (system) jod ID: %s', job_id)
+            logger.warning('JobScheduler.handle_command_refresh() -> invalid (system) jod ID: %s', job_id)
             return
 
         try:
@@ -538,11 +542,11 @@ class JobManager:
             #     could need a new wakeup date without change in the job instance.
             job.update(cmd.data)
         except Exception as e:
-            logger.warning('JobManager.handle_command_refresh() -> invalid refresh data: %s (%s)', cmd.data, e)
+            logger.warning('JobScheduler.handle_command_refresh() -> invalid refresh data: %s (%s)', cmd.data, e)
             return
 
         if not job.enabled:
-            logger.warning('JobManager.handle_command_refresh() -> REFRESH job "%s": disabled', repr(job))
+            logger.warning('JobScheduler.handle_command_refresh() -> REFRESH job "%s": disabled', repr(job))
             return
 
         next_wakeup = self._next_wakeup(job)
@@ -561,7 +565,7 @@ class JobManager:
             next_wakeup = min(next_wakeup, secure_wakeup)
 
         heappush(system_jobs, (next_wakeup, job.id, job))
-        logger.warning('JobManager.handle_command_refresh() -> REFRESH job "%s": next wake up at %s',
+        logger.warning('JobScheduler.handle_command_refresh() -> REFRESH job "%s": next wake up at %s',
                        repr(job), date_format(localtime(next_wakeup), 'DATETIME_FORMAT'),
                       )
 
@@ -571,14 +575,14 @@ class JobManager:
         try:
             job = Job.objects.get(id=job_id)
         except Job.DoesNotExist:
-            logger.warning('JobManager.handle_command_start() -> not yet existing jod ID: %s', job_id)
+            logger.warning('JobScheduler.handle_command_start() -> not yet existing jod ID: %s', job_id)
             def_job = self._DeferredJob(job_id=job_id)
             heappush(self._system_jobs, (def_job.next_wakeup(now()), job_id, def_job))
         else:
             self._push_user_job(job)
 
     def start(self, verbose=True):
-        logger.info('Job manager starts')
+        logger.info('Job scheduler starts')
 
         # TODO: all of this in a function wrapped by a try..except and a loop (+ sleep) which prevents network crashes ?
         # TODO: regularly use Popen.poll() to check if a child has crashed (with a problem which is not a catchable) ?
@@ -643,15 +647,15 @@ class JobManager:
                             real_job = Job.objects.get(id=job.job_id)
                         except Job.DoesNotExist:
                             if job.reaches_trials_limit:
-                                logger.warning('JobManager: deferred job does not exist after all'
+                                logger.warning('JobScheduler: deferred job does not exist after all'
                                                ' its trials (we forget it): %s', job.job_id,
                                               )
                             else:
                                 heappush(system_jobs, (job.next_wakeup(now_value), job.id, job))
-                                logger.warning('JobManager: deferred job still does not exist: %s', job.job_id)
+                                logger.warning('JobScheduler: deferred job still does not exist: %s', job.job_id)
                         else:
                             self._push_user_job(real_job)
-                            logger.warning('JobManager: deferred job exists now: %s', real_job.id)
+                            logger.warning('JobScheduler: deferred job exists now: %s', real_job.id)
                     else:
                         system_jobs_starts[job.id] = wakeup
                         self._start_job(job)
@@ -676,4 +680,4 @@ class JobManager:
             if handler:
                 handler(cmd)
             else:
-                logger.warning('JobManager: invalid command TYPE: %s', cmd_type)
+                logger.warning('JobScheduler: invalid command TYPE: %s', cmd_type)

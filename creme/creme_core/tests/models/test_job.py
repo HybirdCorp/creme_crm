@@ -5,7 +5,7 @@ try:
 
     from ..base import CremeTestCase
 
-    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
     from creme.creme_core.creme_jobs import reminder_type
     from creme.creme_core.models import Job
     from creme.creme_core.utils.date_period import MinutesPeriod
@@ -17,7 +17,7 @@ except Exception as e:
 class JobViewsTestCase(CremeTestCase):
     def test_refresh01(self):
         "No refresh needed"
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
@@ -38,7 +38,7 @@ class JobViewsTestCase(CremeTestCase):
 
     def test_refresh02(self):
         "Enabled is changed"
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
@@ -55,7 +55,7 @@ class JobViewsTestCase(CremeTestCase):
 
     def test_refresh03(self):
         "Reference_run is changed"
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
@@ -72,7 +72,7 @@ class JobViewsTestCase(CremeTestCase):
 
     def test_refresh04(self):
         "Periodicity is changed"
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)

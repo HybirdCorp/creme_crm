@@ -12,7 +12,7 @@ try:
     from django.urls import reverse
     from django.utils.translation import gettext as _, ngettext
 
-    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
     from creme.creme_core.models import Job, JobResult, FakeContact, FakeImage
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
@@ -591,7 +591,7 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         self.assertFalse(FakeContact.objects.filter(last_name=last_name))
 
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
@@ -627,7 +627,7 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.login()
         other_user = self.other_user
 
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         self.SwallowInput.force_not_handle = True

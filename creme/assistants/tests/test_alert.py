@@ -16,7 +16,7 @@ try:
     from creme.creme_core.core.entity_cell import EntityCellFunctionField
     from creme.creme_core.forms.listview import TextLVSWidget
     from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
     from creme.creme_core.models import CremeEntity, DateReminder, FakeOrganisation
 
     from ..models import Alert
@@ -46,7 +46,7 @@ class AlertTestCase(AssistantsTestCase):
     def test_create01(self):
         self.assertFalse(Alert.objects.exists())
 
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         entity = self.entity

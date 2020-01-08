@@ -17,7 +17,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.entity_filter import operators, operands
     from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
-    from creme.creme_core.core.job import job_type_registry, JobManagerQueue  # Should be a test queue
+    from creme.creme_core.core.job import job_type_registry, JobSchedulerQueue  # Should be a test queue
     from creme.creme_core.creme_jobs.batch_process import batch_process_type
     from creme.creme_core.models import (
         EntityFilter,
@@ -84,7 +84,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertRedirects(response, reverse('creme_core__my_jobs'))
 
     def test_batching_upper01(self):
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         self.login()
