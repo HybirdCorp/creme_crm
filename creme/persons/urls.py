@@ -9,11 +9,17 @@ from .views import address, contact, crud_relations, organisation
 
 
 urlpatterns = [
-    re_path(r'^organisation/managed[/]?$',
+    re_path(
+        r'^organisation/managed[/]?$',
         organisation.ManagedOrganisationsAdding.as_view(),
         name='persons__orga_set_managed',
     ),
-    re_path(r'^organisation/not_managed[/]?$', organisation.unset_managed, name='persons__orga_unset_managed'),
+    # re_path(r'^organisation/not_managed[/]?$', organisation.unset_managed, name='persons__orga_unset_managed'),
+    re_path(
+        r'^organisation/not_managed[/]?$',
+        organisation.OrganisationUnmanage.as_view(),
+        name='persons__orga_unset_managed',
+    ),
 
     re_path(r'^(?P<entity_id>\d+)/become_', include([
         re_path(r'^customer[/]?$',          crud_relations.become_customer, name='persons__become_customer'),

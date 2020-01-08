@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,15 +21,15 @@
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+# from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.listview import CreationButton
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views import generic, decorators
+from creme.creme_core.views import generic  # decorators
 
 from .. import get_organisation_model, constants
 from ..forms import organisation as orga_forms
@@ -111,16 +111,46 @@ class ManagedOrganisationsAdding(generic.CremeFormPopup):
     submit_label = _('Save the modifications')
 
 
-@decorators.POST_only
-@login_required
-@permission_required('creme_core.can_admin')
-def unset_managed(request):
-    orga = get_object_or_404(Organisation, id=get_from_POST_or_404(request.POST, 'id'), is_managed=True)
+# @decorators.POST_only
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def unset_managed(request):
+#     orga = get_object_or_404(Organisation, id=get_from_POST_or_404(request.POST, 'id'), is_managed=True)
+#
+#     request.user.has_perm_to_change_or_die(orga)
+#
+#     with atomic():
+#         ids = Organisation.objects.select_for_update().filter(is_managed=True).values_list('id', flat=True)
+#
+#         if orga.id in ids:  # In case a concurrent call to this view has been done
+#             if len(ids) >= 2:
+#                 orga.is_managed = False
+#                 orga.save()
+#             else:
+#                 raise ConflictError(gettext('You must have at least one managed organisation.'))
+#
+#     return HttpResponse()
+class OrganisationUnmanage(generic.base.EntityRelatedMixin, generic.CheckedView):
+    permissions = 'creme_core.can_admin'
+    entity_classes = Organisation
+    organisation_id_arg = 'id'
 
-    request.user.has_perm_to_change_or_die(orga)
+    def build_related_entity_queryset(self, model):
+        return super().build_related_entity_queryset(model=model).filter(is_managed=True)
 
-    with atomic():
-        ids = Organisation.objects.select_for_update().filter(is_managed=True).values_list('id', flat=True)
+    def get_related_entity_id(self):
+        return get_from_POST_or_404(self.request.POST, self.organisation_id_arg, cast=int)
+
+    def post(self, *args, **kwargs):
+        orga = self.get_related_entity()
+
+        with atomic():
+            self.update(orga)
+
+        return HttpResponse()
+
+    def update(self, orga):
+        ids = type(orga).objects.select_for_update().filter(is_managed=True).values_list('id', flat=True)
 
         if orga.id in ids:  # In case a concurrent call to this view has been done
             if len(ids) >= 2:
@@ -128,5 +158,3 @@ def unset_managed(request):
                 orga.save()
             else:
                 raise ConflictError(gettext('You must have at least one managed organisation.'))
-
-    return HttpResponse()
