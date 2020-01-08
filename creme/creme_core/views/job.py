@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2019  Hybird
+#    Copyright (C) 2016-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -187,30 +187,76 @@ def get_info(request):
     return info
 
 
-@login_required
-@jsonify
-def reload_bricks(request, job_id):
-    brick_ids = bricks_views.get_brick_ids_or_404(request)
-    job = get_object_or_404(Job, id=job_id)
-    bricks = []
-    results_bricks = None
+# @login_required
+# @jsonify
+# def reload_bricks(request, job_id):
+#     brick_ids = bricks_views.get_brick_ids_or_404(request)
+#     job = get_object_or_404(Job, id=job_id)
+#     bricks = []
+#     results_bricks = None
+#
+#     for brick_id in brick_ids:
+#         if brick_id == JobBrick.id_:
+#             bricks.append(JobBrick())
+#         else:
+#             if results_bricks is None:
+#                 results_bricks = job.type.results_bricks
+#
+#             for err_brick in results_bricks:
+#                 if brick_id == err_brick.id_:
+#                     bricks.append(err_brick)
+#                     break
+#             else:
+#                 raise Http404('Invalid brick ID')
+#
+#     job.check_owner_or_die(request.user)
+#
+#     return bricks_views.bricks_render_info(request, bricks=bricks,
+#                                            context=bricks_views.build_context(request, job=job),
+#                                           )
+class JobBricksReloading(bricks_views.BricksReloading):
+    check_bricks_permission = False
+    job_id_url_kwarg = 'job_id'
 
-    for brick_id in brick_ids:
-        if brick_id == JobBrick.id_:
-            bricks.append(JobBrick())
-        else:
-            if results_bricks is None:
-                results_bricks = job.type.results_bricks
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.job = None
 
-            for err_brick in results_bricks:
-                if brick_id == err_brick.id_:
-                    bricks.append(err_brick)
-                    break
+    def get_bricks(self):
+        job = self.get_job()
+        bricks = []
+        results_bricks = None
+
+        for brick_id in self.get_brick_ids():
+            if brick_id == JobBrick.id_:
+                bricks.append(JobBrick())
             else:
-                raise Http404('Invalid brick ID')
+                if results_bricks is None:
+                    results_bricks = job.type.results_bricks
 
-    job.check_owner_or_die(request.user)
+                for err_brick in results_bricks:
+                    if brick_id == err_brick.id_:
+                        bricks.append(err_brick)
+                        break
+                else:
+                    raise Http404('Invalid brick ID')
 
-    return bricks_views.bricks_render_info(request, bricks=bricks,
-                                           context=bricks_views.build_context(request, job=job),
-                                          )
+        return bricks
+
+    def get_bricks_context(self):
+        context = super().get_bricks_context()
+        context['job'] = self.get_job()
+
+        return context
+
+    def get_job(self):
+        job = self.job
+
+        if job is None:
+            self.job = job = get_object_or_404(
+                Job,
+                id=self.kwargs[self.job_id_url_kwarg],
+            )
+            job.check_owner_or_die(self.request.user)
+
+        return job

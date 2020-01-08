@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity, RelationType, Relation
 from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404
 from creme.creme_core.views import generic
-from creme.creme_core.views.bricks import build_context, bricks_render_info
+from creme.creme_core.views.bricks import BricksReloading  # build_context, bricks_render_info
 from creme.creme_core.views.decorators import jsonify
 
 from creme import persons, activities
@@ -174,12 +174,24 @@ class AnswerToACall(generic.BricksView):
         return number
 
 
-@login_required
-@jsonify
-def reload_callers_brick(request, number):
-    return bricks_render_info(request, bricks=[CallersBrick()],
-                              context=build_context(request, number=number),
-                             )
+# @login_required
+# @jsonify
+# def reload_callers_brick(request, number):
+#     return bricks_render_info(request, bricks=[CallersBrick()],
+#                               context=build_context(request, number=number),
+#                              )
+class CallersBrickReloading(BricksReloading):
+    check_bricks_permission = False
+    number_url_kwarg = 'number'
+
+    def get_bricks(self):
+        return [CallersBrick()]
+
+    def get_bricks_context(self):
+        context = super().get_bricks_context()
+        context['number'] = self.kwargs[self.number_url_kwarg]
+
+        return context
 
 
 @login_required

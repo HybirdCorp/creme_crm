@@ -62,7 +62,8 @@ urlpatterns = [
 
     # Bricks reloading
     re_path(r'^bricks/reload/matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)[/]?$',
-            strategy.reload_matrix_brick,
+            # strategy.reload_matrix_brick,
+            strategy.MatrixBricksReloading.as_view(),
             name='commercial__reload_matrix_brick',
            ),
 

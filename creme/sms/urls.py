@@ -22,7 +22,8 @@ urlpatterns = [
     re_path(r'^campaign/sending/message/delete[/]?$',              sending.delete_message,        name='sms__delete_message'),
     re_path(r'^campaign/sending/(?P<id>\d+)/messages/sync[/]?$',   sending.sync_messages,         name='sms__sync_messages'),
     re_path(r'^campaign/sending/(?P<id>\d+)/messages/send[/]?$',   sending.send_messages,         name='sms__send_messages'),
-    re_path(r'^campaign/sending/(?P<id>\d+)/messages/reload[/]?$', sending.reload_messages_brick, name='sms__reload_messages_brick'),
+    # re_path(r'^campaign/sending/(?P<id>\d+)/messages/reload[/]?$', sending.reload_messages_brick, name='sms__reload_messages_brick'),
+    re_path(r'^campaign/sending/(?P<sending_id>\d+)/messages/reload[/]?$', sending.MessagesBrickReloading.as_view(), name='sms__reload_messages_brick'),
 
     # MessagingList list: recipients brick
     re_path(r'^messaging_list/(?P<mlist_id>\d+)/recipient/add[/]?$',     recipient.RecipientsAdding.as_view(),        name='sms__add_recipients'),

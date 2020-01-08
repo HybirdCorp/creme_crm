@@ -10,10 +10,18 @@ try:
     from creme.creme_core.bricks import RelationsBrick
     from creme.creme_core.constants import MODELBRICK_ID
     from creme.creme_core.core.entity_cell import EntityCellRegularField
-    from creme.creme_core.gui.bricks import (brick_registry, Brick,
-            InstanceBrickConfigItem, _BrickRegistry, BricksManager)
-    from creme.creme_core.models import (SetCredentials, RelationType, Relation, FieldsConfig,
-            BrickState, BrickDetailviewLocation, CustomBrickConfigItem, RelationBrickItem)
+    from creme.creme_core.gui.bricks import (
+        _BrickRegistry, brick_registry,
+        Brick, BricksManager,
+    )
+    from creme.creme_core.models import (
+        SetCredentials,
+        RelationType, Relation,
+        FieldsConfig,
+        BrickState,
+        BrickDetailviewLocation, CustomBrickConfigItem, RelationBrickItem,
+        InstanceBrickConfigItem,
+    )
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeAddress
@@ -160,15 +168,17 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         brick_registry.register(FoobarBrick1, FoobarBrick2)
 
-        response = self.assertGET200(reverse('creme_core__reload_bricks'),
-                                     data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id']},
-                                    )
+        response = self.assertGET200(
+            reverse('creme_core__reload_bricks'),
+            data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id']},
+        )
         self.assertEqual('application/json', response['Content-Type'])
-        self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_detail(FoobarBrick1.id_)],
-                          [FoobarBrick2.id_, self.TestBrick.string_format_detail(FoobarBrick2.id_)],
-                         ],
-                         response.json()
-                        )
+        self.assertListEqual(
+            [[FoobarBrick1.id_, self.TestBrick.string_format_detail(FoobarBrick1.id_)],
+             [FoobarBrick2.id_, self.TestBrick.string_format_detail(FoobarBrick2.id_)],
+            ],
+            response.json()
+        )
 
     def test_reload_basic02(self):
         "Do not have the credentials"
@@ -193,10 +203,14 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         brick_registry.register(FoobarBrick1)
 
-        response = self.assertGET200(reverse('creme_core__reload_bricks'), data={'brick_id': FoobarBrick1.id_})
-        self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_detail(FoobarBrick1.id_)]],
-                         response.json()
-                        )
+        response = self.assertGET200(
+            reverse('creme_core__reload_bricks'),
+            data={'brick_id': FoobarBrick1.id_}
+        )
+        self.assertListEqual(
+            [[FoobarBrick1.id_, self.TestBrick.string_format_detail(FoobarBrick1.id_)]],
+            response.json()
+        )
 
     def test_reload_basic04(self):
         "Extra data"
@@ -215,11 +229,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         brick_registry.register(FoobarBrick)
 
-        response = self.assertGET200(reverse('creme_core__reload_bricks'),
-                                     data={'brick_id': FoobarBrick.id_,
-                                           'extra_data': json_dump({FoobarBrick.id_: extra_data}),
-                                          },
-                                    )
+        response = self.assertGET200(
+            reverse('creme_core__reload_bricks'),
+            data={
+                'brick_id': FoobarBrick.id_,
+                'extra_data': json_dump({FoobarBrick.id_: extra_data}),
+            },
+        )
         self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
                          response.json()
                         )
@@ -271,13 +287,15 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         brick_registry.register(FoobarBrick)
 
-        response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
-                                     data={'brick_id': FoobarBrick.id_},
-                                    )
+        response = self.assertGET200(
+            reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
+            data={'brick_id': FoobarBrick.id_},
+        )
         self.assertEqual('application/json', response['Content-Type'])
-        self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
-                         response.json()
-                        )
+        self.assertListEqual(
+            [[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
+            response.json()
+        )
         self.assertEqual(atom, FoobarBrick.contact)
 
     def test_reload_detailview02(self):

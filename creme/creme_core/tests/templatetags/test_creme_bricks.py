@@ -32,7 +32,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         return request
 
     def test_brick_import_n_display01(self):
-        "Named Brick"
+        "Named Brick."
         self.login()
 
         brick_str = '<div>FOOBAR</div>'

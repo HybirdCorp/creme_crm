@@ -2,6 +2,8 @@ try:
     from functools import partial
 
     from django.contrib.sessions.backends.base import SessionBase
+    from django.template.context import make_context
+    from django.template.engine import Engine
     from django.test import RequestFactory
     from django.utils.translation import gettext as _
 
@@ -9,11 +11,16 @@ try:
     from ..fake_models import FakeContact, FakeOrganisation, FakeImage
     from creme.creme_core.constants import MODELBRICK_ID
     from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
-    from creme.creme_core.gui.bricks import (Brick, SimpleBrick, QuerysetBrick,
-            EntityBrick, SpecificRelationsBrick, CustomBrick, _BrickRegistry, BricksManager)
-    from creme.creme_core.models import (Relation, RelationType,
-            InstanceBrickConfigItem, RelationBrickItem, CustomBrickConfigItem)
-    from creme.creme_core.views.bricks import build_context
+    from creme.creme_core.gui.bricks import (
+        _BrickRegistry, BricksManager,
+        Brick, SimpleBrick, QuerysetBrick,
+        EntityBrick, SpecificRelationsBrick, CustomBrick,
+    )
+    from creme.creme_core.models import (
+        Relation, RelationType,
+        InstanceBrickConfigItem, RelationBrickItem, CustomBrickConfigItem,
+    )
+    # from creme.creme_core.views.bricks import build_context
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -808,6 +815,14 @@ class BrickTestCase(CremeTestCase):
 
         return request
 
+    def _build_context(self, request):
+        context = make_context({}, request)
+
+        for processor in Engine.get_default().template_context_processors:
+            context.update(processor(request))
+
+        return context.flatten()
+
     def test_custom_brick01(self):
         cbci = CustomBrickConfigItem.objects.create(
             id='tests-organisations01', name='General', content_type=FakeOrganisation,
@@ -846,9 +861,10 @@ class BrickTestCase(CremeTestCase):
 
         brick = self.OrderedBrick()
         brick.page_size = 2
-        template_context = brick.get_template_context(build_context(self._build_request()),
-                                                      FakeContact.objects.filter(description=description),
-                                                     )
+        template_context = brick.get_template_context(
+            self._build_context(self._build_request()),
+            FakeContact.objects.filter(description=description),
+        )
 
         with self.assertNoException():
             page = template_context['page']
@@ -858,7 +874,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(1, page.number)
 
     def test_paginated_brick02(self):
-        "Page in request"
+        "Page in request."
         user = self.login()
 
         description = 'Dungeon explorer'
@@ -870,9 +886,10 @@ class BrickTestCase(CremeTestCase):
         brick = self.OrderedBrick()
         brick.page_size = 2
         request = self._build_request('/?{}_page=2'.format(brick.id_))
-        template_context = brick.get_template_context(build_context(request),
-                                                      FakeContact.objects.filter(description=description),
-                                                     )
+        template_context = brick.get_template_context(
+            self._build_context(request),
+            FakeContact.objects.filter(description=description),
+        )
 
         page = template_context['page']
         self.assertEqual(2, page.number)
@@ -890,9 +907,10 @@ class BrickTestCase(CremeTestCase):
         brick = self.OrderedBrick()
         brick.page_size = 2
         request = self._build_request('/?{}_page=NaN'.format(brick.id_))
-        template_context = brick.get_template_context(build_context(request),
-                                                      FakeContact.objects.filter(description=description),
-                                                     )
+        template_context = brick.get_template_context(
+            self._build_context(request),
+            FakeContact.objects.filter(description=description),
+        )
 
         page = template_context['page']
         self.assertEqual(1, page.number)
@@ -910,9 +928,10 @@ class BrickTestCase(CremeTestCase):
         brick = self.OrderedBrick()
         brick.page_size = 2
         request = self._build_request('/?{}_page=3'.format(brick.id_))
-        template_context = brick.get_template_context(build_context(request),
-                                                      FakeContact.objects.filter(description=description),
-                                                     )
+        template_context = brick.get_template_context(
+            self._build_context(request),
+            FakeContact.objects.filter(description=description),
+        )
 
         page = template_context['page']
         self.assertEqual(2, page.number)
@@ -927,9 +946,10 @@ class BrickTestCase(CremeTestCase):
         crozzo = create_contact(first_name='Welf', last_name='Crozzo')
 
         brick = self.OrderedBrick()
-        template_context = brick.get_template_context(build_context(self._build_request()),
-                                                      FakeContact.objects.all(),
-                                                     )
+        template_context = brick.get_template_context(
+            self._build_context(self._build_request()),
+            FakeContact.objects.all(),
+        )
 
         with self.assertNoException():
             page = template_context['page']
@@ -953,13 +973,14 @@ class BrickTestCase(CremeTestCase):
         crozzo = create_contact(first_name='Welf', last_name='Crozzo')
 
         brick = ProblematicBrick()
-        template_context = brick.get_template_context(build_context(self._build_request()),
-                                                      FakeContact.objects.all(),
-                                                     )
+        template_context = brick.get_template_context(
+            self._build_context(self._build_request()),
+            FakeContact.objects.all(),
+        )
         self._assertPageOrderedLike(template_context['page'], [cranel, crozzo, wallen])
 
     def test_queryset_brick_order03(self):
-        "Order in request: valid field"
+        "Order in request: valid field."
         user = self.login()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -972,12 +993,18 @@ class BrickTestCase(CremeTestCase):
 
         # ASC
         request = self._build_request('/?{}_order=first_name'.format(brick.id_))
-        template_context = brick.get_template_context(build_context(request), FakeContact.objects.all())
+        template_context = brick.get_template_context(
+            self._build_context(request),
+            FakeContact.objects.all(),
+        )
         self._assertPageOrderedLike(template_context['page'], [aiz, bell, lili, welf])
 
         # DESC
         request = self._build_request('/?{}_order=-first_name'.format(brick.id_))
-        template_context = brick.get_template_context(build_context(request), FakeContact.objects.all())
+        template_context = brick.get_template_context(
+            self._build_context(request),
+            FakeContact.objects.all(),
+        )
         self._assertPageOrderedLike(template_context['page'], [welf, lili, bell, aiz])
 
     def test_queryset_brick_order04(self):
@@ -991,7 +1018,10 @@ class BrickTestCase(CremeTestCase):
 
         brick = self.OrderedBrick()
         request = self._build_request('/?{}_order=unknown'.format(brick.id_))
-        template_context = brick.get_template_context(build_context(request), FakeContact.objects.all())
+        template_context = brick.get_template_context(
+            self._build_context(request),
+            FakeContact.objects.all()
+        )
 
         with self.assertNoException():
             page = template_context['page']
@@ -1010,7 +1040,10 @@ class BrickTestCase(CremeTestCase):
 
         brick = self.OrderedBrick()
         request = self._build_request('/?{}_order=languages'.format(brick.id_))
-        template_context = brick.get_template_context(build_context(request), FakeContact.objects.all())
+        template_context = brick.get_template_context(
+            self._build_context(request),
+            FakeContact.objects.all()
+        )
 
         with self.assertNoException():
             page = template_context['page']

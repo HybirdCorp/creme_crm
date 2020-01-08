@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.shortcuts import get_list_or_404
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.bricks import bricks_render_info, get_brick_ids_or_404
+from creme.creme_core.views.bricks import BricksReloading  # bricks_render_info, get_brick_ids_or_404
 from creme.creme_core.views.decorators import jsonify, POST_only
 from creme.creme_core.views.generic import BricksView
 
@@ -127,20 +127,37 @@ def validate(request):
     return {}
 
 
-@login_required
-@permission_required('crudity')
-@jsonify
-def reload_bricks(request):
-    brick_ids = get_brick_ids_or_404(request)
-    bricks = []
-    get_brick = {brick.id_: brick for brick in _build_portal_bricks()}.get
+# @login_required
+# @permission_required('crudity')
+# @jsonify
+# def reload_bricks(request):
+#     brick_ids = get_brick_ids_or_404(request)
+#     bricks = []
+#     get_brick = {brick.id_: brick for brick in _build_portal_bricks()}.get
+#
+#     for brick_id in brick_ids:
+#         brick = get_brick(brick_id)
+#
+#         if not brick:
+#             raise Http404('Invalid brick ID: ' + brick_id)
+#
+#         bricks.append(brick)
+#
+#     return bricks_render_info(request, bricks=bricks)
+class ActionsBricksReloading(BricksReloading):
+    check_bricks_permission = False
+    permissions = 'crudity'
 
-    for brick_id in brick_ids:
-        brick = get_brick(brick_id)
+    def get_bricks(self):
+        bricks = []
+        get_brick = {brick.id_: brick for brick in _build_portal_bricks()}.get
 
-        if not brick:
-            raise Http404('Invalid brick ID: ' + brick_id)
+        for brick_id in self.get_brick_ids():
+            brick = get_brick(brick_id)
 
-        bricks.append(brick)
+            if not brick:
+                raise Http404('Invalid brick ID: ' + brick_id)
 
-    return bricks_render_info(request, bricks=bricks)
+            bricks.append(brick)
+
+        return bricks

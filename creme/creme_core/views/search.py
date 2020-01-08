@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,8 +26,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _, gettext
 
-from .. import utils
-from ..auth.decorators import login_required
+# from .. import utils
+# from ..auth.decorators import login_required
 from ..core.entity_cell import EntityCellRegularField
 from ..core.search import Searcher
 from ..gui.bricks import QuerysetBrick
@@ -36,8 +36,8 @@ from ..models import CremeEntity, EntityCredentials
 from ..registry import creme_registry
 from ..utils.unicode_collation import collator
 
-from .bricks import bricks_render_info
-from .decorators import jsonify
+from .bricks import BricksReloading  # bricks_render_info
+# from .decorators import jsonify
 from .generic import base
 
 MIN_RESEARCH_LENGTH = 3
@@ -200,26 +200,50 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
         return terms
 
 
-@login_required
-@jsonify
-def reload_brick(request):
-    GET = request.GET
-    brick_id = utils.get_from_GET_or_404(GET, 'brick_id')
-    ctype = FoundEntitiesBrick.parse_brick_id(brick_id)
+# @login_required
+# @jsonify
+# def reload_brick(request):
+#     GET = request.GET
+#     brick_id = utils.get_from_GET_or_404(GET, 'brick_id')
+#     ctype = FoundEntitiesBrick.parse_brick_id(brick_id)
+#
+#     if ctype is None:
+#         raise Http404('Invalid block ID')
+#
+#     search = GET.get('search', '')
+#
+#     if len(search) < MIN_RESEARCH_LENGTH:
+#         raise Http404('Please enter at least {count} characters'.format(count=MIN_RESEARCH_LENGTH))
+#
+#     user = request.user
+#     model = ctype.model_class()
+#     brick = FoundEntitiesBrick(Searcher([model], user), model, search, user, id=brick_id)
+#
+#     return bricks_render_info(request, bricks=[brick])
+class SearchBricksReloading(BricksReloading):
+    check_bricks_permission = False
 
-    if ctype is None:
-        raise Http404('Invalid block ID')
+    def get_bricks(self):
+        bricks = []
+        request = self.request
+        user = request.user
+        GET = request.GET
 
-    search = GET.get('search', '')
+        for brick_id in self.get_brick_ids():
+            ctype = FoundEntitiesBrick.parse_brick_id(brick_id)
 
-    if len(search) < MIN_RESEARCH_LENGTH:
-        raise Http404('Please enter at least {count} characters'.format(count=MIN_RESEARCH_LENGTH))
+            if ctype is None:
+                raise Http404('Invalid block ID')
 
-    user = request.user
-    model = ctype.model_class()
-    brick = FoundEntitiesBrick(Searcher([model], user), model, search, user, id=brick_id)
+            search = GET.get('search', '')
 
-    return bricks_render_info(request, bricks=[brick])
+            if len(search) < MIN_RESEARCH_LENGTH:
+                raise Http404('Please enter at least {count} characters'.format(count=MIN_RESEARCH_LENGTH))
+
+            model = ctype.model_class()
+            bricks.append(FoundEntitiesBrick(Searcher([model], user), model, search, user, id=brick_id))
+
+        return bricks
 
 
 class LightSearch(SearcherMixin, base.CheckedView):
