@@ -29,6 +29,7 @@ from django.utils.translation import gettext as _, gettext_lazy
 
 from ..models import FileRef, JobResult
 from ..utils.date_period import date_period_registry
+
 from .base import JobType
 
 logger = logging.getLogger(__name__)

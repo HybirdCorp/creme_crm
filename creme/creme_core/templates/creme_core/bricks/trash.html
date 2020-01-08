@@ -8,7 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}{% url 'creme_core__empty_trash' as empty_url %}
-    {% brick_header_action id='delete' url=empty_url label=_('Empty the trash') icon='cancel' %}
+{#    {% brick_header_action id='delete' url=empty_url label=_('Empty the trash') icon='cancel' %} #}
+    {% brick_header_action id='edit' url=empty_url label=_('Empty the trash') icon='cancel' %}
 {% endblock %}
 
 {% block brick_table_columns %}

@@ -188,7 +188,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                             operator='lower',
                                                             value='',
                                                         ),
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -198,7 +198,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual('harunobu', self.refresh(contact02).first_name)
 
     def test_batching_suffix(self):
-        "Operator value + unicode char"
+        "Operator value + unicode char."
         user = self.login()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -211,7 +211,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                             operator='suffix',
                                                             value='-adorée',
                                                         ),
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -221,7 +221,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual('Kanako-adorée', self.refresh(contact02).first_name)
 
     def test_validation_error01(self):
-        "Invalid field"
+        "Invalid field."
         self.login()
 
         response = self.assertPOST200(self._build_add_url(FakeContact), follow=True,
@@ -230,7 +230,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                             operator='lower',
                                                             value='',
                                                         ),
-                                           }
+                                           },
                                      )
         self.assertFormError(response, 'form', 'actions',
                              _('This field is invalid with this model.'),

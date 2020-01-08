@@ -1,0 +1,16 @@
+{% load i18n %}
+<form method="POST" action="{% url 'creme_core__finish_trash_cleaner' job.id %}"
+      widget="job-waiting-ctrl" class="job-waiting-ctrl ui-creme-widget widget-auto" data-jobs-info-url="{% url 'creme_core__jobs_info' %}">
+    <div class="global-error" style="display: none;"></div>
+
+    <div class="config-deletion-job-info-tiles">
+        <div class="config-deletion-job-info-tile">
+            <span class="config-deletion-job-tile-name">{% trans 'Status' %}</span>
+            <span class="config-deletion-job-tile-value" data-job-id="{{job.id}}" data-job-status="{{job.status}}" data-job-ack-errors="{{job.ack_errors}}">
+                {{job.progress.render}}
+            </span>
+        </div>
+    </div>
+
+    <input type="submit" class="ui-creme-dialog-action" value="{% trans 'Finish' %}">{# NB: we override the label #}
+</form>

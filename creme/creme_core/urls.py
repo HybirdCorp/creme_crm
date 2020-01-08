@@ -18,8 +18,11 @@ entity_patterns = [
     re_path(r'^delete_related/(?P<ct_id>\d+)[/]?$', entity.RelatedToEntityDeletion.as_view(), name='creme_core__delete_related_to_entity'),
     # re_path(r'^restore/(?P<entity_id>\d+)[/]?$',    entity.restore_entity,                    name='creme_core__restore_entity'),
     re_path(r'^restore/(?P<entity_id>\d+)[/]?$',    entity.EntityRestoration.as_view(),       name='creme_core__restore_entity'),
-    re_path(r'^trash[/]?$',                         entity.Trash.as_view(),                   name='creme_core__trash'),
-    re_path(r'^trash/empty[/]?$',                   entity.empty_trash,                       name='creme_core__empty_trash'),
+
+    re_path(r'^trash[/]?$',                                entity.Trash.as_view(),           name='creme_core__trash'),
+    # re_path(r'^trash/empty[/]?$',                   entity.empty_trash,                       name='creme_core__empty_trash'),
+    re_path(r'^trash/empty[/]?$',                          entity.TrashCleaning.as_view(),   name='creme_core__empty_trash'),
+    re_path(r'^trash/cleaner/finish/(?P<job_id>\d+)[/]?$', entity.TrashCleanerEnd.as_view(), name='creme_core__finish_trash_cleaner'),
 
     # TODO: add a view 'creme_core__entities_as_json'
     #       (with same features as 'creme_core__entity_as_json', then remove this one)

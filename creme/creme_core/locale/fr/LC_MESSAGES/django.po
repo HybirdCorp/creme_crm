@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-28 14:34+0100\n"
+"POT-Creation-Date: 2020-01-08 15:58+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -55,7 +55,7 @@ msgstr "Accéder à la fiche {entity}"
 msgid "Clone"
 msgstr "Cloner"
 
-#: actions.py:114 views/entity.py:312
+#: actions.py:114 views/entity.py:379
 msgid "Multiple update"
 msgstr "Modification multiple"
 
@@ -85,7 +85,7 @@ msgstr "Cœur"
 msgid "Home"
 msgstr "Accueil"
 
-#: apps.py:340 models/auth.py:783 models/job.py:83
+#: apps.py:340 models/auth.py:783 models/job.py:82
 #: templates/creme_core/bricks/imprints.html:17
 #: templates/creme_core/bricks/job.html:59
 msgid "User"
@@ -109,7 +109,7 @@ msgstr "Se déconnecter"
 msgid "Tools"
 msgstr "Outils"
 
-#: apps.py:355 models/job.py:104 templates/creme_core/bricks/jobs-all.html:17
+#: apps.py:355 models/job.py:108 templates/creme_core/bricks/jobs-all.html:17
 msgid "Jobs"
 msgstr "Jobs"
 
@@ -323,7 +323,7 @@ msgstr "Dans «{model} - {field}», remplacer par une valeur de secours"
 #: core/entity_cell.py:206 forms/batch_process.py:191
 #: templates/creme_core/bricks/jobs-all.html:27
 #: templates/creme_core/bricks/jobs-mine.html:14
-#: templates/creme_core/bricks/trash.html:18
+#: templates/creme_core/bricks/trash.html:19
 #: templates/creme_core/templatetags/listview/entity-actions.html:27
 #: templates/creme_core/templatetags/listview/header-actions.html:5
 msgid "Actions"
@@ -654,7 +654,7 @@ msgstr "«{field}» n'est pas vide"
 msgid "Range"
 msgstr "Intervalle"
 
-#: core/job.py:103
+#: core/job.py:104
 msgid ""
 "The job manager does not respond.\n"
 "Please contact your administrator."
@@ -662,7 +662,7 @@ msgstr ""
 "Le gestionnaire de job ne répond pas.\n"
 "Veuillez contacter votre administrateur."
 
-#: core/job.py:109
+#: core/job.py:110
 #, python-brace-format
 msgid ""
 "There is a connection error with the job manager.\n"
@@ -675,7 +675,7 @@ msgstr ""
 "[Erreur originale depuis «{queue}»:\n"
 "{message}]"
 
-#: core/job.py:259
+#: core/job.py:262
 msgid "Redis queue"
 msgstr "Queue Redis"
 
@@ -685,8 +685,8 @@ msgid "An error occurred while sending emails related to «{model}»"
 msgstr ""
 "Une erreur s'est produite pendant l'envoi des e-mails relatifs à «{model}»"
 
-#: core/reminder.py:89 creme_jobs/temp_files_cleaner.py:66
-#: creme_jobs/temp_files_cleaner.py:95
+#: core/reminder.py:89 creme_jobs/temp_files_cleaner.py:67
+#: creme_jobs/temp_files_cleaner.py:96
 msgid "Original error: {}"
 msgstr "Erreur originale : {}"
 
@@ -819,30 +819,30 @@ msgstr "Mémentos"
 msgid "Execute all reminders"
 msgstr "Exécuter tous les mémentos"
 
-#: creme_jobs/temp_files_cleaner.py:39
+#: creme_jobs/temp_files_cleaner.py:40
 msgid "Temporary files cleaner"
 msgstr "Nettoyeur de fichiers temporaires"
 
-#: creme_jobs/temp_files_cleaner.py:49
+#: creme_jobs/temp_files_cleaner.py:50
 msgid ""
 "The configured delay is invalid. Edit the job's configuration to fix it."
 msgstr ""
 "Le délai configuré est invalide. Modifiez la configuration du job pour le "
 "corriger."
 
-#: creme_jobs/temp_files_cleaner.py:63
+#: creme_jobs/temp_files_cleaner.py:64
 msgid "An error occurred while deleting the temporary file «{}»"
 msgstr ""
 "Une erreur s'est produite pendant la suppression du fichier temporaire «{}»"
 
-#: creme_jobs/temp_files_cleaner.py:82
+#: creme_jobs/temp_files_cleaner.py:83
 msgid ""
 "The temporary file with id={} cannot be deleted because of its dependencies."
 msgstr ""
 "Le fichier temporaire avec id={} ne peut être supprimé à cause de ses "
 "dépendances."
 
-#: creme_jobs/temp_files_cleaner.py:92
+#: creme_jobs/temp_files_cleaner.py:93
 msgid ""
 "The temporary file with id={} cannot be deleted because of an unexpected "
 "error."
@@ -850,9 +850,28 @@ msgstr ""
 "Le fichier temporaire avec id={} ne peut être supprimé à cause d'une erreur "
 "inattendue."
 
-#: creme_jobs/temp_files_cleaner.py:111
+#: creme_jobs/temp_files_cleaner.py:112
 msgid "Remove old temporary files"
 msgstr "Supprimer les vieux fichiers temporaires"
+
+#: creme_jobs/trash_cleaner.py:40
+msgid "Trash cleaner"
+msgstr "Videur de corbeille"
+
+#: creme_jobs/trash_cleaner.py:114
+msgid "Can not be deleted because of its dependencies."
+msgstr "Ne peut être supprimé à cause de ses dépendances."
+
+#: creme_jobs/trash_cleaner.py:117
+msgid "Deletion caused an unexpected error [{}]."
+msgstr "La suppression a provoqué une erreur inattendue [{}]."
+
+#: creme_jobs/trash_cleaner.py:130 creme_jobs/trash_cleaner.py:141
+#, python-brace-format
+msgid "{count} entity deleted."
+msgid_plural "{count} entities deleted."
+msgstr[0] "{count} Fiche supprimée"
+msgstr[1] "{count} Fiches supprimées"
 
 #: enumerators.py:38 forms/fields.py:94
 msgid "Teams"
@@ -906,7 +925,7 @@ msgid "You are not allowed to link the created entity (wrong owner?)."
 msgstr ""
 "Vous n'êtes pas autorisé à relier la fiche créée (mauvais propriétaire ?)"
 
-#: forms/base.py:340 models/entity.py:56
+#: forms/base.py:340 models/entity.py:58
 #: templates/creme_core/bricks/job.html:64
 msgid "Description"
 msgstr "Description"
@@ -1024,7 +1043,7 @@ msgstr "Cette fiche est invalide."
 msgid "This filter is invalid."
 msgstr "Ce filtre est invalide."
 
-#: forms/entity_filter/fields.py:839
+#: forms/entity_filter/fields.py:841
 msgid "This property type is invalid with this model."
 msgstr "Ce type de propriété est invalide avec ce type de fiche."
 
@@ -1135,11 +1154,11 @@ msgstr ""
 "Cette fiche n'a aucune propriété qui convient avec les contrainte de type de "
 "relation"
 
-#: forms/fields.py:1098
+#: forms/fields.py:1101
 msgid "Enter a value if you check the box."
 msgstr "Entrez une valeur si vous cochez la case."
 
-#: forms/fields.py:1351
+#: forms/fields.py:1354
 msgid ""
 "If you select «customized» you have to specify a start date and/or an end "
 "date."
@@ -1147,39 +1166,39 @@ msgstr ""
 "Si vous sélectionnez «Personnalisé» vous devez spécifier une date de début "
 "et/ou une date de fin."
 
-#: forms/fields.py:1352
+#: forms/fields.py:1355
 msgid "Start date has to be before end date."
 msgstr "La date début doit être avant la date de fin."
 
-#: forms/fields.py:1359 forms/widgets.py:279 forms/widgets.py:304
+#: forms/fields.py:1362 forms/widgets.py:279 forms/widgets.py:304
 msgctxt "creme_core-date_range"
 msgid "Customized"
 msgstr "Personnalisé"
 
-#: forms/fields.py:1404
+#: forms/fields.py:1407
 msgid "Enter a valid value (eg: DF8177)."
 msgstr "Saisissez une valeur valide (ex: DF8177)."
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:1417
+#: forms/fields.py:1420
 msgid "Enter a whole number."
 msgstr ""
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:1418
+#: forms/fields.py:1421
 #, python-format
 msgid "Ensure this value is greater than or equal to %(limit_value)s."
 msgstr ""
 
-#: forms/fields.py:1441
+#: forms/fields.py:1444
 msgid "Enter a value for \"Other\" choice."
 msgstr "Entrez une valeur pour le choix \"Autre\""
 
-#: forms/fields.py:1463
+#: forms/fields.py:1466
 msgid "Other"
 msgstr "Autre"
 
-#: forms/fields.py:1497
+#: forms/fields.py:1500
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 "Sélectionnez un choix valide. Ce choix n'est pas un des choix disponibles."
@@ -1451,8 +1470,8 @@ msgstr ""
 "Plusieurs fiches correspondant à la recherche ont été trouvées. Donc une "
 "nouvelle fiche a été créée pour éviter les erreurs."
 
-#: forms/mass_import.py:1169 models/entity.py:54 models/entity_filter.py:91
-#: models/header_filter.py:73 models/relation.py:387
+#: forms/mass_import.py:1169 models/entity.py:56 models/entity_filter.py:290
+#: models/header_filter.py:144 models/relation.py:387
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
 
@@ -1707,9 +1726,9 @@ msgstr "À la première page"
 msgid "Next page"
 msgstr "Page suivante"
 
-#: models/auth.py:51 models/bricks.py:499 models/entity_filter.py:82
+#: models/auth.py:51 models/bricks.py:499 models/entity_filter.py:281
 #: models/i18n.py:28 templates/creme_core/bricks/relations.html:17
-#: templates/creme_core/bricks/trash.html:17
+#: templates/creme_core/bricks/trash.html:18
 msgid "Name"
 msgstr "Nom"
 
@@ -1942,7 +1961,7 @@ msgstr "Vous n'êtes pas autorisé à modifier cette fiche: {}"
 msgid "You are not allowed to create: {}"
 msgstr "Vous n'avez pas la permission de créer : {}"
 
-#: models/auth.py:980 views/entity.py:829
+#: models/auth.py:980 views/entity.py:965
 msgid "You are not allowed to delete this entity: {}"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: {}"
 
@@ -1976,12 +1995,12 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
 msgid "Save"
 msgstr "Enregistrer"
 
-#: models/bricks.py:99 models/bricks.py:498 models/button_menu.py:32
+#: models/bricks.py:99 models/bricks.py:498 models/button_menu.py:55
 #: models/custom_field.py:56
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/bricks.py:100 models/bricks.py:202 models/search.py:60
+#: models/bricks.py:100 models/bricks.py:202 models/search.py:133
 msgid "Related role"
 msgstr "Rôle associé"
 
@@ -2013,23 +2032,23 @@ msgstr "Verbeux"
 msgid "Create a block"
 msgstr "Créer un bloc"
 
-#: models/button_menu.py:33
+#: models/button_menu.py:56
 msgid "Button ID"
 msgstr "Identifiant de bouton"
 
-#: models/button_menu.py:34
+#: models/button_menu.py:57
 msgid "Priority"
 msgstr "Priorité"
 
-#: models/button_menu.py:38
+#: models/button_menu.py:63
 msgid "Button to display"
 msgstr "Bouton à afficher"
 
-#: models/button_menu.py:39
+#: models/button_menu.py:64
 msgid "Buttons to display"
 msgstr "Boutons à afficher"
 
-#: models/button_menu.py:45
+#: models/button_menu.py:70
 msgid "Deprecated button"
 msgstr "Bouton obsolète"
 
@@ -2129,7 +2148,7 @@ msgstr "Liste de choix"
 msgid "Multiple choice list"
 msgstr "Liste de choix multiples"
 
-#: models/deletion.py:52
+#: models/deletion.py:53
 #, python-brace-format
 msgid ""
 "Cannot delete some instances of model «{model}» because they are referenced "
@@ -2138,39 +2157,39 @@ msgstr ""
 "Certaines instances du modèle «{model}» ne peuvent être suprrimées car elles "
 "sont utiliséesvia une clé étrangère protégée : «{related} - {field}»"
 
-#: models/entity.py:44 models/relation.py:386
+#: models/entity.py:46 models/relation.py:386
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/entity.py:46
+#: models/entity.py:48
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: models/entity.py:71
+#: models/entity.py:74
 msgid "Create an entity"
 msgstr "Créer une fiche"
 
-#: models/entity.py:72
+#: models/entity.py:75
 msgid "Save the entity"
 msgstr "Enregistrer la fiche"
 
-#: models/entity.py:125 views/entity.py:94
+#: models/entity.py:128 views/entity.py:99
 #, python-brace-format
 msgid "Entity #{id} (not viewable)"
 msgstr "Fiche #{id} (non visible)"
 
-#: models/entity_filter.py:92
+#: models/entity_filter.py:291
 msgid "All users can see this filter, but only the owner can edit or delete it"
 msgstr ""
 "Ce filtre sera visible par tous les utilisateurs, mais seul le propriétaire "
 "pourra le modifier ou le supprimer"
 
-#: models/entity_filter.py:95
+#: models/entity_filter.py:294
 msgctxt "creme_core-entity_filter"
 msgid "Is private?"
 msgstr "Est privé ?"
 
-#: models/entity_filter.py:97
+#: models/entity_filter.py:296
 msgid ""
 "A private filter can only be used by its owner (or the teammates if the "
 "owner is a team)"
@@ -2178,59 +2197,59 @@ msgstr ""
 "Un filtre privé peut seulement être utilisé par son propriétaire (ou les "
 "coéquipiers si le propriétaire est une équipe)"
 
-#: models/entity_filter.py:102
+#: models/entity_filter.py:301
 msgid "The entity is accepted if"
 msgstr "La fiche est acceptée si"
 
-#: models/entity_filter.py:104
+#: models/entity_filter.py:303
 msgid "All the conditions are met"
 msgstr "Toutes les conditions sont remplies"
 
-#: models/entity_filter.py:105
+#: models/entity_filter.py:304
 msgid "Any condition is met"
 msgstr "Au moins une condition est remplie"
 
-#: models/entity_filter.py:110
+#: models/entity_filter.py:311
 msgid "Create a filter"
 msgstr "Créer un filtre"
 
-#: models/entity_filter.py:111
+#: models/entity_filter.py:312
 msgid "Save the filter"
 msgstr "Enregistrer le filtre"
 
-#: models/entity_filter.py:119
+#: models/entity_filter.py:320
 msgid "Filter of Entity"
 msgstr "Filtre de fiche"
 
-#: models/entity_filter.py:120
+#: models/entity_filter.py:321
 msgid "Filters of Entity"
 msgstr "Filtres de fiche"
 
-#: models/entity_filter.py:164
+#: models/entity_filter.py:365
 msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
-#: models/entity_filter.py:172
+#: models/entity_filter.py:373
 msgid "You cannot edit/delete a system filter"
 msgstr "Vous ne pouvez pas modifier/supprimer un filtre système"
 
-#: models/entity_filter.py:184 models/header_filter.py:121
+#: models/entity_filter.py:385 models/header_filter.py:194
 msgid "You are not allowed to access to this app"
 msgstr "Vous n'êtes autorisé à accéder à cette application"
 
-#: models/entity_filter.py:193
+#: models/entity_filter.py:394
 msgid "You are not allowed to view/edit/delete this filter"
 msgstr "Vous n'êtes pas autorisé à voir/modifier/supprimer ce filtre"
 
-#: models/entity_filter.py:208
+#: models/entity_filter.py:409
 msgid "A condition can not reference its own filter."
 msgstr "Une condition ne peut pas référencer son propre filtre."
 
-#: models/entity_filter.py:211
+#: models/entity_filter.py:412
 msgid "There is a cycle with a sub-filter."
 msgstr "Il y a un cycle avec un sous-filtre."
 
-#: models/entity_filter.py:225
+#: models/entity_filter.py:426
 msgid ""
 "This filter cannot be private because it is a sub-filter for the public "
 "filter \"{}\""
@@ -2238,7 +2257,7 @@ msgstr ""
 "Ce filtre ne peut pas être privé parce que c'est un sous-filtre pour le "
 "filtre public \"{}\""
 
-#: models/entity_filter.py:234
+#: models/entity_filter.py:435
 #, python-brace-format
 msgid ""
 "This filter cannot be private and belong to this team because it is a sub-"
@@ -2248,7 +2267,7 @@ msgstr ""
 "c'est un sous-filtre pour le filtre \"{filter}\" qui appartient à l'équipe "
 "\"{team}\"."
 
-#: models/entity_filter.py:243
+#: models/entity_filter.py:444
 #, python-brace-format
 msgid ""
 "This filter cannot be private and belong to this team because it is a sub-"
@@ -2259,7 +2278,7 @@ msgstr ""
 "c'est un sous-filtre pour le filtre \"{filter}\" qui appartient à "
 "l'utilisateur \"{user}\" (qui n'est pas membre de cette équipe)."
 
-#: models/entity_filter.py:253
+#: models/entity_filter.py:454
 msgid ""
 "This filter cannot be private because it is a sub-filter for a private "
 "filter of another user."
@@ -2267,7 +2286,7 @@ msgstr ""
 "Ce filtre ne peut pas être privé parce que c'est un sous-filtre un filtre "
 "privé d'un autre utilisateur."
 
-#: models/entity_filter.py:260
+#: models/entity_filter.py:461
 msgid ""
 "This filter cannot be private and belong to a user because it is a sub-"
 "filter for the filter \"{}\" which belongs to a team."
@@ -2275,11 +2294,11 @@ msgstr ""
 "Ce filtre ne peut pas être privé et appartenir à un utilisateur parce que "
 "c'est un sous-filtre pour le filtre \"{}\" qui appartient à une équipe."
 
-#: models/entity_filter.py:271
+#: models/entity_filter.py:472
 msgid "A private filter must be assigned to a user/team."
 msgstr "Un filtre privé doit être attribué à un utilisateur/équipe."
 
-#: models/entity_filter.py:283
+#: models/entity_filter.py:484
 msgid ""
 "A private filter which belongs to a team can only use public sub-filters & "
 "private sub-filters which belong to this team. So this private sub-filter "
@@ -2297,7 +2316,7 @@ msgstr[1] ""
 "filtres publiques & des sous-filtres privés qui appartiennent à cette "
 "équipe. Donc ces sous-filtres privés ne peuvent pas être choisis : {}"
 
-#: models/entity_filter.py:300
+#: models/entity_filter.py:501
 msgid ""
 "A private filter can only use public sub-filters, & private sub-filters "
 "which belong to the same user and his teams. So this private sub-filter "
@@ -2315,7 +2334,7 @@ msgstr[1] ""
 "sous-filtres privés qui appartiennent au même utilisateur ou à une de ses "
 "équipes. Donc ces sous-filtres privés ne peuvent pas être choisis: {}"
 
-#: models/entity_filter.py:318
+#: models/entity_filter.py:519
 msgid "Your filter must be private in order to use this private sub-filter: {}"
 msgid_plural ""
 "Your filter must be private in order to use these private sub-filters: {}"
@@ -2325,56 +2344,56 @@ msgstr[1] ""
 "Votre filtre doit être privé pour pouvoir utiliser ces sous-filtres privés : "
 "{}"
 
-#: models/entity_filter.py:459
+#: models/entity_filter.py:556
 msgid "You can not delete this filter, because it is used as sub-filter by: {}"
 msgstr ""
 "Vous ne pouvez pas supprimer ce filtre, car il est utilisé comme sous-filtre "
 "par : {}"
 
-#: models/fields.py:54
+#: models/fields.py:56
 msgid "HTML Color"
 msgstr "Couleur HTML"
 
-#: models/fields_config.py:43
+#: models/fields_config.py:96
 msgid "Create a fields configuration"
 msgstr "Créer une configuration de champs"
 
-#: models/fields_config.py:44 models/search.py:67
+#: models/fields_config.py:97 models/search.py:144
 msgid "Save the configuration"
 msgstr "Enregistrer la configuration"
 
-#: models/fields_config.py:104
+#: models/fields_config.py:157
 #, python-brace-format
 msgid "Configuration of {model}"
 msgstr "Configuration de {model}"
 
-#: models/fields_config.py:184
+#: models/fields_config.py:239
 #, python-brace-format
 msgid "Warning: the app «{app}» need the field «{field}»."
 msgstr "Attention: l'app «{app}» a besoin du champ «{field}»."
 
-#: models/header_filter.py:72
+#: models/header_filter.py:143
 msgid "Name of the view"
 msgstr "Nom de la vue"
 
-#: models/header_filter.py:81
+#: models/header_filter.py:152
 msgctxt "creme_core-header_filter"
 msgid "Is private?"
 msgstr "Est privée ?"
 
-#: models/header_filter.py:85
+#: models/header_filter.py:158
 msgid "Create a view"
 msgstr "Créer une vue"
 
-#: models/header_filter.py:86
+#: models/header_filter.py:159
 msgid "Save the view"
 msgstr "Enregistrer la vue"
 
-#: models/header_filter.py:105
+#: models/header_filter.py:178
 msgid "This view can't be deleted"
 msgstr "Cette vue ne peut être supprimée"
 
-#: models/header_filter.py:129
+#: models/header_filter.py:202
 msgid "You are not allowed to edit/delete this view"
 msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 
@@ -2490,7 +2509,7 @@ msgstr "Date"
 #: models/history.py:580 templates/creme_core/bricks/job.html:50
 #: templates/creme_core/bricks/jobs-all.html:22
 #: templates/creme_core/bricks/jobs-mine.html:12
-#: templates/creme_core/bricks/trash.html:16
+#: templates/creme_core/bricks/trash.html:17
 msgid "Type"
 msgstr "Type"
 
@@ -2506,7 +2525,7 @@ msgstr "Lignes d'historique"
 msgid "Code"
 msgstr "Code"
 
-#: models/i18n.py:36 models/job.py:85
+#: models/i18n.py:36 models/job.py:84
 msgid "Language"
 msgstr "Langue"
 
@@ -2514,11 +2533,11 @@ msgstr "Langue"
 msgid "Languages"
 msgstr "Langues"
 
-#: models/job.py:82
+#: models/job.py:81
 msgid "Type of job"
 msgstr "Type de job"
 
-#: models/job.py:84
+#: models/job.py:83
 msgid "Enabled"
 msgstr "Activé"
 
@@ -2537,17 +2556,18 @@ msgstr "Périodicité"
 msgid "Last run"
 msgstr "Dernière exécution"
 
-#: models/job.py:91 templates/creme_core/bricks/job.html:91
+#: models/job.py:93 templates/creme_core/bricks/job.html:91
 #: templates/creme_core/bricks/jobs-all.html:26
 #: templates/creme_core/bricks/jobs-mine.html:13
+#: templates/creme_core/job/trash-cleaning-popup.html:8
 msgid "Status"
 msgstr "Statut"
 
-#: models/job.py:93
+#: models/job.py:96
 msgid "Waiting"
 msgstr "En attente"
 
-#: models/job.py:94 models/job.py:98
+#: models/job.py:97 models/job.py:102
 #: templates/creme_core/bricks/entity-job-errors.html:8
 #: templates/creme_core/bricks/job.html:112
 #: templates/creme_core/generics/error.html:5
@@ -2555,11 +2575,11 @@ msgstr "En attente"
 msgid "Error"
 msgstr "Erreur"
 
-#: models/job.py:95
+#: models/job.py:98
 msgid "Completed successfully"
 msgstr "Terminé avec succès"
 
-#: models/job.py:103 templates/creme_core/bricks/job.html:17
+#: models/job.py:107 templates/creme_core/bricks/job.html:17
 msgid "Job"
 msgstr "Job"
 
@@ -2604,30 +2624,30 @@ msgstr "Type de relation semi-fixé"
 msgid "Reminder"
 msgstr "Mémento"
 
-#: models/search.py:59
+#: models/search.py:132
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: models/search.py:63
+#: models/search.py:138
 msgctxt "creme_core-search_conf"
 msgid "Disabled?"
 msgstr "Désactivée ?"
 
-#: models/search.py:66
+#: models/search.py:143
 msgid "Create a search configuration"
 msgstr "Créer une configuration de recherche"
 
-#: models/search.py:82
+#: models/search.py:160
 #, python-brace-format
 msgid "Search configuration of super-users for «{model}»"
 msgstr "Configuration de recherche des super-utilisateurs pour «{model}»"
 
-#: models/search.py:89
+#: models/search.py:167
 #, python-brace-format
 msgid "Default search configuration for «{model}»"
 msgstr "Configuration de recherche par défaut pour «{model}»"
 
-#: models/search.py:93
+#: models/search.py:171
 #, python-brace-format
 msgid "Search configuration of «{role}» for «{model}»"
 msgstr "Configuration de recherche de «{role}» pour «{model}»"
@@ -2736,13 +2756,13 @@ msgstr "Voulez-vous vraiment cloner cette fiche ?"
 #: templates/creme_core/bricks/base/hat-card.html:120
 #: templates/creme_core/bricks/generic/hat-bar.html:67
 #: templates/creme_core/forms/merge.html:4
-#: templates/creme_core/forms/merge.html:14 views/entity.py:493
+#: templates/creme_core/forms/merge.html:14 views/entity.py:560
 msgid "Merge"
 msgstr "Fusionner"
 
 #: templates/creme_core/bricks/base/hat-card.html:124
 #: templates/creme_core/bricks/generic/hat-bar.html:75
-#: templates/creme_core/bricks/trash.html:28
+#: templates/creme_core/bricks/trash.html:29
 msgid "Restore"
 msgstr "Restaurer"
 
@@ -3150,19 +3170,19 @@ msgstr "{count} Fiches supprimées"
 msgid "Deleted entities"
 msgstr "Fiches supprimées"
 
-#: templates/creme_core/bricks/trash.html:11
+#: templates/creme_core/bricks/trash.html:12 views/entity.py:768
 msgid "Empty the trash"
 msgstr "Vider la corbeille"
 
-#: templates/creme_core/bricks/trash.html:15
+#: templates/creme_core/bricks/trash.html:16
 msgid "Deletion date"
 msgstr "Date de suppression"
 
-#: templates/creme_core/bricks/trash.html:31
+#: templates/creme_core/bricks/trash.html:32
 msgid "Delete definitively"
 msgstr "Supprimer définitivement"
 
-#: templates/creme_core/bricks/trash.html:38
+#: templates/creme_core/bricks/trash.html:39
 msgid "The trash is empty"
 msgstr "La corbeille est vide"
 
@@ -3193,6 +3213,14 @@ msgstr "Retour à la liste"
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""
 "Vous n'avez pas accès à cette page, veuillez contacter votre administrateur."
+
+#: templates/creme_core/forms/confirmation.html:13
+msgid "Are you sure?"
+msgstr "Êtes-vous sûr ?"
+
+#: templates/creme_core/forms/confirmation.html:15
+msgid "OK"
+msgstr "OK"
 
 #: templates/creme_core/forms/entity-filter.html:9
 #, python-format
@@ -3441,6 +3469,10 @@ msgid "Disabling a job takes effect only after its current execution."
 msgstr ""
 "La désactivation d'un job ne prendra seulement effet qu'après son exécution "
 "courante."
+
+#: templates/creme_core/job/trash-cleaning-popup.html:15
+msgid "Finish"
+msgstr "Terminer"
 
 #: templates/creme_core/listview/buttons/creation.html:3
 #: templates/creme_core/listview/buttons/mass-export.html:3
@@ -3766,7 +3798,7 @@ msgstr "N'est pas vide"
 msgid "(truncated cell)"
 msgstr "(cellule tronquée)"
 
-#: views/batch_process.py:67
+#: views/batch_process.py:71
 msgid "Run"
 msgstr "Exécuter"
 
@@ -3788,45 +3820,45 @@ msgstr "Nouvelles propriétés pour «{entity}»"
 msgid "The field \"{model}.{field}\" is hidden."
 msgstr "Le champ \"{model}.{field}\" est caché."
 
-#: views/entity.py:146
+#: views/entity.py:206
 #, python-brace-format
 msgid "{field} [CREATION]"
 msgstr "{field} [CRÉATION]"
 
-#: views/entity.py:160
+#: views/entity.py:227
 msgid "This model does not use the generic clone view."
 msgstr "Ce modèle n'utilise pas la vue de clonage générique."
 
-#: views/entity.py:193
+#: views/entity.py:260
 msgid "This field is hidden."
 msgstr "Ce champ est caché."
 
-#: views/entity.py:257
+#: views/entity.py:324
 msgid "No entity corresponding to your search was found."
 msgstr "Aucun élément correspondant à votre recherche n'a été trouvé"
 
-#: views/entity.py:281
+#: views/entity.py:348
 msgid "You are not allowed to edit this entity"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche"
 
-#: views/entity.py:330
+#: views/entity.py:397
 #, python-brace-format
 msgid "{count} «{model}» has been selected."
 msgstr "{count} «{model}» a été sélectionné(e)"
 
-#: views/entity.py:332
+#: views/entity.py:399
 #, python-brace-format
 msgid "{count} «{model}» have been selected."
 msgstr "{count} «{model}» ont été sélectionné(e)s."
 
-#: views/entity.py:375
+#: views/entity.py:442
 #, python-brace-format
 msgid "{success} «{model}» has been successfully modified."
 msgid_plural "{success} «{model}» have been successfully modified."
 msgstr[0] "{success} «{model}» a été modifié(e) avec succès."
 msgstr[1] "{success} «{model}» ont été modifié(e)s avec succès."
 
-#: views/entity.py:381
+#: views/entity.py:448
 #, python-brace-format
 msgid "{success} of {initial} «{model}» has been successfully modified."
 msgid_plural ""
@@ -3834,30 +3866,30 @@ msgid_plural ""
 msgstr[0] "{success} «{model}» sur {initial} a été modifié(e) avec succès."
 msgstr[1] "{success} «{model}» sur {initial} ont été modifié(e)s avec succès."
 
-#: views/entity.py:387
+#: views/entity.py:454
 #, python-brace-format
 msgid "{forbidden} was not editable."
 msgid_plural "{forbidden} were not editable."
 msgstr[0] "{forbidden} n'est pas modifiable."
 msgstr[1] "{forbidden} ne sont pas modifiables."
 
-#: views/entity.py:393
+#: views/entity.py:460
 #, python-brace-format
 msgid "{invalid} has returned an error."
 msgid_plural "{invalid} have returned an error."
 msgstr[0] "{invalid} a retourné une erreur."
 msgstr[1] "{invalid} ont retourné une erreur."
 
-#: views/entity.py:432
+#: views/entity.py:499
 msgid "You are not allowed to edit these entities"
 msgstr "Vous n'êtes pas autorisé à modifier ces fiches"
 
-#: views/entity.py:492
+#: views/entity.py:559
 #, python-brace-format
 msgid "Merge «{entity1}» with «{entity2}»"
 msgstr "Fusionner «{entity1}» avec «{entity2}»"
 
-#: views/entity.py:513
+#: views/entity.py:580
 msgid ""
 "You are going to merge two entities into a new one.\n"
 "Choose which information you want the old entities give to the new entity.\n"
@@ -3871,73 +3903,66 @@ msgstr ""
 "des vieilles fiches seront automatiquement disponibles dans la nouvelle "
 "fiche fusionnée."
 
-#: views/entity.py:666
-#, python-brace-format
-msgid "«{entity}» can not be deleted because of its dependencies."
-msgstr "«{entity}» ne peut être supprimé à cause de ses dépendances."
+#: views/entity.py:771
+msgid "A job is already cleaning the trash."
+msgstr "Un job est déjà en train de vider la corbeille."
 
-#: views/entity.py:673 views/entity.py:876
-#, python-brace-format
-msgid "«{entity}» deletion caused an unexpected error [{error}]."
+#: views/entity.py:783
+msgid ""
+"Are you sure you want to delete definitely all the entities in the trash?"
 msgstr ""
-"La suppression de «{entity}» a provoqué une erreur inattendue [{error}]."
+"Voulez-vous vraiment supprimer définitivement toutes les fiches dans la "
+"corbeille ?"
 
-#: views/entity.py:687 views/entity.py:1023 views/relation.py:517
-msgid "Operation successfully completed"
-msgstr "Opération effectuée avec succès"
-
-#: views/entity.py:694
-msgid "The following entity cannot be deleted:"
-msgid_plural "The following entities cannot be deleted:"
-msgstr[0] "La fiche suivante ne peut pas être effacée :"
-msgstr[1] "Les fiches suivantes ne peuvent pas être effacées :"
-
-#: views/entity.py:700
-#, python-brace-format
-msgid "(and {count} other entity)"
-msgid_plural "(and {count} other entities)"
-msgstr[0] "(et {count} autre fiche)"
-msgstr[1] "(et {count} autres fiches)"
-
-#: views/entity.py:738
+#: views/entity.py:874
 msgid "This model does not use the generic deletion view."
 msgstr "Ce modèle n'utilise pas la vue de suppression générique."
 
-#: views/entity.py:815
+#: views/entity.py:951
 #, python-brace-format
 msgid "«{entity}» does not use the generic deletion view."
 msgstr "«{entity}» n'utilise pas la vue de suppression générique."
 
-#: views/entity.py:836 views/entity.py:843
+#: views/entity.py:972 views/entity.py:979
 #, python-brace-format
 msgid "{entity} : <b>Permission denied</b>"
 msgstr "{entity} : <b>Permission refusée</b>"
 
-#: views/entity.py:857
+#: views/entity.py:993
 #, python-brace-format
 msgid "«{entity}» can not be deleted."
 msgstr "«{entity}» ne peut être supprimé."
 
-#: views/entity.py:865
+#: views/entity.py:1001
 #, python-brace-format
 msgid ""
 "«{entity}» can not be deleted because of its dependencies ({dependencies})."
 msgstr ""
 "«{entity}» ne peut être supprimé à cause de ses dépendances ({dependencies})."
 
-#: views/entity.py:900
+#: views/entity.py:1012
+#, python-brace-format
+msgid "«{entity}» deletion caused an unexpected error [{error}]."
+msgstr ""
+"La suppression de «{entity}» a provoqué une erreur inattendue [{error}]."
+
+#: views/entity.py:1036
 #, python-brace-format
 msgid "{count} not viewable entity"
 msgid_plural "{count} not viewable entities"
 msgstr[0] "{count} Fiche non visible"
 msgstr[1] "{count} Fiches non visibles"
 
-#: views/entity.py:1002 views/relation.py:481
+#: views/entity.py:1138 views/relation.py:481
 #, python-brace-format
 msgid "{count} entity doesn't exist or has been removed."
 msgid_plural "{count} entities don't exist or have been removed."
 msgstr[0] "{count} fiche n'existe pas ou a été supprimée."
 msgstr[1] "{count} fiches n'existent pas ou ont été supprimées."
+
+#: views/entity.py:1159 views/relation.py:517
+msgid "Operation successfully completed"
+msgstr "Opération effectuée avec succès"
 
 #: views/entity_filter.py:87
 msgid ""
@@ -4008,21 +4033,21 @@ msgstr "Importer des «{model}» depuis un fichier"
 msgid "Unknown file type ; please contact your administrator."
 msgstr "Type de fichier inconnu ; veuillez contacter votre administrateur."
 
-#: views/relation.py:157
+#: views/relation.py:158
 #, python-brace-format
 msgid "Relationships for «{entity}»"
 msgstr "Relations pour «{entity}»"
 
-#: views/relation.py:158 views/relation.py:229
+#: views/relation.py:159 views/relation.py:230
 msgid "Save the relationships"
 msgstr "Enregistrer les relations"
 
-#: views/relation.py:184
+#: views/relation.py:185
 #, python-brace-format
 msgid "This type of relationship is not compatible with «{model}»."
 msgstr "Ce type de relation n'est pas compatible avec «{model}»."
 
-#: views/relation.py:201
+#: views/relation.py:202
 #, python-brace-format
 msgid ""
 "This type of relationship needs an entity with this property: {properties}."
@@ -4034,7 +4059,7 @@ msgstr[0] ""
 msgstr[1] ""
 "Ce type de relation nécessite une fiche avec ces propriétés : {properties}."
 
-#: views/relation.py:228
+#: views/relation.py:229
 msgid "Multiple adding of relationships"
 msgstr "Ajout multiple de relations"
 
@@ -4059,11 +4084,21 @@ msgstr "Veuillez entrer au moins {count} caractères"
 msgid "Empty search…"
 msgstr "Recherche vide…"
 
+#~ msgid "«{entity}» can not be deleted because of its dependencies."
+#~ msgstr "«{entity}» ne peut être supprimé à cause de ses dépendances."
+
+#~ msgid "The following entity cannot be deleted:"
+#~ msgid_plural "The following entities cannot be deleted:"
+#~ msgstr[0] "La fiche suivante ne peut pas être effacée :"
+#~ msgstr[1] "Les fiches suivantes ne peuvent pas être effacées :"
+
+#~ msgid "(and {count} other entity)"
+#~ msgid_plural "(and {count} other entities)"
+#~ msgstr[0] "(et {count} autre fiche)"
+#~ msgstr[1] "(et {count} autres fiches)"
+
 #~ msgid "No selected entities"
 #~ msgstr "Aucune fiche séléctionnée"
-
-#~ msgid "«{}» can not be deleted because of its dependencies."
-#~ msgstr "«{}» ne peut être supprimé à cause de ses dépendances."
 
 #~ msgid "Filter successfully deleted"
 #~ msgstr "Filtre supprimé avec succès"

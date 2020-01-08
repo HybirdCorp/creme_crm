@@ -35,7 +35,7 @@ from .imprint import Imprint  # NOQA
 from .search import SearchConfigItem  # NOQA
 
 from .job import Job, JobResult, EntityJobResult, MassImportJobResult  # NOQA
-from .deletion import DeletionCommand, CREME_REPLACE_NULL, CREME_REPLACE  # NOQA
+from .deletion import DeletionCommand, TrashCleaningCommand, CREME_REPLACE_NULL, CREME_REPLACE  # NOQA
 
 from .version import Version  # NOQA
 
