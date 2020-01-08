@@ -171,9 +171,10 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
     def test_mass_import03(self):
         "FieldsConfig on Address sub-field."
         user = self.login()
-        FieldsConfig.create(Address,
-                            descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Address,
+            descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
+        )
 
         name = 'Nerv'
         city = 'Tokyo'
@@ -202,9 +203,10 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
     def test_mass_import04(self):
         "FieldsConfig on 'billing_address' FK field."
         user = self.login()
-        FieldsConfig.create(Organisation,
-                            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Organisation,
+            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+        )
 
         name = 'Nerv'
         doc = self._build_csv_doc([(name, 'Tokyo', 'ABC123')])

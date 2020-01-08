@@ -202,7 +202,7 @@ class FieldsInformation(generic.base.EntityCTypeRelatedMixin,
                 gettext('{field} [CREATION]').format(field=field.verbose_name)
             )
 
-        is_hidden = FieldsConfig.get_4_model(model).is_field_hidden
+        is_hidden = FieldsConfig.objects.get_for_model(model).is_field_hidden
 
         return ModelFieldEnumerator(model).filter(viewable=True) \
                                           .exclude(lambda f, deep: is_hidden(f)) \
@@ -305,7 +305,7 @@ class SearchAndView(base.CheckedView):
         value = self.get_value()
         field_names = self.get_field_names()
         models = self.get_models()
-        fconfigs = FieldsConfig.get_4_models(models)
+        fconfigs = FieldsConfig.objects.get_for_models(models)
         user = request.user
 
         for model in models:

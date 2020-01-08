@@ -336,9 +336,10 @@ class ListViewTestCase(ViewsTestCase):
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
         hf = self._build_hf(build_cell(name=valid_fname), build_cell(name=hidden_fname))
 
-        FieldsConfig.create(FakeOrganisation,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeOrganisation,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
 
         bebop = FakeOrganisation.objects.create(user=user, name='Bebop', url_site='sww.bebop.mrs')
 

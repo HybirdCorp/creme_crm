@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -135,7 +135,7 @@ def get_total_pending_multi(entities, user):
 
 
 def get_total_won_quote_last_year(entity, user):
-    if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
+    if FieldsConfig.objects.get_for_model(Quote).is_fieldname_hidden('acceptation_date'):
         return gettext('Error: «Acceptation date» is hidden')
 
     return sum_totals_no_vat(Quote, entity, user,
@@ -145,7 +145,7 @@ def get_total_won_quote_last_year(entity, user):
 
 
 def get_total_won_quote_last_year_multi(entities, user):
-    if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
+    if FieldsConfig.objects.get_for_model(Quote).is_fieldname_hidden('acceptation_date'):
         msg = gettext('Error: «Acceptation date» is hidden')
         return ((entity, msg) for entity in entities)
 
@@ -157,7 +157,7 @@ def get_total_won_quote_last_year_multi(entities, user):
 
 def get_total_won_quote_this_year(entity, user):
     # TODO: factorise (decorator in creme_core ?)
-    if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
+    if FieldsConfig.objects.get_for_model(Quote).is_fieldname_hidden('acceptation_date'):
         return gettext('Error: «Acceptation date» is hidden')
 
     return sum_totals_no_vat(Quote, entity, user,
@@ -168,7 +168,7 @@ def get_total_won_quote_this_year(entity, user):
 
 def get_total_won_quote_this_year_multi(entities, user):
     # TODO: factorise
-    if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
+    if FieldsConfig.objects.get_for_model(Quote).is_fieldname_hidden('acceptation_date'):
         msg = gettext('Error: «Acceptation date» is hidden')
         return ((entity, msg) for entity in entities)
 

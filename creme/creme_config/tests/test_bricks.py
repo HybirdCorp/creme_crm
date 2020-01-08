@@ -1747,8 +1747,8 @@ class BricksConfigTestCase(CremeTestCase):
         valid_fname = 'last_name'
         hidden_fname1 = 'phone'
         hidden_fname2 = 'birthday'
-        FieldsConfig.create(
-            FakeContact,
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
             descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
                           (hidden_fname2, {FieldsConfig.HIDDEN: True}),
                          ],
@@ -1943,15 +1943,15 @@ class BricksConfigTestCase(CremeTestCase):
         hidden_fkname = 'image'
         hidden_subfname = 'zipcode'
 
-        create_fconf = FieldsConfig.create
+        create_fconf = FieldsConfig.objects.create
         create_fconf(
-            FakeContact,
+            content_type=FakeContact,
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True}),
                           (hidden_fkname, {FieldsConfig.HIDDEN: True}),
                          ],
         )
         create_fconf(
-            FakeAddress,
+            content_type=FakeAddress,
             descriptions=[(hidden_subfname, {FieldsConfig.HIDDEN: True})],
         )
 
@@ -2020,16 +2020,16 @@ class BricksConfigTestCase(CremeTestCase):
         hidden_subfname1 = 'zipcode'
         hidden_subfname2 = 'country'
 
-        create_fconf = FieldsConfig.create
+        create_fconf = FieldsConfig.objects.create
         create_fconf(
-            FakeContact,
+            content_type=FakeContact,
             descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
                           (hidden_fname2, {FieldsConfig.HIDDEN: True}),
                           ('image',       {FieldsConfig.HIDDEN: True}),
                          ],
         )
         create_fconf(
-            FakeAddress,
+            content_type=FakeAddress,
             descriptions=[(hidden_subfname1, {FieldsConfig.HIDDEN: True}),
                           (hidden_subfname2, {FieldsConfig.HIDDEN: True}),
                          ],

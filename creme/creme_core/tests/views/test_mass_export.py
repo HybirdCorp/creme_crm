@@ -420,13 +420,14 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(result[3], '"Camp#3",""')
 
     def test_list_view_export08(self):
-        "FieldsConfig"
+        "FieldsConfig."
         self.login()
         self._build_hf_n_contacts()
 
-        FieldsConfig.create(FakeContact,
-                            descriptions=[('first_name', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[('first_name', {FieldsConfig.HIDDEN: True})],
+        )
 
         response = self.assertGET200(self._build_contact_dl_url())
 

@@ -341,9 +341,10 @@ class ReportTestCase(BaseReportsTestCase):
             ],
         )
 
-        FieldsConfig.create(FakeContact,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})]
-                            )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})]
+        )
 
         name = 'Report #1'
         response = self.client.post(self.ADD_URL, follow=True,
@@ -1050,11 +1051,13 @@ class ReportTestCase(BaseReportsTestCase):
 
         hidden_fname1 = 'phone'
         hidden_fname2 = 'image'
-        FieldsConfig.create(FakeContact,
-                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
-                                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
-                                         ],
-                            )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[
+                (hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+            ],
+        )
 
         self._create_persons()
 
@@ -1077,9 +1080,10 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         hidden_fname = 'description'
-        FieldsConfig.create(FakeImage,
-                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeImage,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
 
         self._create_persons()
 
@@ -1385,12 +1389,13 @@ class ReportTestCase(BaseReportsTestCase):
         valid_fname = 'last_name'
         hidden_fname1 = 'phone'
         hidden_fname2 = 'birthday'
-        FieldsConfig.create(FakeContact,
-                            descriptions=[
-                                (hidden_fname1, {FieldsConfig.HIDDEN: True}),
-                                (hidden_fname2, {FieldsConfig.HIDDEN: True}),
-                            ],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[
+                (hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+            ],
+        )
 
         report = self._create_simple_contacts_report('Report #1')
         Field.objects.create(report=report, name=hidden_fname2, type=RFT_FIELD, order=2)

@@ -7,8 +7,12 @@ try:
 
     from creme.persons.tests.base import skipIfCustomContact
 
-    from ..constants import (REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED,
-            REL_SUB_RELATED_TO, SETTING_EMAILCAMPAIGN_SENDER)
+    from ..constants import (
+        REL_SUB_MAIL_RECEIVED,
+        REL_SUB_MAIL_SENDED,
+        REL_SUB_RELATED_TO,
+        SETTING_EMAILCAMPAIGN_SENDER,
+    )
     from .base import _EmailsTestCase, Contact, Organisation, EntityEmail
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -24,10 +28,11 @@ class EmailsTestCase(_EmailsTestCase):
 
     @skipIfCustomContact
     def test_fieldconfigs_warning(self):
-        "If Contact/Organisation.email is hidden => warning"
+        "If Contact/Organisation.email is hidden => warning."
         self.login()
 
-        fconf = FieldsConfig.create(Contact)
+        # fconf = FieldsConfig.create(Contact)
+        fconf = FieldsConfig.objects.create(content_type=Contact, descriptions=[])
         self.assertEqual([], fconf.errors_on_hidden)
 
         fconf.descriptions = [('email', {FieldsConfig.HIDDEN: True})]

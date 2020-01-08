@@ -130,9 +130,10 @@ class EventsTestCase(CremeTestCase):
         "FieldsConfig: end is hidden"
         self.login()
 
-        FieldsConfig.create(Event,
-                            descriptions=[('end_date', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Event,
+            descriptions=[('end_date', {FieldsConfig.HIDDEN: True})],
+        )
 
         event = self._create_event('Comiket',
                                    start_date='2016-7-25 8:00',
@@ -793,9 +794,10 @@ class EventsTestCase(CremeTestCase):
         """Opportunity.description is hidden"""
         user = self.login()
 
-        FieldsConfig.create(Opportunity,
-                            descriptions=[('description', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Opportunity,
+            descriptions=[('description', {FieldsConfig.HIDDEN: True})],
+        )
 
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
         event = Event.objects.create(user=user, name='Eclipse',

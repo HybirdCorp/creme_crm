@@ -57,9 +57,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
                            )
 
     def test_info_names02(self):
-        FieldsConfig.create(Address,
-                            descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Address,
+            descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
+        )
 
         self.assertSetEqual({'name', 'address', 'zipcode', 'city',
                              'department', 'state', 'country',
@@ -167,9 +168,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         "FK is hidden"
         orga = self.login()
 
-        FieldsConfig.create(Organisation,
-                            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Organisation,
+            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+        )
         self.assertGET409(reverse('persons__create_billing_address', args=(orga.id,)))
 
     @skipIfCustomOrganisation
@@ -371,12 +373,14 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
                         )
 
     def test_str02(self):
-        FieldsConfig.create(Address,
-                            descriptions=[('zipcode',    {FieldsConfig.HIDDEN: True}),
-                                          ('department', {FieldsConfig.HIDDEN: True}),
-                                          ('state',      {FieldsConfig.HIDDEN: True}),
-                                         ],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Address,
+            descriptions=[
+                ('zipcode',    {FieldsConfig.HIDDEN: True}),
+                ('department', {FieldsConfig.HIDDEN: True}),
+                ('state',      {FieldsConfig.HIDDEN: True}),
+            ],
+       )
 
         address_value = '21 jump street'
         po_box = 'Popop'
@@ -604,8 +608,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         "Ignore hidden fields"
         self.login(create_orga=False)
 
-        FieldsConfig.create(
-            Address,
+        FieldsConfig.objects.create(
+            content_type=Address,
             descriptions=[('city', {FieldsConfig.HIDDEN: True})],
         )
 

@@ -649,13 +649,14 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         "With field 'estimated_sales' hidden with FieldsConfig"
         user = self.login()
 
-        FieldsConfig.create(Opportunity,
-                            descriptions=[('estimated_sales', {FieldsConfig.HIDDEN: True})]
-                           )
+        FieldsConfig.objects.create(
+            content_type=Opportunity,
+            descriptions=[('estimated_sales', {FieldsConfig.HIDDEN: True})],
+        )
 
         opportunity = self._create_opportunity_n_organisations()[0]
 
-        FieldsConfig.get_4_model(Opportunity)
+        FieldsConfig.objects.get_for_model(Opportunity)
 
         funf = function_field_registry.get(Opportunity, 'get_weighted_sales')
 

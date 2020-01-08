@@ -363,7 +363,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         quote04.save()
         self.create_line(quote04, 300, 1)
 
-        FieldsConfig.get_4_model(Quote)  # Fill cache
+        FieldsConfig.objects.get_for_model(Quote)  # Fill cache
         bool(Organisation.objects.filter_managed_by_creme())  # Fill cache
 
         with self.assertNumQueries(2):
@@ -389,14 +389,15 @@ class FunctionFieldTestCase(_BillingTestCase):
         user = self.login()
         quote, source, target = self.create_quote_n_orgas("YOLO")
 
-        FieldsConfig.create(Quote,
-                            descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
-                           )
+        FieldsConfig.objects.create(
+            content_type=Quote,
+            descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})],
+        )
 
         quote.acceptation_date = self.today_date
         self._set_managed(source)
 
-        FieldsConfig.get_4_model(Quote)  # Fill cache
+        FieldsConfig.objects.get_for_model(Quote)  # Fill cache
 
         with self.assertNumQueries(0):
             total = get_total_won_quote_last_year(target, user)
@@ -441,7 +442,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         funf = function_field_registry.get(Organisation, 'total_won_quote_last_year')
         self.assertIsNotNone(funf)
 
-        FieldsConfig.get_4_model(Quote)  # Fill cache
+        FieldsConfig.objects.get_for_model(Quote)  # Fill cache
         bool(Organisation.objects.filter_managed_by_creme())  # Fill cache
 
         with self.assertNumQueries(2):
@@ -457,18 +458,19 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomProductLine
     def test_get_total_won_quote_last_year04(self):
-        "'acceptation_date' is hidden + populate_entities()"
+        "'acceptation_date' is hidden + populate_entities()."
         user = self.login()
         quote1, source1, target1 = self.create_quote_n_orgas('Quote1')
         quote2, source2, target2 = self.create_quote_n_orgas('Quote2')
 
-        FieldsConfig.create(Quote,
-                            descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
-                           )
+        FieldsConfig.objects.create(
+            content_type=Quote,
+            descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
+        )
 
         funf = function_field_registry.get(Organisation, 'total_won_quote_last_year')
 
-        FieldsConfig.get_4_model(Quote)  # Fill cache
+        FieldsConfig.objects.get_for_model(Quote)  # Fill cache
 
         with self.assertNumQueries(0):
             funf.populate_entities([target1, target2], user)
@@ -509,7 +511,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         quote04.save()
         self.create_line(quote04, 300, 1)
 
-        FieldsConfig.get_4_model(Quote)  # Fill cache
+        FieldsConfig.objects.get_for_model(Quote)  # Fill cache
         bool(Organisation.objects.filter_managed_by_creme())  # Fill cache
 
         with self.assertNumQueries(2):
@@ -535,13 +537,14 @@ class FunctionFieldTestCase(_BillingTestCase):
         user = self.login()
 
         quote, source, target = self.create_quote_n_orgas('Quote #1')
-        FieldsConfig.create(Quote,
-                            descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
-                           )
+        FieldsConfig.objects.create(
+            content_type=Quote,
+            descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
+        )
 
         funf = function_field_registry.get(Organisation, 'total_won_quote_this_year')
 
-        FieldsConfig.get_4_model(Quote)  # Fill cache
+        FieldsConfig.objects.get_for_model(Quote)  # Fill cache
 
         with self.assertNumQueries(0):
             total = funf(target, user).for_csv()
@@ -585,7 +588,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         funf = function_field_registry.get(Organisation, 'total_won_quote_this_year')
         self.assertIsNotNone(funf)
 
-        FieldsConfig.get_4_model(Quote)  # Fill cache
+        FieldsConfig.objects.get_for_model(Quote)  # Fill cache
         bool(Organisation.objects.filter_managed_by_creme())  # Fill cache
 
         with self.assertNumQueries(2):
@@ -606,13 +609,14 @@ class FunctionFieldTestCase(_BillingTestCase):
         quote1, source1, target1 = self.create_quote_n_orgas('Quote1')
         quote2, source2, target2 = self.create_quote_n_orgas('Quote2')
 
-        FieldsConfig.create(Quote,
-                            descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
-                           )
+        FieldsConfig.objects.create(
+            content_type=Quote,
+            descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})],
+        )
 
         funf = function_field_registry.get(Organisation, 'total_won_quote_this_year')
 
-        FieldsConfig.get_4_model(Quote)  # Fill cache
+        FieldsConfig.objects.get_for_model(Quote)  # Fill cache
 
         with self.assertNumQueries(0):
             funf.populate_entities([target1, target2], user)

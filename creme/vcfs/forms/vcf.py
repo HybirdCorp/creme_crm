@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -232,7 +232,7 @@ class VcfImportForm(CremeModelForm):
     def _hide_fields(self):
         fields = self.fields
         address_mapping = self.address_mapping
-        fconfigs = FieldsConfig.get_4_models((Contact, Organisation, Address))
+        fconfigs = FieldsConfig.objects.get_for_models((Contact, Organisation, Address))
 
         # TODO: use shipping address if not hidden ?
         if fconfigs[Contact].is_fieldname_hidden('billing_address'):

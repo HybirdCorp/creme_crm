@@ -300,7 +300,10 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         valid_fname = 'last_name'
         hidden_fname = 'phone'
-        FieldsConfig.create(FakeContact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
 
         response = self.assertGET200(self._build_add_url(self.contact_ct))
 
@@ -550,8 +553,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                         build_cell(name=hidden_fname1),
                        ],
         )
-        FieldsConfig.create(
-            FakeContact,
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
             descriptions=[
                 (hidden_fname1, {FieldsConfig.HIDDEN: True}),
                 (hidden_fname2, {FieldsConfig.HIDDEN: True}),

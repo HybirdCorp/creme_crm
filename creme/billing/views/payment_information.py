@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -77,8 +77,8 @@ class PaymentInformationAsDefault(generic.base.EntityRelatedMixin, generic.Check
         pi = self.get_payment_information()
         billing_doc = self.get_related_entity()
 
-        if FieldsConfig.get_4_model(type(billing_doc))\
-                       .is_fieldname_hidden(self.payment_info_fk):
+        if FieldsConfig.objects.get_for_model(type(billing_doc))\
+                               .is_fieldname_hidden(self.payment_info_fk):
             raise ConflictError('The field "{}" is hidden.'.format(self.payment_info_fk))
 
         user = request.user

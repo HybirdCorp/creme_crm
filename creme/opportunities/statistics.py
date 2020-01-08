@@ -44,7 +44,7 @@ class CurrentYearStatistics:
         stats = []
         opp_model = self.opp_model
 
-        if FieldsConfig.get_4_model(opp_model).is_fieldname_hidden('closing_date'):
+        if FieldsConfig.objects.get_for_model(opp_model).is_fieldname_hidden('closing_date'):
             stats.append(str(self.invalid_message))
         else:
             # TODO: use this previous code when there is only one managed organisation ??

@@ -96,7 +96,7 @@ class EntityEmailForm(base_forms.CremeModelForm):
             self.fields['sender'].initial = contact.email
 
         def finalize_recipient_field(name, model):
-            if FieldsConfig.get_4_model(model).is_fieldname_hidden('email'):
+            if FieldsConfig.objects.get_for_model(model).is_fieldname_hidden('email'):
                 self.fields[name] = CharField(
                         label=self.fields[name].label,
                         required=False, widget=Label,

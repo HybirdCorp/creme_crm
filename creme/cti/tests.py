@@ -194,17 +194,17 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_respond_to_a_call04(self):
-        """FieldsConfig: all fields are hidden"""
+        """FieldsConfig: all fields are hidden."""
         self.login()
 
-        fc_create= FieldsConfig.create
-        fc_create(Contact,
+        fc_create= FieldsConfig.objects.create
+        fc_create(content_type=Contact,
                   descriptions=[('phone',  {FieldsConfig.HIDDEN: True}),
                                 ('mobile', {FieldsConfig.HIDDEN: True}),
                                ]
                  )
-        fc_create(Organisation,
-                  descriptions=[('phone', {FieldsConfig.HIDDEN: True})]
+        fc_create(content_type=Organisation,
+                  descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
                  )
 
         self.assertGET409(self.RESPOND_URL, data={'number': '558899'})
@@ -214,9 +214,10 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         """FieldsConfig: some fields are hidden"""
         user = self.login()
 
-        FieldsConfig.create(Contact,
-                            descriptions=[('phone', {FieldsConfig.HIDDEN: True})]
-                           )
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
+        )
 
         phone = '558899'
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', phone=phone)

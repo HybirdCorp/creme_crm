@@ -1352,9 +1352,10 @@ END:VCARD""".format(path=os_path.normpath(img_path))
     def test_fields_config01(self):
         self.login()
 
-        FieldsConfig.create(Contact,
-                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+        )
 
         contact_count = Contact.objects.count()
         content = """BEGIN:VCARD
@@ -1407,15 +1408,17 @@ ORG:Corporate\nEND:VCARD"""
     def test_fields_config02(self):
         self.login()
 
-        create_fc = FieldsConfig.create
-        create_fc(Organisation,
-                  descriptions=[('email', {FieldsConfig.HIDDEN: True})],
-                 )
-        create_fc(Address,
-                  descriptions=[('zipcode', {FieldsConfig.HIDDEN: True}),
-                                ('po_box',  {FieldsConfig.HIDDEN: True}),
-                               ],
-                 )
+        create_fc = FieldsConfig.objects.create
+        create_fc(
+            content_type=Organisation,
+            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+        )
+        create_fc(
+            content_type=Address,
+            descriptions=[('zipcode', {FieldsConfig.HIDDEN: True}),
+                          ('po_box',  {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
 
         orga_count = Organisation.objects.count()
         content = """BEGIN:VCARD
@@ -1508,11 +1511,11 @@ ORG:Corporate\nEND:VCARD"""
         "Hide Contact.billing_address"
         self.login()
 
-        create_fc = FieldsConfig.create
-        create_fc(Contact,
+        create_fc = FieldsConfig.objects.create
+        create_fc(content_type=Contact,
                   descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
                  )
-        create_fc(Address,
+        create_fc(content_type=Address,
                   descriptions=[('zipcode', {FieldsConfig.HIDDEN: True})],
                  )
 
@@ -1551,11 +1554,11 @@ ORG:Corporate\nEND:VCARD"""
         "Hide Organisation.billing_address"
         self.login()
 
-        create_fc = FieldsConfig.create
-        create_fc(Organisation,
+        create_fc = FieldsConfig.objects.create
+        create_fc(content_type=Organisation,
                   descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
                  )
-        create_fc(Address,
+        create_fc(content_type=Address,
                   descriptions=[('zipcode', {FieldsConfig.HIDDEN: True}),
                                 ('po_box',  {FieldsConfig.HIDDEN: True}),
                                ],

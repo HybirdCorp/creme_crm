@@ -287,9 +287,10 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_addresses_brick05(self):
         "With field config on sub-field"
-        FieldsConfig.create(Address,
-                            descriptions=[('country', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Address,
+            descriptions=[('country', {FieldsConfig.HIDDEN: True})],
+        )
 
         c = self._create_contact_n_addresses()
 
@@ -299,9 +300,10 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_addresses_brick06(self):
         "With field config on 'billing_address' FK field"
-        FieldsConfig.create(Contact,
-                            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+        )
 
         c = self._create_contact_n_addresses()
 
@@ -313,10 +315,11 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
 
     def test_addresses_brick07(self):
-        "With field config on 'shipping_address' FK field"
-        FieldsConfig.create(Contact,
-                            descriptions=[('shipping_address', {FieldsConfig.HIDDEN: True})],
-                           )
+        "With field config on 'shipping_address' FK field."
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('shipping_address', {FieldsConfig.HIDDEN: True})],
+        )
 
         c = self._create_contact_n_addresses()
 

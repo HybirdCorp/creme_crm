@@ -209,11 +209,11 @@ class VcfExportTestCase(CremeTestCase):
         contact.billing_address = self.create_address(contact, 'billing')
         contact.save()
 
-        create_fc = FieldsConfig.create
-        create_fc(Contact,
+        create_fc = FieldsConfig.objects.create
+        create_fc(content_type=Contact,
                   descriptions=[('email', {FieldsConfig.HIDDEN: True})],
                  )
-        create_fc(Address,
+        create_fc(content_type=Address,
                   descriptions=[('zipcode', {FieldsConfig.HIDDEN: True})],
                  )
 

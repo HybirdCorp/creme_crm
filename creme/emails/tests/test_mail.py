@@ -364,9 +364,10 @@ class EntityEmailTestCase(_EmailsTestCase):
     def test_createview08(self):
         "FieldsConfig: Contact.email is hidden"
         user = self.login()
-        FieldsConfig.create(Contact,
-                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+        )
 
         c = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
 
@@ -398,9 +399,10 @@ class EntityEmailTestCase(_EmailsTestCase):
     def test_createview09(self):
         "FieldsConfig: Organisation.email is hidden"
         user = self.login()
-        FieldsConfig.create(Organisation,
-                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Organisation,
+            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+        )
 
         orga = Organisation.objects.create(user=user, name='Venus gate')
 

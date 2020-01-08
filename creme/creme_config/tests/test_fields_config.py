@@ -38,7 +38,7 @@ class FieldsConfigTestCase(CremeTestCase):
         FieldsConfig.objects.bulk_create([
             FieldsConfig(content_type=ct, descriptions=())
                 for ct in map(ContentType.objects.get_for_model,
-                              filter(FieldsConfig.is_model_valid, apps.get_models())
+                              filter(FieldsConfig.objects.is_model_valid, apps.get_models())
                              )
                     if ct.id not in used_ct_ids
         ])

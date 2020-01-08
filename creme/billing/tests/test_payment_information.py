@@ -193,9 +193,10 @@ class PaymentInformationTestCase(_BillingTestCase):
         invoice, sony_source = self.create_invoice_n_orgas('Playstations')[:2]
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name='RIB sony')
 
-        FieldsConfig.create(Invoice,
-                            descriptions=[('payment_info', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=Invoice,
+            descriptions=[('payment_info', {FieldsConfig.HIDDEN: True})],
+        )
 
         self.assertPOST409(self._build_setdefault_url(pi_sony, invoice))
 

@@ -709,9 +709,10 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "With FieldsConfig"
         self.login()
 
-        FieldsConfig.create(FakeContact,
-                            descriptions=[('birthday', {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[('birthday', {FieldsConfig.HIDDEN: True})],
+        )
 
         response = self.assertGET200(self._build_test_get_info_fields_url(FakeContact))
         json_data = response.json()
@@ -945,9 +946,10 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "FieldsConfig."
         self.login()
 
-        FieldsConfig.create(FakeContact,
-                            descriptions=[('phone',  {FieldsConfig.HIDDEN: True})],
-                           )
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[('phone',  {FieldsConfig.HIDDEN: True})],
+        )
 
         self.assertGET409(self.SEARCHNVIEW_URL,
                           data={'models': 'creme_core-fakecontact',
@@ -1888,12 +1890,17 @@ class InnerEditTestCase(_BulkEditTestCase):
         hidden_fkname = 'image'
         hidden_subfname = 'zipcode'
 
-        create_fconf = FieldsConfig.create
-        create_fconf(FakeContact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True}),
-                                                (hidden_fkname, {FieldsConfig.HIDDEN: True}),
-                                                ],
-                     )
-        create_fconf(FakeAddress, descriptions=[(hidden_subfname, {FieldsConfig.HIDDEN: True})])
+        create_fconf = FieldsConfig.objects.create
+        create_fconf(
+            content_type=FakeContact,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True}),
+                          (hidden_fkname, {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
+        create_fconf(
+            content_type=FakeAddress,
+            descriptions=[(hidden_subfname, {FieldsConfig.HIDDEN: True})],
+        )
 
         mario = self.create_contact()
 
