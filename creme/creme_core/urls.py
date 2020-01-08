@@ -11,22 +11,42 @@ from .views import (
 
 
 entity_patterns = [
-    re_path(r'^delete/multi[/]?$',                  entity.delete_entities,                   name='creme_core__delete_entities'),
-    re_path(r'^delete/(?P<entity_id>\d+)[/]?$',     entity.delete_entity,                     name='creme_core__delete_entity'),
+    # re_path(r'^delete/multi[/]?$',                  entity.delete_entities,                   name='creme_core__delete_entities'),
+    re_path(r'^delete/multi[/]?$',                  entity.EntitiesDeletion.as_view(),        name='creme_core__delete_entities'),
+    # re_path(r'^delete/(?P<entity_id>\d+)[/]?$',     entity.delete_entity,                     name='creme_core__delete_entity'),
+    re_path(r'^delete/(?P<entity_id>\d+)[/]?$',     entity.EntityDeletion.as_view(),          name='creme_core__delete_entity'),
     re_path(r'^delete_related/(?P<ct_id>\d+)[/]?$', entity.RelatedToEntityDeletion.as_view(), name='creme_core__delete_related_to_entity'),
-    re_path(r'^restore/(?P<entity_id>\d+)[/]?$',    entity.restore_entity,                    name='creme_core__restore_entity'),
+    # re_path(r'^restore/(?P<entity_id>\d+)[/]?$',    entity.restore_entity,                    name='creme_core__restore_entity'),
+    re_path(r'^restore/(?P<entity_id>\d+)[/]?$',    entity.EntityRestoration.as_view(),       name='creme_core__restore_entity'),
     re_path(r'^trash[/]?$',                         entity.Trash.as_view(),                   name='creme_core__trash'),
     re_path(r'^trash/empty[/]?$',                   entity.empty_trash,                       name='creme_core__empty_trash'),
 
     # TODO: add a view 'creme_core__entities_as_json'
     #       (with same features as 'creme_core__entity_as_json', then remove this one)
     # TODO: IDs as GET arguments
-    re_path(r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)[/]?$',                      entity.get_creme_entities_repr,  name='creme_core__entities_summaries'),
-    re_path(r'^get_sanitized_html/(?P<entity_id>\d+)/(?P<field_name>[\w-]+)[/]?$', entity.get_sanitized_html_field, name='creme_core__sanitized_html_field'),
-    re_path(r'^search_n_view[/]?$',                                                entity.SearchAndView.as_view(),  name='creme_core__search_n_view_entities'),
-    re_path(r'^get_info_fields/(?P<ct_id>\d+)/json[/]?$',                          entity.get_info_fields,          name='creme_core__entity_info_fields'),
+    re_path(r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)[/]?$',
+            entity.get_creme_entities_repr,
+            name='creme_core__entities_summaries',
+           ),
+    re_path(r'^get_sanitized_html/(?P<entity_id>\d+)/(?P<field_name>[\w-]+)[/]?$',
+            # entity.get_sanitized_html_field
+            entity.HTMLFieldSanitizing.as_view(),
+            name='creme_core__sanitized_html_field',
+           ),
+    re_path(r'^search_n_view[/]?$',
+            entity.SearchAndView.as_view(),
+            name='creme_core__search_n_view_entities',
+           ),
+    re_path(r'^get_info_fields/(?P<ct_id>\d+)/json[/]?$',
+            # entity.get_info_fields,
+            entity.FieldsInformation.as_view(),
+            name='creme_core__entity_info_fields',
+           ),
 
-    re_path(r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)[/]?$', entity.InnerEdition.as_view(), name='creme_core__inner_edition'),
+    re_path(r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)[/]?$',
+            entity.InnerEdition.as_view(),
+            name='creme_core__inner_edition',
+           ),
 
     re_path(r'^update/bulk/(?P<ct_id>\d+)[/]?$',                              entity.BulkUpdate.as_view(), name='creme_core__bulk_update'),
     re_path(r'^update/bulk/(?P<ct_id>\d+)/field/(?P<field_name>[\w-]+)[/]?$', entity.BulkUpdate.as_view(), name='creme_core__bulk_update'),
@@ -36,7 +56,11 @@ entity_patterns = [
     re_path(r'^merge/select_other[/]?$', entity.EntitiesToMergeSelection.as_view(), name='creme_core__select_entity_for_merge'),
     re_path(r'^merge[/]?$',              entity.Merge.as_view(),                    name='creme_core__merge_entities'),
 
-    re_path(r'^restrict_to_superusers[/]?$', entity.restrict_to_superusers, name='creme_core__restrict_entity_2_superusers'),
+    re_path(r'^restrict_to_superusers[/]?$',
+            # entity.restrict_to_superusers,
+            entity.SuperusersRestriction.as_view(),
+            name='creme_core__restrict_entity_2_superusers',
+           ),
 ]
 
 relation_patterns = [

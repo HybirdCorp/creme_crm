@@ -555,7 +555,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertRedirects(response, self.LIST_URL)
 
     def test_deleteview02(self):
-        "A doc inside protect from deletion"
+        "A doc inside protect from deletion."
         user = self.login()
 
         folder = Folder.objects.create(user=user, title='ToBeDel', description='remove me')
@@ -566,22 +566,25 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         folder.trash()
 
-        self.assertPOST403(folder.get_delete_absolute_url())
+        # self.assertPOST403(folder.get_delete_absolute_url())
+        self.assertPOST409(folder.get_delete_absolute_url())
         self.assertStillExists(folder)
 
     def test_deleteview03(self):
-        "Un deletable folder: 'Creme'"
+        "Un deletable folder: 'Creme'."
         self.login()
         folder = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_RELATED2ENTITIES)
 
-        self.assertPOST403(folder.get_delete_absolute_url())
+        # self.assertPOST403(folder.get_delete_absolute_url())
+        self.assertPOST409(folder.get_delete_absolute_url())
 
     def test_deleteview04(self):
-        "Un deletable folder: 'Images'"
+        "Un deletable folder: 'Images'."
         self.login()
         folder = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_IMAGES)
 
-        self.assertPOST403(folder.get_delete_absolute_url())
+        # self.assertPOST403(folder.get_delete_absolute_url())
+        self.assertPOST409(folder.get_delete_absolute_url())
 
     def test_brick(self):
         "Brick which display contained docs"

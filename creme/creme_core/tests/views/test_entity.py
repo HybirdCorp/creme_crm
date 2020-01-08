@@ -120,7 +120,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                         )
 
     def test_get_creme_entities_repr02(self):
-        "Several entities, several ContentTypes, credentials"
+        "Several entities, several ContentTypes, credentials."
         user = self.login(is_superuser=False)
 
         create_c = FakeContact.objects.create
@@ -157,8 +157,92 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET409(reverse('creme_core__sanitized_html_field', args=(entity.id, 'name')))  # Not an UnsafeHTMLField
         # NB: test with valid field in 'emails' app.
 
+    def test_delete_dependencies_to_str(self):
+        from creme.creme_core.views.entity import EntityDeletionMixin
+
+        self.assertEqual(3, EntityDeletionMixin.dependencies_limit)
+
+        class TestMixin(EntityDeletionMixin):
+            dependencies_limit = 4
+
+        dep_2_str = TestMixin().dependencies_to_str
+
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        entity01 = create_orga(name='Nerv')
+        self.assertEqual(
+            entity01.name,
+            dep_2_str(dependencies=[entity01], user=user)
+        )
+
+        entity02 = create_orga(name='Seele')
+        self.assertEqual(
+            '{}, {}'.format(entity01.name, entity02.name),
+            dep_2_str(dependencies=[entity01, entity02], user=user)
+        )
+
+        entity03 = create_orga(user=self.other_user, name='Acme#1')
+        self.assertEqual(
+            ', '.join([
+                entity01.name, entity02.name,
+                ngettext(
+                    '{count} not viewable entity',
+                    '{count} not viewable entities',
+                    1
+                ).format(count=1),
+            ]),
+            dep_2_str(dependencies=[entity01, entity03, entity02], user=user)
+        )
+
+        entity04 = create_orga(user=self.other_user, name='Acme#2')
+        self.assertEqual(
+            ', '.join([
+                entity01.name, entity02.name,
+                ngettext(
+                    '{count} not viewable entity',
+                    '{count} not viewable entities',
+                    2
+                ).format(count=2),
+            ]),
+            dep_2_str(dependencies=[entity01, entity03, entity02, entity04], user=user)
+        )
+
+        rtype = RelationType.objects.first()
+        create_rel = partial(Relation.objects.create, user=user, type=rtype)
+        rel01 = create_rel(subject_entity=entity01, object_entity=entity02)
+        self.assertEqual(
+            '{} «{}»'.format(rtype.predicate, entity02.name),
+            dep_2_str(dependencies=[rel01], user=user)
+        )
+
+        rel02 = create_rel(subject_entity=entity01, object_entity=entity03)
+        self.assertEqual(
+            '{} «{}», {} «{}»'.format(
+                rtype.predicate, entity02.name,
+                rtype.predicate, settings.HIDDEN_VALUE,
+            ),
+            dep_2_str(dependencies=[rel02, rel01], user=user)
+        )
+
+        sector1, sector2 = FakeSector.objects.all()[:2]
+        self.assertEqual(
+            '{}, {}'.format(sector1, sector2),
+            dep_2_str(dependencies=[sector1, sector2], user=user)
+        )
+
+        TestMixin.dependencies_limit = 2
+        self.assertEqual(
+            '{}, {}…'.format(entity01.name, entity02.name),
+            dep_2_str(dependencies=[entity01, entity03, entity02], user=user)
+        )
+
     def test_delete_entity01(self):
-        "is_deleted=False -> trash"
+        "is_deleted=False -> trash."
         user = self.login()
 
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -174,7 +258,8 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertContains(response, edit_url)
 
         url = self._build_delete_url(entity)
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET405(url)
         self.assertRedirects(self.client.post(url), entity.get_lv_absolute_url())
 
         with self.assertNoException():
@@ -189,19 +274,20 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotContains(response, edit_url)
 
     def test_delete_entity02(self):
-        "is_deleted=True -> real deletion"
+        "is_deleted=True -> real deletion."
         user = self.login()
 
         # To get a get_lv_absolute_url() method
         entity = FakeOrganisation.objects.create(user=user, name='Nerv', is_deleted=True)
 
         url = self._build_delete_url(entity)
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET405(url)
         self.assertRedirects(self.client.post(url), entity.get_lv_absolute_url())
         self.assertDoesNotExist(entity)
 
     def test_delete_entity03(self):
-        "No DELETE credentials"
+        "No DELETE credentials."
         self.login(is_superuser=False)
 
         entity = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
@@ -210,7 +296,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertStillExists(entity)
 
     def test_delete_entity04(self):
-        "Relations (not internal ones) & properties are deleted correctly"
+        "Relations (not internal ones) & properties are deleted correctly."
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -260,23 +346,37 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                         )
 
     def test_delete_entity05(self):  # TODO: detect dependencies when trashing ??
-        "Dependencies problem (with internal Relations)"
+        "Dependencies problem (with internal Relations)."
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         entity01 = create_orga(name='Nerv', is_deleted=True)
         entity02 = create_orga(name='Seele')
 
-        rtype = RelationType.create(('test-subject_linked', 'is linked to'),
-                                    ('test-object_linked',  'is linked to'),
-                                    is_internal=True,
-                                   )[0]
+        rtype = RelationType.create(
+            ('test-subject_daughter', 'is a daughter of'),
+            ('test-object_daughter',  'has a daughter'),
+            is_internal=True,
+        )[0]
         Relation.objects.create(user=user, type=rtype, subject_entity=entity01, object_entity=entity02)
 
-        response = self.assertPOST403(self._build_delete_url(entity01), follow=True)
-        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+        # response = self.assertPOST403(self._build_delete_url(entity01), follow=True)
+        response = self.assertPOST409(self._build_delete_url(entity01), follow=True)
+        # self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+        self.assertTemplateUsed(response, 'creme_core/conflict_error.html')
         self.assertStillExists(entity01)
         self.assertStillExists(entity02)
+
+        with self.assertNoException():
+            msg = response.context['error_message']
+
+        self.assertEqual(
+            _('«{entity}» can not be deleted because of its dependencies ({dependencies}).').format(
+                entity=entity01.name,
+                dependencies='is a daughter of «{}»'.format(entity02.name),
+            ),
+            msg
+        )
 
     def test_delete_entity06(self):
         "is_deleted=False -> trash (AJAX version)."
@@ -322,9 +422,15 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity01, entity02 = (create_entity() for i in range(2))
         entity03, entity04 = (create_entity(is_deleted=True) for i in range(2))
 
-        response = self.assertPOST200(self.DEL_ENTITIES_URL,
-                                      data={'ids': '{},{},{}'.format(entity01.id, entity02.id, entity03.id)},
-                                     )
+        url = self.DEL_ENTITIES_URL
+        self.assertPOST404(url)
+        self.assertPOST(400, url, data={'ids': ''})
+        self.assertPOST(400, url, data={'ids': 'notanint'})
+
+        data = {'ids': '{},{},{}'.format(entity01.id, entity02.id, entity03.id)}
+        self.assertGET405(url, data=data)
+
+        response = self.assertPOST200(url, data=data)
         self.assertEqual(response.content.decode(), _('Operation successfully completed'))
 
         entity01 = self.get_object_or_fail(CremeEntity, pk=entity01.id)
@@ -362,22 +468,27 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.get_object_or_fail(CremeEntity, pk=entity02.id)
 
     def test_delete_entities_not_allowed(self):
-        "Some entities deletion is not allowed"
+        "Some entities deletion is not allowed."
         user = self.login(is_superuser=False)
 
         forbidden = CremeEntity.objects.create(user=self.other_user)
         allowed   = CremeEntity.objects.create(user=user)
 
-        response = self.assertPOST403(self.DEL_ENTITIES_URL, data={'ids': '{},{},'.format(forbidden.id, allowed.id)})
+        response = self.assertPOST403(
+            self.DEL_ENTITIES_URL,
+            data={'ids': '{},{},'.format(forbidden.id, allowed.id)},
+        )
 
-        self.assertDictEqual({'count': 2,
-                              'errors': [_('{entity} : <b>Permission denied</b>').format(
-                                                entity=forbidden.allowed_str(user),
-                                            ),
-                                        ],
-                             },
-                             response.json()
-                            )
+        self.assertDictEqual(
+            {'count': 2,
+             'errors': [
+                 _('{entity} : <b>Permission denied</b>').format(
+                     entity=forbidden.allowed_str(user),
+                 ),
+             ],
+            },
+            response.json()
+        )
 
         allowed = self.get_object_or_fail(CremeEntity, pk=allowed.id)
         self.assertTrue(allowed.is_deleted)
@@ -420,12 +531,13 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNoInstanceLink(brick_node, entity2)
 
     def test_restore_entity01(self):
-        "No trashed"
+        "No trashed."
         user = self.login()
 
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
         url = self._build_restore_url(entity)
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET405(url)
         self.assertPOST404(url)
 
     def test_restore_entity02(self):
@@ -434,7 +546,8 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity = FakeOrganisation.objects.create(user=user, name='Nerv', is_deleted=True)
         url = self._build_restore_url(entity)
 
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET405(url)
         self.assertRedirects(self.client.post(url), entity.get_absolute_url())
 
         entity = self.get_object_or_fail(FakeOrganisation, pk=entity.pk)
@@ -890,7 +1003,8 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         url = self.RESTRICT_URL
         data = {'id': contact.id}
-        self.assertGET404(url, data=data)
+        # self.assertGET404(url, data=data)
+        self.assertGET405(url, data=data)
         self.assertPOST200(url, data=data)
 
         sandbox = self.refresh(contact).sandbox

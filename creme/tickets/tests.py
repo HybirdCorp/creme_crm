@@ -640,7 +640,7 @@ class TicketTemplateTestCase(CremeTestCase):
 
     @skipIfCustomTicket
     def test_create_entity03(self):
-        "Several generations -> 'title' column must be unique"
+        "Several generations -> 'title' column must be unique."
         self.login()
 
         self.assertEqual(0, Ticket.objects.count())
@@ -654,12 +654,13 @@ class TicketTemplateTestCase(CremeTestCase):
         self.assertEqual(2, Ticket.objects.count())
 
     def test_multi_delete(self):
-        "Should not delete"
+        "Should not delete."
         self.login()
 
         template01 = self.create_template('Title01')
         template02 = self.create_template('Title02')
-        self.assertPOST404(reverse('creme_core__delete_entities'),
+        # self.assertPOST404(reverse('creme_core__delete_entities'),
+        self.assertPOST409(reverse('creme_core__delete_entities'),
                            data={'ids': '{},{},'.format(template01.id, template02.id)}
                           )
         self.assertEqual(2, TicketTemplate.objects.filter(pk__in=[template01.id, template02.id]).count())
