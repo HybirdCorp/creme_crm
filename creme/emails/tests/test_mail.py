@@ -14,7 +14,7 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
     from creme.creme_core.gui import actions
     from creme.creme_core.models import Relation, SetCredentials, FieldsConfig, Job, FakeInvoice
     from creme.creme_core.forms.widgets import Label
@@ -74,7 +74,7 @@ class EntityEmailTestCase(_EmailsTestCase):
     def test_createview01(self):
         user = self.login()
 
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         recipient = 'vincent.law@immigrates.rmd'
@@ -436,7 +436,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         "Mail sending error"
         user = self.login()
 
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         self.send_messages_called = False
@@ -884,7 +884,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         email = self._create_email(MAIL_STATUS_SENDINGERROR)
         email.trash()
 
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         email.restore()
@@ -905,7 +905,7 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         email = self.refresh(email)
 
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         email.restore()

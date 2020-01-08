@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2018  Hybird
+#    Copyright (C) 2016-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,9 +23,8 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.db.models import (Model, CharField, TextField, DateTimeField,
-        PositiveIntegerField, PositiveSmallIntegerField, BooleanField,
-        ForeignKey, F, CASCADE)
+from django.db import models
+from django.db.models.expressions import F
 from django.db.transaction import atomic
 from django.urls import reverse
 from django.utils.timezone import now
@@ -39,7 +38,7 @@ from .fields import CremeUserForeignKey, DatePeriodField  # CreationDateTimeFiel
 logger = logging.getLogger(__name__)
 
 
-class Job(Model):
+class Job(models.Model):
     """A job represents a work which has to be done in the 'background' (ie:
     another process than the processes which respond to the clients). They are
     useful for periodic tasks (eg: polling data, like emails, from another server)
@@ -79,24 +78,29 @@ class Job(Model):
     STATUS_ERROR = 10
     STATUS_OK    = 20
 
-    type_id       = CharField(_('Type of job'), max_length=48, editable=False)
-    user          = CremeUserForeignKey(verbose_name=_('User'), null=True, editable=False)
-    enabled       = BooleanField(_('Enabled'), default=True, editable=False)
-    language      = CharField(_('Language'), max_length=10, editable=False)
-    # created      = CreationDateTimeField(_('Creation date'))
-    reference_run = DateTimeField(_('Reference run'))
+    type_id  = models.CharField(_('Type of job'), max_length=48, editable=False)
+    user     = CremeUserForeignKey(verbose_name=_('User'), null=True, editable=False)
+    enabled  = models.BooleanField(_('Enabled'), default=True, editable=False)
+    language = models.CharField(_('Language'), max_length=10, editable=False)
+    # created = CreationDateTimeField(_('Creation date'))
+
+    reference_run = models.DateTimeField(_('Reference run'))
     periodicity   = DatePeriodField(_('Periodicity'), null=True)
-    last_run      = DateTimeField(_('Last run'), null=True, editable=False)
-    ack_errors    = PositiveIntegerField(default=0, editable=False)  # Number of errors of communication with the queue.
-    status        = PositiveSmallIntegerField(_('Status'), editable=False,
-                                              default=STATUS_WAIT,
-                                              choices=((STATUS_WAIT,  _('Waiting')),
-                                                       (STATUS_ERROR, _('Error')),
-                                                       (STATUS_OK,    _('Completed successfully')),
-                                                      ),
-                                             )
-    error         = TextField(_('Error'), null=True, editable=False)
-    raw_data      = TextField(editable=False)  # It stores the Job's parameters  # TODO: use a JSONField ?
+    last_run      = models.DateTimeField(_('Last run'), null=True, editable=False)
+
+    ack_errors = models.PositiveIntegerField(default=0, editable=False)  # Number of errors of communication with the queue.
+    status     = models.PositiveSmallIntegerField(
+        _('Status'), editable=False,
+        default=STATUS_WAIT,
+        choices=(
+            (STATUS_WAIT,  _('Waiting')),
+            (STATUS_ERROR, _('Error')),
+            (STATUS_OK,    _('Completed successfully')),
+        ),
+    )
+
+    error    = models.TextField(_('Error'), null=True, editable=False)
+    raw_data = models.TextField(editable=False)  # It stores the Job's parameters  # TODO: use a JSONField ?
 
     class Meta:
         app_label = 'creme_core'
@@ -191,11 +195,11 @@ class Job(Model):
         return jtype.get_config_form_class(self) if jtype is not None else None
 
     def refresh(self, force=False):
-        """Ask to the JobManager to refresh the job if it's needed, because
+        """Ask to the JobScheduler to refresh the job if it's needed, because
         the next runs should be earlier, or disabled.
         @param force: Boolean ; <True> means the message is sent even if no field has changed.
         """
-        from ..core.job import JobManagerQueue
+        from ..core.job import JobSchedulerQueue
 
         queue_error = False
         enabled = self.enabled
@@ -216,7 +220,7 @@ class Job(Model):
             if periodicity:
                 data['periodicity'] = periodicity.as_dict()
 
-            queue_error = JobManagerQueue.get_main_queue().refresh_job(self, data)
+            queue_error = JobSchedulerQueue.get_main_queue().refresh_job(self, data)
             self.__init_refreshing_cache()
 
         return queue_error
@@ -259,7 +263,7 @@ class Job(Model):
 
     @atomic
     def save(self, *args, **kwargs):
-        from ..core.job import JobManagerQueue
+        from ..core.job import JobSchedulerQueue
 
         created = self.pk is None
 
@@ -275,7 +279,7 @@ class Job(Model):
 
         if created:
             if self.user_id is not None:
-                queue_error = JobManagerQueue.get_main_queue().start_job(self)
+                queue_error = JobSchedulerQueue.get_main_queue().start_job(self)
         elif self.user_id is None:  # System job
             queue_error = self.refresh()
 
@@ -298,9 +302,9 @@ class Job(Model):
         self.type_id = value.id
 
 
-class BaseJobResult(Model):
-    job          = ForeignKey(Job, on_delete=CASCADE)
-    raw_messages = TextField(null=True)  # TODO: use a JSONField ?
+class BaseJobResult(models.Model):
+    job          = models.ForeignKey(Job, on_delete=models.CASCADE)
+    raw_messages = models.TextField(null=True)  # TODO: use a JSONField ?
 
     class Meta:
         app_label = 'creme_core'
@@ -328,7 +332,7 @@ class JobResult(BaseJobResult):
 
 
 class EntityJobResult(BaseJobResult):
-    entity = ForeignKey(CremeEntity, null=True, on_delete=CASCADE)
+    entity = models.ForeignKey(CremeEntity, null=True, on_delete=models.CASCADE)
 
     def __repr__(self):
         return 'EntityJobResult(job={job}, raw_messages="{msg}", entity={entity})'.format(
@@ -337,9 +341,9 @@ class EntityJobResult(BaseJobResult):
 
 
 class MassImportJobResult(BaseJobResult):
-    entity   = ForeignKey(CremeEntity, null=True, on_delete=CASCADE)
-    raw_line = TextField()  # TODO: use a JSONField ?
-    updated  = BooleanField(default=False)  # False: entity created
+    entity   = models.ForeignKey(CremeEntity, null=True, on_delete=models.CASCADE)
+    raw_line = models.TextField()  # TODO: use a JSONField ?
+    updated  = models.BooleanField(default=False)  # False: entity created
                                             # True: entity updated
 
     def __repr__(self):

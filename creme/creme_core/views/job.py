@@ -29,7 +29,7 @@ from ..auth import SUPERUSER_PERM
 # from ..auth.decorators import login_required, superuser_required
 from ..bricks import JobBrick
 from ..core.exceptions import ConflictError
-from ..core.job import JobManagerQueue
+from ..core.job import JobSchedulerQueue
 from ..http import CremeJsonResponse
 from ..models import Job
 
@@ -240,7 +240,7 @@ class JobsInformation(generic.CheckedView):
 
     def get_jobs_info(self):
         info = {}
-        queue = JobManagerQueue.get_main_queue()
+        queue = JobSchedulerQueue.get_main_queue()
 
         error = queue.ping()
         if error is not None:
