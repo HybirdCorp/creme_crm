@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,9 +21,9 @@
 from decimal import Decimal
 from functools import partial
 
+from django import forms
+from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
-from django.forms import (ModelChoiceField, TypedChoiceField, DecimalField,
-        ValidationError, TextInput, Textarea)
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core import forms as core_forms
@@ -41,21 +41,21 @@ ServiceLine = billing.get_service_line_model()
 
 
 class _LineMultipleAddForm(core_forms.CremeForm):
-    quantity       = DecimalField(label=_('Quantity'),
+    quantity = forms.DecimalField(label=_('Quantity'),
                                   min_value=constants.DEFAULT_DECIMAL,
                                   initial=constants.DEFAULT_QUANTITY,
                                   decimal_places=2,
                                  )
-    discount_value = DecimalField(label=_('Discount'),
-                                  min_value=constants.DEFAULT_DECIMAL,
-                                  max_value=Decimal('100'),
-                                  initial=constants.DEFAULT_DECIMAL,
-                                  decimal_places=2,
-                                  help_text=_('Percentage applied on the unit price'),
-                                 )
-    vat            = ModelChoiceField(label=_('Vat'), queryset=Vat.objects.all(),
-                                      empty_label=None,
-                                     )
+    discount_value = forms.DecimalField(label=_('Discount'),
+                                        min_value=constants.DEFAULT_DECIMAL,
+                                        max_value=Decimal('100'),
+                                        initial=constants.DEFAULT_DECIMAL,
+                                        decimal_places=2,
+                                        help_text=_('Percentage applied on the unit price'),
+                                       )
+    vat = forms.ModelChoiceField(label=_('Vat'), queryset=Vat.objects.all(),
+                                 empty_label=None,
+                                )
 
     def _get_line_class(self):
         raise NotImplementedError
@@ -108,20 +108,20 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
 # NB: model (ie: _meta.model) is set later, because this class is only used as base class
 class LineEditForm(core_forms.CremeModelForm):
     # TODO: we want to disabled CreatorChoiceField ; should we disabled globally this feature with Vat model ??
-    vat_value = ModelChoiceField(label=_('Vat'), queryset=Vat.objects.all(),
-                                 required=True,  # TODO: remove when null=False in the model
-                                 empty_label=None,
-                                )
+    vat_value = forms.ModelChoiceField(label=_('Vat'), queryset=Vat.objects.all(),
+                                       required=True,  # TODO: remove when null=False in the model
+                                       empty_label=None,
+                                      )
 
     class Meta:
         exclude = ()
         widgets = {
-            'on_the_fly_item': TextInput(attrs={'class': 'line-on_the_fly', 'validator': 'Value'}),
-            'unit_price':      TextInput(attrs={'class': 'line-unit_price bound', 'validator': 'Decimal'}),
-            'quantity':        TextInput(attrs={'class': 'line-quantity bound', 'validator': 'PositiveDecimal'}),
-            'unit':            TextInput(attrs={'class': 'line-unit'}),
-            'discount':        TextInput(attrs={'class': 'line-quantity_discount bound'}),
-            'comment':         Textarea(attrs={'class': 'line-comment', 'rows': 2}),
+            'on_the_fly_item': forms.TextInput(attrs={'class': 'line-on_the_fly', 'validator': 'Value'}),
+            'unit_price':      forms.TextInput(attrs={'class': 'line-unit_price bound', 'validator': 'Decimal'}),
+            'quantity':        forms.TextInput(attrs={'class': 'line-quantity bound', 'validator': 'PositiveDecimal'}),
+            'unit':            forms.TextInput(attrs={'class': 'line-unit'}),
+            'discount':        forms.TextInput(attrs={'class': 'line-quantity_discount bound'}),
+            'comment':         forms.Textarea(attrs={'class': 'line-comment', 'rows': 2}),
         }
 
     # TODO: related_document=None ??
@@ -140,32 +140,34 @@ class LineEditForm(core_forms.CremeModelForm):
             (constants.DISCOUNT_ITEM_AMOUNT, gettext('{currency} per unit').format(currency=currency_str)),
         ]
 
-        line = self.instance
-        fields['discount_unit'] = discount_unit_f = TypedChoiceField(choices=discount_units, coerce=int)
-        discount_unit_f.initial = constants.DISCOUNT_PERCENT if line.discount_unit == constants.DISCOUNT_PERCENT else \
-                                  (constants.DISCOUNT_LINE_AMOUNT if line.total_discount else constants.DISCOUNT_ITEM_AMOUNT) #HACK: see below
+        # line = self.instance
+        # fields['discount_unit'] = discount_unit_f = fields.TypedChoiceField(choices=discount_units, coerce=int)
+        # discount_unit_f.initial = constants.DISCOUNT_PERCENT if line.discount_unit == constants.DISCOUNT_PERCENT else \
+        #                           (constants.DISCOUNT_LINE_AMOUNT if line.total_discount else constants.DISCOUNT_ITEM_AMOUNT) #HACK: see below
+        # discount_unit_f.widget.attrs = {'class': 'bound'}
+        discount_unit_f = fields['discount_unit']
+        discount_unit_f.choices = discount_units
         discount_unit_f.widget.attrs = {'class': 'bound'}
 
         fields['vat_value'].initial = Vat.get_default_vat()
 
-    # TODO: UGLY HACK: we should have our 3 choices in Line.discount_unit & remove Line.total_discount (refactor the template too)
-    def clean(self):
-        cdata = super().clean()
-
-        if not self._errors:
-            discount_unit = cdata['discount_unit']
-            total_discount = False
-
-            if discount_unit == constants.DISCOUNT_LINE_AMOUNT:
-                total_discount = True
-            elif discount_unit == constants.DISCOUNT_ITEM_AMOUNT:
-                discount_unit = constants.DISCOUNT_LINE_AMOUNT
-  
-            line = self.instance
-            line.total_discount = total_discount
-            line.discount_unit = discount_unit
-
-        return cdata
+    # def clean(self):
+    #     cdata = super().clean()
+    #
+    #     if not self._errors:
+    #         discount_unit = cdata['discount_unit']
+    #         total_discount = False
+    #
+    #         if discount_unit == constants.DISCOUNT_LINE_AMOUNT:
+    #             total_discount = True
+    #         elif discount_unit == constants.DISCOUNT_ITEM_AMOUNT:
+    #             discount_unit = constants.DISCOUNT_LINE_AMOUNT
+    #
+    #         line = self.instance
+    #         line.total_discount = total_discount
+    #         line.discount_unit = discount_unit
+    #
+    #     return cdata
 
     def save(self, *args, **kwargs):
         instance = self.instance
