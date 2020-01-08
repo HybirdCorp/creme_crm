@@ -8,11 +8,15 @@ try:
     from creme.creme_core.models.auth import SetCredentials
     from creme.creme_core.models.entity_filter import EntityFilter  # EntityFilterCondition
 
-    from creme.persons.tests.base import (skipIfCustomAddress,
-            skipIfCustomContact, skipIfCustomOrganisation)
+    from creme.persons.tests.base import (
+        skipIfCustomAddress,
+        skipIfCustomContact,
+        skipIfCustomOrganisation,
+    )
 
     from ..models import GeoAddress, Town
     from ..utils import address_as_dict
+
     from .base import GeoLocationBaseTestCase, Organisation, Contact
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -33,31 +37,35 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         address = self.create_address(orga)
         self.assertEqual(1, GeoAddress.objects.count())
 
-        data = {'latitude':  45.22454,
-                'longitude': -1.22121,
-                'status':    GeoAddress.COMPLETE,
-                'geocoded':  True,
-               }
-        self.assertGET404(self.SET_ADDRESS_URL,  data={**data, 'id': address.id})
-        self.assertPOST200(self.SET_ADDRESS_URL, data={**data, 'id': address.id})
+        data1 = {
+            'latitude':  45.22454,
+            'longitude': -1.22121,
+            'status':    GeoAddress.COMPLETE,
+            'geocoded':  True,
+        }
+        url = self.SET_ADDRESS_URL
+        # self.assertGET404(url,  data={**data1, 'id': address.id})
+        self.assertGET405(url,  data={**data1, 'id': address.id})
+        self.assertPOST200(url, data={**data1, 'id': address.id})
 
         geoaddresses = GeoAddress.objects.all()
         self.assertEqual(1, len(geoaddresses))
 
         geoaddress = geoaddresses[0]
-        self.assertGeoAddress(geoaddress, address=address, draggable=True, **data)
+        self.assertGeoAddress(geoaddress, address=address, draggable=True, **data1)
         self.assertEqual(self.refresh(address).geoaddress, geoaddress)
 
-        data = {'latitude':  28.411,
-                'longitude': 45.44,
-                'status':    GeoAddress.MANUAL,
-                'geocoded':  True,
-               }
-        self.assertPOST200(self.SET_ADDRESS_URL, data={**data, 'id': address.id})
+        data2 = {
+            'latitude':  28.411,
+            'longitude': 45.44,
+            'status':    GeoAddress.MANUAL,
+            'geocoded':  True,
+        }
+        self.assertPOST200(url, data={**data2, 'id': address.id})
 
         geoaddresses = GeoAddress.objects.all()
         self.assertEqual(1, len(geoaddresses))
-        self.assertGeoAddress(geoaddresses[0], address=address, draggable=True, **data)
+        self.assertGeoAddress(geoaddresses[0], address=address, draggable=True, **data2)
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
@@ -70,46 +78,47 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         address.geoaddress.delete()
         self.assertEqual(0, GeoAddress.objects.count())
 
-        data = {
+        data1 = {
             'latitude':  45.22454,
             'longitude': -1.22121,
             'status':    GeoAddress.COMPLETE,
             'geocoded':  True,
         }
-        self.assertPOST200(self.SET_ADDRESS_URL, data={**data, 'id': address.id})
+        url = self.SET_ADDRESS_URL
+        self.assertPOST200(url, data={**data1, 'id': address.id})
 
         address = self.refresh(address)
         self.assertEqual(1, GeoAddress.objects.count())
         self.assertEqual(address.geoaddress, GeoAddress.objects.get())
         self.assertGeoAddress(GeoAddress.objects.get(), address=address,
-                              draggable=True, **data
+                              draggable=True, **data1
                              )
 
-        data = {
+        data2 = {
             'latitude':  28.411,
             'longitude': 45.44,
             'status':    GeoAddress.COMPLETE,
             'geocoded':  True,
         }
-        self.assertPOST200(self.SET_ADDRESS_URL, data={**data, 'id': address.id})
+        self.assertPOST200(url, data={**data2, 'id': address.id})
 
         geoaddresses = GeoAddress.objects.all()
         self.assertEqual(1, len(geoaddresses))
         self.assertGeoAddress(geoaddresses[0], address=address,
-                              draggable=True, **data
+                              draggable=True, **data2
                              )
 
     def test_set_address_info_missing_address(self):
         self.login()
 
-        self.assertEqual(0, GeoAddress.objects.count())
+        self.assertFalse(GeoAddress.objects.all())
         self.assertPOST404(self.SET_ADDRESS_URL,
                            data={'id':       '000',
                                  'latitude':  45.22454,
                                  'longitude': -1.22121,
                                  'status':    GeoAddress.COMPLETE,
                                  'geocoded':  True,
-                                }
+                                },
                           )
 
     @skipIfCustomOrganisation
@@ -160,25 +169,26 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         orga = create_orga(name='Orga 1', user=self.other_user)
         address = self.create_address(orga)
 
-        self.assertPOST403(self.SET_ADDRESS_URL,
+        url = self.SET_ADDRESS_URL
+        self.assertPOST403(url,
                            data={'id':        address.id,
                                  'latitude':  45.22454,
                                  'longitude': -1.22121,
                                  'status':    GeoAddress.COMPLETE,
                                  'geocoded':  True,
-                                }
+                                },
                           )
 
         self.client.logout()
         self.client.login(username=self.other_user.username, password='test')
 
-        self.assertPOST200(self.SET_ADDRESS_URL,
+        self.assertPOST200(url,
                            data={'id':        address.id,
                                  'latitude':  45.22454,
                                  'longitude': -1.22121,
                                  'status':    GeoAddress.COMPLETE,
                                  'geocoded':  True,
-                                }
+                                },
                           )
 
 

@@ -543,16 +543,16 @@ def _phonecall_workflow_set_end(request, end_function):
         pcall = done_activity_creator(
             user=user,
             title=_('{status} call to {person} from Creme Mobile').format(
-                    status=_('Successful'),
-                    person=person,
-              ),
+                status=_('Successful'),
+                person=person,
+            ),
             type_id=act_constants.ACTIVITYTYPE_PHONECALL,
             sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
             status_id=act_constants.STATUS_DONE,
             start=start,
             end=end,
             minutes=minutes,
-         )
+        )
         _add_participants(pcall, (me, person))
 
     return ''
