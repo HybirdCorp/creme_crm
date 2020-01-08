@@ -1031,13 +1031,15 @@ class ReportTestCase(BaseReportsTestCase):
         def export(status, **kwargs):
             self.assertGET(status, url, data={**data, **kwargs})
 
-        export(404, date_field='invalidfield')
-        export(404, date_field='first_name')  # Not a date field
+        # export(404, date_field='invalidfield')
+        export(409, date_field='invalidfield')
+        # export(404, date_field='first_name')  # Not a date field
+        export(409, date_field='first_name')  # Not a date field
         export(200, date_filter_1='1980-01-01')  # Invalid format
         export(200, date_filter_2='2000-01-01')  # Invalid format
 
     def test_report_csv06(self):
-        "With FieldsConfig"
+        "With FieldsConfig."
         self.login()
 
         hidden_fname1 = 'phone'
@@ -1065,7 +1067,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual('"Katsuragi"', next(content))
 
     def test_report_csv07(self):
-        "With FieldsConfig on sub-field"
+        "With FieldsConfig on sub-field."
         self.login()
 
         hidden_fname = 'description'
@@ -1529,7 +1531,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertDoesNotExist(rfield)
 
     def test_link_report_regular(self):
-        "RFT_FIELD (FK) field"
+        "RFT_FIELD (FK) field."
         user = self.login()
 
         contact_report = Report.objects.create(user=user, name='Report on contacts',
@@ -1580,7 +1582,8 @@ class ReportTestCase(BaseReportsTestCase):
         fk_img_field.selected = True
         fk_img_field.save()
         url = reverse('reports__unlink_report')
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET405(url)
         self.assertPOST409(url, data={'field_id': str_field.id})
         self.assertPOST200(url, data={'field_id': fk_img_field.id})
 
@@ -1771,7 +1774,8 @@ class ReportTestCase(BaseReportsTestCase):
                                  )
 
         url = reverse('reports__set_selected_field')
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET405(url)
 
         data = {'field_id':  reg_rfield.id,
                 'checked':   1,
