@@ -26,16 +26,15 @@ from django.utils.http import is_safe_url
 from django.utils.translation import gettext_lazy as _, gettext
 
 from ..auth import SUPERUSER_PERM
-from ..auth.decorators import login_required, superuser_required
+# from ..auth.decorators import login_required, superuser_required
 from ..bricks import JobBrick
 from ..core.exceptions import ConflictError
 from ..core.job import JobManagerQueue
+from ..http import CremeJsonResponse
 from ..models import Job
 
-from . import bricks as bricks_views
-from .decorators import jsonify, POST_only
-
-from . import generic
+from . import generic, bricks as bricks_views
+# from .decorators import jsonify, POST_only
 
 
 class Jobs(generic.BricksView):
@@ -104,20 +103,40 @@ class JobEdition(generic.CremeModelEditionPopup):
         return config_form
 
 
-@login_required
-@superuser_required
-@POST_only
-@atomic
-def enable(request, job_id, enabled=True):
-    job = get_object_or_404(Job.objects.select_for_update(), id=job_id)
+# @login_required
+# @superuser_required
+# @POST_only
+# @atomic
+# def enable(request, job_id, enabled=True):
+#     job = get_object_or_404(Job.objects.select_for_update(), id=job_id)
+#
+#     if job.user_id is not None:
+#         raise ConflictError('A non-system job cannot be disabled')
+#
+#     job.enabled = enabled
+#     job.save()
+#
+#     return HttpResponse()
+class JobEnabling(generic.CheckedView):
+    permissions = SUPERUSER_PERM
+    job_id_url_kwargs = 'job_id'
+    enabled_arg = 'enabled'
+    enabled_default = True
 
-    if job.user_id is not None:
-        raise ConflictError('A non-system job cannot be disabled')
+    @atomic
+    def post(self, *args, **kwargs):
+        job = get_object_or_404(
+            Job.objects.select_for_update(),
+            id=kwargs[self.job_id_url_kwargs],
+        )
 
-    job.enabled = enabled
-    job.save()
+        if job.user_id is not None:
+            raise ConflictError('A non-system job cannot be disabled')
 
-    return HttpResponse()
+        job.enabled = kwargs.get(self.enabled_arg, self.enabled_default)
+        job.save()
+
+        return HttpResponse()
 
 
 class JobDeletion(generic.CremeModelDeletion):
@@ -143,48 +162,105 @@ class JobDeletion(generic.CremeModelDeletion):
         return self.request.POST.get('back_url') or reverse('creme_core__my_jobs')
 
 
-@login_required
-@jsonify
-def get_info(request):
-    info = {}
-    queue = JobManagerQueue.get_main_queue()
+# @login_required
+# @jsonify
+# def get_info(request):
+#     info = {}
+#     queue = JobManagerQueue.get_main_queue()
+#
+#     error = queue.ping()
+#     if error is not None:
+#         info['error'] = error
+#
+#     job_ids = [int(ji) for ji in request.GET.getlist('id') if ji.isdigit()]
+#
+#     if job_ids:
+#         user = request.user
+#         jobs = Job.objects.in_bulk(job_ids)
+#
+#         for job_id in job_ids:
+#             job = jobs.get(job_id)
+#             if job is None:
+#                 info[job_id] = 'Invalid job ID'
+#             else:
+#                 if not job.check_owner(user):
+#                     info[job_id] = 'Job is not allowed'
+#                 else:
+#                     ack_errors = job.ack_errors
+#
+#                     # NB: we check 'error' too, to avoid flooding queue/job_manager.
+#                     if ack_errors and not error:
+#                         queue_error = queue.start_job(job) if job.user else job.refresh()
+#                         if not queue_error:
+#                             job.forget_ack_errors()
+#                             ack_errors = 0
+#
+#                     progress = job.progress
+#
+#                     info[job_id] = {
+#                         'status':     job.status,
+#                         'ack_errors': ack_errors,
+#                         'progress':   progress.data,
+#                     }
+#
+#     return info
+class JobsInformation(generic.CheckedView):
+    response_class = CremeJsonResponse
+    job_ids_arg = 'id'
 
-    error = queue.ping()
-    if error is not None:
-        info['error'] = error
+    def get_job_ids(self):
+        return [
+            int(ji)
+                for ji in self.request.GET.getlist(self.job_ids_arg)
+                    if ji.isdigit()
+        ]
 
-    job_ids = [int(ji) for ji in request.GET.getlist('id') if ji.isdigit()]
+    def get_job_info(self, *, job, queue, queue_error):
+        if not job.check_owner(self.request.user):
+            info = 'Job is not allowed'
+        else:
+            ack_errors = job.ack_errors
 
-    if job_ids:
-        user = request.user
-        jobs = Job.objects.in_bulk(job_ids)
+            # NB: we check 'error' too, to avoid flooding queue/job_manager.
+            if ack_errors and not queue_error:
+                queue_error = queue.start_job(job) if job.user else job.refresh()
+                if not queue_error:
+                    job.forget_ack_errors()
+                    ack_errors = 0  # TODO: read again from DB ?
 
-        for job_id in job_ids:
-            job = jobs.get(job_id)
-            if job is None:
-                info[job_id] = 'Invalid job ID'
-            else:
-                if not job.check_owner(user):
-                    info[job_id] = 'Job is not allowed'
-                else:
-                    ack_errors = job.ack_errors
+            progress = job.progress
 
-                    # NB: we check 'error' too, to avoid flooding queue/job_manager.
-                    if ack_errors and not error:
-                        queue_error = queue.start_job(job) if job.user else job.refresh()
-                        if not queue_error:
-                            job.forget_ack_errors()
-                            ack_errors = 0  # TODO: read again from DB ?
+            info = {
+                'status': job.status,
+                'ack_errors': ack_errors,
+                'progress': progress.data,
+            }
 
-                    progress = job.progress
+        return info
 
-                    info[job_id] = {
-                        'status':     job.status,
-                        'ack_errors': ack_errors,
-                        'progress':   progress.data,
-                    }
+    def get_jobs_info(self):
+        info = {}
+        queue = JobManagerQueue.get_main_queue()
 
-    return info
+        error = queue.ping()
+        if error is not None:
+            info['error'] = error
+
+        job_ids = self.get_job_ids()
+
+        if job_ids:
+            jobs = Job.objects.in_bulk(job_ids)
+
+            for job_id in job_ids:
+                job = jobs.get(job_id)
+                info[job_id] = 'Invalid job ID' if job is None else self.get_job_info(
+                    job=job, queue=queue, queue_error=error,
+                )
+
+        return info
+
+    def get(self, *args, **kwargs):
+        return self.response_class(self.get_jobs_info())
 
 
 # @login_required

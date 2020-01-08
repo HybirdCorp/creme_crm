@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2019  Hybird
+#    Copyright (C) 2013-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,11 +22,12 @@ from django.db.models.fields import FieldDoesNotExist
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
-from creme.creme_core.core.enumerable import enumerable_registry
-from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.http import CremeJsonResponse
-from creme.creme_core.models import CustomFieldEnumValue, CustomField
-from creme.creme_core.views.generic import base
+from ..core.enumerable import enumerable_registry
+from ..core.exceptions import ConflictError
+from ..http import CremeJsonResponse
+from ..models import CustomFieldEnumValue, CustomField
+
+from .generic import base
 
 
 class ChoicesView(base.ContentTypeRelatedMixin, base.CheckedView):
@@ -63,7 +64,7 @@ class CustomFieldEnumsView(base.CheckedView):
     cfield_id_url_kwarg = 'cf_id'
 
     def get(self, request, *args, **kwargs):
-        cf = get_object_or_404(CustomField, pk=self.kwargs[self.cfield_id_url_kwarg])
+        cf = get_object_or_404(CustomField, pk=kwargs[self.cfield_id_url_kwarg])
 
         return self.response_class(
             [*CustomFieldEnumValue.objects.filter(custom_field=cf).values_list('id', 'value')],

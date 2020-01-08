@@ -117,16 +117,21 @@ enumerable_patterns = [
 ]
 
 job_patterns = [
-    re_path(r'^all[/]?$',             job.Jobs.as_view(),      name='creme_core__jobs'),
-    re_path(r'^mine[/]?$',            job.MyJobs.as_view(),    name='creme_core__my_jobs'),
-    re_path(r'^info[/]?$',            job.get_info,            name='creme_core__jobs_info'),
-    re_path(r'^(?P<job_id>\d+)[/]?$', job.JobDetail.as_view(), name='creme_core__job'),
+    re_path(r'^all[/]?$',             job.Jobs.as_view(),            name='creme_core__jobs'),
+    re_path(r'^mine[/]?$',            job.MyJobs.as_view(),          name='creme_core__my_jobs'),
+    # re_path(r'^info[/]?$',            job.get_info,            name='creme_core__jobs_info'),
+    re_path(r'^info[/]?$',            job.JobsInformation.as_view(), name='creme_core__jobs_info'),
+    re_path(r'^(?P<job_id>\d+)[/]?$', job.JobDetail.as_view(),       name='creme_core__job'),
 
     re_path(r'^(?P<job_id>\d+)/', include([
-        re_path(r'^edit[/]?$',    job.JobEdition.as_view(),         name='creme_core__edit_job'),
-        re_path(r'^delete[/]?$',  job.JobDeletion.as_view(),        name='creme_core__delete_job'),
-        re_path(r'^enable[/]?$',  job.enable,                       name='creme_core__enable_job'),
-        re_path(r'^disable[/]?$', job.enable, {'enabled': False},   name='creme_core__disable_job'),
+        re_path(r'^edit[/]?$',    job.JobEdition.as_view(),  name='creme_core__edit_job'),
+        re_path(r'^delete[/]?$',  job.JobDeletion.as_view(), name='creme_core__delete_job'),
+
+        # re_path(r'^enable[/]?$',  job.enable,                       name='creme_core__enable_job'),
+        re_path(r'^enable[/]?$',  job.JobEnabling.as_view(),                     name='creme_core__enable_job'),
+        # re_path(r'^disable[/]?$', job.enable, {'enabled': False},   name='creme_core__disable_job'),
+        re_path(r'^disable[/]?$', job.JobEnabling.as_view(), {'enabled': False}, name='creme_core__disable_job'),
+
         # re_path(r'^reload[/]?$',  job.reload_bricks,              name='creme_core__reload_job_bricks'),
         re_path(r'^reload[/]?$',  job.JobBricksReloading.as_view(), name='creme_core__reload_job_bricks'),
     ])),
