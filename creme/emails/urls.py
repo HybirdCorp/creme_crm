@@ -47,8 +47,10 @@ urlpatterns = [
 
     # Mails history bricks
     re_path(r'^mails_history/(?P<mail_id>\w+)[/]?$', mail.LightWeightEmailPopup.as_view(), name='emails__view_lw_mail'),  # TODO: improve URL (lw_mail...)
-    re_path(r'^mail/get_body/(?P<mail_id>\w+)[/]?$', mail.get_lightweight_mail_body,       name='emails__lw_mail_body'),  # TODO: idem
-    re_path(r'^mail/resend[/]?$',                    mail.resend_mails,                    name='emails__resend_emails'),
+    # re_path(r'^mail/get_body/(?P<mail_id>\w+)[/]?$', mail.get_lightweight_mail_body,       name='emails__lw_mail_body'),
+    re_path(r'^mail/get_body/(?P<mail_id>\w+)[/]?$', mail.LightWeightEmailBody.as_view(),  name='emails__lw_mail_body'),  # TODO: idem
+    # re_path(r'^mail/resend[/]?$',                    mail.resend_mails,                    name='emails__resend_emails'),
+    re_path(r'^mail/resend[/]?$',                    mail.EntityEmailsResending.as_view(), name='emails__resend_emails'),
     re_path(r'^mail/link/(?P<subject_id>\w+)[/]?$',  mail.EntityEmailLinking.as_view(),    name='emails__link_emails'),
 
     # Signature
@@ -100,8 +102,17 @@ if apps.is_installed('creme.crudity'):
     from .views import crudity
 
     urlpatterns += [
-        re_path(r'^mail/spam[/]?$',       crudity.spam,                      name='emails__crudity_spam'),
-        re_path(r'^mail/validated[/]?$',  crudity.validated,                 name='emails__crudity_validated'),
-        re_path(r'^mail/waiting[/]?$',    crudity.waiting,                   name='emails__crudity_waiting'),
-        re_path(r'^synchronization[/]?$', crudity.Synchronisation.as_view(), name='emails__crudity_sync'),
+        re_path(r'^mail/set_status/(?P<status>\w+)[/]?$',
+                crudity.EmailStatusSetting.as_view(),
+                name='emails__crudity_set_email_status',
+               ),
+        re_path(r'^synchronization[/]?$',
+                crudity.Synchronisation.as_view(),
+                name='emails__crudity_sync',
+               ),
+
+        # DEPRECATED
+        re_path(r'^mail/spam[/]?$',      crudity.spam,      name='emails__crudity_spam'),
+        re_path(r'^mail/validated[/]?$', crudity.validated, name='emails__crudity_validated'),
+        re_path(r'^mail/waiting[/]?$',   crudity.waiting,   name='emails__crudity_waiting'),
     ]

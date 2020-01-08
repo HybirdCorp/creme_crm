@@ -783,14 +783,15 @@ class EntityEmailTestCase(_EmailsTestCase):
                         )
         # TODO: improve sanitization test (other tags, css...)
 
-    def test_resend(self):
+    def test_resend01(self):
         self.login()
         email1 = self._create_email(MAIL_STATUS_NOTSENT)
         email2 = self._create_email(MAIL_STATUS_NOTSENT)
 
         url = reverse('emails__resend_emails')
-        data = {'ids': '{},{}'.format(email1.id, email2.id)}
-        self.assertGET404(url, data=data)
+        data = {'ids': '{},{}, '.format(email1.id, email2.id)}
+        # self.assertGET404(url, data=data)
+        self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data)
 
@@ -803,6 +804,13 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         self.assertEqual(MAIL_STATUS_SENT, self.refresh(email1).status)
         self.assertEqual(MAIL_STATUS_SENT, self.refresh(email2).status)
+
+    def test_resend02(self):
+        self.login()
+
+        url = reverse('emails__resend_emails')
+        self.assertPOST409(url, data={'ids': 'notanint'})
+        self.assertPOST404(url, data={'ids': '1024'})
 
     def test_job01(self):
         self.login()

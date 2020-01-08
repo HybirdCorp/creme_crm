@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,13 +24,14 @@ from django.template import Template, Context
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import RelationType
+from creme.creme_core.shortcuts import get_bulk_or_404
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.html import sanitize_html
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import jsonify
+# from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic.base import EntityRelatedMixin
 from creme.creme_core.views.relation import RelationsAdding
 
@@ -42,35 +43,29 @@ from ..models import LightWeightEmail
 EntityEmail = get_entityemail_model()
 
 
-# Function views --------------------------------------------------------------
+# @login_required
+# @permission_required('emails')
+# def get_lightweight_mail_body(request, mail_id):
+#     """Used to show an html document in an iframe."""
+#     email = get_object_or_404(LightWeightEmail, pk=mail_id)
+#     request.user.has_perm_to_view_or_die(email.sending.campaign)
+#
+#     return HttpResponse(sanitize_html(email.rendered_body_html,
+#                                       allow_external_img=True,
+#                                      )
+#                        )
 
-@login_required
-@permission_required('emails')
-def get_lightweight_mail_body(request, mail_id):
-    """Used to show an html document in an iframe."""
-    email = get_object_or_404(LightWeightEmail, pk=mail_id)
-    request.user.has_perm_to_view_or_die(email.sending.campaign)
+# @login_required
+# @permission_required('emails')
+# @jsonify
+# def resend_mails(request):
+#     ids = get_from_POST_or_404(request.POST, 'ids').split(',')
+#
+#     for email in EntityEmail.objects.filter(pk__in=ids):
+#         email.send()
+#
+#     return {}
 
-    return HttpResponse(sanitize_html(email.rendered_body_html,
-                                      # TODO: ? allow_external_img=request.GET.get('external_img', False),
-                                      allow_external_img=True,
-                                     )
-                       )
-
-
-@login_required
-@permission_required('emails')
-@jsonify
-def resend_mails(request):
-    ids = get_from_POST_or_404(request.POST, 'ids').split(',')
-
-    for email in EntityEmail.objects.filter(pk__in=ids):
-        email.send()
-
-    return {}
-
-
-# Class-based views  ----------------------------------------------------------
 
 class EntityEmailCreation(generic.AddingInstanceToEntityPopup):
     model = EntityEmail
@@ -193,6 +188,33 @@ class EntityEmailLinking(RelationsAdding):
         return rtypes
 
 
+class EntityEmailsResending(generic.CheckedView):
+    permissions = 'emails'
+    model = EntityEmail
+    email_ids_arg = 'ids'
+
+    def get_email_ids(self, request):
+        try:
+            return [
+                int(s)
+                    for s in get_from_POST_or_404(request.POST,
+                                                  self.email_ids_arg,
+                                                 ).split(',')
+                        if s.strip()
+            ]
+        except ValueError as e:
+            raise ConflictError(str(e)) from e
+
+    def post(self, request, *args, **kwargs):
+        ids = self.get_email_ids(request)
+
+        if ids:
+            for email in get_bulk_or_404(self.model, ids).values():
+                email.send()
+
+        return HttpResponse()
+
+
 # TODO: disable the link in the template if view is not allowed
 class LightWeightEmailPopup(generic.RelatedToEntityDetailPopup):
     model = LightWeightEmail
@@ -204,3 +226,28 @@ class LightWeightEmailPopup(generic.RelatedToEntityDetailPopup):
         return (
             bricks.LwMailPopupBrick.id_,
         )
+
+
+class LightWeightEmailBody(generic.CheckedView):
+    """Used to show an HTML document in an <iframe>."""
+    permissions = 'emails'
+    model = LightWeightEmail
+    mail_id_url_kwarg = 'mail_id'
+
+    def check_email_permissions(self, email, user):
+        user.has_perm_to_view_or_die(email.sending.campaign)
+
+    def get_email(self):
+        email = get_object_or_404(self.model, pk=self.kwargs['mail_id'])
+        self.check_email_permissions(email, self.request.user)
+
+        return email
+
+    def get(self, *args, **kwargs):
+        email = self.get_email()
+
+        return HttpResponse(sanitize_html(
+            email.rendered_body_html,
+            # TODO: ? allow_external_img=request.GET.get('external_img', False),
+            allow_external_img=True,
+        ))
