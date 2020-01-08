@@ -558,12 +558,12 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         return reverse('creme_core__batch_process_ops', args=(ct_id, field))
 
     def test_get_ops01(self):
-        "Unknown ContentType"
+        "Unknown ContentType."
         self.login()
         self.assertGET404(self.build_ops_url(ct_id=1216545, field='name'))
 
     def test_get_ops02(self):
-        "CharField"
+        "CharField."
         self.login()
 
         def assertStrOps(fieldname):
@@ -606,6 +606,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         "Unknown field."
         self.login()
 
+        # self.assertGET(400, self.build_ops_url(self.contact_ct_id, 'foobar'))
         self.assertGET(400, self.build_ops_url(self.contact_ct_id, 'foobar'))
 
     def test_resume_job(self):
