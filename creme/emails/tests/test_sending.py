@@ -13,22 +13,28 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-    from creme.creme_core.models import (HistoryLine, SetCredentials,
-            SettingValue, Job, FakeOrganisation)
+    from creme.creme_core.models import (
+        HistoryLine, SetCredentials, SettingValue, Job,
+        FakeOrganisation,
+    )
     from creme.creme_core.models.history import TYPE_AUX_CREATION
 
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from .base import (_EmailsTestCase, skipIfCustomEmailCampaign,
-            skipIfCustomEmailTemplate, skipIfCustomMailingList,
-            Contact, Organisation, EmailCampaign, EmailTemplate, MailingList)
+    from .base import (
+        _EmailsTestCase,
+        skipIfCustomEmailCampaign, skipIfCustomEmailTemplate, skipIfCustomMailingList,
+        Contact, Organisation, EmailCampaign, EmailTemplate, MailingList,
+    )
 
     from ..bricks import MailsBrick
     from ..constants import SETTING_EMAILCAMPAIGN_SENDER, MAIL_STATUS_NOTSENT
     from ..creme_jobs import campaign_emails_send_type
     from ..models import EmailSending, EmailRecipient, LightWeightEmail
-    from ..models.sending import (SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
-            SENDING_STATE_DONE, SENDING_STATE_PLANNED)
+    from ..models.sending import (
+        SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
+        SENDING_STATE_DONE, SENDING_STATE_PLANNED,
+    )
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 

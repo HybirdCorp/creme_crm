@@ -355,14 +355,17 @@ if apps.is_installed('creme.crudity'):
                                  constants.REL_SUB_RELATED_TO,
                                 )
 
-            waiting_mails = EntityEmail.objects.filter(is_deleted=False,
-                                                       status=constants.MAIL_STATUS_SYNCHRONIZED_WAITING)
+            waiting_mails = EntityEmail.objects.filter(
+                is_deleted=False,
+                status=constants.MAIL_STATUS_SYNCHRONIZED_WAITING,
+            )
+
             if self.is_sandbox_by_user:
                 waiting_mails = waiting_mails.filter(user=context['user'])
 
             return self._render(self.get_template_context(
-                        context, waiting_mails,
-                        backend=self.backend,
+                context, waiting_mails,
+                backend=self.backend,
             ))
 
     # TODO: factorise with WaitingSynchronizationMailsBrick ??
@@ -375,12 +378,14 @@ if apps.is_installed('creme.crudity'):
         def detailview_display(self, context):
             super().detailview_display(context)
 
-            waiting_mails = EntityEmail.objects.filter(is_deleted=False,
-                                                       status=constants.MAIL_STATUS_SYNCHRONIZED_SPAM)
+            waiting_mails = EntityEmail.objects.filter(
+                is_deleted=False,
+                status=constants.MAIL_STATUS_SYNCHRONIZED_SPAM,
+            )
             if self.is_sandbox_by_user:
                 waiting_mails = waiting_mails.filter(user=context['user'])
 
             return self._render(self.get_template_context(
-                        context, waiting_mails,
-                        backend=self.backend,
+                context, waiting_mails,
+                backend=self.backend,
             ))
