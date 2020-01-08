@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019 Hybird
+#    Copyright (C) 2019-2020 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@
 from json import loads as json_load
 import logging
 
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext as _
 
@@ -105,3 +106,19 @@ class DeletionCommand(CremeModel):
     def replacers(self, values):
         "@param: List of <creme_core.core.deletion.Replacer> instances."
         self.json_replacers = json_encode(self.replacers_registry.serialize(values))
+
+
+class TrashCleaningCommand(CremeModel):
+    """Useful to warranty that one user does not try to flush the trash several
+    times in the same time.
+    """
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True,
+                                editable=False, on_delete=models.CASCADE,
+                               )
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, editable=False)
+    deleted_count = models.PositiveIntegerField(default=0, editable=False)  # NB: for statistics
+
+    class Meta:
+        app_label = 'creme_core'
+        # verbose_name = 'Trash cleaning command'
+        # verbose_name_plural = 'Trash cleaning commands'

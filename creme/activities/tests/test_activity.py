@@ -15,16 +15,26 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.creme_jobs import trash_cleaner_type
     from creme.creme_core.gui import actions
-    from creme.creme_core.models import (RelationType, Relation, SetCredentials,
-             EntityFilter, SettingValue)
+    from creme.creme_core.models import (
+        RelationType, Relation,
+        SetCredentials,
+        EntityFilter,
+        SettingValue,
+        Job,
+    )
     from creme.creme_core.tests.base import skipIfNotInstalled
 
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from .base import (_ActivitiesTestCase, skipIfCustomActivity, Activity,
-           Contact, Organisation)
+    from .base import (
+        _ActivitiesTestCase,
+        skipIfCustomActivity,
+        Activity,
+       Contact, Organisation
+    )
     from .. import constants
     from ..actions import BulkExportICalAction
     from ..models import ActivityType, ActivitySubType, Calendar, Status
@@ -1297,7 +1307,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     @skipIfCustomContact
     def test_delete_all01(self):
-        "Relations constants.REL_SUB_PART_2_ACTIVITY are removed when the Activity is deleted (empty_trash)"
+        "Relations constants.REL_SUB_PART_2_ACTIVITY are removed when the Activity is deleted (empty_trash)."
         user = self.login()
 
         activity = self._create_meeting()
@@ -1310,6 +1320,9 @@ class ActivityTestCase(_ActivitiesTestCase):
                                      )
 
         self.assertPOST200(reverse('creme_core__empty_trash'))
+
+        job = self.get_object_or_fail(Job, type_id=trash_cleaner_type.id)
+        trash_cleaner_type.execute(job)
         self.assertDoesNotExist(activity)
         self.assertDoesNotExist(rel)
         self.assertStillExists(musashi)
@@ -1331,8 +1344,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertLess(musashi.id, activity.id)
         self.assertLess(activity.id, kojiro.id)
 
-        create_rel = partial(Relation.objects.create, user=user,
-                             type_id=constants.REL_SUB_PART_2_ACTIVITY, object_entity=activity,
+        create_rel = partial(Relation.objects.create,
+                             user=user,
+                             type_id=constants.REL_SUB_PART_2_ACTIVITY,
+                             object_entity=activity,
                             )
         create_rel(subject_entity=musashi)
         create_rel(subject_entity=kojiro)
@@ -1342,34 +1357,40 @@ class ActivityTestCase(_ActivitiesTestCase):
         kojiro.trash()
 
         self.assertPOST200(reverse('creme_core__empty_trash'))
+
+        job = self.get_object_or_fail(Job, type_id=trash_cleaner_type.id)
+        trash_cleaner_type.execute(job)
         self.assertDoesNotExist(activity)
         self.assertDoesNotExist(musashi)
         self.assertDoesNotExist(kojiro)
 
     def _aux_inner_edit_type(self, field_name):
-        "Type (& subtype)"
+        "Type (& subtype)."
         user = self.login()
 
         create_dt = self.create_datetime
-        activity = Activity.objects.create(user=user, title='act01',
-                                           start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
-                                           end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-                                           type_id=constants.ACTIVITYTYPE_PHONECALL,
-                                           sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                                          )
+        activity = Activity.objects.create(
+            user=user, title='act01',
+            start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
+            end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
+            type_id=constants.ACTIVITYTYPE_PHONECALL,
+            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+        )
 
         url = self.build_inneredit_url(activity, field_name)
         self.assertGET200(url)
 
-        self.assertNoFormError(self.client.post(
-                                    url,
-                                    data={'field_value': self._acttype_field_value(
-                                                                  constants.ACTIVITYTYPE_MEETING,
-                                                                  constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                                ),
-                                         }
-                                   )
-                              )
+        self.assertNoFormError(
+            self.client.post(
+                url,
+                data={
+                    'field_value': self._acttype_field_value(
+                        constants.ACTIVITYTYPE_MEETING,
+                        constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                    ),
+                },
+            )
+        )
 
         activity = self.refresh(activity)
         self.assertEqual(constants.ACTIVITYTYPE_MEETING,            activity.type_id)
@@ -1388,19 +1409,20 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
 
         create_dt = self.create_datetime
-        activity = Activity.objects.create(user=user, title='act01',
-                                           start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
-                                           end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-                                           type_id=constants.ACTIVITYTYPE_PHONECALL,
-                                           sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                                          )
+        activity = Activity.objects.create(
+            user=user, title='act01',
+            start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
+            end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
+            type_id=constants.ACTIVITYTYPE_PHONECALL,
+            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+        )
 
-        response = self.assertPOST200(self.build_inneredit_url(activity, 'type'),
-                                      data={'field_value': self._acttype_field_value(
-                                                                  constants.ACTIVITYTYPE_INDISPO, '',
-                                                                ),
-                                         }
-                                   )
+        response = self.assertPOST200(
+            self.build_inneredit_url(activity, 'type'),
+            data={
+                'field_value': self._acttype_field_value(constants.ACTIVITYTYPE_INDISPO, ''),
+            },
+        )
         self.assertFormError(response, 'form', 'field_value',
                              _('This type causes constraint error.')
                             )
@@ -1409,72 +1431,78 @@ class ActivityTestCase(_ActivitiesTestCase):
         "Indisponibilities type cannot be changed, the sub_type can."
         user = self.login()
 
-        subtype = ActivitySubType.objects.create(id='hollydays', name='Hollydays',
-                                                 type_id=constants.ACTIVITYTYPE_INDISPO,
-                                                )
+        subtype = ActivitySubType.objects.create(
+            id='hollydays', name='Hollydays',
+            type_id=constants.ACTIVITYTYPE_INDISPO,
+        )
 
         create_dt = self.create_datetime
-        activity = Activity.objects.create(user=user, title='act01',
-                                           start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
-                                           end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-                                           type_id=constants.ACTIVITYTYPE_INDISPO,
-                                          )
+        activity = Activity.objects.create(
+            user=user, title='act01',
+            start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
+            end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
+            type_id=constants.ACTIVITYTYPE_INDISPO,
+        )
 
         fvalue = self._acttype_field_value
         url = self.build_inneredit_url(activity, 'type')
-        response = self.assertPOST200(url,
-                                      data={'field_value': fvalue(constants.ACTIVITYTYPE_PHONECALL,
-                                                                  constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                                                                 ),
-                                         }
-                                   )
+        response = self.assertPOST200(
+            url,
+            data={
+                'field_value': fvalue(constants.ACTIVITYTYPE_PHONECALL,
+                                      constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+                                     ),
+            },
+        )
         self.assertFormError(response, 'form', 'field_value',
                              _('This type causes constraint error.')
                             )
 
-        self.assertNoFormError(self.client.post(
-                                    url,
-                                    data={'field_value': fvalue(constants.ACTIVITYTYPE_INDISPO,
-                                                                subtype.id,
-                                                               ),
-                                         }
-                                   )
-                              )
+        self.assertNoFormError(
+            self.client.post(
+                url,
+                data={'field_value': fvalue(constants.ACTIVITYTYPE_INDISPO, subtype.id)},
+            )
+        )
         activity = self.refresh(activity)
         self.assertEqual(constants.ACTIVITYTYPE_INDISPO, activity.type_id)
         self.assertEqual(subtype,              activity.sub_type)
 
     def test_bulk_edit_type01(self):
-        "Unavailabilities cannot be changed when they are mixed with other types"
+        "Unavailabilities cannot be changed when they are mixed with other types."
         user = self.login()
 
         create_dt = self.create_datetime
         create_activity = partial(Activity.objects.create, user=user)
-        activity1 = create_activity(title='act01',
-                                    start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
-                                    end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-                                    type_id=constants.ACTIVITYTYPE_INDISPO,
-                                   )
-        activity2 = create_activity(title='act02',
-                                    start=create_dt(year=2015, month=1, day=2, hour=14, minute=0),
-                                    end=create_dt(year=2015, month=1, day=2, hour=15, minute=0),
-                                    type_id=constants.ACTIVITYTYPE_PHONECALL,
-                                    sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                                   )
+        activity1 = create_activity(
+            title='act01',
+            start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
+            end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
+            type_id=constants.ACTIVITYTYPE_INDISPO,
+        )
+        activity2 = create_activity(
+            title='act02',
+            start=create_dt(year=2015, month=1, day=2, hour=14, minute=0),
+            end=create_dt(year=2015, month=1, day=2, hour=15, minute=0),
+            type_id=constants.ACTIVITYTYPE_PHONECALL,
+            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+        )
 
         url = self.build_bulkupdate_url(Activity, 'type')
         self.assertGET200(url)
-        self.assertNoFormError(self.client.post(
-                                    url,
-                                    data={'_bulk_fieldname': url,
-                                          'field_value': self._acttype_field_value(
-                                                          constants.ACTIVITYTYPE_MEETING,
-                                                          constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                        ),
-                                          'entities': [activity1.pk, activity2.pk],
-                                         }
-                                   )
-                              )
+        self.assertNoFormError(
+            self.client.post(
+                url,
+                data={
+                    '_bulk_fieldname': url,
+                    'field_value': self._acttype_field_value(
+                        constants.ACTIVITYTYPE_MEETING,
+                        constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                    ),
+                    'entities': [activity1.pk, activity2.pk],
+                },
+            )
+        )
         self.assertEqual(constants.ACTIVITYTYPE_MEETING, self.refresh(activity2).type_id)
         self.assertEqual(constants.ACTIVITYTYPE_INDISPO, self.refresh(activity1).type_id)  # No change
 
@@ -1489,24 +1517,27 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         create_dt = self.create_datetime
         create_indispo = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_INDISPO)
-        activity1 = create_indispo(title='Indispo01',
-                                   start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
-                                   end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-                                  )
-        activity2 = create_indispo(title='Indispo02',
-                                   start=create_dt(year=2015, month=1, day=2, hour=14, minute=0),
-                                   end=create_dt(year=2015, month=1, day=2, hour=15, minute=0),
-                                  )
+        activity1 = create_indispo(
+            title='Indispo01',
+            start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
+            end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
+        )
+        activity2 = create_indispo(
+            title='Indispo02',
+            start=create_dt(year=2015, month=1, day=2, hour=14, minute=0),
+            end=create_dt(year=2015, month=1, day=2, hour=15, minute=0),
+        )
 
         url = self.build_bulkupdate_url(Activity, 'type')
         self.assertNoFormError(self.client.post(
             url,
-            data={'_bulk_fieldname': url,
-                  'field_value': self._acttype_field_value(
-                                  ACTIVITYTYPE_INDISPO, subtype.id,
-                                ),
-                  'entities': [activity1.pk, activity2.pk],
-                 }
+            data={
+                '_bulk_fieldname': url,
+                'field_value': self._acttype_field_value(
+                    ACTIVITYTYPE_INDISPO, subtype.id,
+                ),
+                'entities': [activity1.pk, activity2.pk],
+            },
         ))
         activity1 = self.refresh(activity1)
         self.assertEqual(ACTIVITYTYPE_INDISPO, activity1.type_id)
@@ -1534,19 +1565,22 @@ class ActivityTestCase(_ActivitiesTestCase):
         create_dt = self.create_datetime
 
         with self.assertNoException():
-            act01 = create_activity(title='call01', type_id=constants.ACTIVITYTYPE_PHONECALL,
-                                    sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                                    start=create_dt(year=2010, month=10, day=1, hour=12, minute=0),
-                                    end=create_dt(year=2010, month=10, day=1, hour=13, minute=0),
-                                   )
-            act02 = create_activity(title='meet01', type_id=constants.ACTIVITYTYPE_MEETING,
-                                    start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
-                                    end=create_dt(year=2010, month=10, day=1, hour=15, minute=0),
-                                   )
-            act03 = create_activity(title='meet02',  type_id=constants.ACTIVITYTYPE_MEETING, busy=True,
-                                    start=create_dt(year=2010, month=10, day=1, hour=18, minute=0),
-                                    end=create_dt(year=2010, month=10, day=1, hour=19, minute=0),
-                                   )
+            act01 = create_activity(
+                title='call01', type_id=constants.ACTIVITYTYPE_PHONECALL,
+                sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+                start=create_dt(year=2010, month=10, day=1, hour=12, minute=0),
+                end=create_dt(year=2010, month=10, day=1, hour=13, minute=0),
+            )
+            act02 = create_activity(
+                title='meet01', type_id=constants.ACTIVITYTYPE_MEETING,
+                start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
+                end=create_dt(year=2010, month=10, day=1, hour=15, minute=0),
+            )
+            act03 = create_activity(
+                title='meet02',  type_id=constants.ACTIVITYTYPE_MEETING, busy=True,
+                start=create_dt(year=2010, month=10, day=1, hour=18, minute=0),
+                end=create_dt(year=2010, month=10, day=1, hour=19, minute=0),
+            )
 
             create_contact = partial(Contact.objects.create, user=user)
             c1 = create_contact(first_name='first_name1', last_name='last_name1')
@@ -1590,40 +1624,40 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertRaises(ValidationError, self._check_activity_collisions,
                           activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=30),
                           activity_end=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
-                          participants=[c1, c2]
+                          participants=[c1, c2],
                          )
 
         # After
         self.assertRaises(ValidationError, self._check_activity_collisions,
                           activity_start=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
                           activity_end=create_dt(year=2010, month=10, day=1, hour=13, minute=30),
-                          participants=[c1, c2]
+                          participants=[c1, c2],
                          )
 
         # Shorter
         self.assertRaises(ValidationError, self._check_activity_collisions,
                           activity_start=create_dt(year=2010, month=10, day=1, hour=12, minute=10),
                           activity_end=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
-                          participants=[c1, c2]
+                          participants=[c1, c2],
                          )
 
         # Longer
         self.assertRaises(ValidationError, self._check_activity_collisions,
                           activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=0),
                           activity_end=create_dt(year=2010, month=10, day=1, hour=13, minute=30),
-                          participants=[c1, c2]
+                          participants=[c1, c2],
                          )
         # Busy1
         self.assertRaises(ValidationError, self._check_activity_collisions,
                           activity_start=create_dt(year=2010, month=10, day=1, hour=17, minute=30),
                           activity_end=create_dt(year=2010, month=10, day=1, hour=18, minute=30),
-                          participants=[c1, c2]
+                          participants=[c1, c2],
                          )
         # Busy2
         self.assertRaises(ValidationError, self._check_activity_collisions,
                           activity_start=create_dt(year=2010, month=10, day=1, hour=18, minute=0),
                           activity_end=create_dt(year=2010, month=10, day=1, hour=18, minute=30),
-                          busy=False, participants=[c1, c2]
+                          busy=False, participants=[c1, c2],
                          )
 
     def test_listviews(self):
@@ -1632,17 +1666,18 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         create_act = partial(Activity.objects.create, user=user)
         create_dt = self.create_datetime
-        acts = [create_act(title='call01', type_id=constants.ACTIVITYTYPE_PHONECALL,
-                           sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                           start=create_dt(year=2010, month=10, day=1, hour=12, minute=0),
-                           end=create_dt(year=2010, month=10, day=1, hour=13, minute=0)
-                         ),
-                create_act(title='meet01', type_id=constants.ACTIVITYTYPE_MEETING,
-                           sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
-                           start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
-                           end=create_dt(year=2010, month=10, day=1, hour=15, minute=0)
-                          ),
-               ]
+        acts = [
+            create_act(title='call01', type_id=constants.ACTIVITYTYPE_PHONECALL,
+                       sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+                       start=create_dt(year=2010, month=10, day=1, hour=12, minute=0),
+                       end=create_dt(year=2010, month=10, day=1, hour=13, minute=0)
+                      ),
+            create_act(title='meet01', type_id=constants.ACTIVITYTYPE_MEETING,
+                       sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
+                       start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
+                       end=create_dt(year=2010, month=10, day=1, hour=15, minute=0)
+                      ),
+        ]
 
         response = self.assertGET200(Activity.get_lv_absolute_url())
 

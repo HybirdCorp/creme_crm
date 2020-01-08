@@ -25,14 +25,15 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
+from django.db import IntegrityError
 from django.db.models import Q, FieldDoesNotExist, ProtectedError
 from django.db.transaction import atomic
-from django.db.utils import NotSupportedError
+# from django.db.utils import NotSupportedError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse, Http404, HttpResponseBadRequest  # HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join
+from django.utils.html import format_html  # format_html_join
 from django.utils.translation import gettext_lazy as _, gettext, ngettext
 
 from .. import constants
@@ -44,7 +45,8 @@ from ..core.exceptions import (
     ConflictError,
     SpecificProtectedError,
 )
-from ..core.paginator import FlowPaginator
+# from ..core.paginator import FlowPaginator
+from ..creme_jobs import trash_cleaner_type
 from ..forms import CremeEntityForm
 from ..forms.bulk import BulkDefaultEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
@@ -56,6 +58,8 @@ from ..models import (
     Relation,
     FieldsConfig,
     Sandbox,
+    Job, EntityJobResult,
+    TrashCleaningCommand,
 )
 from ..models.fields import UnsafeHTMLField
 from ..utils import (
@@ -63,14 +67,14 @@ from ..utils import (
     get_from_POST_or_404, get_from_GET_or_404,
     bool_from_str_extended,
 )
-from ..utils.collections import LimitedList
+# from ..utils.collections import LimitedList
 from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.serializers import json_encode
 from ..utils.translation import get_model_verbose_name
 
 from . import generic
-from .decorators import jsonify, POST_only
+from .decorators import jsonify  # POST_only
 from .generic import base, listview
 
 logger = logging.getLogger(__name__)
@@ -660,114 +664,183 @@ class Trash(generic.BricksView):
     template_name = 'creme_core/trash.html'
 
 
-# TODO: use a Job
-@login_required
-@POST_only
-def empty_trash(request):
-    # NB 1: we try to delete the remaining entities (which could not be deleted
-    #       because of relationships) when there are errors, while the previous
-    #       iteration managed to remove some entities.
-    #       It will not work with cyclic references (but it is certainly very unusual).
-    # NB 2: we do not use delete() method of queryset in order to send signals.
-    user = request.user
+# @login_required
+# @POST_only
+# def empty_trash(request):
+#     user = request.user
+#
+#     ctype_ids_qs = CremeEntity.objects.filter(is_deleted=True) \
+#                                       .values_list('entity_type', flat=True)
+#
+#     try:
+#         ctype_ids = [*ctype_ids_qs.order_by('entity_type_id').distinct('entity_type_id')]
+#     except NotSupportedError:
+#         ctype_ids = {*ctype_ids_qs}
+#
+#     entity_classes = [
+#         ct.model_class()
+#             for ct in map(ContentType.objects.get_for_id, ctype_ids)
+#     ]
+#
+#     while True:
+#         progress = False
+#         errors = LimitedList(max_size=50)
+#
+#         # NB (#60): 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN' and nullable ids will fail with postgresql (both 9.6 & 10.x).
+#         # todo: This bug may be fixed in django > 2.2 (see https://code.djangoproject.com/ticket/28010)
+#
+#         # for entity_class in entity_classes:
+#         #     paginator = FlowPaginator(
+#         #         queryset=EntityCredentials.filter(
+#         #             user,
+#         #             entity_class.objects.filter(is_deleted=True),
+#         #             EntityCredentials.DELETE,
+#         #         ).order_by('id').select_for_update(),
+#         #         key='id',
+#         #         per_page=256,
+#         #     )
+#         #
+#         #     with atomic():
+#         #         for entities_page in paginator.pages():
+#         #             for entity in entities_page.object_list:
+#         #                 entity = entity.get_real_entity()
+#         for entity_class in entity_classes:
+#             paginator = FlowPaginator(
+#                 queryset=EntityCredentials.filter(
+#                     user,
+#                     entity_class.objects.filter(is_deleted=True),
+#                     EntityCredentials.DELETE,
+#                 ).order_by('id'),  # .select_for_update()
+#                 key='id',
+#                 per_page=256,
+#             )
+#
+#             for entities_page in paginator.pages():
+#                 with atomic():
+#                     # NB (#60): Move 'SELECT FOR UPDATE' here for now (see above).
+#                     for entity in entity_class.objects.filter(pk__in=entities_page.object_list).select_for_update():
+#                         try:
+#                             entity.delete()
+#                         except ProtectedError:
+#                             errors.append(
+#                                 gettext('«{entity}» can not be deleted because of its dependencies.').format(
+#                                     entity=entity.allowed_str(user)
+#                                 )
+#                             )
+#                         except Exception as e:
+#                             logger.exception('Error when trying to empty the trash')
+#                             errors.append(
+#                                 gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
+#                                     entity=entity.allowed_str(user),
+#                                     error=e,
+#                                 )
+#                             )
+#                         else:
+#                             progress = True
+#
+#         if not errors or not progress:
+#             break
+#
+#     if not errors:
+#         status = 200
+#         message = gettext('Operation successfully completed')
+#     else:
+#         status = 409
+#         error_count = len(errors)
+#         additional_count = error_count - errors.max_size
+#         message = format_html(
+#             '{}<br><ul>{}</ul><br>{}',
+#             ngettext('The following entity cannot be deleted:',
+#                      'The following entities cannot be deleted:',
+#                      error_count,
+#                     ),
+#             format_html_join('', '<li>{}</li>', ((msg,) for msg in errors)),
+#             '' if additional_count <= 0 else
+#             ngettext('(and {count} other entity)',
+#                      '(and {count} other entities)',
+#                      additional_count,
+#                     ).format(count=additional_count),
+#         )
+#
+#     return HttpResponse(message, status=status)
+# TODO: disable the button "Empty the trash" while the job is active
+class TrashCleaning(generic.base.TitleMixin, generic.CheckedView):
+    title = _('Empty the trash')
+    job_type = trash_cleaner_type
+    command_model = TrashCleaningCommand
+    conflict_msg = _('A job is already cleaning the trash.')
+    confirmation_template_name = 'creme_core/forms/confirmation.html'
+    job_template_name = 'creme_core/job/trash-cleaning-popup.html'
 
-    ctype_ids_qs = CremeEntity.objects.filter(is_deleted=True) \
-                                      .values_list('entity_type', flat=True)
-
-    try:
-        # NB: currently only supported by PostGreSQL
-        ctype_ids = [*ctype_ids_qs.order_by('entity_type_id').distinct('entity_type_id')]
-    except NotSupportedError:
-        ctype_ids = {*ctype_ids_qs}
-
-    entity_classes = [
-        ct.model_class()
-            for ct in map(ContentType.objects.get_for_id, ctype_ids)
-    ]
-
-    while True:
-        progress = False
-        errors = LimitedList(max_size=50)
-
-        # NB (#60): 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN' and nullable ids will fail with postgresql (both 9.6 & 10.x).
-        # TODO: This bug may be fixed in django > 2.2 (see https://code.djangoproject.com/ticket/28010)
-
-        # for entity_class in entity_classes:
-        #     paginator = FlowPaginator(
-        #         queryset=EntityCredentials.filter(
-        #             user,
-        #             entity_class.objects.filter(is_deleted=True),
-        #             EntityCredentials.DELETE,
-        #         ).order_by('id').select_for_update(),
-        #         key='id',
-        #         per_page=256,
-        #     )
-        #
-        #     with atomic():
-        #         for entities_page in paginator.pages():
-        #             for entity in entities_page.object_list:
-        #                 entity = entity.get_real_entity()
-        for entity_class in entity_classes:
-            paginator = FlowPaginator(
-                queryset=EntityCredentials.filter(
-                    user,
-                    entity_class.objects.filter(is_deleted=True),
-                    EntityCredentials.DELETE,
-                ).order_by('id'),  # .select_for_update()
-                key='id',
-                per_page=256,
-            )
-
-            for entities_page in paginator.pages():
-                with atomic():
-                    # NB (#60): Move 'SELECT FOR UPDATE' here for now (see above).
-                    for entity in entity_class.objects.filter(pk__in=entities_page.object_list).select_for_update():
-                        try:
-                            entity.delete()
-                        except ProtectedError:
-                            errors.append(
-                                gettext('«{entity}» can not be deleted because of its dependencies.').format(
-                                    entity=entity.allowed_str(user)
-                                )
-                            )
-                        except Exception as e:
-                            logger.exception('Error when trying to empty the trash')
-                            errors.append(
-                                gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
-                                    entity=entity.allowed_str(user),
-                                    error=e,
-                                )
-                            )
-                        else:
-                            progress = True
-
-        if not errors or not progress:
-            break
-
-    # TODO: factorise ??
-    if not errors:
-        status = 200
-        message = gettext('Operation successfully completed')
-    else:
-        status = 409
-        error_count = len(errors)
-        additional_count = error_count - errors.max_size
-        message = format_html(
-            '{}<br><ul>{}</ul><br>{}',
-            ngettext('The following entity cannot be deleted:',
-                     'The following entities cannot be deleted:',
-                     error_count,
-                    ),
-            format_html_join('', '<li>{}</li>', ((msg,) for msg in errors)),
-            '' if additional_count <= 0 else
-            ngettext('(and {count} other entity)',
-                     '(and {count} other entities)',
-                     additional_count,
-                    ).format(count=additional_count),
+    # TODO: add a new brick action type (with confirmation + display of a result form)
+    #       and remove these get() method ??
+    def get(self, request, *args, **kwargs):
+        return render(
+            request=request,
+            template_name=self.confirmation_template_name,
+            context={
+                'title': self.get_title(),
+                'message': gettext('Are you sure you want to delete definitely '
+                                   'all the entities in the trash?'
+                                  ),
+            },
         )
 
-    return HttpResponse(message, status=status)
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        cmd_model = self.command_model
 
+        cmd = cmd_model.objects.filter(user=user).first()
+        if cmd is not None:
+            if cmd.job.status == Job.STATUS_OK:
+                with atomic():
+                    # NB: we do not recycle the instances :
+                    #    - of job, to start the job correctly
+                    #    - of command, to avoid race conditions
+                    cmd.job.delete()
+            else:
+                raise ConflictError(self.conflict_msg)
+
+        try:
+            with atomic():
+                job = Job.objects.create(type_id=self.job_type.id, user=user)
+                cmd_model.objects.create(user=user, job=job)
+        except IntegrityError as e:  # see TrashCleaningCommand uniqueness
+            raise ConflictError(self.conflict_msg) from e
+
+        return render(
+            request=self.request,
+            template_name=self.job_template_name,
+            context={'job': job},
+        )
+
+
+class TrashCleanerEnd(generic.CheckedView):
+    job_type = trash_cleaner_type
+    job_id_url_kwarg = 'job_id'
+
+    def post(self, request, *args, **kwargs):
+        job = get_object_or_404(
+            Job,
+            id=kwargs[self.job_id_url_kwarg],
+            type_id=self.job_type.id,
+        )
+
+        if job.user != request.user:
+            raise PermissionDenied('You can only terminate your cleaner jobs.')
+
+        if not job.is_finished:
+            raise ConflictError('A non finished job cannot be terminated.')
+
+        if EntityJobResult.objects.filter(job=job).exists():
+            if request.is_ajax():
+                return HttpResponse(job.get_absolute_url(), content_type='text/plain')
+
+            return redirect(job)
+
+        job.delete()
+
+        return HttpResponse()
 
 # @login_required
 # @POST_only

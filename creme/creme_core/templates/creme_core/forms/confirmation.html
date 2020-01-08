@@ -1,0 +1,16 @@
+{% load i18n creme_widgets %}
+
+{% block title %}
+    <div class="hat-bar-container ui-creme-dialog-titlebar">
+        <div class="hat-bar">
+            <div class="bar-icon">{% widget_icon name=icon_name|default:'info' size='brick-hat-bar' label=icon_label|default:title %}</div>
+            <div class="bar-title"><h1>{{title}}</h1></div>
+        </div>
+    </div>
+{% endblock %}
+
+<form method="POST" action="">
+    <p class="confirmation-message">{{message|default:_('Are you sure?')}}</p>
+
+    <input type="submit" class="ui-creme-dialog-action" value="{{submit_label|default:_('OK')}}">
+</form>

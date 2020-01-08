@@ -19,7 +19,8 @@ try:
 
     from creme.creme_core import constants
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.bricks import TrashBrick
+    from creme.creme_core.bricks import TrashBrick, EntityJobErrorsBrick
+    from creme.creme_core.creme_jobs import trash_cleaner_type, reminder_type
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT, BulkDefaultEditForm
     from creme.creme_core.gui import bulk_update
     from creme.creme_core.models import (
@@ -29,6 +30,8 @@ try:
         SetCredentials, Sandbox,
         HistoryLine, history,
         FieldsConfig,
+        Job, EntityJobResult,
+        TrashCleaningCommand,
         CustomField, CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean,
         CustomFieldString, CustomFieldDateTime,
         CustomFieldEnum, CustomFieldMultiEnum, CustomFieldEnumValue,
@@ -574,10 +577,74 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertFalse(user.has_perm_to_delete(contact3))
 
         url = self.EMPTY_TRASH_URL
-        self.assertGET404(url)
-        self.assertPOST200(url)
+        # self.assertGET404(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/forms/confirmation.html')
+
+        ctxt = response.context
+        self.assertEqual(_('Empty the trash'), ctxt.get('title'))
+        self.assertEqual(
+            _('Are you sure you want to delete definitely '
+              'all the entities in the trash?'
+             ),
+            ctxt.get('message')
+        )
+
+        # self.assertPOST200(url)
+        # self.assertFalse(FakeContact.objects.filter(id__in=[contact1.id, contact2.id]))
+        # self.assertStillExists(contact3)
+        response = self.assertPOST200(url)
+        self.assertTemplateUsed(response, 'creme_core/job/trash-cleaning-popup.html')
+
+        jobs = Job.objects.filter(type_id=trash_cleaner_type.id)
+        self.assertEqual(1, len(jobs))
+
+        job = jobs[0]
+        self.assertEqual(self.user, job.user)
+        self.assertEqual(Job.STATUS_WAIT, job.status)
+        self.assertIsNone(job.error)
+        self.assertIsNone(job.last_run)
+
+        command = self.get_object_or_fail(TrashCleaningCommand, job=job)
+        self.assertEqual(user, command.user)
+        self.assertEqual(0, command.deleted_count)
+        self.assertListEqual([], trash_cleaner_type.get_stats(job))
+
+        progress1 = trash_cleaner_type.progress(job)
+        self.assertIsNone(progress1.percentage)
+        self.assertEqual(
+            ngettext('{count} entity deleted.',
+                     '{count} entities deleted.',
+                     0
+                    ).format(count=0),
+            progress1.label
+        )
+
+        trash_cleaner_type.execute(job)
         self.assertFalse(FakeContact.objects.filter(id__in=[contact1.id, contact2.id]))
         self.assertStillExists(contact3)
+        self.assertFalse(EntityJobResult.objects.filter(job=job))
+        self.assertEqual(2, self.refresh(command).deleted_count)
+
+        job = self.refresh(job)
+        self.assertListEqual(
+            [ngettext('{count} entity deleted.',
+                      '{count} entities deleted.',
+                      2
+                     ).format(count=2),
+            ],
+            trash_cleaner_type.get_stats(job)
+        )
+
+        progress2 = trash_cleaner_type.progress(job)
+        self.assertIsNone(progress2.percentage)
+        self.assertEqual(
+            ngettext('{count} entity deleted.',
+                     '{count} entities deleted.',
+                     2
+                    ).format(count=2),
+            progress2.label
+        )
 
     def test_empty_trash02(self):
         "Dependencies problem."
@@ -602,26 +669,51 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                    )[0]
         Relation.objects.create(user=user, type=rtype, subject_entity=entity01, object_entity=entity02)
 
-        response = self.assertPOST(409, self.EMPTY_TRASH_URL)
+        # response = self.assertPOST(409, self.EMPTY_TRASH_URL)
+        # self.assertStillExists(entity01)
+        # self.assertStillExists(entity02)
+        # self.assertDoesNotExist(entity03)
+        # self.assertStillExists(entity04)
+        # self.assertDoesNotExist(entity05)
+        #
+        # content = response.content.decode()
+        # self.assertIn(
+        #     ngettext('The following entity cannot be deleted:',
+        #              'The following entities cannot be deleted:',
+        #              2
+        #             ),
+        #     content
+        # )
+        #
+        # msg_fmt = _('«{entity}» can not be deleted because of its dependencies.').format
+        # self.assertIn(msg_fmt(entity=entity01), content)
+        # self.assertIn(msg_fmt(entity=entity02), content)
+        # self.assertNotIn(msg_fmt(entity=entity03), content)
+        self.assertPOST200(self.EMPTY_TRASH_URL)
+
+        job = self.get_object_or_fail(Job, type_id=trash_cleaner_type.id)
+        trash_cleaner_type.execute(job)
         self.assertStillExists(entity01)
         self.assertStillExists(entity02)
         self.assertDoesNotExist(entity03)
         self.assertStillExists(entity04)
         self.assertDoesNotExist(entity05)
 
-        content = response.content.decode()
-        self.assertIn(
-            ngettext('The following entity cannot be deleted:',
-                     'The following entities cannot be deleted:',
-                     2
-                    ),
-            content
+        jresults = {jr.entity_id: jr for jr in EntityJobResult.objects.filter(job=job)}
+        self.assertEqual(2, len(jresults), jresults)
+
+        jresult1 = jresults.get(entity01.id)
+        self.assertIsNotNone(jresult1)
+        self.assertListEqual(
+            [_('Can not be deleted because of its dependencies.')],
+            jresult1.messages
         )
 
-        msg_fmt = _('«{entity}» can not be deleted because of its dependencies.').format
-        self.assertIn(msg_fmt(entity=entity01), content)
-        self.assertIn(msg_fmt(entity=entity02), content)
-        self.assertNotIn(msg_fmt(entity=entity03), content)
+        self.assertIn(entity02.id, jresults)
+
+        result_bricks = trash_cleaner_type.results_bricks
+        self.assertEqual(1, len(result_bricks))
+        self.assertIsInstance(result_bricks[0], EntityJobErrorsBrick)
 
     def test_empty_trash03(self):
         "Credentials on specific ContentType."
@@ -653,12 +745,119 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertTrue(user.has_perm_to_delete(orga3))
 
         self.assertPOST200(self.EMPTY_TRASH_URL)
+        # self.assertDoesNotExist(contact1)
+        # self.assertStillExists(contact2)
+        #
+        # self.assertStillExists(orga2)
+        # self.assertDoesNotExist(orga1)
+        # self.assertDoesNotExist(orga3)
+        job = self.get_object_or_fail(Job, type_id=trash_cleaner_type.id)
+        trash_cleaner_type.execute(job)
         self.assertDoesNotExist(contact1)
         self.assertStillExists(contact2)
 
         self.assertStillExists(orga2)
         self.assertDoesNotExist(orga1)
         self.assertDoesNotExist(orga3)
+
+    def test_empty_trash04(self):
+        "Existing job."
+        user = self.login()
+        job1 = Job.objects.create(
+            type_id=trash_cleaner_type.id,
+            user=user,
+            status=Job.STATUS_WAIT,
+        )
+        TrashCleaningCommand.objects.create(user=user, job=job1)
+        response = self.assertPOST409(self.EMPTY_TRASH_URL)
+        self.assertIn(
+            _('A job is already cleaning the trash.'),
+            response.content.decode(),
+        )
+
+        # Finished job
+        job1.status = Job.STATUS_OK
+        job1.save()
+
+        self.assertPOST200(self.EMPTY_TRASH_URL)
+        self.assertDoesNotExist(job1)
+
+        command = self.get_object_or_fail(TrashCleaningCommand, user=user)
+        job2 = command.job
+        self.assertNotEqual(job1, job2)
+        self.assertEqual(Job.STATUS_WAIT, job2.status)
+
+    def _build_finish_cleaner_url(self, job):
+        return reverse('creme_core__finish_trash_cleaner', args=(job.id,))
+
+    def test_finish_cleaner01(self):
+        user = self.login()
+        job = Job.objects.create(
+            type_id=trash_cleaner_type.id,
+            user=user,
+            status=Job.STATUS_OK,
+        )
+        com = TrashCleaningCommand.objects.create(user=user, job=job)
+
+        url = self._build_finish_cleaner_url(job)
+        self.assertGET405(url)
+        self.assertPOST200(url)
+
+        self.assertDoesNotExist(job)
+        self.assertDoesNotExist(com)
+
+    def test_finish_cleaner02(self):
+        "Other user's job."
+        self.login()
+        job = Job.objects.create(
+            type_id=trash_cleaner_type.id,
+            user=self.other_user,
+            status=Job.STATUS_OK,
+        )
+
+        self.assertPOST403(self._build_finish_cleaner_url(job))
+
+    def test_finish_cleaner03(self):
+        "Job not finished."
+        user = self.login()
+        job = Job.objects.create(
+            type_id=trash_cleaner_type.id,
+            user=user,
+            status=Job.STATUS_WAIT,
+        )
+
+        self.assertPOST409(self._build_finish_cleaner_url(job))
+
+    def test_finish_cleaner04(self):
+        "Not cleaner job."
+        user = self.login()
+        job = Job.objects.create(
+            type_id=reminder_type.id,
+            user=user,
+            status=Job.STATUS_OK,
+        )
+        self.assertPOST404(self._build_finish_cleaner_url(job))
+
+    def test_finish_cleaner05(self):
+        "Job with errors."
+        user = self.login()
+        job = Job.objects.create(
+            type_id=trash_cleaner_type.id,
+            user=user,
+            status=Job.STATUS_OK,
+        )
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        EntityJobResult.objects.create(job=job, entity=nerv)
+
+        url = self._build_finish_cleaner_url(job)
+        redir_url = job.get_absolute_url()
+        response1 = self.client.post(url)
+        self.assertRedirects(response1, redir_url)
+        self.assertStillExists(job)
+
+        # AJAX version
+        response2 = self.assertPOST200(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(redir_url, response2.content.decode())
 
     def _build_test_get_info_fields_url(self, model):
         ct = ContentType.objects.get_for_model(model)
