@@ -12,15 +12,18 @@ from .views import export, report, graph, bricks
 urlpatterns = [
     re_path(r'^export/preview/(?P<report_id>\d+)[/]?$', export.Preview.as_view(),         name='reports__export_report_preview'),
     re_path(r'^export/filter/(?P<report_id>\d+)[/]?$',  export.ExportFilterURL.as_view(), name='reports__export_report_filter'),
-    re_path(r'^export/(?P<report_id>\d+)[/]?$',         export.export,                    name='reports__export_report'),
+    # re_path(r'^export/(?P<report_id>\d+)[/]?$',         export.export,                    name='reports__export_report'),
+    re_path(r'^export/(?P<report_id>\d+)[/]?$',         export.Export.as_view(),          name='reports__export_report'),
 
     # Fields brick
     # TODO: put field_id even on POST urls (instead of POST arg) ?
-    re_path(r'^report/field/unlink_report[/]?$',                                report.unlink_report,           name='reports__unlink_report'),
-    re_path(r'^report/field/(?P<field_id>\d+)/link_report[/]?$',                report.ReportLinking.as_view(), name='reports__link_report'),
-    re_path(r'^report/field/set_selected[/]?$',                                 report.set_selected,            name='reports__set_selected_field'),
-    re_path(r'^report/(?P<report_id>\d+)/reorder_field/(?P<field_id>\d+)[/]?$', report.MoveField.as_view(),     name='reports__reorder_field'),
-    re_path(r'^report/(?P<report_id>\d+)/edit_fields[/]?$',                     report.FieldsEdition.as_view(), name='reports__edit_fields'),
+    # re_path(r'^report/field/unlink_report[/]?$',                                report.unlink_report,           name='reports__unlink_report'),
+    re_path(r'^report/field/unlink_report[/]?$',                                report.ReportUnlinking.as_view(), name='reports__unlink_report'),
+    re_path(r'^report/field/(?P<field_id>\d+)/link_report[/]?$',                report.ReportLinking.as_view(),   name='reports__link_report'),
+    # re_path(r'^report/field/set_selected[/]?$',                                 report.set_selected,            name='reports__set_selected_field'),
+    re_path(r'^report/field/set_selected[/]?$',                                 report.FieldSelection.as_view(),  name='reports__set_selected_field'),
+    re_path(r'^report/(?P<report_id>\d+)/reorder_field/(?P<field_id>\d+)[/]?$', report.MoveField.as_view(),       name='reports__reorder_field'),
+    re_path(r'^report/(?P<report_id>\d+)/edit_fields[/]?$',                     report.FieldsEdition.as_view(),   name='reports__edit_fields'),
 
     re_path(r'^graph/get_available_types/(?P<ct_id>\d+)[/]?$',
             graph.get_available_report_graph_types,

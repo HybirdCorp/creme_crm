@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
@@ -40,19 +40,38 @@ logger = logging.getLogger(__name__)
 Report = get_report_model()
 
 
-@login_required
-@permission_required('reports')
-def unlink_report(request):
-    field_id = get_from_POST_or_404(request.POST, 'field_id')
+# @login_required
+# @permission_required('reports')
+# def unlink_report(request):
+#     field_id = get_from_POST_or_404(request.POST, 'field_id')
+#
+#     with atomic():
+#         try:
+#             rfield = Field.objects.select_for_update().get(pk=field_id)
+#         except Field.DoesNotExist as e:
+#             raise Http404(str(e)) from e
+#
+#         has_perm_or_die = request.user.has_perm_to_unlink_or_die
+#         has_perm_or_die(rfield.report)
+#
+#         if rfield.sub_report is None:
+#             raise ConflictError('This field has no sub-report')
+#
+#         has_perm_or_die(rfield.sub_report)
+#
+#         rfield.sub_report = None
+#         rfield.selected = False
+#         rfield.save()
+#
+#     return HttpResponse()
+class ReportUnlinking(generic.CheckedView):
+    permissions = 'reports'
+    model = Field
+    rfield_id_arg = 'field_id'
 
-    with atomic():
-        try:
-            rfield = Field.objects.select_for_update().get(pk=field_id)
-        except Field.DoesNotExist as e:
-            raise Http404(str(e)) from e
-
+    def check_rfield_permissions(self, rfield, user):
         # TODO: odd credentials ?! (only edit on field.report ??)
-        has_perm_or_die = request.user.has_perm_to_unlink_or_die
+        has_perm_or_die = user.has_perm_to_unlink_or_die
         has_perm_or_die(rfield.report)
 
         if rfield.sub_report is None:
@@ -60,14 +79,34 @@ def unlink_report(request):
 
         has_perm_or_die(rfield.sub_report)
 
-        rfield.sub_report = None
-        rfield.selected = False
-        rfield.save()
+    def get_rfield_id(self, request):
+        return get_from_POST_or_404(request.POST, self.rfield_id_arg, cast=int)
 
-    return HttpResponse()
+    def get_rfield(self, rfield_id):
+        model = self.model
+
+        try:
+            rfield = model.objects.select_for_update().get(pk=rfield_id)
+        except model.DoesNotExist as e:
+            raise Http404(str(e)) from e
+
+        self.check_rfield_permissions(rfield, self.request.user)
+
+        return rfield
+
+    def post(self, request, *args, **kwargs):
+        rfield_id = self.get_rfield_id(request)
+
+        with atomic():
+            rfield = self.get_rfield(rfield_id)
+            rfield.sub_report = None
+            rfield.selected = False
+            rfield.save()
+
+        return HttpResponse()
 
 
-# NB: cannot use RelatedToEntityEdition because Field hss no get_related_entity() method
+# NB: cannot use RelatedToEntityEdition because Field has no get_related_entity() method
 class ReportLinking(generic.CremeModelEditionPopup):
     model = Field
     pk_url_kwarg = 'field_id'
@@ -121,40 +160,90 @@ class MoveField(ReorderInstances):
         return report.fields
 
 
-@login_required
-@permission_required('reports')
-def set_selected(request):
-    POST = request.POST
-    field_id  = get_from_POST_or_404(POST, 'field_id',  cast=int)
-    report_id = get_from_POST_or_404(POST, 'report_id', cast=int)
+# @login_required
+# @permission_required('reports')
+# def set_selected(request):
+#     POST = request.POST
+#     field_id  = get_from_POST_or_404(POST, 'field_id',  cast=int)
+#     report_id = get_from_POST_or_404(POST, 'report_id', cast=int)
+#
+#     try:
+#         checked = bool(int(POST.get('checked', 0)))
+#     except ValueError:
+#         checked = False
+#
+#     with atomic():
+#         report = get_object_or_404(Report.objects.select_for_update(), id=report_id)
+#         request.user.has_perm_to_change_or_die(report)
+#
+#         rfield = get_object_or_404(Field, id=field_id)
+#
+#         if rfield.report_id != report.id:
+#             raise ConflictError('This Field & this Report do not match.')
+#
+#         if not rfield.sub_report_id:
+#             raise ConflictError('This Field has no Report, so can no be (un)selected')
+#
+#         report = rfield.report
+#
+#         if rfield.selected != checked:
+#             if checked:  # Only one Field should be selected
+#                 report.fields.exclude(pk=rfield.pk).update(selected=False)
+#
+#             rfield.selected = checked
+#             rfield.save()
+#
+#     return HttpResponse()
+class FieldSelection(generic.base.EntityRelatedMixin, generic.CheckedView):
+    permissions = 'reports'
+    entity_classes = Report
+    entity_select_for_update = True
+    report_id_arg = 'report_id'
+    rfield_id_arg = 'field_id'
+    checked_arg = 'checked'
 
-    try:
-        checked = bool(int(POST.get('checked', 0)))
-    except ValueError:
-        checked = False
-
-    with atomic():
-        report = get_object_or_404(Report.objects.select_for_update(), id=report_id)
-        request.user.has_perm_to_change_or_die(report)
-
-        rfield = get_object_or_404(Field, id=field_id)
-
-        if rfield.report_id != report.id:
+    def check_rfield(self, rfield, report):
+        if rfield.report_id != report.id:  # NB: compare IDs to avoid a query
             raise ConflictError('This Field & this Report do not match.')
 
         if not rfield.sub_report_id:
             raise ConflictError('This Field has no Report, so can no be (un)selected')
 
-        report = rfield.report
+    def get_checked(self):
+        try:
+            checked = bool(int(self.request.POST.get(self.checked_arg, 0)))
+        except ValueError:
+            checked = False
 
-        if rfield.selected != checked:
-            if checked:  # Only one Field should be selected
-                report.fields.exclude(pk=rfield.pk).update(selected=False)
+        return checked
 
-            rfield.selected = checked
-            rfield.save()
+    def get_rfield_id(self):
+        return get_from_POST_or_404(self.request.POST, self.rfield_id_arg, cast=int)
 
-    return HttpResponse()
+    def get_rfield(self, report):
+        rfield = get_object_or_404(Field, id=self.get_rfield_id())
+        self.check_rfield(rfield, report)
+
+        return rfield
+
+    def get_related_entity_id(self):
+        return get_from_POST_or_404(self.request.POST, self.report_id_arg, cast=int)
+
+    def post(self, *args, **kwargs):
+        checked = self.get_checked()
+
+        with atomic():
+            report = self.get_related_entity()
+            rfield = self.get_rfield(report)
+
+            if rfield.selected != checked:
+                if checked:  # Only one Field should be selected
+                    report.fields.exclude(pk=rfield.pk).update(selected=False)
+
+                rfield.selected = checked
+                rfield.save()
+
+        return HttpResponse()
 
 
 class ReportCreation(generic.EntityCreation):
