@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,12 +61,19 @@ class ObjectiveForm(CremeModelForm):
             efilter = instance.filter
 
             # TODO: add a method EntityFilter.can_list(self.user) to avoid a query
-            if efilter and not EntityFilter.get_for_user(self.user, content_type=instance.ctype)\
-                                           .filter(id=efilter.id).exists():
-                fields['ec_label'] = CharField(label=fields['entity_counting'].label,
-                                               required=False, widget=Label,
-                                               initial=_('The filter cannot be changed because it is private.'),
-                                              )
+            # if efilter and not EntityFilter.get_for_user(self.user, content_type=instance.ctype)\
+            #                                .filter(id=efilter.id).exists():
+            if efilter and not EntityFilter.objects\
+                                           .filter_by_user(self.user)\
+                                           .filter(entity_type=instance.ctype,
+                                                   id=efilter.id,
+                                                  )\
+                                           .exists():
+                fields['ec_label'] = CharField(
+                    label=fields['entity_counting'].label,
+                    required=False, widget=Label,
+                    initial=_('The filter cannot be changed because it is private.'),
+                )
                 del fields['entity_counting']
             else:
                 fields['entity_counting'].initial = instance.ctype_id, instance.filter_id

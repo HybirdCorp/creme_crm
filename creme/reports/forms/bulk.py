@@ -40,11 +40,15 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
 
         if self._has_same_report_ct:
             user = self.user
-            filter_field.queryset = EntityFilter.get_for_user(user, first_ct)
+            # filter_field.queryset = EntityFilter.get_for_user(user, first_ct)
+            filter_field.queryset = EntityFilter.objects.filter_by_user(user)\
+                                                        .filter(entity_type=first_ct)
 
-            self._uneditable_ids = uneditable_ids = {e.id for e in entities
-                                                        if e.filter and not e.filter.can_view(user)[0]
-                                                    }
+            self._uneditable_ids = uneditable_ids = {
+                e.id
+                    for e in entities
+                        if e.filter and not e.filter.can_view(user)[0]
+            }
 
             if uneditable_ids:
                 length = len(uneditable_ids)

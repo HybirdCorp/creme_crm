@@ -372,7 +372,7 @@ class MailingListsTestCase(_EmailsTestCase):
                      ]
         expected_ids = {recipients[0].id, recipients[1].id}
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Saotome', Contact, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -384,7 +384,9 @@ class MailingListsTestCase(_EmailsTestCase):
         )
         self.assertSetEqual(expected_ids, {c.id for c in efilter.filter(Contact.objects.all())})
 
-        EntityFilter.create('test-filter02', 'Useless', Organisation, is_custom=True)  # Should not be a valid choice
+        EntityFilter.objects.smart_update_or_create(
+            'test-filter02', 'Useless', Organisation, is_custom=True,
+        )  # Should not be a valid choice
 
         mlist = MailingList.objects.create(user=self.user, name='ml01')
 
@@ -540,7 +542,8 @@ class MailingListsTestCase(_EmailsTestCase):
         expected_ids = {recipients[0].id, recipients[1].id}
 
         create_ef = partial(
-            EntityFilter.create, name='Has email',
+            EntityFilter.objects.smart_update_or_create,
+            name='Has email',
             model=Organisation, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(

@@ -289,7 +289,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         name = 'Nerv'
         desc1 = 'important'
         desc2 = 'beware'
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-ef_orga', name='My filter', model=FakeOrganisation, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(

@@ -3003,7 +3003,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
     def test_subfilter_init01(self):
-        sub_efilter = EntityFilter.create(
+        sub_efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter01', model=FakeOrganisation, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
@@ -3045,7 +3045,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_subfilter_init02(self):
         "Pass EntityFilter instance."
-        sub_efilter = EntityFilter.create(
+        sub_efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter01', model=FakeOrganisation, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
@@ -3083,7 +3083,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual("'invalid' is not a valid filter ID", handler.error)
 
     def test_subfilter_applicable_on_entity_base(self):
-        sub_efilter = EntityFilter.create(
+        sub_efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
@@ -3116,7 +3116,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_subfilter_accept(self):
         user = self.login()
-        sub_efilter = EntityFilter.create(
+        sub_efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
@@ -3139,7 +3139,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_subfilter_condition(self):
         "Build condition."
-        sub_efilter = EntityFilter.create(
+        sub_efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
@@ -3177,7 +3177,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_subfilter_description01(self):
         user = self.login()
-        sub_efilter = EntityFilter.create(
+        sub_efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter01', model=FakeOrganisation, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
@@ -3205,7 +3205,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual('???', handler.description(user))
 
     def test_relation_subfilter_init01(self):
-        sub_efilter = EntityFilter.create(
+        sub_efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
@@ -3245,7 +3245,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_relation_subfilter_init02(self):
         "Pass an EntityFilter instance."
-        sub_efilter = EntityFilter.create(
+        sub_efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
@@ -3367,7 +3367,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                                           )
 
         def build_filter(pk):
-            return EntityFilter.create(
+            return EntityFilter.objects.smart_update_or_create(
                 pk=pk, name='Filter Rei', model=FakeContact, is_custom=True,
                 conditions=[
                     RegularFieldConditionHandler.build_condition(
@@ -3453,7 +3453,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         create_rel(subject_entity=asuka,  type=loves, object_entity=shinji)
         create_rel(subject_entity=rei,    type=loves, object_entity=misato)
 
-        sub_filter = EntityFilter.create(
+        sub_filter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter Ikari', model=FakeContact, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
@@ -3491,7 +3491,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                                     ('test-object_love',  'Is loved by')
                                    )[0]
 
-        sub_filter = EntityFilter.create(
+        sub_filter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter Ikari', model=FakeContact, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
@@ -3532,7 +3532,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
     def test_relation_subfilter_description02(self):
         user = self.login()
 
-        sub_filter = EntityFilter.create(
+        sub_filter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter Ikari', model=FakeContact, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(

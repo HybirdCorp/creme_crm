@@ -455,7 +455,7 @@ class MassExportViewsTestCase(ViewsTestCase):
     def test_list_view_export_with_filter01(self):
         user = self.login()
         hf = self._build_hf_n_contacts()
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Red', FakeContact,
             user=user, is_custom=False,
             conditions=[

@@ -131,7 +131,7 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        EntityFilter.create(
+        EntityFilter.objects.smart_update_or_create(
             constants.EFILTER_IMAGES, name=_('Images'), model=Document,
             is_custom=False, user='admin',
             conditions=[

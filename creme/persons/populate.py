@@ -86,7 +86,7 @@ class Populator(BasePopulator):
             rt_map[sym_rt.id] = sym_rt
 
         # ---------------------------
-        EntityFilter.create(
+        EntityFilter.objects.smart_update_or_create(
             constants.FILTER_MANAGED_ORGA, name=_('Managed by creme'),
             model=Organisation, user='admin',
             conditions=[
@@ -98,7 +98,7 @@ class Populator(BasePopulator):
                 ),
             ],
         )
-        EntityFilter.create(
+        EntityFilter.objects.smart_update_or_create(
             constants.FILTER_CONTACT_ME, name=_('Me'),
             model=Contact, user='admin',
             conditions=[

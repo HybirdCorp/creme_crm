@@ -427,12 +427,12 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertIsNone(objective.filter)
 
     def test_add_objective03(self):
-        "Count with EntityFilter"
+        "Count with EntityFilter."
         self.login()
         act = self.create_act()
         ct = ContentType.objects.get_for_model(Organisation)
 
-        create_efilter = EntityFilter.create
+        create_efilter = EntityFilter.objects.smart_update_or_create
         pub_efilter  = create_efilter('test-filter01', 'Acme', Organisation, is_custom=True)
         priv_efilter = create_efilter('test-filter_priv01', 'Acme', Organisation,
                                       is_custom=True, is_private=True, user=self.other_user,
@@ -503,7 +503,9 @@ class ActTestCase(CommercialBaseTestCase):
         ct_contact = get_ct(Contact)
         ct_orga    = get_ct(Organisation)
 
-        efilter = EntityFilter.create('test-filter01', 'Ninja', Contact, is_custom=True)
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter01', 'Ninja', Contact, is_custom=True,
+        )
 
         create_comp = partial(ActObjectivePatternComponent.objects.create, pattern=pattern)
         root01 = create_comp(name='Root01', success_rate=20, ctype=ct_contact, filter=efilter)
@@ -570,15 +572,18 @@ class ActTestCase(CommercialBaseTestCase):
                         )
 
         name = 'OBJ_NAME'
-        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter01', 'Acme', Organisation, is_custom=True,
+        )
         ct = efilter.entity_type
         counter_goal = 3
-        response = self.client.post(url,
-                                    data={'name':            name,
-                                          'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
-                                          'counter_goal':    counter_goal,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            data={'name':            name,
+                  'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
+                  'counter_goal':    counter_goal,
+                 },
+        )
         self.assertNoFormError(response)
 
         objective = self.refresh(objective)
@@ -591,9 +596,10 @@ class ActTestCase(CommercialBaseTestCase):
         "Private filter"
         self.login()
 
-        priv_efilter = EntityFilter.create('test-filter_priv01', 'Acme (private)', Organisation,
-                                           is_custom=True, is_private=True, user=self.other_user,
-                                          )
+        priv_efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter_priv01', 'Acme (private)', Organisation,
+            is_custom=True, is_private=True, user=self.other_user,
+        )
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='OBJ#1', counter_goal=3,
                                                 ctype=priv_efilter.entity_type,
@@ -615,18 +621,22 @@ class ActTestCase(CommercialBaseTestCase):
         )
 
         name = 'New name'
-        pub_efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
+        pub_efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter01', 'Acme', Organisation, is_custom=True,
+        )
         counter_goal = 4
-        response = self.client.post(url,
-                                    data={'name':            name,
-                                          # Should not be used
-                                          'entity_counting': self.formfield_value_filtered_entity_type(
-                                                                pub_efilter.entity_type,
-                                                                pub_efilter,
-                                                              ),
-                                          'counter_goal':    counter_goal,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'name': name,
+                # Should not be used
+                'entity_counting': self.formfield_value_filtered_entity_type(
+                                      pub_efilter.entity_type,
+                                      pub_efilter,
+                                    ),
+                'counter_goal': counter_goal,
+            },
+        )
         self.assertNoFormError(response)
 
         objective = self.refresh(objective)
@@ -722,7 +732,7 @@ class ActTestCase(CommercialBaseTestCase):
         response = self.assertPOST200(url,
                                       data={'user': user.id,
                                             'name': name,
-                                           }
+                                           },
                                      )
         self.assertNoFormError(response)
 
@@ -749,7 +759,7 @@ class ActTestCase(CommercialBaseTestCase):
 
         act = self.create_act()
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Acme', Organisation, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -884,7 +894,7 @@ class ActTestCase(CommercialBaseTestCase):
         "With filter."
         user = self.login()
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Acme', Organisation, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -937,7 +947,9 @@ class ActTestCase(CommercialBaseTestCase):
         self.login()
         act = self.create_act()
 
-        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter01', 'Acme', Organisation, is_custom=True,
+        )
 
         create_obj = partial(ActObjective.objects.create, act=act) 
         obj1 = create_obj(name='Hello counter')

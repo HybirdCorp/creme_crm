@@ -161,7 +161,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertURL(builder(None), FakeContact)
         self.assertURL(builder({'id': 1}), FakeContact, expected_q=Q(id=1))
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Names', FakeContact, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -969,7 +969,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         create_contact(first_name='Bran',   position=lord)
         create_contact(first_name='Aria')
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Starks', FakeContact, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -1020,7 +1020,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         create_orga(name='House Stark',     capital=100,  sector=war)
         create_orga(name='House Targaryen', capital=10,   sector=war)
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Houses', FakeOrganisation, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -1157,7 +1157,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         create_contact(first_name='Bran')
         create_contact(first_name='Arya', user=user)
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Starks', FakeContact, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -1808,7 +1808,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         aria   = create_contact(first_name='Aria',   last_name='Stark')
         jon    = create_contact(first_name='Jon',    last_name='Snow')
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Not bastard', FakeContact, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(

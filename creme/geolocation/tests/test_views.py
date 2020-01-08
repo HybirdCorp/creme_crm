@@ -309,7 +309,7 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         address2 = self.create_shipping_address(orga2, zipcode='01190', town='Ozan')
         address3 = self.create_billing_address(orga3, zipcode='01630', town='Péron')
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Orga 1', Organisation, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
@@ -456,7 +456,7 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         user = self.login()
         self.populate_addresses(user)
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'test', Organisation, is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(

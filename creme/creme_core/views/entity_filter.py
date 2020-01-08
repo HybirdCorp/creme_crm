@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -229,7 +229,12 @@ class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
 
     def get_choices(self):
         choices = [('', self.all_label)] if self.get_include_all() else []
-        choices.extend(EntityFilter.get_for_user(self.request.user, self.get_ctype())
+        # choices.extend(EntityFilter.get_for_user(self.request.user, self.get_ctype())
+        #                            .values_list('id', 'name')
+        #               )
+        choices.extend(EntityFilter.objects
+                                   .filter_by_user(self.request.user)
+                                   .filter(entity_type=self.get_ctype())
                                    .values_list('id', 'name')
                       )
 

@@ -2013,7 +2013,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         user = self.login()
 
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter 01',
             model=FakeContact, is_custom=True,
             conditions=[
@@ -2086,8 +2086,9 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
             ('test-object_belong',  '(orga) has (orga)',        (FakeOrganisation,))
         )
 
-        self.sub_efilter01 = EntityFilter.create(pk='test-filter01', name='Filter 01', model=FakeContact, is_custom=True)
-        self.sub_efilter02 = EntityFilter.create(pk='test-filter02', name='Filter 02', model=FakeOrganisation, is_custom=True)
+        create_efilter = EntityFilter.objects.smart_update_or_create
+        self.sub_efilter01 = create_efilter(pk='test-filter01', name='Filter 01', model=FakeContact,      is_custom=True)
+        self.sub_efilter02 = create_efilter(pk='test-filter02', name='Filter 02', model=FakeOrganisation, is_custom=True)
 
     def test_clean_empty_required(self):
         clean = RelationSubfiltersConditionsField(required=True).clean
@@ -2287,7 +2288,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
             DateRegularFieldConditionHandler,
         ).register_operators(*operators.all_operators)
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', name='Filter 01', model=FakeContact,
             is_custom=True,
             conditions=[
@@ -2367,7 +2368,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
             RelationConditionHandler,
         ).register_operators(*operators.all_operators)
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', name='Filter 01', model=FakeContact,
             is_custom=False,
             conditions=[

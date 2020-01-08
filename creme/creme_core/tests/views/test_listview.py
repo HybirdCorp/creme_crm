@@ -946,7 +946,7 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        efilter = EntityFilter.create(
+        efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Red', FakeOrganisation,
             user=user, is_custom=False,
             conditions=[
