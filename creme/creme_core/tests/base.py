@@ -307,7 +307,9 @@ class _CremeTestCase:
             if not all_errors:
                 return
 
-            self.assertIsInstance(formset_obj, BaseFormSet, "context field '%s' is not a FormSet")
+            self.assertIsInstance(formset_obj, BaseFormSet,
+                                  "context field '{}' is not a FormSet".format(formset_obj)
+                                 )
             self.assertGreaterEqual(form_index, 0)
             self.assertLess(form_index, len(all_errors))
 
