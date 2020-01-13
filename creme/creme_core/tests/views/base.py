@@ -66,17 +66,17 @@ class BrickTestCaseMixin:
 
     def get_brick_node(self, tree, brick_id):
         brick_node = tree.find(".//div[@id='{}']".format(brick_id))
-        self.assertIsNotNone(brick_node, 'The brick id="%s" is not found.' % brick_id)
+        self.assertIsNotNone(brick_node, 'The brick id="{}" is not found.'.format(brick_id))
 
         classes = brick_node.attrib.get('class')
-        self.assertIsNotNone(classes, 'The brick id="%s" is not a valid brick (no "class" attribute).')
-        self.assertIn('brick', classes.split(), 'The brick id="%s" is not a valid brick (no "brick" class).')
+        self.assertIsNotNone(classes, 'The brick id="{}" is not a valid brick (no "class" attribute).'.format(brick_id))
+        self.assertIn('brick', classes.split(), 'The brick id="{}" is not a valid brick (no "brick" class).'.format(brick_id))
 
         return brick_node
 
     def assertNoBrick(self, tree, brick_id):
         self.assertIsNone(tree.find(".//div[@id='{}']".format(brick_id)),
-                          'The brick id="%s" has been unexpectedly found.' % brick_id
+                          'The brick id="{}" has been unexpectedly found.'.format(brick_id)
                          )
 
     def assertInstanceLink(self, brick_node, entity):
