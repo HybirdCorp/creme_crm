@@ -1,7 +1,7 @@
 from hashlib import sha1
 
 import os
-import sys
+# import sys
 
 from django.utils.encoding import smart_str
 
@@ -217,17 +217,22 @@ class SubProcessFilter(Filter):
         # The "encoding" argument in python 3.6 fix it by forcing the
         # right encoding to io.TextIOWrapper (see Popen code).
         #
-        # In python 3.5 removing universal_newlines and encode input as utf-8
-        # bytes fix the problem in a different way. 
-        if sys.version_info < (3, 6):
-            cmd = Popen(command,
-                        stdin=PIPE, stdout=PIPE, stderr=PIPE)
-            output, error = cmd.communicate(input.encode('utf-8'))
-        else:
-            cmd = Popen(command,
-                        stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding='utf-8',
-                        universal_newlines=True)
-            output, error = cmd.communicate(input)
+        # # In python 3.5 removing universal_newlines and encode input as utf-8
+        # # bytes fix the problem in a different way.
+        # if sys.version_info < (3, 6):
+        #     cmd = Popen(command,
+        #                 stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        #     output, error = cmd.communicate(input.encode('utf-8'))
+        # else:
+        #     cmd = Popen(command,
+        #                 stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding='utf-8',
+        #                 universal_newlines=True)
+        #     output, error = cmd.communicate(input)
+        cmd = Popen(command,
+                    stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding='utf-8',
+                    universal_newlines=True,
+                   )
+        output, error = cmd.communicate(input)
 
         assert cmd.wait() == 0, 'Command returned bad result:\n{}'.format(error)
 

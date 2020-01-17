@@ -36,7 +36,7 @@ virtual env, in order to keep the old one working).
 
 
 DEPENDENCIES:
- - Python 3.5+
+ - Python 3.6+
  - MySQL 5.7+ or PostGreSQL 9.5+ (or SQLite which is included with Python)
  - A web server compatible with Python, like Apache 2.4
  - Redis 3+
@@ -66,7 +66,7 @@ DEPENDENCIES:
              - lcab (if you want Infopath forms exports and your server doesn't run on Windows)
 
 Installation with 'pip':
-    - You should probably use "virtualenv" (on a Python >= 3.5).
+    - You should probably use "virtualenv" (on a Python >= 3.6).
     - About DB server :
         - If you use MySQL, you can use the file 'creme/requirements-mysql.txt' to install
           all the libraries needed by a classical installation with the command :

@@ -53,7 +53,7 @@ setup(
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Natural Language :: French",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Topic :: Office/Business",
     ],
 )
