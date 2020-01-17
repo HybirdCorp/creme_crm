@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,13 +21,14 @@
 from datetime import date
 
 from django.db.transaction import atomic
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse  # Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views import generic, decorators
+# from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.views import generic  # decorators
 
 from .. import get_invoice_model, constants
 from ..forms import invoice as invoice_forms
@@ -37,35 +38,30 @@ from . import base
 
 Invoice = get_invoice_model()
 
-# Function views --------------------------------------------------------------
+# @login_required
+# @permission_required('billing')
+# @decorators.POST_only
+# @atomic
+# def generate_number(request, invoice_id):
+#     invoice = get_object_or_404(Invoice.objects.select_for_update(), pk=invoice_id)
+#
+#     request.user.has_perm_to_change_or_die(invoice)
+#
+#     if not invoice.number:
+#         status = get_object_or_404(InvoiceStatus, pk=constants.DEFAULT_INVOICE_STATUS)
+#
+#         invoice.generate_number()
+#         invoice.status = status
+#
+#         if not invoice.issuing_date:
+#             invoice.issuing_date = date.today()
+#
+#         invoice.save()
+#     else:
+#         raise Http404('This invoice has already a number: {}.'.format(invoice))
+#
+#     return HttpResponse()
 
-@login_required
-@permission_required('billing')
-@decorators.POST_only
-@atomic
-def generate_number(request, invoice_id):
-    invoice = get_object_or_404(Invoice.objects.select_for_update(), pk=invoice_id)
-
-    request.user.has_perm_to_change_or_die(invoice)
-
-    # TODO: move in model ???
-    if not invoice.number:
-        status = get_object_or_404(InvoiceStatus, pk=constants.DEFAULT_INVOICE_STATUS)
-
-        invoice.generate_number()
-        invoice.status = status
-
-        if not invoice.issuing_date:
-            invoice.issuing_date = date.today()
-
-        invoice.save()
-    else:
-        raise Http404('This invoice has already a number: {}.'.format(invoice))
-
-    return HttpResponse()
-
-
-# Class-based views  ----------------------------------------------------------
 
 class InvoiceCreation(base.BaseCreation):
     model = Invoice
@@ -96,3 +92,29 @@ class InvoiceEdition(base.BaseEdition):
 class InvoicesList(generic.EntitiesList):
     model = Invoice
     default_headerfilter_id = constants.DEFAULT_HFILTER_INVOICE
+
+
+class InvoiceNumberGeneration(generic.base.EntityRelatedMixin, generic.CheckedView):
+    permissions = 'billing'
+    entity_id_url_kwarg = 'invoice_id'
+    entity_classes = Invoice
+
+    @atomic
+    def post(self, *args, **kwargs):
+        invoice = self.get_related_entity()
+
+        # TODO: move in model ???
+        if not invoice.number:
+            status = get_object_or_404(InvoiceStatus, pk=constants.DEFAULT_INVOICE_STATUS)
+
+            invoice.generate_number()
+            invoice.status = status
+
+            if not invoice.issuing_date:
+                invoice.issuing_date = date.today()
+
+            invoice.save()
+        else:
+            raise ConflictError('This invoice has already a number: {}.'.format(invoice))
+
+        return HttpResponse()
