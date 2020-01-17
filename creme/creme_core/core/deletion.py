@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019 Hybird
+#    Copyright (C) 2019-2020 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,7 @@ class ReplacersRegistry:
 
     def __call__(self, cls):
         if self._replacer_classes.setdefault(cls.type_id, cls) is not cls:
-            raise self.RegistrationError('Duplicated Cell id: {}'.format(cls.id))
+            raise self.RegistrationError('Duplicated Replacer id: {}'.format(cls.type_id))
 
         return cls
 
