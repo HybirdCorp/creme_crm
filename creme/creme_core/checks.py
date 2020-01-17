@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,14 +35,14 @@ def check_secret_key(**kwargs):
     errors = []
 
     if settings.SECRET_KEY == '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6(':
-        errors.append(Error("You did not generate a secret key.",
-                            hint='Change the SECRET_KEY setting in your'
-                                 ' local_settings.py/project_settings.py\n'
-                                 'Use the result of the command "python manage.py build_secret_key".',
-                            obj='creme.creme_core',
-                            id='creme.E002',
-                           )
-                     )
+        errors.append(Error(
+            "You did not generate a secret key.",
+            hint='Change the SECRET_KEY setting in your'
+                 ' local_settings.py/project_settings.py\n'
+                 'Use the result of the command "python manage.py build_secret_key".',
+            obj='creme.creme_core',
+            id='creme.E002',
+        ))
 
     return errors
 
@@ -98,8 +98,8 @@ def check_entity_ordering(**kwargs):
         if not ordering or (len(ordering) == 1 and 'id' in ordering[0]):
             errors.append(
                 Error(
-                    '"{}" should have a Meta.ordering different from "id" '
-                    'like all CremeEntities'.format(model),
+                    f'"{model}" should have a Meta.ordering different from "id" '
+                    f'like all CremeEntities',
                     hint='Change the "ordering" attribute in the Meta class of your model.',
                     obj='creme.creme_core',
                     id='creme.E005',
@@ -141,12 +141,8 @@ def check_swapped_urls(**kwargs):
             except NoReverseMatch:
                 errors.append(
                     Error(
-                        'The URL "{url}" (args={args}) has been swapped from the app '
-                        '"{app}" but never defined.'.format(
-                            url=name,
-                            args=swapped.verbose_args,
-                            app=group.app_name,
-                        ),
+                        f'The URL "{name}" (args={swapped.verbose_args}) has been swapped '
+                        f'from the app "{group.app_name}" but never defined.',
                         hint='Define this URL in the file "urls.py" of the module '
                              'which defines the concrete model.',
                         obj='creme.creme_core',

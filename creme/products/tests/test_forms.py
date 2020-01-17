@@ -14,7 +14,7 @@ try:
     from ..forms.fields import CategoryField
     from ..models import Category, SubCategory
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class CategoryFieldTestCase(FieldTestCase):

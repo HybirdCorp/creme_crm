@@ -32,7 +32,7 @@ try:
     from creme.creme_core.utils.secure_filename import secure_filename
     from creme.creme_core.utils.url import TemplateURLBuilder
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class MiscTestCase(CremeTestCase):

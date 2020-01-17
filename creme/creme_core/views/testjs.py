@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,8 +39,12 @@ from mediagenerator.utils import media_url
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..gui.bricks import brick_registry, PaginatedBrick
-from ..gui.field_printers import (print_image_html, print_url_html, print_datetime,
-        print_date, print_duration, print_foreignkey_html, print_many2many_html)
+from ..gui.field_printers import (
+    print_image_html,
+    print_url_html,
+    print_datetime, print_date, print_duration,
+    print_foreignkey_html, print_many2many_html,
+)
 from ..models import CremeProperty
 
 logger = logging.getLogger(__name__)
@@ -193,13 +197,9 @@ def test_http_response(request):
         raise Exception('Tests: server internal error')
 
     if request.is_ajax():
-        return HttpResponse('XML Http Response {}'.format(status),
-                            status=status,
-                           )
+        return HttpResponse(f'XML Http Response {status}', status=status)
 
-    return HttpResponse('<p>Http Response {}</p>'.format(status),
-                        status=status,
-                       )
+    return HttpResponse(f'<p>Http Response {status}</p>', status=status)
 
 
 @login_required
@@ -223,6 +223,6 @@ def test_widget(request, widget):
     request.user.theme = context['THEME_NAME']
 
     if widget:
-        return render(request, 'creme_core/tests/test_{}.html'.format(widget), context)
+        return render(request, f'creme_core/tests/test_{widget}.html', context)
 
     return render(request, 'creme_core/tests/test.html', context)

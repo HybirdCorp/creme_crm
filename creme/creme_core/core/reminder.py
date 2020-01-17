@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,7 @@ class Reminder:
 
     @staticmethod
     def generate_id(app_name, name):
-        return 'reminder_{}-{}'.format(app_name, name)
+        return f'reminder_{app_name}-{name}'
 
     def get_emails(self, object):
         adddresses = []
@@ -50,7 +50,10 @@ class Reminder:
         if default_addr:
             adddresses.append(default_addr)
         else:
-            logger.critical('Reminder: the setting DEFAULT_USER_EMAIL has not been filled ; no email will be sent.')
+            logger.critical(
+                'Reminder: the setting DEFAULT_USER_EMAIL has not been filled ; '
+                'no email will be sent.'
+            )
 
         return adddresses
 
@@ -139,13 +142,17 @@ class ReminderRegistry:
         reminder_id = reminder.id
 
         if reminder_id in reminders:
-            raise self.RegistrationError("Duplicated reminder's id or reminder registered twice: {}".format(reminder_id))
+            raise self.RegistrationError(
+                f"Duplicated reminder's id or reminder registered twice: {reminder_id}"
+            )
 
         reminders[reminder_id] = reminder()
 
     def unregister(self, reminder):
         if self._reminders.pop(reminder.id, None) is None:
-            raise self.RegistrationError('No reminder is registered with this ID : {}'.format(reminder.id))
+            raise self.RegistrationError(
+                f'No reminder is registered with this ID: {reminder.id}'
+            )
 
     def __iter__(self):
         return iter(self._reminders.values())

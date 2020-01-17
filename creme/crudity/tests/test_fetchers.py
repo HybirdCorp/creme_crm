@@ -9,7 +9,7 @@ try:
     from ..fetchers.filesystem import FileSystemFetcher
     from .base import CrudityTestCase
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class FetcherFileSystemTestCase(CrudityTestCase):

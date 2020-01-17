@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,8 +32,12 @@ from django.utils.translation import gettext_lazy as _, gettext
 from ..constants import MODELBRICK_ID
 from ..core.entity_cell import EntityCellRegularField
 from ..core.sorter import cell_sorter_registry
-from ..models import (Relation, RelationBrickItem, CremeEntity,
-        InstanceBrickConfigItem, CustomBrickConfigItem, BrickState)
+from ..models import (
+    CremeEntity,
+    Relation,
+    RelationBrickItem, InstanceBrickConfigItem, CustomBrickConfigItem,
+    BrickState,
+)
 from ..utils.meta import OrderedField
 
 logger = logging.getLogger(__name__)
@@ -83,10 +87,10 @@ class Brick:
     to allow the different possibility of display:
 
     def detailview_display(self, context):
-        return 'VOID BLOCK FOR DETAILVIEW: %s' % self.verbose_name
+        return f'VOID BLOCK FOR DETAILVIEW: {self.verbose_name}'
 
     def home_display(self, context):
-        return 'VOID BLOCK FOR HOME: %s' % self.verbose_name
+        return f'VOID BLOCK FOR HOME: {self.verbose_name}'
     """
     # The ID of a brick (string) is used to retrieve the class of a Brick, and build the corresponding instance when:
     #   - the configuration (detail-view/home/portal) is loaded (page creation).
@@ -142,11 +146,11 @@ class Brick:
 
     @staticmethod
     def generate_id(app_name, name):  # TODO: rename _generate_id ?
-        return 'block_{}-{}'.format(app_name, name)
+        return f'block_{app_name}-{name}'
 
     @classmethod
     def _generate_hat_id(cls, app_name, name):
-        return '{}-{}-{}'.format(cls.GENERIC_HAT_BRICK_ID, app_name, name)
+        return f'{cls.GENERIC_HAT_BRICK_ID}-{app_name}-{name}'
 
     def _render(self, template_context):
         return get_template(self.template_name).render(template_context)
@@ -163,7 +167,7 @@ class Brick:
                         yield 'creme_core.relation.' + rtype_id
                 else:
                     meta = dep._meta
-                    yield '{}.{}'.format(meta.app_label, meta.model_name)
+                    yield f'{meta.app_label}.{meta.model_name}'
             else:
                 yield str(dep)
 
@@ -223,7 +227,7 @@ class _PaginatedBrickContext(_BrickContext):
         self.page = 1
 
     def __repr__(self):
-        return '<PaginatedBrickContext: page={}>'.format(self.page)
+        return f'<PaginatedBrickContext: page={self.page}>'
 
     def as_dict(self):
         return {'page': self.page}
@@ -251,12 +255,14 @@ class PaginatedBrick(Brick):
         request = context['request']
         objects = extra_kwargs.pop('objects')
 
-        page_index = request.GET.get('{}_page'.format(brick_id))
+        page_index = request.GET.get(f'{brick_id}_page')
         if page_index is not None:
             try:
                 page_index = int(page_index)
             except ValueError:
-                logger.warning('PaginatedBrick: invalid page number for brick %s: %s', brick_id, page_index)
+                logger.warning('PaginatedBrick: invalid page number for brick %s: %s',
+                               brick_id, page_index,
+                              )
                 page_index = 1
         else:
             page_index = brick_context.page
@@ -286,7 +292,7 @@ class _QuerysetBrickContext(_PaginatedBrickContext):
         self._order_by = ''
 
     def __repr__(self):
-        return '<QuerysetBrickContext: page={} order_by={}>'.format(self.page, self._order_by)
+        return f'<QuerysetBrickContext: page={self.page} order_by={self._order_by}>'
 
     def as_dict(self):
         d = super().as_dict()
@@ -329,16 +335,14 @@ class QuerysetBrick(PaginatedBrick):
     cell_sorter_registry = cell_sorter_registry
 
     def _is_order_valid(self, model, order):
-        # fname = order[1:] if order.startswith('-') else order
         fname = OrderedField(order).field_name
         cell = EntityCellRegularField.build(model=model, name=fname)
 
         if cell is None:
             return False
 
-        # if not cell.sortable:
         if not self.cell_sorter_registry.get_field_name(cell):
-            logger.warning('QuerysetBrick: the field "{}" is not sortable.'.format(fname))
+            logger.warning('QuerysetBrick: the field "%s" is not sortable.', fname)
             return False
 
         return True
@@ -349,7 +353,7 @@ class QuerysetBrick(PaginatedBrick):
         objects = extra_kwargs['objects']
 
         if self.order_by:
-            req_order_by = request.GET.get('{}_order'.format(brick_id))
+            req_order_by = request.GET.get(f'{brick_id}_order')
             raw_order_by = brick_context.get_order_by(self.order_by) if req_order_by is None else req_order_by
 
             if self._is_order_valid(model=objects.model, order=raw_order_by):
@@ -424,7 +428,7 @@ class SpecificRelationsBrick(QuerysetBrick):
 
     @staticmethod
     def generate_id(app_name, name):
-        return 'specificblock_{}-{}'.format(app_name, name)
+        return f'specificblock_{app_name}-{name}'
 
     @staticmethod
     def id_is_specific(id_):
@@ -534,11 +538,15 @@ class BricksManager:
 
     def add_group(self, group_name, *bricks):
         if self._dependencies_map is not None:
-            raise BricksManager.Error("Can't add brick to manager after dependence resolution is done.")
+            raise BricksManager.Error(
+                "Can't add brick to manager after dependence resolution is done."
+            )
 
         group = self._bricks_groups[group_name]
         if group:
-            raise BricksManager.Error("This brick's group name already exists: {}".format(group_name))
+            raise BricksManager.Error(
+                f"This brick's group name already exists: {group_name}"
+            )
 
         self._bricks.extend(bricks)
         group.extend(bricks)
@@ -633,7 +641,7 @@ class _BrickRegistry:
 
         for brick_cls in brick_classes:
             if setdefault(brick_cls.id_, brick_cls) is not brick_cls:
-                raise self.RegistrationError("Duplicated brick's id: {}".format(brick_cls.id_))
+                raise self.RegistrationError(f"Duplicated brick's id: {brick_cls.id_}")
 
         return self
 
@@ -642,7 +650,7 @@ class _BrickRegistry:
 
         for brick_cls in brick_classes:
             if setdefault(brick_cls.id_, brick_cls) is not brick_cls:
-                raise self.RegistrationError("Duplicated brick's id: {}".format(brick_cls.id_))
+                raise self.RegistrationError(f"Duplicated brick's id: {brick_cls.id_}")
 
         return self
 
@@ -675,10 +683,10 @@ class _BrickRegistry:
             assert issubclass(main_brick_cls, Brick)
 
             if main_brick_cls.id_ is not None:
-                raise self.RegistrationError('Main hat brick for model={} must be None (currently: {})'.format(
-                                                    model, main_brick_cls.id_,
-                                                )
-                                            )
+                raise self.RegistrationError(
+                    f'Main hat brick for model={model} must be None '
+                    f'(currently: {main_brick_cls.id_})'
+                )
 
             brick_classes[''] = main_brick_cls
 
@@ -688,14 +696,13 @@ class _BrickRegistry:
             brick_id = brick_cls.id_
 
             if not brick_id or not brick_id.startswith(Brick.GENERIC_HAT_BRICK_ID + '-'):
-                raise self.RegistrationError('Secondary hat brick for model={} must have an id_ '
-                                             'generated by Brick._generate_hat_id() ({})'.format(
-                                                    model, brick_cls,
-                                                )
-                                            )
+                raise self.RegistrationError(
+                    f'Secondary hat brick for model={model} must have an id_ '
+                    f'generated by Brick._generate_hat_id() ({brick_cls})'
+                )
 
             if brick_id in brick_classes:
-                raise self.RegistrationError("Duplicated hat brick's id_: {}".format(brick_id))
+                raise self.RegistrationError(f"Duplicated hat brick's id_: {brick_id}")
 
             brick_classes[brick_id] = brick_cls
 

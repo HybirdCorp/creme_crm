@@ -62,7 +62,7 @@ def _clean_getters_arg(field, allowed_fields):
     getter = allowed_fields.get(field)
 
     if not getter:
-        raise PermissionDenied("Forbidden field '{}'".format(field))
+        raise PermissionDenied(f"Forbidden field '{field}'")
 
     return getter
 
@@ -76,7 +76,7 @@ def _clean_fields_values_args(data, allowed_fields):
     getters = [_clean_getters_arg(field, allowed_fields) for field in data.getlist('fields')]
 
     if not getters:
-        raise ValueError('No such field (data={})'.format(data))
+        raise ValueError(f'No such field (data={data})')
 
     sort_getter = get('sort')
     if sort_getter is not None:
@@ -469,7 +469,7 @@ def add_relations_with_same_type(request):
             entities.pop(i)
             break
     else:
-        raise Http404('Can not find entity with id={}'.format(subject_id))
+        raise Http404(f'Can not find entity with id={subject_id}')
 
     user.has_perm_to_link_or_die(subject)
 

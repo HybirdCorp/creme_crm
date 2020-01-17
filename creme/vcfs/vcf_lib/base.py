@@ -110,11 +110,10 @@ class VBase:
                     raise
                 else:
                     e_info = sys.exc_info()
-                    new_error = ParseError('In transformToNative, unhandled exception: {}: {}'.format(
-                                                e_info[0], e_info[1]
-                                            ),
-                                           lineNumber
-                                          )
+                    new_error = ParseError(
+                        f'In transformToNative, unhandled exception: {e_info[0]}: {e_info[1]}',
+                        lineNumber,
+                    )
 
                     raise ParseError(new_error, e_info[2]) from e
 
@@ -357,7 +356,7 @@ class Component(VBase):
         except KeyError as e:
             raise AttributeError(name) from e
 
-    _normal_attributes = frozenset(['contents','name','behavior','parentBehavior','group'])
+    _normal_attributes = frozenset(['contents', 'name', 'behavior', 'parentBehavior', 'group'])
     def __setattr__(self, name, value):
         """For convenience, make self.contents directly accessible.
 
@@ -498,7 +497,7 @@ class VObjectError(Exception):
 
     def __str__(self):
         if hasattr(self, 'lineNumber'):
-            return 'At line {}: {}'.format(self.lineNumber, self.message)
+            return f'At line {self.lineNumber}: {self.message}'
         else:
             return repr(self.message)
 
@@ -623,7 +622,7 @@ def parseLine(line, lineNumber=None):
     """
     match = line_re.match(line)
     if match is None:
-        raise ParseError('Failed to parse line: {}'.format(line), lineNumber)
+        raise ParseError(f'Failed to parse line: {line}', lineNumber)
 
     # Underscores are replaced with dash to work around Lotus Notes
     return (match.group('name').replace('_','-'),
@@ -774,7 +773,7 @@ def dquoteEscape(param):
 
     for char in ',;:':
         if param.find(char) >= 0:
-            return '"{}"'.format(param)
+            return f'"{param}"'
 
     return param
 
@@ -946,10 +945,10 @@ END:VCALENDAR''')
                 stack.top().setProfile(vline.value)
             elif vline.name == "END":
                 if len(stack) == 0:
-                    raise ParseError('Attempted to end the {} component, '
-                                     'but it was never opened'.format(vline.value),
-                                     n
-                                    )
+                    raise ParseError(
+                        f'Attempted to end the {vline.value} component, but it was never opened',
+                        n
+                    )
 
                 if vline.value.upper() == stack.topName():  # START matches END
                     if len(stack) == 1:
@@ -971,7 +970,7 @@ END:VCALENDAR''')
                         yield component  # EXIT POINT
                     else: stack.modifyTop(stack.pop())
                 else:
-                    raise ParseError("{} component wasn't closed".format(stack.topName()), n)
+                    raise ParseError(f"{stack.topName()} component wasn't closed", n)
             else: 
                 stack.modifyTop(vline)  # not a START or END line
 
@@ -979,7 +978,7 @@ END:VCALENDAR''')
             if stack.topName() is None:
                 logger.warning('Top level component was never named')
             elif stack.top().useBegin:
-                raise ParseError('Component {} was never closed'.format(stack.topName()), n)
+                raise ParseError(f'Component {stack.topName()} was never closed', n)
 
             yield stack.pop()
     except ParseError as e:
@@ -1043,7 +1042,7 @@ class BehaviorRegistry:
         behavior = self.get(name, id)
 
         if behavior is None:
-            raise VObjectError('No behavior found named {}'.format(name))
+            raise VObjectError(f'No behavior found named {name}')
 
         obj = Component(name) if behavior.isComponent else ContentLine(name, [], '')
 

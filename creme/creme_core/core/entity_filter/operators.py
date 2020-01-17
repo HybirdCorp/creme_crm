@@ -249,7 +249,7 @@ class EqualsOperator(ConditionOperator):
         elif len(values) == 1:
             q = Q(**{self.key_pattern.format(field_name): values[0]})
         else:
-            q = Q(**{'{}__in'.format(field_name): values})
+            q = Q(**{f'{field_name}__in': values})
 
         return q
 
@@ -442,7 +442,7 @@ class BooleanOperatorBase(ConditionOperator):
                               efilter_registry=entity_filter_registries[EF_USER]):
         if len(values) != 1 or not isinstance(values[0], bool):
             raise ValidationError(
-                'A list with one bool is expected for boolean operator {}'.format(self.verbose_name)
+                f'A list with one bool is expected for boolean operator {self.verbose_name}'
             )
 
         return values
@@ -509,7 +509,7 @@ class RangeOperator(ConditionOperator):
                               efilter_registry=entity_filter_registries[EF_USER]):
         if len(values) != 2:
             raise ValidationError(
-                'A list with 2 elements is expected for condition {}'.format(self.verbose_name)
+                f'A list with 2 elements is expected for condition {self.verbose_name}'
             )
 
         return [super().validate_field_values(field=field, values=values)]

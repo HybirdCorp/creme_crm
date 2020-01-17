@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2019  Hybird
+#    Copyright (C) 2018-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -257,7 +257,7 @@ class EntityCTypeRelatedMixin(ContentTypeRelatedMixin):
 
         model = ctype.model_class()
         if not issubclass(model, CremeEntity):
-            raise ConflictError('This model is not a entity model: {}'.format(model))
+            raise ConflictError(f'This model is not a entity model: {model}')
 
 
 class CheckedView(PermissionsMixin, django_generic.View):

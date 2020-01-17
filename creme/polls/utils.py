@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2018  Hybird
+#    Copyright (C) 2012-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,38 +24,42 @@ from itertools import count
 from creme.creme_core.utils import int_2_roman
 
 from . import get_pollform_model, get_pollreply_model
-from .models import PollFormSection, PollFormLine, PollReplySection, PollReplyLine
-
+from .models import (
+    PollFormSection,
+    PollFormLine,
+    PollReplySection,
+    PollReplyLine,
+)
 
 # TODO move to core.section_tree.py ??
 
 _CLASS_MAPPING = {
-        get_pollform_model():  ('pform',  PollFormSection, PollFormLine),
-        get_pollreply_model(): ('preply', PollReplySection, PollReplyLine),
-    }
+    get_pollform_model():  ('pform',  PollFormSection, PollFormLine),
+    get_pollreply_model(): ('preply', PollReplySection, PollReplyLine),
+}
 
 
 class NodeStyle:  # TODO: configurable style stored in DB
     ELEMENTS = {
-            'COLOR': {
-                    'LINE':      '',  # Use normal brick line color
-                    'SECTION_0': 'BDD8E4',
-                    'SECTION_1': 'D8E5EB',
-                    'SECTION':   'D8E5EB',  # Default
-                },
-            'NUMBER': {
-                    'LINE':      str,
-                    'SECTION_0': int_2_roman,
-                    'SECTION_1': str,
-                    'SECTION':   str,  # Default
-                },
-        }
+        'COLOR': {
+            'LINE':      '',  # Use normal brick line color
+            'SECTION_0': 'BDD8E4',
+            'SECTION_1': 'D8E5EB',
+            'SECTION':   'D8E5EB',  # Default
+        },
+        'NUMBER': {
+            'LINE':      str,
+            'SECTION_0': int_2_roman,
+            'SECTION_1': str,
+            'SECTION':   str,  # Default
+        },
+    }
 
     def _get_element(self, type, node, default):
         get = self.ELEMENTS[type].get
 
         if node.is_section:
-            element = get('SECTION_{}'.format(node.deep)) or get('SECTION', default)
+            element = get(f'SECTION_{node.deep}') or get('SECTION', default)
         else:
             element = get('LINE', default)
 
@@ -67,7 +71,7 @@ class NodeStyle:  # TODO: configurable style stored in DB
     def css(self, node):
         color = self._get_element('COLOR', node, '')
 
-        return ('background-color: #{};'.format(color)) if color else ''
+        return f'background-color: #{color};' if color else ''
 
 
 class SectionTree:

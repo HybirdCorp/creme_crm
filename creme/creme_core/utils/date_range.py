@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -66,11 +66,11 @@ class DateRange:
 
         if start:
             if end:
-                return {'{}__range'.format(field): (start, end)}
+                return {f'{field}__range': (start, end)}
 
-            return {'{}__gte'.format(field): start}
+            return {f'{field}__gte': start}
 
-        return {'{}__lte'.format(field): end}
+        return {f'{field}__lte': end}
 
 
 class CustomRange(DateRange):
@@ -276,7 +276,7 @@ class EmptyRange(DateRange):
     verbose_name = _('Is empty')
 
     def get_q_dict(self, field, now):
-        return {'{}__isnull'.format(field): True}
+        return {f'{field}__isnull': True}
 
 
 class NotEmptyRange(DateRange):
@@ -284,7 +284,7 @@ class NotEmptyRange(DateRange):
     verbose_name = _('Is not empty')
 
     def get_q_dict(self, field, now):
-        return {'{}__isnull'.format(field): False}
+        return {f'{field}__isnull': False}
 
 
 class DateRangeRegistry:
@@ -310,7 +310,7 @@ class DateRangeRegistry:
 
             if name in ranges_map:
                 raise self.RegistrationError(
-                    "Duplicate date range's id or date range registered twice : {}".format(name)
+                    f"Duplicate date range's id or date range registered twice : {name}"
                 )
 
             ranges_map[name] = drange

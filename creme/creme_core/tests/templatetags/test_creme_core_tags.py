@@ -17,7 +17,7 @@ try:
     from creme.creme_core.models import SetCredentials, FakeOrganisation
     from creme.creme_core.utils.html import escapejson
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class CremeCoreTagsTestCase(CremeTestCase):
@@ -229,17 +229,17 @@ class CremeCoreTagsTestCase(CremeTestCase):
                          render.strip()
                         )
 
-    def assertFieldEditorTag(self, render, entity, field_name, block=False):
-        url = reverse('creme_core__inner_edition', args=(entity.entity_type_id, entity.id, field_name))
-
-        if block:
-            expected = """<a onclick="creme.blocks.form('{}', {blockReloadUrl:""".format(url)
-        else:
-            expected = """<a onclick="creme.blocks.form('{}', {reloadOnSuccess:""".format(url)
-
-        self.assertTrue(render.strip().startswith(expected),
-                        "{}\n doesn't start with\n {}".format(render.strip(), expected)
-                       )
+    # def assertFieldEditorTag(self, render, entity, field_name, block=False):
+    #     url = reverse('creme_core__inner_edition', args=(entity.entity_type_id, entity.id, field_name))
+    #
+    #     if block:
+    #         expected = """<a onclick="creme.blocks.form('{}', {blockReloadUrl:""".format(url)
+    #     else:
+    #         expected = """<a onclick="creme.blocks.form('{}', {reloadOnSuccess:""".format(url)
+    #
+    #     self.assertTrue(render.strip().startswith(expected),
+    #                     "{}\n doesn't start with\n {}".format(render.strip(), expected)
+    #                    )
 
     def _assertJsonifyFilter(self, expected, data):
         with self.assertNoException():
@@ -423,42 +423,50 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                )
             render = template.render(Context({'my_url': url}))
 
-        self.assertEqual('<a href="{}">Link</a>'.format(url), render.strip())
+        self.assertEqual(f'<a href="{url}">Link</a>', render.strip())
 
     def test_url_join2(self):
-        "Several arguments"
+        "Several arguments."
         url = '/creme_core/foobar'
         brick_id1 = 'brick-core-entities'
         brick_id2 = 'brick-core-properties'
 
         with self.assertNoException():
-            template = Template('{% load creme_core_tags %}'
-                                '{% url_join my_url brick_id_01=brick_id1 brick_id_02=brick_id2 as my_uri %}'
-                                '<a href="{{my_uri}}">Link</a>'
-                               )
-            render = template.render(Context({'my_url': url, 'brick_id1': brick_id1, 'brick_id2': brick_id2}))
+            template = Template(
+                '{% load creme_core_tags %}'
+                '{% url_join my_url brick_id_01=brick_id1 brick_id_02=brick_id2 as my_uri %}'
+                '<a href="{{my_uri}}">Link</a>'
+            )
+            render = template.render(Context(
+                {'my_url': url, 'brick_id1': brick_id1, 'brick_id2': brick_id2}
+            ))
 
-        self.assertIn(render.strip(),
-                      ('<a href="{}?brick_id_01={}&brick_id_02={}">Link</a>'.format(url, brick_id1, brick_id2),
-                       '<a href="{}?brick_id_02={}&brick_id_01={}">Link</a>'.format(url, brick_id2, brick_id1),
-                      )
-                     )
+        self.assertIn(
+            render.strip(),
+            (f'<a href="{url}?brick_id_01={brick_id1}&brick_id_02={brick_id2}">Link</a>',
+             f'<a href="{url}?brick_id_02={brick_id2}&brick_id_01={brick_id1}">Link</a>',
+            )
+        )
 
     def test_url_join3(self):
-        "List arguments"
+        "List arguments."
         url = '/creme_core/foobar'
         brick_ids = ['brick-core-entities', 'brick-core-properties']
 
         with self.assertNoException():
-            template = Template('{% load creme_core_tags %}'
-                                '{% url_join my_url brick_id=brick_id as my_uri %}'
-                                '<a href="{{my_uri}}">Link</a>'
-                               )
-            render = template.render(Context({'my_url': url, 'brick_id': brick_ids}))
+            template = Template(
+                '{% load creme_core_tags %}'
+                '{% url_join my_url brick_id=brick_id as my_uri %}'
+                '<a href="{{my_uri}}">Link</a>'
+            )
+            render = template.render(Context(
+                {'my_url': url, 'brick_id': brick_ids}
+            ))
 
-        self.assertEqual('<a href="{}?brick_id={}&brick_id={}">Link</a>'.format(url, brick_ids[0], brick_ids[1]),
-                         render.strip()
-                        )
+        self.assertEqual(
+            f'<a href="{url}?brick_id={brick_ids[0]}&brick_id={brick_ids[1]}">Link</a>',
+            render.strip()
+        )
 
     def test_url_join4(self):
         "Already a GET parameter"
@@ -472,7 +480,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                )
             render = template.render(Context({'my_url': url, 'brick_id': brick_id}))
 
-        self.assertEqual('<a href="{}&brick_id={}">Link</a>'.format(url, brick_id),
+        self.assertEqual(f'<a href="{url}&brick_id={brick_id}">Link</a>',
                          render.strip()
                         )
 
@@ -488,9 +496,10 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                )
             render = template.render(Context({'my_url': url, 'brick_id': brick_ids}))
 
-        self.assertEqual('<a href="{}&brick_id={}&brick_id={}">Link</a>'.format(url, brick_ids[0], brick_ids[1]),
-                         render.strip()
-                        )
+        self.assertEqual(
+            f'<a href="{url}&brick_id={brick_ids[0]}&brick_id={brick_ids[1]}">Link</a>',
+            render.strip()
+        )
 
     def test_url_join6(self):
         "Escaping"

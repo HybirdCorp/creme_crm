@@ -41,7 +41,7 @@ try:
     )
     from creme.creme_core.models.entity_filter import EntityFilterList
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class EntityFiltersTestCase(CremeTestCase):
@@ -280,7 +280,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         def create_subfilter(idx, owner):
             return EntityFilter.objects.smart_update_or_create(
-                'creme_core-subfilter{}'.format(idx), 'Misato', model=FakeContact,
+                f'creme_core-subfilter{idx}', 'Misato', model=FakeContact,
                 user=owner, is_private=True, is_custom=True,
                 conditions=[
                     RegularFieldConditionHandler.build_condition(
@@ -711,8 +711,8 @@ class EntityFiltersTestCase(CremeTestCase):
 
         # --------------------------
         efilter2 = create_filter(use_or=True)
-        self.assertEqual('{}[{}]'.format(pk, __version__), efilter2.pk)
-        self.assertEqual('Nerv member [{}]'.format(__version__), efilter2.name)
+        self.assertEqual(f'{pk}[{__version__}]', efilter2.pk)
+        self.assertEqual(f'Nerv member [{__version__}]', efilter2.name)
         self.assertEqual(2, qs.count())
 
         # --------------------------
@@ -722,14 +722,14 @@ class EntityFiltersTestCase(CremeTestCase):
         # --------------------------
         efilter3 = create_filter(use_or=True, value='Katsuragu')
         self.assertEqual(3, qs.count())
-        self.assertEqual('{}[{}]2'.format(pk, __version__), efilter3.pk)
-        self.assertEqual('Nerv member [{}](2)'.format(__version__), efilter3.name)
+        self.assertEqual(f'{pk}[{__version__}]2', efilter3.pk)
+        self.assertEqual(f'Nerv member [{__version__}](2)', efilter3.name)
 
         # --------------------------
         efilter4 = create_filter(use_or=True, value='Katsuragi')
         self.assertEqual(4, qs.count())
-        self.assertEqual('{}[{}]3'.format(pk, __version__), efilter4.pk)
-        self.assertEqual('Nerv member [{}](3)'.format(__version__), efilter4.name)
+        self.assertEqual(f'{pk}[{__version__}]3', efilter4.pk)
+        self.assertEqual(f'Nerv member [{__version__}](3)', efilter4.name)
 
     def test_manager_smart_update_or_create_errors(self):
         "Invalid chars in PK."
@@ -3787,8 +3787,8 @@ class EntityFiltersTestCase(CremeTestCase):
 
         def create_ef(id, **kwargs):
             return EntityFilter.objects.smart_update_or_create(
-                pk='test-ef_contact{}'.format(id),
-                name='Filter #{}'.format(id),
+                pk=f'test-ef_contact{id}',
+                name=f'Filter #{id}',
                 model=FakeContact, conditions=conditions,
                 **kwargs
             )
@@ -3837,8 +3837,8 @@ class EntityFiltersTestCase(CremeTestCase):
 
         def create_ef(id, **kwargs):
             return EntityFilter.objects.smart_update_or_create(
-                pk='test-ef_contact{}'.format(id),
-                name='Filter #{}'.format(id),
+                pk=f'test-ef_contact{id}',
+                name=f'Filter #{id}',
                 model=FakeContact, conditions=conditions,
                 **kwargs
             )

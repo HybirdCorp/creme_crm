@@ -27,10 +27,10 @@ class Manifest(Generator):
             config = {'cache': (config,)}
 
         cache_pattern = prepare_patterns(get_tuple(config, 'cache', '.*'),
-                                         'OFFLINE_MANIFEST[{}]'.format(name),
+                                         f'OFFLINE_MANIFEST[{name}]',
                                         )
         exclude = prepare_patterns(get_tuple(config, 'exclude'),
-                                   "OFFLINE_MANIFEST[{}]['exclude']".format(name),
+                                   f"OFFLINE_MANIFEST[{name}]['exclude']",
                                   )
         cache = set()
         for item in get_media_mapping().keys():

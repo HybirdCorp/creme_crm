@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,7 +59,7 @@ class XMLDiff:
 
     @property
     def short_msg(self):
-        return '<{}> ===> {}'.format(self._node.tag, self._msg)
+        return f'<{self._node.tag}> ===> {self._msg}'
 
     @property
     def long_msg(self):
@@ -83,12 +83,12 @@ def xml_diff(xml1, xml2):
     try:
         tree1 = XML(xml1)
     except Exception as e:
-        raise XMLDiffError('First document contains errors (base exception: {})'.format(e)) from e
+        raise XMLDiffError(f'First document contains errors (base exception: {e})') from e
 
     try:
         tree2 = XML(xml2)
     except Exception as e:
-        raise XMLDiffError('Second document contains errors (base exception: {})'.format(e)) from e
+        raise XMLDiffError(f'Second document contains errors (base exception: {e})') from e
 
     iter1 = _element_iterator(tree1)
     iter2 = _element_iterator(tree2)
@@ -125,7 +125,7 @@ def xml_diff(xml1, xml2):
 
             # Tag comparison ---------------------------------------------------
             if node1.tag != node2.tag:
-                return XMLDiff('Tag "{}" != "{}"'.format(node1.tag, node2.tag), node1, tree1)
+                return XMLDiff(f'Tag "{node1.tag}" != "{node2.tag}"', node1, tree1)
 
             # Attributes comparison --------------------------------------------
             attrs1 = dict(node1.items())
@@ -135,18 +135,19 @@ def xml_diff(xml1, xml2):
 
                 if attr_value1 is None:
                     return XMLDiff(
-                        'Attribute "{}" is missing in the first document'.format(attr_name2),
+                        f'Attribute "{attr_name2}" is missing in the first document',
                         node1, tree1
                     )
 
                 if attr_value1 != attr_value2:
-                    return XMLDiff('Attribute "{}": "{}" != "{}"'.format(
-                            attr_name2, attr_value1, attr_value2),
-                            node1, tree1
+                    return XMLDiff(
+                        f'Attribute "{attr_name2}": "{attr_value1}" != "{attr_value2}"',
+                        node1, tree1,
                     )
+
             if attrs1:
                 return XMLDiff(
-                    'Attribute "{}" is missing in the second document'.format(next(iter(attrs1.keys()))),
+                    f'Attribute "{next(iter(attrs1.keys()))}" is missing in the second document',
                     node1, tree1,
                 )
 
@@ -155,14 +156,14 @@ def xml_diff(xml1, xml2):
             text2 = node2.text or ''; text2 = text2.strip()
 
             if text1 != text2:
-                return XMLDiff('Text "{}" != "{}"'.format(text1, text2), node1, tree1)
+                return XMLDiff(f'Text "{text1}" != "{text2}"', node1, tree1)
 
             # Tail comparison --------------------------------------------------
             tail1 = node1.tail or ''; tail1 = tail1.strip()
             tail2 = node2.tail or ''; tail2 = tail2.strip()
 
             if tail1 != tail2:
-                return XMLDiff('Tail "{}" != "{}"'.format(tail1, tail2), node1, tree1)
+                return XMLDiff(f'Tail "{tail1}" != "{tail2}"', node1, tree1)
 
             previous_node1 = node1
     except StopIteration:

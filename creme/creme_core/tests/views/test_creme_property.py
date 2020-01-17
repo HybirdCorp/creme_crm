@@ -14,7 +14,7 @@ try:
     from creme.creme_core.bricks import PropertiesBrick
     from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
@@ -35,7 +35,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         url = reverse('creme_core__add_properties_bulk', args=(ct.id,))
 
         if kwargs.get('GET', False):
-            url += '?' + '&'.join('ids={}'.format(e.id) for e in entities)
+            url += '?' + '&'.join(f'ids={e.id}' for e in entities)
 
         return url
 
@@ -375,13 +375,15 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                          label.initial
                         )
 
-        response = self.client.post(self._build_bulk_url(self.centity_ct),
-                                    data={'entities_lbl':     'do not care',
-                                          'bad_entities_lbl': 'do not care',
-                                          'types':            [ptype01.id, ptype02.id],
-                                          'ids':              [entity01.id, entity02.id, entity03.id, entity04.id],
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_bulk_url(self.centity_ct),
+            data={
+                'entities_lbl':     'do not care',
+                'bad_entities_lbl': 'do not care',
+                'types':            [ptype01.id, ptype02.id],
+                'ids':              [entity01.id, entity02.id, entity03.id, entity04.id],
+            },
+        )
         self.assertNoFormError(response)
 
         self.assertEqual(0, entity01.properties.count())

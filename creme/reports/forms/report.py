@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,8 +30,13 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.backends import export_backend_registry
-from creme.creme_core.core.entity_cell import (EntityCell, EntityCellRegularField,
-        EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+from creme.creme_core.core.entity_cell import (
+    EntityCell,
+    EntityCellRegularField,
+    EntityCellCustomField,
+    EntityCellFunctionField,
+    EntityCellRelation,
+)
 from creme.creme_core.forms import CremeEntityForm, CremeForm
 from creme.creme_core.forms.fields import AjaxModelChoiceField, CreatorEntityField, DateRangeField
 from creme.creme_core.forms.header_filter import EntityCellsField, EntityCellsWidget
@@ -253,14 +258,14 @@ class ReportHandsField(EntityCellsField):
                                                    ) \
                                             .choices():
                     agg_id = _REGULAR_AGG_PREFIX + pattern.format(f_name)
-                    reg_agg_choices.append((agg_id, '{} - {}'.format(title, f_vname)))
+                    reg_agg_choices.append((agg_id, f'{title} - {f_vname}'))
 
                     builders[agg_id] = ReportHandsField._build_4_regular_aggregate
 
                 for cf in self._custom_fields:
                     if cf.field_type in authorized_customfields:
                         agg_id = _CUSTOM_AGG_PREFIX + pattern.format(cf.id)
-                        cust_agg_choices.append((agg_id, '{} - {}'.format(title, cf.name)))
+                        cust_agg_choices.append((agg_id, f'{title} - {cf.name}'))
                         builders[agg_id] = ReportHandsField._build_4_custom_aggregate
 
 
@@ -400,7 +405,7 @@ class ReportExportPreviewFilterForm(CremeForm):
                          ('date_filter_2', end.strftime('%d-%m-%Y') if end else ''),
                         ])
 
-        return '&'.join('{}={}'.format(key, value) for key, value in data)
+        return '&'.join(f'{key}={value}' for key, value in data)
 
 
 class ReportExportFilterForm(ReportExportPreviewFilterForm):

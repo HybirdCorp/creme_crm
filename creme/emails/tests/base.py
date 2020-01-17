@@ -31,7 +31,7 @@ try:
     MailingList   = get_mailinglist_model()
     EmailTemplate = get_emailtemplate_model()
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 Folder   = documents.get_folder_model()
 Document = documents.get_document_model()

@@ -135,7 +135,7 @@ class RegularFieldsConditionsField(_ConditionsField):
         for subfield in related_model._meta.fields:
             if subfield.get_tag('viewable') and not is_date_field(subfield) \
                and not isinstance(subfield, excluded):
-                full_name = '{}__{}'.format(fname, subfield.name)
+                full_name = f'{fname}__{subfield.name}'
 
                 if not (field_hidden or is_sfield_hidden(subfield)) or \
                    full_name in non_hiddable_fnames:
@@ -299,7 +299,7 @@ class DateFieldsConditionsField(_ConditionsField):
 
         for subfield in related_model._meta.fields:
             if subfield.get_tag('viewable') and is_date_field(subfield):
-                full_name = '{}__{}'.format(fname, subfield.name)
+                full_name = f'{fname}__{subfield.name}'
 
                 if not (field_hidden or is_sfield_hidden(subfield)) or \
                    full_name in non_hiddable_fnames:

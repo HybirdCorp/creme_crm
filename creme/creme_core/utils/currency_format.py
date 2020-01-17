@@ -6,7 +6,7 @@
 #   The function has been modified to take the id of the wanted currency.
 #
 #    Copyright (c) 2001-2018  Python Software Foundation.
-#                  2009-2019  Hybird
+#                  2009-2020  Hybird
 #
 #    This file is released under the Python License
 #    (http://www.opensource.org/licenses/Python-2.0)
@@ -81,14 +81,14 @@ def currency(val, currency_or_id=None):
         smb = ''
 
     if conv is None:
-        return '{} {}'.format(val, smb)
+        return f'{val} {smb}'
 
     # Check for illegal values
     digits = conv[not is_local_symbol and 'int_frac_digits' or 'frac_digits']
     if digits == 127:
         raise ValueError("Currency formatting is not possible using the 'C' locale.")
 
-    s = locale.format('%.{}f'.format(digits), abs(val), grouping=True, monetary=True)
+    s = locale.format(f'%.{digits}f', abs(val), grouping=True, monetary=True)
 
     # '<' and '>' are markers if the sign must be inserted between symbol and value
     s = '<' + s + '>'

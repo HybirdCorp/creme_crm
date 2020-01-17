@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2016 Hybird
+# Copyright (c) 2009-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -88,10 +88,10 @@ class Command(BaseCommand):
                             entry.file_path = path
                             entries_per_id[entry.msgid].append(entry)
             elif verbosity >= 1:
-                self.stdout.write('No locale file for "{}" ({})'.format(app_config.label, language))
+                self.stdout.write(f'No locale file for "{app_config.label}" ({language})')
 
         if verbosity >= 1:
-            self.stdout.write('Number of entries: {}'.format(entry_count))
+            self.stdout.write(f'Number of entries: {entry_count}')
 
         problems_count = 0
 
@@ -131,15 +131,13 @@ class Command(BaseCommand):
                                           )
 
                     if cxt_conflict:
-                        self.stdout.write('\n[diverging]\n ({}) in :'.format(msgid))
+                        self.stdout.write(f'\n[diverging]\n ({msgid}) in :')
 
                         for msgstr, msg_entries in entries_per_msg.items():
                             self.stdout.write('    ({}) in: {}'.format(
                                                     msgstr,
-                                                    ', '.join('(file={}, cxt={})'.format(
-                                                                    entry.file_path,
-                                                                    entry.msgctxt,
-                                                                ) for entry in msg_entries
+                                                    ', '.join(f'(file={entry.file_path}, cxt={entry.msgctxt})'
+                                                                  for entry in msg_entries
                                                              )
                                                 )
                                              )
@@ -147,4 +145,4 @@ class Command(BaseCommand):
                         problems_count += 1
 
         if verbosity >= 1:
-            self.stdout.write('\nNumber of problems: {}'.format(problems_count))
+            self.stdout.write(f'\nNumber of problems: {problems_count}')

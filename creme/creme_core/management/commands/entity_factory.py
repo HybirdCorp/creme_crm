@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2018  Hybird
+#    Copyright (C) 2016-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -114,7 +114,7 @@ def get_best_locale(language_code=None):
                            }
 
         if prefixed_locales:
-            best_locale = '{}_{}'.format(prefix, prefix.upper())
+            best_locale = f'{prefix}_{prefix.upper()}'
             if best_locale in AVAILABLE_LOCALES:
                 return best_locale
 
@@ -143,7 +143,7 @@ def _get_contact_n_factory(locale):
     build_email_domain = partial(factory.Faker('free_email_domain', locale=locale).generate, {})
 
     def build_email(contact):
-        return '{0}.{1}@{2}'.format(contact.first_name, contact.last_name, build_email_domain()).lower()
+        return f'{contact.first_name}.{contact.last_name}@{build_email_domain()}'.lower()
 
     class ContactFactory(DjangoModelFactory):
         class Meta:
@@ -165,7 +165,7 @@ def _get_organisation_n_factory(locale):
     build_email_domain = partial(factory.Faker('free_email_domain', locale=locale).generate, {})
 
     def build_email(orga):
-        return '{0}@{1}'.format(orga.name, build_email_domain()).lower()
+        return f'{orga.name}@{build_email_domain()}'.lower()
 
     class OrganisationFactory(DjangoModelFactory):
         class Meta:
@@ -212,20 +212,24 @@ class OptimizeMySQLContext(BaseOptimizeContext):
                 sql_cmd = 'SET GLOBAL innodb_flush_log_at_trx_commit=0'
 
                 if self.verbosity:
-                    self.stdout.write('Temporary optimization : {}'.format(sql_cmd))
+                    self.stdout.write(f'Temporary optimization : {sql_cmd}')
 
                 cursor.execute(sql_cmd)
         else:
             # TODO: manage other engine
             if self.verbosity:
-                self.stdout.write('Unknown engine "{}" : no optimisation available.'.format(engine))
+                self.stdout.write(
+                    f'Unknown engine "{engine}" : no optimisation available.'
+                )
 
     def __exit__(self, exc_type, exc_value, traceback):
         cursor = self.cursor
 
         if self.engine == 'InnoDB':
             if self.flush_policy in {'1', '2'}:
-                cursor.execute('SET GLOBAL innodb_flush_log_at_trx_commit={}'.format(self.flush_policy))
+                cursor.execute(
+                    f'SET GLOBAL innodb_flush_log_at_trx_commit={self.flush_policy}'
+                )
         # else: # TODO: manage other engine
 
 
@@ -240,7 +244,7 @@ class OptimizePGSQLContext(BaseOptimizeContext):
             sql_cmd = 'SET synchronous_commit=off;'
 
             if self.verbosity:
-                self.stdout.write('Temporary optimization : {}'.format(sql_cmd))
+                self.stdout.write(f'Temporary optimization : {sql_cmd}')
 
             cursor.execute(sql_cmd)
 
@@ -250,7 +254,7 @@ class OptimizePGSQLContext(BaseOptimizeContext):
         match = re.match(r'^(?P<value>\d+)(?P<unit>(ms|s)+)$', delay)
 
         if match is None:
-            print('DEBUG: invalid delay "{}" ?!'.format(delay))
+            print(f'DEBUG: invalid delay "{delay}" ?!')
         else:
             data = match.groupdict()
             value = int(data['value'])
@@ -303,7 +307,7 @@ class Command(BaseCommand):
         get_opt = options.get
 
         if get_opt('list_types'):
-            self.stdout.write('\n'.join(' - {}'.format(m) for m in self.TYPES))
+            self.stdout.write('\n'.join(f' - {m}' for m in self.TYPES))
             return
 
         e_type = get_opt('type')
@@ -311,7 +315,9 @@ class Command(BaseCommand):
         try:
             _get_model_n_factory = self.TYPES[e_type]
         except KeyError:
-            self.stderr.write('"{}" is not a valid type ; use the -l option to get the valid types.'.format(e_type))
+            self.stderr.write(
+                f'"{e_type}" is not a valid type ; use the -l option to get the valid types.'
+            )
             return
 
         locale = get_best_locale(get_opt('language_code'))
@@ -335,8 +341,8 @@ class Command(BaseCommand):
                                   'settings.py to improve the performances.'
                                  )
 
-            self.stdout.write('Locale: "{}" '.format(locale))
-            self.stdout.write('Original "{}" count: {}'.format(verbose_name, entity_model.objects.count()))
+            self.stdout.write(f'Locale: "{locale}" ')
+            self.stdout.write(f'Original "{verbose_name}" count: {entity_model.objects.count()}')
 
         # todo: only count queries, to reduce memory usage
         # from creme.creme_core.utils.profiling import CaptureQueriesContext
@@ -357,4 +363,4 @@ class Command(BaseCommand):
         if verbosity:
             # self.stdout.write('Queries count: %s' % len(context.captured_queries))
             # self.stdout.write('Queries: %s' % context.captured_queries)
-            self.stdout.write('New "{}" count: {}'.format(verbose_name, entity_model.objects.count()))
+            self.stdout.write(f'New "{verbose_name}" count: {entity_model.objects.count()}')

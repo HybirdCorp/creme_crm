@@ -17,7 +17,7 @@ try:
     from creme.creme_config.bricks import GenericModelBrick
     from creme.creme_config.forms.generics import DeletionForm
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class RegistryTestCase(CremeTestCase):

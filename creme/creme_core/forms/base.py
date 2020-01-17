@@ -66,7 +66,7 @@ class _FieldBlock:
         self.field_names = [*field_names] if field_names != '*' else field_names
 
     def __str__(self):  # For debugging
-        return '<_FieldBlock: {} {}>'.format(self.name, self.field_names)
+        return f'<_FieldBlock: {self.name} {self.field_names}>'
 
 
 class FieldBlocksGroup:
@@ -84,7 +84,7 @@ class FieldBlocksGroup:
 
             if field_names == '*':  # Wildcard
                 blocks_data[cat] = block.name
-                assert wildcard_cat is None, 'Only one wildcard is allowed: {}'.format(form)
+                assert wildcard_cat is None, f'Only one wildcard is allowed: {form}'
                 wildcard_cat = cat
             else:
                 field_set |= {*field_names}

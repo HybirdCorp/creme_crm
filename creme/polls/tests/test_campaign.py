@@ -18,13 +18,13 @@ try:
             PollCampaign, PollForm, PollReply)
     from ..bricks import PollCampaignRepliesBrick
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomPollCampaign
 class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
     def _create_segment(self, name, label):  # TODO: inline ?
-        ptype = CremePropertyType.create('polls-prop_{}'.format(name), 'is from segment "{}"'.format(label))
+        ptype = CremePropertyType.create(f'polls-prop_{name}', f'is from segment "{label}"')
         return MarketSegment.objects.create(name=label, property_type=ptype)
 
     def test_detailview01(self):
@@ -141,7 +141,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         for i in range(1, reply_number + 1):
-            preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
+            preply = self.get_object_or_fail(PollReply, name=f'{name}#{i}')
             self.assertEqual(camp, preply.campaign)
 
     @skipIfCustomPollForm
@@ -174,7 +174,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         for i in range(1, reply_number + 1):
-            preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
+            preply = self.get_object_or_fail(PollReply, name=f'{name}#{i}')
             self.assertEqual(camp, preply.campaign)
 
     @skipIfCustomPollForm

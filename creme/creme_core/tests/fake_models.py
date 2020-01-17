@@ -114,7 +114,7 @@ else:
             ordering = ('title',)
 
         def __str__(self):
-            return '{} - {}'.format(self.linked_folder, self.title)
+            return f'{self.linked_folder} - {self.title}'
 
         # def get_absolute_url(self):
         # def get_edit_absolute_url(self):

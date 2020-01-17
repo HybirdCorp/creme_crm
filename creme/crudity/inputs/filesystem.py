@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2019  Hybird
+#    Copyright (C) 2017-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ..backends.models import CrudityBackend
 from ..models import WaitingAction
+
 from .base import CrudityInput
 
 logger = logging.getLogger(__name__)
@@ -99,7 +100,7 @@ class IniFileInput(CrudityInput):
                             WaitingAction.objects.create(
                                   action=self.method,
                                   ct=backend.model,
-                                  source='{} - {}'.format(backend.fetcher_name, self.name),
+                                  source=f'{backend.fetcher_name} - {self.name}',
                                   subject=backend.subject,
                                   user=owner,
                                   data=data,
@@ -109,7 +110,7 @@ class IniFileInput(CrudityInput):
                             backend._create_instance_n_history(
                                 data,
                                 user=owner,
-                                source='{} - {}'.format(backend.fetcher_name, self.name),
+                                source=f'{backend.fetcher_name} - {self.name}',
                             )
 
                         # Cleaning

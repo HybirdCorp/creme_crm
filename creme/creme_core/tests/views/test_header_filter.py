@@ -28,7 +28,7 @@ try:
         FakeContact, FakeOrganisation, FakeProduct, FakeMailingList,
     )
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class HeaderFilterViewsTestCase(ViewsTestCase):
@@ -165,16 +165,11 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                     data={'name': name,
                                           'user': user.id,
                                           'is_private': 'on',
-                                          'cells': 'relation-{rtype},'
-                                                   'regular_field-{rfield},'
-                                                   'function_field-{ffield},'
-                                                   'custom_field-{cfield}'.format(
-                                                        rfield=field_name,
-                                                        cfield=customfield.id,
-                                                        rtype=loves.id,
-                                                        ffield=funcfield.name,
-                                                    )
-                                         }
+                                          'cells': f'relation-{loves.id},'
+                                                   f'regular_field-{field_name},'
+                                                   f'function_field-{funcfield.name},'
+                                                   f'custom_field-{customfield.id}',
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -373,10 +368,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         name = 'Entity view v2'
         field2 = 'last_name'
         response = self.client.post(url, data={'name':  name,
-                                               'cells': 'regular_field-{},'
-                                                        'regular_field-{}'.format(
-                                                                field1, field2,
-                                                            ),
+                                               'cells': f'regular_field-{field1},'
+                                                        f'regular_field-{field2}',
                                               },
                                    )
         self.assertNoFormError(response, status=302)

@@ -34,7 +34,7 @@ try:
     from ..creme_jobs import entity_emails_send_type
     from ..models import EmailSignature
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomEntityEmail
@@ -791,7 +791,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         email2 = self._create_email(MAIL_STATUS_NOTSENT)
 
         url = reverse('emails__resend_emails')
-        data = {'ids': '{},{}, '.format(email1.id, email2.id)}
+        data = {'ids': f'{email1.id},{email2.id}, '}
         # self.assertGET404(url, data=data)
         self.assertGET405(url, data=data)
 

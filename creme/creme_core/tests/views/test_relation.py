@@ -15,7 +15,7 @@ try:
     from creme.creme_core.models import (RelationType, SemiFixedRelationType,
             Relation, CremeEntity, CremePropertyType, CremeProperty)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class RelationViewsTestCase(ViewsTestCase):
@@ -204,8 +204,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                    )
         self.assertFormError(response, 'form', 'relations',
                              _('There are duplicates: %(duplicates)s') % {
-                                     'duplicates': '({}, {})'.format(self.rtype01, self.object01),
-                                 }
+                                     'duplicates': f'({self.rtype01}, {self.object01})',
+                                 },
                             )
 
     def test_add_relations05(self):
@@ -280,7 +280,7 @@ class RelationViewsTestCase(ViewsTestCase):
                              _('«%(subject)s» must have a property in «%(properties)s» '
                                'in order to use the relationship «%(predicate)s»') % {
                                     'subject':    subject,
-                                    'properties': '{}/{}'.format(ptype03, ptype01),
+                                    'properties': f'{ptype03}/{ptype01}',
                                     'predicate':  rtype03.predicate,
                                 }
                             )
@@ -289,7 +289,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                     data={'relations': self.formfield_value_multi_relation_entity(
                                                            [rtype04.id, self.object01]
                                                         ),
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(1, subject.relations.count())
@@ -423,7 +423,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                    )
         self.assertFormError(response, 'form', None,
                              _('There are duplicates: %(duplicates)s') % {
-                                    'duplicates': '({}, {})'.format(self.rtype01, self.object01),
+                                    'duplicates': f'({self.rtype01}, {self.object01})',
                                  }
                             )
 
@@ -640,7 +640,7 @@ class RelationViewsTestCase(ViewsTestCase):
         url = reverse('creme_core__create_relations_bulk', args=(ct_id,))
 
         if kwargs.get('GET', False):
-            url += '?' + '&'.join('ids={}'.format(e.id) for e in subjects)
+            url += '?' + '&'.join(f'ids={e.id}' for e in subjects)
 
         return url
 
@@ -762,7 +762,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                    )
         self.assertFormError(response, 'form', 'relations',
                              _('An entity can not be linked to itself : %(entities)s') % {
-                                    'entities': '{}, {}'.format(subject01, subject02),
+                                    'entities': f'{subject01}, {subject02}',
                                   }
                             )
 
@@ -813,9 +813,10 @@ class RelationViewsTestCase(ViewsTestCase):
                                )
 
         ct_id = self.ct_id
-        response = self.assertGET200(self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True)
-                                     + '&rtype={}&rtype={}'.format(self.rtype01.id, self.rtype02.id)
-                                    )
+        response = self.assertGET200(
+            self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True)
+            + f'&rtype={self.rtype01.id}&rtype={self.rtype02.id}'
+        )
 
         with self.assertNoException():
             allowed_rtypes = response.context['form'].fields['relations'].allowed_rtypes

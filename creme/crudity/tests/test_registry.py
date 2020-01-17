@@ -10,7 +10,7 @@ try:
         FakeContactBackend, FakeOrganisationBackend, FakeDocumentBackend,
     )
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class CrudityRegistryTestCase(CrudityTestCase):

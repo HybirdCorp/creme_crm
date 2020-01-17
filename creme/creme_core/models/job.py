@@ -124,7 +124,7 @@ class Job(models.Model):
         return str(self.type)
 
     def __repr__(self):
-        return '<Job type="{type}" id="{id}">'.format(type=self.type_id, id=self.id)
+        return f'<Job type="{self.type_id}" id="{self.id}">'
 
     def get_absolute_url(self):
         return reverse('creme_core__job', args=(self.id,))
@@ -311,9 +311,7 @@ class BaseJobResult(models.Model):
         abstract = True
 
     def __repr__(self):
-        return 'JobResult(job={job}, raw_messages="{msg}")'.format(
-                    job=self.job_id, msg=self.raw_messages,
-                )
+        return f'JobResult(job={self.job_id}, raw_messages="{self.raw_messages}")'
 
     @property
     def messages(self):  # TODO: cache ?
@@ -335,9 +333,9 @@ class EntityJobResult(BaseJobResult):
     entity = models.ForeignKey(CremeEntity, null=True, on_delete=models.CASCADE)
 
     def __repr__(self):
-        return 'EntityJobResult(job={job}, raw_messages="{msg}", entity={entity})'.format(
-                    job=self.job_id, msg=self.raw_messages, entity=self.entity_id,
-                )
+        return (f'EntityJobResult(job={self.job_id}, '
+                                f'raw_messages="{self.raw_messages}", '
+                                f'entity={self.entity_id})')
 
 
 class MassImportJobResult(BaseJobResult):
@@ -347,11 +345,11 @@ class MassImportJobResult(BaseJobResult):
                                             # True: entity updated
 
     def __repr__(self):
-        return 'MassImportJobResult(job={job}, raw_messages="{msg}", entity={entity}, ' \
-                                   'raw_line="{line}", updated={updated})'.format(
-                    job=self.job_id, msg=self.raw_messages, entity=self.entity_id,
-                    line=self.raw_line, updated=self.updated,
-                )
+        return (f'MassImportJobResult(job={self.job_id}, '
+                                    f'raw_messages="{self.raw_messages}", '
+                                    f'entity={self.entity_id}, '
+                                    f'raw_line="{self.raw_line}", '
+                                    f'updated={self.updated})')
 
     @property
     def line(self):  # TODO: cache ?

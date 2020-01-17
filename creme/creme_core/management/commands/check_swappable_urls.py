@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2018-2019 Hybird
+# Copyright (c) 2018-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -46,13 +46,9 @@ class Command(BaseCommand):
                 except NoReverseMatch:
                     errors_count += 1
                     self.stderr.write(
-                        'The swappable URL "{url}" from the app "{app}" seems '
-                        'having broken check_args: {args}.'.format(
-                                url=name,
-                                app=group.app_name,
-                                args=swappable.verbose_args,
-                              )
+                        f'The swappable URL "{name}" from the app "{group.app_name}" '
+                        f'seems having broken check_args: {swappable.verbose_args}.'
                     )
 
         if verbosity:
-            self.stdout.write('{} error(s) found.'.format(errors_count))
+            self.stdout.write(f'{errors_count} error(s) found.')

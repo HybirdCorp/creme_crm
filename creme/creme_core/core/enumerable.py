@@ -152,21 +152,20 @@ class _EnumerableRegistry:
     def _check_model(model):
         # TODO: and registered as an entity ??
         if not issubclass(model, CremeEntity):
-            raise ValueError('This model is not a CremeEntity: {}.{}'.format(
-                                    model.__module__, model.__name__,
-                                )
-                            )
+            raise ValueError(
+                f'This model is not a CremeEntity: {model.__module__}.{model.__name__}'
+            )
 
     @staticmethod
     def _check_field(field):
         if not field.get_tag('viewable'):  # TODO: unit test (needs new field)
-            raise ValueError('This field is not viewable: {}'.format(field))
+            raise ValueError(f'This field is not viewable: {field}')
 
         # TODO: we probably should manage fields with is_relation==False but with
         #       a 'choices' attribute. Wait to add the feature in EntityFilterForm too.
 
         if not field.get_tag('enumerable'):
-            raise ValueError('This field is not enumerable: {}'.format(field))
+            raise ValueError(f'This field is not enumerable: {field}')
 
     def _get_field(self, model, field_name):
         field = model._meta.get_field(field_name)  # Can raise FieldDoesNotExist
@@ -223,9 +222,8 @@ class _EnumerableRegistry:
 
         if self._enums_4_fields.setdefault(field, enumerator_class) is not enumerator_class:
             raise self.RegistrationError(
-                '_EnumerableRegistry: this field is already registered: {model}.{field}'.format(
-                    model=model.__name__, field=field_name,
-                )
+                f'{self.__class__.__name__}: this field is already registered: '
+                f'{model.__name__}.{field_name}'
             )
 
         return self
@@ -257,7 +255,7 @@ class _EnumerableRegistry:
 
         if self._enums_4_models.setdefault(model, enumerator_class) is not enumerator_class:
             raise self.RegistrationError(
-                '_EnumerableRegistry: this model is already registered: {}'.format(model)
+                f'{self.__class__.__name__}: this model is already registered: {model}'
             )
 
         return self

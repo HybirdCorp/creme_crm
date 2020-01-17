@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,17 +43,14 @@ class ListViewState:
         self.extra_q = None
 
     def __repr__(self):
-        return ('<ListViewState(efilter_id={efilter}, hfilter_id={hfilter}, page={page},'
-                ' rows={rows}, sort={sortorder}{sortkey}, url={url},'
-                ' search={search}, extra_q={extra_q})>'.format(
-            efilter=self.entity_filter_id,
-            hfilter=self.header_filter_id,
-            page=self.page, rows=self.rows,
-            sortorder=self.sort_order, sortkey=self.sort_cell_key,
-            url=self.url,
-            search=self.search,
-            extra_q=self.extra_q,
-        ))
+        return (f'<ListViewState(efilter_id={self.entity_filter_id}, '
+                               f'hfilter_id={self.header_filter_id}, '
+                               f'page={self.page}, '
+                               f'rows={self.rows}, '
+                               f'sort={self.sort_order}{self.sort_cell_key},'
+                               f' url={self.url}, '
+                               f'search={self.search}, '
+                               f'extra_q={self.extra_q})>')
 
     def register_in_session(self, request):
         serialized = {**self.__dict__}

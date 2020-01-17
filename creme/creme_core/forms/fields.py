@@ -883,7 +883,9 @@ class CreatorEntityField(EntityCredsJSONField):
             elif isinstance(q_filter, Q):
                 q = q_filter
             else:
-                raise ValueError('Invalid type for q_filter (needs dict or Q): {}'.format(q_filter))
+                raise ValueError(
+                    f'Invalid type for q_filter (needs dict or Q): {q_filter}'
+                )
 
         return q
 
@@ -937,7 +939,7 @@ class CreatorEntityField(EntityCredsJSONField):
     def _value_to_jsonifiable(self, value):
         if isinstance(value, int):
             if not self._entity_queryset(self.model, self.q_filter_query).filter(pk=value).exists():
-                raise ValueError('No such entity with id={}.'.format(value))
+                raise ValueError(f'No such entity with id={value}.')
 
             return value
 

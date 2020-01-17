@@ -37,7 +37,7 @@ try:
         CurrentYearRange,
     )
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class CremeUserChoiceFieldTestCase(FieldTestCase):
@@ -72,7 +72,7 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
                 if user_id == choice[0]:
                     return i, choice[1]
 
-            self.fail('User "{}" not found in {}'.format(u, choices))
+            self.fail(f'User "{u}" not found in {choices}')
 
         active_choices = active_group[1]
         user_index, user_label = find_user_choice(user, active_choices)
@@ -963,7 +963,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
 
                     yield (
                         self.choice_cls(value=x[0],
-                                        help='The "{}" weapon'.format(label),
+                                        help=f'The "{label}" weapon',
                                        ),
                         label,
                     )
@@ -984,16 +984,13 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
 
             if id_obj.value == pk:
                 if choice[1] != label:
-                    self.fail('Choice with pk="{pk}" found with '
-                              'label "{found}" != "{label}"'.format(
-                        pk=pk,
-                        found=choice[1],
-                        label=label,
-                    ))
+                    self.fail(f'Choice with pk="{pk}" found with '
+                              f'label "{choice[1]}" != "{label}"'
+                             )
 
                 return id_obj
 
-        self.fail('Choice with pk="{}" not found'.format(pk))
+        self.fail(f'Choice with pk="{pk}" not found')
 
     def test_required(self):
         field = EnhancedModelMultipleChoiceField(queryset=FakeSector.objects.all())
@@ -1144,7 +1141,7 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
     def test_iterator(self):
         class CustomIterator(EnhancedModelChoiceIterator):
             def help(self, obj):
-                return 'The "{}" sector'.format(obj)
+                return f'The "{obj}" sector'
 
         field = EnhancedModelMultipleChoiceField(
             queryset=FakeSector.objects.all(),
@@ -1155,4 +1152,4 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
 
         choices = [*field.choices]
         choice = self.assertFoundChoice(sector.id, sector.title, choices)
-        self.assertEqual('The "{}" sector'.format(sector), choice.help)
+        self.assertEqual(f'The "{sector}" sector', choice.help)

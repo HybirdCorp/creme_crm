@@ -22,18 +22,20 @@ try:
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.activities import get_activity_model
-    from creme.activities.constants import (NARROW, FLOATING_TIME, FLOATING,
-            REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
-            STATUS_PLANNED, STATUS_IN_PROGRESS, STATUS_DONE, STATUS_CANCELLED,
-            ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_NETWORK,
-            ACTIVITYTYPE_PHONECALL,
-            ACTIVITYSUBTYPE_PHONECALL_OUTGOING, ACTIVITYSUBTYPE_PHONECALL_FAILED)
+    from creme.activities.constants import (
+        NARROW, FLOATING_TIME, FLOATING,
+        REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
+        STATUS_PLANNED, STATUS_IN_PROGRESS, STATUS_DONE, STATUS_CANCELLED,
+        ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_NETWORK,
+        ACTIVITYTYPE_PHONECALL,
+        ACTIVITYSUBTYPE_PHONECALL_OUTGOING, ACTIVITYSUBTYPE_PHONECALL_FAILED,
+    )
     from creme.activities.models import Calendar
     from creme.activities.tests.base import skipIfCustomActivity
 
     from creme.mobile.models import MobileFavorite
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 Contact = get_contact_model()
@@ -325,7 +327,7 @@ class MobileTestCase(CremeTestCase):
         )
 
     def test_create_contact03(self):
-        "Not logged"
+        "Not logged."
         url = self.CREATE_CONTACT_URL
         response = self.assertGET(302, url)
         self.assertRedirects(response, '{}?next={}'.format(reverse('mobile__login'), url))
@@ -486,7 +488,7 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(meeting.type.as_timedelta(), meeting.end - meeting.start)
         self.assertEqual(STATUS_IN_PROGRESS, meeting.status_id)
 
-        self.assertRedirects(response, reverse('mobile__portal') + '#activity_{}'.format(meeting.id))
+        self.assertRedirects(response, reverse('mobile__portal') + f'#activity_{meeting.id}')
 
     @skipIfCustomActivity
     def test_start_activity02(self):

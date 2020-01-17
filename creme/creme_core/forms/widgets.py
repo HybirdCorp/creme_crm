@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -892,7 +892,7 @@ class TinyMCEEditor(widgets.Textarea):
         final_attrs['plugin'] = 'tinymce'
         final_attrs['plugin_options'] = json_dump({
             'mode':                            'textareas',
-            'script_url':                      '{}tiny_mce/tiny_mce.js'.format(settings.MEDIA_URL),
+            'script_url':                      f'{settings.MEDIA_URL}tiny_mce/tiny_mce.js',
             'convert_urls':                    False,
             'theme':                           'advanced',
             'height':                          300,
@@ -984,9 +984,10 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
     @filtertype.setter
     def filtertype(self, filtertype):
         if filtertype and filtertype not in self.MODES:
-            raise ValueError('UnorderedMultipleChoiceWidget.filtertype: the value must be in {expected} '
-                             '(given value: "{value}")'.format(expected=self.MODES, value=filtertype)
-                            )
+            raise ValueError(
+                f'{self.__class__.__name__}.filtertype: '
+                f'the value must be in {self.MODES} (given value: "{filtertype}")'
+            )
 
         self._filtertype = filtertype
 
@@ -1039,9 +1040,9 @@ class OrderedMultipleChoiceWidget(widgets.SelectMultiple):
         return context
 
     def value_from_datadict(self, data, files, name):
-        prefix_check = '{}_check_'.format(name)
-        prefix_order = '{}_order_'.format(name)
-        prefix_value = '{}_value_'.format(name)
+        prefix_check = f'{name}_check_'
+        prefix_order = f'{name}_order_'
+        prefix_value = f'{name}_value_'
 
         selected = []
         for key, value in data.items():

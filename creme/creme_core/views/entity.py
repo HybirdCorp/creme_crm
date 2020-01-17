@@ -283,7 +283,7 @@ class SearchAndView(base.CheckedView):
             try:
                 ct = get_ct(*model_id.split('-'))
             except (ContentType.DoesNotExist, TypeError) as e:
-                raise Http404('This model does not exist: {}'.format(model_id)) from e
+                raise Http404(f'This model does not exist: {model_id}') from e
 
             check_app(ct.app_label)
 
@@ -613,7 +613,7 @@ class Merge(MergeFormMixin, generic.CremeFormView):
                 entity1 = entities_per_id[entity1_id]
                 entity2 = entities_per_id[entity2_id]
             except IndexError as e:
-                raise Http404('Entity not found: {}'.format(e)) from e
+                raise Http404(f'Entity not found: {e}') from e
 
             if entity1.entity_type_id != entity2.entity_type_id:
                 raise ConflictError('You can not merge entities of different types.')
@@ -1029,7 +1029,7 @@ class EntityDeletionMixin:
 
             for dep in dependencies:
                 if isinstance(dep, Relation) and can_view(dep.object_entity):
-                    yield '{} «{}»'.format(dep.type.predicate, dep.object_entity)
+                    yield f'{dep.type.predicate} «{dep.object_entity}»'
 
             if not_viewable_count:
                 yield ngettext(
@@ -1040,7 +1040,7 @@ class EntityDeletionMixin:
 
             for dep in dependencies:
                 if isinstance(dep, Relation) and not can_view(dep.object_entity):
-                    yield '{} «{}»'.format(dep.type.predicate, settings.HIDDEN_VALUE)
+                    yield f'{dep.type.predicate} «{settings.HIDDEN_VALUE}»'
 
             for dep in dependencies:
                 if not isinstance(dep, (CremeEntity, Relation)):
@@ -1115,7 +1115,7 @@ class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
         try:
             entity_ids = [int(e_id) for e_id in get_from_POST_or_404(self.request.POST, 'ids').split(',') if e_id]
         except ValueError as e:
-            raise BadRequestError('Bad POST argument ({})'.format(e)) from e
+            raise BadRequestError(f'Bad POST argument ({e})') from e
 
         if not entity_ids:
             raise BadRequestError('Empty "ids" argument.')
@@ -1354,4 +1354,4 @@ class EntitiesListPopup(base.EntityCTypeRelatedMixin, listview.BaseEntitiesListP
         return self.get_ctype().model_class()
 
     def get_state_id(self):
-        return '{}#{}'.format(self.get_ctype().id, super().get_state_id())
+        return f'{self.get_ctype().id}#{super().get_state_id()}'

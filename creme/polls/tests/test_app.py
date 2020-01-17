@@ -13,7 +13,7 @@ try:
     from ..bricks import PersonPollRepliesBrick
     from ..models import PollType
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class PollsAppTestCase(_PollsTestCase, BrickTestCaseMixin):

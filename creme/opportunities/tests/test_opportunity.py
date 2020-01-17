@@ -34,7 +34,7 @@ try:
         Organisation, Opportunity, Contact,
     )
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomOpportunity
@@ -46,7 +46,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         try:
             cls.ADD_URL = reverse('opportunities__create_opportunity')
         except Exception as e:
-            print('Error in OpportunitiesTestCase.setUpClass(): {}'.format(e))
+            print(f'Error in OpportunitiesTestCase.setUpClass(): {e}')
 
     def _build_addrelated_url(self, entity, popup=False):
         return reverse(
@@ -279,16 +279,19 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         # ----
         salesphase = SalesPhase.objects.all()[0]
-        name = 'Opportunity linked to {}'.format(target)
-        response = self.client.post(url, data={'user':         user.pk,
-                                               'name':         name,
-                                               'sales_phase':  salesphase.id,
-                                               'closing_date': '2011-03-12',
-                                               'target':       self.formfield_value_generic_entity(target),
-                                               'emitter':      emitter.id,
-                                               'currency':     DEFAULT_CURRENCY_PK,
-                                              }
-                                   )
+        name = f'Opportunity linked to {target}'
+        response = self.client.post(
+            url,
+            data={
+                'user':         user.pk,
+                'name':         name,
+                'sales_phase':  salesphase.id,
+                'closing_date': '2011-03-12',
+                'target':       self.formfield_value_generic_entity(target),
+                'emitter':      emitter.id,
+                'currency':     DEFAULT_CURRENCY_PK,
+            },
+        )
         self.assertNoFormError(response, status=302)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
@@ -298,22 +301,24 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
-        response = self.client.post(url, follow=True,
-                                    data={'user':         user.pk,
-                                          'name':         'Opportunity Two linked to {}'.format(target),
-                                          'sales_phase':  salesphase.id,
-                                          'closing_date': '2011-03-12',
-                                          'target':       self.formfield_value_generic_entity(target),
-                                          'emitter':      emitter.id,
-                                          'currency':     DEFAULT_CURRENCY_PK,
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':         user.pk,
+                'name':         f'Opportunity Two linked to {target}',
+                'sales_phase':  salesphase.id,
+                'closing_date': '2011-03-12',
+                'target':       self.formfield_value_generic_entity(target),
+                'emitter':      emitter.id,
+                'currency':     DEFAULT_CURRENCY_PK,
+            },
+        )
         self.assertNoFormError(response)
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
     @skipIfCustomOrganisation
     def test_add_to_orga02(self):
-        "Popup version"
+        "Popup version."
         user = self.login()
 
         target, emitter = self._create_target_n_emitter()
@@ -332,15 +337,18 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         # ---
         salesphase = SalesPhase.objects.all()[0]
-        name = 'Opportunity linked to {}'.format(target)
-        response = self.client.post(url, data={'user':         user.pk,
-                                               'name':         name,
-                                               'sales_phase':  salesphase.id,
-                                               'closing_date': '2011-03-12',
-                                               'emitter':      emitter.id,
-                                               'currency':     DEFAULT_CURRENCY_PK,
-                                              }
-                                   )
+        name = f'Opportunity linked to {target}'
+        response = self.client.post(
+            url,
+            data={
+                'user':         user.pk,
+                'name':         name,
+                'sales_phase':  salesphase.id,
+                'closing_date': '2011-03-12',
+                'emitter':      emitter.id,
+                'currency':     DEFAULT_CURRENCY_PK,
+            },
+        )
         self.assertNoFormError(response)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
@@ -351,7 +359,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
     def test_add_to_orga03(self):
-        "Try to add with wrong credentials (no link credentials)"
+        "Try to add with wrong credentials (no link credentials)."
         self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
 
         SetCredentials.objects.create(role=self.role,
@@ -365,7 +373,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertGET403(self._build_addrelated_url(target, popup=True))
 
     def test_add_to_orga04(self):
-        "User must be allowed to created Opportunity"
+        "User must be allowed to created Opportunity."
         user = self.login(is_superuser=False, allowed_apps=['persons', 'opportunities'],
                           # creatable_models=[Opportunity],
                          )
@@ -389,7 +397,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomContact
     def test_add_to_contact01(self):
-        "Target is a Contact"
+        "Target is a Contact."
         user = self.login()
 
         target, emitter = self._create_target_n_emitter(contact=True)
@@ -397,17 +405,19 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
-        name = 'Opportunity linked to {}'.format(target)
-        response = self.client.post(url, follow=True,
-                                    data={'user':         user.pk,
-                                          'name':         name,
-                                          'sales_phase':  salesphase.id,
-                                          'closing_date': '2011-03-12',
-                                          'target':       self.formfield_value_generic_entity(target),
-                                          'emitter':      emitter.id,
-                                          'currency':     DEFAULT_CURRENCY_PK,
-                                         }
-                                   )
+        name = f'Opportunity linked to {target}'
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':         user.pk,
+                'name':         name,
+                'sales_phase':  salesphase.id,
+                'closing_date': '2011-03-12',
+                'target':       self.formfield_value_generic_entity(target),
+                'emitter':      emitter.id,
+                'currency':     DEFAULT_CURRENCY_PK,
+            },
+        )
         self.assertNoFormError(response)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
@@ -417,22 +427,24 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
-        response = self.client.post(url, follow=True,
-                                    data={'user':         user.pk,
-                                          'name':         'Opportunity 2 linked to {}'.format(target),
-                                          'sales_phase':  salesphase.id,
-                                          'closing_date': '2011-03-12',
-                                          'target':       self.formfield_value_generic_entity(target),
-                                          'emitter':      emitter.id,
-                                          'currency':     DEFAULT_CURRENCY_PK,
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':         user.pk,
+                'name':         f'Opportunity 2 linked to {target}',
+                'sales_phase':  salesphase.id,
+                'closing_date': '2011-03-12',
+                'target':       self.formfield_value_generic_entity(target),
+                'emitter':      emitter.id,
+                'currency':     DEFAULT_CURRENCY_PK,
+            },
+        )
         self.assertNoFormError(response)
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
     @skipIfCustomContact
     def test_add_to_contact02(self):
-        "Popup version"
+        "Popup version."
         user = self.login()
 
         target, emitter = self._create_target_n_emitter(contact=True)
@@ -440,16 +452,19 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
-        name = 'Opportunity linked to {}'.format(target)
-        response = self.client.post(url, data={'user':         user.pk,
-                                               'name':         name,
-                                               'sales_phase':  salesphase.id,
-                                               'closing_date': '2011-03-12',
-                                               'target':       self.formfield_value_generic_entity(target),
-                                               'emitter':      emitter.id,
-                                               'currency':     DEFAULT_CURRENCY_PK,
-                                              }
-                                   )
+        name = f'Opportunity linked to {target}'
+        response = self.client.post(
+            url,
+            data={
+                'user':         user.pk,
+                'name':         name,
+                'sales_phase':  salesphase.id,
+                'closing_date': '2011-03-12',
+                'target':       self.formfield_value_generic_entity(target),
+                'emitter':      emitter.id,
+                'currency':     DEFAULT_CURRENCY_PK,
+            },
+        )
         self.assertNoFormError(response)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)

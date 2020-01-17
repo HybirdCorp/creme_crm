@@ -8,7 +8,7 @@ try:
 
     from ..fake_models import FakeContact, FakeOrganisation, FakeInvoice
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class QuickFormTestCase(CremeTestCase):
@@ -21,13 +21,13 @@ class QuickFormTestCase(CremeTestCase):
 
     def quickform_data_append_contact(self, data, id, first_name='', last_name='', email='', organisation='', phone=''):
         return data.update({
-                 'form-{}-email'.format(id):        email,
-                 'form-{}-last_name'.format(id):    last_name,
-                 'form-{}-first_name'.format(id):   first_name,
-                 'form-{}-organisation'.format(id): organisation,
-                 'form-{}-phone'.format(id):        phone,
-                 'form-{}-user'.format(id):         self.user.id,
-               })
+            f'form-{id}-email':        email,
+            f'form-{id}-last_name':    last_name,
+            f'form-{id}-first_name':   first_name,
+            f'form-{id}-organisation': organisation,
+            f'form-{id}-phone':        phone,
+            f'form-{id}-user':         self.user.id,
+        })
 
     def _build_quickform_url(self, model):
         return reverse('creme_core__quick_form', args=(ContentType.objects.get_for_model(model).pk,))

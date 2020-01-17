@@ -310,7 +310,7 @@ class BaseStatusSetting(generic.CheckedView):
         status = get_from_POST_or_404(self.request.POST, self.status_arg, cast=int)
 
         if status not in self.status_map:
-            raise Http404('Unknown status: {}'.format(status))
+            raise Http404(f'Unknown status: {status}')
 
         return status
 

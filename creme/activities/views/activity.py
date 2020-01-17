@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -93,7 +93,7 @@ class ActivityCreation(generic.EntityCreation):
             type_id = _TYPES_MAP.get(act_type)  # TODO: self.TYPES_MAP ?
 
             if not type_id:
-                raise Http404('No activity type matches with: {}'.format(act_type))
+                raise Http404(f'No activity type matches with: {act_type}')
 
         return type_id
 

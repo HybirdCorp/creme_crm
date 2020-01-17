@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2019  Hybird
+#    Copyright (C) 2014-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,8 +37,10 @@ from django.utils.translation import gettext as _
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, Relation, EntityCredentials
-from creme.creme_core.utils import (get_from_GET_or_404, get_from_POST_or_404,
-        split_filter)
+from creme.creme_core.utils import (
+    get_from_GET_or_404, get_from_POST_or_404,
+    split_filter,
+)
 from creme.creme_core.utils.dates import make_aware_dt, dt_from_ISO8601
 from creme.creme_core.views.decorators import POST_only, jsonify
 from creme.creme_core.views.utils import build_cancel_path
@@ -302,7 +304,7 @@ def start_activity(request, activity_id):
     activity.status_id = act_constants.STATUS_IN_PROGRESS
     activity.save()
 
-    return HttpResponseRedirect('{}#activity_{}'.format(_get_page_url(request), activity_id))
+    return HttpResponseRedirect(f'{_get_page_url(request)}#activity_{activity_id}')
 
 
 @lw_exceptions

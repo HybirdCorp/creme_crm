@@ -20,7 +20,7 @@ try:
     from ..bricks import PrettyOtherAddressesBrick
     from ..forms.listview import AddressFKField
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomAddress
@@ -354,21 +354,21 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
                           state=state,
                           country=country,
                          )
-        self.assertEqual('{} {} {} {}'.format(address_value, zipcode, city, department),
+        self.assertEqual(f'{address_value} {zipcode} {city} {department}',
                          str(address)
                         )
 
         address.zipcode = None
-        self.assertEqual('{} {} {}'.format(address_value, city, department), str(address))
+        self.assertEqual(f'{address_value} {city} {department}', str(address))
 
         address.department = None
-        self.assertEqual('{} {}'.format(address_value, city), str(address))
+        self.assertEqual(f'{address_value} {city}', str(address))
 
         self.assertEqual(po_box, str(Address(po_box=po_box)))
         self.assertEqual(state, str(Address(state=state)))
         self.assertEqual(country, str(Address(country=country)))
 
-        self.assertEqual('{} {} {}'.format(po_box, state, country),
+        self.assertEqual(f'{po_box} {state} {country}',
                          str(Address(po_box=po_box, state=state, country=country))
                         )
 
@@ -395,7 +395,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
                           state=state,
                           country='wtf',
                          )
-        self.assertEqual('{} {}'.format(address_value, city), str(address))
+        self.assertEqual(f'{address_value} {city}', str(address))
 
         self.assertEqual(po_box, str(Address(po_box=po_box, state=state)))
 

@@ -23,7 +23,7 @@ try:
 
     from .base import AssistantsTestCase
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class AlertTestCase(AssistantsTestCase):
@@ -77,14 +77,14 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(self.get_reminder_job(), jobs[0][0])
 
     def test_create02(self):
-        "Errors"
+        "Errors."
         def _fail_creation(**post_data):
             response = self.assertPOST200(self._build_add_url(self.entity), data=post_data)
 
             with self.assertNoException():
                 form = response.context['form']
 
-            self.assertFalse(form.is_valid(), 'Creation should fail with data={}'.format(post_data))
+            self.assertFalse(form.is_valid(), f'Creation should fail with data={post_data}')
 
         user_pk = self.user.pk
         _fail_creation(user=user_pk, title='',      description='description', trigger_date='2010-9-29')

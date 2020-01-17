@@ -73,8 +73,8 @@ class HeaderFilterManager(models.Manager):
     def filter_by_user(self, user):
         if user.is_team:
             raise ValueError(
-                'HeaderFilterManager.filter_by_user(): '
-                'user cannot be a team ({})'.format(user)
+                f'HeaderFilterManager.filter_by_user(): '
+                f'user cannot be a team ({user})'
             )
 
         qs = self.all()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019  Hybird
+#    Copyright (C) 2019-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -81,6 +81,6 @@ class AddressFKField(listview.ListViewSearchField):
 
         q = Q()
         for fname in address_field_names:
-            q |= Q(**{'{}__{}__icontains'.format(fk_name, fname): value})
+            q |= Q(**{f'{fk_name}__{fname}__icontains': value})
 
         return q

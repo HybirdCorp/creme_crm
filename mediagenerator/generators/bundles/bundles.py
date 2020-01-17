@@ -51,7 +51,7 @@ class Bundles(Generator):
             variations = backend._get_variations_with_input()
             if not variations:
                 for name, hash in backend.get_dev_output_names({}):
-                    url = '{}|{}'.format(bundle, name)
+                    url = f'{bundle}|{name}'
                     yield _get_key(bundle), url, hash
             else:
                 # Generate media files for all variation combinations
@@ -65,12 +65,13 @@ class Bundles(Generator):
                         yield _get_key(bundle, variation_map), url, hash
 
     def generate_file(self, backend, bundle, variation, combination=()):
-        print('Generating {} with variation {!r}'.format(bundle, variation))
+        print(f'Generating {bundle} with variation {variation !r}')
+
         output = [*backend.get_output(variation)]
         if len(output) == 0:
             output = ('',)
         assert len(output) == 1, \
-            'Media bundle "{}" would result in multiple output files'.format(bundle)
+            f'Media bundle "{bundle}" would result in multiple output files'
         content = output[0]
 
         combination = '--'.join(combination)

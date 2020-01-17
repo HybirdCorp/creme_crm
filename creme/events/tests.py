@@ -31,7 +31,7 @@ try:
     skip_event_tests = event_model_is_custom()
     Event = get_event_model()
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()

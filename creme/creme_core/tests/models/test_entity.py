@@ -20,7 +20,7 @@ try:
             CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean, CustomFieldString,
             CustomFieldDateTime, CustomFieldEnum, CustomFieldMultiEnum)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class EntityTestCase(CremeTestCase):
@@ -328,10 +328,10 @@ class EntityTestCase(CremeTestCase):
 
         self.assertIsInstance(result, FunctionFieldResult)
         self.assertIsInstance(result, FunctionFieldResultsList)
-        self.assertEqual('<ul><li><a href="{}">{}</a></li><li><a href="{}">{}</a></li></ul>'.format(
-                                ptype1.get_absolute_url(), ptype1.text,
-                                ptype2.get_absolute_url(), ptype2.text,
-                            ),
+        self.assertEqual(f'<ul>'
+                         f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a>'
+                         f'</li><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
+                         f'</ul>',
                          result.for_html()
                         )
         self.assertEqual('Awesome/Wonderful', result.for_csv())
@@ -358,15 +358,13 @@ class EntityTestCase(CremeTestCase):
             result1 = pp_ff(entity1, user)
             result2 = pp_ff(entity2, user)
 
-        self.assertEqual('<ul><li><a href="{}">{}</a></li><li><a href="{}">{}</a></li></ul>'.format(
-                                ptype1.get_absolute_url(), ptype1.text,
-                                ptype2.get_absolute_url(), ptype2.text,
-                            ),
+        self.assertEqual(f'<ul>'
+                         f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li>'
+                         f'<li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
+                         f'</ul>',
                          result1.for_html()
                         )
-        self.assertEqual('<ul><li><a href="{}">{}</a></li></ul>'.format(
-                                ptype2.get_absolute_url(), ptype2.text,
-                            ),
+        self.assertEqual(f'<ul><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li></ul>',
                          result2.for_html()
                         )
 

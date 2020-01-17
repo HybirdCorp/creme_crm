@@ -9,7 +9,7 @@ try:
 
     RecurrentGenerator = get_rgenerator_model()
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 def skipIfCustomGenerator(test_func):

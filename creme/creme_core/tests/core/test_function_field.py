@@ -5,7 +5,7 @@ try:
 
     from creme.creme_core.core.function_field import FunctionField, _FunctionFieldRegistry  # FunctionFieldsManager
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class FunctionFieldsTestCase(CremeTestCase):

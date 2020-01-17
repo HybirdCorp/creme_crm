@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2019  Hybird
+#    Copyright (C) 2017-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -92,7 +92,7 @@ class Command(BaseCommand):
         get_opt = options.get
 
         if get_opt('list_types'):
-            self.stdout.write('\n'.join(' - {}'.format(m) for m in types_map))
+            self.stdout.write('\n'.join(f' - {m}' for m in types_map))
             return
 
         number = get_opt('number')
@@ -111,7 +111,9 @@ class Command(BaseCommand):
                         _get_model_n_factory = types_map.get(backend.model)
 
                         if _get_model_n_factory is None:
-                            self.stderr.write('"{}" is not managed ; use the -l option to get the managed types.'.format(backend.model))
+                            self.stderr.write(
+                                f'"{backend.model}" is not managed ; use the -l option to get the managed types.'
+                            )
                             continue
 
                         backend_count += 1
@@ -121,21 +123,18 @@ class Command(BaseCommand):
                             try:
                                 WaitingAction.objects.create(
                                         action=method,
-                                        source='{} - {}'.format(fetcher_name, input.name),
+                                        source=f'{fetcher_name} - {input.name}',
                                         ct=backend.model,
                                         subject=backend.subject,
                                         # user=owner,  TODO ?
                                         data=_entity_2_dict(factory.build()),
                                 )
                             except Exception as e:
-                                self.stderr.write('A error occurred when saving action: {}.'.format(e))
+                                self.stderr.write(f'A error occurred when saving action: {e}.')
                             else:
                                 action_count += 1
 
         if verbosity:
-            self.stdout.write('Number of backend used: {backends}\n'
-                              'Number of actions created: {actions}'.format(
-                                    backends=backend_count,
-                                    actions=action_count,
-                                )
+            self.stdout.write(f'Number of backend used: {backend_count}\n'
+                              f'Number of actions created: {action_count}'
                              )

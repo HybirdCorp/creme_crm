@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 07-11-2019 pour la version 2.1 de Creme
+:Version: 10-01-2020 pour la version 2.2 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -1716,7 +1716,7 @@ recherche : ::
             # On fabrique notre instance de Q(), que l'on renvoie enfin
             q = Q()
             for fname in address_field_names:
-                q |= Q(**{'{}__{}__icontains'.format(fk_name, fname): value})
+                q |= Q(**{f'{fk_name}__{fname}__icontains': value})
 
             return q
 
@@ -3101,7 +3101,7 @@ Créez un fichier ``beavers/tests.py`` : ::
 
         from .models import Beaver, Status
     except Exception as e:
-        print('Error in <{}>: {}'.format(__name__, e))
+        print(f'Error in <{__name__}>: {e}')
 
 
     class BeaverTestCase(CremeTestCase):

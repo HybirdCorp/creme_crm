@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -86,7 +86,7 @@ class BulkForm(CremeForm):
             model = self.model
             entities = self.entities
             # TODO: factorise
-            fieldname = '{}__{}'.format(self.parent_field.name, self.field_name) \
+            fieldname = f'{self.parent_field.name}__{self.field_name}' \
                         if self.is_subfield else \
                         self.field_name
 
@@ -128,7 +128,7 @@ class BulkForm(CremeForm):
                     choices.append((build_url(fieldname=field.name), str(field.verbose_name)))
             else:
                 field_sub_choices = [
-                    (build_url(fieldname='{}__{}'.format(field.name, subfield.name)),
+                    (build_url(fieldname=f'{field.name}__{subfield.name}'),
                      str(subfield.verbose_name),
                     ) for subfield in subfields
                         if not isinstance(subfield, excluded)
@@ -241,7 +241,7 @@ class BulkForm(CremeForm):
         for key, value in error.message_dict.items():
             field = fields.get(key)
             message = ''.join(value) if isinstance(value, (list, tuple)) else value
-            messages.append('{} : {}'.format(field.verbose_name, message)
+            messages.append(f'{field.verbose_name} : {message}'
                             if field is not None else
                             message
                            )

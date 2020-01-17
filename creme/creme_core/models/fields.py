@@ -287,13 +287,9 @@ class RealEntityForeignKey(FieldCacheMixin):
         # self.cache_attr = None
 
     def __str__(self):
-        model = self.model
+        meta = self.model._meta
 
-        return '{}.{}.{}'.format(
-            model._meta.app_label,
-            model._meta.object_name,
-            self.name,
-        )
+        return f'{meta.app_label}.{meta.object_name}.{self.name}'
 
     def contribute_to_class(self, cls, name, **kwargs):
         self.name = name
@@ -326,14 +322,14 @@ class RealEntityForeignKey(FieldCacheMixin):
             field = meta.get_field(fname)
         except FieldDoesNotExist:
             yield checks.Error(
-                'The RealEntityForeignKey references the non-existent field "{}".'.format(fname),
+                f'The RealEntityForeignKey references the non-existent field "{fname}".',
                 obj=self,
                 id='creme.E007',
             )
         else:
             if not isinstance(field, models.ForeignKey):
                 yield checks.Error(
-                    '"{}.{}" is not a ForeignKey.'.format(meta.object_name, fname),
+                    f'"{meta.object_name}.{fname}" is not a ForeignKey.',
                     obj=self,
                     id='creme.E007',
                 )
@@ -341,9 +337,8 @@ class RealEntityForeignKey(FieldCacheMixin):
                 rel_meta = related_model._meta
 
                 yield checks.Error(
-                    '"{}.{}" is not a ForeignKey to "{}.{}".'.format(
-                        meta.object_name, fname, rel_meta.app_label, rel_meta.object_name
-                    ),
+                    f'"{meta.object_name}.{fname}" is not a ForeignKey to '
+                    f'"{rel_meta.app_label}.{rel_meta.object_name}".',
                     obj=self,
                     id='creme.E007',
                 )
@@ -351,9 +346,10 @@ class RealEntityForeignKey(FieldCacheMixin):
     @staticmethod
     def _ctype_or_die(ct):
         if ct is None:
-            raise ValueError('The content type is not set while the entity is. '
-                             'HINT: set both by hand or just use the RealEntityForeignKey setter.'
-                            )
+            raise ValueError(
+                'The content type is not set while the entity is. '
+                'HINT: set both by hand or just use the RealEntityForeignKey setter.'
+            )
 
     def __get__(self, instance, cls=None):
         # TODO ?

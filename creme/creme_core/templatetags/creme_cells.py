@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2019  Hybird
+#    Copyright (C) 2017-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,7 +47,7 @@ class RFieldCellNode(TemplateNode):
             # TODO: in EntityCellRegularField.build ??
             raise ValueError(
                 '{{% cell_4_regularfield %}}: the field seems invalid '
-                '(model={model}, field={field})'.format(model=model, field=field_name)
+                f'(model={model}, field={field_name})'
             )
 
         asvar_name = self.asvar_name
@@ -119,8 +119,8 @@ def do_cell_4_regularfield(parser, token):
     if length != 3:
         if length != 5:
             raise TemplateSyntaxError(
-                '"{}" takes 2 arguments (ctype/instance=... & field=...), '
-                '& then optionally "as my_var".'.format(bits[0])
+                f'"{bits[0]}" takes 2 arguments (ctype/instance=... & field=...), '
+                f'& then optionally "as my_var".'
             )
 
         if bits[3] != 'as':
@@ -137,8 +137,8 @@ def do_cell_4_regularfield(parser, token):
     try:
         first_arg_name, rf_cell_node_cls = _RFIELD_CELL_NODES[fa_name]
     except KeyError as e:
-        raise TemplateSyntaxError('Invalid 1rst argument of "cell_4_regularfield" tag ; '
-                                  'it must be in {}.'.format(_RFIELD_CELL_NODES.keys())
+        raise TemplateSyntaxError(f'Invalid 1rst argument of "cell_4_regularfield" tag ; '
+                                  f'it must be in {_RFIELD_CELL_NODES.keys()}.'
                                  ) from e
 
     # Second argument -------------
@@ -190,7 +190,9 @@ def do_render(parser, token):
     """
     bits = token.split_contents()
     if len(bits) < 4:
-        raise TemplateSyntaxError('"{}" takes at least 3 arguments (cell, instance, user)'.format(bits[0]))
+        raise TemplateSyntaxError(
+            f'"{bits[0]}" takes at least 3 arguments (cell, instance, user)'
+        )
 
     kwargs = {}
 
@@ -202,13 +204,13 @@ def do_render(parser, token):
     for bit in bits:
         match = KWARG_RE.match(bit)
         if not match:
-            raise TemplateSyntaxError('Malformed arguments for "cell_render" tag: {}'.format(bit))
+            raise TemplateSyntaxError(f'Malformed arguments for "cell_render" tag: {bit}')
 
         name, value = match.groups()
 
         arg_name = __RENDER_ARGS_MAP.get(name)
         if arg_name is None:
-            raise TemplateSyntaxError('Invalid argument name for "cell_render" tag: {}'.format(name))
+            raise TemplateSyntaxError(f'Invalid argument name for "cell_render" tag: {name}')
 
         kwargs[arg_name] = parser.compile_filter(value)
 
@@ -240,8 +242,8 @@ class CellRenderNode(TemplateNode):
 
         method_name = self.RENDER_METHODS.get(output)
         if method_name is None:
-            raise ValueError('{{% cell_render %}}: invalid output "{}" '
-                             '(must be in ["html", "csv"])'.format(output)
+            raise ValueError(f'{{% cell_render %}}: invalid output "{output}" '
+                             f'(must be in ["html", "csv"])'
                             )
 
         try:

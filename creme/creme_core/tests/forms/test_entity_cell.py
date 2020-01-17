@@ -5,13 +5,17 @@ try:
 
     from ..fake_models import FakeContact
     from .base import FieldTestCase
-    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-            EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.entity_cell import (
+        EntityCellRegularField,
+        EntityCellCustomField,
+        EntityCellFunctionField,
+        EntityCellRelation,
+    )
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.forms.header_filter import EntityCellsField
     from creme.creme_core.models import RelationType, CustomField
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class EntityCellsFieldTestCase(FieldTestCase):
@@ -55,7 +59,7 @@ class EntityCellsFieldTestCase(FieldTestCase):
         self.assertEqual(expected_value, cell.value)
 
     def test_ok02(self):
-        "All types of columns"
+        "All types of columns."
         loves = RelationType.create(('test-subject_love', 'Is loving'),
                                     ('test-object_love',  'Is loved by')
                                    )[0]
@@ -66,13 +70,11 @@ class EntityCellsFieldTestCase(FieldTestCase):
         funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
 
         field = EntityCellsField(content_type=self.ct_contact)
-        cells = field.clean('relation-{},'
-                            'regular_field-last_name,'
-                            'function_field-{},'
-                            'custom_field-{},'
-                            'regular_field-first_name'.format(
-                                    loves.id, funcfield.name, customfield.id,
-                                )
+        cells = field.clean(f'relation-{loves.id},'
+                            f'regular_field-last_name,'
+                            f'function_field-{funcfield.name},'
+                            f'custom_field-{customfield.id},'
+                            f'regular_field-first_name'
                            )
 
         self.assertEqual(5, len(cells))

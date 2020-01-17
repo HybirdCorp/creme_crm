@@ -11,7 +11,7 @@ try:
     from ..models import GeoAddress, Town
     from .base import GeoLocationBaseTestCase, Address, Organisation, Contact
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomOrganisation

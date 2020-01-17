@@ -8,8 +8,11 @@ try:
     from creme.creme_core.tests.base import skipIfNotInstalled
     from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (SetCredentials, RelationType, Relation,
-            CremePropertyType, CremeProperty)
+    from creme.creme_core.models import (
+        SetCredentials,
+        RelationType, Relation,
+        CremePropertyType, CremeProperty,
+    )
 
     from creme.documents import get_document_model
     from creme.documents.tests.base import skipIfCustomDocument
@@ -17,14 +20,22 @@ try:
     from creme.persons.models import Civility
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from .base import _ActivitiesTestCase, skipIfCustomActivity, Contact, Organisation, Activity
+    from .base import (
+        _ActivitiesTestCase,
+        skipIfCustomActivity,
+        Contact, Organisation,
+        Activity,
+    )
     from .. import constants
-    from ..forms.mass_import import (_PATTERNS, _pattern_FL, _pattern_CFL,
-            MultiColumnsParticipantsExtractor, SplitColumnParticipantsExtractor, SubjectsExtractor)
+    from ..forms.mass_import import (
+        _PATTERNS, _pattern_FL, _pattern_CFL,
+        MultiColumnsParticipantsExtractor,
+        SplitColumnParticipantsExtractor,
+        SubjectsExtractor,
+    )
     from ..models import Calendar
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
-
+    print(f'Error in <{__name__}>: {e}')
 
 Document = get_document_model()
 
@@ -33,19 +44,19 @@ Document = get_document_model()
 @skipIfCustomActivity
 class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixin):
     lv_import_data = {
-            'step': 1,
-            'title_colselect': 1,
+        'step': 1,
+        'title_colselect': 1,
 
-            'start_colselect': 0,
-            'end_colselect':   0,
+        'start_colselect': 0,
+        'end_colselect':   0,
 
-            'status_colselect':         0,
-            'description_colselect':    0,
-            'place_colselect':          0,
-            'duration_colselect':       0,
-            'is_all_day_colselect':     0,
-            'minutes_colselect':        0,
-        }
+        'status_colselect':      0,
+        'description_colselect': 0,
+        'place_colselect':       0,
+        'duration_colselect':    0,
+        'is_all_day_colselect':  0,
+        'minutes_colselect':     0,
+    }
 
     def test_import01(self):
         user = self.login()
@@ -305,25 +316,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         title3 = 'Meeting#3'
         title4 = 'Meeting#4'
         title5 = 'Meeting#5'
-        lines = [(title1, '{} {}/{} {}'.format(participant1.last_name, participant1.first_name,
-                                                participant2.last_name, participant2.first_name,
-                                               )
-                 ),
-                 (title2, '{} {}'.format(other_contact.last_name,
-                                          other_contact.first_name,
-                                         )
-                 ),
-                 (title3, ' {} {} '.format(participant2.last_name, participant2.first_name)),  # Trailing spaces
-                 (title4, '{} {}/{} {}/{}/'.format(unfoundable,            unfoundable,
-                                                    participant2.last_name, participant2.first_name,
-                                                    unfoundable2,
-                                                   )
-                 ),
-                 (title5, '{} {}/{}'.format(participant3.last_name, participant3.first_name,
-                                             participant2.last_name,
-                                            )
-                 ),
-                ]
+        lines = [
+            (title1, f'{participant1.last_name} {participant1.first_name}/{participant2.last_name} {participant2.first_name}'),
+            (title2, f'{other_contact.last_name} {other_contact.first_name}'),
+            (title3, f' {participant2.last_name} {participant2.first_name} '),  # Trailing spaces
+            (title4, f'{unfoundable} {unfoundable}/{participant2.last_name} {participant2.first_name}/{unfoundable2}/'),
+            (title5, f'{participant3.last_name} {participant3.first_name}/{participant2.last_name}'),
+        ]
 
         doc = self._build_csv_doc(lines)
         response = self.client.post(
@@ -380,7 +379,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         jr_error = jr_errors[0]
         err_fmt = _('The participant «{}» is unfoundable').format
-        self.assertEqual([err_fmt('{} {}'.format(unfoundable, unfoundable)),
+        self.assertEqual([err_fmt(f'{unfoundable} {unfoundable}'),
                           err_fmt(unfoundable2),
                          ],
                          jr_error.messages
@@ -400,7 +399,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         aoi = Contact.objects.create(user=user, first_name='Aoi', last_name='Kunieda', civility=miss)
 
         title1 = 'Meeting#1'
-        lines = [(title1, ' {} {} {} '.format(aoi.civility, aoi.first_name, aoi.last_name))]  # +trailing spaces
+        lines = [(title1, f' {aoi.civility} {aoi.first_name} {aoi.last_name} ')]  # +trailing spaces
 
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(Activity)
@@ -476,12 +475,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         title = 'Task#1'
         first_name = 'Tatsumi'
         last_name = 'Oga'
-        doc = self._build_csv_doc([(title, '{} {}#{} {}'.format(first_name,     last_name,
-                                                                aoi.first_name, aoi.last_name,
-                                                               )
-                                   )
-                                  ]
-                                 )
+        doc = self._build_csv_doc([
+            (title, f'{first_name} {last_name}#{aoi.first_name} {aoi.last_name}'),
+        ])
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -590,11 +586,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         clan2 = create_orga(name='Clan')
 
         doc = self._build_csv_doc([(title1, str(aoi)),
-                                   (title2, (' {} '.format(aoi)).upper()),
-                                   (title3, ' {} '.format(name)),
+                                   (title2, f' {aoi} '.upper()),
+                                   (title3, f' {name} '),
                                    (title4, clan1.name),
                                    (title5, furyo1.last_name),
-                                   (title6, '{}/{}'.format(aoi, clan1.name)),
+                                   (title6, f'{aoi}/{clan1.name}'),
                                   ]
                                  )
         response = self.client.post(
@@ -682,7 +678,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         title = 'My task'
         name = 'Ishiyama'
 
-        doc = self._build_csv_doc([(title, ' {} '.format(name))])
+        doc = self._build_csv_doc([(title, f' {name} ')])
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -715,7 +711,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         title = 'Task#1'
         name = 'Ishiyama'
-        doc = self._build_csv_doc([(title, ' {} '.format(name))])
+        doc = self._build_csv_doc([(title, f' {name} ')])
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -1125,7 +1121,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     @skipIfCustomContact
     def test_participants_singlecol_extractor03(self):
-        "Creation if not found + civility"
+        "Creation if not found + civility."
         self.login()
         user = self.user
 
@@ -1133,13 +1129,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         first_name = 'Aoi'
         last_name = 'Kunieda'
-        contacts, err_msg = ext.extract_value(['{} {}'.format(first_name, last_name)], user)
+        contacts, err_msg = ext.extract_value([f'{first_name} {last_name}'], user)
         self.assertFalse(err_msg)
         aoi = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertIsNone(aoi.civility)
 
         first_name = 'Ittôsai'
-        contacts, err_msg = ext.extract_value(['Sensei {} {}'.format(first_name, last_name)], user)
+        contacts, err_msg = ext.extract_value([f'Sensei {first_name} {last_name}'], user)
         self.assertFalse(err_msg)
         ittosai = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertIsNone(ittosai.civility)
@@ -1148,20 +1144,20 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         mister = self.get_object_or_fail(Civility, pk=3)
         first_name = 'Tatsumi'
         last_name = 'Oga'
-        contacts, err_msg = ext.extract_value(['{} {} {}'.format(mister.title, first_name, last_name)], user)
+        contacts, err_msg = ext.extract_value([f'{mister.title} {first_name} {last_name}'], user)
         self.assertFalse(err_msg)
         oga = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(mister, oga.civility)
 
         # Civility is not used to search
-        contacts, err_msg = ext.extract_value(['Sensei {} {}'.format(first_name, last_name)], user)
+        contacts, err_msg = ext.extract_value([f'Sensei {first_name} {last_name}'], user)
         self.assertEqual([oga], contacts)
         self.assertEqual(mister, self.refresh(oga).civility)
 
         # Civility retrieved by short name
         first_name = 'Takayuki'
         last_name = 'Furuichi'
-        ext.extract_value(['{} {} {}'.format(mister.shortcut, first_name, last_name)], user)
+        ext.extract_value([f'{mister.shortcut} {first_name} {last_name}'], user)
         furuichi = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(mister, furuichi.civility)
 
@@ -1219,7 +1215,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         create_contact(first_name='')
         create_contact(first_name='Tatsumi')
 
-        contacts, err_msg = ext.extract_value([' {} #'.format(last_name)], user)
+        contacts, err_msg = ext.extract_value([f' {last_name} #'], user)
         self.assertFalse(contacts)
         self.assertEqual([_('Too many «{models}» were found for the search «{search}»').format(
                                 models=_('Contacts'),
@@ -1239,7 +1235,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         user = self.login()
         last_name = 'Kunieda'
-        ticket = Ticket.objects.create(user=user, title="{}'s ticket".format(last_name),
+        ticket = Ticket.objects.create(user=user, title=f"{last_name}'s ticket",
                                        priority=Priority.objects.all()[0],
                                        criticity=Criticity.objects.all()[0],
                                       )

@@ -7,7 +7,7 @@ try:
     from creme.creme_core.models.lock import (Mutex, MutexLockedException,
         MutexNotLockedException, MutexAutoLock)  # mutex_autolock
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class MutexTestCase(CremeTransactionTestCase):
@@ -84,7 +84,7 @@ class MutexTestCase(CremeTransactionTestCase):
 
     @MutexAutoLock('dummy_lock')
     def invalid_locked_func(self, a):
-        raise Exception('invalid result {}'.format(a))
+        raise Exception(f'invalid result {a}')
 
     def test_MutexAutoLock_decorator(self):
         self.assertEqual(self.locked_func(12), 12)

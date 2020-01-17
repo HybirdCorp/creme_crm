@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,7 @@ class QuickCreation(EntityCTypeRelatedMixin, generic.EntityCreationPopup):
         form_class = self.quickforms_registry.get_form(model)
 
         if form_class is None:
-            raise Http404('No form registered for model: {}'.format(model))
+            raise Http404(f'No form registered for model: {model}')
 
         return form_class
 

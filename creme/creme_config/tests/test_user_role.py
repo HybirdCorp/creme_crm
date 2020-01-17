@@ -38,7 +38,7 @@ try:
 
     from ..bricks import UserRolesBrick
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
@@ -817,7 +817,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(name, efilter.name)
         self.assertFalse(efilter.use_or)
         self.assertEqual(
-            'creme_core-credentials_{}-1'.format(role.id),
+            f'creme_core-credentials_{role.id}-1',
             efilter.id
         )
         self.assertEqual(EF_CREDENTIALS, efilter.filter_type)
@@ -1252,7 +1252,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(name, efilter.name)
         self.assertTrue(efilter.use_or)
         self.assertEqual(
-            'creme_core-credentials_{}-1'.format(role.id),
+            f'creme_core-credentials_{role.id}-1',
             efilter.id
         )
         self.assertEqual(EF_CREDENTIALS, efilter.filter_type)

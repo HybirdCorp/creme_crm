@@ -20,7 +20,7 @@ try:
             CremePropertyType, RelationType, SemiFixedRelationType,
             FakeOrganisation, FakeContact, FakeAddress)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class MiscTestCase(ViewsTestCase):
@@ -356,8 +356,8 @@ class CreationTestCase(ViewsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        self.assertEqual('Adding address to <{}>'.format(nerv), context.get('title'))
-        self.assertEqual(_('Save the address'),                 context.get('submit_label'))
+        self.assertEqual(f'Adding address to <{nerv}>', context.get('title'))
+        self.assertEqual(_('Save the address'),         context.get('submit_label'))
 
         city = 'Tokyo'
         response = self.client.post(url, data={'city': city})
@@ -493,8 +493,8 @@ class EditionTestCase(ViewsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        self.assertEqual('Address for <{}>'.format(nerv), context.get('title'))
-        self.assertEqual(_('Save the modifications'),     context.get('submit_label'))
+        self.assertEqual(f'Address for <{nerv}>',     context.get('title'))
+        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
         # ---
         city = 'Tokyo'

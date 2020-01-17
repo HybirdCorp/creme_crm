@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -235,7 +235,7 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
 
             'url': reverse('activities__view_activity_popup', args=(activity.id,)),
 
-            'color':    '#{}'.format(calendar.get_color),
+            'color':    f'#{calendar.get_color}',
             'editable': user.has_perm_to_change(activity),
             'calendar': calendar.id,
             'type':     activity.type.name,

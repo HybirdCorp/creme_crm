@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -86,12 +86,7 @@ class ViewableItem(Item):
     #     return '<Item: id=%s>' % self.id
 
     def __str__(self):
-        return '<{name}: id="{id}" priority={priority} label="{label}">'.format(
-                        name=self.__class__.__name__,
-                        id=self.id,
-                        priority=self._priority,
-                        label=self.label,
-        )
+        return f'<{self.__class__.__name__}: id="{self.id}" priority={self._priority} label="{self.label}">'
 
     def render(self, context, level=0):
         img = self.render_icon(context)
@@ -144,16 +139,18 @@ class ItemList:
 
         for item in items:
             if item._priority is not None:
-                raise ValueError('This item already belongs to a container: {}'.format(item))  # TODO: better exception ?
+                raise ValueError(
+                    f'This item already belongs to a container: {item}'
+                )  # TODO: better exception ?
 
             if item.id in ids:
-                raise ValueError('Duplicated id "{}"'.format(item.id))
+                raise ValueError(f'Duplicated id "{item.id}"')
 
         current_items = self._items
         priority = kwargs.pop('priority', None)
 
         if kwargs:
-            raise ValueError('Unknown argument(s): {}'.format(kwargs.keys()))
+            raise ValueError(f'Unknown argument(s): {kwargs.keys()}')
 
         if priority is None:
             priority = current_items[-1]._priority if current_items else 1
@@ -216,11 +213,11 @@ class ItemList:
                 try:
                     get = item.get
                 except AttributeError as e:
-                    raise KeyError('"{0}" is not a container.'.format(item_id1)) from e
+                    raise KeyError(f'"{item_id1}" is not a container.') from e
 
                 return get(*item_ids)
 
-        raise KeyError('"{0}" not found.'.format(item_id1))
+        raise KeyError(f'"{item_id1}" not found.')
 
     def get_or_create(self, cls, item_id, priority=None, defaults=None):
         """Gets an Item by its ID, or creates it.
@@ -240,7 +237,9 @@ class ItemList:
             self.add(item, priority=priority)
         else:
             if not isinstance(item, cls):
-                raise ValueError('The item id="{}" already exists but its type is {}'.format(item_id, item.__class__))
+                raise ValueError(
+                    f'The item id="{item_id}" already exists but its type is {item.__class__}'
+                )
 
         return item
 
@@ -260,7 +259,7 @@ class ItemList:
                 item._priority = None
                 return item
 
-        raise KeyError('Item with ID={} not found'.format(item_id))
+        raise KeyError(f'Item with ID={item_id} not found')
 
     def remove(self, *item_ids):
         """Remove several Item at once.
@@ -320,14 +319,14 @@ class ContainerItem(ViewableItem, ItemList):
 
         for item in self:
             if isinstance(item, ItemGroup):
-                res += '      --Group(id="{}", priority={})\n'.format(item.id, item._priority)
+                res += f'      --Group(id="{item.id}", priority={item._priority})\n'
 
                 for sub_item in item:
-                    res += '        {}\n'.format(sub_item)
+                    res += f'        {sub_item}\n'
 
                 res += '      --'
             else:
-                res += '      {}'.format(item)
+                res += f'      {item}'
 
             res += '\n'
 
@@ -347,13 +346,13 @@ class ContainerItem(ViewableItem, ItemList):
                 g_id = item.id
 
                 if not first and not previous_is_group:
-                    yield ItemSeparator(id='{}-begin'.format(g_id))
+                    yield ItemSeparator(id=f'{g_id}-begin')
 
                 for sub_item in item:
                     yield sub_item
 
                 if i != last_idx:
-                    yield ItemSeparator(id='{}-end'.format(g_id))
+                    yield ItemSeparator(id=f'{g_id}-end')
 
                 previous_is_group = True
             else:
@@ -370,14 +369,19 @@ class ContainerItem(ViewableItem, ItemList):
             icon=self.render_icon(context),
             label=self.render_label(context),
             # TODO: attr 'no_wrapping' instead of isinstance() ??
-            li_tags=mark_safe(''.join(item.render(context, level) if isinstance(item, ItemSeparator) else
-                                       format_html('<li class="ui-creme-navigation-item-level{level} ui-creme-navigation-item-id_{id}">{item}</li>',
-                                                  level=level,
-                                                  id=item.id,
-                                                  item=item.render(context, level),
-                                                )
-                                           for item in self
-                             )),
+            li_tags=mark_safe(
+                ''.join(
+                    item.render(context, level)
+                    if isinstance(item, ItemSeparator) else
+                    format_html(
+                        '<li class="ui-creme-navigation-item-level{level} ui-creme-navigation-item-id_{id}">{item}</li>',
+                        level=level,
+                        id=item.id,
+                        item=item.render(context, level),
+                    )
+                        for item in self
+                )
+            ),
         )
 
 
@@ -559,9 +563,9 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
             for vname, model in content_types:
                 ct_id = get_ct(model).id
 
-                yield self._QuickCreationItem(id='{}-{}'.format(g_id, ct_id), ct_id=ct_id, model=model, label=vname)
+                yield self._QuickCreationItem(id=f'{g_id}-{ct_id}', ct_id=ct_id, model=model, label=vname)
         else:
-            yield LabelItem(id='{}-empty'.format(g_id), label=_('No type available'))
+            yield LabelItem(id=f'{g_id}-empty', label=_('No type available'))
 
 
 class CreationFormsItem(ViewableItem):
@@ -595,12 +599,10 @@ class CreationFormsItem(ViewableItem):
                     self._url  = kwargs['url']
                     self.perm  = kwargs['perm']
                 except KeyError as e:
-                    raise TypeError('Link: missing parameter {}'.format(e)) from e
+                    raise TypeError(f'Link: missing parameter {e}') from e
 
         def __str__(self):
-            return '<Link: id="{}" label="{}" priority={}>'.format(
-                            self.id, self.label, self._priority,
-                    )
+            return f'<Link: id="{self.id}" label="{self.label}" priority={self._priority}>'
 
         @property
         def url(self):
@@ -611,9 +613,11 @@ class CreationFormsItem(ViewableItem):
                     url = model.get_create_absolute_url()
 
                     if not url:
-                        logger.warning('Beware, the method %s.get_create_absolute_url() should return an URL, '
-                                    'or the creation popup will not work correctly' % model
-                                   )
+                        logger.warning(
+                            'Beware, the method %s.get_create_absolute_url() should '
+                            'return an URL, or the creation popup will not work correctly',
+                            model,
+                        )
                 else:
                     url = str(url)
             else:
@@ -642,9 +646,7 @@ class CreationFormsItem(ViewableItem):
             return iter(self._links)
 
         def __str__(self):
-            return '<LinkGroup: id="{id}" label="{label}" priority={priority}>'.format(
-                            id=self.id, label=self.label, priority=self._priority
-                    )
+            return f'<LinkGroup: id="{self.id}" label="{self.label}" priority={self._priority}>'
 
         def change_priority(self, priority, *link_ids):
             self._links.change_priority(priority, *link_ids)
@@ -741,13 +743,13 @@ class CreationFormsItem(ViewableItem):
     @property
     def verbose_str(self):
         """Returns a detailed description of groups/links ; useful to get priorities/IDs."""
-        res = '{}\n'.format(self)
+        res = f'{self}\n'
 
         for group in self._groups:
-            res += '  {}\n'.format(group)
+            res += f'  {group}\n'
 
             for link in group:
-                res += '     {}\n'.format(link)
+                res += f'     {link}\n'
 
         return res
 
@@ -763,9 +765,10 @@ class LastViewedEntitiesItem(ViewableItem):
                                        ((lvi.url, lvi.name) for lvi in lv_items)
                                       )
         else:
-            li_tags = format_html('<li><span class="ui-creme-navigation-text-entry">{}</span></li>',
-                                  _('No recently visited entity')
-                                 )
+            li_tags = format_html(
+                '<li><span class="ui-creme-navigation-text-entry">{}</span></li>',
+                _('No recently visited entity')
+            )
 
         return format_html('{icon}{label}<ul>{li_tags}</ul>',
                            icon=self.render_icon(context),
@@ -797,10 +800,10 @@ class Menu(ItemList):
 
         for item in self:
             if isinstance(item, ItemGroup):
-                res += '---\nGroup(id="{}", priority={})\n'.format(item.id, item._priority)
+                res += f'---\nGroup(id="{item.id}", priority={item._priority})\n'
 
                 for sub_item in item:
-                    res += '   {}\n'.format(sub_item)
+                    res += f'   {sub_item}\n'
 
                 res += '---'
             else:
@@ -814,9 +817,9 @@ class Menu(ItemList):
         return format_html(
             '<ul class="ui-creme-navigation">{}</ul>',
             format_html_join(
-                    '',
-                    '<li class="ui-creme-navigation-item-level{} ui-creme-navigation-item-id_{}">{}</li>',
-                    ((level, item.id, item.render(context, level)) for item in self)
+                '',
+                '<li class="ui-creme-navigation-item-level{} ui-creme-navigation-item-id_{}">{}</li>',
+                ((level, item.id, item.render(context, level)) for item in self)
             ),
         )
 

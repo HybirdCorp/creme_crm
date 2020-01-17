@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2018  Hybird
+#    Copyright (C) 2017-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -57,13 +57,13 @@ class FileSystemFetcher(CrudityFetcher):
         dir_path = getattr(settings, setting_name, None)
 
         if not dir_path:
-            raise self.FileSystemFetcherError('setting.{} has not been set.'.format(setting_name))
+            raise self.FileSystemFetcherError(f'setting.{setting_name} has not been set.')
 
         if not os.path.exists(dir_path):
-            raise self.FileSystemFetcherError('settings.{} = "{}" does not exist.'.format(setting_name, dir_path))
+            raise self.FileSystemFetcherError(f'settings.{setting_name} = "{dir_path}" does not exist.')
 
         if not os.path.isdir(dir_path):
-            raise self.FileSystemFetcherError('settings.{} = "{}" is not a directory.'.format(setting_name, dir_path))
+            raise self.FileSystemFetcherError(f'settings.{setting_name} = "{dir_path}" is not a directory.')
 
         # TODO: credentials ??
 

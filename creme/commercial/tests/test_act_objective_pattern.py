@@ -13,7 +13,7 @@ try:
     from ..models import ActObjectivePatternComponent
     from .base import CommercialBaseTestCase, skipIfCustomPattern, ActObjectivePattern
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomPattern
@@ -86,9 +86,9 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
     def test_listview(self):
         create_patterns = partial(ActObjectivePattern.objects.create, user=self.user)
-        patterns = [create_patterns(name='ObjPattern#{}'.format(i),
+        patterns = [create_patterns(name=f'ObjPattern#{i}',
                                     average_sales=1000 * i,
-                                    segment=self._create_segment('Segment #{}'.format(i)),
+                                    segment=self._create_segment(f'Segment #{i}'),
                                    ) for i in range(1, 4)
                    ]
 

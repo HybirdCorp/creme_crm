@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2019 Hybird
+# Copyright (c) 2019-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -45,8 +45,8 @@ def get_bulk_or_404(klass, id_list=None, *, field_name='pk'):
     if not hasattr(queryset, 'filter'):
         name = klass.__name__ if isinstance(klass, type) else klass.__class__.__name__
         raise ValueError(
-            "First argument to get_bulk_or_404() must be a Model, Manager, "
-            "or QuerySet, not '{}'.".format(name)
+            f"First argument to get_bulk_or_404() must be a Model, Manager, "
+            f"or QuerySet, not '{name}'."
         )
 
     bulk = queryset.in_bulk(id_list, field_name=field_name)

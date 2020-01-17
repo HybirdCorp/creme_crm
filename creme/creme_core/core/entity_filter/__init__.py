@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019  Hybird
+#    Copyright (C) 2019-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -55,7 +55,7 @@ class _EntityFilterRegistry:
         for cls in classes:
             if setdefault(cls.type_id, cls) is not cls:
                 raise self.RegistrationError(
-                    "Duplicated handler's ID (or handler registered twice): {}".format(cls.type_id)
+                    f"Duplicated handler's ID (or handler registered twice): {cls.type_id}"
                 )
 
         return self
@@ -73,7 +73,7 @@ class _EntityFilterRegistry:
         for cls in classes:
             if setdefault(cls.type_id, cls) is not cls:
                 raise self.RegistrationError(
-                    "Duplicated operand's ID (or operand registered twice): {}".format(cls.type_id)
+                    f"Duplicated operand's ID (or operand registered twice): {cls.type_id}"
                 )
 
         return self
@@ -91,7 +91,7 @@ class _EntityFilterRegistry:
         for cls in classes:
             if setdefault(cls.type_id, cls) is not cls:
                 raise self.RegistrationError(
-                    "Duplicated operator's ID (or operator registered twice): {}".format(cls.type_id)
+                    f"Duplicated operator's ID (or operator registered twice): {cls.type_id}"
                 )
 
         return self
@@ -180,8 +180,8 @@ class _EntityFilterSuperRegistry:
         for registry in registries:
             if set_default(registry.id, registry) is not registry:
                 raise self.RegistrationError(
-                    '_EntityFilterSuperRegistry.register(): '
-                    'the ID "{}" is already used.'.format(registry.id)
+                    f'_EntityFilterSuperRegistry.register(): '
+                    f'the ID "{registry.id}" is already used.'
                 )
 
         return self

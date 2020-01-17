@@ -6,8 +6,8 @@ SUPERUSER_PERM = '*superuser*'  # NB: with '*' there cannot be collision with ap
 
 
 def build_creation_perm(model):
-    return '{}.add_{}'.format(model._meta.app_label, model.__name__.lower())
+    return f'{model._meta.app_label}.add_{model.__name__.lower()}'
 
 
 def build_link_perm(model):
-    return '{}.link_{}'.format(model._meta.app_label, model.__name__.lower())
+    return f'{model._meta.app_label}.link_{model.__name__.lower()}'

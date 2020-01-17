@@ -23,8 +23,10 @@ try:
 
     from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 
-    from . import (ticket_model_is_custom, tickettemplate_model_is_custom,
-            get_ticket_model, get_tickettemplate_model)
+    from . import (
+        ticket_model_is_custom, tickettemplate_model_is_custom,
+        get_ticket_model, get_tickettemplate_model,
+    )
     from .models import Status, Priority, Criticity, TicketNumber
     from .models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
 
@@ -34,7 +36,7 @@ try:
     Ticket = get_ticket_model()
     TicketTemplate = get_tickettemplate_model()
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 def skipIfCustomTicket(test_func):
@@ -52,7 +54,7 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
             try:
                 status = Status.objects.get(pk=pk)
             except Status.DoesNotExist:
-                self.fail("Bad populate: status with pk={} ({}) doesn't exist".format(pk, name))
+                self.fail(f"Bad populate: status with pk={pk} ({name}) doesn't exist")
             else:
                 self.assertEqual(name, status.name)
                 self.assertFalse(status.is_custom)
@@ -100,7 +102,7 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertEqual(title,       retr_ticket.title)
         self.assertEqual(description, retr_ticket.description)
 
-        self.assertEqual('#{} - {}'.format(ticket.number, title),
+        self.assertEqual(f'#{ticket.number} - {title}',
                          str(retr_ticket)
                         )
 
@@ -661,6 +663,6 @@ class TicketTemplateTestCase(CremeTestCase):
         template02 = self.create_template('Title02')
         # self.assertPOST404(reverse('creme_core__delete_entities'),
         self.assertPOST409(reverse('creme_core__delete_entities'),
-                           data={'ids': '{},{},'.format(template01.id, template02.id)}
+                           data={'ids': f'{template01.id},{template02.id},'}
                           )
         self.assertEqual(2, TicketTemplate.objects.filter(pk__in=[template01.id, template02.id]).count())

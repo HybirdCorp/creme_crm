@@ -19,7 +19,7 @@ try:
             skipIfCustomProductLine, skipIfCustomInvoice,
             Organisation, CreditNote, Invoice, ProductLine)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomOrganisation
@@ -180,7 +180,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_addrelated_view(self):
-        "Attach credit note to existing invoice"
+        "Attach credit note to existing invoice."
         user = self.login()
         create_line = partial(ProductLine.objects.create, user=user)
 
@@ -205,9 +205,10 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 300)
 
-        response = self.client.post(url, follow=True,
-                                    data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
+        )
         self.assertNoFormError(response)
 
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
@@ -224,7 +225,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_addrelated_view_not_same_currency(self):
-        "Cannot attach credit note in US Dollar to invoice in Euro"
+        "Cannot attach credit note in US Dollar to invoice in Euro."
         user = self.login()
         create_line = partial(ProductLine.objects.create, user=user)
         us_dollar = Currency.objects.all()[1]
@@ -238,13 +239,19 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
-        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target, currency=us_dollar)
-        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
+        credit_note = self.create_credit_note(
+            'Credit Note 001',
+            source=credit_note_source, target=invoice_target, currency=us_dollar,
+        )
+        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'))
 
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 300)
 
-        response = self.client.post(url, follow=True, data={'credit_notes': '[{}]'.format(credit_note.id)})
+        response = self.client.post(
+            url, follow=True,
+            data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
+        )
         self.assertFormError(response, 'form', 'credit_notes', _('This entity does not exist.'))
 
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
@@ -315,7 +322,10 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 300)
 
-        response = self.client.post(url, follow=True, data={'credit_notes': '[{}]'.format(credit_note.id)})
+        response = self.client.post(
+            url, follow=True,
+            data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
+        )
         self.assertFormError(response, 'form', 'credit_notes', _('This entity does not exist.'))
 
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())

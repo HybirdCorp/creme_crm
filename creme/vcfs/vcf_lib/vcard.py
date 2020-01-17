@@ -17,7 +17,7 @@ class Name:
         self.suffix     = suffix
 
     def __repr__(self):
-        return '<Name: {}>'.format(self)
+        return f'<Name: {self}>'
 
 
 class Address:
@@ -140,7 +140,7 @@ REALLY_LARGE = 1E50
 
 @behavior_registry.register
 class Photo(VCardTextBehavior):
-    name = "Photo"
+    name = 'Photo'
     description = 'Photograph'
 
     @classmethod

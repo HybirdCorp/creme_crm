@@ -18,7 +18,7 @@ try:
     from creme.documents.actions import ExploreFolderAction
     from creme.documents.models import FolderCategory
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomDocument
@@ -494,7 +494,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertNotIn(parent2, folders)
 
         self.assertEqual(_('List of sub-folders for «{parent}»').format(parent=parent), title)
-        self.assertEqual('{} > {}'.format(grand_parent.title, parent.title),
+        self.assertEqual(f'{grand_parent.title} > {parent.title}',
                          sub_title
                         )
 
@@ -521,9 +521,10 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         explore_action = explore_actions[0]
         self.assertEqual('redirect', explore_action.type)
-        self.assertEqual('{}?parent_id={}'.format(folder.get_lv_absolute_url(), folder.id),
-                         explore_action.url
-                        )
+        self.assertEqual(
+            '{}?parent_id={}'.format(folder.get_lv_absolute_url(), folder.id),
+            explore_action.url
+        )
         self.assertTrue(explore_action.is_enabled)
         self.assertTrue(explore_action.is_visible)
         self.assertEqual(_('List sub-folders of «{}»').format(folder),

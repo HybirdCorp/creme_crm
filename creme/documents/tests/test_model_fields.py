@@ -8,7 +8,7 @@ try:
     from ..constants import MIMETYPE_PREFIX_IMG
     from ..models.fields import _build_limit_choices_to, _deconstruct_limit_choices_to
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class ImageFieldsTestCase(_DocumentsTestCase):

@@ -10,8 +10,8 @@ class Closure(Filter):
         self.config(kwargs, compilation_level=COMPILATION_LEVEL)
         super().__init__(**kwargs)
         assert self.filetype == 'js', (
-            'Closure only supports compilation to js. '
-            'The parent filter expects "{}".'.format(self.filetype))
+            f'Closure only supports compilation to js. '
+            f'The parent filter expects "{self.filetype}".')
 
     def get_output(self, variation):
         # We import this here, so App Engine Helper users don't get import
@@ -28,7 +28,7 @@ class Closure(Filter):
                             universal_newlines=True)
                 output, error = cmd.communicate(smart_str(input))
 
-                assert cmd.wait() == 0, 'Command returned bad result:\n{}'.format(error)
+                assert cmd.wait() == 0, f'Command returned bad result:\n{error}'
 
                 yield output.decode('utf-8')
             except Exception as e:

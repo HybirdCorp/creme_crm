@@ -21,7 +21,7 @@ class FieldTestCase(CremeTestCase):  # TODO: Mixin
             return e, _format_stack()
 
         exception_name = getattr(exception, '__name__', None) or str(exception)
-        self.fail('{} not raised'.format(exception_name))
+        self.fail(f'{exception_name} not raised')
 
     def assertFieldValidationError(self, field, key, func, *args, **kwargs):
         message_args = kwargs.pop('message_args', {})   # Pop error message args from kwargs
@@ -29,7 +29,7 @@ class FieldTestCase(CremeTestCase):  # TODO: Mixin
         message = str(field().error_messages[key] % message_args)
 
         if not hasattr(err, 'messages'):
-            self.fail('unexpected empty message instead of "{}"\nerror : {}'.format(message, stack))
+            self.fail(f'unexpected empty message instead of "{message}"\nerror : {stack}')
 
         if message != err.messages[0]:
-            self.fail('unexpected message "{}" instead of "{}"\nerror : {}'.format(err.messages[0], message, stack))
+            self.fail(f'unexpected message "{err.messages[0]}" instead of "{message}"\nerror : {stack}')

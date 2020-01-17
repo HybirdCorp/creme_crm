@@ -71,8 +71,8 @@ class Less(Filter):
         super().__init__(**kwargs)
 
         assert self.filetype == 'css', (
-            'Less only supports compilation to CSS. '
-            'The parent filter expects "{}".'.format(self.filetype))
+            f'Less only supports compilation to CSS. '
+            f'The parent filter expects "{self.filetype}".')
         assert self.main_module, 'You must provide a main module'
 
         # lessc can't cope with nonexistent directories, so filter them
@@ -121,7 +121,7 @@ class Less(Filter):
 
             module_name = modules.pop()
             path = self._find_file(module_name)
-            assert path, 'Could not find the Less module {}'.format(module_name)
+            assert path, f'Could not find the Less module {module_name}'
             mtime = os.path.getmtime(path)
             self._dependencies[module_name] = mtime
 
@@ -137,8 +137,7 @@ class Less(Filter):
                 else:
                     path = self._find_file(name)
 
-                assert path, 'The Less module {} could not find the dependency {}'.format(
-                                module_name, name)
+                assert path, f'The Less module {module_name} could not find the dependency {name}'
 
                 if name not in self._dependencies:
                     modules.append(name)
@@ -163,8 +162,7 @@ class Less(Filter):
             output, error = cmd.communicate()
 
             # some lessc errors output to stdout, so we put both in the assertion message
-            assert cmd.wait() == 0, 'Less command returned bad result:\n{}\n{}'.format(
-                                        error, output)
+            assert cmd.wait() == 0, f'Less command returned bad result:\n{error}\n{output}'
             return output.decode('utf-8')
         except Exception as e:
             raise ValueError(

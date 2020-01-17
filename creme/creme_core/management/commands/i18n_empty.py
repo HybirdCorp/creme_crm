@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2017-2018 Hybird
+# Copyright (c) 2017-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,7 @@ class _POFileInfo:
         self.pofile = pofile
 
     def __str__(self):
-        return '{} ({})'.format(self.app_label, self.file_path)
+        return f'{self.app_label} ({self.file_path})'
 
 
 class _EntryInfo:
@@ -55,7 +55,7 @@ class _EntryInfo:
         self.linenum = linenum
 
     def __str__(self):
-        return '{} ({} l.{})'.format(self.app_label, self.file_path, self.linenum)
+        return f'{self.app_label} ({self.file_path} l.{self.linenum})'
 
 
 class Command(BaseCommand):
@@ -137,11 +137,11 @@ class Command(BaseCommand):
             for (msgctxt, msgid), entries_info in untranslated_entries.items():
                 self.stdout.write(
                     '{ctxt}\nmsgid "{msgid}"\n{entries}\n--------\n'.format(
-                        ctxt='\nmsgctxt "{}"'.format(msgctxt) if msgctxt is not None else '',
+                        ctxt=f'\nmsgctxt "{msgctxt}"' if msgctxt is not None else '',
                         msgid=msgid,
-                        entries='\n'.join(' - {}'.format(entry_info) for entry_info in entries_info),
+                        entries='\n'.join(f' - {entry_info}' for entry_info in entries_info),
                     )
                 )
 
             if verbosity >= 1:
-                self.stdout.write('\nNumber of problems: {}'.format(len(untranslated_entries)))
+                self.stdout.write(f'\nNumber of problems: {len(untranslated_entries)}')

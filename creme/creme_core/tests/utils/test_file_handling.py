@@ -13,7 +13,7 @@ try:
           IncrFileNameSuffixGenerator, RandomFileNameSuffixGenerator,
           DateFileNameSuffixGenerator, DatetimeFileNameSuffixGenerator)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class FileHandlingTestCase(CremeTestCase):
@@ -159,11 +159,11 @@ class FileHandlingTestCase(CremeTestCase):
 
         fcreator.create()
         date_str = date.today().strftime('%d%m%Y')
-        name2 = 'stuff_{}.txt'.format(date_str)
+        name2 = f'stuff_{date_str}.txt'
         self.assertSetEqual({name1, name2}, {*listdir(dir_path)})
 
         fcreator.create()
-        name3 = 'stuff_{}_1.txt'.format(date_str)
+        name3 = f'stuff_{date_str}_1.txt'
         self.assertSetEqual({name1, name2, name3}, {*listdir(dir_path)})
 
     def test_file_creator04(self):

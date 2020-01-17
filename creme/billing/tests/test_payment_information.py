@@ -14,7 +14,7 @@ try:
     from ..models import PaymentInformation
     from .base import _BillingTestCase, skipIfCustomInvoice, Invoice, Organisation
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomOrganisation
@@ -40,8 +40,8 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertEqual(_('Save the payment information'), context.get('submit_label'))
 
         self.assertNoFormError(self.client.post(url, data={'user': self.user.pk,
-                                                           'name': 'RIB of {}'.format(organisation),
-                                                          }
+                                                           'name': f'RIB of {organisation}',
+                                                          },
                                                )
                               )
 
@@ -60,9 +60,9 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         response = self.client.post(url, data={'user':       self.user.pk,
-                                               'name':       'RIB of {}'.format(organisation),
+                                               'name':       f'RIB of {organisation}',
                                                'is_default': True,
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
 
@@ -91,13 +91,13 @@ class PaymentInformationTestCase(_BillingTestCase):
                         )
 
         rib_key = '00'
-        name    = 'RIB of {}'.format(organisation)
+        name    = f'RIB of {organisation}'
         bic     = 'pen ?'
         response = self.client.post(url, data={'user':    self.user.pk,
                                                'name':    name,
                                                'rib_key': rib_key,
                                                'bic':     bic,
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
 
@@ -123,7 +123,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         rib_key = '00'
-        name    = 'RIB of {}'.format(orga1)
+        name    = f'RIB of {orga1}'
         bic     = 'pen ?'
         self.assertNoFormError(self.client.post(url, data={'user':       self.user.pk,
                                                            'name':       name,

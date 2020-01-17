@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018  Hybird
+#    Copyright (C) 2018-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,7 @@ class _ImprintManager:
         granularity = timedelta(**timedelta_kwargs)
 
         if self._granularities.setdefault(model, granularity) is not granularity:
-            raise self.RegistrationError('Duplicated imprint model: {}'.format(model))
+            raise self.RegistrationError(f'Duplicated imprint model: {model}')
 
     def get_granularity(self, model):
         return self._granularities.get(model)

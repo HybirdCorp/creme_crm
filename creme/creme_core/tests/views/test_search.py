@@ -15,7 +15,7 @@ try:
 
     from .base import ViewsTestCase, BrickTestCaseMixin
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
@@ -140,12 +140,12 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertGreaterEqual(len(context['bricks']), 2)
 
-        self.assertContains(response, ' id="{}-'.format(self.CONTACT_BRICKID))
+        self.assertContains(response, f' id="{self.CONTACT_BRICKID}-')
         self.assertContains(response, self.alan.get_absolute_url())
         self.assertNotContains(response, self.linus.get_absolute_url())
         self.assertNotContains(response, self.linus2.get_absolute_url())
 
-        self.assertContains(response, ' id="{}-'.format(self.ORGA_BRICKID))
+        self.assertContains(response, f' id="{self.ORGA_BRICKID}-')
         self.assertContains(response, self.coxco.get_absolute_url())
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 
@@ -198,11 +198,11 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self._search('cox')
         context = response.context
 
-        self.assertContains(response, ' id="{}-'.format(self.ORGA_BRICKID))
+        self.assertContains(response, f' id="{self.ORGA_BRICKID}-')
         self.assertContains(response, self.coxco.get_absolute_url())
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 
-        self.assertNotContains(response, ' id="{}-'.format(self.CONTACT_BRICKID))
+        self.assertNotContains(response, f' id="{self.CONTACT_BRICKID}-')
         self.assertNotContains(response, self.alan.get_absolute_url())
 
         vnames = {str(vname) for vname in context['models']}

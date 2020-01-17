@@ -20,7 +20,7 @@ try:
             InstanceBrickConfigItem, RelationBrickItem, CustomBrickConfigItem,
             BrickState, SettingValue)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class BrickTestCase(CremeTestCase):
@@ -57,7 +57,7 @@ class BrickTestCase(CremeTestCase):
             try:
                 model.objects.bulk_create(backup)
             except Exception as e:
-                print('BrickTestCase: test-data backup problem with model={} ({})'.format(model, e))
+                print(f'BrickTestCase: test-data backup problem with model={model} ({e})')
 
     def test_populate(self):
         self.assertLessEqual({'modelblock', CustomFieldsBrick.id_, RelationsBrick.id_,

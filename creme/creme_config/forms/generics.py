@@ -88,9 +88,7 @@ class ReplacingHandler:
 
     def _build_formfield_label(self):
         field = self.field
-        return '{} - {}'.format(field.model._meta.verbose_name,
-                                field.verbose_name,
-                               )
+        return f'{field.model._meta.verbose_name} - {field.verbose_name}'
 
     def _count_related_instances(self):
         field = self.field

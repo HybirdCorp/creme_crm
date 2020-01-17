@@ -57,7 +57,7 @@ class _MapBrick(Brick):
             if efilters:
                 title = str(ct.model_class()._meta.verbose_name_plural)
                 choices.append((title,
-                                [(ef.id, '{} - {}'.format(title, ef.name)) for ef in efilters]
+                                [(ef.id, f'{title} - {ef.name}') for ef in efilters]
                                )
                               )
 

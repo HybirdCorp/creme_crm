@@ -13,7 +13,7 @@ try:
     from creme.creme_core.gui.menu import (ViewableItem, URLItem, LabelItem,
            ItemGroup, ContainerItem, CreationFormsItem, Menu)  # OnClickItem
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class MenuTestCase(CremeTestCase):
@@ -816,9 +816,9 @@ class MenuTestCase(CremeTestCase):
         label= 'Important title'
         item = LabelItem(item_id, label=label)
 
-        self.assertHTMLEqual('<span class="ui-creme-navigation-text-entry">'
-                                '{label}'
-                             '</span>'.format(label=label),
+        self.assertHTMLEqual(f'<span class="ui-creme-navigation-text-entry">'
+                                f'{label}'
+                             f'</span>',
                              item.render(self.build_context())
                             )
 

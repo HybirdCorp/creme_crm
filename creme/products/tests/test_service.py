@@ -13,7 +13,7 @@ try:
     from .. import get_service_model
     from ..models import Category, SubCategory
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 Document = get_document_model()
 Service = get_service_model()

@@ -7,4 +7,4 @@ class FakeAppPortalBrick(Brick):
     id_ = Brick.generate_id('creme_core', 'fake_app_portal')
 
     def detailview_display(self, context):
-        return '<div id="{}" class="brick"></div>'.format(self.id_)
+        return f'<div id="{self.id_}" class="brick"></div>'

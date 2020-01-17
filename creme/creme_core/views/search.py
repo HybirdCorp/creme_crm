@@ -238,7 +238,7 @@ class SearchBricksReloading(BricksReloading):
             search = GET.get('search', '')
 
             if len(search) < MIN_RESEARCH_LENGTH:
-                raise Http404('Please enter at least {count} characters'.format(count=MIN_RESEARCH_LENGTH))
+                raise Http404(f'Please enter at least {MIN_RESEARCH_LENGTH} characters')
 
             model = ctype.model_class()
             bricks.append(FoundEntitiesBrick(Searcher([model], user), model, search, user, id=brick_id))

@@ -69,7 +69,7 @@ try:
         FakeReportsFolder, FakeReportsDocument, Guild,
     )
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 try:
     from creme.creme_core.backends import export_backend_registry
@@ -1191,18 +1191,13 @@ class ReportTestCase(BaseReportsTestCase):
         f_name = 'last_name'
         fk_name = 'image'
         cf_id = str(cf.id)
-        aggr_id = '{}__max'.format(cf_id)
+        aggr_id = f'{cf_id}__max'
         response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': 'regular_field-{rfield},'
-                                                     'custom_field-{cfield},'
-                                                     'custom_aggregate-{agg},'
-                                                     'regular_field-{fkfield}'.format(
-                                                            rfield=f_name,
-                                                            cfield=cf_id,
-                                                            agg=aggr_id,
-                                                            fkfield=fk_name,
-                                                        ),
-                                         }
+                                    data={'columns': f'regular_field-{f_name},'
+                                                     f'custom_field-{cf_id},'
+                                                     f'custom_aggregate-{aggr_id},'
+                                                     f'regular_field-{fk_name}',
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -1247,13 +1242,9 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertIsNotNone(funcfield)
 
         response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': 'relation-{rtype},'
-                                                     'regular_field-{rfield},'
-                                                     'function_field-{ffield}'.format(
-                                                            rfield=f_name,
-                                                            rtype=rtype_id,
-                                                            ffield=funcfield.name,
-                                                        ),
+                                    data={'columns': f'relation-{rtype_id},'
+                                                     f'regular_field-{f_name},'
+                                                     f'function_field-{funcfield.name}',
                                          },
                                    )
         self.assertNoFormError(response)
@@ -1290,11 +1281,9 @@ class ReportTestCase(BaseReportsTestCase):
         f_name = 'name'
         aggr_id = 'capital__min'
         response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': 'regular_field-{rfield},regular_aggregate-{agg}'.format(
-                                                            rfield=f_name,
-                                                            agg=aggr_id,
-                                                        ),
-                                         }
+                                    data={'columns': f'regular_field-{f_name},'
+                                                     f'regular_aggregate-{aggr_id}',
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -1320,12 +1309,9 @@ class ReportTestCase(BaseReportsTestCase):
         f_name = 'title'
         rel_name = 'fakereportsdocument'
         response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': 'regular_field-{rfield},'
-                                                     'related-{related}'.format(
-                                                            rfield=f_name,
-                                                            related=rel_name,
-                                                        ),
-                                              }
+                                    data={'columns': f'regular_field-{f_name},'
+                                                     f'related-{rel_name}',
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -1358,15 +1344,10 @@ class ReportTestCase(BaseReportsTestCase):
         create_field(name='image',                  type=RFT_FIELD,    order=3, selected=False, sub_report=report_img)
 
         response = self.client.post(self._build_editfields_url(report_orga),
-                                    data={'columns': 'regular_field-{rfield1},'
-                                                     'relation-{rtype},'
-                                                     'regular_field-{rfield2},'
-                                                     'regular_field-{rfield3}'.format(
-                                                            rfield1='name',
-                                                            rtype=FAKE_REL_OBJ_EMPLOYED_BY,
-                                                            rfield2='description',
-                                                            rfield3='image',  # TODO: and with image__name ???
-                                                        ),
+                                    data={'columns': f'regular_field-name,'
+                                                     f'relation-{FAKE_REL_OBJ_EMPLOYED_BY},'
+                                                     f'regular_field-description,'
+                                                     f'regular_field-image', # TODO: and with image__name ???
                                          },
                                    )
         self.assertNoFormError(response)
@@ -1424,10 +1405,8 @@ class ReportTestCase(BaseReportsTestCase):
 
         response = self.client.post(
             url,
-            data={'columns': 'regular_field-{},regular_field-{}'.format(
-                                    valid_fname,
-                                    hidden_fname2,
-                                ),
+            data={'columns': f'regular_field-{valid_fname},'
+                             f'regular_field-{hidden_fname2}',
                  },
         )
         self.assertNoFormError(response)
@@ -1438,19 +1417,16 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(hidden_fname2, columns[1].name)
 
     def test_edit_fields08(self):
-        "FK with depth=2"
+        "FK with <depth=2>."
         user = self.login()
 
         report = Report.objects.create(name='Docs report', user=user, ct=FakeCoreDocument)
 
-        # fname = 'folder__category'
         fname = 'linked_folder__category'
         response = self.client.post(
             self._build_editfields_url(report),
-            data={'columns': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
-                                  rfield1='title',
-                                  rfield2=fname,
-                              ),
+            data={'columns': f'regular_field-title,'
+                             f'regular_field-{fname}',
                  },
         )
         self.assertNoFormError(response)
@@ -1463,7 +1439,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(RFT_FIELD, column.type)
 
     def test_edit_fields09(self):
-        "M2M with depth=2"
+        "M2M with <depth=2>."
         user = self.login()
 
         report = Report.objects.create(name='Contact report', user=user,
@@ -1472,11 +1448,8 @@ class ReportTestCase(BaseReportsTestCase):
 
         fname = 'image__categories'
         response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': 'regular_field-{rfield1},'
-                                                     'regular_field-{rfield2}'.format(
-                                                            rfield1='last_name',
-                                                            rfield2=fname,
-                                                        ),
+                                    data={'columns': f'regular_field-last_name,'
+                                                     f'regular_field-{fname}',
                                          },
                                    )
         self.assertNoFormError(response)
@@ -1906,14 +1879,15 @@ class ReportTestCase(BaseReportsTestCase):
 
         create_contact = partial(FakeContact.objects.create, user=user)
         for i in range(5):
-            create_contact(last_name='Mister {}'.format(i))
+            create_contact(last_name=f'Mister {i}')
 
         create_contact(last_name='Mister X', is_deleted=True)
 
         report = self._create_simple_contacts_report('Contacts report')
-        self.assertEqual([[ln] for ln in FakeContact.objects.filter(is_deleted=False)
-                                                        .values_list('last_name', flat=True)
-                          ],
+        self.assertEqual([[ln] for ln in FakeContact.objects
+                                                    .filter(is_deleted=False)
+                                                    .values_list('last_name', flat=True)
+                         ],
                          report.fetch_all_lines()
                         )
 
@@ -2397,7 +2371,7 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_fetch_m2m_04(self):
         "Not CremeEntity model"
-        self.login()
+        user = self.login()
 
         report = self._build_image_report()
 
@@ -2411,7 +2385,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(_('Categories') + ' - ' + _('Name'), rfield1.title)
         self.assertEqual(_('Categories'),                     rfield2.title)
 
-        create_img = partial(FakeImage.objects.create, user=self.user)
+        create_img = partial(FakeImage.objects.create, user=user)
         img1 = create_img(name='Img#1', description='Pretty picture')
         img2 = create_img(name='Img#2')
 
@@ -2419,10 +2393,9 @@ class ReportTestCase(BaseReportsTestCase):
         cat1 = create_cat(name='Photo of contact')
         cat2 = create_cat(name='Photo of product')
 
-        # img1.categories = [cat1, cat2]
         img1.categories.set([cat1, cat2])
 
-        cats_str = '{}, {}'.format(cat1.name, cat2.name)
+        cats_str = f'{cat1.name}, {cat2.name}'
         self.assertEqual(
             [[img1.name, img1.description, cats_str, cats_str],
              [img2.name, '',               '',       ''],
@@ -2463,7 +2436,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(
             [[guild2.name, leader.title],
              [guild3.name, ''],
-             [guild1.name, '{}, {}, '.format(leader.title, side_kick.title)],
+             [guild1.name, f'{leader.title}, {side_kick.title}, '],
             ],
             report.fetch_all_lines()
         )
@@ -2503,7 +2476,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         doc11 = self.doc11; doc12 = self.doc12
         fetch = report.fetch_all_lines
-        lines = [[self.folder1.title, '{}, {}'.format(doc11, doc12)],
+        lines = [[self.folder1.title, f'{doc11}, {doc12}'],
                  [self.folder2.title, str(self.doc21)],
                 ]
         self.assertEqual(lines, fetch())
@@ -2512,7 +2485,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(lines, fetch(user=self.user))
 
     def test_fetch_related_02(self):
-        "Sub-report (expanded)"
+        "Sub-report (expanded)."
         user = self.login_as_basic_user()
 
         self._aux_test_fetch_related(select_doc_report=True)
@@ -2640,7 +2613,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         fetch = self.report_orga.fetch_all_lines
         lines = [[self.lannisters.name, str(self.tyrion)],
-                 [self.starks.name,     '{}, {}'.format(ned, self.robb)],
+                 [self.starks.name,     f'{ned}, {self.robb}'],
                 ]
         self.assertEqual(lines, fetch())
 
@@ -2836,7 +2809,7 @@ class ReportTestCase(BaseReportsTestCase):
             create_field(name='invalid__sum',     order=6, type=RFT_AGG_FIELD)   # Invalid field (unknown)
             create_field(name='name__sum',        order=7, type=RFT_AGG_FIELD)   # Invalid field (bad type)
             create_field(name=fmt(str_cf.id),     order=8, type=RFT_AGG_CUSTOM)  # Invalid CustomField (bad type)
-            create_field(name='{}__additionalarg__max'.format(cf.id),
+            create_field(name=f'{cf.id}__additionalarg__max',
                          order=9, type=RFT_AGG_CUSTOM,
                         )  # Invalid string
 

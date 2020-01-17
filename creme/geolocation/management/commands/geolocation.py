@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -80,9 +80,10 @@ class CSVPopulator:
             self.info('Downloading database...')
             return urlopen(url_info.geturl())
         else:
-            raise self.ProtocolError('Unable to open CSV data from {} : '
-                                     'unsupported protocol.'.format(url_info.geturl())
-                                    )
+            raise self.ProtocolError(
+                f'Unable to open CSV data from {url_info.geturl()} : '
+                f'unsupported protocol.'
+            )
 
     def _mapper(self, header):
         columns = self.columns
@@ -103,7 +104,9 @@ class CSVPopulator:
                     missings.append(key)
 
         if missings:
-            raise self.ParseError("Following columns are missing and haven't got any default value : {}".format(missings))
+            raise self.ParseError(
+                f"Following columns are missing and haven't got any default value : {missings}"
+            )
 
         def _aux(row):
             data = {key: row[index] or defaults.get(key) for key, index in indices}
@@ -149,7 +152,7 @@ class CSVPopulator:
             except CSVPopulatorError:
                 raise
             except Exception as e:
-                raise self.ReadError('Unable to open CSV data from {} : {}'.format(source, e)) from e
+                raise self.ReadError(f'Unable to open CSV data from {source} : {e}') from e
         elif hasattr(source, '__iter__'):
             self._populate_from_lines(iter(source))
         else:
@@ -284,7 +287,7 @@ class Command(BaseCommand):
             self.import_town_database(url, defaults)
 
     def print_stats(self):
-        self.sysout('{} town(s) in database.'.format(Town.objects.count()))
+        self.sysout(f'{Town.objects.count()} town(s) in database.')
 
     def handle(self, *args, **options):
         populate = options.get('populate')

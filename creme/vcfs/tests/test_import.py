@@ -21,7 +21,7 @@ try:
     from .base import (Document, Address, Contact, Organisation,
         skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class VcfImportTestCase(CremeTestCase):
@@ -101,7 +101,7 @@ class VcfImportTestCase(CremeTestCase):
         region = 'Kanto'
         code = '42'
         country = 'Japan'
-        content = """BEGIN:VCARD
+        content = f"""BEGIN:VCARD
 N:{last_name};{first_name};;{civility};
 TITLE:{position}
 BDAY;value=date:02-10
@@ -111,23 +111,7 @@ TEL;TYPE=CELL:{mobile}
 TEL;TYPE=FAX:{fax}
 EMAIL;TYPE=HOME:{email}
 URL;TYPE=HOME:{site}
-END:VCARD""".format(last_name=last_name,
-                    first_name=first_name,
-                    civility=civility,
-                    position=position,
-                    phone=phone,
-                    mobile=mobile,
-                    fax=fax,
-                    email=email,
-                    site=site,
-
-                    box=box,
-                    street=street,
-                    city=city,
-                    region=region,
-                    code=code,
-                    country=country,
-                   )
+END:VCARD"""
         response = self._post_step0(content)
 
         with self.assertNoException():
@@ -172,7 +156,7 @@ END:VCARD""".format(last_name=last_name,
 
         self.assertEqual(street, adr_value.street)
         self.assertEqual(box,    adr_value.box)
-        self.assertEqual(fields['homeaddr_address'].initial, '{} {}'.format(box, street))
+        self.assertEqual(fields['homeaddr_address'].initial, f'{box} {street}')
 
         self.assertEqual(city, adr_value.city)
         self.assertEqual(city, fields['homeaddr_city'].initial)
@@ -199,25 +183,14 @@ END:VCARD""".format(last_name=last_name,
         region = 'Tokyo region'
         code = '8888'
         country = 'Zipangu'
-        content = """BEGIN:VCARD
+        content = f"""BEGIN:VCARD
 FN:Evangéline McDowell
 ORG:{name}
 ADR;TYPE=WORK:{box};;{street};{city};{region};{code};{country}
 TEL;TYPE=WORK:{phone}
 EMAIL;TYPE=WORK:{email}
 URL;TYPE=WORK:{site}
-END:VCARD""".format(name=name,
-                    phone=phone,
-                    email=email,
-                    site=site,
-
-                    box=box,
-                    street=street,
-                    city=city,
-                    region=region,
-                    code=code,
-                    country=country,
-                   )
+END:VCARD"""
         response = self._post_step0(content)
 
         with self.assertNoException():
@@ -242,7 +215,7 @@ END:VCARD""".format(name=name,
         adr = vobj.adr.value
         self.assertEqual(box,    adr.box)
         self.assertEqual(street, adr.street)
-        self.assertEqual(fields['workaddr_address'].initial,  '{} {}'.format(box, street))
+        self.assertEqual(fields['workaddr_address'].initial,  f'{box} {street}')
 
         self.assertEqual(city, adr.city)
         self.assertEqual(city, fields['workaddr_city'].initial)
@@ -266,7 +239,7 @@ END:VCARD""".format(name=name,
         region = 'Kansai'
         code = '434354'
         country = 'Japan'
-        content = """begin:vcard
+        content = f"""begin:vcard
 fn:Misora Kasoga
 adr:{box};;{street};{city};{region};{code};{country}
 tel:00 00 00 00 00
@@ -274,13 +247,7 @@ email:email@email.com
 x-mozilla-html:FALSE
 url:www.url.com
 version:2.1
-end:vcard""".format(box=box,
-                    street=street,
-                    city=city,
-                    region=region,
-                    code=code,
-                    country=country,
-                   )
+end:vcard"""
         response = self._post_step0(content)
 
         with self.assertNoException():
@@ -313,14 +280,14 @@ end:vcard""".format(box=box,
 
         name = 'Negima'
         orga = Organisation.objects.create(user=user, name=name)
-        content = """BEGIN:VCARD
+        content = f"""BEGIN:VCARD
 N:Konoe Konoka
 ORG:{name}
 ADR;TYPE=WORK:56;;Second street;Kyoto;Kyoto region;7777;Japan
 TEL;TYPE=WORK:11 11 11 11 11
 EMAIL;TYPE=WORK:email@email.com
 URL;TYPE=WORK:www.web-site.com
-END:VCARD""".format(name=name)
+END:VCARD"""
         response = self._post_step0(content)
 
         with self.assertNoException():
@@ -579,7 +546,7 @@ END:VCARD"""
                                           )
         orga_count = Organisation.objects.count()
 
-        content = """BEGIN:VCARD
+        content = f"""BEGIN:VCARD
 FN:Haruna Saotome
 TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=CELL:11 11 11 11 11
@@ -589,8 +556,8 @@ EMAIL;TYPE=HOME:email@email.com
 EMAIL;TYPE=WORK:work@work2.com
 URL;TYPE=HOME:www.url2.com
 URL;TYPE=WORK:www.work2.com
-ORG:{}
-END:VCARD""".format(orga.name)
+ORG:{orga.name}
+END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
@@ -922,28 +889,30 @@ END:VCARD"""
         Organisation.objects.create(user=self.user, name=name, phone='00 00 00 00 00',
                                     email='corp@corp.com', url_site='www.corp.com',
                                    )
-        content = """BEGIN:VCARD
+        content = f"""BEGIN:VCARD
 FN:Akira Ookôchi
 ORG:{name}
-END:VCARD""".format(name=name)
+END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
-        response = self._post_step1(errors=True,
-                                    data={'user':       fields['user'].initial,
-                                          'first_name': fields['first_name'].initial,
-                                          'last_name':  fields['last_name'].initial,
+        response = self._post_step1(
+            errors=True,
+            data={
+                'user':       fields['user'].initial,
+                'first_name': fields['first_name'].initial,
+                'last_name':  fields['last_name'].initial,
 
-                                          'create_or_attach_orga': True,
-                                          'organisation':          fields['organisation'].initial,
-                                          'relation':              REL_SUB_EMPLOYED_BY,
+                'create_or_attach_orga': True,
+                'organisation':          fields['organisation'].initial,
+                'relation':              REL_SUB_EMPLOYED_BY,
 
-                                          'update_work_name':     True,
-                                          'update_work_phone':    True,
-                                          'update_work_fax':      True,
-                                          'update_work_email':    True,
-                                          'update_work_url_site': True,
-                                          'update_work_address':  True,
-                                         }
-                                    )
+                'update_work_name':     True,
+                'update_work_phone':    True,
+                'update_work_fax':      True,
+                'update_work_email':    True,
+                'update_work_url_site': True,
+                'update_work_address':  True,
+            },
+        )
         validation_text = _('Required, if you want to update organisation')
         self.assertFormError(response, 'form', 'work_phone',    validation_text)
         self.assertFormError(response, 'form', 'work_email',    validation_text)
@@ -974,42 +943,44 @@ END:VCARD""".format(name=name)
         orga_count    = Organisation.objects.count()
         address_count = Address.objects.count()
 
-        content = """BEGIN:VCARD
+        content = f"""BEGIN:VCARD
 FN:Chachamaru KARAKURI
 ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
 TEL;TYPE=WORK:11 11 11 11 11
 EMAIL;TYPE=WORK:work@work.com
 URL;TYPE=WORK:www.work.com
 ORG:{name}
-END:VCARD""".format(name=name)
+END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
-        self._post_step1(data={'user':       fields['user'].initial,
-                               'first_name': fields['first_name'].initial,
-                               'last_name':  fields['last_name'].initial,
+        self._post_step1(
+            data={
+                'user':       fields['user'].initial,
+                'first_name': fields['first_name'].initial,
+                'last_name':  fields['last_name'].initial,
 
-                               'create_or_attach_orga': True,
-                               'organisation':          fields['organisation'].initial,
-                               'relation':              REL_SUB_EMPLOYED_BY,
-                               'work_name':             fields['work_name'].initial,
+                'create_or_attach_orga': True,
+                'organisation':          fields['organisation'].initial,
+                'relation':              REL_SUB_EMPLOYED_BY,
+                'work_name':             fields['work_name'].initial,
 
-                               'work_phone':    fields['work_phone'].initial,
-                               'work_email':    fields['work_email'].initial,
-                               'work_url_site': fields['work_url_site'].initial,
+                'work_phone':    fields['work_phone'].initial,
+                'work_email':    fields['work_email'].initial,
+                'work_url_site': fields['work_url_site'].initial,
 
-                               'workaddr_name':     fields['workaddr_name'].initial,
-                               'workaddr_address':  fields['workaddr_address'].initial,
-                               'workaddr_city':     fields['workaddr_city'].initial,
-                               'workaddr_country':  fields['workaddr_country'].initial,
-                               'workaddr_code':     fields['workaddr_code'].initial,
-                               'workaddr_region':   fields['workaddr_region'].initial,
+                'workaddr_name':     fields['workaddr_name'].initial,
+                'workaddr_address':  fields['workaddr_address'].initial,
+                'workaddr_city':     fields['workaddr_city'].initial,
+                'workaddr_country':  fields['workaddr_country'].initial,
+                'workaddr_code':     fields['workaddr_code'].initial,
+                'workaddr_region':   fields['workaddr_region'].initial,
 
-                               'update_work_name':     True,
-                               'update_work_phone':    True,
-                               'update_work_email':    True,
-                               'update_work_url_site': True,
-                               'update_work_address':  True,
-                              }
-                        )
+                'update_work_name':     True,
+                'update_work_phone':    True,
+                'update_work_email':    True,
+                'update_work_url_site': True,
+                'update_work_address':  True,
+            },
+        )
 
         self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(orga_count,        Organisation.objects.count())
@@ -1047,11 +1018,11 @@ END:VCARD""".format(name=name)
         orga_count    = Organisation.objects.count()
         address_count = Address.objects.count()
 
-        content = """BEGIN:VCARD
+        content = f"""BEGIN:VCARD
 FN:Chizuru NABA
 ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
 ORG:{name}
-END:VCARD""".format(name=name)
+END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
         orga_id       = fields['organisation'].initial
         work_adr_name = fields['workaddr_name'].initial
@@ -1060,33 +1031,38 @@ END:VCARD""".format(name=name)
         work_country  = fields['workaddr_country'].initial
         work_code     = fields['workaddr_code'].initial
         work_region   = fields['workaddr_region'].initial
-        self._post_step1(data={'user':       fields['user'].initial,
-                               'first_name': fields['first_name'].initial,
-                               'last_name':  fields['last_name'].initial,
+        self._post_step1(
+            data={
+                'user':       fields['user'].initial,
+                'first_name': fields['first_name'].initial,
+                'last_name':  fields['last_name'].initial,
 
-                               'create_or_attach_orga': True,
-                               'organisation':          orga_id,
-                               'relation':              REL_SUB_EMPLOYED_BY,
-                               'work_name':             fields['work_name'].initial,
+                'create_or_attach_orga': True,
+                'organisation':          orga_id,
+                'relation':              REL_SUB_EMPLOYED_BY,
+                'work_name':             fields['work_name'].initial,
 
-                               'workaddr_name':      work_adr_name,
-                               'workaddr_address':   work_address,
-                               'workaddr_city':      work_city,
-                               'workaddr_country':   work_country,
-                               'workaddr_code':      work_code,
-                               'workaddr_region':    work_region,
-                               'update_work_address': True,
-                              }
-                        )
+                'workaddr_name':    work_adr_name,
+                'workaddr_address': work_address,
+                'workaddr_city':    work_city,
+                'workaddr_country': work_country,
+                'workaddr_code':    work_code,
+                'workaddr_region':  work_region,
+
+                'update_work_address': True,
+            },
+        )
         self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count + 1, Address.objects.count())
 
-        address = self.get_object_or_fail(Address, name=work_adr_name, address=work_address,
-                                          city=work_city, zipcode=work_code,
-                                          country=work_country, department=work_region,
-                                         )
-        orga    = self.get_object_or_fail(Organisation, id=orga_id)
+        address = self.get_object_or_fail(
+            Address,
+            name=work_adr_name, address=work_address,
+            city=work_city, zipcode=work_code,
+            country=work_country, department=work_region,
+        )
+        orga = self.get_object_or_fail(Organisation, id=orga_id)
 
         vobj = read_vcf(content)
         adr = vobj.adr.value
@@ -1174,11 +1150,11 @@ PHOTO:""" \
         first_name = 'Negi'
         last_name  = 'Springfield'
         content = 'BEGIN:VCARD\nN;ENCODING=8BIT:{last_name};{first_name};;{civility};\nTITLE:{position}\nEND:VCARD'.format(
-                      first_name=first_name,
-                      last_name=last_name,
-                      civility=_('Mr.'),
-                      position=_('CEO'),
-                    )
+            first_name=first_name,
+            last_name=last_name,
+            civility=_('Mr.'),
+            position=_('CEO'),
+        )
         response = self._post_step0(content)
 
         with self.assertNoException():
@@ -1275,10 +1251,10 @@ PHOTO;TYPE=JPEG:""" \
         contact_count = Contact.objects.count()
         self.assertEqual(0, Document.objects.count())
 
-        content  = """BEGIN:VCARD
+        content = f"""BEGIN:VCARD
 FN:Ayaka YUKIHIRO
 PHOTO;VALUE=URL:{path}
-END:VCARD""".format(path=path)
+END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
@@ -1286,7 +1262,7 @@ END:VCARD""".format(path=path)
                                'first_name':    first_name,
                                'last_name':     last_name,
                                'image_encoded': fields['image_encoded'].initial,
-                              }
+                              },
                         )
 
         self.assertEqual(contact_count + 1, Contact.objects.count())
@@ -1343,7 +1319,7 @@ END:VCARD""".format(path=os_path.normpath(img_path))
                                'first_name':    fields['first_name'].initial,
                                'last_name':     fields['last_name'].initial,
                                'image_encoded': fields['image_encoded'].initial,
-                              }
+                              },
                         )
         self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(image_count,       Document.objects.count())

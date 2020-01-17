@@ -44,7 +44,7 @@ try:
         from creme.assistants.models import Alert, UserMessage
         from creme.assistants.constants import PRIO_NOT_IMP_PK
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomActivity
@@ -55,26 +55,28 @@ class ActivityTestCase(_ActivitiesTestCase):
     def _build_add_related_uri(self, related, act_type_id=None):
         url = reverse('activities__create_related_activity', args=(related.id,))
 
-        return url if not act_type_id else (url + '?activity_type={}'.format(act_type_id))
+        return url if not act_type_id else f'{url}?activity_type={act_type_id}'
 
     def _build_get_types_url(self, type_id):
         return reverse('activities__get_types', args=(type_id,))
 
     def _create_phonecall(self, title='Call01', subtype_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, hour=14):
         create_dt = self.create_datetime
-        return Activity.objects.create(user=self.user, title=title,
-                                       type_id=constants.ACTIVITYTYPE_PHONECALL, sub_type_id=subtype_id,
-                                       start=create_dt(year=2013, month=4, day=1, hour=hour, minute=0),
-                                       end=create_dt(year=2013,   month=4, day=1, hour=hour, minute=15),
-                                      )
+        return Activity.objects.create(
+            user=self.user, title=title,
+            type_id=constants.ACTIVITYTYPE_PHONECALL, sub_type_id=subtype_id,
+            start=create_dt(year=2013, month=4, day=1, hour=hour, minute=0),
+            end=create_dt(year=2013,   month=4, day=1, hour=hour, minute=15),
+        )
 
     def _create_task(self, title='Task01', day=1):
         create_dt = self.create_datetime
-        return Activity.objects.create(user=self.user, title=title,
-                                       type_id=constants.ACTIVITYTYPE_TASK,
-                                       start=create_dt(year=2013, month=4, day=day, hour=8,  minute=0),
-                                       end=create_dt(year=2013,   month=4, day=day, hour=18, minute=0),
-                                      )
+        return Activity.objects.create(
+            user=self.user, title=title,
+            type_id=constants.ACTIVITYTYPE_TASK,
+            start=create_dt(year=2013, month=4, day=day, hour=8,  minute=0),
+            end=create_dt(year=2013,   month=4, day=day, hour=18, minute=0),
+        )
 
     def test_populate(self):
         rtypes_pks = [constants.REL_SUB_LINKED_2_ACTIVITY,
@@ -280,7 +282,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_createview03(self):
-        "No end given ; auto subjects"
+        "No end given ; auto subjects."
         user = self.login()
         me = user.linked_contact
 
@@ -324,7 +326,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'start_time':         '12:10:00',
                 'my_participation_0': True,
                 'my_participation_1': my_calendar.pk,
-                'other_participants': '[{}, {}]'.format(genma.id, akane.id),
+                # 'other_participants': '[{}, {}]'.format(genma.id, akane.id),
+                'other_participants': self.formfield_value_multi_creator_entity(genma, akane),
                 'subjects':           self.formfield_value_multi_generic_entity(ranma, rest),
                 'linked_entities':    self.formfield_value_multi_generic_entity(dojo_s),
                 'type_selector':      self._acttype_field_value(type_id),

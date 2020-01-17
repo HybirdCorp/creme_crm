@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2019  Hybird
+#    Copyright (C) 2018-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ class SandboxType:
 
     @staticmethod
     def generate_id(app_label, name):
-        return '{}-{}'.format(app_label, name)
+        return f'{app_label}-{name}'
 
     def __init__(self, sandbox):
         self.sandbox = sandbox
@@ -50,7 +50,7 @@ class _SandboxTypeRegistry:
 
     def register(self, sandbox_type):
         if self._sandbox_types.setdefault(sandbox_type.id, sandbox_type) is not sandbox_type:
-            raise self.Error('Duplicated sandbox type id: {}'.format(sandbox_type.id))
+            raise self.Error(f'Duplicated sandbox type id: {sandbox_type.id}')
 
     def get(self, sandbox):
         try:

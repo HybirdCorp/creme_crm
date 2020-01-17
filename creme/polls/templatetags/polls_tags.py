@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2019  Hybird
+#    Copyright (C) 2012-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -69,7 +69,7 @@ def poll_stats_chart(node):
     try:
         if node.type == PollLineType.BOOL:
             chartpath = 'polls/templatetags/plots/boolean.html'
-            data = [[[percent, 1, '{} − {} %'.format(answer, percent)]]
+            data = [[[percent, 1, f'{answer} − {percent} %']]
                         for answer, _stat, percent in node.answer_stats
                    ]
         else:

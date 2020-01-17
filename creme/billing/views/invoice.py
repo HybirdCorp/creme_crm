@@ -115,6 +115,6 @@ class InvoiceNumberGeneration(generic.base.EntityRelatedMixin, generic.CheckedVi
 
             invoice.save()
         else:
-            raise ConflictError('This invoice has already a number: {}.'.format(invoice))
+            raise ConflictError(f'This invoice has already a number: {invoice}.')
 
         return HttpResponse()

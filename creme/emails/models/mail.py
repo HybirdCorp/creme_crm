@@ -60,9 +60,7 @@ class _Email(CremeModel):
         app_label = 'emails'
 
     def __str__(self):
-        return 'Mail<from: {}> <to: {}> <sent: {}> <id: {}>'.format(
-                    self.sender, self.recipient, self.sending_date, self.id,
-                )
+        return f'Mail<from: {self.sender}> <to: {self.recipient}> <sent: {self.sending_date}> <id: {self.id}>'
 
     @property
     def sent(self):

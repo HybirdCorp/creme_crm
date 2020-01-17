@@ -32,7 +32,7 @@ try:
         Document,
     )
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomContact
@@ -249,7 +249,7 @@ class ContactTestCase(_BaseTestCase):
 
         first_name = contact.first_name.lower(); self.assertNotEqual(first_name, user.first_name)
         last_name  = contact.last_name.upper();  self.assertNotEqual(last_name,  user.last_name)
-        email      = '{}.{}@noir.org'.format(user.first_name, user.last_name)
+        email      = f'{user.first_name}.{user.last_name}@noir.org'
         self.assertNotEqual(email, user.email)
 
         response = self.client.post(url, follow=True,
@@ -628,7 +628,7 @@ class ContactTestCase(_BaseTestCase):
         naruto.save()
 
         for i in range(5):
-            create_address(name='Secret Cave #{}'.format(i), address='Cave #{}'.format(i), po_box='XXX')
+            create_address(name=f'Secret Cave #{i}', address='Cave #{}'.format(i), po_box='XXX')
 
         kage_bunshin = naruto.clone()
 
@@ -887,14 +887,17 @@ class ContactTestCase(_BaseTestCase):
         kirika = user.linked_contact
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual('<a href="{}">{}</a>'.format(kirika.get_absolute_url(), kirika),
+        self.assertEqual(f'<a href="{kirika.get_absolute_url()}">{kirika}</a>',
                          get_html_val(deunan, 'user', user)
                         )
         self.assertEqual('<em>{}</em>'.format(pgettext('persons-is_user', 'None')),
                          get_html_val(deunan, 'is_user', user)
                         )
 
-        self.assertEqual(str(user), field_printers_registry.get_csv_field_value(deunan, 'user', user))
+        self.assertEqual(
+            str(user),
+            field_printers_registry.get_csv_field_value(deunan, 'user', user)
+        )
 
     def test_fk_user_printer02(self):
         "Team"
@@ -903,9 +906,10 @@ class ContactTestCase(_BaseTestCase):
         eswat = CremeUser.objects.create(username='eswat', is_team=True)
         deunan = Contact.objects.create(user=eswat, first_name='Deunan', last_name='Knut')
 
-        self.assertEqual(str(eswat),
-                         field_printers_registry.get_html_field_value(deunan, 'user', user)
-                        )
+        self.assertEqual(
+            str(eswat),
+            field_printers_registry.get_html_field_value(deunan, 'user', user)
+        )
 
     @skipIfCustomOrganisation
     def test_get_employers(self):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019  Hybird
+#    Copyright (C) 2019-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,7 +47,7 @@ class Command(BaseCommand):
                 Calendar.objects.create_default_calendar(user=user, is_public=is_public)
 
             if verbosity >= 1:
-                self.stdout.write('{} calendar(s) created.'.format(len(users)))
+                self.stdout.write(f'{len(users)} calendar(s) created.')
         else:
             if verbosity >= 1:
                 self.stderr.write(

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018  Hybird
+#    Copyright (C) 2018-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -65,7 +65,7 @@ class UIAction:
 
     @staticmethod
     def generate_id(app_label, name):
-        return '{}-{}'.format(app_label, name)
+        return f'{app_label}-{name}'
 
     def __init__(self, user, model=None, instance=None, **kwargs):
         self.user = user
@@ -190,11 +190,13 @@ class ActionsChain(InheritedDataChain):
         if registered is not action_class:
             if issubclass(action_class, VoidAction):
                 raise ActionRegistrationError(
-                    "Unable to void action '{}'. "
-                    "An action is already defined for model {}".format(action_id, model)
+                    f"Unable to void action '{action_id}'. "
+                    f"An action is already defined for model {model}"
                 )
 
-            raise ActionRegistrationError("Duplicated action '{}' for model {}".format(action_id, model))
+            raise ActionRegistrationError(
+                f"Duplicated action '{action_id}' for model {model}"
+            )
 
     def register_actions(self, *action_classes):
         """Register several UIAction classes.
@@ -211,22 +213,22 @@ class ActionsChain(InheritedDataChain):
     def _validate_action_class(self, action_class):
         if not issubclass(action_class, self.base_class):
             raise ActionRegistrationError(
-                '{} is not a <{}>'.format(action_class, self.base_class.__name__)
+                f'{action_class} is not a <{self.base_class.__name__}>'
             )
 
         if getattr(action_class, 'model', None) is None:
             raise ActionRegistrationError(
-                "Invalid action {}: 'model' attribute must be defined".format(action_class)
+                f"Invalid action {action_class}: 'model' attribute must be defined"
             )
 
         if not issubclass(action_class.model, Model):
             raise ActionRegistrationError(
-                "Invalid action {}: {} is not a Django Model".format(action_class, action_class.model)
+                f"Invalid action {action_class}: {action_class.model} is not a Django Model"
             )
 
         if getattr(action_class, 'id', None) is None:
             raise ActionRegistrationError(
-                "Invalid action {}: 'id' attribute must be defined".format(action_class)
+                f"Invalid action {action_class}: 'id' attribute must be defined"
             )
 
         return action_class

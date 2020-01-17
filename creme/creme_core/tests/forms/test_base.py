@@ -20,7 +20,7 @@ try:
     from ..base import CremeTestCase
     from ..fake_forms import FakeContactForm
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 # TODO: test CremeModelWithUserForm
@@ -561,10 +561,8 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertIn('relation_types', fields2)
         self.assertHTMLEqual(
             _('These relationships will be added: {}').format(
-                '<ul><li>{} «{}»</li><li>{} «{}»</li></ul>'.format(
-                    rtype2.predicate, orga,
-                    rtype1.predicate, contact1,
-                )
+                f'<ul><li>{rtype2.predicate} «{orga}»</li>'
+                f'<li>{rtype1.predicate} «{contact1}»</li></ul>'
             ),
             fields2['rtypes_info'].initial
         )
@@ -960,7 +958,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             ('relation_types',
              _('These properties are mandatory in order to use '
                'the relationship «%(predicate)s»: %(properties)s'
-              ) % {'properties': '{}, {}'.format(ptype1.text, ptype2.text),
+              ) % {'properties': f'{ptype1.text}, {ptype2.text}',
                    'predicate': rtype2.predicate,
             }),
         )
@@ -979,7 +977,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             ('relation_types',
              _('These properties are mandatory in order to use '
                'the relationship «%(predicate)s»: %(properties)s'
-              ) % {'properties': '{}, {}'.format(ptype1.text, ptype2.text),
+              ) % {'properties': f'{ptype1.text}, {ptype2.text}',
                    'predicate': rtype2.predicate,
             }),
         )

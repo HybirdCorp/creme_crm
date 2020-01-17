@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2019  Hybird
+#    Copyright (C) 2017-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,7 @@ class PagerLink:
             css.append('is-disabled')
 
         if self.group:
-            css.append('pager-link-{}'.format(self.group))
+            css.append(f'pager-link-{self.group}')
 
         if self.is_current:
             css.append('pager-link-current')
@@ -58,9 +58,8 @@ class PagerLink:
         return self.group == self.CHOOSE
 
     def __str__(self):
-        return 'PagerLink(label={label}, help={help}, group={group}, enabled={enabled}, page={page})'.format(
-            label=self.label, help=self.help, group=self.group, enabled=self.enabled, page=self.page,
-        )
+        return f'PagerLink(label={self.label}, help={self.help}, group={self.group}, ' \
+                         f'enabled={self.enabled}, page={self.page})'
 
 
 class PagerContext:

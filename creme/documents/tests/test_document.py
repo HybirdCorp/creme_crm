@@ -28,7 +28,7 @@ try:
     from ..models import FolderCategory, DocumentCategory
     from ..utils import get_csv_folder_or_create
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomDocument
@@ -51,7 +51,7 @@ class DocumentTestCase(_DocumentsTestCase):
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'pdf'))
     def test_createview01(self):
-        self.login()
+        user = self.login()
 
         self.assertFalse(Document.objects.exists())
 
@@ -63,15 +63,15 @@ class DocumentTestCase(_DocumentsTestCase):
         title = 'Test doc'
         description = 'Test description'
         content = 'Yes I am the content (DocumentTestCase.test_createview)'
-        file_obj = self.build_filedata(content, suffix='.{}'.format(ext))
+        file_obj = self.build_filedata(content, suffix=f'.{ext}')
         folder = Folder.objects.all()[0]
         response = self.client.post(self.ADD_DOC_URL, follow=True,
-                                    data={'user':     self.user.pk,
-                                          'title':    title,
-                                          'filedata': file_obj,
-                                          'linked_folder':   folder.id,
-                                          'description': description,
-                                         }
+                                    data={'user':          user.pk,
+                                          'title':         title,
+                                          'filedata':      file_obj,
+                                          'linked_folder': folder.id,
+                                          'description':   description,
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -136,12 +136,12 @@ class DocumentTestCase(_DocumentsTestCase):
         doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
-        self.assertEqual('upload/documents/{}.txt'.format(file_obj.base_name), filedata.name)
+        self.assertEqual(f'upload/documents/{file_obj.base_name}.txt', filedata.name)
 
         # Download
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         self.assertEqual('text/plain', response['Content-Type'])
-        self.assertEqual('attachment; filename={}.txt'.format(file_obj.base_name),
+        self.assertEqual(f'attachment; filename={file_obj.base_name}.txt',
                          response['Content-Disposition']
                         )
 
@@ -154,12 +154,12 @@ class DocumentTestCase(_DocumentsTestCase):
         doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
-        self.assertEqual('upload/documents/{}.txt'.format(file_obj.base_name), filedata.name)
+        self.assertEqual(f'upload/documents/{file_obj.base_name}.txt', filedata.name)
 
         # Download
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         self.assertEqual('text/plain', response['Content-Type'])
-        self.assertEqual('attachment; filename={}.txt'.format(file_obj.base_name),
+        self.assertEqual(f'attachment; filename={file_obj.base_name}.txt',
                          response['Content-Disposition']
                         )
 
@@ -260,7 +260,7 @@ class DocumentTestCase(_DocumentsTestCase):
 
         entity_folder = doc1.linked_folder
         self.assertIsNotNone(entity_folder)
-        self.assertEqual('{}_{}'.format(entity.id, entity), entity_folder.title)
+        self.assertEqual(f'{entity.id}_{entity}', entity_folder.title)
 
         ct_folder = entity_folder.parent_folder
         self.assertIsNotNone(ct_folder)
@@ -405,7 +405,7 @@ class DocumentTestCase(_DocumentsTestCase):
 
         title = entity_folder.title
         self.assertEqual(100, len(title))
-        self.assertTrue(title.startswith('{}_AAAAAAA'.format(entity.id)))
+        self.assertTrue(title.startswith(f'{entity.id}_AAAAAAA'))
         self.assertTrue(title.endswith('…'))
 
     def test_add_related_document07(self):
@@ -418,19 +418,22 @@ class DocumentTestCase(_DocumentsTestCase):
         # NB : collision with folders created by the view
         create_folder = partial(Folder.objects.create, user=user)
         my_ct_folder = create_folder(title=str(entity.entity_type))
-        my_entity_folder = create_folder(title='{}_{}'.format(entity.id, entity))
+        my_entity_folder = create_folder(title=f'{entity.id}_{entity}')
 
         title = 'Related doc'
-        response = self.client.post(self._buid_addrelated_url(entity), follow=True,
-                                    data={'user':         user.pk,
-                                          'title':        title,
-                                          'description':  'Test description',
-                                          'filedata':     self.build_filedata(
-                                                                'Yes I am the content '
-                                                                '(DocumentTestCase.test_add_related_document06)'
-                                                            ),
-                                         }
-                                )
+        response = self.client.post(
+            self._buid_addrelated_url(entity),
+            follow=True,
+            data={
+                'user':         user.pk,
+                'title':        title,
+                'description':  'Test description',
+                'filedata':     self.build_filedata(
+                                      'Yes I am the content '
+                                      '(DocumentTestCase.test_add_related_document06)'
+                                  ),
+            },
+        )
         self.assertNoFormError(response)
 
         doc = self.get_object_or_fail(Document, title=title)
@@ -518,12 +521,10 @@ class DocumentTestCase(_DocumentsTestCase):
         casca = get_contact_model().objects.create(user=user, image=image,
                                                    first_name='Casca', last_name='Mylove',
                                                   )
-        self.assertHTMLEqual('''<a onclick="creme.dialogs.image('{}').open();">{}</a>'''.format(
-                                    image.get_dl_url(),
-                                    summary,
-                                ),
-                             field_printers_registry.get_html_field_value(casca, 'image', user)
-                            )
+        self.assertHTMLEqual(
+            f'''<a onclick="creme.dialogs.image('{image.get_dl_url()}').open();">{summary}</a>''',
+            field_printers_registry.get_html_field_value(casca, 'image', user)
+        )
         self.assertEqual(str(casca.image),
                          field_printers_registry.get_csv_field_value(casca, 'image', user)
                         )
@@ -558,12 +559,10 @@ class DocumentTestCase(_DocumentsTestCase):
         judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual('''<a onclick="creme.dialogs.image('{}').open();">{}</a>'''.format(
-                                judo_face.get_dl_url(),
-                                judo_face.get_entity_summary(other_user),
-                            ),
-                         get_html_val(judo, 'image', other_user)
-                        )
+        self.assertEqual(
+            f'''<a onclick="creme.dialogs.image('{judo_face.get_dl_url()}').open();">{judo_face.get_entity_summary(other_user)}</a>''',
+            get_html_val(judo, 'image', other_user)
+        )
         self.assertEqual('<p>Judo&#39;s selfie</p>',
                          get_html_val(judo, 'image__description', other_user)
                         )
@@ -592,9 +591,9 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
                }
 
     def quickform_data_append(self, data, id, user='', filedata='', folder_id=''):
-        return data.update({'form-{}-user'.format(id):          user,
-                            'form-{}-filedata'.format(id):      filedata,
-                            'form-{}-linked_folder'.format(id): folder_id,
+        return data.update({f'form-{id}-user':          user,
+                            f'form-{id}-filedata':      filedata,
+                            f'form-{id}-linked_folder': folder_id,
                            }
                           )
 

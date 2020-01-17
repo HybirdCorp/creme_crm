@@ -13,7 +13,7 @@ try:
             FakeContact, FakeOrganisation, FakeImage, FakeEmailCampaign, FakeActivity)
     from creme.creme_core.utils import meta
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class MiscTestCase(CremeTestCase):

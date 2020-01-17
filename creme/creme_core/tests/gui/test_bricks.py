@@ -22,7 +22,7 @@ try:
     )
     # from creme.creme_core.views.bricks import build_context
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class BrickRegistryTestCase(CremeTestCase):
@@ -61,7 +61,7 @@ class BrickRegistryTestCase(CremeTestCase):
             id_ = Brick.generate_id('creme_core', 'foobar_brick_5')
             verbose_name = 'Testing purpose'
 
-            def home_display(self, context): return '<table id="{}"></table>'.format(self.id_)
+            def home_display(self, context): return f'<table id="{self.id_}"></table>'
 
         class FakeContactBrick(EntityBrick):
             verbose_name = 'Fake Contact block'
@@ -79,27 +79,27 @@ class BrickRegistryTestCase(CremeTestCase):
             id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_1')
 
             def detailview_display(self, context):
-                return '<table id="{}"><thead><tr>{}</tr></thead></table>'.format(self.id_, self.ibci.entity)
+                return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'
 
         class FoobarInstanceBrick2(_FoobarInstanceBrick):
             id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_2')
             target_ctypes = (FakeContact, FakeOrganisation)  # <-- OK !!
 
             def detailview_display(self, context):
-                return '<table id="{}"><thead><tr>{}</tr></thead></table>'.format(self.id_, self.ibci.entity)
+                return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'
 
         class FoobarInstanceBrick3(_FoobarInstanceBrick):
             id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_3')
             target_ctypes = (FakeOrganisation, FakeImage)  # <-- KO !!
 
             def detailview_display(self, context):
-                return '<table id="{}"><thead><tr>{}</tr></thead></table>'.format(self.id_, self.ibci.entity)
+                return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'
 
         class FoobarInstanceBrick4(_FoobarInstanceBrick):
             id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_4')
 
             def home_display(self, context):  # <====== not detailview_display()
-                return '<table id="{}"><thead><tr>{}</tr></thead></table>'.format(self.id_, self.ibci.entity)
+                return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'
 
         create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca, data='')
         ibci1 = create_ibci(verbose='I am an awesome brick',
@@ -322,20 +322,20 @@ class BrickRegistryTestCase(CremeTestCase):
 
             # NB: only home_display() method
             # def detailview_display(self, context): [...]
-            def home_display(self, context): return '<table id="{}"></table>'.format(self.id_)
+            def home_display(self, context): return f'<table id="{self.id_}"></table>'
 
         class FoobarBrick2(Brick):
             id_  = Brick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_compatible_home_bricks_2')
             verbose_name = 'Testing purpose'
             configurable = False  # <----
 
-            def home_display(self, context): return '<table id="{}"></table>'.format(self.id_)
+            def home_display(self, context): return f'<table id="{self.id_}"></table>'
 
         class FoobarBrick3(Brick):
             id_ = Brick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_compatible_home_bricks_3')
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context): return '<table id="{}"></table>'.format(self.id_)
+            def detailview_display(self, context): return f'<table id="{self.id_}"></table>'
             # def home_display(self, context): [...]
 
         brick_registry = _BrickRegistry()
@@ -529,9 +529,7 @@ class BrickRegistryTestCase(CremeTestCase):
                 self.ibci = instance_block_config_item
 
             def detailview_display(self, context):
-                return '<table id="{}"><thead><tr>{}</tr></thead></table>'.format(
-                            self.id_, self.ibci.entity
-                        )  # useless :)
+                return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'  # useless :)
 
         self.assertTrue(InstanceBrickConfigItem.id_is_specific(ContactBrick.id_))
 
@@ -565,7 +563,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertEqual((FakeOrganisation,), brick.dependencies)
 
         # ----------------------------------------------------------------------
-        bad_brick_id = InstanceBrickConfigItem.generate_base_id('creme_core', 'does_not_exist') + '#{}_'.format(casca.id)
+        bad_brick_id = InstanceBrickConfigItem.generate_base_id('creme_core', 'does_not_exist') + f'#{casca.id}_'
         InstanceBrickConfigItem.objects.create(entity=casca,
                                                brick_id=bad_brick_id,
                                                verbose='I am bad',
@@ -586,7 +584,7 @@ class BrickRegistryTestCase(CremeTestCase):
                 self.ibci = instance_block_config_item
 
             def detailview_display(self, context):
-                return '<table id="{}"><thead><tr>{}</tr></thead></table>'.format(self.id_, self.ibci.entity)  # Useless :)
+                return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'  # Useless :)
 
         class ContactBrick(BaseBrick): pass
         class OrgaBrick(BaseBrick): pass
@@ -885,7 +883,7 @@ class BrickTestCase(CremeTestCase):
 
         brick = self.OrderedBrick()
         brick.page_size = 2
-        request = self._build_request('/?{}_page=2'.format(brick.id_))
+        request = self._build_request(f'/?{brick.id_}_page=2')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.filter(description=description),
@@ -895,7 +893,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(2, page.number)
 
     def test_paginated_brick03(self):
-        "Page in request: invalid number (not int)"
+        "Page in request: invalid number (not int)."
         user = self.login()
 
         description = 'Dungeon explorer'
@@ -906,7 +904,7 @@ class BrickTestCase(CremeTestCase):
 
         brick = self.OrderedBrick()
         brick.page_size = 2
-        request = self._build_request('/?{}_page=NaN'.format(brick.id_))
+        request = self._build_request(f'/?{brick.id_}_page=NaN')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.filter(description=description),
@@ -927,7 +925,7 @@ class BrickTestCase(CremeTestCase):
 
         brick = self.OrderedBrick()
         brick.page_size = 2
-        request = self._build_request('/?{}_page=3'.format(brick.id_))
+        request = self._build_request(f'/?{brick.id_}_page=3')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.filter(description=description),
@@ -992,7 +990,7 @@ class BrickTestCase(CremeTestCase):
         brick = self.OrderedBrick()
 
         # ASC
-        request = self._build_request('/?{}_order=first_name'.format(brick.id_))
+        request = self._build_request(f'/?{brick.id_}_order=first_name')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.all(),
@@ -1000,7 +998,7 @@ class BrickTestCase(CremeTestCase):
         self._assertPageOrderedLike(template_context['page'], [aiz, bell, lili, welf])
 
         # DESC
-        request = self._build_request('/?{}_order=-first_name'.format(brick.id_))
+        request = self._build_request(f'/?{brick.id_}_order=-first_name')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.all(),
@@ -1017,7 +1015,7 @@ class BrickTestCase(CremeTestCase):
         crozzo = create_contact(first_name='Welf', last_name='Crozzo')
 
         brick = self.OrderedBrick()
-        request = self._build_request('/?{}_order=unknown'.format(brick.id_))
+        request = self._build_request(f'/?{brick.id_}_order=unknown')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.all()
@@ -1039,7 +1037,7 @@ class BrickTestCase(CremeTestCase):
         crozzo = create_contact(first_name='Welf', last_name='Crozzo')
 
         brick = self.OrderedBrick()
-        request = self._build_request('/?{}_order=languages'.format(brick.id_))
+        request = self._build_request(f'/?{brick.id_}_order=languages')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.all()

@@ -90,25 +90,23 @@ class Behavior:
             for key, val in cls.knownChildren.items():
                 if count.get(key, 0) < val[0]: 
                     if raiseException:
-                        raise ValidateError('{} components must contain at least {} {}'.format(
-                                                    cls.name, val[0], key
-                                                )
-                                           )
+                        raise ValidateError(
+                            f'{cls.name} components must contain at least {val[0]} {key}'
+                        )
 
                     return False
 
                 if val[1] and count.get(key, 0) > val[1]:
                     if raiseException:
-                        raise ValidateError('{} components cannot contain more than {} {}'.format(
-                                                    cls.name, val[1], key
-                                                )
-                                           )
+                        raise ValidateError(
+                            f'{cls.name} components cannot contain more than {val[1]} {key}'
+                        )
 
                     return False
 
             return True
 
-        raise VObjectError(str(obj) + " is not a Component or Contentline")
+        raise VObjectError(f"{obj} is not a Component or ContentLine")
 
     @classmethod
     def lineValidate(cls, line, raiseException, complainUnrecognized):

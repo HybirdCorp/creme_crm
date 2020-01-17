@@ -96,7 +96,9 @@ class RelationManager(models.Manager):
 
             break
         else:
-            raise RuntimeError('It seems the Relation <{}> keeps being created & deleted.'.format(kwargs))
+            raise RuntimeError(
+                f'It seems the Relation <{kwargs}> keeps being created & deleted.'
+            )
 
         return relation
 
@@ -214,7 +216,7 @@ class RelationType(CremeModel):
     def __str__(self):
         sym_type = self.symmetric_type
         symmetric_pred = gettext('No relationship') if sym_type is None else sym_type.predicate
-        return '{} — {}'.format(self.predicate, symmetric_pred)  # NB: — == "\xE2\x80\x94" == &mdash;
+        return f'{self.predicate} — {symmetric_pred}'  # NB: — == "\xE2\x80\x94" == &mdash;
 
     def add_subject_ctypes(self, *models):
         get_ct = ContentType.objects.get_for_model
@@ -400,7 +402,7 @@ class Relation(CremeModel):
         unique_together = ('type', 'subject_entity', 'object_entity')
 
     def __str__(self):
-        return '«{}» {} «{}»'.format(self.subject_entity, self.type, self.object_entity)
+        return f'«{self.subject_entity}» {self.type} «{self.object_entity}»'
 
     def _build_symmetric_relation(self, update):
         """Overload me in child classes.

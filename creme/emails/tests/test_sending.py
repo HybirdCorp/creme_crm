@@ -36,7 +36,7 @@ try:
         SENDING_STATE_DONE, SENDING_STATE_PLANNED,
     )
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomEmailCampaign
@@ -346,11 +346,14 @@ class SendingsTestCase(_EmailsTestCase):
         with self.assertNoException():
             mail = sending.mails_set.all()[0]
 
-        self.assertEqual('Your first name is: {} !'.format(first_name), mail.rendered_body)
+        self.assertEqual(f'Your first name is: {first_name} !', mail.rendered_body)
 
-        html = '<p>Your last name is: {} !</p>'.format(last_name)
+        html = f'<p>Your last name is: {last_name} !</p>'
         self.assertEqual(html, mail.rendered_body_html)
-        self.assertEqual(html.encode(), self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content)
+        self.assertEqual(
+            html.encode(),
+            self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content
+        )
 
         # View template --------------------------------------------------------
         response = self.assertGET200(reverse('emails__sending_body', args=(sending.id,)))
@@ -645,7 +648,7 @@ class SendingsTestCase(_EmailsTestCase):
         brick_data = content[0]
         self.assertEqual(2, len(brick_data))
         self.assertEqual(MailsBrick.id_, brick_data[0])
-        self.assertIn(' id="{}"'.format(MailsBrick.id_), brick_data[1])
+        self.assertIn(f' id="{MailsBrick.id_}"', brick_data[1])
 
         # TODO: test other bricks
 

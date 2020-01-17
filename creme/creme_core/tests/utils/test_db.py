@@ -8,14 +8,21 @@ try:
     from django.db import connections, DEFAULT_DB_ALIAS
 
     from ..base import CremeTestCase
-    from ..fake_models import (FakeContact, FakeOrganisation, FakeSector,
-            FakeCivility, FakeFolder, FakeDocument)
+    from ..fake_models import (
+        FakeContact, FakeOrganisation,
+        FakeSector, FakeCivility,
+        FakeFolder, FakeDocument,
+    )
     from creme.creme_core.models import Relation, CremeEntity
     from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.utils.db import (get_indexes_columns, get_indexed_ordering,
-           build_columns_key, populate_related)  # reorder_instances
+    from creme.creme_core.utils.db import (
+        get_indexes_columns,
+        get_indexed_ordering,
+        build_columns_key,
+        populate_related,
+    )  # reorder_instances
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class DBTestCase(CremeTestCase):
@@ -38,7 +45,7 @@ class DBTestCase(CremeTestCase):
             sql = 'CREATE INDEX "DBTestCase_index" ' \
                   'ON creme_core_fakecontact (birthday ASC, cremeentity_ptr_id ASC);'
         else:
-            raise Exception('This DBMS is not managed: {}'.format(vendor))
+            raise Exception(f'This DBMS is not managed: {vendor}')
 
         connection.cursor().execute(sql)
 

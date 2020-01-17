@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2019  Hybird
+#    Copyright (C) 2017-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -164,31 +164,37 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
             selected_subcat_id = selected_subcat_choice[0] if selected_subcat_choice else None
 
         widget_cxt['subcat_js_map'] = sub_cat_map
-        widget_cxt['category_defvalselect'] = Select(choices=cat_choices) \
-                                                    .get_context(name='{}_cat_defval'.format(name),
-                                                                 value=selected_cat_id,
-                                                                 attrs={'id': '{}_cat_defval'.format(id_attr),
-                                                                        'class': 'category-default-value',
-                                                                       },
-                                                                )['widget']
-        widget_cxt['subcategory_defvalselect'] = Select(choices=sub_cat_map[selected_cat_id]) \
-                                                       .get_context(name='{}_subcat_defval'.format(name),
-                                                                    value=selected_subcat_id,
-                                                                    attrs={'id': '{}_subcat_defval'.format(id_attr),
-                                                                           'class': 'subcategory-default-value',
-                                                                          },
-                                                                   )['widget']
+        widget_cxt['category_defvalselect'] = Select(
+            choices=cat_choices,
+        ).get_context(
+            name=f'{name}_cat_defval',
+            value=selected_cat_id,
+            attrs={
+                'id': f'{id_attr}_cat_defval',
+                'class': 'category-default-value',
+            },
+        )['widget']
+        widget_cxt['subcategory_defvalselect'] = Select(
+            choices=sub_cat_map[selected_cat_id],
+        ).get_context(
+            name=f'{name}_subcat_defval',
+            value=selected_subcat_id,
+            attrs={
+                'id': f'{id_attr}_subcat_defval',
+                'class': 'subcategory-default-value',
+            },
+        )['widget']
 
         return context
 
     def value_from_datadict(self, data, files, name):
         get = data.get
         return {
-            'cat_column_index':    get('{}_cat_colselect'.format(name)),
-            'subcat_column_index': get('{}_subcat_colselect'.format(name)),
-            'default_cat':         get('{}_cat_defval'.format(name)),
-            'default_subcat':      get('{}_subcat_defval'.format(name)),
-            'create':              '{}_create'.format(name) in data,
+            'cat_column_index':    get(f'{name}_cat_colselect'),
+            'subcat_column_index': get(f'{name}_subcat_colselect'),
+            'default_cat':         get(f'{name}_cat_defval'),
+            'default_subcat':      get(f'{name}_subcat_defval'),
+            'create':              f'{name}_create' in data,
         }
 
 
@@ -230,7 +236,7 @@ class CategoriesExtractorField(Field):
         try:
             index = int(value[key])
         except TypeError as e:
-            raise ValidationError('Invalid value for index "{}"'.format(key)) from e
+            raise ValidationError(f'Invalid value for index "{key}"') from e
 
         if index not in self._allowed_indexes:
             raise ValidationError('Invalid index')

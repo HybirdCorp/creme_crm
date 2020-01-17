@@ -29,7 +29,7 @@ try:
 
     from ..base import CremeTestCase
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class SearchWidgetsTestCase(CremeTestCase):
@@ -43,9 +43,7 @@ class SearchWidgetsTestCase(CremeTestCase):
         self.assertEqual('baz', get_value(data={name: value}))
 
         self.assertHTMLEqual(
-            '<input class="lv-state-field" name="{name}" type="text" data-lv-search-widget="text" value="{value}" />'.format(
-                name=name, value=value,
-            ),
+            f'<input class="lv-state-field" name="{name}" type="text" data-lv-search-widget="text" value="{value}" />',
             widget.render(name=name, value=value)
         )
 
@@ -116,9 +114,7 @@ class SearchWidgetsTestCase(CremeTestCase):
         self.assertEqual((), widget.choices)
 
         self.assertHTMLEqual(
-            '<select class="lv-state-field" data-lv-search-widget="select" name="{name}"></select>'.format(
-                name=name,
-            ),
+            f'<select class="lv-state-field" data-lv-search-widget="select" name="{name}"></select>',
             widget.render(name=name, value=value)
         )
 
@@ -135,14 +131,12 @@ class SearchWidgetsTestCase(CremeTestCase):
 
         name = 'foo'
         self.assertHTMLEqual(
-            '<select class="lv-state-field" data-lv-search-widget="select" name="{name}">'
+            f'<select class="lv-state-field" data-lv-search-widget="select" name="{name}">'
                '<option value="">All</option>'
                '<option value="1">one</option>'
                '<option value="2" selected>two</option>'
                '<option value="3">three</option>'
-            '</select>'.format(
-                name=name,
-            ),
+            '</select>',
             widget.render(name=name, value='2')
         )
 
@@ -163,7 +157,7 @@ class SearchWidgetsTestCase(CremeTestCase):
 
         name = 'foob'
         self.assertHTMLEqual(
-            '<select class="lv-state-field" data-lv-search-widget="select" name="{name}">'
+            f'<select class="lv-state-field" data-lv-search-widget="select" name="{name}">'
                 '<option value="">All</option>'
                 '<option value="NULL" class="search-nullfk">Nothing</option>'
                 '<optgroup label="Numbers">'
@@ -174,9 +168,7 @@ class SearchWidgetsTestCase(CremeTestCase):
                    '<option value="a" selected>A</option>'
                    '<option value="b">B</option>'
                 '</optgroup>'
-            '</select>'.format(
-                name=name,
-            ),
+            '</select>',
             widget.render(name=name, value='a')
         )
 
@@ -1174,7 +1166,7 @@ class SearchFormTestCase(CremeTestCase):
 
         self.assertHTMLEqual(  # NB: not "required"
             '<input class="lv-state-field" data-lv-search-widget="text" id="id_search-{key}" name="search-{key}" type="text" />'.format(
-                key=fname_cell.key
+                key=fname_cell.key,
             ),
             str(form[fname_cell.key])
         )
@@ -1190,9 +1182,9 @@ class SearchFormTestCase(CremeTestCase):
         birth_cell = build_cell(name='birthday')
 
         data = {
-            'search-{}'.format(fname_cell.key): 'yui',
-            'search-{}'.format(nerd_cell.key): '1',
-            'search-{}-start'.format(birth_cell.key): '25-02-2019',
+            f'search-{fname_cell.key}': 'yui',
+            f'search-{nerd_cell.key}': '1',
+            f'search-{birth_cell.key}-start': '25-02-2019',
         }
         form = lv_form.ListViewSearchForm(
             field_registry=ListViewSearchFieldRegistry(),

@@ -48,7 +48,7 @@ try:
     ProductLine = billing.get_product_line_model()
     ServiceLine = billing.get_service_line_model()
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 Address = get_address_model()
 Contact = get_contact_model()

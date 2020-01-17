@@ -9,7 +9,7 @@ try:
     from creme.creme_core.gui.button_menu import Button, button_registry
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class ButtonMenuConfigTestCase(CremeTestCase):
@@ -46,7 +46,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             if f_button_id == button_id:
                 return i
 
-        self.fail('No "{}" in button IDs'.format(button_id))
+        self.fail(f'No "{button_id}" in button IDs')
 
     def test_wizard(self):
         class TestButton(Button):
@@ -78,23 +78,24 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         response = self.client.post(url,
                                     data={
                                         step_key: '1',
-                                        '1-button_ids_check_{}'.format(button_index): 'on',
-                                        '1-button_ids_value_{}'.format(button_index): TestButton.id_,
-                                        '1-button_ids_order_{}'.format(button_index): 1,
+                                        f'1-button_ids_check_{button_index}': 'on',
+                                        f'1-button_ids_value_{button_index}': TestButton.id_,
+                                        f'1-button_ids_order_{button_index}': 1,
                                     },
                                    )
         self.assertNoFormError(response)
-        self.assertEqual([(TestButton.id_, 1000)],
-                         [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=ct)]
-                        )
+        self.assertEqual(
+            [(TestButton.id_, 1000)],
+            [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=ct)]
+        )
 
     def test_edit01(self):
-        "Edit empty configuration => error"
+        "Edit empty configuration => error."
         ct = self.contact_ct
         self.assertGET404(reverse('creme_config__edit_ctype_buttons', args=(ct.id,)))
 
     def test_edit02(self):
-        "Edit the default configuration"
+        "Edit the default configuration."
         class TestButton(Button):
             id_          = Button.generate_id('creme_config', 'test_edit02')
             verbose_name = 'Testing purpose'
@@ -116,16 +117,17 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         button_index = self._find_field_index(button_ids, TestButton.id_)
 
         response = self.client.post(url,
-                                    data={'button_ids_check_{}'.format(button_index): 'on',
-                                          'button_ids_value_{}'.format(button_index): TestButton.id_,
-                                          'button_ids_order_{}'.format(button_index): 1,
-                                         }
+                                    data={
+                                        f'button_ids_check_{button_index}': 'on',
+                                        f'button_ids_value_{button_index}': TestButton.id_,
+                                        f'button_ids_order_{button_index}': 1,
+                                    },
                                    )
         self.assertNoFormError(response)
-        # self.assertEqual([(button.id_, 1)],
-        self.assertEqual([(TestButton.id_, 1)],
-                         [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=None)]
-                        )
+        self.assertEqual(
+            [(TestButton.id_, 1)],
+            [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=None)]
+        )
 
     def test_edit03(self):
         ct = self.contact_ct
@@ -170,23 +172,26 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             if f_button_id == TestButton03.id_:
                 self.fail('Button03 is incompatible with Contact')
 
-        response = self.client.post(url,
-                                    data={'button_ids_check_{}'.format(button01_index): 'on',
-                                          'button_ids_value_{}'.format(button01_index): TestButton01.id_,
-                                          'button_ids_order_{}'.format(button01_index): 1,
+        response = self.client.post(
+            url,
+            data={
+                f'button_ids_check_{button01_index}': 'on',
+                f'button_ids_value_{button01_index}': TestButton01.id_,
+                f'button_ids_order_{button01_index}': 1,
 
-                                          'button_ids_check_{}'.format(button02_index): 'on',
-                                          'button_ids_value_{}'.format(button02_index): TestButton02.id_,
-                                          'button_ids_order_{}'.format(button02_index): 2,
-                                         }
-                                   )
+                f'button_ids_check_{button02_index}': 'on',
+                f'button_ids_value_{button02_index}': TestButton02.id_,
+                f'button_ids_order_{button02_index}': 2,
+            },
+        )
         self.assertNoFormError(response)
-        self.assertEqual([(TestButton01.id_, 1000), (TestButton02.id_, 1001)],
-                         [(bmi.button_id, bmi.order)
-                            for bmi in ButtonMenuItem.objects.filter(content_type=ct)
-                                                             .order_by('order')
-                         ]
-                        )
+        self.assertEqual(
+            [(TestButton01.id_, 1000), (TestButton02.id_, 1001)],
+            [(bmi.button_id, bmi.order)
+                 for bmi in ButtonMenuItem.objects.filter(content_type=ct)
+                                                  .order_by('order')
+            ]
+        )
 
     def test_delete01(self):
         "Can not delete default conf"
