@@ -563,7 +563,8 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertTrue(issuing_date)
 
         url = self._build_gennumber_url(invoice)
-        self.assertGET404(url, follow=True)
+        # self.assertGET404(url, follow=True)
+        self.assertGET405(url, follow=True)
         self.assertPOST200(url, follow=True)
 
         invoice = self.refresh(invoice)
@@ -574,7 +575,8 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(issuing_date, invoice.issuing_date)
 
         # Already generated
-        self.assertPOST404(url, follow=True)
+        # self.assertPOST404(url, follow=True)
+        self.assertPOST409(url, follow=True)
         invoice = self.refresh(invoice)
         self.assertEqual(number,    invoice.number)
         self.assertEqual(status_id, invoice.status_id)

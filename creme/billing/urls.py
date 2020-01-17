@@ -36,12 +36,13 @@ urlpatterns = [
 
     *swap_manager.add_group(
         billing.invoice_model_is_custom,
-        Swappable(re_path(r'^invoices[/]?$',                                    invoice.InvoicesList.as_view(),           name='billing__list_invoices')),
-        Swappable(re_path(r'^invoice/add[/]?$',                                 invoice.InvoiceCreation.as_view(),        name='billing__create_invoice')),
-        Swappable(re_path(r'^invoice/add/(?P<target_id>\d+)[/]?$',              invoice.RelatedInvoiceCreation.as_view(), name='billing__create_related_invoice'),  check_args=Swappable.INT_ID),
-        Swappable(re_path(r'^invoice/edit/(?P<invoice_id>\d+)[/]?$',            invoice.InvoiceEdition.as_view(),         name='billing__edit_invoice'),            check_args=Swappable.INT_ID),
-        Swappable(re_path(r'^invoice/generate_number/(?P<invoice_id>\d+)[/]?$', invoice.generate_number,                  name='billing__generate_invoice_number'), check_args=Swappable.INT_ID),
-        Swappable(re_path(r'^invoice/(?P<invoice_id>\d+)[/]?$',                 invoice.InvoiceDetail.as_view(),          name='billing__view_invoice'),            check_args=Swappable.INT_ID),
+        Swappable(re_path(r'^invoices[/]?$',                                    invoice.InvoicesList.as_view(),            name='billing__list_invoices')),
+        Swappable(re_path(r'^invoice/add[/]?$',                                 invoice.InvoiceCreation.as_view(),         name='billing__create_invoice')),
+        Swappable(re_path(r'^invoice/add/(?P<target_id>\d+)[/]?$',              invoice.RelatedInvoiceCreation.as_view(),  name='billing__create_related_invoice'),  check_args=Swappable.INT_ID),
+        Swappable(re_path(r'^invoice/edit/(?P<invoice_id>\d+)[/]?$',            invoice.InvoiceEdition.as_view(),          name='billing__edit_invoice'),            check_args=Swappable.INT_ID),
+        # Swappable(re_path(r'^invoice/generate_number/(?P<invoice_id>\d+)[/]?$', invoice.generate_number,                  name='billing__generate_invoice_number'), check_args=Swappable.INT_ID),
+        Swappable(re_path(r'^invoice/generate_number/(?P<invoice_id>\d+)[/]?$', invoice.InvoiceNumberGeneration.as_view(), name='billing__generate_invoice_number'), check_args=Swappable.INT_ID),
+        Swappable(re_path(r'^invoice/(?P<invoice_id>\d+)[/]?$',                 invoice.InvoiceDetail.as_view(),           name='billing__view_invoice'),            check_args=Swappable.INT_ID),
         app_name='billing',
     ).kept_patterns(),
 
