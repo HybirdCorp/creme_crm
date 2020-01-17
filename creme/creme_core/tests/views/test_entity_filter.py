@@ -35,7 +35,7 @@ try:
         FakeDocument, FakeFolder, FakeProduct,
     )
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class EntityFilterViewsTestCase(ViewsTestCase):
@@ -54,7 +54,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         return reverse('creme_core__ctypes_compatible_with_rtype_as_choices', args=(rtype.id,))
 
     def _build_get_filter_url(self, ct):
-        return reverse('creme_core__efilters') + '?ct_id={}'.format(ct.id)
+        return reverse('creme_core__efilters') + f'?ct_id={ct.id}'
 
     def _build_rfields_data(self, name, operator, value):
         return json_dump([
@@ -596,7 +596,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual('linked_folder',                      condition.name)
         self.assertDictEqual({'operator': operators.EQUALS,
-                              'values':   ['{}'.format(folder.id)],
+                              'values':   [str(folder.id)],
                              },
                              condition.decoded_value
                             )
@@ -773,7 +773,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                  'Your filter must be private in order to use this private sub-filter: {}',
                  'Your filter must be private in order to use these private sub-filters: {}',
                  2
-             ).format('{}, {}'.format(subfilter2.name, subfilter1.name))
+             ).format(f'{subfilter2.name}, {subfilter1.name}')
         )
 
         response = post('on')
@@ -803,8 +803,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         def create_subfilter(idx, owner):
             return EntityFilter.objects.smart_update_or_create(
-                'creme_core-subfilter{}'.format(idx),
-                'Misato #{}'.format(idx), model=FakeContact,
+                f'creme_core-subfilter{idx}',
+                f'Misato #{idx}', model=FakeContact,
                 user=owner, is_private=True, is_custom=True,
                 conditions=[
                     RegularFieldConditionHandler.build_condition(
@@ -1821,7 +1821,7 @@ class UserChoicesTestCase(ViewsTestCase):
                 if user_id == choice[0]:
                     return i, choice[1]
 
-            self.fail('User "{}" not found in {}'.format(u, choices1))
+            self.fail(f'User "{u}" not found in {choices1}')
 
         user_index, user_label = find_user(user)
         self.assertEqual(user_label, str(user))
@@ -1838,12 +1838,12 @@ class UserChoicesTestCase(ViewsTestCase):
 
         # "filter_type" ---
         choices2 = self.assertGET200(
-            url + '?filter_type={}'.format(EF_USER)
+            f'{url}?filter_type={EF_USER}'
         ).json()
         self.assertEqual(choices1, choices2)
 
         choices3 = self.assertGET200(
-            url + '?filter_type={}'.format(EF_CREDENTIALS)
+            f'{url}?filter_type={EF_CREDENTIALS}'
         ).json()
         self.assertEqual(choices1, choices3)
 
@@ -1854,7 +1854,7 @@ class UserChoicesTestCase(ViewsTestCase):
         self.login()
 
         choices = self.assertGET200(
-            self.URL + '?filter_type={}'.format(self.EF_TEST)
+            f'{self.URL}?filter_type={self.EF_TEST}'
         ).json()
         self.assertEqual(self.MainUserOperand.type_id,   choices[0][0])
         self.assertEqual(self.SuperUsersOperand.type_id, choices[1][0])

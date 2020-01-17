@@ -11,7 +11,7 @@ try:
     from ..management.commands.geolocation import CSVPopulator, Command as GeolocationCommand
     from .base import GeoLocationBaseTestCase, Address, Organisation
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class MockCSVPopulator(CSVPopulator):
@@ -140,17 +140,19 @@ class CSVPopulatorTestCase(CremeTestCase):
             # populator._open(name)
             populator.populate(name)
 
-        self.assertIn('Unable to open CSV data from {}'.format(name), str(error.exception))
+        self.assertIn(f'Unable to open CSV data from {name}', str(error.exception))
 
     def test_populate_from_invalid_file(self):
-        populator = MockCSVPopulator(['name', 'code'])
+        columns = ['name', 'code']
+        populator = MockCSVPopulator([*columns])
 
         with self.assertRaises(CSVPopulator.ParseError) as error:
             populator.populate('creme/geolocation/populate.py')
 
-        self.assertEqual(str(error.exception),
-                         "Following columns are missing and haven't got any default value : {}".format(['name', 'code'])
-                        )
+        self.assertEqual(
+            str(error.exception),
+            f"Following columns are missing and haven't got any default value : {columns}"
+        )
 
     def test_populate_from_invalid_protocol(self):
         populator = MockCSVPopulator(['name', 'code'])
@@ -159,9 +161,10 @@ class CSVPopulatorTestCase(CremeTestCase):
         with self.assertRaises(CSVPopulator.ProtocolError) as error:
             populator.populate(url)
 
-        self.assertEqual(str(error.exception),
-                         'Unable to open CSV data from {} : unsupported protocol.'.format(url)
-                        )
+        self.assertEqual(
+            str(error.exception),
+            f'Unable to open CSV data from {url} : unsupported protocol.'
+        )
 
     def test_populate_from_file(self):
         populator = MockCSVPopulator(['name', 'code'])
@@ -180,9 +183,10 @@ class CSVPopulatorTestCase(CremeTestCase):
         with self.assertRaises(CSVPopulator.ReadError) as error:
             populator.populate(url)
 
-        self.assertEqual(str(error.exception),
-                         'Unable to open CSV data from {} : {}'.format(url, 'File is not a zip file')
-                        )
+        self.assertEqual(
+            str(error.exception),
+            f'Unable to open CSV data from {url} : File is not a zip file'
+        )
 
     def test_populate_from_zip_file(self):
         populator = MockCSVPopulator(['name', 'code'])

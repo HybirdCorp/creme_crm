@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -75,7 +75,7 @@ class CremeTestLoader(unittest.TestLoader):
             if not any(path_is_ok(allowed_path) for allowed_path in self._allowed_paths):
                 if dir_path not in self._ignored_dir_paths:
                     self._ignored_dir_paths.add(dir_path)
-                    print('"{}" is ignored because app seems not installed.'.format(dir_path))
+                    print(f'"{dir_path}" is ignored because app seems not installed.')
 
                 return False
 
@@ -101,7 +101,7 @@ class CremeDiscoverRunner(DiscoverRunner):
         super().setup_test_environment(**kwargs)
         print('Creating mock media directory...')
         self._mock_media_path = settings.MEDIA_ROOT = mkdtemp(prefix='creme_test_media')
-        print(' ... {} created.'.format(self._mock_media_path))
+        print(f' ... {self._mock_media_path} created.')
         self._http_server = python_subprocess(
             'import http.server;'
             'import os;'

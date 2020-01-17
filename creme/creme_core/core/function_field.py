@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -174,7 +174,9 @@ class _FunctionFieldRegistry:
             assert issubclass(ff_cls, FunctionField)
 
             if setdefault(ff_cls.name, ff_cls) is not ff_cls:
-                raise self.RegistrationError("Duplicated FunctionField's name: {}".format(ff_cls.name))
+                raise self.RegistrationError(
+                    f"Duplicated FunctionField's name: {ff_cls.name}"
+                )
 
     # TODO: accept FunctionField names too ?
     def unregister(self, model, *function_field_classes):
@@ -188,9 +190,9 @@ class _FunctionFieldRegistry:
 
         for ff_cls in function_field_classes:
             if model_ffields.pop(ff_cls.name, None) is None:
-                raise self.RegistrationError('This FunctionField is not registered '
-                                             '(already un-registered ?): {}'.format(ff_cls.name)
-                                             )
+                raise self.RegistrationError(
+                    f'This FunctionField is not registered (already un-registered ?): {ff_cls.name}'
+                )
 
 
 function_field_registry = _FunctionFieldRegistry()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -225,22 +225,22 @@ def get_icon_by_name(name, theme, size_px, label='', css_class=''):
 
     def _get_image_url():
         try:
-            return get_creme_media_url(theme, 'images/{}_{}.png'.format(name, size_px))
+            return get_creme_media_url(theme, f'images/{name}_{size_px}.png')
         except KeyError:
             pass
 
         try:
-            return get_creme_media_url(theme, 'images/{}.png'.format(name))
+            return get_creme_media_url(theme, f'images/{name}.png')
         except KeyError:
             pass
 
         try:
-            return get_creme_media_url(theme, 'images/{}_{}.gif'.format(name, size_px))
+            return get_creme_media_url(theme, f'images/{name}_{size_px}.gif')
         except KeyError:
             pass
 
         try:
-            return get_creme_media_url(theme, 'images/{}.gif'.format(name))
+            return get_creme_media_url(theme, f'images/{name}.gif')
         except KeyError:
             pass
 
@@ -303,7 +303,7 @@ class IconRegistry:
             if info:
                 # TODO: improve (needs the future asset managers) in order
                 #       to manage other formats (see SVGIcon etc...)
-                path_fmt = 'images/{}_%(size)s.png'.format(info[0])
+                path_fmt = f'images/{info[0]}_%(size)s.png'
                 label = info[1]
 
         if not path_fmt:

@@ -222,7 +222,7 @@ def brick_action(context, id, url='', label=None, icon=None, icon_size='brick-ac
         for key, value in data.items():
             if not key.startswith(prefix):
                 raise TemplateSyntaxError(
-                    'The key "{}" does not starts with {}'.format(key, prefix)
+                    f'The key "{key}" does not starts with {prefix}'
                 )
 
             extra_data[key[prefix_length:]] = value
@@ -493,7 +493,7 @@ def brick_table_column_for_field(context, ctype, field, title='', status='', **a
     cell = EntityCellRegularField.build(ctype.model_class(), field)
 
     if cell is None:
-        raise ValueError('Invalid field (ctype={}, field="{}")'.format(ctype, field))
+        raise ValueError(f'Invalid field (ctype={ctype}, field="{field}")')
 
     return brick_table_column_for_cell(context, cell=cell, title=title, status=status, **attrs)
 
@@ -547,9 +547,9 @@ def brick_table_data_status(parser, token):
     tokens = token.split_contents()  # Splitting by None == splitting by spaces.
 
     if len(tokens) < 2:
-        raise TemplateSyntaxError('"{!r}" tag requires at least one argument.'.format(tokens[0]))
+        raise TemplateSyntaxError(f'"{tokens[0]}" tag requires at least one argument.')
 
-    return TextNode(' '.join('data-table-{}-column'.format(t) for t in tokens[1:]))
+    return TextNode(' '.join(f'data-table-{t}-column' for t in tokens[1:]))
 
 
 @register.simple_tag
@@ -726,7 +726,7 @@ def brick_card_action_for_field(context, instance, field, user, **kwargs):
     cell = EntityCellRegularField.build(type(instance), field)
 
     if cell is None:
-        raise ValueError('Invalid field (instance={}, field="{}")'.format(instance, field))
+        raise ValueError(f'Invalid field (instance={instance}, field="{field}")')
 
     # TODO: pass the registry in context ?
     return brick_card_action(
@@ -923,7 +923,7 @@ def brick_display(context, *bricks, **kwargs):
         except KeyError as e:
             raise ValueError(
                 '{{% brick_display %}}: it seems that this brick has not been '
-                'declared/imported: {}'.format(brick_id)
+                f'declared/imported: {brick_id}'
             ) from e
 
     for brick_or_seq in bricks:
@@ -965,6 +965,6 @@ def brick_end(context):
 <div>
     BEWARE ! There are some unused imported bricks.
     <ul>{}</ul>
-</div>""".format(''.join('<li>{}</li>'.format(group) for group in remaining_groups))
+</div>""".format(''.join(f'<li>{group}</li>' for group in remaining_groups))
 
     return mark_safe(res)

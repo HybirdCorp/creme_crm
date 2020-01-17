@@ -273,7 +273,7 @@ class CredentialsFilterStep(CremeModelForm):
                 )
                 generate_string_id_and_save(
                     EntityFilter, [efilter],
-                    'creme_core-credentials_{}-'.format(role.id),
+                    f'creme_core-credentials_{role.id}-',
                 )
                 instance.efilter = efilter
             else:

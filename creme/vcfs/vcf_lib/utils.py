@@ -4,7 +4,6 @@ import logging
 
 from .base import ParseError
 
-
 logger = logging.getLogger(__name__)
 escapableCharList = '\\;,Nn"'
 
@@ -25,7 +24,7 @@ def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
 
     # vars which control state machine
     charIterator = enumerate(s)
-    state        = "read normal"
+    state        = 'read normal'
 
     current = []
     results = []
@@ -34,43 +33,43 @@ def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
         try:
             charIndex, char = next(charIterator)
         except:
-            char = "eof"
+            char = 'eof'
 
-        if state == "read normal":
+        if state == 'read normal':
             if char == '\\':
-                state = "read escaped char"
+                state = 'read escaped char'
             elif char == listSeparator:
-                state = "read normal"
-                current = "".join(current)
+                state = 'read normal'
+                current = ''.join(current)
                 results.append(current)
                 current = []
-            elif char == "eof":
-                state = "end"
+            elif char == 'eof':
+                state = 'end'
             else:
-                state = "read normal"
+                state = 'read normal'
                 current.append(char)
 
-        elif state == "read escaped char":
+        elif state == 'read escaped char':
             if escapableChar(char):
-                state = "read normal"
+                state = 'read normal'
                 if char in 'nN':
                     current.append('\n')
                 else:
                     current.append(char)
             else:
-                state = "read normal"
+                state = 'read normal'
                 # leave unrecognized escaped characters for later passes
                 current.append('\\' + char)
 
-        elif state == "end":  # an end state
+        elif state == 'end':  # an end state
             if len(current) or len(results) == 0:
-                current = "".join(current)
+                current = ''.join(current)
                 results.append(current)
             return results
 
-        elif state == "error":  # an end state
+        elif state == 'error':  # an end state
             return results
 
         else:
-            state = "error"
-            error("error: unknown state: '{}' reached in {}".format(state, s))
+            state = 'error'
+            error(f"error: unknown state: '{state}' reached in {s}")

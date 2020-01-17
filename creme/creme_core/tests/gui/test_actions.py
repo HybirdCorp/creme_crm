@@ -16,7 +16,7 @@ try:
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeOrganisation
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class MockAction(UIAction):
@@ -160,7 +160,7 @@ class ActionsTestCase(CremeTestCase):
         with self.assertRaises(ActionRegistrationError) as ctxt:
             achain.register_actions(MockAction)
 
-        self.assertEqual('{} is not a <MockBulkAction>'.format(MockAction),
+        self.assertEqual(f'{MockAction} is not a <MockBulkAction>',
                          str(ctxt.exception)
                         )
 
@@ -280,7 +280,7 @@ class ActionsTestCase(CremeTestCase):
         with self.assertRaises(ActionRegistrationError) as ctxt:
             self.registry.register_instance_actions(invalid_action)
 
-        self.assertEqual('{} is not a <UIAction>'.format(invalid_action),
+        self.assertEqual(f'{invalid_action} is not a <UIAction>',
                          str(ctxt.exception)
                         )
 
@@ -288,7 +288,7 @@ class ActionsTestCase(CremeTestCase):
         with self.assertRaises(ActionRegistrationError) as ctxt:
             self.registry.register_bulk_actions(MockAction)  # not bulk !
 
-        self.assertEqual('{} is not a <BulkAction>'.format(MockAction),
+        self.assertEqual(f'{MockAction} is not a <BulkAction>',
                          str(ctxt.exception)
                         )
 
@@ -302,7 +302,7 @@ class ActionsTestCase(CremeTestCase):
 
         self.assertEqual(
             str(ctxt.exception),
-            "Invalid action {}: 'model' attribute must be defined".format(MissingModelAction)
+            f"Invalid action {MissingModelAction}: 'model' attribute must be defined"
         )
 
     def test_register_missing_model02(self):
@@ -315,7 +315,7 @@ class ActionsTestCase(CremeTestCase):
 
         self.assertEqual(
             str(ctxt.exception),
-            "Invalid action {}: 'model' attribute must be defined".format(MissingModelAction)
+            f"Invalid action {MissingModelAction}: 'model' attribute must be defined"
         )
 
     def test_register_missing_id01(self):
@@ -328,7 +328,7 @@ class ActionsTestCase(CremeTestCase):
 
         self.assertEqual(
             str(ctxt.exception),
-            "Invalid action {}: 'id' attribute must be defined".format(MissingIdAction)
+            f"Invalid action {MissingIdAction}: 'id' attribute must be defined"
         )
 
     def test_register_missing_id02(self):
@@ -341,7 +341,7 @@ class ActionsTestCase(CremeTestCase):
 
         self.assertEqual(
             str(ctxt.exception),
-            "Invalid action {}: 'id' attribute must be defined".format(MissingIdAction)
+            f"Invalid action {MissingIdAction}: 'id' attribute must be defined"
         )
 
     def test_register_invalid_model01(self):
@@ -355,7 +355,7 @@ class ActionsTestCase(CremeTestCase):
 
         self.assertEqual(
             str(ctxt.exception),
-            "Invalid action {}: {} is not a Django Model".format(InvalidModelAction, UIAction)
+            f"Invalid action {InvalidModelAction}: {UIAction} is not a Django Model"
         )
 
     def test_register_invalid_model02(self):
@@ -369,7 +369,7 @@ class ActionsTestCase(CremeTestCase):
 
         self.assertEqual(
             str(ctxt.exception),
-            "Invalid action {}: {} is not a Django Model".format(InvalidModelAction, UIAction)
+            f"Invalid action {InvalidModelAction}: {UIAction} is not a Django Model"
         )
 
     def test_override_duplicate(self):
@@ -400,7 +400,7 @@ class ActionsTestCase(CremeTestCase):
 
         self.assertEqual(
             str(ctxt.exception),
-            "Duplicated action '{}' for model {}".format(MockA.id, MockContactAction.model)
+            f"Duplicated action '{MockA.id}' for model {MockContactAction.model}"
         )
 
     def test_register(self):
@@ -733,8 +733,8 @@ class ActionsTestCase(CremeTestCase):
 
         self.assertEqual(
             str(ctxt.exception),
-            "Unable to void action 'creme_core-mock_action'. "
-            "An action is already defined for model {}".format(FakeContact)
+            f"Unable to void action 'creme_core-mock_action'. "
+            f"An action is already defined for model {FakeContact}"
         )
 
     def test_actions_duplicate_void02(self):
@@ -746,8 +746,8 @@ class ActionsTestCase(CremeTestCase):
 
         self.assertEqual(
             str(ctxt.exception),
-            "Unable to void action 'creme_core-mock_action_bulk'. "
-            "An action is already defined for model {}".format(FakeContact)
+            f"Unable to void action 'creme_core-mock_action_bulk'. "
+            f"An action is already defined for model {FakeContact}"
         )
 
 
@@ -811,7 +811,7 @@ class BuiltinActionsTestCase(CremeTestCase):
 
         for key, expected in kwargs.items():
             value = getattr(action, key)
-            self.assertEqual(value, expected, 'action.{}'.format(key))
+            self.assertEqual(value, expected, f'action.{key}')
 
     def test_edit_action(self):
         self.assertAction(

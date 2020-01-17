@@ -47,7 +47,7 @@ try:
     from creme.creme_core.utils.date_range import date_range_registry
     from creme.creme_core.utils.meta import FieldInfo
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 # TODO: query_for_related_conditions()
@@ -895,10 +895,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             _('«{field}» is {values}').format(
                 field=_('Folder'),
                 values=_('{first} or {last}').format(
-                    first='{}, {}'.format(
-                        fmt(enum_value=folder2),
-                        fmt(enum_value=folder1),
-                    ),
+                    first=f'{fmt(enum_value=folder2)}, {fmt(enum_value=folder1)}',
                     last=fmt(enum_value=_('Entity #{id} (not viewable)').format(id=folder3.id)),
                 ),
             ),

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -90,11 +90,8 @@ class Populator(BasePopulator):
                                                             )
 
             if self.verbosity:
-                self.stdout.write('\n A super-user has been created with login="{login}"'
-                                  ' and password="{password}".'.format(
-                                      login=login,
-                                      password=password,
-                                  ),
+                self.stdout.write(f'\n A super-user has been created with '
+                                  f'login="{login}" and password="{password}".',
                                   self.style.NOTICE,
                                  )
 

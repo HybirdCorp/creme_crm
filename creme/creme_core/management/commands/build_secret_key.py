@@ -65,8 +65,8 @@ class Command(BaseCommand):
                     break
 
             random.seed(
-                sha256((
-                   '{}{}{}'.format(random.getstate(), time(), force_text(kb_seed))).encode('utf-8')
+                sha256(
+                    f'{random.getstate()}{time()}{force_text(kb_seed)}'.encode('utf-8')
                 ).digest()
             )
 

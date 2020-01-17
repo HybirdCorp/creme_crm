@@ -7,7 +7,7 @@ try:
             _SandboxTypeRegistry, sandbox_type_registry)
     from creme.creme_core.models import Sandbox
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class SandboxTestCase(CremeTestCase):
@@ -57,12 +57,10 @@ class SandboxTestCase(CremeTestCase):
             sb_type = registry.get(sandbox2)
 
         self.assertIsNone(sb_type)
-        self.assertEqual(logs_manager.output,
-                         ['CRITICAL:creme.creme_core.core.sandbox:Unknown SandboxType: {}'.format(
-                                 TestSandboxType2_4.id
-                            ),
-                         ],
-                        )
+        self.assertEqual(
+            logs_manager.output,
+            [f'CRITICAL:creme.creme_core.core.sandbox:Unknown SandboxType: {TestSandboxType2_4.id}'],
+        )
 
     def test_sandbox_data(self):
         user = self.login()

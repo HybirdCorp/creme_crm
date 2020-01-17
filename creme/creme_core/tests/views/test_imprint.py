@@ -13,7 +13,7 @@ try:
     from creme.creme_core.models import (Imprint, BrickDetailviewLocation, BrickHomeLocation,
             FakeOrganisation)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
@@ -78,7 +78,7 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertBrickHasClass(brick_node, 'creme_core-imprints-brick')
         self.assertBrickHasNotClass(brick_node, 'is-empty')
 
-        link_node = brick_node.find(".//a[@href='{}']".format(user.linked_contact.get_absolute_url()))
+        link_node = brick_node.find(f".//a[@href='{user.linked_contact.get_absolute_url()}']")
         self.assertIsNotNone(link_node)
         self.assertEqual(str(user), link_node.text)
 

@@ -40,7 +40,7 @@ try:
     from .. import setting_keys
     from .base import OpportunitiesBaseTestCase, skipIfCustomOpportunity, Opportunity, Contact
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIf(skip_billing, '"Billing" app is not installed.')
@@ -101,7 +101,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertDatetimesAlmostEqual(date.today(), quote.issuing_date)
         self.assertEqual(1, quote.status_id)
         self.assertTrue(quote.number)
-        self.assertEqual('{} — {}'.format(quote.number, opportunity.name),
+        self.assertEqual(f'{quote.number} — {opportunity.name}',
                          quote.name
                         )
 

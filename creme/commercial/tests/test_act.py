@@ -13,8 +13,12 @@ try:
     from creme.creme_core.constants import DEFAULT_CURRENCY_PK
     from creme.creme_core.core.entity_filter import condition_handler, operators
     from creme.creme_core.forms.widgets import Label
-    from creme.creme_core.models import (RelationType, Relation,
-            EntityFilter, SetCredentials, FakeOrganisation)
+    from creme.creme_core.models import (
+        RelationType, Relation,
+        EntityFilter,
+        SetCredentials,
+        FakeOrganisation,
+    )
 
     from creme.persons.constants import FILTER_MANAGED_ORGA
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
@@ -27,11 +31,16 @@ try:
 
     from ..constants import REL_SUB_COMPLETE_GOAL
     from ..models import ActType, ActObjective, ActObjectivePatternComponent
-    from .base import (CommercialBaseTestCase, skipIfCustomAct, skipIfCustomPattern,
-            Contact, Organisation, Opportunity, Activity,
-            Act, ActObjectivePattern)
+    from .base import (
+        CommercialBaseTestCase,
+        skipIfCustomAct, skipIfCustomPattern,
+        Contact, Organisation,
+        Opportunity,
+        Activity,
+        Act, ActObjectivePattern,
+    )
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomAct
@@ -135,7 +144,7 @@ class ActTestCase(CommercialBaseTestCase):
             goal='GOAL', start=date(2010, 11, 25),
             due_date=date(2011, 12, 26),
             act_type=ActType.objects.create(title='Show'),
-            segment=self._create_segment('Segment - {}'.format(name)),
+            segment=self._create_segment(f'Segment - {name}'),
         )
 
     def test_edit(self):
@@ -206,7 +215,7 @@ class ActTestCase(CommercialBaseTestCase):
                              act_type=ActType.objects.create(title='Show'),
                              segment=self._create_segment(),
                             )
-        acts = [create_act(name='NAME_{}'.format(i)) for i in range(1, 3)]
+        acts = [create_act(name=f'NAME_{i}') for i in range(1, 3)]
 
         response = self.assertGET200(Act.get_lv_absolute_url())
 

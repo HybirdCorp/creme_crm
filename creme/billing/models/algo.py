@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,9 +36,9 @@ class ConfigBillingAlgo(CremeModel):
         # TODO unique_together = ("organisation", "name_algo", "ct") ??
 
     def __str__(self):
-        return 'ConfigBillingAlgo(organisation="{}", name_algo="{}", ct="{}")'.format(
-            self.organisation, self.name_algo, self.ct,
-        )
+        return f'ConfigBillingAlgo(organisation="{self.organisation}", ' \
+                                 f'name_algo="{self.name_algo}", ' \
+                                 f'ct="{self.ct}")'
 
 
 class SimpleBillingAlgo(Model):

@@ -16,7 +16,7 @@ try:
 
     from creme.documents.models import Document, Folder, FolderCategory
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 try:
     from creme.creme_core.utils.xlwt_utils import XlwtWriter
@@ -65,27 +65,34 @@ class BrickTestCaseMixin:
         return html5lib.parse(content, namespaceHTMLElements=False)
 
     def get_brick_node(self, tree, brick_id):
-        brick_node = tree.find(".//div[@id='{}']".format(brick_id))
-        self.assertIsNotNone(brick_node, 'The brick id="{}" is not found.'.format(brick_id))
+        brick_node = tree.find(f".//div[@id='{brick_id}']")
+        self.assertIsNotNone(brick_node, f'The brick id="{brick_id}" is not found.')
 
         classes = brick_node.attrib.get('class')
-        self.assertIsNotNone(classes, 'The brick id="{}" is not a valid brick (no "class" attribute).'.format(brick_id))
-        self.assertIn('brick', classes.split(), 'The brick id="{}" is not a valid brick (no "brick" class).'.format(brick_id))
+        self.assertIsNotNone(
+            classes,
+            f'The brick id="{brick_id}" is not a valid brick (no "class" attribute).'
+        )
+        self.assertIn(
+            'brick', classes.split(),
+            f'The brick id="{brick_id}" is not a valid brick (no "brick" class).'
+        )
 
         return brick_node
 
     def assertNoBrick(self, tree, brick_id):
-        self.assertIsNone(tree.find(".//div[@id='{}']".format(brick_id)),
-                          'The brick id="{}" has been unexpectedly found.'.format(brick_id)
-                         )
+        self.assertIsNone(
+            tree.find(f".//div[@id='{brick_id}']"),
+            f'The brick id="{brick_id}" has been unexpectedly found.'
+        )
 
     def assertInstanceLink(self, brick_node, entity):
-        link_node = brick_node.find(".//a[@href='{}']".format(entity.get_absolute_url()))
+        link_node = brick_node.find(f".//a[@href='{entity.get_absolute_url()}']")
         self.assertIsNotNone(link_node)
         self.assertEqual(str(entity), link_node.text)
 
     def assertNoInstanceLink(self, brick_node, entity):
-        self.assertIsNone(brick_node.find(".//a[@href='{}']".format(entity.get_absolute_url())))
+        self.assertIsNone(brick_node.find(f".//a[@href='{entity.get_absolute_url()}']"))
 
     def assertBrickHasClass(self, brick_node, css_class):
         self.assertIn(css_class, brick_node.attrib.get('class').split())
@@ -94,7 +101,7 @@ class BrickTestCaseMixin:
         self.assertNotIn(css_class, brick_node.attrib.get('class').split())
 
     def get_brick_tile(self, content_node, key):
-        tile_node = content_node.find('.//div[@data-key="%s"]' % key)
+        tile_node = content_node.find(f'.//div[@data-key="{key}"]')
         self.assertIsNotNone(tile_node)
 
         value_node = tile_node.find('.//span[@class="brick-tile-value"]')
@@ -108,7 +115,7 @@ class MassImportBaseTestCaseMixin:
     def _assertNoResultError(self, results):
         for r in results:
             if r.messages:
-                self.fail('Import error: {}'.format(r.messages))
+                self.fail(f'Import error: {r.messages}')
 
     def _build_file(self, content, extension=None):
         tmpfile = NamedTemporaryFile(suffix=".%s" % extension if extension else '')
@@ -142,7 +149,7 @@ class MassImportBaseTestCaseMixin:
         return doc
 
     def _build_csv_doc(self, lines, separator=',', extension='csv'):
-        content = '\n'.join(separator.join('"{}"'.format(item) for item in line) for line in lines)
+        content = '\n'.join(separator.join(f'"{item}"' for item in line) for line in lines)
         tmpfile = self._build_file(content.encode(), extension)
 
         return self._build_doc(tmpfile)

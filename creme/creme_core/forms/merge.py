@@ -77,22 +77,22 @@ class MergeWidget(Widget):
         # TODO: is it a good way to do this ? (ex: always wrap widget in <div> for layout, & this layouts use
         #       the extra classes given in attrs).
         get_sub_context = self._original_widget.get_context
-        widget_cxt['first']  = get_sub_context(name='{}_1'.format(name),
+        widget_cxt['first']  = get_sub_context(name=f'{name}_1',
                                                value=value_1,
-                                               attrs={'id': '{}_1'.format(id_attr),
+                                               attrs={'id': f'{id_attr}_1',
                                                       ro_attr: '',
                                                       'class': 'merge_entity1',
                                                      },
                                               )['widget']
-        widget_cxt['merged'] = get_sub_context(name='{}_merged'.format(name),
+        widget_cxt['merged'] = get_sub_context(name=f'{name}_merged',
                                                value=value_m,
-                                               attrs={'id': '{}_merged'.format(id_attr),
+                                               attrs={'id': f'{id_attr}_merged',
                                                       'class': 'merge_result',
                                                      },
                                              )['widget']
-        widget_cxt['second'] = get_sub_context(name='{}_2'.format(name),
+        widget_cxt['second'] = get_sub_context(name=f'{name}_2',
                                                value=value_2,
-                                               attrs={'id': '{}_2'.format(id_attr),
+                                               attrs={'id': f'{id_attr}_2',
                                                       ro_attr: '',
                                                       'class': 'merge_entity2',
                                                      },
@@ -103,9 +103,9 @@ class MergeWidget(Widget):
     def value_from_datadict(self, data, files, name):
         value_from_datadict = self._original_widget.value_from_datadict
         return (
-            value_from_datadict(data=data, files=files, name='{}_1'.format(name)),
-            value_from_datadict(data=data, files=files, name='{}_2'.format(name)),
-            value_from_datadict(data=data, files=files, name='{}_merged'.format(name)),
+            value_from_datadict(data=data, files=files, name=f'{name}_1'),
+            value_from_datadict(data=data, files=files, name=f'{name}_2'),
+            value_from_datadict(data=data, files=files, name=f'{name}_merged'),
         )
 
 
@@ -266,7 +266,7 @@ def form_factory(model, merge_form_registry=merge.merge_form_registry):
         base_form_class = mergeform_factory()
 
         return type(
-            'Merge{}Form'.format(model.__name__), (base_form_class,),
+            f'Merge{model.__name__}Form', (base_form_class,),
             fields_for_model(
                 model, formfield_callback=mergefield_factory,
                 exclude=[

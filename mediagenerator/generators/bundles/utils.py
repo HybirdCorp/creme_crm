@@ -36,7 +36,7 @@ def _load_root_filter_uncached(bundle):
             input = items[1:]
             break
     else:
-        raise ValueError('Could not find media bundle "{}"'.format(bundle))
+        raise ValueError(f'Could not find media bundle "{bundle}"')
 
     filetype = os.path.splitext(bundle)[-1].lstrip('.')
     root_filters = _get_root_filters_list(filetype)

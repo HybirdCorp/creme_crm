@@ -26,7 +26,7 @@ try:
     from .base import (CrudityTestCase, ContactFakeBackend, DocumentFakeBackend,
             Contact, Document)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 lcabMissing = False
@@ -82,9 +82,10 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         builder = self._get_builder(backend)
 
         now_str = builder.now.strftime('%Y-%m-%dT%H:%M:%S')
-        self.assertEqual('http://schemas.microsoft.com/office/infopath/2003/myXSD/{}'.format(now_str),
-                         builder.namespace
-                        )
+        self.assertEqual(
+            f'http://schemas.microsoft.com/office/infopath/2003/myXSD/{now_str}',
+            builder.namespace
+        )
         self.assertEqual('urn:schemas-microsoft-com:office:infopath:{}:-myXSD-{}'.format(
                                 'create-create_ce', now_str,
                             ),
@@ -135,12 +136,12 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         self.assertEqual(builder.get_urn(), xml.get('name'))
 
-        self.assertEqual(namespace, xml_find('{ns}package/{ns}files/{ns}file/{ns}fileProperties/{ns}property'.format(ns=ns)).get('value'))
-        self.assertEqual(namespace, xml_find('{ns}applicationParameters/{ns}solutionProperties'.format(ns=ns)).get('fullyEditableNamespace'))
-        self.assertEqual(namespace, xml_find('{ns}documentSchemas/{ns}documentSchema'.format(ns=ns)).get('location').split()[0])
+        self.assertEqual(namespace, xml_find(f'{ns}package/{ns}files/{ns}file/{ns}fileProperties/{ns}property').get('value'))
+        self.assertEqual(namespace, xml_find(f'{ns}applicationParameters/{ns}solutionProperties').get('fullyEditableNamespace'))
+        self.assertEqual(namespace, xml_find(f'{ns}documentSchemas/{ns}documentSchema').get('location').split()[0])
 
         # ElementTree 1.2.6 (shipped with python <= 2.6) doesn't support advanced xpath expressions  TODO: improve
-        file_nodes = xml.findall('{ns}package/{ns}files/{ns}file'.format(ns=ns))
+        file_nodes = xml.findall(f'{ns}package/{ns}files/{ns}file')
 
         for node in file_nodes:
             if node.get('name') == 'view1.xsl':
@@ -149,7 +150,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         else:
             self.fail('<xsf:file name="view1.xsl"> not found')
 
-        for node in found_node.findall('{ns}fileProperties/{ns}property'.format(ns=ns)):
+        for node in found_node.findall(f'{ns}fileProperties/{ns}property'):
             if node.get('name') == 'lang':
                 # property_node = node  # TODO: use ?
                 self.assertEqual(builder._get_lang_code(self.request.LANGUAGE_CODE), node.get('value'))
@@ -158,10 +159,10 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             self.fail('<xsf:property name="lang" type="string" value=""></xsf:property> not found')
 
         mail_form_name = backend.subject
-        self.assertEqual(mail_form_name,
-                         xml_find('{ns}extensions/{ns}extension/{ns2}solutionDefinition/{ns2}solutionPropertiesExtension/{ns2}mail'.format(ns=ns, ns2=ns2))
-                                 .get('formName')
-                        )
+        self.assertEqual(
+            mail_form_name,
+            xml_find(f'{ns}extensions/{ns}extension/{ns2}solutionDefinition/{ns2}solutionPropertiesExtension/{ns2}mail').get('formName')
+        )
 
     def test_manifest_xsf_02(self):
         "Test Image fk field"
@@ -178,12 +179,12 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         xsf = '{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}'
         xml = XML(content)
 
-        xmlToEdit_node = xml.find('{xsf}views/{xsf}view/{xsf}editing/{xsf}xmlToEdit'.format(xsf=xsf))
+        xmlToEdit_node = xml.find(f'{xsf}views/{xsf}view/{xsf}editing/{xsf}xmlToEdit')
         self.assertIsNotNone(xmlToEdit_node)
         self.assertEqual('image', xmlToEdit_node.get('name'))
         self.assertEqual('/my:CremeCRMCrudity/my:image', xmlToEdit_node.get('item'))
 
-        button_nodes = xml.findall('{xsf}views/{xsf}view/{xsf}menuArea/{xsf}button'.format(xsf=xsf))
+        button_nodes = xml.findall(f'{xsf}views/{xsf}view/{xsf}menuArea/{xsf}button')
         self.assertTrue(button_nodes)
         self.assertEqual({'image'}, {button_node.get('xmlToEdit') for button_node in button_nodes})
 
@@ -201,14 +202,14 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                         )  # Can't be got with ElementTree, because it's a namespace
 
         xsf = '{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}'
-        xml2edit_node = XML(content).find('{xsf}views/{xsf}view/{xsf}editing/{xsf}xmlToEdit'.format(xsf=xsf))
+        xml2edit_node = XML(content).find(f'{xsf}views/{xsf}view/{xsf}editing/{xsf}xmlToEdit')
         self.assertIsNotNone(xml2edit_node)
         self.assertEqual('language', xml2edit_node.get('name'))
         self.assertEqual('/my:CremeCRMCrudity/my:language/my:language_value',
                          xml2edit_node.get('item')
                         )
 
-        self.assertEqual('xTextList', xml2edit_node.find('{xsf}editWith'.format(xsf=xsf)).get('component'))
+        self.assertEqual('xTextList', xml2edit_node.find(f'{xsf}editWith').get('component'))
 
     def test_myschema_xsd01(self):
         body_map = {'user_id':     1,
@@ -236,11 +237,12 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                          re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns']
                         )  # Can't be got with ElementTree, because it's a namespace
 
-        ref_attrs = {node.get('ref')
-                      for node in xml.findall('{xsd}element/{xsd}complexType/{xsd}sequence/{xsd}element'.format(xsd=xsd))
-                    }
+        ref_attrs = {
+            node.get('ref')
+                for node in xml.findall(f'{xsd}element/{xsd}complexType/{xsd}sequence/{xsd}element')
+        }
         # chain() because language_value is not declared in body_map, only language has to (m2m)
-        expected_ref_attrs = {'my:{}'.format(key) for key in chain(body_map, ['language_value'])}
+        expected_ref_attrs = {f'my:{key}' for key in chain(body_map, ['language_value'])}
         self.assertEqual(expected_ref_attrs, ref_attrs)
 
         xsd_elements = {
@@ -292,12 +294,12 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             'language_value': {'name': 'language_value', 'type': 'xsd:integer', 'nillable': 'true'},
         }
 
-        for element_node in xml.findall('{}element'.format(xsd)):
+        for element_node in xml.findall('f{xsd}element'):
             name = element_node.get('name')
             xsd_element_attrs = xsd_elements.get(name)
 
             if xsd_element_attrs is None:
-                self.fail('There is at least an extra node named: {}'.format(name))
+                self.fail(f'There is at least an extra node named: {name}')
 
             self.assertSetEqual({*xsd_element_attrs.keys()}, {*element_node.keys()})
 
@@ -308,10 +310,10 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                 value = element_node.get(attr)
 
                 if expected != value:
-                    self.fail('Value of attribute "{}" in node "{}" is wrong: expected "{}", got "{}".'.format(
-                                    attr, name, expected, value,
-                                )
-                             )
+                    self.fail(
+                        f'Value of attribute "{attr}" in node "{name}" is wrong: '
+                        f'expected "{expected}", got "{value}".'
+                    )
 
     @skipIfCustomDocument
     def test_myschema_xsd02(self):
@@ -333,10 +335,11 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                          re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns']
                         )  # Can't be got with ElementTree, because it's a namespace
 
-        ref_attrs = {node.get('ref')
-                        for node in xml.findall('{xsd}element/{xsd}complexType/{xsd}sequence/{xsd}element'.format(xsd=xsd))
-                    }
-        expected_ref_attrs = {'my:{}'.format(key) for key in body_map}
+        ref_attrs = {
+            node.get('ref')
+                for node in xml.findall(f'{xsd}element/{xsd}complexType/{xsd}sequence/{xsd}element')
+        }
+        expected_ref_attrs = {f'my:{key}' for key in body_map}
         self.assertEqual(expected_ref_attrs, ref_attrs)
 
         xsd_elements = {
@@ -356,7 +359,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             'filedata':    {'name': 'filedata', 'type': 'my:requiredBase64Binary'},
        }
 
-        for element_node in xml.findall('{}element'.format(xsd)):
+        for element_node in xml.findall('f{xsd}element'):
             xsd_element_attrs = xsd_elements.get(element_node.get('name'))
 
             if xsd_element_attrs is None:
@@ -396,7 +399,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             field_node = find('{%s}%s' % (builder.namespace, field.name))
             self.assertIsNotNone(field_node)  # Beware: bool(field_node) doesn't work !
             if field.is_nillable:
-                self.assertEqual('true', field_node.get('{}nil'.format(xsi)))
+                self.assertEqual('true', field_node.get(f'{xsi}nil'))
 
     def test_upgrade_xsl01(self):
         body_map = {'user_id':     1,
@@ -421,14 +424,15 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                          builder.namespace
                         )  # Can't be got with ElementTree, because it's a namespace
 
-        self.assertEqual({'my:{}'.format(field_name) for field_name in body_map},
-                         {node.get('name')
-                            for node in XML(content).findall('{xsl}template/{xsl}copy/{xsl}element'.format(
-                                                                    xsl='{http://www.w3.org/1999/XSL/Transform}',
-                                                                )
-                                                            )
-                         }
-                        )
+        self.assertSetEqual(
+            {f'my:{field_name}' for field_name in body_map},
+            {node.get('name')
+                 for node in XML(content).findall('{xsl}template/{xsl}copy/{xsl}element'.format(
+                                                      xsl='{http://www.w3.org/1999/XSL/Transform}',
+                                                  )
+                                                 )
+            }
+        )
 
     def test_upgrade_xsl02(self):
         "Many2Many"
@@ -449,21 +453,24 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         findall = XML(content).findall
 
         # fields_names = set("my:%s" % field_name for field_name in body_map.iterkeys()) #TODO: use it ??
-        template_nodes = [n for n in findall('{}template'.format(xsl))
-                            if n.get('match') == 'my:CremeCRMCrudity'
-                         ]
+        template_nodes = [
+            n
+                for n in findall(f'{xsl}template')
+                    if n.get('match') == 'my:CremeCRMCrudity'
+        ]
         self.assertTrue(template_nodes)
 
-        when_node = template_nodes[0].find('{xsl}copy/{xsl}choose/{xsl}when'.format(xsl=xsl))
+        when_node = template_nodes[0].find(f'{xsl}copy/{xsl}choose/{xsl}when')
         self.assertEqual('my:language', when_node.get('test'))
 
         expected_names = {'my:language', 'my:language_value'}
-        self.assertSetEqual(expected_names,
-                            {match
-                                for match in (n.get('match') for n in findall('{}template'.format(xsl)))
-                                    if match in expected_names
-                            }
-                        )
+        self.assertSetEqual(
+            expected_names,
+            {match
+                for match in (n.get('match') for n in findall(f'{xsl}template'))
+                    if match in expected_names
+            }
+        )
 
     def _get_view_xsl(self, backend, body_map):
         backend.body_map = body_map
@@ -481,16 +488,19 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         xd = '{http://schemas.microsoft.com/office/infopath/2003}'
 
         xml = self._get_view_xsl(backend, {field_name: ''})
-        node_vb = xml.find('{xsl}template/div/div/table/tbody/tr/td/div/font/strong'.format(xsl=xsl))
+        node_vb = xml.find(f'{xsl}template/div/div/table/tbody/tr/td/div/font/strong')
         self.assertIsNotNone(node_vb)
         self.assertEqual(backend.model._meta.get_field(field_name).verbose_name, node_vb.text)
 
-        node_content = xml.find(('{xsl}template/div/div/table/tbody/tr/td/div/font/'.format(xsl=xsl)) + node_type)
+        node_content = xml.find(f'{xsl}template/div/div/table/tbody/tr/td/div/font/{node_type}')
         for attr, expected_value in attrs.items():
-            self.assertEqual(expected_value, node_content.get(attr.format(xsl=xsl, xd=xd)))
+            self.assertEqual(
+                expected_value,
+                node_content.get(attr.format(xsl=xsl, xd=xd)),
+            )
 
     def test_view_xsl01(self):
-        "Simple attributes verification"
+        "Simple attributes verification."
         fields = {
             'first_name': ({
                 'class':       'xdTextBox',
@@ -557,14 +567,15 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                                     body_map={field_name: ''}, model=Contact,
                                    )
         xml     = self._get_view_xsl(backend, {field_name: ''})
-        node_vb = xml.find('{xsl}template/div/div/table/tbody/tr/td/div/font/strong'.format(xsl=xsl))
+        node_vb = xml.find(f'{xsl}template/div/div/table/tbody/tr/td/div/font/strong')
         self.assertIsNotNone(node_vb)
         self.assertEqual(Contact._meta.get_field(field_name).verbose_name, node_vb.text)
 
-        target_node = xml.find('{xsl}template/div/div/table/tbody/tr/td/div/font/div/span'.format(xsl=xsl))
-        self.assertEqual('my:{}'.format(field_name),
-                         target_node.find('{xsl}attribute/{xsl}value-of'.format(xsl=xsl)).get('select')
-                        )
+        target_node = xml.find(f'{xsl}template/div/div/table/tbody/tr/td/div/font/div/span')
+        self.assertEqual(
+            f'my:{field_name}',
+            target_node.find(f'{xsl}attribute/{xsl}value-of').get('select')
+        )
 
     def test_view_xsl03(self):
         "Deeper with ForeignKey"
@@ -577,16 +588,16 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                                    )
         xml = self._get_view_xsl(backend, {field_name: ''})
 
-        node_vb = xml.find('{xsl}template/div/div/table/tbody/tr/td/div/font/strong'.format(xsl=xsl))
+        node_vb = xml.find(f'{xsl}template/div/div/table/tbody/tr/td/div/font/strong')
         self.assertIsNotNone(node_vb)
         self.assertEqual(Contact._meta.get_field('user').verbose_name, node_vb.text)
 
         attrs = {'class':                     'xdComboBox xdBehavior_Select',
-                 '{xd}xctname'.format(xd=xd): 'dropdown',
-                 '{xd}CtrlId'.format(xd=xd):  field_name,
-                 '{xd}binding'.format(xd=xd): 'my:{}'.format(field_name),
+                 f'{xd}xctname': 'dropdown',
+                 f'{xd}CtrlId':  field_name,
+                 f'{xd}binding': f'my:{field_name}',
                 }
-        target_node =  xml.find('{xsl}template/div/div/table/tbody/tr/td/div/font/select'.format(xsl=xsl))
+        target_node = xml.find(f'{xsl}template/div/div/table/tbody/tr/td/div/font/select')
         for attr, expected_value in attrs.items():
             self.assertEqual(expected_value, target_node.get(attr))
 
@@ -594,12 +605,12 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertTrue(options)  # At least, it must have empty choice
 
         self.assertSetEqual(
-            {('my:{}=""'.format(field_name), _('Select...')),
-             *(('my:{}="{}"'.format(field_name, user.pk), str(user))
+            {(f'my:{field_name}=""', _('Select...')),
+             *((f'my:{field_name}="{user.pk}"', str(user))
                    for user in get_user_model().objects.all()
               ),
             },
-            {(option.find('{xsl}if'.format(xsl=xsl)).get('test'),
+            {(option.find(f'{xsl}if').get('test'),
               re.search(r'if>(?P<username>.*)</option>',
                         tostring(option, encoding='utf8',
                        ).decode('utf8')).groupdict()['username']
@@ -660,41 +671,48 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                                    )
         xml = self._get_view_xsl(backend, {field_name: ''})
 
-        node_vb = xml.find('{xsl}template/div/div/table/tbody/tr/td/div/font/strong'.format(xsl=xsl))
+        node_vb = xml.find(f'{xsl}template/div/div/table/tbody/tr/td/div/font/strong')
         self.assertIsNotNone(node_vb)
         self.assertEqual(Contact._meta.get_field(field_name).verbose_name,
                          node_vb.text
                         )
 
-        target_node = xml.find('{xsl}template/div/div/table/tbody/tr/td/div/font/div'.format(xsl=xsl))
+        target_node = xml.find(f'{xsl}template/div/div/table/tbody/tr/td/div/font/div')
         self.assertIsNotNone(target_node)
 
-        input_nodes = target_node.findall('{xsl}choose/{xsl}when/span/span/input'.format(xsl=xsl))
+        input_nodes = target_node.findall(f'{xsl}choose/{xsl}when/span/span/input')
         self.assertTrue(input_nodes)
 
-        self.assertEqual({str(language) for language in languages},
-                         {input_node.get('title') for input_node in input_nodes}
-                        )
-        self.assertEqual({'my:language/my:language_value[.="{}"][1]'.format(l.id) for l in languages},
-                         {input_node.get('{xd}binding'.format(xd=xd)) for input_node in input_nodes}
-                        )
-        self.assertEqual({'my:language/my:language_value[.="{}"][1]'.format(l.id) for l in languages},
-                         {input_node.get('select')
-                            for input_node in target_node.findall('{xsl}choose/{xsl}when/span/span/input/{xsl}attribute/{xsl}value-of'.format(xsl=xsl))
-                         }
-                        )
+        self.assertSetEqual(
+            {str(language) for language in languages},
+            {input_node.get('title') for input_node in input_nodes}
+        )
+        self.assertSetEqual(
+            {f'my:language/my:language_value[.="{l.id}"][1]' for l in languages},
+            {input_node.get(f'{xd}binding') for input_node in input_nodes}
+        )
+        self.assertEqual(
+            {f'my:language/my:language_value[.="{l.id}"][1]' for l in languages},
+            {input_node.get('select')
+                for input_node in target_node.findall(
+                    f'{xsl}choose/{xsl}when/span/span/input/{xsl}attribute/{xsl}value-of'
+                )
+            }
+        )
 
-        self.assertEqual({'my:language/my:language_value="{}"'.format(l.id) for l in languages},
-                         {input_node.get('test')
-                                for input_node in target_node.findall('{xsl}choose/{xsl}when/span/span/input/{xsl}if'.format(xsl=xsl))
-                         }
-                        )
+        self.assertSetEqual(
+            {f'my:language/my:language_value="{l.id}"' for l in languages},
+             {input_node.get('test')
+                  for input_node in target_node.findall(f'{xsl}choose/{xsl}when/span/span/input/{xsl}if')
+             }
+        )
 
-        for_each_node = target_node.find('{xsl}choose/{xsl}when/span/{xsl}for-each'.format(xsl=xsl))
+        for_each_node = target_node.find(f'{xsl}choose/{xsl}when/span/{xsl}for-each')
         self.assertIsNotNone(for_each_node)
-        self.assertEqual('my:language/my:language_value[{}]'.format(' and '.join('.!="{}"'.format(l.id) for l in languages)),
-                         for_each_node.get('select')
-                        )
+        self.assertEqual(
+            'my:language/my:language_value[{}]'.format(' and '.join(f'.!="{l.id}"' for l in languages)),
+            for_each_node.get('select')
+        )
 
     @skipIf(lcabMissing, 'Lcab seems not installed')
     def test_render01(self):

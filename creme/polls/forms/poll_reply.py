@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2018  Hybird
+#    Copyright (C) 2012-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,9 +27,11 @@ from django.http import Http404
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.auth import EntityCredentials
-from creme.creme_core.forms import (CremeForm, CremeEntityForm,
-        CreatorEntityField, MultiCreatorEntityField,
-        GenericEntityField, MultiGenericEntityField)
+from creme.creme_core.forms import (
+    CremeForm, CremeEntityForm,
+    CreatorEntityField, MultiCreatorEntityField,
+    GenericEntityField, MultiGenericEntityField,
+)
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.widgets import Label
 
@@ -110,7 +112,7 @@ class PollRepliesCreateForm(CremeForm):
         name = cleaned_data['name']
 
         if total_number != 1:
-            name += '#{}'.format(index)
+            name += f'#{index}'
 
         return PollReply(user=cleaned_data['user'], pform=self.pform,
                          type=self.pform.type, name=name,
@@ -187,11 +189,12 @@ class PollReplyFillForm(CremeForm):
 
         if number:
             # TODO: use NodeStyle ??
-            question.initial = '{} - {}'.format(number, line_node.question)
-            fields['not_applicable'] = BooleanField(label=gettext('Not applicable'),
-                                                    required=False,
-                                                    initial=not line_node.applicable,
-                                                   )
+            question.initial = f'{number} - {line_node.question}'
+            fields['not_applicable'] = BooleanField(
+                label=gettext('Not applicable'),
+                required=False,
+                initial=not line_node.applicable,
+            )
         else:
             question.label = _('Comment')
             question.initial = line_node.question

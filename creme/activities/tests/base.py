@@ -23,7 +23,7 @@ try:
     skip_activities_tests = activity_model_is_custom()
     Activity = get_activity_model()
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 Contact = get_contact_model()
 Organisation = get_organisation_model()

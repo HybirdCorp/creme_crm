@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019  Hybird
+#    Copyright (C) 2019-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,7 +61,7 @@ class AbstractListViewSearchFieldRegistry:
         @param indent: Indentation level.
         @return: A string.
         """
-        return ' ' * indent + '{}:'.format(type(self).__name__)
+        return ' ' * indent + f'{type(self).__name__}:'
 
     @staticmethod
     def _instantiate_builder(sfield_builder):
@@ -160,7 +160,7 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
                     builder=self._pretty_builder(builder, indent=indent + 6),
                 )
         else:
-            res += '\n{}    (empty)'.format(indent_str)
+            res += f'\n{indent_str}    (empty)'
 
         return res
 
@@ -273,7 +273,7 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
                 self._pretty_builder(builder, indent=indent + 6),
             )
 
-        res += '\n{}  Fields:'.format(indent_str)
+        res += f'\n{indent_str}  Fields:'
         modelfields = self._builders_4_modelfields
         if modelfields:
             for field, builder in modelfields.items():
@@ -283,7 +283,7 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
                     self._pretty_builder(builder, indent=indent + 6),
                 )
         else:
-            res += '\n{}    (empty)'.format(indent_str)
+            res += f'\n{indent_str}    (empty)'
 
         return res
 
@@ -358,7 +358,7 @@ class CustomFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
     def pretty(self, indent=0):
         indent_str = ' ' * indent
-        res = '{}{}:'.format(indent_str, type(self).__name__)
+        res = f'{indent_str}{type(self).__name__}:'
 
         for cfield_type, builder in self._builders.items():
             res += '\n{}  [{}]:\n{}'.format(
@@ -402,7 +402,7 @@ class FunctionFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
     def pretty(self, indent=0):
         indent_str = ' ' * indent
-        res = '{}{}:'.format(indent_str, type(self).__name__)
+        res = f'{indent_str}{type(self).__name__}:'
         builders = self._builders
 
         if builders:
@@ -413,7 +413,7 @@ class FunctionFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
                     self._pretty_builder(builder, indent=indent + 4),
                 )
         else:
-            res += '\n{}  (empty)'.format(indent_str)
+            res += f'\n{indent_str}  (empty)'
 
         return res
 
@@ -503,7 +503,7 @@ class ListViewSearchFieldRegistry(AbstractListViewSearchFieldRegistry):
 
     def pretty(self, indent=0):
         indent_str = ' ' * indent
-        res = indent_str + '{}:'.format(type(self).__name__)
+        res = f'{indent_str}{type(self).__name__}:'
 
         def get_alias(cell_id):
             try:
@@ -511,7 +511,7 @@ class ListViewSearchFieldRegistry(AbstractListViewSearchFieldRegistry):
             except KeyError:
                 return '??'
 
-            return '{}.type_id'.format(cell_cls.__name__)
+            return f'{cell_cls.__name__}.type_id'
 
         for cell_id, registry in self._registries.items():
             res += '\n{indent}  [{alias}="{id}"]:\n{registry}'.format(

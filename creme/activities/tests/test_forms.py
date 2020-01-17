@@ -8,7 +8,7 @@ try:
     from ..models import ActivityType, ActivitySubType
     from ..forms.activity_type import ActivityTypeField
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 __all__ = ('ActivityTypeFieldTestCase',)

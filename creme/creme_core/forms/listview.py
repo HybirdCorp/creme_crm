@@ -204,16 +204,16 @@ class DateRangeLVSWidget(ListViewSearchWidget):
 
         id_ = w_ctxt['attrs'].pop('id', None)
         if id_:
-            w_ctxt['id_start'] = '{}-start'.format(id_)
-            w_ctxt['id_end']   = '{}-end'.format(id_)
+            w_ctxt['id_start'] = f'{id_}-start'
+            w_ctxt['id_end']   = f'{id_}-end'
 
         return context
 
     def value_from_datadict(self, data, files, name):
         get = data.get
         return [
-            get('{}-start'.format(name), ''),
-            get('{}-end'.format(name), ''),
+            get(f'{name}-start', ''),
+            get(f'{name}-end', ''),
         ]
 
 
@@ -393,7 +393,7 @@ class RegularCharField(ListViewSearchField):
     widget = TextLVSWidget
 
     def to_python(self, value):
-        return Q(**{'{}__contains'.format(self.cell.value): value}) if value else Q()
+        return Q(**{f'{self.cell.value}__contains': value}) if value else Q()
 
 
 class RegularBooleanField(ListViewSearchField):
@@ -422,7 +422,7 @@ class RegularBooleanField(ListViewSearchField):
 class RegularOperationsFieldMixin:
     def _build_q_from_operations(self, operations):
         return Q(**{
-            '{}__{}'.format(self.cell.value, op): number
+            f'{self.cell.value}__{op}': number
                 for op, number in operations
         })
 
@@ -470,7 +470,7 @@ class RegularChoiceField(BaseChoiceField):
         return Q(**{self.cell.value: choice_value})
 
     def _get_q_for_null_choice(self):
-        return Q(**{'{}__isnull'.format(self.cell.value): True})
+        return Q(**{f'{self.cell.value}__isnull': True})
 
 
 class RegularDateField(ListViewSearchField):
@@ -534,7 +534,7 @@ class RegularRelatedField(ListViewSearchField):
         except AttributeError:
             null_label = ''
 
-        return '* {} *'.format(null_label) if null_label else self.default_null_label
+        return f'* {null_label} *' if null_label else self.default_null_label
 
     def to_python(self, value):
         if value:
@@ -542,7 +542,7 @@ class RegularRelatedField(ListViewSearchField):
                 pk = choice['value']
 
                 if value == str(pk):
-                    return Q(**{'{}__isnull'.format(self.cell.value): True}) \
+                    return Q(**{f'{self.cell.value}__isnull': True}) \
                            if value == NULL else \
                            Q(**{self.cell.value: pk})
 
@@ -555,7 +555,7 @@ class EntityRelatedField(ListViewSearchField):
     widget = TextLVSWidget  # TODO: widget to get NULL ForeignKeys too
 
     def to_python(self, value):
-        return Q(**{'{}__header_filter_search_field__icontains'.format(self.cell.value): value}) \
+        return Q(**{f'{self.cell.value}__header_filter_search_field__icontains': value}) \
                if value else \
                super().to_python(value=value)
 
@@ -594,7 +594,7 @@ class CustomOperationsFieldMixin:
             pk__in=cfield.get_value_class()
                          .objects
                          .filter(custom_field=cfield,
-                                 **{'value__{}'.format(op): number
+                                 **{f'value__{op}': number
                                         for op, number in operations
                                    }
                                 )
@@ -771,7 +771,7 @@ class ListViewSearchForm(CremeForm):
         @return: A dictionary.
         """
         base_prefix = self.prefix
-        prefix = '{}-'.format(base_prefix) if base_prefix else ''
+        prefix = f'{base_prefix}-' if base_prefix else ''
 
         # NB: we could filter in a better way, but it's probably not a real issue
         #     that users can store crappy data in their session...

@@ -126,6 +126,7 @@ class TemplateURLBuilder:
             else:
                 return url
 
-        raise TemplateURLBuilderError('Cannot generate a URL because of a collision '
-                                      '(we tried these URLs -- with place holders --: {})'.format(' '.join(tried_urls))
-                                     )
+        raise TemplateURLBuilderError(
+            'Cannot generate a URL because of a collision '
+            '(we tried these URLs -- with place holders --: {})'.format(' '.join(tried_urls))
+        )

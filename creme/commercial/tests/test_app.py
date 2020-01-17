@@ -15,7 +15,7 @@ try:
             REL_SUB_COMPLETE_GOAL, PROP_IS_A_SALESMAN)
     from .base import Act, Contact
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class CommercialTestCase(CremeTestCase):

@@ -24,7 +24,7 @@ try:
     from .. import constants
     from ..bricks import UsersBrick, TeamsBrick, BrickMypageLocationsBrick
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 def skipIfNotCremeUser(test_func):

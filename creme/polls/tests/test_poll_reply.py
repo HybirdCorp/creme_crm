@@ -21,17 +21,21 @@ try:
     from creme.activities.models import ActivityType
     from creme.activities.tests.base import skipIfCustomActivity
 
-    from .base import (_PollsTestCase, skipIfCustomPollForm,
-            skipIfCustomPollReply, skipIfCustomPollCampaign,
-            PollCampaign, PollForm, PollReply)
+    from .base import (
+        _PollsTestCase,
+        skipIfCustomPollForm, skipIfCustomPollReply, skipIfCustomPollCampaign,
+        PollCampaign, PollForm, PollReply,
+    )
     from ..bricks import PollReplyLinesBrick
     from ..core import PollLineType
-    from ..models import (PollType,
-            PollFormSection,  PollFormLine,  PollFormLineCondition,
-            PollReplySection, PollReplyLine, PollReplyLineCondition)
+    from ..models import (
+        PollType,
+        PollFormSection,  PollFormLine,  PollFormLineCondition,
+        PollReplySection, PollReplyLine, PollReplyLineCondition,
+    )
     from ..utils import SectionTree, StatsTree
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 Contact = get_contact_model()
 Organisation = get_organisation_model()
@@ -45,11 +49,11 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         try:
             question_f = response.context['form'].fields['question']
         except KeyError as e:
-            self.fail('It seems that the form is already complete (<{}> occurred: {})'.format(
-                            e.__class__.__name__, e)
-                     )
+            self.fail(
+                f'It seems that the form is already complete (<{e.__class__.__name__}> occurred: {e})'
+             )
 
-        self.assertEqual('{} - {}'.format(line_number or fline.order, fline.question),
+        self.assertEqual(f'{line_number or fline.order} - {fline.question}',
                          question_f.initial
                         )
 
@@ -525,7 +529,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(count + 4, PollReply.objects.count())
 
         for i, entity in enumerate([leina, claudette, gaimos, amara], start=1):
-            preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
+            preply = self.get_object_or_fail(PollReply, name=f'{name}#{i}')
             self.assertEqual(entity, preply.person.get_real_entity())
 
     def test_create_from_pollform01(self):
@@ -628,7 +632,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         for i in range(1, reply_number + 1):
-            preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
+            preply = self.get_object_or_fail(PollReply, name=f'{name}#{i}')
             self.assertEqual(pform, preply.pform)
             self.assertEqual(2,     preply.lines.count())
 
@@ -750,7 +754,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     @skipIfCustomContact
     def test_link_to_error01(self):
-        "CHANGE credentials error"
+        "CHANGE credentials error."
         user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
@@ -764,12 +768,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         preply = PollReply.objects.create(user=self.other_user, name='Reply#1', pform=pform)
 
         leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
-        response = self.assertPOST200(self._build_linkto_url(leina),
-                                      data={'replies': '[{}]'.format(preply.id)}
-                                     )
-        self.assertFormError(response, 'form', 'replies', 
-                             _('Some entities are not editable: {}').format(preply)
-                            )
+        response = self.assertPOST200(
+            self._build_linkto_url(leina),
+            data={'replies': self.formfield_value_multi_creator_entity(preply)},
+        )
+        self.assertFormError(
+            response, 'form', 'replies',
+            _('Some entities are not editable: {}').format(preply)
+        )
 
     @skipIfCustomActivity
     def test_link_to_error02(self):
@@ -1223,7 +1229,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             question_f = context['form'].fields['question']
 
-        self.assertEqual('1 - {}'.format(fline.question), question_f.initial)
+        self.assertEqual(f'1 - {fline.question}', question_f.initial)
 
         answer = 'The 2 legs are equal, almost the right one.'
         self.assertNoFormError(self.client.post(url, follow=True, data={'answer': answer}))
@@ -1498,8 +1504,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             question_f = response.context['form'].fields['question']
 
-        self.assertEqual('2 - {}'.format(rline2.question), question_f.initial)
-        self.assertContains(response, '1 - {}'.format(rline1.question))
+        self.assertEqual(f'2 - {rline2.question}', question_f.initial)
+        self.assertContains(response, f'1 - {rline1.question}')
 
         answer = 'Betty'
         response = self._fill(preply, answer)
@@ -1644,7 +1650,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertFalse(self.refresh(rline1).applicable)
 
         self.assertContains(self.client.get(self._build_fill_url(preply)),
-                            '1 - {}'.format(rline1.question)
+                            f'1 - {rline1.question}'
                            )
 
         answer = 'Betty'
@@ -1707,7 +1713,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             fields = context['form'].fields
 
         self.assertIn('question', fields)
-        self.assertEqual('1 - {}'.format(question), fields['question'].initial)
+        self.assertEqual(f'1 - {question}', fields['question'].initial)
         self.assertIn('answer', fields)
         self.assertEqual(old_answer, fields['answer'].initial)
 

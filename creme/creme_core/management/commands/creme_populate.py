@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,9 +35,9 @@ from creme.creme_core.utils.dependence_sort import dependence_sort
 
 def _checked_app_label(app_label, app_labels):
     if app_label not in app_labels:
-        raise CommandError('"{}" seems not to be a Creme app '
-                           '(see settings.INSTALLED_CREME_APPS)'.format(app_label)
-                          )
+        raise CommandError(
+            f'"{app_label}" seems not to be a Creme app (see settings.INSTALLED_CREME_APPS)'
+        )
 
     return app_label
 
@@ -54,7 +54,7 @@ class BasePopulator:
         self.build_dependencies(all_apps)
 
     def __repr__(self):
-        return '<Populator({})>'.format(self.app)
+        return f'<Populator({self.app})>'
 
     def build_dependencies(self, apps_set):
         deps = []
@@ -63,7 +63,7 @@ class BasePopulator:
             try:
                 deps.append(_checked_app_label(dep, apps_set))
             except CommandError as e:
-                self.stdout.write('BEWARE: ignored dependencies "{}", {}'.format(dep, e),
+                self.stdout.write(f'BEWARE: ignored dependencies "{dep}", {e}',
                                   self.style.NOTICE,
                                  )
 
@@ -160,7 +160,7 @@ class Command(BaseCommand):
             try:
                 populator.populate()
             except Exception as e:
-                self.stderr.write(' Populate "{}" failed ({})'.format(populator.app, e))
+                self.stderr.write(f' Populate "{populator.app}" failed ({e})')
                 if verbosity >= 1:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
                     self.stderr.write(''.join(format_exception(exc_type, exc_value, exc_traceback)))
@@ -201,10 +201,10 @@ class Command(BaseCommand):
             mod = import_module(apps.get_app_config(app_label).name + '.populate')
         except ImportError:
             if verbosity >= 1:
-                self.stdout.write(self.style.NOTICE('Disable populate for "{}": '
-                                                    'it does not have any "populate.py" script.'.format(app_label)
-                                                   )
-                                 )
+                self.stdout.write(self.style.NOTICE(
+                    f'Disable populate for "{app_label}": '
+                    f'it does not have any "populate.py" script.'
+                ))
 
             return None
 
@@ -212,16 +212,19 @@ class Command(BaseCommand):
 
         if populator_class is None:
             if verbosity >= 1:
-                self.stdout.write(self.style.NOTICE('Disable populate for "{}": '
-                                                    'its populate.py script has no "Populator" class.'.format(app_label)
-                                                   )
-                                 )
+                self.stdout.write(self.style.NOTICE(
+                    f'Disable populate for "{app_label}": '
+                    f'its populate.py script has no "Populator" class.'
+                ))
 
             return None
 
         try:
             populator = populator_class(verbosity, app_label, all_apps, options, self.stdout, self.style)
         except Exception as e:
-            self.stderr.write('Disable populate for "{}": error when creating populator [{}].'.format(app_label, e))
+            self.stderr.write(
+                f'Disable populate for "{app_label}": '
+                f'error when creating populator [{e}].'
+            )
         else:
             return populator

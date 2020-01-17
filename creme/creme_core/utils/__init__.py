@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2018 Hybird
+# Copyright (c) 2009-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -53,7 +53,7 @@ def get_ct_or_404(ct_id):
     try:
         ct = ContentType.objects.get_for_id(ct_id)
     except ContentType.DoesNotExist as e:
-        raise Http404('No content type with this id: {}'.format(ct_id)) from e
+        raise Http404(f'No content type with this id: {ct_id}') from e
 
     return ct
 
@@ -138,7 +138,7 @@ def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
 
     if value is None:
         if 'default' not in kwargs:
-            raise Http404('No {} argument with this key: "{}".'.format(method_name, key))
+            raise Http404(f'No {method_name} argument with this key: "{key}".')
 
         value = kwargs['default']
 
@@ -146,7 +146,9 @@ def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
         try:
             value = cast(value)
         except Exception as e:
-            raise Http404('Problem with argument "{}" : it can not be coerced ({})'.format(key, str(e))) from e
+            raise Http404(
+                f'Problem with argument "{key}" : it can not be coerced ({e})'
+            ) from e
 
     return value
 
@@ -205,13 +207,13 @@ def related2unicode(entity, user):
     """Return a unicode object representing a related entity with its owner,
     with care of permissions of this owner.
     """
-    return '{} - {}'.format(entity.get_related_entity().allowed_str(user), entity)
+    return f'{entity.get_related_entity().allowed_str(user)} - {entity}'
 
 
 __BFS_MAP = {
-        'true':  True,
-        'false': False,
-    }
+    'true':  True,
+    'false': False,
+}
 
 
 def bool_from_str(string):
@@ -220,7 +222,7 @@ def bool_from_str(string):
     if b is not None:
         return b
 
-    raise ValueError('Can not be coerced to a boolean value: {}'.format(string))
+    raise ValueError(f'Can not be coerced to a boolean value: {string}')
 
 
 def bool_from_str_extended(value):
@@ -228,7 +230,9 @@ def bool_from_str_extended(value):
     if value in {'1', 'true'}: return True
     if value in {'0', 'false'}: return False
 
-    raise ValueError('Can not be coerced to a boolean value: {}; must be in 0/1/false/true'.format(value))
+    raise ValueError(
+        f'Can not be coerced to a boolean value: {value}; must be in 0/1/false/true'
+    )
 
 
 @mark_safe
@@ -240,13 +244,14 @@ def bool_as_html(b):
         checked = ''
         label = _('No')
 
-    return '<input type="checkbox" {}disabled/>{}'.format(checked, label)
+    return f'<input type="checkbox" {checked}disabled/>{label}'
 
 
-_I2R_NUMERAL_MAP = [(1000, 'M'),  (900, 'CM'), (500, 'D'),  (400, 'CD'), (100, 'C'),
-                    (90,   'XC'), (50,  'L'),  (40,  'XL'), (10,  'X'),  (9,   'IX'),
-                    (5,    'V'),  (4,   'IV'), (1,   'I'),
-                   ]
+_I2R_NUMERAL_MAP = [
+    (1000, 'M'),  (900, 'CM'), (500, 'D'),  (400, 'CD'), (100, 'C'),
+    (90,   'XC'), (50,  'L'),  (40,  'XL'), (10,  'X'),  (9,   'IX'),
+    (5,    'V'),  (4,   'IV'), (1,   'I'),
+]
 
 
 # Thx to: http://www.daniweb.com/software-development/python/code/216865/roman-numerals-python

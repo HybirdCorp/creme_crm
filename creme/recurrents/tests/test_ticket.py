@@ -22,7 +22,7 @@ try:
     from .base import skipIfCustomGenerator, RecurrentGenerator
     from ..creme_jobs import recurrents_gendocs_type
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 Ticket = get_ticket_model()

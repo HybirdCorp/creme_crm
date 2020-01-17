@@ -11,7 +11,7 @@ try:
     from ..models import EmailSignature
     from ..utils import get_mime_image, EMailSender
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
@@ -35,7 +35,7 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
         with self.assertNoException():
             content_id = imime['Content-ID']
 
-        self.assertEqual('<img_{}>'.format(img.id), content_id)
+        self.assertEqual(f'<img_{img.id}>', content_id)
 
         with self.assertNoException():
             content_disp = imime['Content-Disposition']
@@ -103,7 +103,7 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
         message = messages[0]
         self.assertEqual(MySender.subject, message.subject)
-        self.assertEqual('{}\n--\n{}'.format(body, signature.body), message.body)
+        self.assertEqual(f'{body}\n--\n{signature.body}', message.body)
         self.assertEqual(mail.sender, message.from_email)
 
         alternatives = message.alternatives
@@ -111,12 +111,13 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
         alternative = alternatives[0]
         self.assertEqual('text/html', alternative[1])
-        self.assertEqual(body_html + '\n--\n' + signature.body +
-                            '<img src="cid:img_{}" /><br/><img src="cid:img_{}" /><br/>'.format(
-                                    img1.id, img2.id
-                                ),
-                         alternative[0]
-                        )
+        self.assertEqual(
+            body_html
+            + '\n--\n'
+            + signature.body
+            + f'<img src="cid:img_{img1.id}" /><br/><img src="cid:img_{img2.id}" /><br/>',
+            alternative[0]
+        )
 
         attachments = message.attachments
         self.assertEqual(2, len(attachments))

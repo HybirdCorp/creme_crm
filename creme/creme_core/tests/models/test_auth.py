@@ -36,7 +36,7 @@ try:
     from creme.documents.models import Document, Folder
     from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class CredentialsTestCase(CremeTestCase):

@@ -42,7 +42,7 @@ try:
 
     from .base import AssistantsTestCase
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
@@ -218,7 +218,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
     def test_brick_reload01(self):
         "Detailview."
         for i in range(1, 4):
-            self._create_todo('Todo{}'.format(i), 'Description {}'.format(i))
+            self._create_todo(f'Todo{i}', f'Description {i}')
 
         todos = ToDo.objects.filter(entity=self.entity.id)
         self.assertEqual(3, len(todos))

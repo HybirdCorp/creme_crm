@@ -57,7 +57,7 @@ try:
     from creme.creme_core.utils.profiling import CaptureQueriesContext
     from creme.creme_core.utils.queries import QSerializer
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class ListViewTestCase(ViewsTestCase):
@@ -92,14 +92,14 @@ class ListViewTestCase(ViewsTestCase):
         for sql in captured_sql:
             if sql.startswith('SELECT COUNT(*)') and sql != trash_sql:
                 if 'INNER JOIN' in sql:
-                    self.fail('slow COUNT query found: {}'.format(sql))
+                    self.fail(f'slow COUNT query found: {sql}')
 
                 optimized_counts.append(sql)
 
         if len(optimized_counts) != 1:
             self.fail('{} fast queries found in:\n{}'.format(
                 len(optimized_counts),
-                '\n'.join(' - {}'.format(sql) for sql in optimized_counts),
+                '\n'.join(f' - {sql}' for sql in optimized_counts),
             ))
 
     def _assertNoDistinct(self, captured_sql):
@@ -120,10 +120,10 @@ class ListViewTestCase(ViewsTestCase):
 
         joined_sql = '\n'.join(captured_sql)
         self.assertTrue(count_q_found,
-                        'Not COUNT query found in {}'.format(joined_sql)
+                        f'Not COUNT query found in {joined_sql}'
                        )
         self.assertTrue(entities_q_found,
-                        'Not query (which retrieve entities) found in {}'.format(joined_sql)
+                        f'Not query (which retrieve entities) found in {joined_sql}'
                        )
 
     def _get_lv_node(self, response):
@@ -153,7 +153,7 @@ class ListViewTestCase(ViewsTestCase):
         tr_node = thead_node.find(".//tr[@class='lv-search-header']")
         self.assertIsNotNone(tr_node)
 
-        widget_nodes = tr_node.findall(".//{}[@name='search-{}']".format(input_type, cell_key))
+        widget_nodes = tr_node.findall(f".//{input_type}[@name='search-{cell_key}']")
         self.assertEqual(count, len(widget_nodes))
 
         return widget_nodes
@@ -162,7 +162,7 @@ class ListViewTestCase(ViewsTestCase):
         tr_node = lv_node.find(".//thead//tr[@class='lv-search-header']")
         self.assertIsNotNone(tr_node)
 
-        input_node = tr_node.find(".//*[@name='{}']".format(cell_key))
+        input_node = tr_node.find(f".//*[@name='{cell_key}']")
         self.assertIsNone(input_node)
 
     def _get_lv_inputs_content(self, lv_node):
@@ -304,7 +304,7 @@ class ListViewTestCase(ViewsTestCase):
         rtype_cell_content = content[5]
         self.assertIsInstance(rtype_cell_content, list)
         self.assertEqual(1, len(rtype_cell_content))
-        self.assertEqual('<a href="/tests/contact/{id}">{value}</a>'.format(id=spike.id, value=spike).encode(),
+        self.assertEqual(f'<a href="/tests/contact/{spike.id}">{spike}</a>'.encode(),
                          html_tostring(rtype_cell_content[0]).strip()
                         )
 
@@ -313,11 +313,10 @@ class ListViewTestCase(ViewsTestCase):
         ptype_cell_content = content[6]
         self.assertIsInstance(ptype_cell_content, list)
         self.assertEqual(1, len(ptype_cell_content))
-        self.assertEqual('<ul><li><a href="{}">{}</a></li></ul>'.format(
-                                ptype1.get_absolute_url(), ptype1.text,
-                            ).encode(),
-                         html_tostring(ptype_cell_content[0]).strip()
-                        )
+        self.assertEqual(
+            f'<ul><li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li></ul>'.encode(),
+            html_tostring(ptype_cell_content[0]).strip()
+        )
         self.assertNotIn(ptype2.text, content)  # NB: not really useful...
 
         self.assertIn(cfield.name, titles)
@@ -402,7 +401,7 @@ class ListViewTestCase(ViewsTestCase):
         def post(selection):
             response = self.assertPOST200(self.url, data={'selection': selection})
             self.assertInHTML(
-                '<input class="lv-state-field" value="{}" name="selection" type="hidden" />'.format(selection),
+                f'<input class="lv-state-field" value="{selection}" name="selection" type="hidden" />',
                 force_text(response.content)
             )
 
@@ -422,7 +421,7 @@ class ListViewTestCase(ViewsTestCase):
         def get(selection):
             response = self.assertGET200(self.url, data={'selection': selection})
             self.assertInHTML(
-                '<input class="lv-state-field" value="{}" name="selection" type="hidden" />'.format(selection),
+                f'<input class="lv-state-field" value="{selection}" name="selection" type="hidden" />',
                 force_text(response.content)
             )
 
@@ -910,7 +909,7 @@ class ListViewTestCase(ViewsTestCase):
         if not main_sql:
             self.fail('No main Listview query in:\n{}'.format('\n'.join(context.captured_sql)))
         elif len(main_sql) >= 2:
-            self.fail('There should be one SQL query: {}'.format(main_sql))
+            self.fail(f'There should be one SQL query: {main_sql}')
 
         return main_sql[0]
 
@@ -1089,15 +1088,15 @@ class ListViewTestCase(ViewsTestCase):
         dl_url = '{}?ct_id={}'.format(reverse('creme_core__mass_export'), ct_id)
         dl_uri = data_hrefs[1]
         self.assertTrue(dl_uri.startswith(dl_url),
-                        'URI <{}> does not starts with <{}>'.format(dl_uri, dl_url)
+                        f'URI <{dl_uri}> does not starts with <{dl_url}>'
                        )
-        self.assertIn('hfilter={}'.format(hf.id),     dl_uri)
-        self.assertIn('&extra_q={}'.format(urlquote(q_filter)), dl_uri)
-        self.assertIn('&search-regular_field-phone={}'.format(urlquote(searched_phone)), dl_uri)
+        self.assertIn(f'hfilter={hf.id}', dl_uri)
+        self.assertIn(f'&extra_q={urlquote(q_filter)}', dl_uri)
+        self.assertIn(f'&search-regular_field-phone={urlquote(searched_phone)}', dl_uri)
 
         dl_header_uri = data_hrefs[2]
         self.assertTrue(dl_header_uri.startswith(dl_url),
-                        'URI <{}> does not starts with <{}>'.format(dl_header_uri, dl_url)
+                        f'URI <{dl_header_uri}> does not starts with <{dl_url}>'
                        )
         self.assertIn('&header=true', dl_header_uri)
 
@@ -1300,9 +1299,9 @@ class ListViewTestCase(ViewsTestCase):
             return self.assertPOST200(
                 url,
                 data={'hfilter': hf.id,
-                      'search-{}-start'.format(ckey): start,
-                      'search-{}-end'.format(ckey): end,
-                     }
+                      f'search-{ckey}-start': start,
+                      f'search-{ckey}-end': end,
+                     },
             )
 
         response = post('1-1-2075')
@@ -1361,8 +1360,8 @@ class ListViewTestCase(ViewsTestCase):
             response = self.assertPOST200(
                 url,
                 data={'hfilter': hf.id,
-                      'search-{}-start'.format(cell.key): start,
-                      'search-{}-end'.format(cell.key): end,
+                      f'search-{cell.key}-start': start,
+                      f'search-{cell.key}-end': end,
                      },
             )
             return self._get_lv_content(self._get_lv_node(response))
@@ -2248,8 +2247,8 @@ class ListViewTestCase(ViewsTestCase):
             ckey = cell.key
             response = self.assertPOST200(self.url,
                                           data={'hfilter': hf.id,
-                                                'search-{}-start'.format(ckey): start,
-                                                'search-{}-end'.format(ckey): end,
+                                                f'search-{ckey}-start': start,
+                                                f'search-{ckey}-end': end,
                                                },
                                          )
             return self._get_lv_content(self._get_lv_node(response))
@@ -2310,11 +2309,11 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf(cell_flight, cell_blood)
         response = self.assertPOST200(self.url,
                                       data={'hfilter': hf.id,
-                                            'search-{}-start'.format(cell_flight.key): '1-1-2074',
-                                            'search-{}-end'.format(cell_flight.key): '31-12-2074',
+                                            f'search-{cell_flight.key}-start': '1-1-2074',
+                                            f'search-{cell_flight.key}-end':   '31-12-2074',
 
-                                            'search-{}-start'.format(cell_blood.key): '',
-                                            'search-{}-end'.format(cell_blood.key): '1-1-2075',
+                                            f'search-{cell_blood.key}-start': '',
+                                            f'search-{cell_blood.key}-end':   '1-1-2075',
                                            },
                                      )
         content = self._get_lv_content(self._get_lv_node(response))
@@ -2445,7 +2444,7 @@ class ListViewTestCase(ViewsTestCase):
 
         create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         for i in range(expected_count - count):
-            create_orga(name='Mafia #{:02}'.format(i))
+            create_orga(name=f'Mafia #{i:02}')
 
         organisations = [*FakeOrganisation.objects.all()]
         self.assertEqual(expected_count, len(organisations))
@@ -2599,7 +2598,7 @@ class ListViewTestCase(ViewsTestCase):
 
         create_contact = partial(FakeContact.objects.create, user=user)
         for i in range(expected_count - count):
-            create_contact(first_name='Gally', last_name='Tuned{:02}'.format(i))
+            create_contact(first_name='Gally', last_name=f'Tuned{i:02}')
 
         contacts = [*FakeContact.objects.all()]
         self.assertEqual(expected_count, len(contacts))
@@ -2667,8 +2666,8 @@ class ListViewTestCase(ViewsTestCase):
         create_contact = partial(FakeContact.objects.create, user=user)
         for i, id_ in enumerate(ids):
             # NB: we want the ordering by 'first_name' to be different from the 'last_name' one
-            create_contact(first_name='Gally{:02}'.format(id_),
-                           last_name='Tuned{:02}'.format(i),
+            create_contact(first_name=f'Gally{id_:02}',
+                           last_name=f'Tuned{i:02}',
                           )
 
         ordering_fname = 'first_name'
@@ -2775,7 +2774,7 @@ class ListViewTestCase(ViewsTestCase):
 
         create_contact = partial(FakeContact.objects.create, user=user)
         for i in range(expected_count - count):
-            create_contact(first_name='Gally', last_name='Tuned#{:02}'.format(i))
+            create_contact(first_name='Gally', last_name=f'Tuned#{i:02}')
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact', name='Order02 view', model=FakeContact,
@@ -2826,7 +2825,7 @@ class ListViewTestCase(ViewsTestCase):
 
         create_contact = partial(FakeContact.objects.create, user=user)
         for i in range(expected_count - count):
-            create_contact(first_name='Gally', last_name='Tuned#{:02}'.format(i))
+            create_contact(first_name='Gally', last_name=f'Tuned#{i:02}')
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact', name='Order02 view', model=FakeContact,
@@ -3027,7 +3026,7 @@ class ListViewTestCase(ViewsTestCase):
             ):
                 break
         else:
-            self.fail('No slow count message found in {}'.format(logs_manager.output))
+            self.fail(f'No slow count message found in {logs_manager.output}')
 
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_credentials_with_filter02(self):

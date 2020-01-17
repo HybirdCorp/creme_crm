@@ -9,7 +9,7 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class PropertyTypeTestCase(CremeTestCase):
@@ -43,7 +43,7 @@ class PropertyTypeTestCase(CremeTestCase):
             if prop_type.text == text:
                 return prop_type
 
-        self.fail('No property <{}>'.format(text))
+        self.fail(f'No property <{text}>')
 
     def test_create01(self):
         self.login()

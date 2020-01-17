@@ -71,7 +71,7 @@ def prepare_patterns(patterns, setting_name):
         try:
             re.compile(pattern, re.U)
         except re.error:
-            raise ValueError('Pattern "{}" cannot be compiled in {}'.format(pattern, setting_name))
+            raise ValueError(f'Pattern "{pattern}" cannot be compiled in {setting_name}')
 
     # Now return a combined pattern
     return re.compile('^(' + ')$|^('.join(patterns) + ')$', re.U)
@@ -80,10 +80,10 @@ def prepare_patterns(patterns, setting_name):
 def get_production_mapping():
     if NAMES is None:
         raise ImportError(
-            'Could not import {}. This file is needed for production mode. Please '
-            'run manage.py generatemedia to create it.'.format(
-                        GENERATED_MEDIA_NAMES_MODULE
-        ))
+            f'Could not import {GENERATED_MEDIA_NAMES_MODULE}. '
+            f'This file is needed for production mode. '
+            f'Please run manage.py generatemedia to create it.'
+        )
 
     return NAMES
 
@@ -167,12 +167,12 @@ def _load_backend(path):
         mod = import_module(module_name)
     except (ImportError, ValueError) as e:
         raise ImproperlyConfigured(
-            'Error importing backend module {}: "{}"'.format(module_name, e)
+            f'Error importing backend module {module_name}: "{e}"'
         )
 
     try:
         return getattr(mod, attr_name)
     except AttributeError:
         raise ImproperlyConfigured(
-            'Module "{}" does not define a "{}" backend'.format(module_name, attr_name)
+            f'Module "{module_name}" does not define a "{attr_name}" backend'
         )

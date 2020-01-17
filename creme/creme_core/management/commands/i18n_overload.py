@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2018 Hybird
+# Copyright (c) 2009-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -113,15 +113,15 @@ class Command(BaseCommand):
         catalog_dirpath, catalog_path = self._get_catalog_paths(language, file_name)
 
         if not exists(catalog_path):
-            raise CommandError('no existing overloading {} found in "{}".'.format(
-                                        file_name, catalog_dirpath,
-                                    )
-                              )
+            raise CommandError(
+                f'no existing overloading {file_name} found in "{catalog_dirpath}".'
+            )
 
         catalog = polib.pofile(catalog_path)
-        overloading_entries = {entry.msgid: entry
-                                   for entry in catalog.translated_entries()
-                              }
+        overloading_entries = {
+            entry.msgid: entry
+                for entry in catalog.translated_entries()
+        }
 
         for app_pofile in self._iter_pofiles(language, polib, file_name):
             for entry in app_pofile.translated_entries():
@@ -132,7 +132,9 @@ class Command(BaseCommand):
                 self.stdout.write('No useless entry')
         else:
             if verbosity >= 1:
-                self.stdout.write('{} useless entries found and commented:'.format(len(overloading_entries)))
+                self.stdout.write(
+                    f'{len(overloading_entries)} useless entries found and commented:'
+                )
 
             for msgid, entry in overloading_entries.items():
                 self.stdout.write(msgid)
@@ -156,7 +158,7 @@ class Command(BaseCommand):
                 catalog_entries[entry.msgid] = entry
         else:
             if verbosity >= 1:
-                self.stdout.write('Create catalog at {}'.format(catalog_path))
+                self.stdout.write(f'Create catalog at {catalog_path}')
 
             if not exists(catalog_dirpath):
                 makedirs(catalog_dirpath)
@@ -166,15 +168,15 @@ class Command(BaseCommand):
 
             catalog = polib.POFile()
             catalog.metadata = {
-                    'Project-Id-Version':        'PACKAGE VERSION',
-                    'Report-Msgid-Bugs-To':      '',
-                    'PO-Revision-Date':          'YEAR-MO-DA HO:MI+ZONE',
-                    'Last-Translator':           'FULL NAME <EMAIL@ADDRESS>',
-                    'Language-Team':             'LANGUAGE <LL@li.org>',
-                    'MIME-Version':              '1.0',
-                    'Content-Type':              'text/plain; charset=UTF-8',
-                    'Content-Transfer-Encoding': '8bit',
-                }
+                'Project-Id-Version':        'PACKAGE VERSION',
+                'Report-Msgid-Bugs-To':      '',
+                'PO-Revision-Date':          'YEAR-MO-DA HO:MI+ZONE',
+                'Last-Translator':           'FULL NAME <EMAIL@ADDRESS>',
+                'Language-Team':             'LANGUAGE <LL@li.org>',
+                'MIME-Version':              '1.0',
+                'Content-Type':              'text/plain; charset=UTF-8',
+                'Content-Transfer-Encoding': '8bit',
+            }
 
         catalog.metadata['POT-Creation-Date'] = pytz.timezone(settings.TIME_ZONE) \
                                                     .localize(datetime.now()) \
@@ -210,14 +212,15 @@ class Command(BaseCommand):
 
         if not catalog.fpath and all_plural_forms:  # Creation of the file
             if len(all_plural_forms) > 1:
-                self.stderr.write('Different information about plural forms were found (first one used):{}'.format(
-                                        ''.join('\n - {}'.format(i) for i in all_plural_forms)
-                                    )
-                                 )
+                self.stderr.write(
+                    'Different information about plural forms were found (first one used):{}'.format(
+                        ''.join(f'\n - {i}' for i in all_plural_forms)
+                    )
+                )
 
             catalog.metadata['Plural-Forms'] = next(iter(all_plural_forms))
 
         catalog.save(catalog_path)
 
         if verbosity >= 1:
-            self.stdout.write('Number of examined entries: {}'.format(entry_count))
+            self.stdout.write(f'Number of examined entries: {entry_count}')

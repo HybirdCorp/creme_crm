@@ -80,7 +80,7 @@ class EntityFilterManager(models.Manager):
         efilters = [*self.filter(Q(pk=base_pk) | Q(pk__startswith=base_pk + '['))]
 
         if not efilters:
-            raise self.model.DoesNotExist('No EntityFilter with pk="{}"'.format(base_pk))
+            raise self.model.DoesNotExist(f'No EntityFilter with pk="{base_pk}"')
 
         VERSION_RE = compile_re(
             r'([\w,-]+)(\[(?P<version_num>\d[\d\.]+)( (?P<version_mod>alpha|beta|rc)(?P<version_modnum>\d+)?)?\](?P<copy_num>\d+)?)?$'
@@ -126,8 +126,8 @@ class EntityFilterManager(models.Manager):
         """
         if user.is_team:
             raise ValueError(
-                'EntityFilterManager.filter_by_user(): '
-                'user cannot be a team ({})'.format(user)
+                f'EntityFilterManager.filter_by_user(): '
+                f'user cannot be a team ({user})'
             )
 
         qs = self.filter(filter_type=EF_USER)
@@ -149,8 +149,8 @@ class EntityFilterManager(models.Manager):
 
         if any((c in forbidden) for c in pk):
             raise ValueError(
-                'EntityFilterManager.smart_update_or_create(): '
-                'invalid character in "pk" (forbidden: {})'.format(forbidden)
+                f'EntityFilterManager.smart_update_or_create(): '
+                f'invalid character in "pk" (forbidden: {forbidden})'
             )
 
         if is_private:
@@ -231,8 +231,8 @@ class EntityFilterManager(models.Manager):
                    not EntityFilterCondition.conditions_equal(conditions, ef.get_conditions()):
                     from creme import __version__
 
-                    new_pk = '{}[{}]'.format(pk, __version__)
-                    new_name = '{} [{}]'.format(name, __version__)
+                    new_pk = f'{pk}[{__version__}]'
+                    new_name = f'{name} [{__version__}]'
 
                     latest_pk = ef.pk
 
@@ -247,11 +247,11 @@ class EntityFilterManager(models.Manager):
                                 copy_num = int(copy_num_str) + 1
                             except ValueError as e:
                                 raise ValueError(
-                                    'Malformed EntityFilter PK/version: {}'.format(latest_pk)
+                                    f'Malformed EntityFilter PK/version: {latest_pk}'
                                 ) from e
 
                             new_pk += str(copy_num)
-                            new_name += '({})'.format(copy_num)
+                            new_name += f'({copy_num})'
 
                     ef = self.create(pk=new_pk, name=new_name,
                                      is_custom=is_custom,

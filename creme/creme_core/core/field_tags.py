@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,18 +33,18 @@ def _add_tags_to_fields():
         for tag_name in ('clonable', 'viewable', 'enumerable', 'optional'):
             value = kwargs.pop(tag_name, None)
             if value is not None:
-                setattr(self, '_cremetag_{}'.format(tag_name), value)
+                setattr(self, f'_cremetag_{tag_name}', value)
 
         if kwargs:
-            raise InvalidFieldTag('Unknown tag(s) : {}'.format(kwargs.keys()))
+            raise InvalidFieldTag(f'Unknown tag(s) : {kwargs.keys()}')
 
         return self
 
     def _get_tag(self, tag_name):
         try:
-            return getattr(self, '_cremetag_{}'.format(tag_name))
+            return getattr(self, f'_cremetag_{tag_name}')
         except AttributeError as e:
-            raise InvalidFieldTag('Unknown tag : {}'.format(tag_name)) from e
+            raise InvalidFieldTag(f'Unknown tag : {tag_name}') from e
 
     Field.set_tags = _set_tags
     Field.get_tag  = _get_tag

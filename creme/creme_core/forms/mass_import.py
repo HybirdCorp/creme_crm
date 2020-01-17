@@ -238,10 +238,10 @@ class ExtractorWidget(BaseExtractorWidget):  # TODO: rename (Regular/Base)FieldE
         except TypeError:
             selected_col = 0
 
-        widget_cxt['column_select'] = self.column_select.get_context(name='{}_colselect'.format(name),
+        widget_cxt['column_select'] = self.column_select.get_context(name=f'{name}_colselect',
                                                                      value=selected_col,
                                                                      attrs={
-                                                                        'id': '{}_colselect'.format(id_attr),
+                                                                        'id': f'{id_attr}_colselect',
                                                                         'class': 'csv_col_select',
                                                                         'required': required,
                                                                      },
@@ -255,10 +255,10 @@ class ExtractorWidget(BaseExtractorWidget):  # TODO: rename (Regular/Base)FieldE
 
         # Default value widget ------
         widget_cxt['default_value_widget'] = self.default_value_widget \
-                                                 .get_context(name='{}_defval'.format(name),
+                                                 .get_context(name=f'{name}_defval',
                                                               value=value.get('default_value'),
                                                               attrs={
-                                                                  'id': '{}_defval'.format(id_attr),
+                                                                  'id': f'{id_attr}_defval',
                                                                   'required': required,
                                                               },
                                                              )['widget']
@@ -268,11 +268,14 @@ class ExtractorWidget(BaseExtractorWidget):  # TODO: rename (Regular/Base)FieldE
     def value_from_datadict(self, data, files, name):
         get = data.get
         return {
-            'selected_column':  get('{}_colselect'.format(name)),
-            'subfield_search':  get('{}_subfield'.format(name)),
-            'subfield_create':  get('{}_create'.format(name), False),
+            'selected_column':  get(f'{name}_colselect'),
+            'subfield_search':  get(f'{name}_subfield'),
+            'subfield_create':  get(f'{name}_create', False),
             'default_value':    self.default_value_widget
-                                    .value_from_datadict(data=data, files=files, name='{}_defval'.format(name)),
+                                    .value_from_datadict(data=data,
+                                                         files=files,
+                                                         name=f'{name}_defval',
+                                                        ),
         }
 
 
@@ -362,7 +365,7 @@ class ExtractorField(Field):
                 if not any(subfield_search == choice[0] for choice in subfield_choices):
                     raise ValidationError(self.error_messages['invalid_subfield']
                                               .format(value=subfield_search),
-                                          code='invalid_subfield'
+                                          code='invalid_subfield',
                                          )
 
                 modelfield = self._modelfield
@@ -703,7 +706,7 @@ class RelationExtractorSelector(SelectorList):
     def value_from_datadict(self, data, files, name):
         return {
             'selectorlist': super().value_from_datadict(data=data, files=files, name=name),
-            'can_create':   data.get('{}_can_create'.format(name), False),
+            'can_create':   data.get(f'{name}_can_create', False),
         }
 
 
@@ -878,10 +881,13 @@ class CustomFieldExtractorWidget(ExtractorWidget):
     def value_from_datadict(self, data, files, name):
         get = data.get
         return {
-            'selected_column': get('{}_colselect'.format(name)),
-            'can_create':      get('{}_create'.format(name), False),
+            'selected_column': get(f'{name}_colselect'),
+            'can_create':      get(f'{name}_create', False),
             'default_value':   self.default_value_widget
-                                   .value_from_datadict(data=data, files=files, name='{}_defval'.format(name)),
+                                   .value_from_datadict(data=data,
+                                                        files=files,
+                                                        name=f'{name}_defval',
+                                                       ),
         }
 
 
@@ -970,7 +976,7 @@ class ImportForm(CremeModelForm):
 
     choices = [
         (0, 'Not in the file'),
-        *((i, 'Column {}'.format(i)) for i in range(1, 21)),
+        *((i, f'Column {i}') for i in range(1, 21)),
     ]  # Overloaded by factory
     header_dict = {}  # Idem
 

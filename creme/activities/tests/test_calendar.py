@@ -27,7 +27,7 @@ try:
     from ..constants import *
     from ..utils import get_last_day_of_a_month
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 Activity = get_activity_model()
 
@@ -360,7 +360,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.login()
 
         def create_act(i):
-            act = Activity.objects.create(user=user, title='Floating Act#{}'.format(i),
+            act = Activity.objects.create(user=user, title=f'Floating Act#{i}',
                                           type_id=ACTIVITYTYPE_TASK,
                                           floating_type=FLOATING,
                                          )
@@ -808,7 +808,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                           'end':        formatted_dt(act3.end),
                           'allDay':     True,
                           'calendar':   cal.id,
-                          'color':      '#{}'.format(cal.color),
+                          'color':      f'#{cal.color}',
                           'url':        build_popup_url(act3),
                           'editable':   True,
                           'type':       _('Meeting'),
@@ -821,7 +821,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                           'end':        formatted_dt(act1.end),
                           'allDay':     False,
                           'calendar':   cal.id,
-                          'color':      '#{}'.format(cal.color),
+                          'color':      f'#{cal.color}',
                           'url':        build_popup_url(act1),
                           'editable':   True,
                           'type':       _('Task'),
@@ -834,7 +834,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                           'end':        formatted_dt(act0.end + timedelta(seconds=1)),
                           'allDay':     False,
                           'calendar':   cal.id,
-                          'color':      '#{}'.format(cal.color),
+                          'color':      f'#{cal.color}',
                           'url':        build_popup_url(act0),
                           'editable':   True,
                           'type':       _('Task'),

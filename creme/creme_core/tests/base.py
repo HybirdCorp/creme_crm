@@ -37,9 +37,10 @@ def skipIfCustomUser(test_func):
 
 
 def skipIfNotInstalled(app_name):
-    return skipIf(not apps.is_installed(app_name),
-                  "Skip this test which is related to the uninstalled app '{}'".format(app_name)
-                 )
+    return skipIf(
+        not apps.is_installed(app_name),
+        f"Skip this test which is related to the uninstalled app '{app_name}'"
+    )
 
 
 class _AssertNoExceptionContext:
@@ -54,7 +55,9 @@ class _AssertNoExceptionContext:
         if exc_type:
             print_traceback()
 
-            raise self.exception('An exception <{}> occurred: {}'.format(exc_type.__name__, exc_value))
+            raise self.exception(
+                f'An exception <{exc_type.__name__}> occurred: {exc_value}'
+            )
 
         return True
 
@@ -114,10 +117,10 @@ class _CremeTestCase:
 
         if occ_count != count:
             std_msg = '{member} found {occ} time(s) in {container} ({exp} expected)'.format(
-                            member=safe_repr(member),
-                            container=safe_repr(container),
-                            occ=occ_count,
-                            exp=count,
+                member=safe_repr(member),
+                container=safe_repr(container),
+                occ=occ_count,
+                exp=count,
             )
             self.fail(self._formatMessage(msg, std_msg))
 
@@ -125,10 +128,7 @@ class _CremeTestCase:
         delta = max(dt1, dt2) - min(dt1, dt2)
 
         if delta > timedelta(seconds=seconds):
-            self.fail('<{}> & <{}> are not almost equal: delta is <{}>'.format(
-                            dt1, dt2, delta
-                        )
-                     )
+            self.fail(f'<{dt1}> & <{dt2}> are not almost equal: delta is <{delta}>')
 
     def assertDoesNotExist(self, instance):
         model = instance.__class__
@@ -209,16 +209,14 @@ class _CremeTestCase:
         try:
             index = sequence.index(elt)
         except ValueError:
-            self.fail('{} not found in {}'.format(elt, sequence))
+            self.fail(f'{elt} not found in {sequence}')
 
         return index
 
     def assertIsSubclass(self, cls, parent_cls, msg=None):
         if not issubclass(cls, parent_cls):
             if msg is None:
-                msg = '{} is not a subclass of {} [list of parent classes {}]'.format(
-                    cls, parent_cls, cls.__mro__
-                )
+                msg = f'{cls} is not a subclass of {parent_cls} [list of parent classes {cls.__mro__}]'
 
             self.fail(msg)
 
@@ -231,7 +229,9 @@ class _CremeTestCase:
         except Exception as e:
             print_traceback()
 
-            raise self.failureException('An exception <{}> occurred: {}'.format(e.__class__.__name__, e)) from e
+            raise self.failureException(
+                f'An exception <{e.__class__.__name__}> occurred: {e}'
+            ) from e
 
     def assertFormInstanceErrors(self, form, *errors):
         form_errors = form.errors
@@ -247,10 +247,7 @@ class _CremeTestCase:
 
             field_errors = form_errors[field_name]
             if message not in field_errors:
-                self.fail('The error "{message}" has not been found in the field errors ({errors})'.format(
-                    message=message,
-                    errors=field_errors,
-                ))
+                self.fail(f'The error "{message}" has not been found in the field errors ({field_errors})')
 
             field_names.add(field_name)
 
@@ -271,13 +268,9 @@ class _CremeTestCase:
             elif hasattr(response, 'url'):
                 redirect = response.url
 
-            self.fail('Response status={status} (expected: {expected}) '
-                      '[redirections={redirect}; content={content}]'.format(
-                            status=status_code,
-                            expected=status,
-                            redirect=redirect,
-                            content=response.content
-                     ))
+            self.fail(f'Response status={status_code} (expected: {status}) '
+                      f'[redirections={redirect}; content={response.content}]'
+                     )
 
         try:
             errors = response.context[form].errors
@@ -295,7 +288,7 @@ class _CremeTestCase:
         status_code = response.status_code
 
         if status_code != status:
-            self.fail('Response status={} (expected: {})'.format(status_code, status))
+            self.fail(f'Response status={status_code} (expected: {status})')
 
         try:
             formset_obj = response.context[formset]
@@ -308,7 +301,7 @@ class _CremeTestCase:
                 return
 
             self.assertIsInstance(formset_obj, BaseFormSet,
-                                  "context field '{}' is not a FormSet".format(formset_obj)
+                                  f"context field '{formset_obj}' is not a FormSet"
                                  )
             self.assertGreaterEqual(form_index, 0)
             self.assertLess(form_index, len(all_errors))
@@ -317,20 +310,19 @@ class _CremeTestCase:
 
             if field is None:
                 if errors:
-                    self.fail("The formset '{}' number {} contains errors: {}".format(
-                                    formset, form_index, errors
-                                )
-                             )
+                    self.fail(
+                        f"The formset '{formset}' number {form_index} contains errors: {errors}"
+                    )
             else:
                 try:
                     field_errors = errors[field]
                 except KeyError:
                     pass
                 else:
-                    self.fail("The field '{}' on formset '{}' number {} contains errors: {}".format(
-                                    field, formset, form_index, field_errors
-                                )
-                             )
+                    self.fail(
+                        f"The field '{field}' on formset '{formset}' number "
+                        f"{form_index} contains errors: {field_errors}"
+                    )
 
     def assertNoWizardFormError(self, response, status=200, wizard='wizard'):
         self.assertEqual(status, response.status_code)
@@ -351,12 +343,12 @@ class _CremeTestCase:
             try:
                 index = actual.index(elt)
             except ValueError:
-                self.fail(self._formatMessage(msg, 'Element not found in the superset : "{}"'.format(elt)))
+                self.fail(self._formatMessage(msg, f'Element not found in the superset : "{elt}"'))
 
             if index <= old_index:
                 self.fail(self._formatMessage(msg,
-                                              'Order is different in the superset '
-                                              '(problem with element : "{}")'.format(elt)
+                                              f'Order is different in the superset '
+                                              f'(problem with element : "{elt}")'
                                              )
                          )
 
@@ -415,15 +407,15 @@ class _CremeTestCase:
         try:
             diff = xml_diff(expected, actual)
         except XMLDiffError as e:
-            raise self.failureException('Bad XML document [{}]'.format(e)) from e
+            raise self.failureException(f'Bad XML document [{e}]') from e
 
         if diff is not None:
             msg = diff.long_msg
 
             if self.maxDiff is not None and len(msg) > self.maxDiff:
-                msg = '{}\n[maxDiff too small for larger message]'.format(diff.short_msg)
+                msg = f'{diff.short_msg}\n[maxDiff too small for larger message]'
 
-            raise self.failureException('XML are not equal\n{}'.format(msg))
+            raise self.failureException(f'XML are not equal\n{msg}')
 
     def build_filedata(self, content_str, suffix='.txt'):
         tmpfile = NamedTemporaryFile(suffix=suffix)
@@ -438,7 +430,7 @@ class _CremeTestCase:
         return tmpfile
 
     def build_merge_url(self, entity1, entity2):
-        return reverse('creme_core__merge_entities') + '?id1={}&id2={}'.format(entity1.id, entity2.id)
+        return reverse('creme_core__merge_entities') + f'?id1={entity1.id}&id2={entity2.id}'
 
     def create_datetime(self, *args, **kwargs):
         tz = utc if kwargs.pop('utc', False) else get_current_timezone()
@@ -448,14 +440,10 @@ class _CremeTestCase:
         try:
             obj = model.objects.get(**kwargs)
         except model.DoesNotExist as e:
-            self.fail('Your object does not exist.\n'
-                      ' Query model: {model}\n'
-                      ' Query args {args}\n'
-                      ' [original exception: {exception}]'.format(
-                            model=model,
-                            args=kwargs,
-                            exception=e,
-                        )
+            self.fail(f'Your object does not exist.\n'
+                      f' Query model: {model}\n'
+                      f' Query args {kwargs}\n'
+                      f' [original exception: {e}]'
                      )
         except Exception as e:
             self.fail(str(e))
@@ -472,7 +460,7 @@ class _CremeTestCase:
         try:
             rt = RelationType.objects.get(pk=pk)
         except RelationType.DoesNotExist:
-            self.fail('Bad populate: unfoundable RelationType with pk={}'.format(pk))
+            self.fail(f'Bad populate: unfoundable RelationType with pk={pk}')
 
         get_ct = ContentType.objects.get_for_model
         self.assertListEqual(sorted((get_ct(model) for model in sub_models), key=lambda ct: ct.id),
@@ -485,7 +473,9 @@ class _CremeTestCase:
         self.assertSetEqual({*sub_props}, {*rt.subject_properties.values_list('id', flat=True)})
         self.assertSetEqual({*obj_props}, {*rt.object_properties.values_list('id', flat=True)})
 
-        self.assertNotEqual(rt.pk, rt.symmetric_type_id, 'Be careful your type is its own symmetric type') #Common error
+        self.assertNotEqual(rt.pk, rt.symmetric_type_id,
+                            'Be careful your type is its own symmetric type'
+                           )  # Common error
 
         return rt
 
@@ -493,7 +483,7 @@ class _CremeTestCase:
         try:
             pt = CremePropertyType.objects.get(pk=pk)
         except CremePropertyType.DoesNotExist:
-            self.fail('Bad populate: unfoundable CremePropertyType with pk={}'.format(pk))
+            self.fail(f'Bad populate: unfoundable CremePropertyType with pk={pk}')
 
         get_ct = ContentType.objects.get_for_model
         self.assertSetEqual({get_ct(model).id for model in models},
@@ -565,10 +555,7 @@ class _CremeTestCase:
     @staticmethod
     def http_file(file_path):
         from creme.creme_core.utils.test import http_port
-        return 'http://localhost:{port}/{fp}'.format(
-                port=http_port(),
-                fp=file_path,
-        )
+        return f'http://localhost:{http_port()}/{file_path}'
 
 
 class CremeTestCase(TestCase, _CremeTestCase):

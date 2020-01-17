@@ -134,7 +134,7 @@ class EmailStatusSetting(generic.CheckedView):
         try:
             return self.status_map[self.kwargs[self.status_url_kwarg]]
         except KeyError as e:
-            raise Http404('Invalid status: {}'.format(e)) from e
+            raise Http404(f'Invalid status: {e}') from e
 
     def post(self, request, **kwargs):
         email_status = self.get_email_status()

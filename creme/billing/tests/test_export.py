@@ -18,7 +18,7 @@ try:
             skipIfCustomProductLine, skipIfCustomServiceLine, Organisation,
             Invoice, ProductLine, ServiceLine)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomOrganisation
@@ -52,9 +52,11 @@ class ExportTestCase(_BillingTestCase):
         # self.assertEqual(user, fileref.user) TODO
 
         fullpath = fileref.filedata.path
-        self.assertTrue(exists(fullpath), '<{}> does not exists ?!'.format(fullpath))
+        self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists?!')
         self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'billing'), dirname(fullpath))
-        self.assertEqual('attachment; filename={}'.format(basename(fullpath)), response['Content-Disposition'])
+        self.assertEqual(f'attachment; filename={basename(fullpath)}',
+                         response['Content-Disposition']
+                        )
 
     @skipIfCustomQuote
     @skipIfCustomServiceLine

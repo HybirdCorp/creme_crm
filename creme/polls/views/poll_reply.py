@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2019  Hybird
+#    Copyright (C) 2012-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -72,7 +72,7 @@ def _format_previous_answered_question(preply_id, line, style):
         '{answer_str} : {answer} <a class="add" href="{url}">{icon}</a>',
         title=gettext('Reminder of the previous answered question :'),
         label=gettext('Question'),
-        number='{} -'.format(number) if number != 'None' else '',
+        number=f'{number} -' if number != 'None' else '',
         question=line.question,
         answer_str=gettext('Answer'),
         answer=answer,
@@ -97,10 +97,7 @@ def edit_line_wizard(request, preply_id, line_id):
     try:
         line_node = tree.find_line(int(line_id))
     except KeyError as e:
-        msg = 'PollReplyLine with this id {} does not exist for PollReply {}'.format(
-                    line_id,
-                    preply,
-                )
+        msg = f'PollReplyLine with this id {line_id} does not exist for PollReply {preply}'
         logger.error(msg)
         raise Http404(msg) from e
 
@@ -161,7 +158,7 @@ def fill(request, preply_id):
     line_node = tree.next_question_to_answer
 
     if line_node is None:
-        msg = 'No empty PollReplyLine found in PollReply {}'.format(preply)
+        msg = f'No empty PollReplyLine found in PollReply {preply}'
         logger.error(msg)
         raise Http404(msg)
 

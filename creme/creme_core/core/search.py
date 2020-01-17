@@ -67,7 +67,7 @@ class Searcher:
         result_q = Q()
 
         for word in words:
-            result_q &= reduce(or_, (Q(**{'{}__icontains'.format(field.name): word}) for field in fields))
+            result_q &= reduce(or_, (Q(**{f'{field.name}__icontains': word}) for field in fields))
 
         return result_q
 

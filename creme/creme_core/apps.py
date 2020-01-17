@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2019  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -96,7 +96,7 @@ class MediaGeneratorConfig(AppConfig):
         ]
         MEDIA_BUNDLES.extend(
             [theme_dir + CREME_CSS[0],
-             *(css_file if isinstance(css_file, dict) else '{}/{}'.format(theme_dir, css_file)
+             *(css_file if isinstance(css_file, dict) else f'{theme_dir}/{css_file}'
                   for css_file in CREME_CSS[1:]
               ),
             ] for theme_dir, theme_vb_name in settings.THEMES
@@ -139,15 +139,16 @@ class CremeAppConfig(AppConfig):
         # because we get an error from django [AttributeError: 'instancemethod' object has no attribute 'tags']
         @checks.register(Tags.settings)
         def check_deps(**kwargs):
-            return [checks.Error("depends on the app '{}' which is not installed.".format(dep),
-                                 hint='Check the INSTALLED_CREME_APPS setting in your'
-                                      ' local_settings.py/project_settings.py',
-                                 obj=self.name,
-                                 id='creme.E001',
-                                )
-                        for dep in self.dependencies
-                            if not apps.is_installed(dep)
-                   ]
+            return [
+                checks.Error(
+                    f"depends on the app '{dep}' which is not installed.",
+                    hint='Check the INSTALLED_CREME_APPS setting in your'
+                         ' local_settings.py/project_settings.py',
+                    obj=self.name,
+                    id='creme.E001',
+                ) for dep in self.dependencies
+                      if not apps.is_installed(dep)
+            ]
 
         @checks.register(Tags.settings)
         def check_extended_app(**kwargs):
@@ -156,22 +157,24 @@ class CremeAppConfig(AppConfig):
 
             if app_name is not None:
                 if not apps.is_installed(app_name):
-                    errors.append(checks.Error("extends the app '{}' which is not installed.".format(app_name),
-                                               hint='Check the INSTALLED_CREME_APPS setting in your'
-                                                    ' local_settings.py/project_settings.py',
-                                               obj=self.name,
-                                               id='creme.E006',
-                                              )
-                                 )
+                    errors.append(
+                        checks.Error(
+                            f"extends the app '{app_name}' which is not installed.",
+                            hint='Check the INSTALLED_CREME_APPS setting in your'
+                                 ' local_settings.py/project_settings.py',
+                            obj=self.name,
+                            id='creme.E006',
+                    ))
 
                 if self.credentials != self.CRED_NONE:
-                    errors.append(checks.Error("The app '{}' is an extending app & "
-                                               "so it cannot have its own credentials.".format(self.name),
-                                               hint='Set "credentials = CremeAppConfig.CRED_NONE" in the AppConfig.',
-                                               obj=self.name,
-                                               id='creme.E007',
-                                              )
-                                 )
+                    errors.append(
+                        checks.Error(
+                            f"The app '{self.name}' is an extending app & "
+                            f"so it cannot have its own credentials.",
+                            hint='Set "credentials = CremeAppConfig.CRED_NONE" in the AppConfig.',
+                            obj=self.name,
+                            id='creme.E007',
+                    ))
 
             return errors
 

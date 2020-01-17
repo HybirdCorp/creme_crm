@@ -15,7 +15,7 @@ try:
     from creme.creme_core.utils.date_period import HoursPeriod
     from creme.creme_core.utils.dates import round_hour
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class JobSchedulerTestCase(CremeTestCase):

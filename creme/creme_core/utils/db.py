@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2016-2019 Hybird
+# Copyright (c) 2016-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -66,7 +66,7 @@ def build_columns_key(columns):
         build_keyed_columns(('last_name', 'first_name'))
             => '#last_name##first_name#'
     """
-    return ''.join('#{}#'.format(column) for column in columns)
+    return ''.join(f'#{column}#' for column in columns)
 
 
 # NB: 'maxsize=None' => avoid locking (number of models is small)
@@ -129,7 +129,7 @@ def get_indexed_ordering(model, fields_pattern):
             wildcard_count += 1
 
             if previous_was_wildcard:
-                raise ValueError('Successive wildcards are forbidden: {}'.format(fields_pattern))
+                raise ValueError(f'Successive wildcards are forbidden: {fields_pattern}')
 
             previous_was_wildcard = True
         else:
@@ -150,14 +150,14 @@ def get_indexed_ordering(model, fields_pattern):
     if asc_fnames[-1] == '*':
         asc_fnames.pop()
 
-    pattern = ''.join('#{}#*'.format(name) if name != '*' else name
-                        for name in asc_fnames
+    pattern = ''.join(f'#{name}#*' if name != '*' else name
+                          for name in asc_fnames
                      )
 
     for index_key, ordering in indexes:
         if fnmatch(index_key, pattern):
             if reversed_count:
-                ordering = tuple('-{}'.format(i) for i in ordering)
+                ordering = tuple(f'-{i}' for i in ordering)
 
             return ordering
 

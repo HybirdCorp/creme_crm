@@ -28,7 +28,7 @@ try:
 
     from .base import BrickTestCaseMixin
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
@@ -134,9 +134,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                 self.ibci = instance_block_config_item
 
             def detailview_display(self, context):
-                return '<table id="{}"><thead><tr>{}</tr></thead></table>'.format(
-                            self.id_, self.ibci.entity
-                        )  # Useless :)
+                return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'  # Useless :)
 
         self.assertTrue(InstanceBrickConfigItem.id_is_specific(ContactBrick.id_))
 
@@ -626,7 +624,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         return content_node
 
     def _assertNoBrickTile(self, content_node, key):
-        self.assertIsNone(content_node.find('.//div[@data-key="{}"]'.format(key)))
+        self.assertIsNone(content_node.find(f'.//div[@data-key="{key}"]'))
 
     def test_display_objectbrick01(self):
         user = self.login()

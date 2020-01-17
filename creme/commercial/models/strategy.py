@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -208,7 +208,7 @@ class AbstractStrategy(CremeEntity):
                 if other_segment.id == sid:
                     return category
 
-        raise KeyError('Strategy.get_segment_category() for segment: {}'.format(segment))
+        raise KeyError(f'Strategy.get_segment_category() for segment: {segment}')
 
     def _get_segments_categories(self, orga):
         """@return A dictionary with key= Category (int, between 1 & 4) and
@@ -264,7 +264,7 @@ class AbstractStrategy(CremeEntity):
 
     def _set_score(self, model_id, segment_desc_id, orga_id, score, get_object):
         if not 1 <= score <= 4:
-            raise ValueError('Problem with "score" arg: not 1 <= {} <= 4'.format(score))
+            raise ValueError(f'Problem with "score" arg: not 1 <= {score} <= 4')
 
         orga = self.evaluated_orgas.get(pk=orga_id)  # Raise exception if invalid orga
 
@@ -282,7 +282,7 @@ class AbstractStrategy(CremeEntity):
 
     def set_segment_category(self, segment_desc_id, orga_id, category):
         if not 1 <= category <= 4:
-            raise ValueError('Problem with "category" arg: not 1 <= {} <= 4'.format(category))
+            raise ValueError(f'Problem with "category" arg: not 1 <= {category} <= 4')
 
         orga    = self.evaluated_orgas.get(pk=orga_id)  # Raise exception if invalid orga
         seg_desc = self.segment_info.get(pk=segment_desc_id)  # Raise exception if invalid segment
@@ -327,11 +327,11 @@ class MarketSegmentDescription(CremeModel):
         verbose_name_plural = _('Market segment descriptions')
 
     def __repr__(self):
-        return 'MarketSegmentDescription(strategy_id={}, segment_id={}, ' \
-               'product={}, place={}, price={}, promotion={})'.format(
-                self.strategy_id, self.segment_id, self.product,
-                self.place, self.price, self.promotion,
-            )
+        return f'MarketSegmentDescription(' \
+                    f'strategy_id={self.strategy_id}, ' \
+                    f'segment_id={self.segment_id}, ' \
+                    f'product={self.product}, place={self.place},' \
+                    f' price={self.price}, promotion={self.promotion})'
 
     def __str__(self):
         return self.segment.name
@@ -377,8 +377,8 @@ class CommercialAssetScore(CremeModel):
         app_label = 'commercial'
 
     def __str__(self):  # Debugging
-        return '<AssetScore: orga={} score={} segment={} asset={}>'.format(
-                    self.organisation, self.score, self.segment_desc, self.asset)
+        return f'<AssetScore: orga={self.organisation} score={self.score} ' \
+                            f'segment={self.segment_desc} asset={self.asset}>'
 
 
 class MarketSegmentCharm(CremeModel):
@@ -415,8 +415,8 @@ class MarketSegmentCharmScore(CremeModel):
         app_label = 'commercial'
 
     def __str__(self):  # Debugging
-        return '<CharmScore: orga={} score={} segment={} charm={}>'.format(
-                    self.organisation, self.score, self.segment_desc, self.charm)
+        return f'<CharmScore: orga={self.organisation} score={self.score} ' \
+                            f'segment={self.segment_desc} charm={self.charm}>'
 
 
 class MarketSegmentCategory(CremeModel):
@@ -429,5 +429,5 @@ class MarketSegmentCategory(CremeModel):
         app_label = 'commercial'
 
     def __str__(self):  # Debugging
-        return '<MarketSegmentCategory: orga={} cat={} segment={}>'.format(
-                    self.organisation, self.category, self.segment_desc)
+        return f'<MarketSegmentCategory: orga={self.organisation} cat={self.category} ' \
+                                       f'segment={self.segment_desc}>'

@@ -12,7 +12,7 @@ try:
     from .base import Document, _DocumentsTestCase
     from ..forms.fields import ImageEntityField, MultiImageEntityField
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):

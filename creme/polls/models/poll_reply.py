@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2019  Hybird
+#    Copyright (C) 2012-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,11 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import (CharField, TextField, BooleanField, NullBooleanField,
-        PositiveIntegerField, PositiveSmallIntegerField, ForeignKey, PROTECT, SET_NULL, CASCADE)
+from django.db.models import (
+    CharField, TextField, BooleanField, NullBooleanField,
+    PositiveIntegerField, PositiveSmallIntegerField, ForeignKey,
+    PROTECT, SET_NULL, CASCADE,
+)
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
@@ -126,10 +129,11 @@ class PollReplyLine(CremeModel, _PollLine):
         ordering = ('order',)
 
     def __repr__(self):
-        from django.utils.encoding import smart_str
-        return smart_str('PollReplyLine(section={}, question="{}", answer="{}")'.format(
-                            self.section_id, self.question, self.answer
-                        ))
+        # from django.utils.encoding import smart_str
+        # return smart_str('PollReplyLine(section={}, question="{}", answer="{}")'.format(
+        #                     self.section_id, self.question, self.answer
+        #                 ))
+        return f'PollReplyLine(section={self.section_id}, question="{self.question}", answer="{self.answer}")'
 
     @classmethod
     def _get_condition_class(cls):  # See _PollLine

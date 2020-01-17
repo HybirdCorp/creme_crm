@@ -24,7 +24,7 @@ try:
             TYPE_RELATION, TYPE_SYM_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL)
     from creme.creme_core.utils.dates import dt_to_ISO8601
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class HistoryTestCase(CremeTestCase):
@@ -70,7 +70,7 @@ class HistoryTestCase(CremeTestCase):
         hdate = hline.date
         old_time = self.old_time
         self.assertTrue(old_time <= hdate <= now_value,
-                        'old_time={} ; hline.date={} ; now={}'.format(old_time, hdate, now_value)
+                        f'old_time={old_time} ; hline.date={hdate} ; now={now_value}'
                        )
 
     def _get_hlines(self):

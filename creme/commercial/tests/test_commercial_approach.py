@@ -37,7 +37,7 @@ try:
     from ..models import CommercialApproach
     from .base import Organisation, Contact, Activity, Opportunity
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):

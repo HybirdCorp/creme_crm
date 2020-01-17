@@ -86,9 +86,9 @@ class CremePropertyManager(models.Manager):
 
             break
         else:
-            raise RuntimeError('It seems the CremeProperty <{}> keeps '
-                               'being created & deleted.'.format(kwargs)
-                              )
+            raise RuntimeError(
+                f'It seems the CremeProperty <{kwargs}> keeps being created & deleted.'
+            )
 
         return prop
 

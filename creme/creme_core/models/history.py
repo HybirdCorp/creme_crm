@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,8 +27,14 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.db.models import (Model, PositiveSmallIntegerField, CharField, TextField,
-        ForeignKey, OneToOneField, SET_NULL, CASCADE, FieldDoesNotExist)
+from django.db.models import (
+    Model,
+    PositiveSmallIntegerField,
+    CharField, TextField,
+    ForeignKey, OneToOneField,
+    SET_NULL, CASCADE,
+    FieldDoesNotExist,
+)
 from django.db.models.base import ModelState
 from django.db.models.signals import post_save, post_init, pre_delete
 from django.db.transaction import atomic
@@ -39,7 +45,12 @@ from django.utils.translation import gettext_lazy as _, gettext
 
 from ..global_info import get_global_info, set_global_info
 from ..signals import pre_merge_related
-from ..utils.dates import dt_to_ISO8601, dt_from_ISO8601, date_from_ISO8601, date_to_ISO8601
+from ..utils.dates import (
+    dt_to_ISO8601,
+    dt_from_ISO8601,
+    date_from_ISO8601,
+    date_to_ISO8601,
+)
 from ..utils.translation import get_model_verbose_name
 from .entity import CremeEntity
 from .relation import RelationType, Relation
@@ -594,15 +605,12 @@ class HistoryLine(Model):
         verbose_name_plural = _('Lines of history')
 
     def __repr__(self):
-        return 'HistoryLine(entity_id={entity_id}, entity_owner_id={owner_id}, username={username}, ' \
-                           'date={date}, type={type}, value={value})'.format(
-                    entity_id=self.entity_id,
-                    owner_id=self.entity_owner_id,
-                    username=self.username,
-                    date=self.date,
-                    type=self.type,
-                    value=self.value,
-                )
+        return (f'HistoryLine(entity_id={self.entity_id}, '
+                            f'entity_owner_id={self.entity_owner_id}, '
+                            f'username={self.username}, '
+                            f'date={self.date}, '
+                            f'type={self.type}, '
+                            f'value={self.value})')
 
     def __str__(self):
         return repr(self)

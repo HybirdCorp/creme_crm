@@ -22,7 +22,7 @@ try:
 
     from .base import skipIfCustomGenerator, RecurrentGenerator
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 Address = get_address_model()
 Organisation = get_organisation_model()

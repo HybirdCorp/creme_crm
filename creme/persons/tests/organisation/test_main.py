@@ -15,7 +15,7 @@ try:
     from ..base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation, Organisation, Address, Contact)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomOrganisation
@@ -267,7 +267,7 @@ class OrganisationTestCase(_BaseTestCase):
         bebop.save()
 
         for i in range(3, 5):
-            create_address(name='Hideout #{}'.format(i))
+            create_address(name=f'Hideout #{i}')
 
         cloned = bebop.clone()
 
@@ -807,7 +807,10 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertFalse(self.refresh(orga3).is_managed)
 
         # Managed Organisations are excluded
-        response = self.assertPOST200(url, data={'organisations': '[{}]'.format(orga1.id)})
+        response = self.assertPOST200(
+            url,
+            data={'organisations': self.formfield_value_multi_creator_entity(orga1)},
+        )
         self.assertFormError(response, 'form', 'organisations', _('This entity does not exist.'))
 
     def test_set_orga_as_managed02(self):

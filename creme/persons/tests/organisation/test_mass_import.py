@@ -11,7 +11,7 @@ try:
     from ..base import (_BaseTestCase, skipIfCustomAddress,
             skipIfCustomOrganisation, Organisation, Address)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomOrganisation

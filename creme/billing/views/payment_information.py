@@ -79,7 +79,7 @@ class PaymentInformationAsDefault(generic.base.EntityRelatedMixin, generic.Check
 
         if FieldsConfig.objects.get_for_model(type(billing_doc))\
                                .is_fieldname_hidden(self.payment_info_fk):
-            raise ConflictError('The field "{}" is hidden.'.format(self.payment_info_fk))
+            raise ConflictError(f'The field "{self.payment_info_fk}" is hidden.')
 
         user = request.user
         organisation = pi.get_related_entity()

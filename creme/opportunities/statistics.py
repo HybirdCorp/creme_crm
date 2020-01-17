@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2019  Hybird
+#    Copyright (C) 2018-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -85,13 +85,13 @@ class CurrentYearStatistics:
 
             agg_kwargs = {}
             for orga_id in mngd_orga_ids:
-                agg_kwargs['won_{}'.format(orga_id)] = Count(
+                agg_kwargs[f'won_{orga_id}'] = Count(
                     'relations_w_orga__object_entity_id',
                     filter=Q(relations_w_orga__object_entity=orga_id,
                              sales_phase__won=True,
                             ),
                 )
-                agg_kwargs['lost_{}'.format(orga_id)] = Count(
+                agg_kwargs[f'lost_{orga_id}'] = Count(
                     'relations_w_orga__object_entity_id',
                     filter=Q(relations_w_orga__object_entity=orga_id,
                              sales_phase__lost=True,
@@ -109,8 +109,8 @@ class CurrentYearStatistics:
 
             for orga in mngd_orgas:
                 orga_id = orga.id
-                won_count = agg['won_{}'.format(orga_id)]
-                lost_count = agg['lost_{}'.format(orga_id)]
+                won_count = agg[f'won_{orga_id}']
+                lost_count = agg[f'lost_{orga_id}']
 
                 if won_count or lost_count:
                     stats.append(

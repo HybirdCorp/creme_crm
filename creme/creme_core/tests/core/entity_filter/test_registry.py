@@ -14,7 +14,7 @@ try:
     from creme.creme_core.models import FakeContact
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class EntityFilterRegistryTestCase(CremeTestCase):
@@ -33,9 +33,9 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         self.assertIsNone(none_handler)
         self.assertEqual(
             logs_manager.output,
-             ['WARNING:creme.creme_core.core.entity_filter:'
-              '_EntityFilterRegistry.get_handler(): '
-              'no handler class with type_id="{}" found.'.format(cls1.type_id),
+             [f'WARNING:creme.creme_core.core.entity_filter:'
+              f'_EntityFilterRegistry.get_handler(): '
+              f'no handler class with type_id="{cls1.type_id}" found.',
              ],
         )
 

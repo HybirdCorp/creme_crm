@@ -40,9 +40,9 @@ class AlgoRegistry:
 
         for name, algo in to_register:
             if name in algos:
-                raise self.RegistrationError("Duplicated algorithm's id or "
-                                             "algorithm registered twice : {}".format(name)
-                                            )
+                raise self.RegistrationError(
+                    f"Duplicated algorithm's id or algorithm registered twice : {name}"
+                )
 
             algos[name] = algo
 

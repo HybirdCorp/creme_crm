@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2019  Hybird
+#    Copyright (C) 2014-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -283,9 +283,9 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
         widget_cxt['pattern_select'] = Select(choices=[(pattern_id, str(pattern.verbose_name))
                                                            for pattern_id, pattern in _PATTERNS.items()
                                                       ],
-                                             ).get_context(name='{}_pattern'.format(name),
+                                             ).get_context(name=f'{name}_pattern',
                                                            value=value.get('pattern_id'),
-                                                           attrs={'id': '{}_pattern'.format(id_attr),
+                                                           attrs={'id': f'{id_attr}_pattern',
                                                                   'class': 'csv_pattern_select',
                                                                  },
                                                           )['widget']
@@ -296,15 +296,15 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
         get = data.get
 
         return {
-            'mode': as_int(get('{}_mode'.format(name)), 1),
+            'mode': as_int(get(f'{name}_mode'), 1),
 
-            'first_name_column_index': as_int(get('{}_first_name_colselect'.format(name))),
-            'last_name_column_index':  as_int(get('{}_last_name_colselect'.format(name))),
+            'first_name_column_index': as_int(get(f'{name}_first_name_colselect')),
+            'last_name_column_index':  as_int(get(f'{name}_last_name_colselect')),
 
-            'pattern_column_index': as_int(get('{}_pattern_colselect'.format(name))),
-            'separator':    get('{}_separator'.format(name), '/'),
-            'pattern_id':   get('{}_pattern'.format(name)),
-            'create':       get('{}_create'.format(name), False),
+            'pattern_column_index': as_int(get(f'{name}_pattern_colselect')),
+            'separator':    get(f'{name}_separator', '/'),
+            'pattern_id':   get(f'{name}_pattern'),
+            'create':       get(f'{name}_create', False),
         }
 
 
@@ -330,7 +330,7 @@ class ParticipantsExtractorField(Field):
         try:
             index = int(value[key])
         except TypeError as e:
-            raise ValidationError('Invalid value for index "{}"'.format(key)) from e
+            raise ValidationError(f'Invalid value for index "{key}"') from e
 
         if index not in self._allowed_indexes:
             raise ValidationError('Invalid index')
@@ -476,14 +476,15 @@ class SubjectsExtractorWidget(BaseExtractorWidget):
         except TypeError:
             selected_col = 0
 
-        widget_cxt['column_select'] = self.column_select.get_context(name='{}_colselect'.format(name),
-                                                                     value=selected_col,
-                                                                     attrs={
-                                                                        'id': '{}_colselect'.format(final_attrs['id']),
-                                                                        'class': 'csv_col_select',
-                                                                        'required': required,
-                                                                     },
-                                                                    )['widget']
+        widget_cxt['column_select'] = self.column_select.get_context(
+            name=f'{name}_colselect',
+            value=selected_col,
+            attrs={
+                'id': '{}_colselect'.format(final_attrs['id']),
+                'class': 'csv_col_select',
+                'required': required,
+            },
+        )['widget']
 
         # Other sub-widgets
         widget_cxt['propose_creation'] = self.propose_creation
@@ -496,9 +497,9 @@ class SubjectsExtractorWidget(BaseExtractorWidget):
         get = data.get
 
         return {
-            'selected_column': as_int(get('{}_colselect'.format(name))),
-            'create':          get('{}_create'.format(name), False),
-            'separator':       get('{}_separator'.format(name), '/'),
+            'selected_column': as_int(get(f'{name}_colselect')),
+            'create':          get(f'{name}_create', False),
+            'separator':       get(f'{name}_separator', '/'),
         }
 
 
@@ -524,7 +525,7 @@ class SubjectsExtractorField(Field):
         try:
             index = int(value[key])
         except TypeError as e:
-            raise ValidationError('Invalid value for index "{}"'.format(key)) from e
+            raise ValidationError(f'Invalid value for index "{key}"') from e
 
         if index not in self._allowed_indexes:
             raise ValidationError('Invalid index')

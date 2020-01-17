@@ -16,7 +16,7 @@ try:
     from creme.creme_core.models import (RelationType,
             CustomField, CustomFieldEnumValue, FakeContact, FakeDocument)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class EntityCellTestCase(CremeTestCase):
@@ -155,9 +155,9 @@ class EntityCellTestCase(CremeTestCase):
 
         cell = EntityCellCustomField(customfield)
         self.assertIsInstance(cell, EntityCellCustomField)
-        self.assertEqual(str(customfield.id), cell.value)
-        self.assertEqual(name,                cell.title)
-        self.assertEqual('custom_field-{}'.format(customfield.id), cell.key)
+        self.assertEqual(str(customfield.id),              cell.value)
+        self.assertEqual(name,                             cell.title)
+        self.assertEqual(f'custom_field-{customfield.id}', cell.key)
         self.assertIs(cell.is_multiline, False)
         self.assertEqual(settings.CSS_NUMBER_LISTVIEW,         cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
@@ -235,7 +235,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(FakeContact,     cell.model)
         self.assertEqual(str(loves.id),   cell.value)
         self.assertEqual(loves.predicate, cell.title)
-        self.assertEqual('relation-{}'.format(loves.id), cell.key)
+        self.assertEqual(f'relation-{loves.id}', cell.key)
         self.assertIs(cell.is_multiline, True)
         self.assertEqual(loves, cell.relation_type)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
@@ -248,9 +248,9 @@ class EntityCellTestCase(CremeTestCase):
 
         cell = EntityCellFunctionField(model=FakeContact, func_field=funfield)
         self.assertIsInstance(cell, EntityCellFunctionField)
-        self.assertEqual(name,            cell.value)
-        self.assertEqual(str(funfield.verbose_name), cell.title)
-        self.assertEqual('function_field-{}'.format(funfield.name), cell.key)
+        self.assertEqual(name,                              cell.value)
+        self.assertEqual(str(funfield.verbose_name),        cell.title)
+        self.assertEqual(f'function_field-{funfield.name}', cell.key)
         self.assertIs(cell.is_hidden,    False)
         self.assertIs(cell.is_multiline, True)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)

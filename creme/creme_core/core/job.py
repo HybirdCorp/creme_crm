@@ -52,7 +52,7 @@ class _JobTypeRegistry:
         job_type = self.get(job.type_id)
 
         if job_type is None:
-            raise _JobTypeRegistry.Error('Invalid job type ID: {}'.format(job.type_id))
+            raise _JobTypeRegistry.Error(f'Invalid job type ID: {job.type_id}')
 
         # Configure environment
         activate(job.language)
@@ -71,7 +71,7 @@ class _JobTypeRegistry:
 
     def register(self, job_type):
         if self._job_types.setdefault(job_type.id, job_type) is not job_type:
-            raise _JobTypeRegistry.Error("Duplicated job type id: {}".format(job_type.id))
+            raise _JobTypeRegistry.Error(f"Duplicated job type id: {job_type.id}")
 
     def autodiscover(self):
         register = self.register
@@ -273,19 +273,19 @@ else:
         @_redis_errors_2_bool
         def start_job(self, job):
             logger.info('Job scheduler queue: request START "%s"', job)
-            self._redis.lpush(self.JOBS_COMMANDS_KEY, '{}-{}'.format(CMD_START, job.id))
+            self._redis.lpush(self.JOBS_COMMANDS_KEY, f'{CMD_START}-{job.id}')
 
         # def stop_job(self, job): TODO: ?
 
         def end_job(self, job):  # TODO: factorise
             logger.info('Job scheduler queue: request END "%s"', job)
-            self._redis.lpush(self.JOBS_COMMANDS_KEY, '{}-{}'.format(CMD_END, job.id))
+            self._redis.lpush(self.JOBS_COMMANDS_KEY, f'{CMD_END}-{job.id}')
 
         @_redis_errors_2_bool
         def refresh_job(self, job, data):  # TODO: factorise
             logger.info('Job scheduler queue: request REFRESH "%s" (data=%s)', job, data)
             # self._redis.lpush(self.JOBS_COMMANDS_KEY, '{}-{}-{}'.format(CMD_REFRESH, job.id, json_dump(data)))
-            self._redis.lpush(self.JOBS_COMMANDS_KEY, '{}-{}-{}'.format(CMD_REFRESH, job.id, json_encode(data)))
+            self._redis.lpush(self.JOBS_COMMANDS_KEY, f'{CMD_REFRESH}-{job.id}-{json_encode(data)}')
 
         def get_command(self, timeout):
             # NB: can raise RedisError (ConnectionError, TimeoutError, other ?!)
@@ -314,7 +314,7 @@ else:
 
             try:
                 _redis.ping()
-                _redis.lpush(self.JOBS_COMMANDS_KEY, '{}-{}'.format(CMD_PING, value))
+                _redis.lpush(self.JOBS_COMMANDS_KEY, f'{CMD_PING}-{value}')
 
                 # TODO: meh. Use a push/pull method instead of polling ?
                 for i in range(3):
@@ -324,15 +324,13 @@ else:
                     if pong_result is not None:
                         break
             except RedisError as e:
-                return self._queue_error('{}.{}: {}'.format(
-                    e.__module__, e.__class__, e
-                ))
+                return self._queue_error(f'{e.__module__}.{e.__class__}: {e}')
 
             if pong_result is None:
                 return str(self._manager_error)
 
         def _build_pong_key(self, ping_value):
-            return '{}-{}'.format(self.JOBS_PONG_KEY_PREFIX, ping_value)
+            return f'{self.JOBS_PONG_KEY_PREFIX}-{ping_value}'
 
         def pong(self, ping_value):
             # NB: '1' has no special meaning, because only the existence of the key is used.
@@ -462,11 +460,12 @@ class JobScheduler:
     def _start_job(self, job):
         logger.info('JobScheduler: start %s', repr(job))
 
-        self._procs[job.id] = python_subprocess('import django; '
-                                                'django.setup(); '
-                                                'from creme.creme_core.core.job import job_type_registry; '
-                                                'job_type_registry({})'.format(job.id)
-                                               )
+        self._procs[job.id] = python_subprocess(
+            f'import django; '
+            f'django.setup(); '
+            f'from creme.creme_core.core.job import job_type_registry; '
+            f'job_type_registry({job.id})'
+        )
 
     def _end_job(self, job):
         logger.info('JobScheduler: end %s', repr(job))
@@ -602,9 +601,9 @@ class JobScheduler:
                 print('System jobs:')
                 for dt, __, job in system_jobs:
                     if not job.enabled:
-                        print(' - {job} (id={job_id}) -> disabled'.format(job=job, job_id=job.id))
+                        print(f' - {job} (id={job.id}) -> disabled')
                     elif dt <= now_value:
-                        print(' - {job} (id={job_id}) -> run immediately'.format(job=job, job_id=job.id))
+                        print(f' - {job} (id={job.id}) -> run immediately')
                     else:
                         print(' - {job} (id={job_id}) -> next run at {start}'.format(
                                     job=job, job_id=job.id,
@@ -617,7 +616,7 @@ class JobScheduler:
             if users_jobs:
                 print('User jobs:')
                 for job in users_jobs:
-                    print(' - {job} (id={job_id}; user={user})'.format(job=job, job_id=job.id, user=job.user))
+                    print(f' - {job} (id={job.id}; user={job.user})')
             else:
                 print('No user job at the moment.')
 

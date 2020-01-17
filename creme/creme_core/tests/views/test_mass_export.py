@@ -45,7 +45,7 @@ try:
     from creme.creme_core.models.history import TYPE_EXPORT, HistoryLine
     from creme.creme_core.utils.queries import QSerializer
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 try:
     from creme.creme_core.backends import export_backend_registry
@@ -125,8 +125,8 @@ class MassExportViewsTestCase(ViewsTestCase):
                  ContentType.objects.get_for_model(ct_or_model).id,
             doctype=doc_type,
             header='&header=true' if header else '',
-            efilter='' if efilter_id is None else '&efilter={}'.format(efilter_id),
-            hfilter='' if hfilter_id is None else '&hfilter={}'.format(hfilter_id),
+            efilter='' if efilter_id is None else f'&efilter={efilter_id}',
+            hfilter='' if hfilter_id is None else f'&hfilter={hfilter_id}',
         )
 
         if kwargs:
@@ -202,7 +202,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_contact_dl_url(header=True))
 
         self.assertListEqual(
-            [','.join('"{}"'.format(hfi.title) for hfi in cells)],
+            [','.join(f'"{hfi.title}"' for hfi in cells)],
             [force_text(line) for line in response.content.splitlines()],
         )
         self.assertFalse(HistoryLine.objects.exclude(id__in=existing_hline_ids))
@@ -231,7 +231,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         # TODO: sort the relations/properties by their verbose_name ??
         result = response.content.splitlines()
         it = (force_text(line) for line in result)
-        self.assertEqual(next(it), ','.join('"{}"'.format(hfi.title) for hfi in hf.cells))
+        self.assertEqual(next(it), ','.join(f'"{hfi.title}"' for hfi in hf.cells))
         self.assertEqual(next(it), '"","Black","Jet","Bebop",""')
         self.assertIn(next(it), ('"","Spiegel","Spike","Bebop/Swordfish",""',
                                  '"","Spiegel","Spike","Swordfish/Bebop",""')
@@ -276,7 +276,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         # TODO: sort the relations/properties by their verbose_name ??
         it = (force_text(line) for line in response.content.splitlines())
-        self.assertEqual(next(it), ';'.join('"{}"'.format(hfi.title) for hfi in cells))
+        self.assertEqual(next(it), ';'.join(f'"{hfi.title}"' for hfi in cells))
         self.assertEqual(next(it), '"";"Black";"Jet";"Bebop";""')
         self.assertIn(next(it), ('"";"Spiegel";"Spike";"Bebop/Swordfish";""',
                                  '"";"Spiegel";"Spike";"Swordfish/Bebop";""')
@@ -382,7 +382,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(next(it), '"Black","Jet face","Jet\'s selfie"')
 
         HIDDEN_VALUE = settings.HIDDEN_VALUE
-        self.assertEqual(next(it), '"Spiegel","{hidden}","{hidden}"'.format(hidden=HIDDEN_VALUE))
+        self.assertEqual(next(it), f'"Spiegel","{HIDDEN_VALUE}","{HIDDEN_VALUE}"')
         self.assertEqual(next(it), '"Valentine","",""')
 
     def test_list_view_export07(self):
@@ -434,7 +434,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         it = (force_text(line) for line in response.content.splitlines())
         self.assertEqual(
             next(it),
-            ','.join('"{}"'.format(u)
+            ','.join(f'"{u}"'
                        for u in [_('Civility'), _('Last name'), 'pilots', _('Properties')]
                     )
         )
@@ -532,7 +532,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         # self.assertEqual(user, fileref.user) TODO
 
         fullpath = fileref.filedata.path
-        self.assertTrue(exists(fullpath), '<{}> does not exists ?!'.format(fullpath))
+        self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists ?!')
         self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'xls'), dirname(fullpath))
 
     @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")

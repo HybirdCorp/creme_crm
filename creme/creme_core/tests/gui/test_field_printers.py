@@ -30,7 +30,7 @@ try:
     from creme.creme_core.tests import fake_constants
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class FieldsPrintersTestCase(CremeTestCase):
@@ -142,7 +142,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         url1 = 'www.wikipedia.org'
         self.assertEqual(
-            '<a href="{url}" target="_blank">{url}</a>'.format(url=url1),
+            f'<a href="{url1}" target="_blank">{url1}</a>',
             field_printers.print_url_html(o, fval=url1, user=user, field=field)
         )
 
@@ -184,7 +184,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         value1 = 'contact@foo.bar'
         self.assertEqual(
-            '<a href="mailto:{email}">{email}</a>'.format(email=value1),
+            f'<a href="mailto:{value1}">{value1}</a>',
             field_printers.print_email_html(c, value1, user, field)
         )
 
@@ -278,7 +278,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         img = FakeImage.objects.create(user=user, name='Img#1')
         self.assertEqual(
-            '<a href="{}">{}</a>'.format(img.get_absolute_url(), img),
+            f'<a href="{img.get_absolute_url()}">{img}</a>',
             printer(c, img, user, field)
         )
 
@@ -400,7 +400,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             default_enumerator=M2MPrinter.enumerator_all,
         )
         self.assertHTMLEqual(
-            '<ul><li>{}</li><li>{}</li></ul>'.format(img1, img2),
+            f'<ul><li>{img1}</li><li>{img2}</li></ul>',
             printer(prod, prod.images, user, field)
         )
 
@@ -430,14 +430,10 @@ class FieldsPrintersTestCase(CremeTestCase):
                    enumerator=M2MPrinter.enumerator_entity,
                   )
         self.assertHTMLEqual(
-            '<ul>'
-              '<li><a target="_blank" href="{url1}">{label1}</a></li>'
-              '<li>{img2}</li>'
-            '</ul>'.format(
-                url1=img1.get_absolute_url(),
-                label1=img1,
-                img2=settings.HIDDEN_VALUE,
-            ),
+            f'<ul>'
+              f'<li><a target="_blank" href="{img1.get_absolute_url()}">{img1}</a></li>'
+              f'<li>{settings.HIDDEN_VALUE}</li>'
+            f'</ul>',
             printer(prod, prod.images, user, field)
         )
 
@@ -477,7 +473,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         prod.images.set([img1, img2, img3])
 
         self.assertHTMLEqual(
-            '{}/{}'.format(img1, settings.HIDDEN_VALUE,),
+            f'{img1}/{settings.HIDDEN_VALUE}',
             field_printers.print_many2many_csv(prod, prod.images, user, field)
         )
 

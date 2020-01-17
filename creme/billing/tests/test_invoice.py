@@ -39,7 +39,7 @@ try:
         Invoice, ProductLine, ServiceLine,
     )
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomOrganisation
@@ -997,4 +997,4 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
             ServiceLine.objects.get(pk=service_line.pk)
             Relation.objects.get(pk=rel1.id)
         except Exception as e:
-            self.fail("Exception: ({}). Maybe the db doesn't support transaction ?".format(e))
+            self.fail(f"Exception: ({e}). Maybe the db doesn't support transaction ?")

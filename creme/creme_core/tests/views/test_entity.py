@@ -45,7 +45,7 @@ try:
 
     from creme.creme_config.models import FakeConfigEntity
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
@@ -116,7 +116,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual('application/json', response['Content-Type'])
 
         self.assertEqual([{'id':   entity.id,
-                           'text': 'Creme entity: {}'.format(entity.id),
+                           'text': f'Creme entity: {entity.id}',
                           }
                          ],
                          response.json()
@@ -139,10 +139,11 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         unknown_id = 1024
         self.assertFalse(CremeEntity.objects.filter(id=unknown_id))
 
-        response = self.assertGET200(reverse('creme_core__entities_summaries',
-                                             args=('{},{},{},{},{}'.format(mari.id, rei.id, nerv.id, unknown_id, asuka.id),)
-                                            )
-                                    )
+        response = self.assertGET200(
+            reverse('creme_core__entities_summaries',
+                    args=(f'{mari.id},{rei.id},{nerv.id},{unknown_id},{asuka.id}',),
+                   )
+        )
 
         self.assertEqual([{'id': mari.id,  'text': _('Entity #{id} (not viewable)').format(id=mari.id)},
                           {'id': rei.id,   'text': str(rei)},
@@ -185,7 +186,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         entity02 = create_orga(name='Seele')
         self.assertEqual(
-            '{}, {}'.format(entity01.name, entity02.name),
+            f'{entity01.name}, {entity02.name}',
             dep_2_str(dependencies=[entity01, entity02], user=user)
         )
 
@@ -219,28 +220,26 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         create_rel = partial(Relation.objects.create, user=user, type=rtype)
         rel01 = create_rel(subject_entity=entity01, object_entity=entity02)
         self.assertEqual(
-            '{} «{}»'.format(rtype.predicate, entity02.name),
+            f'{rtype.predicate} «{entity02.name}»',
             dep_2_str(dependencies=[rel01], user=user)
         )
 
         rel02 = create_rel(subject_entity=entity01, object_entity=entity03)
         self.assertEqual(
-            '{} «{}», {} «{}»'.format(
-                rtype.predicate, entity02.name,
-                rtype.predicate, settings.HIDDEN_VALUE,
-            ),
+            f'{rtype.predicate} «{entity02.name}», '
+            f'{rtype.predicate} «{settings.HIDDEN_VALUE}»',
             dep_2_str(dependencies=[rel02, rel01], user=user)
         )
 
         sector1, sector2 = FakeSector.objects.all()[:2]
         self.assertEqual(
-            '{}, {}'.format(sector1, sector2),
+            f'{sector1}, {sector2}',
             dep_2_str(dependencies=[sector1, sector2], user=user)
         )
 
         TestMixin.dependencies_limit = 2
         self.assertEqual(
-            '{}, {}…'.format(entity01.name, entity02.name),
+            f'{entity01.name}, {entity02.name}…',
             dep_2_str(dependencies=[entity01, entity03, entity02], user=user)
         )
 
@@ -376,7 +375,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(
             _('«{entity}» can not be deleted because of its dependencies ({dependencies}).').format(
                 entity=entity01.name,
-                dependencies='is a daughter of «{}»'.format(entity02.name),
+                dependencies=f'is a daughter of «{entity02.name}»',
             ),
             msg
         )
@@ -422,15 +421,15 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         user = self.login()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
-        entity01, entity02 = (create_entity() for i in range(2))
-        entity03, entity04 = (create_entity(is_deleted=True) for i in range(2))
+        entity01, entity02 = (create_entity() for __ in range(2))
+        entity03, entity04 = (create_entity(is_deleted=True) for __ in range(2))
 
         url = self.DEL_ENTITIES_URL
         self.assertPOST404(url)
         self.assertPOST(400, url, data={'ids': ''})
         self.assertPOST(400, url, data={'ids': 'notanint'})
 
-        data = {'ids': '{},{},{}'.format(entity01.id, entity02.id, entity03.id)}
+        data = {'ids': f'{entity01.id},{entity02.id},{entity03.id}'}
         self.assertGET405(url, data=data)
 
         response = self.assertPOST200(url, data=data)
@@ -446,24 +445,27 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertStillExists(entity04)
 
     def test_delete_entities_missing(self):
-        "Some entities doesn't exist"
+        "Some entities doesn't exist."
         user = self.login()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
-        entity01, entity02 = (create_entity() for i in range(2))
+        entity01, entity02 = (create_entity() for __ in range(2))
 
-        response = self.assertPOST404(self.DEL_ENTITIES_URL,
-                                      data={'ids': '{},{},'.format(entity01.id, entity02.id + 1)},
-                                     )
+        response = self.assertPOST404(
+            self.DEL_ENTITIES_URL,
+            data={'ids': '{},{},'.format(entity01.id, entity02.id + 1)},
+        )
 
-        self.assertDictEqual({'count': 2,
-                              'errors': [ngettext("{count} entity doesn't exist or has been removed.",
-                                                  "{count} entities don't exist or have been removed.",
-                                                  1
-                                                 ).format(count=1)]
-                             },
-                             response.json()
-                            )
+        self.assertDictEqual(
+            {'count': 2,
+             'errors': [ngettext("{count} entity doesn't exist or has been removed.",
+                                 "{count} entities don't exist or have been removed.",
+                                 1
+                                ).format(count=1),
+                       ],
+            },
+            response.json()
+        )
 
         entity01 = self.get_object_or_fail(CremeEntity, pk=entity01.id)
         self.assertTrue(entity01.is_deleted)
@@ -479,7 +481,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertPOST403(
             self.DEL_ENTITIES_URL,
-            data={'ids': '{},{},'.format(forbidden.id, allowed.id)},
+            data={f'ids': f'{forbidden.id},{allowed.id},'},
         )
 
         self.assertDictEqual(
@@ -1189,12 +1191,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         next_param = parsed_url.query
         self.assertTrue(next_param.startswith('next='), next_param)
         self.assertURLEqual(
-            '{url}?models={models}&fields={fields}&value={value}'.format(
-                url=url,
-                models=models,
-                fields=fields,
-                value=value,
-            ),
+            f'{url}?models={models}&fields={fields}&value={value}',
             unquote(next_param[len('next='):])
         )
 
@@ -2199,7 +2196,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET200(url)
 
         content = 'Yes I am the content (DocumentTestCase.test_createview)'
-        file_obj = self.build_filedata(content, suffix='.{}'.format(settings.ALLOWED_EXTENSIONS[0]))
+        file_obj = self.build_filedata(content, suffix=f'.{settings.ALLOWED_EXTENSIONS[0]}')
         response = self.client.post(url,
                                     data={'entities_lbl': [str(doc)],
                                           'field_value': file_obj,

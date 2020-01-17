@@ -18,7 +18,7 @@ try:
     Document = documents.get_document_model()
     Folder = documents.get_folder_model()
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
     skip_document_tests = skip_folder_tests = False
 
@@ -38,7 +38,7 @@ class _DocumentsTestCase(CremeTestCase):
         cls.ADD_DOC_URL = reverse('documents__create_document')
 
     def _create_doc(self, title, file_obj=None, folder=None, description=None, user=None):
-        file_obj = file_obj or self.build_filedata('{} : Content'.format(title))
+        file_obj = file_obj or self.build_filedata(f'{title} : Content')
         folder = folder or Folder.objects.all()[0]
         user = user or self.user
         data = {

@@ -19,7 +19,7 @@ try:
     from creme.creme_core.models.header_filter import HeaderFilterList
     from creme.creme_core.templatetags.creme_listview import listview_header_filters
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 # TODO: write complete tests for EntityCells
@@ -29,7 +29,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
         user = self.login()
 
         for i in range(1, 20):
-            FakeOrganisation.objects.create(user=user, name='A{}'.format(i))
+            FakeOrganisation.objects.create(user=user, name=f'A{i}')
 
         paginator = Paginator(FakeOrganisation.objects.all(), 5)
 
@@ -63,7 +63,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
         user = self.login()
 
         for i in range(1, 20):
-            FakeOrganisation.objects.create(user=user, name='A{}'.format(i))
+            FakeOrganisation.objects.create(user=user, name=f'A{i}')
 
         paginator = FlowPaginator(queryset=FakeOrganisation.objects.all(),
                                   key='name', per_page=5, count=20,

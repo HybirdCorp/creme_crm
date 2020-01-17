@@ -640,31 +640,25 @@ class SetCredentials(models.Model):
             model = ct.model_class()
             if model is CremeEntity:
                 raise ValueError(
-                    '{}: <ctype> cannot be <CremeEntity> (use <None> instead).'.format(
-                        type(self).__name__,
-                ))
+                    f'{type(self).__name__}: <ctype> cannot be <CremeEntity> (use <None> instead).'
+                )
 
         if self.set_type == self.ESET_FILTER:
             if not self.efilter_id:
                 raise ValueError(
-                    '{} with <set_type == ESET_FILTER> must have a filter.'.format(
-                        type(self).__name__,
-                    ))
+                    f'{type(self).__name__} with <set_type == ESET_FILTER> must have a filter.'
+                )
 
             filter_model = self.efilter.entity_type.model_class()
 
             if filter_model != model:
                 raise ValueError(
-                    '{cls} must have a filter related to the same type: {model} != {filter_model}'.format(
-                        cls=type(self).__name__,
-                        model=model,
-                        filter_model=filter_model,
-                    ))
+                    f'{type(self).__name__} must have a filter related to the same type: {model} != {filter_model}'
+                )
         elif self.efilter_id:
             raise ValueError(
-                'Only {} with <set_type == ESET_FILTER> can have a filter.'.format(
-                    type(self).__name__,
-            ))
+                f'Only {type(self).__name__} with <set_type == ESET_FILTER> can have a filter.'
+            )
 
         super().save(*args, **kwargs)
 
@@ -971,7 +965,7 @@ class CremeUser(AbstractBaseUser):
         eg: user.has_perm('myapp.add_mymodel') => user.has_perm_to_create(MyModel)
         """
         meta = model_or_entity._meta
-        return self.has_perm('{}.add_{}'.format(meta.app_label, meta.object_name.lower()))
+        return self.has_perm(f'{meta.app_label}.add_{meta.object_name.lower()}')
 
     def has_perm_to_create_or_die(self, model_or_entity):
         if not self.has_perm_to_create(model_or_entity):
@@ -1000,7 +994,7 @@ class CremeUser(AbstractBaseUser):
         eg: user.has_perm('myapp.export_mymodel') => user.has_perm_to_export(MyModel)
         """
         meta = model_or_entity._meta
-        return self.has_perm('{}.export_{}'.format(meta.app_label, meta.object_name.lower()))
+        return self.has_perm(f'{meta.app_label}.export_{meta.object_name.lower()}')
 
     def has_perm_to_export_or_die(self, model_or_entity):
         if not self.has_perm_to_export(model_or_entity):

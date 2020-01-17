@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -62,7 +62,7 @@ get_none = lambda x: None
 
 
 def get_element_template(element_type, template_name):
-    return 'crudity/infopath/create_template/frags/{}/element/{}'.format(element_type, template_name)
+    return f'crudity/infopath/create_template/frags/{element_type}/element/{template_name}'
 
 # TODO: use functools.partial
 # TODO: use ClassKeyedMap
@@ -242,7 +242,7 @@ class InfopathFormField:
         return isinstance(self.model_field, models.BooleanField)
 
     def get_m2m_xsl_choices_str(self):
-        return ' and '.join('.!="{}"'.format(c[0]) for c in self._get_choices())
+        return ' and '.join(f'.!="{c[0]}"' for c in self._get_choices())
 
 
 class InfopathFormBuilder:
@@ -256,7 +256,9 @@ class InfopathFormBuilder:
         self._fields   = None
 
     def get_namespace(self):
-        return 'http://schemas.microsoft.com/office/infopath/2003/myXSD/{}'.format(self.now.strftime('%Y-%m-%dT%H:%M:%S'))
+        return 'http://schemas.microsoft.com/office/infopath/2003/myXSD/{}'.format(
+            self.now.strftime('%Y-%m-%dT%H:%M:%S'),
+        )
 
     def get_urn(self):
         # TODO: change 'create' ? Make a constant ?
@@ -362,7 +364,7 @@ class InfopathFormBuilder:
     def render(self):
         file_name = '{}.xsn'.format(secure_filename(CrudityBackend.normalize_subject(self.backend.subject)))
         response = HttpResponse(self._render(file_name), content_type='application/vnd.ms-infopath')
-        response['Content-Disposition'] = 'attachment; filename={}'.format(file_name)
+        response['Content-Disposition'] = f'attachment; filename={file_name}'
 
         return response
 

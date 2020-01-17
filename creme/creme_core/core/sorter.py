@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,8 +24,11 @@ import logging
 
 from django.db import models
 
-from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-    EntityCellFunctionField, CELLS_MAP)
+from creme.creme_core.core.entity_cell import (
+    EntityCellRegularField,
+    EntityCellFunctionField,
+    CELLS_MAP,
+)
 from creme.creme_core.models import CremeEntity, fields
 from creme.creme_core.utils.collections import ClassKeyedMap
 from creme.creme_core.utils.db import get_indexed_ordering
@@ -68,7 +71,7 @@ class AbstractCellSorter:
         @param indent: Indentation level.
         @return: A string.
         """
-        return ' ' * indent + '{}'.format(type(self).__name__)
+        return ' ' * indent + type(self).__name__
 
 
 class VoidSorter(AbstractCellSorter):
@@ -118,7 +121,7 @@ class ForeignKeySorterRegistry(AbstractCellSorter):
             subfield_ordering = subfield_model._meta.ordering
 
             if subfield_ordering:
-                field_name = '{}__{}'.format(cell.value, subfield_ordering[0])
+                field_name = f'{cell.value}__{subfield_ordering[0]}'
             else:
                 logger.critical(
                     'ForeignKeySorter: related field model %s should '
@@ -133,10 +136,7 @@ class ForeignKeySorterRegistry(AbstractCellSorter):
 
     def pretty(self, indent=0):
         indent_str = ' ' * indent
-        res = '{indent}{name}:\n{indent}  Models:'.format(
-            indent=indent_str,
-            name=type(self).__name__,
-        )
+        res = f'{indent_str}{type(self).__name__}:\n{indent_str}  Models:'
 
         sorters = self._sorters
         if sorters:
@@ -148,7 +148,7 @@ class ForeignKeySorterRegistry(AbstractCellSorter):
                     sorter=sorter.pretty(indent=indent + 6),
                 )
         else:
-            res += '\n{}    (empty)'.format(indent_str)
+            res += f'\n{indent_str}    (empty)'
 
         return res
 
@@ -219,10 +219,7 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
 
     def pretty(self, indent=0):
         indent_str = ' ' * indent
-        res = '{indent}{name}:\n{indent}  Field types:'.format(
-            indent=indent_str,
-            name=type(self).__name__,
-        )
+        res = f'{indent_str}{type(self).__name__}:\n{indent_str}  Field types:'
 
         for field_type, sorter in self._sorters_4_modelfieldtypes.items():
             res += '\n{}    [{}.{}]:\n{}'.format(
@@ -232,7 +229,7 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
                 sorter.pretty(indent=indent + 6),
             )
 
-        res += '\n{}  Fields:'.format(indent_str)
+        res += f'\n{indent_str}  Fields:'
         modelfields = self._sorters_4_modelfields
         if modelfields:
             for field, sorter in modelfields.items():
@@ -242,7 +239,7 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
                     sorter.pretty(indent=indent + 6),
                 )
         else:
-            res += '\n{}    (empty)'.format(indent_str)
+            res += f'\n{indent_str}    (empty)'
 
         return res
 
@@ -341,7 +338,7 @@ class CellSorterRegistry(AbstractCellSorter):
     # TODO: factorise with ListViewSearchFieldRegistry
     def pretty(self, indent=0):
         indent_str = ' ' * indent
-        res = indent_str + '{}:'.format(type(self).__name__)
+        res = f'{indent_str}{type(self).__name__}:'
 
         def get_alias(cell_id):
             try:
@@ -349,7 +346,7 @@ class CellSorterRegistry(AbstractCellSorter):
             except KeyError:
                 return '??'
 
-            return '{}.type_id'.format(cell_cls.__name__)
+            return f'{cell_cls.__name__}.type_id'
 
         for cell_id, registry in self._registries.items():
             res += '\n{indent}  [{alias}="{id}"]:\n{registry}'.format(

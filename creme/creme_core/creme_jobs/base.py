@@ -127,7 +127,7 @@ class JobType:
 
     @staticmethod
     def generate_id(app_label, name):
-        return '{}-{}'.format(app_label, name)
+        return f'{app_label}-{name}'
 
     def get_description(self, job):
         """Get a humanized description, as a list of strings.

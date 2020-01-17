@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -303,7 +303,7 @@ class _AppConfigRegistry:
         models = self._models
 
         if model in models:
-            raise RegistrationError('Duplicated model: {}'.format(model))
+            raise RegistrationError(f'Duplicated model: {model}')
 
         conf = models[model] = _ModelConfig(model=model, model_name=model_name)
 
@@ -319,7 +319,7 @@ class _AppConfigRegistry:
         model_conf = self._models.get(model)
 
         if model_conf is None:
-            raise NotRegisteredInConfig('Model {} is not registered'.format(model))
+            raise NotRegisteredInConfig(f'Model {model} is not registered')
 
         return model_conf
 
@@ -388,7 +388,7 @@ class _ConfigRegistry:
                                        config_registry=self,
                                        )
             else:
-                raise KeyError('No AppConfigRegistry for this app: {}.'.format(app_label))
+                raise KeyError(f'No AppConfigRegistry for this app: {app_label}.')
 
         return app_registry
 

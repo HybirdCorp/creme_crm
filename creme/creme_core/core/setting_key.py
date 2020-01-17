@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -72,15 +72,13 @@ class _SettingKey:
         self._castor = self._CASTORS[type]
 
     def __str__(self):
-        return '{cls}(id="{id}", description="{description}", ' \
-               'app_label="{app_label}", type={type}, hidden={hidden})'.format(
-            cls=self.__class__.__name__,
-            id=self.id,
-            description=self.description,
-            app_label=self.app_label,
-            type=self.type,
-            hidden=self.hidden,
-        )
+        return (f'{self.__class__.__name__}('
+                    f'id="{self.id}", '
+                    f'description="{self.description}", '
+                    f'app_label="{self.app_label}", '
+                    f'type={self.type}, '
+                    f'hidden={self.hidden})'
+               )
 
     def cast(self, value_str):
         return self._castor(value_str)
@@ -128,12 +126,12 @@ class _SettingKeyRegistry:
         for skey in skeys:
             if not isinstance(skey, key_class):
                 raise self.RegistrationError(
-                    "Bad class for key {} (need {})".format(skey, key_class)
+                    f"Bad class for key {skey} (need {key_class})"
                 )
 
             if setdefault(skey.id, skey) is not skey:
                 raise self.RegistrationError(
-                    "Duplicated setting key's id: {}".format(skey.id)
+                    f"Duplicated setting key's id: {skey.id}"
                 )
 
     def unregister(self, *skeys):
@@ -142,9 +140,7 @@ class _SettingKeyRegistry:
         for skey in skeys:
             if pop(skey.id, None) is None:
                 raise self.RegistrationError(
-                    'This Setting is not registered (already un-registered ?): {}'.format(
-                        skey.id,
-                    )
+                    f'This Setting is not registered (already un-registered ?): {skey.id}'
                 )
 
 

@@ -9,7 +9,7 @@ try:
     from creme.creme_core.models import Job
     from creme.creme_core.models.history import HistoryLine, TYPE_DELETION, TYPE_AUX_CREATION
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class AssistantsTestCase(CremeTestCase):

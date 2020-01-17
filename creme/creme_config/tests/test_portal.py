@@ -7,7 +7,7 @@ try:
 
     from creme.creme_config.registry import _AppConfigRegistry
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class PortalTestCase(CremeTestCase):

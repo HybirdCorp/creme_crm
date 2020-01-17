@@ -16,7 +16,7 @@ try:
     from ..views.base import BrickTestCaseMixin
     from ..fake_models import FakeContact
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
@@ -48,9 +48,9 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         brick_registry.register(FooBrick)
 
         with self.assertNoException():
-            template = Template("{{% load creme_bricks %}}"
-                                "{{% brick_import app='creme_core' name='{name}' as my_brick %}}"
-                                "{{% brick_display my_brick %}}".format(name=name)
+            template = Template(f"{{% load creme_bricks %}}"
+                                f"{{% brick_import app='creme_core' name='{name}' as my_brick %}}"
+                                f"{{% brick_display my_brick %}}"
                                )
             render = template.render(RequestContext(self._build_request()))
 

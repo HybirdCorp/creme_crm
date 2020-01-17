@@ -26,7 +26,7 @@ try:
     from .base import CrudityTestCase, FakeFetcher, FakeInput
     from .fake_crudity_register import Swallow
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 FAKE_CRUDITY_BACKENDS = [{'fetcher':     'swallow',
@@ -343,7 +343,7 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
                                  )
 
         response = self.assertGET200(reverse('crudity__dl_fs_ini_template', args=(subject,)))
-        self.assertEqual('attachment; filename={}.ini'.format(subject),
+        self.assertEqual(f'attachment; filename={subject}.ini',
                          response['Content-Disposition']
                         )
         self.assertEqual('text/plain', response['Content-Type'])
@@ -436,7 +436,7 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.login()
 
         ct = ContentType.objects.get_for_model(FakeContact)
-        brick_id = 'block_crudity-{}'.format(ct.id)
+        brick_id = f'block_crudity-{ct.id}'
         response = self.assertGET200(reverse('crudity__reload_history_bricks'),
                                      data={'brick_id': brick_id},
                                     )
@@ -454,7 +454,7 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         ct = ContentType.objects.get_for_model(FakeImage)
         self.assertGET200(reverse('crudity__reload_history_bricks'),
-                          data={'brick_id': 'block_crudity-{}'.format(ct.id)},
+                          data={'brick_id': f'block_crudity-{ct.id}'},
                          )
 
     @override_settings(CRUDITY_BACKENDS=[{'fetcher': 'email',

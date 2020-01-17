@@ -37,7 +37,7 @@ class ReplacersRegistry:
 
     def __call__(self, cls):
         if self._replacer_classes.setdefault(cls.type_id, cls) is not cls:
-            raise self.RegistrationError('Duplicated Replacer id: {}'.format(cls.type_id))
+            raise self.RegistrationError(f'Duplicated Replacer id: {cls.type_id}')
 
         return cls
 

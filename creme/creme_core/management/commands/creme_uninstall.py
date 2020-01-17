@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2019  Hybird
+#    Copyright (C) 2014-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -175,11 +175,11 @@ def _uninstall_entity_filters(sender, content_types, stdout_write, style, **kwar
                              'sub-filter by the following filter(s): {parents}'.format(
                                     name=efilter.name,
                                     id=efilter.id,
-                                    parents=', '.join('<"{}" (id="{}")>'.format(p.name, p.id)
+                                    parents=', '.join(f'<"{p.name}" (id="{p.id}")>'
                                                   for p in parents.values()
                                              ),
                                 ),
-                             style.NOTICE
+                             style.NOTICE,
                             )
 
             efilter.delete(check_orphan=False)
@@ -269,17 +269,17 @@ class Command(AppCommand):
 
                 if not count:
                     if verbosity:
-                        self.stdout.write('No "{}" instance to delete.\n'.format(model.__name__))
+                        self.stdout.write(f'No "{model.__name__}" instance to delete.\n')
 
                     continue
 
                 if verbosity:
-                    self.stdout.write('Trying to flush "{model}" ({count}{adj} instances)...\n'.format(
-                                            model=model.__name__,
-                                            count=count,
-                                            adj='' if first_trial else ' remaining',
-                                        )
-                                     )
+                    self.stdout.write(
+                        'Trying to flush "{model}" ({count}{adj} instances)...\n'.format(
+                            model=model.__name__,
+                            count=count,
+                            adj='' if first_trial else ' remaining',
+                    ))
 
                 if issubclass(model, CremeEntity):
                     pre_delete = lambda i: i.relations.filter(type__is_internal=False).delete()
@@ -317,11 +317,10 @@ class Command(AppCommand):
                     'Please delete the problematic instances '
                     'manually before re-run this command.'.format(
                         errors='\n'.join(
-                            '- Cannot delete "{obj}" (id={id}) (original error: {error})'.format(
-                                 obj=obj, id=obj.id, error=error,
-                            ) for obj, error in errors
+                            f'- Cannot delete "{obj}" (id={obj.id}) (original error: {error})'
+                                for obj, error in errors
                         ),
-                        extra_errors='({} extra error(s))\n'.format(extra_errors) if extra_errors else '',
+                        extra_errors=f'({extra_errors} extra error(s))\n' if extra_errors else '',
                     )
                 )
 
@@ -347,8 +346,7 @@ class Command(AppCommand):
                             ctype=ctype,
                             id=ctype.id,
                             again='' if error is None else ' again',
-                        )
-                    )
+                    ))
 
                 try:
                     ctype.delete()
@@ -373,10 +371,9 @@ class Command(AppCommand):
                 'before re-run this command.'.format(
                     '\n'.join('- Cannot delete ContentType for "{}" '
                               '(original error: {})'.format(*ci)
-                                for ci in ctypes_info
+                                  for ci in ctypes_info
                              ),
-                )
-            )
+            ))
 
         if verbosity > 1:
             self.stdout.write(' [OK] All related ContentTypes have been deleted.',
@@ -399,13 +396,15 @@ class Command(AppCommand):
         models, dep_error = ordered_models_to_delete(app_config, connection)
 
         if dep_error:
-            self.stderr.write(' [KO] Dependencies loop (cannot find a safe deletion order).\n'
-                              'Tables:\n{}\n'.format('\n'.join(model._meta.db_table for model in models))
-                             )
+            self.stderr.write(
+                ' [KO] Dependencies loop (cannot find a safe deletion order).\n'
+                'Tables:\n{}\n'.format('\n'.join(model._meta.db_table for model in models))
+            )
 
-            raise CommandError('Sadly you have to DELETE the remaining tables MANUALLY, '
-                               'and THEN REMOVE "{}" from your settings.'.format(app_label),
-                              )
+            raise CommandError(
+                f'Sadly you have to DELETE the remaining tables MANUALLY, '
+                f'and THEN REMOVE "{app_label}" from your settings.',
+            )
 
         # if sql_commands:
         if models:
@@ -420,29 +419,27 @@ class Command(AppCommand):
 
                     if verbosity:
                         meta = model._meta
-                        self.stdout.write(' Drop the model "{app}.{model}" (table: "{table}").'.format(
-                                                app=meta.app_label,
-                                                model=model.__name__,
-                                                table=meta.db_table,
-                                            )
-                                         )
+                        self.stdout.write(
+                            f' Drop the model "{meta.app_label}.{model.__name__}" (table: "{meta.db_table}").'
+                        )
 
                     schema_editor.delete_model(model)
 
                     if verbosity:
                         self.stdout.write(' [OK]', self.style.SUCCESS)
             except Exception as e:
-                self.stderr.write(' [KO] Original error: {error}.\n'
-                                  'Remaining tables:\n'
-                                  '{models}\n'.format(
-                                        error=force_text(e),  # PostGreSQL returns localized errors...
-                                        models='\n'.join(model._meta.db_table for model in models),
-                                    )
-                                 )
+                self.stderr.write(
+                    ' [KO] Original error: {error}.\n'
+                    'Remaining tables:\n'
+                    '{models}\n'.format(
+                        error=force_text(e),  # PostGreSQL returns localized errors...
+                        models='\n'.join(model._meta.db_table for model in models),
+                ))
 
-                raise CommandError('Sadly you have to DELETE the remaining tables MANUALLY, '
-                                   'and THEN REMOVE "{}" from your settings.'.format(app_label),
-                                  )
+                raise CommandError(
+                    f'Sadly you have to DELETE the remaining tables MANUALLY, '
+                    f'and THEN REMOVE "{app_label}" from your settings.',
+                )
 
             if verbosity > 1:
                 self.stdout.write(' [OK] All tables have been deleted',
@@ -456,9 +453,10 @@ class Command(AppCommand):
         app_label = app_config.label
 
         if not app_config.creme_app:
-            raise CommandError('"{}" seems not to be a Creme app '
-                               '(see settings.INSTALLED_CREME_APPS)'.format(app_label)
-                              )
+            raise CommandError(
+                f'"{app_label}" seems not to be a Creme app '
+                f'(see settings.INSTALLED_CREME_APPS)'
+            )
 
         self._check_apps_dependencies(app_config)
 
@@ -480,10 +478,11 @@ class Command(AppCommand):
         self._delete_tables(app_config, app_label, verbosity)
 
         if verbosity:
-            self.stdout.write('\nUninstall is OK.\n'
-                              'You should now remove "{}" from your settings.\n'.format(app_config.name),
-                              self.style.SUCCESS,
-                             )
+            self.stdout.write(
+                f'\nUninstall is OK.\n'
+                f'You should now remove "{app_config.name}" from your settings.\n',
+                self.style.SUCCESS,
+            )
 
 
 ################################################################################

@@ -15,7 +15,7 @@ try:
     Opportunity = opportunities.get_opportunity_model()
     skip_opportunity_tests = opportunities.opportunity_model_is_custom()
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 Organisation = get_organisation_model()
 Contact = get_contact_model()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,7 @@ def import_apps_sub_modules(module_name):
 
     for app_config in apps.get_app_configs():
         try:
-            mod = import_module('{}.{}'.format(app_config.name, module_name))
+            mod = import_module(f'{app_config.name}.{module_name}')
         except ImportError:
             continue
         else:
@@ -56,7 +56,9 @@ def import_object(objectpath):
     try:
         result = getattr(mod, attr)
     except AttributeError as e:
-        raise AttributeError('Module "{}" does not define a "{}" object'.format(module, attr)) from e
+        raise AttributeError(
+            f'Module "{module}" does not define a "{attr}" object'
+        ) from e
 
     return result
 

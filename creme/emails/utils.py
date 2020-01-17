@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,7 @@ _IMG_PATTERN = re_compile(r'<img.*src[\s]*[=]{1,1}["\']{1,1}(?P<img_src>[\d\w:/?
 
 class ImageFromHTMLError(Exception):
     def __init__(self, filename, *args, **kwargs):
-        super().__init__('Can not use the image : {}'.format(filename))
+        super().__init__(f'Can not use the image : {filename}')
         self._filename = filename
 
     @property
@@ -63,7 +63,7 @@ def get_mime_image(image_entity):
         try:
             with image_entity.filedata.open() as image_file:
                 mime_image = MIMEImage(image_file.read())
-                mime_image.add_header('Content-ID','<img_{}>'.format(image_entity.id))
+                mime_image.add_header('Content-ID', f'<img_{image_entity.id}>')
                 mime_image.add_header('Content-Disposition', 'inline', filename=basename(image_file.name))
         except IOError as e:
             logger.error('Exception when reading image : %s', e)
@@ -92,7 +92,7 @@ class EMailSender:
                     logger.error('Error during reading attached image in signature: %s', image_entity)
                 else:
                     mime_images.append(mime_image)
-                    body_html += '<img src="cid:img_{}" /><br/>'.format(image_entity.id)
+                    body_html += f'<img src="cid:img_{image_entity.id}" /><br/>'
 
         self._body      = body
         self._body_html = body_html

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -109,7 +109,7 @@ class EntityCellsWidget(Widget):
 
     def get_context(self, name, value, attrs):
         if isinstance(value, list):
-            value = ','.join('{}-{}'.format(cell.type_id, cell.value) for cell in value)
+            value = ','.join(f'{cell.type_id}-{cell.value}' for cell in value)
 
         context = super().get_context(name=name, value=value, attrs=attrs)
 
@@ -390,7 +390,7 @@ class HeaderFilterCreateForm(_HeaderFilterForm):
         kwargs['commit'] = False
         super().save(*args, **kwargs)
         generate_string_id_and_save(HeaderFilter, [instance],
-                                    'creme_core-userhf_{}-{}'.format(ct.app_label, ct.model)
+                                    f'creme_core-userhf_{ct.app_label}-{ct.model}'
                                    )
 
         return instance

@@ -11,7 +11,7 @@ try:
 
     from .base import _EmailsTestCase, skipIfCustomEmailTemplate, EmailTemplate
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomEmailTemplate

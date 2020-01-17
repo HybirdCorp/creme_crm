@@ -31,7 +31,7 @@ try:
     from creme.creme_core.gui.statistics import _StatisticsRegistry
     from creme.creme_core.models import CremeEntity, SetCredentials, Language
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class GuiTestCase(CremeTestCase):
@@ -151,7 +151,7 @@ class GuiTestCase(CremeTestCase):
                         )
         self.assertEqual('', get_csv_val(casca, 'is_user', user))  # Null_label not used in CSV backend
 
-        self.assertEqual('<a href="{}">{}</a>'.format(img.get_absolute_url(), escape(img)),
+        self.assertEqual(f'<a href="{img.get_absolute_url()}">{escape(img)}</a>',
                          get_html_val(casca, 'image', user)
                         )
         self.assertEqual(str(casca.image), get_csv_val(casca, 'image', user))
@@ -167,10 +167,10 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(date_str, get_html_val(casca, 'created', user))
         self.assertEqual(date_str, get_csv_val(casca,  'created', user))
 
-        self.assertEqual('<ul><li>{}</li><li>{}</li></ul>'.format(cat1.name, cat2.name),
+        self.assertEqual(f'<ul><li>{cat1.name}</li><li>{cat2.name}</li></ul>',
                          get_html_val(casca, 'image__categories', user)
                         )
-        self.assertEqual('{}/{}'.format(cat1.name, cat2.name),
+        self.assertEqual(f'{cat1.name}/{cat2.name}',
                          get_csv_val(casca, 'image__categories', user)
                         )
         # TODO: test ImageField
@@ -180,7 +180,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual('', get_html_val(judo, 'image__description', user))
         self.assertEqual('', get_html_val(judo, 'image__categories',  user))
 
-        self.assertEqual(str(user), get_html_val(casca, 'image__user', user))            # depth = 2
+        self.assertEqual(str(user), get_html_val(casca, 'image__user', user))                # depth = 2
         self.assertEqual(user.username, get_html_val(casca, 'image__user__username', user))  # depth = 3
 
     def test_field_printers02(self):
@@ -205,15 +205,15 @@ class GuiTestCase(CremeTestCase):
                         )
 
         get_csv_val = field_printers_registry.get_csv_field_value
-        self.assertEqual('{}/{}'.format(lang1, lang2),
+        self.assertEqual(f'{lang1}/{lang2}',
                          get_csv_val(goku, 'languages', user)
                         )
-        self.assertEqual('{}/{}'.format(lang1.name, lang2.name),
+        self.assertEqual(f'{lang1.name}/{lang2.name}',
                          get_csv_val(goku, 'languages__name', user)
                         )
 
     def test_field_printers03(self):
-        "ManyToMany (CremeEntity)"
+        "ManyToMany (CremeEntity)."
         user = self.login(is_superuser=False)
         self.role.exportable_ctypes.set([ContentType.objects.get_for_model(FakeEmailCampaign)])
         SetCredentials.objects.create(role=self.role,
@@ -241,31 +241,25 @@ class GuiTestCase(CremeTestCase):
 
         get_html_val = field_printers_registry.get_html_field_value
         get_csv_val  = field_printers_registry.get_csv_field_value
-        self.assertEqual('<ul>'
-                            '<li><a target="_blank" href="{}">{}</a></li>'
-                            '<li><a target="_blank" href="{}">{}</a></li>'
-                         '</ul>'.format(
-                                ml1.get_absolute_url(), ml1,
-                                ml2.get_absolute_url(), ml2,
-                            ),
+        self.assertEqual(f'<ul>'
+                            f'<li><a target="_blank" href="{ml1.get_absolute_url()}">{ml1}</a></li>'
+                            f'<li><a target="_blank" href="{ml2.get_absolute_url()}">{ml2}</a></li>'
+                         f'</ul>',
                          get_html_val(camp1, 'mailing_lists', user)
                         )
-        self.assertEqual('<ul>'
-                            '<li>{}</li>'
-                            '<li>{}</li>'
-                         '</ul>'.format(
-                                ml1.name,
-                                ml2.name,
-                            ),
+        self.assertEqual(f'<ul>'
+                            f'<li>{ml1.name}</li>'
+                            f'<li>{ml2.name}</li>'
+                         f'</ul>',
                          get_html_val(camp1, 'mailing_lists__name', user)
                         )
 
-        csv_value = '{}/{}'.format(ml1, ml2)
+        csv_value = f'{ml1}/{ml2}'
         self.assertEqual(csv_value, get_csv_val(camp1, 'mailing_lists', user))
         self.assertEqual(csv_value, get_csv_val(camp1, 'mailing_lists__name', user))
 
         HIDDEN_VALUE = settings.HIDDEN_VALUE
-        html_value = '<ul><li>{}</li></ul>'.format(HIDDEN_VALUE)
+        html_value = f'<ul><li>{HIDDEN_VALUE}</li></ul>'
         self.assertEqual(html_value, get_html_val(camp2, 'mailing_lists', user))
         self.assertEqual(html_value, get_html_val(camp2, 'mailing_lists__name', user))
 
@@ -298,7 +292,7 @@ class GuiTestCase(CremeTestCase):
         judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual('<a href="{}">{}</a>'.format(judo_face.get_absolute_url(), judo_face),
+        self.assertEqual(f'<a href="{judo_face.get_absolute_url()}">{judo_face}</a>',
                          get_html_val(judo, 'image', user)
                         )
         self.assertEqual('<p>Judo&#39;s selfie</p>',

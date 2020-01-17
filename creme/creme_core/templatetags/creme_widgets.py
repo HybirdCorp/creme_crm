@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -146,7 +146,9 @@ def do_icon(parser, token):
     """
     bits = token.split_contents()
     if len(bits) < 2:
-        raise TemplateSyntaxError('"{}" takes at least one argument (name/ctype/instance=...)'.format(bits[0]))
+        raise TemplateSyntaxError(
+            f'"{bits[0]}" takes at least one argument (name/ctype/instance=...)'
+        )
 
     match = KWARG_RE.match(bits[1])
     if not match:
@@ -158,7 +160,8 @@ def do_icon(parser, token):
         arg_name, icon_node_cls = _WIDGET_ICON_NODES[fa_name]
     except KeyError as e:
         raise TemplateSyntaxError(
-                'Invalid 1rst argument to "widget_icon" tag ; it must be in {}'.format(_WIDGET_ICON_NODES.keys())
+            f'Invalid 1rst argument to "widget_icon" tag ; '
+            f'it must be in {_WIDGET_ICON_NODES.keys()}'
         ) from e
 
     kwargs = {arg_name: parser.compile_filter(fa_value)}
@@ -171,13 +174,13 @@ def do_icon(parser, token):
     for bit in bits:
         match = KWARG_RE.match(bit)
         if not match:
-            raise TemplateSyntaxError('Malformed arguments to "widget_icon" tag: {}'.format(bit))
+            raise TemplateSyntaxError(f'Malformed arguments to "widget_icon" tag: {bit}')
 
         name, value = match.groups()
 
         arg_name = __ICON_ARGS_MAP.get(name)
         if arg_name is None:
-            raise TemplateSyntaxError('Invalid argument name to "widget_icon" tag: {}'.format(name))
+            raise TemplateSyntaxError(f'Invalid argument name to "widget_icon" tag: {name}')
 
         kwargs[arg_name] = parser.compile_filter(value)
 
@@ -194,7 +197,7 @@ def do_render_icon(parser, token):
     bits = token.split_contents()
 
     if len(bits) != 3:
-        raise TemplateSyntaxError("'{}' takes 2 arguments (icon & class)".format(bits[0]))
+        raise TemplateSyntaxError(f"'{bits[0]}' takes 2 arguments (icon & class)")
 
     def compile_arg(token, prefix):
         if token.startswith(prefix):
@@ -273,7 +276,7 @@ def do_join(parser, token):
 
     if len(tokens) > 1:
         # We are sure there are at least one token (the tag itself).
-        raise TemplateSyntaxError('"{!r}" tag takes no argument'.format(tokens[0]))
+        raise TemplateSyntaxError(f'"{tokens[0]}" tag takes no argument')
 
     nodelist = parser.parse(('end_widget_join',))
     parser.delete_first_token()
@@ -288,7 +291,7 @@ def enum_comma_and(item, counter, is_first, is_last):
     if is_last:
         return '&emsp14;{}&emsp14;{}'.format(_('and'), item)
 
-    return ',&emsp14;{}'.format(item)
+    return f',&emsp14;{item}'
 
 
 class JoinNode(TemplateNode):

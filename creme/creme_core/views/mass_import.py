@@ -152,6 +152,6 @@ def download_errors(request, job_id):
             ]
         )
 
-    writer.save('{}-errors'.format(splitext(doc.title)[0]))
+    writer.save(f'{splitext(doc.title)[0]}-errors')
 
     return writer.response

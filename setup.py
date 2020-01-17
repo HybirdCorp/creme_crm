@@ -20,7 +20,7 @@ def find_version_from_file(*file_paths):
     if version_match:
         return version_match.group(1)
 
-    raise RuntimeError("Unable to find version string on '{}'.".format(path))
+    raise RuntimeError(f"Unable to find version string on '{path}'.")
 
 
 setup(

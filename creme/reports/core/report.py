@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2019  Hybird
+#    Copyright (C) 2013-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,8 +33,10 @@ from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.models import CremeEntity, RelationType, CustomField
 from creme.creme_core.utils.meta import FieldInfo
 
-from ..constants import (RFT_FUNCTION, RFT_RELATION, RFT_FIELD, RFT_CUSTOM,
-        RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
+from ..constants import (
+    RFT_FUNCTION, RFT_RELATION, RFT_FIELD, RFT_CUSTOM,
+    RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED,
+)
 from ..report_aggregation_registry import field_aggregation_registry
 
 # TODO: use Window/Frame to compute aggregate ?
@@ -86,7 +88,7 @@ class ReportHand:
     def _generate_flattened_report(self, entities, user, scope):
         columns = self._report_field.sub_report.columns
 
-        return ', '.join('/'.join('{}: {}'.format(column.title, column.get_value(entity, user, scope))
+        return ', '.join('/'.join(f'{column.title}: {column.get_value(entity, user, scope)}'
                                       for column in columns
                                  ) for entity in entities
                         )
@@ -215,18 +217,24 @@ class RHRegularField(ReportHand):
         try:
             field_info = FieldInfo(report_field.model, report_field.name)
         except FieldDoesNotExist as e:
-            raise ReportHand.ValueError('Invalid field: "{}" (does not exist)'.format(report_field.name)) from e
+            raise ReportHand.ValueError(
+                f'Invalid field: "{report_field.name}" (does not exist)'
+            ) from e
 
         info_length = len(field_info)
         if info_length > 1:
             if info_length > 2:
-                raise ReportHand.ValueError('Invalid field: "{}" (too deep)'.format(report_field.name))
+                raise ReportHand.ValueError(
+                    f'Invalid field: "{report_field.name}" (too deep)'
+                )
 
             second_part = field_info[1]
 
             if (isinstance(second_part, (ForeignKey, ManyToManyField)) and
                issubclass(second_part.remote_field.model, CremeEntity)):
-                raise ReportHand.ValueError('Invalid field: "{}" (no entity at depth=1)'.format(report_field.name))
+                raise ReportHand.ValueError(
+                    f'Invalid field: "{report_field.name}" (no entity at depth=1)'
+                )
 
         first_part = field_info[0]
         klass = RHForeignKey if isinstance(first_part, ForeignKey) else \
@@ -365,7 +373,9 @@ class RHCustomField(ReportHand):
         try:
             self._cfield = cf = CustomField.objects.get(id=report_field.name)
         except CustomField.DoesNotExist as e:
-            raise ReportHand.ValueError('Invalid custom field: "{}"'.format(report_field.name)) from e
+            raise ReportHand.ValueError(
+                f'Invalid custom field: "{report_field.name}"'
+            ) from e
 
         super().__init__(report_field, title=cf.name)
 
@@ -384,7 +394,9 @@ class RHRelation(ReportHand):
         try:
             self._rtype = rtype = RelationType.objects.get(id=rtype_id)
         except RelationType.DoesNotExist as e:
-            raise ReportHand.ValueError('Invalid relation type: "{}"'.format(rtype_id)) from e
+            raise ReportHand.ValueError(
+                f'Invalid relation type: "{rtype_id}"'
+            ) from e
 
         if report_field.sub_report:
             self._related_model = report_field.sub_report.ct.model_class()
@@ -424,7 +436,9 @@ class RHFunctionField(ReportHand):
         # TODO: get registry as argument
         funcfield = function_field_registry.get(report_field.model, report_field.name)
         if not funcfield:
-            raise ReportHand.ValueError('Invalid function field: "{}"'.format(report_field.name))
+            raise ReportHand.ValueError(
+                f'Invalid function field: "{report_field.name}"'
+            )
 
         self._funcfield = funcfield
 
@@ -445,7 +459,7 @@ class RHAggregate(ReportHand):
         aggregation = field_aggregation_registry.get(aggregation_id)
 
         if aggregation is None:
-            raise ReportHand.ValueError('Invalid aggregation: "{}"'.format(aggregation_id))
+            raise ReportHand.ValueError(f'Invalid aggregation: "{aggregation_id}"')
 
         self._aggregation_q, verbose_name = self._build_query_n_vname(report_field,
                                                                       field_name,
@@ -453,7 +467,7 @@ class RHAggregate(ReportHand):
                                                                      )
 
         super().__init__(report_field,
-                         title='{} - {}'.format(aggregation.title, verbose_name),
+                         title=f'{aggregation.title} - {verbose_name}',
                         )
 
     def _build_query_n_vname(self, report_field, field_name, aggregation):
@@ -476,10 +490,12 @@ class RHAggregateRegularField(RHAggregate):
         try:
             field = report_field.model._meta.get_field(field_name)
         except FieldDoesNotExist as e:
-            raise ReportHand.ValueError('Unknown field: "{}"'.format(field_name)) from e
+            raise ReportHand.ValueError(f'Unknown field: "{field_name}"') from e
 
         if not isinstance(field, field_aggregation_registry.authorized_fields):
-            raise ReportHand.ValueError('This type of field can not be aggregated: "{}"'.format(field_name))
+            raise ReportHand.ValueError(
+                f'This type of field can not be aggregated: "{field_name}"'
+            )
 
         return (aggregation.func(field_name), field.verbose_name)
 
@@ -492,12 +508,12 @@ class RHAggregateCustomField(RHAggregate):
         try:
             cfield = CustomField.objects.get(id=field_name)
         except (ValueError, CustomField.DoesNotExist) as e:
-            raise ReportHand.ValueError('Invalid custom field aggregation: "{}"'.format(field_name)) from e
+            raise ReportHand.ValueError(f'Invalid custom field aggregation: "{field_name}"') from e
 
         if cfield.field_type not in field_aggregation_registry.authorized_customfields:
-            raise ReportHand.ValueError('This type of custom field can not be aggregated: "{}"'.format(field_name))
+            raise ReportHand.ValueError(f'This type of custom field can not be aggregated: "{field_name}"')
 
-        return (aggregation.func('{}__value'.format(cfield.get_value_class().get_related_name())),
+        return (aggregation.func(f'{cfield.get_value_class().get_related_name()}__value'),
                 cfield.name,
                )
 
@@ -510,7 +526,7 @@ class RHRelated(ReportHand):
         related_field = self._get_related_field(report_field.model, report_field.name)
 
         if not related_field:
-            raise ReportHand.ValueError('Invalid related field: "{}"'.format(report_field.name))
+            raise ReportHand.ValueError(f'Invalid related field: "{report_field.name}"')
 
         self._related_field = related_field
         self._attr_name = related_field.get_accessor_name()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2019  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -178,10 +178,10 @@ class FieldsConfig(CremeModel):
 
             for name, value in field_conf.items():
                 if name != HIDDEN:
-                    raise FieldsConfig.InvalidAttribute('Invalid attribute name: "{}"'.format(name))
+                    raise FieldsConfig.InvalidAttribute(f'Invalid attribute name: "{name}"')
 
                 if not isinstance(value, bool):
-                    raise FieldsConfig.InvalidAttribute('Invalid attribute value: "{}"'.format(value))
+                    raise FieldsConfig.InvalidAttribute(f'Invalid attribute value: "{value}"')
 
             safe_descriptions.append((field_name, field_conf))
 

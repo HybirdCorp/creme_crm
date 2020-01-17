@@ -20,7 +20,7 @@ try:
     from ..templatetags.polls_tags import poll_node_number, poll_node_css, poll_line_condition
     from ..utils import SectionTree, NodeStyle
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 get_ct = ContentType.objects.get_for_model
 

@@ -8,7 +8,7 @@ try:
     from ..base import CremeTestCase
     from ..fake_models import FakeOrganisation, FakeSector
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class CremeWidgetsTagsTestCase(CremeTestCase):
@@ -64,7 +64,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         self.assertEqual(render, settings.HIDDEN_VALUE)
 
     def test_widget_entity_hyperlink03(self):
-        "Is deleted"
+        "Is deleted."
         user = self.login()
         orga = FakeOrganisation.objects.create(user=user, name='Seele', is_deleted=True)
 
@@ -73,9 +73,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render = tpl.render(Context({'user': user, 'my_entity': orga}))
 
         self.assertEqual(render, 
-                         '<a href="/tests/organisation/{}" class="is_deleted">{}</a>'.format(
-                                orga.id, str(orga)
-                            )
+                         f'<a href="/tests/organisation/{orga.id}" class="is_deleted">{orga}</a>'
                         )
 
     @override_settings(URLIZE_TARGET_BLANK=False)

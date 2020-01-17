@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -94,19 +94,19 @@ class CRUDityRegistry:
 
         for fetcher_name, fetcher_interface in self._fetchers.items():
             res += '\n - Fetcher("{}"): {}'.format(
-                    fetcher_name,
-                    '/'.join(str(fetcher.__class__.__name__) for fetcher in fetcher_interface.fetchers),
+                fetcher_name,
+                '/'.join(fetcher.__class__.__name__ for fetcher in fetcher_interface.fetchers),
             )
 
             default_backend = fetcher_interface.get_default_backend()
             if default_backend:
-                res += '    Default backend: {}'.format(default_backend)
+                res += f'    Default backend: {default_backend}'
 
             for input_name, inputs in fetcher_interface._inputs.items():
-                res += '\n    - Input("{}"):'.format(input_name)
+                res += f'\n    - Input("{input_name}"):'
 
                 for method, input in inputs.items():
-                    res += '\n       - Method "{}": <{}>'.format(method, input.__class__.__name__)
+                    res += f'\n       - Method "{method}": <{input.__class__.__name__}>'
 
                     backends = input.backends
 
@@ -115,7 +115,7 @@ class CRUDityRegistry:
                     else:
                         res += '\n         Backends:'
                         for subject, backend in input.backends.items():
-                            res += '\n          - {}: {}'.format(subject, backend.__class__.__name__)
+                            res += f'\n          - {subject}: {backend.__class__.__name__}'
 
         return res
 
@@ -126,10 +126,11 @@ class CRUDityRegistry:
             register_fetchers = self.register_fetchers
             for source_type, fetchers_classes in fetchers.items():
                 if any(c not in ALLOWED_ID_CHARS for c in source_type):
-                    raise ValueError('The fetchers ID "{}" (in {}) use forbidden characters [allowed ones: {}].'.format(
-                                            source_type, crud_import, ''.join(ALLOWED_ID_CHARS),
-                                        )
-                                    )
+                    raise ValueError(
+                        'The fetchers ID "{}" (in {}) use forbidden characters [allowed ones: {}].'.format(
+                            source_type, crud_import, ''.join(ALLOWED_ID_CHARS),
+                        )
+                    )
 
                 register_fetchers(source_type, [fetcher_cls() for fetcher_cls in fetchers_classes])
 
@@ -139,10 +140,11 @@ class CRUDityRegistry:
             for source_type, input_classes in inputs.items():
                 for crud_input in input_classes:
                     if any(c not in ALLOWED_ID_CHARS for c in crud_input.name):
-                        raise ValueError('The input ID "{}" ({}) use forbidden characters [allowed ones: {}].'.format(
-                                                crud_input.name, crud_input.__class__, ''.join(ALLOWED_ID_CHARS),
-                                            )
-                                        )
+                        raise ValueError(
+                            'The input ID "{}" ({}) use forbidden characters [allowed ones: {}].'.format(
+                                crud_input.name, crud_input.__class__, ''.join(ALLOWED_ID_CHARS),
+                            )
+                        )
 
                 register_inputs(source_type, [input_cls() for input_cls in input_classes])
 
@@ -192,7 +194,7 @@ class CRUDityRegistry:
             return self._backends[model]
         except KeyError as e:
             # raise NotRegistered("No backend is registered for the model '%s'" % model)
-            raise self.RegistrationError('No backend is registered for the model "{}"'.format(model)) from e
+            raise self.RegistrationError(f'No backend is registered for the model "{model}"') from e
 
     def get_configured_backends(self):
         """Get backends instances which are configured and associated to an input
@@ -235,11 +237,11 @@ class CRUDityRegistry:
     def get_default_backend(self, fetcher_name):
         fetcher = crudity_registry.get_fetcher(fetcher_name)
         if not fetcher:
-            raise KeyError('Unknown fetcher "{}"'.format(fetcher_name))
+            raise KeyError(f'Unknown fetcher "{fetcher_name}"')
 
         backend = fetcher.get_default_backend()
         if not backend:
-            raise KeyError('Fetcher "{}" has no default backend'.format(fetcher_name))
+            raise KeyError(f'Fetcher "{fetcher_name}" has no default backend')
 
         return backend
 
@@ -264,61 +266,60 @@ class CRUDityRegistry:
             else:
                 backend_cls = self._backends.get(model)
                 if backend_cls is None:
-                    raise ImproperlyConfigured('settings.CRUDITY_BACKENDS: '
-                                               'no backend is registered for this model <{}>'.format(model)
-                                              )
+                    raise ImproperlyConfigured(
+                        f'settings.CRUDITY_BACKENDS: '
+                        f'no backend is registered for this model <{model}>'
+                    )
 
                 fetcher = self.get_fetcher(fetcher_source)
 
                 if fetcher is None:
-                    raise ImproperlyConfigured('settings.CRUDITY_BACKENDS: '
-                                               'invalid fetcher "{}".'.format(fetcher_source)
+                    raise ImproperlyConfigured(f'settings.CRUDITY_BACKENDS: '
+                                               f'invalid fetcher "{fetcher_source}".'
                                               )
 
                 if subject == '*':
                     if fetcher.get_default_backend() is not None:
-                        raise ImproperlyConfigured('settings.CRUDITY_BACKENDS: '
-                                                   'only one fallback backend is allowed for "{}/{}".'.format(
-                                                       fetcher_source, input_name,
-                                                    )
-                                                  )
+                        raise ImproperlyConfigured(
+                            f'settings.CRUDITY_BACKENDS: '
+                            f'only one fallback backend is allowed for "{fetcher_source}/{input_name}".'
+                        )
 
                     backend_cfg['source'] = fetcher_source
                     backend_instance = backend_cls(backend_cfg)
 
                     if not hasattr(backend_instance, 'fetcher_fallback'):
-                        raise ImproperlyConfigured('settings.CRUDITY_BACKENDS: '
-                                                   'the backend for {} cannot be used as fallback '
-                                                   '(ie: subject="*").'.format(model)
-                                                  )
+                        raise ImproperlyConfigured(
+                            f'settings.CRUDITY_BACKENDS: '
+                            f'the backend for "{model}" cannot be used as fallback (ie: subject="*").'
+                        )
 
                     backend_instance.fetcher_name = fetcher_source
 
                     fetcher.register_default_backend(backend_instance)
                 else:
                     if not input_name:
-                        raise ImproperlyConfigured('settings.CRUDITY_BACKENDS: '
-                                                   'you have to declare an input for the fetcher {}.'.format(fetcher_source)
-                                                  )
+                        raise ImproperlyConfigured(
+                            f'settings.CRUDITY_BACKENDS: '
+                            f'you have to declare an input for the fetcher {fetcher_source}.'
+                        )
 
                     if not method:
-                        raise ImproperlyConfigured('settings.CRUDITY_BACKENDS: '
-                                                   'you have to declare a method for "{}/{}".'.format(
-                                                        fetcher_source, input_name
-                                                    )
-                                                  )
+                        raise ImproperlyConfigured(
+                            f'settings.CRUDITY_BACKENDS: '
+                            f'you have to declare a method for "{fetcher_source}/{input_name}".'
+                        )
 
                     crud_input = fetcher.get_input(input_name, method)
 
                     if not crud_input:
-                        raise ImproperlyConfigured('settings.CRUDITY_BACKENDS: '
-                                                   'invalid input "{}" for the fetcher "{}".'.format(
-                                                        input_name, fetcher_source
-                                                   )
-                                                  )
+                        raise ImproperlyConfigured(
+                            f'settings.CRUDITY_BACKENDS: '
+                            f'invalid input "{input_name}" for the fetcher "{fetcher_source}".'
+                        )
 
                     # TODO: move this code to backend
-                    backend_cfg['source'] = '{} - {}'.format(fetcher_source, input_name)
+                    backend_cfg['source'] = f'{fetcher_source} - {input_name}'
                     backend_cfg['verbose_source'] = crud_input.verbose_name  # For i18n
                     backend_cfg['verbose_method'] = crud_input.verbose_method  # For i18n
 
@@ -327,11 +328,11 @@ class CRUDityRegistry:
                     backend_instance.input_name = input_name
 
                     if crud_input.get_backend(backend_instance.subject):
-                        raise ImproperlyConfigured('settings.CRUDITY_BACKENDS: '
-                                                   'this (normalised) subject must be unique for "{}/{}": {}'.format(
-                                                        fetcher_source, input_name, backend_instance.subject
-                                                    )
-                                                  )
+                        raise ImproperlyConfigured(
+                            f'settings.CRUDITY_BACKENDS: '
+                            f'this (normalised) subject must be unique for "{fetcher_source}/{input_name}": '
+                            f'{backend_instance.subject}'
+                        )
 
                     crud_input.add_backend(backend_instance)
 

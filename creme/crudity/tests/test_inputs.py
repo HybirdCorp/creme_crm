@@ -28,7 +28,7 @@ try:
     from .base import (CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, ActivityFakeBackend,
             Contact, Activity, Document, Folder)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCase ?
@@ -83,11 +83,11 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
                                             body_map={'user_id': user.id, 'created': ''}
                                            )
         self.assertFalse(WaitingAction.objects.all())
-        email_input.create(self._get_pop_email(body='password=creme\nuser_id={}\ncreated=01/02/2003\n'.format(user.id),
-                                               senders=('creme@crm.org',),
-                                               subject='create_ce',
-                                              )
-                          )
+        email_input.create(self._get_pop_email(
+            body=f'password=creme\nuser_id={user.id}\ncreated=01/02/2003\n',
+            senders=('creme@crm.org',),
+            subject='create_ce',
+        ))
 
         wactions = WaitingAction.objects.all()
         self.assertEqual(1, len(wactions))
@@ -105,18 +105,18 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
                                             body_map={'user_id':    user.id,
                                                       'created':    '',
                                                       'first_name': '',
-                                                     }
+                                                     },
                                            )
 
         c_count = Contact.objects.count()
         q_contact_existing_ids = self._get_existing_q(Contact)
 
         self.assertFalse(WaitingAction.objects.all())
-        email_input.create(self._get_pop_email(body='password=creme\nuser_id={}\ncreated=01-02-2003\nfirst_name=é'.format(user.id),
-                                               senders=('creme@crm.org',),
-                                               subject='create_ce',
-                                              )
-                          )
+        email_input.create(self._get_pop_email(
+            body=f'password=creme\nuser_id={user.id}\ncreated=01-02-2003\nfirst_name=é',
+            senders=('creme@crm.org',),
+            subject='create_ce',
+        ))
         self.assertEqual(0, WaitingAction.objects.count())
         self.assertEqual(c_count + 1, Contact.objects.count())
 
@@ -204,17 +204,18 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
 
         self.assertEqual(0, WaitingAction.objects.count())
         email_input.create(self._get_pop_email(
-            body='password=creme\nuser_id={}\ncreated=01/02/2003\ndescription=[[I\n want to\n create a    \ncreme entity\n]]\n'.format(user.id),
+            body=f'password=creme\nuser_id={user.id}\ncreated=01/02/2003\ndescription=[[I\n want to\n create a    \ncreme entity\n]]\n',
             senders=('creme@crm.org',),
             subject='create_ce',
         ))
         self.assertEqual(1, WaitingAction.objects.count())
-        self.assertEqual({'user_id': str(user.id),
-                          'created': '01/02/2003',
-                          'description': 'I\n want to\n create a    \ncreme entity\n',
-                         },
-                         WaitingAction.objects.all()[0].data
-                        )
+        self.assertDictEqual(
+            {'user_id': str(user.id),
+             'created': '01/02/2003',
+             'description': 'I\n want to\n create a    \ncreme entity\n',
+            },
+            WaitingAction.objects.all()[0].data
+        )
 
     def test_create_email_input08(self):
         "Text mail sandboxed with a weird multiline and some almost same field names"
@@ -451,15 +452,21 @@ description3=[[<br>]]
         user = self.user
         self._set_sandbox_by_user()
 
-        email_input = self._get_email_input(ContactFakeBackend, password='creme', subject='create_ce',
-                                            body_map={'user_id': user.id, 'created': ''}
-                                           )
+        email_input = self._get_email_input(
+            ContactFakeBackend,
+            password='creme', subject='create_ce',
+            body_map={
+                'user_id': user.id,
+                'created': '',
+            },
+        )
         self.assertEqual(0, WaitingAction.objects.count())
 
-        email_input.create(self._get_pop_email(body='password=creme\nuser_id={}\ncreated=01/02/2003\n'.format(user.id),
-                                               senders=('user@cremecrm.com',), subject='create_ce',
-                                              )
-                          )
+        email_input.create(self._get_pop_email(
+            body=f'password=creme\nuser_id={user.id}\ncreated=01/02/2003\n',
+            senders=('user@cremecrm.com',),
+            subject='create_ce',
+        ))
         admin = get_user_model().objects.get_admin()
         self.assertEqual(1, WaitingAction.objects.filter(user=admin).count())
         self.assertEqual(0, WaitingAction.objects.filter(user=None).count())
@@ -490,11 +497,11 @@ description3=[[<br>]]
         self.assertEqual(0, WaitingAction.objects.count())
         self.assertEqual(0, History.objects.count())
 
-        email_input.create(self._get_pop_email(body='password=creme\nuser_id={}\ncreated=01/02/2003\n'.format(user.id),
-                                               senders=(other_user.email,),
-                                               subject='create_ce',
-                                              )
-                          )
+        email_input.create(self._get_pop_email(
+            body=f'password=creme\nuser_id={user.id}\ncreated=01/02/2003\n',
+            senders=(other_user.email,),
+            subject='create_ce',
+        ))
         self.assertEqual(0, WaitingAction.objects.count())
         self.assertEqual(c_count + 1, Contact.objects.count())
         self.assertEqual(1, History.objects.filter(user=other_user).count())
@@ -525,11 +532,11 @@ description3=[[<br>]]
         self.assertEqual(0, WaitingAction.objects.count())
         self.assertEqual(0, History.objects.count())
 
-        email_input.create(self._get_pop_email(body='password=creme\nuser_id={}\ncreated=01/02/2003\n'.format(user.id),
-                                               senders=(other_user.email,),
-                                               subject='create_ce'
-                                              )
-                          )
+        email_input.create(self._get_pop_email(
+            body=f'password=creme\nuser_id={user.id}\ncreated=01/02/2003\n',
+            senders=(other_user.email,),
+            subject='create_ce'
+        ))
         self.assertEqual(1, WaitingAction.objects.count())
         self.assertEqual(0, History.objects.count())
         self.assertEqual(c_count, Contact.objects.count())
@@ -561,10 +568,11 @@ description3=[[<br>]]
         contact_count = Contact.objects.count()
         self.assertEqual(0, WaitingAction.objects.count())
 
-        email_input.create(PopEmail(body='password=creme\nuser_id={}\ncreated=01-02-2003\nurl_site=plop'.format(user.id),
-                                    senders=('creme@crm.org',), subject='create_contact',
-                                   )
-                          )
+        email_input.create(PopEmail(
+            body=f'password=creme\nuser_id={user.id}\ncreated=01-02-2003\nurl_site=plop',
+            senders=('creme@crm.org',),
+            subject='create_contact',
+        ))
         self.assertEqual(0, WaitingAction.objects.count())
         self.assertEqual(contact_count + 1, Contact.objects.count())
 
@@ -577,7 +585,7 @@ description3=[[<br>]]
         user = self.user
         email_input = self._get_email_input(ContactFakeBackend, password='creme',
                                             subject='create_ce',
-                                            body_map={'user_id': user.id}
+                                            body_map={'user_id': user.id},
                                            )
         self.assertIsNone(email_input.get_owner(False, sender='user@cremecrm.com'))
 
@@ -591,7 +599,7 @@ description3=[[<br>]]
                                             subject='create_ce',
                                             body_map={'user_id': user.id,
                                                       'created': '',
-                                                     }
+                                                     },
                                            )
         self.assertEqual(other_user, email_input.get_owner(True, sender=other_user.email))
 
@@ -604,7 +612,7 @@ description3=[[<br>]]
                                             subject='create_ce',
                                             body_map={'user_id': user.id,
                                                       'created': '',
-                                                     }
+                                                     },
                                            )
         self.assertEqual(get_user_model().objects.get_admin(),
                          email_input.get_owner(True, sender='another_user@cremecrm.com')
@@ -629,7 +637,7 @@ description3=[[<br>]]
                                            )
 
         body = ['password=creme',
-                'user_id={}'.format(user.id),
+                f'user_id={user.id}',
                 'created=01/02/2003',
                 'last_name=Bros',
                 'first_name=Mario',
@@ -694,10 +702,12 @@ description3=[[<br>]]
                                             model=Activity,
                                            )
 
-        body = ['password=creme', 'title={}'.format(title),
-                'start=2013-06-15 12:00:00+03:00',
-                'end=2013-06-15 12:28:45',
-               ]
+        body = [
+            'password=creme',
+            f'title={title}',
+            'start=2013-06-15 12:00:00+03:00',
+            'end=2013-06-15 12:28:45',
+        ]
 
         self.assertEqual(0, WaitingAction.objects.count())
         email_input.create(self._get_pop_email(body='\n'.join(body),
@@ -842,16 +852,16 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                                                   body_map={'user_id':     user.id,
                                                             'created':     '',
                                                             'description': '',
-                                                           }
+                                                           },
                                                  )
 
         self.assertEqual(0, WaitingAction.objects.count())
-        infopath_input.create(PopEmail(body='password=creme',
-                                       senders=('creme@cremecrm.com',),
-                                       subject='create_ce_infopath',
-                                       attachments=[self._build_attachment(content=xml_content.encode())],
-                                      )
-                             )
+        infopath_input.create(PopEmail(
+            body='password=creme',
+            senders=('creme@cremecrm.com',),
+            subject='create_ce_infopath',
+            attachments=[self._build_attachment(content=xml_content.encode())],
+        ))
         self.assertEqual(1, WaitingAction.objects.count())
 
         wa = WaitingAction.objects.all()[0]
@@ -1164,7 +1174,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
             create = Language.objects.create
 
             for i in range(1, 4 - length):
-                create(code='c{}'.format(i), name='Langues #{}'.format(i))
+                create(code=f'c{i}', name=f'Langues #{i}')
 
         return languages
 
@@ -1221,7 +1231,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         expected_data = {'user_id': str(user.id), 'created': '2003-02-01', 'last_name': 'Bros',
                          'first_name': 'Mario', 'email': 'mario@bros.com', 'url_site': 'http://mario.com',
                          'birthday': '02/08/1987', 'description': 'A plumber',
-                         'language': '\n{}\n{}'.format(languages[0].id, languages[1].id),
+                         'language': f'\n{languages[0].id}\n{languages[1].id}',
                         }
         self.assertEqual(expected_data, wa.data)
 
@@ -1420,8 +1430,8 @@ class FileSystemInputTestCase(CrudityTestCase):
 
         self.assertIsNone(ret_backend)
         self.assertEqual(logs_manager.output,
-                         ['WARNING:creme.crudity.inputs.filesystem:IniFileInput.create(): '
-                          'invalid ini file ({})'.format(path),
+                         [f'WARNING:creme.crudity.inputs.filesystem:IniFileInput.create(): '
+                          f'invalid ini file ({path})',
                          ],
                         )
 
@@ -1440,9 +1450,9 @@ class FileSystemInputTestCase(CrudityTestCase):
 
         self.assertIsNone(ret_backend)
         self.assertEqual(logs_manager.output,
-                         ['WARNING:creme.crudity.inputs.filesystem:IniFileInput.create(): '
-                          'invalid ini file : File contains no section headers.\n'
-                          "file: '{}', line: 1\n'action: TEST_CREATE_CONTACT\\n'".format(path),
+                         [f'WARNING:creme.crudity.inputs.filesystem:IniFileInput.create(): '
+                          f'invalid ini file : File contains no section headers.\n'
+                          f"file: '{path}', line: 1\n'action: TEST_CREATE_CONTACT\\n'",
                          ],
                         )
 
@@ -1610,11 +1620,12 @@ class FileSystemInputTestCase(CrudityTestCase):
                 ret_backend = inifile_input.create(path)
 
         self.assertIsNotNone(ret_backend)
-        self.assertEqual(logs_manager.output,
-                         ["WARNING:creme.crudity.inputs.filesystem:IniFileInput.create(): "
-                          "no user ([head] section) corresponds to {{'username': 'iaminvalid'}} ({})".format(path),
-                         ],
-                        )
+        self.assertEqual(
+            logs_manager.output,
+            [f"WARNING:creme.crudity.inputs.filesystem:IniFileInput.create(): "
+             f"no user ([head] section) corresponds to {{'username': 'iaminvalid'}} ({path})",
+            ],
+        )
 
         wactions = WaitingAction.objects.all()
         self.assertEqual(1, len(wactions))

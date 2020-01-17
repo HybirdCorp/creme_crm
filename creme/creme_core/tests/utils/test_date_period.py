@@ -9,7 +9,7 @@ try:
     from creme.creme_core.utils.date_period import (DatePeriodRegistry, date_period_registry,
         MinutesPeriod, HoursPeriod, DaysPeriod, WeeksPeriod, MonthsPeriod, YearsPeriod)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class DatePeriodTestCase(CremeTestCase):

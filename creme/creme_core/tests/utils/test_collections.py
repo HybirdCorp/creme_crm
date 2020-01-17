@@ -5,7 +5,7 @@ try:
     from creme.creme_core.utils.collections import (LimitedList, FluentList,
             ClassKeyedMap, OrderedSet, InheritedDataChain)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class LimitedListTestCase(CremeTestCase):
@@ -294,7 +294,7 @@ class InheritedDataChainTestCase(CremeTestCase):
             data = None
 
             def __repr__(self):
-                return 'InnerClass(data={})'.format(self.data)
+                return f'InnerClass(data={self.data})'
 
         idc = InheritedDataChain(InnerClass)
         instance1 = idc[Klass1]; instance1.data = Klass1.__name__

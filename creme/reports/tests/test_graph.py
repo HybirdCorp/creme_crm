@@ -43,7 +43,7 @@ try:
     )
     from ..core.graph import ListViewURLBuilder
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomReport
@@ -99,10 +99,10 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         uri = '{}?order={}'.format(reverse('reports__fetch_graph', args=(rgraph.id,)), order)
 
         if chart is not None:
-            uri += '&chart={}'.format(chart)
+            uri += f'&chart={chart}'
 
         if save_settings is not None:
-            uri += '&save_settings={}'.format(save_settings)
+            uri += f'&save_settings={save_settings}'
 
         return uri
 
@@ -113,10 +113,10 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         )
 
         if chart is not None:
-            uri += '&chart={}'.format(chart)
+            uri += f'&chart={chart}'
 
         if save_settings is not None:
-            uri += '&save_settings={}'.format(save_settings)
+            uri += f'&save_settings={save_settings}'
 
         return uri
 
@@ -343,7 +343,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user,      rgraph.user)
         self.assertEqual(abscissa,  rgraph.abscissa)
-        self.assertEqual('{}__{}'.format(ordinate, aggregate), rgraph.ordinate)
+        self.assertEqual(f'{ordinate}__{aggregate}', rgraph.ordinate)
         self.assertEqual(gtype, rgraph.type)
         self.assertIsNone(rgraph.days)
         self.assertFalse(rgraph.is_count)
@@ -450,7 +450,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(200, response.status_code)
         self.assertFormError(
             response, 'form', 'abscissa_field',
-            '"{}" groups are only compatible with [DateField, DateTimeField]'.format(gtype_vname)
+            f'"{gtype_vname}" groups are only compatible with [DateField, DateTimeField]'
         )
 
         aggregate = 'min'
@@ -460,7 +460,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(self.user, rgraph.user)
         self.assertEqual(abscissa,  rgraph.abscissa)
-        self.assertEqual('{}__{}'.format(ordinate, aggregate), rgraph.ordinate)
+        self.assertEqual(f'{ordinate}__{aggregate}', rgraph.ordinate)
         self.assertEqual(gtype, rgraph.type)
         self.assertIsNone(rgraph.days)
         self.assertFalse(rgraph.is_count)
@@ -518,7 +518,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user, rgraph.user)
         self.assertEqual(abscissa, rgraph.abscissa)
-        self.assertEqual('{}__{}'.format(ordinate, aggregate), rgraph.ordinate)
+        self.assertEqual(f'{ordinate}__{aggregate}', rgraph.ordinate)
         self.assertEqual(gtype, rgraph.type)
         self.assertEqual(days, rgraph.days)
         self.assertFalse(rgraph.is_count)
@@ -810,7 +810,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                                                'aggregate_field':   'total_vat',
                                                'aggregate':         'avg',
                                                'chart':             'barchart',
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
 
@@ -928,7 +928,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
             user=user,
             # report=report,
             linked_report=report,
-            name='Number of orga(s) created / {} days'.format(days),
+            name=f'Number of orga(s) created / {days} days',
             abscissa='creation_date',
             type=RGT_RANGE, days=days,
             is_count=True,
@@ -1079,7 +1079,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rgraph = ReportGraph.objects.create(user=user, linked_report=report,
                                             name='Max soldiers by sector',
                                             abscissa='sector', type=RGT_FK,
-                                            ordinate='{}__max'.format(cf.id),
+                                            ordinate=f'{cf.id}__max',
                                             is_count=False,
                                            )
 
@@ -1090,7 +1090,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         index = x_asc.index
         fmt = lambda pk: '/tests/organisations?q_filter={}'.format(
-                self._serialize_qfilter(sector=pk)
+                self._serialize_qfilter(sector=pk),
         )
         self.assertEqual([400, fmt(war.id)],   y_asc[index(war.title)])
         self.assertEqual([500, fmt(trade.id)], y_asc[index(trade.title)])
@@ -1231,7 +1231,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         def create_graph(days):
             return ReportGraph.objects.create(
                 user=user, linked_report=report,
-                name='Number of organisation created / {} day(s)'.format(days),
+                name=f'Number of organisation created / {days} day(s)',
                 abscissa='creation_date',
                 type=RGT_RANGE, days=days,
                 is_count=True,
@@ -1288,7 +1288,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         days = 10
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
-            name='Minimum of capital by creation date (period of {} days)'.format(days),
+            name=f'Minimum of capital by creation date (period of {days} days)',
             abscissa='creation_date',
             type=RGT_RANGE, days=days,
             ordinate='capital__sum',
@@ -1329,7 +1329,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         def create_graph(days):
             return ReportGraph.objects.create(
                 user=user, linked_report=report,
-                name='Number of organisation created / {} day(s)'.format(days),
+                name=f'Number of organisation created / {days} day(s)',
                 abscissa='creation_date',
                 type=RGT_RANGE, days=days,
                 is_count=True,
@@ -1420,7 +1420,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rgraph = ReportGraph.objects.create(
             user=user,
             linked_report=self._create_simple_organisations_report(),
-            name='First victory / {} day(s)'.format(days),
+            name=f'First victory / {days} day(s)',
             abscissa=cf.id,
             type=RGT_CUSTOM_RANGE, days=days,
             ordinate='', is_count=True,
@@ -1726,7 +1726,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
             name='Sum of vine by creation date (period of 1 year)',
             abscissa='creation_date',
             type=RGT_YEAR,
-            ordinate='{}__sum'.format(cf.id),
+            ordinate=f'{cf.id}__sum',
             is_count=False,
         )
 
@@ -1734,7 +1734,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(['2013', '2014', '2015', '2016'], x_asc)
 
         fmt = lambda year: '/tests/organisations?q_filter={}'.format(
-                self._serialize_qfilter(creation_date__year=year)
+                self._serialize_qfilter(creation_date__year=year),
         )
         self.assertEqual([Decimal('70.70'), fmt(2013)], y_asc[0])
         self.assertEqual([Decimal('100'),   fmt(2014)], y_asc[1])
@@ -1959,7 +1959,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rgraph = ReportGraph.objects.create(user=user, linked_report=report,
                                             name='Contacts HP by house',
                                             abscissa=rtype_id, type=RGT_RELATION,
-                                            ordinate='{}__sum'.format(cf.id),
+                                            ordinate=f'{cf.id}__sum',
                                             is_count=False,
                                            )
 
@@ -2056,7 +2056,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual([hand.value, lord.value], x_asc)
 
         fmt = lambda val: '/tests/contacts?q_filter={}'.format(
-                self._serialize_qfilter(customfieldenum__value=val)
+                self._serialize_qfilter(customfieldenum__value=val),
         )
         self.assertEqual([1, fmt(hand.id)], y_asc[0])
         self.assertEqual([2, fmt(lord.id)], y_asc[1])
@@ -2223,18 +2223,18 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rgraph = self._create_documents_rgraph()
 
         ibci = rgraph.create_instance_brick_config_item()
-        self.assertEqual('instanceblock_reports-graph|{}-'.format(rgraph.id), ibci.brick_id)
+        self.assertEqual(f'instanceblock_reports-graph|{rgraph.id}-', ibci.brick_id)
         self.assertEqual('', ibci.data)
 
         volatile = _('No volatile column')
-        self.assertEqual('{} - {}'.format(rgraph.name, volatile),
+        self.assertEqual(f'{rgraph.name} - {volatile}',
                          ReportGraphBrick(ibci).verbose_name
                         )
 
         # Brick verbose name should be dynamically computed
         rgraph.name = rgraph.name.upper()
         rgraph.save()
-        self.assertEqual('{} - {}'.format(rgraph.name, volatile),
+        self.assertEqual(f'{rgraph.name} - {volatile}',
                          ReportGraphBrick(ibci).verbose_name
                         )
 
@@ -2246,14 +2246,10 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         fk_name = 'linked_folder'
         ibci = create_ibci(volatile_field=fk_name)
-        self.assertEqual('instanceblock_reports-graph|{}-{}|{}'.format(
-                                rgraph.id, fk_name, RFT_FIELD,
-                            ),
+        self.assertEqual(f'instanceblock_reports-graph|{rgraph.id}-{fk_name}|{RFT_FIELD}',
                          ibci.brick_id
                         )
-        self.assertEqual('{}|{}'.format(fk_name, RFT_FIELD),
-                         ibci.data
-                        )
+        self.assertEqual(f'{fk_name}|{RFT_FIELD}', ibci.data)
 
         self.assertIsNone(create_ibci(volatile_field='unknown'))
         self.assertIsNone(create_ibci(volatile_field='description'))  # Not FK
@@ -2285,21 +2281,18 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         )[0]
 
         ibci = rgraph.create_instance_brick_config_item(volatile_rtype=rtype)
-        self.assertEqual('instanceblock_reports-graph|{}-{}|{}'.format(
-                                rgraph.id, rtype.id, RFT_RELATION,
-                            ),
+        self.assertEqual(f'instanceblock_reports-graph|{rgraph.id}-{rtype.id}|{RFT_RELATION}',
                          ibci.brick_id
                         )
-        self.assertEqual('{}|{}'.format(rtype.id, RFT_RELATION), ibci.data)
+        self.assertEqual(f'{rtype.id}|{RFT_RELATION}', ibci.data)
         fmt = _('{rtype} (Relationship)').format
-        self.assertEqual('{} - {}'.format(rgraph.name, fmt(rtype=rtype)),
+        self.assertEqual(f'{rgraph.name} - {fmt(rtype=rtype)}',
                          ReportGraphBrick(ibci).verbose_name
                         )
 
         rtype.predicate = 'likes'
         rtype.save()
-        # self.assertEqual('{} - {}'.format(rgraph.name, rtype),
-        self.assertEqual('{} - {}'.format(rgraph.name, fmt(rtype=rtype)),
+        self.assertEqual(f'{rgraph.name} - {fmt(rtype=rtype)}',
                          ReportGraphBrick(ibci).verbose_name
                         )
 
@@ -2325,7 +2318,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(items))
 
         item = items[0]
-        self.assertEqual('instanceblock_reports-graph|{}-'.format(rgraph.id), item.brick_id)
+        self.assertEqual(f'instanceblock_reports-graph|{rgraph.id}-', item.brick_id)
         self.assertEqual('', item.data)
         self.assertIsNone(item.errors)
 
@@ -2430,7 +2423,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(('', pgettext('reports-volatile_choice', 'None')), choices[0])
 
         fk_name = 'linked_folder'
-        folder_choice = 'fk-{}'.format(fk_name)
+        folder_choice = f'fk-{fk_name}'
         self.assertEqual((_('Fields'), [(folder_choice, _('Folder'))]),
                          choices[1]
                         )
@@ -2442,10 +2435,10 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         item = items[0]
         self.assertEqual(
-            'instanceblock_reports-graph|{}-{}|{}'.format(rgraph.id, fk_name, RFT_FIELD),
+            f'instanceblock_reports-graph|{rgraph.id}-{fk_name}|{RFT_FIELD}',
             item.brick_id
         )
-        self.assertEqual('{}|{}'.format(fk_name, RFT_FIELD), item.data)
+        self.assertEqual(f'{fk_name}|{RFT_FIELD}', item.data)
 
         title = '{} - {}'.format(rgraph.name, _('{field} (Field)').format(field=_('Folder')))
         self.assertEqual(title, ReportGraphBrick(item).verbose_name)
@@ -2510,8 +2503,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         fname = 'invalid'
         ibci = InstanceBrickConfigItem.objects.create(
             entity=rgraph,
-            brick_id='instanceblock_reports-graph|{}-{}|{}'.format(rgraph.id, fname, RFT_FIELD),
-            data='{}|{}'.format(fname, RFT_FIELD),
+            brick_id=f'instanceblock_reports-graph|{rgraph.id}-{fname}|{RFT_FIELD}',
+            data=f'{fname}|{RFT_FIELD}',
         )
 
         folder = FakeReportsFolder.objects.create(user=user, title='My folder')
@@ -2527,7 +2520,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual([_('The field is invalid.')], ibci.errors)
 
     def test_add_graph_instance_brick02_error02(self):
-        "Volatile column (RFT_FIELD): field is not a FK to CremeEntity"
+        "Volatile column (RFT_FIELD): field is not a FK to CremeEntity."
         user = self.login()
         rgraph = self._create_documents_rgraph()
 
@@ -2535,8 +2528,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         fname = 'description'
         ibci = InstanceBrickConfigItem.objects.create(
             entity=rgraph,
-            brick_id='instanceblock_reports-graph|{}-{}|{}'.format(rgraph.id, fname, RFT_FIELD),
-            data='{}|{}'.format(fname, RFT_FIELD),
+            brick_id=f'instanceblock_reports-graph|{rgraph.id}-{fname}|{RFT_FIELD}',
+            data=f'{fname}|{RFT_FIELD}',
         )
 
         folder = FakeReportsFolder.objects.create(user=user, title='My folder')
@@ -2588,9 +2581,9 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(_('Relationships'), rel_group[0])
 
         rel_choices = frozenset((k, str(v)) for k, v in rel_group[1])
-        choice_id = 'rtype-{}'.format(rtype.id)
+        choice_id = f'rtype-{rtype.id}'
         self.assertIn((choice_id, str(rtype)), rel_choices)
-        self.assertNotIn(('rtype-{}'.format(incompatible_rtype.id), str(incompatible_rtype)),
+        self.assertNotIn((f'rtype-{incompatible_rtype.id}', str(incompatible_rtype)),
                          rel_choices
                         )
 
@@ -2600,12 +2593,11 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(items))
 
         item = items[0]
-        self.assertEqual('instanceblock_reports-graph|{}-{}|{}'.format(
-                                rgraph.id, rtype.id, RFT_RELATION,
-                            ),
-                         item.brick_id
-                        )
-        self.assertEqual('{}|{}'.format(rtype.id, RFT_RELATION), item.data)
+        self.assertEqual(
+            f'instanceblock_reports-graph|{rgraph.id}-{rtype.id}|{RFT_RELATION}',
+            item.brick_id
+        )
+        self.assertEqual(f'{rtype.id}|{RFT_RELATION}', item.data)
         self.assertEqual('{} - {}'.format(
                             rgraph.name,
                             _('{rtype} (Relationship)').format(rtype=rtype),
@@ -2655,8 +2647,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rtype_id = 'invalid'
         ibci = InstanceBrickConfigItem.objects.create(
             entity=rgraph,
-            brick_id='instanceblock_reports-graph|{}-{}|{}'.format(rgraph.id, rtype_id, RFT_RELATION),
-            data='{}|{}'.format(rtype_id, RFT_RELATION),
+            brick_id=f'instanceblock_reports-graph|{rgraph.id}-{rtype_id}|{RFT_RELATION}',
+            data=f'{rtype_id}|{RFT_RELATION}',
         )
 
         fetcher = ReportGraph.get_fetcher_from_instance_brick(ibci)
@@ -2775,7 +2767,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         entities_per_day = 5
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         for i in range(1, interval_day_count + 1):
-            creation = datetime.strptime('{} 2014'.format(i), '%j %Y').strftime('%Y-%m-%d')
+            creation = datetime.strptime(f'{i} 2014', '%j %Y').strftime('%Y-%m-%d')
             for _j in range(entities_per_day):
                 create_orga(name='Target Orga', creation_date=creation)
 
@@ -2813,7 +2805,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         entities_per_day = 5
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         for i in range(1, interval_day_count + 1):
-            creation = datetime.strptime('{} 2014'.format(i), '%j %Y').strftime('%Y-%m-%d')
+            creation = datetime.strptime(f'{i} 2014', '%j %Y').strftime('%Y-%m-%d')
             for _j in range(entities_per_day):
                 create_orga(name='Target Orga', creation_date=creation, capital=100)
 

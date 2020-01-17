@@ -20,7 +20,7 @@ try:
              MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED)
     from .base import _EmailsTestCase, skipIfCustomEntityEmail, EntityEmail
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfNotInstalled('creme.crudity')

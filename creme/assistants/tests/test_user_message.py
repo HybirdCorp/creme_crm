@@ -16,7 +16,7 @@ try:
     from ..models import UserMessage, UserMessagePriority
     from .base import AssistantsTestCase
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 User = get_user_model()  # TODO: self.User
@@ -172,8 +172,8 @@ class UserMessageTestCase(AssistantsTestCase):
     def test_create04(self):
         "One team"
         create_user = User.objects.create_user
-        users       = [create_user('User{}'.format(i), email='user{}@foobar.com'.format(i),
-                                   first_name='User{}'.format(i), last_name='Foobar',
+        users       = [create_user(f'User{i}', email=f'user{i}@foobar.com',
+                                   first_name=f'User{i}', last_name='Foobar',
                                   ) for i in range(1, 3)
                       ]
 
@@ -189,8 +189,8 @@ class UserMessageTestCase(AssistantsTestCase):
     def test_create05(self):
         "Teams and isolated usres with non void intersections"
         create_user = User.objects.create_user
-        users = [create_user('User{}'.format(i), email='user{}@foobar.com'.format(i),
-                             first_name='User{}'.format(i), last_name='Foobar',
+        users = [create_user(f'User{i}', email=f'user{i}@foobar.com',
+                             first_name=f'User{i}', last_name='Foobar',
                             ) for i in range(1, 5)
                 ]
 

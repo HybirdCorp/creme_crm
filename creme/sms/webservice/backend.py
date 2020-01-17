@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,12 @@
 ################################################################################
 
 from urllib.parse import urlencode
-from urllib.request import (HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler,
-        build_opener, Request, URLError, HTTPError, HTTPRedirectHandler)
+from urllib.request import (
+    HTTPPasswordMgrWithDefaultRealm,
+    HTTPBasicAuthHandler, HTTPRedirectHandler,
+    build_opener, Request,
+    URLError, HTTPError,
+)
 
 
 class WSException(Exception):
@@ -79,10 +83,8 @@ class WSBackEnd:
 
             self.connected = True
             self.url = url
-        except HTTPError as e:
-            raise WSException('Connection error to {}'.format(url), e) from e
-        except URLError as e:
-            raise WSException('Connection error to {}'.format(url), e) from e
+        except (HTTPError, URLError) as e:
+            raise WSException(f'Connection error to {url}', e) from e
 
         return self
 

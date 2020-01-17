@@ -23,7 +23,7 @@ try:
     skip_graph_tests = graph_model_is_custom()
     Graph = get_graph_model()
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 try:
     import pygraphviz
@@ -191,13 +191,13 @@ class GraphsTestCase(CremeTestCase):
 
         fileref = filerefs[0]
         self.assertTrue(fileref.temporary)
-        self.assertEqual('graph_{}.png'.format(graph.id), fileref.basename)
+        self.assertEqual(f'graph_{graph.id}.png', fileref.basename)
         # self.assertEqual(user, fileref.user) TODO
 
         fullpath = fileref.filedata.path
-        self.assertTrue(exists(fullpath), '<{}> does not exists ?!'.format(fullpath))
+        self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists ?!')
         self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'graphs'), dirname(fullpath))
-        self.assertEqual('attachment; filename={}'.format(basename(fullpath)),
+        self.assertEqual(f'attachment; filename={basename(fullpath)}',
                          response['Content-Disposition']
                         )
 

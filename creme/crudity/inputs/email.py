@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -135,7 +135,7 @@ class CreateEmailInput(EmailInput):
         if backend.in_sandbox:
             WaitingAction.objects.create(
                 action='create',
-                source='email - {}'.format(self.name),
+                source=f'email - {self.name}',
                 ct=backend.model,
                 subject=backend.subject,
                 user=owner,
@@ -143,9 +143,11 @@ class CreateEmailInput(EmailInput):
             )
         else:
             self._pre_create(backend, data)
-            is_created, instance = backend._create_instance_n_history(data, user=owner,
-                                                                      source='email - {}'.format(self.name),
-                                                                     )
+            is_created, instance = backend._create_instance_n_history(
+                data,
+                user=owner,
+                source=f'email - {self.name}',
+            )
             self._post_create(backend, data, instance)
 
         return backend

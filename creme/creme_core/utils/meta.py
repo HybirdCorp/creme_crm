@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2019 Hybird
+# Copyright (c) 2009-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -82,9 +82,10 @@ class FieldInfo:
             remote_field = getattr(field, 'remote_field', None)
 
             if remote_field is None:
-                raise FieldDoesNotExist('"{}" is not a ForeignKey/ManyToManyField,'
-                                        ' so it can have a sub-field'.format(subfield_name)
-                                       )
+                raise FieldDoesNotExist(
+                    f'"{subfield_name}" is not a ForeignKey/ManyToManyField, '
+                    f'so it can have a sub-field'
+                )
 
             model = remote_field.model
             fields.append(field)
@@ -123,9 +124,9 @@ class FieldInfo:
 
     def __repr__(self):
         return 'FieldInfo(model={}, field_name="{}")'.format(
-                    self._model.__name__,
-                    '__'.join(f.name for f in self.__fields),
-                )
+            self._model.__name__,
+            '__'.join(f.name for f in self.__fields),
+        )
 
     @property
     def model(self):
@@ -138,7 +139,7 @@ class FieldInfo:
     # TODO: probably does not work with several ManyToManyFields in the fields chain
     def value_from(self, instance):
         if not isinstance(instance, self._model):
-            raise ValueError('"{}" is not an instance of {}'.format(instance, self._model))
+            raise ValueError(f'"{instance}" is not an instance of {self._model}')
 
         result = instance
 
@@ -273,7 +274,7 @@ class ModelFieldEnumerator:
                   )
             # A classical django choice. Eg: ('user__email', '[Owner user] - Email address')
             choice = ('__'.join(field.name for field in fields_info),
-                      ' - '.join(chain(('[{}]'.format(vname) for vname in fk_vnames),
+                      ' - '.join(chain((f'[{vname}]' for vname in fk_vnames),
                                         [terminal_vname],
                                       )
                                 )
@@ -322,7 +323,7 @@ class Order:
             asc = False
         else:
             if required or value not in EMPTY_VALUES:
-                raise ValueError('Order value must be ASC or DESC (value={})'.format(value))
+                raise ValueError(f'Order value must be ASC or DESC (value={value})')
 
             asc = True
 

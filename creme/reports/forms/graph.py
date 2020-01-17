@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,8 +34,12 @@ from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.utils.unicode_collation import collator
 
 from .. import get_rgraph_model
-from ..constants import (RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK, RGT_RELATION,
-        RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
+from ..constants import (
+    RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE,
+    RGT_FK, RGT_RELATION,
+    RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE,
+    RGT_CUSTOM_FK,
+)
 from ..core.graph import RGRAPH_HANDS_MAP
 from ..report_aggregation_registry import field_aggregation_registry
 from ..report_chart_registry import report_chart_registry
@@ -46,7 +50,7 @@ class AbscissaGroupBySelect(forms.Select):
     def get_context(self, name, value, attrs):
         extra_args = {
             'onchange': "creme.reports.toggleDaysField($(this), [{}]);".format(
-                            ','.join("'{}'".format(t) for t in (RGT_CUSTOM_RANGE, RGT_RANGE))
+                            ','.join(f"'{t}'" for t in (RGT_CUSTOM_RANGE, RGT_RANGE))
                         ),
         }
         if attrs is not None:
@@ -271,9 +275,7 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         except FieldDoesNotExist:
             self.add_error(
                 formfield_name,
-                'If you choose to group "{}" you have to choose a field.'.format(
-                     self.verbose_graph_type
-                )
+                f'If you choose to group "{self.verbose_graph_type}" you have to choose a field.'
             )
         else:
             if not isinstance(field, field_types):

@@ -108,12 +108,13 @@ class _BulkUpdateRegistry:
                 return {}
 
             model = self._model
-            custom_fields = {'customfield-{}'.format(field.pk): field
-                                for field in CustomField.objects.filter(
-                                                    content_type=ContentType.objects
-                                                                            .get_for_model(model)
-                                                )
-                            }
+            custom_fields = {
+                f'customfield-{field.pk}': field
+                    for field in CustomField.objects.filter(
+                                        content_type=ContentType.objects
+                                                                .get_for_model(model)
+                                    )
+            }
 
             for field in custom_fields.values():
                 field.model = self._model
@@ -127,16 +128,14 @@ class _BulkUpdateRegistry:
                 field = self.regular_fields.get(name)
 
                 if field and not self.is_updatable(field):
-                    raise FieldNotAllowed('The field {}.{} is not editable'.format(
-                                                self._model._meta.verbose_name, name
-                                            )
-                                         )
+                    raise FieldNotAllowed(
+                        f'The field {self._model._meta.verbose_name}.{name} is not editable'
+                    )
 
             if field is None:
-                raise FieldDoesNotExist("The field {}.{} doesn't exist".format(
-                                                self._model._meta.verbose_name, name
-                                            )
-                                       )
+                raise FieldDoesNotExist(
+                    f"The field {self._model._meta.verbose_name}.{name} doesn't exist"
+                )
 
             return field
 
@@ -144,16 +143,14 @@ class _BulkUpdateRegistry:
             field = self.regular_fields.get(name)
 
             if field is None:
-                raise FieldDoesNotExist("The field {}.{} doesn't exist".format(
-                                                self._model._meta.verbose_name, name
-                                            )
-                                       )
+                raise FieldDoesNotExist(
+                    f"The field {self._model._meta.verbose_name}.{name} doesn't exist"
+                )
 
             if not self.is_expandable(field):
-                raise FieldNotAllowed('The field {}.{} is not expandable'.format(
-                                            self._model._meta.verbose_name, name
-                                        )
-                                     )
+                raise FieldNotAllowed(
+                    f'The field {self._model._meta.verbose_name}.{name} is not expandable'
+                )
 
             return field
 
@@ -334,7 +331,7 @@ class _BulkUpdateRegistry:
                 uri = reverse('creme_core__inner_edition', args=(ct.id, instance.id, field_name))
         elif isinstance(cell, EntityCellCustomField):
             uri = reverse('creme_core__inner_edition',
-                          args=(instance.entity_type_id, instance.id, 'customfield-{}'.format(cell.value)),
+                          args=(instance.entity_type_id, instance.id, f'customfield-{cell.value}'),
                          )
 
         return uri

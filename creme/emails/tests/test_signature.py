@@ -7,7 +7,7 @@ try:
     from .base import _EmailsTestCase, skipIfCustomEmailTemplate, EmailTemplate
     from ..models import EmailSignature
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class SignaturesTestCase(_EmailsTestCase):

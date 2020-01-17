@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2019  Hybird
+#    Copyright (C) 2013-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,12 +47,13 @@ class _BackendRegistry:
 
                 backend_id = getattr(BackendClass, 'id', None)
                 if backend_id is None:
-                    raise self.InvalidId('Backend: {} has invalid id.'.format(BackendClass))
+                    raise self.InvalidId(f'Backend: {BackendClass} has invalid id.')
 
                 if backend_id in backends:
-                    raise self.DuplicatedId('Id: {} already used for {}. Please specify another id for {}'.format(
-                                    backend_id, backends[backend_id], BackendClass
-                    ))
+                    raise self.DuplicatedId(
+                        'Id: {backend_id} already used for {backends[backend_id]}. '
+                        'Please specify another id for {BackendClass}.'
+                    )
 
                 backends[backend_id] = BackendClass
 

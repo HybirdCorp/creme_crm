@@ -143,7 +143,7 @@ class AbstractGraph(CremeEntity):
         graph.layout(prog='dot')  # Algo: neato dot twopi circo fdp nop
 
         img_format = 'png'  # Format: pdf svg
-        img_basename = 'graph_{}.{}'.format(self.id, img_format)
+        img_basename = f'graph_{self.id}.{img_format}'
 
         try:
             path = FileCreator(join(settings.MEDIA_ROOT, 'upload', 'graphs'), img_basename).create()

@@ -367,7 +367,7 @@ class VcfImportForm(CremeModelForm):
         if not help_text:
             field.help_text = self.type_help_text + value
         else:
-            field.help_text = '{} | {}'.format(help_text, value)
+            field.help_text = f'{help_text} | {value}'
 
     def _clean_orga_field(self, field_name):
         cleaned_data = self.cleaned_data
@@ -458,7 +458,7 @@ class VcfImportForm(CremeModelForm):
         image_encoded = cleaned_data['image_encoded']
 
         if image_encoded:
-            img_name = secure_filename('{}_{}_{}'.format(contact.last_name, contact.first_name, contact.id))
+            img_name = secure_filename(f'{contact.last_name}_{contact.first_name}_{contact.id}')
             img_path = None
 
             if image_encoded.startswith(URL_START):
@@ -477,12 +477,11 @@ class VcfImportForm(CremeModelForm):
                 try:
                     # TODO: factorise with activesync ??
                     img_data = base64.decodebytes(image_encoded.encode())
-                    img_path = handle_uploaded_file(ContentFile(img_data),
-                                                    path=IMG_UPLOAD_PATH.split('/'),
-                                                    name='{}.{}'.format(img_name,
-                                                                        get_image_format(img_data),
-                                                                       ),
-                                                   )
+                    img_path = handle_uploaded_file(
+                        ContentFile(img_data),
+                        path=IMG_UPLOAD_PATH.split('/'),
+                        name=f'{img_name}.{get_image_format(img_data)}',
+                    )
                 except Exception:
                     logger.exception('VcfImportForm.save()')
 

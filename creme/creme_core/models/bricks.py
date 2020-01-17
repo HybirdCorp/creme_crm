@@ -237,9 +237,7 @@ class BrickMypageLocation(CremeModel):
         ordering = ('order',)
 
     def __repr__(self):
-        return 'BrickMypageLocation(id={id}, user={user})'.format(
-            id=self.id, user=self.user_id,
-        )
+        return f'BrickMypageLocation(id={self.id}, user={self.user_id})'
 
     @classmethod
     def _copy_default_config(cls, sender, instance, created, **kwargs):
@@ -300,8 +298,8 @@ class RelationBrickItemManager(models.Manager):
             break
         else:
             raise RuntimeError(
-                'It seems the RelationBrickItem <{}> keeps being '
-                'created & deleted.'.format(rtype_id)
+                f'It seems the RelationBrickItem <{rtype_id}> keeps being '
+                f'created & deleted.'
             )
 
         return rbi
@@ -474,7 +472,7 @@ class InstanceBrickConfigItem(CremeModel):
 
     @staticmethod
     def generate_base_id(app_name, name):
-        return 'instanceblock_{}-{}'.format(app_name, name)
+        return f'instanceblock_{app_name}-{name}'
 
     @staticmethod
     def generate_id(brick_class, entity, key):
@@ -482,11 +480,12 @@ class InstanceBrickConfigItem(CremeModel):
                        of the same Block class and the same CremeEntity instance.
         """
         if key and any((c in key) for c in ('#', '@', '&', ':', ' ')):
-            raise ValueError('InstanceBrickConfigItem.generate_id: usage of a '
-                             'forbidden character in key "{}"'.format(key)
-                            )
+            raise ValueError(
+                f'InstanceBrickConfigItem.generate_id: usage of a '
+                f'forbidden character in key "{key}"'
+            )
 
-        return '{}|{}-{}'.format(brick_class.id_, entity.id, key)
+        return f'{brick_class.id_}|{entity.id}-{key}'
 
     @staticmethod
     def get_base_id(brick_id):
@@ -521,7 +520,7 @@ class CustomBrickConfigItem(CremeModel):
         super().delete(*args, **kwargs)
 
     def generate_id(self):
-        return 'customblock-{}'.format(self.id)
+        return f'customblock-{self.id}'
 
     @staticmethod
     def id_from_brick_id(brick_id):
@@ -638,15 +637,11 @@ class BrickState(CremeModel):
         self._extra_data = json_load(self.json_extra_data)
 
     def __str__(self):
-        return 'BrickState(user="{user}", brick_id="{brick_id}", ' \
-               'is_open={is_open}, show_empty_fields={show}, ' \
-               'json_extra_data="{json}")'.format(
-            user=self.user,
-            brick_id=self.brick_id,
-            is_open=self.is_open,
-            show=self.show_empty_fields,
-            json=self.json_extra_data,
-        )
+        return f'BrickState(user="{self.user}", ' \
+                          f'brick_id="{self.brick_id}", ' \
+                          f'is_open={self.is_open}, ' \
+                          f'show_empty_fields={self.show_empty_fields}, ' \
+                          f'json_extra_data="{self.json_extra_data}")'
 
     # @staticmethod
     # def get_for_brick_id(brick_id, user):

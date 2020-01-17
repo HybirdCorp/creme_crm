@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2019  Hybird
+#    Copyright (C) 2018-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,6 +34,4 @@ class Imprint(models.Model):  # CremeModel ?
         app_label = 'creme_core'
 
     def __str__(self):
-        return 'Imprint(date={date}, entity={eid}, user={user})'.format(
-                date=self.date, eid=self.entity.id, user=self.user,
-        )
+        return f'Imprint(date={self.date}, entity={self.entity.id}, user={self.user})'

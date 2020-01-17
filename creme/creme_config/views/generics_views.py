@@ -77,7 +77,7 @@ class AppRegistryMixin:
             try:
                 app_registry = self.config_registry.get_app_registry(app_name)
             except LookupError as e:
-                raise Http404('Invalid app [{}]'.format(e)) from e
+                raise Http404(f'Invalid app [{e}]') from e
 
             self.app_registry = app_registry
 
@@ -405,7 +405,7 @@ class AppBricksReloading(AppRegistryMixin, bricks_views.BricksReloading):
                         brick = registered_brick
                         break
                 else:
-                    raise Http404('Invalid brick id "{}"'.format(brick_id))
+                    raise Http404(f'Invalid brick id "{brick_id}"')
 
             bricks.append(brick)
 

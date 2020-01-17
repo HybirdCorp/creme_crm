@@ -20,7 +20,7 @@ try:
     skip_product_tests = product_model_is_custom()
     skip_service_tests = service_model_is_custom()
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 def skipIfCustomProduct(test_func):

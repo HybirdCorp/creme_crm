@@ -52,7 +52,7 @@ try:
         CustomFieldConditionSelector,
     )
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 efilter_registry = _EntityFilterRegistry(
@@ -286,7 +286,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    '{},{}'.format(faye_name, ed_name),
+                                 'value':    f'{faye_name},{ed_name}',
                              },
                           ))
         self.assertEqual(1, len(conditions))
@@ -2037,7 +2037,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         try:
             naru.delete()
         except Exception as e:
-            self.fail('Problem with entity deletion: {}'.format(e))
+            self.fail(f'Problem with entity deletion: {e}')
 
         jsondict['entity'] = None
         jsondict['ctype'] = 0

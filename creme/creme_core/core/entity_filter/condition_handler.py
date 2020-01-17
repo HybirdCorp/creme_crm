@@ -243,7 +243,7 @@ class SubFilterConditionHandler(FilterConditionHandler):
     @property
     def error(self):
         if self.subfilter is False:
-            return "'{}' is not a valid filter ID".format(self.subfilter_id)
+            return f"'{self.subfilter_id}' is not a valid filter ID"
 
     @classmethod
     def formfield(cls, form_class=ef_fields.SubfiltersConditionsField, **kwargs):
@@ -270,7 +270,7 @@ class OperatorConditionHandlerMixin:
     @classmethod
     def _check_operator(cls, operator_id):
         if cls.get_operator(operator_id) is None:
-            return "Operator ID '{}' is invalid".format(operator_id)
+            return f"Operator ID '{operator_id}' is invalid"
 
     @classmethod
     def get_operand(cls, value, user):
@@ -381,7 +381,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             }
         except (TypeError, KeyError, ValueError) as e:
             raise cls.DataError(
-                '{}.build(): invalid data ({})'.format(cls.__name__, e)
+                f'{cls.__name__}.build(): invalid data ({e})'
             )
 
         return cls(model=model, field_name=name, **kwargs)
@@ -407,9 +407,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         operator_obj = cls.get_operator(operator_id)
         if operator_obj is None:
             raise cls.ValueError(
-                '{}.build_condition(): unknown operator ID="{}"'.format(
-                    cls.__name__, operator_id,
-                )
+                f'{cls.__name__}.build_condition(): unknown operator ID="{operator_id}"'
             )
 
         try:
@@ -545,7 +543,7 @@ class DateFieldHandlerMixin:
         if date_range:
             if not date_range_registry.get_range(date_range):
                 raise cls.ValueError(
-                    '{}.build_daterange_dict(): invalid date range.'.format(cls.__name__)
+                    f'{cls.__name__}.build_daterange_dict(): invalid date range.'
                 )
 
             range_dict['name'] = date_range
@@ -607,9 +605,7 @@ class DateFieldHandlerMixin:
         """
         if not isinstance(data, dict):
             raise cls.DataError(
-                '{}._load_daterange_kwargs() -> invalid data ({} is not a dict)'.format(
-                    cls.__name__, data,
-                )
+                f'{cls.__name__}._load_daterange_kwargs() -> invalid data ({data} is not a dict)'
             )
 
         get = data.get
@@ -620,17 +616,16 @@ class DateFieldHandlerMixin:
             if date_kwargs:
                 if not isinstance(date_kwargs, dict):
                     raise cls.DataError(
-                        '{}._load_daterange_kwargs() -> invalid data ({} is not a dict)'.format(
-                            cls.__name__, date_kwargs,
-                    ))
+                        f'{cls.__name__}._load_daterange_kwargs() -> '
+                        f'invalid data ({date_kwargs} is not a dict)'
+                    )
 
                 try:
                     dt = datetime(**date_kwargs)
                 except TypeError as e:
                     raise cls.DataError(
-                        '{}._load_daterange_kwargs() -> invalid data for date ({})'.format(
-                            cls.__name__, e,
-                    ))
+                        f'{cls.__name__}._load_daterange_kwargs() -> '
+                        f'invalid data for date ({e})')
                 else:
                     kwargs[key] = make_aware_dt(dt)
 
@@ -699,7 +694,7 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
             return str(e)
 
         if not is_date_field(finfo[-1]):
-            return "'{}' is not a date field".format(field_name)
+            return f"'{field_name}' is not a date field"
 
     def description(self, user):
         return self._datefield_description(verbose_field=self.field_info.verbose_name)
@@ -766,7 +761,7 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
     def error(self):
         rname = self._related_name
         if not any(rname == cf_cls.get_related_name() for cf_cls in _TABLES.values()):
-            return "related_name '{}' is invalid".format(rname)
+            return f"related_name '{rname}' is invalid"
 
         # TODO: check existence of the CustomField ? (normally the condition should be removed)
 
@@ -849,7 +844,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             }
         except (TypeError, KeyError, ValueError) as e:
             raise cls.DataError(
-                '{}.build(): invalid data ({})'.format(cls.__name__, e)
+                f'{cls.__name__}.build(): invalid data ({e})'
             )
 
         return cls(model=model, custom_field=cf_id, **kwargs)
@@ -874,29 +869,27 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         operator_obj = cls.get_operator(operator_id)
         if operator_obj is None:
             raise cls.ValueError(
-                '{}.build_condition(): unknown operator ID="{}"'.format(
-                    cls.__name__, operator_id,
-                )
+                f'{cls.__name__}.build_condition(): unknown operator ID="{operator_id}"'
             )
 
         if custom_field.field_type == CustomField.DATETIME:
             raise cls.ValueError(
-                '{}.build_condition(): does not manage DATE CustomFields'.format(cls.__name__)
+                f'{cls.__name__}.build_condition(): does not manage DATE CustomFields'
             )
 
         # TODO: A bit ugly way to validate operators, but needed for compatibility.
         if custom_field.field_type == CustomField.BOOL and \
            operator_id not in (operators.EQUALS, operators.EQUALS_NOT, operators.ISEMPTY):
             raise cls.ValueError(
-                '{}.build_condition(): BOOL type is only compatible with '
-                'EQUALS, EQUALS_NOT and ISEMPTY operators'.format(cls.__name__)
+                f'{cls.__name__}.build_condition(): BOOL type is only compatible with '
+                f'EQUALS, EQUALS_NOT and ISEMPTY operators'
             )
             # TODO: validate values is a list containing one Boolean (done
             #       below for ISEMPTY only) when form field has been fixed
 
         if not isinstance(values, (list, tuple)):
             raise cls.ValueError(
-                '{}.build_condition(): value is not an array'.format(cls.__name__)
+                f'{cls.__name__}.build_condition(): value is not an array'
             )
 
         cf_value_class = custom_field.get_value_class()
@@ -975,15 +968,15 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         #     several conditions on the same type of CustomField (ie: same table).
         operator = self.get_operator(self._operator_id)
         related_name = self._related_name
-        fname = '{}__value'.format(related_name)
+        fname = f'{related_name}__value'
         values = self._values
         resolved_values = self.resolve_operands(values=values, user=user)
 
         # TODO: move more code in operator ??
         if isinstance(operator, operators.IsEmptyOperator):
-            query = Q(**{'{}__isnull'.format(related_name): resolved_values[0]})
+            query = Q(**{f'{related_name}__isnull': resolved_values[0]})
         else:
-            query = Q(**{'{}__custom_field'.format(related_name): self._custom_field_id})
+            query = Q(**{f'{related_name}__custom_field': self._custom_field_id})
             key = operator.key_pattern.format(fname)
             value_q = Q()
 
@@ -1032,7 +1025,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
             rname = data['rname']
         except (KeyError, ValueError) as e:
             raise cls.DataError(
-                '{}.build(): invalid data ({})'.format(cls.__name__, e)
+                f'{cls.__name__}.build(): invalid data ({e})'
             )
 
         return cls(model=model, custom_field=cf_id, related_name=rname, **kwargs)
@@ -1058,7 +1051,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
         """
         if not custom_field.field_type == CustomField.DATETIME:
             raise cls.ValueError(
-                '{}.build_condition(): not a date custom field.'.format(cls.__name__)
+                f'{cls.__name__}.build_condition(): not a date custom field.'
             )
 
         value = cls._build_daterange_dict(date_range, start, end)
@@ -1089,10 +1082,10 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
     def get_q(self, user):
         # NB: see CustomFieldConditionHandler.get_q() remark
         related_name = self._related_name
-        fname = '{}__value'.format(related_name)
+        fname = f'{related_name}__value'
 
         q_dict = self._get_date_range().get_q_dict(field=fname, now=now())
-        q_dict['{}__custom_field'.format(related_name)] = self._custom_field_id
+        q_dict[f'{related_name}__custom_field'] = self._custom_field_id
 
         return Q(pk__in=self._model
                             ._default_manager
@@ -1199,14 +1192,10 @@ class RelationConditionHandler(BaseRelationConditionHandler):
             if entity_id is not None:
                 entity_id = int(entity_id)
         except (TypeError, KeyError, ValueError) as e:
-            raise cls.DataError(
-                '{}.build(): invalid data ({})'.format(cls.__name__, e)
-            )
+            raise cls.DataError(f'{cls.__name__}.build(): invalid data ({e})')
 
         if not isinstance(has, bool):
-            raise cls.DataError(
-                '{}.build(): "has" is not a boolean'.format(cls.__name__)
-            )
+            raise cls.DataError(f'{cls.__name__}.build(): "has" is not a boolean')
 
         return cls(
             model=model,
@@ -1361,14 +1350,10 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
             filter_id = data['filter_id']
             has = data['has']
         except (TypeError, KeyError) as e:
-            raise cls.DataError(
-                '{}.build(): invalid data ({})'.format(cls.__name__, e)
-            )
+            raise cls.DataError(f'{cls.__name__}.build(): invalid data ({e})')
 
         if not isinstance(has, bool):
-            raise cls.DataError(
-                '{}.build(): "has" is not a boolean'.format(cls.__name__)
-            )
+            raise cls.DataError(f'{cls.__name__}.build(): "has" is not a boolean')
 
         return cls(model=model, rtype=name, subfilter=filter_id, exclude=not has)
 
@@ -1415,7 +1400,7 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
     def error(self):
         # TODO: error if relation type not found ?
         if self.subfilter is False:
-            return "'{}' is not a valid filter ID".format(self.subfilter_id)
+            return f"'{self.subfilter_id}' is not a valid filter ID"
 
     @classmethod
     def formfield(cls, form_class=ef_fields.RelationSubfiltersConditionsField, **kwargs):
@@ -1496,9 +1481,7 @@ class PropertyConditionHandler(FilterConditionHandler):
     @classmethod
     def build(cls, *, model, name, data):
         if not isinstance(data, bool):
-            raise cls.DataError(
-                '{}.build(): invalid data (not boolean)'.format(cls.__name__)
-            )
+            raise cls.DataError(f'{cls.__name__}.build(): invalid data (not boolean)')
 
         return cls(model=model, ptype=name, exclude=not data)
 

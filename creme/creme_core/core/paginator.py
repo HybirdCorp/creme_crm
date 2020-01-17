@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2019  Hybird
+#    Copyright (C) 2016-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -127,9 +127,9 @@ class FlowPaginator:
             subfield_ordering = subfield_model._meta.ordering
 
             if not subfield_ordering:
-                raise ValueError('Invalid key: related field model "{}" should '
-                                 'have Meta.ordering'.format(subfield_model)
-                                )
+                raise ValueError(
+                    f'Invalid key: related field model "{subfield_model}" should have Meta.ordering'
+                )
 
             attr_name += '__' + subfield_ordering[0]
             field_info = FieldInfo(self.queryset.model, attr_name)
@@ -196,7 +196,7 @@ class FlowPaginator:
         try:
             qs = self.queryset.filter(q)
         except (ValueError, ValidationError) as e:
-            raise InvalidPage('Invalid "value" [{}].'.format(e)) from e
+            raise InvalidPage(f'Invalid "value" [{e}].') from e
 
         return qs
 
@@ -332,9 +332,7 @@ class FlowPage(Sequence):
         self._first_page = bool(first_page)
 
     def __repr__(self):
-        return '<Page key={} offset={} items[0]={}>'.format(
-            self._key, self._offset, self[0],
-        )
+        return f'<Page key={self._key} offset={self._offset} items[0]={self[0]}>'
 
     def __len__(self):
         return len(self.object_list)

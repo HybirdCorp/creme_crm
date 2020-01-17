@@ -70,7 +70,7 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
 
         backend = export_backend_registry.get_backend(doc_type)
         if backend is None:
-            raise Http404('No such exporter for extension "{}"'.format(doc_type))
+            raise Http404(f'No such exporter for extension "{doc_type}"')
 
         return backend
 

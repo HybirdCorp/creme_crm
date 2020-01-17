@@ -68,7 +68,7 @@ class Filter:
         # By default we simply return our input filters' file names
         for index, filter in enumerate(self.get_input_filters()):
             for name, hash in filter.get_dev_output_names(variation):
-                yield '{}/{}'.format(index, name), hash
+                yield f'{index}/{name}', hash
 
     def get_input(self, variation):
         """Yields contents for each input item."""
@@ -111,8 +111,9 @@ class Filter:
             backend_class = self.file_filter
 
         config = backend_class.from_default(name)
-        config.setdefault('filter',
-                          '{}.{}'.format(backend_class.__module__, backend_class.__name__)
+        config.setdefault(
+            'filter',
+            f'{backend_class.__module__}.{backend_class.__name__}',
         )
         config.setdefault('filetype', self.input_filetype)
         config['bundle'] = self.bundle
@@ -133,8 +134,9 @@ class Filter:
             subvariations = filter._get_variations_with_input()
             for k, v in subvariations.items():
                 if k in variations and v != variations[k]:
-                    raise ValueError('Conflicting variations for "{}": {!r} != {!r}'.format(
-                                        k, v, variations[k],
+                    raise ValueError(
+                        'Conflicting variations for "{}": {!r} != {!r}'.format(
+                            k, v, variations[k],
                     ))
             variations.update(subvariations)
         return variations
@@ -162,8 +164,7 @@ class FileFilter(Filter):
 
     def get_dev_output(self, name, variation):
         assert name == self.name, (
-            '''File name "{}" doesn't match the one in GENERATE_MEDIA ("{}")'''.format(
-                name, self.name)
+            f'''File name "{name}" doesn't match the one in GENERATE_MEDIA ("{self.name}")'''
         )
         return read_text_file(self._get_path())
 
@@ -179,7 +180,7 @@ class FileFilter(Filter):
 
     def _get_path(self):
         path = find_file(self.name)
-        assert path, """File name "{}" doesn't exist.""".format(self.name)
+        assert path, f"""File name "{self.name}" doesn't exist."""
         return path
 
 
@@ -192,7 +193,7 @@ class RawFileFilter(FileFilter):
 
     def get_dev_output(self, name, variation):
         assert name == self.name, (
-            '''File name "{}" doesn't match the one in GENERATE_MEDIA ("{}")'''.format(name, self.name))
+            f'''File name "{name}" doesn't match the one in GENERATE_MEDIA ("{self.name}")''')
         return read_text_file(self.path)
 
     def get_dev_output_names(self, variation):
@@ -234,6 +235,6 @@ class SubProcessFilter(Filter):
                    )
         output, error = cmd.communicate(input)
 
-        assert cmd.wait() == 0, 'Command returned bad result:\n{}'.format(error)
+        assert cmd.wait() == 0, f'Command returned bad result:\n{error}'
 
         return output

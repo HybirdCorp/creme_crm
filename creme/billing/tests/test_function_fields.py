@@ -22,7 +22,7 @@ try:
             skipIfCustomQuote, skipIfCustomInvoice,
             Organisation, Contact, Quote, Invoice, ProductLine)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomOrganisation
@@ -640,5 +640,5 @@ class FunctionFieldTestCase(_BillingTestCase):
                          'total_won_quote_last_year',
                         ):
                 funf = function_field_registry.get(model, name)
-                self.assertIsNotNone(funf, 'Function field {}/{} is None ?!'.format(model, name))
+                self.assertIsNotNone(funf, f'Function field {model}/{name} is None?!')
                 self.assertEqual('0', funf(target, user).for_html())

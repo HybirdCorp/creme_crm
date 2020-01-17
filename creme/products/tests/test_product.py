@@ -17,7 +17,7 @@ try:
     from .. import get_product_model
     from ..models import Category, SubCategory
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 Product = get_product_model()
 

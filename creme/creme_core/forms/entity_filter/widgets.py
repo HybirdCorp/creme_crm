@@ -133,7 +133,7 @@ class FieldConditionSelector(ChainedInput):
         if subfield is not None:
             category = field.verbose_name
             choice_type = self.field_choicetype(subfield)
-            choice_label = '[{}] - {}'.format(category, subfield.verbose_name)
+            choice_label = f'[{category}] - {subfield.verbose_name}'
             choice_value = {'name': name, 'type': choice_type}
 
             if choice_type in operators.FIELDTYPES_RELATED:
@@ -261,7 +261,7 @@ class DateFieldsConditionsWidget(ConditionListWidget):
 
         if subfield is not None:
             category = field.verbose_name
-            choice_label = '[{}] - {}'.format(category, subfield.verbose_name)  # TODO: factorise
+            choice_label = f'[{category}] - {subfield.verbose_name}'  # TODO: factorise
             is_null = subfield.null
         else:
             category = ''

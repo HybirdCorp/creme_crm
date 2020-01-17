@@ -23,7 +23,7 @@ try:
     from creme.creme_core.models import Job, EntityJobResult
     from creme.creme_core.utils.dates import dt_to_ISO8601
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):

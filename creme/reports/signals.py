@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,13 +38,8 @@ def _uninstall_reports(sender, content_types, verbosity, stdout_write, style, **
                                .exclude(report__ct__in=content_types):
         report     = rfield.report
         sub_report = rfield.sub_report
-        stdout_write(' Beware: the report "{sub_report}" (id={sub_id}) was used as '
-                     'sub-report by : "{report}" (id={id})'.format(
-                            sub_report=sub_report,
-                            sub_id=sub_report.id,
-                            report=report,
-                            id=report.id,
-                        ),
+        stdout_write(f' Beware: the report "{sub_report}" (id={sub_report.id}) was '
+                     f'used as sub-report by : "{report}" (id={report.id})',
                      style.NOTICE
                     )
         rfield.delete()

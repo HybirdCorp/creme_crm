@@ -11,7 +11,7 @@ try:
     from ..forms.fields import PollFormLineConditionsField
     from ..models import PollFormLine, PollFormLineCondition
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class PollFormLineConditionsFieldTestCase(FieldTestCase):

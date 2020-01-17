@@ -26,7 +26,7 @@ try:
         FakeContact, FakeOrganisation,
     )
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class BatchProcessViewsTestCase(ViewsTestCase):
@@ -53,7 +53,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                       )
 
         if efilter_id:
-            uri += '?efilter={}'.format(efilter_id)
+            uri += f'?efilter={efilter_id}'
 
         return uri
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2016-2019 Hybird
+# Copyright (c) 2016-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ class IncrFileNameSuffixGenerator(FileNameSuffixGenerator):
         i = 1
 
         while True:
-            yield '_{}'.format(i)
+            yield f'_{i}'
             i += 1
 
 
@@ -119,7 +119,9 @@ class FileCreator:
                 if not exists(dir_path):
                     logger.warning('Cannot create directory %s (%s)', dir_path, e)
 
-                    raise self.Error('The directory {} cannot be created.'.format(dir_path)) from e
+                    raise self.Error(
+                        f'The directory {dir_path} cannot be created.'
+                    ) from e
 
         name = secure_filename(self.name)
         name_root, name_ext = splitext(name)

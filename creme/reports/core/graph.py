@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2019  Hybird
+#    Copyright (C) 2013-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,8 +26,11 @@ from django.db.models import Min, Max, Count, FieldDoesNotExist, Q, ForeignKey
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.core.enumerable import enumerable_registry
-from creme.creme_core.models import (CremeEntity, RelationType, Relation,
-        CustomField, CustomFieldEnumValue)
+from creme.creme_core.models import (
+    CremeEntity,
+    RelationType, Relation,
+    CustomField, CustomFieldEnumValue,
+)
 from creme.creme_core.utils.meta import FieldInfo
 from creme.creme_core.utils.queries import QSerializer
 from creme.creme_core.views.generic import EntitiesList
@@ -41,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 def _physical_field_name(table_name, field_name):
     quote_name = connection.ops.quote_name
-    return '{}.{}'.format(quote_name(table_name), quote_name(field_name))
+    return f'{quote_name(table_name)}.{quote_name(field_name)}'
 
 
 def _db_grouping_format():
@@ -67,10 +70,7 @@ class ListViewURLBuilder:
             )
 
             if filter:
-                fmt += '&{arg}={value}'.format(
-                    arg=self.entity_filter_id_arg,
-                    value=filter.id,
-                )
+                fmt += f'&{self.entity_filter_id_arg}={filter.id}'
 
         self._fmt = fmt
 
@@ -170,7 +170,7 @@ class RGYCAggregation(ReportGraphYCalculator):
 
     @property
     def verbose_name(self):
-        return '{} - {}'.format(self._name(), self._aggregation.title)
+        return f'{self._name()} - {self._aggregation.title}'
 
 
 class RGYCField(RGYCAggregation):
@@ -186,8 +186,8 @@ class RGYCCustomField(RGYCAggregation):
     def __init__(self, cfield, aggregation):
         super().__init__(
             aggregation,
-            aggregation.func('{}__value'.format(cfield.get_value_class().get_related_name())),
-           )
+            aggregation.func(f'{cfield.get_value_class().get_related_name()}__value'),
+        )
         self._cfield = cfield
 
     def _name(self):
@@ -292,7 +292,7 @@ class _RGHRegularField(ReportGraphHand):
 #            yield date.strftime(date_format), [y_value_func(entities_filter(**qdict)), build_url(qdict)]
 
     def _aggregate_dates_by_key(self, entities, abscissa, key, order):
-        x_value_filter = {'{}__isnull'.format(abscissa): True}
+        x_value_filter = {f'{abscissa}__isnull': True}
         aggregates = self._aggregate_by_key(entities, key, order).exclude(**x_value_filter)
         return aggregates
 
@@ -330,9 +330,9 @@ class RGHDay(_RGHRegularField):
 
     def _fetch(self, entities, order, user):
         abscissa = self._graph.abscissa
-        year_key  = '{}__year'.format(abscissa)
-        month_key = '{}__month'.format(abscissa)
-        day_key   = '{}__day'.format(abscissa)
+        year_key  = f'{abscissa}__year'
+        month_key = f'{abscissa}__month'
+        day_key   = f'{abscissa}__day'
 
         return self._get_dates_values(
             entities, abscissa, 'day',
@@ -350,8 +350,8 @@ class RGHMonth(_RGHRegularField):
 
     def _fetch(self, entities, order, user):
         abscissa = self._graph.abscissa
-        year_key  = '{}__year'.format(abscissa)
-        month_key = '{}__month'.format(abscissa)
+        year_key  = f'{abscissa}__year'
+        month_key = f'{abscissa}__month'
 
         return self._get_dates_values(
             entities, abscissa, 'month',
@@ -371,7 +371,7 @@ class RGHYear(_RGHRegularField):
 
         return self._get_dates_values(
             entities, abscissa, 'year',
-            qdict_builder=lambda date: {'{}__year'.format(abscissa): date.year},
+            qdict_builder=lambda date: {f'{abscissa}__year': date.year},
             date_format='%Y', order=order,
         )
 
@@ -438,7 +438,7 @@ class RGHRange(_RGHRegularField):
 
         if min_date is not None and max_date is not None:
             build_url = self._listview_url_builder()
-            query_cmd = '{}__range'.format(abscissa)
+            query_cmd = f'{abscissa}__range'
             days = graph.days or 1
 
             field_name = _physical_field_name(self._field.model._meta.db_table, abscissa)
@@ -476,7 +476,7 @@ class RGHRange(_RGHRegularField):
 
         if min_date is not None and max_date is not None:
             build_url = self._listview_url_builder()
-            query_cmd = '{}__range'.format(abscissa)
+            query_cmd = f'{abscissa}__range'
             entities_filter = entities.filter
             y_value_func = self._y_calculator
 
@@ -815,7 +815,7 @@ class GraphFetcher:
 
     @property
     def verbose_name(self):
-        return '{} - {}'.format(self.graph, self.verbose_volatile_column)
+        return f'{self.graph} - {self.verbose_volatile_column}'
 
 
 class RegularFieldLinkedGraphFetcher(GraphFetcher):
@@ -853,15 +853,15 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         try:
             field_info = FieldInfo(graph.model, field_name)
         except FieldDoesNotExist:
-            return 'invalid field "{}"'.format(field_name)
+            return f'invalid field "{field_name}"'
 
         if len(field_info) > 1:
-            return 'field "{}" with deep > 1'.format(field_name)
+            return f'field "{field_name}" with deep > 1'
 
         field = field_info[0]
 
         if not (isinstance(field, ForeignKey) and issubclass(field.remote_field.model, CremeEntity)):
-            return 'field "{}" is not a ForeignKey to CremeEntity'.format(field_name)
+            return f'field "{field_name}" is not a ForeignKey to CremeEntity'
 
 
 class RelationLinkedGraphFetcher(GraphFetcher):

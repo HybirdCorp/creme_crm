@@ -6,8 +6,12 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (Relation, RelationType, SetCredentials,
-            ButtonMenuItem, FieldsConfig)
+    from creme.creme_core.models import (
+        Relation, RelationType,
+        SetCredentials,
+        ButtonMenuItem,
+        FieldsConfig,
+    )
 
     from creme.persons.models import Civility
     from creme.persons.constants import REL_OBJ_EMPLOYED_BY
@@ -17,7 +21,7 @@ try:
     from .base import (Address, Contact, Organisation,
         skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation)
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomContact
@@ -43,12 +47,12 @@ class VcfExportTestCase(CremeTestCase):
 
     def create_address(self, contact, prefix):
         return Address.objects.create(
-            address='{}_address'.format(prefix),
-            city='{}_city'.format(prefix),
-            po_box='{}_po_box'.format(prefix),
-            country='{}_country'.format(prefix),
-            zipcode='{}_zipcode'.format(prefix),
-            department='{}_department'.format(prefix),
+            address=f'{prefix}_address',
+            city=f'{prefix}_city',
+            po_box=f'{prefix}_po_box',
+            country=f'{prefix}_country',
+            zipcode=f'{prefix}_zipcode',
+            department=f'{prefix}_department',
             content_type_id=ContentType.objects.get_for_model(Contact).id,
             object_id=contact.id,
         )

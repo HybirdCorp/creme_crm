@@ -14,12 +14,19 @@ try:
     from creme.persons.tests.base import skipIfCustomOrganisation
 
     from ..bricks import AssetsMatrixBrick, CharmsMatrixBrick, AssetsCharmsMatrixBrick
-    from ..models import (CommercialAsset, CommercialAssetScore,
-            MarketSegmentCharm, MarketSegmentCharmScore,
-            MarketSegment, MarketSegmentCategory, MarketSegmentDescription)
-    from .base import CommercialBaseTestCase, skipIfCustomStrategy, Organisation, Strategy
+    from ..models import (
+        CommercialAsset, CommercialAssetScore,
+        MarketSegmentCharm, MarketSegmentCharmScore,
+        MarketSegment, MarketSegmentCategory, MarketSegmentDescription,
+    )
+    from .base import (
+        CommercialBaseTestCase,
+        skipIfCustomStrategy,
+        Organisation,
+        Strategy,
+    )
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIfCustomStrategy
@@ -464,7 +471,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         # ---
         response = self.assertGET200(reverse('commercial__orga_synthesis', args=(strategy.id, orga.id)))
         self.assertTemplateUsed(response, 'commercial/orga_synthesis.html')
-        self.assertContains(response, '<li data-segment="{}"'.format(segment_desc.id))
+        self.assertContains(response, f'<li data-segment="{segment_desc.id}"')
 
         get = response.context.get
         self.assertEqual(orga,     get('orga'))

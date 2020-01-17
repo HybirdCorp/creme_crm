@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -90,16 +90,9 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
 
 
 def get_ical_date(date_time):
-    date_time = localtime(date_time)
+    dt = localtime(date_time)
 
-    return '{year}{month:02}{day:02}T{hour:02}{minute:02}{second:02}Z'.format(
-        year=date_time.year,
-        month=date_time.month,
-        day=date_time.day,
-        hour=date_time.hour,
-        minute=date_time.minute,
-        second=date_time.second,
-    )
+    return f'{dt.year}{dt.month:02}{dt.day:02}T{dt.hour:02}{dt.minute:02}{dt.second:02}Z'
 
 
 def get_ical(activities):

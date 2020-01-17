@@ -9,7 +9,7 @@ try:
     from creme.creme_core.core.entity_filter import operators
     from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class EnumerableViewsTestCase(ViewsTestCase):

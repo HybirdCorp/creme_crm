@@ -29,7 +29,7 @@ try:
     from creme.documents.models import Document
     from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 try:
     from creme.creme_core.utils.xlrd_utils import XlrdReader
@@ -545,9 +545,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                                         'user': user.id,
                                         'key_fields': ['first_name', 'last_name'],
 
-                                        'custom_field_{}_colselect'.format(cf_int.id): 3,
-                                        'custom_field_{}_colselect'.format(cf_str.id): 0,
-                                        'custom_field_{}_colselect'.format(cf_dec.id): 4,
+                                        f'custom_field_{cf_int.id}_colselect': 3,
+                                        f'custom_field_{cf_str.id}_colselect': 0,
+                                        f'custom_field_{cf_dec.id}_colselect': 4,
                                     },
                                    )
         self.assertNoFormError(response)
@@ -625,9 +625,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                                         'has_header': True,
                                         'user': user.id,
 
-                                        'custom_field_{}_colselect'.format(cf_enum.id):  3,
-                                        'custom_field_{}_colselect'.format(cf_enum2.id): 0,
-                                        'custom_field_{}_colselect'.format(cf_menum.id): 4,
+                                        f'custom_field_{cf_enum.id}_colselect':  3,
+                                        f'custom_field_{cf_enum2.id}_colselect': 0,
+                                        f'custom_field_{cf_menum.id}_colselect': 4,
                                     },
                                    )
         self.assertNoFormError(response)
@@ -698,11 +698,11 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                 'has_header': True,
                 'user': user.id,
 
-                'custom_field_{}_colselect'.format(cf_enum.id): 3,
-                'custom_field_{}_create'.format(cf_enum.id):    True,
+                f'custom_field_{cf_enum.id}_colselect': 3,
+                f'custom_field_{cf_enum.id}_create':    True,
 
-                'custom_field_{}_colselect'.format(cf_menum.id): 4,
-                'custom_field_{}_create'.format(cf_menum.id):    True,
+                f'custom_field_{cf_menum.id}_colselect': 4,
+                f'custom_field_{cf_menum.id}_create':    True,
             },
         )
         self.assertNoFormError(response)
@@ -766,19 +766,19 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                     'has_header': True,
                     'user': user.id,
 
-                    'custom_field_{}_colselect'.format(cf_enum.id): 3,
-                    'custom_field_{}_create'.format(cf_enum.id):    True,
+                    f'custom_field_{cf_enum.id}_colselect': 3,
+                    f'custom_field_{cf_enum.id}_create':    True,
 
-                    'custom_field_{}_colselect'.format(cf_menum.id): 4,
-                    'custom_field_{}_create'.format(cf_menum.id):    True,
+                    f'custom_field_{cf_menum.id}_colselect': 4,
+                    f'custom_field_{cf_menum.id}_create':    True,
                 },
             )
 
         response = post()
-        self.assertFormError(response, 'form', 'custom_field_{}'.format(cf_enum.id),
+        self.assertFormError(response, 'form', f'custom_field_{cf_enum.id}',
                              'You can not create choices',
                             )
-        self.assertFormError(response, 'form', 'custom_field_{}'.format(cf_menum.id),
+        self.assertFormError(response, 'form', f'custom_field_{cf_menum.id}',
                              'You can not create choices',
                             )
 
@@ -828,19 +828,19 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                     'user': user.id,
                     'key_fields': ['first_name', 'last_name'],
 
-                    'custom_field_{}_colselect'.format(cf_int.id): 3,
-                    'custom_field_{}_defval'.format(cf_int.id):    defint,
+                    f'custom_field_{cf_int.id}_colselect': 3,
+                    f'custom_field_{cf_int.id}_defval':    defint,
 
-                    'custom_field_{}_colselect'.format(cf_enum.id): 4,
-                    'custom_field_{}_defval'.format(cf_enum.id):    str(punch.id),
+                    f'custom_field_{cf_enum.id}_colselect': 4,
+                    f'custom_field_{cf_enum.id}_defval':    str(punch.id),
 
-                    'custom_field_{}_colselect'.format(cf_menum.id): 5,
-                    'custom_field_{}_defval'.format(cf_menum.id):    str(sword.id),
+                    f'custom_field_{cf_menum.id}_colselect': 5,
+                    f'custom_field_{cf_menum.id}_defval':    str(sword.id),
                 },
             )
 
         response = post('notint')
-        self.assertFormError(response, 'form', 'custom_field_{}'.format(cf_int.id),
+        self.assertFormError(response, 'form', f'custom_field_{cf_int.id}',
                              _('Enter a whole number.')
                             )
 
@@ -1436,8 +1436,8 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         response = self.assertGET200(self._build_dl_errors_url(job), follow=True)
 
         cdisp = response['Content-Disposition']
-        self.assertTrue(cdisp.startswith('attachment; filename={}-errors'.format(slugify(doc.title))),
-                        'Content-Disposition: not expected: {}'.format(cdisp)
+        self.assertTrue(cdisp.startswith(f'attachment; filename={slugify(doc.title)}-errors'),
+                        f'Content-Disposition: not expected: {cdisp}'
                        )
         self.assertTrue(cdisp.endswith('.' + ext))
 

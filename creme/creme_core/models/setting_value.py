@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -120,7 +120,7 @@ class SettingValueManager(models.Manager):
 
                     if 'default' not in value_info:
                         raise self.model.DoesNotExist(
-                            'The instance of {} with key_id="{}" does not exist'.format(self.model, key_id)
+                            f'The instance of {self.model} with key_id="{key_id}" does not exist'
                         ) from e
 
                     sv = self.DummySettingValue(key_id=key_id, value=value_info['default'])
@@ -140,7 +140,7 @@ class SettingValue(models.Model):
         app_label = 'creme_core'
 
     def __str__(self):
-        return 'SettingValue(key_id="{key}", value_str="{value}")'.format(key=self.key_id, value=self.value_str)
+        return f'SettingValue(key_id="{self.key_id}", value_str="{self.value_str}")'
 
     @property
     def key(self):

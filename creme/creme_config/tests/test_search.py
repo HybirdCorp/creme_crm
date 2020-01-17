@@ -14,7 +14,7 @@ try:
 
     from ..bricks import SearchConfigBrick
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
@@ -49,12 +49,12 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             if f_field_name == field_name:
                 return i
 
-        self.fail('No "{}" in field'.format(field_name))
+        self.fail(f'No "{field_name}" in field')
 
     def _assertNotInChoices(self, formfield, field_name):
         for f_field_name, f_field_vname in formfield.choices:
             if f_field_name == field_name:
-                self.fail('"{}" found in choices'.format(field_name))
+                self.fail(f'"{field_name}" found in choices')
 
     def _get_first_entity_ctype(self):
         ctypes = [*creme_entity_content_types()]
@@ -124,9 +124,9 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             data={
                 'role': role.id,
 
-                'fields_check_{}'.format(index): 'on',
-                'fields_value_{}'.format(index): fname,
-                'fields_order_{}'.format(index): 1,
+                f'fields_check_{index}': 'on',
+                f'fields_value_{index}': fname,
+                f'fields_order_{index}': 1,
             },
         ))
 
@@ -193,9 +193,9 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         names = []
 
         for order, (name, index) in enumerate(names_indexes, start=1):
-            data['fields_check_{}'.format(index)] = 'on'
-            data['fields_value_{}'.format(index)] = name
-            data['fields_order_{}'.format(index)] = order
+            data[f'fields_check_{index}'] = 'on'
+            data[f'fields_value_{index}'] = name
+            data[f'fields_order_{index}'] = order
 
             names.append(name)
 

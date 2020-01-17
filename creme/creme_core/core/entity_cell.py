@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2019  Hybird
+#    Copyright (C) 2013-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,11 @@ from ..utils.db import populate_related
 from ..utils.meta import FieldInfo
 from ..utils.unicode_collation import collator
 
-from .function_field import FunctionFieldDecimal, FunctionFieldResultsList, function_field_registry
+from .function_field import (
+    FunctionFieldDecimal,
+    FunctionFieldResultsList,
+    function_field_registry,
+)
 
 # TODO: rename EntityCell to [Model]Cell ?
 #       rename 'entity' argument to 'instance'.
@@ -72,7 +76,7 @@ class EntityCellsRegistry:
 
     def __call__(self, cls):
         if self._cell_classes.setdefault(cls.type_id, cls) is not cls:
-            raise self.RegistrationError('Duplicated Cell id: {}'.format(cls.id))
+            raise self.RegistrationError(f'Duplicated Cell id: {cls.id}')
 
         return cls
 
@@ -132,7 +136,7 @@ class EntityCell:
         self.is_hidden = is_hidden
 
     def __repr__(self):
-        return "<EntityCell(type={}, value='{}')>".format(self.type_id, self.value)
+        return f"<EntityCell(type={self.type_id}, value='{self.value}')>"
 
     def __str__(self):
         return self.title
@@ -146,7 +150,7 @@ class EntityCell:
         listview_css_class = getattr(self, attr_name)
 
         if listview_css_class is None:
-            registry_getter = getattr(field_printers_registry, 'get{}_for_field'.format(attr_name))
+            registry_getter = getattr(field_printers_registry, f'get{attr_name}_for_field')
             listview_css_class = registry_getter(self._get_field_class())
             setattr(self, attr_name, listview_css_class)
 
@@ -163,7 +167,7 @@ class EntityCell:
     @property
     def key(self):
         "Return an ID that should be unique in a EntityCell set."
-        return '{}-{}'.format(self.type_id, self.value)
+        return f'{self.type_id}-{self.value}'
 
     @property
     def listview_css_class(self):

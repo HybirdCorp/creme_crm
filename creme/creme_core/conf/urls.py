@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2018 Hybird
+# Copyright (c) 2018-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -87,7 +87,7 @@ class _PatternSwapManager:
             """See _PatternSwapManager.add_group()"""
             for pattern in patterns:
                 if not isinstance(pattern, Swappable):
-                    raise ValueError('<patterns> must be Swappable instances: {}.'.format(pattern))
+                    raise ValueError(f'<patterns> must be Swappable instances: {pattern}.')
 
             self.func = swapping_func
             self.swappables = patterns

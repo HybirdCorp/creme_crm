@@ -129,7 +129,7 @@ class RegexFilter(Filter):
 #
 #    Copyright 2001-2007 by Vinay Sajip. All Rights Reserved.
 #
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This file is released under the Python License (http://www.opensource.org/licenses/Python-2.0)
 ################################################################################
@@ -140,9 +140,9 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
         filename = kwargs.pop('filename', None)
 
         if filename is None:
-            raise ValueError('{} configuration is invalid (no "filename").'.format(
-                                self.__class__.__name__,
-            ))
+            raise ValueError(
+                f'{self.__class__.__name__} configuration is invalid (no "filename").'
+            )
 
         # if isinstance(filenames, (list, tuple,)):
         #     self.filenames = (expanduser(p) for p in filenames[:1])

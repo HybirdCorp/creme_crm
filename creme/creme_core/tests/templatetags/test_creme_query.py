@@ -18,7 +18,7 @@ try:
 
     from ..base import CremeTestCase
 except Exception as e:
-    print('Error in <{}>: {}'.format(__name__, e))
+    print(f'Error in <{__name__}>: {e}')
 
 
 class CremeQueryTagsTestCase(CremeTestCase):
@@ -68,7 +68,7 @@ class CremeQueryTagsTestCase(CremeTestCase):
                 r'DEBUG:creme.creme_core.templatetags.creme_query:{% query_entities_count %} : '
                 r'fast count is not possible'
             ):
-                self.fail('Slow count message found in {}'.format(logs_manager.output))
+                self.fail(f'Slow count message found in {logs_manager.output}')
 
     def test_entities_count03(self):
         "Regular user + fast count is not possible."
@@ -123,7 +123,7 @@ class CremeQueryTagsTestCase(CremeTestCase):
             ):
                 break
         else:
-            self.fail('No slow count message found in {}'.format(logs_manager.output))
+            self.fail(f'No slow count message found in {logs_manager.output}')
 
     def test_serialize(self):
         with self.assertNoException():
