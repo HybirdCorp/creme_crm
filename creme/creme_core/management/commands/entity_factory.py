@@ -256,13 +256,17 @@ class OptimizePGSQLContext(BaseOptimizeContext):
         if match is None:
             print(f'DEBUG: invalid delay "{delay}" ?!')
         else:
-            data = match.groupdict()
-            value = int(data['value'])
-            if data['unit'] == 's':
+            # data = match.groupdict()
+            # value = int(data['value'])
+            value = int(match['value'])
+            # if data['unit'] == 's':
+            if match['unit'] == 's':
                 value *= 1000
 
             if value < 1000:
-                print('HINT: you could try the following optimisation: "ALTER SYSTEM SET wal_writer_delay=1000;"')
+                print('HINT: you could try the following optimisation: '
+                      '"ALTER SYSTEM SET wal_writer_delay=1000;"'
+                     )
 
 
 # Command ----------------------------------------------------------------------

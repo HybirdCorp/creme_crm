@@ -625,9 +625,13 @@ def parseLine(line, lineNumber=None):
         raise ParseError(f'Failed to parse line: {line}', lineNumber)
 
     # Underscores are replaced with dash to work around Lotus Notes
-    return (match.group('name').replace('_','-'),
-            parseParams(match.group('params')),
-            match.group('value'), match.group('group'),
+    # return (match.group('name').replace('_','-'),
+    #         parseParams(match.group('params')),
+    #         match.group('value'), match.group('group'),
+    #        )
+    return (match['name'].replace('_','-'),
+            parseParams(match['params']),
+            match['value'], match['group'],
            )
 
 # logical line regular expressions

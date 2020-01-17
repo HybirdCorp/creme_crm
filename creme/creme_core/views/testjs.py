@@ -151,7 +151,7 @@ def js_testview_context(request, viewname):
 
     for filename in listdir(TEST_TEMPLATE_PATH):
         matches = test_view_pattern.match(filename)
-        name = matches.group('name') if matches is not None else None
+        name = matches['name'] if matches is not None else None
 
         if name:
             test_views.append((name, name.capitalize()))
