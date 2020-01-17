@@ -109,7 +109,7 @@ class CreateEmailInput(EmailInput):
 
                         if r:
                             # TODO: Check if the target field is a simple-line field ?
-                            data[key] = r.groupdict().get(key).replace('\\n', '\n')
+                            data[key] = r[key].replace('\\n', '\n')
                             split_body.pop(i)
                             break
 
@@ -244,7 +244,7 @@ class CreateInfopathInput(CreateEmailInput):
         data = backend.body_map.copy()
         for node in xml:
             try:
-                tag = re.search(r'[{].*[}](?P<tag>[-_\d\s\w]+)', node.tag).groupdict()['tag']  # TODO: compile
+                tag = re.search(r'[{].*[}](?P<tag>[-_\d\s\w]+)', node.tag)['tag']  # TODO: compile
             except AttributeError:
                 continue
 

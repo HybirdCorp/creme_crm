@@ -119,7 +119,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             self.assertEqual(Contact, field.model)
 
     def test_manifest_xsf_01(self):
-        "Test some base values"
+        "Test some base values."
         backend = self._get_backend(ContactFakeBackend, subject='create_ce')
         builder = self._get_builder(backend)
         ns  = '{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}'
@@ -130,7 +130,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         xml_find = xml.find
 
         namespace = builder.get_namespace()
-        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content)['ns'],
                          namespace
                         )  # Can't be got with ElementTree, because it's a namespace
 
@@ -165,7 +165,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         )
 
     def test_manifest_xsf_02(self):
-        "Test Image fk field"
+        "Test Image fk field."
         body_map= {'user_id': 1, 'image': ''}
         backend = self._get_backend(ContactFakeBackend, subject='create_contact',
                                     body_map=body_map, model=Contact,
@@ -173,7 +173,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         builder = self._get_builder(backend)
 
         content = builder._render_manifest_xsf(self.request)
-        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content)['ns'],
                          builder.get_namespace()
                         )  # Can't be got with ElementTree, because it's a namespace
         xsf = '{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}'
@@ -189,7 +189,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertEqual({'image'}, {button_node.get('xmlToEdit') for button_node in button_nodes})
 
     def test_manifest_xsf_03(self):
-        "Test m2m field"
+        "Test M2M field."
         body_map = {'user_id': 1, 'language': ''}
         backend = self._get_backend(ContactFakeBackend, subject='create_contact',
                                     body_map=body_map, model=Contact,
@@ -197,7 +197,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         builder = self._get_builder(backend)
 
         content = builder._render_manifest_xsf(self.request)
-        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content)['ns'],
                          builder.get_namespace()
                         )  # Can't be got with ElementTree, because it's a namespace
 
@@ -234,7 +234,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         self.assertEqual(builder.namespace, xml.get('targetNamespace'))
         self.assertEqual(builder.namespace,
-                         re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns']
+                         re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content)['ns']
                         )  # Can't be got with ElementTree, because it's a namespace
 
         ref_attrs = {
@@ -317,7 +317,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     @skipIfCustomDocument
     def test_myschema_xsd02(self):
-        "With Document"
+        "With Document."
         body_map = {'user_id': 1, 'title': '',
                     'description': '', 'linked_folder': '', 'filedata': '',
                    }
@@ -332,7 +332,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         self.assertEqual(builder.namespace, xml.get('targetNamespace'))
         self.assertEqual(builder.namespace,
-                         re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns']
+                         re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content)['ns']
                         )  # Can't be got with ElementTree, because it's a namespace
 
         ref_attrs = {
@@ -387,7 +387,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         builder = self._get_builder(backend)
 
         content = builder._render_template_xml(self.request)
-        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content)['ns'],
                          builder.get_namespace()
                         )  # Can't be got with ElementTree, because it's a namespace
 
@@ -420,7 +420,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                                    )
 
         content = builder._render_upgrade_xsl(self.request)
-        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content)['ns'],
                          builder.namespace
                         )  # Can't be got with ElementTree, because it's a namespace
 
@@ -435,7 +435,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         )
 
     def test_upgrade_xsl02(self):
-        "Many2Many"
+        "Many2Many."
         body_map = {'user_id': 1, 'language': ''}
         builder = self._get_builder(self._get_backend(ContactFakeBackend,
                                                       subject='create_contact',
@@ -444,11 +444,10 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                                    )
 
         content = builder._render_upgrade_xsl(self.request)
-        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content)['ns'],
                          builder.namespace
                         )
 
-        # d_ns = {'xsl': '{http://www.w3.org/1999/XSL/Transform}'}
         xsl = '{http://www.w3.org/1999/XSL/Transform}'
         findall = XML(content).findall
 
@@ -477,7 +476,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         builder = self._get_builder(backend)
 
         content = builder._render_view_xsl(self.request)
-        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content)['ns'],
                          builder.namespace
                         )
 
@@ -613,7 +612,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             {(option.find(f'{xsl}if').get('test'),
               re.search(r'if>(?P<username>.*)</option>',
                         tostring(option, encoding='utf8',
-                       ).decode('utf8')).groupdict()['username']
+                       ).decode('utf8'))['username']
              ) for option in options
             }
         )
