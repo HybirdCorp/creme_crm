@@ -412,13 +412,13 @@ class URLItem(ViewableItem):
 
     @property
     def url(self):
-        "@param url: String or callable returning a string (the string should be a valid URL of course)"
         url = self._url
 
         return url() if callable(url) else url
 
     @url.setter
     def url(self, url):
+        "@param url: String or callable returning a string (the string should be a valid URL of course)."
         self._url = url
 
     @staticmethod
