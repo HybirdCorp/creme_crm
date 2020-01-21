@@ -34,7 +34,7 @@ class FormRegistry:
                "header_dict" a dictionary key=column slugified name; value=column index
                "choices" a list a choices, compliant with classical django Select widget.
                and which returns a form class which inherits
-               <creme_core.forms.list_view_import.ImportForm>.
+               <creme_core.forms.mass_import.ImportForm>.
                <None> means that this model uses a generic import form.
         @return The registry instance (to chain register() calls).
         """
