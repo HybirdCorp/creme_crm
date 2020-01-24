@@ -421,8 +421,8 @@ class URLItem(ViewableItem):
         "@param url: String or callable returning a string (the string should be a valid URL of course)."
         self._url = url
 
-    @staticmethod
-    def list_view(id, model, url=None, label=None, perm=None, **kwargs):
+    @classmethod
+    def list_view(cls, id, model, url=None, label=None, perm=None, **kwargs):
         """Helper method which create an URLItem linking a list-view.
 
         @param id: ID of the created Item.
@@ -437,15 +437,16 @@ class URLItem(ViewableItem):
             > URLItem.list_view('persons-organisations', model=Organisation)
         already gives an acceptable result.
         """
-        return URLItem(id=id,
-                       url=url or model.get_lv_absolute_url,
-                       label=label or model._meta.verbose_name_plural,
-                       perm=model._meta.app_label if perm is None else perm,
-                       **kwargs
-                      )
+        return cls(
+            id=id,
+            url=url or model.get_lv_absolute_url,
+            label=label or model._meta.verbose_name_plural,
+            perm=model._meta.app_label if perm is None else perm,
+            **kwargs
+        )
 
-    @staticmethod
-    def creation_view(id, model, url=None, label=None, perm=None, **kwargs):
+    @classmethod
+    def creation_view(cls, id, model, url=None, label=None, perm=None, **kwargs):
         """Helper method which create an URLItem linking a creation-view.
 
         @param id: ID of the created Item.
@@ -462,12 +463,13 @@ class URLItem(ViewableItem):
             > URLItem.creation_view('persons-create_organisation', model=Organisation)
         already gives an acceptable result.
         """
-        return URLItem(id=id,
-                       url=url or model.get_create_absolute_url,
-                       label=label or model._meta.verbose_name,
-                       perm=cperm(model) if perm is None else perm,
-                       **kwargs
-                      )
+        return cls(
+            id=id,
+            url=url or model.get_create_absolute_url,
+            label=label or model._meta.verbose_name,
+            perm=cperm(model) if perm is None else perm,
+            **kwargs
+        )
 
     def _has_perm(self, context):
         perm = self.perm
