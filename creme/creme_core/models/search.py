@@ -184,9 +184,9 @@ class SearchConfigItem(CremeModel):
         "Is default configuration ?"
         return self.role_id is None and not self.superuser
 
-    @staticmethod
-    def _get_modelfields_choices(model):
-        excluded = tuple(SearchConfigItem.EXCLUDED_FIELDS_TYPES)
+    @classmethod
+    def _get_modelfields_choices(cls, model):
+        excluded = tuple(cls.EXCLUDED_FIELDS_TYPES)
         return ModelFieldEnumerator(model, deep=1) \
                 .filter(viewable=True) \
                 .exclude(lambda f, depth: isinstance(f, excluded) or f.choices) \
