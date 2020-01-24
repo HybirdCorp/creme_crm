@@ -70,8 +70,13 @@ class _JobTypeRegistry:
             logger.critical('Unknown JobType: %s', job_type_id)
 
     def register(self, job_type):
-        if self._job_types.setdefault(job_type.id, job_type) is not job_type:
-            raise _JobTypeRegistry.Error(f"Duplicated job type id: {job_type.id}")
+        jtype_id = job_type.id
+
+        if not jtype_id:
+            raise _JobTypeRegistry.Error(f'Empty JobType id: {job_type}')
+
+        if self._job_types.setdefault(jtype_id, job_type) is not job_type:
+            raise _JobTypeRegistry.Error(f"Duplicated job type id: {jtype_id}")
 
     def autodiscover(self):
         register = self.register

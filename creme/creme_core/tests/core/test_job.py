@@ -8,14 +8,87 @@ try:
 
     from ..base import CremeTestCase
 
-    from creme.creme_core.core.job import JobScheduler
+    from creme.creme_core.core.job import JobScheduler, _JobTypeRegistry
     from creme.creme_core.core.reminder import Reminder, reminder_registry
     from creme.creme_core.creme_jobs import reminder_type
+    from creme.creme_core.creme_jobs.base import JobType
     from creme.creme_core.models import Job
     from creme.creme_core.utils.date_period import HoursPeriod
     from creme.creme_core.utils.dates import round_hour
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
+
+
+class JobTypeRegistryTestCase(CremeTestCase):
+    def test_register01(self):
+        "Not registered."
+        class TestJobType(JobType):
+            id = JobType.generate_id('creme_core', 'test')
+
+        registry = _JobTypeRegistry()
+
+        with self.assertLogs(level='CRITICAL') as logs_manager:
+            job_type = registry.get(TestJobType.id)
+
+        self.assertIsNone(job_type)
+        self.assertEqual(
+            logs_manager.output,
+            [f'CRITICAL:creme.creme_core.core.job:Unknown JobType: {TestJobType.id}'],
+        )
+
+        job = Job.objects.create(type_id=TestJobType.id)
+
+        with self.assertRaises(_JobTypeRegistry.Error):
+            registry(job.id)
+
+    def test_register02(self):
+        "OK."
+        class TestJobType(JobType):
+            id = JobType.generate_id('creme_core', 'test')
+
+        registry = _JobTypeRegistry()
+        registry.register(TestJobType)
+
+        self.assertEqual(TestJobType, registry.get(TestJobType.id))
+
+        # TODO: override the job registry used in Job
+        # job = Job.objects.create(type_id=TestJobType.id)
+        # registry(job.id)
+        # ...
+
+    def test_register03(self):
+        "Duplicated ID."
+        class TestJobType1(JobType):
+            id = JobType.generate_id('creme_core', 'test1')
+
+        class TestJobType2(TestJobType1):
+            # id = JobType.generate_id('creme_core', 'test2')
+            pass
+
+        registry = _JobTypeRegistry()
+        registry.register(TestJobType1)
+
+        with self.assertRaises(_JobTypeRegistry.Error) as cm:
+            registry.register(TestJobType2)
+
+        self.assertEqual(f'Duplicated job type id: {TestJobType1.id}',
+                         str(cm.exception)
+                        )
+
+    def test_register04(self):
+        "Empty ID."
+        class TestJobType(JobType):
+            # id = JobType.generate_id('creme_core', 'test')  NOPE
+            pass
+
+        registry = _JobTypeRegistry()
+
+        with self.assertRaises(_JobTypeRegistry.Error) as cm:
+            registry.register(TestJobType)
+
+        self.assertEqual(f'Empty JobType id: {TestJobType}',
+                         str(cm.exception)
+                        )
 
 
 class JobSchedulerTestCase(CremeTestCase):
