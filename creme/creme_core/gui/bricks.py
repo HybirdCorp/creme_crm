@@ -640,8 +640,13 @@ class _BrickRegistry:
         setdefault = self._brick_classes.setdefault
 
         for brick_cls in brick_classes:
-            if setdefault(brick_cls.id_, brick_cls) is not brick_cls:
-                raise self.RegistrationError(f"Duplicated brick's id: {brick_cls.id_}")
+            brick_id = brick_cls.id_
+
+            if not brick_id:
+                raise self.RegistrationError(f"Brick class with empty id_: {brick_cls}")
+
+            if setdefault(brick_id, brick_cls) is not brick_cls:
+                raise self.RegistrationError(f"Duplicated brick's id: {brick_id}")
 
         return self
 
@@ -649,8 +654,13 @@ class _BrickRegistry:
         setdefault = self._instance_brick_classes.setdefault
 
         for brick_cls in brick_classes:
-            if setdefault(brick_cls.id_, brick_cls) is not brick_cls:
-                raise self.RegistrationError(f"Duplicated brick's id: {brick_cls.id_}")
+            brick_id = brick_cls.id_
+
+            if not brick_id:
+                raise self.RegistrationError(f"Brick class with empty id_: {brick_cls}")
+
+            if setdefault(brick_id, brick_cls) is not brick_cls:
+                raise self.RegistrationError(f"Duplicated brick's id: {brick_id}")
 
         return self
 
