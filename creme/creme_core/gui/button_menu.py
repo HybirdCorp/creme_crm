@@ -75,9 +75,16 @@ class ButtonsRegistry:
         setdefault = self._button_classes.setdefault
 
         for button_cls in button_classes:
-            if setdefault(button_cls.id_, button_cls) is not button_cls:
+            button_id = button_cls.id_
+
+            if not button_id:
                 raise self.RegistrationError(
-                    f"Duplicated button's ID (or button registered twice) : {button_cls.id_}"
+                    f'Button class with empty id_: {button_cls}'
+                )
+
+            if setdefault(button_id, button_cls) is not button_cls:
+                raise self.RegistrationError(
+                    f"Duplicated button's ID (or button registered twice) : {button_id}"
                 )
 
     def get_button(self, button_id):

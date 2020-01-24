@@ -551,7 +551,7 @@ class GuiTestCase(CremeTestCase):
         self.assertIn('icecream/images/organisation_22', icon3.url)
         self.assertEqual('Test Organisation',           icon3.label)
 
-    def test_button_registry(self):
+    def test_button_registry01(self):
         class TestButton1(Button):
             id_ = Button.generate_id('creme_core', 'test_button_registry_1')
 
@@ -602,6 +602,41 @@ class GuiTestCase(CremeTestCase):
         button_item = all_button_items[0]
         self.assertIsInstance(button_item[1], Button)
         self.assertEqual(button_item[0], button_item[1].id_)
+
+    def test_button_registry02(self):
+        "Duplicated ID."
+        class TestButton1(Button):
+            id_ = Button.generate_id('creme_core', 'test_button_registry_1')
+
+        class TestButton2(TestButton1):
+            # id_ = Button.generate_id('creme_core', 'test_button_registry_2') NOPE
+            pass
+
+        registry = ButtonsRegistry()
+
+        with self.assertRaises(ButtonsRegistry.RegistrationError) as cm:
+            registry.register(TestButton1, TestButton2)
+
+        self.assertEqual(
+            f"Duplicated button's ID (or button registered twice) : {TestButton1.id_}",
+            str(cm.exception)
+        )
+
+    def test_button_registry03(self):
+        "Empty ID."
+        class TestButton(Button):
+            # id_ = Button.generate_id('creme_core', 'test_button_registry') # NOPE
+            pass
+
+        registry = ButtonsRegistry()
+
+        with self.assertRaises(ButtonsRegistry.RegistrationError) as cm:
+            registry.register(TestButton)
+
+        self.assertEqual(
+            f'Button class with empty id_: {TestButton}',
+            str(cm.exception)
+        )
 
     def test_quickforms_registry01(self):
         "Registration."
