@@ -49,8 +49,13 @@ class _SandboxTypeRegistry:
         self._sandbox_types = {}
 
     def register(self, sandbox_type):
-        if self._sandbox_types.setdefault(sandbox_type.id, sandbox_type) is not sandbox_type:
-            raise self.Error(f'Duplicated sandbox type id: {sandbox_type.id}')
+        sandbox_id = sandbox_type.id
+
+        if not sandbox_id:
+            raise self.Error(f'SandBox class with empty id: {sandbox_type}')
+
+        if self._sandbox_types.setdefault(sandbox_id, sandbox_type) is not sandbox_type:
+            raise self.Error(f'Duplicated sandbox type id: {sandbox_id}')
 
     def get(self, sandbox):
         try:
