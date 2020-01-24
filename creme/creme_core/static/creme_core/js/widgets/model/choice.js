@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2013  Hybird
+    Copyright (C) 2009-2020  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,16 @@
 (function($) {
 "use strict";
 
+var _cleanItemValue = function(value) {
+    value = Object.isNone(value) ? '' : value;
+
+    if (typeof value === 'object') {
+        value = new creme.utils.JSON().encode(value);
+    }
+
+    return value;
+};
+
 creme.model = creme.model || {};
 
 creme.model.ChoiceRenderer = creme.model.ListRenderer.sub({
@@ -33,11 +43,7 @@ creme.model.ChoiceRenderer = creme.model.ListRenderer.sub({
             return this.selectItem(target, item, data, previous, index);
         }
 
-        var value = Object.isNone(data.value) ? '' : data.value;
-
-        if (typeof data.value === 'object') {
-            value = new creme.utils.JSON().encode(data.value);
-        }
+        var value = _cleanItemValue(data.value);
 
         // upgrade to Jquery 1.9x : selected is a property and attr() method should not be used.
         item.attr('value', value)
@@ -177,11 +183,7 @@ creme.model.ChoiceGroupRenderer = creme.model.ChoiceRenderer.sub({
             }
         }
 
-        var value = Object.isNone(data.value) ? '' : data.value;
-
-        if (typeof data.value === 'object') {
-            value = new creme.utils.JSON().encode(data.value);
-        }
+        var value = _cleanItemValue(data.value);
 
         // upgrade to Jquery 1.9x : selected is a property and attr() method should not be used.
         item.attr('value', value)
@@ -245,10 +247,10 @@ creme.model.ChoiceGroupRenderer.choicesFromTuples = function(data) {
 };
 
 creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
-    _init_: function(options) {
+    _init_: function(options, listeners) {
         options = $.extend({itemtag: 'li', disabled: false}, options || {});
 
-        this._super_(creme.model.ListRenderer, '_init_');
+        this._super_(creme.model.ListRenderer, '_init_', options.target, options.model, listeners);
         this._itemtag = options.itemtag;
         this._disabled = options.disabled;
     },
@@ -257,19 +259,13 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
         return Object.property(this, '_disabled', disabled);
     },
 
-    _getItemValue: function(data) {
-        var value = Object.isNone(data.value) ? '' : data.value;
-
-        if (typeof data.value === 'object') {
-            value = new creme.utils.JSON().encode(data.value);
-        }
-
-        return value;
+    itemTag: function(tag) {
+        return Object.property(this, '_itemtag', tag);
     },
 
     createItem: function(target, before, data, index) {
         var disabled = data.disabled || this._disabled;
-        var value = this._getItemValue(data);
+        var value = _cleanItemValue(data.value);
 
         var context = {
             tag: this._itemtag,
@@ -284,7 +280,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
             tags: (data.tags || []).join(' ')
         };
 
-        var item = $(('<${tag} class="checkbox-field ${hidden}" tags="${tags}" checklist-index="${index}" ${disabled} ${readonly}>' +
+        var item = $(('<${tag} class="checkbox-field ${hidden}" checklist-index="${index}" tags="${tags}" ${disabled} ${readonly}>' +
                          '<input type="checkbox" value="${value}" checklist-index="${index}" ${disabled} ${checked}/>' +
                          '<div class="checkbox-label">' +
                              '<span class="checkbox-label-text" ${disabled}>${label}</span>' +
@@ -304,9 +300,10 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
             return this.selectItem(target, item, data, previous, index);
         }
 
-        var value = this._getItemValue(data);
+        var value = _cleanItemValue(data.value);
         var checkbox = $('input[type="checkbox"]', item);
-        var disabled = data.disabled || this._disabled;
+        var disabled = (data.disabled || data.readonly) || this._disabled;
+        var readonly = data.readonly;
 
         checkbox.toggleAttr('disabled', data.disabled || disabled)
                 .attr('value', value)
@@ -323,7 +320,8 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
 
         item.toggleAttr('tags', data.tags, (data.tags || []).join(' '))
             .toggleClass('hidden', !data.visible)
-            .toggleClass('disabled', disabled)
+            .toggleAttr('disabled', disabled)
+            .toggleAttr('readonly', readonly)
             .attr('checklist-index', index);
     },
 
@@ -344,18 +342,18 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
     parseItem: function(target, item, index) {
         var converter = this._converter;
         var input = $('input[type="checkbox"]', item);
-        var label = $('.checkbox-label', item);
-        var help = $('.checkbox-helptext', item);
+        var label = $('.checkbox-label-text', item);
+        var help = $('.checkbox-label-help', item);
         var value = input.attr('value');
 
         return {
             label:    label.html(),
             value:    Object.isFunc(converter) ? converter(value) : value,
             disabled: input.is('[disabled]') || target.is('[disabled]'),
-            readonly: target.is('[readonly]'),
+            readonly: item.is('[readonly]'),
             selected: input.is(':checked'),
             help:     help.html(),
-            tags:     input.is('[tags]') ? input.attr('tags').split(' ') : [],
+            tags:     item.is('[tags]') && item.attr('tags') ? item.attr('tags').split(' ') : [],
             visible:  true
         };
     },
@@ -372,11 +370,15 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
 });
 
 creme.model.CheckGroupListRenderer = creme.model.CheckListRenderer.sub({
-    _init_: function(options) {
+    _init_: function(options, listeners) {
         options = $.extend({grouptag: 'ul'}, options || {});
 
         this._super_(creme.model.CheckListRenderer, '_init_', options);
         this._grouptag = options.grouptag;
+    },
+
+    groupTag: function(tag) {
+        return Object.property(this, '_grouptag', tag);
     },
 
     insertGroup: function(target, before, groupname) {
@@ -387,7 +389,7 @@ creme.model.CheckGroupListRenderer = creme.model.CheckListRenderer.sub({
         }
 
         group = $(('<${tag} class="checkbox-group" label="${name}">' +
-                   '   <li class="checkbox-group-header">${name}</li>' +
+                      '<li class="checkbox-group-header">${name}</li>' +
                    '</${tag}>').template({
                        tag: this._grouptag,
                        name: groupname

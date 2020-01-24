@@ -747,7 +747,9 @@ TEST_CREME_CORE_JS = ['testcore.js',
                         'creme_core/js/tests/ajax/utils.js',
 
                         'creme_core/js/tests/model/collection.js',
-                        'creme_core/js/tests/model/renderer.js',
+                        'creme_core/js/tests/model/renderer-list.js',
+                        'creme_core/js/tests/model/renderer-choice.js',
+                        'creme_core/js/tests/model/renderer-checklist.js',
                         'creme_core/js/tests/model/query.js',
                         'creme_core/js/tests/model/controller.js',
 
