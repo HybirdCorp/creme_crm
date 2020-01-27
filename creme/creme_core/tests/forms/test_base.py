@@ -12,10 +12,14 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.forms import CremeForm, CremeModelForm
     from creme.creme_core.forms.widgets import Label
-    from creme.creme_core.models import (RelationType, Relation, SemiFixedRelationType,
-            CremePropertyType, FieldsConfig, SetCredentials,
-            CustomField, CustomFieldInteger,
-            FakeContact, FakeOrganisation, FakeAddress, FakeSector)
+    from creme.creme_core.models import (
+        RelationType, Relation, SemiFixedRelationType,
+        CremePropertyType,
+        FieldsConfig,
+        SetCredentials,
+        CustomField, CustomFieldInteger,
+        FakeContact, FakeOrganisation, FakeAddress, FakeSector,
+    )
 
     from ..base import CremeTestCase
     from ..fake_forms import FakeContactForm
@@ -23,11 +27,17 @@ except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
 
-# TODO: test CremeModelWithUserForm
-# TODO: test hooks
-
 class CremeFormTestCase(CremeTestCase):
-    def test_01(self):
+    def test_user(self):
+        user = self.login()
+
+        class TestCremeForm(CremeForm):
+            order = forms.IntegerField(label='Order')
+
+        form = TestCremeForm(user=user)
+        self.assertEqual(user, form.fields['order'].user)
+
+    def test_blocks(self):
         user = self.login()
 
         class TestCremeForm(CremeForm):
@@ -35,7 +45,6 @@ class CremeFormTestCase(CremeTestCase):
             description = forms.CharField(label='Description', required=False)
 
         form = TestCremeForm(user=user)
-        self.assertEqual(user, form.fields['order'].user)
 
         blocks = form.get_blocks()
         with self.assertNoException():
@@ -63,6 +72,44 @@ class CremeFormTestCase(CremeTestCase):
         item2 = items[1]
         self.assertEqual('description', item2[0].name)
         self.assertIs(item2[1], False)
+
+    def test_hook(self):
+        user = self.login()
+
+        class TestCremeForm(CremeForm):
+            order = forms.IntegerField(label='Order')
+
+        init_cb_args = []
+        clean_cb_args = []
+        save_cb_args = []
+
+        def init_cb(*args):
+            init_cb_args.extend(args)
+
+        def clean_cb(*args):
+            clean_cb_args.extend(args)
+
+        def save_cb(*args):
+            save_cb_args.extend(args)
+
+        TestCremeForm.add_post_init_callback(init_cb) \
+                     .add_post_clean_callback(clean_cb) \
+                     .add_post_save_callback(save_cb)
+
+        form = TestCremeForm(user=user, data={'order': 123})
+        self.assertListEqual([form], init_cb_args)
+        self.assertFalse(clean_cb_args)
+        self.assertFalse(save_cb_args)
+
+        form.full_clean()
+        self.assertListEqual([form], init_cb_args)
+        self.assertListEqual([form], clean_cb_args)
+        self.assertFalse(save_cb_args)
+
+        form.save()
+        self.assertListEqual([form], init_cb_args)
+        self.assertListEqual([form], clean_cb_args)
+        self.assertListEqual([form], save_cb_args)
 
 
 class CremeModelFormTestCase(CremeTestCase):
@@ -108,6 +155,46 @@ class CremeModelFormTestCase(CremeTestCase):
         self.assertEqual(title, sector.title)
         self.assertFalse(sector.is_custom)
         self.assertIsNotNone(sector.id)
+
+    def test_hook(self):
+        user = self.login()
+
+        class FakeSectorForm(CremeModelForm):
+            class Meta:
+                model = FakeSector
+                fields = '__all__'
+
+        init_cb_args = []
+        clean_cb_args = []
+        save_cb_args = []
+
+        def init_cb(*args):
+            init_cb_args.extend(args)
+
+        def clean_cb(*args):
+            clean_cb_args.extend(args)
+
+        def save_cb(*args):
+            save_cb_args.extend(args)
+
+        FakeSectorForm.add_post_init_callback(init_cb) \
+                      .add_post_clean_callback(clean_cb) \
+                      .add_post_save_callback(save_cb)
+
+        form = FakeSectorForm(user=user, data={'title': 'Sector#1'})
+        self.assertListEqual([form], init_cb_args)
+        self.assertFalse(clean_cb_args)
+        self.assertFalse(save_cb_args)
+
+        form.full_clean()
+        self.assertListEqual([form], init_cb_args)
+        self.assertListEqual([form], clean_cb_args)
+        self.assertFalse(save_cb_args)
+
+        form.save()
+        self.assertListEqual([form], init_cb_args)
+        self.assertListEqual([form], clean_cb_args)
+        self.assertListEqual([form], save_cb_args)
 
     def test_fields_config(self):
         user = self.login()

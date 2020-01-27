@@ -292,7 +292,7 @@ class PropertyTypeDetail(generic.CremeModelDetail):
 #         else:
 #             ctype = TaggedEntitiesBrick.parse_brick_id(b_id)
 #             if ctype is None:
-#                 raise Http404('Invalid brick id "{}"'.format(b_id))
+#                 raise Http404('Invalid brick id    "{}"'.format(b_id))
 #
 #             brick = TaggedEntitiesBrick(ptype, ctype)
 #
