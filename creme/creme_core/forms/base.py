@@ -182,18 +182,19 @@ class HookableForm:
     @classmethod
     def __add_callback(cls, attrname, callback):
         setattr(cls, attrname, [*getattr(cls, attrname), callback])
+        return cls
 
     @classmethod
     def add_post_clean_callback(cls, callback):
-        cls.__add_callback('_creme_post_clean_callbacks', callback)
+        return cls.__add_callback('_creme_post_clean_callbacks', callback)
 
     @classmethod
     def add_post_init_callback(cls, callback):
-        cls.__add_callback('_creme_post_init_callbacks', callback)
+        return cls.__add_callback('_creme_post_init_callbacks', callback)
 
     @classmethod
     def add_post_save_callback(cls, callback):
-        cls.__add_callback('_creme_post_save_callbacks', callback)
+        return cls.__add_callback('_creme_post_save_callbacks', callback)
 
     def _creme_post_clean(self):
         for callback in self._creme_post_clean_callbacks:
@@ -236,7 +237,7 @@ class CremeForm(forms.Form, HookableForm):
         self._creme_post_init()
 
     def clean(self, *args, **kwargs):
-        res = super().clean(*args, **kwargs)
+        res = super().clean()
         self._creme_post_clean()
         return res
 
