@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django import forms
+    from django.forms.boundfield import BoundField
     from django.utils.translation import gettext as _
+
+    from creme.creme_core.forms import FieldBlockManager
 
     from ..base import CremeTestCase
     from ..fake_forms import FakeContactForm
@@ -10,79 +14,110 @@ except Exception as e:
 
 
 class FieldBlockManagerTestCase(CremeTestCase):
-    def test_iter(self):
-        user = self.login()
+    def test_basic_get_item(self):
+        class TestForm(forms.Form):
+            first_name = forms.CharField(label='First name', required=False)
+            last_name  = forms.CharField(label='Last name')
+            phone = forms.CharField(label='Phone')
+            cell  = forms.CharField(label='Cell')
+            fax   = forms.CharField(label='Fax')
 
-        block_vname = 'Particulars'
+        fbm = FieldBlockManager(
+            ('names',   'Names',   ('first_name', 'last_name')),
+            ('details', 'Details', ['cell', 'phone', 'fax']),
+        )
+        form = TestForm()
 
-        class TestFakeContactForm(FakeContactForm):
-            blocks = FakeContactForm.blocks.new(('particulars', block_vname,
-                                                 ['phone', 'mobile', 'email', 'url_site']
-                                                )
-                                               )
+        blocks = fbm.build(form)
+        with self.assertNoException():
+            names_group = blocks['names']
 
-        blocks_group = TestFakeContactForm(user=user).get_blocks()
-        blocks = [*blocks_group]
+        self.assertIsInstance(names_group, tuple)
+        self.assertEqual(2, len(names_group))
+        self.assertEqual('Names', names_group[0])
 
-        self.assertEqual(5, len(blocks))
+        items = names_group[1]
+        self.assertIsInstance(items, list)
+        self.assertEqual(2, len(items))
 
-        # ------------------
-        block1 = blocks[0]
-        self.assertIsInstance(block1, tuple)
-        self.assertEqual(2, len(block1))
-        self.assertEqual(_('General information'), str(block1[0]))
+        # --
+        item1 = items[0]
+        self.assertIsInstance(item1, tuple)
+        self.assertEqual(2, len(item1))
+        self.assertIs(item1[1], False)
 
-        fields = block1[1]
-        self.assertIsInstance(fields, list)
+        bound_field1 = item1[0]
+        self.assertIsInstance(bound_field1, BoundField)
+        self.assertEqual('first_name', bound_field1.name)
+        self.assertEqual('id_first_name', bound_field1.auto_id)
+
+        # --
+        bfield2, required2 = items[1]
+        self.assertEqual('last_name', bfield2.name)
+        self.assertIs(required2, True)
+
+        # --
+        with self.assertNoException():
+            details_group = blocks['details']
+
+        self.assertEqual('Details', details_group[0])
+        self.assertListEqual(
+            ['cell', 'phone', 'fax'],  # The order of the block info is used
+            [bfield.name for bfield, required in details_group[1]]
+        )
+
+        # ---
+        with self.assertRaises(KeyError):
+            __ = blocks['names']  # Already pop
+
+    def test_basic_iter(self):
+        class TestForm(forms.Form):
+            first_name = forms.CharField(label='First name', required=False)
+            last_name  = forms.CharField(label='Last name')
+            phone = forms.CharField(label='Phone')
+            cell  = forms.CharField(label='Cell')
+            fax   = forms.CharField(label='Fax')
+
+        fbm = FieldBlockManager(
+            ('names',   'Names',   ('first_name', 'last_name')),
+            ('details', 'Details', ('cell', 'phone', 'fax')),
+        )
+        form = TestForm()
 
         with self.assertNoException():
-            bfield, required = fields[0]
+            blocks_list = [*fbm.build(form)]
 
-        self.assertIs(required, True)
-        self.assertFalse(bfield.is_hidden)
-        self.assertEqual('id_user', bfield.auto_id)
+        self.assertEqual(2, len(blocks_list))
 
-        # ------------------
-        self.assertEqual(_('Description'),   str(blocks[1][0]))
-        self.assertEqual(_('Properties'),    str(blocks[2][0]))
-        self.assertEqual(_('Relationships'), str(blocks[3][0]))
+        names_group = blocks_list[0]
+        self.assertIsInstance(names_group, tuple)
+        self.assertEqual(2, len(names_group))
+        self.assertEqual('Names', names_group[0])
 
-        # ------------------
-        block5 = blocks[4]
-        self.assertEqual(block_vname, block5[0])
+        details_group = blocks_list[1]
+        self.assertEqual('Details', details_group[0])
 
-        fields = block5[1]
-        self.assertEqual(4, len(fields))
-        self.assertEqual('id_phone', fields[0][0].auto_id)
+    def test_invalid_field01(self):
+        class TestForm(forms.Form):
+            last_name = forms.CharField(label='Last name')
 
-    def test_getitem(self):
-        user = self.login()
-
-        block_id = 'particulars'
-        block_vname = 'Particulars'
-
-        class TestFakeContactForm(FakeContactForm):
-            blocks = FakeContactForm.blocks.new(
-                (block_id, block_vname, ['phone', 'mobile', 'email', 'url_site']),
-            )
-
-        blocks_group = TestFakeContactForm(user=user).get_blocks()
+        fbm = FieldBlockManager(
+            ('names',   'Names',   ('invalid', 'last_name')),
+        )
+        form = TestForm()
 
         with self.assertNoException():
-            general_block = blocks_group['general']
-
-        self.assertEqual(_('General information'), str(general_block[0]))
+            blocks = fbm.build(form)
 
         with self.assertNoException():
-            p_block = blocks_group[block_id]
+            group = blocks['names']
 
-        self.assertEqual(block_vname, p_block[0])
+        self.assertListEqual(
+            ['last_name'],
+            [bfield.name for bfield, required in group[1]]
+        )
 
-        fields = p_block[1]
-        self.assertEqual(4, len(fields))
-        self.assertEqual('id_mobile', fields[1][0].auto_id)
-
-    def test_invalid_field(self):
+    def test_invalid_field02(self):
         user = self.login()
 
         block_id = 'particulars'
@@ -108,3 +143,184 @@ class FieldBlockManagerTestCase(CremeTestCase):
         fields = block[1]
         self.assertEqual(3, len(fields))
         self.assertEqual('id_email', fields[1][0].auto_id)
+
+    def test_wildcard01(self):
+        "Wildcard in first group."
+        class TestForm(forms.Form):
+            first_name = forms.CharField(label='First name', required=False)
+            last_name  = forms.CharField(label='Last name')
+            phone = forms.CharField(label='Phone')
+            cell  = forms.CharField(label='Cell')
+            fax   = forms.CharField(label='Fax')
+
+        fbm = FieldBlockManager(
+            ('names',   'Names',   ('first_name', 'last_name')),
+            ('details', 'Details', '*'),
+        )
+
+        blocks = fbm.build(TestForm())
+        self.assertListEqual(
+            ['first_name', 'last_name'],
+            [bfield.name for bfield, required in blocks['names'][1]]
+        )
+        self.assertListEqual(
+            ['phone', 'cell', 'fax'],  # The order of the form-fields is used
+            [bfield.name for bfield, required in blocks['details'][1]]
+        )
+
+    def test_wildcard02(self):
+        "Wildcard in second group."
+        class TestForm(forms.Form):
+            first_name = forms.CharField(label='First name', required=False)
+            last_name  = forms.CharField(label='Last name')
+            phone = forms.CharField(label='Phone')
+            cell  = forms.CharField(label='Cell')
+            fax   = forms.CharField(label='Fax')
+
+        fbm = FieldBlockManager(
+            ('names',   'Names',   '*'),
+            ('details', 'Details', ('phone', 'fax', 'cell')),
+        )
+
+        blocks = fbm.build(TestForm())
+        self.assertListEqual(
+            ['first_name', 'last_name'],
+            [bfield.name for bfield, required in blocks['names'][1]]
+        )
+        self.assertListEqual(
+            ['phone', 'fax', 'cell'],
+            [bfield.name for bfield, required in blocks['details'][1]]
+        )
+
+    def test_wildcard03(self):
+        "Several wildcards => error."
+        class TestForm(forms.Form):
+            first_name = forms.CharField(label='First name')
+            last_name  = forms.CharField(label='Last name')
+            phone = forms.CharField(label='Phone')
+            cell  = forms.CharField(label='Cell')
+
+        fbm = FieldBlockManager(
+            ('names', 'Names', '*'),
+            ('details', 'Details', '*'),
+        )
+
+        with self.assertRaises(ValueError) as cm:
+            __ = fbm.build(TestForm())
+
+        self.assertEqual(
+            f'Only one wildcard is allowed: {TestForm}',
+            str(cm.exception)
+        )
+
+    def test_new01(self):
+        class TestForm(forms.Form):
+            first_name = forms.CharField(label='First name')
+            last_name  = forms.CharField(label='Last name')
+            phone = forms.CharField(label='Phone')
+            cell  = forms.CharField(label='Cell')
+            fax   = forms.CharField(label='Fax')
+
+        fbm1 = FieldBlockManager(
+            ('names',   'Names', ('last_name', 'first_name')),
+        )
+        fbm2 = fbm1.new(
+            ('details', 'Details', ('cell', 'phone', 'fax')),
+        )
+        self.assertIsInstance(fbm2, FieldBlockManager)
+        self.assertIsNot(fbm2, fbm1)
+
+        form = TestForm()
+
+        blocks = fbm2.build(form)
+        with self.assertNoException():
+            names_group = blocks['names']
+
+        self.assertEqual('Names', names_group[0])
+        self.assertListEqual(
+            ['last_name', 'first_name'],
+            [bfield.name for bfield, required in names_group[1]]
+        )
+
+        with self.assertNoException():
+            details_group = blocks['details']
+
+        self.assertEqual('Details', details_group[0])
+        self.assertListEqual(
+            ['cell', 'phone', 'fax'],
+            [bfield.name for bfield, required in details_group[1]]
+        )
+
+    def test_new02(self):
+        "Block merge."
+        class TestForm(forms.Form):
+            first_name = forms.CharField(label='First name')
+            last_name  = forms.CharField(label='Last name')
+            phone = forms.CharField(label='Phone')
+            cell  = forms.CharField(label='Cell')
+            fax   = forms.CharField(label='Fax')
+
+        fbm1 = FieldBlockManager(
+            ('names',   'Names',   ('last_name', 'first_name')),
+            ('details', 'Details', ['cell']),
+        )
+        fbm2 = fbm1.new(
+            ('details', 'Details extended', ('phone', 'fax')),
+        )
+        self.assertIsInstance(fbm2, FieldBlockManager)
+        self.assertIsNot(fbm2, fbm1)
+
+        form = TestForm()
+
+        blocks = fbm2.build(form)
+        with self.assertNoException():
+            names_group = blocks['names']
+
+        self.assertEqual('Names', names_group[0])
+        self.assertListEqual(
+            ['last_name', 'first_name'],
+            [bfield.name for bfield, required in names_group[1]]
+        )
+
+        with self.assertNoException():
+            details_group = blocks['details']
+
+        self.assertEqual('Details extended', details_group[0])
+        self.assertListEqual(
+            ['cell', 'phone', 'fax'],
+            [bfield.name for bfield, required in details_group[1]]
+        )
+
+    def test_new03(self):
+        "Extend parent wildcard => error."
+        fbm1 = FieldBlockManager(
+            ('names', 'Names', '*'),
+        )
+
+        with self.assertRaises(ValueError) as cm:
+            __ = fbm1.new(
+                ('names',   'Names',   ['cell']),
+                ('details', 'Details', ('phone', 'fax')),
+            )
+
+        self.assertEqual(
+            'You cannot extend a wildcard (see the form-block with category "names")',
+            str(cm.exception)
+        )
+
+    def test_new04(self):
+        "Extend with wildcard => error."
+        fbm1 = FieldBlockManager(
+            ('names', 'Names', ('first_name', 'last_name')),
+        )
+
+        with self.assertRaises(ValueError) as cm:
+            __ = fbm1.new(
+                ('names', 'Names', '*'),
+                ('details', 'Details', ('phone', 'fax')),
+            )
+
+        self.assertEqual(
+            'You cannot extend with a wildcard (see the form-block with category "names")',
+            str(cm.exception)
+        )
