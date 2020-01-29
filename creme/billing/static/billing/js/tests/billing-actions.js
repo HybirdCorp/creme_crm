@@ -295,7 +295,7 @@ QUnit.test('creme.billing.hatmenubar.export', function(assert) {
         classes: ['brick-hat-bar']
     }).brick();
 
-    brick.action('billing-export', 'mock/export/12').start();
+    brick.action('billing-export', '/mock/export/12').start();
 
     deepEqual(['/mock/export/12?format=pdf'], this.mockRedirectCalls());
 });
