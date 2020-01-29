@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2020  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,35 +16,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+/* globals RGBColor */
+(function($) {
+"use strict";
 
 creme.color = creme.color || {};
 
-creme.color.HEXtoRGB = function(hex) {//Extracted from gccolor-1.0.3 plugin
-    var hex = parseInt(((hex.indexOf('#') > -1) ? hex.substring(1) : hex), 16);
-    return {r: hex >> 16, g: (hex & 0x00FF00) >> 8, b: (hex & 0x0000FF)};
+creme.color.HEXtoRGB = function(hex) { // Extracted from gccolor-1.0.3 plugin
+    console.warn('creme.color.HEXtoRGB is deprecated; Use new RGBColor(hex) instead');
+    return new RGBColor(hex).get();
 };
 
 creme.color.luminance = function(r, g, b) {
-    r = Math.pow (r / 255, 2.2);
-    g = Math.pow (g / 255, 2.2);
-    b = Math.pow (b / 255, 2.2);
-
-    return 0.212671*r + 0.715160*g + 0.072169*b;
+    console.warn('creme.color.luminance is deprecated; Use new RGBColor({r:r, g:g, b:b}).intensity() instead');
+    return new RGBColor({r: r, g: g, b: b}).intensity();
 };
 
 creme.color.contrast = function(r, g, b, r2, g2, b2) {
-    var luminance1 = creme.color.luminance(r, g, b);
-    var luminance2 = creme.color.luminance(r2, g2, b2);
-    return (Math.max(luminance1, luminance2) + 0.05) / (Math.min(luminance1, luminance2) + 0.05);
+    console.warn('creme.color.contrast is deprecated; Use new RGBColor({r:r, g:g, b:b}).contrast({r:r2, g:g2, b:b2}) instead');
+    return new RGBColor({r: r, g: g, b: b}).contrast({r: r2, g: g2, b: b2});
 };
 
 creme.color.maxContrastingColor = function(r, g, b) {
-    var withWhite = creme.color.contrast(r, g, b, 255, 255, 255);
-    var withBlack = creme.color.contrast(r, g, b, 0, 0, 0);
+    console.warn('creme.color.maxContrastingColor is deprecated; Use new RGBColor({r:r, g:g, b:b}).foreground() instead');
+    var withWhite = new RGBColor({r: r, g: g, b: b}).contrast(0xFFFFFF);
+    var withBlack = new RGBColor({r: r, g: g, b: b}).contrast(0);
 
-    if (withWhite > withBlack)
-        return 'white';
-    return 'black'; //TODO: ? 'white': 'black';
+    return withWhite > withBlack ? 'white' : 'black';
 };
+
 }(jQuery));
+
+
+
