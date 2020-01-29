@@ -832,13 +832,13 @@ TEST_CREME_OPT_JS = [
 CREME_OPT_MEDIA_BUNDLES = []
 
 ROOT_MEDIA_FILTERS = {
-    'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
-    # 'js':  'mediagenerator.filters.closure.Closure', # NB: Closure causes compilation errors...
+    # 'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
+    'js':  'mediagenerator.filters.closure.Closure',
     'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
 }
 
 YUICOMPRESSOR_PATH = join(dirname(__file__), 'static', 'utils', 'yui', 'yuicompressor-2.4.2.jar')
-# CLOSURE_COMPILER_PATH = join(dirname(__file__), 'closure.jar')
+CLOSURE_COMPILER_PATH = join(dirname(__file__), 'static', 'utils', 'closure', 'closure-compiler-v20200112.jar')
 
 COPY_MEDIA_FILETYPES = {
     'gif', 'jpg', 'jpeg', 'png', 'ico', 'cur',  # Images

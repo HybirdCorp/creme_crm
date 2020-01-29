@@ -1,11 +1,10 @@
 from django.conf import settings
-from django.utils.encoding import smart_str
-from mediagenerator.generators.bundles.base import Filter
+from mediagenerator.generators.bundles.base import SubProcessFilter
 
 COMPILATION_LEVEL = getattr(settings, 'CLOSURE_COMPILATION_LEVEL',
                             'SIMPLE_OPTIMIZATIONS')
 
-class Closure(Filter):
+class Closure(SubProcessFilter):
     def __init__(self, **kwargs):
         self.config(kwargs, compilation_level=COMPILATION_LEVEL)
         super().__init__(**kwargs)
@@ -16,21 +15,13 @@ class Closure(Filter):
     def get_output(self, variation):
         # We import this here, so App Engine Helper users don't get import
         # errors.
-        from subprocess import Popen, PIPE
+        compressor = settings.CLOSURE_COMPILER_PATH
 
         for input in self.get_input(variation):
             try:
-                compressor = settings.CLOSURE_COMPILER_PATH
-                cmd = Popen(['java', '-jar', compressor,
-                             '--charset', 'utf-8',
-                             '--compilation_level', self.compilation_level],
-                            stdin=PIPE, stdout=PIPE, stderr=PIPE,
-                            universal_newlines=True)
-                output, error = cmd.communicate(smart_str(input))
-
-                assert cmd.wait() == 0, f'Command returned bad result:\n{error}'
-
-                yield output.decode('utf-8')
+                yield self.run_process([
+                    'java', '-jar', compressor, '--charset', 'utf-8', '--compilation_level', self.compilation_level,
+                ], input=input)
             except Exception as e:
                 raise ValueError(
                     "Failed to execute Java VM or Closure. "
