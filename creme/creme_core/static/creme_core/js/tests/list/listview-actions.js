@@ -29,7 +29,7 @@ QUnit.module("creme.listview.actions", new QUnitMixin(QUnitEventMixin,
         return this.createListView({
             columns: [this.createCheckAllColumnHtml()],
             actions: [
-                {action: 'merge-selection', url: "mock/entity/merge", attrs: {'data-row-min': 2, 'data-row-max': 2}},
+                {action: 'merge-selection', url: "/mock/entity/merge", attrs: {'data-row-min': 2, 'data-row-max': 2}},
                 {action: 'delete-selection', url: "mock/entity/delete", attrs: {'data-row-min': 1}},
                 {action: 'addto-selection', url: "mock/entity/addto", attrs: {'data-row-max': 3}}
             ],
@@ -608,7 +608,7 @@ QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
 QUnit.test('creme.listview.MergeSelectedAction (no selection)', function(assert) {
     var list = this.createListView().controller();
     var action = new creme.lv_widget.MergeSelectedAction(list, {
-        url: 'mock/entity/merge'
+        url: '/mock/entity/merge'
     }).on(this.listviewActionListeners);
 
     equal(0, list.selectedRowsCount());
@@ -628,7 +628,7 @@ QUnit.test('creme.listview.MergeSelectedAction (no selection)', function(assert)
 QUnit.test('creme.listview.MergeSelectedAction (invalid selection)', function(assert) {
     var list = this.createListView().controller();
     var action = new creme.lv_widget.MergeSelectedAction(list, {
-        url: 'mock/entity/merge'
+        url: '/mock/entity/merge'
     }).on(this.listviewActionListeners);
 
     list.element().find('#selected_rows').val('2');
@@ -669,7 +669,7 @@ QUnit.test('creme.listview.MergeSelectedAction (invalid selection)', function(as
 QUnit.test('creme.listview.MergeSelectedAction (ok)', function(assert) {
     var list = this.createDefaultListView().controller();
     var action = new creme.lv_widget.MergeSelectedAction(list, {
-        url: 'mock/entity/merge'
+        url: '/mock/entity/merge'
     }).on(this.listviewActionListeners);
 
     list.element().find('#selected_rows').val('2,3');

@@ -51,7 +51,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (empty selector)', function(
 
     brick.action('creme_core-detailview-merge', 'mock/merge', {}, {
         id: '157',
-        selection_url: 'mock/merge/selection'
+        selection_url: '/mock/merge/selection'
     }).start();
 
     deepEqual([
@@ -85,9 +85,9 @@ QUnit.test('creme.detailview.brick.detailview-merge (multiple selections)', func
     equal(false, brick.isLoading());
     this.assertClosedDialog();
 
-    brick.action('creme_core-detailview-merge', 'mock/merge', {}, {
+    brick.action('creme_core-detailview-merge', '/mock/merge', {}, {
         id: '157',
-        selection_url: 'mock/merge/selection'
+        selection_url: '/mock/merge/selection'
     }).start();
 
     deepEqual([
@@ -124,9 +124,9 @@ QUnit.test('creme.detailview.brick.detailview-merge (single selection)', functio
     equal(false, brick.isLoading());
     this.assertClosedDialog();
 
-    brick.action('creme_core-detailview-merge', 'mock/merge', {}, {
+    brick.action('creme_core-detailview-merge', '/mock/merge', {}, {
         id: '157',
-        selection_url: 'mock/merge/selection'
+        selection_url: '/mock/merge/selection'
     }).start();
 
     deepEqual([
@@ -157,7 +157,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (cancel)', function(assert) 
 
     brick.action('creme_core-detailview-merge', 'mock/merge', {}, {
         id: '157',
-        selection_url: 'mock/merge/selection'
+        selection_url: '/mock/merge/selection'
     }).on('cancel', this.mockListener('cancel')).start();
 
     deepEqual([
@@ -180,7 +180,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (fail)', function(assert) {
 
     brick.action('creme_core-detailview-merge', 'mock/merge/fail', {}, {
         id: '157',
-        selection_url: 'mock/merge/selection/fail'
+        selection_url: '/mock/merge/selection/fail'
     }).on('cancel', this.mockListener('cancel')).start();
 
     deepEqual([

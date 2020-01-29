@@ -17,7 +17,7 @@ QUnit.module("creme.billing.listview.actions", new QUnitMixin(QUnitEventMixin,
 
 QUnit.test('creme.billing.ExportDocumentAction (no format)', function(assert) {
     var action = new creme.billing.ExportDocumentAction({
-        url: 'mock/export/12'
+        url: '/mock/export/12'
     }).on(this.listviewActionListeners);
 
     action.start();
@@ -31,7 +31,7 @@ QUnit.test('creme.billing.ExportDocumentAction (no format)', function(assert) {
 
 QUnit.test('creme.billing.ExportDocumentAction (single format)', function(assert) {
     var action = new creme.billing.ExportDocumentAction({
-        url: 'mock/export/12',
+        url: '/mock/export/12',
         formats: [{value: 'pdf'}]
     }).on(this.listviewActionListeners);
 
@@ -45,7 +45,7 @@ QUnit.test('creme.billing.ExportDocumentAction (single format)', function(assert
 
 QUnit.test('creme.billing.ExportDocumentAction (multiple formats, cancel choice)', function(assert) {
     var action = new creme.billing.ExportDocumentAction({
-        url: 'mock/export/12',
+        url: '/mock/export/12',
         formats: [{value: 'pdf'}, {value: 'html'}, {value: 'xml'}]
     }).on(this.listviewActionListeners);
 
@@ -62,7 +62,7 @@ QUnit.test('creme.billing.ExportDocumentAction (multiple formats, cancel choice)
 
 QUnit.test('creme.billing.ExportDocumentAction (multiple formats, choose one)', function(assert) {
     var action = new creme.billing.ExportDocumentAction({
-        url: 'mock/export/12',
+        url: '/mock/export/12',
         formats: [{value: 'pdf'}, {value: 'html'}, {value: 'xml'}]
     }).on(this.listviewActionListeners);
 
