@@ -18,32 +18,37 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import datetime
 import logging
+from typing import Dict, List, Type, Optional, Iterator
 
 from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
+from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
-from ..models import DateReminder, JobResult
+from ..models import CremeModel, DateReminder, Job, JobResult
 
 logger = logging.getLogger(__name__)
 FIRST_REMINDER = 1
 
 
 class Reminder:
-    id    = None  # Overload with a str object ; use generate_id()
-    model = None  # Overload with a CremeModel
+    # id    = None
+    id: str = ''  # Override with generate_id()
+    # model = None
+    model: Type[CremeModel]  # Override with a CremeModel sub-class
 
     def __init__(self):
         pass
 
     @staticmethod
-    def generate_id(app_name, name):
+    def generate_id(app_name: str, name: str) -> str:
         return f'reminder_{app_name}-{name}'
 
-    def get_emails(self, object):
+    def get_emails(self, object) -> List[str]:
         addresses = []
         default_addr = getattr(settings, 'DEFAULT_USER_EMAIL', None)
 
@@ -57,19 +62,19 @@ class Reminder:
 
         return addresses
 
-    def generate_email_subject(self, object):
+    def generate_email_subject(self, object: CremeModel) -> str:
         pass
 
-    def generate_email_body(self, object):
+    def generate_email_body(self, object: CremeModel) -> str:
         pass
 
-    def get_Q_filter(self):  # TODO: get_queryset instead ????
+    def get_Q_filter(self) -> Q:  # TODO: get_queryset instead ????
         pass
 
-    def ok_for_continue(self):
+    def ok_for_continue(self) -> bool:
         return True
 
-    def send_mails(self, instance, job):
+    def send_mails(self, instance: CremeModel, job: Job) -> bool:
         body    = self.generate_email_body(instance)
         subject = self.generate_email_subject(instance)
 
@@ -97,7 +102,7 @@ class Reminder:
 
         return True  # Means 'OK'
 
-    def execute(self, job):
+    def execute(self, job: Job) -> None:
         if not self.ok_for_continue():
             return
 
@@ -115,7 +120,7 @@ class Reminder:
                 instance.reminded = True
                 instance.save()
 
-    def next_wakeup(self, now_value):
+    def next_wakeup(self, now_value: datetime) -> Optional[datetime]:
         """Returns the next time when the job manager should wake up in order
         to send the related e-mails.
         @param now_value: datetime object representing 'now'.
@@ -132,9 +137,9 @@ class ReminderRegistry:
         pass
 
     def __init__(self):
-        self._reminders = {}
+        self._reminders: Dict[str, Reminder] = {}
 
-    def register(self, reminder):  # TODO: rename 'reminder_class'
+    def register(self, reminder: Type[Reminder]) -> None:  # TODO: rename 'reminder_class'
         """Register a class of Reminder.
         @type reminder: Class "inheriting" creme_core.core.reminder.Reminder.
         """
@@ -153,13 +158,13 @@ class ReminderRegistry:
 
         reminders[reminder_id] = reminder()
 
-    def unregister(self, reminder):
+    def unregister(self, reminder: Type[Reminder]) -> None:
         if self._reminders.pop(reminder.id, None) is None:
             raise self.RegistrationError(
                 f'No reminder is registered with this ID: {reminder.id}'
             )
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Reminder]:
         return iter(self._reminders.values())
 
 

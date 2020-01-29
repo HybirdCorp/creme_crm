@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from functools import partial
 from itertools import zip_longest
 import logging
 from os.path import splitext
+from typing import Dict
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -978,7 +979,7 @@ class ImportForm(CremeModelForm):
         (0, 'Not in the file'),
         *((i, f'Column {i}') for i in range(1, 21)),
     ]  # Overloaded by factory
-    header_dict = {}  # Idem
+    header_dict: Dict[str, int] = {}  # Idem
 
     blocks = FieldBlockManager(
         ('general', _('Update mode'),  ('step', 'document', 'has_header', 'key_fields')),

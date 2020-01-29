@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,12 @@
 ################################################################################
 
 import logging
+from typing import Type, Iterator, TYPE_CHECKING
 
 from django.utils.datastructures import OrderedSet
+
+if TYPE_CHECKING:
+    from .models import CremeEntity
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +35,7 @@ class CremeRegistry:
         self._entity_models = OrderedSet()
         self._generic_registry = {}
 
-    def register_entity_models(self, *models):
+    def register_entity_models(self, *models: Type['CremeEntity']) -> None:
         """Register CremeEntity models."""
         from .models import CremeEntity
 
@@ -46,10 +50,10 @@ class CremeRegistry:
 
             entity_models.add(model)
 
-    def is_entity_model_registered(self, model):
+    def is_entity_model_registered(self, model: Type['CremeEntity']) -> bool:
         return model in self._entity_models
 
-    def iter_entity_models(self):
+    def iter_entity_models(self) -> Iterator[Type['CremeEntity']]:
         return iter(self._entity_models)
 
 

@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 @lru_cache()
-def get_hg_info():
+def get_hg_info() -> dict:
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     info = {
         'date': '?',

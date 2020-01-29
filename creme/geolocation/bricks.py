@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.gui.bricks import Brick
+from creme.creme_core.gui.bricks import Brick, BrickDependencies
 from creme.creme_core.models import EntityFilter
 
 from creme import persons
@@ -38,7 +38,7 @@ Address      = persons.get_address_model()
 
 
 class _MapBrick(Brick):
-    dependencies = (Address,)
+    dependencies: BrickDependencies = (Address,)
 
     def get_filter_choices(self, user, *models):
         choices = []

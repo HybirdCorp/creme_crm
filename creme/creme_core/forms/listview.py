@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019  Hybird
+#    Copyright (C) 2019-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ import decimal
 from functools import partial
 import logging
 from re import compile as compile_re
+from typing import Type
 import unicodedata
 
 from django.conf import settings
@@ -227,7 +228,7 @@ class ListViewSearchField(Field):
      - the widget class generally inherits <ListViewSearch>.
      - the method "to_python()" returns an instance of <django.db.models.query_utils.Q>.
     """
-    widget = ListViewSearchWidget
+    widget: Type[ListViewSearchWidget] = ListViewSearchWidget
 
     def __init__(self, *, cell, user, **kwargs):
         super().__init__(**kwargs)

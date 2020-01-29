@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018  Hybird
+#    Copyright (C) 2018-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type
+
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View
 
@@ -26,8 +28,8 @@ from creme.creme_core.core.exceptions import ConflictError
 
 
 class ErrorView(View):
-    error_class = ConflictError
-    message = 'These view has been disabled'
+    error_class: Type[Exception] = ConflictError
+    message: str = 'These view has been disabled'
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):

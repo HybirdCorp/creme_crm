@@ -18,6 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import List, Type
+
+from django.forms.forms import BaseForm
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template import Template, Context
@@ -81,7 +84,7 @@ class EntityEmailCreation(generic.AddingInstanceToEntityPopup):
 
 class EntityEmailWizard(EntityRelatedMixin, generic.EntityCreationWizardPopup):
     model = EntityEmail
-    form_list = [
+    form_list: List[Type[BaseForm]] = [
         mail_forms.TemplateSelectionFormStep,
         mail_forms.EntityEmailForm,
     ]

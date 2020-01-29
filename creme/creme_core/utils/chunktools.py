@@ -24,15 +24,23 @@
 #
 ################################################################################
 
+from typing import TypeVar, Callable, Iterable, Iterator, List, Optional
 
-def iter_splitchunks(chunks, sep, parser=None, limit=None):
+T = TypeVar('T')
+
+
+# TODO: need a type "Boolable" for 'parser'
+def iter_splitchunks(chunks: Iterable,
+                     sep: str,
+                     parser: Callable = None,
+                     limit: Optional[int] = None) -> Iterator[str]:
     """Iterator through chunks as split single stream.
 
-    @param chunks: iterator of list of strings
-    @param sep: split separator
+    @param chunks: iterator of list of strings.
+    @param sep: split separator.
     @param parser: function that returns a parsed result from each entry.
-                   if returns None, False or empty string, the entry will be ignored
-    @param limit: single line length limit. throw a ValueError if reached.
+                   if returns None, False or empty string, the entry will be ignored.
+    @param limit: single line length limit. Throws a ValueError if reached.
     """
     overflow = ''
 
@@ -55,12 +63,12 @@ def iter_splitchunks(chunks, sep, parser=None, limit=None):
         yield last
 
 
-def iter_as_chunk(iterable, step):
+def iter_as_chunk(iterable: Iterable[T], step: int) -> Iterator[List[T]]:
     """Iterator which returns chunks from an iterable.
     @param iterable: iterator.
     @param step: chunks size.
     """
-    chunk = []
+    chunk: List[T] = []
 
     for index, item in enumerate(iterable):
         if not index % step and chunk:

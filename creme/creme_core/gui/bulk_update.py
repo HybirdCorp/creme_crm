@@ -20,13 +20,19 @@
 
 from functools import partial
 from itertools import chain
+from typing import (
+    Union, Optional, Type,
+    Iterable, Mapping, Sequence,
+    Dict, List, Set, Tuple,
+)
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import ForeignKey, FieldDoesNotExist
+from django.db.models import Model, Field, ForeignKey, FieldDoesNotExist
 from django.urls import reverse
 
-from ..core.entity_cell import EntityCellRegularField, EntityCellCustomField
-from ..models import CremeModel, CustomField, FieldsConfig
+from ..core.entity_cell import EntityCell, EntityCellRegularField, EntityCellCustomField
+from ..forms.bulk import BulkForm
+from ..models import CremeModel, CremeEntity, CustomField, FieldsConfig
 from ..utils.unicode_collation import collator
 
 # TODO: factorise 'customfield-...'
@@ -44,7 +50,16 @@ class _BulkUpdateRegistry:
     your creme_core_register.py with the global 'bulk_update_registry' instance.
     """
     class ModelBulkStatus:
-        def __init__(self, model, ignore=False):
+        _model: Type[Model]
+        ignore: bool
+
+        excludes: Set[str]
+        expandables: Set[str]
+
+        _innerforms: Dict[str, Type[BulkForm]]
+        _regularfields: Dict[str, Field]
+
+        def __init__(self, model: Type[Model], ignore: bool = False):
             self._model = model
             self.ignore = ignore
 
@@ -54,22 +69,22 @@ class _BulkUpdateRegistry:
             self._innerforms = {}
             self._regularfields = {}
 
-        def _reset_cache(self):
+        def _reset_cache(self) -> None:
             self._regularfields = {}
 
-        def is_expandable(self, field):
+        def is_expandable(self, field: Field) -> bool:
             if not isinstance(field, ForeignKey) or field.get_tag('enumerable'):
                 return False
 
             return issubclass(field.remote_field.model, CremeModel) or field.name in self.expandables
 
-        def is_updatable(self, field):
+        def is_updatable(self, field: Union[Field, CustomField]) -> bool:
             return isinstance(field, CustomField) or (
                    field.editable and not
                    FieldsConfig.objects.get_for_model(self._model).is_field_hidden(field))
 
         @property
-        def regular_fields(self):
+        def regular_fields(self) -> Dict[str, Field]:
             if self.ignore:
                 return {}
 
@@ -78,32 +93,36 @@ class _BulkUpdateRegistry:
             if not rfields:
                 meta = self._model._meta
                 self._regularfields = rfields = {
-                        field.name: field
-                            for field in chain(meta.fields, meta.many_to_many)
-                                if field.name not in self.excludes
-                    }
+                    field.name: field
+                        for field in chain(meta.fields, meta.many_to_many)
+                            if field.name not in self.excludes
+                }
 
             return rfields
 
         @property
-        def updatable_regular_fields(self):
+        def updatable_regular_fields(self) -> Dict[str, Field]:
             # TODO: FieldsConfig.LocalCache ??
             is_updatable = self.is_updatable
-            return {key: field
-                        for key, field in self.regular_fields.items()
-                            if is_updatable(field)
-                   }
+
+            return {
+                key: field
+                    for key, field in self.regular_fields.items()
+                        if is_updatable(field)
+            }
 
         @property
-        def expandable_regular_fields(self):
+        def expandable_regular_fields(self) -> Dict[str, Field]:
             is_expandable = self.is_expandable
-            return {key: field
-                        for key, field in self.regular_fields.items()
-                            if is_expandable(field)
-                   }
+
+            return {
+                key: field
+                    for key, field in self.regular_fields.items()
+                        if is_expandable(field)
+            }
 
         @property
-        def custom_fields(self):
+        def custom_fields(self) -> Dict[str, CustomField]:
             if self.ignore:
                 return {}
 
@@ -121,7 +140,7 @@ class _BulkUpdateRegistry:
 
             return custom_fields
 
-        def get_field(self, name):
+        def get_field(self, name: str) -> Union[Field, CustomField]:
             if name.startswith('customfield-'):
                 field = self.custom_fields.get(name)
             else:
@@ -139,7 +158,7 @@ class _BulkUpdateRegistry:
 
             return field
 
-        def get_expandable_field(self, name):
+        def get_expandable_field(self, name: str) -> Field:
             field = self.regular_fields.get(name)
 
             if field is None:
@@ -154,13 +173,15 @@ class _BulkUpdateRegistry:
 
             return field
 
-        def get_form(self, name, default=None):
+        def get_form(self,
+                     name: str,
+                     default: Optional[Type[BulkForm]] = None) -> Optional[Type[BulkForm]]:
             return self._innerforms.get(name, default)
 
     def __init__(self):
-        self._status = {}
+        self._status: Dict[Type[Model], _BulkUpdateRegistry.ModelBulkStatus] = {}
 
-    def _get_or_create_status(self, model):
+    def _get_or_create_status(self, model: Type[Model]) -> ModelBulkStatus:
         bulk_status = self._status.get(model)
 
         if bulk_status is None:
@@ -168,14 +189,21 @@ class _BulkUpdateRegistry:
 
         return bulk_status
 
-    def _merge_innerforms(self, parent_status, child_status):
+    def _merge_innerforms(self,
+                          parent_status: ModelBulkStatus,
+                          child_status: ModelBulkStatus) -> None:
         child_status._innerforms = {
             **parent_status._innerforms,
             **child_status._innerforms,
         }
 
-    def register(self, model, exclude=None, expandables=None, innerforms=None):
+    def register(self,
+                 model: Type[Model],
+                 exclude: Sequence[str] = (),
+                 expandables: Sequence[str] = (),
+                 innerforms: Optional[Mapping[str, Type[BulkForm]]] = None):
         """Register a CremeEntity class.
+        @param model: Class inheriting CremeEntity.
         @param exclude: A sequence of field names (ie: strings) indicating
                fields should not be inner-editable.
         @param expandables: A sequence of field names corresponding to ForeignKeys
@@ -216,13 +244,13 @@ class _BulkUpdateRegistry:
 
         return bulk_status
 
-    def ignore(self, model):
+    def ignore(self, model: Type[Model]) -> ModelBulkStatus:
         bulk_status = self._get_or_create_status(model)
         bulk_status.ignore = True
 
         return bulk_status
 
-    def status(self, model):
+    def status(self, model: Type[Model]) -> ModelBulkStatus:
         bulk_status = self._status.get(model)
 
         # Get excluded field by inheritance in case of working model is not registered yet
@@ -231,11 +259,13 @@ class _BulkUpdateRegistry:
 
         return bulk_status
 
-    def get_default_field(self, model):
+    def get_default_field(self, model: Type[Model]) -> Field:
         fields = self.regular_fields(model)
         return fields[0]
 
-    def get_field(self, model, field_name):
+    def get_field(self,
+                  model: Type[Model],
+                  field_name: str) -> Union[Field, CustomField]:
         status = self.status(model)
         field_basename, _sep_, subfield_name = field_name.partition('__')
 
@@ -247,7 +277,10 @@ class _BulkUpdateRegistry:
 
         return field
 
-    def get_form(self, model, field_name, default=None):
+    def get_form(self,
+                 model: Type[Model],
+                 field_name: str,
+                 default: Optional[Type[BulkForm]] = None) -> Optional[Type[BulkForm]]:
         status = self.status(model)
         field_basename, _sep_, subfield_name = field_name.partition('__')
 
@@ -263,7 +296,10 @@ class _BulkUpdateRegistry:
         form = status.get_form(field_basename, default)
         return partial(form, model=model, field=field) if form else None
 
-    def is_updatable(self, model, field_name, exclude_unique=True):
+    def is_updatable(self,
+                     model: Type[Model],
+                     field_name: str,
+                     exclude_unique: bool = True) -> bool:
         try:
             field = self.get_field(model, field_name)
         except (FieldDoesNotExist, FieldNotAllowed):
@@ -271,7 +307,10 @@ class _BulkUpdateRegistry:
 
         return not (exclude_unique and field.unique)
 
-    def is_expandable(self, model, field_name, exclude_unique=True):
+    def is_expandable(self,
+                      model: Type[Model],
+                      field_name: str,
+                      exclude_unique: bool = True) -> bool:
         try:
             field = self.status(model).get_expandable_field(field_name)
         except (FieldDoesNotExist, FieldNotAllowed):
@@ -279,13 +318,16 @@ class _BulkUpdateRegistry:
 
         return not (exclude_unique and field.unique)
 
-    def regular_fields(self, model, expand=False, exclude_unique=True):
+    def regular_fields(self,
+                       model: Type[Model],
+                       expand: bool = False,
+                       exclude_unique: bool = True) -> Union[List[Field], List[Tuple[Field, List[Field]]]]:
         sort_key = collator.sort_key
 
         status = self.status(model)
         is_updatable = status.is_updatable
 
-        fields = status.regular_fields.values()
+        fields: Iterable[Field] = status.regular_fields.values()
 
         if exclude_unique:
             fields = [field for field in fields if not field.unique]
@@ -299,20 +341,20 @@ class _BulkUpdateRegistry:
                     for field in fields
             ]
 
-            fields = [
+            exp_fields = [
                 (field,
                  related_fields(model=field.remote_field.model, exclude_unique=exclude_unique) if expandable else None,
                 ) for field, expandable, updatable in field_states
                       if expandable or updatable
             ]
 
-            return sorted(fields, key=lambda f: sort_key(f[0].verbose_name))
+            return sorted(exp_fields, key=lambda f: sort_key(f[0].verbose_name))
 
         return sorted(filter(is_updatable, fields),
                       key=lambda f: sort_key(f.verbose_name)
                      )
 
-    def custom_fields(self, model):
+    def custom_fields(self, model: Type[Model]) -> List[CustomField]:
         sort_key = collator.sort_key
         return sorted(self.status(model).custom_fields.values(),
                       key=lambda f: sort_key(f.name)
@@ -320,7 +362,8 @@ class _BulkUpdateRegistry:
 
     # TODO: we need a better system, so we could also inner edit other type of cells
     #      (maybe _BulkUpdateRegistry should only
-    def inner_uri(self, cell, instance, user):
+    # TODO: remove "user" arg
+    def inner_uri(self, cell: EntityCell, instance: Model, user) -> Optional[str]:
         uri = None
 
         if isinstance(cell, EntityCellRegularField):
@@ -330,6 +373,8 @@ class _BulkUpdateRegistry:
                 ct = ContentType.objects.get_for_model(instance.__class__)
                 uri = reverse('creme_core__inner_edition', args=(ct.id, instance.id, field_name))
         elif isinstance(cell, EntityCellCustomField):
+            assert isinstance(instance, CremeEntity)
+
             uri = reverse('creme_core__inner_edition',
                           args=(instance.entity_type_id, instance.id, f'customfield-{cell.value}'),
                          )

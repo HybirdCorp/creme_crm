@@ -25,21 +25,21 @@ from mediagenerator.utils import media_url
 from ..global_info import get_global_info
 
 
-def get_creme_media_url(theme, url):
+def get_creme_media_url(theme: str, url: str) -> str:
     return media_url(f'{theme}/{url}')
 
 
-def creme_media_themed_url(url):
+def creme_media_themed_url(url: str) -> str:
     return get_creme_media_url(get_current_theme(), url)
 
 
-def get_current_theme():
+def get_current_theme() -> str:
     theme_info = getattr(get_global_info('user'), 'theme_info', None) or settings.THEMES[0]
 
     return theme_info[0]
 
 
-def get_current_theme_from_context(context):
+def get_current_theme_from_context(context) -> str:
     try:
         return context['THEME_NAME']
     except KeyError:

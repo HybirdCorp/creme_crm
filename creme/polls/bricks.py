@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2019  Hybird
+#    Copyright (C) 2012-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,12 @@
 
 from django.utils.translation import gettext_lazy as _, gettext, ngettext
 
-from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick
+from creme.creme_core.gui.bricks import (
+    BrickDependencies,
+    Brick,
+    SimpleBrick,
+    QuerysetBrick,
+)
 
 from creme import persons
 
@@ -121,7 +126,7 @@ class PollRepliesBrick(QuerysetBrick):
 
 
 class _RelatedRepliesBrick(QuerysetBrick):
-    dependencies = (PollReply,)
+    dependencies: BrickDependencies = (PollReply,)
     verbose_name = _('Related form replies')
 
     def _get_replies(self, pk):

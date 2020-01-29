@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2016-2019 Hybird
+# Copyright (c) 2016-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,5 +36,5 @@ color_validator = RegexValidator(compile_re(r'^([0-9a-fA-F]){6}$'),
                                 )
 
 
-def validate_color(value):
+def validate_color(value: str) -> None:
     return color_validator(value)

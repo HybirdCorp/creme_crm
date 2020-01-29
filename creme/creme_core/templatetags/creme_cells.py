@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+from typing import Dict, Tuple,Type
 
 from django.template import Library, TemplateSyntaxError, Node as TemplateNode
 from django.utils.safestring import mark_safe
@@ -86,7 +87,7 @@ class InstanceRFieldCellNode(RFieldCellNode):
         return self.instance_var.resolve(context).__class__
 
 
-_RFIELD_CELL_NODES = {
+_RFIELD_CELL_NODES: Dict[str, Tuple[str, Type[RFieldCellNode]]] = {
     'model':    ('model_var',    ModelRFieldCellNode),
     'ctype':    ('ctype_var',    CTypeRFieldCellNode),
     'instance': ('instance_var', InstanceRFieldCellNode),

@@ -27,6 +27,7 @@
 import logging
 import sys
 import traceback
+from typing import Any, Union, TypeVar, List, Tuple, Iterable, Callable, Iterator
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
@@ -36,15 +37,16 @@ from django.utils.translation import gettext as _
 from ..signals import pre_replace_related
 
 logger = logging.getLogger(__name__)
+T = TypeVar('T')
 
 
-def creme_entity_content_types():
+def creme_entity_content_types() -> Iterator[ContentType]:
     "Generator which yields ContentType instances corresponding to registered entity models."
     from ..registry import creme_registry
     return map(ContentType.objects.get_for_model, creme_registry.iter_entity_models())
 
 
-def get_ct_or_404(ct_id):
+def get_ct_or_404(ct_id: Union[int, str]) -> ContentType:
     """Retrieve a ContentType by its ID.
     @param ct_id: ID of the wanted ContentType instance (int or string).
     @return: ContentType instance.
@@ -58,7 +60,7 @@ def get_ct_or_404(ct_id):
     return ct
 
 
-def build_ct_choices(ctypes):
+def build_ct_choices(ctypes: Iterable[ContentType]) -> List[Tuple[int, str]]:
     """ Build a choices list (useful for form ChoiceField for example) for ContentTypes.
     Labels are localized, & choices are sorted by labels.
     @param ctypes: Iterable of ContentTypes.
@@ -178,7 +180,8 @@ def find_first(iterable, function, *default):
     raise IndexError
 
 
-def split_filter(predicate, iterable):
+def split_filter(predicate: Callable[[T], bool],
+                 iterable: Iterable[T]) -> Tuple[List[T], List[T]]:
     """Split an iterable into 2 lists : accepted elements & rejected elements
     @param predicate: A callable which takes one argument (an element from "iterable")
            & returns a value used as a boolean ('True' to accept the element).
@@ -196,15 +199,15 @@ def split_filter(predicate, iterable):
     return ok, ko
 
 
-def entities2unicode(entities, user):
-    """Return a unicode objects representing a sequence of CremeEntities,
+def entities2unicode(entities: Iterable, user) -> str:
+    """Return a string representing an iterable of CremeEntities,
     with care of permissions.
     """
     return ', '.join(entity.allowed_str(user) for entity in entities)
 
 
-def related2unicode(entity, user):
-    """Return a unicode object representing a related entity with its owner,
+def related2unicode(entity, user) -> str:
+    """Return a string representing a related entity with its owner,
     with care of permissions of this owner.
     """
     return f'{entity.get_related_entity().allowed_str(user)} - {entity}'
@@ -216,7 +219,7 @@ __BFS_MAP = {
 }
 
 
-def bool_from_str(string):
+def bool_from_str(string: str) -> bool:
     b = __BFS_MAP.get(string.lower())
 
     if b is not None:
@@ -225,7 +228,7 @@ def bool_from_str(string):
     raise ValueError(f'Can not be coerced to a boolean value: {string}')
 
 
-def bool_from_str_extended(value):
+def bool_from_str_extended(value: str) -> bool:
     value = value.lower()
     if value in {'1', 'true'}: return True
     if value in {'0', 'false'}: return False
@@ -236,7 +239,7 @@ def bool_from_str_extended(value):
 
 
 @mark_safe
-def bool_as_html(b):
+def bool_as_html(b: bool) -> str:
     if b:
         checked = 'checked '
         label = _('Yes')
@@ -255,8 +258,8 @@ _I2R_NUMERAL_MAP = [
 
 
 # Thx to: http://www.daniweb.com/software-development/python/code/216865/roman-numerals-python
-def int_2_roman(i):
-    "Convert an integer to its roman representation (string)"
+def int_2_roman(i: int) -> str:
+    "Convert an integer to its roman representation (string)."
     assert i < 4000
 
     result = []
@@ -269,7 +272,7 @@ def int_2_roman(i):
     return ''.join(result)
 
 
-def truncate_str(str, max_length, suffix=''):
+def truncate_str(str: str, max_length: int, suffix: str = '') -> str:
     """Truncate a suffixed string to a maximum length ; priority is given to keep the whole suffix,
      excepted when this one is too long.
 
@@ -298,15 +301,15 @@ def truncate_str(str, max_length, suffix=''):
 
 
 # TODO: use django.utils.text.Truncator.chars() instead ??
-def ellipsis(s, length):
-    "Ensures that an unicode-string has a maximum length."
+def ellipsis(s: str, length: int) -> str:
+    "Ensures that a string has a maximum length."
     if len(s) > length:
         s = s[:length - 1] + '…'
 
     return s
 
 
-def ellipsis_multi(strings, length):
+def ellipsis_multi(strings: Iterable[str], length: int) -> List[str]:
     """Return (potentially) shorter strings in order to the global length does not exceed a given value.
     Strings are shorten in a way which tends to make them of the same length.
 
@@ -317,29 +320,36 @@ def ellipsis_multi(strings, length):
     >> ellipsis_multi(['123456', '12', '12'], 9)
     ['1234…', '12', '12']
     """
-    str_2_truncate = [[len(s), s] for s in strings]
-    total_len = sum(elt[0] for elt in str_2_truncate)
+    class StringToTruncate:
+        __slots__ = ('length', 'data')
+
+        def __init__(self, s: str):
+            self.length = len(s)
+            self.data = s
+
+    str_2_truncate = [StringToTruncate(s) for s in strings]
+    total_len = sum(elt.length for elt in str_2_truncate)
 
     for i in range(max(0, total_len - length)):
         max_idx = -1
         max_value = -1
 
         for idx, elt in enumerate(str_2_truncate):
-            if elt[0] > max_value:
-                max_value = elt[0]
+            if elt.length > max_value:
+                max_value = elt.length
                 max_idx = idx
 
-        str_2_truncate[max_idx][0] -= 1
+        str_2_truncate[max_idx].length -= 1
 
-    return [ellipsis(elt[1], elt[0]) for elt in str_2_truncate]
+    return [ellipsis(elt.data, elt.length) for elt in str_2_truncate]
 
 
-def prefixed_truncate(s, prefix, length):
+def prefixed_truncate(s: str, prefix, length: int) -> str:
     """Truncates a string if it is too long ; when a truncation is done, the given prefix is added.
     The length of the result is always less than or equal than the given length.
 
     @param s: A str instance.
-    @param prefix: An object which can be "stringified" ; eg: a string, a ugettext_lazy instance.
+    @param prefix: An object which can be "stringified" ; eg: a string, a gettext_lazy instance.
     @param length: An integer.
     @return: A str.
     """
@@ -370,7 +380,7 @@ def safe_unicode(value, encodings=None):
     return str(value)
 
 
-def log_traceback(logger, limit=10):  # TODO: use traceback.format_exc() ?
+def log_traceback(logger, limit=10) -> None:  # TODO: use traceback.format_exc() ?
     exc_type, exc_value, exc_traceback = sys.exc_info()
 
     for line in traceback.format_exception(exc_type, exc_value, exc_traceback, limit=limit):
@@ -378,6 +388,6 @@ def log_traceback(logger, limit=10):  # TODO: use traceback.format_exc() ?
             logger.error(split_line)
 
 
-def print_traceback(limit=10):
+def print_traceback(limit=10) -> None:
     exc_type, exc_value, exc_traceback = sys.exc_info()
     traceback.print_exception(exc_type, exc_value, exc_traceback, limit=limit)

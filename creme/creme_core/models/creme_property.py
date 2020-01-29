@@ -20,6 +20,7 @@
 
 import logging
 # import warnings
+from typing import Union, Type, Iterable
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, IntegrityError
@@ -38,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 class CremePropertyTypeManager(models.Manager):
-    def compatible(self, ct_or_model):
+    def compatible(self, ct_or_model: Union[ContentType, Type[CremeEntity]]):
         ct = ct_or_model if isinstance(ct_or_model, ContentType) else \
              ContentType.objects.get_for_model(ct_or_model)
 
@@ -47,7 +48,7 @@ class CremePropertyTypeManager(models.Manager):
 
 # TODO: factorise with RelationManager ?
 class CremePropertyManager(models.Manager):
-    def safe_create(self, **kwargs):
+    def safe_create(self, **kwargs) -> None:
         """Create a CremeProperty in DB by taking care of the UNIQUE constraint
         of Relation.
         Notice that, unlike 'create()' it always return None (to avoid a
@@ -92,7 +93,9 @@ class CremePropertyManager(models.Manager):
 
         return prop
 
-    def safe_multi_save(self, properties, check_existing=True):
+    def safe_multi_save(self,
+                        properties: Iterable['CremeProperty'],
+                        check_existing: bool = True) -> int:
         """Save several instances of CremeProperty by taking care of the UNIQUE
         constraint on ('type', 'creme_entity').
 

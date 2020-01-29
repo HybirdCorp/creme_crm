@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2016 Hybird
+# Copyright (c) 2016-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,18 +23,21 @@
 # SOFTWARE.
 ################################################################################
 
+from typing import Type
+
 from django.conf import settings
+from django.db.models import Model
 
 if settings.USE_I18N:
     from django.utils.translation import _trans
 
-    def plural(number):
+    def plural(number: int) -> bool:
         return bool(_trans.translation(_trans.get_language()).plural(number))
 else:
-    def plural(number):
+    def plural(number: int) -> bool:
         return number != 1
 
 
-# TODO: automatise the creation of plural form for models verbose names (& so use ungettext() instead) ?
-def get_model_verbose_name(model, count):
+# TODO: automatise the creation of plural form for models verbose names (& so use ngettext() instead) ?
+def get_model_verbose_name(model: Type[Model], count: int):
     return model._meta.verbose_name_plural if plural(count) else model._meta.verbose_name

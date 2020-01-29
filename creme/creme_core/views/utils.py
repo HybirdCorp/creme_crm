@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2018  Hybird
+#    Copyright (C) 2016-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from urllib.parse import urlparse
+from typing import Optional
 
 from django.db.models.base import Model
 
@@ -31,7 +32,7 @@ PROTOCOL_TO_PORT = {
 }
 
 
-def build_cancel_path(request):
+def build_cancel_path(request) -> Optional[str]:
     url = request.META.get('HTTP_REFERER')
 
     if url is not None:
@@ -42,6 +43,8 @@ def build_cancel_path(request):
            (parsed_url.port or PROTOCOL_TO_PORT[parsed_url.scheme]) ==
            (int(port) if port else PROTOCOL_TO_PORT[request.scheme])):
             return parsed_url.path
+
+    return None
 
 
 # TODO: Find a better name

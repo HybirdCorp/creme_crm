@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2019  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,13 +19,16 @@
 ################################################################################
 
 import bleach
+from typing import Callable, Dict, Sequence, Union
 
 from django.conf import settings
 from django.utils.encoding import force_text
 from django.utils.html import mark_safe
 
+_AllowedAttributesDict = Dict[str, Union[Sequence[str], Callable[[str, str, str], bool]]]
+
 IMG_SAFE_ATTRIBUTES = {'title', 'alt', 'width', 'height'}
-ALLOWED_ATTRIBUTES = {
+ALLOWED_ATTRIBUTES: _AllowedAttributesDict = {
     **bleach.ALLOWED_ATTRIBUTES,
     '*': ['style', 'class'],
     'a': ['href', 'rel'],
@@ -82,9 +85,10 @@ def filter_img_src(tag, attr, value):
     return False
 
 
-def sanitize_html(html, allow_external_img=False):
-    attributes = ALLOWED_ATTRIBUTES if allow_external_img else \
-                 {**ALLOWED_ATTRIBUTES, 'img': filter_img_src}
+def sanitize_html(html: str, allow_external_img: bool = False) -> str:
+    attributes:_AllowedAttributesDict = ALLOWED_ATTRIBUTES \
+                                        if allow_external_img else \
+                                        {**ALLOWED_ATTRIBUTES, 'img': filter_img_src}
 
     return bleach.clean(html, tags=ALLOWED_TAGS, attributes=attributes,
                         styles=ALLOWED_STYLES, strip=True,
@@ -103,5 +107,5 @@ JSON_ESCAPES = {
 # Escape every ASCII character with a value less than 32.
 # JSON_ESCAPES.update((ord('%c' % z), '\\u%04X' % z) for z in range(32))
 
-def escapejson(value):
+def escapejson(value: str) -> str:
     return mark_safe(force_text(value).translate(JSON_ESCAPES))

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+from typing import List
 
 from django.conf import settings
 
@@ -29,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class LastViewedItem:
-    def __init__ (self, request, entity):
+    def __init__(self, request, entity: CremeEntity):
         self.pk = entity.pk
         self.url = entity.get_absolute_url()
         self.update(entity)
@@ -42,7 +43,7 @@ class LastViewedItem:
     def __eq__(self, other):
         return self.pk == other.pk
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return {'pk':       self.pk,
                 'url':      self.url,
                 'name':     self.name,
@@ -50,7 +51,7 @@ class LastViewedItem:
                }
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data: dict):
         instance = object.__new__(cls)
 
         for attr in ('pk', 'url', 'name'):
@@ -60,11 +61,11 @@ class LastViewedItem:
 
         return instance
 
-    def update(self, entity):
+    def update(self, entity: CremeEntity) -> None:
         self.name = str(entity)
         self.modified = entity.modified
 
-    def __add(self, request):
+    def __add(self, request) -> None:
         logger.debug('LastViewedItem.add: %s', self)
         session = request.session
         last_viewed_items = self._deserialize_all(session)
@@ -83,17 +84,17 @@ class LastViewedItem:
         self._serialize_all(session, last_viewed_items)
 
     @classmethod
-    def _deserialize_all(cls, session):
+    def _deserialize_all(cls, session) -> List['LastViewedItem']:
         from_dict = cls.from_dict
         return [from_dict(data) for data in session.get('last_viewed_items', ())]
 
     @staticmethod
-    def _serialize_all(session, items):
+    def _serialize_all(session, items) -> None:
         session['last_viewed_items'] = [item.as_dict() for item in items]
 
     # TODO: use the future entity representation table
     @classmethod
-    def get_all(cls, request):
+    def get_all(cls, request) -> List['LastViewedItem']:
         items = []
         session = request.session
         old_items = cls._deserialize_all(session)

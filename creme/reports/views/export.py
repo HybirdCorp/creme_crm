@@ -19,7 +19,9 @@
 ################################################################################
 
 import logging
+from typing import Type
 
+from django.forms.forms import BaseForm
 # from django.http import Http404
 # from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -97,7 +99,7 @@ class Preview(generic.EntityDetail):
 
 class ExportFilterURL(generic.EntityEditionPopup):
     model = Report
-    form_class = report_forms.ReportExportFilterForm
+    form_class: Type[BaseForm] = report_forms.ReportExportFilterForm
     template_name = 'reports/forms/report-export-filter.html'
     pk_url_kwarg = 'report_id'
     title = pgettext_lazy('reports-report', 'Export «{object}»')

@@ -20,8 +20,9 @@
 
 from calendar import monthrange
 from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import logging
+from typing import Optional, Dict
 
 from django.utils.translation import gettext_lazy as _
 
@@ -37,12 +38,12 @@ def get_month_last_day(year, month):
     return monthrange(year, month)[1]
 
 
-def get_quarter(month):
+def get_quarter(month: int) -> int:
     return ((month - 1) // 3) + 1
 
 
-def get_quarter_dates(year, quarter):
-    """@param quarter 1 <= integer <= 4"""
+def get_quarter_dates(year: int, quarter: int):
+    """@param quarter: 1 <= integer <= 4"""
     month = quarter * 3
 
     return (make_aware_dt(datetime(year=year, month=month - 2, day=1,                               **_DAY_START)),
@@ -51,7 +52,7 @@ def get_quarter_dates(year, quarter):
 
 
 class DateRange:
-    name = 'base_date_range'  # Overload
+    name: str = 'base_date_range'  # Overload
     verbose_name = 'Date range'  # Overload
 
     def __str__(self):
@@ -61,7 +62,7 @@ class DateRange:
     def get_dates(now):
         raise NotImplementedError
 
-    def get_q_dict(self, field, now):
+    def get_q_dict(self, field: str, now) -> dict:
         start, end = self.get_dates(now)
 
         if start:
@@ -185,7 +186,7 @@ class PreviousQuarterRange(DateRange):
             previous_quarter = current_quarter - 1
             year = now.year
         else:
-            previous_quarter =  4
+            previous_quarter = 4
             year = now.year - 1
 
         return get_quarter_dates(year, previous_quarter)
@@ -212,7 +213,7 @@ class NextQuarterRange(DateRange):
             next_quarter = current_quarter + 1
             year = now.year
         else:
-            next_quarter =  1
+            next_quarter = 1
             year = now.year + 1
 
         return get_quarter_dates(year, next_quarter)
@@ -291,8 +292,8 @@ class DateRangeRegistry:
     class RegistrationError(Exception):
         pass
 
-    def __init__(self, *dranges):
-        self._ranges = OrderedDict()
+    def __init__(self, *dranges: DateRange):
+        self._ranges: Dict[str, DateRange] = OrderedDict()
         self.register(*dranges)
 
     def choices(self, exclude_empty=True):
@@ -302,7 +303,7 @@ class DateRangeRegistry:
 
         return self._ranges.items()
 
-    def register(self, *dranges):
+    def register(self, *dranges: DateRange) -> None:
         ranges_map = self._ranges
 
         for drange in dranges:
@@ -315,7 +316,10 @@ class DateRangeRegistry:
 
             ranges_map[name] = drange
 
-    def get_range(self, name=None, start=None, end=None):
+    def get_range(self,
+                  name: Optional[str] = None,
+                  start: Optional[date] = None,
+                  end: Optional[date] = None) -> Optional[DateRange]:
         """Get a DateRange.
         @param name: Name of a registered range (eg: "next_year"),
                or None if you want a custom range.
@@ -325,15 +329,15 @@ class DateRangeRegistry:
                Instance of <datetime.date>, or None (named range, only start date).
         @return: An instance of DateRange, or None.
         """
-        drange = self._ranges.get(name)
-
-        if drange:
-            return drange
-
         if name:
-            logger.warning('%s.get_range(): no range named "%s".',
-                           type(self).__name__, name,
-                          )
+            drange = self._ranges.get(name)
+
+            if drange:
+                return drange
+            else:
+                logger.warning('%s.get_range(): no range named "%s".',
+                               type(self).__name__, name,
+                              )
 
         if not start and not end:
             return None

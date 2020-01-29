@@ -31,15 +31,15 @@ from xlrd import (open_workbook, xldate_as_tuple,
 class XlCTypeHandler:
     """
         class handling cell types:
-        XL_CELL_EMPTY (0): empty string u''.
-        XL_CELL_TEXT (1): a Unicode string.
+        XL_CELL_EMPTY (0): empty string ''.
+        XL_CELL_TEXT (1): string.
         XL_CELL_NUMBER (2): float (number).
         XL_CELL_DATE (3): float (date).
         XL_CELL_BOOLEAN (4): boolean (0, 1).
         XL_CELL_ERROR (5): int representing internal Excel codes;
             for a text representation, refer to the supplied
             dictionary error_text_from_code.
-        XL_CELL_BLANK (6): empty string u''.
+        XL_CELL_BLANK (6): empty string ''.
             Note: this type will appear only when
             open_workbook(..., formatting_info=True) is used.
         """

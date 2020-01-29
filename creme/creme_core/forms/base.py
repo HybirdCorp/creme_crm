@@ -21,11 +21,17 @@
 from collections import OrderedDict
 from functools import partial
 import logging
+from typing import (
+    Any, Optional, Union, Type,
+    Callable, Collection, Iterable, Iterator, Sequence,
+    Dict, List, Set, Tuple,
+)
 # import warnings
 
 from django import forms
 from django.conf import settings
 from django.db.models import Q
+from django.forms.boundfield import BoundField
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _, gettext
 
@@ -33,7 +39,7 @@ from ..models import (
     CremeEntity,
     CremePropertyType, CremeProperty,
     RelationType, Relation, SemiFixedRelationType,
-    CustomFieldValue,
+    CustomField, CustomFieldValue,
     FieldsConfig,
 )
 from ..utils.collections import FluentList
@@ -56,14 +62,22 @@ _CUSTOM_NAME = 'custom_field_{}'
 class _FieldBlock:
     __slots__ = ('name', 'field_names')
 
-    def __init__(self, verbose_name, field_names):
+    name: str
+    field_names: Union[List[str], str]  # TODO: use Litteral for '*' case ?
+
+    def __init__(self, verbose_name: str, field_names: Union[Sequence[str], str]):
         """Constructor.
         @param verbose_name: Name of the block (displayed in the output).
         @param field_names: Sequence of strings (fields names in the form)
                or string '*' (wildcard->all remaining fields).
         """
         self.name = verbose_name
-        self.field_names = [*field_names] if field_names != '*' else field_names
+
+        if isinstance(field_names, str):
+            assert field_names == '*'
+            self.field_names = field_names
+        else:
+            self.field_names = [*field_names]
 
     def __str__(self):  # For debugging
         return f'<_FieldBlock: {self.name} {self.field_names}>'
@@ -74,19 +88,35 @@ class FieldBlocksGroup:
     It contains a list of block descriptors. A blocks descriptor is a tuple
     (block_verbose_name, [list of tuples (BoundField, field_is_required)]).
     """
-    def __init__(self, form, blocks_items):
-        self._blocks_data = blocks_data = OrderedDict()
-        wildcard_cat = None
-        field_set = set()
+    _blocks_data: Dict[
+        str,  # Category name
+        Tuple[
+            str,  # Block name
+            List[
+                Tuple[
+                    BoundField,
+                    bool  # Is field required ?
+            ]]
+        ]
+    ]
+
+    def __init__(self,
+                 form: forms.Form,
+                 blocks_items: Iterable[Tuple[str, _FieldBlock]]):
+        blocks_data = self._blocks_data = OrderedDict()
+        wildcard_cat: Optional[str] = None
+        field_set: Set[str] = set()
 
         for cat, block in blocks_items:
             field_names = block.field_names
 
-            if field_names == '*':  # Wildcard
+            if isinstance(field_names, str):  # Wildcard
+                assert field_names == '*'
+
                 if wildcard_cat:
                     raise ValueError(f'Only one wildcard is allowed: {type(form)}')
 
-                blocks_data[cat] = block.name
+                blocks_data[cat] = (block.name, [])  # We fill the fields info list at the end
                 wildcard_cat = cat
             else:
                 field_set |= {*field_names}
@@ -103,22 +133,20 @@ class FieldBlocksGroup:
                 blocks_data[cat] = (block.name, block_data)
 
         if wildcard_cat is not None:
-            block_name = blocks_data[wildcard_cat]
-            blocks_data[wildcard_cat] = (block_name,
-                                         [(form[name], field.required)
-                                              for name, field in form.fields.items()
-                                                  if name not in field_set
-                                         ],
-                                        )
+            blocks_data[wildcard_cat][1].extend(
+                (form[name], field.required)
+                    for name, field in form.fields.items()
+                        if name not in field_set
+            )
 
-    def __getitem__(self, category):
+    def __getitem__(self, category: str):
         """Beware: it pops the retrieved value (__getitem__ is more comfortable
         to be used in templates than a classical method with an argument).
         @return A block descriptor (see FieldBlocksGroup doc string).
         """
         return self._blocks_data.pop(category)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
         """Iterates on the non used blocks (see __getitem__).
         @return A sequence of block descriptors (see FieldBlocksGroup doc string).
         """
@@ -128,7 +156,9 @@ class FieldBlocksGroup:
 class FieldBlockManager:
     __slots__ = ('__blocks',)
 
-    def __init__(self, *blocks):
+    __blocks: Dict[str, _FieldBlock]
+
+    def __init__(self, *blocks: Tuple[str, str, Union[Sequence[str], str]]):
         """Constructor.
         @param blocks: tuples with 3 elements : category(string), verbose_name(i18n string), sequence of field names
                3rd element can be instead a wildcard (the string '*') which mean 'all remaining fields'.
@@ -139,7 +169,7 @@ class FieldBlockManager:
             [(cat, _FieldBlock(name, field_names)) for cat, name, field_names in blocks]
         )
 
-    def new(self, *blocks):
+    def new(self, *blocks: Tuple[str, str, Sequence[str]]) -> 'FieldBlockManager':
         """Create a clone of self, updated with new blocks.
         @param blocks: see __init__(). New blocks are merged with self's blocks.
         """
@@ -183,7 +213,7 @@ class FieldBlockManager:
 
         return fbm
 
-    def build(self, form):
+    def build(self, form: forms.Form) -> FieldBlocksGroup:
         """You should not call this directly ; see CremeForm/CremeModelForm
         get_blocks() method.
         @param form: An instance of <django.forms.Form>.
@@ -192,43 +222,48 @@ class FieldBlockManager:
         return FieldBlocksGroup(form, self.__blocks.items())
 
 
+_FormCallback = Callable[[forms.Form], None]
+
+
 class HookableForm:
     # Beware: use related method to manipulate
-    _creme_post_clean_callbacks = ()  # ==> add_post_clean_callback()
-    _creme_post_init_callbacks  = ()  # ==> add_post_init_callback()
-    _creme_post_save_callbacks  = ()  # ==> add_post_save_callback()
+    _creme_post_clean_callbacks: Sequence[_FormCallback] = ()  # ==> add_post_clean_callback()
+    _creme_post_init_callbacks: Sequence[_FormCallback]  = ()  # ==> add_post_init_callback()
+    _creme_post_save_callbacks: Sequence[_FormCallback]  = ()  # ==> add_post_save_callback()
 
     @classmethod
-    def __add_callback(cls, attrname, callback):
+    def __add_callback(cls, attrname: str, callback: _FormCallback) -> Type['HookableForm']:
         setattr(cls, attrname, [*getattr(cls, attrname), callback])
         return cls
 
     @classmethod
-    def add_post_clean_callback(cls, callback):
+    def add_post_clean_callback(cls, callback: _FormCallback) -> Type['HookableForm']:
         return cls.__add_callback('_creme_post_clean_callbacks', callback)
 
     @classmethod
-    def add_post_init_callback(cls, callback):
+    def add_post_init_callback(cls, callback: _FormCallback) -> Type['HookableForm']:
         return cls.__add_callback('_creme_post_init_callbacks', callback)
 
     @classmethod
-    def add_post_save_callback(cls, callback):
+    def add_post_save_callback(cls, callback: _FormCallback) -> Type['HookableForm']:
         return cls.__add_callback('_creme_post_save_callbacks', callback)
 
-    def _creme_post_clean(self):
+    def _creme_post_clean(self) -> None:
         for callback in self._creme_post_clean_callbacks:
             callback(self)
 
-    def _creme_post_init(self):
+    def _creme_post_init(self) -> None:
         for callback in self._creme_post_init_callbacks:
             callback(self)
 
-    def _creme_post_save(self):
+    def _creme_post_save(self) -> None:
         for callback in self._creme_post_save_callbacks:
             callback(self)
 
-    def as_span(self):  # TODO: in another base class
+    def as_span(self) -> str:  # TODO: in another base class
         """Returns this form rendered as HTML <span>s."""
+        assert isinstance(self, forms.BaseForm), f'HookableForm has not been used as Form mixin: {type(self)}.'
+
         return self._html_output(
             normal_row='<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
             error_row='%s',
@@ -260,7 +295,7 @@ class CremeForm(forms.Form, HookableForm):
         self._creme_post_clean()
         return res
 
-    def get_blocks(self):
+    def get_blocks(self) -> FieldBlocksGroup:
         return self.blocks.build(self)
 
     def save(self, *args, **kwargs):
@@ -271,7 +306,7 @@ class CremeModelForm(forms.ModelForm, HookableForm):
     blocks = FieldBlockManager(('general', _('General information'), '*'))
 
     class Meta:
-        fields = '__all__'
+        fields: Union[str, Tuple[str, ...]] = '__all__'
 
     def __init__(self, user, *args, **kwargs):
         """Constructor.
@@ -295,7 +330,7 @@ class CremeModelForm(forms.ModelForm, HookableForm):
         self._creme_post_clean()
         return res
 
-    def get_blocks(self):
+    def get_blocks(self) -> FieldBlocksGroup:
         return self.blocks.build(self)
 
     def save(self, *args, **kwargs):
@@ -363,10 +398,17 @@ class CremeEntityForm(CremeModelForm):
     )
 
     class Meta:
-        exclude = ()
+        exclude: Tuple[str, ...] = ()
         fields = '__all__'
 
-    def __init__(self, forced_ptypes=(), forced_relations=(), *args, **kwargs):
+    forced_ptype_ids: List[str]
+    forced_relations_info: List[Tuple[RelationType, CremeEntity]]
+    _customs: List[Tuple[CustomField, Any]]
+
+    def __init__(self,
+                 forced_ptypes: Iterable[Union[CremePropertyType, str]] = (),
+                 forced_relations: Iterable[Relation] = (),
+                 *args, **kwargs):
         """Constructor.
         @param forced_ptypes: Sequence of CremePropertyType IDs/instances ;
                CremeProperties with these types will be added to the instance.
@@ -394,7 +436,7 @@ class CremeEntityForm(CremeModelForm):
         ]
         self._build_relations_fields(forced_relations_info=forced_relations_info)
 
-    def _build_customfields(self):
+    def _build_customfields(self) -> None:
         self._customs = self.instance.get_custom_fields_n_values()
         fields = self.fields
 
@@ -402,7 +444,7 @@ class CremeEntityForm(CremeModelForm):
         for i, (cfield, cvalue) in enumerate(self._customs):
             fields[_CUSTOM_NAME.format(i)] = cfield.get_formfield(cvalue)
 
-    def _build_properties_field(self, forced_ptype_ids):
+    def _build_properties_field(self, forced_ptype_ids: Iterable[str]) -> None:
         instance = self.instance
 
         if settings.FORMS_RELATION_FIELDS and not instance.pk:
@@ -412,10 +454,10 @@ class CremeEntityForm(CremeModelForm):
         else:
             del self.fields['property_types']
 
-    def _build_relations_fields(self, forced_relations_info):
+    def _build_relations_fields(self, forced_relations_info: List[Tuple[RelationType, CremeEntity]]) -> None:
         fields = self.fields
         instance = self.instance
-        info = None
+        info: Optional[str] = None
 
         if settings.FORMS_RELATION_FIELDS and not instance.pk:
             if forced_relations_info:
@@ -473,9 +515,9 @@ class CremeEntityForm(CremeModelForm):
             fields['rtypes_info'].initial = info
 
     # TODO: factorise with _RelationsCreateForm ??
-    def _check_properties(self, rtypes):
+    def _check_properties(self, rtypes: Iterable[RelationType]) -> None:
         need_validation = False
-        ptypes_contraints = OrderedDict()
+        ptypes_contraints: Dict[str, Tuple[RelationType, Dict[str, str]]] = OrderedDict()
 
         for rtype in rtypes:
             if rtype.id not in ptypes_contraints:
@@ -513,7 +555,7 @@ class CremeEntityForm(CremeModelForm):
                             code='missing_property_multi',
                         )
 
-    def _check_subject_linkable(self, rtypes):
+    def _check_subject_linkable(self, rtypes: Collection[RelationType]) -> None:
         if rtypes and not self.user.has_perm_to_link(type(self.instance),
                                                      owner=self.cleaned_data['user'],
                                                     ):
@@ -538,6 +580,7 @@ class CremeEntityForm(CremeModelForm):
 
         return sf_rtypes
 
+    # TODO: -> FluentList[Relation]
     def _get_relations_to_create(self):
         cdata = self.cleaned_data
         subject = self.instance
@@ -560,6 +603,7 @@ class CremeEntityForm(CremeModelForm):
             ) for rtype, entity in self.forced_relations_info
         )
 
+    # TODO: -> FluentList[CremeProperty]
     def _get_properties_to_create(self):
         instance = self.instance
 
@@ -575,7 +619,7 @@ class CremeEntityForm(CremeModelForm):
                 for ptype_id in ptype_ids
         )
 
-    def _save_customfields(self):
+    def _save_customfields(self) -> None:
         cfields_n_values = self._customs
 
         if cfields_n_values:
@@ -586,10 +630,14 @@ class CremeEntityForm(CremeModelForm):
                 value = cleaned_data[_CUSTOM_NAME.format(i)]  # TODO: factorize with _build_customfields() ?
                 CustomFieldValue.save_values_for_entities(custom_field, [instance], value)
 
-    def _save_properties(self, properties, check_existing=True):
+    def _save_properties(self,
+                         properties: Iterable[CremeProperty],
+                         check_existing: bool = True) -> None:
         CremeProperty.objects.safe_multi_save(properties, check_existing=check_existing)
 
-    def _save_relations(self, relations, check_existing=True):
+    def _save_relations(self,
+                        relations: Iterable[Relation],
+                        check_existing: bool = True) -> None:
         Relation.objects.safe_multi_save(relations, check_existing=check_existing)
 
     def save(self, *args, **kwargs):

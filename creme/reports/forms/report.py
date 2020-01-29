@@ -20,6 +20,7 @@
 
 from functools import partial
 from itertools import chain
+from typing import Type
 
 from django.core.exceptions import ValidationError
 from django.db.models import ForeignKey, ManyToManyField
@@ -38,7 +39,11 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRelation,
 )
 from creme.creme_core.forms import CremeEntityForm, CremeForm
-from creme.creme_core.forms.fields import AjaxModelChoiceField, CreatorEntityField, DateRangeField
+from creme.creme_core.forms.fields import (
+    AjaxModelChoiceField,
+    CreatorEntityField,
+    DateRangeField,
+)
 from creme.creme_core.forms.header_filter import EntityCellsField, EntityCellsWidget
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import CremeEntity, HeaderFilter, EntityFilter
@@ -205,7 +210,7 @@ class ReportHandsWidget(EntityCellsWidget):
 
 
 class ReportHandsField(EntityCellsField):
-    widget = ReportHandsWidget
+    widget: Type[ReportHandsWidget] = ReportHandsWidget
 
     def _build_4_custom_aggregate(self, model, name):
         return _EntityCellCustomAggregate(model, name[len(_CUSTOM_AGG_PREFIX):])

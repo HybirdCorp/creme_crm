@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from functools import partial
 import operator
+from typing import Type, Collection
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -102,28 +103,28 @@ class ConditionOperator:
     }
 
     # Integer ID (see EQUALS & its friends) used for registration.
-    type_id = None
+    type_id: int  # = None
 
     # Used in forms to configure the condition (see creme_core/forms/forms.py)
     verbose_name = ''
 
     # Sequence of strings used by the form fields/widgets to know which
     # operators to propose for a given model-field (see creme_core/forms/forms.py).
-    allowed_fieldtypes = ()
+    allowed_fieldtypes: Collection[str] = ()
 
     # Boolean ;  <True> means that the operand given by the user should not be
     # validated because sub-part of a valid input must be accepted.
     #   Eg: we want to search in the values of an EmailField with a string
     #       which is not a complete (& so, valid) e-mail address.
-    accept_subpart = True
+    accept_subpart: bool = True
 
     # Format string used by <description()>.
     description_pattern = '«{field}» OP {values}'
 
     # Format string used to build the Q instance ("{}" is interpolated with the field name).
-    key_pattern = '{}__exact'
+    key_pattern: str = '{}__exact'
     # (Boolean) Are the filtered objects included or excluded?
-    exclude = False
+    exclude: bool = False
 
     def _accept_value(self, *, field_value, value):
         raise NotImplementedError
@@ -142,7 +143,7 @@ class ConditionOperator:
 
         return not accepted if self.exclude else accepted
 
-    def description(self, *, field_vname, values):
+    def description(self, *, field_vname, values) -> str:
         """Description of the operation for human.
 
         @param field_vname: Verbose name of the field (regular or custom).
@@ -172,7 +173,7 @@ class ConditionOperator:
     def __str__(self):
         return str(self.verbose_name)
 
-    def get_q(self, *, model, field_name, values):
+    def get_q(self, *, model: Type[models.Model], field_name: str, values) -> Q:
         """Get the query to filter instance.
 
         @param model: Class inheriting <django.db.model>.

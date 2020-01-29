@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2019 Hybird
+# Copyright (c) 2009-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,17 +28,17 @@
 
 from functools import wraps
 from collections import defaultdict
+from typing import Hashable, DefaultDict
 
 try:
     from threading import currentThread
 except ImportError:
-    from dummy_threading import currentThread
+    from dummy_threading import currentThread  # type: ignore
+
+_globals: DefaultDict = defaultdict(dict)
 
 
-_globals = defaultdict(dict)
-
-
-def get_global_info(key):
+def get_global_info(key: Hashable):
     """Get a global value, safely because stored in a per-thread way.
 
     @param key: Hashable object (typically a string) as usual.
@@ -49,7 +49,7 @@ def get_global_info(key):
     return thread_globals and thread_globals.get(key)
 
 
-def set_global_info(**kwargs):
+def set_global_info(**kwargs) -> None:
     """Set some global values, safely because stored in a per-thread way.
 
     @param kwargs: Each key-value are sored as global data.
@@ -57,12 +57,12 @@ def set_global_info(**kwargs):
     _globals[currentThread()].update(kwargs)
 
 
-def clear_global_info():
+def clear_global_info() -> None:
     # Don't use del _globals[currentThread()], it causes problems with dev server.
     _globals.pop(currentThread(), None)
 
 
-def get_per_request_cache():
+def get_per_request_cache() -> dict:
     """Get a special global data, which is a dictionary used as a per-request cache.
 
     @return: A dictionary.
@@ -76,7 +76,7 @@ def get_per_request_cache():
     return cache
 
 
-def cached_per_request(cache_key):
+def cached_per_request(cache_key: Hashable):
     """Decorator which caches the result in the per-request cache.
     (see get_per_request_cache().
 

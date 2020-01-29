@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from typing import Optional
 
 from django.utils.translation import gettext_lazy as _
 
@@ -35,7 +37,7 @@ class AddRelatedActivityButton(Button):
     template_name = 'activities/buttons/add-related.html'
     permission    = build_creation_perm(Activity)
     verbose_name  = _('Create a related activity')
-    activity_type = None  # None means type is not fixed
+    activity_type: Optional[str] = None  # None means type is not fixed
 
     def render(self, context):
         context['activity_type'] = self.activity_type

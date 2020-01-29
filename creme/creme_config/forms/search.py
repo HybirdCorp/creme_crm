@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Tuple
+
 from django.forms import ModelChoiceField, MultipleChoiceField
 from django.utils.translation import gettext_lazy as _, gettext
 
@@ -34,7 +36,7 @@ class _SearchForm(CremeModelForm):
 
     class Meta:
         model = SearchConfigItem
-        exclude = ('content_type', 'role', 'field_names')
+        exclude: Tuple[str, ...] = ('content_type', 'role', 'field_names')
 
     def save(self, *args, **kwargs):
         self.instance.searchfields = self.cleaned_data['fields']

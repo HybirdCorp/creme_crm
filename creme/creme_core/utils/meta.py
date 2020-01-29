@@ -25,9 +25,10 @@
 
 from functools import partial
 from itertools import chain
+from typing import Optional, Union, Type, List, Tuple, Callable
 
 from django.core.validators import EMPTY_VALUES
-from django.db.models import FieldDoesNotExist, DateField
+from django.db.models import Model, Field, FieldDoesNotExist, DateField
 
 from .unicode_collation import collator
 
@@ -66,15 +67,17 @@ class FieldInfo:
     """
     __slots__ = ('_model', '__fields')
 
-    def __init__(self, model, field_name):
+    def __init__(self, model: Type[Model], field_name: str):
         """ Constructor.
 
         @param model: Class inheriting django.db.models.Model.
         @param field_name: String representing a 'chain' of fields; eg: 'book__author__name'.
         @throws FieldDoesNotExist
         """
-        self._model = model
-        self.__fields = fields = []
+        fields: List[Field] = []
+
+        self.__fields = fields
+        self._model: Type[Model] = model
         subfield_names = field_name.split('__')
 
         for subfield_name in subfield_names[:-1]:
@@ -92,7 +95,7 @@ class FieldInfo:
 
         fields.append(model._meta.get_field(subfield_names[-1]))
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: Union[int, slice]):
         if isinstance(idx, slice):
             step = idx.step
             if step is not None and step != 1:
@@ -129,15 +132,15 @@ class FieldInfo:
         )
 
     @property
-    def model(self):
+    def model(self) -> Type[Model]:
         return self._model
 
     @property
-    def verbose_name(self):
+    def verbose_name(self) -> str:
         return ' - '.join(str(field.verbose_name) for field in self.__fields)
 
     # TODO: probably does not work with several ManyToManyFields in the fields chain
-    def value_from(self, instance):
+    def value_from(self, instance: Model):
         if not isinstance(instance, self._model):
             raise ValueError(f'"{instance}" is not an instance of {self._model}')
 
@@ -158,17 +161,24 @@ class FieldInfo:
         return result
 
 
-def is_date_field(field):
+def is_date_field(field: Field) -> bool:
     return isinstance(field, DateField)
 
 
 # ModelFieldEnumerator ---------------------------------------------------------
+
+# Note
+#  - int argument is the depth in field chain (fk1__fk2__...)
+#  - returning <True> means "the field is accepted".
+FieldFilterFunctionType = Callable[[Field, int], bool]
+
+
 class _FilterModelFieldQuery:
     # TODO: use a constants in fields_tags ?? set() ?
     _TAGS = ('viewable', 'clonable', 'enumerable', 'optional')
 
-    def __init__(self, function=None, **kwargs):
-        self._conditions = conditions = []
+    def __init__(self, function: Optional[FieldFilterFunctionType] = None, **kwargs):
+        conditions: List[FieldFilterFunctionType] = []
 
         if function:
             conditions.append(function)
@@ -180,6 +190,8 @@ class _FilterModelFieldQuery:
 
             conditions.append(partial(fun, attr_name=attr_name, value=value))
 
+        self._conditions = conditions
+
     def __call__(self, field, deep):
         return all(cond(field, deep) for cond in self._conditions)
 
@@ -190,7 +202,10 @@ class _ExcludeModelFieldQuery(_FilterModelFieldQuery):
 
 
 class ModelFieldEnumerator:
-    def __init__(self, model, deep=0, only_leafs=True):
+    def __init__(self,
+                 model: Type[Model],
+                 deep: int = 0,
+                 only_leafs: bool = True):
         """Constructor.
         @param model: DjangoModel class.
         @param deep: Deep of the returned fields (0=fields of the class, 1=also
@@ -202,7 +217,7 @@ class ModelFieldEnumerator:
         self._deep = deep
         self._only_leafs = only_leafs
         self._fields = None
-        self._ffilters = []
+        self._ffilters: List[FieldFilterFunctionType] = []
 
     def __iter__(self):
         if self._fields is None:
@@ -211,7 +226,7 @@ class ModelFieldEnumerator:
         return iter(self._fields)
 
     def _build_fields(self, fields_info, model, parents_fields, rem_depth, depth):
-        "@param rem_depth: Remaining depth to look into"
+        "@param rem_depth: Remaining depth to look into."
         ffilters = self._ffilters
         include_fk = not self._only_leafs
         deeper_fields_args = []
@@ -237,9 +252,9 @@ class ModelFieldEnumerator:
 
         return fields_info
 
-    def filter(self, function=None, **kwargs):
+    def filter(self, function: Optional[FieldFilterFunctionType] = None, **kwargs):
         """Filter the field sequence.
-        @param function: Callable which takes 2 arguments (field instance, deep),
+        @param function: (optional) Callable which takes 2 arguments (field instance, deep),
                and returns a boolean ('True' means 'the field is accepted').
         @param kwargs: Keywords can be a true field attribute name, or a creme tag.
                Eg: ModelFieldEnumerator(Contact).filter(editable=True, viewable=True)
@@ -247,14 +262,14 @@ class ModelFieldEnumerator:
         self._ffilters.append(_FilterModelFieldQuery(function, **kwargs))
         return self
 
-    def exclude(self, function=None, **kwargs):
-        """Exclude some fiels from the sequence.
+    def exclude(self, function: Optional[FieldFilterFunctionType] = None, **kwargs):
+        """Exclude some fields from the sequence.
         @see ModelFieldEnumerator.filter()
         """
         self._ffilters.append(_ExcludeModelFieldQuery(function, **kwargs))
         return self
 
-    def choices(self, printer=lambda field: str(field.verbose_name)):
+    def choices(self, printer=lambda field: str(field.verbose_name)) -> List[Tuple[str, str]]:
         """@return A list of tuple (field_name, field_verbose_name)."""
         sort_key = collator.sort_key
         sortable_choices = []
@@ -293,7 +308,7 @@ class Order:
     "Represents DB order: ASC or DESC."
     __slots__ = ('asc', )
 
-    def __init__(self, asc=True):
+    def __init__(self, asc: bool = True):
         """Constructor.
 
          @param asc: Boolean. True==ASC / False==DESC .
@@ -304,11 +319,11 @@ class Order:
         return 'ASC' if self.asc else 'DESC'
 
     @property
-    def desc(self):
+    def desc(self) -> bool:
         return not self.asc
 
     @classmethod
-    def from_string(cls, value, required=True):
+    def from_string(cls, value: str, required: bool = True):
         """Build an Order instance from a string.
 
         @param value: String in ('ASC', 'DESC').
@@ -330,13 +345,13 @@ class Order:
         return cls(asc)
 
     @property
-    def prefix(self):
+    def prefix(self) -> str:
         """Get the string prefix to use before field name in some places
         like order_by() methods.
         """
         return '' if self.asc else '-'
 
-    def reverse(self):
+    def reverse(self) -> None:
         "Reverse the order (in-place)."
         self.asc = not self.asc
 
@@ -349,7 +364,7 @@ class OrderedField:
     """Represents a model-field name with an optional order prefix "-"
     (like in <MyModel._meta.ordering> or in <MyModel.objects.order_by()>).
     """
-    def __init__(self, ord_field_str):
+    def __init__(self, ord_field_str: str):
         """Constructor.
 
         @param ord_field_str: String ; something like 'name' or '-creation_date'.

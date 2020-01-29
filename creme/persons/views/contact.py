@@ -18,6 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type
+
+from django.forms.forms import BaseForm
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
@@ -34,7 +37,7 @@ Contact = get_contact_model()
 
 class _ContactBaseCreation(generic.EntityCreation):
     model = Contact
-    form_class = c_forms.ContactForm
+    form_class: Type[BaseForm] = c_forms.ContactForm
     template_name = 'persons/add_contact_form.html'
 
 
@@ -43,7 +46,7 @@ class ContactCreation(_ContactBaseCreation):
 
 
 class RelatedContactCreation(_ContactBaseCreation):
-    form_class = c_forms.RelatedContactForm
+    form_class: Type[BaseForm] = c_forms.RelatedContactForm
     title = _('Create a contact related to «{organisation}»')
     orga_id_url_kwarg = 'orga_id'
     rtype_id_url_kwarg = 'rtype_id'
@@ -117,14 +120,14 @@ class ContactDetail(generic.EntityDetail):
 
 class ContactEdition(generic.EntityEdition):
     model = Contact
-    form_class = c_forms.ContactForm
+    form_class: Type[BaseForm] = c_forms.ContactForm
     template_name = 'persons/edit_contact_form.html'
     pk_url_kwarg = 'contact_id'
 
 
 class ContactNamesEdition(generic.EntityEditionPopup):
     model = Contact
-    form_class = c_forms.ContactNamesForm
+    form_class: Type[c_forms.ContactNamesForm] = c_forms.ContactNamesForm
     pk_url_kwarg = 'contact_id'
 
 

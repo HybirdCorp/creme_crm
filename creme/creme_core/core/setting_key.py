@@ -20,6 +20,7 @@
 
 from json import loads as json_load
 import logging
+from typing import Any, Callable, Dict, Iterator, Type
 
 from django.utils.translation import gettext as _
 
@@ -29,8 +30,8 @@ from ..utils.serializers import json_encode
 logger = logging.getLogger(__name__)
 
 
-# TODO: move to utils ?
-def print_hour(value):
+# TODO: move to utils ? rename hour_to_str() ?
+def print_hour(value) -> str:
     return _('{hour}h').format(hour=value)
 
 
@@ -41,7 +42,7 @@ class _SettingKey:
     HOUR   = 10
     EMAIL  = 20
 
-    _CASTORS = {
+    _CASTORS: Dict[int, Callable[[str], Any]] = {
         STRING: str,
         INT:    int,
         BOOL:   bool_from_str,
@@ -49,12 +50,23 @@ class _SettingKey:
         EMAIL:  str,
     }
 
-    HTML_PRINTERS = {
+    HTML_PRINTERS: Dict[int, Callable[[Any], str]] = {
         BOOL:   bool_as_html,
         HOUR:   print_hour,
     }
 
-    def __init__(self, id, description, app_label, type=STRING, hidden=False, blank=False):
+    id: str
+    app_label: str
+    type: int
+    hidden: bool
+
+    def __init__(self,
+                 id: str,
+                 description: str,
+                 app_label: str,
+                 type: int = STRING,
+                 hidden: bool = False,
+                 blank=False):
         """Constructor.
         @param id: Unique String. Use something like 'my_app-key_name'
         @param description: Used in the configuration GUI ; use a ugettext_lazy() instance ('' is OK if hidden==True)
@@ -80,10 +92,10 @@ class _SettingKey:
                     f'hidden={self.hidden})'
                )
 
-    def cast(self, value_str):
+    def cast(self, value_str: str):
         return self._castor(value_str)
 
-    def value_as_html(self, value):
+    def value_as_html(self, value) -> str:
         printer = self.HTML_PRINTERS.get(self.type)
         if printer is not None:
             value = printer(value)
@@ -105,21 +117,22 @@ class UserSettingKey(_SettingKey):
     }
 
 
+# TODO: would be cool to declare class _SettingKeyRegistry[Type[_SettingKey]] ...
 class _SettingKeyRegistry:
     class RegistrationError(Exception):
         pass
 
-    def __init__(self, key_class=SettingKey):
-        self._skeys = {}
-        self._key_class = key_class
+    def __init__(self, key_class: Type[_SettingKey] = SettingKey):
+        self._skeys: Dict[str, _SettingKey] = {}
+        self._key_class: Type[_SettingKey] = key_class
 
-    def __getitem__(self, key_id):
+    def __getitem__(self, key_id: str) -> _SettingKey:
         return self._skeys[key_id]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[_SettingKey]:
         return iter(self._skeys.values())
 
-    def register(self, *skeys):
+    def register(self, *skeys: _SettingKey) -> None:
         setdefault = self._skeys.setdefault
         key_class = self._key_class
 
@@ -134,7 +147,7 @@ class _SettingKeyRegistry:
                     f"Duplicated setting key's id: {skey.id}"
                 )
 
-    def unregister(self, *skeys):
+    def unregister(self, *skeys: _SettingKey) -> None:
         pop = self._skeys.pop
 
         for skey in skeys:
@@ -193,7 +206,7 @@ class UserSettingValueManager:
     def __delitem__(self, key):
         self.pop(key)
 
-    def as_html(self, key):
+    def as_html(self, key) -> str:
         return key.value_as_html(self[key])
 
     def get(self, key, default=None):

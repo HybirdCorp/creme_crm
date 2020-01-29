@@ -20,10 +20,13 @@
 
 from functools import reduce
 from operator import or_
+from typing import Type, Iterable, Optional, Dict, List
 
-from django.db.models.query import Q
+from django.db.models import Model
+from django.db.models.query import Q, QuerySet
 
 from ..models import SearchConfigItem, FieldsConfig
+from ..models.search import SearchField
 from ..utils.string import smart_split
 
 
@@ -34,14 +37,15 @@ class Searcher:
     which fields to use.
     Hidden fields (see model FieldsConfig) are ignored.
     """
-    def __init__(self, models, user):
+    def __init__(self, models: Iterable[Type[Model]], user):
         """Constructor.
 
         @param models: Iterable of classes inheriting <django.db.models.Model>.
         @param user: Instance of <django.contrib.auth.get_user_model()>.
         """
         self.user = user
-        self._search_map = search_map = {}
+
+        search_map: Dict[Type[Model], List[SearchField]] = {}
         models = [*models]  # Several iterations
         fconfigs = FieldsConfig.objects.get_for_models(models)
 
@@ -56,7 +60,9 @@ class Searcher:
                             if not is_hidden(sfield.name.split('__', 1)[0])
                 ]
 
-    def _build_query(self, words, fields):
+        self._search_map = search_map
+
+    def _build_query(self, words, fields) -> Q:
         """Build a Q with given fields for the given search.
         Each word must be contained in (at least) one field.
 
@@ -84,7 +90,7 @@ class Searcher:
         "View on the models this Searcher use."
         return self._search_map.keys()
 
-    def search(self, model, research):
+    def search(self, model: Type[Model], research: str) -> Optional[QuerySet]:
         """Return a query with the models which fields contain the wanted value.
         @param model: Class inheriting django.db.Model (CremeEntity)
         @param research: Searched string ; it's split in words (see utils.string.smart_split()).

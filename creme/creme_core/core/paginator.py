@@ -24,10 +24,11 @@ from decimal import Decimal
 from functools import lru_cache
 from math import ceil
 import sys
+from typing import Optional, Iterator, Iterable, List
 
 from django.core.exceptions import ValidationError
 from django.core.paginator import InvalidPage
-from django.db.models import Q
+from django.db.models import Q, QuerySet, Model
 
 from creme.creme_core.utils.dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
 from creme.creme_core.utils.db import populate_related
@@ -56,7 +57,16 @@ class FlowPaginator:
             (ie: first in ASC order, last in DESC order).
             Tip: you can use creme.models.manager.LowNullsQuerySet.
     """
-    def __init__(self, queryset, key, per_page, count=sys.maxsize):
+    queryset: QuerySet
+
+    _per_page: int
+    _count: int
+    _key_field_info: FieldInfo
+    _key: str
+    _attr_name: str
+    _reverse_order: bool
+
+    def __init__(self, queryset: QuerySet, key: str, per_page: int, count: int = sys.maxsize):
         """Constructor.
         @param queryset: QuerySet instance. Beware: lines must have always the same order when
                          sub-set queries are performed, or the paginated content won't be consistent.
@@ -76,23 +86,23 @@ class FlowPaginator:
         self.queryset = queryset
         self.per_page = per_page
         self.count = count
-        self._num_pages = None
+        self._num_pages: Optional[int] = None
 
-        self._attr_name = ''
-        self._reverse_order = False
-        self._key_field_info = None
+        self._attr_name: str = ''
+        self._reverse_order: bool = False
+        # self._key_field_info = None
         self.key = key
 
     @property
-    def attr_name(self):
+    def attr_name(self) -> str:
         return self._attr_name
 
     @property
-    def reverse_order(self):
+    def reverse_order(self) -> bool:
         return self._reverse_order
 
     @property
-    def count(self):
+    def count(self) -> int:
         return self._count
 
     @count.setter
@@ -100,11 +110,11 @@ class FlowPaginator:
         self._count = int(value)
 
     @property
-    def key(self):
+    def key(self) -> str:
         return self._key
 
     @key.setter
-    def key(self, value):
+    def key(self, value: str) -> None:
         self._key = value
 
         if value.startswith('-'):
@@ -142,7 +152,7 @@ class FlowPaginator:
 
     # TODO: 'allow_empty_first_page' feature like in django.core.paginator.Paginator
     @property
-    def num_pages(self):
+    def num_pages(self) -> int:
         """
         Returns the total number of pages.
         """
@@ -152,14 +162,14 @@ class FlowPaginator:
         return self._num_pages
 
     @property
-    def per_page(self):
+    def per_page(self) -> int:
         return self._per_page
 
     @per_page.setter
     def per_page(self, value):
         self._per_page = int(value)
 
-    def _check_key_info(self, page_info):
+    def _check_key_info(self, page_info: dict) -> None:
         try:
             info_key = page_info['key']
         except KeyError as e:
@@ -169,7 +179,7 @@ class FlowPaginator:
                 raise InvalidPage('Invalid "key" (different from paginator key).')
 
     @staticmethod
-    def _offset_from_info(page_info):
+    def _offset_from_info(page_info: dict) -> int:
         try:
             offset = int(page_info.get('offset', 0))
         except ValueError as e:
@@ -180,7 +190,7 @@ class FlowPaginator:
 
         return offset
 
-    def _get_qs(self, page_info, reverse):
+    def _get_qs(self, page_info: dict, reverse: bool) -> QuerySet:
         value = page_info['value']
         attr_name = self._attr_name
 
@@ -200,7 +210,7 @@ class FlowPaginator:
 
         return qs
 
-    def get_page(self, page_info=None):
+    def get_page(self, page_info=None) -> 'FlowPage':
         if page_info is not None and not isinstance(page_info, dict):
             page_obj = self.page()
         else:
@@ -213,7 +223,7 @@ class FlowPaginator:
 
         return page_obj
 
-    def page(self, page_info=None):
+    def page(self, page_info: Optional[dict] = None) -> 'FlowPage':
         """Get the wanted page.
         @param page_info: A dictionary returned by the methods
                           info()/next_page_info()/previous_page_info() of a page,
@@ -234,6 +244,9 @@ class FlowPaginator:
         forward = True
         first_page = False
         move_type = page_info.get('type')
+
+        # PyCharm does not understand that it's not a problem to use list methods in local contexts...
+        # entities: Iterable[Model]
 
         if move_type == 'first' or self.count <= per_page:
             entities = [*self.queryset[:per_page + 1]]
@@ -287,7 +300,7 @@ class FlowPaginator:
                         next_item=next_item, first_page=first_page,
                        )
 
-    def pages(self):
+    def pages(self) -> Iterator['FlowPage']:
         page = self.page()
 
         while True:
@@ -303,8 +316,14 @@ class FlowPaginator:
 
 
 class FlowPage(Sequence):
-    def __init__(self, object_list, paginator, forward, key, key_field_info, attr_name,
-                 offset, max_size, next_item, first_page):
+    def __init__(self,
+                 object_list: Iterable[Model],
+                 paginator: FlowPaginator,
+                 forward: bool,
+                 key: str, key_field_info: FieldInfo, attr_name: str,
+                 offset: int, max_size: int,
+                 next_item: Optional[Model],
+                 first_page: bool):
         """Constructor.
         Do not use it directly ; use FlowPaginator.page().
 
@@ -320,7 +339,7 @@ class FlowPage(Sequence):
         @param first_page: Indicates if its the first page (so there is no previous page).
         """
         # QuerySets do not manage negative indexing, so we build a list.
-        self.object_list = [*object_list]
+        self.object_list: List[Model] = [*object_list]
         self.paginator = paginator
         self._key = key
         self._key_field_info = key_field_info
@@ -337,21 +356,21 @@ class FlowPage(Sequence):
     def __len__(self):
         return len(self.object_list)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> Model:
         return self.object_list[index]
 
     # NB: 'maxsize=None' => avoid locking (will only be used with the same value)
     @lru_cache(maxsize=None)
-    def _get_duplicates_count(self, value):
+    def _get_duplicates_count(self, value) -> int:
         return self.paginator.queryset.filter(**{self._attr_name: value}).count()
 
-    def has_next(self):
+    def has_next(self) -> bool:
         return self._next_item is not None
 
-    def has_previous(self):
+    def has_previous(self) -> bool:
         return not self._first_page
 
-    def has_other_pages(self):
+    def has_other_pages(self) -> bool:
         return self.has_previous() or self.has_next()
 
     @staticmethod
@@ -367,7 +386,7 @@ class FlowPage(Sequence):
 
         return value
 
-    def info(self):
+    def info(self) -> dict:
         """Returns a dictionary which can be given to FlowPaginator.page() to get this page again.
         This dictionary can be natively serialized to JSON.
 
@@ -411,7 +430,7 @@ class FlowPage(Sequence):
                                 value=self._key_field_info.value_from(value_item),
                                )
 
-    def _build_info(self, move_type, value, offset):
+    def _build_info(self, move_type: str, value, offset) -> dict:
         info = {'type': move_type, 'key': self._key, 'value': self._serialize_value(value)}
 
         if offset:
@@ -419,10 +438,10 @@ class FlowPage(Sequence):
 
         return info
 
-    def _compute_offset(self, value, objects):
+    def _compute_offset(self, value, objects) -> int:
         """Count the number of key duplicates.
-        @param value Value of the key for the reference object.
-        @param objects Iterable ; instances to evaluate.
+        @param value: Value of the key for the reference object.
+        @param objects: Iterable ; instances to evaluate.
         """
         offset = 0
         value_from = self._key_field_info.value_from
@@ -435,7 +454,7 @@ class FlowPage(Sequence):
 
         return offset
 
-    def next_page_info(self):
+    def next_page_info(self) -> Optional[dict]:
         """Returns a dictionary which can be given to FlowPaginator.page() to get the next page.
 
         @see info()
@@ -462,7 +481,9 @@ class FlowPage(Sequence):
 
             return self._build_info(_FORWARD, value, offset)
 
-    def previous_page_info(self):
+        return None
+
+    def previous_page_info(self) -> Optional[dict]:
         """Returns a dictionary which can be given to FlowPaginator.page() to get the previous page.
 
         @see info()
@@ -487,3 +508,5 @@ class FlowPage(Sequence):
                     offset += self._offset + 1
 
             return self._build_info(_BACKWARD, value, offset)
+
+        return None

@@ -20,6 +20,7 @@
 
 from collections import defaultdict
 import logging
+from typing import Type, Union, Optional, Iterable, Iterator, List, Tuple, DefaultDict
 import warnings
 
 from django.contrib.contenttypes.models import ContentType
@@ -33,6 +34,7 @@ from ..utils.meta import FieldInfo, ModelFieldEnumerator
 
 from .auth import UserRole
 from .base import CremeModel
+from .entity import CremeEntity
 from .fields import EntityCTypeForeignKey, DatePeriodField
 
 logger = logging.getLogger(__name__)
@@ -42,7 +44,7 @@ logger = logging.getLogger(__name__)
 class SearchField:
     __slots__ = ('__name', '__verbose_name')
 
-    def __init__(self, field_name, field_verbose_name): 
+    def __init__(self, field_name: str, field_verbose_name: str):
         self.__name = field_name
         self.__verbose_name = field_verbose_name
 
@@ -50,16 +52,20 @@ class SearchField:
         return self.__verbose_name
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.__name
 
     @property
-    def verbose_name(self):
+    def verbose_name(self) -> str:
         return self.__verbose_name
 
 
 class SearchConfigItemManager(models.Manager):
-    def create_if_needed(self, model, fields, role=None, disabled=False):
+    def create_if_needed(self,
+                         model: Type[CremeEntity],
+                         fields: Iterable[str],
+                         role: Union[UserRole, str, None] = None,
+                         disabled: bool = False) -> 'SearchConfigItem':
         """Create a config item & its fields if one does not already exists.
         SearchConfigItem.create_if_needed(SomeDjangoModel, ['YourEntity_field1', 'YourEntity_field2', ..])
         @param fields: Sequence of strings representing field names.
@@ -87,7 +93,7 @@ class SearchConfigItemManager(models.Manager):
 
         return sci
 
-    def iter_for_models(self, models, user):
+    def iter_for_models(self, models: Iterable[Type[CremeEntity]], user) -> Iterator['SearchConfigItem']:
         "Get the SearchConfigItem instances corresponding to the given models (generator)."
         get_ct = ContentType.objects.get_for_model
         ctypes = [get_ct(model) for model in models]
@@ -112,7 +118,7 @@ class SearchConfigItemManager(models.Manager):
 #
 #        for ctype in ctypes:
 #            yield sc_items.get(ctype) or SearchConfigItem(content_type=ctype)
-        sc_items_per_ctid = defaultdict(list)
+        sc_items_per_ctid: DefaultDict[int, list] = defaultdict(list)
         for sci in self.filter(content_type__in=ctypes).filter(role_query):
             sc_items_per_ctid[sci.content_type_id].append(sci)
 
@@ -143,8 +149,10 @@ class SearchConfigItem(CremeModel):
     creation_label = _('Create a search configuration')
     save_label     = _('Save the configuration')
 
-    _searchfields = None
-    EXCLUDED_FIELDS_TYPES = [
+    _searchfields: Optional[Tuple[SearchField, ...]] = None
+    _all_fields: bool
+
+    EXCLUDED_FIELDS_TYPES: List[Type[models.Field]] = [
         models.DateTimeField, models.DateField,
         models.FileField, models.ImageField,
         models.BooleanField, models.NullBooleanField,
@@ -174,26 +182,29 @@ class SearchConfigItem(CremeModel):
         )
 
     @property
-    def all_fields(self):
+    def all_fields(self) -> bool:
         "@return True means that all fields are used."
         __ = self.searchfields  # Computes self._all_fields
         return self._all_fields
 
     @property
-    def is_default(self):
+    def is_default(self) -> bool:
         "Is default configuration ?"
         return self.role_id is None and not self.superuser
 
     @classmethod
-    def _get_modelfields_choices(cls, model):
+    def _get_modelfields_choices(cls, model: Type[CremeEntity]) -> List[Tuple[str, str]]:
         excluded = tuple(cls.EXCLUDED_FIELDS_TYPES)
         return ModelFieldEnumerator(model, deep=1) \
                 .filter(viewable=True) \
                 .exclude(lambda f, depth: isinstance(f, excluded) or f.choices) \
                 .choices()
 
-    def _build_searchfields(self, model, fields, save=True):
-        sfields = []
+    def _build_searchfields(self,
+                            model: Type[CremeEntity],
+                            fields: Iterable[str],
+                            save: bool = True) -> None:
+        sfields: List[SearchField] = []
         old_field_names = self.field_names
 
         for field_name in fields:
@@ -203,7 +214,9 @@ class SearchConfigItem(CremeModel):
                 logger.warning('%s => SearchField removed', e)
             else:
                 sfields.append(
-                    SearchField(field_name=field_name, field_verbose_name=field_info.verbose_name)
+                    SearchField(field_name=field_name,
+                                field_verbose_name=field_info.verbose_name,
+                               )
                 )
 
         self.field_names = ','.join(sf.name for sf in sfields) or None
@@ -224,7 +237,7 @@ class SearchConfigItem(CremeModel):
             self.save()
 
     @property
-    def searchfields(self):
+    def searchfields(self) -> Tuple[SearchField, ...]:
         if self._searchfields is None:
             names = self.field_names
             self._build_searchfields(self.content_type.model_class(), names.split(',') if names else ())
@@ -232,11 +245,11 @@ class SearchConfigItem(CremeModel):
         return self._searchfields
 
     @searchfields.setter
-    def searchfields(self, fields):
-        "@param fields: Sequence of strings representing field names"
+    def searchfields(self, fields: Iterable[str]) -> None:
+        "@param fields: Iterable of strings representing field names."
         self._build_searchfields(self.content_type.model_class(), fields, save=False)
 
-    def get_modelfields_choices(self):
+    def get_modelfields_choices(self) -> List[Tuple[str, str]]:
         """Return a list of tuples (useful for Select.choices) representing
         Fields that can be chosen by the user.
         """

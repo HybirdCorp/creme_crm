@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from collections import defaultdict, OrderedDict
+from typing import Dict, Type
 import uuid
 
 from django.core.validators import EMPTY_VALUES
@@ -383,7 +384,7 @@ class CustomFieldMultiEnum(CustomFieldValue):
         self.value.set(value)
 
 
-_TABLES = OrderedDict([
+_TABLES: Dict[int, Type[CustomFieldValue]] = OrderedDict([
     (CustomField.INT,        CustomFieldInteger),
     (CustomField.FLOAT,      CustomFieldFloat),
     (CustomField.BOOL,       CustomFieldBoolean),

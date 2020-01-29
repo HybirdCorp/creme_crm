@@ -10,7 +10,7 @@
 #    library.
 #
 #    Copyright: (c) 2010 by the Werkzeug Team
-#                   2018 Hybird
+#                   2018-2020 Hybird
 #    License: BSD
 #    Website: http://werkzeug.pocoo.org/
 
@@ -25,7 +25,7 @@ _windows_device_files = ('CON', 'AUX', 'COM1', 'COM2', 'COM3', 'COM4', 'LPT1',
 _filename_ascii_strip_re = re.compile(r'[^A-Za-z0-9_.-]')
 
 
-def secure_filename(filename):
+def secure_filename(filename: str) -> str:
     """Pass it a filename and it will return a secure version of it.
     This filename can then safely be stored on a regular file system and passed
     to :func:`os.path.join`.

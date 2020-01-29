@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,25 +22,26 @@ from enum import Enum
 from functools import partial
 from json import loads as json_load, JSONDecodeError
 import logging
+from typing import Optional, Type, List, Tuple
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
-from django.db.models.query_utils import Q
+from django.db.models import Q, QuerySet
 from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _, gettext
 from django.views.generic.list import ListView
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core import sorter
-from creme.creme_core.core.entity_cell import EntityCellActions
+from creme.creme_core.core.entity_cell import EntityCell, EntityCellActions
 from creme.creme_core.core.paginator import FlowPaginator
 from creme.creme_core.forms.listview import ListViewSearchForm
 from creme.creme_core.gui import listview as lv_gui
-from creme.creme_core.gui.actions import actions_registry
+from creme.creme_core.gui.actions import actions_registry, ActionsRegistry
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.models.entity_filter import EntityFilterList
-from creme.creme_core.models.header_filter import HeaderFilterList
+from creme.creme_core.models.entity_filter import EntityFilter, EntityFilterList
+from creme.creme_core.models.header_filter import HeaderFilter, HeaderFilterList
 from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404
 from creme.creme_core.utils.meta import Order
 from creme.creme_core.utils.queries import QSerializer
@@ -86,37 +87,37 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
     title = _('List of {models}')
 
-    mode = None
-    default_selection_mode = SelectionMode.MULTIPLE
+    mode: Optional[SelectionMode] = None
+    default_selection_mode: SelectionMode = SelectionMode.MULTIPLE
 
     # GET/POST parameters
-    header_filter_id_arg = 'hfilter'
-    entity_filter_id_arg = 'filter'
-    selection_arg = 'selection'
-    page_arg = 'page'
-    page_size_arg = 'rows'
-    sort_cellkey_arg = 'sort_key'
-    sort_order_arg = 'sort_order'
-    requested_q_arg = 'q_filter'
-    search_arg = 'search'
-    transient_arg = 'transient'
+    header_filter_id_arg: str = 'hfilter'
+    entity_filter_id_arg: str = 'filter'
+    selection_arg: str = 'selection'
+    page_arg: str = 'page'
+    page_size_arg: str = 'rows'
+    sort_cellkey_arg: str = 'sort_key'
+    sort_order_arg: str = 'sort_order'
+    requested_q_arg: str = 'q_filter'
+    search_arg: str = 'search'
+    transient_arg: str = 'transient'
 
-    is_popup_view = False
-    actions_registry = actions_registry
+    is_popup_view: bool = False
+    actions_registry: ActionsRegistry = actions_registry
 
-    state_class = lv_gui.ListViewState
+    state_class: Type[lv_gui.ListViewState] = lv_gui.ListViewState
 
-    cell_sorter_registry = sorter.cell_sorter_registry
-    query_sorter_class   = sorter.QuerySorter
+    cell_sorter_registry: sorter.CellSorterRegistry = sorter.cell_sorter_registry
+    query_sorter_class: Type[sorter.QuerySorter] = sorter.QuerySorter
 
-    search_field_registry = lv_gui.search_field_registry
-    search_form_class     = ListViewSearchForm
+    search_field_registry: lv_gui.ListViewSearchFieldRegistry = lv_gui.search_field_registry
+    search_form_class: Type[ListViewSearchForm] = ListViewSearchForm
 
-    default_headerfilter_id = None
-    default_entityfilter_id = None
+    default_headerfilter_id: Optional[str] = None
+    default_entityfilter_id: Optional[str] = None
 
     # NB: see get_buttons()
-    button_classes = [
+    button_classes: List[Type[lv_gui.ListViewButton]] = [
         lv_gui.CreationButton,
         lv_gui.MassExportButton,
         lv_gui.MassExportHeaderButton,
@@ -234,16 +235,19 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
             def get_success_url(self):
                 return self.request.path
 
-        return EmergencyHeaderFilterCreation.as_view()(request, ct_id=ContentType.objects.get_for_model(model).id)
+        return EmergencyHeaderFilterCreation.as_view()(
+            request,
+            ct_id=ContentType.objects.get_for_model(model).id,
+        )
 
-    def get_actions_registry(self):
+    def get_actions_registry(self) -> ActionsRegistry:
         """ Get the registry of UIActions.
 
         @return: Instance of <creme_core.gui.actions.ActionsRegistry>.
         """
         return self.actions_registry
 
-    def get_cells(self, hfilter):
+    def get_cells(self, hfilter: HeaderFilter) -> List[EntityCell]:
         cells = hfilter.cells
 
         if self.get_show_actions():
@@ -286,26 +290,26 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         return context
 
-    def get_buttons(self):
+    def get_buttons(self) -> lv_gui.ListViewButtonList:
         return lv_gui.ListViewButtonList(self.button_classes)
 
-    def get_entity_filter(self, entity_filters):
+    def get_entity_filter(self, entity_filters: EntityFilterList) -> EntityFilter:
         return self.state.set_entityfilter(
             entity_filters,
             filter_id=self.arguments.get(self.entity_filter_id_arg),
             default_id=self.default_entityfilter_id,
         )
 
-    def get_entity_filters(self):
+    def get_entity_filters(self) -> EntityFilterList:
         return EntityFilterList(
             content_type=ContentType.objects.get_for_model(self.model),  # TODO: cache ? argument ? method ? both ?
             user=self.request.user,
         )
 
-    def get_internal_q(self):
+    def get_internal_q(self) -> Q:
         return self.internal_q
 
-    def get_requested_q(self):
+    def get_requested_q(self) -> Q:
         arg_name = self.requested_q_arg
         json_q_filter = self.arguments.get(arg_name)
 
@@ -322,41 +326,42 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         return Q()
 
-    def get_fast_mode(self):
+    def get_fast_mode(self) -> bool:
         return self.count >= settings.FAST_QUERY_MODE_THRESHOLD
 
-    def get_header_filter(self, header_filters):
+    def get_header_filter(self, header_filters: HeaderFilterList) -> HeaderFilter:
         return self.state.set_headerfilter(
             header_filters,
-            id=self.arguments.get(self.header_filter_id_arg, -1),
+            # id=self.arguments.get(self.header_filter_id_arg, -1),
+            id=self.arguments.get(self.header_filter_id_arg, ''),
             default_id=self.default_headerfilter_id,
         )
 
-    def get_header_filters(self):
+    def get_header_filters(self) -> HeaderFilterList:
         return HeaderFilterList(
             content_type=ContentType.objects.get_for_model(self.model),  # TODO: cache ? argument ? method ? both ?
             user=self.request.user,
         )
 
-    def get_mode(self):
+    def get_mode(self) -> SelectionMode:
         """ @return: Value in (SelectionMode.NONE, SelectionMode.SINGLE, SelectionMode.MULTIPLE)."""
         func = get_from_POST_or_404 if self.request.method == 'POST' else get_from_GET_or_404
         return func(self.arguments, key=self.selection_arg,
                     cast=SelectionMode, default=self.default_selection_mode,
                    )
 
-    def get_cell_sorter_registry(self):
+    def get_cell_sorter_registry(self) -> sorter.CellSorterRegistry:
         return self.cell_sorter_registry
 
-    def get_query_sorter_class(self):
+    def get_query_sorter_class(self) -> Type[sorter.QuerySorter]:
         return self.query_sorter_class
 
-    def get_query_sorter(self):
+    def get_query_sorter(self) -> sorter.QuerySorter:
         cls = self.get_query_sorter_class()
 
         return cls(self.get_cell_sorter_registry())
 
-    def get_ordering(self):
+    def get_ordering(self) -> Tuple[str, ...]:
         state = self.state
         get = self.arguments.get
         sort_info = self.get_query_sorter()\
@@ -377,7 +382,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         return sort_info.field_names
 
-    def get_paginate_by(self, queryset):
+    def get_paginate_by(self, queryset) -> int:
         PAGE_SIZES = settings.PAGE_SIZES
         state = self.state
 
@@ -413,7 +418,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         # assert self.queryset is not None TODO ?
         return self.queryset
 
-    def get_unordered_queryset_n_count(self):
+    def get_unordered_queryset_n_count(self) -> Tuple[QuerySet, int]:
         # Cannot use this because it use get_ordering() too early
         # qs = super().get_queryset().filter(is_deleted=False)
         qs = self.model._default_manager.filter(is_deleted=False)
@@ -485,10 +490,10 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         return qs, count
 
-    def get_search_field_registry(self):
+    def get_search_field_registry(self) -> lv_gui.ListViewSearchFieldRegistry:
         return self.search_field_registry
 
-    def get_search_form(self):
+    def get_search_form(self) -> ListViewSearchForm:
         arguments = self.arguments
         state = self.state
 
@@ -517,19 +522,19 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         return form
 
-    def get_search_form_class(self):
+    def get_search_form_class(self) -> Type[ListViewSearchForm]:
         return self.search_form_class
 
-    def get_show_actions(self):
+    def get_show_actions(self) -> bool:
         return not self.is_popup_view
 
-    def get_state_class(self):
+    def get_state_class(self) -> Type[lv_gui.ListViewState]:
         return self.state_class
 
-    def get_state_id(self):
+    def get_state_id(self) -> str:
         return self.request.path
 
-    def get_state(self):
+    def get_state(self) -> lv_gui.ListViewState:
         return self.get_state_class()\
                    .get_or_create_state(self.request, url=self.get_state_id())  # TODO: rename "url" => "id" ?
 
@@ -542,7 +547,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         else:
             return self.template_name
 
-    def get_title_format_data(self):
+    def get_title_format_data(self) -> dict:
         data = super().get_title_format_data()
         data['models'] = self.model._meta.verbose_name_plural
 

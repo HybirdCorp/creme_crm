@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from typing import Tuple
+
 from django.conf import settings
+
+__all__: Tuple[str, ...]
 
 if not settings.TESTS_ON:
     __all__ = ()

@@ -267,7 +267,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             "{% brick_action 'add' label='Add something' icon='delete' help_text='This action adds something' icon_size='small' %}",
             '''<a href="" title="{help_text}" class="brick-action action-type-add  " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{help_text}" alt="{help_text}" width="{icon_size}px"/>
-            </a>'''.format(label='Add something',
+            </a>'''.format( # label='Add something',
                            help_text='This action adds something',
                            icon_url=self._get_icon('delete', 'small').url,
                            icon_size=get_icon_size_px(get_current_theme(), 'small'),

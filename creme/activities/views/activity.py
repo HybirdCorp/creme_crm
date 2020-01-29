@@ -20,8 +20,10 @@
 
 from datetime import datetime
 from functools import partial
+from typing import Type
 
 from django.db.models import Q
+from django.forms.forms import BaseForm
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
@@ -55,7 +57,7 @@ _TYPES_MAP = {
 
 class ActivityCreation(generic.EntityCreation):
     model = Activity
-    form_class = act_forms.ActivityCreateForm
+    form_class: Type[BaseForm] = act_forms.ActivityCreateForm
     template_name = 'activities/add_activity_form.html'
     type_name_url_kwarg = 'act_type'
     form_template_name = 'activities/frags/activity_form_content.html'

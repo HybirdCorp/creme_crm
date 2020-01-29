@@ -19,6 +19,7 @@
 ################################################################################
 
 from collections import OrderedDict
+from typing import Tuple
 import warnings
 
 from django import forms
@@ -385,7 +386,7 @@ class UserRoleDeletionForm(CremeModelForm):
 class _UserRoleWizardFormStep(CremeModelForm):
     class Meta:
         model = UserRole
-        fields = ()
+        fields: Tuple[str, ...] = ()
 
     @staticmethod
     def app_choices(apps):

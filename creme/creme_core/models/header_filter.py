@@ -21,16 +21,23 @@
 from collections import defaultdict
 from json import loads as json_load
 import logging
+from typing import Optional, Union, Type, Iterable, List, Tuple, DefaultDict
 import warnings
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models.query_utils import Q
+from django.db.models import Q, QuerySet
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
+from django.utils.translation import (
+    gettext_lazy as _,
+    gettext,
+    pgettext_lazy,
+)
 
+from ..core.entity_cell import EntityCell
 from ..utils.serializers import json_encode
 
-from .fields import CremeUserForeignKey, CTypeForeignKey
+from . import fields as core_fields, CremeEntity
 from .fields_config import FieldsConfig
 
 logger = logging.getLogger(__name__)
@@ -40,19 +47,19 @@ class HeaderFilterList(list):
     """Contains all the HeaderFilter objects corresponding to a CremeEntity's ContentType.
     Indeed, it's a cache.
     """
-    def __init__(self, content_type, user):
+    def __init__(self, content_type: ContentType, user):
         # super().__init__(HeaderFilter.get_for_user(user, content_type))
         super().__init__(
             HeaderFilter.objects.filter_by_user(user)
                                 .filter(entity_type=content_type)
         )
-        self._selected = None
+        self._selected: Optional['HeaderFilter'] = None
 
     @property
-    def selected(self):
+    def selected(self) -> Optional['HeaderFilter']:
         return self._selected
 
-    def select_by_id(self, *ids):
+    def select_by_id(self, *ids: str) -> Optional['HeaderFilter']:
         """Try several HeaderFilter ids"""
         # Linear search but with few items after all...
         for hf_id in ids:
@@ -70,7 +77,7 @@ class HeaderFilterList(list):
 
 
 class HeaderFilterManager(models.Manager):
-    def filter_by_user(self, user):
+    def filter_by_user(self, user) -> QuerySet:
         if user.is_team:
             raise ValueError(
                 f'HeaderFilterManager.filter_by_user(): '
@@ -84,8 +91,14 @@ class HeaderFilterManager(models.Manager):
                          Q(is_private=True, user__in=[user, *user.teams]),
                         )
 
-    def create_if_needed(self, pk, name, model,
-                         is_custom=False, user=None, is_private=False, cells_desc=()):
+    def create_if_needed(self,
+                         pk: str,
+                         name: str,
+                         model: Type[CremeEntity],
+                         is_custom: bool = False,
+                         user=None,
+                         is_private: bool = False,
+                         cells_desc: Iterable[Union[EntityCell, Tuple[Type[EntityCell], dict]]] = ()) -> 'HeaderFilter':
         """Creation helper ; useful for populate.py scripts.
         @param cells_desc: List of objects where each one can other:
             - an instance of EntityCell (one of its child class of course).
@@ -93,8 +106,6 @@ class HeaderFilterManager(models.Manager):
               where 'class' is child class of EntityCell, & 'args' is a dict
               containing parameters for the build() method of the previous class.
         """
-        from ..core.entity_cell import EntityCell
-
         if user and user.is_staff:
             # Staff users cannot be owner in order to stay 'invisible'.
             raise ValueError('HeaderFilter.create(): the owner cannot be a staff user.')
@@ -141,8 +152,8 @@ class HeaderFilter(models.Model):  # CremeModel ???
     """
     id          = models.CharField(primary_key=True, max_length=100, editable=False)
     name        = models.CharField(_('Name of the view'), max_length=100)
-    user        = CremeUserForeignKey(verbose_name=_('Owner user'), blank=True, null=True)
-    entity_type = CTypeForeignKey(editable=False)
+    user        = core_fields.CremeUserForeignKey(verbose_name=_('Owner user'), blank=True, null=True)
+    entity_type = core_fields.CTypeForeignKey(editable=False)
 
     # 'False' means: cannot be deleted (to be sure that a ContentType
     #  has always at least one existing HeaderFilter)
@@ -173,14 +184,14 @@ class HeaderFilter(models.Model):  # CremeModel ???
     def __str__(self):
         return self.name
 
-    def can_delete(self, user):
+    def can_delete(self, user) -> Tuple[bool, str]:
         if not self.is_custom:
-            return (False, gettext("This view can't be deleted"))
+            return False, gettext("This view can't be deleted")
 
         return self.can_edit(user)
 
     # TODO: factorise with EntityFilter.can_edit ???
-    def can_edit(self, user):
+    def can_edit(self, user) -> Tuple[bool, str]:
         if not self.user_id:  # All users allowed
             return True, 'OK'
 
@@ -201,7 +212,7 @@ class HeaderFilter(models.Model):  # CremeModel ???
 
         return False, gettext('You are not allowed to edit/delete this view')
 
-    def can_view(self, user, content_type=None):
+    def can_view(self, user, content_type: Optional[ContentType] = None) -> Tuple[bool, str]:
         if content_type and content_type != self.entity_type:
             return False, 'Invalid entity type'
 
@@ -226,11 +237,11 @@ class HeaderFilter(models.Model):  # CremeModel ???
             is_private=is_private, cells_desc=cells_desc,
         )
 
-    def _dump_cells(self, cells):
+    def _dump_cells(self, cells: Iterable[EntityCell]):
         self.json_cells = json_encode([cell.to_dict() for cell in cells])
 
     @property
-    def cells(self):
+    def cells(self) -> List[EntityCell]:
         cells = self._cells
 
         if cells is None:
@@ -251,12 +262,12 @@ class HeaderFilter(models.Model):  # CremeModel ???
         return cells
 
     @cells.setter
-    def cells(self, cells):
+    def cells(self, cells: Iterable[EntityCell]) -> None:
         self._cells = cells = [cell for cell in cells if cell]
         self._dump_cells(cells)
 
     @property
-    def filtered_cells(self):
+    def filtered_cells(self) -> List[EntityCell]:
         """List of EntityCell instances, but it excluded the ones which are
         related to fields hidden with FieldsConfig.
         """
@@ -285,12 +296,14 @@ class HeaderFilter(models.Model):  # CremeModel ???
                         )
 
     # TODO: dispatch this job in Cells classes
-    def populate_entities(self, entities, user):
+    # TODO: way to mean QuerySet[CremeEntity] ??
+    def populate_entities(self, entities: QuerySet, user) -> None:
         """Fill caches of CremeEntity objects, related to the columns that will
         be displayed with this HeaderFilter.
         @param entities: QuerySet on CremeEntity (or subclass).
+        @param user: Instance of get_user_model().
         """
-        cell_groups = defaultdict(list)
+        cell_groups: DefaultDict[Type[EntityCell], List[EntityCell]] = defaultdict(list)
 
         for cell in self.cells:
             cell_groups[cell.__class__].append(cell)

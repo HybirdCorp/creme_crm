@@ -19,8 +19,10 @@
 ################################################################################
 
 import logging
+from typing import Type
 
 from django.db.transaction import atomic
+from django.forms.forms import BaseForm
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
@@ -141,7 +143,7 @@ class ReportLinking(generic.CremeModelEditionPopup):
 
 class FieldsEdition(generic.EntityEditionPopup):
     model = Report
-    form_class = report_forms.ReportFieldsForm
+    form_class: Type[BaseForm] = report_forms.ReportFieldsForm
     pk_url_kwarg = 'report_id'
     title = _('Edit columns of «{object}»')
 

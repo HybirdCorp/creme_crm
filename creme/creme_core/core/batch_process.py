@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,20 +20,23 @@
 
 from collections import OrderedDict
 from itertools import chain
+from typing import Any, Type, Optional, Callable
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _, gettext
+
+from creme.creme_core.models import CremeEntity
 
 
 class CastError(Exception):
     pass
 
 
-def cast_2_str(value):
+def cast_2_str(value) -> str:
     return str(value)
 
 
-def cast_2_positive_int(value):
+def cast_2_positive_int(value) -> int:
     try:
         value = int(value)
     except (ValueError, TypeError) as e:
@@ -48,12 +51,16 @@ def cast_2_positive_int(value):
 class BatchOperator:
     __slots__ = ('id', '_name', '_function', '_cast_function', '_need_arg')
 
-    def __init__(self, id_, name, function, cast_function=cast_2_str):
+    def __init__(self,
+                 id_: str,
+                 name: str,
+                 function: Callable,
+                 cast_function: Callable[[Any], Any] = cast_2_str):
         self.id = id_
         self._name = name
         self._function = function
         self._cast_function = cast_function
-        self._need_arg = (function.__code__.co_argcount > 1)
+        self._need_arg: bool = (function.__code__.co_argcount > 1)
 
     def __str__(self):
         return str(self._name)
@@ -68,7 +75,7 @@ class BatchOperator:
         return self._cast_function(value)  # Can raise CastError
 
     @property
-    def need_arg(self):
+    def need_arg(self) -> bool:
         return self._need_arg
 
 
@@ -77,43 +84,47 @@ class BatchOperatorManager:
     _CAT_INT = 'int'
 
     _OPERATOR_MAP = {
-            # TODO: loop & factorise
-            _CAT_STR: OrderedDict([
-                       ('upper',     BatchOperator('upper',     _('To upper case'),                   lambda x: x.upper())),
-                       ('lower',     BatchOperator('lower',     _('To lower case'),                   lambda x: x.lower())),
-                       ('title',     BatchOperator('title',     _('Initial to upper case'),           lambda x: x.title())),
-                       ('prefix',    BatchOperator('prefix',    _('Prefix'),                          (lambda x, prefix: prefix + x))),
-                       ('suffix',    BatchOperator('suffix',    _('Suffix'),                          (lambda x, suffix: x + suffix))),
-                       ('rm_substr', BatchOperator('rm_substr', _('Remove a sub-string'),             (lambda x, substr: x.replace(substr, '')))),
-                       ('rm_start',  BatchOperator('rm_start',  _('Remove the start (N characters)'), (lambda x, size: x[size:]),  cast_function=cast_2_positive_int)),
-                       ('rm_end',    BatchOperator('rm_end',    _('Remove the end (N characters)'),   (lambda x, size: x[:-size]), cast_function=cast_2_positive_int)),
-                      ]),
-            _CAT_INT: OrderedDict([
-                       ('add_int',   BatchOperator('add_int', _('Add'),      (lambda x, y: x + y),  cast_function=cast_2_positive_int)),
-                       ('sub_int',   BatchOperator('sub_int', _('Subtract'), (lambda x, y: x - y),  cast_function=cast_2_positive_int)),
-                       ('mul_int',   BatchOperator('mul_int', _('Multiply'), (lambda x, y: x * y),  cast_function=cast_2_positive_int)),
-                       ('div_int',   BatchOperator('div_int', _('Divide'),   (lambda x, y: x // y), cast_function=cast_2_positive_int)),
-                      ]),
-        }
+        # TODO: loop & factorise
+        _CAT_STR: OrderedDict([
+            ('upper',     BatchOperator('upper',     _('To upper case'),                   lambda x: x.upper())),
+            ('lower',     BatchOperator('lower',     _('To lower case'),                   lambda x: x.lower())),
+            ('title',     BatchOperator('title',     _('Initial to upper case'),           lambda x: x.title())),
+            ('prefix',    BatchOperator('prefix',    _('Prefix'),                          (lambda x, prefix: prefix + x))),
+            ('suffix',    BatchOperator('suffix',    _('Suffix'),                          (lambda x, suffix: x + suffix))),
+            ('rm_substr', BatchOperator('rm_substr', _('Remove a sub-string'),             (lambda x, substr: x.replace(substr, '')))),
+            ('rm_start',  BatchOperator('rm_start',  _('Remove the start (N characters)'), (lambda x, size: x[size:]),  cast_function=cast_2_positive_int)),
+            ('rm_end',    BatchOperator('rm_end',    _('Remove the end (N characters)'),   (lambda x, size: x[:-size]), cast_function=cast_2_positive_int)),
+        ]),
+        _CAT_INT: OrderedDict([
+            ('add_int',   BatchOperator('add_int', _('Add'),      (lambda x, y: x + y),  cast_function=cast_2_positive_int)),
+            ('sub_int',   BatchOperator('sub_int', _('Subtract'), (lambda x, y: x - y),  cast_function=cast_2_positive_int)),
+            ('mul_int',   BatchOperator('mul_int', _('Multiply'), (lambda x, y: x * y),  cast_function=cast_2_positive_int)),
+            ('div_int',   BatchOperator('div_int', _('Divide'),   (lambda x, y: x // y), cast_function=cast_2_positive_int)),
+        ]),
+    }
 
     _OPERATOR_FIELD_MATRIX = {
-            models.CharField:       _CAT_STR,
-            models.TextField:       _CAT_STR,
-            models.IntegerField:    _CAT_INT,
-        }
+        models.CharField:       _CAT_STR,
+        models.TextField:       _CAT_STR,
+        models.IntegerField:    _CAT_INT,
+    }
 
-    def _get_category(self, model_field_type):
+    def _get_category(self, model_field_type) -> Optional[str]:
         for field_cls, cat in self._OPERATOR_FIELD_MATRIX.items():
             if issubclass(model_field_type, field_cls):
                 return cat
 
-    def get(self, model_field_type, operator_name):
+        return None
+
+    def get(self, model_field_type, operator_name: str) -> Optional[BatchOperator]:
         """Get the wanted BatchOperator object.
         @param model_field_type: Class inheriting django.db.model.Field.
         """
         category = self._get_category(model_field_type)
         if category:
             return self._OPERATOR_MAP[category].get(operator_name)
+
+        return None
 
     @property
     def managed_fields(self):
@@ -146,17 +157,19 @@ class BatchAction:
     class ValueError(Exception):
         pass
 
-    def __init__(self, model, field_name, operator_name, value):
+    def __init__(self, model: Type[CremeEntity], field_name: str, operator_name: str, value):
         self._field_name = field_name
         self._model = model
         field = model._meta.get_field(field_name)
-        self._operator = operator = batch_operator_manager.get(field.__class__, operator_name)
+        operator = batch_operator_manager.get(field.__class__, operator_name)
 
         if not operator:
             raise BatchAction.InvalidOperator()
 
         if operator.need_arg and not value:
             raise BatchAction.ValueError(gettext("The operator '{}' needs a value.").format(operator))
+
+        self._operator: BatchOperator = operator
 
         try:
             self._value = operator.cast(value)
@@ -167,7 +180,7 @@ class BatchAction:
                                             )
                                         ) from e
 
-    def __call__(self, entity):
+    def __call__(self, entity: CremeEntity) -> bool:
         """The action's operator is computed with the given entity (on the field indicated by action-field
         and using the action-value), and the entity field's value is updated.
         Something like: entity.foo = function(entity.foo)

@@ -143,17 +143,17 @@ class BricksConfigTestCase(CremeTestCase):
         BrickMypageLocation.objects.all().delete()
         RelationBrickItem.objects.all().delete()
 
-        cls._original_block_registry = gui_bricks.brick_registry
+        cls._original_brick_registry = gui_bricks.brick_registry
 
-        cls.brick_registry = block_registry = deepcopy(gui_bricks.brick_registry)
-        block_registry.register(CompleteBrick1, CompleteBrick2, CompleteBrick3, CompleteBrick4,
+        cls.brick_registry = brick_registry = deepcopy(gui_bricks.brick_registry)
+        brick_registry.register(CompleteBrick1, CompleteBrick2, CompleteBrick3, CompleteBrick4,
                                 HomePortalBrick,
                                 HomeOnlyBrick1,
                                 HomeOnlyBrick2,
                                )
 
-        block_registry.register_4_instance(DetailviewInstanceBrick)
-        block_registry.register_4_instance(HomeInstanceBrick)
+        brick_registry.register_4_instance(DetailviewInstanceBrick)
+        brick_registry.register_4_instance(HomeInstanceBrick)
 
     @classmethod
     def tearDownClass(cls):
@@ -174,7 +174,7 @@ class BricksConfigTestCase(CremeTestCase):
             except Exception:
                 print('CremeBlockTagsTestCase: test-data backup problem with model={}'.format(model))
 
-        gui_bricks.brick_registry = cls._original_block_registry
+        gui_bricks.brick_registry = cls._original_brick_registry
 
     def setUp(self):
         gui_bricks.brick_registry = self.brick_registry = deepcopy(self.brick_registry)

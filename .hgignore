@@ -7,7 +7,6 @@ syntax: glob
 local_settings*.py
 django.wsgi
 *.orig
-.pydev*
 .project*
 .settings*
 
@@ -15,16 +14,24 @@ creme/media/upload/*/*
 creme/media/static/*
 _generated_media_names.py
 
-#netbeans users
+# creme/activesync/SyncEngine/*
+# creme/activesync/backup/*
+
+# NetBeans
 nbproject/*
 .idea/*
-creme/activesync/SyncEngine/*
-creme/activesync/backup/*
 
-#coverage.py
+# PyDev
+.pydev*
+
+# coverage.py
 .coverage
 htmlcov/*
 
+# mypy
+.mypy_cache/*
+
+# HG
 \.orig\..*$
 \.orig$
 \.chg\..*$
@@ -32,5 +39,5 @@ htmlcov/*
 \.conflict\~$
 
 
-syntax: regexp
-^creme/billing/templates/billing/templates/hyinvoice\.tex$
+#syntax: regexp
+#^creme/billing/templates/billing/templates/hyinvoice\.tex$

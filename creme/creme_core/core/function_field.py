@@ -18,25 +18,33 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type, Union, Iterable, Iterator, Optional, List, TYPE_CHECKING
+
+from django.db.models import Model
 from django.utils.formats import number_format
 from django.utils.html import escape, format_html, format_html_join
 
 from ..utils.collections import InheritedDataChain
 
+if TYPE_CHECKING:
+    from ..forms.listview import ListViewSearchField
+    from ..gui.listview.search import AbstractListViewSearchFieldRegistry
+    from .sorter import AbstractCellSorter
+
 
 class FunctionFieldResult:
     __slots__ = ('_data',)
 
-    def __init__(self, str_data):
-        self._data = str_data
+    def __init__(self, str_data: str):
+        self._data: str = str_data
 
     def __str__(self):
         return self.for_html()
 
-    def for_html(self):
+    def for_html(self) -> str:
         return escape(self._data)
 
-    def for_csv(self):
+    def for_csv(self) -> str:
         return self._data
 
 
@@ -47,19 +55,19 @@ class FunctionFieldDecimal(FunctionFieldResult):
         # TODO remove 'use_l10n' when settings.USE_L10N == True
         return number_format(val, use_l10n=True)  # TODO: ?? "if val is not None else ''"
 
-    def for_html(self):
+    def for_html(self) -> str:
         return self._format_decimal()  # TODO: escape() ?
 
-    def for_csv(self):
+    def for_csv(self) -> str:
         return self._format_decimal()
 
 
 class FunctionFieldLink(FunctionFieldResult):
-    def __init__(self, label, url):
+    def __init__(self, label: str, url: str):
         super().__init__(label)
         self._url = url
 
-    def for_html(self):
+    def for_html(self) -> str:
         return format_html('<a href="{}">{}</a>', self._url, self._data)
 
 
@@ -71,22 +79,27 @@ class FunctionField:
     this model : it has a verbose name and can be used by HeaderFilter to build
     a column (like regular fields).
     """
-    name         = ''  # Name of the attr if the related model class
-    verbose_name = ''  # Verbose name (used by HeaderFilter)
-    is_hidden    = False  # See EntityCell.is_hidden
-    result_type  = FunctionFieldResult  # TODO: what about FunctionFieldResultsList([FunctionFieldDecimal(...), ...])
-                                        #         ==> FunctionFieldResultsList or FunctionFieldDecimal ??
+    name: str       = ''  # Name of the attr in the related model class
+    verbose_name    = ''  # Verbose name (used by HeaderFilter)
+    is_hidden: bool = False  # See EntityCell.is_hidden
+    # TODO: what about FunctionFieldResultsList([FunctionFieldDecimal(...), ...])
+    #         ==> FunctionFieldResultsList or FunctionFieldDecimal ??
+    result_type: Type[FunctionFieldResult] = FunctionFieldResult
 
     # Builder for the search-field (used to quick-search in list-views) ; in can be :
     #  - None (no quick-search for this FunctionField) (default value).
     #  - A class of field (should inherit <creme_core.forms.listview.ListViewSearchField>).
     #  - A class of field-registry (should inherit <creme_core.gui.listview.search.AbstractListViewSearchFieldRegistry>).
-    search_field_builder = None
+    search_field_builder: Union[
+        None,
+        Type['ListViewSearchField'],
+        Type['AbstractListViewSearchFieldRegistry'],
+    ] = None
 
     # Class inheriting <creme_core.core.sorter.AbstractCellSorter>. Used to
     # order a QuerySet with the function field as sorting key.
     # <None> means no sorting.
-    sorter_class = None
+    sorter_class: Optional[Type['AbstractCellSorter']] = None
 
     def __call__(self, entity, user):
         """"@return An instance of FunctionField object
@@ -100,10 +113,10 @@ class FunctionField:
 
 
 class FunctionFieldResultsList(FunctionFieldResult):
-    def __init__(self, iterable):
-        self._data = [*iterable]
+    def __init__(self, iterable: Iterable[FunctionFieldResult]):
+        self._data: List[FunctionFieldResult] = [*iterable]  # type: ignore
 
-    def for_html(self):
+    def for_html(self) -> str:
         return format_html('<ul>{}</ul>',
                            format_html_join(
                                '', '<li>{}</li>',
@@ -111,7 +124,7 @@ class FunctionFieldResultsList(FunctionFieldResult):
                            )
                           )
 
-    def for_csv(self):
+    def for_csv(self) -> str:
         return '/'.join(e.for_csv() for e in self._data)
 
 
@@ -130,7 +143,7 @@ class _FunctionFieldRegistry:
     def __init__(self):
         self._func_fields_classes = InheritedDataChain(dict)
 
-    def fields(self, model):
+    def fields(self, model: Type[Model]) -> Iterator[FunctionField]:
         """Generator which yield the instances of all the FunctionFields related to a model.
 
         @param model: A model class.
@@ -147,11 +160,11 @@ class _FunctionFieldRegistry:
 
     # TODO: accept instance too ?
     # TODO: 'default' argument ?
-    def get(self, model, name):
+    def get(self, model: Type[Model], name: str) -> Optional[FunctionField]:
         """Get an instance of FunctionField related to a model, and by its name, if it exists.
         The function field if searched in the parent model too.
 
-        @param model: A model class
+        @param model: A model class.
         @param name: Name (str) of the wanted FunctionField.
         @return: An instance of FunctionField, or <None> if not found.
         """
@@ -161,7 +174,9 @@ class _FunctionFieldRegistry:
             if ff_cls is not None:
                 return ff_cls()
 
-    def register(self, model, *function_field_classes):
+        return None
+
+    def register(self, model: Type[Model], *function_field_classes: Type[FunctionField]):
         """Register some FunctionField classes related to a model.
 
         @param model: A model class.
@@ -179,7 +194,7 @@ class _FunctionFieldRegistry:
                 )
 
     # TODO: accept FunctionField names too ?
-    def unregister(self, model, *function_field_classes):
+    def unregister(self, model: Type[Model], *function_field_classes: Type[FunctionField]):
         """Register some FunctionField classes related to a model.
 
         @param model: A model class.

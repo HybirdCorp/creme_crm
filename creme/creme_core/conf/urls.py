@@ -23,6 +23,8 @@
 # SOFTWARE.
 ################################################################################
 
+from typing import Callable, List, Iterator
+
 
 class Swappable:
     r"""Wrapper for django.conf.urls.url(...) which indicates this path can be
@@ -56,7 +58,7 @@ class Swappable:
         self.check_args = check_args
 
     @property
-    def verbose_args(self):
+    def verbose_args(self) -> str:
         """Returns a string describing the types of the arguments."""
         return '[{}]'.format(', '.join(type(arg).__name__ for arg in self.check_args))
 
@@ -99,7 +101,7 @@ class _PatternSwapManager:
 
         def kept_patterns(self):
             """Iterate on kept (ie not swapped, the condition is False) pattern instances
-              (the ones which are wrapped with Swappable.
+            (the ones which are wrapped with Swappable).
             """
             if not self.func():
                 for swappable in self:
@@ -110,24 +112,29 @@ class _PatternSwapManager:
             if self.func():
                 yield from self
 
+    groups: List[_SwappableGroup]
+
     def __init__(self):
         self.groups = []
 
-    def add_group(self, swapping_func, *patterns, app_name='??'):
+    def add_group(self,
+                  swapping_func: Callable[[], bool],
+                  *patterns: Swappable,
+                  app_name: str = '??') -> _SwappableGroup:
         """Add several Swappable instances which are swapped on the same condition.
 
         @param swapping_func: Callable which takes no argument and return a boolean ;
                               <True> result means all these URL must swapped/ignored.
-        @param patterns: Instance of Swappable(url(..))
+        @param patterns: Instances of <Swappable(url(..))>.
         @param app_name: Name of the app where the file urls.py stands.
-        @return: An instance of _SwappableGroup.
+        @return: An instance of <_SwappableGroup>.
         """
         group = self._SwappableGroup(swapping_func, *patterns, app_name=app_name)
         self.groups.append(group)
 
         return group
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[_SwappableGroup]:
         """Iterate on all groups."""
         return iter(self.groups)
 

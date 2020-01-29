@@ -47,7 +47,7 @@ def import_apps_sub_modules(module_name):
 
 def import_object(objectpath):
     i = objectpath.rfind('.')
-    module, attr = objectpath[:i], objectpath[i+1:]
+    module, attr = objectpath[:i], objectpath[i + 1:]
     try:
         mod = import_module(module)
     except ImportError:

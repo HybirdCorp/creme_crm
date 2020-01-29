@@ -39,8 +39,11 @@ from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import BricksReloading  # build_context, bricks_render_info
 # from creme.creme_core.views.decorators import jsonify
 
-from creme import persons, activities
+from creme import persons
+from creme.persons.views.contact import ContactCreation
+from creme.persons.views.organisation import OrganisationCreation
 
+from creme import activities
 from creme.activities import constants as act_constants
 from creme.activities.models import Calendar
 
@@ -91,11 +94,11 @@ class CTIPersonMixin:
         return initial
 
 
-class CTIContactCreation(CTIPersonMixin, persons.views.contact.ContactCreation):
+class CTIContactCreation(CTIPersonMixin, ContactCreation):
     pass
 
 
-class CTIOrganisationCreation(CTIPersonMixin, persons.views.organisation.OrganisationCreation):
+class CTIOrganisationCreation(CTIPersonMixin, OrganisationCreation):
     pass
 
 

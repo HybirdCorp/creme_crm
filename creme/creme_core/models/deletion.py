@@ -20,12 +20,13 @@
 
 from json import loads as json_load
 import logging
+from typing import List, Optional
 
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext as _
 
-from ..core.deletion import REPLACERS_MAP
+from ..core.deletion import Replacer, ReplacersRegistry, REPLACERS_MAP
 from ..utils.serializers import json_encode
 
 from .base import CremeModel
@@ -83,27 +84,29 @@ class DeletionCommand(CremeModel):
         # verbose_name = 'Deletion command'
         # verbose_name_plural = 'Deletion commands'
 
-    def __init__(self, *args, replacers_registry=None, **kwargs):
+    replacers_registry: ReplacersRegistry
+
+    def __init__(self, *args, replacers_registry: Optional[ReplacersRegistry] = None, **kwargs):
         self.replacers_registry = replacers_registry or REPLACERS_MAP
         super().__init__(*args, **kwargs)
 
     @property
-    def instance_to_delete(self):
+    def instance_to_delete(self) -> models.Model:
         return self.content_type.model_class()._default_manager.get(pk=self.pk_to_delete)
 
     @instance_to_delete.setter
-    def instance_to_delete(self, instance):
+    def instance_to_delete(self, instance: models.Model):
         self.content_type = type(instance)
         self.pk_to_delete = str(instance.pk)
         self.deleted_repr = str(instance)
 
     @property
-    def replacers(self):
+    def replacers(self) -> List[Replacer]:
         "@return List of <creme_core.core.deletion.Replacer> instances."
         return self.replacers_registry.deserialize(json_load(self.json_replacers))
 
     @replacers.setter
-    def replacers(self, values):
+    def replacers(self, values: List[Replacer]):
         "@param: List of <creme_core.core.deletion.Replacer> instances."
         self.json_replacers = json_encode(self.replacers_registry.serialize(values))
 

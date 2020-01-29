@@ -22,6 +22,7 @@ from collections import defaultdict
 from copy import deepcopy
 from functools import partial
 from json import loads as json_load
+from typing import Type, Optional
 import warnings
 
 from django.apps import apps
@@ -142,7 +143,7 @@ class JSONField(fields.CharField):
         'ctyperequired':    _('The content type is required.'),
         'ctypenotallowed':  _('This content type is not allowed.'),
     }
-    value_type = None  # Overload this: type of the value returned by the field.
+    value_type: Optional[Type] = None  # Overload this: type of the value returned by the field.
 
     def __init__(self, *, user=None, **kwargs):
         super().__init__(**kwargs)
@@ -169,13 +170,13 @@ class JSONField(fields.CharField):
 
         return None
 
-    def _return_none_or_raise(self, required, error_key='required'):
+    def _return_none_or_raise(self, required, error_key='required') -> None:
         if required:
             raise ValidationError(self.error_messages[error_key])
 
         return None
 
-    def _return_list_or_raise(self, required, error_key='required'):
+    def _return_list_or_raise(self, required, error_key='required') -> list:
         if required:
             raise ValidationError(self.error_messages[error_key])
 
@@ -362,8 +363,8 @@ class EntityCredsJSONField(JSONField):
 
 
 class GenericEntityField(EntityCredsJSONField):
-    widget = core_widgets.CTEntitySelector
-    value_type = dict
+    widget: Type[widgets.TextInput] = core_widgets.CTEntitySelector
+    value_type: Type = dict
 
     def __init__(self, *, models=(), autocomplete=False, creator=True, user=None, **kwargs):
         super().__init__(**kwargs)
@@ -489,7 +490,7 @@ class GenericEntityField(EntityCredsJSONField):
 # TODO: propose to allow duplicates ???
 class MultiGenericEntityField(GenericEntityField):
     widget = core_widgets.MultiCTEntitySelector
-    value_type = list
+    value_type: Type = list
 
     def __init__(self, *, models=(), autocomplete=False, unique=True, creator=True, user=None, **kwargs):
         super().__init__(models=models, autocomplete=autocomplete,
@@ -582,7 +583,7 @@ class RelationEntityField(EntityCredsJSONField):
         'ctypenotallowed':   _('This content type cause constraint error with the type of relationship.'),
         'nopropertymatch':   _('This entity has no property that matches the constraints of the type of relationship.'),
     }
-    value_type = dict
+    value_type: Type = dict
 
     def __init__(self, *, allowed_rtypes=(REL_SUB_HAS, ), autocomplete=False, **kwargs):
         super().__init__(**kwargs)
@@ -683,8 +684,8 @@ class RelationEntityField(EntityCredsJSONField):
 
 
 class MultiRelationEntityField(RelationEntityField):
-    widget = core_widgets.MultiRelationSelector
-    value_type = list
+    widget: Type[widgets.TextInput] = core_widgets.MultiRelationSelector
+    value_type: Type = list
 
     def _value_to_jsonifiable(self, value):
         return [*map(super()._value_to_jsonifiable, value)]
@@ -819,7 +820,7 @@ class MultiRelationEntityField(RelationEntityField):
 class CreatorEntityField(EntityCredsJSONField):
     widget = core_widgets.EntityCreatorWidget  # The following attributes are set:
                                                # model, q_filter, creation_url, creation_allowed
-    value_type = int
+    value_type: Type = int
 
     def __init__(self, *, model=None, q_filter=None,
                  create_action_url='',
@@ -962,7 +963,7 @@ class CreatorEntityField(EntityCredsJSONField):
 
 class MultiCreatorEntityField(CreatorEntityField):
     widget = core_widgets.MultiEntityCreatorWidget  # See CreatorEntityField.widget comment
-    value_type = list
+    value_type: Type = list
 
     def _value_to_jsonifiable(self, value):
         if not value:
@@ -1097,7 +1098,7 @@ class FilteredEntityTypeField(JSONField):
 
 class OptionalField(fields.MultiValueField):
     sub_field = fields.Field
-    widget = core_widgets.OptionalWidget
+    widget: Type[core_widgets.OptionalWidget] = core_widgets.OptionalWidget
 
     default_error_messages = {
         'subfield_required': _('Enter a value if you check the box.'),
@@ -1161,7 +1162,7 @@ class ListEditionField(fields.Field):
     * modified elements are replaced by the new value.
     """
     widget = core_widgets.ListEditionWidget
-    default_error_messages = {}
+    # default_error_messages = {}
 
     # def __init__(self, content=(), only_delete=False, *args, **kwargs):
     def __init__(self, *, content=(), only_delete=False, **kwargs):

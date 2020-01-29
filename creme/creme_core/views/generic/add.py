@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type
+
 from django.db.transaction import atomic
+from django.forms.forms import BaseForm
 from django.http import HttpResponse
 from django.views.generic import CreateView
 
@@ -53,7 +56,7 @@ class CremeModelCreation(base.CancellableMixin,
     submit_label: <None> (default value) means that <model.save_label> is used.
     """
     model = models.CremeModel  # TO BE OVERRIDDEN
-    form_class = forms.CremeModelForm  # TO BE OVERRIDDEN
+    form_class: Type[BaseForm] = forms.CremeModelForm  # TO BE OVERRIDDEN
     template_name = 'creme_core/generics/blockform/add.html'
     title = '{creation_label}'
     submit_label = None
@@ -107,7 +110,7 @@ class EntityCreation(CremeModelCreation):
     It's based on CremeModelCreation & adds the credentials checking.
     """
     model = models.CremeEntity
-    form_class = forms.CremeEntityForm
+    form_class: Type[forms.CremeEntityForm] = forms.CremeEntityForm
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
@@ -137,7 +140,7 @@ class CremeModelCreationPopup(CremeModelCreation):
 
 class EntityCreationPopup(CremeModelCreationPopup):
     model = models.CremeEntity
-    form_class = forms.CremeEntityForm
+    form_class: Type[forms.CremeEntityForm] = forms.CremeEntityForm
 
     # TODO: factorise
     def check_view_permissions(self, user):

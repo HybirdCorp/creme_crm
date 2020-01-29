@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,9 +22,11 @@ from datetime import datetime
 from decimal import Decimal
 from functools import partial
 import logging
+from typing import Optional, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (
+    Model,
     BooleanField,
     ForeignKey, ManyToManyField,
     Q,
@@ -47,7 +49,7 @@ from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.utils.dates import make_aware_dt, date_2_dict
 from creme.creme_core.utils.meta import is_date_field, FieldInfo
 
-from . import operators, entity_filter_registries, EF_USER
+from . import operators, operands, entity_filter_registries, EF_USER, _EntityFilterRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +67,7 @@ class FilterConditionHandler:
     All child-classes are registered in an instance of
     <creme_core.core.entity_filter._EntityFilterRegistry>.
     """
-    type_id = None
+    type_id: int  # = None
     efilter_registry = entity_filter_registries[EF_USER]
 
     class DataError(Exception):
@@ -74,7 +76,10 @@ class FilterConditionHandler:
     class ValueError(Exception):
         pass
 
-    def __init__(self, model):
+    _model: Type[CremeEntity]
+    _subfilter: Union[EntityFilter, None, bool]
+
+    def __init__(self, model: Type[CremeEntity]):
         """Constructor.
 
         @param model: class inheriting <creme_core.models.CremeEntity>.
@@ -82,7 +87,7 @@ class FilterConditionHandler:
         self._model = model
         self._subfilter = None   # 'None' means not retrieved ; 'False' means invalid filter
 
-    def accept(self, *, entity, user):
+    def accept(self, *, entity: CremeEntity, user) -> bool:
         """Check if a CremeEntity instance is accepted or refused by the handler.
 
         @param entity: Instance of <CremeEntity>.
@@ -94,7 +99,7 @@ class FilterConditionHandler:
         raise NotImplementedError
 
     @property
-    def applicable_on_entity_base(self):
+    def applicable_on_entity_base(self) -> bool:
         """Can this handler be applied on CremeEntity (QuerySet or simple instance)?
         Eg: if the handler reads a model-field specific to a child class, it
             won't be applicable to CremeEntity.
@@ -102,7 +107,7 @@ class FilterConditionHandler:
         return False
 
     @classmethod
-    def build(cls, *, model, name, data):
+    def build(cls, *, model: Type[CremeEntity], name: str, data: Optional[dict]):
         "Get an instance of FilterConditionHandler from serialized data."
         raise NotImplementedError
 
@@ -110,11 +115,11 @@ class FilterConditionHandler:
         "Human-readable string explaining the handler."
         raise NotImplementedError
 
-    def entities_are_distinct(self):
+    def entities_are_distinct(self) -> bool:
         return True
 
     @property
-    def error(self):
+    def error(self) -> Optional[str]:
         """Get error corresponding to invalid data contained in the condition.
         @return: A string if there is an error, or None.
         """
@@ -124,7 +129,7 @@ class FilterConditionHandler:
     def formfield(cls, form_class=None, **kwargs):
         raise NotImplementedError
 
-    def get_q(self, user):
+    def get_q(self, user) -> Q:
         """Get the query which filter the entities with the expected behaviour.
 
         @param user: <django.contrib.auth.get_user_model()> instance ;
@@ -134,11 +139,11 @@ class FilterConditionHandler:
         raise NotImplementedError
 
     @property
-    def model(self):
+    def model(self) -> Type[CremeEntity]:
         return self._model
 
     @classmethod
-    def query_for_related_conditions(cls, instance):
+    def query_for_related_conditions(cls, instance: Model) -> Q:
         """"Get a Q instance to retrieve EntityFilterConditions which are
         related to an instance.
         It's useful to delete useless conditions (their related instance is deleted).
@@ -146,7 +151,7 @@ class FilterConditionHandler:
         return Q()
 
     @classmethod
-    def query_for_parent_conditions(cls, ctype):
+    def query_for_parent_conditions(cls, ctype: ContentType) -> Q:
         """"Get a Q instance to retrieve EntityFilterConditions which have
         potentially sub-filters for a given ContentType.
         It's useful to build EntityFilters tree (to check cycle etc...).
@@ -154,7 +159,7 @@ class FilterConditionHandler:
         return Q()
 
     @property
-    def subfilter(self):
+    def subfilter(self) -> Union[EntityFilter, bool]:
         "@return: An EntityFilter instance or 'False' is there is no valid sub-filter."
         subfilter = self._subfilter
 
@@ -171,7 +176,7 @@ class FilterConditionHandler:
         return subfilter
 
     @property
-    def subfilter_id(self):
+    def subfilter_id(self) -> Optional[str]:
         "@return: An ID of an EntityFilter, or None."
         return None
 
@@ -182,7 +187,7 @@ class SubFilterConditionHandler(FilterConditionHandler):
 
     DESCRIPTION_FORMAT = _('Entities are accepted by the filter «{}»')
 
-    def __init__(self, *, model=None, subfilter):
+    def __init__(self, *, model: Optional[Type[CremeEntity]] = None, subfilter: Union[EntityFilter, str]):
         """Constructor.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>
@@ -214,8 +219,9 @@ class SubFilterConditionHandler(FilterConditionHandler):
         return cls(model=model, subfilter=name)
 
     @classmethod
-    def build_condition(cls, subfilter,
-                        filter_type=EF_USER,
+    def build_condition(cls,
+                        subfilter: EntityFilter,
+                        filter_type: int = EF_USER,
                         condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
 
@@ -267,17 +273,19 @@ class SubFilterConditionHandler(FilterConditionHandler):
 
 
 class OperatorConditionHandlerMixin:
+    efilter_registry: _EntityFilterRegistry
+
     @classmethod
     def _check_operator(cls, operator_id):
         if cls.get_operator(operator_id) is None:
             return f"Operator ID '{operator_id}' is invalid"
 
     @classmethod
-    def get_operand(cls, value, user):
+    def get_operand(cls, value, user) -> Optional[operands.ConditionDynamicOperand]:
         return cls.efilter_registry.get_operand(type_id=value, user=user)
 
     @classmethod
-    def get_operator(cls, operator_id):
+    def get_operator(cls, operator_id: int) -> Optional[operators.ConditionOperator]:
         return cls.efilter_registry.get_operator(operator_id)
 
     @classmethod
@@ -303,16 +311,16 @@ class OperatorConditionHandlerMixin:
 
 
 class BaseRegularFieldConditionHandler(FilterConditionHandler):
-    def __init__(self, *, model, field_name):
+    def __init__(self, *, model, field_name: str):
         super().__init__(model=model)
-        self._field_name = field_name
+        self._field_name: str = field_name
 
     @property
     def applicable_on_entity_base(self):
         return self.field_info[0] in CremeEntity._meta.fields
 
     @property
-    def field_info(self):
+    def field_info(self) -> FieldInfo:
         return FieldInfo(self._model, self._field_name)  # TODO: cache ?
 
 
@@ -325,7 +333,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
 
     def __init__(self, *, model, field_name, operator_id, values):
         super().__init__(model=model, field_name=field_name)
-        self._operator_id = operator_id
+        self._operator_id: int = operator_id
         self._values = values
         self._verbose_values = None  # Cache for values in description()
 
@@ -748,7 +756,7 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
         return True
 
     @property
-    def custom_field(self):
+    def custom_field(self) -> Union[CustomField, bool]:
         cfield = self._custom_field
         if cfield is None:
             self._custom_field = cfield = CustomField.objects.filter(
@@ -1118,7 +1126,7 @@ class BaseRelationConditionHandler(FilterConditionHandler):
         ) if isinstance(instance, RelationType) else Q()
 
     @property
-    def relation_type(self):
+    def relation_type(self) -> Union[RelationType, bool]:
         rtype = self._rtype
         if rtype is None:
             self._rtype = rtype = RelationType.objects.filter(id=self._rtype_id).first() or False
@@ -1240,7 +1248,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         )
 
     @property
-    def content_type(self):
+    def content_type(self) -> Union[ContentType, None, bool]:
         ct_id = self._ct_id
         try:
             return ContentType.objects.get_for_id(ct_id) if ct_id else None
@@ -1270,7 +1278,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         return self.DESCRIPTION_FORMATS[str_key][self._exclude].format(**fmt_kwargs)
 
     @property
-    def entity(self):
+    def entity(self) -> Union[CremeEntity, None, bool]:
         if self._entity_id is None:
             return None
 
@@ -1530,7 +1538,7 @@ class PropertyConditionHandler(FilterConditionHandler):
         return query
 
     @property
-    def property_type(self):
+    def property_type(self) -> Union[CremePropertyType, bool]:
         ptype = self._ptype
         if ptype is None:
             self._ptype = ptype = CremePropertyType.objects.filter(id=self._ptype_id).first() or False

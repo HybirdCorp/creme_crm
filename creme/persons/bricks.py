@@ -20,6 +20,7 @@
 
 from collections import OrderedDict
 from functools import partial
+from typing import List, Sequence, Type, Tuple
 
 from django.apps import apps
 from django.db.models.query_utils import Q, FilteredRelation
@@ -28,7 +29,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.bricks import Brick, SimpleBrick, PaginatedBrick, QuerysetBrick
-from creme.creme_core.models import Relation
+from creme.creme_core.models import Relation, CremeEntity
 from creme.creme_core.utils.db import populate_related
 
 from creme import persons
@@ -104,8 +105,8 @@ else:
 
 
     class Activities4Card:
-        dependencies = []
-        relation_type_deps = []
+        dependencies: List[Type[CremeEntity]] = []
+        relation_type_deps: List[str] = []
 
         @staticmethod
         def get(context, entity):
@@ -137,8 +138,8 @@ if apps.is_installed('creme.opportunities'):
             )
 else:
     class Opportunities4Card:
-        dependencies = []
-        relation_type_deps = []
+        dependencies: List[Type[CremeEntity]] = []
+        relation_type_deps: List[str] = []
 
         @staticmethod
         def get(context, entity):
@@ -169,8 +170,8 @@ if apps.is_installed('creme.commercial'):
             )
 else:
     class CommercialActs4Card:
-        dependencies = []
-        relation_type_deps = []
+        dependencies: List[Type[CremeEntity]] = []
+        relation_type_deps: List[str] = []
 
         @staticmethod
         def get(context, entity):
@@ -327,7 +328,7 @@ def _get_address_field_names():
 class _AddressesBrick(Brick):
     dependencies  = (Address,)
     verbose_name  = 'Addresses'
-    target_ctypes = (Contact, Organisation)
+    target_ctypes: Sequence[Type[CremeEntity]] = (Contact, Organisation)
 
     def get_template_context(self, context, **kwargs):
         person = context['object']
@@ -434,7 +435,7 @@ class ManagedOrganisationsBrick(PaginatedBrick):
         ))
 
 
-bricks_list = (
+bricks_list: Tuple[Type[Brick], ...] = (
     DetailedAddressesBrick,
     PrettyAddressesBrick,
     DetailedOtherAddressesBrick,

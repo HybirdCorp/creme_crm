@@ -19,7 +19,9 @@
 ################################################################################
 
 import logging
+from typing import Optional, Callable, List
 
+StatisticsFunc = Callable[[], list]
 logger = logging.getLogger(__name__)
 
 
@@ -29,12 +31,19 @@ class _StatisticsRegistry:
     class _StatisticsItem:
         __slots__ = ('id', 'label', 'retrieve', 'perm', '_priority')
 
-        def __init__(self, id, label, func, perm):
+        def __init__(self,
+                     id: str,
+                     label: str,
+                     func: StatisticsFunc,
+                     perm: str):
             self.id = id
             self.label = label
             self.retrieve = func
             self.perm = perm
-            self._priority = None
+            # self._priority = None
+            self._priority: int = 1
+
+    _items: List[_StatisticsItem]
 
     def __init__(self):
         self._items = []
@@ -42,7 +51,9 @@ class _StatisticsRegistry:
     def __iter__(self):
         return iter(self._items)
 
-    def _add_item(self, new_item, priority):
+    def _add_item(self,
+                  new_item: _StatisticsItem,
+                  priority: Optional[int]) -> '_StatisticsRegistry':
         items = self._items
 
         if priority is None:
@@ -60,7 +71,7 @@ class _StatisticsRegistry:
 
         return self
 
-    def _pop_item(self, item_id):
+    def _pop_item(self, item_id: str) -> Optional[_StatisticsItem]:
         items = self._items
         for i, item in enumerate(items):
             if item.id == item_id:
@@ -68,18 +79,25 @@ class _StatisticsRegistry:
 
         logger.warning('Item with id=%s not found', item_id)
 
-    def change_priority(self, priority, *item_ids):
+        return None
+
+    def change_priority(self, priority: int, *item_ids: str) -> None:
         for item_id in item_ids:
             item = self._pop_item(item_id)
 
             if item is not None:
                 self._add_item(item, priority)
 
-    def remove(self, *item_ids):
+    def remove(self, *item_ids: str) -> None:
         for item_id in item_ids:
             self._pop_item(item_id)
 
-    def register(self, id, label, func, perm='', priority=None):
+    def register(self,
+                 id: str,
+                 label: str,
+                 func: StatisticsFunc,
+                 perm: str = '',
+                 priority: Optional[int] = None) -> '_StatisticsRegistry':
         if any(id == item.id for item in self._items):
             # TODO: self.RegistrationError ?
             raise ValueError(f'Duplicated id "{id}"')

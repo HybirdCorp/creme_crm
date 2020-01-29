@@ -56,7 +56,7 @@ except Exception as e:
 
 
 efilter_registry = _EntityFilterRegistry(
-    id=None,
+    id=0,
     verbose_name='Form tests',
 ).register_condition_handlers(
     RegularFieldConditionHandler,

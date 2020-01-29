@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type
+
 from django.db.models import Q
+from django.forms.forms import BaseForm
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -224,7 +227,7 @@ class RelatedContactsList(EntityRelatedMixin, ContactsList):
 
 class AddContactsToEvent(generic.EntityEdition):
     model = Event
-    form_class = event_forms.AddContactsToEventForm
+    form_class: Type[BaseForm] = event_forms.AddContactsToEventForm
     template_name = 'creme_core/generics/blockform/link.html'
     pk_url_kwarg = 'event_id'
     title = _('Link some contacts to «{object}»')

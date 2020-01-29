@@ -17,13 +17,20 @@ try:
     from ..base import CremeTestCase
     from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_DISCOUNT_UNIT
     from ..fake_forms import FakeContactQuickForm, FakeOrganisationQuickForm
-    from ..fake_models import (FakeContact, FakeOrganisation, FakePosition,
-            FakeImage, FakeImageCategory, FakeEmailCampaign, FakeMailingList,
-            FakeInvoice, FakeInvoiceLine)
+    from ..fake_models import (
+        FakeContact, FakeOrganisation, FakePosition,
+        FakeImage, FakeImageCategory,
+        FakeEmailCampaign, FakeMailingList,
+        FakeInvoice, FakeInvoiceLine,
+    )
+
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.button_menu import Button, ButtonsRegistry
-    from creme.creme_core.gui.field_printers import (_FieldPrintersRegistry,
-            FKPrinter, simple_print_html)
+    from creme.creme_core.gui.field_printers import (
+        _FieldPrintersRegistry,
+        FKPrinter,
+        simple_print_html,
+    )
     from creme.creme_core.forms import CremeModelForm  # CremeModelWithUserForm
     from creme.creme_core.gui.icons import Icon, IconRegistry
     from creme.creme_core.gui.last_viewed import LastViewedItem

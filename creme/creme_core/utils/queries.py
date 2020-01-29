@@ -61,7 +61,7 @@ logger = logging.getLogger(__name__)
 
 ################################################################################
 # Copyright (c)  2013  asfaltboy
-# Copyright (c)  2015-2018  Hybird
+# Copyright (c)  2015-2020  Hybird
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -109,8 +109,8 @@ class QSerializer:
 
         return value
 
-    def serialize(self, q):
-        children = []
+    def serialize(self, q: Q) -> dict:
+        children: list = []
 
         for child in q.children:
             if isinstance(child, Q):
@@ -132,7 +132,7 @@ class QSerializer:
                 'val': children,
                }
 
-    def deserialize(self, d):
+    def deserialize(self, d: dict) -> Q:
         query = Q()
         query.children = [self.deserialize(child) if isinstance(child, dict) else child
                             for child in d['val']
@@ -143,14 +143,14 @@ class QSerializer:
 
         return query
 
-    def dumps(self, obj):
+    def dumps(self, obj: Q) -> str:
         try:
             return json.dumps(self.serialize(obj), separators=(',', ':'))
         except:
             logger.exception('QSerializer.dumps(): error when serializing <%s>', obj)
             raise
 
-    def loads(self, string):
+    def loads(self, string: str) -> Q:
         try:
             return self.deserialize(json.loads(string))
         except:

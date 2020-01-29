@@ -18,6 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type, Optional, Callable, Dict, TYPE_CHECKING
+
+from django.contrib.contenttypes.models import ContentType
+
+from ..models import CremeEntity
+
+if TYPE_CHECKING:
+    from ..forms.mass_import import ImportForm
+
+FormFactory = Optional[Callable[[dict, list], 'ImportForm']]
+
 
 class FormRegistry:
     """Registry for forms importing entities from CSV/XLS."""
@@ -25,9 +36,11 @@ class FormRegistry:
         pass
 
     def __init__(self):
-        self._form_factories = {}
+        self._form_factories: Dict[Type[CremeEntity], FormFactory] = {}
 
-    def register(self, model, factory=None):
+    def register(self,
+                 model: Type[CremeEntity],
+                 factory: FormFactory = None) -> 'FormRegistry':
         """Register a form factory for a model.
         @param model: Class inheriting CremeEntity.
         @param factory: None or callable which takes 2 parameters
@@ -38,11 +51,12 @@ class FormRegistry:
                <None> means that this model uses a generic import form.
         @return The registry instance (to chain register() calls).
         """
+        # TODO: check duplicates ?
         self._form_factories[model] = factory
 
         return self
 
-    def get(self, ct):  # TODO: accept model directly ??
+    def get(self, ct: ContentType) -> FormFactory:  # TODO: accept model directly ??
         try:
             return self._form_factories[ct.model_class()]
         except KeyError as e:
@@ -50,7 +64,7 @@ class FormRegistry:
                 f'Unregistered ContentType: {ct}'
             ) from e
 
-    def is_registered(self, ct):
+    def is_registered(self, ct: ContentType) -> bool:
         return ct.model_class() in self._form_factories  # TODO: accept model directly ??
 
 

@@ -19,10 +19,11 @@
 ################################################################################
 
 import logging
+from typing import Union, Dict
 
 from django.db import models
 
-from ..core.setting_key import setting_key_registry
+from ..core.setting_key import SettingKey, setting_key_registry, _SettingKeyRegistry
 from ..global_info import get_per_request_cache
 
 logger = logging.getLogger(__name__)
@@ -37,11 +38,13 @@ class SettingValueManager(models.Manager):
 
     cache_key_fmt = 'creme_core-setting_value-{}'
 
-    def __init__(self, skey_registry, **kwargs):
+    key_registry: _SettingKeyRegistry
+
+    def __init__(self, skey_registry: _SettingKeyRegistry, **kwargs):
         super().__init__(**kwargs)
         self.key_registry = skey_registry
 
-    def get_4_key(self, key, **kwargs):
+    def get_4_key(self, key: Union[SettingKey, str], **kwargs) -> 'SettingValue':
         """Get the SettingValue corresponding to a SettingKey. Results are cached (per request).
 
         @param key: A SettingKey instance, or an ID of SettingKey (string).
@@ -55,7 +58,7 @@ class SettingValueManager(models.Manager):
         """
         return next(iter(self.get_4_keys({'key': key, **kwargs}).values()))
 
-    def get_4_keys(self, *values_info):
+    def get_4_keys(self, *values_info: dict) -> Dict[str, 'SettingValue']:
         """Get several SettingValue corresponding to several SettingKeys at once.
          It's faster than calling 'get_4_key()' several times, because only one
          SQL query is performed (in the worst case)
@@ -143,12 +146,12 @@ class SettingValue(models.Model):
         return f'SettingValue(key_id="{self.key_id}", value_str="{self.value_str}")'
 
     @property
-    def key(self):
+    def key(self) -> SettingKey:
         # return setting_key_registry[self.key_id]
         return type(self).objects.key_registry[self.key_id]
 
     @key.setter
-    def key(self, skey):
+    def key(self, skey: SettingKey):
         self.key_id = skey.id
 
     @property
@@ -171,7 +174,7 @@ class SettingValue(models.Model):
             self.value_str = value_str
 
     @property
-    def as_html(self):
+    def as_html(self) -> str:
         value = self.value
 
         return self.key.value_as_html(value) if value is not None else ''

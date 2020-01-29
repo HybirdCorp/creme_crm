@@ -2,8 +2,13 @@
 
 try:
     from ..base import CremeTestCase
-    from creme.creme_core.utils.collections import (LimitedList, FluentList,
-            ClassKeyedMap, OrderedSet, InheritedDataChain)
+    from creme.creme_core.utils.collections import (
+        LimitedList,
+        FluentList,
+        ClassKeyedMap,
+        OrderedSet,
+        InheritedDataChain,
+    )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 

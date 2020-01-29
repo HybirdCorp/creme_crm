@@ -20,12 +20,12 @@ try:
 except (ImportError, AttributeError):
     NAMES = None
 
-_backends_cache = {}
-_media_dirs_cache = []
+_backends_cache: dict = {}
+_media_dirs_cache: list = []
 
-_generators_cache = []
-_generated_names = {}
-_backend_mapping = {}
+_generators_cache: list = []
+_generated_names: dict = {}
+_backend_mapping: dict = {}
 
 
 def _load_generators():

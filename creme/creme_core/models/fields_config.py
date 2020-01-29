@@ -21,34 +21,45 @@
 from functools import partial
 from json import loads as json_load
 import logging
+from typing import (
+    Type,
+    Iterable, Iterator, Sequence,
+    Dict, List, Set, Tuple,
+    TYPE_CHECKING,
+)
 import warnings
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import TextField, FieldDoesNotExist, Manager
+from django.db.models import Model, Field, TextField, FieldDoesNotExist, Manager
 from django.utils.translation import gettext_lazy as _, gettext
 
-from ..core.entity_cell import EntityCellRegularField
+from ..core.entity_cell import EntityCell, EntityCellRegularField
 from ..global_info import get_per_request_cache
+from ..utils.meta import FieldInfo
 from ..utils.serializers import json_encode
 
 from .base import CremeModel
 from .fields import CTypeOneToOneField
 
+if TYPE_CHECKING:
+    from ..utils.meta import ModelFieldEnumerator
+
 logger = logging.getLogger(__name__)
+FieldsDescriptions = List[Tuple[str, Dict[str, bool]]]
 
 
 class FieldsConfigManager(Manager):
-    def field_enumerator(self, model):
+    def field_enumerator(self, model: Type[Model]) -> 'ModelFieldEnumerator':
         from ..utils.meta import ModelFieldEnumerator
 
         return ModelFieldEnumerator(
             model, deep=0, only_leafs=False,
         ).filter(viewable=True, optional=True)
 
-    def get_for_model(self, model):
+    def get_for_model(self, model: Type[Model]) -> 'FieldsConfig':
         return self.get_for_models((model,))[model]
 
-    def get_for_models(self, models):
+    def get_for_models(self, models: Sequence[Type[Model]]) -> Dict[Type[Model], 'FieldsConfig']:
         result = {}
         get_ct = ContentType.objects.get_for_model
         cache_key_fmt = 'creme_core-fields_config-{}'.format
@@ -83,7 +94,7 @@ class FieldsConfigManager(Manager):
 
         return result
 
-    def is_model_valid(self, model):
+    def is_model_valid(self, model: Type[Model]) -> bool:
         return any(self.field_enumerator(model))
 
 
@@ -115,10 +126,10 @@ class FieldsConfig(CremeModel):
         def __init__(self):
             self._configs = {}
 
-        def get_4_model(self, model):  # TODO: rename get_for_model
+        def get_4_model(self, model: Type[Model]) -> 'FieldsConfig':  # TODO: rename get_for_model
             return self.get_4_models((model,))[model]
 
-        def get_4_models(self, models):  # TODO: rename get_for_models
+        def get_4_models(self, models: Iterable[Type[Model]]) -> Dict[Type[Model], 'FieldsConfig']:  # TODO: rename get_for_models
             result = {}
             configs = self._configs
             missing_models = []
@@ -137,10 +148,10 @@ class FieldsConfig(CremeModel):
 
             return result
 
-        def is_fieldinfo_hidden(self, model, field_info):
+        def is_fieldinfo_hidden(self, model: Type[Model], field_info: FieldInfo) -> bool:
             """
-            @param model Class inheriting django.db.models.Model.
-            @param field_info creme_core.utils.meta.FieldInfo instance.
+            @param model: Class inheriting django.db.models.Model.
+            @param field_info: creme_core.utils.meta.FieldInfo instance.
             """
             if self.get_4_model(model).is_field_hidden(field_info[0]):
                 return True
@@ -157,7 +168,7 @@ class FieldsConfig(CremeModel):
         return gettext('Configuration of {model}').format(model=self.content_type)
 
     @staticmethod
-    def _check_descriptions(model, descriptions):
+    def _check_descriptions(model: Type[Model], descriptions):
         safe_descriptions = []
         errors = False
         get_field = model._meta.get_field
@@ -197,9 +208,9 @@ class FieldsConfig(CremeModel):
         return cls.objects.create(content_type=model, descriptions=descriptions)
 
     @property
-    def descriptions(self):
+    def descriptions(self) -> FieldsDescriptions:
         """Getter.
-        @return Sequence of couples (field_name, attributes). 'attributes' is
+        @return List of couples (field_name, attributes). 'attributes' is
                 a dictionary with keys are in {FieldsConfig.HIDDEN} (yes only
                 one at the moment), and values are Booleans.
                  eg:
@@ -219,15 +230,15 @@ class FieldsConfig(CremeModel):
         return desc
 
     @descriptions.setter
-    def descriptions(self, value):
+    def descriptions(self, value: FieldsDescriptions) -> None:
         self.raw_descriptions = json_encode(
             self._check_descriptions(self.content_type.model_class(), value)[1]
         )
 
     @property
-    def errors_on_hidden(self):
+    def errors_on_hidden(self) -> List[str]:
         """Are some hidden fields needed ?
-        @return List of unicode strings.
+        @return List of strings.
         """
         # TODO: pass the registry as argument/store it in an (class?) attribute
         from ..gui.fields_config import fields_config_registry
@@ -243,7 +254,7 @@ class FieldsConfig(CremeModel):
                         for app in get_apps(field_name=field.name)
                ]
 
-    def _get_hidden_field_names(self):
+    def _get_hidden_field_names(self) -> Set[str]:
         excluded = self._excluded_fnames
 
         if excluded is None:
@@ -266,10 +277,13 @@ class FieldsConfig(CremeModel):
         return cls.objects.field_enumerator(model)
 
     @classmethod
-    def filter_cells(cls, model, cells):
+    def filter_cells(cls,
+                     model: Type[Model],
+                     cells: Iterable[EntityCell]) -> Iterator[EntityCell]:
         """Yields not hidden cells.
         @param model: Class inheriting django.db.models.Model.
         @param cells: Iterable of EntityCell instances.
+        @yield EntityCell instances.
         """
         fconfigs = cls.LocalCache()
 
@@ -297,16 +311,16 @@ class FieldsConfig(CremeModel):
         return cls.objects.get_for_models(models)
 
     @property
-    def hidden_fields(self):
+    def hidden_fields(self) -> Iterator[Field]:
         get_field = self.content_type.model_class()._meta.get_field
 
         for field_name in self._get_hidden_field_names():
             yield get_field(field_name)
 
-    def is_field_hidden(self, field):
+    def is_field_hidden(self, field: Field) -> bool:
         return field.name in self._get_hidden_field_names()
 
-    def is_fieldname_hidden(self, field_name):
+    def is_fieldname_hidden(self, field_name: str) -> bool:
         "NB: if the field does not exist, it is considered as hidden."
         try:
             field = self.content_type.model_class()._meta.get_field(field_name)
@@ -330,6 +344,6 @@ class FieldsConfig(CremeModel):
 
         super().save(*args, **kwargs)
 
-    def update_form_fields(self, form_fields):
+    def update_form_fields(self, form_fields) -> None:
         for field_name in self._get_hidden_field_names():
             form_fields.pop(field_name, None)
