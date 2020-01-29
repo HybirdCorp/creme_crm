@@ -1077,9 +1077,13 @@
                     }
                 }
             }
+            /*
+             * Hybird FIX
+             * Cause linting errors with Closure compressor. Does not work anyway.
             series = s = null;
             delete series;
             delete s;
+            */
         }
         
         function addrow(label, color, pad, idx) {
