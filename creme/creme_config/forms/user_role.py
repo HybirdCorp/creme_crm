@@ -96,7 +96,7 @@ class CredentialsGeneralStep(CremeModelForm):
 
     blocks = FieldBlockManager(
         ('general', _('General information'), '*'),
-        ('actions', _('Actions'), [*PERM_FIELDS.values()]),
+        ('actions', _('Actions'), [*PERM_FIELDS.keys()]),
     )
 
     class Meta:
