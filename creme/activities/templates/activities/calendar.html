@@ -4,56 +4,48 @@
 {% block page_title %}{% trans 'Calendars' %} - {% endblock %}
 
 {% block extrahead %}
-    {% blockjsondata id='data-others-calendars' %}{
-      {% for user, calendars in others_calendars %}
-        "{{user|activities_user_key}}": [
-            {% for calendar in calendars %}{"name": "{{calendar.name}}", "id": {{calendar.id}} }{% if not forloop.last %}, {% endif %}{% endfor %}
-        ]{% if not forloop.last %}, {% endif %}
-      {% endfor %}
-    }{% endblockjsondata %}
     <script type='text/javascript'>
         $(document).ready(function() {
-            creme.activities.calendar.fullCalendar('{% url "activities__calendars_activities" %}', '{% url "activities__create_activity_popup" %}', '{% url "activities__set_activity_dates" %}');
-
-            /* Not a widget, so we cannot embed the <script> node with our data ; so we retrieve it manually. */
-            var calendarSearchData = JSON.parse(creme.utils.JSON.readScriptText($('script#data-others-calendars')));
-            creme.activities.calendar.loadCalendarEventListeners('{{user.username}}', '{% url 'activities__select_calendars' %}', calendarSearchData);
+            var controller = new creme.activities.CalendarController({
+                owner: "{{user_username}}",
+                eventSelectUrl: '{% url "activities__select_calendars" %}',
+                eventUpdateUrl: '{% url "activities__set_activity_dates" %}',
+                eventCreateUrl: '{% url "activities__create_activity_popup" %}',
+                eventFetchUrl: '{% url "activities__calendars_activities" %}'
+            }).bind($('.calendar-main'));
         });
     </script>
 {% endblock %}
 
 {% block content %}
-    <div class='calendar_container'>
-        <div class='menu_calendar toggle-target'>
+    <div class='calendar-main'>
+        <div class='calendar-menu toggle-target'>
             {% if floating_activities %}
-                <div class="ui-creme-widget ui-creme-toggle widget-auto" widget="ui-creme-toggle">
-                    <h4 class='toggle-trigger'>
-                        <span class="toggle-icon">&nbsp;</span>
-                        <span>&nbsp;&nbsp;{% trans 'Floating activities' %}</span>
-                    </h4>
-                    {% if enable_floating_activities_search %}
-                        <div class='floating_event_filter toggle-target'><input type='search' placeholder="{% trans 'FILTER FLOATING ACTIVITIES' %}" /></div>
-                    {% endif %}
-                    <div class="floating_activities menu_sub_element_list toggle-target">
-                        {% for floating_activity in floating_activities %}
-                            <div class='floating_event' data-id="{{floating_activity.id}}" data-calendar="{{floating_activity.calendar.id}}" data-type="{{floating_activity.type.name}}" data-popup_url="{% url 'activities__view_activity_popup' floating_activity.id %}" data-color="#{{floating_activity.calendar.color}}">
-                                <div class="colored_square" style="background-color:#{{floating_activity.calendar.color}};"></div>
-                                <span>{{floating_activity.title}}</span>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <hr/>
-                </div>
-            {% endif %}
-            <div class="ui-creme-widget ui-creme-toggle widget-auto" widget="ui-creme-toggle">
-                <h4 class='toggle-trigger'>
-                    <span class="toggle-icon">&nbsp;</span>
-                    <span>&nbsp;&nbsp;{% trans 'My calendars' %} </span>
+            <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group" widget="ui-creme-toggle">
+                <h4 class='toggle-trigger menu-group-title'>
+                    <span class="menu-group-label">{% trans 'Floating activities' %}</span>
                 </h4>
-                <div class="my_calendars menu_sub_element_list toggle-target">
+                {% if enable_floating_activities_search %}
+                    <div class='floating-event-filter toggle-target'><input type='search' placeholder="{% trans 'FILTER FLOATING ACTIVITIES' %}" /></div>
+                {% endif %}
+                <div class="floating-activities menu-sublist toggle-target">
+                    {% for floating_activity in floating_activities %}
+                        <div class='floating-event' data-id="{{floating_activity.id}}" data-calendar="{{floating_activity.calendar.id}}" data-type="{{floating_activity.type.name}}" data-popup_url="{% url 'activities__view_activity_popup' floating_activity.id %}" data-color="#{{floating_activity.calendar.color}}">
+                            <div class="colored-square" style="background-color:#{{floating_activity.calendar.color}};"></div>
+                            <span class="floating-event-label">{{floating_activity.title}}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group" widget="ui-creme-toggle">
+                <h4 class='toggle-trigger menu-group-title'>
+                   <span class="menu-group-label">{% trans 'My calendars' %}</span>
+                </h4>
+                <div class="my-calendars menu-sublist toggle-target">
                     {% for calendar in my_calendars %}
-                        <div class="calendar_item">
-                            <div class="colored_square" style="background-color:#{{calendar.get_color}};"></div>
+                        <div class="calendar-menu-item">
+                            <div class="colored-square" style="background-color:#{{calendar.get_color}};"></div>
                             <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="calendar_id"{% if calendar.id in my_selected_calendar_ids %} checked{% endif %}/>
                             <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
                         </div>
@@ -61,27 +53,25 @@
                         {% trans 'No calendars' %}
                     {% endfor %}
                 </div>
-                <hr/>
             </div>
-            <div class="ui-creme-widget ui-creme-toggle widget-auto{% if not others_selected_calendar_ids %} toggle-collapsed{% endif %}" widget="ui-creme-toggle">
-                <h4 class='toggle-trigger'>
-                    <span class="toggle-icon">&nbsp;</span>
-                    <span>&nbsp;&nbsp;{% trans 'Collaborators calendars' %}</span>
+            <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group{% if not others_selected_calendar_ids %} toggle-collapsed{% endif %}" widget="ui-creme-toggle">
+                <h4 class='toggle-trigger menu-group-title'>
+                    <span class="menu-group-label">{% trans 'Collaborators calendars' %}</span>
                 </h4>
                 {% if enable_calendars_search %}
-                    <div class='calendar_filter toggle-target'><input type='search' placeholder="{% trans 'FILTER CALENDARS OR COLLABORATORS' %}" /></div>
+                <div class='calendar-menu-filter toggle-target'><input type='search' placeholder="{% trans 'FILTER CALENDARS OR COLLABORATORS' %}" /></div>
                 {% endif %}
-                <div class="other_calendars menu_sub_element_list toggle-target">
+                <div class="other-calendars menu-sublist toggle-target">
                     {% for user, calendars in others_calendars %}
                     {% with user_key=user|activities_user_key %}
-                        <h5 class="calendar_label_owner" data-user="{{user_key}}">{{user}}</h5>
-                        <div class="calendar_user_group" data-user="{{user_key}}">
+                        <div class="calendar-menu-usergroup" data-user="{{user_key}}">
+                            <h5 class="calendar-menu-usergroup-label">{{user}}</h5>
                             {% for calendar in calendars %}
-                                <div class="calendar_item calendar_label_container" data-user="{{user_key}}" data-calendar="{{calendar.id}}">
-                                    <div class="colored_square" style="background-color:#{{calendar.get_color}};"></div>
-                                    <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="calendar_id"{% if calendar.id in others_selected_calendar_ids %} checked{% endif %}/>
-                                    <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
-                                </div>
+                            <div class="calendar-menu-item" data-user="{{user_key}}" data-calendar="{{calendar.id}}">
+                                <div class="colored-square" style="background-color:#{{calendar.get_color}};"></div>
+                                <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="calendar_id"{% if calendar.id in others_selected_calendar_ids %} checked{% endif %}/>
+                                <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
+                            </div>
                             {% endfor %}
                         </div> <!-- /.calendar_user_group -->
                     {% endwith %}
@@ -90,7 +80,7 @@
                     {% endfor %}
                 </div>
             </div>
-        </div> <!-- /.menu_calendar -->
-        <div class='calendar with_menu'></div>
-    </div> <!-- /.calendar_container -->
+        </div> <!-- /.calendar-menu -->
+        <div class='calendar with-menu'></div>
+    </div> <!-- /.calendar-container -->
 {% endblock %}

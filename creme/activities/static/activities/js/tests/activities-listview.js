@@ -1,3 +1,5 @@
+(function($) {
+
 QUnit.module("creme.activities.listview.actions", new QUnitMixin(QUnitEventMixin,
                                                                  QUnitAjaxMixin,
                                                                  QUnitListViewMixin,
@@ -40,3 +42,5 @@ QUnit.test('creme.activities.ExportAsICalAction (ok)', function(assert) {
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual(['/mock/activities/export/ical?id=1&id=2&id=3'], this.mockRedirectCalls());
 });
+
+}(jQuery));

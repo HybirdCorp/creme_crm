@@ -162,4 +162,59 @@
             this.__consoleWarnCalls = [];
         }
     };
+
+    window.QUnitMouseMixin = {
+        fakeMouseEvent: function(name, options) {
+            options = options || {};
+            var position = options.position || {};
+            var offset = options.offset || {};
+
+            return $.Event(name, {
+                which: options.which || 1,     // Mouse button 1 (left), 2 (middle), 3 (right)
+                pageX: position.left || 0,     // The mouse position relative to the left edge of the document.
+                pageY: position.top || 0,      // The mouse position relative to the top edge of the document.
+                offsetX: offset.left || 0,
+                offsetY: offset.top || 0,
+                button: options.which || 1,
+                originalEvent: {}
+            });
+        },
+
+        fakeDragNDrop: function(source, target, options) {
+            options = options || {};
+
+            var dragPosition = source.offset();
+            var dragOffset = {
+                left: source.width() / 2,
+                top: source.height() / 2
+            };
+
+            var dropPosition = {
+                left: target.offset().left + 10,
+                top: target.offset().top + 10
+            };
+
+            console.log(dragPosition, dropPosition);
+
+            // LEFT mouse button down !
+            source.trigger(
+                this.fakeMouseEvent('mousedown', {
+                    position: dragPosition,
+                    offset: dragOffset
+                }, options.mouseDown)
+            );
+
+            source.trigger(
+                this.fakeMouseEvent('mousemove', {
+                    position: dropPosition
+                }, options.mouseMove)
+            );
+
+            target.trigger(
+                this.fakeMouseEvent('mouseup', {
+                    position: dropPosition
+                }, options.mouseUp)
+            );
+        }
+    };
 }(jQuery));

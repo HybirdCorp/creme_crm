@@ -520,7 +520,7 @@ CREME_OPT_CSS = [  # APPS
      ('creme.persons',          'persons/css/persons.css'),
 
      ('creme.activities',       'activities/css/activities.css'),
-     ('creme.activities',       'activities/css/fullcalendar-1.6.7.css'),
+     ('creme.activities',       'activities/css/fullcalendar-3.10.0.css'),
 
      ('creme.billing',          'billing/css/billing.css'),
      ('creme.opportunities',    'opportunities/css/opportunities.css'),
@@ -540,7 +540,7 @@ CREME_OPT_CSS = [  # APPS
 CREME_I18N_JS = ['l10n.js',
                     {'filter': 'mediagenerator.filters.i18n.I18N'},  # To build the i18n catalog statically.
                     # 'creme_core/js/datejs/date-en-US.js', # TODO improve
-                    'creme_core/js/datejs/date-fr-FR.js',
+                    # 'creme_core/js/datejs/date-fr-FR.js',
                 ]
 
 CREME_LIB_JS = ['lib.js',
@@ -580,6 +580,9 @@ CREME_LIB_JS = ['lib.js',
                     'creme_core/js/jquery/extensions/jquery.bind-first.js',
                     'creme_core/js/jquery/extensions/jquery.floatthead-1.3.1._.js',
                     'creme_core/js/jquery/extensions/jquery.floatthead-1.3.1.js',
+                    'creme_core/js/lib/momentjs/moment-2.24.0.js',
+                    'creme_core/js/lib/momentjs/locale/en-us.js',
+                    'creme_core/js/lib/momentjs/locale/fr-fr.js',
                 ]
 
 CREME_CORE_JS = ['main.js',
@@ -590,6 +593,7 @@ CREME_CORE_JS = ['main.js',
                     'creme_core/js/lib/fallbacks/event-0.1.js',
                     'creme_core/js/lib/fallbacks/htmldocument-0.1.js',
                     'creme_core/js/lib/generators-0.1.js',
+                    'creme_core/js/lib/color.js',
 
                     'creme_core/js/creme.js',
                     'creme_core/js/color.js',
@@ -681,13 +685,14 @@ CREME_CORE_JS = ['main.js',
                 ]
 
 CREME_OPTLIB_JS = [
-    ('creme.activities', 'activities/js/jquery/extensions/fullcalendar-1.6.7.js'),
+    ('creme.activities', 'activities/js/jquery/extensions/fullcalendar-3.10.0.js'),
 ]
 
 CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.persons',       'persons/js/persons.js'),
 
     ('creme.activities',    'activities/js/activities.js'),
+    ('creme.activities',    'activities/js/activities-calendar.js'),
 
     ('creme.billing',       'billing/js/billing.js'),
     ('creme.billing',       'billing/js/billing-actions.js'),
@@ -762,6 +767,7 @@ TEST_CREME_CORE_JS = ['testcore.js',
 
                         'creme_core/js/tests/fallbacks.js',
                         'creme_core/js/tests/generators.js',
+                        'creme_core/js/tests/color.js',
 
                         'creme_core/js/tests/widgets/base.js',
                         'creme_core/js/tests/widgets/widget.js',
@@ -803,6 +809,7 @@ TEST_CREME_CORE_JS = ['testcore.js',
 TEST_CREME_OPT_JS = [
 #   ('creme.my_app',       'my_app/js/tests/my_app.js'),
     ('creme.activities',    'activities/js/tests/activities-listview.js'),
+    ('creme.activities',    'activities/js/tests/activities-calendar.js'),
     ('creme.billing',       'billing/js/tests/billing.js'),
     ('creme.billing',       'billing/js/tests/billing-actions.js'),
     ('creme.billing',       'billing/js/tests/billing-listview.js'),
