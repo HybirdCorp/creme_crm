@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2019 Hybird
+# Copyright (c) 2009-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 ################################################################################
 
 from contextlib import ContextDecorator
+from typing import Type
 
 from django.db import models
 from django.db.transaction import atomic
@@ -46,10 +47,10 @@ class Mutex(models.Model):
     class Meta:
         app_label = 'creme_core'
 
-    def is_locked(self):
+    def is_locked(self) -> bool:
         return bool(self.id and not self._state.adding)
 
-    def lock(self):
+    def lock(self) -> None:
         if self.is_locked():
             raise MutexLockedException()
 
@@ -61,20 +62,20 @@ class Mutex(models.Model):
 
         # return self ?
 
-    def release(self):
+    def release(self) -> None:
         if not self.is_locked():
             raise MutexNotLockedException()
 
         self.delete()
 
     @classmethod
-    def get_n_lock(cls, id_):
+    def get_n_lock(cls, id_: str):
         mutex = cls(id=id_)
         mutex.lock()
         return mutex
 
     @classmethod
-    def graceful_release(cls, id_):
+    def graceful_release(cls, id_: str) -> None:
         cls.objects.filter(id=id_).delete()
 
     def save(self, *args, **kwargs):
@@ -82,7 +83,11 @@ class Mutex(models.Model):
 
 
 class MutexAutoLock(ContextDecorator):
-    def __init__(self, lock_name, mutex_class=Mutex):
+    lock_name: str
+    locked: bool
+    mutex_class: Type[Mutex]
+
+    def __init__(self, lock_name: str, mutex_class=Mutex):
         self.lock_name = lock_name
         self.locked = False
         self.mutex_class = mutex_class

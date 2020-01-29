@@ -306,7 +306,7 @@ class ActionsTestCase(CremeTestCase):
         )
 
     def test_register_missing_model02(self):
-        "Bulk action"
+        "Bulk action."
         class MissingModelAction(BulkAction):
             id = 'tests_missingmodel'
 

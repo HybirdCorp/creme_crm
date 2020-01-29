@@ -19,10 +19,11 @@
 ################################################################################
 
 import logging
+from typing import Type, Iterable, Optional, Dict, List, Tuple  # Callable
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import Field, FieldDoesNotExist, BooleanField, DateField
+from django.db.models import Model, Field, FieldDoesNotExist, BooleanField, DateField
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 
@@ -34,6 +35,7 @@ from ..utils.meta import FieldInfo
 from ..utils.unicode_collation import collator
 
 from .function_field import (
+    FunctionField,
     FunctionFieldDecimal,
     FunctionFieldResultsList,
     function_field_registry,
@@ -44,7 +46,9 @@ from .function_field import (
 
 logger = logging.getLogger(__name__)
 MULTILINE_FIELDS = (
-    models.TextField, core_fields.UnsafeHTMLField, models.ManyToManyField,
+    models.TextField,
+    core_fields.UnsafeHTMLField,
+    models.ManyToManyField,
 )
 FIELDS_DATA_TYPES = ClassKeyedMap([
     (DateField,                   'date'),
@@ -65,6 +69,95 @@ FIELDS_DATA_TYPES = ClassKeyedMap([
 ])
 
 
+class EntityCell:
+    """Represents a value accessor ; it's a kind of super field. It can
+    retrieve a value store in entities (of the same type).
+    This values can be (see child classes) :
+     - regular fields (in the django model way).
+     - custom field (see models.CustomField).
+     - function fields (see core.FunctionField).
+     - other entities linked by a Relation (of a given RelationType).
+     - ...
+    """
+    # type_id = None
+    type_id: str  # Used for register ; overload in child classes (string type)
+    value: str
+    is_hidden: bool
+
+    _listview_css_class = None
+    _header_listview_css_class = None
+
+    def __init__(self, model: Type[Model], value: str = '', title='Title', is_hidden: bool = False):
+        self._model = model
+        self.value = value
+        self.title = title
+        self.is_hidden = is_hidden
+
+    def __repr__(self):
+        return f"<EntityCell(type={self.type_id}, value='{self.value}')>"
+
+    def __str__(self):
+        return self.title
+
+    def _get_field_class(self) -> Type[Field]:
+        return Field
+
+    def _get_listview_css_class(self, attr_name: str):
+        from ..gui.field_printers import field_printers_registry
+
+        listview_css_class = getattr(self, attr_name)
+
+        if listview_css_class is None:
+            registry_getter = getattr(field_printers_registry, f'get{attr_name}_for_field')
+            listview_css_class = registry_getter(self._get_field_class())
+            setattr(self, attr_name, listview_css_class)
+
+        return listview_css_class
+
+    @classmethod
+    def build(cls, model: Type[Model], name: str):
+        raise NotImplementedError
+
+    @property
+    def data_type(self) -> Optional[str]:
+        return FIELDS_DATA_TYPES[self._get_field_class()]
+
+    @property
+    def model(self) -> Type[Model]:
+        return self._model
+
+    @property
+    def key(self) -> str:
+        "Return an ID that should be unique in a EntityCell set."
+        return f'{self.type_id}-{self.value}'
+
+    @property
+    def listview_css_class(self) -> str:
+        return self._get_listview_css_class('_listview_css_class')
+
+    @property
+    def header_listview_css_class(self) -> str:
+        return self._get_listview_css_class('_header_listview_css_class')
+
+    @property
+    def is_multiline(self) -> bool:
+        return issubclass(self._get_field_class(), MULTILINE_FIELDS)
+
+    @staticmethod
+    def populate_entities(cells, entities, user):
+        pass
+
+    # TODO: factorise render_* => like FunctionField, result that can be html, csv...
+    def render_html(self, entity: CremeEntity, user):
+        raise NotImplementedError
+
+    def render_csv(self, entity: CremeEntity, user):
+        raise NotImplementedError
+
+    def to_dict(self):
+        return {'type': self.type_id, 'value': self.value}
+
+
 class EntityCellsRegistry:
     __slots__ = ('_cell_classes', )
 
@@ -72,7 +165,7 @@ class EntityCellsRegistry:
         pass
 
     def __init__(self):
-        self._cell_classes = {}
+        self._cell_classes: Dict[str, Type[EntityCell]] = {}
 
     def __call__(self, cls):
         if self._cell_classes.setdefault(cls.type_id, cls) is not cls:
@@ -80,10 +173,12 @@ class EntityCellsRegistry:
 
         return cls
 
-    def __getitem__(self, type_id):
+    def __getitem__(self, type_id: str):
         return self._cell_classes[type_id]
 
-    def build_cells_from_dicts(self, model, dicts):
+    def build_cells_from_dicts(self,
+                               model: Type[Model],
+                               dicts: Iterable[Dict]) -> Tuple[List[EntityCell], bool]:
         """Build some EntityCells instance from an iterable of dictionaries.
 
         @param model: Class inheriting <django.db.model.Model> related to the cells.
@@ -111,89 +206,8 @@ class EntityCellsRegistry:
 
         return cells, errors
 
+
 CELLS_MAP = EntityCellsRegistry()
-
-
-class EntityCell:
-    """Represents a value accessor ; it's a kind of super field. It can
-    retrieve a value store in entities (of the same type).
-    This values can be (see child classes) :
-     - regular fields (in the django model way).
-     - custom field (see models.CustomField).
-     - function fields (see core.FunctionField).
-     - other entities linked by a Relation (of a given RelationType)
-     - ...
-    """
-    type_id = None  # Used for register ; overload in child classes (string type)
-
-    _listview_css_class = None
-    _header_listview_css_class = None
-
-    def __init__(self, model, value='', title='Title', is_hidden=False):
-        self._model = model
-        self.value = value
-        self.title = title
-        self.is_hidden = is_hidden
-
-    def __repr__(self):
-        return f"<EntityCell(type={self.type_id}, value='{self.value}')>"
-
-    def __str__(self):
-        return self.title
-
-    def _get_field_class(self):
-        return Field
-
-    def _get_listview_css_class(self, attr_name):
-        from ..gui.field_printers import field_printers_registry
-
-        listview_css_class = getattr(self, attr_name)
-
-        if listview_css_class is None:
-            registry_getter = getattr(field_printers_registry, f'get{attr_name}_for_field')
-            listview_css_class = registry_getter(self._get_field_class())
-            setattr(self, attr_name, listview_css_class)
-
-        return listview_css_class
-
-    @property
-    def data_type(self):
-        return FIELDS_DATA_TYPES[self._get_field_class()]
-
-    @property
-    def model(self):
-        return self._model
-
-    @property
-    def key(self):
-        "Return an ID that should be unique in a EntityCell set."
-        return f'{self.type_id}-{self.value}'
-
-    @property
-    def listview_css_class(self):
-        return self._get_listview_css_class('_listview_css_class')
-
-    @property
-    def header_listview_css_class(self):
-        return self._get_listview_css_class('_header_listview_css_class')
-
-    @property
-    def is_multiline(self):
-        return issubclass(self._get_field_class(), MULTILINE_FIELDS)
-
-    @staticmethod
-    def populate_entities(cells, entities, user):
-        pass
-
-    # TODO: factorise render_* => like FunctionField, result that can be html, csv...
-    def render_html(self, entity, user):
-        raise NotImplementedError
-
-    def render_csv(self, entity, user):
-        raise NotImplementedError
-
-    def to_dict(self):
-        return {'type': self.type_id, 'value': self.value}
 
 
 # @CELLS_MAP TODO
@@ -232,7 +246,7 @@ class EntityCellActions(EntityCell):
                 if action.is_visible
         ])
 
-    def instance_actions(self, instance, user):
+    def instance_actions(self, instance: Model, user):
         """Get a sorted list of the visible <gui.actions.UIAction> instances
         corresponding to the registered instance actions (see 'registry' attribute).
 
@@ -249,10 +263,10 @@ class EntityCellActions(EntityCell):
                 if action.is_visible
         ])
 
-    def render_html(self, entity, user):
+    def render_html(self, entity: CremeEntity, user) -> str:
         return ''
 
-    def render_csv(self, entity, user):
+    def render_csv(self, entity: CremeEntity, user) -> str:
         return ''
 
 
@@ -260,7 +274,7 @@ class EntityCellActions(EntityCell):
 class EntityCellRegularField(EntityCell):
     type_id = 'regular_field'
 
-    def __init__(self, model, name, field_info, is_hidden=False):
+    def __init__(self, model, name, field_info: FieldInfo, is_hidden=False):
         "Use build() instead of using this constructor directly."
         self._field_info = field_info
         self._printer_html = self._printer_csv = None
@@ -272,7 +286,7 @@ class EntityCellRegularField(EntityCell):
                         )
 
     @classmethod
-    def build(cls, model, name, is_hidden=False):
+    def build(cls, model: Type[Model], name: str, is_hidden: bool = False):
         """ Helper function to build EntityCellRegularField instances.
 
         @param model: Class inheriting django.db.models.Model.
@@ -289,7 +303,7 @@ class EntityCellRegularField(EntityCell):
         return cls(model, name, field_info, is_hidden)
 
     @property
-    def field_info(self):
+    def field_info(self) -> FieldInfo:
         """ Getter for attribute 'field_info'.
 
         @return: An instance of creme_core.utils.meta.FieldInfo.
@@ -345,7 +359,7 @@ class EntityCellCustomField(EntityCell):
         CustomField.MULTI_ENUM: models.ManyToManyField,
     }
 
-    def __init__(self, customfield):
+    def __init__(self, customfield: CustomField):
         self._customfield = customfield
 
         super().__init__(model=customfield.content_type.model_class(),
@@ -355,19 +369,22 @@ class EntityCellCustomField(EntityCell):
                         )
 
     @classmethod
-    def build(cls, model, customfield_id):
+    def build(cls, model: Type[Model], customfield_id: str):
         ct = ContentType.objects.get_for_model(model)
 
         try:
             cfield = CustomField.objects.get(content_type=ct, id=customfield_id)
         except CustomField.DoesNotExist:
-            logger.warning('EntityCellCustomField: custom field "%s" does not exist', customfield_id)
+            logger.warning(
+                'EntityCellCustomField: custom field "%s" does not exist',
+                customfield_id,
+            )
             return None
 
         return cls(cfield)
 
     @property
-    def custom_field(self):
+    def custom_field(self) -> CustomField:
         return self._customfield
 
     def _get_field_class(self):
@@ -375,7 +392,10 @@ class EntityCellCustomField(EntityCell):
 
     @staticmethod
     def populate_entities(cells, entities, user):
-        CremeEntity.populate_custom_values(entities, [cell.custom_field for cell in cells])  # NB: not itervalues()
+        CremeEntity.populate_custom_values(
+            entities,
+            [cell.custom_field for cell in cells],
+        )  # NB: not itervalues()
 
     def render_html(self, entity, user):
         from django.utils.html import escape
@@ -394,7 +414,7 @@ class EntityCellFunctionField(EntityCell):
         FunctionFieldDecimal: models.DecimalField,
     }
 
-    def __init__(self, model, func_field):
+    def __init__(self, model, func_field: FunctionField):
         self._functionfield = func_field
 
         super().__init__(model=model,
@@ -404,7 +424,7 @@ class EntityCellFunctionField(EntityCell):
                         )
 
     @classmethod
-    def build(cls, model, func_field_name):
+    def build(cls, model: Type[Model], func_field_name: str):
         # TODO: pass the 'function_field_registry' in a context
         func_field = function_field_registry.get(model, func_field_name)
 
@@ -415,7 +435,7 @@ class EntityCellFunctionField(EntityCell):
         return cls(model=model, func_field=func_field)
 
     @property
-    def function_field(self):
+    def function_field(self) -> FunctionField:
         return self._functionfield
 
     def _get_field_class(self):
@@ -441,7 +461,7 @@ class EntityCellFunctionField(EntityCell):
 class EntityCellRelation(EntityCell):
     type_id = 'relation'
 
-    def __init__(self, model, rtype, is_hidden=False):
+    def __init__(self, model: Type[Model], rtype: RelationType, is_hidden: bool = False):
         self._rtype = rtype
         super().__init__(model=model,
                          value=str(rtype.id),
@@ -450,7 +470,7 @@ class EntityCellRelation(EntityCell):
                         )
 
     @classmethod
-    def build(cls, model, rtype_id, is_hidden=False):
+    def build(cls, model: Type[Model], rtype_id: str, is_hidden: bool = False):
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
         except RelationType.DoesNotExist:
@@ -464,7 +484,7 @@ class EntityCellRelation(EntityCell):
         return True
 
     @property
-    def relation_type(self):
+    def relation_type(self) -> RelationType:
         return self._rtype
 
     @staticmethod
@@ -501,7 +521,11 @@ class EntityCellRelation(EntityCell):
 class EntityCellVolatile(EntityCell):
     type_id = 'volatile'
 
-    def __init__(self, model, value, title, render_func, is_hidden=False):
+    def __init__(self,
+                 model: Type[Model],
+                 value, title,
+                 render_func,  # TODO: Callable[[CremeEntity], str] VS abstract render_html() (see "events" app)
+                 is_hidden: bool = False):
         self._render_func = render_func
         super().__init__(model=model,
                          value=value,

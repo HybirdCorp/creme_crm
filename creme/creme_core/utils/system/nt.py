@@ -29,7 +29,6 @@
 import logging
 from sys import exit, version_info
 
-
 logger = logging.getLogger(__name__)
 
 

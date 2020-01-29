@@ -21,6 +21,12 @@
 from functools import partial
 from json import loads as json_load
 import logging
+from typing import (
+    Any, Optional, Union, Type,
+    Iterable, Iterator, Sequence,
+    Dict, List, Tuple,
+    TYPE_CHECKING,
+)
 # import warnings
 
 from django.conf import settings
@@ -30,8 +36,12 @@ from django.db.models.signals import post_save
 from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 
-from ..constants import (SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
-        SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBRICK_ID)
+from ..constants import (
+    SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
+    SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
+    MODELBRICK_ID,
+)
+from ..core.entity_cell import EntityCell
 from ..utils import creme_entity_content_types
 from ..utils.serializers import json_encode
 
@@ -43,6 +53,9 @@ from .fields_config import FieldsConfig
 from .relation import RelationType
 from .setting_value import SettingValue
 
+if TYPE_CHECKING:
+    from creme.creme_core.gui.bricks import Brick
+
 __all__ = (
     'BrickDetailviewLocation', 'BrickHomeLocation', 'BrickMypageLocation',
     'RelationBrickItem', 'InstanceBrickConfigItem', 'CustomBrickConfigItem',
@@ -52,7 +65,13 @@ logger = logging.getLogger(__name__)
 
 
 class BrickDetailviewLocationManager(models.Manager):
-    def create_if_needed(self, brick, order, zone, model=None, role=None):
+    # TODO: Enum for zone
+    def create_if_needed(self,
+                         brick: Union[Type['Brick'], str],
+                         order: int,
+                         zone: int,
+                         model: Union[Type[CremeEntity], ContentType, None] = None,
+                         role: Union[None, UserRole, str] = None) -> 'BrickDetailviewLocation':
         """Create an instance of BrickDetailviewLocation, but if only if the
         related brick is not already on the configuration.
         @param brick: Brick ID (string) or Brick class.
@@ -65,7 +84,8 @@ class BrickDetailviewLocationManager(models.Manager):
         @param role: Can be None (ie: 'Default configuration'), a UserRole instance,
                      or the string 'superuser'.
         """
-        kwargs = {'role': None, 'superuser': False}
+        # TODO: typing TypedDict in py 3.8
+        kwargs: Dict[str, Any] = {'role': None, 'superuser': False}
 
         if role:
             if model is None:
@@ -84,12 +104,16 @@ class BrickDetailviewLocationManager(models.Manager):
             **kwargs
         )[0]
 
-    def create_for_model_brick(self, order, zone, model=None, role=None):
+    def create_for_model_brick(self,
+                               order: int,
+                               zone: int,
+                               model: Union[Type[CremeEntity], ContentType, None] = None,
+                               role: Union[None, UserRole, str] = None) -> 'BrickDetailviewLocation':
         return self.create_if_needed(brick=MODELBRICK_ID, order=order,
                                      zone=zone, model=model, role=role,
                                     )
 
-    def filter_for_model(self, model):
+    def filter_for_model(self, model: Type[CremeEntity]) -> models.QuerySet:
         return BrickDetailviewLocation.objects.filter(
             content_type=ContentType.objects.get_for_model(model),
         )
@@ -269,7 +293,7 @@ post_save.connect(BrickMypageLocation._copy_default_config, sender=settings.AUTH
 
 
 class RelationBrickItemManager(models.Manager):
-    def create_if_needed(self, relation_type):
+    def create_if_needed(self, relation_type: Union[RelationType, str]) -> 'RelationBrickItem':
         """Create an instance of RelationBrickItem corresponding to a RelationType
         or return the existing one.
 
@@ -339,7 +363,7 @@ class RelationBrickItem(CremeModel):
         super().delete(*args, **kwargs)
 
     @property
-    def all_ctypes_configured(self):
+    def all_ctypes_configured(self) -> bool:
         # TODO: cache (object_ctypes) ??
         compat_ctype_ids = {*self.relation_type.object_ctypes.values_list('id', flat=True)} or \
                            {ct.id for ct in creme_entity_content_types()}
@@ -401,21 +425,21 @@ class RelationBrickItem(CremeModel):
 
         return cells_map
 
-    def delete_cells(self, ctype):
+    def delete_cells(self, ctype: ContentType) -> None:
         del self._cells_by_ct()[ctype.id]
         self._dump_cells_map()
 
-    def get_cells(self, ctype):
+    def get_cells(self, ctype: ContentType) -> List[EntityCell]:
         return self._cells_by_ct().get(ctype.id)
 
-    def iter_cells(self):
-        "Beware: do not modify the returned objects"
+    def iter_cells(self) -> Iterator[Tuple[ContentType, List[EntityCell]]]:
+        "Beware: do not modify the returned objects."
         get_ct = ContentType.objects.get_for_id
 
         for ct_id, cells in self._cells_by_ct().items():
             yield get_ct(ct_id), cells  # TODO: copy dicts ?? (if 'yes' -> iter_ctypes() too)
 
-    def set_cells(self, ctype, cells):
+    def set_cells(self, ctype: ContentType, cells: List[EntityCell]) -> None:
         self._cells_by_ct()[ctype.id] = cells
         self._dump_cells_map()
 
@@ -433,7 +457,7 @@ class InstanceBrickConfigItem(CremeModel):
     creation_label = _('Create a block')
     save_label     = _('Save the block')
 
-    _brick = None
+    _brick: Optional['Brick'] = None
 
     class Meta:
         app_label = 'creme_core'
@@ -453,7 +477,7 @@ class InstanceBrickConfigItem(CremeModel):
         super().delete(*args, **kwargs)
 
     @property
-    def brick(self):
+    def brick(self) -> 'Brick':
         brick = self._brick
 
         if brick is None:
@@ -463,19 +487,21 @@ class InstanceBrickConfigItem(CremeModel):
         return brick
 
     @property
-    def errors(self):
+    def errors(self) -> Optional[List[str]]:
         return getattr(self.brick, 'errors', None)
 
     @staticmethod
-    def id_is_specific(brick_id):
+    def id_is_specific(brick_id: str) -> bool:
         return brick_id.startswith('instanceblock_')
 
     @staticmethod
-    def generate_base_id(app_name, name):
+    def generate_base_id(app_name: str, name: str) -> str:
         return f'instanceblock_{app_name}-{name}'
 
     @staticmethod
-    def generate_id(brick_class, entity, key):
+    def generate_id(brick_class: Type['Brick'],
+                    entity: CremeEntity,
+                    key: str) -> str:
         """@param key: String that allows to make the difference between 2 instances
                        of the same Block class and the same CremeEntity instance.
         """
@@ -488,7 +514,7 @@ class InstanceBrickConfigItem(CremeModel):
         return f'{brick_class.id_}|{entity.id}-{key}'
 
     @staticmethod
-    def get_base_id(brick_id):
+    def get_base_id(brick_id: str) -> str:
         return brick_id.split('|', 1)[0]
 
 
@@ -519,11 +545,11 @@ class CustomBrickConfigItem(CremeModel):
 
         super().delete(*args, **kwargs)
 
-    def generate_id(self):
+    def generate_id(self) -> str:
         return f'customblock-{self.id}'
 
     @staticmethod
-    def id_from_brick_id(brick_id):
+    def id_from_brick_id(brick_id: str) -> Optional[str]:
         try:
             prefix, cbci_id = brick_id.split('-', 1)
         except ValueError:  # Unpacking error
@@ -531,12 +557,12 @@ class CustomBrickConfigItem(CremeModel):
 
         return None if prefix != 'customblock' else cbci_id
 
-    def _dump_cells(self, cells):
+    def _dump_cells(self, cells: Iterable[EntityCell]) -> None:
         self.json_cells = json_encode([cell.to_dict() for cell in cells])
 
     # TODO: factorise with HeaderFilter.cells
     @property
-    def cells(self):
+    def cells(self) -> List[EntityCell]:
         cells = self._cells
 
         if cells is None:
@@ -557,12 +583,12 @@ class CustomBrickConfigItem(CremeModel):
         return cells
 
     @cells.setter
-    def cells(self, cells):
+    def cells(self, cells: Iterable[EntityCell]) -> None:
         self._cells = cells = [cell for cell in cells if cell]
         self._dump_cells(cells)
 
     @property
-    def filtered_cells(self):
+    def filtered_cells(self) -> Iterator[EntityCell]:
         """Generators which yields EntityCell instances, but it excluded the
         ones which are related to fields hidden with FieldsConfig.
         """
@@ -570,7 +596,7 @@ class CustomBrickConfigItem(CremeModel):
 
 
 class BrickStateManager(models.Manager):
-    FIELDS = {
+    FIELDS: Dict[str, str] = {
         # SettingKey ID                                 BrickState field-name
         SETTING_BRICK_DEFAULT_STATE_IS_OPEN:           'is_open',  # TODO: constants....
         SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS: 'show_empty_fields',
@@ -584,7 +610,7 @@ class BrickStateManager(models.Manager):
 
         return {FIELDS[svalue.key_id]: svalue.value for svalue in svalues.values()}
 
-    def get_for_brick_id(self, *, brick_id, user):
+    def get_for_brick_id(self, *, brick_id: str, user) -> 'BrickState':
         """Returns current state of a brick.
         @param brick_id: A brick id.
         @param user: owner of the BrickState.
@@ -595,9 +621,9 @@ class BrickStateManager(models.Manager):
         except self.model.DoesNotExist:
             return self.model(brick_id=brick_id, user=user, **self._get_fields_values())
 
-    def get_for_brick_ids(self, *, brick_ids, user):
+    def get_for_brick_ids(self, *, brick_ids: Sequence[str], user) -> Dict[str, 'BrickState']:
         """Get current states of several bricks.
-        @param brick_ids: a list of brick ids.
+        @param brick_ids: a list of brick IDs.
         @param user: owner of the BrickStates.
         @returns: A dict with brick_id as key and state as value.
         """
@@ -698,13 +724,13 @@ class BrickState(CremeModel):
     #
     #     return states
 
-    def del_extra_data(self, key):
+    def del_extra_data(self, key: str) -> None:
         del self._extra_data[key]
 
-    def get_extra_data(self, key):
+    def get_extra_data(self, key: str):
         return self._extra_data.get(key)
 
-    def set_extra_data(self, key, value):
+    def set_extra_data(self, key: str, value) -> bool:
         old_value = self._extra_data.get(key)
         self._extra_data[key] = value
 

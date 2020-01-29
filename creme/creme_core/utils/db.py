@@ -26,19 +26,20 @@
 from collections import defaultdict
 from fnmatch import fnmatch
 from functools import lru_cache
+from typing import Any, Type, Optional, Iterable, Iterator, Sequence, List, Tuple, Dict, DefaultDict
 
 from django.db import connections, DEFAULT_DB_ALIAS
-from django.db.models import ForeignKey
+from django.db.models import Model, ForeignKey
 
 from ..models import CaseSensitivity
 
 from .meta import FieldInfo
 
 
-def get_indexes_columns(model):
+def get_indexes_columns(model: Type[Model]) -> Iterator[List[str]]:
     """Generator which yields the columns corresponding to a model-s indexes.
     @param model: A class inheriting DjangoModel.
-    @return Lists of strings (field/columns names).
+    @yield Lists of strings (field/columns names).
     """
     connection = connections[DEFAULT_DB_ALIAS]
 
@@ -51,7 +52,7 @@ def get_indexes_columns(model):
             yield constr_info['columns']
 
 
-def build_columns_key(columns):
+def build_columns_key(columns: Iterable[str]) -> str:
     """Build a key (string) for a sequence of field-names ;
      this key can be smartly filtered with a pattern.
 
@@ -71,7 +72,7 @@ def build_columns_key(columns):
 
 # NB: 'maxsize=None' => avoid locking (number of models is small)
 @lru_cache(maxsize=None)
-def get_keyed_indexes_columns(model):
+def get_keyed_indexes_columns(model: Type[Model]) -> Tuple[Tuple[str, Tuple[str, ...]], ...]:
     """Build a cached structure which contains information about indexes of a model
     @param model: A class inheriting DjangoModel.
     @return A tuple of tuples (string_key, field_names_tuple).
@@ -84,7 +85,8 @@ def get_keyed_indexes_columns(model):
                 )
 
 
-def get_indexed_ordering(model, fields_pattern):
+def get_indexed_ordering(model: Type[Model],
+                         fields_pattern: Iterable[str]) -> Optional[Tuple[str, ...]]:
     """Search in the model's DB-indexes an ordering corresponding to a pattern,
     in order to have an efficient ordering.
 
@@ -165,7 +167,8 @@ def get_indexed_ordering(model, fields_pattern):
 
 
 # TODO: ManyToManyField too ?
-def populate_related(instances, field_names):
+def populate_related(instances: Sequence[Model],
+                     field_names: Iterable[str]) -> None:
     """Retrieve the given ForeignKeys values for some instances, in order to
     reduce the number of DB queries.
 
@@ -177,7 +180,7 @@ def populate_related(instances, field_names):
         return
 
     # Model/ID/Instances => big_instances_cache[my_model].get(my_id)
-    global_cache = defaultdict(dict)
+    global_cache: DefaultDict[Type[Model], Dict[Any, Model]] = defaultdict(dict)
 
     def _iter_works(works):
         for instances, fields_info in works:
@@ -198,7 +201,7 @@ def populate_related(instances, field_names):
 
         # Step 1: we group all FK related to the same model, in order to group queries.
         for instances, field_info, field in _iter_works(works):
-            attr_name  = field.get_attname()
+            attr_name = field.get_attname()
 
             rel_model = field.remote_field.model
             cached = global_cache[rel_model]
@@ -259,7 +262,7 @@ def populate_related(instances, field_names):
 
 # NB: 'maxsize=None' => avoid locking (number of models is small)
 @lru_cache(maxsize=None)
-def is_db_case_sensitive():  # TODO: argument "db" for multi-db env ?
+def is_db_case_sensitive() -> bool:  # TODO: argument "db" for multi-db env ?
     """Is the main database case sensitive or not.
     @return A boolean ; <True> means "case sensitive".
 

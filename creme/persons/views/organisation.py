@@ -18,8 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type
+
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
+from django.forms.forms import BaseForm
 from django.http import HttpResponse
 # from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -39,7 +42,7 @@ Organisation = get_organisation_model()
 
 class OrganisationCreationBase(generic.EntityCreation):
     model = Organisation
-    form_class = orga_forms.OrganisationForm
+    form_class: Type[BaseForm] = orga_forms.OrganisationForm
     template_name = 'persons/add_organisation_form.html'
 
 
@@ -64,7 +67,7 @@ class OrganisationDetail(generic.EntityDetail):
 
 class OrganisationEdition(generic.EntityEdition):
     model = Organisation
-    form_class = orga_forms.OrganisationForm
+    form_class: Type[BaseForm] = orga_forms.OrganisationForm
     template_name = 'persons/edit_organisation_form.html'
     pk_url_kwarg = 'orga_id'
 

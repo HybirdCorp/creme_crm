@@ -19,7 +19,10 @@
 ################################################################################
 
 import logging
+from typing import Optional
 
+from creme.creme_core.models.entity_filter import EntityFilterList, EntityFilter
+from creme.creme_core.models.header_filter import HeaderFilterList, HeaderFilter
 from creme.creme_core.utils.queries import QSerializer
 
 logger = logging.getLogger(__name__)
@@ -52,7 +55,7 @@ class ListViewState:
                                f'search={self.search}, '
                                f'extra_q={self.extra_q})>')
 
-    def register_in_session(self, request):
+    def register_in_session(self, request) -> None:
         serialized = {**self.__dict__}
 
         if self.extra_q is not None:
@@ -61,7 +64,7 @@ class ListViewState:
         request.session[self.url] = serialized
 
     @classmethod
-    def get_state(cls, request, url=None):
+    def get_state(cls, request, url=None) -> Optional['ListViewState']:
         lvs = None
         data = request.session.get(url or request.path)
 
@@ -77,14 +80,14 @@ class ListViewState:
         return lvs
 
     @classmethod
-    def build_from_request(cls, arguments, url, **kwargs):
+    def build_from_request(cls, arguments, url: str, **kwargs) -> 'ListViewState':
         kwargs.update((str(k), v) for k, v in arguments.items())
         kwargs['url'] = url
 
         return cls(**kwargs)
 
     @classmethod
-    def get_or_create_state(cls, request, url, **kwargs):
+    def get_or_create_state(cls, request, url: str, **kwargs) -> 'ListViewState':
         state = cls.get_state(request, url)
 
         if state is None:
@@ -93,7 +96,11 @@ class ListViewState:
 
         return state
 
-    def set_headerfilter(self, header_filters, id=-1, default_id=''):
+    def set_headerfilter(self,
+                         header_filters: HeaderFilterList,
+                         # id=-1,
+                         id: str = '',
+                         default_id: str = '') -> HeaderFilter:
         # Try first to get the posted header filter which is the most recent.
         # Then try to retrieve the header filter from session, then fallback
         hf = header_filters.select_by_id(id,
@@ -108,7 +115,10 @@ class ListViewState:
 
         return hf
 
-    def set_entityfilter(self, entity_filters, filter_id, default_id=''):
+    def set_entityfilter(self,
+                         entity_filters: EntityFilterList,
+                         filter_id: str,
+                         default_id: str = '') -> Optional[EntityFilter]:
         """Select an EntityFilter & store it.
 
         @param entity_filters: EntityFilterList instance

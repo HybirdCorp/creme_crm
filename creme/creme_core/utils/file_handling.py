@@ -23,13 +23,14 @@
 # SOFTWARE.
 ################################################################################
 
-import logging
-
 from datetime import date, datetime
 import io
-import os, sys
+import logging
+import os
 from os.path import join, splitext, exists
 from random import randint
+import sys
+from typing import Iterable, List, Optional, Type
 
 from ..utils.secure_filename import secure_filename
 
@@ -85,9 +86,20 @@ class FileCreator:
     class Error(Exception):
         pass
 
-    def __init__(self, dir_path, name,
-                 generators=(DatetimeFileNameSuffixGenerator, IncrFileNameSuffixGenerator),
-                 max_trials=1000, max_length=None):
+    dir_path: str
+    name: str
+    max_trials: int
+    max_length: int
+
+    def __init__(self,
+                 dir_path: str,
+                 name: str,
+                 generators: Iterable[Type[FileNameSuffixGenerator]] = (
+                     DatetimeFileNameSuffixGenerator,
+                     IncrFileNameSuffixGenerator,
+                 ),
+                 max_trials: int = 1000,
+                 max_length: Optional[int] = None):
         """Constructor.
         @param dir_path: Path of the directory where to create the files (string).
                          The path must be valid on the current system.
@@ -104,9 +116,12 @@ class FileCreator:
         self.name = name
         self.max_trials = max_trials
         self.max_length = max_length or sys.maxsize
-        self._generators_classes = [FileNameSuffixGenerator, *generators]
+        self._generators_classes: List[Type[FileNameSuffixGenerator]] = [
+            FileNameSuffixGenerator,
+            *generators,
+        ]
 
-    def create(self):
+    def create(self) -> str:
         """Create a new file.
         @return The file path.
         @raise FileCreator.Error.

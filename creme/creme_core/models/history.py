@@ -23,12 +23,17 @@ from decimal import Decimal
 from functools import partial
 from json import loads as json_load, JSONEncoder
 import logging
+from typing import (
+    Any, Union, Optional, Type,
+    Callable, Container, Iterator, Sequence,
+    Dict, List,
+)
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import (
-    Model,
+    Model, Field,
     PositiveSmallIntegerField,
     CharField, TextField,
     ForeignKey, OneToOneField,
@@ -53,6 +58,8 @@ from ..utils.dates import (
 )
 from ..utils.translation import get_model_verbose_name
 from .entity import CremeEntity
+from .entity_filter import EntityFilter
+from .header_filter import HeaderFilter
 from .relation import RelationType, Relation
 from .creme_property import CremePropertyType, CremeProperty
 from .fields import CreationDateTimeField, CremeUserForeignKey, CTypeForeignKey
@@ -115,8 +122,11 @@ class _JSONEncoder(JSONEncoder):
         return JSONEncoder.default(self, o)
 
 
+Printer = Callable[[Field, Any, Any], str]
+
+
 # TODO: factorise with gui.field_printers ?? (html and text mode ??)
-def _basic_printer(field, val, user):
+def _basic_printer(field: Field, val, user) -> str:
     if field.choices:
         # NB: django way for '_get_FIELD_display()' methods => would a linear search be faster ?
         val = dict(field.flatchoices).get(val, val)
@@ -124,10 +134,11 @@ def _basic_printer(field, val, user):
     if val is None:
         return ''
 
-    return val
+    # return val
+    return str(val)
 
 
-def _fk_printer(field, val, user):
+def _fk_printer(field: Field, val, user) -> str:
     if val is None:
         return ''
 
@@ -145,26 +156,36 @@ def _fk_printer(field, val, user):
     return str(out)
 
 
-def _boolean_printer(field, val, user):
+def _boolean_printer(field: Field, val, user) -> str:
     return gettext('Yes') if val else \
            gettext('No') if val is False else \
            gettext('N/A')
 
 
+def _date_printer(field: Field, val, user) -> str:
+    return date_format(date_from_ISO8601(val), 'DATE_FORMAT') if val else ''
+
+
+def _datetime_printer(field: Field, val, user) -> str:
+    return date_format(localtime(dt_from_ISO8601(val)), 'DATETIME_FORMAT') if val else ''
+
+
+def _float_printer(field: Field, val, user):
+    # TODO remove 'use_l10n' when settings.USE_L10N == True
+    return number_format(val, use_l10n=True) if val is not None else ''
+
+
 # TODO: ClassKeyedMap ?
-_PRINTERS = {
+_PRINTERS: Dict[str, Printer] = {
     'BooleanField': _boolean_printer,
     'NullBooleanField': _boolean_printer,
 
     'ForeignKey': _fk_printer,
 
-    'DateField':     lambda field, val, user: date_format(date_from_ISO8601(val), 'DATE_FORMAT') if val else '',
-    'DateTimeField': lambda field, val, user: date_format(localtime(dt_from_ISO8601(val)),
-                                                          'DATETIME_FORMAT',
-                                                         ) if val else '',
+    'DateField': _date_printer,
+    'DateTimeField': _datetime_printer,
 
-    # TODO remove 'use_l10n' when settings.USE_L10N == True
-    'FloatField': lambda field, val, user: number_format(val, use_l10n=True) if val is not None else '',
+    'FloatField': _float_printer,
 }
 
 
@@ -172,9 +193,9 @@ class _HistoryLineTypeRegistry:
     __slots__ = ('_hltypes', )
 
     def __init__(self):
-        self._hltypes = {}
+        self._hltypes: Dict[int, Type['_HistoryLineType']] = {}
 
-    def __call__(self, type_id):
+    def __call__(self, type_id: int):
         assert type_id not in self._hltypes, 'ID collision'
 
         def _aux(cls):
@@ -184,10 +205,10 @@ class _HistoryLineTypeRegistry:
 
         return _aux
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> Type['_HistoryLineType']:
         return self._hltypes[i]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Type['_HistoryLineType']]:
         return iter(self._hltypes.values())
 
 
@@ -210,13 +231,13 @@ TYPE_EXPORT       = 20
 
 
 class _HistoryLineType:
-    type_id           = None  # Overload with TYPE_*
-    verbose_name      = 'OVERLOAD ME'
-    has_related_line  = False
-    is_about_relation = False
+    type_id: int  # = None  # Overload with TYPE_*
+    verbose_name            = 'OVERLOAD ME'
+    has_related_line: bool  = False
+    is_about_relation: bool = False
 
     @classmethod
-    def _build_fields_modifs(cls, instance):
+    def _build_fields_modifs(cls, instance) -> List[tuple]:
         modifs = []
         backup = getattr(instance, '_instance_backup', None)
 
@@ -224,7 +245,7 @@ class _HistoryLineType:
             backup['_state'] = ModelState()
             old_instance = instance.__class__()
             old_instance.__dict__ = backup
-            excluded_fields = _EXCLUDED_FIELDS if isinstance(instance, CremeEntity) else ()
+            excluded_fields: Container = _EXCLUDED_FIELDS if isinstance(instance, CremeEntity) else ()
 
             for field in instance._meta.fields:
                 fname = field.name
@@ -251,6 +272,8 @@ class _HistoryLineType:
                     if not new_value and not old_value:  # Ignore useless changes like : None -> ""
                         continue
 
+                    modif: tuple
+
                     if field.get_internal_type() not in _SERIALISABLE_FIELDS:
                         modif = (fname,)
                     elif old_value:
@@ -263,20 +286,23 @@ class _HistoryLineType:
         return modifs
 
     @staticmethod
-    def _create_entity_backup(entity):
+    def _create_entity_backup(entity: Model) -> None:
         entity._instance_backup = backup = entity.__dict__.copy()
         del backup['_state']
 
-    def _get_printer(self, field):
+    def _get_printer(self, field: Field) -> Printer:
         return _PRINTERS.get(field.get_internal_type(), _basic_printer)
 
-    def _verbose_modifications_4_fields(self, model_class, modifications, user):
+    def _verbose_modifications_4_fields(self,
+                                        model_class: Type[Model],
+                                        modifications: List[tuple],
+                                        user) -> Iterator[str]:
         get_field = model_class._meta.get_field
 
         for modif in modifications:
             field_name = modif[0]
             try:
-                field = get_field(field_name)
+                field: Field = get_field(field_name)
             except FieldDoesNotExist:
                 vmodif = gettext('Set field “{field}”').format(field=field_name)
             else:
@@ -300,7 +326,10 @@ class _HistoryLineType:
 
             yield vmodif
 
-    def verbose_modifications(self, modifications, entity_ctype, user):
+    def verbose_modifications(self,
+                              modifications: List[tuple],
+                              entity_ctype: ContentType,
+                              user) -> Iterator[str]:
         for m in self._verbose_modifications_4_fields(entity_ctype.model_class(),
                                                       modifications, user,
                                                      ):
@@ -312,7 +341,7 @@ class _HLTEntityCreation(_HistoryLineType):
     verbose_name = _('Creation')
 
     @classmethod
-    def create_line(cls, entity):
+    def create_line(cls, entity: CremeEntity) -> None:
         HistoryLine._create_line_4_instance(entity, cls.type_id, date=entity.created)
         # We do not backup here, in order to keep a kind of 'creation session'.
         # So when you create a CremeEntity, while you still use the same
@@ -325,7 +354,7 @@ class _HLTEntityEdition(_HistoryLineType):
     verbose_name = _('Edition')
 
     @classmethod
-    def create_lines(cls, entity):
+    def create_lines(cls, entity: CremeEntity) -> None:
         modifs = _HistoryLineType._build_fields_modifs(entity)
 
         if modifs:
@@ -342,7 +371,7 @@ class _HLTEntityDeletion(_HistoryLineType):
     verbose_name = _('Deletion')
 
     @classmethod
-    def create_line(cls, entity):
+    def create_line(cls, entity: CremeEntity) -> None:
         HistoryLine.objects.create(entity_ctype=entity.entity_type,
                                    entity_owner=entity.user,
                                    type=cls.type_id,
@@ -356,7 +385,7 @@ class _HLTRelatedEntity(_HistoryLineType):
     has_related_line = True
 
     @classmethod
-    def create_lines(cls, entity, related_line):
+    def create_lines(cls, entity: CremeEntity, related_line: 'HistoryLine'):
         items = HistoryConfigItem.objects.values_list('relation_type', flat=True)  # TODO: cache ??
         relations = Relation.objects.filter(subject_entity=entity.id, type__in=items) \
                                     .select_related('object_entity')
@@ -380,9 +409,9 @@ class _HLTPropertyCreation(_HistoryLineType):
     _fmt = _('Add property “{}”')
 
     @classmethod
-    def create_line(cls, prop):
+    def create_line(cls, prop: CremeProperty):
         HistoryLine._create_line_4_instance(prop.creme_entity, cls.type_id,
-                                            modifs=[prop.type_id]
+                                            modifs=[prop.type_id],
                                            )
 
     def verbose_modifications(self, modifications, entity_ctype, user):
@@ -402,7 +431,7 @@ class _HLTPropertyDeletion(_HLTPropertyCreation):
     _fmt = _('Delete property “{}”')
 
     @classmethod
-    def create_line(cls, prop):
+    def create_line(cls, prop: CremeProperty) -> None:
         HistoryLine._create_line_4_instance(prop.creme_entity, cls.type_id,
                                             modifs=[prop.type_id],
                                            )
@@ -416,7 +445,10 @@ class _HLTRelation(_HistoryLineType):
     _fmt = _('Add a relationship “{}”')
 
     @classmethod
-    def _create_lines(cls, relation, sym_cls, date=None):
+    def _create_lines(cls,
+                      relation: Relation,
+                      sym_cls: Type[_HistoryLineType],
+                      date=None) -> None:
         create_line = partial(HistoryLine._create_line_4_instance, date=date)
         hline     = create_line(relation.subject_entity, cls.type_id)
         hline_sym = create_line(relation.object_entity, sym_cls.type_id,
@@ -429,11 +461,12 @@ class _HLTRelation(_HistoryLineType):
         hline.save()
 
     @classmethod
-    def create_lines(cls, relation, created):
+    def create_lines(cls, relation: Relation, created: bool):
         if not created:
-            cls._create_lines(relation if '-subject_' in relation.type_id else relation.symmetric_relation,
-                              _HLTSymRelation, relation.created,
-                             )
+            cls._create_lines(
+                relation if '-subject_' in relation.type_id else relation.symmetric_relation,
+                _HLTSymRelation, relation.created,
+            )
 
     def verbose_modifications(self, modifications, entity_ctype, user):
         rtype_id = modifications[0]
@@ -457,7 +490,7 @@ class _HLTRelationDeletion(_HLTRelation):
     _fmt = _('Delete a relationship “{}”')
 
     @classmethod
-    def create_lines(cls, relation):
+    def create_lines(cls, relation: Relation, *args, **kwargs):
         if '-subject_' in relation.type_id:
             cls._create_lines(relation, _HLTSymRelationDeletion)
 
@@ -481,7 +514,7 @@ class _HLTAuxCreation(_HistoryLineType):
         return [_get_ct(related).id, related.pk, str(related)]
 
     @classmethod
-    def create_line(cls, related):
+    def create_line(cls, related: Model) -> None:
         HistoryLine._create_line_4_instance(related.get_related_entity(),
                                             cls.type_id,
                                             modifs=cls._build_modifs(related),
@@ -501,7 +534,7 @@ class _HLTAuxEdition(_HLTAuxCreation):
     verbose_name = _('Auxiliary (edition)')
 
     @classmethod
-    def create_line(cls, related):
+    def create_line(cls, related: Model) -> None:
         # TODO: factorise better ?
         fields_modifs = cls._build_fields_modifs(related)
 
@@ -549,7 +582,12 @@ class _HLTEntityExport(_HistoryLineType):
     verbose_name = _('Mass export')
 
     @classmethod
-    def create_line(cls, ctype, user, count, hfilter, efilter=None):
+    def create_line(cls,
+                    ctype: ContentType,
+                    user,
+                    count: int,
+                    hfilter: HeaderFilter,
+                    efilter: Optional[EntityFilter] = None) -> 'HistoryLine':
         """Builder of HistoryLine representing a CSV/XLS/... massive export.
 
         @param ctype: ContentType instance ; type of exported entities.
@@ -563,10 +601,10 @@ class _HLTEntityExport(_HistoryLineType):
             modifs.append(efilter.name)
 
         return HistoryLine.objects.create(
-                entity_ctype=ctype,
-                entity_owner=user,
-                type=cls.type_id,
-                value=HistoryLine._encode_attrs(instance='', modifs=modifs),
+            entity_ctype=ctype,
+            entity_owner=user,
+            type=cls.type_id,
+            value=HistoryLine._encode_attrs(instance='', modifs=modifs),
         )
 
     def verbose_modifications(self, modifications, entity_ctype, user):
@@ -591,13 +629,13 @@ class HistoryLine(Model):
     type         = PositiveSmallIntegerField(_('Type'))  # See TYPE_*
     value        = TextField(null=True)  # TODO: use a JSONField ? (see EntityFilter)
 
-    ENABLED = True  # False means that no new HistoryLines are created.
+    ENABLED: bool = True  # False means that no new HistoryLines are created.
 
-    _line_type = None
-    _entity_repr = None
-    _modifications = None
-    _related_line_id = None
-    _related_line = False
+    _line_type: Optional[_HistoryLineType] = None
+    _entity_repr: Optional[str] = None
+    _modifications: Optional[list] = None
+    _related_line_id: Optional[int] = None
+    _related_line: Union['HistoryLine', bool, None] = False
 
     class Meta:
         app_label = 'creme_core'
@@ -617,7 +655,7 @@ class HistoryLine(Model):
 
     @staticmethod
     @atomic
-    def delete_lines(line_qs):
+    def delete_lines(line_qs) -> None:
         """Delete the given HistoryLines & the lines related to them.
         @param line_qs: QuerySet on HistoryLine.
         """
@@ -656,14 +694,14 @@ class HistoryLine(Model):
                 break
 
     @staticmethod
-    def disable(instance):
+    def disable(instance) -> None:
         """Disable history for this instance.
         @type instance: Can be an instance of CremeEntity, Relation, CremeProperty, an auxiliary model.
         """
         instance._hline_disabled = True
 
     @staticmethod
-    def mark_as_reassigned(instance, old_reference, new_reference, field_name):
+    def mark_as_reassigned(instance, old_reference, new_reference, field_name: str):
         """ Indicate to the history system that an instance has been modified by replacing a FK value.
 
         It is useful when merging 2 entities with auxiliary instances, in order to detect a change
@@ -680,8 +718,8 @@ class HistoryLine(Model):
         instance._hline_reassigned = (old_reference, new_reference, field_name)
 
     @classmethod
-    def _encode_attrs(cls, instance, modifs=(), related_line_id=None):
-        value = [str(instance)]
+    def _encode_attrs(cls, instance, modifs=(), related_line_id: Optional[int] = None) -> str:
+        value: list = [str(instance)]
         if related_line_id:
             value.append(related_line_id)
 
@@ -695,7 +733,7 @@ class HistoryLine(Model):
 
         return attrs
 
-    def _read_attrs(self):
+    def _read_attrs(self) -> None:
         value = json_load(self.value)
         self._entity_repr = value.pop(0)
         self._related_line_id = value.pop(0) if self.line_type.has_related_line else 0
@@ -712,7 +750,7 @@ class HistoryLine(Model):
         return self.line_type.verbose_name
 
     @property
-    def line_type(self):
+    def line_type(self) -> _HistoryLineType:
         _line_type = self._line_type
 
         if _line_type is None:
@@ -738,14 +776,14 @@ class HistoryLine(Model):
             logger.exception('Error in %s', self.__class__.__name__)
             return ['??']
 
-    def _get_related_line_id(self):
+    def _get_related_line_id(self) -> Optional[int]:
         if self._related_line_id is None:
             self._read_attrs()
 
         return self._related_line_id
 
     @staticmethod
-    def populate_users(hlines, user):
+    def populate_users(hlines: Sequence['HistoryLine'], user):
         """Set the internal cache for 'user' in some HistoryLines, to optimize queries.
 
         @param hlines: Sequence of HistoryLine instances (need to be iterated twice)
@@ -765,7 +803,7 @@ class HistoryLine(Model):
             hline.user = users.get(hline.username)
 
     @property
-    def related_line(self):
+    def related_line(self) -> Optional['HistoryLine']:
         if self._related_line is False:
             self._related_line = None
             line_id = self._get_related_line_id()
@@ -779,7 +817,7 @@ class HistoryLine(Model):
         return self._related_line
 
     @classmethod
-    def _create_line_4_instance(cls, instance, ltype, date=None, modifs=(), related_line_id=None):
+    def _create_line_4_instance(cls, instance, ltype: int, date=None, modifs=(), related_line_id=None):
         """Builder.
         @param ltype: See TYPE_*
         @param date: If not given, will be 'now'.
@@ -823,7 +861,7 @@ class HistoryLine(Model):
 
 
 # TODO: method of CremeEntity ??
-def _final_entity(entity):
+def _final_entity(entity) -> bool:
     "Is the instance an instance of a 'leaf' class."
     return entity.entity_type_id == _get_ct(entity).id
 
@@ -873,7 +911,7 @@ def _log_creation_edition(sender, instance, created, **kwargs):
         logger.exception('Error in _log_creation_edition() ; HistoryLine may not be created.')
 
 
-def _get_deleted_entity_ids():
+def _get_deleted_entity_ids() -> set:
     del_ids = get_global_info('deleted_entity_ids')
 
     if del_ids is None:

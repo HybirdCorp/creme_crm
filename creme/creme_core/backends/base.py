@@ -26,7 +26,7 @@ class ImportBackend:
     verbose_name: defines the backend for the user, currently unused for import backends.
     help_text: a help text used in the import form.
     """
-    id = "OVERLOAD ME"
+    id: str = "OVERLOAD ME"
     verbose_name = "OVERLOAD ME"
     help_text = "OVERLOAD ME"
 
@@ -52,7 +52,7 @@ class ExportBackend:
     verbose_name: defines the backend for the user, used in the select backend popup.
     help_text: currently unused.
     """
-    id = "OVERLOAD ME"
+    id: str = "OVERLOAD ME"
     verbose_name = "OVERLOAD ME"
     help_text = "OVERLOAD ME"
 

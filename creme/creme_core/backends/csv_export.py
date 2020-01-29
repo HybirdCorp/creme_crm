@@ -30,7 +30,7 @@ from .base import ExportBackend
 class CSVExportBackend(ExportBackend):
     id = 'csv'
     verbose_name = _("CSV File (delimiter: ',')")
-    delimiter = ','
+    delimiter: str = ','
     help_text = ''
 
     def __init__(self):

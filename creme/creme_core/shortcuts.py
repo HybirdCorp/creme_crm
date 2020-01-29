@@ -24,11 +24,16 @@
 #
 ################################################################################
 
+from typing import Optional
+
 from django.http import Http404
 from django.shortcuts import _get_queryset
 
 
-def get_bulk_or_404(klass, id_list=None, *, field_name='pk'):
+def get_bulk_or_404(klass,
+                    id_list: Optional[list] = None,
+                    *,
+                    field_name: str = 'pk') -> dict:
     """Returns a dictionary of objects for a given list of IDs.
 
     (see the method .in_bulk() of QuerySet)

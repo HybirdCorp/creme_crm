@@ -19,6 +19,7 @@
 ################################################################################
 
 from collections import OrderedDict
+from typing import Type, Optional, Dict
 
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import rrule, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY
@@ -27,7 +28,7 @@ from django.utils.translation import gettext_lazy as _, ngettext
 
 
 class DatePeriod:
-    name = 'base_date_period'  # Overload
+    name: str = 'base_date_period'  # Overload
     verbose_name = 'Date period'  # Overload
 
     def __str__(self):
@@ -44,18 +45,18 @@ class DatePeriod:
     def __ne__(self, other_dp):
         return not self == other_dp
 
-    def as_timedelta(self):
+    def as_timedelta(self) -> relativedelta:
         raise NotImplementedError
 
     def _value_as_dict(self):
-        "Period as a jsonifiable dictionary"
+        "Period as a jsonifiable dictionary."
         raise NotImplementedError
 
-    def as_rrule(self):
-        "Period as a dateutil recurrent rule"
+    def as_rrule(self) -> rrule:
+        "Period as a dateutil recurrent rule."
         raise NotImplementedError
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         "Period as a jsonifiable dictionary"
         d = {'type': self.name}
         d.update(self._value_as_dict())
@@ -64,7 +65,7 @@ class DatePeriod:
 
 
 class SimpleValueDatePeriod(DatePeriod):
-    # frequency = ...  TO BE DEFINED
+    frequency: int  # = ...  TO BE DEFINED (see MINUTELY etc...)
 
     def __init__(self, value):
         self._value = value
@@ -145,15 +146,15 @@ class DatePeriodRegistry:
     class RegistrationError(Exception):
         pass
 
-    def __init__(self, *periods):
-        self._periods = OrderedDict()
+    def __init__(self, *periods: Type[DatePeriod]):
+        self._periods: Dict[str, Type[DatePeriod]] = OrderedDict()
         self.register(*periods)
 
     def choices(self, choices=None):
-        """Return a list of tuples which can be used to build the DatePeriodField formfield.
+        """Yield tuples which can be used to build the DatePeriodField formfield.
         @param choices List of names or None, used to filter the registry elements.
                        If None provided, return all the elements.
-        @return The tuples (name, period_klass.verbose_name) of registry elements.
+        @yield The tuples (name, period_klass.verbose_name) of registry elements.
         """
         is_allowed = (lambda name: True) if choices is None else \
                      lambda name: name in choices
@@ -162,7 +163,7 @@ class DatePeriodRegistry:
             if is_allowed(name):
                 yield name, period_klass.verbose_name
 
-    def get_period(self, name, *args):
+    def get_period(self, name: str, *args) -> Optional[DatePeriod]:
         klass = self._periods.get(name)
 
         if not klass:
@@ -170,10 +171,10 @@ class DatePeriodRegistry:
 
         return klass(*args)
 
-    def deserialize(self, dict_value):
+    def deserialize(self, dict_value: dict) -> Optional[DatePeriod]:
         return self.get_period(dict_value['type'], dict_value['value'])
 
-    def register(self, *periods):
+    def register(self, *periods: Type[DatePeriod]):
         periods_map = self._periods
 
         for period in periods:
@@ -187,6 +188,7 @@ class DatePeriodRegistry:
             periods_map[name] = period
 
 
-date_period_registry = DatePeriodRegistry(MinutesPeriod, HoursPeriod, DaysPeriod,
-                                          WeeksPeriod, MonthsPeriod, YearsPeriod,
-                                         )
+date_period_registry = DatePeriodRegistry(
+    MinutesPeriod, HoursPeriod, DaysPeriod,
+    WeeksPeriod, MonthsPeriod, YearsPeriod,
+)

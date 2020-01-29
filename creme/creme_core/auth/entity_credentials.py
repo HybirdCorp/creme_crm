@@ -18,7 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models.query_utils import Q
+from typing import Dict, Optional, Type, TYPE_CHECKING
+
+from django.db.models import Q, QuerySet
+
+if TYPE_CHECKING:
+    from ..models import CremeEntity
 
 VIEW_PERM   = 'creme_core.view_entity'
 CHANGE_PERM = 'creme_core.change_entity'
@@ -38,7 +43,7 @@ class EntityCredentials:
 
     _ALL_CREDS = 63
 
-    _PERMS_MAP = {
+    _PERMS_MAP: Dict[str, int] = {
         VIEW_PERM:   VIEW,
         CHANGE_PERM: CHANGE,
         DELETE_PERM: DELETE,
@@ -49,7 +54,7 @@ class EntityCredentials:
     class FilteringError(Exception):
         pass
 
-    def _sandbox_is_allowed(self, sandbox, user):
+    def _sandbox_is_allowed(self, sandbox, user) -> bool:
         if sandbox.role_id:
             return sandbox.role_id == user.role_id
 
@@ -62,9 +67,9 @@ class EntityCredentials:
 
         return False
 
-    def __init__(self, user, entity):
+    def __init__(self, user, entity: 'CremeEntity'):
         """Constructor.
-        @param user: django.contrib.auth.models.User instance.
+        @param user: <django.contrib.auth.get_user_model()> instance.
         @param entity: CremeEntity (or child class) instance.
         """
         if user.is_superuser:
@@ -85,26 +90,27 @@ class EntityCredentials:
     def __str__(self):
         return f'EntityCredentials(value="{self._value}")'
 
-    def can_change(self):
+    def can_change(self) -> bool:
         return self.has_perm(CHANGE_PERM)
 
-    def can_delete(self):
+    def can_delete(self) -> bool:
         return self.has_perm(DELETE_PERM)
 
-    def can_link(self):
+    def can_link(self) -> bool:
         return self.has_perm(LINK_PERM)
 
-    def can_unlink(self):
+    def can_unlink(self) -> bool:
         return self.has_perm(UNLINK_PERM)
 
-    def can_view(self):
+    def can_view(self) -> bool:
         return self.has_perm(VIEW_PERM)
 
-    def has_perm(self, string_permission):
-        return bool(self._PERMS_MAP.get(string_permission) & self._value)
+    def has_perm(self, string_permission: str) -> bool:
+        # return bool(self._PERMS_MAP.get(string_permission) & self._value)
+        return bool(self._PERMS_MAP[string_permission] & self._value)
 
     @classmethod
-    def _build_sandbox_Q(cls, user):
+    def _build_sandbox_Q(cls, user) -> Q:
         teams = user.teams
         user_q = Q(sandbox__user__isnull=False, sandbox__user__in=[user, *teams]) if teams else \
                  Q(sandbox__user__isnull=False, sandbox__user=user)
@@ -112,11 +118,14 @@ class EntityCredentials:
         return Q(sandbox=None) | Q(sandbox__role__isnull=False, sandbox__role=user.role) | user_q
 
     @classmethod
-    def filter(cls, user, queryset, perm=VIEW):
+    def filter(cls,
+               user,
+               queryset: QuerySet,
+               perm: int = VIEW) -> QuerySet:
         """Filter a Queryset of CremeEntities by the credentials of a given user.
         Beware, the model class must be a child class of CremeEntity, but cannot be CremeEntity itself.
 
-        @param user: A get_user_model() instance.
+        @param user: A <django.contrib.auth.get_user_model()> instance.
         @param queryset: A Queryset on a CremeEntity inheriting model (better if not yet retrieved).
         @param perm: A value in (VIEW, CHANGE, DELETE, LINK, UNLINK) [TODO: allow combination ?]
         @return: A new Queryset on the same model, more selective (not retrieved).
@@ -141,12 +150,16 @@ class EntityCredentials:
         return queryset
 
     @classmethod
-    def filter_entities(cls, user, queryset, perm=VIEW, as_model=None):
+    def filter_entities(cls,
+                        user,
+                        queryset: QuerySet,
+                        perm: int = VIEW,
+                        as_model: Optional[Type['CremeEntity']] = None) -> QuerySet:
         """Filter a Queryset of CremeEntities by the credentials of a given user.
         Beware, model class must be CremeEntity ; it cannot be a child class of CremeEntity.
 
-        @param user: A django.contrib.auth.get_user_model() instance.
-        @param queryset: A Queryset with model=CremeEntity (better if not yet retrieved).
+        @param user: A <django.contrib.auth.get_user_model()> instance.
+        @param queryset: A <Queryset> with model=CremeEntity (better if not yet retrieved).
         @param perm: A value in (VIEW, CHANGE, DELETE, LINK, UNLINK) [TODO: allow combination ?]
         @param as_model: A model inheriting CremeEntity, or None. If a model is given, all the
                entities in the queryset are filtered with the credentials for this model.
@@ -154,12 +167,12 @@ class EntityCredentials:
                by its field 'entity_type' (to keep only entities of the right model, & so do not
                make mistakes with credentials).
         @return: A new Queryset on CremeEntity, more selective (not retrieved).
-        @raise: ValueError if the <queryset> does not concern 'CremeEntity'.
+        @raise: ValueError if the "queryset" does not concern 'CremeEntity'.
         @raise: EntityCredentials.FilteringError if there is an EntityFilter,
                 which cannot be used on CremeEntity, in the SetCredentials
                 concerning the models of the allowed apps.
         """
-        from creme.creme_core.models import CremeEntity
+        from ..models import CremeEntity
 
         if queryset.model is not CremeEntity:
             raise ValueError('EntityCredentials.filter_entities() takes '

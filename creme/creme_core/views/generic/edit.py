@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type
+
 from django.db.transaction import atomic
+from django.forms.forms import BaseForm
 from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import UpdateView
@@ -63,7 +66,7 @@ class CremeModelEdition(base.CancellableMixin,
     be backed out by the 'initial' field value of the other form).
     """
     model = models.CremeModel
-    form_class = forms.CremeModelForm
+    form_class: Type[BaseForm] = forms.CremeModelForm
     template_name = 'creme_core/generics/blockform/edit.html'
     pk_url_kwarg = 'object_id'
     title = _('Edit «{object}»')
@@ -165,7 +168,7 @@ class EntityEditionPopup(CremeModelEditionPopup):
     It's based on CremeModelEditionPopup & adds the credentials checking.
     """
     model = models.CremeEntity
-    form_class = forms.CremeEntityForm
+    form_class: Type[BaseForm] = forms.CremeEntityForm
     pk_url_kwarg = 'entity_id'
 
     def check_instance_permissions(self, instance, user):

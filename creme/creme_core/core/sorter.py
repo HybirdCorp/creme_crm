@@ -21,14 +21,18 @@
 from collections import OrderedDict
 from functools import partial
 import logging
+from typing import Dict, List, Tuple, Optional, Type, Iterable
 
 from django.db import models
+from django.db.models import Model, Field
 
 from creme.creme_core.core.entity_cell import (
+    EntityCell,
     EntityCellRegularField,
     EntityCellFunctionField,
     CELLS_MAP,
 )
+from creme.creme_core.core.function_field import FunctionField
 from creme.creme_core.models import CremeEntity, fields
 from creme.creme_core.utils.collections import ClassKeyedMap
 from creme.creme_core.utils.db import get_indexed_ordering
@@ -45,7 +49,11 @@ class QuerySortInfo:
         - main_order: instance of <creme_core.utils.meta.Order>. Order of the main ordering field.
         - field_names: tuple of strings. Can be used as order_by() arguments.
     """
-    def __init__(self, cell_key, order, field_names=()):
+    main_cell_key: Optional[str]
+    main_order: Order
+    field_names: Tuple[str, ...]
+
+    def __init__(self, cell_key: Optional[str], order: Order, field_names: Tuple[str, ...] = ()):
         self.main_cell_key = cell_key
         self.main_order = order
         self.field_names = field_names
@@ -57,7 +65,7 @@ class AbstractCellSorter:
     A QuerySorter returns the name of the DB-column to use for ordering a Query
     for a given EntityCell.
     """
-    def get_field_name(self, cell):
+    def get_field_name(self, cell: EntityCell) -> Optional[str]:
         """Get the name of the column for a given cell.
 
         @param cell: Instance of EntityCell.
@@ -65,7 +73,7 @@ class AbstractCellSorter:
         """
         raise NotImplementedError
 
-    def pretty(self, indent=0):
+    def pretty(self, indent: int = 0) -> str:
         """Get a pretty string to analyze registered items.
 
         @param indent: Indentation level.
@@ -105,13 +113,15 @@ class ForeignKeySorterRegistry(AbstractCellSorter):
         (CremeEntity, EntityForeignKeySorter),
     )
 
-    def __init__(self, models_to_register=DEFAULT_MODELS):
-        self._sorters = ClassKeyedMap(default=None)
+    def __init__(self, models_to_register: Iterable[Tuple[Type[Model], Type[AbstractCellSorter]]] = DEFAULT_MODELS):
+        self._sorters: ClassKeyedMap = ClassKeyedMap(default=None)
 
         for model, sorter_cls in models_to_register:
             self.register(model=model, sorter_cls=sorter_cls)
 
     def get_field_name(self, cell):
+        assert isinstance(cell, EntityCellRegularField)
+
         subfield_model = cell.field_info[-1].remote_field.model
         sub_sorter = self._sorters[subfield_model]
 
@@ -152,12 +162,14 @@ class ForeignKeySorterRegistry(AbstractCellSorter):
 
         return res
 
-    def register(self, *, model, sorter_cls):
+    def register(self, *,
+                 model: Type[Model],
+                 sorter_cls: Type[AbstractCellSorter]) -> 'ForeignKeySorterRegistry':
         self._sorters[model] = sorter_cls()
 
         return self
 
-    def sorter(self, model):
+    def sorter(self, model: Type[Model]) -> Optional[AbstractCellSorter]:
         return self._sorters[model]
 
 
@@ -202,15 +214,17 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
         # (models.URLField, ...)
     )
 
-    def __init__(self, to_register=DEFAULT_SORTERS):
-        # self._sorters_4_modelfields = {}  # TODO: when order is kept (py3.6+)
-        self._sorters_4_modelfields = OrderedDict()
-        self._sorters_4_modelfieldtypes = ClassKeyedMap(default=None)
+    def __init__(self, to_register: Iterable[Tuple[Type[Field], Type[AbstractCellSorter]]] = DEFAULT_SORTERS):
+        # self._sorters_4_modelfields = {}  # TODO: when order is kept (py3.7)
+        self._sorters_4_modelfields: Dict[Field, AbstractCellSorter] = OrderedDict()
+        self._sorters_4_modelfieldtypes: ClassKeyedMap = ClassKeyedMap(default=None)
 
         for model_field_cls, sorter_cls in to_register:
             self.register_model_field_type(type=model_field_cls, sorter_cls=sorter_cls)
 
-    def get_field_name(self, cell):
+    def get_field_name(self, cell) -> Optional[str]:
+        assert isinstance(cell, EntityCellRegularField)
+
         field = cell.field_info[-1]
         sorter = self._sorters_4_modelfields.get(field) or \
                  self._sorters_4_modelfieldtypes[type(field)]
@@ -243,7 +257,10 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
 
         return res
 
-    def register_model_field(self, *, model, field_name, sorter_cls):
+    def register_model_field(self, *,
+                             model: Type[Model],
+                             field_name: str,
+                             sorter_cls: Type[AbstractCellSorter]):
         field = model._meta.get_field(field_name)
         self._sorters_4_modelfields[field] = sorter_cls()
 
@@ -257,16 +274,20 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
 
         return self
 
-    def register_model_field_type(self, *, type, sorter_cls):
+    def register_model_field_type(self, *,
+                                  type: Type[Field],
+                                  sorter_cls: Type[AbstractCellSorter]):
         self._sorters_4_modelfieldtypes[type] = sorter_cls()
 
         return self
 
-    def sorter_4_model_field(self, *, model, field_name):
+    def sorter_4_model_field(self, *,
+                             model: Type[Model],
+                             field_name: str) -> Optional[AbstractCellSorter]:
         field = model._meta.get_field(field_name)
         return self._sorters_4_modelfields.get(field)
 
-    def sorter_4_model_field_type(self, model_field):
+    def sorter_4_model_field_type(self, model_field: Type[Field]) -> Optional[AbstractCellSorter]:
         return self._sorters_4_modelfieldtypes[model_field]
 
 
@@ -276,13 +297,15 @@ class FunctionFieldSorterRegistry(AbstractCellSorter):
     By default it performs no sort, but sub-sorters can be registered to
     customise the behaviour for specific FunctionFields.
     """
-    def __init__(self, to_register=()):
-        self._sorters = {}
+    def __init__(self, to_register: Iterable[Tuple[FunctionField, Type[AbstractCellSorter]]] = ()):
+        self._sorters: Dict[str, AbstractCellSorter] = {}
 
         for ffield, sorter_cls in to_register:
             self.register(ffield=ffield, sorter_cls=sorter_cls)
 
-    def get_field_name(self, cell):
+    def get_field_name(self, cell) -> Optional[str]:
+        assert isinstance(cell, EntityCellFunctionField)
+
         ffield = cell.function_field
         sorter = self._sorters.get(ffield.name)
 
@@ -294,12 +317,12 @@ class FunctionFieldSorterRegistry(AbstractCellSorter):
 
         return None if sorter is None else sorter.get_field_name(cell=cell)
 
-    def register(self, *, ffield, sorter_cls):
+    def register(self, *, ffield: FunctionField, sorter_cls: Type[AbstractCellSorter]):
         self._sorters[ffield.name] = sorter_cls()
 
         return self
 
-    def sorter(self, ffield):
+    def sorter(self, ffield: FunctionField) -> Optional[AbstractCellSorter]:
         return self._sorters.get(ffield.name)
 
 
@@ -316,13 +339,13 @@ class CellSorterRegistry(AbstractCellSorter):
     )
 
     def __init__(self, to_register=DEFAULT_REGISTRIES):
-        # self._registries = {}  # TODO: when order is kept (py3.6+)
+        # self._registries = {}  # TODO: when order is kept (py3.7)
         self._registries = OrderedDict()
 
         for cell_id, registry_class in to_register:
             self.register(cell_id=cell_id, registry_class=registry_class)
 
-    def __getitem__(self, cell_type_id):
+    def __getitem__(self, cell_type_id: str):
         return self._registries[cell_type_id]
 
     def get_field_name(self, cell):
@@ -366,15 +389,17 @@ class CellSorterRegistry(AbstractCellSorter):
 
 class QuerySorter:
     """Builds a QuerySortInfo (see the main method get()."""
-    def __init__(self, cell_sorter_registry=None):
-        """Constructor
+    def __init__(self, cell_sorter_registry: Optional[CellSorterRegistry] = None):
+        """Constructor.
 
         @param cell_sorter_registry: Instance of CellSorterRegistry ; by default
                a new one if instantiated.
         """
         self._registry = cell_sorter_registry or CellSorterRegistry()
 
-    def _get_field_name(self, cells_dict, cell_key):
+    def _get_field_name(self,
+                        cells_dict: Dict[str, EntityCell],
+                        cell_key: Optional[str]) -> Optional[str]:
         if cell_key is None:
             return None
 
@@ -387,7 +412,9 @@ class QuerySorter:
         return self._registry.get_field_name(cell)
 
     @classmethod
-    def _default_key_n_order(cls, model, ordering):
+    def _default_key_n_order(cls,
+                             model: Type[Model],
+                             ordering: List[str]) -> Tuple[Optional[str], Order]:
         if not ordering:
             return None, Order()
 
@@ -398,7 +425,7 @@ class QuerySorter:
     # TODO: what about unique_together ??
     # TODO: move to utils.meta ?
     @staticmethod
-    def _get_local_id_field(model):
+    def _get_local_id_field(model: Type[Model]) -> Field:
         for field in model._meta.local_concrete_fields:
             if field.unique:
                 return field
@@ -406,7 +433,7 @@ class QuerySorter:
         raise LookupError('No local unique field found')
 
     @staticmethod
-    def _is_field_unique(model, field_name):
+    def _is_field_unique(model: Type[Model], field_name: str) -> bool:
         try:
             field = model._meta.get_field(field_name)
         except models.FieldDoesNotExist:
@@ -414,16 +441,21 @@ class QuerySorter:
 
         return field.unique
 
-    def get(self, model, cells, cell_key, order=None, fast_mode=False):
+    def get(self,
+            model: Type[CremeEntity],
+            cells: Iterable[EntityCell],
+            cell_key: str,
+            order: Optional[Order] = None,
+            fast_mode: bool = False) -> QuerySortInfo:
         """Get a QuerySortInfo instance for a model & a main ordering cell,
         using the natural ordering of this model & the DB-indices.
 
         @param model: CremeEntity subclass.
-        @param: cells: Sequence of displayed EntityCells (eg: columns of the list-view) ;
+        @param cells: Sequence of displayed EntityCells (eg: columns of the list-view) ;
                 If the natural ordering fields of the model are not present within the
                 cells, they are not used in the result (excepted if it allows to use a
                 DB-index).
-        @param: cell_key: Key of the main (ie: first) ordering cell (string).
+        @param cell_key: Key of the main (ie: first) ordering cell (string).
         @param order: <creme_core.utils.meta.Order> instance (or None, meaning "ASC order").
         @param fast_mode: Boolean ; <True> means "There are lots of entities, use
                a faster/simpler ordering".
@@ -444,7 +476,11 @@ class QuerySorter:
         # Name of the main model-field used to perform the "ORDER BY" instruction.
         sort_field = self._get_field_name(cells_dict, cell_key)
 
+        final_cell_key: Optional[str]
+
         if sort_field:
+            final_cell_key = cell_key
+
             for ordered_field_str in (sort_field, '-' + sort_field):
                 if ordered_field_str in ordering:
                     ordering.remove(ordered_field_str)
@@ -457,9 +493,9 @@ class QuerySorter:
             else:
                 ordering.insert(0, order.prefix + sort_field)
         else:
-            cell_key, order = self._default_key_n_order(model, ordering)
+            final_cell_key, order = self._default_key_n_order(model, ordering)
 
-        sort_info = QuerySortInfo(cell_key=cell_key, order=order)
+        sort_info = QuerySortInfo(cell_key=final_cell_key, order=order)
 
         if sort_field and self._is_field_unique(model, sort_field):
             ind_ordering = get_indexed_ordering(model, [*ordering, '*'])
@@ -469,6 +505,7 @@ class QuerySorter:
             elif fast_mode:
                 o_sort_field = order.prefix + sort_field
                 ind_ordering = get_indexed_ordering(model, [o_sort_field, '*'])
+                # NB: mypy understands when we use a if/else blocks...
                 sort_info.field_names = (o_sort_field,) if ind_ordering is None else ind_ordering
             else:
                 sort_info.field_names = tuple(ordering)
@@ -479,7 +516,7 @@ class QuerySorter:
             #     the order by directive can be respected, but the order of the
             #     duplicates in the queries results be different -- so the
             #     paginated contents are not consistent).
-            last_field = order.prefix + self._get_local_id_field(model).attname
+            last_field: str = order.prefix + self._get_local_id_field(model).attname
 
             if ordering:
                 ind_ordering = get_indexed_ordering(model, [*ordering, '*', last_field])
@@ -499,7 +536,7 @@ class QuerySorter:
         return sort_info
 
     @property
-    def registry(self):
+    def registry(self) -> CellSorterRegistry:
         return self._registry
 
 

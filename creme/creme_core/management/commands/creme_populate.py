@@ -21,6 +21,7 @@
 from importlib import import_module
 import sys
 from traceback import format_exception
+from typing import List, Optional
 
 from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
@@ -43,7 +44,7 @@ def _checked_app_label(app_label, app_labels):
 
 
 class BasePopulator:
-    dependencies = []  # eg: ['appname1', 'appname2']
+    dependencies: List[str] = []  # eg: ['appname1', 'appname2']
 
     def __init__(self, verbosity, app, all_apps, options, stdout, style):
         self.verbosity = verbosity
@@ -56,7 +57,7 @@ class BasePopulator:
     def __repr__(self):
         return f'<Populator({self.app})>'
 
-    def build_dependencies(self, apps_set):
+    def build_dependencies(self, apps_set) -> None:
         deps = []
 
         for dep in self.dependencies:
@@ -69,13 +70,13 @@ class BasePopulator:
 
         self.dependencies = deps
 
-    def populate(self):
+    def populate(self) -> None:
         raise NotImplementedError
 
     def get_app(self):
         return self.app
 
-    def get_dependencies(self):
+    def get_dependencies(self) -> List[str]:
         return self.dependencies
 
 
@@ -196,7 +197,7 @@ class Command(BaseCommand):
         if verbosity >= 1:
             self.stdout.write(self.style.SUCCESS('Populate is OK.'))
 
-    def _get_populator(self, app_label, verbosity, all_apps, options):
+    def _get_populator(self, app_label, verbosity, all_apps, options) -> Optional[BasePopulator]:
         try:
             mod = import_module(apps.get_app_config(app_label).name + '.populate')
         except ImportError:
@@ -228,3 +229,5 @@ class Command(BaseCommand):
             )
         else:
             return populator
+
+        return None

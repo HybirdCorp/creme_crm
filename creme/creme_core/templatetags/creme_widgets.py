@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+from typing import Dict, Tuple, Type
 
 from django.conf import settings
 from django.template import Library, TemplateSyntaxError, Node as TemplateNode
@@ -108,12 +109,12 @@ class InstanceIconNode(IconNode):
         return icon
 
 
-__ICON_ARGS_MAP = {
+__ICON_ARGS_MAP: Dict[str, str] = {
     'size':  'size_var',
     'label': 'label_var',
     'class': 'class_var',
 }
-_WIDGET_ICON_NODES = {
+_WIDGET_ICON_NODES: Dict[str, Tuple[str, Type[IconNode]]] = {
     'name':     ('name_var',     NamedIconNode),
     'ctype':    ('ctype_var',    ContentTypeIconNode),
     'instance': ('instance_var', InstanceIconNode),

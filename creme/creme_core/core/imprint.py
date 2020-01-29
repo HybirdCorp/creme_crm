@@ -18,12 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type, Dict
 from datetime import timedelta
 
 # from django.db.models.functions import Now
 from django.utils.timezone import now
 
-from creme.creme_core.models import Imprint
+from creme.creme_core.models import CremeEntity, Imprint
 
 
 class _ImprintManager:
@@ -31,18 +32,18 @@ class _ImprintManager:
         pass
 
     def __init__(self):
-        self._granularities = {}
+        self._granularities: Dict[Type[CremeEntity], timedelta] = {}
 
-    def register(self, model, **timedelta_kwargs):
+    def register(self, model: Type[CremeEntity], **timedelta_kwargs):
         granularity = timedelta(**timedelta_kwargs)
 
         if self._granularities.setdefault(model, granularity) is not granularity:
             raise self.RegistrationError(f'Duplicated imprint model: {model}')
 
-    def get_granularity(self, model):
+    def get_granularity(self, model: Type[CremeEntity]):
         return self._granularities.get(model)
 
-    def create_imprint(self, entity, user):
+    def create_imprint(self, entity: CremeEntity, user):
         # NB: there can be some data race, & so create 2 lines when only 1 should be better,
         #     but it's not a real issue (we could fix the data it in the brick, to avoid additional query here).
         granularity = self.get_granularity(entity.__class__)

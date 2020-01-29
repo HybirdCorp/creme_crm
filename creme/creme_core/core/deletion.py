@@ -19,11 +19,34 @@
 ################################################################################
 
 import logging
+from typing import Type
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
 logger = logging.getLogger(__name__)
+
+
+class Replacer:
+    type_id: str = 'OVERRIDE'
+
+    def __init__(self, *, model_field):
+        self.model_field = model_field
+
+    def as_dict(self) -> dict:
+        field = self.model_field
+
+        return {
+            'ctype': ContentType.objects.get_for_model(field.model).natural_key(),
+            'field': field.name,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict):
+        raise NotImplementedError
+
+    def get_value(self):
+        raise NotImplementedError
 
 
 class ReplacersRegistry:
@@ -35,7 +58,7 @@ class ReplacersRegistry:
     def __init__(self):
         self._replacer_classes = {}
 
-    def __call__(self, cls):
+    def __call__(self, cls: Type[Replacer]):
         if self._replacer_classes.setdefault(cls.type_id, cls) is not cls:
             raise self.RegistrationError(f'Duplicated Replacer id: {cls.type_id}')
 
@@ -77,28 +100,6 @@ class ReplacersRegistry:
 
 
 REPLACERS_MAP = ReplacersRegistry()
-
-
-class Replacer:
-    type_id = 'OVERRIDE'
-
-    def __init__(self, *, model_field):
-        self.model_field = model_field
-
-    def as_dict(self):
-        field = self.model_field
-
-        return {
-            'ctype': ContentType.objects.get_for_model(field.model).natural_key(),
-            'field': field.name,
-        }
-
-    @classmethod
-    def from_dict(cls, d):
-        raise NotImplementedError
-
-    def get_value(self):
-        raise NotImplementedError
 
 
 @REPLACERS_MAP

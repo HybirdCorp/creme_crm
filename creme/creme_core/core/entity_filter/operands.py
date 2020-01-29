@@ -27,7 +27,7 @@ User = get_user_model()
 
 class ConditionDynamicOperand:
     """Represent special value for right operand in conditions."""
-    type_id = None
+    type_id: str  # = None
     verbose_name = ''
     model = Model  # OVERRIDE THIS -- model class related to the operand.
 

@@ -20,6 +20,7 @@
 
 import logging
 from sys import argv
+from typing import Sequence, TYPE_CHECKING
 
 from django.apps import AppConfig, apps
 from django.contrib.contenttypes.apps import ContentTypesConfig as VanillaContentTypesConfig
@@ -28,7 +29,31 @@ from django.core import checks
 from django.utils.translation import gettext_lazy as _
 
 from .checks import Tags, check_uninstalled_apps  # NB: it registers other checks too
-from .registry import creme_registry
+from .registry import creme_registry, CremeRegistry
+
+if TYPE_CHECKING:
+    from .core.entity_filter import _EntityFilterRegistry
+    from .core.enumerable import _EnumerableRegistry
+    from .core.function_field import _FunctionFieldRegistry
+    from .core.imprint import _ImprintManager
+    from .core.reminder import ReminderRegistry
+    from .core.sandbox import _SandboxTypeRegistry
+    from .core.setting_key import _SettingKeyRegistry
+    from .core.sorter import CellSorterRegistry
+    from .gui.actions import ActionsRegistry
+    from .gui.bricks import _BrickRegistry
+    from .gui.bulk_update import _BulkUpdateRegistry
+    from .gui.button_menu import ButtonsRegistry
+    from .gui.fields_config import FieldsConfigRegistry
+    from .gui.field_printers import _FieldPrintersRegistry
+    from .gui.icons import IconRegistry
+    from .gui.mass_import import FormRegistry  # TODO: rename ?
+    from .gui.menu import Menu
+    from .gui.merge import _MergeFormRegistry
+    from .gui.quick_forms import QuickFormsRegistry
+    from .gui.listview.search import ListViewSearchFieldRegistry
+    from .gui.listview.smart_columns import SmartColumnsRegistry
+    from .gui.statistics import _StatisticsRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -116,11 +141,14 @@ class ContentTypesConfig(VanillaContentTypesConfig):
 
 
 class CremeAppConfig(AppConfig):
-    creme_app = True   # True => App can be used by some services
-                       #        (urls.py automatically used, 'creme_populate command' etc...)
-    dependencies = ()  # Names of the apps on which this app depends ;
-                       # an error is raised if the dependencies are not installed.
-                       # Eg: ['creme.persons']
+    # True => App can be used by some services
+    #        (urls.py automatically used, 'creme_populate command' etc...)
+    creme_app: bool = True
+
+    # Names of the apps on which this app depends ;
+    # an error is raised if the dependencies are not installed.
+    # Eg: ['creme.persons']
+    dependencies: Sequence[str] = ()
 
     CRED_NONE    = 0b00
     CRED_REGULAR = 0b01
@@ -217,79 +245,79 @@ class CremeAppConfig(AppConfig):
             self.register_smart_columns(listview.smart_columns_registry)
             self.register_user_setting_keys(setting_key.user_setting_key_registry)
 
-    def register_entity_models(self, creme_registry):
+    def register_entity_models(self, creme_registry: CremeRegistry):
         pass
 
-    def register_actions(self, actions_registry):
+    def register_actions(self, actions_registry: 'ActionsRegistry'):
         pass
 
-    def register_bricks(self, brick_registry):
+    def register_bricks(self, brick_registry: '_BrickRegistry'):
         pass
 
-    def register_bulk_update(self, bulk_update_registry):
+    def register_bulk_update(self, bulk_update_registry: '_BulkUpdateRegistry'):
         pass
 
-    def register_buttons(self, button_registry):
+    def register_buttons(self, button_registry: 'ButtonsRegistry'):
         pass
 
-    def register_cell_sorters(self, cell_sorter_registry):
+    def register_cell_sorters(self, cell_sorter_registry: 'CellSorterRegistry'):
         pass
 
-    def register_credentials(self, entity_filter_registry):
+    def register_credentials(self, entity_filter_registry: '_EntityFilterRegistry'):
         pass
 
-    def register_entity_filter(self, entity_filter_registry):
+    def register_entity_filter(self, entity_filter_registry: '_EntityFilterRegistry'):
         pass
 
-    def register_enumerable(self, enumerable_registry):
+    def register_enumerable(self, enumerable_registry: '_EnumerableRegistry'):
         pass
 
-    def register_fields_config(self, fields_config_registry):
+    def register_fields_config(self, fields_config_registry: 'FieldsConfigRegistry'):
         pass
 
-    def register_field_printers(self, field_printers_registry):
+    def register_field_printers(self, field_printers_registry: '_FieldPrintersRegistry'):
         pass
 
-    def register_function_fields(self, function_field_registry):
+    def register_function_fields(self, function_field_registry: '_FunctionFieldRegistry'):
         pass
 
-    def register_icons(self, icon_registry):
+    def register_icons(self, icon_registry: 'IconRegistry'):
         pass
 
-    def register_imprints(self, imprint_manager):
+    def register_imprints(self, imprint_manager: '_ImprintManager'):
         pass
 
-    def register_mass_import(self, import_form_registry):
+    def register_mass_import(self, import_form_registry: 'FormRegistry'):
         pass
 
-    def register_menu(self, creme_menu):
+    def register_menu(self, creme_menu: 'Menu'):
         pass
 
-    def register_merge_forms(self, merge_form_registry):
+    def register_merge_forms(self, merge_form_registry: '_MergeFormRegistry'):
         pass
 
-    def register_quickforms(self, quickforms_registry):
+    def register_quickforms(self, quickforms_registry: 'QuickFormsRegistry'):
         pass
 
-    def register_reminders(self, reminder_registry):
+    def register_reminders(self, reminder_registry: 'ReminderRegistry'):
         pass
 
-    def register_sanboxes(self, sandbox_type_registry):
+    def register_sanboxes(self, sandbox_type_registry: '_SandboxTypeRegistry'):
         pass
 
-    def register_search_fields(self, search_field_registry):
+    def register_search_fields(self, search_field_registry: 'ListViewSearchFieldRegistry'):
         pass
 
-    def register_setting_keys(self, setting_key_registry):
+    def register_setting_keys(self, setting_key_registry: '_SettingKeyRegistry'):
         pass
 
-    def register_smart_columns(self, smart_columns_registry):
+    def register_smart_columns(self, smart_columns_registry: 'SmartColumnsRegistry'):
         pass
 
-    def register_statistics(self, statistics_registry):
+    def register_statistics(self, statistics_registry: '_StatisticsRegistry'):
         pass
 
-    def register_user_setting_keys(self, user_setting_key_registry):
+    def register_user_setting_keys(self, user_setting_key_registry: '_SettingKeyRegistry'):
         pass
 
 

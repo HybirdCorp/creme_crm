@@ -18,11 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Dict, List, Type, Optional
+
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.base import Model
 from django.urls.base import reverse
 
-from creme.creme_core.models.entity import CremeEntity
+from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.collections import InheritedDataChain
 
 
@@ -33,7 +35,7 @@ class UIAction:
     Attributes:
         - id: Unique ID used to register & retrieve the UIAction (see ActionsRegistry) ;
             use generate_id() to build it.
-        - model: Class inheriting djnago.db.model.Model ; indicates what kind of
+        - model: Class inheriting <django.db.model.Model> ; indicates what kind of
             model is concerned by this UIAction.
         - type: Used by the GUI (ie: JavaScript) to use the good behaviour.
             The built-in type "redirect" can be to redirect the page to a new URL
@@ -45,29 +47,34 @@ class UIAction:
         - icon: Name of the icon used in the UI with our Icon system. Eg: "edit".
         - help_text: Should be translatable (ie: ugettext_lazy).
         - is_default: Boolean. True means the UIAction should be the one the user see first.
-        - is_is_visible: Boolean. If False, the user should not see this action.
+        - is_visible: Boolean. If False, the user should not see this action.
         - is_enabled: Boolean. If False, this UIAction cannot be activated by the user
             (not allowed, some business logic not OK...).
     """
-    id = None
-    model = None
+    # id = None
+    id: str = ''
+    # model = None
+    model: Type[Model] = Model
 
-    type = ''
-    url_name = None
+    type: str = ''
+    url_name: Optional[str] = None
 
     label = ''
-    icon = ''
+    icon: str = ''
     help_text = ''
 
-    is_default = False
-    is_visible = True
-    is_enabled = True
+    is_default: bool = False
+    is_visible: bool = True
+    is_enabled: bool = True
 
     @staticmethod
-    def generate_id(app_label, name):
+    def generate_id(app_label: str, name: str) -> str:
         return f'{app_label}-{name}'
 
-    def __init__(self, user, model=None, instance=None, **kwargs):
+    def __init__(self, user,
+                 model: Optional[Type[Model]] = None,
+                 instance: Optional[CremeEntity] = None,
+                 **kwargs):
         self.user = user
         self.instance = instance
 
@@ -77,7 +84,8 @@ class UIAction:
         if model is not None:
             self.model = model
 
-        assert self.model is not None
+        # assert self.model is not None
+        assert self.model is not Model
 
     def _get_options(self):
         return None
@@ -86,7 +94,7 @@ class UIAction:
         return None
 
     @property
-    def ctype(self):
+    def ctype(self) -> ContentType:
         """Returns the ContentType corresponding to the model."""
         return ContentType.objects.get_for_model(self.model)
 
@@ -106,7 +114,7 @@ class UIAction:
         return action_data
 
     @property
-    def url(self):
+    def url(self) -> str:
         return reverse(self.url_name)
 
 
@@ -122,8 +130,8 @@ class BulkAction(UIAction):
             None means <no limit>.
         - bulk_min_count: Minimum number of instances which is needed.
     """
-    bulk_max_count = None
-    bulk_min_count = 1
+    bulk_max_count: Optional[int] = None
+    bulk_min_count: int = 1
 
 
 class BulkEntityAction(BulkAction):
@@ -134,7 +142,8 @@ class ActionRegistrationError(Exception):
     pass
 
 
-class VoidAction:
+# class VoidAction:
+class VoidAction(UIAction):
     """Specific Action class used internally to remove an UIAction
     for a specific model.
 
@@ -152,6 +161,8 @@ class ActionsChain(InheritedDataChain):
     class B inherits the class A, B get the actions registered for A & B.
     And you can override an UIAction of A with another UIAction for B.
     """
+    base_class: Type[UIAction]
+
     def __init__(self, base_class=UIAction):
         """Constructor.
 
@@ -161,15 +172,15 @@ class ActionsChain(InheritedDataChain):
         super().__init__(dict)
         self.base_class = base_class
 
-    def _inherited_actions(self, model):
-        result = {}
+    def _inherited_actions(self, model: Type[Model]) -> Dict[str, Type[UIAction]]:
+        result: Dict[str, Type[UIAction]] = {}
 
         for model_dict in self.chain(model):
             result.update(model_dict)
 
         return result
 
-    def actions(self, model):
+    def actions(self, model: Type[Model]) -> List[Type[UIAction]]:
         """Get a list of UIAction classes corresponding to a model."""
         return [
             a for a in self._inherited_actions(model).values()
@@ -184,7 +195,10 @@ class ActionsChain(InheritedDataChain):
     #         if a is not None:
     #             return a if not issubclass(a, VoidAction) else None
 
-    def _register_action(self, action_class, action_id, model):
+    def _register_action(self,
+                         action_class: Type[UIAction],
+                         action_id: str,
+                         model: Type[Model]) -> None:
         registered = self[model].setdefault(action_id, action_class)
 
         if registered is not action_class:
@@ -198,11 +212,11 @@ class ActionsChain(InheritedDataChain):
                 f"Duplicated action '{action_id}' for model {model}"
             )
 
-    def register_actions(self, *action_classes):
+    def register_actions(self, *action_classes: Type[UIAction]):
         """Register several UIAction classes.
 
         @param action_classes: Classes inheriting the base_class (see __init__).
-        @raise: ActionRegistrationError (duplicate)
+        @raise: ActionRegistrationError (duplicate).
         """
         validate = self._validate_action_class
         register = self._register_action
@@ -210,13 +224,14 @@ class ActionsChain(InheritedDataChain):
         for action_class in action_classes:
             register(validate(action_class), action_class.id, action_class.model)
 
-    def _validate_action_class(self, action_class):
+    def _validate_action_class(self, action_class: Type[UIAction]) -> Type[UIAction]:
         if not issubclass(action_class, self.base_class):
             raise ActionRegistrationError(
                 f'{action_class} is not a <{self.base_class.__name__}>'
             )
 
-        if getattr(action_class, 'model', None) is None:
+        # if getattr(action_class, 'model', None) is None:
+        if action_class.model is Model:
             raise ActionRegistrationError(
                 f"Invalid action {action_class}: 'model' attribute must be defined"
             )
@@ -226,14 +241,15 @@ class ActionsChain(InheritedDataChain):
                 f"Invalid action {action_class}: {action_class.model} is not a Django Model"
             )
 
-        if getattr(action_class, 'id', None) is None:
+        # if getattr(action_class, 'id', None) is None:
+        if not action_class.id:
             raise ActionRegistrationError(
                 f"Invalid action {action_class}: 'id' attribute must be defined"
             )
 
         return action_class
 
-    def void_actions(self, model, *action_classes):
+    def void_actions(self, model: Type[Model], *action_classes: Type[UIAction]):
         """Mask several inherited UIActions.
 
         If a model inherits some UIActions classes from one of its parent model,
@@ -281,7 +297,7 @@ class ActionsRegistry:
     # def bulk_action(self, model, action_id):
     #     return self._bulk_action_classes.get_action(action_id=action_id, model=model)
 
-    def instance_action_classes(self, model):
+    def instance_action_classes(self, model: Type[Model]):
         """Get the list of the classes for instances actions registered for a model.
         NB: use the method instance_actions() if you want instances of UIActions
             (which can be used to build a UI, contrarily to the class).
@@ -295,7 +311,7 @@ class ActionsRegistry:
             'instance': instance,
         }
 
-    def instance_actions(self, user, instance):
+    def instance_actions(self, user, instance: Model):
         """Generator of instance actions.
 
         @param user: User which displays the UI (used for credentials)
@@ -310,7 +326,7 @@ class ActionsRegistry:
         for action_class in self.instance_action_classes(model=model):
             yield action_class(**kwargs)
 
-    def bulk_action_classes(self, model):
+    def bulk_action_classes(self, model: Type[Model]):
         """Get the list of the classes for bulk actions registered for a model.
         NB: use the method instance_actions() if you want instances of BulkActions
             (which can be used to build a UI, contrarily to the class).
@@ -323,7 +339,7 @@ class ActionsRegistry:
             'model': model,
         }
 
-    def bulk_actions(self, user, model):
+    def bulk_actions(self, user, model: Type[Model]):
         """Generator of bulk actions.
 
         @param user: User which displays the UI (used for credentials)
@@ -337,19 +353,19 @@ class ActionsRegistry:
         for action_class in self.bulk_action_classes(model):
             yield action_class(**ctxt)
 
-    def register_instance_actions(self, *action_classes):
+    def register_instance_actions(self, *action_classes: Type[UIAction]):
         """Register several instances actions.
         @param action_classes: Classes inheriting UIAction.
         """
         self._instance_action_classes.register_actions(*action_classes)
 
-    def register_bulk_actions(self, *action_classes):
+    def register_bulk_actions(self, *action_classes: Type[UIAction]):
         """Register several bulk actions.
         @param action_classes: Classes inheriting BulkAction.
         """
         self._bulk_action_classes.register_actions(*action_classes)
 
-    def void_instance_actions(self, model, *action_classes):
+    def void_instance_actions(self, model: Type[Model], *action_classes: Type[UIAction]):
         """Mask several instance actions for a specific model.
 
         If a model inherits some UIActions classes from one of its parent model,
@@ -361,7 +377,7 @@ class ActionsRegistry:
         """
         self._instance_action_classes.void_actions(model, *action_classes)
 
-    def void_bulk_actions(self, model, *action_classes):
+    def void_bulk_actions(self, model: Type[Model], *action_classes: Type[UIAction]):
         """Like void_instance_actions() but for bulk actions."""
         self._bulk_action_classes.void_actions(model, *action_classes)
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2019 Hybird
+# Copyright (c) 2019-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,10 @@
 # SOFTWARE.
 ################################################################################
 
+from typing import List
 
-def smart_split(s):
+
+def smart_split(s: str) -> List[str]:
     """Split a string using " character to keep words grouped.
 
     @param s: Input string.

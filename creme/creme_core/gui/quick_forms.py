@@ -18,15 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type, Dict, Optional
+
+from django.forms.forms import BaseForm
+
+from creme.creme_core.models import CremeEntity
+
 
 class QuickFormsRegistry:
     class RegistrationError(Exception):
         pass
 
     def __init__(self):
-        self._forms = {}
+        self._forms: Dict[Type[CremeEntity], Type[BaseForm]] = {}
 
-    def register(self, model, form):
+    # TODO: rename form=>form_class
+    def register(self, model: Type[CremeEntity], form: Type[BaseForm]) -> None:
         forms = self._forms
 
         if model in forms:
@@ -36,7 +43,7 @@ class QuickFormsRegistry:
 
         forms[model] = form
 
-    def unregister(self, model):
+    def unregister(self, model: Type[CremeEntity]) -> None:
         try:
             self._forms.pop(model)
         except KeyError as e:
@@ -44,10 +51,12 @@ class QuickFormsRegistry:
                 f'No Quick Form is registered for the model : {model}'
             ) from e
 
-    def iter_models(self):  # TODO: @property "models"
+    # TODO: @property "models" + Iterator
+    def iter_models(self):
         return self._forms.keys()
 
-    def get_form(self, model):
+    # TODO: rename get_form_class
+    def get_form(self, model: Type[CremeEntity]) -> Optional[Type[BaseForm]]:
         return self._forms.get(model)
 
 

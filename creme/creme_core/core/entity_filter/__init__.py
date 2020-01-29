@@ -20,6 +20,14 @@
 
 from collections import OrderedDict
 import logging
+from typing import Type, Optional, Iterator, Dict, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .condition_handler import FilterConditionHandler
+    from .operators import ConditionOperator
+    from .operands import ConditionDynamicOperand
+
+    from creme.creme_core.models import CremeEntity
 
 logger = logging.getLogger(__name__)
 EF_CREDENTIALS = 0
@@ -35,14 +43,20 @@ class _EntityFilterRegistry:
     class RegistrationError(Exception):
         pass
 
-    def __init__(self, *, id, verbose_name):
+    id: int
+    verbose_name: str
+
+    def __init__(self, *, id: int, verbose_name: str):
         self.id = id
         self.verbose_name = verbose_name
-        self._handler_classes = OrderedDict()  # We keep the registration order for the form.
-        self._operator_classes = {}
-        self._operand_classes = {}
 
-    def register_condition_handlers(self, *classes):
+        # We keep the registration order for the form.
+        self._handler_classes: Dict[int, Type['FilterConditionHandler']] = OrderedDict()
+
+        self._operator_classes: Dict[int, Type['ConditionOperator']] = {}
+        self._operand_classes: Dict[str, Type['ConditionDynamicOperand']] = {}
+
+    def register_condition_handlers(self, *classes: Type['FilterConditionHandler']) -> '_EntityFilterRegistry':
         """Register classes of handlers.
 
         @param classes: Classes inheriting
@@ -60,7 +74,7 @@ class _EntityFilterRegistry:
 
         return self
 
-    def register_operands(self, *classes):
+    def register_operands(self, *classes: Type['ConditionDynamicOperand']) -> '_EntityFilterRegistry':
         """Register classes of operand.
 
         @param classes: Classes inheriting
@@ -78,7 +92,7 @@ class _EntityFilterRegistry:
 
         return self
 
-    def register_operators(self, *classes):
+    def register_operators(self, *classes: Type['ConditionOperator']) -> '_EntityFilterRegistry':
         """Register classes of operator.
 
         @param classes: Classes inheriting
@@ -96,7 +110,11 @@ class _EntityFilterRegistry:
 
         return self
 
-    def get_handler(self, *, type_id, model, name, data):
+    def get_handler(self, *,
+                    type_id: int,
+                    model: Type['CremeEntity'],
+                    name: str,
+                    data: Optional[dict]) -> Optional['FilterConditionHandler']:
         """Get an instance of handler from its ID.
 
         @param type_id: Id of the handler's class
@@ -121,7 +139,7 @@ class _EntityFilterRegistry:
         except cls.DataError:
             return None
 
-    def get_operand(self, *, type_id, user):
+    def get_operand(self, *, type_id: str, user) -> Optional['ConditionDynamicOperand']:
         """Get an instance of operand from its ID.
 
         @param type_id: Id of the operand's class
@@ -133,7 +151,7 @@ class _EntityFilterRegistry:
         cls = self._operand_classes.get(type_id) if isinstance(type_id, str) else None
         return None if cls is None else cls(user)
 
-    def get_operator(self, type_id):
+    def get_operator(self, type_id: int) -> Optional['ConditionOperator']:
         """Get an instance of operator from its ID.
 
         @param type_id: Id of the operator's class
@@ -145,17 +163,17 @@ class _EntityFilterRegistry:
         return None if cls is None else cls()
 
     @property
-    def handler_classes(self):
+    def handler_classes(self) -> Iterator[Type['FilterConditionHandler']]:
         """Iterator on registered handler classes."""
         return iter(self._handler_classes.values())
 
-    def operands(self, user):
+    def operands(self, user) -> Iterator['ConditionDynamicOperand']:
         """Generator of operand instances."""
         for op_cls in self._operand_classes.values():
             yield op_cls(user)
 
     @property
-    def operators(self):
+    def operators(self) -> Iterator['ConditionOperator']:
         """Generator of operator instances."""
         for op_cls in self._operator_classes.values():
             yield op_cls()
@@ -168,13 +186,13 @@ class _EntityFilterSuperRegistry:
     def __init__(self):
         self._registries = OrderedDict()
 
-    def __getitem__(self, registry_id):
+    def __getitem__(self, registry_id: int) -> _EntityFilterRegistry:
         return self._registries[registry_id]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[_EntityFilterRegistry]:
         return iter(self._registries.values())
 
-    def register(self, *registries):
+    def register(self, *registries: _EntityFilterRegistry) -> '_EntityFilterSuperRegistry':
         set_default= self._registries.setdefault
 
         for registry in registries:
@@ -186,7 +204,7 @@ class _EntityFilterSuperRegistry:
 
         return self
 
-    def unregister(self, *registry_ids):
+    def unregister(self, *registry_ids: int) -> None:
         registries = self._registries
 
         for registry_id in registry_ids:

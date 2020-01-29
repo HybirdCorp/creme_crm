@@ -19,13 +19,15 @@
 ################################################################################
 
 from urllib.parse import urlencode
+from typing import Optional, Type, Union, Iterable, Sequence, List
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import atomic
+from django.db.models.query import QuerySet
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpRequest
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _, gettext
@@ -33,7 +35,7 @@ from django.views import generic as django_generic
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeForm
-from creme.creme_core.gui.bricks import brick_registry
+from creme.creme_core.gui.bricks import brick_registry, Brick
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_ct_or_404
 
@@ -44,7 +46,10 @@ class CancellableMixin:
     """Mixin that helps building an URL to go back when the user is in a form."""
     cancel_url_post_argument = 'cancel_url'
 
-    def get_cancel_url(self):
+    # NB: for linters only
+    request: HttpRequest
+
+    def get_cancel_url(self) -> Optional[str]:
         request = self.request
         return request.POST.get(self.cancel_url_post_argument) \
                if request.method == 'POST' else \
@@ -63,9 +68,12 @@ class PermissionsMixin:
           permissions = ['my_app1', 'my_app2.can_admin']
       - <None> (default value) means no permission is checked.
     """
-    login_url_name = None
-    login_redirect_arg_name = REDIRECT_FIELD_NAME
-    permissions = None
+    login_url_name: Optional[str] = None
+    login_redirect_arg_name: str = REDIRECT_FIELD_NAME
+    permissions: Union[str, Sequence[str], None] = None
+
+    # NB: for linters only
+    request: HttpRequest
 
     def check_view_permissions(self, user):
         """Check global permission of the view.
@@ -127,16 +135,20 @@ class EntityRelatedMixin:
     Tips: override <check_related_entity_permissions()> if you want to check
     LINK permission instead of CHANGE.
     """
-    entity_id_url_kwarg = 'entity_id'
-    entity_classes = None
-    entity_form_kwarg = 'entity'
-    entity_select_for_update = False
+    entity_id_url_kwarg: str = 'entity_id'
+    entity_classes: Union[Type[CremeEntity], Sequence[Type[CremeEntity]], None] = None
+    entity_form_kwarg: Optional[str] = 'entity'
+    entity_select_for_update: bool = False
 
-    def build_related_entity_queryset(self, model):
+    # NB: for linters only
+    request: HttpRequest
+    kwargs: dict
+
+    def build_related_entity_queryset(self, model: Type[CremeEntity]) -> QuerySet:
         qs = model._default_manager.all()
         return qs if not self.get_entity_select_for_update() else qs.select_for_update()
 
-    def check_related_entity_permissions(self, entity, user):
+    def check_related_entity_permissions(self, entity: CremeEntity, user) -> None:
         """ Check the permissions of the related entity which just has been retrieved.
 
         @param entity: Instance of model inheriting CremeEntity.
@@ -145,7 +157,7 @@ class EntityRelatedMixin:
         """
         user.has_perm_to_change_or_die(entity)
 
-    def check_entity_classes_apps(self, user):
+    def check_entity_classes_apps(self, user) -> None:
         entity_classes = self.entity_classes
 
         if entity_classes is not None:
@@ -157,10 +169,10 @@ class EntityRelatedMixin:
             else:  # CremeEntity sub-model
                 has_perm(entity_classes._meta.app_label)
 
-    def get_related_entity_id(self):
+    def get_related_entity_id(self) -> str:
         return self.kwargs[self.entity_id_url_kwarg]
 
-    def get_related_entity(self):
+    def get_related_entity(self) -> CremeEntity:
         """Retrieves the real related entity at the first call, then returns
         the cached object.
         @return: An instance of "real" entity.
@@ -184,6 +196,7 @@ class EntityRelatedMixin:
                     entity_type__in=[get_for_ct(c) for c in entity_classes],
                 ).get_real_entity()
             else:
+                assert isinstance(entity_classes, type)
                 assert issubclass(entity_classes, CremeEntity)
                 entity = get_object_or_404(
                     self.build_related_entity_queryset(entity_classes),
@@ -196,10 +209,10 @@ class EntityRelatedMixin:
 
         return entity
 
-    def get_entity_select_for_update(self):
+    def get_entity_select_for_update(self) -> bool:
         return self.entity_select_for_update
 
-    def set_entity_in_form_kwargs(self, form_kwargs):
+    def set_entity_in_form_kwargs(self, form_kwargs) -> None:
         entity = self.get_related_entity()
 
         if self.entity_form_kwarg:
@@ -216,16 +229,20 @@ class ContentTypeRelatedMixin:
                       ID retrieve if the URL can be "0" (& so get_ctype() will
                       returns <None> -- instead of a 404 error).
     """
-    ctype_id_url_kwarg = 'ct_id'
-    ct_id_0_accepted = False
+    ctype_id_url_kwarg: str = 'ct_id'
+    ct_id_0_accepted: bool = False
 
-    def check_related_ctype(self, ctype):
+    # NB: for linters only
+    kwargs: dict
+    related_ctype: ContentType
+
+    def check_related_ctype(self, ctype: ContentType) -> None:
         pass
 
-    def get_ctype_id(self):
+    def get_ctype_id(self) -> str:
         return self.kwargs[self.ctype_id_url_kwarg]
 
-    def get_ctype(self):
+    def get_ctype(self) -> ContentType:
         try:
             ctype = getattr(self, 'related_ctype')
         except AttributeError:
@@ -252,6 +269,9 @@ class EntityCTypeRelatedMixin(ContentTypeRelatedMixin):
     """Specialisation of ContentTypeRelatedMixin to retrieve a ContentType
     related to a CremeEntity child class.
     """
+    # NB: for linters only
+    request: HttpRequest
+
     def check_related_ctype(self, ctype):
         self.request.user.has_perm_to_access_or_die(ctype.app_label)
 
@@ -300,17 +320,17 @@ class BricksMixin:
                             (see get_bricks_reload_url()).
     """
     brick_registry = brick_registry
-    bricks_reload_url_name = 'creme_core__reload_bricks'
+    bricks_reload_url_name: str = 'creme_core__reload_bricks'
 
-    def get_brick_ids(self):
+    def get_brick_ids(self) -> Iterable[str]:
         return ()
 
-    def get_bricks(self):
+    def get_bricks(self) -> List[Brick]:
         return [*self.brick_registry.get_bricks(
             [id_ for id_ in self.get_brick_ids() if id_]
         )]
 
-    def get_bricks_reload_url(self):
+    def get_bricks_reload_url(self) -> str:
         name = self.bricks_reload_url_name
         return reverse(name) if name else ''
 
@@ -333,12 +353,12 @@ class TitleMixin:
             it with the context given by the method get_title_format_data().
 
     """
-    title = '*insert title here*'
+    title: str = '*insert title here*'
 
-    def get_title(self):
+    def get_title(self) -> str:
         return self.title.format(**self.get_title_format_data())
 
-    def get_title_format_data(self):
+    def get_title_format_data(self) -> dict:
         return {}
 
 
@@ -376,10 +396,10 @@ class CremeFormView(CancellableMixin,
       - atomic_POST: <True> (default value means that POST requests are
                      managed within a SQL transaction.
     """
-    form_class = CremeForm
+    form_class: Type[CremeForm] = CremeForm
     template_name = 'creme_core/generics/blockform/add.html'
     success_url = reverse_lazy('creme_core__home')
-    atomic_POST = True
+    atomic_POST: bool = True
 
     def dispatch(self, request, *args, **kwargs):
         user = request.user

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,10 @@
 ################################################################################
 
 from collections import defaultdict
+from typing import Type
 
 from django.apps import apps
+from django.db.models import Model
 
 
 class FieldsConfigRegistry:
@@ -29,11 +31,14 @@ class FieldsConfigRegistry:
         # Structure: [model][field_name] -> set of app_labels
         self._needed_fields = defaultdict(lambda: defaultdict(set))
 
-    def get_needing_apps(self, model, field_name):
+    def get_needing_apps(self, model: Type[Model], field_name: str):
         for app_label in self._needed_fields[model][field_name]:
             yield apps.get_app_config(app_label)
 
-    def register_needed_fields(self, app_label, model, *field_names):
+    def register_needed_fields(self,
+                               app_label: str,
+                               model: Type[Model],
+                               *field_names: str) -> None:
         model_fields = self._needed_fields[model]
 
         for field_name in field_names:

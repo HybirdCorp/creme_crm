@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2019  Hybird
+#    Copyright (C) 2018-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,21 +18,26 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type, List
+
+from django.db.models import Field
+
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.collections import ClassKeyedMap
 
 
 class Enumerator:
     """Class which can enumerate some choices (think <select> in HTML)."""
+    field: Field
 
-    def __init__(self, field):
+    def __init__(self, field: Field):
         """Constructor.
 
         @param field: Instance of model field (eg: MyModel._meta.get_field('my_field')).
         """
         self.field = field
 
-    def choices(self, user):
+    def choices(self, user) -> List[dict]:
         """Return the list of choices (see below) available for the given user.
         Abstract method.
 
@@ -180,7 +185,7 @@ class _EnumerableRegistry:
 
         return enumerator_cls(field)
 
-    def enumerator_by_field(self, field):
+    def enumerator_by_field(self, field: Field) -> Enumerator:
         """Get an Enumerator instance corresponding to a model field.
 
         @param field: Model field instance.
@@ -192,7 +197,7 @@ class _EnumerableRegistry:
 
         return self._enumerator(field)
 
-    def enumerator_by_fieldname(self, model, field_name):
+    def enumerator_by_fieldname(self, model: Type[CremeEntity], field_name: str) -> Enumerator:
         """Get an Enumerator instance corresponding to a model field.
 
         @param model: Model inheriting CremeEntity.
@@ -205,7 +210,10 @@ class _EnumerableRegistry:
 
         return self._enumerator(self._get_field(model, field_name))
 
-    def register_field(self, model, field_name, enumerator_class):
+    def register_field(self,
+                       model: Type[CremeEntity],
+                       field_name: str,
+                       enumerator_class: Type[Enumerator]):
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for a specific field.
 
@@ -228,7 +236,9 @@ class _EnumerableRegistry:
 
         return self
 
-    def register_field_type(self, field_class, enumerator_class):
+    def register_field_type(self,
+                            field_class: Type[Field],
+                            enumerator_class: Type[Enumerator]):
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for a specific field class.
 
@@ -242,7 +252,9 @@ class _EnumerableRegistry:
 
         return self
 
-    def register_related_model(self, model, enumerator_class):
+    def register_related_model(self,
+                               model: Type[CremeEntity],
+                               enumerator_class: Type[Enumerator]):
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for ForeignKeys/ManyToManyFields
         which reference a specific model.

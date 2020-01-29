@@ -19,16 +19,26 @@
 ################################################################################
 
 import warnings
+from typing import Type, Optional, Union, TYPE_CHECKING
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _, gettext
 
 from .base import CremeModel
+from .entity import CremeEntity
 from .fields import CTypeForeignKey
+
+if TYPE_CHECKING:
+    from creme.creme_core.gui.button_menu import Button
 
 
 class ButtonMenuItemManager(models.Manager):
-    def create_if_needed(self, pk, *, model=None, button, order):
+    def create_if_needed(self,
+                         pk: str,
+                         *,
+                         model: Optional[Type[CremeEntity]] = None,
+                         button: Union[Type['Button'], str],
+                         order: int) -> 'ButtonMenuItem':
         """Creation helper ; useful for populate.py scripts.
         @param pk: Unique string.
         @param model: Class inheriting CremeEntity, or <None> for "all models".
@@ -37,6 +47,12 @@ class ButtonMenuItemManager(models.Manager):
         @param order: Order of the button if the menu (see ButtonMenuItem.order).
         @return A ButtonMenuItem instance.
         """
+        # TODO: py 3.8
+        # class ButtonItemDefaultDict(TypedDict):
+        #     content_type: Optional[Type[CremeEntity]]
+        #     button_id: str
+        #     order: int
+
         return self.get_or_create(
             pk=pk,
             defaults={
@@ -52,7 +68,7 @@ class ButtonMenuItemManager(models.Manager):
 class ButtonMenuItem(CremeModel):
     id           = models.CharField(primary_key=True, max_length=100)
     # 'null' means: all ContentTypes are accepted.
-    content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)
+    content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)  # TODO: EntityCTypeForeignKey ??
     button_id    = models.CharField(_('Button ID'), max_length=100, blank=False, null=False)
     order        = models.PositiveIntegerField(_('Priority'))
 

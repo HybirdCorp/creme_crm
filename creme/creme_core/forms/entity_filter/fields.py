@@ -22,6 +22,7 @@
 
 from datetime import date
 from functools import partial
+from typing import Type
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (
@@ -279,7 +280,7 @@ class RegularFieldsConditionsField(_ConditionsField):
 
 
 class DateFieldsConditionsField(_ConditionsField):
-    widget = widgets.DateFieldsConditionsWidget
+    widget: Type[widgets.ConditionListWidget] = widgets.DateFieldsConditionsWidget
     default_error_messages = {
         'invalidfield':     _('This field is not a date field for this model.'),
         'invaliddaterange': _('This date range is invalid.'),
@@ -570,7 +571,7 @@ class CustomFieldsConditionsField(_ConditionsField):
 
 
 class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsConditionsField):
-    widget = widgets.DateCustomFieldsConditionsWidget
+    widget: Type[widgets.ConditionListWidget] = widgets.DateCustomFieldsConditionsWidget
     default_error_messages = {
         'invalidcustomfield': _('This date custom field is invalid with this model.'),
     }

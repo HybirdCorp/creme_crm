@@ -18,9 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type
+
 from django.db import models
 
 from creme.creme_core.core import entity_cell
+from creme.creme_core.core.function_field import FunctionField
 from creme.creme_core.forms import listview as lv_form
 from creme.creme_core.models import CremeEntity, CustomField
 from creme.creme_core.utils.collections import ClassKeyedMap
@@ -45,7 +48,7 @@ class AbstractListViewSearchFieldRegistry:
         - A class of search-field (ie: inheriting <creme_core.forms.listview.ListViewSearchField>).
         - An instance of a search-field registry class (ie: inheriting <AbstractListViewSearchFieldRegistry>).
     """
-    def get_field(self, *, cell, user, **kwargs):
+    def get_field(self, *, cell: entity_cell.EntityCell, user, **kwargs):
         """Get an instance of (a class inheriting) <creme_core.forms.listview.ListViewSearchField>.
 
         @param cell: An instance of <core.entity_cell.EntityCell>.
@@ -55,7 +58,7 @@ class AbstractListViewSearchFieldRegistry:
         """
         return self._build_field(builder=None, cell=cell, user=user, **kwargs)
 
-    def pretty(self, indent=0):
+    def pretty(self, indent: int = 0):
         """Get a pretty string to analyze registered items.
 
         @param indent: Indentation level.
@@ -74,7 +77,7 @@ class AbstractListViewSearchFieldRegistry:
         return sfield_builder() if hasattr(sfield_builder, 'get_field') else sfield_builder
 
     @staticmethod
-    def _build_field(builder, cell, user, **kwargs):
+    def _build_field(builder, cell: entity_cell.EntityCell, user, **kwargs):
         """Helper method which instantiate a search-field from a builder.
         Useful to implement the method "get_field()".
 
@@ -94,7 +97,7 @@ class AbstractListViewSearchFieldRegistry:
         return builder(cell=cell, user=user, **kwargs)
 
     @staticmethod
-    def _pretty_builder(builder, indent):
+    def _pretty_builder(builder, indent: int):
         pretty = getattr(builder, 'pretty', None)
 
         return '{indent}{module}.{cls}'.format(
@@ -126,7 +129,7 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         for model, builder in models_to_register:
             self.register_related_model(model=model, sfield_builder=builder)
 
-    def builder_4_related_model(self, model):
+    def builder_4_related_model(self, model: Type[models.Model]):
         return self._builders_4_models[model]
 
     @property
@@ -134,6 +137,8 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         return self._default_builder
 
     def get_field(self, *, cell, user, **kwargs):
+        assert isinstance(cell, entity_cell.EntityCellRegularField)
+
         model_field = cell.field_info[-1]
         return self._build_field(
             builder=self._builders_4_models[model_field.remote_field.model] or
@@ -164,12 +169,14 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         return res
 
-    def register_default(self, sfield_builder):
+    def register_default(self, sfield_builder) -> 'RegularRelatedFieldSearchRegistry':
         self._default_builder = self._instantiate_builder(sfield_builder)
 
         return self
 
-    def register_related_model(self, *, model, sfield_builder):
+    def register_related_model(self, *,
+                               model: Type[models.Model],
+                               sfield_builder) -> 'RegularRelatedFieldSearchRegistry':
         self._builders_4_models[model] = self._instantiate_builder(sfield_builder)
 
         # TODO ?
@@ -234,11 +241,11 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         for model_field_cls, builder in to_register:
             self.register_model_field_type(type=model_field_cls, sfield_builder=builder)
 
-    def builder_4_model_field(self, *, model, field_name):
+    def builder_4_model_field(self, *, model: Type[models.Model], field_name: str):
         field = model._meta.get_field(field_name)
         return self._builders_4_modelfields.get(field)
 
-    def builder_4_model_field_type(self, model_field):
+    def builder_4_model_field_type(self, model_field: Type[models.Field]):
         return self._builders_4_modelfieldtypes[model_field]
 
     @property
@@ -246,6 +253,8 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         return self._choice_builder
 
     def get_field(self, *, cell, user, **kwargs):
+        assert isinstance(cell, entity_cell.EntityCellRegularField)
+
         model_field = cell.field_info[-1]
 
         return self._build_field(
@@ -287,12 +296,14 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         return res
 
-    def register_choice_builder(self, sfield_builder):
+    def register_choice_builder(self, sfield_builder) -> 'RegularFieldSearchRegistry':
         self._choice_builder = self._instantiate_builder(sfield_builder)
 
         return self
 
-    def register_model_field(self, *, model, field_name, sfield_builder):
+    def register_model_field(self, *,
+                             model: Type[models.Model],
+                             field_name: str, sfield_builder) -> 'RegularFieldSearchRegistry':
         field = model._meta.get_field(field_name)
         self._builders_4_modelfields[field] = self._instantiate_builder(sfield_builder)
 
@@ -306,7 +317,9 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         return self
 
-    def register_model_field_type(self, *, type, sfield_builder):
+    def register_model_field_type(self, *,
+                                  type: Type[models.Field],
+                                  sfield_builder) -> 'RegularFieldSearchRegistry':
         self._builders_4_modelfieldtypes[type] = self._instantiate_builder(sfield_builder)
 
         return self
@@ -350,6 +363,8 @@ class CustomFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         return self._builders.get(type)
 
     def get_field(self, *, cell, user, **kwargs):
+        assert isinstance(cell,entity_cell.EntityCellCustomField)
+
         return self._build_field(
             builder=self._builders.get(cell.custom_field.field_type),
             cell=cell, user=user,
@@ -369,7 +384,7 @@ class CustomFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         return res
 
-    def register(self, *, type, sfield_builder):
+    def register(self, *, type: int, sfield_builder) -> 'CustomFieldSearchRegistry':
         self._builders[type] = self._instantiate_builder(sfield_builder)
 
         return self
@@ -387,10 +402,12 @@ class FunctionFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         for ffield, builder in to_register:
             self.register(ffield=ffield, sfield_builder=builder)
 
-    def builder(self, ffield):
+    def builder(self, ffield: FunctionField):
         return self._builders.get(ffield.name)
 
     def get_field(self, *, cell, user, **kwargs):
+        assert isinstance(cell, entity_cell.EntityCellFunctionField)
+
         ffield = cell.function_field
 
         return self._build_field(
@@ -417,7 +434,9 @@ class FunctionFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         return res
 
-    def register(self, *, ffield, sfield_builder):
+    def register(self, *,
+                 ffield: FunctionField,
+                 sfield_builder) -> 'FunctionFieldSearchRegistry':
         self._builders[ffield.name] = self._instantiate_builder(sfield_builder)
 
         return self
@@ -445,6 +464,8 @@ class RelationSearchRegistry(AbstractListViewSearchFieldRegistry):
         return self._default_builder
 
     def get_field(self, *, cell, user, **kwargs):
+        assert isinstance(cell, entity_cell.EntityCellRelation)
+
         return self._build_field(
             builder=self._builders.get(cell.relation_type.id, self._default_builder),
             cell=cell, user=user,
@@ -468,12 +489,12 @@ class RelationSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         return res
 
-    def register(self, *, rtype_id, sfield_builder):
+    def register(self, *, rtype_id: str, sfield_builder) -> 'RelationSearchRegistry':
         self._builders[rtype_id] = self._instantiate_builder(sfield_builder)
 
         return self
 
-    def register_default(self, sfield_builder):
+    def register_default(self, sfield_builder) -> 'RelationSearchRegistry':
         self._default_builder = self._instantiate_builder(sfield_builder)
 
         return self
@@ -498,7 +519,7 @@ class ListViewSearchFieldRegistry(AbstractListViewSearchFieldRegistry):
         for cell_id, registry_class in to_register:
             self.register(cell_id=cell_id, registry_class=registry_class)
 
-    def __getitem__(self, cell_type_id):
+    def __getitem__(self, cell_type_id: str):
         return self._registries[cell_type_id]
 
     def pretty(self, indent=0):
@@ -530,7 +551,7 @@ class ListViewSearchFieldRegistry(AbstractListViewSearchFieldRegistry):
                if registry is None else \
                registry.get_field(cell=cell, user=user, **kwargs)
 
-    def register(self, *, cell_id, registry_class):
+    def register(self, *, cell_id: str, registry_class) -> 'ListViewSearchFieldRegistry':
         self._registries[cell_id] = registry_class()
 
         return self

@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2019 Hybird
+# Copyright (c) 2009-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,13 +27,21 @@
 from collections import OrderedDict
 from collections.abc import MutableSet
 from sys import maxsize
+from typing import (
+    Optional, Generic, TypeVar, Type,
+    Callable, Iterable, Iterator,
+    Dict, ItemsView, KeysView, ValuesView,
+    Tuple,
+)
+
+T = TypeVar('T')
 
 
 class LimitedList:
-    def __init__(self, max_size):
+    def __init__(self, max_size: int):
         self._max_size = max_size
         self._size = 0
-        self._data = []
+        self._data: list = []
 
     def append(self, obj):
         if self._size < self._max_size:
@@ -41,7 +49,7 @@ class LimitedList:
         self._size += 1
 
     @property
-    def max_size(self):
+    def max_size(self) -> int:
         return self._max_size
 
     def __len__(self):
@@ -102,16 +110,18 @@ class FluentList(list):
         return self
 
 
-class ClassKeyedMap:
+class ClassKeyedMap(Generic[T]):
     """A kind of dictionary where key must be classes (with single inheritance).
     When a value is not found, the value of the nearest parent (in the class
     inheritance meaning), in the map, is used. If there is no parent class,
     a default value given a construction is used.
     No get() method because there is no 'default' argument.
     """
-    def __init__(self, items=(), default=None):
-        # self._data = dict(items)  # TODO: when order is kept (py3.6+)
-        self._data = OrderedDict(items)
+    def __init__(self,
+                 items: Iterable[Tuple[Type, T]] = (),
+                 default: Optional[T] = None):
+        # self._data = dict(items)  # TODO: when order is kept (py3.7)
+        self._data: Dict[Type, Optional[T]] = OrderedDict(items)
         self._default = default
 
     @staticmethod
@@ -124,12 +134,13 @@ class ClassKeyedMap:
 
         return sorted(classes, key=lambda cls: get_order(cls, maxsize))[0]
 
-    def __getitem__(self, key_class):
+    def __getitem__(self, key_class: Type) -> Optional[T]:
         """There is no default argument, because it is given at construction ;
         the default value is used to fill the cache (so there are side effects),
         and a different default value could lead to strange behaviours.
         """
         data = self._data
+        key_class_value: Optional[T]
 
         try:
             key_class_value = data[key_class]
@@ -148,7 +159,7 @@ class ClassKeyedMap:
 
         return key_class_value
 
-    def __setitem__(self, key_class, value):
+    def __setitem__(self, key_class: Type, value: T):
         data = self._data
 
         for cls in data:
@@ -159,7 +170,7 @@ class ClassKeyedMap:
 
         # return value  # NB: useless, python does it for us
 
-    def __contains__(self, key):
+    def __contains__(self, key: Type):
         return key in self._data
 
     # def __eq__(self, other): # Would be an heavy operation....
@@ -180,20 +191,20 @@ class ClassKeyedMap:
         )
 
     @property
-    def default(self):
+    def default(self) -> Optional[T]:
         return self._default
 
-    def items(self):
+    def items(self) -> ItemsView:
         return self._data.items()
 
-    def keys(self):
+    def keys(self) -> KeysView[Type]:
         return self._data.keys()
 
-    def values(self):
+    def values(self) -> ValuesView[Optional[T]]:
         return self._data.values()
 
 
-class InheritedDataChain:
+class InheritedDataChain(Generic[T]):
     """An associative collection where:
      - keys are classes
      - values are instances built by the collection itself
@@ -204,25 +215,25 @@ class InheritedDataChain:
     So its useful to retrieved accumulated data, like a method which would use too
     the super()'s data, but in a way external to some classes (it's more 'hookable'/extensible).
     """
-    def __init__(self, default_factory):
+    def __init__(self, default_factory: Callable[[], T]):
         """@param default_factory: A callable which returns an instance (typically a class)."""
         self._default_factory = default_factory
-        self._data = {}
+        self._data: Dict[Type, T] = {}
 
-    def __contains__(self, key_class):
+    def __contains__(self, key_class: Type) -> bool:
         """@param key_class: A class."""
         return key_class in self._data
 
-    def __delitem__(self, key_class):
+    def __delitem__(self, key_class: Type) -> None:
         """
         @param key_class: A class.
         @raise: KeyError.
         """
         del self._data[key_class]
 
-    def __getitem__(self, key_class):
+    def __getitem__(self, key_class: Type) -> T:
         """
-        @param key_class: A class
+        @param key_class: A class.
         @return: An instance of 'default_factory' (see __init__) ;
                  the instance is created if it does not exist yet.
         """
@@ -236,7 +247,7 @@ class InheritedDataChain:
 
             return value
 
-    def chain(self, key_class, parent_first=True):
+    def chain(self, key_class: Type, parent_first: bool = True) -> Iterator[T]:
         """A generator which yields the data related to the key-class (if they exist)
         and the data of the parent classes (if they exist), then data of the grand parent etc...
 
@@ -258,7 +269,7 @@ class InheritedDataChain:
         for __order, value in pondered_values:
             yield value
 
-    def get(self, key_class, default=None):
+    def get(self, key_class: Type, default=None):
         """Retrieve the value associated to a key-class if it exists.
         @param key_class: A class (the key).
         @param default: An object returned if the key is not found ; <None> by default.

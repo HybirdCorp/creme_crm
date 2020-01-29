@@ -21,9 +21,10 @@
 from json import loads as json_load
 import logging
 import warnings
+from typing import Dict, List, Tuple, Type
 
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, Http404
+from django.http.response import HttpResponseBase, HttpResponse, Http404
 from django.db import IntegrityError
 # from django.shortcuts import get_object_or_404
 from django.template.context import make_context
@@ -31,7 +32,7 @@ from django.template.engine import Engine
 
 from .. import utils
 # from ..auth.decorators import login_required
-from ..gui.bricks import brick_registry, BricksManager
+from ..gui.bricks import Brick, _BrickRegistry, brick_registry, BricksManager
 from ..http import CremeJsonResponse
 from ..models import BrickState  # CremeEntity
 
@@ -197,16 +198,16 @@ class BricksReloading(generic.CheckedView):
     eg: permission = "creme_config.can_admin"
     'permission = None' means 'no permission required' ; use with caution :)
     """
-    response_class = CremeJsonResponse
-    brick_registry = brick_registry
+    response_class: Type[HttpResponseBase] = CremeJsonResponse
+    brick_registry: _BrickRegistry = brick_registry
     # Name of the Brick's render method to use ;
     # classically: "detailview_display" or "home_display".
-    brick_render_method = 'detailview_display'
+    brick_render_method: str = 'detailview_display'
     # A boolean indicating if the attribute 'permission' of the bricks
     # instances has to be checked.
-    check_bricks_permission = True
+    check_bricks_permission: bool = True
 
-    def get_brick_ids(self):
+    def get_brick_ids(self) -> List[str]:
         # TODO: filter empty IDs ??
         brick_ids = self.request.GET.getlist('brick_id')
 
@@ -215,10 +216,10 @@ class BricksReloading(generic.CheckedView):
 
         return brick_ids
 
-    def get_bricks(self):
+    def get_bricks(self) -> List[Brick]:
         return [*self.brick_registry.get_bricks(self.get_brick_ids())]
 
-    def get_bricks_contents(self):
+    def get_bricks_contents(self) -> List[Tuple[str, str]]:
         """Build a list of tuples (brick_ID, brick_HTML) which can be serialised to JSON.
 
         @return A JSON-friendly list of tuples.
@@ -344,14 +345,14 @@ class HomeBricksReloading(BricksReloading):
 
 
 class BrickStateSetting(generic.CheckedView):
-    brick_id_arg = 'id'
-    FIELDS = [
+    brick_id_arg: str = 'id'
+    FIELDS: List[Tuple[str, str]] = [
         # MODEL FIELD         POST ARGUMENT
         ('is_open',           'is_open'),
         ('show_empty_fields', 'show_empty_fields'),
     ]
 
-    def get_fields_to_update(self, request):
+    def get_fields_to_update(self, request) -> Dict[str, bool]:
         fields_2_update = {}
         get = request.POST.get
 

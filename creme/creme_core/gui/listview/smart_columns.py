@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2019  Hybird
+#    Copyright (C) 2013-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,10 +20,15 @@
 
 from collections import defaultdict
 import logging
+from typing import DefaultDict, List, Tuple, Type, Union
 
-from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-        EntityCellFunctionField, EntityCellRelation)
-from creme.creme_core.models import RelationType
+from creme.creme_core.core.entity_cell import (
+    EntityCell,
+    EntityCellRegularField,
+    EntityCellFunctionField,
+    EntityCellRelation,
+)
+from creme.creme_core.models import CremeEntity, RelationType
 
 logger = logging.getLogger(__name__)
 
@@ -32,11 +37,11 @@ class _ModelSmartColumnsRegistry:
     __slots__ = ('_cells', '_relationtype')
 
     def __init__(self):
-        self._cells = []
+        self._cells: List[Tuple[Type[EntityCell], str]] = []
         self._relationtype = None  # Cache
 
     # TODO: factorise with json deserialization of EntityCells
-    def _get_cells(self, model):
+    def _get_cells(self, model: Type[CremeEntity]) -> List[EntityCell]:
         cells = []
 
         for cell_cls, data in self._cells:
@@ -52,6 +57,7 @@ class _ModelSmartColumnsRegistry:
                 if rtype is False:
                     logger.warning('SmartColumnsRegistry: relation type "%s" does not exist', data)
                 else:
+                    assert isinstance(rtype, RelationType)
                     cell = EntityCellRelation(model=model, rtype=rtype)
 
             # Has no sense here:
@@ -64,7 +70,8 @@ class _ModelSmartColumnsRegistry:
 
         return cells
 
-    def _get_relationtype(self, rtype_id):
+    # TODO: Literal[False] ? (py 3.8)
+    def _get_relationtype(self, rtype_id: str) -> Union[RelationType, bool]:
         rtype = self._relationtype
 
         if rtype is None:  # Means: not retrieved yet
@@ -77,27 +84,29 @@ class _ModelSmartColumnsRegistry:
 
         return rtype
 
-    def register_function_field(self, func_field_name):
+    def register_function_field(self, func_field_name: str) -> '_ModelSmartColumnsRegistry':
         self._cells.append((EntityCellFunctionField, func_field_name))
         return self
 
-    def register_field(self, field_name):
+    def register_field(self, field_name: str) -> '_ModelSmartColumnsRegistry':
         self._cells.append((EntityCellRegularField, field_name))
         return self
 
-    def register_relationtype(self, rtype_id):
+    def register_relationtype(self, rtype_id: str) -> '_ModelSmartColumnsRegistry':
         self._cells.append((EntityCellRelation, rtype_id))
         return self
 
 
 class SmartColumnsRegistry:
     def __init__(self):
-        self._model_registries = defaultdict(_ModelSmartColumnsRegistry)
+        self._model_registries: \
+            DefaultDict[Type[CremeEntity], _ModelSmartColumnsRegistry] \
+            = defaultdict(_ModelSmartColumnsRegistry)
 
-    def get_cells(self, model):
+    def get_cells(self, model: Type[CremeEntity]) -> List[EntityCell]:
         return self._model_registries[model]._get_cells(model)
 
-    def register_model(self, model):
+    def register_model(self, model: Type[CremeEntity]) -> _ModelSmartColumnsRegistry:
         return self._model_registries[model]
 
 

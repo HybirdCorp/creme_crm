@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,13 +19,20 @@
 ################################################################################
 
 from datetime import timedelta
+from typing import Tuple, Type
 
 from django.apps import apps
 from django.core.paginator import Paginator
 from django.db.models.query_utils import Q, FilteredRelation
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick, EntityBrick
+from creme.creme_core.gui.bricks import (
+    BrickDependencies,
+    Brick,
+    SimpleBrick,
+    QuerysetBrick,
+    EntityBrick,
+)
 from creme.creme_core.models import Relation
 
 from creme import persons, products
@@ -124,7 +131,7 @@ class OpportunityBrick(EntityBrick):
 
 class _LinkedStuffBrick(QuerysetBrick):
     # id_           = SET ME
-    dependencies  = (Relation,)
+    dependencies: BrickDependencies = (Relation,)
     # relation_type_deps = SET ME
     # verbose_name  = SET ME
     # template_name = SET ME
@@ -265,7 +272,7 @@ class OppTargetBrick(Brick):
         ))
 
 
-bricks_list = (
+bricks_list: Tuple[Type[Brick], ...] = (
     LinkedContactsBrick,
     LinkedProductsBrick,
     LinkedServicesBrick,

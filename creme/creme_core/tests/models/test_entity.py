@@ -326,7 +326,7 @@ class EntityTestCase(CremeTestCase):
         with self.assertNumQueries(1):
             result = pp_ff(entity, user)
 
-        self.assertIsInstance(result, FunctionFieldResult)
+        # self.assertIsInstance(result, FunctionFieldResult)
         self.assertIsInstance(result, FunctionFieldResultsList)
         self.assertEqual(f'<ul>'
                          f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a>'

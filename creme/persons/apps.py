@@ -98,7 +98,7 @@ class PersonsConfig(CremeAppConfig):
         from creme.creme_core.gui.field_printers import print_foreignkey_html
         from creme.creme_core.templatetags.creme_widgets import widget_entity_hyperlink
 
-        def print_fk_user_html(entity, fval, user, field):
+        def print_fk_user_html(entity, fval, user, field) -> str:
             if fval.is_team:
                 return str(fval)
 

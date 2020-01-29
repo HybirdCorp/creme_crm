@@ -19,7 +19,9 @@
 ################################################################################
 
 import logging
+from typing import Callable, Dict, Optional, Tuple, Type
 
+from django.db.models import Model
 from django.utils.html import format_html
 
 from ..utils.media import get_creme_media_url
@@ -27,7 +29,7 @@ from ..utils.media import get_creme_media_url
 logger = logging.getLogger(__name__)
 
 
-# TODO: these info should be retrieved from theme data (future asset manager Creme2.0+)
+# TODO: these info should be retrieved from theme data (future asset manager Creme2.2+)
 _SVG_ICONS = {
     'chantilly': {
         'goto': {
@@ -59,7 +61,7 @@ _SVG_ICONS = {
     },
 }
 
-# TODO: Creme1.8 these info will be retrieved from theme data
+# TODO: Creme2.2+ these info will be retrieved from theme data
 _ICON_SIZES_MAP = {
     'chantilly': {
         # Fall-backs (should be avoided)
@@ -161,18 +163,18 @@ _ICON_SIZES_MAP = {
 
 
 class BaseIcon:
-    def __init__(self, size, label='', css_class=''):
+    def __init__(self, size: int, label: str, css_class: str = ''):
         self.size = size
 
         self.label = label
         self.css_class = css_class
 
-    def render(self, css_class=''):
+    def render(self, css_class: str = '') -> str:
         raise NotImplementedError
 
 
 class Icon(BaseIcon):
-    def __init__(self, url, *args, **kwargs):
+    def __init__(self, url: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.url = url
 
@@ -189,7 +191,7 @@ class Icon(BaseIcon):
 
 
 class SVGIcon(BaseIcon):
-    def __init__(self, view_box, svg_path, *args, **kwargs):
+    def __init__(self, view_box: str, svg_path: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.view_box = view_box
         self.svg_path = svg_path
@@ -209,11 +211,15 @@ class SVGIcon(BaseIcon):
         )
 
 
-def get_icon_size_px(theme, size='medium'):
+def get_icon_size_px(theme: str, size: str = 'medium') -> int:
     return _ICON_SIZES_MAP[theme][size]
 
 
-def get_icon_by_name(name, theme, size_px, label='', css_class=''):
+def get_icon_by_name(name: str,
+                     theme: str,
+                     size_px: int,
+                     label: str,
+                     css_class: str = '') -> BaseIcon:
     try:
         svg_info = _SVG_ICONS[theme][name]
     except KeyError:
@@ -251,18 +257,26 @@ def get_icon_by_name(name, theme, size_px, label='', css_class=''):
     return Icon(url=_get_image_url(), size=size_px, label=label, css_class=css_class)
 
 
+# A callable which
+#  - takes 1 argument 'instance'.
+#  - returns a tuple (icon_base_name, label).
+_IconInfoFunc = Callable[[Model], Tuple[str, str]]
+
+
 class IconRegistry:
     def __init__(self):
-        self._icons = {}
-        self._icons_4_objects = {}
+        self._icons: Dict[Type[Model], str] = {}
+        self._icons_4_objects: Dict[Type[Model], _IconInfoFunc] = {}
 
-    def register(self, model, path):
+    def register(self, model: Type[Model], path: str) -> 'IconRegistry':
         """eg: icon_registry.register(Ticket, 'images/ticket_%(size)s.png')"""
         self._icons[model] = path
 
         return self
 
-    def register_4_instance(self, model, info_function):
+    def register_4_instance(self,
+                            model: Type[Model],
+                            info_function: _IconInfoFunc) -> 'IconRegistry':
         """Setup the registry in order to retrieve an Icon corresponding to an instance of a model.
         Ie: instances of a same type can have different Icons.
 
@@ -278,7 +292,10 @@ class IconRegistry:
 
         return self
 
-    def get_4_model(self, model, theme, size_px):
+    def get_4_model(self,
+                    model: Type[Model],
+                    theme: str,
+                    size_px: int) -> Icon:
         url = ''
         path_fmt = self._icons.get(model)
 
@@ -292,9 +309,13 @@ class IconRegistry:
 
         return Icon(url=url, size=size_px, label=model._meta.verbose_name)
 
-    def get_4_instance(self, instance, theme, size_px):
+    def get_4_instance(self,
+                       instance: Model,
+                       theme: str,
+                       size_px: int) -> Icon:
         url = ''
-        path_fmt = label = ''
+        label = ''
+        path_fmt: Optional[str] = ''
         model = instance.__class__
         icon_info_function = self._icons_4_objects.get(model)
 

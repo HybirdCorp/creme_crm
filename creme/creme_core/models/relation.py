@@ -20,6 +20,7 @@
 
 from collections import defaultdict
 import logging
+from typing import Type, Union, Iterable, Tuple
 # import warnings
 
 from django.contrib.contenttypes.models import ContentType
@@ -41,7 +42,9 @@ logger = logging.getLogger(__name__)
 
 
 class RelationTypeManager(models.Manager):
-    def compatible(self, ct_or_model, include_internals=False):
+    def compatible(self,
+                   ct_or_model: Union[ContentType, Type[CremeEntity]],
+                   include_internals: bool = False):
         ct = ct_or_model if isinstance(ct_or_model, ContentType) else \
              ContentType.objects.get_for_model(ct_or_model)
 
@@ -53,7 +56,7 @@ class RelationTypeManager(models.Manager):
 
 
 class RelationManager(models.Manager):
-    def safe_create(self, **kwargs):
+    def safe_create(self, **kwargs) -> None:
         """Create a Relation in DB by taking care of the UNIQUE constraint
         of Relation.
         Notice that, unlike 'create()' it always return None (to avoid a
@@ -66,7 +69,7 @@ class RelationManager(models.Manager):
         except IntegrityError:
             logger.exception('Avoid a Relation duplicate: %s ?!', kwargs)
 
-    def safe_get_or_create(self, **kwargs):
+    def safe_get_or_create(self, **kwargs) -> 'Relation':
         """Kind of safe version of 'get_or_create'.
         Safe means the UNIQUE constraint of Relation is respected, &
         this method will never raise an IntegrityError.
@@ -102,7 +105,9 @@ class RelationManager(models.Manager):
 
         return relation
 
-    def safe_multi_save(self, relations, check_existing=True):
+    def safe_multi_save(self,
+                        relations: Iterable['Relation'],
+                        check_existing: bool = True) -> int:
         """Save several instances of Relation by taking care of the UNIQUE
         constraint on ('type', 'subject_entity', 'object_entity').
 
@@ -218,7 +223,7 @@ class RelationType(CremeModel):
         symmetric_pred = gettext('No relationship') if sym_type is None else sym_type.predicate
         return f'{self.predicate} — {symmetric_pred}'  # NB: — == "\xE2\x80\x94" == &mdash;
 
-    def add_subject_ctypes(self, *models):
+    def add_subject_ctypes(self, *models: Type[CremeEntity]) -> None:
         get_ct = ContentType.objects.get_for_model
         cts = [get_ct(model) for model in models]
         self.subject_ctypes.add(*cts)
@@ -244,8 +249,13 @@ class RelationType(CremeModel):
 
     @staticmethod
     @atomic
-    def create(subject_desc, object_desc, is_custom=False, generate_pk=False, is_internal=False,
-               is_copiable=(True, True), minimal_display=(False, False)):
+    def create(subject_desc: tuple,
+               object_desc: tuple,
+               is_custom: bool = False,
+               generate_pk: bool = False,
+               is_internal: bool = False,
+               is_copiable: Tuple[bool, bool]=(True, True),
+               minimal_display: Tuple[bool, bool] = (False, False)) -> Tuple['RelationType', 'RelationType']:
         """
         @param subject_desc: Tuple (string_pk, predicate_string [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]])
         @param object_desc: See subject_desc.
@@ -334,7 +344,7 @@ class RelationType(CremeModel):
 
         return sub_relation_type, obj_relation_type
 
-    def is_compatible(self, *args):  # TODO: use the '/' (positional-only argument) in Python 3.8
+    def is_compatible(self, *args) -> bool:  # TODO: use the '/' (positional-only argument) in Python 3.8
         """Can an instance of a given model be the subject of a Relation with this type.
 
         @param args: A single argument, the model, which can be:
@@ -363,7 +373,7 @@ class RelationType(CremeModel):
 
         return not subject_ctype_ids or ctype_id in subject_ctype_ids
 
-    def is_not_internal_or_die(self):
+    def is_not_internal_or_die(self) -> None:
         if self.is_internal:
             # TODO: 409 ?
             raise Http404(gettext(
@@ -404,7 +414,7 @@ class Relation(CremeModel):
     def __str__(self):
         return f'«{self.subject_entity}» {self.type} «{self.object_entity}»'
 
-    def _build_symmetric_relation(self, update):
+    def _build_symmetric_relation(self, update: bool):
         """Overload me in child classes.
         @param update: Boolean. True->updating object ; False->creating object.
         """
@@ -441,7 +451,7 @@ class Relation(CremeModel):
             super().save(using=using, force_insert=False)
 
     @staticmethod
-    def populate_real_object_entities(relations):
+    def populate_real_object_entities(relations: Iterable['Relation']) -> None:
         """Faster than call get_real_entity() on each relation.object_entity.
         @param relations: Iterable of Relation objects.
 

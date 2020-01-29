@@ -22,6 +22,7 @@ from copy import deepcopy  # copy
 from datetime import datetime, time, timedelta
 from functools import partial, wraps
 import logging
+from typing import Optional
 
 from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q
@@ -47,6 +48,8 @@ from creme.creme_core.views.utils import build_cancel_path
 
 from creme import persons
 from creme.persons import constants as persons_constants
+from creme.persons.views.contact import ContactCreation
+from creme.persons.views.organisation import OrganisationCreation
 
 from creme.activities import get_activity_model
 from creme.activities import constants as act_constants
@@ -209,7 +212,7 @@ def persons_portal(request):
 
 
 class MobileBase:
-    login_url_name = 'mobile__login'
+    login_url_name: Optional[str] = 'mobile__login'
 
 
 class MobilePersonBase(MobileBase):
@@ -229,14 +232,14 @@ class MobilePersonBase(MobileBase):
 
 
 @method_decorator(lw_exceptions, name='dispatch')
-class MobileContactCreation(MobilePersonBase, persons.views.contact.ContactCreation):
+class MobileContactCreation(MobilePersonBase, ContactCreation):
     form_class = mobile_forms.MobileContactCreateForm
     template_name = 'mobile/add_contact.html'
     field_to_init = 'last_name'
 
 
 @method_decorator(lw_exceptions, name='dispatch')
-class MobileOrganisationCreation(MobilePersonBase, persons.views.organisation.OrganisationCreation):
+class MobileOrganisationCreation(MobilePersonBase, OrganisationCreation):
     form_class = mobile_forms.MobileOrganisationCreateForm
     template_name = 'mobile/add_orga.html'
 

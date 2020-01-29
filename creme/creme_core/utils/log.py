@@ -26,13 +26,14 @@
 
 from functools import wraps
 import sys, traceback
+from typing import Callable
 
 
-def log_exceptions(printer, limit=10):
+def log_exceptions(printer: Callable[[str], None], limit: int = 10):
     """Decorator which prints (& re-raises) exceptions.
     Useful when a function is passed as a callback, and its exceptions are caught silently.
 
-    @param printer: function which takes a string
+    @param printer: function which takes a string.
     @param limit: depth of printed stack-trace.
 
     >> import logging

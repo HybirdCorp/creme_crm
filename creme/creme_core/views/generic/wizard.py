@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2019  Hybird
+#    Copyright (C) 2016-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,10 +19,12 @@
 ################################################################################
 
 import logging
+from typing import List, Type
 # import warnings
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db.transaction import atomic
+from django.forms.forms import BaseForm
 from django.http import HttpResponse, HttpResponseRedirect
 # from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
@@ -109,7 +111,7 @@ class CremeWizardView(base.TitleMixin,
     If they contain a non-empty value, their value override the corresponding
     general attribute of the view.
     """
-    # form_list = [...]  # TO BE OVERRIDDEN
+    form_list: List[Type[BaseForm]]  # = [...]  # TO BE OVERRIDDEN
     template_name = 'creme_core/generics/blockform/add-wizard.html'
     atomic_POST = True
     success_url = None

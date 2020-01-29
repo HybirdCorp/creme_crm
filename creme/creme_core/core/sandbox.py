@@ -19,26 +19,30 @@
 ################################################################################
 
 import logging
+from typing import Optional, Dict, Type
+
+from creme.creme_core.models import Sandbox
 
 logger = logging.getLogger(__name__)
 
 
 class SandboxType:
-    id           = None       # Override with an unicode object ; use generate_id()
-    verbose_name = 'SANDBOX'  # Override or create a property (see below)
+    # id = None
+    id: str = ''  # Override with generate_id()
+    verbose_name: str = 'SANDBOX'  # Override or create a property (see below)
 
     @staticmethod
-    def generate_id(app_label, name):
+    def generate_id(app_label: str, name: str) -> str:
         return f'{app_label}-{name}'
 
-    def __init__(self, sandbox):
-        self.sandbox = sandbox
+    def __init__(self, sandbox: Sandbox):
+        self.sandbox: Sandbox = sandbox
 
     # Example of property to override the class attribute 'verbose_name'
     #  (when the verbose name needs to use the related sandbox's data)
     # @property
     # def verbose_name(self):
-    #     return u'Restricted to "{}"'.format(self.sandbox.user)
+    #     return f'Restricted to "{self.sandbox.user}"'
 
 
 class _SandboxTypeRegistry:
@@ -46,9 +50,9 @@ class _SandboxTypeRegistry:
         pass
 
     def __init__(self):
-        self._sandbox_types = {}
+        self._sandbox_types: Dict[str, Type[SandboxType]] = {}
 
-    def register(self, sandbox_type):
+    def register(self, sandbox_type: Type[SandboxType]):
         sandbox_id = sandbox_type.id
 
         if not sandbox_id:
@@ -57,13 +61,15 @@ class _SandboxTypeRegistry:
         if self._sandbox_types.setdefault(sandbox_id, sandbox_type) is not sandbox_type:
             raise self.Error(f'Duplicated sandbox type id: {sandbox_id}')
 
-    def get(self, sandbox):
+    def get(self, sandbox: Sandbox) -> Optional[SandboxType]:
         try:
             cls = self._sandbox_types[sandbox.type_id]
         except KeyError:
             logger.critical('Unknown SandboxType: %s', sandbox.type_id)
         else:
             return cls(sandbox)
+
+        return None
 
 
 sandbox_type_registry = _SandboxTypeRegistry()

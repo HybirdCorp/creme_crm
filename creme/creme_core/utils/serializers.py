@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from types import GeneratorType
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.timezone import is_aware, make_aware
 
-from creme.creme_core.utils.dates import to_utc
+from .dates import to_utc
 
 
 # TODO: MUST BE REMOVED WHEN JSON STANDARD LIB HANDLES DECIMAL
@@ -46,9 +46,9 @@ class CremeJSONEncoder(DjangoJSONEncoder):
     item_separator = ','
     key_separator = ':'
 
-    use_utc = True
+    use_utc: bool = True
 
-    def __init__(self, use_utc=True, **kwargs):
+    def __init__(self, use_utc: bool = True, **kwargs):
         """Constructor.
         @param use_utc: Boolean (default=True) to control the time/datetime objects representation.
                e.g: the datetime '12-01-2018 at 08:12:25.012345 (US/Eastern, -0500)' will become

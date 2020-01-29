@@ -63,5 +63,5 @@ class Vat(CremeModel):
         super().delete(*args, **kwargs)
 
     @staticmethod
-    def get_default_vat():
+    def get_default_vat() -> 'Vat':
         return Vat.objects.filter(is_default=True)[0]

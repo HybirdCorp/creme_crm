@@ -22,6 +22,7 @@ from collections import deque
 from datetime import timedelta, datetime, MAXYEAR
 from heapq import heappush, heappop, heapify
 import logging
+from typing import Optional, Set
 from uuid import uuid1
 
 from django.conf import settings
@@ -47,7 +48,7 @@ class _JobTypeRegistry:
     def __init__(self):
         self._job_types = {}
 
-    def __call__(self, job_id):
+    def __call__(self, job_id: int) -> None:
         job = Job.objects.get(id=job_id)
         job_type = self.get(job.type_id)
 
@@ -63,13 +64,15 @@ class _JobTypeRegistry:
 
         job_type.execute(job)
 
-    def get(self, job_type_id):
+    def get(self, job_type_id: str) -> Optional[JobType]:
         try:
             return self._job_types[job_type_id]
         except KeyError:
             logger.critical('Unknown JobType: %s', job_type_id)
 
-    def register(self, job_type):
+        return None
+
+    def register(self, job_type: JobType) -> None:
         jtype_id = job_type.id
 
         if not jtype_id:
@@ -78,7 +81,7 @@ class _JobTypeRegistry:
         if self._job_types.setdefault(jtype_id, job_type) is not job_type:
             raise _JobTypeRegistry.Error(f"Duplicated job type id: {jtype_id}")
 
-    def autodiscover(self):
+    def autodiscover(self) -> None:
         register = self.register
 
         for jobs_import in import_apps_sub_modules('creme_jobs'):
@@ -129,7 +132,7 @@ class _BaseJobSchedulerQueue:
 
         return cls._main_queue
 
-    def start_job(self, job):
+    def start_job(self, job: Job) -> bool:
         """Send a command to start the given Job.
         Abstract method ; should be overloaded.
         Overloading method should not raise exception, and raise 'False' instead.
@@ -138,14 +141,14 @@ class _BaseJobSchedulerQueue:
         """
         raise NotImplementedError
 
-    def end_job(self, job):
+    def end_job(self, job: Job):
         "@param job: Instance of creme_core.models.Job"
         raise NotImplementedError
 
-    def refresh_job(self, job, data):
+    def refresh_job(self, job: Job, data: dict) -> bool:
         """The setting of the Job have changed (periodicity, enabled...).
         Abstract method ; should be overridden.
-        Overridding method should not raise exception, and raise 'False' instead.
+        Overriding method should not raise exception, and raise 'False' instead.
         @param job: Instance of creme_core.models.Job.
         @param data: JSON-compliant dictionary containing new values for fields.
         @return Boolean ; 'True' means 'error'.
@@ -165,7 +168,7 @@ class _BaseJobSchedulerQueue:
         """
         raise NotImplementedError
 
-    def ping(self):
+    def ping(self) -> Optional[str]:
         """ Check if the queue & the job manager are running.
         @return Returns an error string, or 'None'.
         """
@@ -178,7 +181,7 @@ class _BaseJobSchedulerQueue:
 if settings.TESTS_ON:
     # class JobManagerQueue(_BaseJobManagerQueue):
     class JobSchedulerQueue(_BaseJobSchedulerQueue):
-        "Mocking JobShedulerQueue"
+        "Mocking JobSchedulerQueue."
         verbose_name = 'Test queue'
 
         def __init__(self):
@@ -371,7 +374,7 @@ class JobScheduler:
         self._system_jobs = []  # Heap, which elements are (wakeup_date, job_instance) => closer wakeup in the first element.
         self._system_jobs_starts = {}
         self._users_jobs = deque()
-        self._running_userjob_ids = set()
+        self._running_userjob_ids: Set[int] = set()
 
     class _DeferredJob:
         """
@@ -381,11 +384,14 @@ class JobScheduler:
         the related Job ; if it fails again, we use the DeferredJob again, excepted if the numbers of trials
         reaches its limit.
         """
-        def __init__(self, job_id):
+        job_id: int
+        trials: int
+
+        def __init__(self, job_id: int):
             self.job_id = job_id
             self.trials = 0
 
-        def next_wakeup(self, now_value):
+        def next_wakeup(self, now_value: datetime) -> datetime:
             self.trials += 1
             # Beware: when the next timeout if below 1 second, the job is run immediately.
             # So we choose a value which is greater, in order to sleep (& so avoid to make
@@ -393,10 +399,10 @@ class JobScheduler:
             return now_value + timedelta(seconds=1.1)
 
         @property
-        def reaches_trials_limit(self):
+        def reaches_trials_limit(self) -> bool:
             return self.trials >= 100
 
-    def _retrieve_jobs(self):
+    def _retrieve_jobs(self) -> None:
         now_value = now()
         users_jobs = self._users_jobs
         system_jobs = self._system_jobs
@@ -427,10 +433,14 @@ class JobScheduler:
                                    ' (pseudo-)periodic -> job is ignored.', repr(job),
                                   )
 
-    def _next_wakeup(self, job, reference_run=None):
+    def _next_wakeup(self,
+                     job: Job,
+                     reference_run: Optional[datetime] = None) -> datetime:
         """Computes the next valid wake up, which must be on the form of
         reference_run + N * period, & be > now_value.
         """
+        next_wakeup: datetime
+
         if job.enabled:
             next_wakeup = reference_run or job.reference_run
             now_value = now()
@@ -450,7 +460,7 @@ class JobScheduler:
 
         return next_wakeup
 
-    def _push_user_job(self, user_job):
+    def _push_user_job(self, user_job: Job):
         users_jobs = self._users_jobs
 
         if user_job.user:
@@ -462,7 +472,7 @@ class JobScheduler:
                            ' system job -> command is ignored.', repr(user_job),
                           )
 
-    def _start_job(self, job):
+    def _start_job(self, job: Job):
         logger.info('JobScheduler: start %s', repr(job))
 
         self._procs[job.id] = python_subprocess(
@@ -472,7 +482,7 @@ class JobScheduler:
             f'job_type_registry({job.id})'
         )
 
-    def _end_job(self, job):
+    def _end_job(self, job: Job):
         logger.info('JobScheduler: end %s', repr(job))
         proc = self._procs.pop(job.id, None)
         if proc is not None:
@@ -482,7 +492,7 @@ class JobScheduler:
         logger.info('Job manager stops: %d running job(s)', len(self._procs))
         exit()
 
-    def _handle_command_end(self, cmd):
+    def _handle_command_end(self, cmd: Command):
         job_id = cmd.data_id
 
         try:
@@ -511,12 +521,12 @@ class JobScheduler:
 
             self._end_job(job)
 
-    def _handle_command_ping(self, cmd):
+    def _handle_command_ping(self, cmd: Command) -> None:
         ping_uid = cmd.data_id
         logger.info('JobScheduler.handle_command_ping() -> PING id "%s"', ping_uid)
         self._queue.pong(ping_uid)
 
-    def _handle_command_refresh(self, cmd):
+    def _handle_command_refresh(self, cmd: Command) -> None:
         job_id = cmd.data_id
 
         if job_id in self._system_jobs_starts:
@@ -573,7 +583,7 @@ class JobScheduler:
                        repr(job), date_format(localtime(next_wakeup), 'DATETIME_FORMAT'),
                       )
 
-    def _handle_command_start(self, cmd):
+    def _handle_command_start(self, cmd: Command) -> None:
         job_id = cmd.data_id
 
         try:
@@ -585,7 +595,7 @@ class JobScheduler:
         else:
             self._push_user_job(job)
 
-    def start(self, verbose=True):
+    def start(self, verbose: bool = True) -> None:
         logger.info('Job scheduler starts')
 
         # TODO: all of this in a function wrapped by a try..except and a loop (+ sleep) which prevents network crashes ?

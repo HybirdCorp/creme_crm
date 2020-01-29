@@ -21,6 +21,7 @@
 from collections import defaultdict
 import logging
 import uuid
+from typing import Any, Sequence, DefaultDict, Dict, List, Tuple
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -65,11 +66,11 @@ class CremeEntity(CremeModel):
     # objects = LowNullsQuerySet.as_manager()
     objects = CremeEntityManager()
 
-    _real_entity = None
+    _real_entity = None  # TODO: Union[None, 'CremeEntity', Literal[True]]
 
     # Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields
     # TODO: use tag instead.
-    allowed_related = set()
+    allowed_related: set = set()
 
     creation_label = _('Create an entity')
     save_label     = _('Save the entity')
@@ -78,7 +79,7 @@ class CremeEntity(CremeModel):
 
     # Score in the light search ; entity with the highest score is display as 'Best result'
     # Add a 'search_score' @property to a model in order to have a per-instance scoring.
-    search_score = 0
+    search_score: int = 0
 
     class Meta:
         app_label = 'creme_core'
@@ -123,11 +124,11 @@ class CremeEntity(CremeModel):
 
         return str(real_entity)
 
-    def allowed_str(self, user):
+    def allowed_str(self, user) -> str:
         return str(self) if user.has_perm_to_view(self) else \
                gettext('Entity #{id} (not viewable)').format(id=self.id)
 
-    def get_real_entity(self):
+    def get_real_entity(self) -> 'CremeEntity':
         entity = self._real_entity
 
         if entity is True:
@@ -145,7 +146,7 @@ class CremeEntity(CremeModel):
 
         return entity
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         real_entity = self.get_real_entity()
 
         if self is real_entity:
@@ -154,7 +155,7 @@ class CremeEntity(CremeModel):
         return real_entity.get_absolute_url()
 
     @staticmethod
-    def get_clone_absolute_url():
+    def get_clone_absolute_url() -> str:
         """Returns the url of the clone view of this entity type.
         This URL should only accept POST method, and take an 'id' POST parameter.
         If '' (void string) is returned, the type can not be cloned.
@@ -162,29 +163,29 @@ class CremeEntity(CremeModel):
         return reverse('creme_core__clone_entity')
 
     @staticmethod
-    def get_create_absolute_url():
+    def get_create_absolute_url() -> str:
         """Returns the url of the creation view of this entity type.
         If '' (void string) is returned, the type can not be created directly.
         eg: return "/my_app/my_model/add"
         """
         return ''
 
-    def get_edit_absolute_url(self):
+    def get_edit_absolute_url(self) -> str:
         """Returns the url of the edition view for this instance.
         If '' (void string) is returned, the model can not be edited directly.
         eg: return "/my_app/my_model/edit/%s" % self.id
         """
         return ''
 
-    def get_delete_absolute_url(self):
+    def get_delete_absolute_url(self) -> str:
         """Returns the url of the deletion view (should use POST method) for this instance.
         If '' (void string) is returned, the model can not be deleted directly.
         """
         return reverse('creme_core__delete_entity', args=(self.id,))
 
-    def get_html_attrs(self, context):
+    def get_html_attrs(self, context) -> Dict[str, str]:
         """Extra HTMl attributes for this entity.
-        @param context Context of the template (useful to stores re-usable values).
+        @param context: Context of the template (useful to stores re-usable values).
         @return A dictionary.
 
         Examples of overloading:
@@ -195,16 +196,22 @@ class CremeEntity(CremeModel):
         """
         return {}
 
-    def get_related_entities(self, relation_type_id, real_entities=True):
+    def get_related_entities(self,
+                             relation_type_id: str,
+                             real_entities: bool = True) -> List['CremeEntity']:
         return [relation.object_entity.get_real_entity()
                     for relation in self.get_relations(relation_type_id, real_entities)
                ]
 
-    def get_relations(self, relation_type_id, real_obj_entities=False):
+    def get_relations(self,
+                      relation_type_id: str,
+                      real_obj_entities: bool = False) -> List['Relation']:
         relations = self._relations_map.get(relation_type_id)
 
         if relations is None:
-            logger.debug('CremeEntity.get_relations(): Cache MISS for id=%s type=%s', self.id, relation_type_id)
+            logger.debug('CremeEntity.get_relations(): Cache MISS for id=%s type=%s',
+                         self.id, relation_type_id,
+                        )
             relations = self.relations.filter(type=relation_type_id).order_by('id')
 
             if real_obj_entities:
@@ -213,23 +220,25 @@ class CremeEntity(CremeModel):
 
             self._relations_map[relation_type_id] = relations
         else:
-            logger.debug('CremeEntity.get_relations(): Cache HIT for id=%s type=%s', self.id, relation_type_id)
+            logger.debug('CremeEntity.get_relations(): Cache HIT for id=%s type=%s',
+                         self.id, relation_type_id,
+                        )
 
         return relations
 
     @staticmethod
-    def populate_real_entities(entities):
+    def populate_real_entities(entities: Sequence['CremeEntity']) -> None:
         """Faster than calling get_real_entity() of each CremeEntity object,
         because it groups queries by ContentType.
-        @param entities: Iterable containing CremeEntity instances.
+        @param entities: Sequence of CremeEntity instances.
                Beware it can be iterated twice (ie: can't be a generator).
         """
-        entities_by_ct = defaultdict(list)
+        entities_by_ct: DefaultDict[int, list] = defaultdict(list)
 
         for entity in entities:
             entities_by_ct[entity.entity_type_id].append(entity.id)
 
-        entities_map = {}
+        entities_map: Dict[int, CremeModel] = {}
         get_ct = ContentType.objects.get_for_id
 
         for ct_id, entity_ids in entities_by_ct.items():
@@ -239,7 +248,8 @@ class CremeEntity(CremeModel):
             entity._real_entity = entities_map[entity.id]
 
     @staticmethod
-    def populate_relations(entities, relation_type_ids):
+    def populate_relations(entities: Sequence['CremeEntity'],
+                           relation_type_ids: Sequence[str]) -> None:
         relations = Relation.objects.filter(subject_entity__in=[e.id for e in entities],
                                             type__in=relation_type_ids,
                                            )\
@@ -247,7 +257,7 @@ class CremeEntity(CremeModel):
         Relation.populate_real_object_entities(relations)
 
         # { Subject_Entity -> { RelationType ->[Relation list] } }
-        relations_map = defaultdict(lambda: defaultdict(list))
+        relations_map: DefaultDict[int, DefaultDict[str, list]] = defaultdict(lambda: defaultdict(list))
         for relation in relations:
             relations_map[relation.subject_entity_id][relation.type_id].append(relation)
 
@@ -256,7 +266,7 @@ class CremeEntity(CremeModel):
                 entity._relations_map[relation_type_id] = relations_map[entity.id][relation_type_id]
                 logger.debug('Fill relations cache id=%s type=%s', entity.id, relation_type_id)
 
-    def get_custom_value(self, custom_field):
+    def get_custom_value(self, custom_field: 'CustomField'):
         cvalue = None
 
         try:
@@ -270,7 +280,8 @@ class CremeEntity(CremeModel):
         return cvalue
 
     @staticmethod
-    def populate_custom_values(entities, custom_fields):
+    def populate_custom_values(entities: Sequence['CremeEntity'],
+                               custom_fields: Sequence['CustomField']) -> None:
         cvalues_map = CustomField.get_custom_values_map(entities, custom_fields)
 
         for entity in entities:
@@ -280,10 +291,10 @@ class CremeEntity(CremeModel):
                 entity._cvalues_map[cf_id] = cvalues_map[entity_id].get(cf_id)
                 # logger.debug('Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
 
-    def get_entity_summary(self, user):
+    def get_entity_summary(self, user) -> str:
         return escape(self.allowed_str(user))
 
-    def get_custom_fields_n_values(self):
+    def get_custom_fields_n_values(self) -> List[Tuple['CustomField', Any]]:
         # TODO: in a staticmethod of CustomField ??
         cfields = CustomField.objects.filter(content_type=self.entity_type_id)
 
@@ -291,7 +302,7 @@ class CremeEntity(CremeModel):
 
         return [(cfield, self.get_custom_value(cfield)) for cfield in cfields]
 
-    def get_properties(self):
+    def get_properties(self) -> List['CremeProperty']:
         if self._properties is None:
             logger.debug('CremeEntity.get_properties(): Cache MISS for id=%s', self.id)
             self._properties = [*self.properties.all().select_related('type')]
@@ -301,8 +312,8 @@ class CremeEntity(CremeModel):
         return self._properties
 
     @staticmethod
-    def populate_properties(entities):
-        properties_map = defaultdict(list)
+    def populate_properties(entities: Sequence['CremeEntity']) -> None:
+        properties_map: DefaultDict[int, list] = defaultdict(list)
 
         # NB1: listify entities in order to avoid subquery (that is not supported by some DB backends)
         # NB2: list of id in order to avoid strange queries that retrieve base CremeEntities (ORM problem ?)
@@ -358,8 +369,8 @@ class CremeEntity(CremeModel):
         """
         pass
 
-    def _clone_m2m(self, source):
-        """Handle the clone of all many to many fields"""
+    def _clone_m2m(self, source: 'CremeEntity') -> None:
+        """Handle the clone of all many to many fields."""
         for field in source._meta.many_to_many:
             field_name = field.name
             getattr(self, field_name).set(getattr(source, field_name).all())
@@ -386,15 +397,17 @@ class CremeEntity(CremeModel):
 
         return new_entity
 
-    def _copy_properties(self, source):
+    def _copy_properties(self, source: 'CremeEntity') -> None:
         creme_property_create = CremeProperty.objects.safe_create
 
         for type_id in source.properties.filter(type__is_copiable=True).values_list('type', flat=True):
             creme_property_create(type_id=type_id, creme_entity=self)
 
-    def _copy_relations(self, source, allowed_internal=()):
-        """@param allowed_internal: Sequence of RelationTypes pk with is_internal=True.
-                                    Relationships with these types will be cloned anyway.
+    def _copy_relations(self,
+                        source: 'CremeEntity',
+                        allowed_internal: Sequence[str] = ()) -> None:
+        """@param allowed_internal: Sequence of RelationTypes PK with <is_internal=True>.
+                  Relationships with these types will be cloned anyway.
         """
         relation_create = Relation.objects.safe_create
 
@@ -411,7 +424,7 @@ class CremeEntity(CremeModel):
                            )
 
     @atomic
-    def clone(self):
+    def clone(self) -> 'CremeEntity':
         """Take an entity and makes it copy.
         @returns : A new entity (with a different pk) with sames values
         """
@@ -425,11 +438,11 @@ class CremeEntity(CremeModel):
 
         return new_entity
 
-    def restore(self):
+    def restore(self) -> None:
         self.is_deleted = False
         self.save()
 
-    def trash(self):
+    def trash(self) -> None:
         self.is_deleted = True
         self.save()
 
