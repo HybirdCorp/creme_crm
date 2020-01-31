@@ -428,7 +428,8 @@ class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
                    ],
         )
 
-        prop_types = [*rtype.object_properties.all()]
+        # prop_types = [*rtype.object_properties.all()]
+        prop_types = [*rtype.object_properties.values_list('id', flat=True)]
         if prop_types:
             extra_q &= Q(properties__type__in=prop_types)
 

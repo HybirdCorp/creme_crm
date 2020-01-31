@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2019  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -248,10 +248,12 @@ class PersonsConfig(CremeAppConfig):
             )
             fields['relation'] = ModelChoiceField(
                 label=_('Position in the organisation'),
-                queryset=RelationType.objects.filter(subject_ctypes=get_ct(self.Contact),
-                                                     object_ctypes=get_ct(self.Organisation),
-                                                     is_internal=False,
-                                                    ),
+                queryset=RelationType.objects.filter(
+                    subject_ctypes=get_ct(self.Contact),
+                    # object_ctypes=get_ct(self.Organisation),
+                    symmetric_type__subject_ctypes=get_ct(self.Organisation),
+                    is_internal=False,
+                ),
                 empty_label=None,
                 widget=DynamicSelect(attrs={'autocomplete': True}),
                 initial=constants.REL_SUB_EMPLOYED_BY,

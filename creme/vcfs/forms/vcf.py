@@ -29,12 +29,16 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db.transaction import atomic
-from django.forms import (IntegerField,FileField, ModelChoiceField, CharField,
-        EmailField, URLField, BooleanField, HiddenInput)
+from django.forms import (
+    IntegerField,FileField, ModelChoiceField, CharField,
+    EmailField, URLField, BooleanField, HiddenInput,
+)
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.forms import (CremeForm, CremeModelForm,
-        CreatorEntityField)
+from creme.creme_core.forms import (
+    CremeForm, CremeModelForm,
+    CreatorEntityField,
+)
 from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models import RelationType, Relation, FieldsConfig
 from creme.creme_core.utils.secure_filename import secure_filename
@@ -223,9 +227,11 @@ class VcfImportForm(CremeModelForm):
 
         # Beware: this queryset directly in the field declaration does not work on some systems in unit tests...
         #         (it seems that the problem it caused by the M2M - other fields work, but why ???)
-        fields['relation'].queryset = RelationType.objects.filter(subject_ctypes=_get_ct(Contact),
-                                                                  object_ctypes=_get_ct(Organisation),
-                                                                 )
+        fields['relation'].queryset = RelationType.objects.filter(
+            subject_ctypes=_get_ct(Contact),
+            # object_ctypes=_get_ct(Organisation),
+            symmetric_type__subject_ctypes=_get_ct(Organisation),
+        )
 
         self._hide_fields()
 

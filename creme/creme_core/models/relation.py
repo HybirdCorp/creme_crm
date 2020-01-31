@@ -186,9 +186,9 @@ class RelationType(CremeModel):
     id = models.CharField(primary_key=True, max_length=100)
 
     subject_ctypes     = models.ManyToManyField(ContentType,       blank=True, related_name='relationtype_subjects_set')
-    object_ctypes      = models.ManyToManyField(ContentType,       blank=True, related_name='relationtype_objects_set')
+    # object_ctypes      = models.ManyToManyField(ContentType,       blank=True, related_name='relationtype_objects_set')
     subject_properties = models.ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_subjects_set')
-    object_properties  = models.ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_objects_set')
+    # object_properties  = models.ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_objects_set')
 
     # If True, the relations with this type cannot be created/deleted directly by the users.
     is_internal = models.BooleanField(default=False)
@@ -227,7 +227,7 @@ class RelationType(CremeModel):
         get_ct = ContentType.objects.get_for_model
         cts = [get_ct(model) for model in models]
         self.subject_ctypes.add(*cts)
-        self.symmetric_type.object_ctypes.add(*cts)
+        # self.symmetric_type.object_ctypes.add(*cts)
 
     def delete(self, using=None, keep_parents=False):
         sym_type = self.symmetric_type
@@ -316,27 +316,27 @@ class RelationType(CremeModel):
         for rt in (sub_relation_type, obj_relation_type):
             rt.subject_ctypes.clear()
             rt.subject_properties.clear()
-            rt.object_ctypes.clear()
-            rt.object_properties.clear()
+            # rt.object_ctypes.clear()
+            # rt.object_properties.clear()
 
         get_ct = ContentType.objects.get_for_model
 
         for subject_ctype in subject_desc[2]:
             ct = get_ct(subject_ctype)
             sub_relation_type.subject_ctypes.add(ct)
-            obj_relation_type.object_ctypes.add(ct)
+            # obj_relation_type.object_ctypes.add(ct)
 
         for object_ctype in object_desc[2]:
             ct = get_ct(object_ctype)
-            sub_relation_type.object_ctypes.add(ct)
+            # sub_relation_type.object_ctypes.add(ct)
             obj_relation_type.subject_ctypes.add(ct)
 
         for subject_prop in subject_desc[3]:
             sub_relation_type.subject_properties.add(subject_prop)
-            obj_relation_type.object_properties.add(subject_prop)
+            # obj_relation_type.object_properties.add(subject_prop)
 
         for object_prop in object_desc[3]:
-            sub_relation_type.object_properties.add(object_prop)
+            # sub_relation_type.object_properties.add(object_prop)
             obj_relation_type.subject_properties.add(object_prop)
 
         sub_relation_type.save()
@@ -379,6 +379,14 @@ class RelationType(CremeModel):
             raise Http404(gettext(
                 "You can't add/delete the relationships with this type (internal type)"
             ))
+
+    @property
+    def object_ctypes(self):
+        return self.symmetric_type.subject_ctypes
+
+    @property
+    def object_properties(self):
+        return self.symmetric_type.subject_properties
 
 
 class Relation(CremeModel):
