@@ -423,15 +423,23 @@ class _FieldPrintersRegistry:
             default=css_default_header,
         )
 
-    def register(self, field: Type[models.Field], printer: FieldPrinter, output: str = 'html') -> None:
+    def register(self,
+                 field: Type[models.Field],
+                 printer: FieldPrinter,
+                 output: str = 'html') -> '_FieldPrintersRegistry':
         """Register a field printer.
         @param field: A class inheriting <django.models.Field>.
         @param printer: A callable object. See simple_print_html() for arguments/return.
         @param output: string in {'html', 'csv'}.
+        @return Self to chain calls.
         """
         self._printers_maps[output][field] = printer
+        return self
 
-    def register_listview_css_class(self, field: Type[models.Field], css_class: str, header_css_class: str):
+    def register_listview_css_class(self,
+                                    field: Type[models.Field],
+                                    css_class: str,
+                                    header_css_class: str):
         """Register CSS classes used in list-views to display field's value and column header.
         @param field: A class inheriting <django.models.Field>.
         @param css_class: CSS class for table cell.
@@ -446,7 +454,9 @@ class _FieldPrintersRegistry:
     def get_header_listview_css_class_for_field(self, field_class: Type[models.Field]) -> str:
         return self._header_listview_css_printers[field_class]
 
-    def _build_field_printer(self, field_info: FieldInfo, output: str = 'html') -> ReducedPrinter:
+    def _build_field_printer(self,
+                             field_info: FieldInfo,
+                             output: str = 'html') -> ReducedPrinter:
         base_field = field_info[0]
         base_name = base_field.name
         HIDDEN_VALUE = settings.HIDDEN_VALUE
@@ -525,10 +535,16 @@ class _FieldPrintersRegistry:
                             output: str = 'html') -> ReducedPrinter:
         return self._build_field_printer(FieldInfo(model, field_name), output=output)
 
-    def get_html_field_value(self, obj: models.Model, field_name: str, user) -> str:
+    def get_html_field_value(self,
+                             obj: models.Model,
+                             field_name: str,
+                             user) -> str:
         return self.build_field_printer(obj.__class__, field_name)(obj, user)
 
-    def get_csv_field_value(self, obj: models.Model, field_name: str, user) -> str:
+    def get_csv_field_value(self,
+                            obj: models.Model,
+                            field_name: str,
+                            user) -> str:
         return self.build_field_printer(obj.__class__, field_name, output='csv')(obj, user)
 
 
