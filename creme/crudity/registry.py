@@ -235,7 +235,8 @@ class CRUDityRegistry:
         raise KeyError('Backend not found: ' + norm_subject)
 
     def get_default_backend(self, fetcher_name):
-        fetcher = crudity_registry.get_fetcher(fetcher_name)
+        # fetcher = crudity_registry.get_fetcher(fetcher_name)
+        fetcher = self.get_fetcher(fetcher_name)
         if not fetcher:
             raise KeyError(f'Unknown fetcher "{fetcher_name}"')
 
