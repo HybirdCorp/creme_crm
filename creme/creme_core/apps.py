@@ -407,8 +407,7 @@ class CremeCoreConfig(CremeAppConfig):
             actions.CloneAction,
             actions.DeleteAction,
             actions.ViewAction,
-        )
-        actions_registry.register_bulk_actions(
+        ).register_bulk_actions(
             actions.BulkEditAction,
             actions.BulkDeleteAction,
             actions.BulkAddPropertyAction,

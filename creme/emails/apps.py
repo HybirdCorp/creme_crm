@@ -50,8 +50,11 @@ class EmailsConfig(CremeAppConfig):
     def register_actions(self, actions_registry):
         from . import actions
 
-        actions_registry.register_instance_actions(actions.EntityEmailResendAction)
-        actions_registry.register_bulk_actions(actions.BulkEntityEmailResendAction)
+        actions_registry.register_instance_actions(
+            actions.EntityEmailResendAction,
+        ).register_bulk_actions(
+            actions.BulkEntityEmailResendAction,
+        )
 
     def register_bricks(self, brick_registry):
         from . import bricks
