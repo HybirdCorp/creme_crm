@@ -33,7 +33,7 @@ try:
         _ActivitiesTestCase,
         skipIfCustomActivity,
         Activity,
-       Contact, Organisation
+        Contact, Organisation
     )
     from .. import constants
     from ..actions import BulkExportICalAction

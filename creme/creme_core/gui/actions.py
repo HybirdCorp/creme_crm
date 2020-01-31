@@ -353,19 +353,25 @@ class ActionsRegistry:
         for action_class in self.bulk_action_classes(model):
             yield action_class(**ctxt)
 
-    def register_instance_actions(self, *action_classes: Type[UIAction]):
+    def register_instance_actions(self, *action_classes: Type[UIAction]) -> 'ActionsRegistry':
         """Register several instances actions.
         @param action_classes: Classes inheriting UIAction.
+        @return Self to chain calls.
         """
         self._instance_action_classes.register_actions(*action_classes)
+        return self
 
-    def register_bulk_actions(self, *action_classes: Type[UIAction]):
+    def register_bulk_actions(self, *action_classes: Type[UIAction]) -> 'ActionsRegistry':
         """Register several bulk actions.
         @param action_classes: Classes inheriting BulkAction.
+        @return Self to chain calls.
         """
         self._bulk_action_classes.register_actions(*action_classes)
+        return self
 
-    def void_instance_actions(self, model: Type[Model], *action_classes: Type[UIAction]):
+    def void_instance_actions(self,
+                              model: Type[Model],
+                              *action_classes: Type[UIAction]) -> 'ActionsRegistry':
         """Mask several instance actions for a specific model.
 
         If a model inherits some UIActions classes from one of its parent model,
@@ -374,12 +380,17 @@ class ActionsRegistry:
 
         @param model: Class inheriting <django.db.model.Model>.
         @param action_classes: Classes inheriting UIAction.
+        @return Self to chain calls.
         """
         self._instance_action_classes.void_actions(model, *action_classes)
+        return self
 
-    def void_bulk_actions(self, model: Type[Model], *action_classes: Type[UIAction]):
+    def void_bulk_actions(self,
+                          model: Type[Model],
+                          *action_classes: Type[UIAction]) -> 'ActionsRegistry':
         """Like void_instance_actions() but for bulk actions."""
         self._bulk_action_classes.void_actions(model, *action_classes)
+        return self
 
 
 actions_registry = ActionsRegistry()
