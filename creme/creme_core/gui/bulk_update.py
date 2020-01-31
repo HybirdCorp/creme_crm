@@ -24,6 +24,7 @@ from typing import (
     Union, Optional, Type,
     Iterable, Mapping, Sequence,
     Dict, List, Set, Tuple,
+    TYPE_CHECKING,
 )
 
 from django.contrib.contenttypes.models import ContentType
@@ -31,9 +32,11 @@ from django.db.models import Model, Field, ForeignKey, FieldDoesNotExist
 from django.urls import reverse
 
 from ..core.entity_cell import EntityCell, EntityCellRegularField, EntityCellCustomField
-from ..forms.bulk import BulkForm
 from ..models import CremeModel, CremeEntity, CustomField, FieldsConfig
 from ..utils.unicode_collation import collator
+
+if TYPE_CHECKING:
+    from ..forms.bulk import BulkForm
 
 # TODO: factorise 'customfield-...'
 
@@ -56,7 +59,7 @@ class _BulkUpdateRegistry:
         excludes: Set[str]
         expandables: Set[str]
 
-        _innerforms: Dict[str, Type[BulkForm]]
+        _innerforms: Dict[str, Type['BulkForm']]
         _regularfields: Dict[str, Field]
 
         def __init__(self, model: Type[Model], ignore: bool = False):
@@ -175,7 +178,7 @@ class _BulkUpdateRegistry:
 
         def get_form(self,
                      name: str,
-                     default: Optional[Type[BulkForm]] = None) -> Optional[Type[BulkForm]]:
+                     default: Optional[Type['BulkForm']] = None) -> Optional[Type['BulkForm']]:
             return self._innerforms.get(name, default)
 
     def __init__(self):
@@ -201,7 +204,7 @@ class _BulkUpdateRegistry:
                  model: Type[Model],
                  exclude: Sequence[str] = (),
                  expandables: Sequence[str] = (),
-                 innerforms: Optional[Mapping[str, Type[BulkForm]]] = None):
+                 innerforms: Optional[Mapping[str, Type['BulkForm']]] = None):
         """Register a CremeEntity class.
         @param model: Class inheriting CremeEntity.
         @param exclude: A sequence of field names (ie: strings) indicating
@@ -280,7 +283,7 @@ class _BulkUpdateRegistry:
     def get_form(self,
                  model: Type[Model],
                  field_name: str,
-                 default: Optional[Type[BulkForm]] = None) -> Optional[Type[BulkForm]]:
+                 default: Optional[Type['BulkForm']] = None) -> Optional[Type['BulkForm']]:
         status = self.status(model)
         field_basename, _sep_, subfield_name = field_name.partition('__')
 
