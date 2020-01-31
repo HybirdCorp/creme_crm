@@ -50,10 +50,10 @@ from creme.activities.models import Calendar
 from .bricks import CallersBrick
 
 Contact = persons.get_contact_model()
-Organisation = persons.get_organisation_model()
+# Organisation = persons.get_organisation_model()
 Activity = activities.get_activity_model()
 
-RESPOND_TO_A_CALL_MODELS = (Contact, Organisation)  # TODO: move to bricks.py ?
+# RESPOND_TO_A_CALL_MODELS = (Contact, Organisation)
 
 
 # def _create_phonecall(user, title, calltype_id):
@@ -169,7 +169,7 @@ class AnswerToACall(generic.BricksView):
 
         return context
 
-    def get_number(self):
+    def get_number(self) -> str:
         number = self.number
 
         if number is None:
@@ -226,7 +226,7 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
             start=now_value,
             # TODO: attribute ? ActivityType.default_hour_duration ?
             end=now_value + timedelta(minutes=5),
-    )
+        )
 
     def create_related_phonecall(self):
         user = self.request.user
@@ -245,7 +245,7 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
         entity_rtype = act_constants.REL_SUB_PART_2_ACTIVITY \
                        if isinstance(entity, Contact) else \
                        act_constants.REL_SUB_LINKED_2_ACTIVITY
-        rtypes_map = get_bulk_or_404(RelationType, id_list={caller_rtype, entity_rtype})
+        rtypes_map = get_bulk_or_404(RelationType, id_list=[caller_rtype, entity_rtype])
 
         user_contact = user.linked_contact
         create_rel = partial(Relation.objects.create, object_entity=pcall, user=user)
@@ -256,10 +256,10 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
 
         return pcall
 
-    def get_phonecall_status_id(self):
+    def get_phonecall_status_id(self) -> int:
         return self.phonecall_status_id
 
-    def get_phonecall_subtype_id(self):
+    def get_phonecall_subtype_id(self) -> str:
         return self.phonecall_subtype_id
 
     def get_title_format_data(self):

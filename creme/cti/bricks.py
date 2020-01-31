@@ -20,14 +20,21 @@
 
 from functools import reduce
 from operator import or_
+from typing import Sequence, Type
 
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import PaginatedBrick
-from creme.creme_core.models import EntityCredentials, FieldsConfig
+from creme.creme_core.models import CremeEntity, EntityCredentials, FieldsConfig
 from creme.creme_core.models.fields import PhoneField
+
+from creme import persons, activities
+
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+Activity = activities.get_activity_model()
 
 
 class CallersBrick(PaginatedBrick):
@@ -37,17 +44,24 @@ class CallersBrick(PaginatedBrick):
     configurable  = False
     page_size     = 128
 
+    caller_models: Sequence[Type[CremeEntity]] = (
+        Contact,
+        Organisation,
+    )
+
     def detailview_display(self, context):
-        from .views import RESPOND_TO_A_CALL_MODELS, Contact, Organisation, Activity
+        # from .views import RESPOND_TO_A_CALL_MODELS, Contact, Organisation, Activity
 
         number = context['number']  # Ensure that it will crash if we try to load it from a classic load view
         user = context['user']
         filter_viewable = EntityCredentials.filter
-        fconfigs = FieldsConfig.objects.get_for_models(RESPOND_TO_A_CALL_MODELS)
+        # fconfigs = FieldsConfig.objects.get_for_models(RESPOND_TO_A_CALL_MODELS)
+        fconfigs = FieldsConfig.objects.get_for_models(self.caller_models)
         all_fields_hidden = True
         callers = []
 
-        for model in RESPOND_TO_A_CALL_MODELS:
+        # for model in RESPOND_TO_A_CALL_MODELS:
+        for model in self.caller_models:
             is_hidden = fconfigs[model].is_field_hidden
             queries = [Q(**{field.name: number})
                           for field in model._meta.fields
@@ -64,11 +78,11 @@ class CallersBrick(PaginatedBrick):
         can_create = user.has_perm_to_create
 
         return self._render(self.get_template_context(
-                    context,
-                    objects=callers,
-                    can_create_contact=can_create(Contact),
-                    contact_creation_label=Contact.creation_label,
-                    can_create_orga=can_create(Organisation),
-                    orga_creation_label=Organisation.creation_label,
-                    can_create_activity=can_create(Activity),
+            context,
+            objects=callers,
+            can_create_contact=can_create(Contact),
+            contact_creation_label=Contact.creation_label,
+            can_create_orga=can_create(Organisation),
+            orga_creation_label=Organisation.creation_label,
+            can_create_activity=can_create(Activity),
         ))
