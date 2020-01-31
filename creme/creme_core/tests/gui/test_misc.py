@@ -699,14 +699,22 @@ class GuiTestCase(CremeTestCase):
         registry = QuickFormsRegistry()
 
         self.assertFalse([*registry.iter_models()])
+        self.assertFalse([*registry.models])
         self.assertIsNone(registry.get_form(FakeContact))
+        self.assertIsNone(registry.get_form_class(FakeContact))
 
-        registry.register(FakeContact,      FakeContactQuickForm)
-        registry.register(FakeOrganisation, FakeOrganisationQuickForm)
+        registry.register(FakeContact,      FakeContactQuickForm) \
+                .register(FakeOrganisation, FakeOrganisationQuickForm)
         self.assertIs(FakeContactQuickForm,      registry.get_form(FakeContact))
         self.assertIs(FakeOrganisationQuickForm, registry.get_form(FakeOrganisation))
+        self.assertIs(FakeContactQuickForm,      registry.get_form_class(FakeContact))
+        self.assertIs(FakeOrganisationQuickForm, registry.get_form_class(FakeOrganisation))
+
         self.assertSetEqual({FakeContact, FakeOrganisation},
                             {*registry.iter_models()}
+                           )
+        self.assertSetEqual({FakeContact, FakeOrganisation},
+                            {*registry.models}
                            )
 
         # ---
@@ -719,7 +727,7 @@ class GuiTestCase(CremeTestCase):
             registry.register(FakeContact, OtherContactQuickForm)
 
     def test_quickforms_registry02(self):
-        "Un-registration"
+        "Un-registration."
         registry = QuickFormsRegistry()
 
         with self.assertRaises(registry.RegistrationError):
@@ -730,3 +738,4 @@ class GuiTestCase(CremeTestCase):
             registry.unregister(FakeContact)
 
         self.assertIsNone(registry.get_form(FakeContact))
+        self.assertIsNone(registry.get_form_class(FakeContact))

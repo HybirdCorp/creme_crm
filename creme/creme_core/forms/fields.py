@@ -359,7 +359,7 @@ class EntityCredsJSONField(JSONField):
         return entities
 
     def _has_quickform(self, model):
-        return self.quickforms_registry.get_form(model) is not None
+        return self.quickforms_registry.get_form_class(model) is not None
 
 
 class GenericEntityField(EntityCredsJSONField):

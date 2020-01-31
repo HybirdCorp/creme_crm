@@ -1692,7 +1692,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(str(error.exception), qfilter_error)
 
     def test_action_buttons_no_custom_quickform(self):
-        self.assertIsNotNone(quickforms_registry.get_form(FakeContact))
+        self.assertIsNotNone(quickforms_registry.get_form_class(FakeContact))
 
         user = self.login()
         self.assertTrue(user.has_perm_to_create(FakeContact))
@@ -1743,7 +1743,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field.user = user
 
         self.assertTrue(field.user.has_perm_to_create(CremeEntity))
-        self.assertIsNone(quickforms_registry.get_form(CremeEntity))
+        self.assertIsNone(quickforms_registry.get_form_class(CremeEntity))
         self.assertFalse(field.widget.creation_url)
 
     def test_action_buttons_not_allowed(self):
@@ -1753,14 +1753,14 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field.user = self.other_user
 
         self.assertFalse(field.user.has_perm_to_create(FakeContact))
-        self.assertIsNotNone(quickforms_registry.get_form(FakeContact))
+        self.assertIsNotNone(quickforms_registry.get_form_class(FakeContact))
 
         widget = field.widget
         self.assertTrue(widget.creation_url)
         self.assertFalse(widget.creation_allowed)
 
     def test_action_buttons_allowed(self):
-        self.assertIsNotNone(quickforms_registry.get_form(FakeContact))
+        self.assertIsNotNone(quickforms_registry.get_form_class(FakeContact))
 
         user = self.login()
         self.assertTrue(user.has_perm_to_create(FakeContact))

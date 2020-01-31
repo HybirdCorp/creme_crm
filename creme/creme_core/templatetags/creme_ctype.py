@@ -133,4 +133,4 @@ def ctype_can_be_mass_imported(ctype):
 @register.filter
 def ctype_has_quickform(ctype):
     from ..gui.quick_forms import quickforms_registry
-    return quickforms_registry.get_form(ctype.model_class()) is not None
+    return quickforms_registry.get_form_class(ctype.model_class()) is not None

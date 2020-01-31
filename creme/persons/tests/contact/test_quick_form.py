@@ -31,13 +31,13 @@ class ContactQuickFormTestCase(_BaseTestCase):
         return reverse('creme_core__quick_form', args=(ct.id,))
 
     def test_quickform01(self):
-        "1 Contact"
+        "1 Contact."
         user = self.login()
 
         contact_count = Contact.objects.count()
         orga_count = Organisation.objects.count()
 
-        models = {*quickforms_registry.iter_models()}
+        models = {*quickforms_registry.models}
         self.assertIn(Contact, models)
         self.assertIn(Organisation, models)
 

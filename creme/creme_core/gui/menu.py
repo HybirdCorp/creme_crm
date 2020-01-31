@@ -610,7 +610,7 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
 
         content_types = [
             (str(model._meta.verbose_name), model)
-                for model in self._registry.iter_models()
+                for model in self._registry.models
         ]
         g_id = self.id
 
