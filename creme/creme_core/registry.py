@@ -33,7 +33,7 @@ class CremeRegistry:
     """Registry for Creme Applications and Entities."""
     def __init__(self):
         self._entity_models = OrderedSet()
-        self._generic_registry = {}
+        # self._generic_registry = {}
 
     def register_entity_models(self, *models: Type['CremeEntity']) -> None:
         """Register CremeEntity models."""
