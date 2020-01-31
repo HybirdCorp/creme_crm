@@ -26,7 +26,7 @@ from django.forms import CharField, ModelMultipleChoiceField, ValidationError
 from django.utils.translation import gettext_lazy as _, gettext
 
 from ..models import CremeEntity, Relation, RelationType, SemiFixedRelationType
-from ..utils import entities2unicode
+from ..utils import entities_to_str
 
 from .base import CremeForm, FieldBlockManager
 from .fields import MultiRelationEntityField
@@ -246,11 +246,11 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
 
         user = self.user
         fields = self.fields
-        fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else gettext('NONE !')
+        fields['entities_lbl'].initial = entities_to_str(subjects, user) if subjects else gettext('NONE !')
 
         if forbidden_subjects:
             fields['bad_entities_lbl'] = CharField(
                 label=gettext('Unlinkable entities'),
                 widget=Label,
-                initial=entities2unicode(forbidden_subjects, user),
+                initial=entities_to_str(forbidden_subjects, user),
             )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from django.core.exceptions import PermissionDenied
 from django.forms.utils import ValidationError
 from django.utils.translation import gettext as _, gettext_lazy
 
-from ..utils import entities2unicode
+from ..utils import entities_to_str
 
 
 def validate_authenticated_user(user, message, code, **kwargs):
@@ -55,7 +55,7 @@ def validate_viewable_entities(entities, user, code='viewnotallowed'):
     )
 
     has_perm = user.has_perm_to_view
-    unviewable = entities2unicode((e for e in entities if not has_perm(e)), user)
+    unviewable = entities_to_str((e for e in entities if not has_perm(e)), user)
 
     if unviewable:
         raise ValidationError(_('Some entities are not viewable: {}').format(unviewable), code=code)
@@ -87,7 +87,7 @@ def validate_editable_entities(entities, user, code='changenotallowed'):
     )
 
     has_perm = user.has_perm_to_change
-    uneditable = entities2unicode((e for e in entities if not has_perm(e)), user)
+    uneditable = entities_to_str((e for e in entities if not has_perm(e)), user)
 
     if uneditable:
         raise ValidationError(_('Some entities are not editable: {}').format(uneditable), code=code)
@@ -119,7 +119,7 @@ def validate_linkable_entities(entities, user, code='linknotallowed'):
     )
 
     has_perm = user.has_perm_to_link
-    unlinkable = entities2unicode((e for e in entities if not has_perm(e)), user)
+    unlinkable = entities_to_str((e for e in entities if not has_perm(e)), user)
 
     if unlinkable:
         raise ValidationError(_('Some entities are not linkable: {}').format(unlinkable), code=code)

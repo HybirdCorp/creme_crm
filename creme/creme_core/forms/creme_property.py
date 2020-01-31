@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from django.forms import ModelMultipleChoiceField, CharField
 from django.utils.translation import gettext_lazy as _, gettext
 
 from ..models import CremePropertyType, CremeProperty
-from ..utils import entities2unicode
+from ..utils import entities_to_str
 
 from .base import CremeForm
 from .widgets import Label
@@ -63,7 +63,7 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
         fields = self.fields
 
         fields['types'].queryset = CremePropertyType.objects.compatible(model)  # TODO: Sort?
-        fields['entities_lbl'].initial = entities2unicode(entities, self.user) \
+        fields['entities_lbl'].initial = entities_to_str(entities, self.user) \
                                          if entities else \
                                          gettext('NONE !')
 
@@ -71,7 +71,7 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
             fields['bad_entities_lbl'] = CharField(
                 label=gettext('Uneditable entities'),
                 widget=Label, required=False,
-                initial=entities2unicode(forbidden_entities, self.user),
+                initial=entities_to_str(forbidden_entities, self.user),
             )
 
     def save(self):
