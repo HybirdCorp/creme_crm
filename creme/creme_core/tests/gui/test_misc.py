@@ -112,6 +112,52 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual([contact02.pk], [i.pk for i in get_items()])
 
     def test_field_printers01(self):
+        "Register by field types, different outputs..."
+        user = self.login()
+
+        print_charfield_html_args = []
+        print_integerfield_html_args = []
+
+        def print_charfield_html(entity, fval, user, field):
+            print_charfield_html_args.append((entity, fval, user, field))
+            return f'<span>{fval}</span>'
+
+        def print_charfield_csv(entity, fval, user, field):
+            return f'«{fval}»'
+
+        def print_integerfield_html(entity, fval, user, field):
+            print_integerfield_html_args.append((entity, fval, user, field))
+            return f'<span data-type="integer">{fval}</span>'
+
+        registry = _FieldPrintersRegistry()\
+                       .register(models.CharField,    print_charfield_html) \
+                       .register(models.CharField,    print_charfield_csv, output='csv') \
+                       .register(models.IntegerField, print_integerfield_html, output='html')
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        orga1 = create_orga(name='NERV', capital=1234)
+        orga2 = create_orga(name='Seele')
+
+        get_html_val = registry.get_html_field_value
+        get_field = FakeOrganisation._meta.get_field
+
+        self.assertEqual('<span>NERV</span>', get_html_val(orga1, 'name', user))
+        self.assertEqual([(orga1, orga1.name, user, get_field('name'))],
+                         print_charfield_html_args
+                        )
+
+        self.assertEqual('<span>Seele</span>', get_html_val(orga2, 'name', user))
+        self.assertEqual('«NERV»', registry.get_csv_field_value(orga1, 'name', user))
+
+        self.assertEqual('<span data-type="integer">1234</span>',
+                         get_html_val(orga1, 'capital', user)
+                        )
+        self.assertEqual([(orga1, orga1.capital, user, get_field('capital'))],
+                         print_integerfield_html_args
+                        )
+
+    def test_field_printers02(self):
+        "ForeignKey."
         user = self.login()
 
         print_foreignkey_html = FKPrinter(none_printer=FKPrinter.print_fk_null_html,
@@ -190,8 +236,8 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(str(user), get_html_val(casca, 'image__user', user))                # depth = 2
         self.assertEqual(user.username, get_html_val(casca, 'image__user__username', user))  # depth = 3
 
-    def test_field_printers02(self):
-        "ManyToMany (simple model)"
+    def test_field_printers03(self):
+        "ManyToMany (simple model)."
         user = self.login()
         field_printers_registry = _FieldPrintersRegistry()
 
@@ -219,7 +265,7 @@ class GuiTestCase(CremeTestCase):
                          get_csv_val(goku, 'languages__name', user)
                         )
 
-    def test_field_printers03(self):
+    def test_field_printers04(self):
         "ManyToMany (CremeEntity)."
         user = self.login(is_superuser=False)
         self.role.exportable_ctypes.set([ContentType.objects.get_for_model(FakeEmailCampaign)])
@@ -273,8 +319,8 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(HIDDEN_VALUE, get_csv_val(camp2, 'mailing_lists', user))
         self.assertEqual(HIDDEN_VALUE, get_csv_val(camp2, 'mailing_lists__name', user))
 
-    def test_field_printers04(self):
-        "Credentials"
+    def test_field_printers05(self):
+        "Credentials."
         user = self.login(is_superuser=False, allowed_apps=['creme_core'])
         self.role.exportable_ctypes.set([ContentType.objects.get_for_model(FakeContact)])
         SetCredentials.objects.create(role=self.role,
@@ -317,7 +363,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(HIDDEN_VALUE, get_csv_val(casca, 'image__categories', user))
 
     def test_field_printers06(self):
-        "Boolean Field"
+        "Boolean Field."
         user = self.login()
         field_printers_registry = _FieldPrintersRegistry()
 
@@ -338,7 +384,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(_('Yes'), get_csv_val(judo, 'is_a_nerd', user))
 
     def test_field_printers07(self):
-        "Numerics Field"
+        "Numerics Field."
         user = self.login()
         field_printers_registry = _FieldPrintersRegistry()
 
@@ -370,22 +416,24 @@ class GuiTestCase(CremeTestCase):
 
     @override_settings(URLIZE_TARGET_BLANK=False)
     def test_field_printers08(self):
-        "Test TexField: link => no target"
+        "Test TexField: link => no target."
         user = self.login()
         field_printers_registry = _FieldPrintersRegistry()
 
-        hawk = FakeOrganisation.objects.create(user=user, name='Hawk',
-                                               description='A powerful army.\nOfficial site: www.hawk-troop.org'
-                                              )
+        hawk = FakeOrganisation.objects.create(
+            user=user, name='Hawk',
+            description='A powerful army.\nOfficial site: www.hawk-troop.org',
+        )
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual('<p>A powerful army.<br>Official site: <a href="http://www.hawk-troop.org">www.hawk-troop.org</a></p>',
-                         get_html_val(hawk, 'description', user)
-                        )
+        self.assertEqual(
+            '<p>A powerful army.<br>Official site: <a href="http://www.hawk-troop.org">www.hawk-troop.org</a></p>',
+            get_html_val(hawk, 'description', user)
+        )
 
     @override_settings(URLIZE_TARGET_BLANK=True)
     def test_field_printers09(self):
-        "Test TexField: link => target='_blank'"
+        "Test TexField: link => target='_blank'."
         user = self.login()
         field_printers_registry = _FieldPrintersRegistry()
 
@@ -394,11 +442,12 @@ class GuiTestCase(CremeTestCase):
                                               )
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual('<p>A powerful army.<br>'
-                             'Official site: <a target="_blank" rel="noopener noreferrer" href="http://www.hawk-troop.org">www.hawk-troop.org</a>'
-                         '</p>',
-                         get_html_val(hawk, 'description', user)
-                        )
+        self.assertEqual(
+            '<p>A powerful army.<br>'
+                'Official site: <a target="_blank" rel="noopener noreferrer" href="http://www.hawk-troop.org">www.hawk-troop.org</a>'
+            '</p>',
+            get_html_val(hawk, 'description', user)
+        )
 
     def test_statistics01(self):
         user = self.login()
