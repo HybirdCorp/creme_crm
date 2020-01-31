@@ -38,7 +38,7 @@ class QuickCreation(EntityCTypeRelatedMixin, generic.EntityCreationPopup):
 
     def get_form_class(self):
         model = self.model
-        form_class = self.quickforms_registry.get_form(model)
+        form_class = self.quickforms_registry.get_form_class(model)
 
         if form_class is None:
             raise Http404(f'No form registered for model: {model}')

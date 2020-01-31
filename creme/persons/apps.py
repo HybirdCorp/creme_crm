@@ -163,11 +163,10 @@ class PersonsConfig(CremeAppConfig):
                            .register(Organisation, partial(form_builder, model=Organisation))
 
     def register_quickforms(self, quickforms_registry):
-        from .forms.quick import ContactQuickForm, OrganisationQuickForm
+        from .forms import quick
 
-        reg_qform = quickforms_registry.register
-        reg_qform(self.Contact,      ContactQuickForm)
-        reg_qform(self.Organisation, OrganisationQuickForm)
+        quickforms_registry.register(self.Contact,      quick.ContactQuickForm) \
+                           .register(self.Organisation, quick.OrganisationQuickForm)
 
     def register_search_fields(self, search_field_registry):
         from django.db.models import ForeignKey
