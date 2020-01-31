@@ -698,7 +698,7 @@ class MultiRelationEntityField(RelationEntityField):
                                   params={'rtype': rtype_pk}, code='rtypedoesnotexist',
                                  ) from e
 
-        allowed_ctype_ids   = frozenset(ct.pk for ct in rtype.object_ctypes.all())
+        allowed_ctype_ids = frozenset(ct.pk for ct in rtype.object_ctypes.all())
         needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
 
         return rtype, allowed_ctype_ids, needed_ptype_ids

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -71,13 +71,14 @@ class RelationTypeCreateForm(CremeForm):
     object_ctypes      = _CTypesField()
     object_properties  = _PropertyTypesField(help_text=_('The object must have all the selected properties.'))
 
-    blocks = FieldBlockManager(('subject',   _('Subject'),        ('subject_ctypes', 'subject_properties')),
-                               ('predicate', _('Verb/Predicate'), ('subject_predicate', 'subject_is_copiable', 'subject_min_display',
-                                                                   'object_predicate',  'object_is_copiable',  'object_min_display',
-                                                                  )
-                               ),
-                               ('object',    _('Object'),         ('object_ctypes', 'object_properties')),
-                              )
+    blocks = FieldBlockManager(
+        ('subject',   _('Subject'),        ('subject_ctypes', 'subject_properties')),
+        ('predicate', _('Verb/Predicate'), ('subject_predicate', 'subject_is_copiable', 'subject_min_display',
+                                            'object_predicate',  'object_is_copiable',  'object_min_display',
+                                           )
+        ),
+        ('object',    _('Object'),         ('object_ctypes', 'object_properties')),
+    )
 
     def __init__(self, instance=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -91,12 +92,13 @@ class RelationTypeCreateForm(CremeForm):
         subject_ctypes = [ct.model_class() for ct in get_data('subject_ctypes')]
         object_ctypes  = [ct.model_class() for ct in get_data('object_ctypes')]
 
-        return RelationType.create((pk_subject, get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
-                                   (pk_object,  get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
-                                   is_custom=True, generate_pk=generate_pk,
-                                   is_copiable=(get_data('subject_is_copiable'), get_data('object_is_copiable')),
-                                   minimal_display=(get_data('subject_min_display'), get_data('object_min_display')),
-                                  )
+        return RelationType.create(
+            (pk_subject, get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
+            (pk_object,  get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
+            is_custom=True, generate_pk=generate_pk,
+            is_copiable=(get_data('subject_is_copiable'), get_data('object_is_copiable')),
+            minimal_display=(get_data('subject_min_display'), get_data('object_min_display')),
+        )
 
 
 class RelationTypeEditForm(RelationTypeCreateForm):

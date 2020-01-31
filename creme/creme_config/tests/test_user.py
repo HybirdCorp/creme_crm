@@ -10,10 +10,19 @@ try:
     from django.utils import timezone as django_tz
     from django.utils.translation import gettext as _, ngettext
 
-    from creme.creme_core.core.setting_key import SettingKey, UserSettingKey, user_setting_key_registry
+    from creme.creme_core.core.setting_key import (
+        SettingKey,
+        UserSettingKey,
+        user_setting_key_registry,
+    )
     from creme.creme_core.models import CremeUser as User
-    from creme.creme_core.models import (CremeEntity, RelationType,
-            EntityCredentials, UserRole, SetCredentials, Mutex, BrickState)
+    from creme.creme_core.models import (
+        CremeEntity,
+        RelationType,
+        EntityCredentials, UserRole, SetCredentials,
+        Mutex,
+        BrickState,
+    )
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
@@ -78,14 +87,14 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfNotCremeUser
     @skipIfCustomContact
     def test_create01(self):
-        self.login()
+        user = self.login()
 
         url = self.ADD_URL
         context = self.assertGET200(url).context
         self.assertEqual(User.creation_label, context.get('title'))
         self.assertEqual(User.save_label,     context.get('submit_label'))
 
-        orga = Organisation.objects.create(user=self.user, name='Olympus', is_managed=True)
+        orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
         username   = 'deunan'
         first_name = 'Deunan'
@@ -102,7 +111,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                           'role':         '',
                                           'organisation': orga.id,
                                           'relation':     REL_SUB_EMPLOYED_BY,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 

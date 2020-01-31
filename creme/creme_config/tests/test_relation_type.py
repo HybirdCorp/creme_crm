@@ -5,8 +5,11 @@ try:
     from django.urls import reverse
     from django.utils.translation import gettext as _, pgettext
 
-    from creme.creme_core.models import (RelationType, CremePropertyType,
-            SemiFixedRelationType, FakeContact, FakeOrganisation)
+    from creme.creme_core.models import (
+        RelationType, SemiFixedRelationType,
+        CremePropertyType,
+        FakeContact, FakeOrganisation,
+    )
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
@@ -57,14 +60,16 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertTrue(rel_type.is_copiable)
         self.assertFalse(rel_type.minimal_display)
         self.assertFalse(rel_type.subject_ctypes.all())
-        self.assertFalse(rel_type.object_ctypes.all())
+        # self.assertFalse(rel_type.object_ctypes.all())
         self.assertFalse(rel_type.subject_properties.all())
-        self.assertFalse(rel_type.object_properties.all())
+        # self.assertFalse(rel_type.object_properties.all())
 
         sym_type = rel_type.symmetric_type
         self.assertEqual(object_pred, sym_type.predicate)
         self.assertFalse(sym_type.is_copiable)
         self.assertFalse(sym_type.minimal_display)
+        self.assertFalse(sym_type.subject_ctypes.all())
+        self.assertFalse(sym_type.subject_properties.all())
 
     def test_create02(self):
         create_pt = CremePropertyType.create
@@ -95,10 +100,10 @@ class RelationTypeTestCase(CremeTestCase):
 
         rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
         self.assertEqual([ct_orga.id],    [ct.id for ct in rel_type.subject_ctypes.all()])
-        self.assertEqual([ct_contact.id], [ct.id for ct in rel_type.object_ctypes.all()])
+        # self.assertEqual([ct_contact.id], [ct.id for ct in rel_type.object_ctypes.all()])
 
         self.assertEqual([pt_sub.id], [pt.id for pt in rel_type.subject_properties.all()])
-        self.assertEqual([pt_obj.id], [pt.id for pt in rel_type.object_properties.all()])
+        # self.assertEqual([pt_obj.id], [pt.id for pt in rel_type.object_properties.all()])
 
         self.assertFalse(rel_type.is_copiable)
         self.assertFalse(rel_type.minimal_display)
@@ -106,6 +111,8 @@ class RelationTypeTestCase(CremeTestCase):
         sym_type = rel_type.symmetric_type
         self.assertTrue(sym_type.is_copiable)
         self.assertFalse(sym_type.minimal_display)
+        self.assertEqual([ct_contact.id], [ct.id for ct in sym_type.subject_ctypes.all()])
+        self.assertEqual([pt_obj.id],     [pt.id for pt in sym_type.subject_properties.all()])
 
     def test_create03(self):
         subject_pred = 'loves'
