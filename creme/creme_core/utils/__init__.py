@@ -28,6 +28,7 @@ import logging
 import sys
 import traceback
 from typing import Any, Union, TypeVar, List, Tuple, Iterable, Callable, Iterator
+import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
@@ -363,8 +364,11 @@ def prefixed_truncate(s: str, prefix, length: int) -> str:
     return prefix + s[:rem_len]
 
 
-# TODO: deprecate ? keep only the 'bytes' part ?
 def safe_unicode(value, encodings=None):
+    warnings.warn('creme_core.utils.safe_unicode() is deprecated.',
+                  DeprecationWarning
+                 )
+
     if isinstance(value, str):
         return value
 
