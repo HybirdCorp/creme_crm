@@ -204,6 +204,17 @@ def entities2unicode(entities: Iterable, user) -> str:
     """Return a string representing an iterable of CremeEntities,
     with care of permissions.
     """
+    warnings.warn('entities2unicode() is deprecated ; '
+                  'use entities_to_str() instead.',
+                  DeprecationWarning
+                 )
+    return entities_to_str(entities, user)
+
+
+def entities_to_str(entities: Iterable, user) -> str:
+    """Return a string representing an iterable of CremeEntities,
+    with care of permissions.
+    """
     return ', '.join(entity.allowed_str(user) for entity in entities)
 
 
@@ -211,6 +222,9 @@ def related2unicode(entity, user) -> str:
     """Return a string representing a related entity with its owner,
     with care of permissions of this owner.
     """
+    warnings.warn('related2unicode() is deprecated.',
+                  DeprecationWarning
+                 )
     return f'{entity.get_related_entity().allowed_str(user)} - {entity}'
 
 

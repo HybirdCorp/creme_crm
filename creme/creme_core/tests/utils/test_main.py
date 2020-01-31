@@ -13,19 +13,43 @@ try:
     from django.conf import settings
     from django.http import Http404
     from django.urls import reverse
-    from django.utils.timezone import is_naive, is_aware, override as override_tz, make_aware
-    from django.utils.translation import gettext_lazy
+    from django.utils.timezone import (
+        is_naive,
+        is_aware,
+        override as override_tz,
+        make_aware,
+    )
+    from django.utils.translation import gettext_lazy, gettext
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeCivility
 
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.global_info import clear_global_info
-    from creme.creme_core.utils import (find_first, truncate_str, split_filter,
-        create_if_needed, update_model_instance, get_from_GET_or_404, get_from_POST_or_404,
-        safe_unicode, int_2_roman, ellipsis, ellipsis_multi, prefixed_truncate)
-    from creme.creme_core.utils.dates import (dt_from_str, date_from_str,
-        date_from_ISO8601, date_to_ISO8601, date_2_dict,
-        dt_from_ISO8601, dt_to_ISO8601, round_hour, to_utc, make_aware_dt)
+    from creme.creme_core.models import SetCredentials, FakeOrganisation
+    from creme.creme_core.utils import (
+        find_first,
+        truncate_str,
+        split_filter,
+        create_if_needed,
+        update_model_instance,
+        get_from_GET_or_404, get_from_POST_or_404,
+        safe_unicode,
+        int_2_roman,
+        ellipsis, ellipsis_multi,
+        prefixed_truncate,
+        entities2unicode, entities_to_str,
+    )
+    from creme.creme_core.utils.dates import (
+        dt_from_str,
+        date_from_str,
+        date_from_ISO8601, date_to_ISO8601,
+        date_2_dict,
+        dt_from_ISO8601, dt_to_ISO8601,
+        round_hour,
+        to_utc,
+        make_aware_dt,
+    )
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
     from creme.creme_core.utils.html import escapejson
     from creme.creme_core.utils.log import log_exceptions
@@ -292,6 +316,52 @@ class MiscTestCase(CremeTestCase):
 
         # Missing second " + special char \"
         self.assertEqual(['foo', 'bar', '"baz'], smart_split('foo bar" \\"baz '))
+
+    def test_entities2unicode(self):
+        user = self.login(is_superuser=False)
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        orga1 = create_orga(name='Acme#1')
+        orga2 = create_orga(name='Acme#2')
+        orga3 = create_orga(name='Acme#3', user=self.other_user)
+
+        self.assertEqual('', entities2unicode([], user))
+        self.assertEqual(orga1.name, entities2unicode([orga1], user))
+        self.assertEqual(orga2.name, entities2unicode([orga2], user))
+        self.assertEqual(gettext('Entity #{id} (not viewable)').format(id=orga3.id),
+                         entities2unicode([orga3], user)
+                        )
+        self.assertEqual(f'{orga1.name}, {orga2.name}',
+                         entities2unicode([orga1, orga2], user)
+                        )
+
+    def test_entities_to_str(self):
+        user = self.login(is_superuser=False)
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        orga1 = create_orga(name='Acme#1')
+        orga2 = create_orga(name='Acme#2')
+        orga3 = create_orga(name='Acme#3', user=self.other_user)
+
+        self.assertEqual('', entities_to_str([], user))
+        self.assertEqual(orga1.name, entities_to_str([orga1], user))
+        self.assertEqual(orga2.name, entities_to_str([orga2], user))
+        self.assertEqual(gettext('Entity #{id} (not viewable)').format(id=orga3.id),
+                         entities_to_str([orga3], user)
+                        )
+        self.assertEqual(f'{orga1.name}, {orga2.name}',
+                         entities_to_str([orga1, orga2], user)
+                        )
 
 
 class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
