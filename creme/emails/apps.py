@@ -104,9 +104,14 @@ class EmailsConfig(CremeAppConfig):
     def register_fields_config(self, fields_config_registry):
         from creme import persons
 
-        reg_fields = fields_config_registry.register_needed_fields
-        reg_fields('emails', persons.get_contact_model(),      'email')
-        reg_fields('emails', persons.get_organisation_model(), 'email')
+        fields_config_registry.register_needed_fields('emails',
+                                                      persons.get_contact_model(),
+                                                      'email',
+                                                     ) \
+                              .register_needed_fields('emails',
+                                                      persons.get_organisation_model(),
+                                                      'email',
+                                                     )
 
     def register_creme_config(self, config_registry):
         from . import bricks

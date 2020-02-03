@@ -4,6 +4,7 @@ try:
     from functools import partial
     from time import sleep
 
+    from django.apps import apps
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.sessions.models import Session
@@ -14,7 +15,7 @@ try:
     from django.utils.timezone import localtime
     from django.utils.translation import gettext as _, pgettext
 
-    from ..base import CremeTestCase
+    from ..base import CremeTestCase, skipIfNotInstalled
     from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_DISCOUNT_UNIT
     from ..fake_forms import FakeContactQuickForm, FakeOrganisationQuickForm
     from ..fake_models import (
@@ -25,13 +26,14 @@ try:
     )
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.forms import CremeModelForm  # CremeModelWithUserForm
     from creme.creme_core.gui.button_menu import Button, ButtonsRegistry
+    from creme.creme_core.gui.fields_config import FieldsConfigRegistry
     from creme.creme_core.gui.field_printers import (
         _FieldPrintersRegistry,
         FKPrinter,
         simple_print_html,
     )
-    from creme.creme_core.forms import CremeModelForm  # CremeModelWithUserForm
     from creme.creme_core.gui.icons import Icon, IconRegistry
     from creme.creme_core.gui.last_viewed import LastViewedItem
     from creme.creme_core.gui.quick_forms import QuickFormsRegistry
@@ -739,3 +741,28 @@ class GuiTestCase(CremeTestCase):
 
         self.assertIsNone(registry.get_form(FakeContact))
         self.assertIsNone(registry.get_form_class(FakeContact))
+
+    @skipIfNotInstalled('creme.persons')
+    @skipIfNotInstalled('creme.documents')
+    def test_fields_config_registry(self):
+        from creme.documents.models import Document
+        from creme.persons.models import Contact
+
+        registry = FieldsConfigRegistry()
+        self.assertFalse([*registry.get_needing_apps(Contact, 'phone')])
+
+        registry.register_needed_fields('documents', Contact, 'phone', 'mobile') \
+                .register_needed_fields('persons', Document, 'categories')
+        self.assertListEqual(
+            [apps.get_app_config('documents')],
+            [*registry.get_needing_apps(Contact, 'phone')]
+        )
+        self.assertListEqual(
+            [apps.get_app_config('documents')],
+            [*registry.get_needing_apps(Contact, 'mobile')]
+        )
+        self.assertFalse([*registry.get_needing_apps(Contact, 'fax')])
+        self.assertListEqual(
+            [apps.get_app_config('persons')],
+            [*registry.get_needing_apps(Document, 'categories')]
+        )
