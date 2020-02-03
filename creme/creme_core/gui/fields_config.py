@@ -19,30 +19,36 @@
 ################################################################################
 
 from collections import defaultdict
-from typing import Type
+from typing import DefaultDict, Iterator, Set, Type
 
-from django.apps import apps
+from django.apps import apps, AppConfig
 from django.db.models import Model
 
 
 class FieldsConfigRegistry:
     """Register the fields of other apps which are required."""
+    _needed_fields: DefaultDict[Type[Model], DefaultDict[str, Set[str]]]
+
     def __init__(self):
         # Structure: [model][field_name] -> set of app_labels
         self._needed_fields = defaultdict(lambda: defaultdict(set))
 
-    def get_needing_apps(self, model: Type[Model], field_name: str):
+    def get_needing_apps(self,
+                         model: Type[Model],
+                         field_name: str) -> Iterator[AppConfig]:
         for app_label in self._needed_fields[model][field_name]:
             yield apps.get_app_config(app_label)
 
     def register_needed_fields(self,
                                app_label: str,
                                model: Type[Model],
-                               *field_names: str) -> None:
+                               *field_names: str) -> 'FieldsConfigRegistry':
         model_fields = self._needed_fields[model]
 
         for field_name in field_names:
             model_fields[field_name].add(app_label)
+
+        return self
 
 
 fields_config_registry = FieldsConfigRegistry()
