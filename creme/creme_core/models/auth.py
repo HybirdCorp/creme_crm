@@ -867,6 +867,18 @@ class CremeUser(AbstractBaseUser):
 
     @property
     def settings(self) -> UserSettingValueManager:
+        """Get a manager to read or write extra settings stored in the user instance.
+
+        eg:
+            # NB sk in an instance of <creme_core.core.setting_key.UserSettingKey>
+
+            # Read
+            value = my_user.settings.get(sk)
+
+            # Write - we use the manager as a context manager
+            with my_user.settings as settings:
+                settings[sk] = value
+        """
         settings = self._settings
 
         if settings is None:

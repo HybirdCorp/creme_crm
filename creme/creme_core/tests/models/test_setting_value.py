@@ -413,7 +413,7 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertEqual(title, settings.get(sk, ''))
 
     def test_serialise(self):
-        "JSON in DB + int"
+        "JSON in DB + int."
         user = self.login()
 
         sk = UserSettingKey('creme_core-test_model_int',

@@ -22,6 +22,7 @@ from json import loads as json_load
 import logging
 from typing import Any, Callable, Dict, Iterator, Type
 
+from django.db.models import Model, TextField
 from django.utils.translation import gettext as _
 
 from ..utils import bool_from_str, bool_as_html
@@ -66,13 +67,14 @@ class _SettingKey:
                  app_label: str,
                  type: int = STRING,
                  hidden: bool = False,
-                 blank=False):
+                 blank: bool = False):
         """Constructor.
         @param id: Unique String. Use something like 'my_app-key_name'
         @param description: Used in the configuration GUI ; use a ugettext_lazy() instance ('' is OK if hidden==True)
         @param app_label: Eg: 'creme_core'
         @param type: Integer ; see: _SettingKey.STRING, _SettingKey.INT ...
-        @param hidden: Boolean. If True, It can not be seen in the configuration GUI.
+        @param hidden: Boolean. If True, it can not be seen in the configuration GUI.
+        @param blank: Boolean. If True, the value is not required in the configuration GUI.
         """
         self.id          = id
         self.description = description
@@ -89,7 +91,8 @@ class _SettingKey:
                     f'description="{self.description}", '
                     f'app_label="{self.app_label}", '
                     f'type={self.type}, '
-                    f'hidden={self.hidden})'
+                    f'hidden={self.hidden}, '
+                    f'blank={self.blank})'
                )
 
     def cast(self, value_str: str):
@@ -162,10 +165,14 @@ user_setting_key_registry = _SettingKeyRegistry(UserSettingKey)
 
 
 class UserSettingValueManager:
+    """Manager related to a user which can read & write setting values stored
+    in a TextField (serialized to JSON).
+    See the property <creme_core.models.CremeUser.settings>.
+    """
     class ReadOnlyError(Exception):
         pass
 
-    def __init__(self, user_class, user_id, json_settings):
+    def __init__(self, user_class: Type[Model], user_id, json_settings: TextField):
         self._user_class = user_class
         self._user_id = user_id
         self._values = json_load(json_settings)
@@ -184,17 +191,18 @@ class UserSettingValueManager:
             logger.warning('UserSettingValueManager: an exception has been raised, changes will not be saved !')
             raise exc_value
 
+        # TODO: do not hard code the name of the field "json_settings"
         self._user_class.objects.filter(pk=self._user_id)\
                                 .update(json_settings=json_encode(self._values))
 
         return True
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: UserSettingKey):
         "@raise KeyError."
         return key.cast(self._values[key.id])
 
     # TODO: accept key or key_id ??
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: UserSettingKey, value):
         if self._read_only:
             raise self.ReadOnlyError
 
@@ -203,19 +211,19 @@ class UserSettingValueManager:
 
         return casted_value
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: UserSettingKey):
         self.pop(key)
 
-    def as_html(self, key) -> str:
+    def as_html(self, key: UserSettingKey) -> str:
         return key.value_as_html(self[key])
 
-    def get(self, key, default=None):
+    def get(self, key: UserSettingKey, default=None):
         try:
             return self[key]
         except KeyError:
             return default
 
-    def pop(self, key, *default):
+    def pop(self, key: UserSettingKey, *default):
         if self._read_only:
             raise self.ReadOnlyError
 
