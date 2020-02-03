@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Iterator, List
+
 from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
@@ -26,6 +28,7 @@ from django.utils.translation import gettext as _
 
 # from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import BadRequestError
+from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.shortcuts import get_bulk_or_404
 from creme.creme_core.views import generic
@@ -34,6 +37,7 @@ from creme.creme_core.views.bricks import BricksReloading  # bricks_render_info,
 
 from .. import registry
 from ..models import WaitingAction
+from ..backends.models import CrudityBackend
 
 
 # def _retrieve_actions_ids(request):
@@ -47,7 +51,7 @@ class RegistryMixin:
 class ActionsMixin:
     action_ids_arg = 'ids'
 
-    def get_action_ids(self, request):
+    def get_action_ids(self, request) -> List[int]:
         try:
             ids = [int(i) for i in request.POST.getlist(self.action_ids_arg)]
         except ValueError as e:
@@ -58,8 +62,8 @@ class ActionsMixin:
 
         return ids
 
-    def get_actions(self, request):
-        return get_bulk_or_404(WaitingAction, self.get_action_ids(request)).values()
+    def get_actions(self, request) -> Iterator[WaitingAction]:
+        return iter(get_bulk_or_404(WaitingAction, self.get_action_ids(request)).values())
 
 
 # def _build_portal_bricks():
@@ -70,7 +74,7 @@ class ActionsMixin:
 #                     for brick_class in backend.brick_classes
 #     ]
 class PortalBricksMixin(RegistryMixin):
-    def get_portal_bricks(self):
+    def get_portal_bricks(self) -> List[Brick]:
         return [
             brick_class(backend)
                 for backend in self.crudity_registry.get_configured_backends()
@@ -99,7 +103,7 @@ class ActionsRefreshing(RegistryMixin, generic.CheckedView):
     permissions = 'crudity'
     response_class = CremeJsonResponse
 
-    def refresh(self, user):
+    def refresh(self, user) -> List[CrudityBackend]:
         return self.crudity_registry.fetch(user)
 
     def post(self, request, *args, **kwargs):
@@ -196,15 +200,16 @@ class ActionsDeletion(ActionsMixin, generic.CheckedView):
 class ActionsValidation(RegistryMixin, ActionsMixin, generic.CheckedView):
     permissions = 'crudity'
 
-    def get_backend(self, action):
-        source_parts = action.source.split(' - ', 1)
+    def get_backend(self, action: WaitingAction) -> CrudityBackend:
+        source_parts: List[str] = action.source.split(' - ', 1)
 
         try:
             if len(source_parts) == 1:
                 backend = self.crudity_registry.get_default_backend(source_parts[0])
             elif len(source_parts) == 2:
                 backend = self.crudity_registry.get_configured_backend(
-                    *source_parts,
+                    fetcher_name=source_parts[0],
+                    input_name=source_parts[1],
                     norm_subject=action.subject,
                 )
             else:

@@ -26,10 +26,11 @@ import sys
 import shutil
 import subprocess
 from tempfile import mkdtemp
+from typing import List, Optional, Tuple, Type
 
 from django.conf import settings
 from django.db import models
-from django.db.models.fields import FieldDoesNotExist, EmailField
+from django.db.models.fields import Field, FieldDoesNotExist, EmailField
 from django.http import HttpResponse
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
@@ -63,6 +64,7 @@ get_none = lambda x: None
 
 def get_element_template(element_type, template_name):
     return f'crudity/infopath/create_template/frags/{element_type}/element/{template_name}'
+
 
 # TODO: use functools.partial
 # TODO: use ClassKeyedMap
@@ -105,7 +107,7 @@ _ELEMENT_TEMPLATE = {
 }
 
 XSL_VIEW_FIELDS_TEMPLATES_PATH = 'crudity/infopath/create_template/frags/xsl/view/{}.xml'
-_TEMPLATE_NILLABLE_TYPES = (  # Types which could be nil="true" in template.xml
+_TEMPLATE_NILLABLE_TYPES: Tuple[Type[Field], ...] = (  # Types which could be nil="true" in template.xml
     models.DecimalField,
     models.IntegerField,
     models.TimeField,
@@ -128,22 +130,22 @@ class InfopathFormField:
         self.xsd_element = self._get_xsd_element()
         self.xsl_element = self._get_xsl_element()
 
-    def _get_model_field(self):
+    def _get_model_field(self) -> Field:
         """Returns the field of the model by its name.
         name can be either its field name or its field attribute name (e.g: cached fields for Fk)
         """
-        try:
-            return self.model._meta.get_field(self.name)
-        except FieldDoesNotExist as e:
-            name = self.name
+        name = self.name
 
+        try:
+            return self.model._meta.get_field(name)
+        except FieldDoesNotExist as e:
             for field in self.model._meta.fields:
                 if field.get_attname() == name:
                     return field
 
             raise e
 
-    def _get_element(self, element_type):
+    def _get_element(self, element_type: str) -> Optional[str]:
         model_field = self.model_field
         field_type  = model_field.__class__
 
@@ -157,13 +159,13 @@ class InfopathFormField:
         return render_to_string(template_name, {'field': self}, request=self.request) \
                if template_name is not None else None
 
-    def _get_xsd_element(self):
+    def _get_xsd_element(self) -> Optional[str]:
         return self._get_element('xsd')
 
-    def _get_xsl_element(self):
+    def _get_xsl_element(self) -> Optional[str]:
         return self._get_element('xsl')
 
-    def _get_validation(self):  # TODO: Could be cool to match django validators
+    def _get_validation(self) -> List[str]:  # TODO: Could be cool to match django validators
         validation = []
         if isinstance(self.model_field, EmailField):
             validation.append(render_to_string('crudity/infopath/create_template/frags/validation/email_field.xml',
@@ -173,7 +175,7 @@ class InfopathFormField:
 
         return validation
 
-    def _get_editing(self):
+    def _get_editing(self) -> Optional[str]:
         model_field = self.model_field
         template_name = None
         tpl_dict = {'field': self}
@@ -198,7 +200,7 @@ class InfopathFormField:
 
         return render_to_string(template_name, tpl_dict, request=self.request) if template_name is not None else None
 
-    def get_view_element(self):
+    def get_view_element(self) -> str:
         template_name = XSL_VIEW_FIELDS_TEMPLATES_PATH.format(self.model_field.get_internal_type())
         try:
             return render_to_string(template_name,
@@ -210,23 +212,24 @@ class InfopathFormField:
         except TemplateDoesNotExist:
             return ''
 
-    def _get_choices(self):
-        choices = []
-
+    def _get_choices(self) -> List[Tuple[int, str]]:
         if isinstance(self.model_field, (models.ForeignKey, models.ManyToManyField)):
-            choices = [(entity.pk, str(entity))
-                            for entity in self.model_field.remote_field.model._default_manager.all()
-                      ]
+            choices = [
+                (entity.pk, str(entity))
+                    for entity in self.model_field.remote_field.model._default_manager.all()
+            ]
+        else:
+            choices = []
 
         return choices
 
     @property
-    def is_nillable(self):
+    def is_nillable(self) -> bool:
         model_field = self.model_field
         return bool(model_field.null and isinstance(model_field, _TEMPLATE_NILLABLE_TYPES))
 
     @property
-    def is_file_field(self):
+    def is_file_field(self) -> bool:
         model_field = self.model_field
         return issubclass(model_field.__class__, models.FileField) \
                or (isinstance(model_field, models.ForeignKey) and
@@ -234,11 +237,11 @@ class InfopathFormField:
                   )
 
     @property
-    def is_m2m_field(self):
+    def is_m2m_field(self) -> bool:
         return isinstance(self.model_field, models.ManyToManyField)
 
     @property
-    def is_bool_field(self):
+    def is_bool_field(self) -> bool:
         return isinstance(self.model_field, models.BooleanField)
 
     def get_m2m_xsl_choices_str(self):
@@ -246,33 +249,34 @@ class InfopathFormField:
 
 
 class InfopathFormBuilder:
-    def __init__(self, request, backend):
-        assert backend.model is not None
+    def __init__(self, request, backend: CrudityBackend):
+        # assert backend.model is not None
+        assert hasattr(backend, 'model')
         self.backend   = backend
         self.now       = now()
         self.namespace = self.get_namespace()
         self.urn       = self.get_urn()
         self.request   = request
-        self._fields   = None
+        self._fields: Optional[List[InfopathFormField]] = None
 
-    def get_namespace(self):
+    def get_namespace(self) -> str:
         return 'http://schemas.microsoft.com/office/infopath/2003/myXSD/{}'.format(
             self.now.strftime('%Y-%m-%dT%H:%M:%S'),
         )
 
-    def get_urn(self):
+    def get_urn(self) -> str:
         # TODO: change 'create' ? Make a constant ?
         return 'urn:schemas-microsoft-com:office:infopath:{}-{}:-myXSD-{}'.format(
-                    'create',
-                    self.backend.subject.lower(),
-                    self.now.strftime('%Y-%m-%dT%H:%M:%S'),
-                )
+            'create',
+            self.backend.subject.lower(),
+            self.now.strftime('%Y-%m-%dT%H:%M:%S'),
+        )
 
-    def _get_lang_code(self, code):
+    def _get_lang_code(self, code) -> str:
         return INFOPATH_LANGUAGES_CODES.get(code, '1033')
 
     @property
-    def fields(self):
+    def fields(self) -> List[InfopathFormField]:
         if self._fields is None:
             backend      = self.backend
             build_field  = partial(InfopathFormField, self.urn, backend.model, request=self.request)
@@ -284,14 +288,13 @@ class InfopathFormBuilder:
         return self._fields
 
     @property
-    def file_fields(self):
+    def file_fields(self) -> List[InfopathFormField]:
         """File fields have extra xml tags
         N.B: ForeignKey of (Creme) Image type is considered as file type
         """
         return [field for field in self.fields if field.is_file_field]
 
-    # def _render(self):
-    def _render(self, file_name):
+    def _render(self, file_name) -> bytes:
         request = self.request
         cab_files_renderers = {
             'manifest.xsf': self._render_manifest_xsf,
@@ -361,58 +364,66 @@ class InfopathFormBuilder:
             if backend_path:
                 shutil.rmtree(backend_path)
 
-    def render(self):
+    def render(self) -> HttpResponse:
         file_name = '{}.xsn'.format(secure_filename(CrudityBackend.normalize_subject(self.backend.subject)))
         response = HttpResponse(self._render(file_name), content_type='application/vnd.ms-infopath')
         response['Content-Disposition'] = f'attachment; filename={file_name}'
 
         return response
 
-    def _render_manifest_xsf(self, request):
-        return render_to_string('crudity/infopath/create_template/manifest.xsf',
-                                {'creme_namespace': self.namespace,
-                                 'form_urn':        self.urn,
-                                 'lang_code':       self._get_lang_code(request.LANGUAGE_CODE),
-                                 'form_name':       self.backend.subject,
-                                 'fields':          self.fields,
-                                 'file_fields':     self.file_fields,
-                                 'to':              settings.CREME_GET_EMAIL,
-                                 'password':        self.backend.password,
-                                },
-                                request=request,
-                               )
+    def _render_manifest_xsf(self, request) -> str:
+        return render_to_string(
+            'crudity/infopath/create_template/manifest.xsf',
+            {'creme_namespace': self.namespace,
+             'form_urn':        self.urn,
+             'lang_code':       self._get_lang_code(request.LANGUAGE_CODE),
+             'form_name':       self.backend.subject,
+             'fields':          self.fields,
+             'file_fields':     self.file_fields,
+             'to':              settings.CREME_GET_EMAIL,
+             'password':        self.backend.password,
+            },
+            request=request,
+        )
 
-    def _render_myschema_xsd(self, request):
-        return render_to_string('crudity/infopath/create_template/myschema.xsd',
-                                {'creme_namespace': self.namespace,
-                                 'fields':          self.fields,
-                                },
-                                request=request,
-                               )
+    def _render_myschema_xsd(self, request) -> str:
+        return render_to_string(
+            'crudity/infopath/create_template/myschema.xsd',
+            {'creme_namespace': self.namespace,
+             'fields':          self.fields,
+            },
+            request=request,
+        )
 
-    def _render_template_xml(self, request):
-        return render_to_string('crudity/infopath/create_template/template.xml',
-                                {'creme_namespace': self.namespace,
-                                 'form_urn':        self.urn,
-                                 'fields':          self.fields,
-                                },
-                                request=request,
-                               )
+    def _render_template_xml(self, request) -> str:
+        return render_to_string(
+            'crudity/infopath/create_template/template.xml',
+            {'creme_namespace': self.namespace,
+             'form_urn':        self.urn,
+             'fields':          self.fields,
+            },
+            request=request,
+        )
 
-    def _render_upgrade_xsl(self, request):
-        return render_to_string('crudity/infopath/create_template/upgrade.xsl',
-                                {'creme_namespace': self.namespace,
-                                 'fields':          self.fields,
-                                },
-                                request=request,
-                               )
+    def _render_upgrade_xsl(self, request) -> str:
+        return render_to_string(
+            'crudity/infopath/create_template/upgrade.xsl',
+            {'creme_namespace': self.namespace,
+             'fields':          self.fields,
+            },
+            request=request,
+        )
 
-    def _render_view_xsl(self, request):
+    def _render_view_xsl(self, request) -> str:
         backend = self.backend
-        return render_to_string('crudity/infopath/create_template/view1.xsl',
-                                {'creme_namespace': self.namespace,
-                                 'fields':          self.fields,
-                                 'form_title':      '{} {}'.format(_('Create'), backend.model._meta.verbose_name),
-                                },
-                                request=request,
-                               )
+        return render_to_string(
+            'crudity/infopath/create_template/view1.xsl',
+            {'creme_namespace': self.namespace,
+             'fields':          self.fields,
+             'form_title':      '{} {}'.format(
+                 _('Create'),
+                 backend.model._meta.verbose_name,
+             ),
+            },
+            request=request,
+        )

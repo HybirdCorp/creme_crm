@@ -23,9 +23,10 @@ import email
 import poplib
 import logging
 import re
+from typing import Iterable, List, Tuple
 
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
+from django.core.files.uploadedfile import UploadedFile, SimpleUploadedFile
 
 from .base import CrudityFetcher
 
@@ -33,15 +34,28 @@ logger = logging.getLogger(__name__)
 
 
 class PopEmail:
-    def __init__(self, body='', body_html='', senders=(), tos=(), ccs=(), subject='', dates=(), attachments=()):
-        self.body        = body
-        self.body_html   = body_html
-        self.senders     = senders
-        self.tos         = tos
-        self.ccs         = ccs
-        self.subject     = subject
-        self.dates       = dates
-        self.attachments = attachments
+    def __init__(self,
+                 # TODO: '*'
+                 body: str = '',
+                 body_html: str = '',
+                 senders: Iterable[str] = (),
+                 tos: Iterable[str] = (),
+                 ccs: Iterable[str] = (),
+                 subject: str = '',
+                 dates: Iterable[datetime] = (),
+                 attachments: Iterable[Tuple[str, UploadedFile]] = (),
+                ):
+        self.subject   = subject
+        self.body      = body
+        self.body_html = body_html
+
+        self.senders: List[str] = [*senders]
+        self.tos: List[str]     = [*tos]
+        self.ccs: List[str]     = [*ccs]
+
+        self.dates: List[datetime] = [*dates]
+
+        self.attachments: List[Tuple[str, UploadedFile]] = [*attachments]
 
 
 class PopFetcher(CrudityFetcher):
@@ -136,10 +150,20 @@ class PopFetcher(CrudityFetcher):
                 elif cst == 'html':
                     body_html = body = content
 
-            emails.append(PopEmail(body, body_html, from_emails, to_emails, cc_emails, subject, dates, attachments))
+            emails.append(PopEmail(
+                body=body,
+                body_html=body_html,
+                senders=from_emails,
+                tos=to_emails,
+                ccs=cc_emails,
+                subject=subject,
+                dates=dates,
+                attachments=attachments,
+            ))
 
             if delete:
                 # We delete the mail from the server when treated
+                # TODO: delete only when we are sure it has been saved (clean() method ?)
                 client.dele(message_number)
 
         client.quit()

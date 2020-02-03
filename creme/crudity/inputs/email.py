@@ -20,6 +20,7 @@
 
 import logging
 import re
+from typing import Iterable, Optional
 from xml.etree import ElementTree as ET
 
 from django.contrib.auth import get_user_model
@@ -30,8 +31,10 @@ from creme.documents import get_document_model
 
 from ..backends.models import CrudityBackend
 from ..constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
+from ..fetchers.pop import PopEmail
 from ..models import WaitingAction
 from ..utils import strip_html, decode_b64binary
+
 from .base import CrudityInput
 
 Document = get_document_model()
@@ -49,7 +52,7 @@ class EmailInput(CrudityInput):
     name = 'raw'
     verbose_name = _('Email - Raw')
 
-    def strip_html(self, html):
+    def strip_html(self, html: str) -> str:
         # 'Manually' replace &nbsp; because we don't want \xA0 unicode char
         # TODO: improve strip_html() to give custom replacement ?
         html = re.sub(re_html_br, '\n', html).replace('&nbsp;', ' ')
@@ -63,7 +66,7 @@ class CreateEmailInput(EmailInput):
     verbose_method = _('Create')
     brickheader_action_templates = ('crudity/bricks/header-actions/email-creation-template.html',)
 
-    def create(self, email):
+    def create(self, email: PopEmail):
         backend = self.get_backend(CrudityBackend.normalize_subject(email.subject)) # or self.get_backend("*")
 
         if backend is not None and self.authorize_senders(backend, email.senders):
@@ -153,17 +156,18 @@ class CreateEmailInput(EmailInput):
         return backend
 
     @staticmethod
-    def get_owner(is_sandbox_by_user, sender=None):
+    def get_owner(is_sandbox_by_user: bool, sender: Optional[str] = None):
         """Returns the owner to assign to waiting actions and history"""
         owner = None
 
         if is_sandbox_by_user:
             User = get_user_model()
+            # TODO: search even if email is None ?
             owner = User.objects.filter(email=sender).first() or User.objects.get_admin()
 
         return owner
 
-    def is_allowed_password(self, password, split_body):
+    def is_allowed_password(self, password: str, split_body: Iterable[str]) -> bool:
         allowed = False
         # Search first the password
         for i, line in enumerate(split_body):

@@ -20,6 +20,7 @@
 
 import logging
 import re
+from typing import Any, Collection, Dict, Optional, Sequence, Tuple, Type, TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
@@ -35,7 +36,7 @@ from django.db.models import (
 from django.db.transaction import atomic
 from django.utils.translation import gettext as _
 
-from creme.creme_core.models import SettingValue
+from creme.creme_core.models import CremeEntity, SettingValue
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.utils.dates import dt_from_str, date_from_str
 from creme.creme_core.views.file_handling import handle_uploaded_file
@@ -43,10 +44,13 @@ from creme.creme_core.views.file_handling import handle_uploaded_file
 # TODO: improve the crudity_registry in order to manage FK to other entity types => use test-models
 from creme.documents import get_document_model, get_folder_model
 
-from ..bricks import WaitingActionsBrick
+from ..bricks import BaseWaitingActionsBrick, WaitingActionsBrick
 from ..exceptions import ImproperlyConfiguredBackend
-from ..models import History
+from ..models import History, WaitingAction
 from ..setting_keys import sandbox_key
+
+if TYPE_CHECKING:
+    from ..inputs.base import CrudityInput
 
 logger = logging.getLogger(__name__)
 
@@ -55,23 +59,32 @@ Document = get_document_model()
 
 
 class CrudityBackend:
-    model = None     # Class inheriting CremeEntity. OVERRIDE THIS IN on your own backend.
+    # model = None
+    model: Type[CremeEntity]     # OVERRIDE THIS IN on your own backend.
 
     # These ones are set by the registry.dispatch()
-    fetcher_name = ''  # Name of the fetcher (eg: 'emails')
-    input_name   = ''  # Name of the CrudityInput (eg: 'raw')  # TODO: useless with 'crud_input' attribute ?
+    fetcher_name: str = ''  # Name of the fetcher (eg: 'emails')
+    input_name: str   = ''  # Name of the CrudityInput (eg: 'raw')  # TODO: useless with 'crud_input' attribute ?
 
-    password    = ''   # Password to check permission
-    in_sandbox  = True  # Show in sandbox (if False can be shown only in history & the creation will be automatic)
-    body_map    = {}    # Mapping email body's key <==> model's key, value in the dict is the default value
-    limit_froms = ()    # If "recipient" doesn't the backend policy
-    subject     = ''   # Matched subject
-    brick_classes = (WaitingActionsBrick,)   # Bricks classes
+    password: str  = ''   # Password to check permission
+    in_sandbox: bool = True  # Show in sandbox (if False can be shown only in history & the creation will be automatic)
 
-    def __init__(self, config, crud_input=None, *args, **kwargs):
+    # body_map    = {}
+    body_map: Dict[str, Any] = {}  # Mapping email/sms/... body's key <==> model's key, value in the dict is the default value
+
+    limit_froms: Collection[str] = ()  # If not empty, it lists the allowed senders.
+    subject: str = ''   # Matched subject
+
+    brick_classes: Sequence[Type[BaseWaitingActionsBrick]] = (WaitingActionsBrick,)   # Bricks classes
+
+    def __init__(self,
+                 config: Dict[str, Any],
+                 crud_input: Optional['CrudityInput'] = None,
+                 *args, **kwargs):
         config_get = config.get
         self.crud_input = crud_input
 
+        # TODO: validate types of data in config...
         self.password    = config_get('password')    or self.password
         self.limit_froms = config_get('limit_froms') or self.limit_froms
 
@@ -86,14 +99,14 @@ class CrudityBackend:
         self.verbose_source = config_get('verbose_source')
         self.verbose_method = config_get('verbose_method')
 
-        self._sandbox_by_user = None
+        self._sandbox_by_user: Optional[bool] = None
         self._check_configuration()
 
     @property
-    def is_configured(self):
+    def is_configured(self) -> bool:
         return bool(self.subject and self.body_map and self.model)
 
-    def _check_configuration(self):
+    def _check_configuration(self) -> None:
         """Check if declared fields exists in the model
         TODO: Check the requirement, default value ?
         """
@@ -111,29 +124,29 @@ class CrudityBackend:
 
     # TODO: factorise with CrudityQuerysetBrick.is_sandbox_by_user ?
     @property
-    def is_sandbox_by_user(self):
+    def is_sandbox_by_user(self) -> bool:
         if self._sandbox_by_user is None:
             self._sandbox_by_user = SettingValue.objects.get_4_key(sandbox_key, default=False).value
 
         return self._sandbox_by_user
 
     @is_sandbox_by_user.setter
-    def is_sandbox_by_user(self, value):
+    def is_sandbox_by_user(self, value: bool):
         self._sandbox_by_user = value
 
     @staticmethod
-    def normalize_subject(subject):
+    def normalize_subject(subject: str) -> str:
         """Normalize the subject for an easier retrieve by the input"""
         return re.sub(r'\s', '', subject or '').upper()
 
-    def create(self, action):
+    def create(self, action: WaitingAction) -> Tuple[bool, CremeEntity]:
         return self._create_instance_n_history(action.data, action.user, action.source, action.action)
 
-    def _create_instance_before_save(self, instance, data):
+    def _create_instance_before_save(self, instance: CremeEntity, data: Dict[str, Any]) -> CremeEntity:
         """Called before the instance is saved"""
         return instance
 
-    def _create_instance_after_save(self, instance, data):
+    def _create_instance_after_save(self, instance: CremeEntity, data: Dict[str, Any]) -> bool:
         """Called after the instance was saved
         @returns a boolean to check if a re-save is needed
         """
@@ -147,17 +160,24 @@ class CrudityBackend:
                 continue
 
             if issubclass(field.__class__, ManyToManyField):  # TODO: isinstance(field, ManyToManyField) ...
-                getattr(instance, field_name).set(field.remote_field.model._default_manager.filter(pk__in=field_value.split()))
+                getattr(instance, field_name).set(
+                    field.remote_field.model._default_manager.filter(pk__in=field_value.split())
+                )
 
         return need_new_save
 
-    def _create_instance_n_history(self, data, user=None, source='', action=''):  # TODO: remove 'action'
+    def _create_instance_n_history(self,
+                                   data: Dict[str, Any],
+                                   user=None,
+                                   source: str = '',
+                                   action='') -> Tuple[bool, CremeEntity]:  # TODO: remove 'action'
         is_created = True
         instance = self.model()
         model_get_field = self.model._meta.get_field
 
         try:
             with atomic():
+                field_value: Any
                 for field_name, field_value in [*data.items()]:  # NB: we build a list to modify "data"
                     try:
                         field = model_get_field(field_name)
@@ -204,16 +224,15 @@ class CrudityBackend:
                             shift_user_id = user.id
 
                         doc_entity = Document(
-                                user_id=shift_user_id,
-                                filedata=handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename),
-                                # folder=Folder.objects.get_or_create(
-                                linked_folder=Folder.objects.get_or_create(
-                                        title=_('External data'),
-                                        parent_folder=None,
-                                        defaults={'user_id': shift_user_id},
-                                )[0],
-                                description=_('Imported from external data.'),
-                            )
+                            user_id=shift_user_id,
+                            filedata=handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename),
+                            linked_folder=Folder.objects.get_or_create(
+                                    title=_('External data'),
+                                    parent_folder=None,
+                                    defaults={'user_id': shift_user_id},
+                            )[0],
+                            description=_('Imported from external data.'),
+                        )
                         assign_2_charfield(doc_entity, 'title', filename)
                         doc_entity.save()
 
@@ -254,7 +273,7 @@ class CrudityBackend:
 
         return is_created, instance
 
-    def get_id(self):
+    def get_id(self) -> str:
         subject = self.subject
         return self.fetcher_name if subject == '*' else \
                f'{self.fetcher_name}|{self.input_name}|{self.subject}'

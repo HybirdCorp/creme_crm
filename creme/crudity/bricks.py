@@ -41,21 +41,31 @@ class CrudityQuerysetBrick(QuerysetBrick):
 
     # TODO: staticmethod
     @property
-    def is_sandbox_by_user(self):
+    def is_sandbox_by_user(self) -> bool:
         # No cache: we need to create sub-blocks on the fly
         return SettingValue.objects.get_4_key(sandbox_key, default=False).value
 
 
-class WaitingActionsBrick(CrudityQuerysetBrick):
+class BaseWaitingActionsBrick(CrudityQuerysetBrick):
+    def __init__(self, backend):
+        super().__init__()
+        self.backend = backend
+
+
+# class WaitingActionsBrick(CrudityQuerysetBrick):
+class WaitingActionsBrick(BaseWaitingActionsBrick):
     # dependencies  = ()
     verbose_name  = _('Waiting actions')
     template_name = 'crudity/bricks/waiting-actions.html'
     order_by      = 'id'
 
+    # def __init__(self, backend):
+    #     super().__init__()
+    #     self.backend = backend
+    #     self.id_     = self.generate_id()
     def __init__(self, backend):
-        super().__init__()
-        self.backend = backend
-        self.id_     = self.generate_id()
+        super().__init__(backend=backend)
+        self.id_ = self.generate_id()
 
     def generate_id(self):
         return CrudityQuerysetBrick.generate_id('crudity', 'waiting_actions-' + self.backend.get_id())
@@ -78,13 +88,13 @@ class WaitingActionsBrick(CrudityQuerysetBrick):
         crud_input = backend.crud_input
 
         return self._render(self.get_template_context(
-                    context,
-                    waiting_actions,
-                    waiting_ct=ct,
-                    backend=backend,
-                    extra_header_actions=(action.render(backend=backend) for action in crud_input.brickheader_actions)
-                                         if crud_input else
-                                         (),
+            context,
+            waiting_actions,
+            waiting_ct=ct,
+            backend=backend,
+            extra_header_actions=(action.render(backend=backend) for action in crud_input.brickheader_actions)
+                                 if crud_input else
+                                 (),
         ))
 
 

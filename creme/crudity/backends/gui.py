@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2018  Hybird
+#    Copyright (C) 2017-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,18 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Optional
+
 from django.template.loader import get_template
+
+from .models import CrudityBackend
 
 
 class BrickHeaderAction:
-    def render(self, backend):
+    def render(self, backend: CrudityBackend) -> str:
         raise NotImplementedError
 
 
 class TemplateBrickHeaderAction(BrickHeaderAction):
     template_name = 'OVERRIDE ME'
 
-    def __init__(self, template_name=None):
+    def __init__(self, template_name: Optional[str] = None):
         super().__init__()
         if template_name is not None:
             self.template_name = template_name
