@@ -28,13 +28,13 @@ from creme.creme_core.models import SettingValue
 
 
 _FIELDS = {
-        SettingKey.STRING: lambda label: CharField(label=label, widget=Textarea),
-        SettingKey.INT:    IntegerField,
-        SettingKey.BOOL:   lambda label: BooleanField(label=label, required=False),
-        # TODO: an HourField inheriting ChoiceField ?? (+factorise with 'polls')
-        SettingKey.HOUR:   lambda label: IntegerField(label=label, min_value=0, max_value=23),
-        SettingKey.EMAIL:  EmailField,
-    }
+    SettingKey.STRING: lambda label: CharField(label=label, widget=Textarea),
+    SettingKey.INT:    IntegerField,
+    SettingKey.BOOL:   lambda label: BooleanField(label=label, required=False),
+    # TODO: an HourField inheriting ChoiceField ?? (+factorise with 'polls')
+    SettingKey.HOUR:   lambda label: IntegerField(label=label, min_value=0, max_value=23),
+    SettingKey.EMAIL:  EmailField,
+}
 
 
 class SettingForm(CremeModelForm):
