@@ -542,7 +542,8 @@ class BricksManager:
     Bricks can depends on the same model : updating one brick involves to update
     the bricks which depend on the same than it.
     """
-    var_name: str = 'blocks_manager'  # TODO: rename
+    # var_name = 'blocks_manager'
+    var_name: str = 'bricks_manager'
 
     class Error(Exception):
         pass
