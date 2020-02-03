@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,17 +19,22 @@
 ################################################################################
 
 from collections import defaultdict
+from typing import DefaultDict, Dict, Iterable
+
+from ..inputs.base import CrudityInput
 
 
 class CrudityFetcher:
+    _inputs: DefaultDict[str, Dict[str, CrudityInput]]
+
     def __init__(self, *args, **kwargs):
         self._inputs = defaultdict(dict)
 
-    def register_inputs(self, *inputs):
+    def register_inputs(self, *inputs: CrudityInput) -> None:
         for input in inputs:
             self._inputs[input.name][input.method] = input
 
-    def fetch(self, *args, **kwargs):
+    def fetch(self, *args, **kwargs) -> Iterable:
         """Make the fetcher do his job.
         @returns: iterable of fetcher managed type (i.e: emails objects for email fetcher for example).
         """

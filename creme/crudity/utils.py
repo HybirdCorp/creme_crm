@@ -22,10 +22,13 @@ import base64
 from html.entities import entitydefs as htmlentitydefs
 import re
 import struct
+from typing import Type, Tuple
 import uuid
 
+from django.db.models import Model
 
-def strip_html(text):
+
+def strip_html(text: str) -> str:
     """ Removes HTML markups from a string.
 
     THX to:
@@ -64,14 +67,16 @@ def strip_html(text):
     return re.sub(r'(?s)<[^>]*>|&#?\w+;', fixup, text)
 
 
-def generate_guid_for_field(urn, model, field_name):
+def generate_guid_for_field(urn: str,
+                            model: Type[Model],
+                            field_name: str) -> str:
     return '{%s}' % str(uuid.uuid5(uuid.NAMESPACE_X500,
                                    f'{urn}.{model._meta.object_name}.{field_name}'
                                   )
                        ).upper()
 
 
-def decode_b64binary(blob_b64):
+def decode_b64binary(blob_b64: bytes) -> Tuple[str, bytes]:
     """Decode base64binary encoded files (Usually found in xsd:base64Binary http://www.w3.org/TR/xmlschema-2/#base64Binary)
     @param blob_b64: <bytes> data encoded in base64.
     @return: A tuple (file_name, decoded_data) ; "file_name" is a str, "decoded_data" bytes.

@@ -47,7 +47,10 @@ EntityEmail = get_entityemail_model()
 
 class EntityEmailBackend(CrudityBackend):
     model           = EntityEmail
-    brick_classes   = (bricks.WaitingSynchronizationMailsBrick, bricks.SpamSynchronizationMailsBrick)
+    brick_classes   = (
+        bricks.WaitingSynchronizationMailsBrick,
+        bricks.SpamSynchronizationMailsBrick,
+    )
     attachment_path = ['upload', 'emails', 'attachments']
 
     @atomic

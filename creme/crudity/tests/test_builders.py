@@ -28,7 +28,6 @@ try:
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
-
 lcabMissing = False
 try:
     subprocess.call(['lcab'])
@@ -38,8 +37,7 @@ except OSError as e:
         print('It seems that "lcab" is not installed -> skip some tests')
 
 
-# TODO use test models instead of skipping
-
+# TODO: use test models instead of skipping
 
 # TODO: factorise with CrudityViewsTestCase
 @skipIfCustomContact

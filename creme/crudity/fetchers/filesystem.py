@@ -54,6 +54,7 @@ class FileSystemFetcher(CrudityFetcher):
 
     def _get_path(self):
         setting_name = self.setting_name
+        # TODO: validate it's a str
         dir_path = getattr(settings, setting_name, None)
 
         if not dir_path:

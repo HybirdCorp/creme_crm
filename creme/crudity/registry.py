@@ -21,14 +21,24 @@
 from collections import defaultdict
 from copy import deepcopy
 import logging
+from typing import (
+    Any, Optional, Type,
+    Iterable,
+    Iterator, DefaultDict, Dict, List,
+)
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.base import DeserializationError
 from django.core.serializers.python import _get_model
 
+from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.imports import import_apps_sub_modules
+
+from .backends.models import CrudityBackend
+from .fetchers.base import CrudityFetcher
+from .inputs.base import CrudityInput
 
 logger = logging.getLogger(__name__)
 ALLOWED_ID_CHARS = OrderedSet('abcdefghijklmnopqrstuvwxyz'
@@ -41,35 +51,41 @@ class FetcherInterface:
     be registered with the same key in CRUDityRegistry.
     FetcherInterface abstract those to act like one fetcher.
     """
-    def __init__(self, fetchers):
+    fetchers: List[CrudityFetcher]
+    _inputs: DefaultDict[str, Dict[str, CrudityInput]]
+    _default_backend: Optional[CrudityBackend]
+
+    def __init__(self, fetchers: Iterable[CrudityFetcher]):
         self.fetchers = [*fetchers]
         self._inputs = defaultdict(dict)
         self._default_backend = None
 
-    def add_fetchers(self, fetchers):
+    def add_fetchers(self, fetchers: Iterable[CrudityFetcher]) -> None:
         self.fetchers.extend(fetchers)
 
-    def add_inputs(self, *inputs):
+    def add_inputs(self, *inputs: CrudityInput) -> None:
         for crud_input in inputs:
             self._inputs[crud_input.name][crud_input.method] = crud_input
 
-    def get_input(self, name, method):
+    def get_input(self, name: str, method: str) -> Optional[CrudityInput]:
         input_name = self._inputs.get(name)
         if input_name is not None:
             return input_name.get(method)
 
-    def get_inputs(self):
+        return None
+
+    def get_inputs(self) -> Iterator[Dict[str, CrudityInput]]:
         return iter(self._inputs.values())
 
-    def fetch(self):
-        data = []
+    def fetch(self) -> list:
+        data: list = []
 
         for fetcher in self.fetchers:
             data.extend(fetcher.fetch())
 
         return data
 
-    def get_default_backend(self):
+    def get_default_backend(self) -> Optional[CrudityBackend]:
         """Special case, for retrieving the backend defined as the default one.
             The backend should be aware in his fetcher_fallback method that the input is not a dict of data but the raw data
             (i.e: An email object for the backend defined as the fallback of the email fetcher)
@@ -77,7 +93,7 @@ class FetcherInterface:
         """
         return self._default_backend
 
-    def register_default_backend(self, backend):
+    def register_default_backend(self, backend: CrudityBackend) -> None:
         self._default_backend = backend
 
 
@@ -86,8 +102,8 @@ class CRUDityRegistry:
         pass
 
     def __init__(self):
-        self._fetchers = {}
-        self._backends = {}
+        self._fetchers: Dict[str, FetcherInterface] = {}
+        self._backends: Dict[Type[CremeEntity], Type[CrudityBackend]] = {}
 
     def __str__(self):
         res = 'CRUDityRegistry:'
@@ -152,7 +168,7 @@ class CRUDityRegistry:
             backends = getattr(crud_import, 'backends', [])
             self.register_backends(backends)
 
-    def register_fetchers(self, source, fetchers):
+    def register_fetchers(self, source: str, fetchers: List[CrudityFetcher]) -> None:
         fetcher_multiplex = self._fetchers.get(source)
 
         # TODO: defaultdict...
@@ -161,13 +177,15 @@ class CRUDityRegistry:
         else:
             fetcher_multiplex.add_fetchers(fetchers)
 
-    def get_fetchers(self):  # TODO: iterator instead
+    def get_fetchers(self) -> List[FetcherInterface]:  # TODO: iterator instead
         return [*self._fetchers.values()]
 
-    def get_fetcher(self, source):
+    def get_fetcher(self, source: str) -> Optional[FetcherInterface]:
         return self._fetchers.get(source)
 
-    def register_inputs(self, source, inputs):
+    def register_inputs(self,
+                        source: str,
+                        inputs: List[CrudityInput]) -> None:
         fetcher = self.get_fetcher(source)
 
         if fetcher is not None:
@@ -177,26 +195,25 @@ class CRUDityRegistry:
                            source, inputs,
                           )
 
-    def register_backends(self, backends):
+    def register_backends(self, backends: Iterable[Type[CrudityBackend]]) -> None:
         for backend in backends:
             # TODO: error if model is already associated with the model ? (or a log in order to override cleanly)
             self._backends[backend.model] = backend
 
-    def get_backends(self):
+    def get_backends(self) -> Iterator[Type[CrudityBackend]]:
         """Get all registered backend
          @returns: A list of backend ; BEWARE it's classes, not instances.
         """
         return iter(self._backends.values())
 
-    def get_backend(self, model):
+    def get_backend(self, model: Type[CremeEntity]) -> Type[CrudityBackend]:
         """Get the registered backend class for the model"""
         try:
             return self._backends[model]
         except KeyError as e:
-            # raise NotRegistered("No backend is registered for the model '%s'" % model)
             raise self.RegistrationError(f'No backend is registered for the model "{model}"') from e
 
-    def get_configured_backends(self):
+    def get_configured_backends(self) -> List[CrudityBackend]:
         """Get backends instances which are configured and associated to an input
         (which is itself linked to a fetcher).
         @return: A list of configured backend instances
@@ -215,14 +232,17 @@ class CRUDityRegistry:
 
         return backends
 
-    def get_configured_backend(self, fetcher_name, input_name, norm_subject):
+    def get_configured_backend(self,
+                               fetcher_name: str,
+                               input_name: str,
+                               norm_subject: str) -> CrudityBackend:
         try:
             fetcher = self._fetchers[fetcher_name]
         except KeyError as e:
             raise KeyError('Fetcher not found: ' + fetcher_name) from e
 
         try:
-            crud_inputs = fetcher._inputs[input_name] # TODO: FetcherInterface method ?
+            crud_inputs = fetcher._inputs[input_name]  # TODO: FetcherInterface method ?
         except KeyError as e:
             raise KeyError('Input not found: ' + input_name) from e
 
@@ -234,7 +254,7 @@ class CRUDityRegistry:
 
         raise KeyError('Backend not found: ' + norm_subject)
 
-    def get_default_backend(self, fetcher_name):
+    def get_default_backend(self, fetcher_name: str) -> CrudityBackend:
         # fetcher = crudity_registry.get_fetcher(fetcher_name)
         fetcher = self.get_fetcher(fetcher_name)
         if not fetcher:
@@ -246,7 +266,7 @@ class CRUDityRegistry:
 
         return backend
 
-    def dispatch(self, backend_configs):
+    def dispatch(self, backend_configs: List[Dict[str, Any]]) -> None:
         for backend_cfg in backend_configs:
             backend_cfg = deepcopy(backend_cfg)
 
@@ -337,10 +357,10 @@ class CRUDityRegistry:
 
                     crud_input.add_backend(backend_instance)
 
-    def fetch(self, user):
+    def fetch(self, user) -> List[CrudityBackend]:
         used_backends = []
 
-        def _handle_data(multi_fetcher, data):
+        def _handle_data(multi_fetcher: FetcherInterface, data) -> Optional[CrudityBackend]:
             for inputs_per_method in multi_fetcher.get_inputs():
                 for crud_input in inputs_per_method.values():
                     handling_backend = crud_input.handle(data)
@@ -351,8 +371,11 @@ class CRUDityRegistry:
                 default_backend = multi_fetcher.get_default_backend()
 
                 if default_backend is not None:
+                    # TODO: need better type for default backend (fetcher_fallback() method)
                     default_backend.fetcher_fallback(data, user)
                     return default_backend
+
+            return None
 
         for fetcher_multiplex in self.get_fetchers():
             # TODO: FetcherInterface.has_backends() ?

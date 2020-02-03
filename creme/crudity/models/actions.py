@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from pickle import loads, dumps
+from typing import Tuple
 
 from django.db.models import BinaryField, CharField
 from django.utils.translation import gettext_lazy as _, gettext
@@ -43,14 +44,14 @@ class WaitingAction(CremeModel):
         verbose_name_plural = _('Waiting actions')
 
     @property
-    def data(self):
+    def data(self) -> dict:
         return loads(self.raw_data)
 
     @data.setter
-    def data(self, data):
+    def data(self, data: dict):
         self.raw_data = dumps(data)
 
-    def can_validate_or_delete(self, user):
+    def can_validate_or_delete(self, user) -> Tuple[bool, str]:
         """self.user not None means that sandbox is by user"""
         if self.user is not None and self.user != user and not user.is_superuser:
             return False, gettext('You are not allowed to validate/delete the waiting action <{}>').format(self.id)

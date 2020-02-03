@@ -331,16 +331,17 @@ class MySignaturesBrick(QuerysetBrick):
 
 if apps.is_installed('creme.crudity'):
     from creme.crudity.bricks import CrudityQuerysetBrick
+    from creme.crudity.bricks import BaseWaitingActionsBrick
 
-    class _SynchronizationMailsBrick(CrudityQuerysetBrick):
+    # class _SynchronizationMailsBrick(CrudityQuerysetBrick):
+    class _SynchronizationMailsBrick(BaseWaitingActionsBrick):
         dependencies = (EntityEmail,)
         order_by     = '-reception_date'
         configurable = False
 
-        # TODO: factorise with crudity.bricks.WaitingActionsBrick ?
-        def __init__(self, backend):
-            super().__init__()
-            self.backend = backend
+        # def __init__(self, backend):
+        #     super().__init__()
+        #     self.backend = backend
 
 
     class WaitingSynchronizationMailsBrick(_SynchronizationMailsBrick):

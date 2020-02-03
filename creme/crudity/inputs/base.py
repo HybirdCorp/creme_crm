@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from ..backends.gui import TemplateBrickHeaderAction
+from typing import Dict, Iterable, Iterator, List, Optional, Sequence
+
+from ..backends.gui import BrickHeaderAction, TemplateBrickHeaderAction
+from ..backends.models import CrudityBackend
 
 
 class CrudityInput:
@@ -28,29 +31,29 @@ class CrudityInput:
     verbose_name   = ''
     verbose_method = ''
 
-    brickheader_action_templates = ()
+    brickheader_action_templates: Sequence[str] = ()
 
     def __init__(self):
-        self._backends = {}
-        self._brickheader_actions = [
+        self._backends: Dict[str, CrudityBackend] = {}
+        self._brickheader_actions: List[BrickHeaderAction] = [
             TemplateBrickHeaderAction(template_name=tn)
                 for tn in self.brickheader_action_templates
         ]
 
-    def add_backend(self, backend):
+    def add_backend(self, backend: CrudityBackend) -> None:
         self._backends[backend.subject] = backend
 
-    def get_backends(self):  # TODO: rename 'backends' + property + generator ?
+    def get_backends(self) -> List[CrudityBackend]:  # TODO: rename 'backends' + property + generator ?
         return [*self._backends.values()]
 
-    def get_backend(self, subject):
+    def get_backend(self, subject: str) -> Optional[CrudityBackend]:
         return self._backends.get(subject)
 
     @property
-    def has_backends(self):
+    def has_backends(self) -> bool:
         return bool(self._backends)
 
-    def handle(self, data):
+    def handle(self, data) -> Optional[CrudityBackend]:
         """Call the method of the Input defined in subclasses.
         @return: The backend used if data were used else None.
         """
@@ -61,8 +64,9 @@ class CrudityInput:
         return None
 
     @property
-    def brickheader_actions(self):
+    def brickheader_actions(self) -> Iterator[BrickHeaderAction]:
         return iter(self._brickheader_actions)
 
-    def authorize_senders(self, backend, senders):
-        return not backend.limit_froms or {*senders} & {*backend.limit_froms}
+    def authorize_senders(self, backend: CrudityBackend, senders: Iterable[str]) -> bool:
+        # return not backend.limit_froms or {*senders} & {*backend.limit_froms}
+        return bool(not backend.limit_froms or ({*senders} & {*backend.limit_froms}))
