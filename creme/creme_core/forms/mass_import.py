@@ -31,8 +31,13 @@ from django.db.models import ManyToManyField, BooleanField as ModelBooleanField
 from django.db.models.fields import FieldDoesNotExist
 from django.db.transaction import atomic
 from django.forms.models import modelform_factory
-from django.forms import (ValidationError, Field, BooleanField, MultipleChoiceField,
-        ModelChoiceField, ModelMultipleChoiceField, IntegerField)
+from django.forms import (
+    ValidationError,
+    Field,
+    BooleanField, IntegerField,
+    MultipleChoiceField,
+    ModelChoiceField, ModelMultipleChoiceField,
+)
 from django.forms.widgets import Widget, Select, HiddenInput
 from django.template.defaultfilters import slugify
 from django.urls import reverse_lazy as reverse
@@ -45,9 +50,15 @@ from creme.creme_config.registry import config_registry, NotRegisteredInConfig
 
 from ..backends import import_backend_registry
 from ..gui.mass_import import import_form_registry
-from ..models import (CremePropertyType, CremeProperty,
-        RelationType, Relation, CremeEntity, EntityCredentials, FieldsConfig,
-        CustomField, CustomFieldValue, CustomFieldEnumValue, MassImportJobResult)
+from ..models import (
+    CremeEntity,
+    CremePropertyType, CremeProperty,
+    RelationType, Relation,
+    EntityCredentials,
+    FieldsConfig,
+    CustomField, CustomFieldValue, CustomFieldEnumValue,
+    MassImportJobResult,
+)
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.url import TemplateURLBuilder
 from .base import CremeForm, CremeModelForm, FieldBlockManager, _CUSTOM_NAME
@@ -341,17 +352,28 @@ class ExtractorField(Field):
     def clean(self, value):
         try:
             col_index = int(value['selected_column'])
-        except TypeError as e:
+        except (TypeError, ValueError) as e:
             raise ValidationError(self.error_messages['invalid'], code='invalid') from e
 
-        def_value = self._original_field.clean(value['default_value'])
+        if not any(col_index == t[0] for t in self._choices):
+            # TODO: better message ("invalid choice") ?
+            raise ValidationError(self.error_messages['invalid'], code='invalid')
+
+        try:
+            def_value = self._original_field.clean(value['default_value'])
+        except KeyError as e:
+            raise ValidationError('Widget seems buggy, no default value',
+                                  code='invalid',
+                                 ) from e
 
         if self.required and def_value in validators.EMPTY_VALUES and not col_index:
             raise ValidationError(self.error_messages['required'], code='required')
 
-        # TODO: check that col_index is in self._choices ???
-
-        subfield_create = value['subfield_create']
+        try:
+            subfield_create = value['subfield_create']
+        except KeyError as e:
+            # TODO: better message ?
+            raise ValidationError(self.error_messages['invalid'], code='invalid') from e
 
         if not self._can_create and subfield_create:
             raise ValidationError('You can not create instances')
@@ -396,7 +418,7 @@ class EntityExtractionCommand:
 
 class EntityExtractor:
     def __init__(self, extraction_cmds):
-        "@params extraction_cmds: List of EntityExtractionCommands"
+        "@params extraction_cmds: List of EntityExtractionCommands."
         self._commands = extraction_cmds
 
     def _extract_entity(self, line, user, command):
@@ -865,6 +887,7 @@ class CustomFieldExtractor:
         else:
             value = self._default_value
 
+        # TODO: catch ValidationError as in regular Extractor
         return self._value_castor(value), err_msg
 
 
@@ -894,6 +917,10 @@ class CustomFieldExtractorWidget(ExtractorWidget):
 
 # TODO: factorise
 class CustomfieldExtractorField(Field):
+    default_error_messages = {
+        'invalid': _('Enter a valid value.'),
+    }
+
     def __init__(self, *, choices, custom_field, user, **kwargs):
         super().__init__(widget=CustomFieldExtractorWidget,
                          label=custom_field.name,
@@ -928,25 +955,34 @@ class CustomfieldExtractorField(Field):
     def clean(self, value):
         try:
             col_index = int(value['selected_column'])
-        except TypeError as e:
+        except (TypeError, ValueError) as e:
             raise ValidationError(self.error_messages['invalid'], code='invalid') from e
 
-        def_value = value['default_value']
+        if not any(col_index == t[0] for t in self._choices):
+            # TODO: better message ("invalid choice") ?
+            raise ValidationError(self.error_messages['invalid'], code='invalid')
+
+        try:
+            def_value = value['default_value']
+        except KeyError as e:
+            raise ValidationError('Widget seems buggy, no default value',
+                                  code='invalid',
+                                 ) from e
 
         if def_value:
             self._original_field.clean(def_value)  # To raise ValidationError if needed
         elif self.required and not col_index:  # Should be useful while CustomFields can not be marked as required
             raise ValidationError(self.error_messages['required'], code='required')
 
-        # TODO: check that col_index is in self._choices ???
-
-        create_if_unfound = value['can_create']
+        # create_if_unfound = value['can_create']
+        create_if_unfound = value.get('can_create')
 
         if not self._can_create and create_if_unfound:
             raise ValidationError('You can not create choices')
 
         extractor = CustomFieldExtractor(col_index, def_value, self._original_field.clean,
-                                         self._custom_field, create_if_unfound,
+                                         # self._custom_field, create_if_unfound,
+                                         self._custom_field, bool(create_if_unfound),
                                         )
 
         return extractor
