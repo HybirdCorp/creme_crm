@@ -228,7 +228,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value=''))
 
         value = 'baz'
-        self.assertEqual(Q(name__contains=value), to_python(value=value))
+        self.assertEqual(Q(name__icontains=value), to_python(value=value))
 
     def test_regular_charfield02(self):
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='sector__title')
@@ -238,7 +238,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value=''))
 
         value = 'foo'
-        self.assertEqual(Q(sector__title__contains=value), to_python(value=value))
+        self.assertEqual(Q(sector__title__icontains=value), to_python(value=value))
 
     def test_regular_booleanfield01(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='is_a_nerd')
@@ -1197,7 +1197,7 @@ class SearchFormTestCase(CremeTestCase):
         form.full_clean()
 
         self.assertEqual(
-            Q(first_name__contains='yui') &
+            Q(first_name__icontains='yui') &
             Q(is_a_nerd=True) &
             Q(birthday__gte=self.create_datetime(day=25, month=2, year=2019)),
             form.search_q
