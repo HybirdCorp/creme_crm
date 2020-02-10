@@ -394,7 +394,7 @@ class RegularCharField(ListViewSearchField):
     widget = TextLVSWidget
 
     def to_python(self, value):
-        return Q(**{f'{self.cell.value}__contains': value}) if value else Q()
+        return Q(**{f'{self.cell.value}__icontains': value}) if value else Q()
 
 
 class RegularBooleanField(ListViewSearchField):
