@@ -38,8 +38,10 @@ from ..forms.entity_filter import forms as efilter_forms
 from ..gui.listview import ListViewState
 from ..http import CremeJsonResponse
 from ..models import EntityFilter, RelationType
-from ..utils import get_from_GET_or_404
-from ..utils.db import is_db_case_sensitive
+from ..utils import (
+    get_from_GET_or_404,
+    db as db_utils,
+)
 from ..utils.unicode_collation import collator
 
 from . import generic
@@ -83,10 +85,23 @@ class FilterMixin:
 
     @staticmethod
     def get_case_sensitivity_message():
-        return None if is_db_case_sensitive() else \
-               _('Notice: your database is not case sensitive, so the string operators '
-                 'which are case sensitive and the ones which are not will accept the same entities.'
-                )
+        if not db_utils.is_db_equal_case_sensitive():
+            if not db_utils.is_db_like_case_sensitive():
+                return _('Notice: your database is not case sensitive, so the string operators '
+                         'which are case sensitive and the ones which are not will accept the same entities.'
+                        )
+
+            return _('Notice: your database is not case sensitive for the "equals" operator, '
+                     'so the string equality operators which are case sensitive and the ones '
+                     'which are not will accept the same entities.'
+                    )
+        elif not db_utils.is_db_like_case_sensitive():
+            return _('Notice: your database is not case sensitive, so the string operators '
+                     'which are case sensitive and the ones which are not will accept the same entities '
+                     '(excepted equality ones, which are case sensitive).'
+                    )
+
+        return None
 
     def get_success_url(self):
         return self.build_lv_url() or reverse('creme_core__home')

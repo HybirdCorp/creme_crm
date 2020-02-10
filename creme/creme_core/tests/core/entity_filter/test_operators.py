@@ -249,14 +249,14 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value='Seele', values=['Seele']), True)
 
         # Case sensitivity ---
-        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_equal_case_sensitive',
                    return_value=True) as mock_sensitive:
             accepted_sensitive = op.accept(field_value='Nerv', values=['nErv'])
 
         mock_sensitive.assert_called_once_with()
         self.assertIs(accepted_sensitive, False)
 
-        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_equal_case_sensitive',
                    return_value=False) as mock_no_sensitive:
             accepted_no_sensitive = op.accept(field_value='Nerv', values=['nErv'])
 
@@ -268,13 +268,13 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value='Nerv', values=[['Eva01', 'Eva02']]), False)
 
         # Not strings ---
-        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_equal_case_sensitive',
                    return_value=True):
             self.assertIs(op.accept(field_value=1000, values=[1000]), True)
             self.assertIs(op.accept(field_value=500,  values=[1000]), False)
             self.assertIs(op.accept(field_value=500,  values=[500]),  True)
 
-        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_equal_case_sensitive',
                    return_value=False):
             self.assertIs(op.accept(field_value=1000, values=[1000]), True)
             self.assertIs(op.accept(field_value=500,  values=[1000]), False)
@@ -318,14 +318,14 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value='Seele', values=['Seele']), False)
 
         # Case sensitivity ---
-        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_equal_case_sensitive',
                    return_value=True) as mock_sensitive:
             accepted_sensitive = op.accept(field_value='Nerv', values=['nErv'])
 
         mock_sensitive.assert_called_once_with()
         self.assertIs(accepted_sensitive, True)
 
-        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_equal_case_sensitive',
                    return_value=False) as mock_no_sensitive:
             accepted_no_sensitive = op.accept(field_value='Nerv', values=['nErv'])
 
@@ -717,14 +717,14 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value='Nerv inc.', values=['cme', 'vil']),  False)
 
         # Case sensitivity ---
-        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_like_case_sensitive',
                    return_value=True) as mock_sensitive:
             accepted_sensitive = op.accept(field_value='Evil corp', values=['cOR'])
 
         mock_sensitive.assert_called_once_with()
         self.assertIs(accepted_sensitive, False)
 
-        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_like_case_sensitive',
                    return_value=False) as mock_no_sensitive:
             accepted_no_sensitive = op.accept(field_value='Evil corp', values=['cOR'])
 
@@ -854,14 +854,14 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value='We are not Evil', values=['We']),   True)
 
         # Case sensitivity ---
-        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_like_case_sensitive',
                    return_value=True) as mock_sensitive:
             accepted_sensitive = op.accept(field_value='Evil corp', values=['EVIL'])
 
         mock_sensitive.assert_called_once_with()
         self.assertIs(accepted_sensitive, False)
 
-        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_like_case_sensitive',
                    return_value=False) as mock_no_sensitive:
             accepted_no_sensitive = op.accept(field_value='Evil corp', values=['EVIL'])
 
@@ -986,14 +986,14 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.accept(field_value='Evil company', values=['corp']), False)
 
         # Case sensitivity ---
-        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_like_case_sensitive',
                    return_value=True) as mock_sensitive:
             accepted_sensitive = op.accept(field_value='Evil corp', values=['CORP'])
 
         mock_sensitive.assert_called_once_with()
         self.assertIs(accepted_sensitive, False)
 
-        with patch('creme.creme_core.core.entity_filter.operators.is_db_case_sensitive',
+        with patch('creme.creme_core.core.entity_filter.operators.is_db_like_case_sensitive',
                    return_value=False) as mock_no_sensitive:
             accepted_no_sensitive = op.accept(field_value='Evil corp', values=['CORP'])
 

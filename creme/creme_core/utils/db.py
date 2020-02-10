@@ -262,11 +262,24 @@ def populate_related(instances: Sequence[Model],
 
 # NB: 'maxsize=None' => avoid locking (number of models is small)
 @lru_cache(maxsize=None)
-def is_db_case_sensitive() -> bool:  # TODO: argument "db" for multi-db env ?
-    """Is the main database case sensitive or not.
+def is_db_equal_case_sensitive() -> bool:  # TODO: argument "db" for multi-db env ?
+    """Is the main database case sensitive or not with the Django's operator
+    "exact" ("=" in SQL).
     @return A boolean ; <True> means "case sensitive".
 
     NB: the return value is immutable, so the cached values can not be altered.
     """
     # NB: a line with <text == 'CasE'> must exist in DB ; see 'populate.py'.
-    return not CaseSensitivity.objects.filter(text='case').exists()
+    return not CaseSensitivity.objects.filter(text__exact='case').exists()
+
+
+@lru_cache(maxsize=None)
+def is_db_like_case_sensitive() -> bool:  # TODO: idem
+    """Is the main database case sensitive or not with the Django's operators
+    "contains/startswith/endswith" ("LIKE" in SQL).
+    @return A boolean ; <True> means "case sensitive".
+
+    NB: the return value is immutable, so the cached values can not be altered.
+    """
+    # NB: see is_db_equal_case_sensitive()
+    return not CaseSensitivity.objects.filter(text__contains='case').exists()
