@@ -20,6 +20,7 @@
 
 from os.path import splitext
 from typing import Any, Type, Callable, Iterator
+import warnings
 
 from django.conf import settings
 from django.db import models
@@ -166,6 +167,11 @@ class FKPrinter:
         return widget_entity_hyperlink(fval, user)
 
     @staticmethod
+    def print_fk_entity_csv(entity: Model, fval, user, field: Field) -> str:
+        # TODO: change allowed_str() ??
+        return str(fval) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
+
+    @staticmethod
     def print_fk_efilter_html(entity: Model, fval, user, field: Field) -> str:
         return format_html(
             '<div class="entity_filter-summary">{}<ul>{}</ul></div>',
@@ -203,16 +209,18 @@ print_foreignkey_html = FKPrinter(
  .register(EntityFilter, FKPrinter.print_fk_efilter_html)
 
 
-# TODO: FKPrinter() ?
-def print_foreignkey_csv(entity: Model, fval, user, field: Field) -> str:
-    if isinstance(fval, CremeEntity):
-        # TODO: change allowed_str() ??
-        return str(fval) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
+# def print_foreignkey_csv(entity, fval, user, field):
+#     if isinstance(fval, CremeEntity):
+#         return str(fval) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
+#
+#     return str(fval) if fval else ''
+print_foreignkey_csv = FKPrinter(
+    none_printer=lambda *args, **kwargs: '',
+    default_printer=simple_print_html,
+).register(CremeEntity, FKPrinter.print_fk_entity_csv)
 
-    return str(fval) if fval else ''
 
-
-class M2MPrinter:
+class BaseM2MPrinter:
     @staticmethod
     def enumerator_all(entity: Model,
                        fval: Manager,
@@ -227,6 +235,23 @@ class M2MPrinter:
                           field: Field) -> Iterator[Model]:
         return fval.filter(is_deleted=False)
 
+    def __init__(self,
+                 default_printer: M2MInstancePrinter,
+                 default_enumerator: M2MEnumerator):
+        self._sub_printers = ClassKeyedMap(default=(default_printer, default_enumerator))
+
+    def __call__(self, entity: Model, fval, user, field: Field) -> str:
+        raise NotImplementedError
+
+    def register(self,
+                 model: Type[Model],
+                 printer: M2MInstancePrinter,
+                 enumerator: M2MEnumerator) -> 'BaseM2MPrinter':
+        self._sub_printers[model] = (printer, enumerator)
+        return self
+
+
+class M2MPrinterForHTML(BaseM2MPrinter):
     @staticmethod
     def printer_html(instance: Model,
                      related_entity: Model,
@@ -250,11 +275,6 @@ class M2MPrinter:
             content=instance.get_entity_summary(user),
         ) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
 
-    def __init__(self,
-                 default_printer: M2MInstancePrinter,
-                 default_enumerator: M2MEnumerator):
-        self._sub_printers = ClassKeyedMap(default=(default_printer, default_enumerator))
-
     def __call__(self, entity: Model, fval, user, field: Field) -> str:
         assert isinstance(fval, Manager)
 
@@ -271,15 +291,18 @@ class M2MPrinter:
 
         return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
 
-    def register(self,
-                 model: Type[Model],
-                 printer: M2MInstancePrinter,
-                 enumerator: M2MEnumerator) -> 'M2MPrinter':
-        self._sub_printers[model] = (printer, enumerator)
-        return self
+
+class M2MPrinter(M2MPrinterForHTML):
+    def __init__(self, *args, **kwargs):
+        warnings.warn('The class creme_core.gui.field_printers.M2MPrinter is deprecated ; '
+                      'use M2MPrinterForHTML instead.',
+                      DeprecationWarning
+                     )
+        super().__init__(*args, **kwargs)
 
 
-print_many2many_html = M2MPrinter(
+# print_many2many_html = M2MPrinter(
+print_many2many_html = M2MPrinterForHTML(
     default_printer=M2MPrinter.printer_html,
     default_enumerator=M2MPrinter.enumerator_all,
 ).register(
@@ -289,16 +312,56 @@ print_many2many_html = M2MPrinter(
 )
 
 
-# TODO: M2MPrinter ??
-def print_many2many_csv(entity: Model, fval, user, field: Field) -> str:
-    if issubclass(fval.model, CremeEntity):
+class M2MPrinterForCSV(BaseM2MPrinter):
+    @staticmethod
+    def printer_csv(instance: Model,
+                    related_entity: Model,
+                    fval: Manager,
+                    user,
+                    field: Field) -> str:
+        return str(instance)
+
+    @staticmethod
+    def printer_entity_csv(instance: Model,
+                           related_entity: Model,
+                           fval: Manager,
+                           user,
+                           field: Field) -> str:
+        assert isinstance(instance, CremeEntity)
+
         # TODO: CSV summary ?? [e.get_entity_m2m_summary(user)]
+        return str(instance) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
+
+    def __call__(self, entity: Model, fval, user, field: Field) -> str:
+        assert isinstance(fval, Manager)
+
+        print_enum = self._sub_printers[fval.model]
+        assert print_enum is not None  # NB: default value is not None
+
+        printer, enumerator = print_enum
+
         return '/'.join(
-            str(e) if user.has_perm_to_view(e) else settings.HIDDEN_VALUE
-                for e in fval.filter(is_deleted=False)
+            printer(e, entity, fval, user, field)
+                for e in enumerator(entity, fval, user, field)
         )
 
-    return '/'.join(str(a) for a in fval.all())
+
+# def print_many2many_csv(entity, fval, user, field):
+#     if issubclass(fval.model, CremeEntity):
+#         return '/'.join(
+#             str(e) if user.has_perm_to_view(e) else settings.HIDDEN_VALUE
+#                 for e in fval.filter(is_deleted=False)
+#         )
+#
+#     return '/'.join(str(a) for a in fval.all())
+print_many2many_csv = M2MPrinterForCSV(
+    default_printer=M2MPrinterForCSV.printer_csv,
+    default_enumerator=M2MPrinterForCSV.enumerator_all,
+).register(
+    CremeEntity,
+    printer=M2MPrinterForCSV.printer_entity_csv,
+    enumerator=M2MPrinterForCSV.enumerator_entity,
+)
 
 
 def print_duration(entity: Model, fval, user, field: Field) -> str:
