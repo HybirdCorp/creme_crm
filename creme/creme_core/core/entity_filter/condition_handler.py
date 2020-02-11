@@ -22,7 +22,7 @@ from datetime import datetime
 from decimal import Decimal
 from functools import partial
 import logging
-from typing import Optional, Type, Union
+from typing import Optional, Tuple, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (
@@ -49,7 +49,13 @@ from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.utils.dates import make_aware_dt, date_2_dict
 from creme.creme_core.utils.meta import is_date_field, FieldInfo
 
-from . import operators, operands, entity_filter_registries, EF_USER, _EntityFilterRegistry
+from . import (
+    operators,
+    operands,
+    entity_filter_registries,
+    EF_USER,
+    _EntityFilterRegistry,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -437,10 +443,10 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             model=model,
             type=cls.type_id,
             name=field_name,
-            value=condition_cls.encode_value(
-                # {'operator': operator_id, 'values': values}
-                {'operator': operator_obj.type_id, 'values': values}
-            ),
+            # value=condition_cls.encode_value(
+            #     {'operator': operator_obj.type_id, 'values': values}
+            # ),
+            value={'operator': operator_obj.type_id, 'values': values},
         )
 
     def description(self, user):
@@ -530,7 +536,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
                               )
 
         if operator.exclude:
-            query.negate()  # TODO: move more code in operator ??
+            query.negate()  # TODO: move more code in operator ?? (see CustomFieldConditionHandler)
 
         return query
 
@@ -689,9 +695,10 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
             model=model,
             type=cls.type_id,
             name=field_name,
-            value=condition_cls.encode_value(
-                cls._build_daterange_dict(date_range, start, end)
-            ),
+            # value=condition_cls.encode_value(
+            #     cls._build_daterange_dict(date_range, start, end)
+            # ),
+            value=cls._build_daterange_dict(date_range, start, end),
         )
 
     @staticmethod
@@ -930,7 +937,8 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             model=custom_field.content_type.model_class(),
             type=cls.type_id,
             name=str(custom_field.id),
-            value=condition_cls.encode_value(value),
+            # value=condition_cls.encode_value(value),
+            value=value,
         )
 
     def description(self, user):
@@ -1070,7 +1078,8 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
             model=custom_field.content_type.model_class(),
             type=cls.type_id,
             name=str(custom_field.id),
-            value=condition_cls.encode_value(value),
+            # value=condition_cls.encode_value(value),
+            value=value,
         )
 
     def description(self, user):
@@ -1244,7 +1253,8 @@ class RelationConditionHandler(BaseRelationConditionHandler):
             model=model,
             type=cls.type_id,
             name=rtype.id,
-            value=condition_cls.encode_value(value),
+            # value=condition_cls.encode_value(value),
+            value=value,
         )
 
     @property
@@ -1388,9 +1398,10 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
             model=model,
             type=cls.type_id,
             name=rtype.id,
-            value=condition_cls.encode_value(
-                {'has': has, 'filter_id': subfilter.id}
-            ),
+            # value=condition_cls.encode_value(
+            #     {'has': has, 'filter_id': subfilter.id}
+            # ),
+            value={'has': has, 'filter_id': subfilter.id},
             # NB: avoid a query to retrieve again the sub-filter (in forms).
             # TODO: assert this class is available in the registry ?
             handler=cls(model=model, rtype=rtype, subfilter=subfilter, exclude=not has),
@@ -1511,7 +1522,8 @@ class PropertyConditionHandler(FilterConditionHandler):
             model=model,
             type=cls.type_id,
             name=ptype.id,
-            value=condition_cls.encode_value(bool(has)),
+            # value=condition_cls.encode_value(bool(has)),
+            value=bool(has),
         )
 
     def description(self, user):
@@ -1553,7 +1565,7 @@ class PropertyConditionHandler(FilterConditionHandler):
         ) if isinstance(instance, CremePropertyType) else Q()
 
 
-all_handlers = (
+all_handlers: Tuple[Type[FilterConditionHandler], ...] = (
     RegularFieldConditionHandler,
     DateRegularFieldConditionHandler,
 

@@ -244,7 +244,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(EF_USER,                              condition.filter_type)
         self.assertDictEqual(
             {'operator': operator, 'values': [value]},
-            condition.decoded_value
+            # condition.decoded_value
+            condition.value
         )
 
     def test_initialize(self):
@@ -272,7 +273,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(EF_CREDENTIALS,                       condition.filter_type)
         self.assertDictEqual(
             {'operator': operator, 'values': [value]},
-            condition.decoded_value
+            # condition.decoded_value
+            condition.value
         )
 
     def test_iequals_condition_multiple_as_string(self):
@@ -296,7 +298,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
             {'operator': operator, 'values': [faye_name, ed_name]},
-            condition.decoded_value
+            # condition.decoded_value
+            condition.value
         )
 
     def test_iequals_condition_multiple_as_list(self):
@@ -320,7 +323,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
             {'operator': operator, 'values': [faye_name, ed_name]},
-            condition.decoded_value
+            # condition.decoded_value
+            condition.value
         )
 
     def test_isempty_condition(self):
@@ -343,7 +347,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
             {'operator': operator, 'values': [True]},
-            condition.decoded_value
+            # condition.decoded_value
+            condition.value
         )
 
     def test_isnotempty_condition(self):
@@ -365,7 +370,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': [False]},
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_equals_boolean_condition(self):
@@ -386,7 +392,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': [True]},
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_fk_subfield(self):
@@ -409,7 +416,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': [value]},
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_fk(self):
@@ -432,7 +440,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': [str(value)]},
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_multiple_fk_as_string(self):
@@ -456,7 +465,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertDictEqual({'operator': operator,
                               'values':   [str(v) for v in values],
                              },
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_multiple_fk_as_list(self):
@@ -480,7 +490,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertDictEqual({'operator': operator,
                               'values':   [str(v) for v in values],
                              },
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_many2many(self):
@@ -503,7 +514,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': [str(value)]},
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_multiple_many2many_as_list(self):
@@ -528,7 +540,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertDictEqual({'operator': operator,
                               'values':   values,
                              },
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_multiple_many2many_as_string(self):
@@ -553,7 +566,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertDictEqual({'operator': operator,
                               'values': [str(v) for v in values],
                              },
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_choicetypes(self):
@@ -601,7 +615,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': values},
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_multi_conditions(self):
@@ -634,14 +649,16 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(type_id, condition1.type)
         self.assertEqual(name1,   condition1.name)
         self.assertDictEqual({'operator': operator1, 'values': [value1]},
-                             condition1.decoded_value
+                             # condition1.decoded_value
+                             condition1.value
                             )
 
         condition2 = conditions[1]
         self.assertEqual(type_id, condition2.type)
         self.assertEqual(name2,   condition2.name)
         self.assertDictEqual({'operator': operator2, 'values': [value2]},
-                             condition2.decoded_value
+                             # condition2.decoded_value
+                             condition2.value
                             )
 
     def test_many2many_subfield(self):
@@ -664,7 +681,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual({'operator': operator, 'values': [value]},
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_fields_config01(self):
@@ -920,12 +938,14 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(type_id, condition1.type)
         self.assertEqual(name01,  condition1.name)
         self.assertEqual(EF_USER, condition1.filter_type)
-        self.assertDictEqual({'name': type01}, condition1.decoded_value)
+        # self.assertDictEqual({'name': type01}, condition1.decoded_value)
+        self.assertDictEqual({'name': type01}, condition1.value)
 
         condition2 = conditions[1]
         self.assertEqual(type_id,  condition2.type)
         self.assertEqual(name02,   condition2.name)
-        self.assertDictEqual({'name': type02}, condition2.decoded_value)
+        # self.assertDictEqual({'name': type02}, condition2.decoded_value)
+        self.assertDictEqual({'name': type02}, condition2.value)
 
     def test_ok02(self):
         "Start/end + filter_type."
@@ -947,14 +967,16 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name01,          condition1.name)
         self.assertEqual(EF_CREDENTIALS,  condition1.filter_type)
         self.assertDictEqual({'start': {'year': 2011, 'month': 5, 'day': 12}},
-                             condition1.decoded_value
+                             # condition1.decoded_value
+                             condition1.value
                             )
 
         condition2 = conditions[1]
         self.assertEqual(type_id, condition2.type)
         self.assertEqual(name02,  condition2.name)
         self.assertDictEqual({'end': {'year': 2012, 'month': 6, 'day': 13}},
-                             condition2.decoded_value
+                             # condition2.decoded_value
+                             condition2.value
                             )
 
     def test_ok03(self):
@@ -974,7 +996,8 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertDictEqual({'start': {'year': 2010, 'month': 3, 'day': 24},
                               'end':   {'year': 2011, 'month': 7, 'day': 25},
                              },
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_empty(self):
@@ -989,12 +1012,14 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         type_id = DateRegularFieldConditionHandler.type_id
         self.assertEqual(type_id,    condition.type)
         self.assertEqual('birthday', condition.name)
-        self.assertDictEqual({'name': 'empty'},condition.decoded_value)
+        # self.assertDictEqual({'name': 'empty'},condition.decoded_value)
+        self.assertDictEqual({'name': 'empty'},condition.value)
 
         condition = conditions[1]
         self.assertEqual(type_id,    condition.type)
         self.assertEqual('modified', condition.name)
-        self.assertDictEqual({'name': 'not_empty'}, condition.decoded_value)
+        # self.assertDictEqual({'name': 'not_empty'}, condition.decoded_value)
+        self.assertDictEqual({'name': 'not_empty'}, condition.value)
 
     def test_fields_config01(self):
         valid_fname  = 'issuing_date'
@@ -1391,7 +1416,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                               'rname': 'customfieldinteger',
                               'values': [str(value)],
                              },
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_clean_integer02(self):
@@ -1420,7 +1446,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                               'rname': 'customfieldinteger',
                               'values': [str(value)],
                              },
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_clean_enum(self):
@@ -1441,10 +1468,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_enum.id),            condition.name)
         self.assertDictEqual({'operator': operator,
                               'rname': 'customfieldenum',
-                              # 'value': [value],
                               'values': [value],
                              },
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_clean_enum_as_string(self):
@@ -1471,7 +1498,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                                          str(self.cfield_enum_B.pk)
                                         ],
                              },
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_clean_enum_as_list(self):
@@ -1496,7 +1524,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                                          str(self.cfield_enum_B.pk),
                                         ],
                              },
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_clean_multienum(self):
@@ -1519,7 +1548,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                               'rname': 'customfieldmultienum',
                               'values': [value],
                              },
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_clean_multienum_as_string(self):
@@ -1546,7 +1576,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                                      str(self.cfield_multienum_H.pk)
                                     ],
                          },
-                         condition.decoded_value
+                         # condition.decoded_value
+                         condition.value
                         )
 
     def test_clean_multienum_as_list(self):
@@ -1573,7 +1604,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                                      str(self.cfield_multienum_H.pk)
                                     ],
                          },
-                         condition.decoded_value
+                         # condition.decoded_value
+                         condition.value
                         )
 
     def test_clean_empty_string(self):
@@ -1594,7 +1626,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_str.id),             condition.name)
         self.assertDictEqual(
             {'operator': operator, 'rname': 'customfieldstring', 'values': []},
-            condition.decoded_value
+            # condition.decoded_value
+            condition.value
         )
 
     def test_equals_boolean_condition(self):
@@ -1614,7 +1647,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_bool.id),            condition.name)
         self.assertDictEqual(
             {'operator': operator, 'rname': 'customfieldboolean', 'values': ['False']},
-            condition.decoded_value
+            # condition.decoded_value
+            condition.value
         )
 
     def test_customfield_choicetype(self):
@@ -1698,7 +1732,8 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(cfield01.id), condition1.name)
         self.assertEqual(EF_USER,          condition1.filter_type)
         self.assertDictEqual({'rname': 'customfielddatetime', 'name': rtype},
-                             condition1.decoded_value,
+                             # condition1.decoded_value,
+                             condition1.value,
                             )
 
         condition2 = conditions[1]
@@ -1707,7 +1742,8 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertDictEqual({'rname': 'customfielddatetime',
                               'start': {'year': 2011, 'month': 5, 'day': 12},
                              },
-                             condition2.decoded_value
+                             # condition2.decoded_value
+                             condition2.value
                             )
 
         condition3 = conditions[2]
@@ -1716,7 +1752,8 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertDictEqual({'rname': 'customfielddatetime',
                               'end': {'year': 2012, 'month': 6, 'day': 13},
                              },
-                             condition3.decoded_value
+                             # condition3.decoded_value
+                             condition3.value
                             )
 
         condition4 = conditions[3]
@@ -1726,7 +1763,8 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
                               'start': {'year': 2011, 'month': 5, 'day': 12},
                               'end':   {'year': 2012, 'month': 6, 'day': 13},
                              },
-                             condition4.decoded_value
+                             # condition4.decoded_value
+                             condition4.value
                             )
 
     def test_empty(self):
@@ -1747,14 +1785,16 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield01.id), condition.name)
         self.assertEqual(EF_CREDENTIALS,        condition.filter_type)
         self.assertDictEqual({'rname': 'customfielddatetime', 'name': 'empty'},
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
         condition = conditions[1]
         self.assertEqual(type_id,               condition.type)
         self.assertEqual(str(self.cfield02.id), condition.name)
         self.assertDictEqual({'rname': 'customfielddatetime', 'name': 'not_empty'},
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_render_empty(self):
@@ -1822,13 +1862,15 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
         condition1 = conditions[0]
         self.assertEqual(type_id,         condition1.type)
         self.assertEqual(self.ptype01.id, condition1.name)
-        self.assertIs(condition1.decoded_value, True)
+        # self.assertIs(condition1.decoded_value, True)
+        self.assertIs(condition1.value, True)
 
         condition2 = conditions[1]
         self.assertEqual(type_id,         condition2.type)
         self.assertEqual(self.ptype02.id, condition2.name)
         self.assertEqual(EF_USER,         condition2.filter_type)
-        self.assertIs(condition2.decoded_value, False)
+        # self.assertIs(condition2.decoded_value, False)
+        self.assertIs(condition2.value, False)
 
     def test_ok02(self):
         ptype = self.ptype01
@@ -1935,12 +1977,14 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(type_id,         condition1.type)
         self.assertEqual(self.rtype01.id, condition1.name)
         self.assertEqual(EF_USER,         condition1.filter_type)
-        self.assertDictEqual({'has': True}, condition1.decoded_value)
+        # self.assertDictEqual({'has': True}, condition1.decoded_value)
+        self.assertDictEqual({'has': True}, condition1.value)
 
         condition2 = conditions[1]
         self.assertEqual(type_id,         condition2.type)
         self.assertEqual(self.rtype02.id, condition2.name)
-        self.assertDictEqual({'has': False},  condition2.decoded_value)
+        # self.assertDictEqual({'has': False},  condition2.decoded_value)
+        self.assertDictEqual({'has': False},  condition2.value)
 
     def test_ok02(self):
         "Wanted CT + filter_type."
@@ -1960,12 +2004,14 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(type_id,         condition1.type)
         self.assertEqual(self.rtype01.id, condition1.name)
         self.assertEqual(EF_CREDENTIALS,  condition1.filter_type)
-        self.assertDictEqual({'has': True, 'ct_id': ct.id}, condition1.decoded_value)
+        # self.assertDictEqual({'has': True, 'ct_id': ct.id}, condition1.decoded_value)
+        self.assertDictEqual({'has': True, 'ct_id': ct.id}, condition1.value)
 
         condition2 = conditions[1]
         self.assertEqual(type_id,         condition2.type)
         self.assertEqual(self.rtype02.id, condition2.name)
-        self.assertDictEqual({'has': False, 'ct_id': ct.id}, condition2.decoded_value)
+        # self.assertDictEqual({'has': False, 'ct_id': ct.id}, condition2.decoded_value)
+        self.assertDictEqual({'has': False, 'ct_id': ct.id}, condition2.value)
 
     def test_ok03(self):
         "Wanted entity."
@@ -1982,7 +2028,8 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         condition = conditions[0]
         self.assertEqual(RelationConditionHandler.type_id, condition.type)
         self.assertEqual(self.rtype01.id,                  condition.name)
-        self.assertDictEqual({'has': True, 'entity_id': naru.id}, condition.decoded_value)
+        # self.assertDictEqual({'has': True, 'entity_id': naru.id}, condition.decoded_value)
+        self.assertDictEqual({'has': True, 'entity_id': naru.id}, condition.value)
 
     def test_ok04(self):
         "Wanted CT + wanted entity."
@@ -2001,12 +2048,14 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         condition = conditions[0]
         self.assertEqual(type_id,         condition.type)
         self.assertEqual(self.rtype01.id, condition.name)
-        self.assertDictEqual({'has': True, 'ct_id': ct_id}, condition.decoded_value)
+        # self.assertDictEqual({'has': True, 'ct_id': ct_id}, condition.decoded_value)
+        self.assertDictEqual({'has': True, 'ct_id': ct_id}, condition.value)
 
         condition = conditions[1]
         self.assertEqual(type_id,         condition.type)
         self.assertEqual(self.rtype02.id, condition.name)
-        self.assertDictEqual({'has': False, 'entity_id': naru.id}, condition.decoded_value)
+        # self.assertDictEqual({'has': False, 'entity_id': naru.id}, condition.decoded_value)
+        self.assertDictEqual({'has': False, 'entity_id': naru.id}, condition.value)
 
     def test_ok05(self):
         "Wanted entity is deleted."
@@ -2059,7 +2108,8 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         condition = conditions[0]
         self.assertEqual(RelationConditionHandler.type_id, condition.type)
         self.assertEqual(rt_id,                            condition.name)
-        self.assertDictEqual({'has': True}, condition.decoded_value)
+        # self.assertDictEqual({'has': True}, condition.decoded_value)
+        self.assertDictEqual({'has': True}, condition.value)
 
     def test_render_empty(self):
         widget = RelationsConditionsWidget()
@@ -2137,14 +2187,16 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(self.rtype01.id, condition1.name)
         self.assertEqual(EF_USER,         condition1.filter_type)
         self.assertDictEqual({'has': True, 'filter_id': filter_id1},
-                             condition1.decoded_value
+                             # condition1.decoded_value
+                             condition1.value
                             )
 
         condition2 = conditions[1]
         self.assertEqual(type_id,         condition2.type)
         self.assertEqual(self.rtype02.id, condition2.name)
         self.assertDictEqual({'has': False, 'filter_id': filter_id2},
-                             condition2.decoded_value
+                             # condition2.decoded_value
+                             condition2.value
                             )
 
     def test_filter_type(self):
@@ -2172,7 +2224,8 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(rt_id,          condition1.name)
         self.assertEqual(EF_CREDENTIALS, condition1.filter_type)
         self.assertDictEqual({'has': True, 'filter_id': filter_id},
-                             condition1.decoded_value
+                             # condition1.decoded_value
+                             condition1.value
                             )
 
     def test_render_empty(self):
@@ -2192,7 +2245,8 @@ class EntityFilterFormsTestCase(FieldTestCase):
     def test_creation_form01(self):
         user = self.login()
         efilter_registry = _EntityFilterRegistry(
-            id=None,
+            # id=None,
+            id=-1,
             verbose_name='Test',
         ).register_condition_handlers(
             RegularFieldConditionHandler,
@@ -2253,13 +2307,15 @@ class EntityFilterFormsTestCase(FieldTestCase):
         self.assertEqual(fname,                                condition.name)
         self.assertDictEqual(
             {'operator': foperator, 'values': [fvalue]},
-            condition.decoded_value
+            # condition.decoded_value
+            condition.value
         )
 
     def test_creation_form02(self):
         user = self.login()
         efilter_registry = _EntityFilterRegistry(
-            id=None,
+            # id=None,
+            id=-1,
             verbose_name='Test',
         ).register_condition_handlers(
             RegularFieldConditionHandler,
@@ -2281,7 +2337,8 @@ class EntityFilterFormsTestCase(FieldTestCase):
     def test_edition_form01(self):
         user = self.login()
         efilter_registry = _EntityFilterRegistry(
-            id=None,
+            # id=None,
+            id=-1,
             verbose_name='Test',
         ).register_condition_handlers(
             RegularFieldConditionHandler,
@@ -2355,13 +2412,15 @@ class EntityFilterFormsTestCase(FieldTestCase):
         self.assertEqual(fname,                                condition.name)
         self.assertDictEqual(
             {'operator': foperator, 'values': [fvalue]},
-            condition.decoded_value
+            # condition.decoded_value
+            condition.value
         )
 
     def test_edition_form02(self):
         user = self.login()
         efilter_registry = _EntityFilterRegistry(
-            id=None,
+            # id=None,
+            id=-1,
             verbose_name='Test',
         ).register_condition_handlers(
             RegularFieldConditionHandler,
