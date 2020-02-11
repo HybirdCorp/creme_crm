@@ -631,13 +631,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(fname, condition.name)
         self.assertDictEqual({'operator': operator_id, 'values': [value]},
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
         handler = RegularFieldConditionHandler.build(
             model=FakeContact,
             name=condition.name,
-            data=condition.decoded_value,
+            # data=condition.decoded_value,
+            data=condition.value,
         )
         self.assertIsInstance(handler, RegularFieldConditionHandler)
         self.assertEqual(FakeContact, handler.model)
@@ -663,7 +665,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(EF_CREDENTIALS, condition.filter_type)
         self.assertEqual(fname, condition.name)
         self.assertDictEqual({'operator': operators.ICONTAINS, 'values': [value]},
-                             condition.decoded_value
+                             # condition.decoded_value
+                             condition.value
                             )
 
     def test_regularfield_condition03(self):
@@ -1078,13 +1081,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition1.type)
         self.assertEqual(fname1,                                   condition1.name)
         self.assertDictEqual({'start': {'day': 1, 'month': 1, 'year': 2000}},
-                             condition1.decoded_value
+                             # condition1.decoded_value
+                             condition1.value
                             )
 
         handler1 = DateRegularFieldConditionHandler.build(
             model=FakeContact,
             name=condition1.name,
-            data=condition1.decoded_value,
+            # data=condition1.decoded_value,
+            data=condition1.value,
         )
         self.assertIsInstance(handler1, DateRegularFieldConditionHandler)
         self.assertEqual(FakeContact, handler1.model)
@@ -1104,13 +1109,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertEqual('created', condition2.name)
         self.assertDictEqual({'end': {'day': 31, 'month': 12, 'year': 1999}},
-                             condition2.decoded_value
+                             # condition2.decoded_value
+                             condition2.value
                             )
 
         handler2 = DateRegularFieldConditionHandler.build(
             model=FakeOrganisation,
             name=condition2.name,
-            data=condition2.decoded_value,
+            # data=condition2.decoded_value,
+            data=condition2.value,
         )
         self.assertEqual(FakeOrganisation, handler2.model)
         self.assertIsNone(handler2._range_name)
@@ -1128,7 +1135,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertDictEqual({'start': {'day': 1, 'month': 1,  'year': 2001},
                               'end':   {'day': 1, 'month': 12, 'year': 2001},
                              },
-                             condition3.decoded_value
+                             # condition3.decoded_value
+                             condition3.value
                             )
 
         # YESTERDAY ---
@@ -1136,12 +1144,14 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         condition4 = DateRegularFieldConditionHandler.build_condition(
             model=FakeContact, field_name='birthday', date_range=range_name,
         )
-        self.assertDictEqual({'name': range_name}, condition4.decoded_value)
+        # self.assertDictEqual({'name': range_name}, condition4.decoded_value)
+        self.assertDictEqual({'name': range_name}, condition4.value)
 
         handler4 = DateRegularFieldConditionHandler.build(
             model=FakeContact,
             name=condition4.name,
-            data=condition4.decoded_value,
+            # data=condition4.decoded_value,
+            data=condition4.value,
         )
         self.assertEqual(range_name, handler4._range_name)
         self.assertIsNone(handler4._start)
@@ -1756,17 +1766,18 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(str(custom_field.id),                condition.name)
         self.assertDictEqual(
             {'operator': operator_id,
-             # 'value': [str(value)],
              'values': [str(value)],
              'rname': rname,
             },
-            condition.decoded_value
+            # condition.decoded_value
+            condition.value
          )
 
         handler = CustomFieldConditionHandler.build(
             model=FakeContact,
             name=condition.name,
-            data=condition.decoded_value,
+            # data=condition.decoded_value,
+            data=condition.value,
         )
         self.assertIsInstance(handler, CustomFieldConditionHandler)
         self.assertEqual(FakeContact, handler.model)
@@ -1802,7 +1813,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
              'values': [str(value)],
              'rname': rname,
             },
-            condition.decoded_value
+            # condition.decoded_value
+            condition.value
          )
 
     def test_customfield_condition03(self):
@@ -2229,13 +2241,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             {'rname': rname,
              'start': {'day': 1, 'month': 4, 'year': 2015},
             },
-            condition1.decoded_value
+            # condition1.decoded_value
+            condition1.value
         )
 
         handler1 = DateCustomFieldConditionHandler.build(
             model=FakeContact,
             name=condition1.name,
-            data=condition1.decoded_value,
+            # data=condition1.decoded_value,
+            data=condition1.value,
         )
         self.assertIsInstance(handler1, DateCustomFieldConditionHandler)
         self.assertEqual(FakeContact, handler1.model)
@@ -2643,13 +2657,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(RelationConditionHandler.type_id, condition1.type)
         self.assertEqual(loves.id,                         condition1.name)
         self.assertDictEqual({'has': True},
-                             condition1.decoded_value
+                             # condition1.decoded_value
+                             condition1.value
                             )
 
         handler1 = RelationConditionHandler.build(
             model=FakeContact,
             name=condition1.name,
-            data=condition1.decoded_value,
+            # data=condition1.decoded_value,
+            data=condition1.value,
         )
         self.assertIsInstance(handler1, RelationConditionHandler)
         self.assertEqual(FakeContact, handler1.model)
@@ -2665,13 +2681,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(loved.id, condition2.name)
         self.assertEqual(EF_CREDENTIALS, condition2.filter_type)
         self.assertDictEqual({'has': False},
-                             condition2.decoded_value
+                             # condition2.decoded_value
+                             condition2.value
                             )
 
         handler2 = RelationConditionHandler.build(
             model=FakeContact,
             name=condition2.name,
-            data=condition2.decoded_value,
+            # data=condition2.decoded_value,
+            data=condition2.value,
         )
         self.assertIs(handler2._exclude, True)
 
@@ -2680,13 +2698,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         condition3 = build_cond(rtype=loves, ct=ct)
         self.assertEqual(loves.id, condition3.name)
         self.assertDictEqual({'has': True, 'ct_id': ct.id},
-                             condition3.decoded_value
+                             # condition3.decoded_value
+                             condition3.value
                             )
 
         handler3 = RelationConditionHandler.build(
             model=FakeContact,
             name=condition3.name,
-            data=condition3.decoded_value,
+            # data=condition3.decoded_value,
+            data=condition3.value,
         )
         self.assertEqual(ct.id, handler3._ct_id)
 
@@ -2696,13 +2716,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         condition4 = build_cond(rtype=loves, ct=ct, entity=orga)
         self.assertEqual(loves.id, condition4.name)
         self.assertDictEqual({'has': True, 'entity_id': orga.id},
-                             condition4.decoded_value
+                             # condition4.decoded_value
+                             condition4.value
                             )
 
         handler4 = RelationConditionHandler.build(
             model=FakeContact,
             name=condition4.name,
-            data=condition4.decoded_value,
+            # data=condition4.decoded_value,
+            data=condition4.value,
         )
         self.assertIsNone(handler4._ct_id)
         self.assertEqual(orga.id, handler4._entity_id)
@@ -3152,12 +3174,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(EF_USER,                           condition1.filter_type)
         self.assertEqual(SubFilterConditionHandler.type_id, condition1.type)
         self.assertEqual(sub_efilter.id,                    condition1.name)
-        self.assertEqual('',                                condition1.value)
+        # self.assertEqual('',                                condition1.value)
+        self.assertEqual('',                                condition1.raw_value)
+        self.assertIsNone(condition1.value)
 
         handler1 = SubFilterConditionHandler.build(
             model=FakeContact,
             name=condition1.name,
-            data=condition1.decoded_value,
+            # data=condition1.decoded_value,
+            data=condition1.value,
         )
         self.assertIsInstance(handler1, SubFilterConditionHandler)
         self.assertEqual(FakeContact, handler1.model)
@@ -3385,13 +3410,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(RelationSubFilterConditionHandler.type_id, condition1.type)
         self.assertEqual(loves.id,                                  condition1.name)
         self.assertDictEqual({'filter_id': sub_efilter1.id, 'has': True},
-                             condition1.decoded_value
+                             # condition1.decoded_value
+                             condition1.value
                             )
 
         handler1 = RelationSubFilterConditionHandler.build(
             model=FakeContact,
             name=condition1.name,
-            data=condition1.decoded_value,
+            # data=condition1.decoded_value,
+            data=condition1.value,
         )
         self.assertIsInstance(handler1, RelationSubFilterConditionHandler)
         self.assertEqual(FakeContact, handler1.model)
@@ -3408,13 +3435,15 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertEqual(loved.id, condition2.name)
         self.assertDictEqual({'filter_id': sub_efilter2.id, 'has': False},
-                             condition2.decoded_value
+                             # condition2.decoded_value
+                             condition2.value
                             )
 
         handler2 = RelationSubFilterConditionHandler.build(
             model=FakeContact,
             name=condition2.name,
-            data=condition2.decoded_value,
+            # data=condition2.decoded_value,
+            data=condition2.value,
         )
         self.assertIsInstance(handler2, RelationSubFilterConditionHandler)
         self.assertEqual(FakeContact,  handler2.model)
@@ -3677,12 +3706,14 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(EF_USER,                          condition1.filter_type)
         self.assertEqual(PropertyConditionHandler.type_id, condition1.type)
         self.assertEqual(ptype1.id,                        condition1.name)
-        self.assertEqual(True,                             condition1.decoded_value)
+        # self.assertEqual(True,                             condition1.decoded_value)
+        self.assertEqual(True,                             condition1.value)
 
         handler1 = PropertyConditionHandler.build(
             model=FakeContact,
             name=condition1.name,
-            data=condition1.decoded_value,
+            # data=condition1.decoded_value,
+            data=condition1.value,
         )
         self.assertIsInstance(handler1, PropertyConditionHandler)
         self.assertEqual(FakeContact, handler1.model)
@@ -3699,12 +3730,14 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertEqual(EF_CREDENTIALS, condition2.filter_type)
         self.assertEqual(ptype2.id,              condition2.name)
-        self.assertIs(condition2.decoded_value, False)
+        # self.assertIs(condition2.decoded_value, False)
+        self.assertIs(condition2.value, False)
 
         handler2 = PropertyConditionHandler.build(
             model=FakeContact,
             name=condition2.name,
-            data=condition2.decoded_value,
+            # data=condition2.decoded_value,
+            data=condition2.value,
         )
         self.assertEqual(ptype2.id, handler2._ptype_id)
         self.assertIs(handler2._exclude, True)

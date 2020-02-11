@@ -234,7 +234,8 @@ class RegularFieldsConditionsWidget(ConditionListWidget):
         self.model = model
         self.fields = fields
         self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-            id=None,
+            # id=None,
+            id=-1,
             verbose_name='Default for RegularFieldsConditionsWidget',
         )
 
@@ -373,7 +374,8 @@ class CustomFieldsConditionsWidget(ConditionListWidget):
         super().__init__(None, attrs)
         self.fields = fields
         self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-            id=None,
+            # id=None,
+            id=-1,
             verbose_name='Default for RegularFieldsConditionsWidget',
         )
 

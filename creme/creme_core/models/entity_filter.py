@@ -793,8 +793,8 @@ class EntityFilterCondition(models.Model):
     filter = models.ForeignKey(EntityFilter, related_name='conditions', on_delete=models.CASCADE)
     type   = models.PositiveSmallIntegerField()  # NB: see core.entity_filter.condition_handler.FilterConditionHandler.type_id
     name   = models.CharField(max_length=100)
-    value  = models.TextField()  # TODO: use a JSONField ?
-                                 # TODO: rename json_value + property "value" to encode/decode.
+    # value  = models.TextField()
+    raw_value = models.TextField()  # TODO: use a JSONField ?
 
     _handler = None  # Cache for FilterConditionHandler instance.
     _model = None
@@ -836,32 +836,34 @@ class EntityFilterCondition(models.Model):
         return self.handler.accept(entity=entity, user=user)
 
     @staticmethod
-    def conditions_equal(conditions1: 'EntityFilterCondition',
-                         conditions2: 'EntityFilterCondition') -> bool:
+    def conditions_equal(conditions1: Iterable['EntityFilterCondition'],
+                         conditions2: Iterable['EntityFilterCondition']) -> bool:
         """Compare 2 sequences on EntityFilterConditions related to the _same_
         EntityFilter instance.
         Beware: the 'filter' fields are not compared (so the related ContentType
         is not used).
         """
-        key = lambda cond: (cond.type, cond.name, cond.decoded_value)
+        # key = lambda cond: (cond.type, cond.name, cond.decoded_value)
+        key = lambda cond: (cond.type, cond.name, cond.value)
 
         return all(cond1 and cond2 and 
                    cond1.type == cond2.type and
                    cond1.name == cond2.name and
-                   cond1.decoded_value == cond2.decoded_value
+                   # cond1.decoded_value == cond2.decoded_value
+                   cond1.value == cond2.value
                         for cond1, cond2 in zip_longest(sorted(conditions1, key=key),
                                                         sorted(conditions2, key=key),
                                                        )
                   )
 
-    @property
-    def decoded_value(self):
-        value = self.value
-        return json_load(value) if value else None
-
-    @staticmethod
-    def encode_value(value) -> str:
-        return json_encode(value)
+    # @property
+    # def decoded_value(self):
+    #     value = self.value
+    #     return json_load(value) if value else None
+    #
+    # @staticmethod
+    # def encode_value(value) -> str:
+    #     return json_encode(value)
 
     def description(self, user):
         "Human-readable string explaining the condition."
@@ -877,7 +879,8 @@ class EntityFilterCondition(models.Model):
                 type_id=self.type,
                 model=self.model,
                 name=self.name,
-                data=self.decoded_value,
+                # data=self.decoded_value,
+                data=self.value,
             )
 
         return _handler
@@ -925,6 +928,15 @@ class EntityFilterCondition(models.Model):
                 changed = True
 
         return changed
+
+    @property
+    def value(self):
+        raw_value = self.raw_value
+        return json_load(raw_value) if raw_value else None
+
+    @value.setter
+    def value(self, raw_value) -> None:
+        self.raw_value = json_encode(raw_value)
 
 
 # TODO: manage also deletion of:

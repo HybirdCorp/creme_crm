@@ -355,7 +355,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual({'operator': filter_operator_id,
                           'values': [filter_field_value],
                          },
-                         condition.decoded_value
+                         condition.value
                         )
 
     # @skipIfNotInstalled('creme.persons')
@@ -463,7 +463,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual({'operator': filter_operator_id,
                           'values': [filter_field_value],
                          },
-                         condition.decoded_value
+                         condition.value
                         )
 
     def test_creation_wizard04(self):
@@ -831,7 +831,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                         )
         self.assertEqual(field_name, condition.name)
         self.assertEqual({'operator': operator, 'values': [value]},
-                         condition.decoded_value
+                         condition.value
                         )
 
     def test_add_credentials_with_filter02(self):
@@ -925,7 +925,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
              'rname':    'customfieldinteger',
              'values':   [str(cfield_value)],
             },
-            condition1.decoded_value
+            condition1.value
         )
 
         condition2 = conditions[1]
@@ -933,14 +933,14 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                          condition2.type
                         )
         self.assertEqual(rtype.id,      condition2.name)
-        self.assertEqual({'has': True}, condition2.decoded_value)
+        self.assertEqual({'has': True}, condition2.value)
 
         condition3 = conditions[2]
         self.assertEqual(condition_handler.PropertyConditionHandler.type_id,
                          condition3.type
                         )
         self.assertEqual(ptype.id, condition3.name)
-        self.assertIs(condition3.decoded_value, True)
+        self.assertIs(condition3.value, True)
 
     def test_add_credentials_with_filter03(self):
         "Filter without specific ContentType."
@@ -1027,7 +1027,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                         )
         self.assertEqual(field_name, condition.name)
         self.assertEqual({'operator': operator, 'values': [value]},
-                         condition.decoded_value
+                         condition.value
                         )
 
     def test_add_credentials_with_filter04(self):
@@ -1266,7 +1266,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                         )
         self.assertEqual('last_name', condition.name)
         self.assertEqual({'operator': operator, 'values': [value]},
-                         condition.decoded_value
+                         condition.value
                         )
 
     def test_edit_credentials_with_filter02(self):
@@ -1405,7 +1405,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
              'rname':    'customfieldinteger',
              'values':   [str(cfield_value)],
             },
-            condition1.decoded_value
+            condition1.value
         )
 
         condition2 = conditions[1]
@@ -1413,14 +1413,14 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                          condition2.type
                         )
         self.assertEqual(rtype.id,      condition2.name)
-        self.assertEqual({'has': True}, condition2.decoded_value)
+        self.assertEqual({'has': True}, condition2.value)
 
         condition3 = conditions[2]
         self.assertEqual(condition_handler.PropertyConditionHandler.type_id,
                          condition3.type
                         )
         self.assertEqual(ptype.id, condition3.name)
-        self.assertIs(condition3.decoded_value, True)
+        self.assertIs(condition3.value, True)
 
     def test_edit_credentials_with_filter03(self):
         "Change existing ctype & filter + conditions on CustomField/Relation/CremeProperty."
@@ -1526,7 +1526,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                          condition.type
                         )
         self.assertEqual(ptype.id, condition.name)
-        self.assertIs(condition.decoded_value, True)
+        self.assertIs(condition.value, True)
 
     def test_edit_credentials_with_filter04(self):
         "Remove filter if no more needed."
@@ -1694,7 +1694,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                          condition.type
                         )
         self.assertEqual(ptype.id, condition.name)
-        self.assertIs(condition.decoded_value, True)
+        self.assertIs(condition.value, True)
 
     def test_edit_credentials_with_filter06(self):
         "Add filter to CremeEntity."
@@ -1766,7 +1766,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                         )
         self.assertEqual(field_name, condition.name)
         self.assertEqual({'operator': operator, 'values': [value]},
-                         condition.decoded_value
+                         condition.value
                         )
 
     def test_edit_credentials_with_filter07(self):

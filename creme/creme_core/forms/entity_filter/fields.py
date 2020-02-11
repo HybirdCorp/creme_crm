@@ -77,7 +77,8 @@ class _ConditionsField(JSONField):
         super().__init__(**kwargs)
         self.model = model
         self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-            id=None,
+            # id=None,
+            id=-1,
             verbose_name='Default for _ConditionsField',
         )
         self.efilter_type = efilter_type
@@ -182,7 +183,8 @@ class RegularFieldsConditionsField(_ConditionsField):
         field_choicetype = widgets.FieldConditionSelector.field_choicetype
 
         for condition in value:
-            search_info = condition.decoded_value  # TODO: use condition.handler
+            # search_info = condition.decoded_value
+            search_info = condition.value  # TODO: use condition.handler
             operator_id = search_info['operator']
             operator = self.efilter_registry.get_operator(operator_id)
 
@@ -223,7 +225,6 @@ class RegularFieldsConditionsField(_ConditionsField):
 
     def _clean_operator_n_values(self, entry):
         clean_value = self.clean_value
-        # operator = clean_value(
         operator_id = clean_value(
             clean_value(entry, 'operator', dict, required_error_key='invalidoperator'),
             'id', int, required_error_key='invalidoperator',
@@ -348,7 +349,8 @@ class DateFieldsConditionsField(_ConditionsField):
         fmt = self._format_date
 
         for condition in value:
-            get = condition.decoded_value.get
+            # get = condition.decoded_value.get
+            get = condition.value.get
             field = fields[condition.name][-1]
 
             dicts.append({
@@ -464,7 +466,8 @@ class CustomFieldsConditionsField(_ConditionsField):
         get_op = self.efilter_registry.get_operator
 
         for condition in value:
-            search_info = condition.decoded_value
+            # search_info = condition.decoded_value
+            search_info = condition.value
             operator_id = search_info['operator']
             operator = get_op(operator_id)
 
@@ -594,7 +597,8 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         fmt = self._format_date
 
         for condition in value:
-            get = condition.decoded_value.get
+            # get = condition.decoded_value.get
+            get = condition.value.get
 
             dicts.append({'field': int(condition.name),
                           'range': {'type':  get('name', ''),
@@ -667,7 +671,8 @@ class RelationsConditionsField(_ConditionsField):
         return RelationType.objects.compatible(self._model, include_internals=True)
 
     def _condition_to_dict(self, condition):
-        value = condition.decoded_value
+        # value = condition.decoded_value
+        value = condition.value
         ctype_id = 0
 
         # TODO: regroup queries....
@@ -778,7 +783,8 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
     }
 
     def _condition_to_dict(self, condition):
-        value = condition.decoded_value
+        # value = condition.decoded_value
+        value = condition.value
         filter_id = value['filter_id']
 
         return {
@@ -854,7 +860,8 @@ class PropertiesConditionsField(_ConditionsField):
 
     def _value_to_jsonifiable(self, value):
         return [{'ptype': condition.name,
-                 'has':   boolean_str(condition.decoded_value),
+                 # 'has':   boolean_str(condition.decoded_value),
+                 'has':   boolean_str(condition.value),
                 } for condition in value
                ]
 
