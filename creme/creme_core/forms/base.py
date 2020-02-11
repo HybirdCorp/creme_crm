@@ -101,7 +101,7 @@ class FieldBlocksGroup:
     ]
 
     def __init__(self,
-                 form: forms.Form,
+                 form: forms.BaseForm,
                  blocks_items: Iterable[Tuple[str, _FieldBlock]]):
         blocks_data = self._blocks_data = OrderedDict()
         wildcard_cat: Optional[str] = None
@@ -213,7 +213,7 @@ class FieldBlockManager:
 
         return fbm
 
-    def build(self, form: forms.Form) -> FieldBlocksGroup:
+    def build(self, form: forms.BaseForm) -> FieldBlocksGroup:
         """You should not call this directly ; see CremeForm/CremeModelForm
         get_blocks() method.
         @param form: An instance of <django.forms.Form>.
@@ -225,27 +225,28 @@ class FieldBlockManager:
 _FormCallback = Callable[[forms.Form], None]
 
 
-class HookableForm:
+# class HookableForm:
+class HookableFormMixin:
     # Beware: use related method to manipulate
     _creme_post_clean_callbacks: Sequence[_FormCallback] = ()  # ==> add_post_clean_callback()
     _creme_post_init_callbacks: Sequence[_FormCallback]  = ()  # ==> add_post_init_callback()
     _creme_post_save_callbacks: Sequence[_FormCallback]  = ()  # ==> add_post_save_callback()
 
     @classmethod
-    def __add_callback(cls, attrname: str, callback: _FormCallback) -> Type['HookableForm']:
+    def __add_callback(cls, attrname: str, callback: _FormCallback) -> Type['HookableFormMixin']:
         setattr(cls, attrname, [*getattr(cls, attrname), callback])
         return cls
 
     @classmethod
-    def add_post_clean_callback(cls, callback: _FormCallback) -> Type['HookableForm']:
+    def add_post_clean_callback(cls, callback: _FormCallback) -> Type['HookableFormMixin']:
         return cls.__add_callback('_creme_post_clean_callbacks', callback)
 
     @classmethod
-    def add_post_init_callback(cls, callback: _FormCallback) -> Type['HookableForm']:
+    def add_post_init_callback(cls, callback: _FormCallback) -> Type['HookableFormMixin']:
         return cls.__add_callback('_creme_post_init_callbacks', callback)
 
     @classmethod
-    def add_post_save_callback(cls, callback: _FormCallback) -> Type['HookableForm']:
+    def add_post_save_callback(cls, callback: _FormCallback) -> Type['HookableFormMixin']:
         return cls.__add_callback('_creme_post_save_callbacks', callback)
 
     def _creme_post_clean(self) -> None:
@@ -262,7 +263,8 @@ class HookableForm:
 
     def as_span(self) -> str:  # TODO: in another base class
         """Returns this form rendered as HTML <span>s."""
-        assert isinstance(self, forms.BaseForm), f'HookableForm has not been used as Form mixin: {type(self)}.'
+        assert isinstance(self, forms.BaseForm), \
+               f'HookableFormMixin has not been used as Form mixin: {type(self)}.'
 
         return self._html_output(
             normal_row='<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
@@ -273,7 +275,8 @@ class HookableForm:
         )
 
 
-class CremeForm(forms.Form, HookableForm):
+# class CremeForm(forms.Form, HookableForm):
+class CremeForm(HookableFormMixin, forms.Form):
     blocks = FieldBlockManager(('general', _('General information'), '*'))
 
     def __init__(self, user, *args, **kwargs):
@@ -302,7 +305,8 @@ class CremeForm(forms.Form, HookableForm):
         self._creme_post_save()
 
 
-class CremeModelForm(forms.ModelForm, HookableForm):
+# class CremeModelForm(forms.ModelForm, HookableForm):
+class CremeModelForm(HookableFormMixin, forms.ModelForm):
     blocks = FieldBlockManager(('general', _('General information'), '*'))
 
     class Meta:
