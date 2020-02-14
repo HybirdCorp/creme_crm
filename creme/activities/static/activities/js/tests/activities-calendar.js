@@ -881,7 +881,7 @@ QUnit.test('creme.activities.CalendarController.create (canceled)', function(ass
         ['mock/calendar/event/create', 'GET', {
             year:   today.year(),
             month:  today.month() + 1,
-            day:    today.day(),
+            day:    today.date(),
             hour:   0,
             minute: 0
         }]
@@ -910,7 +910,7 @@ QUnit.test('creme.activities.CalendarController.create (ok)', function(assert) {
         ['mock/calendar/event/create', 'GET', {
             year:   today.year(),
             month:  today.month() + 1,
-            day:    today.day(),
+            day:    today.date(),
             hour:   0,
             minute: 0
         }]
@@ -927,7 +927,7 @@ QUnit.test('creme.activities.CalendarController.create (ok)', function(assert) {
         ['mock/calendar/event/create', 'GET', {
             year:   today.year(),
             month:  today.month() + 1,
-            day:    today.day(),
+            day:    today.date(),
             hour:   0,
             minute: 0
         }],
@@ -1303,7 +1303,7 @@ QUnit.test('creme.activities.CalendarController.external (ok, allDay)', function
 
     var dragSource = element.find('.floating-event[data-id="52"]');
     var extEventStart = todayAt({hours: 8}).add(1, 'days');
-    var extEventEnd = extEventStart.clone().set({hours: 23, minutes: 59, seconds: 59});
+    var extEventEnd = extEventStart.clone().set({hours: 0, minutes: 0, seconds: 0});
 
     this.simulateCalendarExternalDragNDrop(controller, dragSource, {
         start: extEventStart

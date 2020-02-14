@@ -112,7 +112,7 @@ var FULLCALENDAR_SETTINGS = {
     nowIndicator: true
 };
 
-var CalendarEvent = creme.component.Component.sub({
+var CalendarEventRange = creme.component.Component.sub({
     _init_: function(event) {
         event = $.extend({
             start: moment(),
@@ -126,15 +126,21 @@ var CalendarEvent = creme.component.Component.sub({
             this.end = this.start.clone();
 
             if (this.allDay) {
-                this.end.set({hours: 23, minutes: 59, seconds: 59});
+                this.end.set({hours: 0, minutes: 0, seconds: 0});
             } else {
                 this.end.add(moment.duration(this.duration));
             }
+        } else if (this.allDay) {
+            this.end.subtract(1, 'days');
         }
     },
 
     toString: function() {
-        return '${start} − ${end}'.template(this);
+        return '${start} − ${end}${allday}'.template({
+            start: this.start,
+            end: this.end,
+            allday: this.allDay ? '[ALLDAY]' : ''
+        });
     }
 });
 
@@ -496,7 +502,7 @@ creme.activities.CalendarController = creme.component.Component.sub({
         var data = {
             'year':   event.start.year(),
             'month':  event.start.month() + 1,
-            'day':    event.start.day(),
+            'day':    event.start.date(),  // date() is DAY OF MONTH !!! (WTF !)
             'hour':   event.start.hour(),
             'minute': event.start.minute()
         };
@@ -561,7 +567,7 @@ creme.activities.CalendarController = creme.component.Component.sub({
             select: function(start, end, jsEvent, view) {
                 var allDay = start.hasTime() === false;
 
-                self._onCalendarEventCreate(calendar, new CalendarEvent({
+                self._onCalendarEventCreate(calendar, new CalendarEventRange({
                     start: start,
                     end: end,
                     duration: FULLCALENDAR_SETTINGS.defaultTimedEventDuration,
@@ -578,7 +584,7 @@ creme.activities.CalendarController = creme.component.Component.sub({
             // see https://fullcalendar.io/docs/drop
             drop: function(date) {
                 var allDay = self.calendarView().name === 'month';
-                var event = new CalendarEvent({
+                var event = new CalendarEventRange({
                     start: date,
                     duration: FULLCALENDAR_SETTINGS.defaultTimedEventDuration,
                     allDay: allDay
@@ -587,10 +593,11 @@ creme.activities.CalendarController = creme.component.Component.sub({
             },
             // see https://fullcalendar.io/docs/eventDrop
             eventDrop: function(event, delta, revertFunc) {
-                event = new CalendarEvent(event);
+                event = new CalendarEventRange(event);
                 self._onCalendarEventUpdate(calendar, $(this), event, revertFunc);
             },
             eventResize: function(event, delta, revertFunc) {
+                event = new CalendarEventRange(event);
                 self._onCalendarEventUpdate(calendar, $(this), event, revertFunc);
             },
             eventClick: function(event, item, jsEvent) {
