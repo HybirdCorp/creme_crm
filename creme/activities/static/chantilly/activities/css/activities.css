@@ -75,6 +75,7 @@
 }
 
 .floating-event.ui-draggable-dragging {
+    background: white;
     border: dashed 1px #666;
     padding: 2px 20px !important;
     cursor:         grabbing;
@@ -147,6 +148,7 @@
     width: 100%;
 /*    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif; */
     font-size: 9px;
+    outline-style: none;
 }
 
 .calendar-menu .my-calendars .calendar-menu-item:first-child {
@@ -155,6 +157,17 @@
 
 .calendar-menu .other-calendars .calendar-menu-usergroup + .calendar-menu-usergroup {
     margin-top: 5px;
+}
+
+.calendar-menu .calendar-menu-empty {
+    display: block;
+    padding: 5px 10px;
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    cursor: default;
+    color: #777;
 }
 
 /* calendar sidebar - end */
@@ -181,6 +194,10 @@
 
 .calendar .fc-toolbar button:focus {
     outline: none;
+}
+
+.calendar-main .fc-toolbar .fc-left {
+    min-width: 365px;
 }
 
 .calendar .fc-content {
