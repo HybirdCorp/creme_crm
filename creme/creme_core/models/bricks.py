@@ -54,7 +54,7 @@ from .relation import RelationType
 from .setting_value import SettingValue
 
 if TYPE_CHECKING:
-    from creme.creme_core.gui.bricks import Brick
+    from creme.creme_core.gui.bricks import Brick, InstanceBrick
 
 __all__ = (
     'BrickDetailviewLocation', 'BrickHomeLocation', 'BrickMypageLocation',
@@ -457,7 +457,7 @@ class InstanceBrickConfigItem(CremeModel):
     creation_label = _('Create a block')
     save_label     = _('Save the block')
 
-    _brick: Optional['Brick'] = None
+    _brick: Optional['InstanceBrick'] = None
 
     class Meta:
         app_label = 'creme_core'
@@ -477,7 +477,7 @@ class InstanceBrickConfigItem(CremeModel):
         super().delete(*args, **kwargs)
 
     @property
-    def brick(self) -> 'Brick':
+    def brick(self) -> 'InstanceBrick':
         brick = self._brick
 
         if brick is None:
@@ -488,7 +488,8 @@ class InstanceBrickConfigItem(CremeModel):
 
     @property
     def errors(self) -> Optional[List[str]]:
-        return getattr(self.brick, 'errors', None)
+        # return getattr(self.brick, 'errors', None)
+        return self.brick.errors
 
     @staticmethod
     def id_is_specific(brick_id: str) -> bool:

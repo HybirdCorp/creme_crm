@@ -589,8 +589,8 @@ class GuiTestCase(CremeTestCase):
         email_label = 'Contact with email'
 
         icon_reg.register_4_instance(
-                FakeContact,
-                lambda instance: ('phone', phone_label) if instance.phone else ('email', email_label)
+            FakeContact,
+            lambda instance: ('phone', phone_label) if instance.phone else ('email', email_label)
         )
 
         c = FakeContact(first_name='Casca', last_name='Mylove')

@@ -2327,8 +2327,9 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         brick = item.brick
         self.assertIsInstance(brick, ReportGraphBrick)
-        self.assertEqual(title,   brick.verbose_name)
-        self.assertEqual(item.id, brick.instance_brick_id)
+        self.assertEqual(title, brick.verbose_name)
+        # self.assertEqual(item.id, brick.instance_brick_id)
+        self.assertEqual(item,  brick.config_item)
 
         # ---------------------------------------------------------------------
         response = self.assertPOST200(url)

@@ -504,6 +504,15 @@ class SpecificRelationsBrick(QuerysetBrick):
         )
 
 
+class InstanceBrick(Brick):
+    # Used by InstanceBrickConfigItem.errors, to display errors in creme_config
+    errors: Optional[List[str]] = None
+
+    def __init__(self, instance_brick_config_item: InstanceBrickConfigItem):
+        super().__init__()
+        self.config_item = instance_brick_config_item
+
+
 class CustomBrick(Brick):
     """Brick that can be customised by the user to display information of an entity.
     It can display regular, custom & function fields, relationships... (see HeaderFilter & EntityCells)
@@ -669,14 +678,19 @@ class _BrickRegistry:
 
         return self
 
-    def register_4_instance(self, *brick_classes: Type[Brick]) -> '_BrickRegistry':  # TODO: factorise
+    def register_4_instance(self, *brick_classes: Type[InstanceBrick]) -> '_BrickRegistry':  # TODO: factorise
         setdefault = self._instance_brick_classes.setdefault
 
         for brick_cls in brick_classes:
+            if not issubclass(brick_cls, InstanceBrick):
+                raise self.RegistrationError(
+                    f'Brick class does not inherit InstanceBrick: {brick_cls}'
+                )
+
             brick_id = brick_cls.id_
 
             if not brick_id:
-                raise self.RegistrationError(f"Brick class with empty id_: {brick_cls}")
+                raise self.RegistrationError(f'Brick class with empty id_: {brick_cls}')
 
             if setdefault(brick_id, brick_cls) is not brick_cls:
                 raise self.RegistrationError(f"Duplicated brick's id: {brick_id}")
@@ -751,7 +765,7 @@ class _BrickRegistry:
 
     def get_brick_4_instance(self,
                              ibi: InstanceBrickConfigItem,
-                             entity: Optional[CremeEntity] = None) -> Brick:
+                             entity: Optional[CremeEntity] = None) -> InstanceBrick:
         """Get a Brick instance corresponding to a InstanceBrickConfigItem.
         @param ibi: InstanceBrickConfigItem instance.
         @param entity: CremeEntity instance if your Brick has to be displayed on its detail-view.
@@ -763,7 +777,8 @@ class _BrickRegistry:
         if brick_class is None:
             logger.warning('Brick class seems deprecated: %s', brick_id)
 
-            brick = Brick()
+            # brick = Brick()
+            brick = InstanceBrick(ibi)
             brick.verbose_name = '??'
             # TODO: add this attribute to the class
             brick.errors = [_('Unknown type of block (bad uninstall ?)')]
