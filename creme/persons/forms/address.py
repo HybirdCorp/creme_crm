@@ -75,7 +75,7 @@ class _FieldAddressForm(UnnamedAddressForm):
         super().save(*args, **kwargs)
 
         setattr(entity, self.field_name, address)
-        entity.save()  # TODO: with django 1.5: save only one field
+        entity.save()  # TODO: save only one field ?
 
         return address
 

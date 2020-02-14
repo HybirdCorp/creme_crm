@@ -152,7 +152,7 @@ class OrganisationUnmanage(generic.base.EntityRelatedMixin, generic.CheckedView)
 
         return HttpResponse()
 
-    def update(self, orga):
+    def update(self, orga) -> None:
         ids = type(orga).objects.select_for_update().filter(is_managed=True).values_list('id', flat=True)
 
         if orga.id in ids:  # In case a concurrent call to this view has been done

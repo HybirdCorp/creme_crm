@@ -22,7 +22,7 @@ from django.conf import settings
 from django.db.models import Model, ForeignKey, SET_NULL
 from django.utils.translation import gettext_lazy as _
 
-from ..import get_address_model
+from .. import get_address_model
 
 
 class PersonWithAddressesMixin(Model):

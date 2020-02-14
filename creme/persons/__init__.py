@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,36 +18,42 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type, TYPE_CHECKING
+
 from django.conf import settings
 
 from creme.creme_core import get_concrete_model
 
+if TYPE_CHECKING:
+    from .models import AbstractAddress, AbstractContact, AbstractOrganisation
 
-def address_model_is_custom():
+
+def address_model_is_custom() -> bool:
     return settings.PERSONS_ADDRESS_MODEL != 'persons.Address' and \
            not settings.PERSONS_ADDRESS_FORCE_NOT_CUSTOM
 
 
-def contact_model_is_custom():
+def contact_model_is_custom() -> bool:
     return settings.PERSONS_CONTACT_MODEL != 'persons.Contact' and \
            not settings.PERSONS_CONTACT_FORCE_NOT_CUSTOM
 
-def organisation_model_is_custom():
+
+def organisation_model_is_custom() -> bool:
     return settings.PERSONS_ORGANISATION_MODEL != 'persons.Organisation' and \
            not settings.PERSONS_ORGANISATION_FORCE_NOT_CUSTOM
 
 
-def get_address_model():
+def get_address_model() -> Type['AbstractAddress']:
     """Returns the Address model that is active in this project."""
     return get_concrete_model('PERSONS_ADDRESS_MODEL')
 
 
-def get_contact_model():
+def get_contact_model() -> Type['AbstractContact']:
     """Returns the Contact model that is active in this project."""
     return get_concrete_model('PERSONS_CONTACT_MODEL')
 
 
-def get_organisation_model():
+def get_organisation_model() -> Type['AbstractOrganisation']:
     """Returns the Organisation model that is active in this project."""
     return get_concrete_model('PERSONS_ORGANISATION_MODEL')
 
