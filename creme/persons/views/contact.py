@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Type
+from typing import Type, Optional
 
 from django.forms.forms import BaseForm
 from django.shortcuts import get_object_or_404
@@ -31,6 +31,7 @@ from creme.creme_core.views import generic
 from .. import get_contact_model, get_organisation_model
 from ..constants import DEFAULT_HFILTER_CONTACT
 from ..forms import contact as c_forms
+from ..models import AbstractOrganisation
 
 Contact = get_contact_model()
 
@@ -74,7 +75,7 @@ class RelatedContactCreation(_ContactBaseCreation):
 
         return kwargs
 
-    def get_linked_orga(self):
+    def get_linked_orga(self) -> AbstractOrganisation:
         orga = get_object_or_404(get_organisation_model(),
                                  id=self.kwargs[self.orga_id_url_kwarg],
                                 )
@@ -85,7 +86,7 @@ class RelatedContactCreation(_ContactBaseCreation):
 
         return orga
 
-    def get_rtype(self):
+    def get_rtype(self) -> Optional[RelationType]:
         rtype_id = self.kwargs.get(self.rtype_id_url_kwarg)
 
         if rtype_id:
@@ -101,6 +102,8 @@ class RelatedContactCreation(_ContactBaseCreation):
                 raise ConflictError('This RelationType is not compatible with Contact as relationship-object')
 
             return rtype.symmetric_type
+
+        return None
 
     def get_success_url(self):
         return self.linked_orga.get_absolute_url()

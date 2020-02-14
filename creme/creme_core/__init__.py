@@ -18,6 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Type
+
+from django.db.models import ForeignKey, Model
 
 # Model Fields Hooking ---------------------------------------------------------
 from creme.creme_core.core.field_tags import _add_tags_to_fields
@@ -26,8 +29,6 @@ _add_tags_to_fields()
 
 
 # ForeignKey's null_label adding ------------------------------------------------
-from django.db.models import ForeignKey
-
 
 def _get_null_label(self):
     return getattr(self, '_creme_null_label', '')
@@ -44,11 +45,10 @@ ForeignKey.set_null_label = _set_null_label
 
 # ------------------------------------------------------------------------------
 
-
-def get_concrete_model(model_setting):
+def get_concrete_model(model_setting: str) -> Type[Model]:
     """Returns the concrete model that is active in this project corresponding
     to the setting value.
-    @param model_setting A string corresponding to an entry of setting.py,
+    @param model_setting: A string corresponding to an entry of setting.py,
            which contains a value in the form ''app_label.model_name'.
     @return A model class.
     """
