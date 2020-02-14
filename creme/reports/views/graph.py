@@ -47,7 +47,7 @@ ReportGraph = reports.get_rgraph_model()
 
 # Function views --------------------------------------------------------------
 
-# TODO: use prefix ?? (rfield-, ctield-, rtype-)
+# TODO: use prefix ?? (rfield-, cfield-, rtype-)
 def _get_available_report_graph_types(ct, name):
     model = ct.model_class()
 

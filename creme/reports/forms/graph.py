@@ -253,14 +253,16 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         try:
             graph_type = int(str_val)
         except Exception as e:
-            raise ValidationError('Invalid value: %s  [%s]', str_val, e) from e
+            raise ValidationError('Invalid value: {}  [{}]'.format(str_val, e)) from e
 
         hand = RGRAPH_HANDS_MAP.get(graph_type)
 
         if hand is None:
-            raise ValidationError('Invalid value: %s  not in %s', graph_type,
-                                  [h.hand_id for h in RGRAPH_HANDS_MAP]
-                                 )
+            raise ValidationError(
+                'Invalid value: {} not in {}'.format(
+                    graph_type,
+                    [h.hand_id for h in RGRAPH_HANDS_MAP],
+            ))
 
         self.verbose_graph_type = hand.verbose_name
 
