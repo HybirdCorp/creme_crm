@@ -12,7 +12,8 @@ try:
     from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.gui.bricks import (
         _BrickRegistry, brick_registry,
-        Brick, BricksManager,
+        Brick, InstanceBrick,
+        BricksManager,
     )
     from creme.creme_core.models import (
         SetCredentials,
@@ -124,17 +125,19 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
-        class ContactBrick(Brick):
+        # class ContactBrick(Brick):
+        class ContactBrick(InstanceBrick):
             id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'base_block')
             dependencies = (FakeOrganisation,)
             template_name = 'persons/bricks/itdoesnotexist.html'
 
-            def __init__(self, instance_block_config_item):
-                super().__init__()
-                self.ibci = instance_block_config_item
+            # def __init__(self, instance_block_config_item):
+            #     super().__init__()
+            #     self.ibci = instance_block_config_item
 
             def detailview_display(self, context):
-                return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'  # Useless :)
+                # return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'  # Useless :)
+                return f'<table id="{self.id_}"><thead><tr>{self.config_item.entity}</tr></thead></table>'  # Useless :)
 
         self.assertTrue(InstanceBrickConfigItem.id_is_specific(ContactBrick.id_))
 

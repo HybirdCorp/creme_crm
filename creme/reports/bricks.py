@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from collections import Counter
 
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick
+from creme.creme_core.gui import bricks as core_bricks
 from creme.creme_core.models import InstanceBrickConfigItem
 
 from creme import reports
@@ -33,12 +33,12 @@ Report = reports.get_report_model()
 ReportGraph = reports.get_rgraph_model()
 
 
-class ReportBarHatBrick(SimpleBrick):
+class ReportBarHatBrick(core_bricks.SimpleBrick):
     template_name = 'reports/bricks/report-hat-bar.html'
 
 
-class ReportFieldsBrick(Brick):
-    id_           = Brick.generate_id('reports', 'fields')
+class ReportFieldsBrick(core_bricks.Brick):
+    id_           = core_bricks.Brick.generate_id('reports', 'fields')
     dependencies  = (Field,)
     verbose_name  = _('Columns of the report')
     template_name = 'reports/bricks/fields.html'
@@ -54,8 +54,8 @@ class ReportFieldsBrick(Brick):
         ))
 
 
-class ReportGraphsBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('reports', 'graphs')
+class ReportGraphsBrick(core_bricks.QuerysetBrick):
+    id_           = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
     dependencies  = (ReportGraph,)
     verbose_name  = _("Report's graphs")
     template_name = 'reports/bricks/graphs.html'
@@ -81,8 +81,8 @@ class ReportGraphsBrick(QuerysetBrick):
         return self._render(btc)
 
 
-class InstanceBricksInfoBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('reports', 'instance_bricks_info')
+class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
+    id_           = core_bricks.QuerysetBrick.generate_id('reports', 'instance_bricks_info')
     dependencies  = (InstanceBrickConfigItem,)
     verbose_name  = 'Instance bricks information'
     template_name = 'reports/bricks/instance-bricks-info.html'
@@ -102,19 +102,24 @@ class InstanceBricksInfoBrick(QuerysetBrick):
         return self._render(btc)
 
 
-class ReportGraphBrick(Brick):
+# class ReportGraphBrick(Brick):
+class ReportGraphBrick(core_bricks.InstanceBrick):
     id_           = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
     dependencies  = (ReportGraph,)
     verbose_name  = "Report's graph"  # Overloaded by __init__()
     template_name = 'reports/bricks/graph.html'
 
-    def __init__(self, instance_brick_config):
-        super().__init__()
-        self.instance_brick_id = instance_brick_config.id
-        self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(instance_brick_config)
+    # def __init__(self, instance_brick_config):
+    #     super().__init__()
+    #     self.instance_brick_id = instance_brick_config.id
+    #     self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(instance_brick_config)
+    def __init__(self, instance_brick_config_item):
+        super().__init__(instance_brick_config_item)
+        self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(
+            instance_brick_config_item,
+        )
         self.verbose_name = fetcher.verbose_name
 
-        # Used by InstanceBrickConfigItem.errors, to display errors in creme_config
         error = fetcher.error
         self.errors = [error] if error else None
 
@@ -122,13 +127,14 @@ class ReportGraphBrick(Brick):
         fetcher = self.fetcher
 
         return self._render(self.get_template_context(
-                    context,
-                    graph=fetcher.graph,
-                    x=x, y=y,
-                    error=fetcher.error,
-                    volatile_column=fetcher.verbose_volatile_column,
-                    instance_brick_id=self.instance_brick_id,
-                    report_charts=report_chart_registry,
+            context,
+            graph=fetcher.graph,
+            x=x, y=y,
+            error=fetcher.error,
+            volatile_column=fetcher.verbose_volatile_column,
+            # instance_brick_id=self.instance_brick_id,
+            instance_brick_id=self.config_item.id,
+            report_charts=report_chart_registry,
         ))
 
     def detailview_display(self, context):

@@ -19,30 +19,42 @@
 ################################################################################
 
 import logging
+from typing import List, Optional, Tuple, Type, TYPE_CHECKING
 
 from django.conf import settings
-from django.db.models import PositiveIntegerField, CharField, BooleanField, ForeignKey, CASCADE
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, pgettext_lazy, gettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem
+from creme.creme_core.models import (
+    CremeEntity,
+    RelationType,
+    InstanceBrickConfigItem,
+)
 
 from ..constants import RFT_RELATION, RFT_FIELD, GROUP_TYPES
+
+if TYPE_CHECKING:
+    from ..core.graph import GraphFetcher, ReportGraphHand
 
 logger = logging.getLogger(__name__)
 
 
 class AbstractReportGraph(CremeEntity):
-    name     = CharField(pgettext_lazy('reports-graphs', 'Name of the graph'), max_length=100)
-    linked_report = ForeignKey(settings.REPORTS_REPORT_MODEL, editable=False, on_delete=CASCADE)
-    abscissa = CharField(_('X axis'), max_length=100, editable=False)
-    ordinate = CharField(_('Y axis'), max_length=100, editable=False)
-    type     = PositiveIntegerField(_('Grouping'), editable=False, choices=GROUP_TYPES.items())
-    days     = PositiveIntegerField(_('Days'), blank=True, null=True)
-    is_count = BooleanField(_('Make a count instead of aggregate?'), default=False)  # TODO: 'count' function instead ?
-    chart    = CharField(_('Chart type'), max_length=100, null=True)
-    asc      = BooleanField('ASC order', default=True, editable=False)  # TODO: not viewable ?
+    name = models.CharField(pgettext_lazy('reports-graphs', 'Name of the graph'), max_length=100)
+
+    linked_report = models.ForeignKey(settings.REPORTS_REPORT_MODEL,
+                                      editable=False, on_delete=models.CASCADE,
+                                     )
+
+    abscissa = models.CharField(_('X axis'), max_length=100, editable=False)
+    ordinate = models.CharField(_('Y axis'), max_length=100, editable=False)
+    type     = models.PositiveIntegerField(_('Grouping'), editable=False, choices=GROUP_TYPES.items())
+    days     = models.PositiveIntegerField(_('Days'), blank=True, null=True)
+    is_count = models.BooleanField(_('Make a count instead of aggregate?'), default=False)  # TODO: 'count' function instead ?
+    chart    = models.CharField(_('Chart type'), max_length=100, null=True)
+    asc      = models.BooleanField('ASC order', default=True, editable=False)  # TODO: not viewable ?
 
     creation_label = _("Create a report's graph")
     save_label     = pgettext_lazy('reports-graphs', 'Save the graph')
@@ -75,7 +87,10 @@ class AbstractReportGraph(CremeEntity):
         super().delete(*args, **kwargs)
 
     # TODO: use creme_core.utils.meta.Order
-    def fetch(self, user, extra_q=None, order='ASC'):
+    def fetch(self,
+              user,
+              extra_q: Optional[models.Q] = None,
+              order: str = 'ASC') -> Tuple[List[str], list]:
         assert order == 'ASC' or order == 'DESC'
 
         report = self.linked_report
@@ -93,7 +108,7 @@ class AbstractReportGraph(CremeEntity):
         return self.hand.fetch(entities=entities, order=order, user=user)
 
     @staticmethod
-    def get_fetcher_from_instance_brick(instance_brick_config):
+    def get_fetcher_from_instance_brick(instance_brick_config: InstanceBrickConfigItem) -> 'GraphFetcher':
         """Build a GraphFetcher related to this ReportGraph & an InstanceBrickConfigItem.
         @param instance_brick_config: An instance of InstanceBrickConfigItem.
         @return A GraphFetcher instance.
@@ -113,6 +128,7 @@ class AbstractReportGraph(CremeEntity):
                               )
 
         graph = instance_brick_config.entity.get_real_entity()
+        fetcher: GraphFetcher
 
         # TODO: use a map/registry of GraphFetcher classes
         if rfield_type == RFT_FIELD:
@@ -125,7 +141,7 @@ class AbstractReportGraph(CremeEntity):
         return fetcher
 
     @property
-    def hand(self):
+    def hand(self) -> 'ReportGraphHand':
         from ..core.graph import RGRAPH_HANDS_MAP  # Lazy loading
 
         hand = self._hand
@@ -138,7 +154,10 @@ class AbstractReportGraph(CremeEntity):
     class InstanceBrickConfigItemError(Exception):
         pass
 
-    def create_instance_brick_config_item(self, volatile_field=None, volatile_rtype=None, save=True):
+    def create_instance_brick_config_item(self,
+                                          volatile_field: Optional[str] = None,
+                                          volatile_rtype: Optional[RelationType] = None,
+                                          save: bool = True) -> Optional[InstanceBrickConfigItem]:
         from ..bricks import ReportGraphBrick
         from ..core.graph import RegularFieldLinkedGraphFetcher
 
@@ -163,7 +182,9 @@ class AbstractReportGraph(CremeEntity):
 
         if InstanceBrickConfigItem.objects.filter(brick_id=brick_id).exists():
             raise self.InstanceBrickConfigItemError(
-                gettext('The instance block for «{graph}» with these parameters already exists!').format(graph=self)
+                gettext(
+                    'The instance block for «{graph}» with these parameters already exists!'
+                ).format(graph=self)
             )
 
         ibci = InstanceBrickConfigItem(entity=self, brick_id=brick_id, data=key)
@@ -174,7 +195,7 @@ class AbstractReportGraph(CremeEntity):
         return ibci
 
     @property
-    def model(self):
+    def model(self) -> Type[CremeEntity]:
         return self.linked_report.ct.model_class()
 
 

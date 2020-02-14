@@ -9,15 +9,32 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation, FakeAddress,
-            FakeImage, FakeActivity, FakeEmailCampaign, FakeInvoiceLine)
-    from creme.creme_core.bricks import (RelationsBrick, PropertiesBrick,
-            HistoryBrick, CustomFieldsBrick)
-    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-            EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.tests.fake_models import (
+        FakeContact, FakeOrganisation, FakeAddress,
+        FakeImage,
+        FakeActivity,
+        FakeEmailCampaign,
+        FakeInvoiceLine,
+    )
+    from creme.creme_core.bricks import (
+        RelationsBrick,
+        PropertiesBrick,
+        HistoryBrick,
+        CustomFieldsBrick,
+    )
+    from creme.creme_core.core.entity_cell import (
+        EntityCellRegularField,
+        EntityCellCustomField,
+        EntityCellFunctionField,
+        EntityCellRelation,
+    )
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.gui import bricks as gui_bricks
-    from creme.creme_core.gui.bricks import Brick, SpecificRelationsBrick
+    from creme.creme_core.gui.bricks import (
+        Brick,
+        InstanceBrick,
+        SpecificRelationsBrick,
+    )
     from creme.creme_core.models import (
         RelationType,
         CustomField, FieldsConfig, UserRole,
@@ -92,27 +109,31 @@ class HomeOnlyBrick2(Brick):
         return f'<table id="{self.id_}"></table>'
 
 
-class DetailviewInstanceBrick(Brick):
+# class DetailviewInstanceBrick(Brick):
+class DetailviewInstanceBrick(InstanceBrick):
     id_ = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_detail_instance')
 
-    def __init__(self, instance_block_config_item):
-        super().__init__()
-        self.ibci = instance_block_config_item
+    # def __init__(self, instance_block_config_item):
+    #     super().__init__()
+    #     self.ibci = instance_block_config_item
 
     def detailview_display(self, context):
-        return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'
+        # return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'
+        return f'<table id="{self.id_}"><thead><tr>{self.config_item.entity}</tr></thead></table>'
 
 
-class HomeInstanceBrick(Brick):
+# class HomeInstanceBrick(Brick):
+class HomeInstanceBrick(InstanceBrick):
     id_          = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_home_instance')
     verbose_name = 'Testing purpose'
 
-    def __init__(self, instance_block_config_item):
-        super().__init__()
-        self.ibci = instance_block_config_item
+    # def __init__(self, instance_block_config_item):
+    #     super().__init__()
+    #     self.ibci = instance_block_config_item
 
     def home_display(self, context):
-        return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'
+        # return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'
+        return f'<table id="{self.id_}"><thead><tr>{self.config_item.entity}</tr></thead></table>'
 
 
 class FakeContactHatBrick(Brick):
