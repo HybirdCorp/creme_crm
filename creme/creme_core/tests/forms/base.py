@@ -13,7 +13,8 @@ def _format_stack():  # TODO: in utils ??
     return ''.join(format_exception(exc_type, exc_value, exc_traceback))
 
 
-class FieldTestCase(CremeTestCase):  # TODO: Mixin
+# class FieldTestCase(CremeTestCase):
+class FieldTestCaseMixin(CremeTestCase):
     def assertFieldRaises(self, exception, func, *args, **kwargs):
         try:
             func(*args, **kwargs)
@@ -33,3 +34,7 @@ class FieldTestCase(CremeTestCase):  # TODO: Mixin
 
         if message != err.messages[0]:
             self.fail(f'unexpected message "{err.messages[0]}" instead of "{message}"\nerror : {stack}')
+
+
+class FieldTestCase(FieldTestCaseMixin, CremeTestCase):
+    pass

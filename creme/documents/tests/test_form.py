@@ -7,7 +7,7 @@ try:
     from django.urls import reverse
     from django.utils.translation import gettext as _
 
-    from creme.creme_core.tests.forms.base import FieldTestCase
+    from creme.creme_core.tests.forms.base import FieldTestCaseMixin  # FieldTestCase
 
     from .base import Document, _DocumentsTestCase
     from ..forms.fields import ImageEntityField, MultiImageEntityField
@@ -15,7 +15,8 @@ except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
 
-class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
+# class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
+class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
     def setUp(self):
         super().setUp()
         self.login()
@@ -184,7 +185,8 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertEqual(_('Create an image'), field.widget.creation_label)
 
 
-class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
+# class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
+class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
     def setUp(self):
         super().setUp()
         self.login()
