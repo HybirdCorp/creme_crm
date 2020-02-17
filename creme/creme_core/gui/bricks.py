@@ -661,7 +661,7 @@ class _BrickRegistry:
         self._brick_classes: Dict[str, Type[Brick]] = {}
         self._hat_brick_classes: DefaultDict[Type[CremeEntity], Dict[str, Type[Brick]]] = defaultdict(dict)
         self._object_brick_classes: Dict[Type[CremeEntity], Type[Brick]] = {}
-        self._instance_brick_classes: Dict[str, Type[Brick]] = {}
+        self._instance_brick_classes: Dict[str, Type[InstanceBrick]] = {}
         self._invalid_models: Set[Type[CremeEntity]] = set()
 
     def register(self, *brick_classes: Type[Brick]) -> '_BrickRegistry':
