@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2018  Hybird
+    Copyright (C) 2009-2020  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -217,8 +217,19 @@ creme.reports.PreviewController = creme.component.Component.sub({
 
 // TODO : TEMPORARY HACK !
 creme.reports.toggleDaysField = function(operator, types) {
-    var is_visible = operator.val() && types && types.indexOf(operator.val()) !== -1;
-    var days_field = $(operator).parents('.block-form:first').find('[name=\"days\"]');
+//    var is_visible = operator.val() && types && types.indexOf(operator.val()) !== -1;
+//    var days_field = $(operator).parents('.block-form:first').find('[name=\"days\"]');
+//
+//    days_field.parents('tr:first').toggleClass('hidden', !is_visible);
+    var initial_value = operator.attr('data-initial-value');
+    if (initial_value) {
+        operator.attr('data-initial-value', '');
+        operator.val(initial_value);
+    }
+
+    var val = operator.val();
+    var is_visible = val && types && types.indexOf(val) !== -1;
+    var days_field = operator.parents('.block-form:first').find('[name=\"days\"]');
 
     days_field.parents('tr:first').toggleClass('hidden', !is_visible);
 };
