@@ -14,18 +14,23 @@ try:
     from django.test.testcases import assert_and_parse_html
 
     from ..fake_models import FakeContact
-    from .base import FieldTestCase
-    from creme.creme_core.forms.widgets import (ActionButtonList,
+    from ..base import CremeTestCase
+    # from .base import FieldTestCase
+
+    from creme.creme_core.forms.widgets import (
+        ActionButtonList,
         DynamicSelect,
         EntityCreatorWidget,
         EntitySelector,
-        UnorderedMultipleChoiceWidget)
+        UnorderedMultipleChoiceWidget,
+    )
     from creme.creme_core.utils.url import TemplateURLBuilder
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
 
-class DynamicSelectTestCase(FieldTestCase):
+# class DynamicSelectTestCase(FieldTestCase):
+class DynamicSelectTestCase(CremeTestCase):
     def test_options_list(self):
         select = DynamicSelect(options=[(1, 'A'), (2, 'B')])
 
@@ -90,7 +95,8 @@ class DynamicSelectTestCase(FieldTestCase):
                             )
 
 
-class UnorderedMultipleChoiceTestCase(FieldTestCase):
+# class UnorderedMultipleChoiceTestCase(FieldTestCase):
+class UnorderedMultipleChoiceTestCase(CremeTestCase):
     maxDiff = None
 
     def test_render_option_groups(self):
@@ -465,7 +471,8 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
         self.assertHTMLEqual(html, select.render(name, ()))
 
 
-class ActionButtonListTestCase(FieldTestCase):
+# class ActionButtonListTestCase(FieldTestCase):
+class ActionButtonListTestCase(CremeTestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -500,7 +507,8 @@ class ActionButtonListTestCase(FieldTestCase):
         self.assertHTMLEqual(html, widget.render('field', 1))
 
 
-class EntitySelectorTestCase(FieldTestCase):
+# class EntitySelectorTestCase(FieldTestCase):
+class EntitySelectorTestCase(CremeTestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -660,7 +668,8 @@ class EntitySelectorTestCase(FieldTestCase):
         self.assertHTMLEqual(html, widget.render('field', '1', attrs={'multiple': True, 'autoselect': True}))
 
 
-class EntityCreatorWidgetTestCase(FieldTestCase):
+# class EntityCreatorWidgetTestCase(FieldTestCase):
+class EntityCreatorWidgetTestCase(CremeTestCase):
     maxDiff = None
 
     def _build_reset_action(self, enabled=True, value=''):

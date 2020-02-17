@@ -11,7 +11,8 @@ try:
 
     from creme.creme_core.forms.fields import ChoiceModelIterator
     from creme.creme_core.forms.widgets import ChainedInput
-    from creme.creme_core.tests.forms.base import FieldTestCase
+    from creme.creme_core.tests.base import CremeTestCase
+    # from creme.creme_core.tests.forms.base import FieldTestCase
 
     from ..forms.fields import CreatorCategorySelector
     from ..models import Category, SubCategory
@@ -19,7 +20,8 @@ except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
 
-class CreatorCategorySelectorWidgetTestCase(FieldTestCase):
+# class CreatorCategorySelectorWidgetTestCase(FieldTestCase):
+class CreatorCategorySelectorWidgetTestCase(CremeTestCase):
     def _build_create_action(self, label, title, url='', enabled=True):
         return ('create', label, enabled, {'title': title, 'popupUrl': url})
 
