@@ -362,9 +362,10 @@ class ReportExportPreviewFilterForm(CremeForm):
         ]
 
     def _backend_choices(self):
-        return [(backend.id, backend.verbose_name)
-                    for backend in export_backend_registry.backends
-               ]
+        return [
+            (backend.id, backend.verbose_name)
+                for backend in export_backend_registry.backend_classes
+        ]
 
     def clean(self):
         cleaned_data = super().clean()
@@ -390,7 +391,9 @@ class ReportExportPreviewFilterForm(CremeForm):
         return None
 
     def get_backend(self):
-        return export_backend_registry.get_backend(self.cleaned_data['doc_type'])
+        # return export_backend_registry.get_backend_class(self.cleaned_data['doc_type'])
+        backend_cls = export_backend_registry.get_backend_class(self.cleaned_data['doc_type'])
+        return backend_cls() if backend_cls else None
 
     def export_url_data(self):
         cleaned_data = self.cleaned_data

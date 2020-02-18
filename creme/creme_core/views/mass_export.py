@@ -65,14 +65,15 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
 
         self.request.user.has_perm_to_export_or_die(ctype.model_class())
 
-    def get_backend(self):
+    # def get_backend(self):
+    def get_backend_class(self):
         doc_type = get_from_GET_or_404(self.request.GET, self.doc_type_arg)
 
-        backend = export_backend_registry.get_backend(doc_type)
-        if backend is None:
+        backend_class = export_backend_registry.get_backend_class(doc_type)
+        if backend_class is None:
             raise Http404(f'No such exporter for extension "{doc_type}"')
 
-        return backend
+        return backend_class
 
     def get_cells(self, header_filter):
         return header_filter.filtered_cells
@@ -162,14 +163,16 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
         user = request.user
 
         header_only = self.get_header_only()
-        backend = self.get_backend()
+        # backend = self.get_backend()
+        backend_cls = self.get_backend_class()
         ct = self.get_ctype()
         model = ct.model_class()
         hf = self.get_header_filter()
 
         cells = self.get_cells(header_filter=hf)
 
-        writer = backend()
+        # writer = backend()
+        writer = backend_cls()
         writerow = writer.writerow
         writerow([smart_str(cell.title) for cell in cells])  # Doesn't accept generator expression... ;(
 

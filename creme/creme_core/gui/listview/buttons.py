@@ -91,7 +91,8 @@ class MassExportButton(ListViewButton):
         context = super().get_context(request=request, lv_context=lv_context)
         context['backend_choices'] = [
             (backend.id, backend.verbose_name)
-                for backend in self.export_backend_registry.backends
+                # for backend in self.export_backend_registry.backends
+                for backend in self.export_backend_registry.backend_classes
         ]
         context['extra_q'] = lv_context['extra_q']
 
@@ -116,7 +117,8 @@ class MassImportButton(ListViewButton):
         context['show'] = (
             self.import_form_registry.is_registered(ct) and
             # TODO: __bool__ method instead...
-            next(self.import_backend_registry.backends, None) is not None
+            # next(self.import_backend_registry.backends, None) is not None
+            next(self.import_backend_registry.backend_classes, None) is not None
         )
         context['content_type'] = ct
 
