@@ -79,19 +79,22 @@ ExtractedTuple = Tuple[Any, Optional[str]]
 ValueCastor = Callable[[str], Any]
 
 
-def get_backend(filedata):
+# def get_backend(filedata):
+def get_import_backend_class(filedata):
     filename = filedata.name
     pathname, extension = splitext(filename)
-    backend = import_backend_registry.get_backend(extension.replace('.', ''))
+    backend_cls = import_backend_registry.get_backend_class(extension.replace('.', ''))
 
-    error_msg = gettext('Error reading document, unsupported file type: {file}.')\
-                       .format(file=filename) if backend is None else None
+    error_msg = gettext(
+        'Error reading document, unsupported file type: {file}.'
+    ).format(file=filename) if backend_cls is None else None
 
-    return backend, error_msg
+    return backend_cls, error_msg
 
 
 def get_header(filedata, has_header):
-    backend, error_msg = get_backend(filedata)
+    # backend, error_msg = get_backend(filedata)
+    backend_cls, error_msg = get_import_backend_class(filedata)
 
     if error_msg:
         raise ValidationError(error_msg)
@@ -101,10 +104,13 @@ def get_header(filedata, has_header):
     if has_header:
         try:
             filedata.open(mode='r')  # TODO: 'mode' given by backend ?
-            header = next(backend(filedata))
+            # header = next(backend(filedata))
+            header = next(backend_cls(filedata))
         except Exception as e:
             logger.exception('Error when reading doc header in clean()')
-            raise ValidationError(gettext('Error reading document: {error}.').format(error=e)) from e
+            raise ValidationError(
+                gettext('Error reading document: {error}.').format(error=e)
+            ) from e
         finally:
             filedata.close()
 
@@ -130,9 +136,11 @@ class UploadForm(CremeForm):
         document_f.user = self.user
         document_f.help_text = format_html(
             '<ul class="help-texts">{}</ul>',
-            format_html_join('', '<li>{}: {}</li>',
-                             ((be.verbose_name, be.help_text) for be in import_backend_registry.backends)
-                            )
+            format_html_join(
+                '', '<li>{}: {}</li>',
+                # ((be.verbose_name, be.help_text) for be in import_backend_registry.backends)
+                ((be.verbose_name, be.help_text) for be in import_backend_registry.backend_classes)
+            )
         )
 
     @property
@@ -1134,14 +1142,16 @@ class ImportForm(CremeModelForm):
             good_fields.append((fname, cleaned))
 
         filedata = self.cleaned_data['document'].filedata
-        backend, error_msg = get_backend(filedata)
+        # backend, error_msg = get_backend(filedata)
+        backend_cls, error_msg = get_import_backend_class(filedata)
 
         if error_msg:
             raise self.Error(error_msg)
 
         # TODO: mode depends on the backend ?
         with filedata.open(mode='r') as file_:
-            lines = backend(file_)
+            # lines = backend(file_)
+            lines = backend_cls(file_)
             if get_cleaned('has_header'):
                 next(lines)
 

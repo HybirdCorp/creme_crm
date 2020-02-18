@@ -178,12 +178,14 @@ class Export(generic.base.EntityRelatedMixin, generic.CheckedView):
         form = self.get_form(report=report, request=request)
 
         q_filter = form.get_q()
-        backend = form.get_backend()
+        # backend = form.get_backend()
+        writer = form.get_backend()
 
-        if backend is None:
+        # if backend is None:
+        if writer is None:
             raise ConflictError('Unknown extension')
 
-        writer = backend()
+        # writer = backend()
         writerow = writer.writerow
 
         writerow([smart_str(column.title) for column in report.get_children_fields_flat()])
