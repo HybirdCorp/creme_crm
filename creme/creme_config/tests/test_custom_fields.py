@@ -25,7 +25,7 @@ class CustomFieldsTestCase(CremeTestCase):
                          response.context.get('bricks_reload_url')
                         )
 
-    def test_add_ct(self):
+    def test_add_ct01(self):
         self.assertFalse(CustomField.objects.all())
 
         url = reverse('creme_config__create_first_ctype_custom_field')
@@ -58,6 +58,24 @@ class CustomFieldsTestCase(CremeTestCase):
 
         self.assertNotIn(ct, ctypes)
         self.assertIn(ContentType.objects.get_for_model(FakeOrganisation), ctypes)
+
+    def test_add_ct02(self):
+        "Empty choice list."
+        ct = ContentType.objects.get_for_model(FakeContact)
+        self.assertFalse(CustomField.objects.filter(content_type=ct))
+
+        response = self.assertPOST200(
+            reverse('creme_config__create_first_ctype_custom_field'),
+            data={
+                'content_type': ct.id,
+                'name':         'Eva',
+                'field_type':   CustomField.ENUM,
+                # 'enum_values': ...  #  NOPE
+        })
+        self.assertFormError(
+            response, 'form', None,
+            _('The choices list must not be empty if you choose the type "Choice list".')
+        )
 
     def test_delete_ct(self):
         get_ct = ContentType.objects.get_for_model
@@ -124,6 +142,22 @@ class CustomFieldsTestCase(CremeTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'name', _('There is already a custom field with this name.'))
+
+    def test_add03(self):
+        "Empty list of choices."
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
+        response = self.assertPOST200(
+            reverse('creme_config__create_custom_field', args=(contact_ct.id,)),
+            data={
+                'name':        'Eva',
+                'field_type':  CustomField.ENUM,
+                'enum_values': '',
+            }
+        )
+        self.assertFormError(
+            response, 'form', None,
+            _('The choices list must not be empty if you choose the type "Choice list".')
+        )
 
     def test_edit01(self):
         ct = ContentType.objects.get_for_model(FakeContact)
