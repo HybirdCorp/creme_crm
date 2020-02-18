@@ -18,6 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import Counter
+from functools import partial
+
 from django.forms import TypedChoiceField, CharField, ValidationError
 from django.forms.widgets import Textarea
 from django.utils.translation import gettext_lazy as _, gettext
@@ -45,31 +48,51 @@ class CustomFieldsBaseForm(CremeModelForm):
         'empty_list': _('The choices list must not be empty '
                         'if you choose the type "Choice list".'
                        ),
+        'duplicated_choice': _('The choice «{}» is duplicated.'),
     }
 
     class Meta(CremeModelForm.Meta):
         model = CustomField
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._choices = ()
+
     def clean(self):
         cdata = super().clean()
 
-        if cdata.get('field_type') in (CustomField.ENUM, CustomField.MULTI_ENUM) \
-           and not cdata['enum_values'].strip():
-            raise ValidationError(self.error_messages['empty_list'],
-                                  code='empty_list',
-                                 )
+        if cdata.get('field_type') in (CustomField.ENUM, CustomField.MULTI_ENUM):
+            str_choices = cdata['enum_values'].strip()
+
+            if not str_choices:
+                raise ValidationError(self.error_messages['empty_list'],
+                                      code='empty_list',
+                                     )
+
+            choices = str_choices.splitlines()
+
+            max_choice, max_count = Counter(choices).most_common(1)[0]
+            if max_count > 1:
+                self.add_error(
+                    'enum_values',
+                    self.error_messages['duplicated_choice'].format(max_choice)
+                )
+
+            self._choices = choices
 
         return cdata
 
     def save(self):
         instance = super().save()
-        cleaned_data = self.cleaned_data
+        choices = self._choices
 
-        if cleaned_data['field_type'] in (CustomField.ENUM, CustomField.MULTI_ENUM):
-            create_enum_value = CustomFieldEnumValue.objects.create
+        if choices:
+            create_enum_value = partial(CustomFieldEnumValue.objects.create,
+                                        custom_field=instance,
+                                       )
 
-            for enum_value in cleaned_data['enum_values'].splitlines():
-                create_enum_value(custom_field=instance, value=enum_value)
+            for enum_value in choices:
+                create_enum_value(value=enum_value)
 
         return instance
 
@@ -123,6 +146,7 @@ class CustomFieldsEditForm(CremeModelForm):
     # TODO: factorise
     error_messages = {
         'duplicated_name': _('There is already a custom field with this name.'),
+        'duplicated_choice': _('The choice «{}» is duplicated.'),
     }
 
     class Meta:
@@ -131,6 +155,7 @@ class CustomFieldsEditForm(CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.new_choices = ()
 
         if self.instance.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
             self._enum_values = CustomFieldEnumValue.objects.filter(custom_field=self.instance)
@@ -160,10 +185,36 @@ class CustomFieldsEditForm(CremeModelForm):
 
         return name
 
+    def clean(self):
+        cdata = super().clean()
+
+        if not self._errors and 'new_choices' in self.fields:
+            new_choices = cdata['new_choices'].splitlines()
+
+            # TODO: factorise ??
+            max_choice, max_count = Counter(new_choices).most_common(1)[0]
+            if max_count > 1:
+                self.add_error(
+                    'new_choices',
+                    self.error_messages['duplicated_choice'].format(max_choice)
+                )
+
+            old_choices = {*cdata['old_choices']}
+            for new_choice in new_choices:
+                if new_choice in old_choices:
+                    self.add_error(
+                        'new_choices',
+                        self.error_messages['duplicated_choice'].format(new_choice)
+                    )
+
+            self.new_choices = new_choices
+
+        return cdata
+
     def save(self):
         cfield = super().save()
 
-        if cfield.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
+        if 'old_choices' in self.fields:
             cleaned_data = self.cleaned_data
 
             for cfev, new_value in zip(self._enum_values, cleaned_data['old_choices']):
@@ -173,8 +224,14 @@ class CustomFieldsEditForm(CremeModelForm):
                     cfev.value = new_value
                     cfev.save()
 
-            create_enum_value = CustomFieldEnumValue.objects.create
-            for enum_value in cleaned_data['new_choices'].splitlines():
-                create_enum_value(custom_field=cfield, value=enum_value)
+            # TODO: factorise
+            new_choices = self.new_choices
+            if new_choices:
+                create_enum_value = partial(CustomFieldEnumValue.objects.create,
+                                            custom_field=cfield,
+                                           )
+
+                for enum_value in new_choices:
+                    create_enum_value(value=enum_value)
 
         return cfield
