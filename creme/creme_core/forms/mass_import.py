@@ -22,12 +22,19 @@ from functools import partial
 from itertools import zip_longest
 import logging
 from os.path import splitext
-from typing import Dict
+from typing import (
+    Any,  Optional, Type,
+    Callable, Sequence,
+    Dict, List, Tuple,
+)
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import validators
-from django.db.models import ManyToManyField, BooleanField as ModelBooleanField
+from django.db.models import (
+    ManyToManyField,
+    BooleanField as ModelBooleanField,
+)
 from django.db.models.fields import FieldDoesNotExist
 from django.db.transaction import atomic
 from django.forms.models import modelform_factory
@@ -57,7 +64,7 @@ from ..models import (
     EntityCredentials,
     FieldsConfig,
     CustomField, CustomFieldValue, CustomFieldEnumValue,
-    MassImportJobResult,
+    Job, MassImportJobResult,
 )
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.url import TemplateURLBuilder
@@ -67,6 +74,9 @@ from .widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
 
 logger = logging.getLogger(__name__)
 Document = get_document_model()
+Line = Sequence[str]
+ExtractedTuple = Tuple[Any, Optional[str]]
+ValueCastor = Callable[[str], Any]
 
 
 def get_backend(filedata):
@@ -141,7 +151,7 @@ class UploadForm(CremeForm):
 # Extractors (and related field/widget) for regular model's fields--------------
 
 class Extractor:
-    def __init__(self, column_index, default_value, value_castor):
+    def __init__(self, column_index: int, default_value, value_castor: ValueCastor):
         self._column_index  = column_index
         self._default_value = default_value
         self._value_castor  = value_castor
@@ -158,7 +168,7 @@ class Extractor:
         if create_if_unfound:
             self._fk_form = modelform_factory(subfield_model, fields='__all__')  # TODO: creme_config form ??
 
-    def extract_value(self, line):
+    def extract_value(self, line: Line) -> ExtractedTuple:
         value = self._default_value
         err_msg = None
 
@@ -404,24 +414,28 @@ class ExtractorField(Field):
 # Extractors (and related field/widget) for entities----------------------------
 
 class EntityExtractionCommand:
-    def __init__(self, model, field_name, column_index, create):
+    def __init__(self,
+                 model: Type[CremeEntity],
+                 field_name: str,
+                 column_index: int,
+                 create: bool):
         self.model = model
         self.field_name = field_name
         self.column_index_str = column_index
         self.create = create
 
-    def build_column_index(self):
+    def build_column_index(self) -> int:
         "@throw TypeError"
         self.column_index = index = int(self.column_index_str)
         return index
 
 
 class EntityExtractor:
-    def __init__(self, extraction_cmds):
+    def __init__(self, extraction_cmds: List[EntityExtractionCommand]):
         "@params extraction_cmds: List of EntityExtractionCommands."
         self._commands = extraction_cmds
 
-    def _extract_entity(self, line, user, command):
+    def _extract_entity(self, line: Line, user, command: EntityExtractionCommand):
         index = command.column_index
 
         # TODO: manage credentials (linkable (& viewable ?))
@@ -617,7 +631,7 @@ class EntityExtractorField(Field):
 # Extractors (and related field/widget) for relations---------------------------
 
 class RelationExtractor:
-    def __init__(self, column_index, rtype, subfield_search, related_model, create_if_unfound):
+    def __init__(self, column_index: int, rtype, subfield_search, related_model, create_if_unfound):
         self._column_index    = column_index
         self._rtype           = rtype
         self._subfield_search = str(subfield_search)
@@ -832,7 +846,13 @@ class RelationExtractorField(MultiRelationEntityField):
 # Extractors (and related field/widget) for custom fields ----------------------
 
 class CustomFieldExtractor:
-    def __init__(self, column_index, default_value, value_castor, custom_field, create_if_unfound):
+    _manage_enum: Optional[Callable]
+
+    def __init__(self, column_index: int,
+                 default_value,
+                 value_castor: ValueCastor,
+                 custom_field: CustomField,
+                 create_if_unfound: bool):
         self._column_index  = column_index
         self._default_value = default_value
         self._value_castor  = value_castor
@@ -849,46 +869,56 @@ class CustomFieldExtractor:
             self._manage_enum = None
 
     def extract_value(self, line):
+        value = self._default_value
         err_msg = None
 
         if self._column_index:  # 0 -> not in csv
-            value = line[self._column_index - 1]
+            line_value = line[self._column_index - 1]
 
-            if value and self._manage_enum:
-                try:
-                    return (self._manage_enum(CustomFieldEnumValue.objects.get(custom_field=self._custom_field,
-                                                                               value__iexact=value,
-                                                                              ).id
-                                             ),
+            if line_value:
+                if self._manage_enum:
+                    enum_value = CustomFieldEnumValue.objects.filter(
+                        custom_field=self._custom_field,
+                        value__iexact=line_value,
+                     ).first()
+
+                    if enum_value is not None:
+                        return (
+                            self._manage_enum(enum_value.id),
                             err_msg
-                           )
-                except CustomFieldEnumValue.DoesNotExist as e:
-                    if self._create_if_unfound:
+                       )
+                    elif self._create_if_unfound:
                         # TODO: improve self._value_castor avoid the direct 'return' ?
-                        return (self._manage_enum(CustomFieldEnumValue.objects.create(custom_field=self._custom_field,
-                                                                                      value=value,
-                                                                                     ).id
-                                                 ),
-                                err_msg
-                               )
-                    else:
-                        err_msg = gettext('Error while extracting value: tried to retrieve '
-                                          'the choice «{value}» (column {column}). '
-                                          'Raw error: [{raw_error}]').format(
-                            raw_error=e,
-                            column=self._column_index,
-                            value=value,
+                        return (
+                            self._manage_enum(
+                                CustomFieldEnumValue.objects
+                                                    .create(custom_field=self._custom_field,
+                                                            value=line_value,
+                                                           ).id
+                            ),
+                            err_msg
                         )
+                    else:
+                        return (
+                            value,
+                            gettext('Error while extracting value: the choice «{value}» '
+                                    'was not found in existing choices (column {column}). '
+                                    'Hint: fix your imported file, or configure the import to '
+                                    'create new choices.'
+                                   ).format(
+                                column=self._column_index,
+                                value=line_value,
+                            )
+                        )
+                else:
+                    try:
+                        value = self._value_castor(line_value)
+                    except ValidationError as e:
+                        err_msg = e.messages[0]  # TODO: are several messages possible ??
+                    except Exception as e:
+                        err_msg = str(e)
 
-                    value = None
-
-            if not value:
-                value = self._default_value
-        else:
-            value = self._default_value
-
-        # TODO: catch ValidationError as in regular Extractor
-        return self._value_castor(value), err_msg
+        return value, err_msg
 
 
 # TODO: make a BaseFieldExtractorWidget ??
@@ -971,7 +1001,7 @@ class CustomfieldExtractorField(Field):
 
         if def_value:
             self._original_field.clean(def_value)  # To raise ValidationError if needed
-        elif self.required and not col_index:  # Should be useful while CustomFields can not be marked as required
+        elif self.required and not col_index:  # Should be useless while CustomFields can not be marked as required
             raise ValidationError(self.error_messages['required'], code='required')
 
         # create_if_unfound = value['can_create']
@@ -1043,7 +1073,7 @@ class ImportForm(CremeModelForm):
                 .exclude(field_excluder) \
                 .choices()
 
-    def append_error(self, err_msg):
+    def append_error(self, err_msg: Optional[str]) -> None:
         if err_msg:
             self.import_errors.append(str(err_msg))
 
@@ -1082,13 +1112,13 @@ class ImportForm(CremeModelForm):
     def _pre_instance_save(self, instance, line):  # Overload me
         pass
 
-    def process(self, job):
+    def process(self, job: Job):
         model_class = self._meta.model
         get_cleaned = self.cleaned_data.get
 
         exclude = frozenset(self._meta.exclude or ())
-        regular_fields   = []  # Contains tuples (field_name, cleaned_field_value)
-        extractor_fields = []  # Contains tuples (field_name, extractor)
+        regular_fields: List[Tuple[str, Any]]   = []  # Contains tuples (field_name, cleaned_field_value)
+        extractor_fields: List[Tuple[str, Extractor]] = []  # Contains tuples (field_name, extractor)
 
         for field in model_class._meta.fields:
             fname = field.name
@@ -1135,7 +1165,7 @@ class ImportForm(CremeModelForm):
                         for fname, extractor in extractor_fields:
                             extr_value, err_msg = extractor.extract_value(line)
 
-                            # TODO: Extractor.extract_value() should return a ExtractedValue
+                            # TODO: Extractor.extract_value() should return a ExtractedTuple
                             #       instead of a tuple (an so we could remove the ugly following line...)
                             is_empty = not extractor._column_index or is_empty_value(line[extractor._column_index - 1])
                             extr_values.append((fname, extr_value, is_empty))
@@ -1284,15 +1314,21 @@ class ImportForm4CremeEntity(ImportForm):
 
         # Custom Fields -------
         for cfield in self.cfields:
-            try:
-                value, err_msg = cdata[_CUSTOM_NAME.format(cfield.id)].extract_value(line)
-            except ValidationError as e:
-                self.append_error(e.messages[0])
-            else:
-                if err_msg is not None:
-                    self.append_error(err_msg)
-                elif value is not None and value != '':
-                    CustomFieldValue.save_values_for_entities(cfield, [instance], value)
+            # try:
+            #     value, err_msg = cdata[_CUSTOM_NAME.format(cfield.id)].extract_value(line)
+            # except ValidationError as e:
+            #     self.append_error(e.messages[0])
+            # else:
+            #     if err_msg is not None:
+            #         self.append_error(err_msg)
+            #     elif value is not None and value != '':
+            #         CustomFieldValue.save_values_for_entities(cfield, [instance], value)
+            value, err_msg = cdata[_CUSTOM_NAME.format(cfield.id)].extract_value(line)
+
+            if err_msg is not None:
+                self.append_error(err_msg)
+            elif value is not None and value != '':
+                CustomFieldValue.save_values_for_entities(cfield, [instance], value)
 
         # Properties -----
         create_prop = partial(CremeProperty.objects.create if not updated else

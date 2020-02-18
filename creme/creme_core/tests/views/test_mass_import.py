@@ -14,16 +14,25 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import gettext as _, ngettext
 
-    from .base import ViewsTestCase, MassImportBaseTestCaseMixin, BrickTestCaseMixin, skipIfNoXLSLib
+    from .base import (
+        ViewsTestCase,
+        MassImportBaseTestCaseMixin,
+        BrickTestCaseMixin,
+        skipIfNoXLSLib,
+    )
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.bricks import MassImportJobErrorsBrick, JobErrorsBrick
     from creme.creme_core.creme_jobs import mass_import_type, batch_process_type
-    from creme.creme_core.models import (CremePropertyType, CremeProperty,
-            RelationType, Relation, FieldsConfig, CustomField, CustomFieldEnumValue,
-            Job, MassImportJobResult, SetCredentials,
-            FakeContact, FakeOrganisation, FakeAddress, FakeCivility, FakePosition, FakeSector,
-            FakeEmailCampaign)
+    from creme.creme_core.models import (
+        CremePropertyType, CremeProperty,
+        RelationType, Relation,
+        FieldsConfig,
+        CustomField, CustomFieldEnumValue,
+        Job, MassImportJobResult, SetCredentials,
+        FakeContact, FakeOrganisation, FakeAddress,
+        FakeCivility, FakePosition, FakeSector,
+        FakeEmailCampaign)
     from creme.creme_core.utils import update_model_instance
 
     from creme.documents.models import Document
@@ -657,10 +666,21 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         jr_error = jr_errors[0]
         self.assertEqual([*lines[2]], jr_error.line)
-        self.assertEqual([_('Error while extracting value: tried to retrieve '
-                            'the choice «{value}» (column {column}). '
-                            'Raw error: [{raw_error}]').format(
-                                raw_error='CustomFieldEnumValue matching query does not exist.',
+        # self.assertEqual([_('Error while extracting value: tried to retrieve '
+        #                     'the choice «{value}» (column {column}). '
+        #                     'Raw error: [{raw_error}]').format(
+        #                         raw_error='CustomFieldEnumValue matching query does not exist.',
+        #                         column=3,
+        #                         value='strangulation',
+        #                     ),
+        #                  ],
+        #                  jr_error.messages
+        #                 )
+        self.assertEqual([_('Error while extracting value: the choice «{value}» '
+                                    'was not found in existing choices (column {column}). '
+                                    'Hint: fix your imported file, or configure the import to '
+                                    'create new choices.'
+                                   ).format(
                                 column=3,
                                 value='strangulation',
                             ),
