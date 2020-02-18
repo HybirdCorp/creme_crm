@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.core.exceptions import ValidationError
     from django.forms import CharField
     from django.forms.widgets import TextInput
@@ -10,7 +12,7 @@ try:
     from ..base import CremeTestCase
 
     from creme.creme_core.models import (
-        CustomField,
+        CustomField, CustomFieldEnumValue,
         FakeContact, FakeSector,
     )
     from creme.creme_core.forms.mass_import import (
@@ -162,8 +164,205 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         line3 = ['Alvis', 'Hamilton', '']
         self.assertEqual((default_value, None), extractor.extract_value(line3))
 
-    # TODO: ENUM (create_if_unfound=False/True)
-    # TODO: MULTI_ENUM (create_if_unfound=False/True)
+    def test_extract02(self):
+        "Validation."
+        cfield = CustomField.objects.create(
+            name='Size',
+            field_type=CustomField.INT,
+            content_type=FakeContact,
+        )
+
+        default_value = 12
+        extractor = CustomFieldExtractor(
+            column_index=3,
+            default_value=default_value,
+            value_castor=cfield.get_formfield(None).clean,
+            custom_field=cfield,
+            create_if_unfound=False,
+        )
+
+        line1 = ['Claus', 'Valca', '173']
+        self.assertEqual((173, None), extractor.extract_value(line1))
+
+        line2 = ['Lavie', 'Head', '164']
+        self.assertEqual((164, None), extractor.extract_value(line2))
+
+        line3 = ['Alvis', 'Hamilton', 'noatanint']
+        self.assertEqual(
+            (default_value, _('Enter a whole number.')),
+            extractor.extract_value(line3)
+        )
+
+    def test_extract_enum01(self):
+        "create_if_unfound == True"
+        cfield = CustomField.objects.create(
+            name='Hobby',
+            field_type=CustomField.ENUM,
+            content_type=FakeContact,
+        )
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        eval1 = create_evalue(custom_field=cfield, value='Piloting')
+        eval2 = create_evalue(custom_field=cfield, value='Mechanic')
+
+        default_value = eval2.id
+        extractor = CustomFieldExtractor(
+            column_index=3,
+            default_value=default_value,
+            value_castor=cfield.get_formfield(None).clean,
+            custom_field=cfield,
+            create_if_unfound=True,
+        )
+
+        line1 = ['Claus', 'Valca', eval1.value]
+        self.assertEqual((eval1.id, None), extractor.extract_value(line1))
+
+        line2 = ['Lavie', 'Head', eval2.value]
+        self.assertEqual((eval2.id, None), extractor.extract_value(line2))
+
+        line3 = ['Alvis', 'Hamilton', 'Cooking']
+        eval3_id, err_msg = extractor.extract_value(line3)
+        self.assertIsNone(err_msg)
+
+        eval3 = self.get_object_or_fail(CustomFieldEnumValue, id=eval3_id)
+        self.assertEqual(cfield, eval3.custom_field)
+        self.assertEqual(line3[2], eval3.value)
+
+    def test_extract_enum02(self):
+        "create_if_unfound == False + empty default value."
+        cfield = CustomField.objects.create(
+            name='Hobby',
+            field_type=CustomField.ENUM,
+            content_type=FakeContact,
+        )
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        eval1 = create_evalue(custom_field=cfield, value='Piloting')
+        # eval2 = create_evalue(custom_field=cfield, value='Mechanic')
+
+        default_value = ''
+        extractor = CustomFieldExtractor(
+            column_index=3,
+            default_value=default_value,
+            value_castor=cfield.get_formfield(None).clean,
+            custom_field=cfield,
+            create_if_unfound=False,
+        )
+
+        line1 = ['Claus', 'Valca', eval1.value]
+        self.assertEqual((eval1.id, None), extractor.extract_value(line1))
+
+        line2 = ['Alvis', 'Hamilton', 'Cooking']
+        self.assertEqual(
+            (default_value,
+             _('Error while extracting value: the choice «{value}» '
+               'was not found in existing choices (column {column}). '
+               'Hint: fix your imported file, or configure the import to '
+               'create new choices.').format(
+                    column=3,
+                    value=line2[2],
+             )
+            ),
+            extractor.extract_value(line2)
+        )
+
+    def test_extract_enum03(self):
+        "create_if_unfound == False + default value."
+        cfield = CustomField.objects.create(
+            name='Hobby',
+            field_type=CustomField.ENUM,
+            content_type=FakeContact,
+        )
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        create_evalue(custom_field=cfield, value='Piloting')
+        eval2 = create_evalue(custom_field=cfield, value='Mechanic')
+
+        default_value = str(eval2.id)
+        extractor = CustomFieldExtractor(
+            column_index=3,
+            default_value=default_value,
+            value_castor=cfield.get_formfield(None).clean,
+            custom_field=cfield,
+            create_if_unfound=False,
+        )
+
+        line = ['Alvis', 'Hamilton', 'Cooking']
+        self.assertEqual(
+            (default_value,
+             _('Error while extracting value: the choice «{value}» '
+               'was not found in existing choices (column {column}). '
+               'Hint: fix your imported file, or configure the import to '
+               'create new choices.').format(
+                    column=3,
+                    value=line[2],
+             )
+            ),
+            extractor.extract_value(line)
+        )
+
+    def test_extract_enum04(self):
+        "Search + duplicates."
+        cfield = CustomField.objects.create(
+            name='Hobby',
+            field_type=CustomField.ENUM,
+            content_type=FakeContact,
+        )
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create,
+                                custom_field=cfield, value='Piloting',
+                               )
+        eval1 = create_evalue()
+        create_evalue()
+
+        extractor = CustomFieldExtractor(
+            column_index=3,
+            default_value='',
+            value_castor=cfield.get_formfield(None).clean,
+            custom_field=cfield,
+            create_if_unfound=True,
+        )
+
+        line = ['Claus', 'Valca', eval1.value]
+        eval_id, err_msg = extractor.extract_value(line)
+        self.assertIsNone(err_msg)
+        # self.assertEqual((eval1.id, None), extractor.extract_value(line1))
+
+
+    def test_extract_menum01(self):
+        cfield = CustomField.objects.create(
+            name='Hobby',
+            field_type=CustomField.MULTI_ENUM,
+            content_type=FakeContact,
+        )
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        eval1 = create_evalue(custom_field=cfield, value='Piloting')
+        eval2 = create_evalue(custom_field=cfield, value='Mechanic')
+
+        default_value = eval2.id
+        extractor = CustomFieldExtractor(
+            column_index=3,
+            default_value=default_value,
+            value_castor=cfield.get_formfield(None).clean,
+            custom_field=cfield,
+            create_if_unfound=True,
+        )
+
+        line1 = ['Claus', 'Valca', eval1.value]
+        self.assertEqual(([eval1.id], None), extractor.extract_value(line1))
+
+        line2 = ['Lavie', 'Head', eval2.value]
+        self.assertEqual(([eval2.id], None), extractor.extract_value(line2))
+
+        line3 = ['Alvis', 'Hamilton', 'Cooking']
+        eval3_ids, err_msg = extractor.extract_value(line3)
+        self.assertIsNone(err_msg)
+        self.assertEqual(1, len(eval3_ids))
+
+        eval3 = self.get_object_or_fail(CustomFieldEnumValue, id=eval3_ids[0])
+        self.assertEqual(cfield, eval3.custom_field)
+        self.assertEqual(line3[2], eval3.value)
 
 
 # class ExtractorFieldTestCase(FieldTestCase):
