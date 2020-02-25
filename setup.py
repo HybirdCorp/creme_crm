@@ -37,11 +37,11 @@ setup(
     long_description=README,
     install_requires=[
         "django>=2.2.10,<2.2.1024",
-        "redis>=3.3.11,<3.3.1024",
-        "Pillow>=6.2.2,<6.2.1024",
+        "redis>=3.4.1,<3.4.1024",
+        "Pillow>=7.0.0,<7.0.1024",
         "python-dateutil>=2.8.1,<2.8.1024",
-        "bleach>=3.1.0,<3.1.1024",
-        "django-formtools==2.1",
+        "bleach>=3.1.1,<3.1.1024",
+        "django-formtools==2.2",
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
