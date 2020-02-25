@@ -215,24 +215,19 @@ creme.reports.PreviewController = creme.component.Component.sub({
     }
 });
 
-// TODO : TEMPORARY HACK !
-creme.reports.toggleDaysField = function(operator, types) {
-//    var is_visible = operator.val() && types && types.indexOf(operator.val()) !== -1;
-//    var days_field = $(operator).parents('.block-form:first').find('[name=\"days\"]');
+//creme.reports.toggleDaysField = function(operator, types) {
+//    var initial_value = operator.attr('data-initial-value');
+//    if (initial_value) {
+//        operator.attr('data-initial-value', '');
+//        operator.val(initial_value);
+//    }
+//
+//    var val = operator.val();
+//    var is_visible = val && types && types.indexOf(val) !== -1;
+//    var days_field = operator.parents('.block-form:first').find('[name=\"days\"]');
 //
 //    days_field.parents('tr:first').toggleClass('hidden', !is_visible);
-    var initial_value = operator.attr('data-initial-value');
-    if (initial_value) {
-        operator.attr('data-initial-value', '');
-        operator.val(initial_value);
-    }
-
-    var val = operator.val();
-    var is_visible = val && types && types.indexOf(val) !== -1;
-    var days_field = operator.parents('.block-form:first').find('[name=\"days\"]');
-
-    days_field.parents('tr:first').toggleClass('hidden', !is_visible);
-};
+//};
 
 creme.reports.ChartController = creme.component.Component.sub({
     _init_: function(properties) {

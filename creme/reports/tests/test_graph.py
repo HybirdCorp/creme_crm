@@ -27,7 +27,7 @@ try:
     from creme.creme_core.utils.queries import QSerializer
 
     from .base import (
-        BaseReportsTestCase,
+        BaseReportsTestCase, AbcissaFieldMixin,
         skipIfCustomReport, skipIfCustomRGraph,
         Report, ReportGraph,
     )
@@ -48,7 +48,9 @@ except Exception as e:
 
 @skipIfCustomReport
 @skipIfCustomRGraph
-class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
+class ReportGraphTestCase(BrickTestCaseMixin,
+                          AbcissaFieldMixin,
+                          BaseReportsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -199,31 +201,31 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                         )
         self.assertEqual(ReportGraph.save_label, context.get('submit_label'))
 
-        with self.assertNoException():
-            fields = context['form'].fields
-            abscissa_choices = fields['abscissa_field'].choices
-            aggrfields_choices = fields['aggregate_field'].choices
-
-        self.assertEqual(2, len(abscissa_choices))
-
-        fields_choices = abscissa_choices[0]
-        self.assertEqual(_('Fields'), fields_choices[0])
-        choices_set = {c[0] for c in fields_choices[1]}
-        self.assertIn('created', choices_set)
-        self.assertIn('sector',  choices_set)
-        self.assertNotIn('name', choices_set)  # String can not be used to group
-        self.assertNotIn('address', choices_set)  # Not enumerable
-        self.assertNotIn('image',   choices_set)  # FK to entity
-
-        rel_choices = abscissa_choices[1]
-        self.assertEqual(_('Relationships'), rel_choices[0])
-        self.get_object_or_fail(RelationType, pk=rel_choices[1][0][0])
-
-        self.assertEqual([(_('Fields'),        [('capital', _('Capital'))]),
-                          (_('Custom fields'), [(cf.id,     cf.name)]),
-                         ],
-                         aggrfields_choices
-                        )
+        # with self.assertNoException():
+        #     fields = context['form'].fields
+        #     abscissa_choices = fields['abscissa_field'].choices
+        #     aggrfields_choices = fields['aggregate_field'].choices
+        #
+        # self.assertEqual(2, len(abscissa_choices))
+        #
+        # fields_choices = abscissa_choices[0]
+        # self.assertEqual(_('Fields'), fields_choices[0])
+        # choices_set = {c[0] for c in fields_choices[1]}
+        # self.assertIn('created', choices_set)
+        # self.assertIn('sector',  choices_set)
+        # self.assertNotIn('name', choices_set)  # String can not be used to group
+        # self.assertNotIn('address', choices_set)  # Not enumerable
+        # self.assertNotIn('image',   choices_set)  # FK to entity
+        #
+        # rel_choices = abscissa_choices[1]
+        # self.assertEqual(_('Relationships'), rel_choices[0])
+        # self.get_object_or_fail(RelationType, pk=rel_choices[1][0][0])
+        #
+        # self.assertEqual([(_('Fields'),        [('capital', _('Capital'))]),
+        #                   (_('Custom fields'), [(cf.id,     cf.name)]),
+        #                  ],
+        #                  aggrfields_choices
+        #                 )
 
         name = 'My Graph #1'
         abscissa = 'sector'
@@ -232,13 +234,21 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(
             self.client.post(
                 url,
-                data={'user': user.pk,  # TODO: report.user used instead ??
-                      'name':              name,
-                      'abscissa_field':    abscissa,
-                      'abscissa_group_by': gtype,
-                      'is_count':          True,
-                      'chart':             chart,
-                     },
+                data={
+                    'user': user.pk,  # TODO: report.user used instead ??
+                    'name': name,
+
+                    # 'abscissa_field':    abscissa,
+                    # 'abscissa_group_by': gtype,
+                    'abscissa': self.formfield_value_abscissa(
+                        abscissa=FakeOrganisation._meta.get_field(abscissa),
+                        graph_type=gtype,
+                    ),
+
+                    'is_count': True,
+
+                    'chart': chart,
+                },
             )
         )
 
@@ -304,15 +314,22 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         def post(**kwargs):
             return self.client.post(
                 url,
-                data={'user':              user.id,
-                      'name':              name,
-                      'abscissa_group_by': gtype,
-                      'chart':             'barchart',
-                      **kwargs
-                     },
+                data={
+                    'user':              user.id,
+                    'name':              name,
+                    # 'abscissa_group_by': gtype,
+                    'chart':             'barchart',
+                    **kwargs
+                },
             )
 
-        response = post(abscissa_field='modified')
+        # response = post(abscissa_field='modified')
+        response = post(
+            abscissa=self.formfield_value_abscissa(
+                abscissa=FakeOrganisation._meta.get_field('modified'),
+                graph_type=gtype,
+            ),
+        )
         self.assertEqual(200, response.status_code)
         self.assertFormError(
             response, 'form', None,
@@ -321,11 +338,22 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
              )
          )
 
-        response = post(abscissa_field='legal_form', aggregate_field=ordinate)
+        # response = post(abscissa_field='legal_form', aggregate_field=ordinate)
+        response = post(
+            abscissa=self.formfield_value_abscissa(
+                abscissa=FakeOrganisation._meta.get_field('legal_form'),
+                graph_type=gtype,
+            ),
+            aggregate_field=ordinate
+        )
         self.assertEqual(200, response.status_code)
+        # self.assertFormError(
+        #     response, 'form', 'abscissa_field',
+        #     '"{}" groups are only compatible with [DateField, DateTimeField]'.format(_('By days'))
+        # )
         self.assertFormError(
-            response, 'form', 'abscissa_field',
-            '"{}" groups are only compatible with [DateField, DateTimeField]'.format(_('By days'))
+            response, 'form', 'abscissa',
+            'This entity cell is not allowed.'
         )
         self.assertFormError(
             response, 'form', 'aggregate',
@@ -334,11 +362,19 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         aggregate = 'max'
         abscissa = 'created'
-        self.assertNoFormError(post(abscissa_field=abscissa,
-                                    aggregate_field=ordinate,
-                                    aggregate=aggregate,
-                                   )
-                              )
+        # self.assertNoFormError(post(abscissa_field=abscissa,
+        #                             aggregate_field=ordinate,
+        #                             aggregate=aggregate,
+        #                            )
+        #                       )
+        self.assertNoFormError(post(
+            abscissa=self.formfield_value_abscissa(
+                abscissa=FakeOrganisation._meta.get_field(abscissa),
+                graph_type=gtype,
+            ),
+            aggregate_field=ordinate,
+            aggregate=aggregate,
+        ))
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user,      rgraph.user)
@@ -358,31 +394,38 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         user = self.login()
         report = self._create_simple_contacts_report()
         url = self._build_add_graph_url(report)
-        response = self.assertGET200(url)
+        # response = self.assertGET200(url)
         self.assertGET200(url)
 
-        with self.assertNoException():
-            fields = response.context['form'].fields
-            fields_choices = fields['abscissa_field'].choices[0][1]
-
-        choices_set = {c[0] for c in fields_choices}
-        self.assertIn('created', choices_set)
-        self.assertIn('sector', choices_set)
-        self.assertIn('civility', choices_set)
-        self.assertNotIn('last_name', choices_set)
+        # with self.assertNoException():
+        #     fields = response.context['form'].fields
+        #     fields_choices = fields['abscissa_field'].choices[0][1]
+        #
+        # choices_set = {c[0] for c in fields_choices}
+        # self.assertIn('created', choices_set)
+        # self.assertIn('sector', choices_set)
+        # self.assertIn('civility', choices_set)
+        # self.assertNotIn('last_name', choices_set)
 
         name = 'My Graph #1'
         abscissa = 'sector'
-        self.assertNoFormError(self.client.post(url,
-                                                data={'user':               user.pk,  # TODO: report.user used instead ??
-                                                      'name':               name,
-                                                      'abscissa_field':     abscissa,
-                                                      'abscissa_group_by':  RGT_FK,
-                                                      'chart':             'barchart',
-                                                      # 'is_count': True, #useless
-                                                    }
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'user': user.id,
+                'name': name,
+
+                # 'abscissa_field':     abscissa,
+                # 'abscissa_group_by':  RGT_FK,
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=FakeOrganisation._meta.get_field(abscissa),
+                    graph_type=RGT_FK,
+                ),
+
+                'chart': 'barchart',
+                # 'is_count': True, #useless
+            },
+        ))
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(abscissa, rgraph.abscissa)
         self.assertEqual('',       rgraph.ordinate)
@@ -397,26 +440,42 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         name = 'My Graph #1'
         gtype = RGT_RELATION
 
-        def post(abscissa):
-            return self.client.post(url,
-                                    data={'user':              user.pk,
-                                          'name':              name,
-                                          'abscissa_field':    abscissa,
-                                          'abscissa_group_by': gtype,
-                                          'is_count':          True,
-                                          'chart':             'barchart',
-                                         },
-                                   )
+        # def post(abscissa):
+        #     return self.client.post(url,
+        #                             data={'user':              user.pk,
+        #                                   'name':              name,
+        #                                   'abscissa_field':    abscissa,
+        #                                   'abscissa_group_by': gtype,
+        #                                   'is_count':          True,
+        #                                   'chart':             'barchart',
+        #                                  },
+        #                            )
 
-        fname = 'staff_size'
-        response = post(fname)
-        self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'abscissa_field',
-                             'Unknown relationship type.'
-                            )
+        # fname = 'staff_size'
+        # response = post(fname)
+        # self.assertEqual(200, response.status_code)
+        # self.assertFormError(response, 'form', 'abscissa_field',
+        #                      'Unknown relationship type.'
+        #                     )
 
         rtype_id = fake_constants.FAKE_REL_OBJ_EMPLOYED_BY
-        self.assertNoFormError(post(rtype_id))
+        # self.assertNoFormError(post(rtype_id))
+        rtype = RelationType.objects.get(id=rtype_id)
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'user': user.pk,
+                'name': name,
+
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=rtype,
+                    graph_type=gtype,
+                ),
+
+                'is_count': True,
+                'chart':    'barchart',
+            },
+        ))
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user,      rgraph.user)
@@ -426,31 +485,45 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         self.assertEqual('employs', rgraph.hand.verbose_abscissa)
 
-    def _aux_test_createview_with_date(self, gtype, gtype_vname):
+    # def _aux_test_createview_with_date(self, gtype, gtype_vname):
+    def _aux_test_createview_with_date(self, gtype):
         report = self._create_simple_organisations_report()
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
         ordinate = 'capital'
 
-        def post(**kwargs):
+        # def post(**kwargs):
+        def post(abscissa_field, **kwargs):
             return self.client.post(
                 url,
-                data={'user':              self.user.pk,
-                      'name':              name,
-                      'abscissa_group_by': gtype,
-                      'aggregate_field':   ordinate,
-                      'aggregate':         'max',
-                      'chart':             'barchart',
-                      **kwargs
+                data={
+                    'user': self.user.pk,
+                    'name': name,
+
+                    # 'abscissa_group_by': gtype,
+                    'abscissa': self.formfield_value_abscissa(
+                        abscissa=FakeOrganisation._meta.get_field(abscissa_field),
+                        graph_type=gtype,
+                    ),
+
+                    'aggregate_field': ordinate,
+                    'aggregate':      'max',
+
+                    'chart': 'barchart',
+                    **kwargs
                 },
             )
 
         response = post(abscissa_field='legal_form')
         self.assertEqual(200, response.status_code)
+        # self.assertFormError(
+        #     response, 'form', 'abscissa_field',
+        #     f'"{gtype_vname}" groups are only compatible with [DateField, DateTimeField]'
+        # )
         self.assertFormError(
-            response, 'form', 'abscissa_field',
-            f'"{gtype_vname}" groups are only compatible with [DateField, DateTimeField]'
+            response, 'form', 'abscissa',
+            'This entity cell is not allowed.'
         )
 
         aggregate = 'min'
@@ -468,12 +541,14 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
     def test_createview05(self):
         "RGT_MONTH."
         self.login()
-        self._aux_test_createview_with_date(RGT_MONTH, _('By months'))
+        # self._aux_test_createview_with_date(RGT_MONTH, _('By months'))
+        self._aux_test_createview_with_date(RGT_MONTH)
 
     def test_createview06(self):
         "RGT_YEAR."
         self.login()
-        self._aux_test_createview_with_date(RGT_YEAR, _('By years'))
+        # self._aux_test_createview_with_date(RGT_YEAR, _('By years'))
+        self._aux_test_createview_with_date(RGT_YEAR)
 
     def test_createview07(self):
         "RGT_RANGE."
@@ -485,35 +560,49 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         ordinate = 'capital'
         gtype = RGT_RANGE
 
-        def post(**kwargs):
+        # def post(**kwargs):
+        def post(abscissa_field, parameter='', **kwargs):
             return self.client.post(
                 url,
                 data={
-                    'user':              user.id,
-                    'name':              name,
-                    'abscissa_group_by': gtype,
-                    'aggregate_field':   ordinate,
-                    'aggregate':         'max',
-                    'chart':             'barchart',
+                    'user': user.id,
+                    'name': name,
+
+                    # 'abscissa_group_by': gtype,
+                    'abscissa': self.formfield_value_abscissa(
+                        abscissa=FakeOrganisation._meta.get_field(abscissa_field),
+                        graph_type=gtype,
+                        parameter=parameter,
+                    ),
+
+                    'aggregate_field': ordinate,
+                    'aggregate':       'max',
+
+                    'chart': 'barchart',
                     **kwargs
                 },
             )
 
         response = post(abscissa_field='legal_form')
         self.assertEqual(200, response.status_code)
+        # self.assertFormError(
+        #     response, 'form', 'abscissa_field',
+        #     '"{}" groups are only compatible with [DateField, DateTimeField]'.format(_('By X days'))
+        # )
         self.assertFormError(
-            response, 'form', 'abscissa_field',
-            '"{}" groups are only compatible with [DateField, DateTimeField]'.format(_('By X days'))
+            response, 'form', 'abscissa',
+            'This entity cell is not allowed.'
         )
-        self.assertFormError(
-            response, 'form', 'days',
-            _("You have to specify a day range if you use 'by X days'")
-        )
+        # self.assertFormError(
+        #     response, 'form', 'days',
+        #     _("You have to specify a day range if you use 'by X days'")
+        # )
 
         aggregate = 'avg'
         abscissa = 'modified'
         days = 25
-        self.assertNoFormError(post(abscissa_field=abscissa, aggregate=aggregate, days=days))
+        # self.assertNoFormError(post(abscissa_field=abscissa, aggregate=aggregate, days=days))
+        self.assertNoFormError(post(abscissa_field=abscissa, parameter=str(days), aggregate=aggregate))
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user, rgraph.user)
@@ -560,18 +649,18 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         with self.assertNoException():
             fields = response.context['form'].fields
-            abs_choices = fields['abscissa_field'].choices
+            # abs_choices = fields['abscissa_field'].choices
             ord_choices = fields['aggregate_field'].choices
 
-        self.assertEqual(3, len(abs_choices))
-
-        cf_choice = abs_choices[2]
-        self.assertEqual(_('Custom fields'), cf_choice[0])
-        self.assertSetEqual({(cf_enum.id, cf_enum.name),
-                             (cf_dt.id,   cf_dt.name),
-                            },
-                            {*cf_choice[1]}
-                           )
+        # self.assertEqual(3, len(abs_choices))
+        #
+        # cf_choice = abs_choices[2]
+        # self.assertEqual(_('Custom fields'), cf_choice[0])
+        # self.assertSetEqual({(cf_enum.id, cf_enum.name),
+        #                      (cf_dt.id,   cf_dt.name),
+        #                     },
+        #                     {*cf_choice[1]}
+        #                    )
 
         self.assertEqual([(cf_int.id, cf_int.name), (cf_decimal.id, cf_decimal.name)],
                          ord_choices
@@ -580,23 +669,37 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         name = 'My Graph #1'
         gtype = RGT_CUSTOM_FK
 
-        def post(cf_id):
-            return self.client.post(url, data={'user':              user.pk,
-                                               'name':              name,
-                                               'abscissa_field':    cf_id,
-                                               'abscissa_group_by': gtype,
-                                               'is_count':          True,
-                                               'chart':             'barchart',
-                                              },
-                                   )
+        # def post(cf_id):
+        #     return self.client.post(url, data={'user':              user.pk,
+        #                                        'name':              name,
+        #                                        'abscissa_field':    cf_id,
+        #                                        'abscissa_group_by': gtype,
+        #                                        'is_count':          True,
+        #                                        'chart':             'barchart',
+        #                                       },
+        #                            )
+        #
+        # response = post(1000)
+        # self.assertEqual(200, response.status_code)
+        # self.assertFormError(response, 'form', 'abscissa_field',
+        #                      'Unknown or invalid custom field.'
+        #                     )
+        #
+        # self.assertNoFormError(post(cf_enum.id))
 
-        response = post(1000)
-        self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'abscissa_field',
-                             'Unknown or invalid custom field.'
-                            )
-
-        self.assertNoFormError(post(cf_enum.id))
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'user': user.pk,
+                'name': name,
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=cf_enum,
+                    graph_type=gtype,
+                ),
+                'is_count': True,
+                'chart': 'barchart',
+            },
+        ))
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user,            rgraph.user)
@@ -604,35 +707,53 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(gtype,           rgraph.type)
 
     def _aux_test_createview_with_customdate(self, gtype):
-        create_cf = partial(CustomField.objects.create, content_type=self.ct_orga)
-        cf_dt  = create_cf(name='First victory', field_type=CustomField.DATETIME)
-        cf_int = create_cf(name='Gold',          field_type=CustomField.INT)
+        # create_cf = partial(CustomField.objects.create, content_type=self.ct_orga)
+        # cf_dt  = create_cf(name='First victory', field_type=CustomField.DATETIME)
+        # cf_int = create_cf(name='Gold',          field_type=CustomField.INT)
+        cf_dt = CustomField.objects.create(
+            content_type=self.ct_orga,
+            name='First victory',
+            field_type=CustomField.DATETIME,
+        )
 
         report = self._create_simple_organisations_report()
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
 
-        def post(**kwargs):
-            return self.client.post(
-                url,
-                data={
-                    'user':              self.user.pk,
-                    'name':              name,
-                    'abscissa_group_by': gtype,
-                    'is_count':          True,
-                    'chart':             'barchart',
-                    **kwargs
-                   },
-            )
-
-        response = post(abscissa_field=cf_int.id)
-        self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'abscissa_field',
-                             'Unknown or invalid custom field.'
-                            )
-
-        self.assertNoFormError(post(abscissa_field=cf_dt.id))
+        # def post(**kwargs):
+        #     return self.client.post(
+        #         url,
+        #         data={
+        #             'user':              self.user.pk,
+        #             'name':              name,
+        #             'abscissa_group_by': gtype,
+        #             'is_count':          True,
+        #             'chart':             'barchart',
+        #             **kwargs
+        #            },
+        #     )
+        #
+        # response = post(abscissa_field=cf_int.id)
+        # self.assertEqual(200, response.status_code)
+        # self.assertFormError(response, 'form', 'abscissa_field',
+        #                      'Unknown or invalid custom field.'
+        #                     )
+        #
+        # self.assertNoFormError(post(abscissa_field=cf_dt.id))
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'user': self.user.pk,
+                'name': name,
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=cf_dt,
+                    graph_type=gtype,
+                ),
+                'is_count': True,
+                'chart': 'barchart',
+            },
+        ))
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(self.user,     rgraph.user)
@@ -670,29 +791,43 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         name = 'My Graph #1'
         gtype = RGT_CUSTOM_RANGE
 
-        def post(**kwargs):
-            return self.client.post(
-                url,
-                data={'user':              user.pk,
-                      'name':              name,
-                      'abscissa_group_by': gtype,
-                      'is_count':          True,
-                      'chart':             'barchart',
-                      **kwargs
-                },
-            )
-
-        response = post(abscissa_field=cf_int.id)
-        self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'abscissa_field',
-                             'Unknown or invalid custom field.'
-                            )
-        self.assertFormError(response, 'form', 'days',
-                             _("You have to specify a day range if you use 'by X days'")
-                            )
+        # def post(**kwargs):
+        #     return self.client.post(
+        #         url,
+        #         data={'user':              user.pk,
+        #               'name':              name,
+        #               'abscissa_group_by': gtype,
+        #               'is_count':          True,
+        #               'chart':             'barchart',
+        #               **kwargs
+        #         },
+        #     )
+        #
+        # response = post(abscissa_field=cf_int.id)
+        # self.assertEqual(200, response.status_code)
+        # self.assertFormError(response, 'form', 'abscissa_field',
+        #                      'Unknown or invalid custom field.'
+        #                     )
+        # self.assertFormError(response, 'form', 'days',
+        #                      _("You have to specify a day range if you use 'by X days'")
+        #                     )
 
         days = 25
-        self.assertNoFormError(post(abscissa_field=cf_dt.id, days=days))
+        # self.assertNoFormError(post(abscissa_field=cf_dt.id, days=days))
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'user': self.user.pk,
+                'name': name,
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=cf_dt,
+                    graph_type=gtype,
+                    parameter=str(days),
+                ),
+                'is_count': True,
+                'chart': 'barchart',
+            },
+        ))
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user,          rgraph.user)
@@ -709,45 +844,69 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertGET404(self._build_add_graph_url(orga))
 
     def test_createview_fieldsconfig(self):
-        self.login()
+        user = self.login()
         report = self._create_simple_organisations_report()
 
         hidden_fname1 = 'sector'
         FieldsConfig.objects.create(
             content_type=FakeOrganisation,
-            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
-                          ('capital',     {FieldsConfig.HIDDEN: True}),
-                         ],
+            descriptions=[
+                (hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                ('capital',     {FieldsConfig.HIDDEN: True}),
+            ],
         )
 
-        response = self.assertGET200(self._build_add_graph_url(report))
+        url = self._build_add_graph_url(report)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             fields = response.context['form'].fields
-            abscissa_choices = fields['abscissa_field'].choices
+            # abscissa_choices = fields['abscissa_field'].choices
             aggrfields_choices = fields['aggregate_field'].choices
 
-        fields_choices = abscissa_choices[0]
-        self.assertEqual(_('Fields'), fields_choices[0])
-
-        choices_set = {c[0] for c in fields_choices[1]}
-        self.assertIn('created', choices_set)
-        self.assertNotIn(hidden_fname1, choices_set)
+        # fields_choices = abscissa_choices[0]
+        # self.assertEqual(_('Fields'), fields_choices[0])
+        #
+        # choices_set = {c[0] for c in fields_choices[1]}
+        # self.assertIn('created', choices_set)
+        # self.assertNotIn(hidden_fname1, choices_set)
 
         self.assertEqual([('', _('No field is usable for aggregation'))],
                          aggrfields_choices
                         )
 
+        response = self.assertPOST200(
+            url,
+            data={
+                'user': user.pk,
+                'name': 'My Graph #1',
+
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=FakeOrganisation._meta.get_field(hidden_fname1),
+                    graph_type=RGT_FK,
+                ),
+
+                'is_count': True,
+
+                'chart': 'barchart',
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'abscissa',
+            'This entity cell is not allowed.'
+        )
+
     def test_editview01(self):
         user = self.login()
         report = self._create_simple_organisations_report()
-        rgraph = ReportGraph.objects.create(user=user, linked_report=report,
-                                            name='Capital per month of creation',
-                                            abscissa='created',
-                                            ordinate='capital__sum',
-                                            type=RGT_MONTH,
-                                            is_count=False,
-                                           )
+        rgraph = ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='Capital per month of creation',
+            abscissa='created',
+            ordinate='capital__sum',
+            type=RGT_MONTH,
+            is_count=False,
+        )
 
         url = self._build_edit_url(rgraph)
         response = self.assertGET200(url)
@@ -759,22 +918,36 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                         )
 
         with self.assertNoException():
-            aggregate_field_f = context['form'].fields['aggregate_field']
+            fields = context['form'].fields
+            abscissa_f = fields['abscissa']
+            aggregate_field_f = fields['aggregate_field']
 
+        self.assertSetEqual({'regular_field-created'},
+                            abscissa_f.not_hiddable_cell_keys
+                           )
         self.assertFalse(aggregate_field_f.help_text)
 
         name = 'Organisations per sector'
         abscissa = 'sector'
         gtype = RGT_FK
-        response = self.client.post(url, data={'user':              user.pk,
-                                               'name':              name,
-                                               'abscissa_field':    abscissa,
-                                               'abscissa_group_by': gtype,
-                                               'is_count':          True,
-                                               'chart':             'barchart',
-                                              }
-                                   )
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'user': user.pk,
+                'name': name,
+
+                # 'abscissa_field':    abscissa,
+                # 'abscissa_group_by': gtype,
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=FakeOrganisation._meta.get_field(abscissa),
+                    graph_type=gtype,
+                ),
+
+                'is_count': True,
+
+                'chart': 'barchart',
+            },
+        ))
 
         rgraph = self.refresh(rgraph)
         self.assertEqual(name,     rgraph.name)
@@ -803,16 +976,25 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         abscissa = 'created'
         gtype = RGT_DAY
-        response = self.client.post(url, data={'user':              user.pk,
-                                               'name':              rgraph.name,
-                                               'abscissa_field':    abscissa,
-                                               'abscissa_group_by': gtype,
-                                               'aggregate_field':   'total_vat',
-                                               'aggregate':         'avg',
-                                               'chart':             'barchart',
-                                              },
-                                   )
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'user': user.pk,
+                'name': rgraph.name,
+
+                # 'abscissa_field':    abscissa,
+                # 'abscissa_group_by': gtype,
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=FakeInvoice._meta.get_field(abscissa),
+                    graph_type=gtype,
+                ),
+
+                'aggregate_field': 'total_vat',
+                'aggregate':       'avg',
+
+                'chart': 'barchart',
+            },
+        ))
 
         rgraph = self.refresh(rgraph)
         self.assertEqual(abscissa,         rgraph.abscissa)
@@ -826,27 +1008,29 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.login()
         rgraph = self._create_invoice_report_n_graph(ordinate='total_vat__sum')
 
-        hidden_fname1 = 'expiration_date'
+        # hidden_fname1 = 'expiration_date'
         FieldsConfig.objects.create(
             content_type=FakeInvoice,
-            descriptions=[(hidden_fname1,  {FieldsConfig.HIDDEN: True}),
-                          ('total_no_vat', {FieldsConfig.HIDDEN: True}),
-                         ],
+            descriptions=[
+                # (hidden_fname1,  {FieldsConfig.HIDDEN: True}),
+                ('expiration_date', {FieldsConfig.HIDDEN: True}),
+                ('total_no_vat',    {FieldsConfig.HIDDEN: True}),
+            ],
         )
 
         response = self.assertGET200(self._build_edit_url(rgraph))
 
         with self.assertNoException():
             fields = response.context['form'].fields
-            abscissa_choices = fields['abscissa_field'].choices
+            # abscissa_choices = fields['abscissa_field'].choices
             aggrfields_choices = fields['aggregate_field'].choices
 
-        fields_choices = abscissa_choices[0]
-        self.assertEqual(_('Fields'), fields_choices[0])
-
-        choices_set = {c[0] for c in fields_choices[1]}
-        self.assertIn('created', choices_set)
-        self.assertNotIn(hidden_fname1, choices_set)
+        # fields_choices = abscissa_choices[0]
+        # self.assertEqual(_('Fields'), fields_choices[0])
+        #
+        # choices_set = {c[0] for c in fields_choices[1]}
+        # self.assertIn('created', choices_set)
+        # self.assertNotIn(hidden_fname1, choices_set)
 
         self.assertEqual([('total_vat', _('Total with VAT'))],
                          aggrfields_choices
@@ -863,27 +1047,35 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        url = self._build_edit_url(rgraph)
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            abscissa_choices = response.context['form'].fields['abscissa_field'].choices
-
-        fields_choices = abscissa_choices[0]
-        choices_set = {c[0] for c in fields_choices[1]}
-        self.assertIn('created', choices_set)
-        self.assertIn(hidden_fname, choices_set)
+        # url = self._build_edit_url(rgraph)
+        # response = self.assertGET200(url)
+        #
+        # with self.assertNoException():
+        #     abscissa_choices = response.context['form'].fields['abscissa_field'].choices
+        #
+        # fields_choices = abscissa_choices[0]
+        # choices_set = {c[0] for c in fields_choices[1]}
+        # self.assertIn('created', choices_set)
+        # self.assertIn(hidden_fname, choices_set)
 
         response = self.client.post(
-            url,
-            data={'user':              rgraph.user.pk,
-                  'name':              rgraph.name,
-                  'abscissa_field':    hidden_fname,
-                  'abscissa_group_by': rgraph.type,
-                  'aggregate_field':   'total_no_vat',
-                  'aggregate':         'sum',
-                  'chart':             'barchart',
-                 },
+            self._build_edit_url(rgraph),
+            data={
+                'user': rgraph.user.pk,
+                'name':  rgraph.name,
+
+                # 'abscissa_field':    hidden_fname,
+                # 'abscissa_group_by': rgraph.type,
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=FakeInvoice._meta.get_field(hidden_fname),
+                    graph_type=rgraph.type,
+                ),
+
+                'aggregate_field': 'total_no_vat',
+                'aggregate':       'sum',
+
+                'chart': 'barchart',
+            },
         )
         self.assertNoFormError(response)
 
@@ -919,41 +1111,68 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                         )
 
     def test_editview06(self):
-        "'days' field is emptied when useless"
+        "Custom field."
         user = self.login()
+        cf = CustomField.objects.create(
+            content_type=self.ct_orga,
+            name='Country',
+            field_type=CustomField.ENUM,
+        )
+
         report = self._create_simple_organisations_report()
 
-        days = 15
         rgraph = ReportGraph.objects.create(
-            user=user,
-            # report=report,
-            linked_report=report,
-            name=f'Number of orga(s) created / {days} days',
-            abscissa='creation_date',
-            type=RGT_RANGE, days=days,
+            user=user, linked_report=report,
+            name='Number of clans per countries',
+            type=RGT_CUSTOM_FK,
+            abscissa=str(cf.id),
             is_count=True,
-            chart='barchart',
         )
 
-        graph_type = RGT_MONTH
-        response = self.client.post(
-            self._build_edit_url(rgraph),
-            data={'user':              rgraph.user.pk,
-                  'name':              rgraph.name,
-                  'abscissa_field':    rgraph.abscissa,
-                  'abscissa_group_by': graph_type,
-                  'days':              days,  # <= should not be used
-                  'aggregate':         '',
-                  'is_count':          'on',
-                  'aggregate_field':   '',
-                  'chart':             rgraph.chart,
-                 },
-        )
-        self.assertNoFormError(response)
+        response = self.assertGET200(self._build_edit_url(rgraph))
 
-        rgraph = self.refresh(rgraph)
-        self.assertEqual(graph_type, rgraph.type)
-        self.assertIsNone(rgraph.days)
+        with self.assertNoException():
+            abscissa_f = response.context['form'].fields['abscissa']
+
+        self.assertSetEqual({f'custom_field-{cf.id}'},
+                            abscissa_f.not_hiddable_cell_keys
+                           )
+
+    # def test_editview06(self):
+    #     "'days' field is emptied when useless"
+    #     user = self.login()
+    #     report = self._create_simple_organisations_report()
+    #
+    #     days = 15
+    #     rgraph = ReportGraph.objects.create(
+    #         user=user,
+    #         linked_report=report,
+    #         name=f'Number of orga(s) created / {days} days',
+    #         abscissa='creation_date',
+    #         type=RGT_RANGE, days=days,
+    #         is_count=True,
+    #         chart='barchart',
+    #     )
+    #
+    #     graph_type = RGT_MONTH
+    #     response = self.client.post(
+    #         self._build_edit_url(rgraph),
+    #         data={'user':              rgraph.user.pk,
+    #               'name':              rgraph.name,
+    #               'abscissa_field':    rgraph.abscissa,
+    #               'abscissa_group_by': graph_type,
+    #               'days':              days,  # <= should not be used
+    #               'aggregate':         '',
+    #               'is_count':          'on',
+    #               'aggregate_field':   '',
+    #               'chart':             rgraph.chart,
+    #              },
+    #     )
+    #     self.assertNoFormError(response)
+    #
+    #     rgraph = self.refresh(rgraph)
+    #     self.assertEqual(graph_type, rgraph.type)
+    #     self.assertIsNone(rgraph.days)
 
     def test_fetch_with_fk_01(self):
         "Count."
@@ -2044,11 +2263,12 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         create_enum(entity=bran, value=lord)
 
         report = self._create_simple_contacts_report()
-        rgraph = ReportGraph.objects.create(user=user, linked_report=report,
-                                            name='Contacts by title',
-                                            abscissa=cf.id, type=RGT_CUSTOM_FK,
-                                            ordinate='', is_count=True,
-                                           )
+        rgraph = ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='Contacts by title',
+            abscissa=cf.id, type=RGT_CUSTOM_FK,
+            ordinate='', is_count=True,
+        )
 
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch(user)
@@ -2056,7 +2276,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual([hand.value, lord.value], x_asc)
 
         fmt = lambda val: '/tests/contacts?q_filter={}'.format(
-                self._serialize_qfilter(customfieldenum__value=val),
+            self._serialize_qfilter(customfieldenum__value=val),
         )
         self.assertEqual([1, fmt(hand.id)], y_asc[0])
         self.assertEqual([2, fmt(lord.id)], y_asc[1])
@@ -2102,7 +2322,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual([fight.value, smartness.value], x_asc)
 
         fmt = lambda val: '/tests/organisations?q_filter={}'.format(
-                self._serialize_qfilter(customfieldenum__value=val),
+            self._serialize_qfilter(customfieldenum__value=val),
         )
         self.assertEqual([90,  fmt(fight.id)],     y_asc[0])
         self.assertEqual([100, fmt(smartness.id)], y_asc[1])
@@ -2239,7 +2459,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                         )
 
     def test_create_instance_brick_config_item02(self):
-        "Link: regular field"
+        "Link: regular field."
         self.login()
         rgraph = self._create_documents_rgraph()
         create_ibci = rgraph.create_instance_brick_config_item
@@ -2410,7 +2630,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertGET404(self._build_fetchfrombrick_url(item, invoice, 'FOOBAR'))
 
     def test_add_graph_instance_brick02(self):
-        "Volatile column (RFT_FIELD)"
+        "Volatile column (RFT_FIELD)."
         user = self.login()
         rgraph = self._create_documents_rgraph()
 
@@ -2495,7 +2715,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertGET403(self._build_add_brick_url(rgraph))
 
     def test_add_graph_instance_brick02_error01(self):
-        "Volatile column (RFT_FIELD): invalid field"
+        "Volatile column (RFT_FIELD): invalid field."
         user = self.login()
         rgraph = self._create_documents_rgraph()
 
@@ -2543,7 +2763,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(_('The field is invalid (not a foreign key).'), fetcher.error)
 
     def test_add_graph_instance_brick02_error03(self):
-        "Volatile column (RFT_FIELD): field is not a FK to the given Entity type"
+        "Volatile column (RFT_FIELD): field is not a FK to the given Entity type."
         user = self.login()
         rgraph = self._create_documents_rgraph()
 
@@ -2557,7 +2777,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertIsNone(fetcher.error)
 
     def test_add_graph_instance_brick03(self):
-        "Volatile column (RFT_RELATION)"
+        "Volatile column (RFT_RELATION)."
         user = self.login()
         report = self._create_simple_contacts_report()
         rtype = RelationType.objects.get(pk=fake_constants.FAKE_REL_SUB_EMPLOYED_BY)
@@ -2566,11 +2786,12 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
             ('reports-object_related_doc',  'is linked to report', [FakeReportsDocument]),
         )[0]
 
-        rgraph = ReportGraph.objects.create(user=user, linked_report=report,
-                                            name='Number of created contacts / year',
-                                            abscissa='created', type=RGT_YEAR,
-                                            ordinate='', is_count=True,
-                                           )
+        rgraph = ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='Number of created contacts / year',
+            abscissa='created', type=RGT_YEAR,
+            ordinate='', is_count=True,
+        )
 
         url = self._build_add_brick_url(rgraph)
         response = self.assertGET200(url)
@@ -2757,12 +2978,13 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         user = self.login()
         report = self._create_simple_organisations_report()
-        rgraph = ReportGraph.objects.create(user=user, linked_report=report,
-                                            name='Number of organisation created by day',
-                                            abscissa='creation_date',
-                                            type=RGT_RANGE, days=1,
-                                            is_count=True,
-                                           )
+        rgraph = ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='Number of organisation created by day',
+            abscissa='creation_date',
+            type=RGT_RANGE, days=1,
+            is_count=True,
+        )
 
         interval_day_count = 300
         entities_per_day = 5
@@ -2794,13 +3016,14 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         user = self.login()
         report = self._create_simple_organisations_report()
-        rgraph = ReportGraph.objects.create(user=user, linked_report=report,
-                                            name='Sum of capital by creation date (period of 1 days)',
-                                            abscissa='creation_date',
-                                            type=RGT_RANGE, days=1,
-                                            ordinate='capital__sum',
-                                            is_count=False,
-                                           )
+        rgraph = ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='Sum of capital by creation date (period of 1 days)',
+            abscissa='creation_date',
+            type=RGT_RANGE, days=1,
+            ordinate='capital__sum',
+            is_count=False,
+        )
 
         interval_day_count = 300
         entities_per_day = 5
@@ -2825,13 +3048,14 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
     def test_inneredit(self):
         user = self.login()
         report = self._create_simple_organisations_report()
-        rgraph = ReportGraph.objects.create(user=user, linked_report=report,
-                                            name='capital per month of creation',
-                                            abscissa='created',
-                                            ordinate='capital__sum',
-                                            type=RGT_MONTH, is_count=False,
-                                            chart='barchart',
-                                           )
+        rgraph = ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='capital per month of creation',
+            abscissa='created',
+            ordinate='capital__sum',
+            type=RGT_MONTH, is_count=False,
+            chart='barchart',
+        )
 
         build_url = self.build_inneredit_url
         url = build_url(rgraph, 'name')
@@ -2840,7 +3064,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         name = rgraph.name.title()
         response = self.client.post(url, data={'entities_lbl': [str(rgraph)],
                                                'field_value':  name,
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(rgraph).name)
@@ -2856,13 +3080,14 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
     def test_clone_report(self):
         user = self.login()
         report = self._create_simple_organisations_report()
-        rgraph = ReportGraph.objects.create(user=user, linked_report=report,
-                                            name='capital per month of creation',
-                                            abscissa='created',
-                                            ordinate='capital__sum',
-                                            type=RGT_MONTH, is_count=False,
-                                            chart='barchart',
-                                           )
+        rgraph = ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='capital per month of creation',
+            abscissa='created',
+            ordinate='capital__sum',
+            type=RGT_MONTH, is_count=False,
+            chart='barchart',
+        )
 
         cloned_report = report.clone()
 
@@ -2900,13 +3125,21 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         name = 'Max capital per user'
         self.assertNoFormError(self.client.post(
             self._build_add_graph_url(report),
-            data={'user':            user.id,
-                'name':              name,
-                'abscissa_group_by': RGT_FK,
-                'chart':             'barchart',
-                'abscissa_field':    'user',
-                'aggregate_field':   'capital',
-                'aggregate':         'max',
+            data={
+                'user': user.id,
+                'name': name,
+
+                # 'abscissa_field':    'user',
+                # 'abscissa_group_by': RGT_FK,
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=FakeOrganisation._meta.get_field('user'),
+                    graph_type=RGT_FK,
+                ),
+
+                'aggregate_field': 'capital',
+                'aggregate':       'max',
+
+                'chart': 'barchart',
             })
         )
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)

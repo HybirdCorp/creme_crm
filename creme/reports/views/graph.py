@@ -19,14 +19,14 @@
 ################################################################################
 
 import logging
-# import warnings
+import warnings
 
 from django.db.models import FieldDoesNotExist, DateField, DateTimeField, ForeignKey
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core import utils
-from creme.creme_core.auth.decorators import login_required  # permission_required
+from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import InstanceBrickConfigItem, RelationType, CustomField
 from creme.creme_core.utils.meta import Order
@@ -47,8 +47,11 @@ ReportGraph = reports.get_rgraph_model()
 
 # Function views --------------------------------------------------------------
 
-# TODO: use prefix ?? (rfield-, cfield-, rtype-)
 def _get_available_report_graph_types(ct, name):
+    warnings.warn('reports.views.graph._get_available_report_graph_types() is deprecated.',
+                  DeprecationWarning
+                 )
+
     model = ct.model_class()
 
     try:
@@ -80,7 +83,6 @@ def _get_available_report_graph_types(ct, name):
             except RelationType.DoesNotExist:
                 logger.debug('get_available_report_graph_types(): "%s" is not a field or a RelationType id', name)
             else:
-                # TODO: check compatible ??
                 return (constants.RGT_RELATION,)
     else:
         if isinstance(field, (DateField, DateTimeField)):
@@ -97,17 +99,19 @@ def _get_available_report_graph_types(ct, name):
         logger.debug('get_available_report_graph_types(): "%s" is not a valid field for abscissa', name)
 
 
-# TODO: can be factorised with ReportGraphForm (use ReportGraphHand)
 @login_required
 @jsonify
-# @permission_required('reports') ??
 def get_available_report_graph_types(request, ct_id):
+    warnings.warn('reports.views.graph.get_available_report_graph_types() is deprecated.',
+                  DeprecationWarning
+                 )
+
     ct = utils.get_ct_or_404(ct_id)
-    abscissa_field = utils.get_from_POST_or_404(request.POST, 'record_id')  # TODO: POST ??!
+    abscissa_field = utils.get_from_POST_or_404(request.POST, 'record_id')
     gtypes = _get_available_report_graph_types(ct, abscissa_field)
 
     if gtypes is None:
-        result = [{'id': '', 'text': gettext('Choose an abscissa field')}]  # TODO: is the translation useful ??
+        result = [{'id': '', 'text': gettext('Choose an abscissa field')}]
     else:
         result = [{'id':   type_id,
                    'text': str(RGRAPH_HANDS_MAP[type_id].verbose_name),

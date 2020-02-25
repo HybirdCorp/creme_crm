@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from collections import defaultdict, OrderedDict
-import json
+from json import dumps as json_dump
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -120,7 +120,7 @@ class FieldConditionSelector(ChainedInput):
 
     def _build_operatorchoices(self, operators):
         return [
-            (json.dumps({'id': op.type_id, 'types': ' '.join(op.allowed_fieldtypes)}),
+            (json_dump({'id': op.type_id, 'types': ' '.join(op.allowed_fieldtypes)}),
              op.verbose_name,
             ) for op in operators
         ]
@@ -146,7 +146,7 @@ class FieldConditionSelector(ChainedInput):
             if choice_type in operators.FIELDTYPES_RELATED:
                 choice_value['ctype'] = ContentType.objects.get_for_model(field.remote_field.model).id
 
-        return category, (json.dumps(choice_value), choice_label)
+        return category, (json_dump(choice_value), choice_label)
 
     def _build_fieldchoices(self, fields):
         categories = defaultdict(list)  # Fields grouped by category (a category by FK)
@@ -270,7 +270,7 @@ class DateFieldsConditionsWidget(ConditionListWidget):
             is_null = field.null
 
         choice_value = {'name': name, 'type': 'daterange__null' if is_null else 'daterange'}
-        return category, (json.dumps(choice_value), choice_label)
+        return category, (json_dump(choice_value), choice_label)
 
     # TODO: factorise (see FieldConditionSelector)
     def _build_fieldchoices(self, fields):
@@ -320,7 +320,7 @@ class CustomFieldConditionSelector(FieldConditionSelector):
                         'type': CustomFieldConditionSelector.customfield_choicetype(customfield),
                        }
 
-        return '', (json.dumps(choice_value), choice_label)
+        return '', (json_dump(choice_value), choice_label)
 
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})

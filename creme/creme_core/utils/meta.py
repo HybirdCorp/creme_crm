@@ -277,7 +277,7 @@ class ModelFieldEnumerator:
         # We sort the choices by their value (alphabetical order), with first fields,
         # then sub-fields (fields of ForeignKey/ManyToManyField), then sub-sub-fields...
         for fields_info in self:
-            # These variable avoid ugettext/printer to be called to many times
+            # These variable avoid gettext/printer to be called too many times
             fk_vnames = [str(field.verbose_name) for field in fields_info[:-1]]
             terminal_vname = str(printer(fields_info[-1]))
 

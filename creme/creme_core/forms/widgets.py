@@ -23,6 +23,7 @@ from functools import partial
 from json import dumps as json_dump
 import logging
 from types import GeneratorType
+import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -812,11 +813,14 @@ class CalendarWidget(widgets.TextInput):
         return context
 
 
-# TODO: Only used in reports for now. Kept until *Selector widgets accept optgroup
 class DependentSelect(widgets.Select):
     template_name = 'creme_core/forms/widgets/dependent-select.html'
 
     def __init__(self, target_id, attrs=None, choices=()):
+        warnings.warn('creme_core.forms.widgets.DependentSelect is deprecated.',
+                      DeprecationWarning
+                     )
+
         self.target_id = target_id
         self.target_url = None
         self.target_val = None
