@@ -7,28 +7,43 @@ try:
     from datetime import datetime
     from decimal import Decimal
     from functools import partial
+    from json import dumps as json_dump
     from unittest import skipIf
 
     from django.contrib.contenttypes.models import ContentType
+    from django.db.models import Field as ModelField
     from django.urls import reverse
     from django.utils.timezone import now
 
-    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-            EntityCellFunctionField, EntityCellRelation)
-    from creme.creme_core.models import (CremePropertyType, CremeProperty,
-            HeaderFilter, Relation, RelationType)
+    from creme.creme_core.core.entity_cell import (
+        EntityCellRegularField,
+        EntityCellFunctionField,
+        EntityCellRelation,
+    )
+    from creme.creme_core.models import (
+        Relation, RelationType,
+        CremePropertyType, CremeProperty,
+        HeaderFilter,
+        CustomField,
+    )
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation,
-            FakeImage, FakeInvoice, FakeInvoiceLine)
+    from creme.creme_core.tests.fake_models import (
+        FakeContact, FakeOrganisation,
+        FakeImage,
+        FakeInvoice, FakeInvoiceLine,
+    )
     from creme.creme_core.tests.fake_constants import (
-            FAKE_REL_SUB_BILL_ISSUED as REL_SUB_BILL_ISSUED,
-            FAKE_REL_SUB_BILL_RECEIVED as REL_SUB_BILL_RECEIVED)
+        FAKE_REL_SUB_BILL_ISSUED as REL_SUB_BILL_ISSUED,
+        FAKE_REL_SUB_BILL_RECEIVED as REL_SUB_BILL_RECEIVED,
+    )
 
     from .fake_models import FakeReportsFolder, FakeReportsDocument
 
-    from .. import (report_model_is_custom, rgraph_model_is_custom,
-            get_report_model, get_rgraph_model)
+    from .. import (
+        report_model_is_custom, rgraph_model_is_custom,
+        get_report_model, get_rgraph_model,
+    )
     from ..constants import RFT_FIELD
     from ..models import Field
 
@@ -47,6 +62,32 @@ def skipIfCustomReport(test_func):
 
 def skipIfCustomRGraph(test_func):
     return skipIf(skip_rgraph_tests, 'Custom ReportGraph model in use')(test_func)
+
+
+class AbcissaFieldMixin:
+    def formfield_value_abscissa(self, *, abscissa, graph_type, parameter=''):
+        if isinstance(abscissa, ModelField):
+            key = f'regular_field-{abscissa.name}'
+        elif isinstance(abscissa, RelationType):
+            key = f'relation-{abscissa.id}'
+        elif isinstance(abscissa, CustomField):
+            key = f'custom_field-{abscissa.id}'
+        else:
+            key = ''
+
+        return json_dump({
+                'entity_cell': {
+                    'cell_key': key,
+                    'grouping_category': 'not used',
+                },
+                'graph_type': {
+                    'type_id': graph_type,
+                    'grouping_category': 'not used',
+                },
+                'parameter': parameter,
+            },
+            separators=(',', ':'),
+        )
 
 
 class BaseReportsTestCase(CremeTestCase):

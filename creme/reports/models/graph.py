@@ -51,7 +51,7 @@ class AbstractReportGraph(CremeEntity):
     abscissa = models.CharField(_('X axis'), max_length=100, editable=False)
     ordinate = models.CharField(_('Y axis'), max_length=100, editable=False)
     type     = models.PositiveIntegerField(_('Grouping'), editable=False, choices=GROUP_TYPES.items())
-    days     = models.PositiveIntegerField(_('Days'), blank=True, null=True)
+    days     = models.PositiveIntegerField(_('Days'), blank=True, null=True, editable=False)
     is_count = models.BooleanField(_('Make a count instead of aggregate?'), default=False)  # TODO: 'count' function instead ?
     chart    = models.CharField(_('Chart type'), max_length=100, null=True)
     asc      = models.BooleanField('ASC order', default=True, editable=False)  # TODO: not viewable ?

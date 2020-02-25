@@ -82,7 +82,8 @@ class Migration(migrations.Migration):
                                                              ],
                                                     )
                 ),
-                ('days', models.PositiveIntegerField(null=True, verbose_name='Days', blank=True)),
+                # ('days', models.PositiveIntegerField(null=True, verbose_name='Days', blank=True)),
+                ('days', models.PositiveIntegerField(null=True, verbose_name='Days', blank=True, editable=False)),
                 ('is_count', models.BooleanField(default=False, verbose_name='Make a count instead of aggregate?')),
                 ('chart', models.CharField(max_length=100, null=True, verbose_name='Chart type')),
                 ('asc', models.BooleanField(default=True, editable=False, verbose_name='ASC order')),

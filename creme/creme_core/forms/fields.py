@@ -1198,11 +1198,13 @@ class AjaxChoiceField(fields.ChoiceField):
     """
         Same as ChoiceField but bypass the choices validation due to the ajax filling
     """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        warnings.warn('creme_core.forms.fields.AjaxChoiceField is deprecated',
+                      DeprecationWarning
+                     )
+
     def clean(self, value):
-        """
-        Validates that the input is in self.choices.
-        """
-#        value = super(ChoiceField, self).clean(value)
         if value in self.empty_values:
             if self.required:
                 raise ValidationError(self.error_messages['required'], code='required')
@@ -1216,6 +1218,12 @@ class AjaxMultipleChoiceField(fields.MultipleChoiceField):
     """
         Same as MultipleChoiceField but bypass the choices validation due to the ajax filling
     """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        warnings.warn('creme_core.forms.fields.AjaxMultipleChoiceField is deprecated',
+                      DeprecationWarning
+                     )
+
     def clean(self, value):
         """
         Validates that the input is a list or tuple.
