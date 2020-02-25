@@ -17,6 +17,7 @@
     </script>
 {% endblock %}
 
+{% comment %}
 {% block before_content_1 %}
     <div class="buttons-list global-buttons">
         <ul>
@@ -29,26 +30,38 @@
         </ul>
     </div>
 {% endblock %}
+{% endcomment %}
 
 {% block content %}
-<div class="hat-bar-container">
-    <div class="hat-bar">
-        <div class="bar-icon">{% widget_icon instance=object size='brick-hat-bar' %}</div>
-        <div class="bar-title">
-            <h1>{% blocktrans with title=object|capfirst %}Preview of the report «{{title}}»{% endblocktrans %}</h1>
+    <div class="buttons-list global-buttons">
+        <ul>
+            <li>
+                <a class="menu_button menu-button-icon" href="{{object.get_absolute_url}}">{% trans 'Back to the report' as back_label %}
+                    {% widget_icon name='previous' size='global-button' label=back_label %}
+                    {{back_label}}
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="hat-bar-container">
+        <div class="hat-bar">
+            <div class="bar-icon">{% widget_icon instance=object size='brick-hat-bar' %}</div>
+            <div class="bar-title">
+                <h1>{% blocktrans with title=object|capfirst %}Preview of the report «{{title}}»{% endblocktrans %}</h1>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="report-preview">
-    <div class='scrollable-block-container report-preview-header'>
-        <form>
-        {% include 'reports/frags/report_preview_format.html' %}
-        </form>
-        <button type="button" name="generate">{% trans 'Preview' context 'reports-preview' %}</button>
-        <button type="button" name="download">{% trans 'Download as file' %}</button>
+    <div class="report-preview">
+        <div class='scrollable-block-container report-preview-header'>
+            <form>
+            {% include 'reports/frags/report_preview_format.html' %}
+            </form>
+            <button type="button" name="generate">{% trans 'Preview' context 'reports-preview' %}</button>
+            <button type="button" name="download">{% trans 'Download as file' %}</button>
+        </div>
+
+        {% include 'reports/bricks/preview.html' %}
     </div>
-
-    {% include 'reports/bricks/preview.html' %}
-</div>
 {% endblock %}

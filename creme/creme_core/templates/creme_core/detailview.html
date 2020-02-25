@@ -5,6 +5,7 @@
 
 {% block content_extra_class %}content-detail-view{% endblock %}
 
+{% comment %}
 {% block before_content_1 %}
     <div class="buttons-list global-buttons">
         <ul>
@@ -23,8 +24,28 @@
         </ul>
     </div>
 {% endblock %}
+{% endcomment %}
 
 {% block content %}
+    {% block global_buttons_container %}
+        <div class="buttons-list global-buttons">
+            <ul>
+            {% block global_buttons %}
+                {% block listview_button %}
+                    {% if object.get_lv_absolute_url %}
+                    <li>
+                        <a class="menu_button menu-button-icon" href="{{object.get_lv_absolute_url}}">{% trans 'Back to the list' as back_label %}
+                            {% widget_icon name='listview' size='global-button' label=back_label %}
+                            {{back_label}}
+                        </a>
+                    </li>
+                    {% endif %}
+                {% endblock %}
+            {% endblock %}
+            </ul>
+        </div>
+    {% endblock %}
+
     {% block view_title %}
         <div class="hat-bar-container">
             <div class="hat-bar">
@@ -37,32 +58,35 @@
         </div>
     {% endblock %}
 
-    <div class="buttons-list instance-buttons ui-creme-hatmenubar ui-creme-widget widget-auto" widget="ui-creme-hatmenubar">
-        <ul>
-            {% block instance_buttons %}{% endblock %}
-        </ul>
-    </div>
+    {% block instance_buttons_container %}
+        <div class="buttons-list instance-buttons ui-creme-hatmenubar ui-creme-widget widget-auto" widget="ui-creme-hatmenubar">
+            <ul>
+              {% block instance_buttons %}{% endblock %}
+            </ul>
+        </div>
+    {% endblock %}
 
-{# NB: we use "spaceless" in order to use ':empty' selector in CSS #}
-{% spaceless %}
-    <div class="north">
-        {% block detail_view_top %}{% endblock %}
-    </div>
+    {% block main_content %}
+      {% spaceless %}{# NB: we use "spaceless" in order to use ':empty' selector in CSS #}
+        <div class="north">
+          {% block detail_view_top %}{% endblock %}
+        </div>
 
-    <div class="column west">
-        {% block detail_view_left %}{% endblock %}
-    </div>
+        <div class="column west">
+          {% block detail_view_left %}{% endblock %}
+        </div>
 
-    <div class="column east last">
-        {% block detail_view_right %}{% endblock %}
-    </div>
+        <div class="column east last">
+          {% block detail_view_right %}{% endblock %}
+        </div>
 
-     <div class="clear"></div>
+        <div class="clear"></div>
 
-    <div class="south">
-        {% block detail_view_bottom %}{% endblock %}
-    </div>
-{% endspaceless %}
+        <div class="south">
+          {% block detail_view_bottom %}{% endblock %}
+        </div>
+      {% endspaceless %}
 
-    {% brick_end %}
+      {% brick_end %}
+    {% endblock %}
 {% endblock %}
