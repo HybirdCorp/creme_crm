@@ -399,23 +399,27 @@ def phonecall_panel(request):
     person_id  = get_from_GET_or_404(GET, 'person_id')
     number     = get_from_GET_or_404(GET, 'number')
 
-    context = {'type_id':         act_constants.ACTIVITYTYPE_PHONECALL,
-               'call_start':      call_start,
-               'number':          number,
-               'user_contact_id': user.linked_contact.id,
-              }
+    context = {
+        'type_id':         act_constants.ACTIVITYTYPE_PHONECALL,
+        'call_start':      call_start,
+        'number':          number,
+        'user_contact_id': user.linked_contact.id,
+    }
 
     pcall = None
     pcall_id = GET.get('pcall_id')
     if pcall_id is not None:
-        context['phone_call'] = pcall = get_object_or_404(Activity, id=pcall_id,
-                                                          type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-                                                         )
+        context['phone_call'] = pcall = get_object_or_404(
+            Activity,
+            id=pcall_id,
+            type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+        )
         user.has_perm_to_view_or_die(pcall)
 
-        context['participant_contacts'] = [r.object_entity.get_real_entity()
-                                              for r in pcall.get_participant_relations()
-                                          ]
+        context['participant_contacts'] = [
+            r.object_entity.get_real_entity()
+                for r in pcall.get_participant_relations()
+        ]
         context['participant_organisations'] = [*orga_subjects(pcall)]
 
     person = get_object_or_404(CremeEntity, pk=person_id).get_real_entity()
@@ -449,7 +453,7 @@ def _get_pcall(request):
         type_id=act_constants.ACTIVITYTYPE_PHONECALL,
     )
 
-    request.user.has_perm_to_change_or_die(pcall)
+    request.user.has_perm_to_change_or_die(pcall)  # TODO: test
 
     return pcall
 
@@ -482,7 +486,7 @@ def _get_person_or_404(person_id, user):
 
 def _get_participants(user, POST):
     me = user.linked_contact
-    user.has_perm_to_link_or_die(me)
+    user.has_perm_to_link_or_die(me)   # TODO: test
 
     person_id = get_from_POST_or_404(POST, 'person_id', int)
 
@@ -490,7 +494,7 @@ def _get_participants(user, POST):
         raise ConflictError(_('You cannot create a call to yourself.'))
 
     person = _get_person_or_404(person_id, user)
-    user.has_perm_to_link_or_die(person)
+    user.has_perm_to_link_or_die(person)  # TODO: test
 
     return me, person
 
@@ -578,7 +582,7 @@ def _create_failed_pcall(request):
     start = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))
 
     user = request.user
-    user.has_perm_to_create_or_die(Activity)
+    user.has_perm_to_create_or_die(Activity)  # TODO: test
 
     me, person = _get_participants(user, POST)
 
@@ -665,7 +669,7 @@ def mark_as_favorite(request, entity_id):
     entity = get_object_or_404(CremeEntity, id=entity_id)
     user = request.user
 
-    user.has_perm_to_view_or_die(entity)
+    user.has_perm_to_view_or_die(entity)  # TODO: test
     MobileFavorite.objects.get_or_create(entity=entity, user=user)
 
     return HttpResponse()
