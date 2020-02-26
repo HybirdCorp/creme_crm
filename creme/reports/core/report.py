@@ -74,7 +74,7 @@ REPORT_HANDS_MAP = ReportHandRegistry()
 
 
 class ReportHand:
-    "Class that computes values of a report column"
+    "Class which computes values of a report column (ie reports.models.Field)."
     verbose_name = 'OVERLOADME'
 
     class ValueError(Exception):
@@ -164,24 +164,24 @@ class ReportHand:
         return
 
     def _handle_report_values(self, entity, user, scope):
-        "@param entity CremeEntity instance, or None"
+        "@param entity: CremeEntity instance, or None"
         return [rfield.get_value(entity, user, scope) for rfield in self._report_field.sub_report.columns]
 
     def _related_model_value_extractor(self, instance):
         return instance
 
     def get_linkable_ctypes(self):
-        """Return the ContentType that are compatique, in order to link a subreport.
-        @return A sequence of ContentTypes instances, or None (that means "can not link").
-                An empty sequence means "All kind of CremeEntities are linkable"
+        """Return the ContentTypes which are compatible, in order to link a sub-report.
+        @return A sequence of ContentTypes instances, or None (that means "can not link") ;
+                an empty sequence means "All kind of CremeEntities are linkable".
         """
         return None
 
     def get_value(self, entity, user, scope):
         """Extract the value from entity for a Report cell.
-        @param entity CremeEntity instance.
-        @param user User instance ; used to compute credentials.
-        @param scope QuerySet where 'entity' it coming from ; used by aggregates.
+        @param entity: CremeEntity instance.
+        @param user: User instance ; used to compute credentials.
+        @param scope: QuerySet where 'entity' it coming from ; used by aggregates.
         """
         value = None
 
@@ -195,7 +195,7 @@ class ReportHand:
 
     @property
     def hidden(self):
-        "See FieldsConfig"
+        "See FieldsConfig."
         return False
 
     @property
