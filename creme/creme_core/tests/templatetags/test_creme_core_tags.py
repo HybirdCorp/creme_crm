@@ -106,6 +106,42 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self.assertEqual('False#True#False#True', render.strip())
 
+    def test_sub(self):
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{{x|sub:3}}#{{13|sub:6}}'
+                               )
+            render = template.render(Context({'x': 5}))
+
+        self.assertEqual('2#7', render.strip())
+
+    def test_mult(self):
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{{x|mult:3}}#{{10|mult:6}}'
+                               )
+            render = template.render(Context({'x': 5}))
+
+        self.assertEqual('15#60', render.strip())
+
+    def test_idiv(self):
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{{x|idiv:2}}#{{13|idiv:3}}'
+                               )
+            render = template.render(Context({'x': 5}))
+
+        self.assertEqual('2#4', render.strip())
+
+    def test_mod(self):
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{{x|mod:3}}#{{13|mod:6}}'
+                               )
+            render = template.render(Context({'x': 5}))
+
+        self.assertEqual('2#1', render.strip())
+
     def test_format(self):
         with self.assertNoException():
             template = Template("{% load creme_core_tags %}"
@@ -502,7 +538,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
         )
 
     def test_url_join6(self):
-        "Escaping"
+        "Escaping."
         url = '/creme_core/search'
         search = 'orange & lemons'
 
