@@ -1314,31 +1314,31 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertDeleteSimilar(status=404, subject=subject_entity, rtype=rtype, object=object_entity)
         self.assertStillExists(relation)
 
-    def _aux_test_delete_all(self):
-        self.assertEqual(0, Relation.objects.count())
-        create_entity = CremeEntity.objects.create
-        subject  = self.subject = create_entity(user=self.user)
-        object01 = create_entity(user=self.user)
-        object02 = create_entity(user=self.other_user)
-
-        create_rtype = lambda *args, **kwargs: RelationType.create(*args, **kwargs)[0]
-        rtypes = [create_rtype(('test-subject_foobar1', 'is loving'),
-                               ('test-object_foobar1',  'is loved by')
-                              ),
-                  create_rtype(('test-subject_foobar2', 'is loving'),
-                               ('test-object_foobar2',  'is loved by')
-                              ),
-                  create_rtype(('test-subject_foobar3', 'is loving'),
-                               ('test-object_foobar3',  'is loved by'),
-                               is_internal=True
-                              ),
-                 ]
-        create_rel = partial(Relation.objects.create, subject_entity=subject)
-
-        for rtype in rtypes:
-            create_rel(type=rtype, object_entity=object01, user=self.user)
-            create_rel(type=rtype, object_entity=object02, user=self.other_user)
-
+    # def _aux_test_delete_all(self):
+    #     self.assertEqual(0, Relation.objects.count())
+    #     create_entity = CremeEntity.objects.create
+    #     subject  = self.subject = create_entity(user=self.user)
+    #     object01 = create_entity(user=self.user)
+    #     object02 = create_entity(user=self.other_user)
+    #
+    #     create_rtype = lambda *args, **kwargs: RelationType.create(*args, **kwargs)[0]
+    #     rtypes = [create_rtype(('test-subject_foobar1', 'is loving'),
+    #                            ('test-object_foobar1',  'is loved by')
+    #                           ),
+    #               create_rtype(('test-subject_foobar2', 'is loving'),
+    #                            ('test-object_foobar2',  'is loved by')
+    #                           ),
+    #               create_rtype(('test-subject_foobar3', 'is loving'),
+    #                            ('test-object_foobar3',  'is loved by'),
+    #                            is_internal=True
+    #                           ),
+    #              ]
+    #     create_rel = partial(Relation.objects.create, subject_entity=subject)
+    #
+    #     for rtype in rtypes:
+    #         create_rel(type=rtype, object_entity=object01, user=self.user)
+    #         create_rel(type=rtype, object_entity=object02, user=self.other_user)
+    #
     # def test_delete_all01(self):
     #     self.login()
     #     self._aux_test_delete_all()
