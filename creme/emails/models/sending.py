@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@
 from json import loads as json_load
 import logging
 from time import sleep
+import warnings
 
 from django.conf import settings
 from django.core.mail import send_mail, get_connection
@@ -107,10 +108,18 @@ class EmailSending(CremeModel):
                     date=date_format(localtime(self.sending_date), 'DATETIME_FORMAT'),
                 )
 
-    def get_mails(self):  # TODO: remove
+    def get_mails(self):
+        warnings.warn('EmailSending.get_mails() is deprecated ;'
+                      'use .mails_set instead.',
+                      DeprecationWarning
+                     )
         return self.mails_set.all()
 
     def get_unsent_mails_count(self):
+        warnings.warn('EmailSending.get_unsent_mails_count() is deprecated ;'
+                      'use the property unsent_mails instead.',
+                      DeprecationWarning
+                     )
         return self.mails_set.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]).count()
 
     def get_absolute_url(self):
@@ -165,6 +174,10 @@ class EmailSending(CremeModel):
             return SENDING_STATE_ERROR
 
         # TODO: close the connection ??
+
+    @property
+    def unsent_mails(self):
+        return self.mails_set.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR])
 
 
 class LightWeightEmail(_Email):
