@@ -161,11 +161,6 @@ def eq(x, y):
 
 
 @register.filter
-def sub(object1, object2):
-    return object1 - object2
-
-
-@register.filter
 def and_op(object1, object2):
     return object1 and object2
 
@@ -201,20 +196,32 @@ def in_list(obj, sequence):
     return obj in sequence
 
 
+# NB: |add is provided by Django
 @register.filter
-def idiv(integer, integer2):
-    return integer / integer2
+def sub(x, y):
+    return x - y
 
 
 @register.filter
-def mult(integer, integer2):
-    return integer * integer2
+def mult(x, y):
+    return x * y
 
 
-# TODO: divisibleby in builtins....
 @register.filter
-def mod(integer, integer2):
-    return integer % integer2
+def idiv(integer1, integer2):
+    # return integer1 / integer2
+    return integer1 // integer2
+
+
+# TODO ?
+# @register.filter
+# def div(x, y):
+#     return x / y
+
+
+@register.filter
+def mod(integer1, integer2):
+    return integer1 % integer2
 
 
 @register.filter(name='range')
@@ -222,6 +229,7 @@ def range_filter(integer, start=0):
     return range(start, start + integer)
 
 
+# NB: seems not used any more...
 @register.filter
 def is_iterable(iterable):
     return hasattr(iterable, '__iter__')
@@ -237,6 +245,7 @@ def format_string(value, format_str):
     return format_str % value
 
 
+# NB: seems not used any more...
 @register.filter
 def to_timestamp(date):
     return date.strftime('%s')
