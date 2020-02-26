@@ -14,8 +14,9 @@ try:
     from django.utils.timezone import now, localtime
     from django.utils.translation import gettext as _
 
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import Relation, SetCredentials
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.models import Relation
 
     from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
@@ -332,6 +333,22 @@ class MobileTestCase(CremeTestCase):
         response = self.assertGET(302, url)
         self.assertRedirects(response, '{}?next={}'.format(reverse('mobile__login'), url))
 
+    def test_create_contact04(self):
+        "Not allowed."
+        self.login(is_superuser=False, creatable_models=[Organisation])
+
+        response = self.assertGET403(self.CREATE_CONTACT_URL)
+        self.assertTemplateUsed(response, 'mobile/error.html')
+        self.assertEqual(
+            response.context['msg'],
+            _('You do not have access to this page, please contact your administrator.')
+        )
+
+    def test_create_contact05(self):
+        "Not super-user."
+        self.login(is_superuser=False, creatable_models=[Contact])
+        self.assertGET200(self.CREATE_CONTACT_URL)
+
     @skipIfCustomOrganisation
     def test_create_orga01(self):
         self.login()
@@ -368,7 +385,7 @@ class MobileTestCase(CremeTestCase):
         response = self.assertPOST200(url, follow=True,
                                       data={'name':         name,
                                             'is_favorite':  True,
-                                           }
+                                           },
                                      )
         self.assertNoFormError(response)
 
@@ -376,10 +393,20 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual([ff], [f.entity.get_real_entity() for f in self.user.mobile_favorite.all()])
 
     def test_create_orga03(self):
-        "Not logged"
+        "Not logged."
         url = self.CREATE_ORGA_URL
         response = self.assertGET(302, url)
         self.assertRedirects(response, '{}?next={}'.format(reverse('mobile__login'), url))
+
+    def test_create_orga04(self):
+        self.login(is_superuser=False, creatable_models=[Contact])
+
+        response = self.assertGET403(self.CREATE_ORGA_URL)
+        self.assertTemplateUsed(response, 'mobile/error.html')
+        self.assertEqual(
+            response.context['msg'],
+            _('You do not have access to this page, please contact your administrator.')
+        )
 
     def test_search_persons01(self):
         self.login()
@@ -422,7 +449,7 @@ class MobileTestCase(CremeTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_search_persons03(self):
-        "Search in organisations which employ ('employed by')"
+        "Search in organisations which employ ('employed by')."
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -448,7 +475,7 @@ class MobileTestCase(CremeTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_search_persons04(self):
-        "Search in organisations which employ ('managed by')"
+        "Search in organisations which employ ('managed by')."
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -472,7 +499,7 @@ class MobileTestCase(CremeTestCase):
 
     @skipIfCustomActivity
     def test_start_activity01(self):
-        "Start & end are past"
+        "Start & end are past."
         self.login()
 
         meeting = self._create_meeting('Meeting#1', participant=self.user.linked_contact,
@@ -492,7 +519,7 @@ class MobileTestCase(CremeTestCase):
 
     @skipIfCustomActivity
     def test_start_activity02(self):
-        "Start & end are in the future"
+        "Start & end are in the future."
         self.login()
 
         meeting = self._create_meeting('Meeting#1', participant=self.user.linked_contact, 
@@ -509,7 +536,7 @@ class MobileTestCase(CremeTestCase):
 
     @skipIfCustomActivity
     def test_start_activity03(self):
-        "Floating time activity"
+        "Floating time activity."
         user = self.login()
         now_val = now()
 
@@ -535,7 +562,7 @@ class MobileTestCase(CremeTestCase):
 
     @skipIfCustomActivity
     def test_start_activity04(self):
-        "Floating activity"
+        "Floating activity."
         user = self.login()
 
         f_act = self._create_floating('Floating#1', participant=user.linked_contact)
@@ -548,11 +575,47 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(NARROW, f_act.floating_type)
 
     @skipIfCustomActivity
+    def test_start_activity05(self):
+        "Not allowed."
+        self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.VIEW |
+                  # EntityCredentials.CHANGE |
+                  EntityCredentials.DELETE |
+                  EntityCredentials.LINK |
+                  EntityCredentials.UNLINK,
+        )
+
+        meeting = self._create_meeting('Meeting#1',
+                                       participant=self.user.linked_contact,
+                                       start=now() + timedelta(minutes=30),
+                                      )
+        self.assertPOST403(self._build_start_url(meeting), follow=True)
+
+    @skipIfCustomActivity
+    def test_start_activity06(self):
+        "Not super-user."
+        self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.CHANGE,
+        )
+
+        meeting = self._create_meeting('Meeting#1',
+                                       participant=self.user.linked_contact,
+                                       start=now() + timedelta(minutes=30),
+                                      )
+        self.assertPOST200(self._build_start_url(meeting), follow=True)
+
+    @skipIfCustomActivity
     def test_stop_activity01(self):
         user = self.login()
 
         meeting = self._create_meeting('Meeting#1', participant=user.linked_contact,
-                                       start=now() - timedelta(minutes=30)
+                                       start=now() - timedelta(minutes=30),
                                       )
 
         url = self._build_stop_url(meeting)
@@ -574,6 +637,42 @@ class MobileTestCase(CremeTestCase):
                                        start=now() + timedelta(minutes=30),
                                       )
         self.assertPOST409(self._build_stop_url(meeting))
+
+    @skipIfCustomActivity
+    def test_stop_activity03(self):
+        "Not allowed."
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.VIEW |
+                  # EntityCredentials.CHANGE |
+                  EntityCredentials.DELETE |
+                  EntityCredentials.LINK |
+                  EntityCredentials.UNLINK,
+        )
+
+        meeting = self._create_meeting('Meeting#1',
+                                       participant=user.linked_contact,
+                                       start=now() - timedelta(minutes=30),
+                                      )
+        self.assertPOST403(self._build_stop_url(meeting))
+
+    @skipIfCustomActivity
+    def test_stop_activity04(self):
+        "Not super-user."
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.CHANGE,
+        )
+
+        meeting = self._create_meeting('Meeting#1',
+                                       participant=user.linked_contact,
+                                       start=now() - timedelta(minutes=30),
+                                      )
+        self.assertPOST200(self._build_stop_url(meeting), follow=True)
 
     @skipIfCustomActivity
     def test_activities_portal01(self):
@@ -676,7 +775,7 @@ class MobileTestCase(CremeTestCase):
 
     @skipIfCustomContact
     def test_phone_call_panel01(self):
-        "Create with the number of a contact"
+        "Create with the number of a contact."
         user = self.login()
 
         url = self.PCALL_PANEL_URL
@@ -684,12 +783,14 @@ class MobileTestCase(CremeTestCase):
 
         gally = Contact.objects.create(user=user, first_name='Gally', last_name='Alita')
         phone = '4546465'
-        response = self.assertGET200(url,
-                                     data={'call_start': '2014-04-17T16:18:05.0Z',
-                                           'person_id':  gally.id,
-                                           'number':     phone,
-                                          }
-                                    )
+        response = self.assertGET200(
+            url,
+            data={
+                'call_start': '2014-04-17T16:18:05.0Z',
+                'person_id':  gally.id,
+                'number':     phone,
+            },
+        )
         self.assertTemplateUsed(response, 'mobile/workflow_panel.html')
 
         with self.assertNoException():
@@ -702,11 +803,12 @@ class MobileTestCase(CremeTestCase):
             user_contact_id = context['user_contact_id']
 
         self.assertEqual(ACTIVITYTYPE_PHONECALL, type_id)
-        self.assertEqual(self.create_datetime(utc=True, year=2014, month=4, day=17,
-                                              hour=16, minute=18, second=5,
-                                             ),
-                         call_start
-                        )
+        self.assertEqual(
+            self.create_datetime(utc=True, year=2014, month=4, day=17,
+                                 hour=16, minute=18, second=5,
+                                ),
+            call_start
+        )
         self.assertEqual(gally, contact)
         self.assertNotIn('called_orga', context)
         self.assertNotIn('phone_call', context)
@@ -722,23 +824,26 @@ class MobileTestCase(CremeTestCase):
 
         zalem = Organisation.objects.create(user=user, name='Zalem')
         mobile = '896255'
-        response = self.assertGET200(self.PCALL_PANEL_URL,
-                                     data={'call_start': '2014-04-18T16:18:05.0Z',
-                                           'person_id':  zalem.id,
-                                           'number':     mobile,
-                                          }
-                                    )
+        response = self.assertGET200(
+            self.PCALL_PANEL_URL,
+            data={
+                'call_start': '2014-04-18T16:18:05.0Z',
+                'person_id':  zalem.id,
+                'number':     mobile,
+            },
+        )
 
         with self.assertNoException():
             context = response.context
             orga    = context['called_orga']
             orgas   = context['participant_organisations']
 
-        self.assertEqual(self.create_datetime(utc=True, year=2014, month=4, day=18,
-                                              hour=16, minute=18, second=5,
-                                             ),
-                         context['call_start']
-                        )
+        self.assertEqual(
+            self.create_datetime(utc=True, year=2014, month=4, day=18,
+                                 hour=16, minute=18, second=5,
+                                ),
+            context['call_start']
+        )
         self.assertNotIn('called_contact', context)
         self.assertEqual(zalem, orga)
         self.assertNotIn('phone_call', context)
@@ -750,7 +855,7 @@ class MobileTestCase(CremeTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomActivity
     def test_phone_call_panel03(self):
-        "Update an existing phone call"
+        "Update an existing phone call."
         user = self.login()
         contact = user.linked_contact
 
@@ -767,13 +872,15 @@ class MobileTestCase(CremeTestCase):
         # TODO: subject -> participate ?
         create_rel(subject_entity=kuzu, type_id=REL_SUB_ACTIVITY_SUBJECT)
 
-        response = self.assertGET200(self.PCALL_PANEL_URL,
-                                     data={'call_start': '2014-04-18T16:18:05.0Z',
-                                           'pcall_id':   pcall.id,
-                                           'person_id':  zalem.id,
-                                           'number':     '896255',
-                                          }
-                                    )
+        response = self.assertGET200(
+            self.PCALL_PANEL_URL,
+            data={
+                'call_start': '2014-04-18T16:18:05.0Z',
+                'pcall_id':   pcall.id,
+                'person_id':  zalem.id,
+                'number':     '896255',
+            },
+        )
 
         with self.assertNoException():
             context    = response.context
@@ -788,8 +895,52 @@ class MobileTestCase(CremeTestCase):
         self.assertSetEqual({gally, contact}, {*contacts})
         self.assertListEqual([kuzu], orgas)
 
+    @skipIfCustomOrganisation
     @skipIfCustomActivity
-    def test_phone_call_wf_done(self):
+    def test_phone_call_panel04(self):
+        "Not allowed."
+        user = self.login(is_superuser=False)
+
+        pcall = self._create_pcall('Phone call#1', participant=user.linked_contact)
+        zalem = Organisation.objects.create(user=user, name='Zalem')
+        self.assertGET403(
+            self.PCALL_PANEL_URL,
+            data={
+                'call_start': '2014-04-18T16:18:05.0Z',
+                'pcall_id':   pcall.id,
+                'person_id':  zalem.id,
+                'number':     '896255',
+            },
+        )
+
+    @skipIfCustomOrganisation
+    @skipIfCustomActivity
+    def test_phone_call_panel05(self):
+        "Not super-user."
+        user = self.login(is_superuser=False)
+
+        create_sc = partial(SetCredentials.objects.create,
+                            role=self.role,
+                            set_type=SetCredentials.ESET_ALL,
+                            value=EntityCredentials.VIEW,
+                           )
+        create_sc(ctype=Activity)
+        create_sc(ctype=Organisation)
+
+        pcall = self._create_pcall('Phone call#1', participant=user.linked_contact)
+        zalem = Organisation.objects.create(user=user, name='Zalem')
+        self.assertGET200(
+            self.PCALL_PANEL_URL,
+            data={
+                'call_start': '2014-04-18T16:18:05.0Z',
+                'pcall_id':   pcall.id,
+                'person_id':  zalem.id,
+                'number':     '896255',
+            },
+        )
+
+    @skipIfCustomActivity
+    def test_phone_call_wf_done01(self):
         user = self.login()
         contact = user.linked_contact
 
@@ -808,8 +959,30 @@ class MobileTestCase(CremeTestCase):
         self.assertPOST404(reverse('mobile__pcall_wf_done', args=(meeting.id,)))
 
     @skipIfCustomActivity
+    def test_phone_call_wf_done02(self):
+        "Not allowed."
+        user = self.login(is_superuser=False)
+        pcall = self._create_pcall('Phone call#1', participant=user.linked_contact)
+        self.assertPOST403(reverse('mobile__pcall_wf_done', args=(pcall.id,)), follow=True)
+
+
+    @skipIfCustomActivity
+    def test_phone_call_wf_done03(self):
+        "Not usper-user."
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.CHANGE,
+            ctype=Activity,
+        )
+
+        pcall = self._create_pcall('Phone call#1', participant=user.linked_contact)
+        self.assertPOST200(reverse('mobile__pcall_wf_done', args=(pcall.id,)), follow=True)
+
+    @skipIfCustomActivity
     def test_phone_call_wf_failed01(self):
-        "Existing Phone call (with no minutes)"
+        "Existing Phone call (with no minutes)."
         user = self.login()
 
         pcall = self._create_pcall('Phone call#1', status_id=STATUS_PLANNED,
@@ -820,11 +993,14 @@ class MobileTestCase(CremeTestCase):
         self.assertGET404(url)
 
         minutes = 'argg'
-        self.assertPOST200(url, data={'pcall_id':   str(pcall.id),
-                                      'call_start': '2014-04-22T16:34:28.0Z',
-                                      'minutes':    minutes,
-                                     }
-                          )
+        self.assertPOST200(
+            url,
+            data={
+                'pcall_id':   str(pcall.id),
+                'call_start': '2014-04-22T16:34:28.0Z',
+                'minutes':    minutes,
+            },
+        )
 
         pcall = self.refresh(pcall)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
@@ -858,18 +1034,19 @@ class MobileTestCase(CremeTestCase):
                            data={'call_start': '2014-04-18T16:17:28.0Z',
                                  'person_id':  str(other_contact.id),
                                  'minutes':    minutes,
-                                }
+                                },
                           )
 
         pcall = self._get_created_pcall(pcall_ids)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
         self.assertEqual(STATUS_DONE,                      pcall.status_id)
         self.assertEqual(minutes,                          pcall.minutes)
-        self.assertEqual({user.linked_contact, other_contact},
-                         {r.object_entity.get_real_entity()
-                                for r in pcall.get_participant_relations()
-                         }
-                        )
+        self.assertSetEqual(
+            {user.linked_contact, other_contact},
+            {r.object_entity.get_real_entity()
+                for r in pcall.get_participant_relations()
+            }
+        )
 
         start = self.create_datetime(utc=True, year=2014, month=4, day=18,
                                      hour=16, minute=17, second=28
@@ -890,12 +1067,12 @@ class MobileTestCase(CremeTestCase):
                            )
 
     def test_phone_call_wf_failed04(self):
-        "Second participant == first participant"
+        "Second participant == first participant."
         user = self.login()
         self.assertPOST409(self.WF_FAILED_URL,
                            data={'call_start': '2014-04-18T16:17:28.0Z',
                                  'person_id':  str(user.linked_contact.id),
-                                }
+                                },
                           )
 
     @skipIfCustomOrganisation
@@ -908,20 +1085,22 @@ class MobileTestCase(CremeTestCase):
         self.assertPOST200(self.WF_FAILED_URL,
                            data={'call_start': '2014-04-18T16:17:28.0Z',
                                  'person_id':  kuzu.id,
-                                }
+                                },
                           )
 
         pcall = self._get_created_pcall(pcall_ids)
-        self.assertEqual([user.linked_contact],
-                         [r.object_entity.get_real_entity()
-                                for r in pcall.get_participant_relations()
-                         ]
-                        )
-        self.assertEqual([kuzu],
-                         [r.object_entity.get_real_entity()
-                                for r in pcall.get_subject_relations()
-                         ]
-                        )
+        self.assertListEqual(
+            [user.linked_contact],
+            [r.object_entity.get_real_entity()
+                for r in pcall.get_participant_relations()
+            ]
+        )
+        self.assertListEqual(
+            [kuzu],
+            [r.object_entity.get_real_entity()
+                for r in pcall.get_subject_relations()
+            ]
+        )
 
     @skipIfCustomActivity
     def test_phone_call_wf_postponed01(self):
@@ -985,7 +1164,7 @@ class MobileTestCase(CremeTestCase):
         self.assertPOST200(self.WF_POSTPONED_URL,
                            data={'call_start': '2014-04-22T11:54:28.0Z',
                                  'person_id':  other_part.id,
-                                }
+                                },
                           )
 
         pcalls = sorted(self._get_created_pcalls(pcall_ids), key=lambda c: c.id)
@@ -995,20 +1174,22 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, failed_pcall.sub_type_id)
         self.assertEqual(STATUS_DONE,                      failed_pcall.status_id)
         self.assertEqual(NARROW,                           failed_pcall.floating_type)
-        self.assertEqual(participants,
-                         {r.object_entity.get_real_entity()
-                            for r in failed_pcall.get_participant_relations()
-                         }
-                        )
-        self.assertEqual(_('{status} call to {person} from Creme Mobile').format(
-                                status=_('Failed'),
-                                person=other_part,
-                            ),
-                         failed_pcall.title
-                        )
+        self.assertSetEqual(
+            participants,
+            {r.object_entity.get_real_entity()
+                for r in failed_pcall.get_participant_relations()
+            }
+        )
+        self.assertEqual(
+            _('{status} call to {person} from Creme Mobile').format(
+                status=_('Failed'),
+                person=other_part,
+            ),
+            failed_pcall.title
+        )
 
         start = self.create_datetime(utc=True, year=2014, month=4, day=22,
-                                     hour=11, minute=54, second=28
+                                     hour=11, minute=54, second=28,
                                     )
         self.assertEqual(start, failed_pcall.start)
         self.assertEqual(start, failed_pcall.end)
@@ -1017,11 +1198,12 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pp_pcall.sub_type_id)
         self.assertEqual(FLOATING_TIME,                      pp_pcall.floating_type)
         self.assertIsNone(pp_pcall.status_id)
-        self.assertEqual(participants,
-                         {r.object_entity.get_real_entity()
-                            for r in pp_pcall.get_participant_relations()
-                         }
-                        )
+        self.assertSetEqual(
+            participants,
+            {r.object_entity.get_real_entity()
+                for r in pp_pcall.get_participant_relations()
+            }
+        )
 
         tomorrow = (now() + relativedelta(days=1)).day
 
@@ -1051,7 +1233,7 @@ class MobileTestCase(CremeTestCase):
         self.assertGET404(url)
         self.assertPOST200(url, data={'pcall_id':   pcall.id,
                                       'call_start': '2014-03-10T11:30:28.0Z',
-                                     }
+                                     },
                           )
 
         pcall = self.refresh(pcall)
@@ -1073,7 +1255,7 @@ class MobileTestCase(CremeTestCase):
         self.assertPOST404(self.WF_LASTED5MIN_URL,
                            data={'pcall_id':    pcall.id,
                                  'call_start': '10-03-2014 10:30:28',
-                                }
+                                },
                           )
 
     @skipIfCustomActivity
@@ -1088,29 +1270,31 @@ class MobileTestCase(CremeTestCase):
                            data={'call_start': '2014-04-18T16:17:28.0Z',
                                  'person_id':  other_contact.id,
                                  'minutes':    minutes,
-                                }
+                                },
                           )
 
         pcall = self._get_created_pcall(pcall_ids)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type_id)
         self.assertEqual(STATUS_DONE, pcall.status_id)
         self.assertEqual(minutes, pcall.minutes)
-        self.assertEqual({self.user.linked_contact, other_contact},
-                         {r.object_entity.get_real_entity()
-                            for r in pcall.get_participant_relations()
-                         }
-                        )
+        self.assertSetEqual(
+            {self.user.linked_contact, other_contact},
+            {r.object_entity.get_real_entity()
+                for r in pcall.get_participant_relations()
+            }
+        )
 
         create_dt = partial(self.create_datetime, utc=True, year=2014, month=4, day=18, hour=16)
         self.assertEqual(create_dt(minute=17, second=28), pcall.start)
         self.assertEqual(create_dt(minute=22, second=28), pcall.end)
 
-        self.assertEqual(_('{status} call to {person} from Creme Mobile').format(
-                                status=_('Successful'),
-                                person=other_contact,
-                            ),
-                         pcall.title
-                        )
+        self.assertEqual(
+            _('{status} call to {person} from Creme Mobile').format(
+                status=_('Successful'),
+                person=other_contact,
+            ),
+            pcall.title
+        )
 
     def test_phone_call_wf_lasted5min04(self):
         "Second participant == first participant"
@@ -1118,7 +1302,7 @@ class MobileTestCase(CremeTestCase):
         self.assertPOST409(self.WF_LASTED5MIN_URL,
                            data={'call_start': '2014-04-18T16:17:28.0Z',
                                  'person_id':  user.linked_contact.id,
-                                }
+                                },
                           )
 
     @skipIfCustomActivity
@@ -1131,11 +1315,13 @@ class MobileTestCase(CremeTestCase):
                                   )
 
         start = now() - timedelta(minutes=2)
-        self.assertPOST200(self.WF_LASTED5MIN_URL,
-                           data={'pcall_id':   pcall.id,
-                                 'call_start': start.strftime("%Y-%m-%dT%H:%M:%S.%fZ"), #TODO: in utils ??
-                                }
-                          )
+        self.assertPOST200(
+            self.WF_LASTED5MIN_URL,
+            data={
+                'pcall_id':   pcall.id,
+                'call_start': start.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),  # TODO: in utils ??
+            },
+        )
 
         pcall = self.refresh(pcall)
         self.assertEqual(STATUS_DONE, pcall.status_id)
@@ -1156,11 +1342,14 @@ class MobileTestCase(CremeTestCase):
 
         start = now() - timedelta(minutes=5)
         minutes = 'yata'
-        self.assertPOST200(url, data={'pcall_id':   pcall.id,
-                                      'call_start': start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-                                      'minutes':    minutes,
-                                     }
-                          )
+        self.assertPOST200(
+            url,
+            data={
+                'pcall_id':   pcall.id,
+                'call_start': start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+                'minutes':    minutes,
+            },
+        )
 
         pcall = self.refresh(pcall)
         self.assertEqual(STATUS_DONE, pcall.status_id)
@@ -1171,10 +1360,13 @@ class MobileTestCase(CremeTestCase):
 
         # ------
         meeting = self._create_meeting('Meeting#1', participant=contact)
-        self.assertPOST404(url, data={'pcall_id':   meeting.id,
-                                      'call_start': start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-                                     }
-                          )
+        self.assertPOST404(
+            url,
+            data={
+                'pcall_id':   meeting.id,
+                'call_start': start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+            },
+        )
 
     @skipIfCustomActivity
     def test_phone_call_wf_just_done02(self):
@@ -1183,33 +1375,37 @@ class MobileTestCase(CremeTestCase):
         pcall_ids = self._existing_pcall_ids()
 
         start = now() - timedelta(minutes=5)
-        self.assertPOST200(self.WF_JUSTDONE_URL,
-                           data={'call_start': start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-                                 'person_id':  other_contact.id,
-                                }
-                          )
+        self.assertPOST200(
+            self.WF_JUSTDONE_URL,
+            data={
+                'call_start': start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+                'person_id':  other_contact.id,
+            },
+        )
 
         pcall = self._get_created_pcall(pcall_ids)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type_id)
         self.assertEqual(STATUS_DONE, pcall.status_id)
-        self.assertEqual({user.linked_contact, other_contact},
-                         {r.object_entity.get_real_entity()
-                                for r in pcall.get_participant_relations()
-                         }
-                        )
+        self.assertSetEqual(
+            {user.linked_contact, other_contact},
+            {r.object_entity.get_real_entity()
+                for r in pcall.get_participant_relations()
+            }
+        )
         self.assertDatetimesAlmostEqual(start, pcall.start)
         self.assertDatetimesAlmostEqual(now(), pcall.end)
 
-        self.assertEqual(_('{status} call to {person} from Creme Mobile').format(
-                                status=_('Successful'),
-                                person=other_contact,
-                            ),
-                         pcall.title
-                        )
+        self.assertEqual(
+            _('{status} call to {person} from Creme Mobile').format(
+                status=_('Successful'),
+                person=other_contact,
+            ),
+            pcall.title
+        )
 
     @skipIfCustomActivity
     def test_phone_call_wf_just_done03(self):
-        "Concatenate old & new minutes"
+        "Concatenate old & new minutes."
         user = self.login()
         contact = user.linked_contact
 
@@ -1218,12 +1414,14 @@ class MobileTestCase(CremeTestCase):
                                   )
 
         start = now() - timedelta(minutes=5)
-        self.assertPOST200(self.WF_JUSTDONE_URL,
-                           data={'pcall_id':   pcall.id,
-                                 'call_start': start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-                                 'minutes':    'noooooo !',
-                                }
-                          )
+        self.assertPOST200(
+            self.WF_JUSTDONE_URL,
+            data={
+                'pcall_id':   pcall.id,
+                'call_start': start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+                'minutes':    'noooooo !',
+            },
+        )
 
         pcall = self.refresh(pcall)
         self.assertEqual(STATUS_DONE, pcall.status_id)
