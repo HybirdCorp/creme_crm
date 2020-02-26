@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-# import warnings
+import warnings
 
 from itertools import zip_longest
 from re import compile as compile_re
@@ -299,8 +299,7 @@ def get_efilter_conditions(efilter, user):
     return [*efilter.get_verbose_conditions(user)]
 
 
-# TODO: filter ?
-# TODO: useless ?
+# TODO: deprecate ? (not used)
 @register.simple_tag
 def get_entity_summary(entity, user):
     return entity.get_entity_summary(user)
@@ -518,6 +517,10 @@ class HasPermToNode(TemplateNode):
 
 @register.simple_tag(takes_context=True)
 def creme_media_url(context, url):
+    warnings.warn('{% creme_media_url %} is deprecated ; '
+                  'use the icon system instead.',
+                  DeprecationWarning
+                 )
     return get_creme_media_url(context.get('THEME_NAME') or settings.THEMES[0][0], url)
 
 
