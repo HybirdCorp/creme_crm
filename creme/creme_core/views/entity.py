@@ -513,9 +513,10 @@ class MergeFormMixin:
     merge_form_registry = merge_form_registry
 
     def get_merge_form_class(self, model):
-        form_cls = merge_form_factory(model=model,
-                                      merge_form_registry=self.merge_form_registry,
-                                     )
+        form_cls = merge_form_factory(
+            model=model,
+            merge_form_registry=self.get_merge_form_registry(),
+        )
 
         if form_cls is None:
             raise ConflictError('This type of entity cannot be merged')
