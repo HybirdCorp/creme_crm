@@ -110,7 +110,7 @@ class _CremeTestCase:
         return self.user
 
     def assertCountOccurrences(self, member, container, count, msg=None):
-        """Like self.assertEqual(count, container.count(member),
+        """Like <self.assertEqual(count, container.count(member))>
         but with a nicer default message.
         """
         occ_count = container.count(member)
@@ -282,8 +282,8 @@ class _CremeTestCase:
 
     def assertNoFormsetError(self, response, formset, form_index, field=None, status=200):
         """
-        @param field Field name (can be '__all__' for gloabl errors) or None
-                     (which means 'No error at all').
+        @param field: Field name (can be '__all__' for global errors) or None
+               (which means 'No error at all').
         """
         status_code = response.status_code
 
