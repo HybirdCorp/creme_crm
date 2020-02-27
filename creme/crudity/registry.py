@@ -200,13 +200,13 @@ class CRUDityRegistry:
             # TODO: error if model is already associated with the model ? (or a log in order to override cleanly)
             self._backends[backend.model] = backend
 
-    def get_backends(self) -> Iterator[Type[CrudityBackend]]:
+    def get_backends(self) -> Iterator[Type[CrudityBackend]]:  # TODO: rename ?
         """Get all registered backend
-         @returns: A list of backend ; BEWARE it's classes, not instances.
+         @returns: An iterator of backend classes.
         """
         return iter(self._backends.values())
 
-    def get_backend(self, model: Type[CremeEntity]) -> Type[CrudityBackend]:
+    def get_backend(self, model: Type[CremeEntity]) -> Type[CrudityBackend]:  # TODO: remove ?
         """Get the registered backend class for the model"""
         try:
             return self._backends[model]
