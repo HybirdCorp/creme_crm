@@ -292,9 +292,10 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             'language_value': {'name': 'language_value', 'type': 'xsd:integer', 'nillable': 'true'},
         }
 
-        for element_node in xml.findall('f{xsd}element'):
+        for element_node in xml.findall(f'{xsd}element'):
             name = element_node.get('name')
-            xsd_element_attrs = xsd_elements.get(name)
+            # xsd_element_attrs = xsd_elements.get(name)
+            xsd_element_attrs = xsd_elements.pop(name, None)
 
             if xsd_element_attrs is None:
                 self.fail(f'There is at least an extra node named: {name}')
@@ -312,6 +313,11 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                         f'Value of attribute "{attr}" in node "{name}" is wrong: '
                         f'expected "{expected}", got "{value}".'
                     )
+
+        self.assertFalse(
+            xsd_elements,
+            'The elements with the following names have not been found: {}'.format(xsd_elements)
+        )
 
     @skipIfCustomDocument
     def test_myschema_xsd02(self):
@@ -357,8 +363,9 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             'filedata':    {'name': 'filedata', 'type': 'my:requiredBase64Binary'},
        }
 
-        for element_node in xml.findall('f{xsd}element'):
-            xsd_element_attrs = xsd_elements.get(element_node.get('name'))
+        for element_node in xml.findall(f'{xsd}element'):
+            # xsd_element_attrs = xsd_elements.get(element_node.get('name'))
+            xsd_element_attrs = xsd_elements.pop(element_node.get('name'))
 
             if xsd_element_attrs is None:
                 self.fail('There is at least an extra node named: {}'.format(element_node.get('name')))
@@ -367,6 +374,11 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
             for attr in element_node.keys():
                 self.assertEqual(xsd_element_attrs[attr], element_node.get(attr))
+
+        self.assertFalse(
+            xsd_elements,
+            'The elements with the following names have not been found: {}'.format(xsd_elements)
+        )
 
     def test_template_xml01(self):
         backend = self._get_backend(ContactFakeBackend, subject='create_contact',
