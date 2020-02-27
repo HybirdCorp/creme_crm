@@ -590,7 +590,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
         image_field = get_field('image')
         self.assertTrue(image_field.get_tag('enumerable'))
-        self.assertTrue(issubclass(image_field.remote_field.model, CremeEntity))
+        self.assertIsSubclass(image_field.remote_field.model, CremeEntity)
         self.assertEqual(field_choicetype(image_field), 'fk__null')
 
         self.assertEqual(field_choicetype(get_field('languages')), 'enum__null')
