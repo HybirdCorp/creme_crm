@@ -36,7 +36,7 @@ from django.utils.encoding import smart_text
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from ..auth.entity_credentials import EntityCredentials
-from ..constants import REL_SUB_HAS
+# from ..constants import REL_SUB_HAS
 from ..core import validators
 from ..gui import quick_forms
 from ..models import RelationType, CremeEntity, EntityFilter
@@ -585,7 +585,8 @@ class RelationEntityField(EntityCredsJSONField):
     }
     value_type: Type = dict
 
-    def __init__(self, *, allowed_rtypes=(REL_SUB_HAS, ), autocomplete=False, **kwargs):
+    # def __init__(self, *, allowed_rtypes=(REL_SUB_HAS, ), autocomplete=False, **kwargs):
+    def __init__(self, *, allowed_rtypes=RelationType.objects.none(), autocomplete=False, **kwargs):
         super().__init__(**kwargs)
         self.autocomplete = autocomplete
         self.allowed_rtypes = allowed_rtypes
