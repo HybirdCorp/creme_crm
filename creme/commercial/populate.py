@@ -31,10 +31,11 @@ from creme.creme_core.models import (
     RelationType, CremePropertyType, SettingValue, Job,
     BrickDetailviewLocation, SearchConfigItem, ButtonMenuItem, HeaderFilter,
 )
+from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.utils.date_period import date_period_registry
 
-from creme import persons
+from creme import persons, products
 
 from creme import commercial
 from . import bricks, buttons, constants, creme_jobs, setting_keys
@@ -44,29 +45,47 @@ logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme_core', 'persons']
+    dependencies = ['creme_core', 'persons', 'products']
 
     def populate(self):
-        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_SOLD_BY).exists()
+        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_SOLD).exists()
 
         Act = commercial.get_act_model()
         ActObjectivePattern = commercial.get_pattern_model()
         Strategy = commercial.get_strategy_model()
         Contact = persons.get_contact_model()
         Organisation = persons.get_organisation_model()
+        Product = products.get_product_model()
+        Service = products.get_service_model()
 
-        RelationType.create((constants.REL_SUB_SOLD_BY,       _('has sold')),
-                            (constants.REL_OBJ_SOLD_BY,       _('has been sold by')))
-        RelationType.create((constants.REL_SUB_COMPLETE_GOAL, _('completes a goal of the commercial action')),
-                            (constants.REL_OBJ_COMPLETE_GOAL, _('is completed thanks to'), [Act]))
+        RelationType.create(
+            (constants.REL_SUB_SOLD, _('has sold'),         [Contact, Organisation]),
+            (constants.REL_OBJ_SOLD, _('has been sold by'), [Product, Service]),
+        )
+
+        complete_goal_models = {*creme_registry.iter_entity_models()}
+        complete_goal_models.discard(Strategy)
+        if apps.is_installed('creme.billing'):
+            from creme import billing
+            from creme.billing.registry import lines_registry
+
+            complete_goal_models.discard(billing.get_credit_note_model())
+            complete_goal_models.discard(billing.get_template_base_model())
+            complete_goal_models.difference_update(lines_registry)
+
+        RelationType.create(
+            (constants.REL_SUB_COMPLETE_GOAL, _('completes a goal of the commercial action'), complete_goal_models),
+            (constants.REL_OBJ_COMPLETE_GOAL, _('is completed thanks to'),                    [Act]),
+        )
 
         # ---------------------------
         CremePropertyType.create(constants.PROP_IS_A_SALESMAN, _('is a salesman'), [Contact])
 
         # ---------------------------
-        MarketSegment.objects.get_or_create(property_type=None,
-                                            defaults={'name': _('All the organisations')},
-                                           )
+        MarketSegment.objects.get_or_create(
+            property_type=None,
+            defaults={'name': _('All the organisations')},
+        )
 
         # ---------------------------
         for i, title in enumerate([_('Phone calls'), _('Show'), _('Demo')], start=1):
@@ -89,7 +108,7 @@ class Populator(BasePopulator):
                   name=_('Objective pattern view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'segment'}),
-                             ]
+                             ],
                  )
 
         # ---------------------------

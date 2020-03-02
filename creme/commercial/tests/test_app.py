@@ -1,19 +1,28 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.apps import apps
     from django.test.utils import override_settings
     from django.urls import reverse
     from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import CremeProperty
+    from creme.creme_core.models import CremeProperty, RelationType
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.tests.base import skipIfCustomContact
 
     from ..models import ActType, MarketSegment
-    from ..constants import (REL_SUB_SOLD_BY, REL_OBJ_SOLD_BY,
-            REL_SUB_COMPLETE_GOAL, PROP_IS_A_SALESMAN)
-    from .base import Act, Contact
+    from ..constants import (
+        REL_SUB_SOLD, REL_OBJ_SOLD,
+        REL_SUB_SOLD_BY, REL_OBJ_SOLD_BY,
+        REL_SUB_COMPLETE_GOAL, REL_OBJ_COMPLETE_GOAL,
+        PROP_IS_A_SALESMAN,
+    )
+    from .base import (
+        Act,
+        Contact, Organisation,
+        Product, Service,
+    )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -23,9 +32,33 @@ class CommercialTestCase(CremeTestCase):
     SALESMEN_URL = reverse('commercial__list_salesmen')
 
     def test_populate(self):
-        self.get_relationtype_or_fail(REL_SUB_SOLD_BY)
-        self.get_relationtype_or_fail(REL_OBJ_SOLD_BY)
-        self.get_relationtype_or_fail(REL_SUB_COMPLETE_GOAL, [], [Act])
+        self.assertEqual(REL_SUB_SOLD, REL_SUB_SOLD_BY)
+        self.assertEqual(REL_OBJ_SOLD, REL_OBJ_SOLD_BY)
+
+        # self.get_relationtype_or_fail(REL_SUB_SOLD_BY)
+        # self.get_relationtype_or_fail(REL_OBJ_SOLD_BY)
+        sold = self.get_relationtype_or_fail(
+            REL_SUB_SOLD, [Contact, Organisation], [Product, Service],
+        )
+        self.assertEqual(REL_OBJ_SOLD, sold.symmetric_type_id)
+
+        # self.get_relationtype_or_fail(REL_SUB_COMPLETE_GOAL, [], [Act])
+        complete_goal = self.get_object_or_fail(RelationType, id=REL_SUB_COMPLETE_GOAL)
+        self.assertEqual(REL_OBJ_COMPLETE_GOAL, complete_goal.symmetric_type_id)
+        self.assertEqual([Act], [ct.model_class() for ct in complete_goal.object_ctypes.all()])
+        subject_models = {ct.model_class() for ct in complete_goal.subject_ctypes.all()}
+        self.assertIn(Contact,      subject_models)
+        self.assertIn(Organisation, subject_models)
+
+        if apps.is_installed('creme.billing'):
+            from creme import billing
+            self.assertIn(billing.get_invoice_model(),     subject_models)
+            self.assertIn(billing.get_quote_model(),       subject_models)
+            self.assertIn(billing.get_sales_order_model(), subject_models)
+
+            self.assertNotIn(billing.get_product_line_model(),  subject_models)
+            self.assertNotIn(billing.get_service_line_model(),  subject_models)
+            self.assertNotIn(billing.get_template_base_model(), subject_models)
 
         self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [Contact])
 
