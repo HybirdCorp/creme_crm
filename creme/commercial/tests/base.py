@@ -11,7 +11,13 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme import persons, activities, opportunities, commercial
+    from creme import (
+        persons,
+        activities,
+        products,
+        opportunities,
+        commercial,
+    )
 
     from ..models import MarketSegment
 
@@ -29,6 +35,9 @@ Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 
 Activity = activities.get_activity_model()
+
+Product = products.get_product_model()
+Service = products.get_service_model()
 
 Opportunity = opportunities.get_opportunity_model()
 

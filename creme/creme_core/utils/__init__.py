@@ -27,7 +27,11 @@
 import logging
 import sys
 import traceback
-from typing import Any, Union, TypeVar, List, Tuple, Iterable, Callable, Iterator
+from typing import (
+    TypeVar, Union,
+    Callable, Iterable, Iterator,
+    List, Tuple,
+)
 import warnings
 
 from django.contrib.contenttypes.models import ContentType
