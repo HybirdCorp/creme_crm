@@ -11,18 +11,26 @@ try:
     from django.utils.translation import gettext as _
 
     from .. import fake_forms
-    from ..fake_models import FakeContact, FakeOrganisation, FakeImage
+
     from .base import FieldTestCase
+
     from creme.creme_core.auth import EntityCredentials
-    from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.forms.fields import (JSONField,
-            GenericEntityField, MultiGenericEntityField,
-            RelationEntityField, MultiRelationEntityField,
-            CreatorEntityField, MultiCreatorEntityField,
-            FilteredEntityTypeField)
+    # from creme.creme_core.constants import REL_SUB_HAS
+    from creme.creme_core.forms.fields import (
+        JSONField,
+        GenericEntityField, MultiGenericEntityField,
+        RelationEntityField, MultiRelationEntityField,
+        CreatorEntityField, MultiCreatorEntityField,
+        FilteredEntityTypeField,
+    )
     from creme.creme_core.gui.quick_forms import quickforms_registry
-    from creme.creme_core.models import (CremeProperty, CremePropertyType,
-            RelationType, CremeEntity, EntityFilter, SetCredentials)
+    from creme.creme_core.models import (
+        CremeProperty, CremePropertyType,
+        RelationType, CremeEntity,
+        EntityFilter,
+        SetCredentials,
+        FakeContact, FakeOrganisation, FakeImage,
+    )
     from creme.creme_core.utils import creme_entity_content_types
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
@@ -32,12 +40,13 @@ class _JSONFieldBaseTestCase(FieldTestCase):
     def login_as_basic_user(self):
         user = self.login(is_superuser=False)
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                  EntityCredentials.DELETE |
+                  EntityCredentials.LINK | EntityCredentials.UNLINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         return user
 
@@ -841,9 +850,10 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertIn(rtype1.id, rtypes_ids)
 
     def test_default_rtypes(self):
-        self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
-                             [*RelationEntityField()._get_allowed_rtypes_objects()]
-                            )
+        # self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
+        #                      [*RelationEntityField()._get_allowed_rtypes_objects()]
+        #                     )
+        self.assertFalse(RelationEntityField()._get_allowed_rtypes_objects())
 
     def test_rtypes_property(self):
         rtype1 = self.create_loves_rtype()[0]
@@ -851,13 +861,16 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field = RelationEntityField()
         self.assertTrue(isinstance(field.allowed_rtypes, QuerySet))
-        self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
-                             [*field.allowed_rtypes]
-                            )
-        self.assertListEqual([REL_SUB_HAS], [*field._get_allowed_rtypes_ids()])
-        self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
-                             [*field._get_allowed_rtypes_objects()]
-                            )
+        # self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
+        #                      [*field.allowed_rtypes]
+        #                     )
+        self.assertFalse(field.allowed_rtypes)
+        # self.assertListEqual([REL_SUB_HAS], [*field._get_allowed_rtypes_ids()])
+        self.assertFalse(field._get_allowed_rtypes_ids())
+        # self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
+        #                      [*field._get_allowed_rtypes_objects()]
+        #                     )
+        self.assertFalse(field._get_allowed_rtypes_objects())
 
         field.allowed_rtypes = [rtype1.id, rtype2.id] # <===
         rtypes = [*field._get_allowed_rtypes_objects()]
@@ -871,13 +884,14 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field = RelationEntityField()
         self.assertTrue(isinstance(field.allowed_rtypes, QuerySet))
-        self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
-                             [*field.allowed_rtypes]
-                            )
-        self.assertListEqual([REL_SUB_HAS], [*field._get_allowed_rtypes_ids()])
-        self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
-                             [*field._get_allowed_rtypes_objects()]
-                            )
+        # self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
+        #                      [*field.allowed_rtypes]
+        #                     )
+        self.assertFalse(field.allowed_rtypes)
+        # self.assertListEqual([REL_SUB_HAS], [*field._get_allowed_rtypes_ids()])
+        # self.assertListEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
+        #                      [*field._get_allowed_rtypes_objects()]
+        #                     )
 
         field.allowed_rtypes = RelationType.objects.filter(pk__in=[rtype1.id, rtype2.id]) # <===
         rtypes = [*field._get_allowed_rtypes_objects()]
@@ -1178,15 +1192,16 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertIn(rtype1.id, rtypes_ids)
 
     def test_default_rtypes(self):
-        self.assertListEqual(
-            [RelationType.objects.get(pk=REL_SUB_HAS)],
-            [*MultiRelationEntityField()._get_allowed_rtypes_objects()]
-        )
+        # self.assertListEqual(
+        #     [RelationType.objects.get(pk=REL_SUB_HAS)],
+        #     [*MultiRelationEntityField()._get_allowed_rtypes_objects()]
+        # )
+        self.assertFalse(MultiRelationEntityField().allowed_rtypes)
 
     def test_clean_empty_required(self):
         clean = MultiRelationEntityField(required=True).clean
         self.assertFieldValidationError(MultiRelationEntityField, 'required', clean, None)
-        self.assertFieldValidationError(MultiRelationEntityField, 'required', clean, "[]")
+        self.assertFieldValidationError(MultiRelationEntityField, 'required', clean, '[]')
 
     def test_clean_empty_not_required(self):
         MultiRelationEntityField(required=False).clean(None)

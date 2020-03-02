@@ -315,7 +315,10 @@ class GraphHandConstraintsTestCase(CremeTestCase):
     def test_relationship(self):
         constraint = GHCCRelation(model=FakeContact)
 
-        rtype1 = RelationType.objects.get(id=REL_SUB_HAS)
+        rtype1 = RelationType.create(
+            ('test-subject_likes', 'likes'),
+            ('test-object_likes',  'is liked by')
+        )[0]
         self.assertTrue(constraint.check_cell(EntityCellRelation(FakeContact, rtype1)))
 
         rtype2 = RelationType.create(
@@ -1191,7 +1194,11 @@ class AbscissaFieldTestCase(AbcissaFieldMixin, FieldTestCase):
         "Relation."
         field = AbscissaField(abscissa_constraints=abscissa_constraints)
 
-        rtype = RelationType.objects.get(id=REL_SUB_HAS)
+        rtype = RelationType.create(
+            ('test-subject_likes', 'likes'),
+            ('test-object_likes',  'is liked by')
+        )[0]
+
         graph_type = constants.RGT_RELATION
 
         abs_info = field.clean(self.formfield_value_abscissa(
