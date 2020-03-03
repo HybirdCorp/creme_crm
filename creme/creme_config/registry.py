@@ -196,8 +196,6 @@ class _ModelConfig:
                None means a form is generated.
         @param url_name: Name of an URL (without argument)
                None means "creme_config__create_instance" will be used.
-        @param enabled: Boolean ; False means the user cannot create new
-               instance of the model (default: True)
         @param enable_func: Function which takes 1 argument (the user doing the request)
                & return a boolean (False means the user cannot create an instance of the model).
                <None> means the user can always create.
