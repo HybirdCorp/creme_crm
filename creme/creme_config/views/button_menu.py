@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,10 +42,10 @@ class ButtonMenuWizard(generic.wizard.CremeWizardViewPopup):
         def save(self, commit=False):
             return super().save(commit=commit)
 
-    form_list = (
+    form_list = [
         _ResourceStep,
         button_forms.ButtonMenuEditForm,
-    )
+    ]
     title = _('New buttons configuration')
     submit_label = _('Save the configuration')
     permissions = 'creme_core.can_admin'

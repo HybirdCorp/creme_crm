@@ -46,14 +46,14 @@ class Portal(generic.BricksView):
 
 
 class RoleCreationWizard(generic.CremeModelCreationWizardPopup):
-    form_list = (
+    form_list = [
         role_forms.UserRoleAppsStep,
         role_forms.UserRoleAdminAppsStep,
         role_forms.UserRoleCreatableCTypesStep,
         role_forms.UserRoleExportableCTypesStep,
         role_forms.UserRoleCredentialsGeneralStep,
         role_forms.UserRoleCredentialsFilterStep,
-    )
+    ]
     model = UserRole
     permissions = SUPERUSER_PERM
 
@@ -95,12 +95,12 @@ class RoleEditionWizard(generic.CremeModelEditionWizardPopup):
     pk_url_kwarg = 'role_id'
     permissions = SUPERUSER_PERM
 
-    form_list = (
+    form_list = [
         role_forms.UserRoleAppsStep,
         role_forms.UserRoleAdminAppsStep,
         role_forms.UserRoleCreatableCTypesStep,
         role_forms.UserRoleExportableCTypesStep,
-    )
+    ]
 
     def done_save(self, form_list):
         for form in form_list:
@@ -122,10 +122,10 @@ class CredentialsAddingWizard(generic.CremeModelEditionWizardPopup):
     class LastStep(role_forms.CredentialsFilterStep):
         step_submit_label = _('Add the credentials')
 
-    form_list = (
+    form_list = [
         role_forms.CredentialsGeneralStep,
         LastStep,
-    )
+    ]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -148,10 +148,10 @@ class CredentialsEditionWizard(generic.CremeModelEditionWizardPopup):
     permissions = SUPERUSER_PERM
     title = _('Edit credentials for «{role}»')
 
-    form_list = (
+    form_list = [
         role_forms.CredentialsGeneralStep,
         role_forms.CredentialsFilterStep,
-    )
+    ]
 
     def done_save(self, form_list):
         for form in form_list:
