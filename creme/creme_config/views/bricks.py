@@ -81,10 +81,10 @@ class CustomBrickWizard(base.ConfigModelCreationWizard):
         class Meta(bricks_forms.CustomBrickConfigItemEditForm.Meta):
             exclude = ('name',)
 
-    form_list = (
+    form_list = [
         _ResourceStep,
         _ConfigStep,
-    )
+    ]
     title = _('New custom block')
     submit_label = _('Save the block')
 
@@ -226,10 +226,10 @@ class RelationCTypeBrickWizard(base.ConfigModelEditionWizard):
     class _ContentTypeStep(bricks_forms.RTypeBrickItemAddCtypeForm):
         step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
 
-    form_list = (
+    form_list = [
         _ContentTypeStep,
         bricks_forms.RTypeBrickItemEditCtypeForm,
-    )
+    ]
     title = _('New customised type for «{object}»')
     submit_label = _('Save the configuration')
 

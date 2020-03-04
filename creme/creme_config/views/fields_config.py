@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2019  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -60,10 +60,10 @@ class FieldsConfigWizard(base.ConfigModelCreationWizard):
             if not self.ctypes:
                 raise ConflictError(_('All configurable types of resource are already configured.'))
 
-    form_list = (
+    form_list = [
         _ModelStep,
         fconf_forms.FieldsConfigEditForm,
-    )
+    ]
     model = FieldsConfig
 
     def __init__(self, *args, **kwargs):
