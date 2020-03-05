@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.contrib.auth.backends import ModelBackend
 
-from . import SUPERUSER_PERM
+from . import SUPERUSER_PERM, STAFF_PERM
 from .entity_credentials import EntityCredentials
 
 _ADD_PREFIX = 'add_'
@@ -31,6 +31,15 @@ class EntityBackend(ModelBackend):
     supports_object_permissions = True
 
     def has_perm(self, user_obj, perm, obj=None):
+        if perm == STAFF_PERM:
+            return user_obj.is_staff
+
+        if perm == SUPERUSER_PERM:
+            return user_obj.is_superuser
+
+        if user_obj.is_superuser:
+            return True
+
         if obj is not None:
             return EntityCredentials(user_obj, obj).has_perm(perm)
 
@@ -38,8 +47,10 @@ class EntityBackend(ModelBackend):
             app_name, dot, action_name = perm.partition('.')
 
             if not action_name:
-                return user_obj.is_superuser if app_name == SUPERUSER_PERM else \
-                       user_obj.has_perm_to_access(app_name)
+                # return user_obj.is_superuser if app_name == SUPERUSER_PERM else \
+                #        user_obj.has_perm_to_access(app_name)
+
+                return user_obj.has_perm_to_access(app_name)
 
             if action_name == 'can_admin':
                 return user_obj.has_perm_to_admin(app_name)

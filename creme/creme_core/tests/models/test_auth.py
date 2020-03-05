@@ -15,7 +15,10 @@ try:
     from ..base import CremeTestCase, skipIfNotInstalled
 
     from creme.creme_core import constants
-    from creme.creme_core.auth import EntityCredentials, SUPERUSER_PERM
+    from creme.creme_core.auth import (
+        EntityCredentials,
+        SUPERUSER_PERM, STAFF_PERM,
+    )
     from creme.creme_core.core.entity_filter import (
         entity_filter_registries, EF_CREDENTIALS,
         condition_handler,
@@ -218,6 +221,19 @@ class CredentialsTestCase(CremeTestCase):
         user = self.user
         self._create_role('Salesman', ['creme_core'], users=[user])
         self.assertFalse(user.has_perm(SUPERUSER_PERM))
+
+    def test_staff(self):
+        self.assertEqual('*staff*', STAFF_PERM)
+
+        user = self.user
+        has_perm = user.has_perm
+        self.assertFalse(has_perm(STAFF_PERM))
+
+        user.is_superuser = True
+        self.assertFalse(has_perm(STAFF_PERM))
+
+        user.is_staff = True
+        self.assertTrue(has_perm(STAFF_PERM))
 
     def test_role_esetall_view(self):
         "VIEW + ESET_ALL."

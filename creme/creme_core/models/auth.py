@@ -44,7 +44,7 @@ from django.db.models import Q, QuerySet
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _, gettext
 
-from ..auth.entity_credentials import EntityCredentials
+from ..auth import EntityCredentials
 from ..core.setting_key import UserSettingValueManager
 from ..utils import split_filter
 from ..utils.unicode_collation import collator
@@ -963,8 +963,8 @@ class CremeUser(AbstractBaseUser):
         auth backend is assumed to have permission in general. If an object is
         provided, permissions for this specific object are checked.
         """
-        if self.is_active and self.is_superuser:
-            return True
+        # if self.is_active and self.is_superuser:
+        #     return True
 
         # Check the backends.
         return _user_has_perm(self, perm, obj)
