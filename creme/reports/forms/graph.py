@@ -674,6 +674,7 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
 
     class Meta(CremeModelForm.Meta):
         model = get_rgraph_model()
+        exclude = ('description',)
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
