@@ -287,9 +287,11 @@ class BrickMypageLocation(CremeModel):
         return next(brick_registry.get_bricks((self.brick_id,))).verbose_name
 
 
-post_save.connect(BrickMypageLocation._copy_default_config, sender=settings.AUTH_USER_MODEL,
-                  dispatch_uid='creme_core-brickmypagelocation._copy_default_config',
-                 )
+post_save.connect(
+    BrickMypageLocation._copy_default_config,
+    sender=settings.AUTH_USER_MODEL,
+    dispatch_uid='creme_core-brickmypagelocation._copy_default_config',
+)
 
 
 class RelationBrickItemManager(models.Manager):

@@ -317,19 +317,19 @@ class GraphHandConstraintsTestCase(CremeTestCase):
 
         rtype1 = RelationType.create(
             ('test-subject_likes', 'likes'),
-            ('test-object_likes',  'is liked by')
+            ('test-object_likes',  'is liked by'),
         )[0]
         self.assertTrue(constraint.check_cell(EntityCellRelation(FakeContact, rtype1)))
 
         rtype2 = RelationType.create(
             ('test-subject_loves', 'is loving',   [FakeContact]),
-            ('test-object_loves',  'is loved by', [FakeContact])
+            ('test-object_loves',  'is loved by', [FakeContact]),
         )[0]
         self.assertTrue(constraint.check_cell(EntityCellRelation(FakeContact, rtype2)))
 
         rtype3 = RelationType.create(
             ('test-subject_branch', 'has branch',     [FakeOrganisation]),
-            ('test-object_branch',  'is a branch of', [FakeOrganisation])
+            ('test-object_branch',  'is a branch of', [FakeOrganisation]),
         )[0]
         self.assertFalse(constraint.check_cell(EntityCellRelation(FakeContact, rtype3)))
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018  Hybird
+#    Copyright (C) 2018-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,4 +25,4 @@ from creme.creme_core.utils.serializers import CremeJSONEncoder
 
 class CremeJsonResponse(response.JsonResponse):
     def __init__(self, data, encoder=CremeJSONEncoder, *args, **kwargs):
-        super(CremeJsonResponse, self).__init__(data=data, encoder=encoder, *args, **kwargs)
+        super().__init__(data=data, encoder=encoder, *args, **kwargs)

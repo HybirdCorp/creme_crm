@@ -104,6 +104,11 @@ class CremeConfigConfig(CremeAppConfig):
             #     config_registry.register_user_bricks(*getattr(config_registry_mod, 'userblocks_to_register', ()))
             #     config_registry.register_portal_bricks(*getattr(config_registry_mod, 'portalbricks_to_register', ()))
 
+    def register_creme_config(self, config_registry):
+        from . import bricks
+
+        config_registry.register_portal_bricks(bricks.ExportButtonBrick)
+
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -120,6 +125,7 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.BrickMypageLocationsBrick,
             bricks.RelationBricksConfigBrick,
             bricks.InstanceBricksConfigBrick,
+            bricks.ExportButtonBrick,
             bricks.FieldsConfigsBrick,
             bricks.CustomBricksConfigBrick,
             bricks.ButtonMenuBrick,
