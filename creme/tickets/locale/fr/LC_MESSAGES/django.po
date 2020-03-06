@@ -1,20 +1,20 @@
 # FR LOCALISATION OF 'TICKETS' APP
-# Copyright (C) 2019 Hybird
+# Copyright (C) 2020 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i tests.py
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Tickets 2.1\n"
+"Project-Id-Version: Creme Tickets 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-20 14:58+0100\n"
+"POT-Creation-Date: 2020-03-06 15:40+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28 models/ticket.py:94
+#: apps.py:28 models/ticket.py:89
 msgid "Tickets"
 msgstr "Tickets"
 
@@ -38,11 +38,11 @@ msgstr "Est lié à un ticket"
 msgid "Resolving duration"
 msgstr "Temps de résolution"
 
-#: models/criticity.py:30 models/priority.py:30 models/status.py:45
+#: models/criticity.py:30 models/priority.py:30 models/status.py:51
 msgid "Name"
 msgstr "Nom"
 
-#: models/criticity.py:31 models/priority.py:31 models/status.py:47
+#: models/criticity.py:31 models/priority.py:31 models/status.py:54
 msgid "Order"
 msgstr "Ordre"
 
@@ -72,156 +72,160 @@ msgstr "Priorité de ticket"
 msgid "Ticket priorities"
 msgstr "Priorités de ticket"
 
-#: models/status.py:35
+#: models/status.py:41
 msgctxt "tickets-status"
 msgid "Open"
 msgstr "Ouvert"
 
-#: models/status.py:36
+#: models/status.py:42
 msgctxt "tickets-status"
 msgid "Closed"
 msgstr "Fermé"
 
-#: models/status.py:37
+#: models/status.py:43
 msgctxt "tickets-status"
 msgid "Invalid"
 msgstr "Invalide"
 
-#: models/status.py:38
+#: models/status.py:44
 msgctxt "tickets-status"
 msgid "Duplicated"
 msgstr "Dupliqué"
 
-#: models/status.py:39
+#: models/status.py:45
 msgid "Won't fix"
 msgstr "Ne sera pas corrigé"
 
-#: models/status.py:49
+#: models/status.py:52
+msgid "Is a \"closed\" status?"
+msgstr "Est un statut \"fermé\" ?"
+
+#: models/status.py:56
 msgctxt "tickets-status"
 msgid "Create a status"
 msgstr "Créer un statut"
 
-#: models/status.py:56
+#: models/status.py:63
 msgid "Ticket status"
 msgstr "Statut de ticket"
 
-#: models/status.py:57
+#: models/status.py:64
 msgid "Ticket statuses"
 msgstr "Statuts de ticket"
 
-#: models/ticket.py:53
+#: models/ticket.py:52
 msgid "Title"
 msgstr "Titre"
 
-#: models/ticket.py:55
+#: models/ticket.py:53
 msgid "Status"
 msgstr "Statut"
 
-#: models/ticket.py:59
+#: models/ticket.py:56
 msgid "Priority"
 msgstr "Priorité"
 
-#: models/ticket.py:63
+#: models/ticket.py:59
 msgid "Criticity"
 msgstr "Criticité"
 
-#: models/ticket.py:67
+#: models/ticket.py:62
 msgid "Solution"
 msgstr "Solution"
 
-#: models/ticket.py:78
+#: models/ticket.py:73
 msgid "Number"
 msgstr "Numéro"
 
-#: models/ticket.py:81
+#: models/ticket.py:76
 msgid "Closing date"
 msgstr "Date de clôture"
 
-#: models/ticket.py:86
+#: models/ticket.py:81
 msgid "Create a ticket"
 msgstr "Créer un ticket"
 
-#: models/ticket.py:87
+#: models/ticket.py:82
 msgid "Save the ticket"
 msgstr "Enregistrer le ticket"
 
-#: models/ticket.py:93 templates/tickets/buttons/linked.html:1
+#: models/ticket.py:88 templates/tickets/buttons/linked.html:1
 msgid "Ticket"
 msgstr "Ticket"
 
-#: models/ticket.py:165
+#: models/ticket.py:146
 msgid "Create a ticket template"
 msgstr "Créer un patron de ticket"
 
-#: models/ticket.py:166
+#: models/ticket.py:147
 msgid "Save the ticket template"
 msgstr "Enregistrer le patron de ticket"
 
-#: models/ticket.py:172
+#: models/ticket.py:153
 msgid "Ticket template"
 msgstr "Patron de ticket"
 
-#: models/ticket.py:173
+#: models/ticket.py:154
 msgid "Ticket templates"
 msgstr "Patrons de ticket"
 
-#: populate.py:51
+#: populate.py:53
 msgid "is linked to the ticket"
 msgstr "est lié au ticket"
 
-#: populate.py:52
+#: populate.py:54
 msgid "(ticket) linked to the entity"
 msgstr "(ticket) lié à la fiche"
 
-#: populate.py:70
+#: populate.py:79
 msgid "Ticket view"
 msgstr "Vue de Ticket"
 
-#: populate.py:81
+#: populate.py:92
 msgid "Ticket template view"
 msgstr "Vue de patron de ticket"
 
-#: populate.py:98
+#: populate.py:115
 msgid "Low"
 msgstr "Basse"
 
-#: populate.py:98
+#: populate.py:115
 msgid "Normal"
 msgstr "Normale"
 
-#: populate.py:98
+#: populate.py:115
 msgid "High"
 msgstr "Haute"
 
-#: populate.py:98
+#: populate.py:115
 msgid "Urgent"
 msgstr "Urgente"
 
-#: populate.py:98
+#: populate.py:115
 msgid "Blocking"
 msgstr "Bloquante"
 
-#: populate.py:101
+#: populate.py:118
 msgid "Minor"
 msgstr "Mineure"
 
-#: populate.py:101
+#: populate.py:118
 msgid "Major"
 msgstr "Majeure"
 
-#: populate.py:101
+#: populate.py:118
 msgid "Feature"
 msgstr "Fonctionnalité"
 
-#: populate.py:101
+#: populate.py:118
 msgid "Critical"
 msgstr "Critique"
 
-#: populate.py:101
+#: populate.py:118
 msgid "Enhancement"
 msgstr "Amélioration"
 
-#: populate.py:101
+#: populate.py:118
 msgid "Error"
 msgstr "Erreur"
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,25 +24,32 @@ from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import BasicAutoField
 
-
 OPEN_PK       = 1
 CLOSED_PK     = 2
 INVALID_PK    = 3
 DUPLICATED_PK = 4
 WONTFIX_PK    = 5
 
+# BASE_STATUS = (
+#     (OPEN_PK,        pgettext_lazy('tickets-status', 'Open')),
+#     (CLOSED_PK,      pgettext_lazy('tickets-status', 'Closed')),
+#     (INVALID_PK,     pgettext_lazy('tickets-status', 'Invalid')),
+#     (DUPLICATED_PK,  pgettext_lazy('tickets-status', 'Duplicated')),
+#     (WONTFIX_PK,     _("Won't fix")),
+# )
 BASE_STATUS = (
-    (OPEN_PK,        pgettext_lazy('tickets-status', 'Open')),
-    (CLOSED_PK,      pgettext_lazy('tickets-status', 'Closed')),
-    (INVALID_PK,     pgettext_lazy('tickets-status', 'Invalid')),
-    (DUPLICATED_PK,  pgettext_lazy('tickets-status', 'Duplicated')),
-    (WONTFIX_PK,     _("Won't fix")),
+    (OPEN_PK,        pgettext_lazy('tickets-status', 'Open'),       False),
+    (CLOSED_PK,      pgettext_lazy('tickets-status', 'Closed'),     True),
+    (INVALID_PK,     pgettext_lazy('tickets-status', 'Invalid'),    False),
+    (DUPLICATED_PK,  pgettext_lazy('tickets-status', 'Duplicated'), False),
+    (WONTFIX_PK,     _("Won't fix"),                                False),
 )
 
 
 class Status(CremeModel):
     "Status of a ticket: open, closed, invalid..."
     name      = models.CharField(_('Name'), max_length=100, blank=False, null=False, unique=True)
+    is_closed = models.BooleanField(_('Is a "closed" status?'), default=False)
     is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
     order     = BasicAutoField(_('Order'))  # Used by creme_config
 
