@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'RECURRENTS' APP
-# Copyright (C) 2019 Hybird
+# Copyright (C) 2020 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Recurrents 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-20 14:55+0100\n"
+"POT-Creation-Date: 2020-03-06 16:03+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "Recurrent documents"
 msgstr "Documents récurrents"
 
-#: apps.py:53
+#: apps.py:52 apps.py:56
 msgid "Management"
 msgstr "Gestion"
 
@@ -35,47 +35,47 @@ msgstr "Type de ressource utilisé en tant que modèle"
 msgid "Name of the generator"
 msgstr "Nom du générateur"
 
-#: models/recurrentgenerator.py:33
+#: models/recurrentgenerator.py:32
 msgid "Date of the first generation"
 msgstr "Date de la première récurrence"
 
-#: models/recurrentgenerator.py:34
+#: models/recurrentgenerator.py:33
 msgid "Date of the last generation"
 msgstr "Date de la dernière récurrence"
 
-#: models/recurrentgenerator.py:37
+#: models/recurrentgenerator.py:36
 msgid "Periodicity of the generation"
 msgstr "Périodicité de la génération"
 
-#: models/recurrentgenerator.py:39
+#: models/recurrentgenerator.py:38
 msgid "Type of the recurrent resource"
 msgstr "Type de ressource recurrente"
 
-#: models/recurrentgenerator.py:40
+#: models/recurrentgenerator.py:39
 msgid "Related model"
 msgstr "Modèle utilisé"
 
-#: models/recurrentgenerator.py:45
+#: models/recurrentgenerator.py:44
 msgid "Active ?"
 msgstr "Actif ?"
 
-#: models/recurrentgenerator.py:47
+#: models/recurrentgenerator.py:46
 msgid "Create a generator"
 msgstr "Créer un générateur"
 
-#: models/recurrentgenerator.py:48
+#: models/recurrentgenerator.py:47
 msgid "Save the generator"
 msgstr "Enregistrer le générateur"
 
-#: models/recurrentgenerator.py:54
+#: models/recurrentgenerator.py:53
 msgid "Recurrent generator"
 msgstr "Générateur récurrent"
 
-#: models/recurrentgenerator.py:55
+#: models/recurrentgenerator.py:54
 msgid "Recurrent generators"
 msgstr "Générateurs récurrents"
 
-#: populate.py:40
+#: populate.py:41
 msgid "Generator view"
 msgstr "Vue des générateurs"
 
