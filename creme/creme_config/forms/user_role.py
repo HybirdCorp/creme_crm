@@ -49,7 +49,7 @@ from creme.creme_core.models import (
     CremeUser, UserRole, SetCredentials,
     EntityFilter,
     Job, DeletionCommand,
-)  # Mutex
+)
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import update_model_instance
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
@@ -496,7 +496,6 @@ class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.fields['exportable_ctypes'].ctypes = filtered_entity_ctypes(allowed_app_names)
         self.fields['exportable_ctypes'].ctypes = filtered_entity_ctypes(self.instance.allowed_apps)
 
     def save(self, commit=True, *args, **kwargs):

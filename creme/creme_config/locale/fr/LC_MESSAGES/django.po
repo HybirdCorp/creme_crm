@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-18 19:54+0100\n"
+"POT-Creation-Date: 2020-03-05 16:53+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,66 +16,237 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: apps.py:31 apps.py:150
+#: apps.py:31 apps.py:156
 msgid "General configuration"
 msgstr "Configuration générale"
 
-#: apps.py:144
+#: apps.py:150
 msgid "My settings"
 msgstr "Ma configuration"
 
-#: apps.py:156 templates/creme_config/bricks_portal.html:8
+#: apps.py:162 templates/creme_config/bricks_portal.html:8
 msgid "Blocks"
 msgstr "Blocs"
 
-#: apps.py:168 templates/creme_config/bricks/custombricks-configs.html:18
+#: apps.py:174 templates/creme_config/bricks/custombricks-configs.html:18
 msgid "Fields"
 msgstr "Champs"
 
-#: apps.py:173 templates/creme_config/history_portal.html:8
+#: apps.py:179 templates/creme_config/history_portal.html:8
 msgid "History"
 msgstr "Historique"
 
-#: apps.py:178 templates/creme_config/button_menu_portal.html:8
+#: apps.py:184 templates/creme_config/button_menu_portal.html:8
 msgid "Button menu"
 msgstr "Menu bouton"
 
-#: apps.py:183
+#: apps.py:189
 msgid "Search"
 msgstr "Recherche"
 
-#: apps.py:188
+#: apps.py:194
 msgid "Roles and credentials"
 msgstr "Rôles et droits"
 
-#: apps.py:205 forms/user.py:219 templates/creme_config/bricks/users.html:13
+#: apps.py:211 forms/user.py:219 templates/creme_config/bricks/users.html:13
 #: templates/creme_config/user_portal.html:7
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: bricks.py:144
+#: bricks.py:154
 msgid "Property types configuration"
 msgstr "Configuration des types de propriété"
 
-#: bricks.py:157
+#: bricks.py:167
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: bricks.py:173
+#: bricks.py:183
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: bricks.py:189
+#: bricks.py:199
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: bricks.py:384 bricks.py:610 forms/bricks.py:220 forms/bricks.py:280
+#: bricks.py:394 bricks.py:620 forms/bricks.py:220 forms/bricks.py:280
 #: forms/search.py:71 forms/user.py:77 forms/user.py:118
 #: templates/creme_config/bricks/bricklocations-home.html:42
 #: templates/creme_config/bricks/search-config.html:31
 #: templates/creme_config/bricks/users.html:39
 msgid "Superuser"
 msgstr "Super-utilisateur"
+
+#: core/importers.py:262
+msgid "This filter PK is invalid: «{}»."
+msgstr "Cette clé primaire de filtre est invalide : «{}»."
+
+#: core/importers.py:313
+msgid "The brick zone «{}» is not valid."
+msgstr "La zone de bloc «{}» n'est pas valide."
+
+#: core/importers.py:473
+msgid "This property type cannot be overridden: «{}»."
+msgstr "Ce type de propriété ne peut pas être écrasé : «{}»."
+
+#: core/importers.py:525
+msgid "This property type PKs are invalid: {}."
+msgstr "Ces clés primaires de type de propriété sont invalides : {}."
+
+#: core/importers.py:539
+msgid "This relation type PK is invalid: «{}»."
+msgstr "Cette clé primaire de type de relation est invalide : «{}»."
+
+#: core/importers.py:545
+msgid "This relation type cannot be overridden: «{}»."
+msgstr "Ce type de relation ne peut pas être écrasé : «{}»."
+
+#: core/importers.py:602
+msgid "This custom-field type is invalid: {}."
+msgstr "Ce type de champ personnalisé est invalide: {}."
+
+#: core/importers.py:608
+msgid "There is already a custom-field with the same UUID: {}."
+msgstr "Il y a déjà un champ personnalisé avec le même UUID : {}."
+
+#: core/importers.py:615
+msgid "There is already a custom-field with the same name: {}."
+msgstr "Il y a déjà un champ personnalisé avec le même nom : {}."
+
+#: core/importers.py:723
+#, python-brace-format
+msgid ""
+"The column with field=\"{field}\" is invalid in the view of list id=\"{id}\"."
+msgstr ""
+"La colonne avec le champ=\"{field}\" est invalide dans la vue de liste avec "
+"id=\"{id}\"."
+
+#: core/importers.py:740
+#, python-brace-format
+msgid ""
+"The column with custom-field=\"{uuid}\" is invalid in the view of list id="
+"\"{id}\"."
+msgstr ""
+"La colonne avec le champ=\"{uuid}\" est invalide dans la vue de liste avec "
+"id=\"{id}\"."
+
+#: core/importers.py:760
+#, python-brace-format
+msgid ""
+"The column with function-field=\"{ffield}\" is invalid in the view of list "
+"id=\"{id}\"."
+msgstr ""
+"La colonne avec le champ calculé=\"{ffield}\" est invalide dans la vue de "
+"liste avec id=\"{id}\"."
+
+#: core/importers.py:776
+#, python-brace-format
+msgid ""
+"The column with relation-type=\"{rtype}\" is invalid in the view of list id="
+"\"{id}\"."
+msgstr ""
+"La colonne avec le type de relation=\"{rtype}\" est invalide dans la vue de "
+"liste avec id=\"{id}\"."
+
+#: core/importers.py:797
+msgid "This view of list cannot be overridden: «{}»."
+msgstr "Cette vue de liste ne peut pas être écrasé: «{}»."
+
+#: core/importers.py:811
+#, python-brace-format
+msgid ""
+"The column with type=\"{type}\" is invalid in the view of list id=\"{id}\"."
+msgstr ""
+"La colonne avec le type=\"{type}\" est invalide dans la vue de liste avec id="
+"\"{id}\"."
+
+#: core/importers.py:1006
+#, python-brace-format
+msgid ""
+"The condition on sub-filter=\"{subfilter}\" is invalid in the filter id="
+"\"{id}\"."
+msgstr ""
+"La condition sur le sous-filtre=\"{subfilter}\" est invalide dans le filtre "
+"avec id=\"{id}\"."
+
+#: core/importers.py:1065
+#, python-brace-format
+msgid ""
+"The condition on relation-type is invalid in the filter id=\"{id}\" (unknown "
+"uuid={uuid})."
+msgstr ""
+"La condition sur type de relation est invalide dans le filtre id="
+"\"{id}\" (uuid={uuid} inconnu)."
+
+#: core/importers.py:1082
+#, python-brace-format
+msgid ""
+"The condition on relation-type is invalid in the filter id=\"{id}\" (unknown "
+"relation-type={rtype})."
+msgstr ""
+"La condition sur type de relation= est invalide dans le filtre id="
+"\"{id}\"(type-de-relation={rtype} inconnu)."
+
+#: core/importers.py:1117
+#, python-brace-format
+msgid ""
+"The condition on related sub-filter=\"{subfilter}\" is invalid in the filter "
+"id=\"{id}\" (unknown relation-type ID)."
+msgstr ""
+"La condition sur le sous-filtre relié \"{subfilter}\"  est invalide dans le "
+"filtre id=\"{id}\" (ID de type de relation inconnu)."
+
+#: core/importers.py:1148
+#, python-brace-format
+msgid ""
+"The condition on related sub-filter=\"{subfilter}\" is invalid in the filter "
+"id=\"{id}\" (unknown filter ID)."
+msgstr ""
+"La condition sur le sous-filtre relié \"{subfilter}\" est invalide dans le "
+"filtre id=\"{id}\" (ID de filtre inconnu)."
+
+#: core/importers.py:1170
+#, python-brace-format
+msgid ""
+"The condition on property-type=\"{ptype}\" is invalid in the filter id="
+"\"{id}\"."
+msgstr ""
+"La condition sur le type de propriété=\"{ptype}\" est invalide dans le "
+"filtre id=\"{id}\"."
+
+#: core/importers.py:1191
+#, python-brace-format
+msgid ""
+"The condition on custom-field=\"{cfield}\" is invalid in the filter id="
+"\"{id}\"."
+msgstr ""
+"La condition sur le champ personnalisé=\"{cfield}\" est invalide dans le "
+"filtreid=\"{id}\"."
+
+#: core/importers.py:1248
+msgid "This filter cannot be overridden: «{}»."
+msgstr "Ce filtre ne peut pas être écrasé: «{}»."
+
+#: core/importers.py:1262
+#, python-brace-format
+msgid ""
+"The condition with type=\"{type}\" is invalid in the filter id=\"{id}\"."
+msgstr ""
+"La condition avec le type=\"{type}\" est invalide dans le filtre id=\"{id}\"."
+
+#: core/importers.py:1276
+#, python-brace-format
+msgid "A condition is invalid in the filter id=\"{id}\" [{error}]."
+msgstr "Une condition est invalide dans le filtre id=\"{id}\" [{error}]."
+
+#: core/importers.py:1337
+msgid "There is a cycle between the filters [{}]."
+msgstr "Il y a un cycle entre les filtres [{}]."
+
+#: core/importers.py:1354
+#, python-brace-format
+msgid "The filter with id=\"{id}\" already exists."
+msgstr "Le filtre avec id=\"{id}\" existe déjà."
 
 #: forms/bricks.py:104
 msgid "Header block"
@@ -502,6 +673,35 @@ msgstr "Champs concernés"
 msgid "Value"
 msgstr "Valeur"
 
+#: forms/transfer.py:37 forms/transfer.py:50
+msgid "Configuration file"
+msgstr "Fichier de configuration"
+
+#: forms/transfer.py:38
+msgid ""
+"A JSON file created with the export button (generally in another Creme "
+"instance)."
+msgstr ""
+"Un fichier JSON  créé avec le bouton d'export (généralement dans une autre "
+"instance de Creme)."
+
+#: forms/transfer.py:45
+msgid "File content is not valid JSON."
+msgstr "Le contenu du fichier n'est pas du JSON valide."
+
+#: forms/transfer.py:46
+#, python-format
+msgid "File content is not valid (%(error)s)."
+msgstr "Le contenu du fichier n'est pas valide (%(error)s)."
+
+#: forms/transfer.py:47
+msgid "The file has an unsupported version."
+msgstr "Le fichier a une version qui n'est pas gérée."
+
+#: forms/transfer.py:70
+msgid "main content must be a dictionary"
+msgstr "le contenu principal doit être un dictionnaire"
+
 # Already in django.contrib.auth
 #: forms/user.py:55 forms/user.py:133
 msgid "The two password fields didn't match."
@@ -692,23 +892,23 @@ msgstr ""
 "Ces types de fiches peuvent être téléchargés en tant que fichiers CSV/XLS "
 "(dans les vues en liste correspondantes)."
 
-#: forms/user_role.py:514
+#: forms/user_role.py:513
 msgid "First credentials: main information"
 msgstr "Premiers droits : informations principales"
 
-#: forms/user_role.py:515
+#: forms/user_role.py:514
 msgid "First credentials: actions"
 msgstr "Premiers droits : actions"
 
-#: forms/user_role.py:528
+#: forms/user_role.py:527
 msgid "Yes"
 msgstr "Oui"
 
-#: forms/user_role.py:544
+#: forms/user_role.py:543
 msgid "First credentials: filter"
 msgstr "Premiers droits : filtre"
 
-#: forms/user_role.py:545
+#: forms/user_role.py:544
 msgid "First credentials: conditions"
 msgstr "Premiers droits : conditions"
 
@@ -1376,6 +1576,72 @@ msgstr "Supprimer cette équipe"
 msgid "No team for the moment"
 msgstr "Aucune équipe pour le moment"
 
+#: templates/creme_config/bricks/transfer-buttons.html:9
+msgid "Export & import configuration"
+msgstr "Exporter & importer la configuration"
+
+#: templates/creme_config/bricks/transfer-buttons.html:14
+msgid ""
+"Export the configuration (as a JSON file) & import it in another instance of "
+"Creme. The following data are concerned:"
+msgstr ""
+"Exporter la configuration (en tant que fichier JSON) & l'importer dans une "
+"autre instance de Creme. Les données suivantes sont concernées :"
+
+#: templates/creme_config/bricks/transfer-buttons.html:16
+msgid "Roles."
+msgstr "Rôles."
+
+#: templates/creme_config/bricks/transfer-buttons.html:17
+msgid "Blocks locations for detail-views, home & default «My page»."
+msgstr ""
+"Emplacements des blocs pour les vues détaillées, l'accueil et «Ma page» par "
+"défaut."
+
+#: templates/creme_config/bricks/transfer-buttons.html:18
+msgid "Buttons configuration."
+msgstr "Configuration des boutons."
+
+#: templates/creme_config/bricks/transfer-buttons.html:19
+msgid "Search configuration."
+msgstr "Configuration de recherche."
+
+#: templates/creme_config/bricks/transfer-buttons.html:20
+msgid "Property & Relationship types."
+msgstr "Types de propriété et de relation."
+
+#: templates/creme_config/bricks/transfer-buttons.html:21
+msgid "Custom fields."
+msgstr "Champs personnalisés."
+
+#: templates/creme_config/bricks/transfer-buttons.html:22
+msgid ""
+"Views of list (NB: views related to a user are kept, but ignored at import "
+"if the user-name does not exist)."
+msgstr ""
+"Vues de liste (NB: les vues relatives à un utilisateur sont gardées, mais "
+"ignorées si le nom d'utilisateur n'existe pas)."
+
+#: templates/creme_config/bricks/transfer-buttons.html:23
+msgid ""
+"Filters (NB: filters related to a user are kept, but ignored at import if "
+"the user-name does not exist)."
+msgstr ""
+"Filtres (NB: les filtres relatifs à un utilisateur sont gardés, mais ignorés "
+"si le nom d'utilisateur n'existe pas)."
+
+#: templates/creme_config/bricks/transfer-buttons.html:30
+msgid "Export"
+msgstr "Exporter"
+
+#: templates/creme_config/bricks/transfer-buttons.html:31
+msgid "Export the configuration"
+msgstr "Exporter la configuration"
+
+#: templates/creme_config/bricks/transfer-buttons.html:34 views/transfer.py:71
+msgid "Import a configuration"
+msgstr "Importer une configuration"
+
 #: templates/creme_config/bricks/user-roles.html:7
 #, python-brace-format
 msgid "{count} Role"
@@ -1837,6 +2103,10 @@ msgstr "Nouvelle configuration de recherche pour «{model}»"
 msgid "Edit «{key}»"
 msgstr "Modifier «{key}»"
 
+#: views/transfer.py:72
+msgid "Import"
+msgstr "Importer"
+
 #: views/user.py:48
 #, python-brace-format
 msgid "Change password for «{object}»"
@@ -1938,9 +2208,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 #~ msgid "Portal of general configuration"
 #~ msgstr "Portail de la configuration générale"
 
-#~ msgid "Default preferred menu settings"
-#~ msgstr "Gestion du menu rapide par défaut"
-
 #~ msgid "Related application"
 #~ msgstr "Application associée"
 
@@ -1962,18 +2229,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 #~ msgid "No configured portal for the moment"
 #~ msgstr "Aucun portail configuré pour le moment"
 
-#~ msgid " My {count} preferred menu"
-#~ msgstr "Mes {count} menus préférés"
-
-#~ msgid "My {count} preferred menus"
-#~ msgstr "Mes {count} menus préférés"
-
-#~ msgid "My preferred menus"
-#~ msgstr "Mes menus préférés"
-
-#~ msgid "Edit my preferred menus"
-#~ msgstr "Modifier mes menus préférés"
-
 #~ msgid "Order"
 #~ msgstr "Ordre"
 
@@ -1994,12 +2249,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 
 #~ msgid "Resource"
 #~ msgstr "Ressource"
-
-#~ msgid "%s Configured portal"
-#~ msgstr "%s Portail configuré"
-
-#~ msgid "%s Configured portals"
-#~ msgstr "%s Portails configurés"
 
 #~ msgid "Edit"
 #~ msgstr "Modifier"
@@ -2033,12 +2282,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 
 #~ msgid "Can't delete"
 #~ msgstr "Suppression interdite"
-
-#~ msgid "My %s Preferred menu"
-#~ msgstr "Mes %s menu préféré"
-
-#~ msgid "My %s Preferred menus"
-#~ msgstr "Mes %s menus préférés"
 
 #~ msgid "User name"
 #~ msgstr "Nom d'utilisateur"
@@ -2181,9 +2424,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 #~ msgid "No profile for the moment"
 #~ msgstr "Aucun profil enregistré pour le moment"
 
-#~ msgid "Edit '%(object)s'"
-#~ msgstr "Modifier '%(object)s'"
-
 #~ msgid "Entities credentials settings"
 #~ msgstr "Gestion des droits de fiche"
 
@@ -2213,12 +2453,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 
 #~ msgid "Inherited allowed applications"
 #~ msgstr "Applications autorisées héritées"
-
-#~ msgid "%s Credential"
-#~ msgstr "%s Droit"
-
-#~ msgid "%s Credentials"
-#~ msgstr "%s Droits"
 
 #~ msgid "New credential"
 #~ msgstr "Nouveau droit"

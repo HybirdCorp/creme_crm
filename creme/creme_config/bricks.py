@@ -52,6 +52,16 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
+class ExportButtonBrick(Brick):
+    id_           = Brick.generate_id('creme_config', 'transfer_buttons')
+    verbose_name  = 'Import/export configuration buttons'
+    template_name = 'creme_config/bricks/transfer-buttons.html'
+    configurable  = False
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(context))
+
+
 class GenericModelBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('creme_config', 'model_config')
     dependencies  = (CremeModel,)

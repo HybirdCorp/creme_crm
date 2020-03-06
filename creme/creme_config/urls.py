@@ -4,7 +4,7 @@ from django.urls import re_path, include
 
 from .views import (bricks, button_menu, creme_property_type, custom_fields,
         fields_config, generics_views, history, portal,
-        relation_type, search, setting, user, user_role, user_settings,
+        relation_type, search, setting, transfer, user, user_role, user_settings,
 )
 
 
@@ -155,6 +155,11 @@ setting_patterns = [
     re_path(r'^edit/(?P<svalue_id>\d+)[/]?$', setting.SettingValueEdition.as_view(), name='creme_config__edit_setting'),
 ]
 
+transfer_patterns = [
+    re_path(r'^export[/]?$', transfer.ConfigExport.as_view(), name='creme_config__transfer_export'),
+    re_path(r'^import[/]?$', transfer.ConfigImport.as_view(), name='creme_config__transfer_import'),
+]
+
 urlpatterns = [
     re_path(r'^$',              portal.Portal.as_view(), name='creme_config__portal'),
     re_path(r'^user/',          include(user_patterns)),
@@ -170,6 +175,8 @@ urlpatterns = [
     re_path(r'^search/',        include(search_patterns)),
     re_path(r'^history/',       include(history_patterns)),
     re_path(r'^settings/',      include(setting_patterns)),
+
+    re_path(r'^transfer/', include(transfer_patterns)),
 
     # Generic portal config
     re_path(r'^deletor/finish/(?P<job_id>\d+)[/]?$', generics_views.DeletorEnd.as_view(),         name='creme_config__finish_deletor'),
