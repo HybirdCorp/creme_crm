@@ -50,7 +50,7 @@ def skipIfCustomTicketTemplate(test_func):
 @skipIfCustomTicket
 class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
     def test_populate(self):
-        for pk, name in BASE_STATUS:
+        for pk, name, is_closed in BASE_STATUS:
             try:
                 status = Status.objects.get(pk=pk)
             except Status.DoesNotExist:
@@ -59,6 +59,7 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
                 self.assertEqual(name, status.name)
                 self.assertFalse(status.is_custom)
                 self.assertIsNotNone(status.order)
+                self.assertIs(status.is_closed, is_closed)
 
         self.assertGreaterEqual(Priority.objects.count(),  2)
         self.assertGreaterEqual(Criticity.objects.count(), 2)
@@ -76,19 +77,20 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertTrue(rtype.symmetric_type.object_ctypes.filter(id=ticket_ct.id).exists())
 
     def test_detailview01(self):
-        self.login()
+        user = self.login()
 
         title       = 'Test ticket'
         description = 'Test description'
         priority    = Priority.objects.all()[0]
         criticity   = Criticity.objects.all()[0]
-        ticket = Ticket.objects.create(user=self.user,
-                                       title=title,
-                                       description=description,
-                                       status=Status.objects.get(pk=OPEN_PK),
-                                       priority=priority,
-                                       criticity=criticity,
-                                      )
+        ticket = Ticket.objects.create(
+            user=user,
+            title=title,
+            description=description,
+            status=Status.objects.get(pk=OPEN_PK),
+            priority=priority,
+            criticity=criticity,
+        )
 
         response = self.assertGET200(ticket.get_absolute_url())
         self.assertTemplateUsed(response, 'tickets/view_ticket.html')
@@ -122,13 +124,14 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         priority    = Priority.objects.all()[0]
         criticity   = Criticity.objects.all()[0]
         number = 1024
-        data = {'user':         self.user.pk,
-                'title':        title,
-                'description':  description,
-                'priority':     priority.id,
-                'criticity':    criticity.id,
-                'number':       number,  # Should not be used
-               }
+        data = {
+            'user':         user.pk,
+            'title':        title,
+            'description':  description,
+            'priority':     priority.id,
+            'criticity':    criticity.id,
+            'number':       number,  # Should not be used
+        }
         response = self.client.post(url, follow=True, data=data)
         self.assertNoFormError(response)
 
@@ -159,10 +162,12 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
 
         self.assertFalse(TicketNumber.objects.all())
 
-        create_ticket= partial(Ticket.objects.create, user=user,
-                               priority= Priority.objects.all()[0],
-                               criticity= Criticity.objects.all()[0],
-                              )
+        create_ticket= partial(
+            Ticket.objects.create,
+            user=user,
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
         ticket1 = create_ticket(title='Test ticket #1')
         numbers1 = TicketNumber.objects.all()
         self.assertEqual(1, len(numbers1))
@@ -175,17 +180,18 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertEqual(1, len(numbers2))
 
     def test_get_resolving_duration01(self):
-        "Resolving duration with CLOSED_PK + closing_date=None (eg: CSV import)"
+        "Resolving duration with CLOSED_PK + closing_date=None (eg: CSV import)."
         user = self.login()
 
         get_status = Status.objects.get
-        ticket = Ticket.objects.create(user=user,
-                                       title='title',
-                                       description='description',
-                                       status=get_status(pk=OPEN_PK),
-                                       priority=Priority.objects.all()[0],
-                                       criticity=Criticity.objects.all()[0],
-                                      )
+        ticket = Ticket.objects.create(
+            user=user,
+            title='title',
+            description='description',
+            status=get_status(pk=OPEN_PK),
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
         self.assertIsNone(ticket.closing_date)
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
@@ -202,13 +208,14 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         "Resolving duration with CLOSED_PK + closing_date=None (eg: CSV import)"
         user = self.login()
 
-        ticket = Ticket.objects.create(user=user,
-                                       title='title',
-                                       description='description',
-                                       status=Status.objects.get(pk=CLOSED_PK),
-                                       priority=Priority.objects.all()[0],
-                                       criticity=Criticity.objects.all()[0],
-                                      )
+        ticket = Ticket.objects.create(
+            user=user,
+            title='title',
+            description='description',
+            status=Status.objects.get(pk=CLOSED_PK),
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
         self.assertEqual('?', funf(ticket, user).for_html())
@@ -216,13 +223,14 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
     def test_editview01(self):
         user = self.login()
 
-        ticket = Ticket.objects.create(user=user,
-                                       title='title',
-                                       description='description',
-                                       status=Status.objects.get(pk=OPEN_PK),
-                                       priority=Priority.objects.all()[0],
-                                       criticity=Criticity.objects.all()[0],
-                                      )
+        ticket = Ticket.objects.create(
+            user=user,
+            title='title',
+            description='description',
+            status=Status.objects.get(pk=OPEN_PK),
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
 
         url = ticket.get_edit_absolute_url()
         self.assertGET200(url)
@@ -231,15 +239,17 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         description = 'Test description'
         priority    = Priority.objects.all()[1]
         criticity   = Criticity.objects.all()[1]
-        response = self.client.post(url, follow=True,
-                                    data={'user':         user.pk,
-                                          'title':        title,
-                                          'description':  description,
-                                          'status':       INVALID_PK,
-                                          'priority':     priority.id,
-                                          'criticity':    criticity.id,
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':         user.pk,
+                'title':        title,
+                'description':  description,
+                'status':       INVALID_PK,
+                'priority':     priority.id,
+                'criticity':    criticity.id,
+            },
+        )
         self.assertNoFormError(response)
 
         ticket = self.refresh(ticket)
@@ -248,6 +258,7 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertEqual(title,        ticket.title)
         self.assertEqual(description,  ticket.description)
         self.assertEqual(INVALID_PK,   ticket.status.id)
+        self.assertFalse(ticket.closing_date)
 
         self.assertRedirects(response, ticket.get_absolute_url())
 
@@ -258,23 +269,27 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         description = 'Test description'
         priority    = Priority.objects.all()[0]
         criticity   = Criticity.objects.all()[0]
-        ticket = Ticket.objects.create(user=user,
-                                       title=title,
-                                       description=description,
-                                       status=Status.objects.get(pk=OPEN_PK),
-                                       priority=priority,
-                                       criticity=criticity,
-                                      )
+        ticket = Ticket.objects.create(
+            user=user,
+            title=title,
+            description=description,
+            status=Status.objects.get(pk=OPEN_PK),
+            priority=priority,
+            criticity=criticity,
+        )
 
-        response = self.client.post(ticket.get_edit_absolute_url(), follow=True,
-                                    data={'user':         user.pk,
-                                          'title':        title,
-                                          'description':  description,
-                                          'status':       CLOSED_PK,
-                                          'priority':     priority.id,
-                                          'criticity':    criticity.id,
-                                         }
-                                   )
+        response = self.client.post(
+            ticket.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user':         user.pk,
+                'title':        title,
+                'description':  description,
+                'status':       CLOSED_PK,
+                'priority':     priority.id,
+                'criticity':    criticity.id,
+            },
+        )
         self.assertNoFormError(response)
         self.assertRedirects(response, ticket.get_absolute_url())
 
@@ -282,7 +297,48 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertEqual(CLOSED_PK, ticket.status_id)
 
         self.assertTrue(ticket.closing_date)
-        self.assertTrue(function_field_registry.get(Ticket, 'get_resolving_duration')(ticket, user))
+
+        ffield = function_field_registry.get(Ticket, 'get_resolving_duration')(ticket, user)
+        self.assertTrue(ffield.for_html())
+
+    def test_editview03(self):
+        "Custom closing status."
+        user = self.login()
+
+        status = Status.objects.create(
+            name='Alternative closed',
+            is_closed=True,
+        )
+
+        ticket = Ticket.objects.create(
+            user=user,
+            title='Test ticket',
+            description='Test description',
+            status=Status.objects.get(pk=OPEN_PK),
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
+
+        response = self.client.post(
+            ticket.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user':         user.pk,
+                'title':        ticket.title,
+                'description':  ticket.description,
+                'status':       status.id,
+                'priority':     ticket.priority_id,
+                'criticity':    ticket.criticity_id,
+            },
+        )
+        self.assertNoFormError(response)
+
+        ticket = self.refresh(ticket)
+        self.assertEqual(status, ticket.status)
+        self.assertTrue(ticket.closing_date)
+
+        ffield = function_field_registry.get(Ticket, 'get_resolving_duration')(ticket, user)
+        self.assertTrue(ffield.for_html())
 
     def test_listview01(self):
         self.login()
@@ -298,13 +354,14 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
     def test_listview02(self):
         user = self.login()
 
-        Ticket.objects.create(user=user,
-                              title='title',
-                              description='description',
-                              status=Status.objects.get(pk=OPEN_PK),
-                              priority=Priority.objects.all()[0],
-                              criticity=Criticity.objects.all()[0],
-                             )
+        Ticket.objects.create(
+            user=user,
+            title='title',
+            description='description',
+            status=Status.objects.get(pk=OPEN_PK),
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
 
         response = self.assertGET200(Ticket.get_lv_absolute_url())
 
@@ -316,13 +373,14 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
     def test_deleteview(self):
         user = self.login()
 
-        ticket = Ticket.objects.create(user=user,
-                                       title='title',
-                                       description='description',
-                                       status=Status.objects.get(pk=OPEN_PK),
-                                       priority=Priority.objects.all()[0],
-                                       criticity=Criticity.objects.all()[0],
-                                      )
+        ticket = Ticket.objects.create(
+            user=user,
+            title='title',
+            description='description',
+            status=Status.objects.get(pk=OPEN_PK),
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
 
         url = ticket.get_delete_absolute_url()
         self.assertTrue(url)
@@ -339,18 +397,21 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertRedirects(response, Ticket.get_lv_absolute_url())
 
     def test_clone(self):
-        "The cloned ticket is open"
+        "The cloned ticket is open."
         user = self.login()
 
         get_status = Status.objects.get
         status_open   = get_status(pk=OPEN_PK)
         status_closed = get_status(pk=CLOSED_PK)
 
-        ticket = Ticket.objects.create(user=user, title='ticket', description="d",
-                                       status=status_open,
-                                       priority=Priority.objects.all()[0],
-                                       criticity=Criticity.objects.all()[0],
-                                      )
+        ticket = Ticket.objects.create(
+            user=user,
+            title='ticket',
+            description='blablablabla',
+            status=status_open,
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
 
         ticket.status = status_closed
         ticket.save()
@@ -366,13 +427,14 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
 
         status2 = Status.objects.first()
         status = Status.objects.create(name='Delete me please')
-        ticket = Ticket.objects.create(user=user,
-                                       title='title',
-                                       description='description',
-                                       status=status,
-                                       priority=Priority.objects.all()[0],
-                                       criticity=Criticity.objects.all()[0],
-                                      )
+        ticket = Ticket.objects.create(
+            user=user,
+            title='title',
+            description='description',
+            status=status,
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
 
         response = self.client.post(
             reverse('creme_config__delete_instance',
@@ -399,13 +461,14 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         priority = Priority.objects.create(name='Not so important')
         self.assertEqual(Priority.objects.count(), priority.order)
 
-        ticket = Ticket.objects.create(user=user,
-                                       title='title',
-                                       description='description',
-                                       status=Status.objects.all()[0],
-                                       priority=priority,
-                                       criticity=Criticity.objects.all()[0],
-                                      )
+        ticket = Ticket.objects.create(
+            user=user,
+            title='title',
+            description='description',
+            status=Status.objects.all()[0],
+            priority=priority,
+            criticity=Criticity.objects.all()[0],
+        )
         response = self.client.post(
             reverse('creme_config__delete_instance',
                     args=('tickets', 'priority', priority.id)
@@ -431,13 +494,14 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         criticity = Criticity.objects.create(name='Not so important')
         self.assertEqual(Criticity.objects.count(), criticity.order)
 
-        ticket = Ticket.objects.create(user=user,
-                                       title='title',
-                                       description='description',
-                                       status=Status.objects.all()[0],
-                                       priority=Priority.objects.all()[0],
-                                       criticity=criticity,
-                                      )
+        ticket = Ticket.objects.create(
+            user=user,
+            title='title',
+            description='description',
+            status=Status.objects.all()[0],
+            priority=Priority.objects.all()[0],
+            criticity=criticity,
+        )
         response = self.client.post(
             reverse('creme_config__delete_instance',
                     args=('tickets', 'criticity', criticity.id)
@@ -467,49 +531,52 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         priorities   = Priority.objects.all()[:2]
         criticities  = Criticity.objects.all()[:2]
 
-        lines = [(titles[0], status_l[0].name, priorities[0].name, criticities[0].name, descriptions[0]),
-                 (titles[1], status_l[1].name, priorities[1].name, criticities[1].name, descriptions[1]),
-                ]
+        lines = [
+            (titles[0], status_l[0].name, priorities[0].name, criticities[0].name, descriptions[0]),
+            (titles[1], status_l[1].name, priorities[1].name, criticities[1].name, descriptions[1]),
+        ]
 
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(Ticket)
         self.assertGET200(url)
 
-        response = self.client.post(url, follow=True,
-                                    data={'step':     1,
-                                          'document': doc.id,
-                                          # has_header
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'step':     1,
+                'document': doc.id,
+                # has_header
 
-                                          'user': user.id,
+                'user': user.id,
 
-                                          'title_colselect': 1,
+                'title_colselect': 1,
 
-                                          'status_colselect': 2,
-                                          'status_subfield':  'name',
-                                          # 'status_create':    True,
-                                          # 'status_defval':    def_status.pk,
+                'status_colselect': 2,
+                'status_subfield':  'name',
+                # 'status_create':    True,
+                # 'status_defval':    def_status.pk,
 
-                                          'priority_colselect': 3,
-                                          'priority_subfield':  'name',
-                                          # 'priority_create':    True,
-                                          # 'priority_defval':    def_priority.pk,
+                'priority_colselect': 3,
+                'priority_subfield':  'name',
+                # 'priority_create':    True,
+                # 'priority_defval':    def_priority.pk,
 
-                                          'criticity_colselect': 4,
-                                          'criticity_subfield':  'name',
-                                          # 'criticity_create':    True,
-                                          # 'criticity_defval':    def_criticity.pk,
+                'criticity_colselect': 4,
+                'criticity_subfield':  'name',
+                # 'criticity_create':    True,
+                # 'criticity_defval':    def_criticity.pk,
 
-                                          'description_colselect': 5,
-                                          # 'description_defval':    def_description,
+                'description_colselect': 5,
+                # 'description_defval':    def_description,
 
-                                          'solution_colselect': 0,
-                                          # 'solution_defval':  def_solution,
+                'solution_colselect': 0,
+                # 'solution_defval':  def_solution,
 
-                                          # 'property_types',
-                                          # 'fixed_relations',
-                                          # 'dyn_relations',
-                                        }
-                                   )
+                # 'property_types',
+                # 'fixed_relations',
+                # 'dyn_relations',
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -532,14 +599,15 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
     def test_ticket_color(self):
         user = self.login()
         get_status = Status.objects.get
-        create_ticket = partial(Ticket,
-                                user=user,
-                                title='My ticket',
-                                description='Test description',
-                                status=get_status(pk=OPEN_PK),
-                                priority=Priority.objects.all()[0],
-                                criticity=Criticity.objects.all()[0],
-                               )
+        create_ticket = partial(
+            Ticket,
+            user=user,
+            title='My ticket',
+            description='Test description',
+            status=get_status(pk=OPEN_PK),
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
 
         now_value = now()
         self.assertEqual({}, create_ticket().get_html_attrs({'today': now_value}))
@@ -556,20 +624,21 @@ class TicketTemplateTestCase(CremeTestCase):
     def create_template(self, title, description='description', status=None):
         status = status or Status.objects.get(pk=OPEN_PK)
 
-        return TicketTemplate.objects.create(user=self.user,
-                                             title=title,
-                                             description=description,
-                                             status=status,
-                                             priority=Priority.objects.all()[0],
-                                             criticity=Criticity.objects.all()[0],
-                                            )
+        return TicketTemplate.objects.create(
+            user=self.user,
+            title=title,
+            description=description,
+            status=status,
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
 
     def test_detailview(self):
         self.login()
         self.assertGET200(self.create_template('Title').get_absolute_url())
 
     def test_edit(self):
-        self.login()
+        user = self.login()
 
         title = 'Title'
         description='Description ...'
@@ -583,15 +652,17 @@ class TicketTemplateTestCase(CremeTestCase):
         status = Status.objects.create(name='My status')
         priority = Priority.objects.create(name='My priority')
         criticity = Criticity.objects.create(name='My criticity')
-        response = self.client.post(url, follow=True,
-                                    data={'user':        self.user.id,
-                                          'title':       title,
-                                          'description': description,
-                                          'status':      status.id,
-                                          'priority':    priority.id,
-                                          'criticity':   criticity.id,
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':        user.id,
+                'title':       title,
+                'description': description,
+                'status':      status.id,
+                'priority':    priority.id,
+                'criticity':   criticity.id,
+            },
+        )
         self.assertNoFormError(response)
 
         template = self.refresh(template)
@@ -626,6 +697,7 @@ class TicketTemplateTestCase(CremeTestCase):
 
     @skipIfCustomTicket
     def test_create_entity02(self):
+        "status=CLOSED_PK."
         self.login()
 
         template = self.create_template('Title', status=Status.objects.get(pk=CLOSED_PK))
@@ -654,6 +726,27 @@ class TicketTemplateTestCase(CremeTestCase):
             template.create_entity()
 
         self.assertEqual(2, Ticket.objects.count())
+
+    @skipIfCustomTicket
+    def test_create_entity04(self):
+        "Custom closing status."
+        self.login()
+
+        status = Status.objects.create(
+            name='Alternative closed',
+            is_closed=True,
+        )
+        template = self.create_template('Title', status=status)
+
+        with self.assertNoException():
+            ticket = template.create_entity()
+
+        self.assertIn(template.title, ticket.title)
+        self.assertEqual(template.description, ticket.description)
+        self.assertEqual(template.status,      ticket.status)
+        self.assertEqual(template.priority,    ticket.priority)
+        self.assertEqual(template.criticity,   ticket.criticity)
+        self.assertTrue(ticket.closing_date)
 
     def test_multi_delete(self):
         "Should not delete."

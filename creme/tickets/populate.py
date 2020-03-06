@@ -62,8 +62,15 @@ class Populator(BasePopulator):
             RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT).add_subject_ctypes(Ticket)
 
         # ---------------------------
-        for pk, name in BASE_STATUS:
-            create_if_needed(Status, {'pk': pk}, name=str(name), is_custom=False, order=pk)
+        for pk, name, is_closed in BASE_STATUS:
+            create_if_needed(
+                Status,
+                {'pk': pk},
+                name=str(name),
+                is_closed=is_closed,
+                is_custom=False,
+                order=pk,
+            )
 
         # ---------------------------
         create_hf = HeaderFilter.objects.create_if_needed

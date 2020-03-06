@@ -32,7 +32,7 @@ from creme.creme_core.models import CremeEntity, CREME_REPLACE
 
 from .criticity import Criticity
 from .priority import Priority
-from .status import Status, OPEN_PK, CLOSED_PK
+from .status import Status, OPEN_PK  # CLOSED_PK
 
 
 class TicketNumber(models.Model):
@@ -91,7 +91,7 @@ class AbstractTicket(TicketMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.old_status_id = self.status_id
+        self.old_status_id = self.status_id  # TODO: remove ?
 
     def __str__(self):
         return f'#{self.number} - {self.title}'
@@ -122,7 +122,8 @@ class AbstractTicket(TicketMixin):
     @atomic
     def save(self, *args, **kwargs):
         if self.pk:
-            if (self.status_id == CLOSED_PK) and (self.old_status_id != CLOSED_PK):
+            # if (self.status_id == CLOSED_PK) and (self.old_status_id != CLOSED_PK):
+            if self.status.is_closed and self.closing_date is None:
                 self.closing_date = now()
         else:  # Creation
             self.status_id = self.status_id or OPEN_PK
@@ -141,7 +142,7 @@ class Ticket(AbstractTicket):
 
 
 class AbstractTicketTemplate(TicketMixin):
-    """Used by 'recurrents' app if it is installed"""
+    """Used by 'recurrents' app if it is installed."""
     creation_label = _('Create a ticket template')
     save_label     = _('Save the ticket template')
 
@@ -178,19 +179,20 @@ class AbstractTicketTemplate(TicketMixin):
 
         now_value = now()
 
-        return get_ticket_model().objects\
-                                 .create(user=self.user,
-                                         title='{} {}'.format(
-                                             self.title,
-                                             date_format(now_value.date(), 'DATE_FORMAT'),
-                                         ),  # TODO: use localtime() ?
-                                         description=self.description,
-                                         status_id=self.status_id,
-                                         priority_id=self.priority_id,
-                                         criticity_id=self.criticity_id,
-                                         solution=self.solution,
-                                         closing_date=(now_value if self.status_id == CLOSED_PK else None),
-                                        )
+        return get_ticket_model().objects.create(
+            user=self.user,
+            title='{} {}'.format(
+                self.title,
+                date_format(now_value.date(), 'DATE_FORMAT'),
+            ),  # TODO: use localtime() ?
+            description=self.description,
+            status_id=self.status_id,
+            priority_id=self.priority_id,
+            criticity_id=self.criticity_id,
+            solution=self.solution,
+            # closing_date=(now_value if self.status_id == CLOSED_PK else None),
+            closing_date=(now_value if self.status.is_closed else None),
+        )
 
 
 class TicketTemplate(AbstractTicketTemplate):
