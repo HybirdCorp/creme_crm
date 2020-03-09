@@ -36,8 +36,11 @@ class FunctionFieldsTestCase(CremeTestCase):
             name         = fname2
             verbose_name = 'Verbose name 2'
 
-        registry.register(Klass1, TestFunctionField11, TestFunctionField12, TestFunctionField13)
-        registry.register(Klass2, TestFunctionField2)
+        registry.register(
+            Klass1, TestFunctionField11, TestFunctionField12, TestFunctionField13,
+        ).register(
+            Klass2, TestFunctionField2,
+        )
         self.assertIsInstance(registry.get(Klass1, fname11), TestFunctionField11)
         self.assertIsInstance(registry.get(Klass1, fname12), TestFunctionField12)
         self.assertIsInstance(registry.get(Klass1, fname13), TestFunctionField13)

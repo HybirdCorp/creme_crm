@@ -8,7 +8,10 @@ try:
     from ..base import CremeTestCase
 
     from creme.creme_core.core.imprint import _ImprintManager
-    from creme.creme_core.models import (Imprint, FakeContact, FakeDocument)
+    from creme.creme_core.models import (
+        Imprint,
+        FakeContact, FakeDocument,
+    )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -23,6 +26,17 @@ class ImprintManagerTestCase(CremeTestCase):
 
         manager.register(FakeDocument, hours=2)
         self.assertEqual(timedelta(hours=2), manager.get_granularity(FakeDocument))
+
+    def test_chained_registering(self):
+        manager = _ImprintManager().register(
+            FakeContact, minutes=60,
+        ).register(
+            FakeDocument, hours=2,
+        )
+
+        get_granularity = manager.get_granularity
+        self.assertEqual(timedelta(minutes=60), get_granularity(FakeContact))
+        self.assertEqual(timedelta(hours=2),    get_granularity(FakeDocument))
 
     def test_double_registering(self):
         manager = _ImprintManager()
