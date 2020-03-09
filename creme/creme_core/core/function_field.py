@@ -160,7 +160,9 @@ class _FunctionFieldRegistry:
 
     # TODO: accept instance too ?
     # TODO: 'default' argument ?
-    def get(self, model: Type[Model], name: str) -> Optional[FunctionField]:
+    def get(self,
+            model: Type[Model],
+            name: str) -> Optional[FunctionField]:
         """Get an instance of FunctionField related to a model, and by its name, if it exists.
         The function field if searched in the parent model too.
 
@@ -176,7 +178,9 @@ class _FunctionFieldRegistry:
 
         return None
 
-    def register(self, model: Type[Model], *function_field_classes: Type[FunctionField]):
+    def register(self,
+                 model: Type[Model],
+                 *function_field_classes: Type[FunctionField]) -> '_FunctionFieldRegistry':
         """Register some FunctionField classes related to a model.
 
         @param model: A model class.
@@ -193,8 +197,12 @@ class _FunctionFieldRegistry:
                     f"Duplicated FunctionField's name: {ff_cls.name}"
                 )
 
+        return self
+
     # TODO: accept FunctionField names too ?
-    def unregister(self, model: Type[Model], *function_field_classes: Type[FunctionField]):
+    def unregister(self,
+                   model: Type[Model],
+                   *function_field_classes: Type[FunctionField]) -> None:
         """Register some FunctionField classes related to a model.
 
         @param model: A model class.

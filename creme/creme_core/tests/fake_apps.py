@@ -52,25 +52,37 @@ def ready():
 
     function_field_registry.register(CremeEntity, fake_function_fields.FakeTodosField)
 
-    imprint_manager.register(FakeOrganisation, hours=2)
-    imprint_manager.register(FakeContact, minutes=60)
+    imprint_manager.register(
+        FakeOrganisation, hours=2,
+    ).register(
+        FakeContact, minutes=60,
+    )
 
-    brick_registry.register(FakeAppPortalBrick)
-    brick_registry.register_invalid_models(FakeInvoiceLine)  # See creme_config tests
+    brick_registry.register(
+        FakeAppPortalBrick,
+    ).register_invalid_models(
+        FakeInvoiceLine,  # See creme_config tests
+    )
 
-    reg_qform = quickforms_registry.register
-    reg_qform(FakeContact,      FakeContactQuickForm)
-    reg_qform(FakeOrganisation, FakeOrganisationQuickForm)
+    quickforms_registry.register(
+        FakeContact,      FakeContactQuickForm
+    ).register(
+        FakeOrganisation, FakeOrganisationQuickForm
+    )
 
     smart_columns_registry.register_model(FakeContact) \
                           .register_field('first_name') \
                           .register_field('last_name') \
                           .register_relationtype(FAKE_REL_SUB_EMPLOYED_BY)
 
-    reg_csv_form = import_form_registry.register
-    reg_csv_form(FakeContact,      get_csv_form_builder)
-    reg_csv_form(FakeOrganisation, get_csv_form_builder)
+    import_form_registry.register(
+        FakeContact,      get_csv_form_builder,
+    ).register(
+        FakeOrganisation, get_csv_form_builder,
+    )
 
-    reg_merge_form = merge_form_registry.register
-    reg_merge_form(FakeContact,      get_merge_form_builder)
-    reg_merge_form(FakeOrganisation, get_merge_form_builder)
+    merge_form_registry.register(
+        FakeContact,      get_merge_form_builder,
+    ).register(
+        FakeOrganisation, get_merge_form_builder,
+    )

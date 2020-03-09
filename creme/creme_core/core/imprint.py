@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Type, Dict
+from typing import Optional, Type, Dict
 from datetime import timedelta
 
 # from django.db.models.functions import Now
@@ -34,16 +34,18 @@ class _ImprintManager:
     def __init__(self):
         self._granularities: Dict[Type[CremeEntity], timedelta] = {}
 
-    def register(self, model: Type[CremeEntity], **timedelta_kwargs):
+    def register(self, model: Type[CremeEntity], **timedelta_kwargs) -> '_ImprintManager':
         granularity = timedelta(**timedelta_kwargs)
 
         if self._granularities.setdefault(model, granularity) is not granularity:
             raise self.RegistrationError(f'Duplicated imprint model: {model}')
 
-    def get_granularity(self, model: Type[CremeEntity]):
+        return self
+
+    def get_granularity(self, model: Type[CremeEntity]) -> Optional[timedelta]:
         return self._granularities.get(model)
 
-    def create_imprint(self, entity: CremeEntity, user):
+    def create_imprint(self, entity: CremeEntity, user) -> Optional[Imprint]:
         # NB: there can be some data race, & so create 2 lines when only 1 should be better,
         #     but it's not a real issue (we could fix the data it in the brick, to avoid additional query here).
         granularity = self.get_granularity(entity.__class__)
@@ -52,6 +54,8 @@ class _ImprintManager:
         if granularity is not None and \
            not Imprint.objects.filter(entity=entity, user=user, date__gt=now() - granularity).exists():
             return Imprint.objects.create(entity=entity, user=user)
+
+        return None
 
 
 imprint_manager = _ImprintManager()
