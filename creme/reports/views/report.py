@@ -23,7 +23,7 @@ from typing import Type
 
 from django.db.transaction import atomic
 from django.forms.forms import BaseForm
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse  # Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
@@ -87,10 +87,11 @@ class ReportUnlinking(generic.CheckedView):
     def get_rfield(self, rfield_id):
         model = self.model
 
-        try:
-            rfield = model.objects.select_for_update().get(pk=rfield_id)
-        except model.DoesNotExist as e:
-            raise Http404(str(e)) from e
+        # try:
+        #     rfield = model.objects.select_for_update().get(pk=rfield_id)
+        # except model.DoesNotExist as e:
+        #     raise Http404(str(e)) from e
+        rfield = get_object_or_404(model.objects.select_for_update(), pk=rfield_id)
 
         self.check_rfield_permissions(rfield, self.request.user)
 
