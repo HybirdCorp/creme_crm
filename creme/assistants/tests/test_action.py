@@ -160,10 +160,11 @@ class ActionTestCase(AssistantsTestCase):
         self.assertFalse(action.is_ok)
         self.assertIsNone(action.validation_date)
 
-        response = self.assertPOST200(
-            reverse('assistants__validate_action', args=(action.id,)),
-            follow=True,
-        )
+        url = reverse('assistants__validate_action', args=(action.id,))
+        # self.assertGET404(url)
+        self.assertGET405(url)
+
+        response = self.assertPOST200(url, follow=True)
         self.assertRedirects(response, self.entity.get_absolute_url())
 
         action = self.refresh(action)

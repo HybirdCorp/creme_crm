@@ -27,23 +27,35 @@ from typing import Optional
 from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseRedirect,
+)
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_text
 from django.utils.timezone import now, localtime
 from django.utils.translation import gettext as _
+from django.views.decorators.http import require_POST
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import CremeEntity, Relation, EntityCredentials
+from creme.creme_core.models import (
+    CremeEntity,
+    Relation,
+    EntityCredentials,
+)
 from creme.creme_core.utils import (
     get_from_GET_or_404, get_from_POST_or_404,
     split_filter,
 )
-from creme.creme_core.utils.dates import make_aware_dt, dt_from_ISO8601
-from creme.creme_core.views.decorators import POST_only, jsonify
+from creme.creme_core.utils.dates import (
+    make_aware_dt,
+    dt_from_ISO8601,
+)
+from creme.creme_core.views.decorators import jsonify  # POST_only
 from creme.creme_core.views.utils import build_cancel_path
 
 from creme import persons
@@ -291,7 +303,8 @@ def _get_page_url(request):
 
 @lw_exceptions
 @mobile_login_required
-@POST_only
+# @POST_only
+@require_POST
 @atomic
 def start_activity(request, activity_id):
     activity = get_object_or_404(Activity.objects.select_for_update(), id=activity_id)
@@ -312,7 +325,8 @@ def start_activity(request, activity_id):
 
 @lw_exceptions
 @mobile_login_required
-@POST_only
+# @POST_only
+@require_POST
 @atomic
 def stop_activity(request, activity_id):
     activity = get_object_or_404(Activity.objects.select_for_update(), id=activity_id)
@@ -459,7 +473,8 @@ def _get_pcall(request):
 
 
 @mobile_login_required
-@POST_only
+# @POST_only
+@require_POST
 def phonecall_workflow_done(request, pcall_id):
     pcall = get_object_or_404(Activity,
                               type_id=act_constants.ACTIVITYTYPE_PHONECALL,
@@ -526,7 +541,8 @@ def _improve_minutes(pcall, minutes):
 
 
 @mobile_login_required
-@POST_only
+# @POST_only
+@require_POST
 @jsonify
 @atomic
 def _phonecall_workflow_set_end(request, end_function):
@@ -617,7 +633,8 @@ def _set_pcall_as_failed(pcall, request):
 
 
 @mobile_login_required
-@POST_only
+# @POST_only
+@require_POST
 @jsonify
 @atomic
 def phonecall_workflow_failed(request):
@@ -632,7 +649,8 @@ def phonecall_workflow_failed(request):
 
 
 @mobile_login_required
-@POST_only
+# @POST_only
+@require_POST
 @jsonify
 @atomic
 def phonecall_workflow_postponed(request):
@@ -664,7 +682,8 @@ def phonecall_workflow_postponed(request):
 
 
 @mobile_login_required
-@POST_only
+# @POST_only
+@require_POST
 def mark_as_favorite(request, entity_id):
     entity = get_object_or_404(CremeEntity, id=entity_id)
     user = request.user
@@ -676,7 +695,8 @@ def mark_as_favorite(request, entity_id):
 
 
 @mobile_login_required
-@POST_only
+# @POST_only
+@require_POST
 def unmark_favorite(request, entity_id):
     MobileFavorite.objects.filter(entity=entity_id, user=request.user).delete()
 
