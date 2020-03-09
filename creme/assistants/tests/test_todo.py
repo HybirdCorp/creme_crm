@@ -211,7 +211,11 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         todo = self._create_todo()
         self.assertFalse(todo.is_ok)
 
-        response = self.assertPOST200(reverse('assistants__validate_todo', args=(todo.id,)), follow=True)
+        url = reverse('assistants__validate_todo', args=(todo.id,))
+        # self.assertGET404(url)
+        self.assertGET405(url)
+
+        response = self.assertPOST200(url, follow=True)
         self.assertRedirects(response, self.entity.get_absolute_url())
         self.assertIs(True, self.refresh(todo).is_ok)
 

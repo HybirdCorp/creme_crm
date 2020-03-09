@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
 from functools import wraps
+import logging
+import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, Http404
@@ -33,6 +34,11 @@ logger = logging.getLogger(__name__)
 
 
 def POST_only(view):
+    warnings.warn('The decorator @POST_only is deprecated ; '
+                  'use django.views.decorators.http.require_POST instead.',
+                  DeprecationWarning
+                 )
+
     @wraps(view)
     def POST_view(request, *args, **kwargs):
         if request.method != 'POST':

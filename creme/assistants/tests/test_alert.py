@@ -17,7 +17,11 @@ try:
     from creme.creme_core.forms.listview import TextLVSWidget
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
-    from creme.creme_core.models import CremeEntity, DateReminder, FakeOrganisation
+    from creme.creme_core.models import (
+        CremeEntity,
+        DateReminder,
+        FakeOrganisation,
+    )
 
     from ..models import Alert
 
@@ -30,7 +34,10 @@ class AlertTestCase(AssistantsTestCase):
     def _build_add_url(self, entity):
         return reverse('assistants__create_alert', args=(entity.id,))
 
-    def _create_alert(self, title='TITLE', description='DESCRIPTION', trigger_date='2010-9-29', entity=None):
+    def _create_alert(self, title='TITLE',
+                      description='DESCRIPTION',
+                      trigger_date='2010-9-29',
+                      entity=None):
         entity = entity or self.entity
         response = self.client.post(self._build_add_url(entity),
                                     data={'user':         self.user.pk,
@@ -143,9 +150,11 @@ class AlertTestCase(AssistantsTestCase):
         alert = self._create_alert()
         self.assertFalse(alert.is_validated)
 
-        response = self.assertPOST200(reverse('assistants__validate_alert', args=(alert.id,)),
-                                      follow=True,
-                                     )
+        url = reverse('assistants__validate_alert', args=(alert.id,))
+        # self.assertGET404(url)
+        self.assertGET405(url)
+
+        response = self.assertPOST200(url, follow=True)
         self.assertRedirects(response, self.entity.get_absolute_url())
 
         self.assertTrue(self.refresh(alert).is_validated)

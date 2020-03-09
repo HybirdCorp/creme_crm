@@ -802,6 +802,10 @@ class LineTestCase(_BillingTestCase):
                                                   unit_price=Decimal('50.0'),
                                                  )
 
+        url = self._build_msave_url(invoice)
+        # self.assertGET404(url)
+        self.assertGET405(url)
+
         name = 'on the fly service updated'
         unit_price = '100.0'
         quantity = '2'
@@ -809,7 +813,7 @@ class LineTestCase(_BillingTestCase):
         discount = '20'
         discount_unit = DISCOUNT_PERCENT
         response = self.client.post(
-            self._build_msave_url(invoice),
+            url,
             data={
                 service_line.entity_type_id: json_dump({
                     'service_line_formset-TOTAL_FORMS':       1,
