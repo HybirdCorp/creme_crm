@@ -4,6 +4,8 @@ try:
     from datetime import date
     from decimal import Decimal
     from functools import partial
+    from os import path as os_path
+    from shutil import copy
 
     from django.conf import settings
     from django.test.utils import override_settings
@@ -18,6 +20,7 @@ try:
     from creme.creme_core.models import (
         CremeUser, SetCredentials,
         CremeEntity, EntityFilter,
+        FakeDocument, FakeFolder,
         FakeContact,
         FakeOrganisation,
         FakeActivity,
@@ -29,6 +32,7 @@ try:
     )
     from creme.creme_core.tests import fake_constants
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.utils.file_handling import FileCreator
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -38,7 +42,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         c = FakeContact()
         user = CremeUser()
         field = c._meta.get_field('first_name')
-        self.assertEqual('', field_printers.simple_print_html(c, fval=None, user=user, field=field))
+        self.assertEqual(
+            '',
+            field_printers.simple_print_html(c, fval=None, user=user, field=field)
+        )
 
         value = 'Rei'
         self.assertEqual(
@@ -236,6 +243,210 @@ class FieldsPrintersTestCase(CremeTestCase):
             )
         )
 
+    def test_print_file_html01(self):
+        "Not image."
+        user = self.login()
+        folder = FakeFolder.objects.create(user=user, title='TestGui')
+
+        # TODO: factorise ??
+        def _create_file(name):
+            rel_media_dir_path = os_path.join('upload', 'creme_core-tests', 'gui')
+            final_path = FileCreator(
+                os_path.join(settings.MEDIA_ROOT, rel_media_dir_path),
+                name,
+            ).create()
+
+            with open(final_path, 'w') as f:
+                f.write('I am the content')
+
+            return os_path.join(rel_media_dir_path, os_path.basename(final_path))
+
+        file_name = 'FieldsPrintersTestCase_test_print_file_html01.txt'
+        file_path = _create_file(file_name)
+        doc1 = FakeDocument.objects.create(
+            user=user,
+            linked_folder=folder,
+            filedata=file_path,
+        )
+        self.assertEqual(
+            f'upload/creme_core-tests/gui/{file_name}',
+            field_printers.print_file_html(
+                doc1,
+                doc1.filedata,
+                user=user,
+                field=FakeDocument._meta.get_field('filedata'),
+            )
+        )
+
+        # ---
+        doc2 = FakeDocument.objects.create(
+            user=user,
+            linked_folder=folder,
+            # filedata=file_path,
+        )
+        self.assertEqual(
+            '',
+            field_printers.print_file_html(
+                doc2,
+                doc2.filedata,
+                user=user,
+                field=FakeDocument._meta.get_field('filedata'),
+            )
+        )
+
+    @override_settings(ALLOWED_IMAGES_EXTENSIONS=['gif', 'png', 'jpg'])
+    def test_print_file_html02(self):
+        "Image."
+        user = self.login()
+        folder = FakeFolder.objects.create(user=user, title='TestGui')
+
+        # TODO: factorise ??
+        def _create_file(name, src_path):
+            rel_media_dir_path = os_path.join('upload', 'creme_core-tests', 'gui')
+            final_path = FileCreator(
+                os_path.join(settings.MEDIA_ROOT, rel_media_dir_path),
+                name,
+            ).create()
+
+            copy(src_path, final_path)
+
+            return os_path.join(rel_media_dir_path, os_path.basename(final_path))
+
+        file_name = 'add_16.png'
+        file_path = _create_file(
+            file_name,
+            os_path.join(settings.CREME_ROOT, 'static', 'chantilly', 'images', file_name),
+        )
+        doc1 = FakeDocument.objects.create(
+            user=user,
+            linked_folder=folder,
+            filedata=file_path,
+        )
+        self.assertHTMLEqual(
+            """<a onclick="creme.dialogs.image('{url}').open();">
+                <img src="{url}" width="200.0" height="200.0" />
+            </a>""".format(
+                url=doc1.filedata.url,
+            ),
+            field_printers.print_file_html(
+                doc1,
+                doc1.filedata,
+                user=user,
+                field=FakeDocument._meta.get_field('filedata'),
+            )
+        )
+
+        # ---
+        doc2 = FakeDocument.objects.create(
+            user=user,
+            linked_folder=folder,
+            # filedata=file_path,
+        )
+        self.assertHTMLEqual(
+            '',
+            field_printers.print_file_html(
+                doc2,
+                doc2.filedata,
+                user=user,
+                field=FakeDocument._meta.get_field('filedata'),
+            )
+        )
+
+    @override_settings(ALLOWED_IMAGES_EXTENSIONS=['gif', 'jpg'])  # Not 'png'
+    def test_print_file_html03(self):
+        "Not allowed image extensions."
+        user = self.login()
+        folder = FakeFolder.objects.create(user=user, title='TestGui')
+
+        # TODO: factorise ??
+        def _create_file(name, src_path):
+            rel_media_dir_path = os_path.join('upload', 'creme_core-tests', 'gui')
+            final_path = FileCreator(
+                os_path.join(settings.MEDIA_ROOT, rel_media_dir_path),
+                name,
+            ).create()
+
+            copy(src_path, final_path)
+
+            return os_path.join(rel_media_dir_path, os_path.basename(final_path))
+
+        file_name = 'add_16.png'
+        file_path = _create_file(
+            file_name,
+            os_path.join(settings.CREME_ROOT, 'static', 'chantilly', 'images', file_name),
+        )
+        doc = FakeDocument.objects.create(
+            user=user,
+            linked_folder=folder,
+            filedata=file_path,
+        )
+        self.assertHTMLEqual(
+            f'upload/creme_core-tests/gui/{os_path.basename(file_path)}',
+            field_printers.print_file_html(
+                doc,
+                doc.filedata,
+                user=user,
+                field=FakeDocument._meta.get_field('filedata'),
+            )
+        )
+
+    @override_settings(ALLOWED_IMAGES_EXTENSIONS=['gif', 'png', 'jpg'])
+    def test_print_image_html(self):
+        user = self.login()
+        folder = FakeFolder.objects.create(user=user, title='TestGui')
+
+        # TODO: factorise ??
+        def _create_file(name, src_path):
+            rel_media_dir_path = os_path.join('upload', 'creme_core-tests', 'gui')
+            final_path = FileCreator(
+                os_path.join(settings.MEDIA_ROOT, rel_media_dir_path),
+                name,
+            ).create()
+
+            copy(src_path, final_path)
+
+            return os_path.join(rel_media_dir_path, os_path.basename(final_path))
+
+        file_name = 'add_16.png'
+        file_path = _create_file(
+            file_name,
+            os_path.join(settings.CREME_ROOT, 'static', 'chantilly', 'images', file_name),
+        )
+        doc1 = FakeDocument.objects.create(
+            user=user,
+            linked_folder=folder,
+            filedata=file_path,
+        )
+        self.assertHTMLEqual(
+            """<a onclick="creme.dialogs.image('{url}').open();">
+                <img src="{url}" width="200.0" height="200.0" />
+            </a>""".format(
+                url=doc1.filedata.url,
+            ),
+            field_printers.print_image_html(
+                doc1,
+                doc1.filedata,
+                user=user,
+                field=FakeDocument._meta.get_field('filedata'),
+            )
+        )
+
+        # ---
+        doc2 = FakeDocument.objects.create(
+            user=user,
+            linked_folder=folder,
+            # filedata=file_path,
+        )
+        self.assertHTMLEqual(
+            '',
+            field_printers.print_image_html(
+                doc2,
+                doc2.filedata,
+                user=user,
+                field=FakeDocument._meta.get_field('filedata'),
+            )
+        )
+
     def test_fk_printer01(self):
         user = self.login()
 
@@ -362,7 +573,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             field_printers.print_foreignkey_csv(c, img, user, field)
         )
 
-    def test_m2m_printer01(self):
+    def test_m2m_printer(self):
         user = self.login()
         img = FakeImage.objects.create(user=user, name='My img')
         field = img._meta.get_field('categories')
@@ -383,7 +594,28 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(img, img.categories, user, field)
         )
 
-    def test_m2m_printer02(self):
+    def test_many2many_printer_html01(self):
+        user = self.login()
+        img = FakeImage.objects.create(user=user, name='My img')
+        field = img._meta.get_field('categories')
+
+        M2MPrinter = field_printers.M2MPrinterForHTML
+        printer = M2MPrinter(
+            default_printer=M2MPrinter.printer_html,
+            default_enumerator=M2MPrinter.enumerator_all,
+        )
+
+        self.assertEqual('', printer(img, img.categories, user, field))
+
+        img.categories.set([
+            FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')
+        ])
+        self.assertHTMLEqual(
+            '<ul><li>A</li><li>B</li><li>C</li></ul>',
+            printer(img, img.categories, user, field)
+        )
+
+    def test_many2many_printer_html02(self):
         "Entity without specific handler."
         user = self.login()
         prod = FakeProduct.objects.create(user=user, name='Bebop')
@@ -394,7 +626,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         img2 = create_img(name='My img#2')
         prod.images.set([img1, img2])
 
-        M2MPrinter = field_printers.M2MPrinter
+        M2MPrinter = field_printers.M2MPrinterForHTML
         printer = M2MPrinter(
             default_printer=M2MPrinter.printer_html,
             default_enumerator=M2MPrinter.enumerator_all,
@@ -404,13 +636,14 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(prod, prod.images, user, field)
         )
 
-    def test_m2m_printer03(self):
+    def test_many2many_printer_html03(self):
         "Entity printer."
         user = self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         prod = FakeProduct.objects.create(user=user, name='Bebop')
         field = prod._meta.get_field('images')
@@ -421,7 +654,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         img3 = create_img(name='My img#3', is_deleted=True)
         prod.images.set([img1, img2, img3])
 
-        M2MPrinter = field_printers.M2MPrinter
+        M2MPrinter = field_printers.M2MPrinterForHTML
         printer = M2MPrinter(
             default_printer=M2MPrinter.printer_html,
             default_enumerator=M2MPrinter.enumerator_all,
@@ -503,8 +736,6 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     # TODO: test image_size()
     # TODO: test print_color_html()
-    # TODO: test print_image_html()
-    # TODO: test print_file_html()
     # TODO: test print_duration()
     # TODO: test register_listview_css_class()
     # TODO: test get_listview_css_class_for_field()
