@@ -205,8 +205,11 @@ class FKPrinter:
 print_foreignkey_html = FKPrinter(
     none_printer=FKPrinter.print_fk_null_html,
     default_printer=simple_print_html,
-).register(CremeEntity,  FKPrinter.print_fk_entity_html) \
- .register(EntityFilter, FKPrinter.print_fk_efilter_html)
+).register(
+    model=CremeEntity,  printer=FKPrinter.print_fk_entity_html,
+).register(
+    model=EntityFilter, printer=FKPrinter.print_fk_efilter_html,
+)
 
 
 # def print_foreignkey_csv(entity, fval, user, field):
@@ -217,7 +220,9 @@ print_foreignkey_html = FKPrinter(
 print_foreignkey_csv = FKPrinter(
     none_printer=lambda *args, **kwargs: '',
     default_printer=simple_print_html,
-).register(CremeEntity, FKPrinter.print_fk_entity_csv)
+).register(
+    model=CremeEntity, printer=FKPrinter.print_fk_entity_csv,
+)
 
 
 class BaseM2MPrinter:
