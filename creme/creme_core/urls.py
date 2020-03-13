@@ -205,7 +205,8 @@ creme_core_patterns = [
     ])),
 
     re_path(r'^quickforms/', include([
-        re_path(r'^from_widget/(?P<ct_id>\d+)/add[/]?$', quick_forms.QuickCreation.as_view(), name='creme_core__quick_form'),  # TODO: change the URL
+        # re_path(r'^from_widget/(?P<ct_id>\d+)/add[/]?$', quick_forms.QuickCreation.as_view(), name='creme_core__quick_form'),
+        re_path(r'^(?P<ct_id>\d+)/add[/]?$', quick_forms.QuickCreation.as_view(), name='creme_core__quick_form'),
     ])),
 
     re_path(
