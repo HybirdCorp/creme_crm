@@ -4,7 +4,6 @@ try:
     from datetime import date
     from decimal import Decimal
     from functools import partial
-    from os import path as os_path
     from urllib.parse import urlparse, unquote
 
     from django.conf import settings
@@ -40,7 +39,6 @@ try:
         FakeFolder, FakeDocument,
         FakeFileBag, FakeFileComponent,
     )
-    from creme.creme_core.utils.file_handling import FileCreator
     from creme.creme_core.views.entity import BulkUpdate, InnerEdition
 
     from creme.creme_config.models import FakeConfigEntity
@@ -2214,19 +2212,10 @@ class InnerEditTestCase(_BulkEditTestCase):
         "Empty data."
         user = self.login()
 
-        def _create_file(name):
-            rel_media_dir_path = os_path.join('upload', 'creme_core-tests', 'models')
-            final_path = FileCreator(
-                os_path.join(settings.MEDIA_ROOT, rel_media_dir_path),
-                name,
-            ).create()
-
-            with open(final_path, 'w') as f:
-                f.write('I am the content')
-
-            return os_path.join(rel_media_dir_path, os_path.basename(final_path))
-
-        file_path = _create_file('InnerEditTestCase_test_regular_field_file02.txt')
+        file_path = self.create_uploaded_file(
+            file_name='InnerEditTestCase_test_regular_field_file02.txt',
+            dir_name='views',
+        )
 
         comp = FakeFileComponent.objects.create(filedata=file_path)
         bag = FakeFileBag.objects.create(user=user, name='Stuffes', file1=comp)

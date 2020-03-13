@@ -27,29 +27,34 @@ entity_patterns = [
     # TODO: add a view 'creme_core__entities_as_json'
     #       (with same features as 'creme_core__entity_as_json', then remove this one)
     # TODO: IDs as GET arguments
-    re_path(r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)[/]?$',
-            entity.get_creme_entities_repr,
-            name='creme_core__entities_summaries',
-           ),
-    re_path(r'^get_sanitized_html/(?P<entity_id>\d+)/(?P<field_name>[\w-]+)[/]?$',
-            # entity.get_sanitized_html_field
-            entity.HTMLFieldSanitizing.as_view(),
-            name='creme_core__sanitized_html_field',
-           ),
-    re_path(r'^search_n_view[/]?$',
-            entity.SearchAndView.as_view(),
-            name='creme_core__search_n_view_entities',
-           ),
-    re_path(r'^get_info_fields/(?P<ct_id>\d+)/json[/]?$',
-            # entity.get_info_fields,
-            entity.FieldsInformation.as_view(),
-            name='creme_core__entity_info_fields',
-           ),
+    re_path(
+        r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)[/]?$',
+        entity.get_creme_entities_repr,
+        name='creme_core__entities_summaries',
+    ),
+    re_path(
+        r'^get_sanitized_html/(?P<entity_id>\d+)/(?P<field_name>[\w-]+)[/]?$',
+        # entity.get_sanitized_html_field
+        entity.HTMLFieldSanitizing.as_view(),
+        name='creme_core__sanitized_html_field',
+    ),
+    re_path(
+        r'^search_n_view[/]?$',
+        entity.SearchAndView.as_view(),
+        name='creme_core__search_n_view_entities',
+    ),
+    re_path(
+        r'^get_info_fields/(?P<ct_id>\d+)/json[/]?$',
+        # entity.get_info_fields,
+        entity.FieldsInformation.as_view(),
+        name='creme_core__entity_info_fields',
+    ),
 
-    re_path(r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)[/]?$',
-            entity.InnerEdition.as_view(),
-            name='creme_core__inner_edition',
-           ),
+    re_path(
+        r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)[/]?$',
+        entity.InnerEdition.as_view(),
+        name='creme_core__inner_edition',
+    ),
 
     re_path(r'^update/bulk/(?P<ct_id>\d+)[/]?$',                              entity.BulkUpdate.as_view(), name='creme_core__bulk_update'),
     re_path(r'^update/bulk/(?P<ct_id>\d+)/field/(?P<field_name>[\w-]+)[/]?$', entity.BulkUpdate.as_view(), name='creme_core__bulk_update'),
@@ -59,11 +64,12 @@ entity_patterns = [
     re_path(r'^merge/select_other[/]?$', entity.EntitiesToMergeSelection.as_view(), name='creme_core__select_entity_for_merge'),
     re_path(r'^merge[/]?$',              entity.Merge.as_view(),                    name='creme_core__merge_entities'),
 
-    re_path(r'^restrict_to_superusers[/]?$',
-            # entity.restrict_to_superusers,
-            entity.SuperusersRestriction.as_view(),
-            name='creme_core__restrict_entity_2_superusers',
-           ),
+    re_path(
+        r'^restrict_to_superusers[/]?$',
+        # entity.restrict_to_superusers,
+        entity.SuperusersRestriction.as_view(),
+        name='creme_core__restrict_entity_2_superusers',
+    ),
 ]
 
 relation_patterns = [
@@ -72,7 +78,8 @@ relation_patterns = [
 
     re_path(r'^add_from_predicate/save[/]?$', relation.add_relations_with_same_type, name='creme_core__save_relations'),
 
-    re_path(r'^add_to_entities/(?P<ct_id>\d+)[/]?$',
+    re_path(
+        r'^add_to_entities/(?P<ct_id>\d+)[/]?$',
         relation.RelationsBulkAdding.as_view(),
         name='creme_core__create_relations_bulk',
     ),
@@ -89,7 +96,8 @@ relation_patterns = [
 ]
 
 property_patterns = [
-    re_path(r'^add_to_entities/(?P<ct_id>\d+)[/]?$',
+    re_path(
+        r'^add_to_entities/(?P<ct_id>\d+)[/]?$',
         creme_property.PropertiesBulkAdding.as_view(),
         name='creme_core__add_properties_bulk',
     ),
@@ -199,14 +207,19 @@ creme_core_patterns = [
     re_path(r'^quickforms/', include([
         re_path(r'^from_widget/(?P<ct_id>\d+)/add[/]?$', quick_forms.QuickCreation.as_view(), name='creme_core__quick_form'),  # TODO: change the URL
     ])),
+
+    re_path(
+        r'^download/(?P<ct_id>\d+)/(?P<pk>\d+)/(?P<field_name>[\w-]+)$',
+        file_handling.RegisteredFileFieldDownloadView.as_view(),
+        name='creme_core__download',
+    ),
 ]
 
 urlpatterns = [
     re_path(r'^$',            index.Home.as_view(),   name='creme_core__home'),
     re_path(r'^my_page[/]?$', index.MyPage.as_view(), name='creme_core__my_page'),
 
-    # TODO: To be replaced
-    re_path(r'^download_file/(?P<location>.*)$', file_handling.download_file, name='creme_core__dl_file'),
+    # re_path(r'^download_file/(?P<location>.*)$', file_handling.download_file, name='creme_core__dl_file'),
 
     re_path(r'^creme_core/', include(creme_core_patterns)),
 

@@ -9,12 +9,23 @@ try:
 
     from ..base import CremeTestCase
 
-    from creme.creme_core.core.entity_cell import (CELLS_MAP, EntityCellsRegistry,
-            EntityCellRegularField, EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
-    from creme.creme_core.core.function_field import (FunctionField,
-            FunctionFieldResult, function_field_registry)
-    from creme.creme_core.models import (RelationType,
-            CustomField, CustomFieldEnumValue, FakeContact, FakeDocument)
+    from creme.creme_core.core.entity_cell import (
+        CELLS_MAP, EntityCellsRegistry,
+        EntityCellRegularField,
+        EntityCellCustomField,
+        EntityCellFunctionField,
+        EntityCellRelation,
+    )
+    from creme.creme_core.core.function_field import (
+        FunctionField,
+        FunctionFieldResult,
+        function_field_registry,
+    )
+    from creme.creme_core.models import (
+        RelationType,
+        CustomField, CustomFieldEnumValue,
+        FakeContact, FakeDocument,
+    )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 

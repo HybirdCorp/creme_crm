@@ -941,7 +941,7 @@ class ReportTestCase(BaseReportsTestCase):
                         )
 
     def test_report_csv01(self):
-        "Empty report"
+        "Empty report."
         self.login()
 
         self.assertFalse(FakeInvoice.objects.all())
@@ -974,15 +974,18 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(3, FakeContact.objects.count())
 
         report   = self._create_report('trinita')
-        response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
+        response = self.assertGET200(
+            self._build_export_url(report),
+            data={'doc_type': 'csv'},
+        )
 
         content = (s for s in response.content.decode().split('\r\n') if s)
-        self.assertEqual(smart_str('"{}","{}","{}","{}"'.format(
-                                      _('Last name'), _('Owner user'), _('owns'), _('Properties')
-                                    )
-                                  ),
-                         next(content)
-                        )
+        self.assertEqual(
+            smart_str('"{}","{}","{}","{}"'.format(
+                _('Last name'), _('Owner user'), _('owns'), _('Properties'),
+            )),
+            next(content)
+        )
 
         user_str = str(self.user)
         self.assertEqual('"Ayanami","{}","","Kawaii"'.format(user_str),  next(content))  # Alphabetical ordering ??
@@ -992,19 +995,21 @@ class ReportTestCase(BaseReportsTestCase):
             next(content)
 
     def test_report_csv03(self):
-        "With date filter"
+        "With date filter."
         user = self.login()
 
         self._create_persons()
-        report   = self._create_report('trinita')
-        response = self.assertGET200(self._build_export_url(report),
-                                     data={'doc_type': 'csv',
-                                           'date_field': 'birthday',
-                                           'date_filter_0': '',
-                                           'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
-                                           'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
-                                          }
-                                    )
+        report = self._create_report('trinita')
+        response = self.assertGET200(
+            self._build_export_url(report),
+            data={
+                'doc_type': 'csv',
+                'date_field': 'birthday',
+                'date_filter_0': '',
+                'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
+                'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
+            },
+        )
 
         content = [s for s in response.content.decode().split('\r\n') if s]
         self.assertEqual(3, len(content))
@@ -1013,38 +1018,43 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual('"Langley","{}","",""'.format(user),       content[2])
 
     def test_report_csv04(self):
-        "With date filter and registered range"
+        "With date filter and registered range."
         user = self.login()
 
         self._create_persons()
-        FakeContact.objects.create(user=user, last_name='Baby', first_name='Joe',
-                                   birthday=datetime(year=now().year, month=1, day=1)
-                                   )
-        report   = self._create_report('trinita')
-        response = self.assertGET200(self._build_export_url(report),
-                                     data={'doc_type': 'csv',
-                                           'date_field': 'birthday',
-                                           'date_filter_0': 'current_year',
-                                          }
-                                    )
+        FakeContact.objects.create(
+            user=user,
+            last_name='Baby', first_name='Joe',
+            birthday=datetime(year=now().year, month=1, day=1)
+        )
+        report = self._create_report('trinita')
+        response = self.assertGET200(
+            self._build_export_url(report),
+            data={
+                'doc_type': 'csv',
+                'date_field': 'birthday',
+                'date_filter_0': 'current_year',
+            },
+        )
 
         content = [s for s in response.content.decode().split('\r\n') if s]
         self.assertEqual(2, len(content))
         self.assertEqual('"Baby","{}","",""'.format(user), content[1])
 
     def test_report_csv05(self):
-        "Errors: invalid GET param"
+        "Errors: invalid GET param."
         self.login()
 
         self._create_persons()
         report = self._create_report('trinita')
         url = self._build_export_url(report)
-        data = {'doc_type': 'csv',
-                'date_field': 'birthday',
-                'date_filter_0': '',
-                'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
-                'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
-               }
+        data = {
+            'doc_type': 'csv',
+            'date_field': 'birthday',
+            'date_filter_0': '',
+            'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
+            'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
+        }
 
         def export(status, **kwargs):
             self.assertGET(status, url, data={**data, **kwargs})
@@ -1111,21 +1121,24 @@ class ReportTestCase(BaseReportsTestCase):
 
     @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_report_xls(self):
-        "With date filter"
+        "With date filter."
         self.login()
 
         self._create_persons()
-        report   = self._create_report('trinita')
-        response = self.assertGET200(reverse('reports__export_report', args=(report.id,)),
-                                     data={'doc_type': 'xls',
-                                           'date_field': 'birthday',
-                                           'date_filter_0': '',
-                                           'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
-                                           'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
-                                          },
-                                     follow=True,
-                                    )
-        result = [*XlrdReader(None, file_contents=response.content)]
+        report = self._create_report('trinita')
+        response = self.assertGET200(
+            reverse('reports__export_report', args=(report.id,)),
+            data={
+                'doc_type': 'xls',
+                'date_field': 'birthday',
+                'date_filter_0': '',
+                'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
+                'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
+            },
+            follow=True,
+        )
+        # result = [*XlrdReader(None, file_contents=response.content)]
+        result = [*XlrdReader(None, file_contents=b''.join(response.streaming_content))]
 
         self.assertEqual(3, len(result))
 
@@ -1154,7 +1167,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertNoFormError(
             self.client.post(url, data={'columns': 'regular_field-last_name,'
                                                    'regular_field-first_name',
-                                       }
+                                       },
                             )
         )
 
@@ -1177,7 +1190,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(2,               column.order)
 
     def test_edit_fields02(self):
-        "FK, Custom field, aggregate on CustomField; additional old Field deleted"
+        "FK, Custom field, aggregate on CustomField; additional old Field deleted."
         self.login()
 
         cf = self._create_cf_int()

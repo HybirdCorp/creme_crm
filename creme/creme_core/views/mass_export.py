@@ -240,6 +240,7 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
                 ctype=ct, user=user, count=total_count, hfilter=hf, efilter=efilter,
             )
 
-        writer.save(ct.model)
+        # writer.save(ct.model)
+        writer.save(ct.model, user)
 
         return writer.response

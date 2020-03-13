@@ -67,9 +67,9 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         self.organisations = organisations = {
-                name: create_orga(name=name)
-                    for name in ('Bebop', 'Swordfish')
-            }
+            name: create_orga(name=name)
+                for name in ('Bebop', 'Swordfish')
+        }
 
         rtype_pilots = RelationType.create(('test-subject_pilots', 'pilots'),
                                            ('test-object_pilots',  'is piloted by')
@@ -212,11 +212,13 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.login()
         cells = self._build_hf_n_contacts().cells
 
-        response = self.assertGET200(self._build_contact_dl_url(doc_type='xls', header=True),
-                                     follow=True,
-                                    )
+        response = self.assertGET200(
+            self._build_contact_dl_url(doc_type='xls', header=True),
+            follow=True,
+        )
 
-        result = [*XlrdReader(None, file_contents=response.content)]
+        # result = [*XlrdReader(None, file_contents=response.content)]
+        result = [*XlrdReader(None, file_contents=b''.join(response.streaming_content))]
         self.assertEqual(1, len(result))
         self.assertEqual(result[0], [hfi.title for hfi in cells])
 
@@ -497,7 +499,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
     @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export01(self):
-        self.login()
+        user = self.login()
         cells = self._build_hf_n_contacts().cells
         existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
 
@@ -505,7 +507,8 @@ class MassExportViewsTestCase(ViewsTestCase):
                                      follow=True,
                                     )
 
-        it = iter(XlrdReader(None, file_contents=response.content))
+        # it = iter(XlrdReader(None, file_contents=response.content))
+        it = iter(XlrdReader(None, file_contents=b''.join(response.streaming_content)))
         self.assertEqual(next(it), [hfi.title for hfi in cells])
         self.assertEqual(next(it), ['', 'Black', 'Jet', 'Bebop', ''])
         self.assertIn(next(it),
@@ -529,7 +532,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         fileref = filerefs[0]
         self.assertTrue(fileref.temporary)
         self.assertEqual('fakecontact.xls', fileref.basename)
-        # self.assertEqual(user, fileref.user) TODO
+        self.assertEqual(user, fileref.user)
 
         fullpath = fileref.filedata.path
         self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists ?!')
@@ -564,7 +567,8 @@ class MassExportViewsTestCase(ViewsTestCase):
             follow=True,
         )
 
-        it = iter(XlrdReader(None, file_contents=response.content))
+        # it = iter(XlrdReader(None, file_contents=response.content))
+        it = iter(XlrdReader(None, file_contents=b''.join(response.streaming_content)))
         self.assertEqual(next(it), [hfi.title for hfi in cells])
         self.assertEqual(next(it), [orga01.name, _('Yes'), ''])
         self.assertEqual(next(it), [orga02.name, _('No'),  date_format(orga02.creation_date, 'DATE_FORMAT')])

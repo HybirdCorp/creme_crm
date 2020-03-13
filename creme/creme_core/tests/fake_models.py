@@ -100,8 +100,12 @@ else:
 
     class FakeDocument(CremeEntity):
         title         = models.CharField(_('Title'), max_length=100)
-        filedata      = models.FileField(_('File'), max_length=100, upload_to='upload/creme_core-tests')
-        linked_folder = models.ForeignKey(FakeFolder, verbose_name=_('Folder'), on_delete=models.PROTECT)
+        filedata      = models.FileField(_('File'), max_length=100,
+                                         upload_to='upload/creme_core-tests',
+                                        ).set_tags(optional=True)
+        linked_folder = models.ForeignKey(FakeFolder, verbose_name=_('Folder'),
+                                          on_delete=models.PROTECT,
+                                         )
         categories    = models.ManyToManyField(FakeDocumentCategory,
                                                verbose_name=_('Categories'),
                                                related_name='+',
@@ -122,6 +126,7 @@ else:
 
         # def get_absolute_url(self):
         # def get_edit_absolute_url(self):
+        # def get_download_absolute_url(self):  TODO ??
 
         @staticmethod
         def get_lv_absolute_url():

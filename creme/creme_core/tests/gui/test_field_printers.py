@@ -4,22 +4,24 @@ try:
     from datetime import date
     from decimal import Decimal
     from functools import partial
-    from os import path as os_path
-    from shutil import copy
+    from os.path import basename
 
     from django.conf import settings
     from django.test.utils import override_settings
+    from django.urls import reverse
     from django.utils.formats import date_format, number_format
     from django.utils.html import escape
     from django.utils.translation import gettext as _, pgettext
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.core.download import filefield_download_registry
     from creme.creme_core.core.entity_filter import operators
     from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
     from creme.creme_core.gui import field_printers
     from creme.creme_core.models import (
         CremeUser, SetCredentials,
         CremeEntity, EntityFilter,
+        FakeFileComponent,
         FakeDocument, FakeFolder,
         FakeContact,
         FakeOrganisation,
@@ -32,7 +34,6 @@ try:
     )
     from creme.creme_core.tests import fake_constants
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.utils.file_handling import FileCreator
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -248,28 +249,26 @@ class FieldsPrintersTestCase(CremeTestCase):
         user = self.login()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
-        # TODO: factorise ??
-        def _create_file(name):
-            rel_media_dir_path = os_path.join('upload', 'creme_core-tests', 'gui')
-            final_path = FileCreator(
-                os_path.join(settings.MEDIA_ROOT, rel_media_dir_path),
-                name,
-            ).create()
-
-            with open(final_path, 'w') as f:
-                f.write('I am the content')
-
-            return os_path.join(rel_media_dir_path, os_path.basename(final_path))
-
         file_name = 'FieldsPrintersTestCase_test_print_file_html01.txt'
-        file_path = _create_file(file_name)
+        file_path = self.create_uploaded_file(file_name=file_name, dir_name='gui')
         doc1 = FakeDocument.objects.create(
             user=user,
             linked_folder=folder,
             filedata=file_path,
         )
         self.assertEqual(
-            f'upload/creme_core-tests/gui/{file_name}',
+            # f'upload/creme_core-tests/gui/{file_name}',
+            '<a href="{url}" alt="{label}">{label}</a>'.format(
+                url=reverse(
+                    'creme_core__download',
+                    args=(
+                        doc1.entity_type_id,
+                        doc1.id,
+                        'filedata',
+                    )
+                ),
+                label=_('Download «{file}»').format(file=file_name),
+            ),
             field_printers.print_file_html(
                 doc1,
                 doc1.filedata,
@@ -300,33 +299,35 @@ class FieldsPrintersTestCase(CremeTestCase):
         user = self.login()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
-        # TODO: factorise ??
-        def _create_file(name, src_path):
-            rel_media_dir_path = os_path.join('upload', 'creme_core-tests', 'gui')
-            final_path = FileCreator(
-                os_path.join(settings.MEDIA_ROOT, rel_media_dir_path),
-                name,
-            ).create()
-
-            copy(src_path, final_path)
-
-            return os_path.join(rel_media_dir_path, os_path.basename(final_path))
-
         file_name = 'add_16.png'
-        file_path = _create_file(
-            file_name,
-            os_path.join(settings.CREME_ROOT, 'static', 'chantilly', 'images', file_name),
+        file_path = self.create_uploaded_file(
+            file_name=file_name, dir_name='gui',
+            content=[settings.CREME_ROOT, 'static', 'chantilly', 'images', file_name],
         )
+
         doc1 = FakeDocument.objects.create(
             user=user,
             linked_folder=folder,
             filedata=file_path,
         )
         self.assertHTMLEqual(
+            # """<a onclick="creme.dialogs.image('{url}').open();">
+            #     <img src="{url}" width="200.0" height="200.0" />
+            # </a>""".format(
+            #     url=doc1.filedata.url,
+            # ),
             """<a onclick="creme.dialogs.image('{url}').open();">
-                <img src="{url}" width="200.0" height="200.0" />
+                <img src="{url}" alt="{label}" width="200.0" height="200.0" />
             </a>""".format(
-                url=doc1.filedata.url,
+                url=reverse(
+                    'creme_core__download',
+                    args=(
+                        doc1.entity_type_id,
+                        doc1.id,
+                        'filedata',
+                    )
+                ),
+                label=_('Download «{file}»').format(file=basename(file_path)),
             ),
             field_printers.print_file_html(
                 doc1,
@@ -358,30 +359,30 @@ class FieldsPrintersTestCase(CremeTestCase):
         user = self.login()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
-        # TODO: factorise ??
-        def _create_file(name, src_path):
-            rel_media_dir_path = os_path.join('upload', 'creme_core-tests', 'gui')
-            final_path = FileCreator(
-                os_path.join(settings.MEDIA_ROOT, rel_media_dir_path),
-                name,
-            ).create()
-
-            copy(src_path, final_path)
-
-            return os_path.join(rel_media_dir_path, os_path.basename(final_path))
-
         file_name = 'add_16.png'
-        file_path = _create_file(
-            file_name,
-            os_path.join(settings.CREME_ROOT, 'static', 'chantilly', 'images', file_name),
+        file_path = self.create_uploaded_file(
+            file_name=file_name, dir_name='gui',
+            content=[settings.CREME_ROOT, 'static', 'chantilly', 'images', file_name],
         )
+
         doc = FakeDocument.objects.create(
             user=user,
             linked_folder=folder,
             filedata=file_path,
         )
         self.assertHTMLEqual(
-            f'upload/creme_core-tests/gui/{os_path.basename(file_path)}',
+            # f'upload/creme_core-tests/gui/{os_path.basename(file_path)}',
+            '<a href="{url}" alt="{label}">{label}</a>'.format(
+                url=reverse(
+                    'creme_core__download',
+                    args=(
+                        doc.entity_type_id,
+                        doc.id,
+                        'filedata',
+                    )
+                ),
+                label=_('Download «{file}»').format(file=basename(file_path)),
+            ),
             field_printers.print_file_html(
                 doc,
                 doc.filedata,
@@ -390,38 +391,65 @@ class FieldsPrintersTestCase(CremeTestCase):
             )
         )
 
+    def test_print_file_html04(self):
+        "Field not registered for download."
+        user = self.login()
+
+        file_name = 'FieldsPrintersTestCase_test_print_file_html04.txt'
+        file_path = self.create_uploaded_file(file_name=file_name, dir_name='gui')
+        comp = FakeFileComponent(filedata=file_path)
+
+        with self.assertRaises(filefield_download_registry.InvalidField):
+            filefield_download_registry.get(
+                user=user,
+                instance=comp,
+                field_name='filedata',
+            )
+
+        self.assertEqual(
+            f'upload/creme_core-tests/gui/{file_name}',
+            field_printers.print_file_html(
+                comp,
+                comp.filedata,
+                user=user,
+                field=FakeFileComponent._meta.get_field('filedata'),
+            )
+        )
+
     @override_settings(ALLOWED_IMAGES_EXTENSIONS=['gif', 'png', 'jpg'])
     def test_print_image_html(self):
         user = self.login()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
-        # TODO: factorise ??
-        def _create_file(name, src_path):
-            rel_media_dir_path = os_path.join('upload', 'creme_core-tests', 'gui')
-            final_path = FileCreator(
-                os_path.join(settings.MEDIA_ROOT, rel_media_dir_path),
-                name,
-            ).create()
-
-            copy(src_path, final_path)
-
-            return os_path.join(rel_media_dir_path, os_path.basename(final_path))
-
         file_name = 'add_16.png'
-        file_path = _create_file(
-            file_name,
-            os_path.join(settings.CREME_ROOT, 'static', 'chantilly', 'images', file_name),
+        file_path = self.create_uploaded_file(
+            file_name=file_name, dir_name='gui',
+            content=[settings.CREME_ROOT, 'static', 'chantilly', 'images', file_name],
         )
+
         doc1 = FakeDocument.objects.create(
             user=user,
             linked_folder=folder,
             filedata=file_path,
         )
         self.assertHTMLEqual(
+            # """<a onclick="creme.dialogs.image('{url}').open();">
+            #     <img src="{url}" width="200.0" height="200.0" />
+            # </a>""".format(
+            #     url=doc1.filedata.url,
+            # ),
             """<a onclick="creme.dialogs.image('{url}').open();">
-                <img src="{url}" width="200.0" height="200.0" />
+                <img src="{url}" alt="{label}" width="200.0" height="200.0" />
             </a>""".format(
-                url=doc1.filedata.url,
+                url=reverse(
+                    'creme_core__download',
+                    args=(
+                        doc1.entity_type_id,
+                        doc1.id,
+                        'filedata',
+                    )
+                ),
+                label=_('Download «{file}»').format(file=basename(file_path)),
             ),
             field_printers.print_image_html(
                 doc1,

@@ -31,9 +31,10 @@
     {% with relation.object_entity as doc %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink doc user %}</td>
-        <td {% brick_table_data_status action %}>
-            {% has_perm_to view doc as doc_view_perm %}{% url 'creme_core__dl_file' doc.filedata as dl_url %}
-            {% brick_table_action id='redirect' url=dl_url icon='download' label=_('Download') enabled=doc_view_perm %}
+        <td {% brick_table_data_status action %}>{% has_perm_to view doc as doc_view_perm %}
+{#            {% has_perm_to view doc as doc_view_perm %}{% url 'creme_core__dl_file' doc.filedata as dl_url %} #}
+{#            {% brick_table_action id='redirect' url=dl_url icon='download' label=_('Download') enabled=doc_view_perm %} #}
+            {% brick_table_action id='redirect' url=doc.get_download_absolute_url icon='download' label=_('Download') enabled=doc_view_perm %}
         </td>
         <td {% brick_table_data_status action %}>
             {% has_perm_to unlink doc as doc_unlink_perm %}

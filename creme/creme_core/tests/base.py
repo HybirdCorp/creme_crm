@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from json import dumps as json_dump
 from os.path import basename
 from tempfile import NamedTemporaryFile
+from typing import Union, List
 from unittest import skipIf
 from unittest.util import safe_repr
 import warnings
@@ -16,7 +17,11 @@ from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
 from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
-from django.utils.timezone import utc, get_current_timezone, make_aware
+from django.utils.timezone import (
+    utc,
+    get_current_timezone,
+    make_aware,
+)
 
 from ..global_info import clear_global_info
 from ..management.commands.creme_populate import Command as PopulateCommand
@@ -31,9 +36,10 @@ from ..utils.xml_utils import xml_diff, XMLDiffError
 
 
 def skipIfCustomUser(test_func):
-    return skipIf(settings.AUTH_USER_MODEL != 'creme_core.CremeUser',
-                  'Custom User model in use'
-                 )(test_func)
+    return skipIf(
+        settings.AUTH_USER_MODEL != 'creme_core.CremeUser',
+        'Custom User model in use'
+    )(test_func)
 
 
 def skipIfNotInstalled(app_name):
@@ -65,9 +71,10 @@ class _AssertNoExceptionContext:
 class _CremeTestCase:
     @classmethod
     def setUpClass(cls):
-        warnings.filterwarnings('error', r"(.)* received a naive datetime (.)*",
-                                RuntimeWarning, r'django\.db\.models\.fields',
-                               )
+        warnings.filterwarnings(
+            'error', r"(.)* received a naive datetime (.)*",
+            RuntimeWarning, r'django\.db\.models\.fields',
+        )
 
     def tearDown(self):
         clear_global_info()
@@ -76,11 +83,12 @@ class _CremeTestCase:
               creatable_models=None, admin_4_apps=()):
         self.password = password = 'test'
 
-        superuser = CremeUser(username='kirika', email='kirika@noir.jp',
-                              first_name='Kirika', last_name='Yumura',
-                              is_superuser=True or is_staff,
-                              is_staff=is_staff,
-                             )
+        superuser = CremeUser(
+            username='kirika', email='kirika@noir.jp',
+            first_name='Kirika', last_name='Yumura',
+            is_superuser=True or is_staff,
+            is_staff=is_staff,
+        )
         superuser.set_password(password)
         superuser.save()
 
@@ -95,9 +103,12 @@ class _CremeTestCase:
 
         self.role = role
 
-        basic_user = CremeUser(username='mireille', email='mireille@noir.jp', role=role,
-                               first_name='Mireille', last_name='Bouquet',
-                              )
+        basic_user = CremeUser(
+            username='mireille',
+            email='mireille@noir.jp',
+            role=role,
+            first_name='Mireille', last_name='Bouquet',
+        )
         basic_user.set_password(password)
         basic_user.save()
 
@@ -435,6 +446,30 @@ class _CremeTestCase:
     def create_datetime(self, *args, **kwargs):
         tz = utc if kwargs.pop('utc', False) else get_current_timezone()
         return make_aware(datetime(*args, **kwargs), tz)
+
+    def create_uploaded_file(self, *,
+                             file_name: str,
+                             dir_name: str,
+                             content: Union[str, List[str]] = 'I am the content',
+                            ):
+        from os import path as os_path
+        from shutil import copy
+
+        from creme.creme_core.utils.file_handling import FileCreator
+
+        rel_media_dir_path = os_path.join('upload', 'creme_core-tests', dir_name)
+        final_path = FileCreator(
+            os_path.join(settings.MEDIA_ROOT, rel_media_dir_path),
+            file_name,
+        ).create()
+
+        if isinstance(content, list):
+            copy(os_path.join(*content), final_path)
+        elif isinstance(content, str):
+            with open(final_path, 'w') as f:
+                f.write(content)
+
+        return os_path.join(rel_media_dir_path, os_path.basename(final_path))
 
     def get_object_or_fail(self, model, **kwargs):
         try:

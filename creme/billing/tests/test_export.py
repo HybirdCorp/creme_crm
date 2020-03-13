@@ -54,9 +54,11 @@ class ExportTestCase(_BillingTestCase):
         fullpath = fileref.filedata.path
         self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists?!')
         self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'billing'), dirname(fullpath))
-        self.assertEqual(f'attachment; filename={basename(fullpath)}',
+        # self.assertEqual(f'attachment; filename={basename(fullpath)}',
+        self.assertEqual(f'attachment; filename="{basename(fullpath)}"',
                          response['Content-Disposition']
                         )
+        __ = b''.join(response.streaming_content)  # Consume stream to avoid ResourceWarning
 
     @skipIfCustomQuote
     @skipIfCustomServiceLine
