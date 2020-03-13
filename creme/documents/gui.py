@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019  Hybird
+#    Copyright (C) 2019-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,16 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui import listview
+from creme.creme_core.gui.field_printers import FKPrinter, M2MPrinterForHTML
 
 from . import get_folder_model
 
 Folder = get_folder_model()
 
 
+# List-view Buttons ------------------------------------------------------------
 class ParentFolderButton(listview.ListViewButton):
     # NB: use context variable "parent_folder" (see FoldersList).
     template_name = 'documents/listview/buttons/parent-folder.html'
@@ -58,3 +63,41 @@ class FolderCreationButton(listview.CreationButton):
             allowed &= request.user.has_perm_to_link(Folder, owner=None)
 
         return allowed
+
+
+# Field printers ---------------------------------------------------------------
+
+def print_fk_image_html(entity, fval, user, field):
+    if not user.has_perm_to_view(fval):
+        return settings.HIDDEN_VALUE
+
+    mime_type = fval.mime_type
+
+    if mime_type and mime_type.is_image:
+        return format_html(
+            '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
+            # url=fval.get_dl_url(),
+            url=fval.get_download_absolute_url(),
+            attrs=mark_safe(' class="is_deleted"' if fval.is_deleted else ''),
+            content=fval.get_entity_summary(user),
+        )
+
+    return FKPrinter.print_fk_entity_html(entity, fval, user, field)
+
+
+def print_doc_summary_html(instance, related_entity, fval, user, field):
+    if not user.has_perm_to_view(instance):
+        return settings.HIDDEN_VALUE
+
+    mime_type = instance.mime_type
+
+    if mime_type and mime_type.is_image:
+        return format_html(
+            '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
+            # url=instance.get_dl_url(),
+            url=instance.get_download_absolute_url(),
+            attrs=mark_safe(' class="is_deleted"' if instance.is_deleted else ''),
+            content=instance.get_entity_summary(user),
+        )
+
+    return M2MPrinterForHTML.printer_entity_html(instance, related_entity, fval, user, field)
