@@ -18,9 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.conf import settings
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -52,12 +49,16 @@ class DocumentsConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register_4_model(self.Document, bricks.DocumentBrick) \
-                      .register(bricks.FolderDocsBrick,
-                                bricks.ChildFoldersBrick,
-                                bricks.LinkedDocsBrick,
-                               ) \
-                      .register_hat(self.Document, main_brick_cls=bricks.DocumentBarHatBrick)
+        Document = self.Document
+        brick_registry.register_4_model(
+            Document, bricks.DocumentBrick,
+        ).register(
+            bricks.FolderDocsBrick,
+            bricks.ChildFoldersBrick,
+            bricks.LinkedDocsBrick,
+        ).register_hat(
+            Document, main_brick_cls=bricks.DocumentBarHatBrick,
+        )
 
     def register_bulk_update(self, bulk_update_registry):
         from .forms.folder import ParentFolderBulkForm
@@ -74,48 +75,19 @@ class DocumentsConfig(CremeAppConfig):
         register_model(models.DocumentCategory, 'doc_category')
 
     def register_field_printers(self, field_printers_registry):
-        from creme.creme_core.gui.field_printers import print_foreignkey_html, print_many2many_html
+        from creme.creme_core.gui import field_printers
 
-        def print_fk_image_html(entity, fval, user, field):
-            if not user.has_perm_to_view(fval):
-                return settings.HIDDEN_VALUE
-
-            mime_type = fval.mime_type
-
-            if mime_type and mime_type.is_image:
-                return format_html(
-                    '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
-                    # url=fval.get_dl_url(),
-                    url=fval.get_download_absolute_url(),
-                    attrs=mark_safe(' class="is_deleted"' if fval.is_deleted else ''),
-                    content=fval.get_entity_summary(user),
-                )
-
-            return print_foreignkey_html.print_fk_entity_html(entity, fval, user, field)
-
-        def print_doc_summary_html(instance, related_entity, fval, user, field):
-            if not user.has_perm_to_view(instance):
-                return settings.HIDDEN_VALUE
-
-            mime_type = instance.mime_type
-
-            if mime_type and mime_type.is_image:
-                return format_html(
-                    '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
-                    # url=instance.get_dl_url(),
-                    url=instance.get_download_absolute_url(),
-                    attrs=mark_safe(' class="is_deleted"' if instance.is_deleted else ''),
-                    content=instance.get_entity_summary(user),
-                )
-
-            return print_many2many_html.printer_entity_html(instance, related_entity, fval, user, field)
+        from . import gui
 
         Document = self.Document
-        print_foreignkey_html.register(Document, print_fk_image_html)
-        print_many2many_html.register(
+        field_printers.print_foreignkey_html.register(
+            model=Document,
+            printer=gui.print_fk_image_html,
+        )
+        field_printers.print_many2many_html.register(
             Document,
-            printer=print_doc_summary_html,
-            enumerator=print_many2many_html.enumerator_entity,
+            printer=gui.print_doc_summary_html,
+            enumerator=field_printers.M2MPrinterForHTML.enumerator_entity,
         )
 
     def register_filefields_download(self, filefield_download_registry):
@@ -124,8 +96,11 @@ class DocumentsConfig(CremeAppConfig):
         )
 
     def register_icons(self, icon_registry):
-        icon_registry.register(self.Document, 'images/document_%(size)s.png') \
-                     .register(self.Folder,   'images/document_%(size)s.png')
+        icon_registry.register(
+            self.Document, 'images/document_%(size)s.png',
+        ).register(
+            self.Folder,   'images/document_%(size)s.png',
+        )
 
     def register_menu(self, creme_menu):
         Document = self.Document
@@ -145,6 +120,6 @@ class DocumentsConfig(CremeAppConfig):
         merge_form_registry.register(self.Folder, folder.get_merge_form_builder)
 
     def register_quickforms(self, quickforms_registry):
-        from .forms.quick import DocumentQuickForm
+        from .forms import quick
 
-        quickforms_registry.register(self.Document, DocumentQuickForm)
+        quickforms_registry.register(self.Document, quick.DocumentQuickForm)
