@@ -35,13 +35,19 @@ class CSVExportBackend(ExportBackend):
 
     def __init__(self):
         self.response = HttpResponse(content_type='text/csv')
-        self.writer = csv.writer(self.response, quoting=csv.QUOTE_ALL, delimiter=self.delimiter)
+        self.writer = csv.writer(
+            self.response,
+            quoting=csv.QUOTE_ALL,
+            delimiter=self.delimiter,
+        )
 
     def writerow(self, row):
         return self.writer.writerow(row)
 
-    def save(self, filename):
-        self.response['Content-Disposition'] = f'attachment; filename={slugify(filename)}.csv'
+    # def save(self, filename):
+    def save(self, filename, user):
+        # self.response['Content-Disposition'] = f'attachment; filename={slugify(filename)}.csv'
+        self.response['Content-Disposition'] = f'attachment; filename="{slugify(filename)}.csv"'
 
 
 class SemiCSVExportBackend(CSVExportBackend):

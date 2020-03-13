@@ -193,6 +193,7 @@ class Export(generic.base.EntityRelatedMixin, generic.CheckedView):
         for line in report.fetch_all_lines(extra_q=q_filter, user=user):
             writerow([smart_str(value) for value in line])
 
-        writer.save(smart_str(report.name))
+        # writer.save(smart_str(report.name))
+        writer.save(smart_str(report.name), user)
 
         return writer.response

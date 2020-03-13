@@ -3,7 +3,8 @@
 
 {% block buttons %}
     <div class='bar-action'>
-        <a href="{% url 'creme_core__dl_file' object.filedata %}" class="bar-button">
+{#        <a href="{% url 'creme_core__dl_file' object.filedata %}" class="bar-button"> #}
+        <a href="{{object.get_download_absolute_url}}" class="bar-button">
             {% widget_icon name='download' size='brick-hat-bar-button' label=_('Download the file') %}
         </a>
     </div>

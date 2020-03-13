@@ -2,28 +2,28 @@
 
 try:
     from datetime import timedelta
-    from os.path import join, exists, basename
+    from os.path import exists  # join basename
 
-    from django.conf import settings
+    # from django.conf import settings
     from django.db.transaction import atomic
 
     from .. import base
     from creme.creme_core.creme_jobs import temp_files_cleaner_type
     from creme.creme_core.models import Job, FileRef, FakeFolder, FakeDocument, FakeFileComponent
     from creme.creme_core.utils.date_period import date_period_registry
-    from creme.creme_core.utils.file_handling import FileCreator
+    # from creme.creme_core.utils.file_handling import FileCreator
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
 
-def _create_file(name):
-    rel_media_dir_path = join('upload', 'creme_core-tests', 'models')
-    final_path = FileCreator(join(settings.MEDIA_ROOT, rel_media_dir_path), name).create()
-
-    with open(final_path, 'w') as f:
-        f.write('I am the content')
-
-    return join(rel_media_dir_path, basename(final_path))
+# def _create_file(name):
+#     rel_media_dir_path = join('upload', 'creme_core-tests', 'models')
+#     final_path = FileCreator(join(settings.MEDIA_ROOT, rel_media_dir_path), name).create()
+#
+#     with open(final_path, 'w') as f:
+#         f.write('I am the content')
+#
+#     return join(rel_media_dir_path, basename(final_path))
 
 
 class FileRefTestCase(base.CremeTestCase):
@@ -44,14 +44,19 @@ class FileRefTestCase(base.CremeTestCase):
                       )
 
     def test_basename01(self):
-        path = _create_file('FileRefTestCase_test_basename01.txt')
+        # path = _create_file('FileRefTestCase_test_basename01.txt')
+        path = self.create_uploaded_file(
+            file_name='FileRefTestCase_test_basename01.txt',
+            dir_name='models',
+        )
 
         with self.assertNoException():
             FileRef.objects.create(filedata=path, basename='test_basename01.txt')
 
     def test_basename02(self):
         name = 'FileRefTestCase_test_basename02.txt'
-        path = _create_file(name)
+        # path = _create_file(name)
+        path = self.create_uploaded_file(file_name=name, dir_name='models')
 
         with self.assertNoException():
             file_ref = FileRef.objects.create(filedata=path)
@@ -61,7 +66,11 @@ class FileRefTestCase(base.CremeTestCase):
     def test_job01(self):
         "File is too young to be deleted (just created)"
         job = self._get_job(days=1)
-        path = _create_file('FileRefTestCase_test_job01.txt')
+        # path = _create_file('FileRefTestCase_test_job01.txt')
+        path = self.create_uploaded_file(
+            file_name='FileRefTestCase_test_job01.txt',
+            dir_name='models',
+        )
         temp_file = FileRef.objects.create(filedata=path)
         self.assertIs(temp_file.temporary, True)
         self.assertIsNone(temp_file.user)
@@ -74,7 +83,11 @@ class FileRefTestCase(base.CremeTestCase):
         "File is old enough to be deleted"
         days = 1
         job = self._get_job(days=days)
-        path = _create_file('FileRefTestCase_test_job02.txt')
+        # path = _create_file('FileRefTestCase_test_job02.txt')
+        path = self.create_uploaded_file(
+            file_name='FileRefTestCase_test_job02.txt',
+            dir_name='models',
+        )
         file_ref = FileRef.objects.create(filedata=path)
         full_path = file_ref.filedata.path
 
@@ -87,7 +100,11 @@ class FileRefTestCase(base.CremeTestCase):
     def test_job03(self):
         "File is too young to be deleted"
         job = self._get_job(days=2)
-        path = _create_file('FileRefTestCase_test_job03.txt')
+        # path = _create_file('FileRefTestCase_test_job03.txt')
+        path = self.create_uploaded_file(
+            file_name='FileRefTestCase_test_job03.txt',
+            dir_name='models',
+        )
         file_ref = FileRef.objects.create(filedata=path)
 
         self._oldify_temp_file(file_ref, days=1)
@@ -98,7 +115,11 @@ class FileRefTestCase(base.CremeTestCase):
     def test_job04(self):
         "File is not temporary"
         job = self._get_job(days=1)
-        path = _create_file('FileRefTestCase_test_job04.txt')
+        # path = _create_file('FileRefTestCase_test_job04.txt')
+        path = self.create_uploaded_file(
+            file_name='FileRefTestCase_test_job04.txt',
+            dir_name='models',
+        )
         file_ref = FileRef.objects.create(filedata=path, temporary=False)
 
         self._oldify_temp_file(file_ref, days=2)
@@ -110,10 +131,19 @@ class FileRefTestCase(base.CremeTestCase):
         user = self.login()
 
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]
-        path = _create_file('FileRefTestCase_test_create_at_deletion.txt')
+        # path = _create_file('FileRefTestCase_test_create_at_deletion.txt')
+        path = self.create_uploaded_file(
+            file_name='FileRefTestCase_test_create_at_deletion.txt',
+            dir_name='models',
+        )
 
         folder = FakeFolder.objects.create(user=user, title='X-files')
-        doc = FakeDocument.objects.create(user=user, title='Roswell.txt', linked_folder=folder, filedata=path)
+        doc = FakeDocument.objects.create(
+            user=user,
+            title='Roswell.txt',
+            linked_folder=folder,
+            filedata=path,
+        )
 
         full_path = doc.filedata.path
 
@@ -142,7 +172,11 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
         user = self.login()
 
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]
-        path = _create_file('FileRefTestDeleteCase_test_delete_model_with_file01.txt')
+        # path = _create_file('FileRefTestDeleteCase_test_delete_model_with_file01.txt')
+        path = self.create_uploaded_file(
+            file_name='FileRefTestDeleteCase_test_delete_model_with_file01.txt',
+            dir_name='models',
+        )
 
         folder = FakeFolder.objects.create(user=user, title='X-files')
         doc = FakeDocument.objects.create(user=user, title='Roswell.txt', linked_folder=folder, filedata=path)
@@ -167,7 +201,11 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
         user = self.login()
 
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]
-        path = _create_file('FileRefTestDeleteCase_test_delete_model_with_file02.txt')
+        # path = _create_file('FileRefTestDeleteCase_test_delete_model_with_file02.txt')
+        path = self.create_uploaded_file(
+            file_name='FileRefTestDeleteCase_test_delete_model_with_file02.txt',
+            dir_name='models',
+        )
 
         folder = FakeFolder.objects.create(user=user, title='X-files')
         doc = FakeDocument.objects.create(user=user, title='Roswell.txt', linked_folder=folder, filedata=path)

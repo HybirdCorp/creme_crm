@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2019  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -85,7 +85,8 @@ class DocumentsConfig(CremeAppConfig):
             if mime_type and mime_type.is_image:
                 return format_html(
                     '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
-                    url=fval.get_dl_url(),
+                    # url=fval.get_dl_url(),
+                    url=fval.get_download_absolute_url(),
                     attrs=mark_safe(' class="is_deleted"' if fval.is_deleted else ''),
                     content=fval.get_entity_summary(user),
                 )
@@ -101,7 +102,8 @@ class DocumentsConfig(CremeAppConfig):
             if mime_type and mime_type.is_image:
                 return format_html(
                     '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
-                    url=instance.get_dl_url(),
+                    # url=instance.get_dl_url(),
+                    url=instance.get_download_absolute_url(),
                     attrs=mark_safe(' class="is_deleted"' if instance.is_deleted else ''),
                     content=instance.get_entity_summary(user),
                 )
@@ -110,10 +112,16 @@ class DocumentsConfig(CremeAppConfig):
 
         Document = self.Document
         print_foreignkey_html.register(Document, print_fk_image_html)
-        print_many2many_html.register(Document,
-                                      printer=print_doc_summary_html,
-                                      enumerator=print_many2many_html.enumerator_entity,
-                                     )
+        print_many2many_html.register(
+            Document,
+            printer=print_doc_summary_html,
+            enumerator=print_many2many_html.enumerator_entity,
+        )
+
+    def register_filefields_download(self, filefield_download_registry):
+        filefield_download_registry.register(
+            model=self.Document, field_name='filedata',
+        )
 
     def register_icons(self, icon_registry):
         icon_registry.register(self.Document, 'images/document_%(size)s.png') \

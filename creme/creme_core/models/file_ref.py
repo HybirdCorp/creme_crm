@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2018  Hybird
+#    Copyright (C) 2016-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,9 +20,9 @@
 
 from os.path import basename
 
-# from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
-# from django.urls import reverse
+from django.urls import reverse
 
 from .fields import CremeUserForeignKey
 
@@ -38,14 +38,15 @@ class FileRef(models.Model):  # NB: not a CremeModel, because it's used by Creme
     class Meta:
         app_label = 'creme_core'
 
-    # TODO
-    # def get_download_absolute_url(self):
-    #     return reverse('creme_core__download',
-    #                    args=(ContentType.objects.get_for_model(self.__class__).id,
-    #                          self.id,
-    #                          'filedata',
-    #                         ),
-    #                   )
+    def get_download_absolute_url(self):
+        return reverse(
+            'creme_core__download',
+            args=(
+                ContentType.objects.get_for_model(self.__class__).id,
+                self.id,
+                'filedata',
+            ),
+        )
 
     def save(self, *args, **kwargs):
         if not self.basename:

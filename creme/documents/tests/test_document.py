@@ -65,14 +65,17 @@ class DocumentTestCase(_DocumentsTestCase):
         content = 'Yes I am the content (DocumentTestCase.test_createview)'
         file_obj = self.build_filedata(content, suffix=f'.{ext}')
         folder = Folder.objects.all()[0]
-        response = self.client.post(self.ADD_DOC_URL, follow=True,
-                                    data={'user':          user.pk,
-                                          'title':         title,
-                                          'filedata':      file_obj,
-                                          'linked_folder': folder.id,
-                                          'description':   description,
-                                         },
-                                   )
+        response = self.client.post(
+            self.ADD_DOC_URL,
+            follow=True,
+            data={
+                'user':          user.pk,
+                'title':         title,
+                'filedata':      file_obj,
+                'linked_folder': folder.id,
+                'description':   description,
+            },
+        )
         self.assertNoFormError(response)
 
         docs = Document.objects.all()
@@ -94,15 +97,17 @@ class DocumentTestCase(_DocumentsTestCase):
             self.assertEqual([content], f.readlines())
 
         # Download
-        response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
+        # response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
+        response = self.assertGET200(doc.get_download_absolute_url())
         self.assertEqual('text/plain', response['Content-Type'])
-        self.assertEqual('attachment; filename=' + file_obj.base_name,
+        # self.assertEqual('attachment; filename=' + file_obj.base_name,
+        self.assertEqual(f'attachment; filename="{file_obj.base_name}"',
                          response['Content-Disposition']
                         )
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'png', 'py'))
     def test_createview02(self):
-        "Forbidden extension"
+        "Forbidden extension."
         self.login()
 
         ext = 'php'
@@ -117,9 +122,11 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual('upload/documents/{}.txt'.format(file_obj.base_name), filedata.name)
 
         # Download
-        response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
+        # response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
+        response = self.assertGET200(doc.get_download_absolute_url())
         self.assertEqual('text/plain', response['Content-Type'])
-        self.assertEqual('attachment; filename={}.txt'.format(file_obj.base_name),
+        # self.assertEqual('attachment; filename={}.txt'.format(file_obj.base_name),
+        self.assertEqual(f'attachment; filename="{file_obj.base_name}.txt"',
                          response['Content-Disposition']
                         )
 
@@ -139,14 +146,16 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(f'upload/documents/{file_obj.base_name}.txt', filedata.name)
 
         # Download
-        response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
+        # response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
+        response = self.assertGET200(doc.get_download_absolute_url())
         self.assertEqual('text/plain', response['Content-Type'])
-        self.assertEqual(f'attachment; filename={file_obj.base_name}.txt',
+        # self.assertEqual(f'attachment; filename={file_obj.base_name}.txt',
+        self.assertEqual(f'attachment; filename="{file_obj.base_name}.txt"',
                          response['Content-Disposition']
                         )
 
     def test_createview04(self):
-        "No extension"
+        "No extension."
         self.login()
 
         title = 'My doc'
@@ -157,27 +166,31 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(f'upload/documents/{file_obj.base_name}.txt', filedata.name)
 
         # Download
-        response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
+        # response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
+        response = self.assertGET200(doc.get_download_absolute_url())
         self.assertEqual('text/plain', response['Content-Type'])
-        self.assertEqual(f'attachment; filename={file_obj.base_name}.txt',
+        # self.assertEqual(f'attachment; filename={file_obj.base_name}.txt',
+        self.assertEqual(f'attachment; filename="{file_obj.base_name}.txt"',
                          response['Content-Disposition']
                         )
 
     def test_createview05(self):
-        "No title"
+        "No title."
         user = self.login()
 
         ext = settings.ALLOWED_EXTENSIONS[0]
         file_obj = self.build_filedata('Content', suffix='.' + ext)
 
         folder = Folder.objects.create(user=user, title='test_createview05')
-        response = self.client.post(self.ADD_DOC_URL, follow=True,
-                                    data={'user':     user.pk,
-                                          # 'title':    '',
-                                          'filedata': file_obj,
-                                          'linked_folder':   folder.id,
-                                         }
-                                   )
+        response = self.client.post(
+            self.ADD_DOC_URL, follow=True,
+            data={
+                'user':          user.pk,
+                # 'title':       '',
+                'filedata':      file_obj,
+                'linked_folder': folder.id,
+            },
+        )
 
         self.assertNoFormError(response)
 
@@ -186,9 +199,9 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual('upload/documents/' + file_name, doc.filedata.name)
         self.assertEqual(file_name, doc.title)
 
-    def test_download_error(self):
-        self.login()
-        self.assertGET404(reverse('creme_core__dl_file', args=('tmpLz48vy.txt',)))
+    # def test_download_error(self):
+    #     self.login()
+    #     self.assertGET404(reverse('creme_core__dl_file', args=('tmpLz48vy.txt',)))
 
     def test_editview(self):
         user = self.login()
@@ -196,7 +209,11 @@ class DocumentTestCase(_DocumentsTestCase):
         title       = 'Test doc'
         description = 'Test description'
         content     = 'Yes I am the content (DocumentTestCase.test_editview)'
-        doc = self._create_doc(title, self.build_filedata(content), description=description)
+        doc = self._create_doc(
+            title,
+            self.build_filedata(content),
+            description=description,
+        )
 
         url = doc.get_edit_absolute_url()
         self.assertGET200(url)
@@ -204,18 +221,23 @@ class DocumentTestCase(_DocumentsTestCase):
         title       = title.upper()
         description = description.upper()
         # content     = content.upper() TODO: use ?
-        folder      = Folder.objects.create(title='Test folder', parent_folder=None,
-                                            category=FolderCategory.objects.all()[0],
-                                            user=user,
-                                           )
+        folder = Folder.objects.create(
+            title='Test folder',
+            parent_folder=None,
+            category=FolderCategory.objects.all()[0],
+            user=user,
+        )
 
-        response = self.client.post(url, follow=True,
-                                    data={'user':          user.pk,
-                                          'title':         title,
-                                          'description':   description,
-                                          'linked_folder': folder.id,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':          user.pk,
+                'title':         title,
+                'description':   description,
+                'linked_folder': folder.id,
+            },
+        )
         self.assertNoFormError(response)
 
         doc = self.refresh(doc)
@@ -478,7 +500,8 @@ class DocumentTestCase(_DocumentsTestCase):
 
         download_action = dl_actions[0]
         self.assertEqual('redirect', download_action.type)
-        self.assertEqual(reverse('creme_core__dl_file', args=(doc1.filedata,)),
+        # self.assertEqual(reverse('creme_core__dl_file', args=(doc1.filedata,)),
+        self.assertEqual(doc1.get_download_absolute_url(),
                          download_action.url
                         )
         self.assertTrue(download_action.is_enabled)
@@ -492,7 +515,7 @@ class DocumentTestCase(_DocumentsTestCase):
         folder = Folder.objects.create(user=user, title='One piece', category=cat)
 
         response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('documents', 'category', cat.id)
+                                            args=('documents', 'category', cat.id),
                                            ),
                                    )
         self.assertNoFormError(response)
@@ -506,32 +529,38 @@ class DocumentTestCase(_DocumentsTestCase):
 
     @skipIfCustomContact
     def test_field_printers01(self):
-        "Field printer with FK on Image"
+        "Field printer with FK on Image."
         user = self.login()
 
         image = self._create_image()
         summary = image.get_entity_summary(user)
-        self.assertHTMLEqual('<img class="entity-summary" src="%(url)s" alt="%(name)s" title="%(name)s"/>' % {
-                                    'url':  image.get_dl_url(),
-                                    'name': image.title,
-                                },
-                             summary
-                            )
-
-        casca = get_contact_model().objects.create(user=user, image=image,
-                                                   first_name='Casca', last_name='Mylove',
-                                                  )
         self.assertHTMLEqual(
-            f'''<a onclick="creme.dialogs.image('{image.get_dl_url()}').open();">{summary}</a>''',
+            '<img class="entity-summary" src="{url}" alt="{name}" title="{name}"/>'.format(
+                # url=image.get_dl_url(),
+                url=image.get_download_absolute_url(),
+                name=image.title,
+            ),
+            summary
+        )
+
+        casca = get_contact_model().objects.create(
+            user=user,
+            image=image,
+            first_name='Casca', last_name='Mylove',
+        )
+        self.assertHTMLEqual(
+            # f'''<a onclick="creme.dialogs.image('{image.get_dl_url()}').open();">{summary}</a>''',
+            f'''<a onclick="creme.dialogs.image('{image.get_download_absolute_url()}').open();">{summary}</a>''',
             field_printers_registry.get_html_field_value(casca, 'image', user)
         )
-        self.assertEqual(str(casca.image),
-                         field_printers_registry.get_csv_field_value(casca, 'image', user)
-                        )
+        self.assertEqual(
+            str(casca.image),
+            field_printers_registry.get_csv_field_value(casca, 'image', user)
+        )
 
     @skipIfCustomContact
     def test_field_printers02(self):
-        "Field printer with FK on Image + credentials"
+        "Field printer with FK on Image + credentials."
         Contact = get_contact_model()
 
         user = self.login(allowed_apps=['creme_core', 'persons', 'documents'])
@@ -559,8 +588,12 @@ class DocumentTestCase(_DocumentsTestCase):
         judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual(
-            f'''<a onclick="creme.dialogs.image('{judo_face.get_dl_url()}').open();">{judo_face.get_entity_summary(other_user)}</a>''',
+        self.assertHTMLEqual(
+            # f'''<a onclick="creme.dialogs.image('{judo_face.get_dl_url()}').open();">{judo_face.get_entity_summary(other_user)}</a>''',
+            f'''<a onclick="creme.dialogs.image('{judo_face.get_download_absolute_url()}').open();">
+                {judo_face.get_entity_summary(other_user)}
+            </a>
+            ''',
             get_html_val(judo, 'image', other_user)
         )
         self.assertEqual('<p>Judo&#39;s selfie</p>',
@@ -585,17 +618,18 @@ class DocumentTestCase(_DocumentsTestCase):
 @skipIfCustomFolder
 class DocumentQuickFormTestCase(_DocumentsTestCase):
     def quickform_data(self, count):
-        return {'form-INITIAL_FORMS': '0',
-                'form-MAX_NUM_FORMS': '',
-                'form-TOTAL_FORMS':   str(count),
-               }
+        return {
+            'form-INITIAL_FORMS': '0',
+            'form-MAX_NUM_FORMS': '',
+            'form-TOTAL_FORMS':   str(count),
+        }
 
     def quickform_data_append(self, data, id, user='', filedata='', folder_id=''):
-        return data.update({f'form-{id}-user':          user,
-                            f'form-{id}-filedata':      filedata,
-                            f'form-{id}-linked_folder': folder_id,
-                           }
-                          )
+        return data.update({
+            f'form-{id}-user':          user,
+            f'form-{id}-filedata':      filedata,
+            f'form-{id}-linked_folder': folder_id,
+        })
 
     def test_create(self):
         user = self.login()
@@ -616,8 +650,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
                 'user':          user.id,
                 'filedata':      file_obj,
                 'linked_folder': folder.id,
-            }
-
+            },
         ))
 
         docs = Document.objects.all()
@@ -741,21 +774,24 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
     @override_settings(ALLOWED_EXTENSIONS=('png', 'pdf'))
     def test_add_image_doc02(self):
-        "Not an image file"
+        "Not an image file."
         user = self.login()
 
         folder = Folder.objects.all()[0]
         content = '<xml>Content (DocumentQuickWidgetTestCase.test_add_image_doc02)</xml>'
         file_obj = self.build_filedata(content, suffix='.xml')
-        response = self.assertPOST200(reverse('documents__create_image_popup'),
-                                      follow=True,
-                                      data={'user':   user.pk,
-                                            'image':  file_obj,
-                                            'linked_folder': folder.id,
-                                           },
-                                     )
-        self.assertFormError(response, 'form', 'image',
-                             _('Upload a valid image. '
-                               'The file you uploaded was either not an image or a corrupted image.'
-                              )
-                            )
+        response = self.assertPOST200(
+            reverse('documents__create_image_popup'),
+            follow=True,
+            data={
+                'user':   user.pk,
+                'image':  file_obj,
+                'linked_folder': folder.id,
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'image',
+            _('Upload a valid image. '
+              'The file you uploaded was either not an image or a corrupted image.'
+             )
+        )

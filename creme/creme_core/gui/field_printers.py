@@ -23,15 +23,22 @@ from typing import Any, Type, Callable, Iterator
 import warnings
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import Manager, Model, Field, QuerySet
+from django.db.models import Manager, Model, Field
 from django.template.defaultfilters import linebreaks
+from django.urls import reverse
 from django.utils.formats import date_format, number_format
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
 from django.utils.translation import ngettext, gettext as _
 
+from ..core.download import (
+    DownLoadableFileField,
+    FileFieldDownLoadRegistry,
+    filefield_download_registry,
+)
 from ..models import CremeEntity, EntityFilter, fields
 from ..templatetags.creme_widgets import widget_entity_hyperlink, widget_urlize
 from ..utils import bool_as_html
@@ -101,24 +108,83 @@ def print_color_html(entity: Model, fval, user, field: Field) -> str:
     ) if fval else ''
 
 
-def print_file_html(entity: Model, fval, user, field: Field) -> str:
-    if fval:
-        ext = splitext(fval.path)[1]
+class FileFieldPrinterForHTML:
+    def __init__(self, registry: FileFieldDownLoadRegistry):
+        self.registry = registry
+
+    def __call__(self, entity: Model, fval, user, field: Field) -> str:
+        if fval:
+            fname = field.name
+            registry = self.registry
+
+            try:
+                dl_filefield = registry.get(
+                    user=user,
+                    instance=entity,
+                    field_name=fname,
+                )
+            except registry.InvalidField:
+                return simple_print_html(entity, fval, user, field)
+
+            ct_id = ContentType.objects.get_for_model(entity).id
+
+            return self._render_download(
+                url=reverse('creme_core__download', args=(ct_id, entity.id, fname)),
+                dl_filefield=dl_filefield,
+                entity=entity,
+                user=user,
+            )
+
+        return ''
+
+    @staticmethod
+    def _render_download(*,
+                         url: str,
+                         dl_filefield: DownLoadableFileField,
+                         entity: Model,
+                         user) -> str:
+        file_name = dl_filefield.base_name
+        ext = splitext(file_name)[1]
+
         if ext:
             ext = ext[1:]  # remove '.'
 
         if ext in settings.ALLOWED_IMAGES_EXTENSIONS:
-            return print_image_html(entity, fval, user, field)
+            return format_html(
+"""<a onclick="creme.dialogs.image('{url}').open();">
+    <img src="{url}" {size} alt="{label}"/>
+</a>""",
+                url=url,
+                label=_('Download «{file}»').format(file=file_name),
+                size=image_size(dl_filefield.file),   # TODO: fix to use the file
+            )
+        else:
+            return format_html(
+                '<a href="{url}" alt="{label}">{label}</a>',
+                url=url,
+                label=_('Download «{file}»').format(file=file_name),
+            )
 
-    return simple_print_html(entity, fval, user, field)
 
-
-def print_image_html(entity: Model, fval, user, field: Field) -> str:
-    return format_html(
-        """<a onclick="creme.dialogs.image('{url}').open();"><img src="{url}" {size}/></a>""",  # alt="{???}"
-        url=fval.url,
-        size=image_size(fval),
-    ) if fval else ''
+# def print_file_html(entity: Model, fval, user, field: Field) -> str:
+#     if fval:
+#         ext = splitext(fval.path)[1]
+#         if ext:
+#             ext = ext[1:]  # remove '.'
+#
+#         if ext in settings.ALLOWED_IMAGES_EXTENSIONS:
+#             return print_image_html(entity, fval, user, field)
+#
+#     return simple_print_html(entity, fval, user, field)
+#
+#
+# def print_image_html(entity: Model, fval, user, field: Field) -> str:
+#     return format_html(
+#         """<a onclick="creme.dialogs.image('{url}').open();"><img src="{url}" {size}/></a>""",  # alt="{???}"
+#         url=fval.url,
+#         size=image_size(fval),
+#     ) if fval else ''
+print_file_html = print_image_html = FileFieldPrinterForHTML(registry=filefield_download_registry)
 
 
 def print_integer(entity: Model, fval, user, field: Field) -> str:

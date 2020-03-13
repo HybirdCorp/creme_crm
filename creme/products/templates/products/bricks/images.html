@@ -23,7 +23,8 @@
         <span class="brick-tile-value">
             {% if view_perm %}
             <a href="{{image.get_absolute_url}}" title="{{image.image}}" alt="{{image.image}}">
-                <img src="{{image.get_dl_url}}"/>
+{#                <img src="{{image.get_dl_url}}"/> #}
+                <img src="{{image.get_download_absolute_url}}"/>
             </a>
             {% else %}
             {{HIDDEN_VALUE}}

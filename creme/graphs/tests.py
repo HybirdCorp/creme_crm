@@ -52,7 +52,7 @@ class GraphsTestCase(CremeTestCase):
         response = self.client.post(url, follow=True,
                                     data={'user': user.id,
                                           'name': name,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -73,7 +73,7 @@ class GraphsTestCase(CremeTestCase):
         response = self.client.post(url, follow=True,
                                     data={'user': user.id,
                                           'name': name,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(graph).name)
@@ -105,9 +105,10 @@ class GraphsTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('Add relation types to «{entity}»').format(entity=graph),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Add relation types to «{entity}»').format(entity=graph),
+            context.get('title')
+        )
         self.assertEqual(_('Save'), context.get('submit_label'))
 
         # ---
@@ -126,10 +127,11 @@ class GraphsTestCase(CremeTestCase):
         self.assertEqual(2,             len(rtypes))
         self.assertEqual({*rtypes_ids}, {rt.id for rt in rtypes})
 
-        self.assertPOST200(reverse('graphs__remove_rtype', args=(graph.id,)),
-                           data={'id': rtype01.id},
-                           follow=True,
-                          )
+        self.assertPOST200(
+            reverse('graphs__remove_rtype', args=(graph.id,)),
+            data={'id': rtype01.id},
+            follow=True,
+        )
         self.assertListEqual(
             [rtype02.id],
             [rt.id for rt in graph.orbital_relation_types.all()]
@@ -141,12 +143,16 @@ class GraphsTestCase(CremeTestCase):
         graph = Graph.objects.create(user=self.other_user, name='Graph01')
         self.assertGET403(reverse('graphs__add_rtypes', args=(graph.id,)))
 
-        rtype, srtype = RelationType.create(('test-subject_love', 'loves'), ('test-object_love', 'is loved to'))
+        rtype = RelationType.create(
+            ('test-subject_love', 'loves'),
+            ('test-object_love', 'is loved to')
+        )[0]
         graph.orbital_relation_types.add(rtype)
-        self.assertPOST403(reverse('graphs__remove_rtype', args=(graph.id,)),
-                           data={'id': rtype.id},
-                           follow=True,
-                          )
+        self.assertPOST403(
+            reverse('graphs__remove_rtype', args=(graph.id,)),
+            data={'id': rtype.id},
+            follow=True,
+        )
 
     @skipIf(skip_graphviz_tests, 'Pygraphviz is not installed (are you under Wind*ws ??')
     def test_download01(self):
@@ -169,21 +175,29 @@ class GraphsTestCase(CremeTestCase):
         url = reverse('graphs__add_roots', args=(graph.id,))
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'entities': self.formfield_value_multi_generic_entity(
-                                                                contact, orga,
-                                                            ),
-                                               'relation_types': [rtype.id],
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'entities': self.formfield_value_multi_generic_entity(
+                    contact, orga,
+                ),
+                'relation_types': [rtype.id],
+            },
+        )
         self.assertNoFormError(response)
 
         url = reverse('graphs__add_rtypes', args=(graph.id,))
         self.assertGET200(url)
-        self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype.id]}))
+        self.assertNoFormError(
+            self.client.post(url, data={'relation_types': [rtype.id]}),
+        )
 
         existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
 
-        response = self.assertGET200(reverse('graphs__dl_image', args=(graph.id,)), follow=True)
+        response = self.assertGET200(
+            reverse('graphs__dl_image', args=(graph.id,)),
+            follow=True,
+        )
         self.assertEqual('image/png', response['Content-Type'])
 
         filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
@@ -192,14 +206,17 @@ class GraphsTestCase(CremeTestCase):
         fileref = filerefs[0]
         self.assertTrue(fileref.temporary)
         self.assertEqual(f'graph_{graph.id}.png', fileref.basename)
-        # self.assertEqual(user, fileref.user) TODO
+        self.assertEqual(user, fileref.user)
 
         fullpath = fileref.filedata.path
         self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists ?!')
         self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'graphs'), dirname(fullpath))
-        self.assertEqual(f'attachment; filename={basename(fullpath)}',
+        # self.assertEqual(f'attachment; filename={basename(fullpath)}',
+        self.assertEqual(f'attachment; filename="{basename(fullpath)}"',
                          response['Content-Disposition']
                         )
+
+        _ = [*response.streaming_content]  # Consume stream to avoid error message "ResourceWarning: unclosed file..."
 
     def test_add_rootnode(self):
         user = self.login()
@@ -229,21 +246,28 @@ class GraphsTestCase(CremeTestCase):
         self.assertEqual(_('Save'), context.get('submit_label'))
 
         # ----
-        response = self.client.post(url, data={'entities': self.formfield_value_multi_generic_entity(
-                                                                contact, orga,
-                                                            ),
-                                               'relation_types': [rtype01.id, rtype02.id],
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'entities': self.formfield_value_multi_generic_entity(
+                    contact, orga,
+                ),
+                'relation_types': [rtype01.id, rtype02.id],
+            },
+        )
         self.assertNoFormError(response)
 
         rnodes = RootNode.objects.filter(graph=graph).order_by('id')
         self.assertEqual(2, len(rnodes))
 
-        self.assertSetEqual({contact, orga},
-                            {rnode.entity.get_real_entity() for rnode in rnodes}
-                           )
-        self.assertEqual({rtype01, rtype02}, {*rnodes[0].relation_types.all()})
+        self.assertSetEqual(
+            {contact, orga},
+            {rnode.entity.get_real_entity() for rnode in rnodes}
+        )
+        self.assertSetEqual(
+            {rtype01, rtype02},
+            {*rnodes[0].relation_types.all()}
+        )
 
         # Delete
         rnode = rnodes[1]
@@ -274,11 +298,14 @@ class GraphsTestCase(CremeTestCase):
         url = rnode.get_edit_absolute_url()
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Edit root node for «{entity}»').format(entity=graph),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Edit root node for «{entity}»').format(entity=graph),
+            response.context.get('title')
+        )
 
-        self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype01.id, rtype02.id]}))
+        self.assertNoFormError(
+            self.client.post(url, data={'relation_types': [rtype01.id, rtype02.id]})
+        )
         self.assertSetEqual({rtype01, rtype02}, {*rnode.relation_types.all()})
 
     def test_delete_rootnode01(self):
@@ -295,7 +322,11 @@ class GraphsTestCase(CremeTestCase):
         graph = Graph.objects.create(user=user, name='Graph01')
         rnode = RootNode.objects.create(graph=graph, entity=orga)
 
-        self.assertPOST200(reverse('graphs__remove_root'), data={'id': rnode.id}, follow=True)
+        self.assertPOST200(
+            reverse('graphs__remove_root'),
+            data={'id': rnode.id},
+            follow=True,
+        )
         self.assertDoesNotExist(rnode)
 
     def test_delete_rootnode02(self):
@@ -312,5 +343,9 @@ class GraphsTestCase(CremeTestCase):
         graph = Graph.objects.create(user=self.other_user, name='Graph01')
         rnode = RootNode.objects.create(graph=graph, entity=orga)
 
-        self.assertPOST403(reverse('graphs__remove_root'), data={'id': rnode.id}, follow=True)
+        self.assertPOST403(
+            reverse('graphs__remove_root'),
+            data={'id': rnode.id},
+            follow=True,
+        )
         self.assertStillExists(rnode)

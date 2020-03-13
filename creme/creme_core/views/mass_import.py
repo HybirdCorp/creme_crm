@@ -31,7 +31,12 @@ from ..auth.decorators import login_required
 from ..backends import export_backend_registry
 from ..core.exceptions import ConflictError
 from ..creme_jobs import mass_import_type
-from ..forms.mass_import import UploadForm, form_factory, get_header, get_import_backend_class  # get_backend
+from ..forms.mass_import import (
+    UploadForm,
+    form_factory,
+    get_header,
+    get_import_backend_class,
+)  # get_backend
 from ..gui.mass_import import import_form_registry
 from ..models import Job, MassImportJobResult
 from ..utils import get_ct_or_404, get_from_POST_or_404
@@ -70,12 +75,14 @@ def mass_import(request, ct_id):
                 cleaned_data = form.cleaned_data
                 # TODO: import_form_registry as attribute is the future CBV + pass it as argument here
                 ImportForm = form_factory(ct, form.header)
-                form = ImportForm(user=user,
-                                  initial={'step':       1,
-                                           'document':   cleaned_data['document'].id,
-                                           'has_header': cleaned_data['has_header'],
-                                          },
-                                 )
+                form = ImportForm(
+                    user=user,
+                    initial={
+                        'step':       1,
+                        'document':   cleaned_data['document'].id,
+                        'has_header': cleaned_data['has_header'],
+                    },
+                )
             else:
                 submit_label = _('Import this file')
         else:
@@ -88,12 +95,14 @@ def mass_import(request, ct_id):
             form = ImportForm(user=user, data=POST)
 
             if form.is_valid():
-                job = Job.objects.create(user=user,
-                                         type=mass_import_type,
-                                         data={'ctype': ct.id,
-                                               'POST':  POST.urlencode(),
-                                              },
-                                        )
+                job = Job.objects.create(
+                    user=user,
+                    type=mass_import_type,
+                    data={
+                        'ctype': ct.id,
+                        'POST':  POST.urlencode(),
+                    },
+                )
                 return redirect(job)
 
         cancel_url = POST.get('cancel_url')
@@ -102,13 +111,18 @@ def mass_import(request, ct_id):
         submit_label = _('Import this file')
         cancel_url = build_cancel_path(request)
 
-    return render(request, 'creme_core/generics/blockform/add.html',
-                  {'form':         form,
-                   'title':        _('Import «{model}» from data file').format(model=model._meta.verbose_name_plural),
-                   'cancel_url':   cancel_url,
-                   'submit_label': submit_label,
-                  },
-                 )
+    return render(
+        request,
+        'creme_core/generics/blockform/add.html',
+        {
+            'form': form,
+            'title': _('Import «{model}» from data file').format(
+                model=model._meta.verbose_name_plural,
+            ),
+            'cancel_url': cancel_url,
+            'submit_label': submit_label,
+        },
+    )
 
 
 @login_required
@@ -131,7 +145,7 @@ def download_errors(request, job_id):
     # get_export_backend = export_backend_registry.get_backend
     # export_backend = get_export_backend(import_backend.id) or \
     #                  get_export_backend(next(export_backend_registry.backends).id)
-    get_export_backend_class = export_backend_registry.get_backend
+    get_export_backend_class = export_backend_registry.get_backend_class
     export_backend_class = get_export_backend_class(import_backend_cls.id) or \
                            get_export_backend_class(next(export_backend_registry.backend_classes).id)
 
@@ -158,6 +172,7 @@ def download_errors(request, job_id):
             ]
         )
 
-    writer.save(f'{splitext(doc.title)[0]}-errors')
+    # writer.save(f'{splitext(doc.title)[0]}-errors')
+    writer.save(f'{splitext(doc.title)[0]}-errors', request.user)
 
     return writer.response

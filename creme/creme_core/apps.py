@@ -32,6 +32,7 @@ from .checks import Tags, check_uninstalled_apps  # NB: it registers other check
 from .registry import creme_registry, CremeRegistry
 
 if TYPE_CHECKING:
+    from .core.download import FileFieldDownLoadRegistry
     from .core.entity_filter import _EntityFilterRegistry
     from .core.enumerable import _EnumerableRegistry
     from .core.function_field import _FunctionFieldRegistry
@@ -209,13 +210,13 @@ class CremeAppConfig(AppConfig):
     def all_apps_ready(self):
         if not self.MIGRATION_MODE:
             from .core import (
-                entity_filter, enumerable, function_field, imprint, reminder,
-                sandbox, setting_key, sorter,
+                download, entity_filter, enumerable, function_field, imprint,
+                reminder, sandbox, setting_key, sorter,
             )
             from .gui import (
                 actions, bricks, bulk_update, button_menu, fields_config,
                 field_printers, icons, listview, mass_import, menu, merge,
-                quick_forms, statistics
+                quick_forms, statistics,
             )
 
             self.register_entity_models(creme_registry)
@@ -230,6 +231,7 @@ class CremeAppConfig(AppConfig):
             self.register_enumerable(enumerable.enumerable_registry)
             self.register_fields_config(fields_config.fields_config_registry)
             self.register_field_printers(field_printers.field_printers_registry)
+            self.register_filefields_download(download.filefield_download_registry)
             self.register_function_fields(function_field.function_field_registry)
             self.register_icons(icons.icon_registry)
             self.register_imprints(imprint.imprint_manager)
@@ -245,79 +247,82 @@ class CremeAppConfig(AppConfig):
             self.register_smart_columns(listview.smart_columns_registry)
             self.register_user_setting_keys(setting_key.user_setting_key_registry)
 
-    def register_entity_models(self, creme_registry: CremeRegistry):
+    def register_entity_models(self, creme_registry: CremeRegistry) -> None:
         pass
 
-    def register_actions(self, actions_registry: 'ActionsRegistry'):
+    def register_actions(self, actions_registry: 'ActionsRegistry') -> None:
         pass
 
-    def register_bricks(self, brick_registry: '_BrickRegistry'):
+    def register_bricks(self, brick_registry: '_BrickRegistry') -> None:
         pass
 
-    def register_bulk_update(self, bulk_update_registry: '_BulkUpdateRegistry'):
+    def register_bulk_update(self, bulk_update_registry: '_BulkUpdateRegistry') -> None:
         pass
 
-    def register_buttons(self, button_registry: 'ButtonsRegistry'):
+    def register_buttons(self, button_registry: 'ButtonsRegistry') -> None:
         pass
 
-    def register_cell_sorters(self, cell_sorter_registry: 'CellSorterRegistry'):
+    def register_cell_sorters(self, cell_sorter_registry: 'CellSorterRegistry') -> None:
         pass
 
-    def register_credentials(self, entity_filter_registry: '_EntityFilterRegistry'):
+    def register_credentials(self, entity_filter_registry: '_EntityFilterRegistry') -> None:
         pass
 
-    def register_entity_filter(self, entity_filter_registry: '_EntityFilterRegistry'):
+    def register_entity_filter(self, entity_filter_registry: '_EntityFilterRegistry') -> None:
         pass
 
-    def register_enumerable(self, enumerable_registry: '_EnumerableRegistry'):
+    def register_enumerable(self, enumerable_registry: '_EnumerableRegistry') -> None:
         pass
 
-    def register_fields_config(self, fields_config_registry: 'FieldsConfigRegistry'):
+    def register_fields_config(self, fields_config_registry: 'FieldsConfigRegistry') -> None:
         pass
 
-    def register_field_printers(self, field_printers_registry: '_FieldPrintersRegistry'):
+    def register_field_printers(self, field_printers_registry: '_FieldPrintersRegistry') -> None:
         pass
 
-    def register_function_fields(self, function_field_registry: '_FunctionFieldRegistry'):
+    def register_filefields_download(self, filefield_download_registry: 'FileFieldDownLoadRegistry') -> None:
         pass
 
-    def register_icons(self, icon_registry: 'IconRegistry'):
+    def register_function_fields(self, function_field_registry: '_FunctionFieldRegistry') -> None:
         pass
 
-    def register_imprints(self, imprint_manager: '_ImprintManager'):
+    def register_icons(self, icon_registry: 'IconRegistry') -> None:
         pass
 
-    def register_mass_import(self, import_form_registry: 'FormRegistry'):
+    def register_imprints(self, imprint_manager: '_ImprintManager') -> None:
         pass
 
-    def register_menu(self, creme_menu: 'Menu'):
+    def register_mass_import(self, import_form_registry: 'FormRegistry') -> None:
         pass
 
-    def register_merge_forms(self, merge_form_registry: '_MergeFormRegistry'):
+    def register_menu(self, creme_menu: 'Menu') -> None:
         pass
 
-    def register_quickforms(self, quickforms_registry: 'QuickFormsRegistry'):
+    def register_merge_forms(self, merge_form_registry: '_MergeFormRegistry') -> None:
         pass
 
-    def register_reminders(self, reminder_registry: 'ReminderRegistry'):
+    def register_quickforms(self, quickforms_registry: 'QuickFormsRegistry') -> None:
         pass
 
-    def register_sanboxes(self, sandbox_type_registry: '_SandboxTypeRegistry'):
+    def register_reminders(self, reminder_registry: 'ReminderRegistry') -> None:
         pass
 
-    def register_search_fields(self, search_field_registry: 'ListViewSearchFieldRegistry'):
+    def register_sanboxes(self, sandbox_type_registry: '_SandboxTypeRegistry') -> None:
         pass
 
-    def register_setting_keys(self, setting_key_registry: '_SettingKeyRegistry'):
+    def register_search_fields(self, search_field_registry: 'ListViewSearchFieldRegistry') -> None:
         pass
 
-    def register_smart_columns(self, smart_columns_registry: 'SmartColumnsRegistry'):
+    def register_setting_keys(self, setting_key_registry: '_SettingKeyRegistry') -> None:
         pass
 
-    def register_statistics(self, statistics_registry: '_StatisticsRegistry'):
+    def register_smart_columns(self, smart_columns_registry: 'SmartColumnsRegistry') -> None:
         pass
 
-    def register_user_setting_keys(self, user_setting_key_registry: '_SettingKeyRegistry'):
+    def register_statistics(self, statistics_registry: '_StatisticsRegistry') -> None:
+        pass
+
+    def register_user_setting_keys(self, user_setting_key_registry: '_SettingKeyRegistry') -> None:
         pass
 
 
@@ -488,6 +493,15 @@ class CremeCoreConfig(CremeAppConfig):
         from .models.entity import CremeEntity
 
         function_field_registry.register(CremeEntity, PropertiesField)
+
+    def register_filefields_download(self, filefield_download_registry):
+        from .models import FileRef
+
+        filefield_download_registry.register(
+            model=FileRef,
+            field_name='filedata',
+            basename_builder=(lambda instance, field, file_obj: instance.basename),
+        )
 
     def register_creme_config(self, config_registry):
         from . import models

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.urls.base import reverse
+# from django.urls.base import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme import documents
@@ -66,7 +66,8 @@ class DownloadAction(UIAction):
 
     @property
     def url(self):
-        return reverse('creme_core__dl_file', args=(self.instance.filedata,))
+        # return reverse('creme_core__dl_file', args=(self.instance.filedata,))
+        return self.instance.get_download_absolute_url()
 
     @property
     def is_enabled(self):

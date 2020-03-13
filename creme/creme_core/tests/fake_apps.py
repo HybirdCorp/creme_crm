@@ -11,6 +11,7 @@ def ready():
 
     already_run = True
 
+    from ..core.download import filefield_download_registry
     from ..core.function_field import function_field_registry
     from ..core.imprint import imprint_manager
     from ..gui.bricks import brick_registry
@@ -29,7 +30,8 @@ def ready():
     )
     from . import fake_function_fields
     from .fake_models import (
-        FakeContact, FakeOrganisation, FakeImage,
+        FakeContact, FakeOrganisation,
+        FakeDocument, FakeImage,
         FakeActivity, FakeEmailCampaign, FakeMailingList,
         FakeInvoice, FakeInvoiceLine, FakeTicket, FakeRecipe,
     )
@@ -39,6 +41,7 @@ def ready():
     creme_registry.register_entity_models(
         FakeContact,
         FakeOrganisation,
+        FakeDocument,
         FakeImage,
         FakeActivity,
         FakeEmailCampaign,
@@ -85,4 +88,8 @@ def ready():
         FakeContact,      get_merge_form_builder,
     ).register(
         FakeOrganisation, get_merge_form_builder,
+    )
+
+    filefield_download_registry.register(
+        model=FakeDocument, field_name='filedata',
     )

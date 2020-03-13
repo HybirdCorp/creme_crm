@@ -22,8 +22,14 @@ try:
     )
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.bricks import MassImportJobErrorsBrick, JobErrorsBrick
-    from creme.creme_core.creme_jobs import mass_import_type, batch_process_type
+    from creme.creme_core.bricks import (
+        MassImportJobErrorsBrick,
+        JobErrorsBrick,
+    )
+    from creme.creme_core.creme_jobs import (
+        mass_import_type,
+        batch_process_type,
+    )
     from creme.creme_core.models import (
         CremePropertyType, CremeProperty,
         RelationType, Relation,
@@ -36,7 +42,10 @@ try:
     from creme.creme_core.utils import update_model_instance
 
     from creme.documents.models import Document
-    from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
+    from creme.documents.tests.base import (
+        skipIfCustomDocument,
+        skipIfCustomFolder,
+    )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -1456,10 +1465,12 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         response = self.assertGET200(self._build_dl_errors_url(job), follow=True)
 
         cdisp = response['Content-Disposition']
-        self.assertTrue(cdisp.startswith(f'attachment; filename={slugify(doc.title)}-errors'),
+        # self.assertTrue(cdisp.startswith(f'attachment; filename={slugify(doc.title)}-errors'),
+        self.assertTrue(cdisp.startswith(f'attachment; filename="{slugify(doc.title)}-errors'),
                         f'Content-Disposition: not expected: {cdisp}'
                        )
-        self.assertTrue(cdisp.endswith('.' + ext))
+        # self.assertTrue(cdisp.endswith('.' + ext))
+        self.assertTrue(cdisp.endswith(f'.{ext}"'))
 
         result_lines = [['First name',   'Last name', 'Birthday', _('Errors')]] if header else []
         result_lines.append([first_name, last_name,   birthday,   _('Enter a valid date.')])
@@ -1495,7 +1506,8 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
     def test_dl_errors03(self):
         "XLS."
         def result_builder(response):
-            return [*XlrdReader(None, file_contents=response.content)]
+            # return [*XlrdReader(None, file_contents=response.content)]
+            return [*XlrdReader(None, file_contents=b''.join(response.streaming_content))]
 
         self._aux_test_dl_errors(self._build_xls_doc,
                                  result_builder=result_builder,

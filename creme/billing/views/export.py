@@ -28,7 +28,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template import loader
-from django.urls import reverse
+# from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.utils.translation import gettext as _
 
@@ -113,12 +113,14 @@ def export_as_pdf(request, base_id):
 
     rmtree(tmp_dir_path)
 
-    fileref = FileRef.objects.create(# user=request.user, TODO
-                                     filedata='upload/billing/' + path.basename(final_path),
-                                     basename=pdf_basename,
-                                    )
+    fileref = FileRef.objects.create(
+        user=request.user,
+        filedata='upload/billing/' + path.basename(final_path),
+        basename=pdf_basename,
+    )
 
-    return HttpResponseRedirect(reverse('creme_core__dl_file',
-                                        args=(fileref.filedata,),
-                                       )
-                               )
+    # return HttpResponseRedirect(reverse('creme_core__dl_file',
+    #                                     args=(fileref.filedata,),
+    #                                    )
+    #                            )
+    return HttpResponseRedirect(fileref.get_download_absolute_url())
