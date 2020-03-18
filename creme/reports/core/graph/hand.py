@@ -20,9 +20,15 @@
 
 from datetime import timedelta, datetime
 import logging
+from typing import (
+    Any, Optional, Type,
+    Iterator,
+    Dict, List, Tuple,
+    TYPE_CHECKING,
+)
 
 from django.db import connection
-from django.db.models import Min, Max, Count, FieldDoesNotExist
+from django.db.models import Min, Max, Count, FieldDoesNotExist, QuerySet
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
@@ -38,47 +44,59 @@ from creme.reports.utils import sparsezip
 from .lv_url import ListViewURLBuilder
 from .y_calculator import ReportGraphYCalculator, RGYCAggregation
 
+if TYPE_CHECKING:
+    from creme.reports.models import AbstractReportGraph
+
 logger = logging.getLogger(__name__)
 
 
-def _physical_field_name(table_name, field_name):
+def _physical_field_name(table_name, field_name) -> str:
     quote_name = connection.ops.quote_name
     return f'{quote_name(table_name)}.{quote_name(field_name)}'
 
 
-def _db_grouping_format():
+def _db_grouping_format() -> str:
     vendor = connection.vendor
     if vendor == 'sqlite': return "cast((julianday(%s) - julianday(%s)) / %s as int)"
     if vendor == 'mysql': return "floor((to_days(%s) - to_days(%s)) / %s)"
     if vendor == 'postgresql': return "((%s::date - %s::date) / %s)"
 
+    raise RuntimeError(f'Unsupported vendor: {vendor}')
+
 
 class ReportGraphHand:
     "Class that computes abscissa & ordinate values of a ReportGraph."
-    verbose_name = 'OVERLOADME'
-    hand_id = None  # Set by ReportGraphHandRegistry decorator
+    verbose_name: str = 'OVERLOADME'
+    # hand_id = None  # Set by ReportGraphHandRegistry decorator
+    hand_id: int  # Set by ReportGraphHandRegistry decorator
 
-    def __init__(self, graph):
+    def __init__(self, graph: 'AbstractReportGraph'):
         self._graph = graph
         self._y_calculator = y_calculator = ReportGraphYCalculator.build(graph)
-        self.abscissa_error = None
-        self.ordinate_error = y_calculator.error
+        self.abscissa_error: Optional[str] = None
+        self.ordinate_error: Optional[str] = y_calculator.error
 
     def _listview_url_builder(self):
         return ListViewURLBuilder(self._graph.model, self._graph.linked_report.filter)
 
-    def _fetch(self, entities, order, user):
+    def _fetch(self,
+               entities: QuerySet,
+               order: str,
+               user) -> Iterator[Tuple[str, Any]]:
         yield from ()
 
-    def fetch(self, entities, order, user):
+    def fetch(self,
+              entities: QuerySet,
+              order: str,
+              user) -> Tuple[List[str], list]:
         """Returns the X & Y values.
         @param entities: Queryset of CremeEntities.
         @param order: 'ASC' or 'DESC'.
         @return A tuple (X, Y). X is a list of string labels.
                 Y is a list of numerics, or of tuple (numeric, URL).
         """
-        x_values = []
-        y_values = []
+        x_values: List[str] = []
+        y_values: list = []
 
         if not self.abscissa_error:
             x_append = x_values.append
@@ -91,11 +109,11 @@ class ReportGraphHand:
         return x_values, y_values
 
     @property
-    def verbose_abscissa(self):
+    def verbose_abscissa(self) -> str:
         raise NotImplementedError
 
     @property
-    def verbose_ordinate(self):
+    def verbose_ordinate(self) -> str:
         return self._y_calculator.verbose_name
 
     # TODO: The 'group by' query could be extracted into a common Manager
@@ -123,25 +141,25 @@ class ReportGraphHandRegistry:
     __slots__ = ('_hands', )
 
     def __init__(self):
-        self._hands = {}
+        self._hands: Dict[int, Type[ReportGraphHand]] = {}
 
-    def __call__(self, hand_id):
+    def __call__(self, hand_id: int):
         assert hand_id not in self._hands, 'ID collision'
 
-        def _aux(cls):
+        def _aux(cls: Type[ReportGraphHand]):
             self._hands[hand_id] = cls
             cls.hand_id = hand_id
             return cls
 
         return _aux
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> Type[ReportGraphHand]:
         return self._hands[i]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[int]:
         return iter(self._hands)
 
-    def get(self, i):
+    def get(self, i: int) -> Optional[Type[ReportGraphHand]]:
         return self._hands.get(i)
 
 

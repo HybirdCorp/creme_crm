@@ -18,23 +18,30 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import FieldDoesNotExist
+from typing import Optional, TYPE_CHECKING
+
+from django.db.models import FieldDoesNotExist, QuerySet
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CustomField
 
 from creme.reports.report_aggregation_registry import field_aggregation_registry
 
+if TYPE_CHECKING:
+    from creme.reports.models import AbstractReportGraph
+
 
 class ReportGraphYCalculator:
     def __init__(self):
-        self.error = None
+        self.error: Optional[str] = None
 
-    def __call__(self, entities):
+    def __call__(self, entities: QuerySet):
         return 0
 
     @staticmethod
-    def build(graph):
+    def build(graph: 'AbstractReportGraph') -> 'ReportGraphYCalculator':
+        calculator: 'ReportGraphYCalculator'
+
         if graph.is_count:
             calculator = RGYCCount()
         else:
@@ -60,7 +67,7 @@ class ReportGraphYCalculator:
         return calculator
 
     @property
-    def verbose_name(self):
+    def verbose_name(self) -> str:
         return '??'
 
 
