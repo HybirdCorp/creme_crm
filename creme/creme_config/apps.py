@@ -119,6 +119,7 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.CustomRelationTypesBrick,
             bricks.SemiFixedRelationTypesBrick,
             bricks.CustomFieldsBrick,
+            bricks.CustomEnumsBrick,
             bricks.BrickDetailviewLocationsBrick,
             bricks.BrickHomeLocationsBrick,
             bricks.BrickDefaultMypageLocationsBrick,

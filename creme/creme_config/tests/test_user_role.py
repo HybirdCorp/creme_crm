@@ -2089,7 +2089,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFormError(response, 'form', 'to_role', _('This field is required.'))
 
     def test_delete05(self):
-        "Uniqneness."
+        "Uniqueness."
         user = self.login()
         self.assertFalse(DeletionCommand.objects.first())
 

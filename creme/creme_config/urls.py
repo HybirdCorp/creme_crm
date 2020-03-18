@@ -2,9 +2,10 @@
 
 from django.urls import re_path, include
 
-from .views import (bricks, button_menu, creme_property_type, custom_fields,
-        fields_config, generics_views, history, portal,
-        relation_type, search, setting, transfer, user, user_role, user_settings,
+from .views import (
+    bricks, button_menu, creme_property_type, custom_fields,
+    fields_config, generics_views, history, portal,
+    relation_type, search, setting, transfer, user, user_role, user_settings,
 )
 
 
@@ -33,46 +34,61 @@ user_settings_patterns = [
     re_path(r'^portal[/]?$',       user_settings.UserSettings.as_view(),    name='creme_config__user_settings'),
     re_path(r'^set_theme[/]?$',    user_settings.ThemeSetting.as_view(),    name='creme_config__set_user_theme'),
     re_path(r'^set_timezone[/]?$', user_settings.TimeZoneSetting.as_view(), name='creme_config__set_user_timezone'),
-    re_path(r'^edit_value/(?P<skey_id>[\w-]+)[/]?$',
-            user_settings.UserSettingValueEdition.as_view(),
-            name='creme_config__edit_user_setting',
+    re_path(
+        r'^edit_value/(?P<skey_id>[\w-]+)[/]?$',
+        user_settings.UserSettingValueEdition.as_view(),
+        name='creme_config__edit_user_setting',
     ),
 ]
 
 role_patterns = [
-    re_path(r'^portal[/]?$', user_role.Portal.as_view(), name='creme_config__roles'),
+    re_path(
+        r'^portal[/]?$',
+        user_role.Portal.as_view(),
+        name='creme_config__roles',
+    ),
 
-    re_path(r'^wizard[/]?$',                  user_role.RoleCreationWizard.as_view(),  name='creme_config__create_role'),
-    re_path(r'^wizard/(?P<role_id>\d+)[/]?$', user_role.RoleEditionWizard.as_view(),   name='creme_config__edit_role'),
-    re_path(r'^delete/(?P<role_id>\d+)[/]?$', user_role.RoleDeletion.as_view(),        name='creme_config__delete_role'),
+    re_path(r'^wizard[/]?$',                  user_role.RoleCreationWizard.as_view(), name='creme_config__create_role'),
+    re_path(r'^wizard/(?P<role_id>\d+)[/]?$', user_role.RoleEditionWizard.as_view(),  name='creme_config__edit_role'),
+    re_path(r'^delete/(?P<role_id>\d+)[/]?$', user_role.RoleDeletion.as_view(),       name='creme_config__delete_role'),
 
-    re_path(r'^add_credentials/(?P<role_id>\d+)[/]?$',
-            user_role.CredentialsAddingWizard.as_view(),
-            name='creme_config__add_credentials_to_role',
-           ),
-    re_path(r'^edit_credentials/(?P<cred_id>\d+)[/]?$',
-            user_role.CredentialsEditionWizard.as_view(),
-            name='creme_config__edit_role_credentials',
-           ),
-    re_path(r'^delete_credentials[/]?$',
-            user_role.CredentialsDeletion.as_view(),
-            name='creme_config__remove_role_credentials',
-           ),
+    re_path(
+        r'^add_credentials/(?P<role_id>\d+)[/]?$',
+        user_role.CredentialsAddingWizard.as_view(),
+        name='creme_config__add_credentials_to_role',
+    ),
+    re_path(
+        r'^edit_credentials/(?P<cred_id>\d+)[/]?$',
+        user_role.CredentialsEditionWizard.as_view(),
+        name='creme_config__edit_role_credentials',
+    ),
+    re_path(
+        r'^delete_credentials[/]?$',
+        user_role.CredentialsDeletion.as_view(),
+        name='creme_config__remove_role_credentials',
+    ),
 ]
 
 relation_type_patterns = [
-    re_path(r'^portal[/]?$',                    relation_type.Portal.as_view(),               name='creme_config__rtypes'),
+    re_path(
+        r'^portal[/]?$',
+        relation_type.Portal.as_view(),
+        name='creme_config__rtypes',
+    ),
+
     re_path(r'^add[/]?$',                       relation_type.RelationTypeCreation.as_view(), name='creme_config__create_rtype'),
     re_path(r'^edit/(?P<rtype_id>[\w-]+)[/]?$', relation_type.RelationTypeEdition.as_view(),  name='creme_config__edit_rtype'),
     re_path(r'^delete[/]?$',                    relation_type.RelationTypeDeletion.as_view(), name='creme_config__delete_rtype'),
 
-    re_path(r'^semi_fixed/add[/]?$',
-            relation_type.SemiFixedRelationTypeCreation.as_view(),
-            name='creme_config__create_semifixed_rtype',
+    re_path(
+        r'^semi_fixed/add[/]?$',
+        relation_type.SemiFixedRelationTypeCreation.as_view(),
+        name='creme_config__create_semifixed_rtype',
     ),
-    re_path(r'^semi_fixed/delete[/]?$',
-            relation_type.SemiFixedRelationTypeDeletion.as_view(),
-            name='creme_config__delete_semifixed_rtype',
+    re_path(
+        r'^semi_fixed/delete[/]?$',
+        relation_type.SemiFixedRelationTypeDeletion.as_view(),
+        name='creme_config__delete_semifixed_rtype',
     ),
 ]
 
@@ -91,15 +107,53 @@ fields_config_patterns = [
 ]
 
 custom_fields_patterns = [
-    re_path(r'^portal[/]?$', custom_fields.Portal.as_view(), name='creme_config__custom_fields'),
-    re_path(r'^ct/add[/]?$',
+    re_path(
+        r'^portal[/]?$',
+        custom_fields.Portal.as_view(),
+        name='creme_config__custom_fields',
+    ),
+
+    re_path(
+        r'^ct/add[/]?$',
         custom_fields.FirstCTypeCustomFieldCreation.as_view(),
         name='creme_config__create_first_ctype_custom_field',
     ),
-    re_path(r'^ct/delete[/]?$',              custom_fields.CTypeCustomFieldsDeletion.as_view(), name='creme_config__delete_ctype_custom_fields'),
-    re_path(r'^add/(?P<ct_id>\d+)[/]?$',     custom_fields.CustomFieldCreation.as_view(),       name='creme_config__create_custom_field'),
-    re_path(r'^edit/(?P<field_id>\d+)[/]?$', custom_fields.CustomFieldEdition.as_view(),        name='creme_config__edit_custom_field'),
-    re_path(r'^delete[/]?$',                 custom_fields.CustomFieldDeletion.as_view(),       name='creme_config__delete_custom_field'),
+    re_path(
+        r'^ct/delete[/]?$',
+        custom_fields.CTypeCustomFieldsDeletion.as_view(),
+        name='creme_config__delete_ctype_custom_fields',
+    ),
+
+    re_path(r'^add/(?P<ct_id>\d+)[/]?$',     custom_fields.CustomFieldCreation.as_view(), name='creme_config__create_custom_field'),
+    re_path(r'^edit/(?P<field_id>\d+)[/]?$', custom_fields.CustomFieldEdition.as_view(),  name='creme_config__edit_custom_field'),
+    re_path(r'^delete[/]?$',                 custom_fields.CustomFieldDeletion.as_view(), name='creme_config__delete_custom_field'),
+
+    # Enums
+    re_path(
+        r'^enum/(?P<field_id>\d+)[/]?$',
+        custom_fields.CustomEnumsDetail.as_view(),
+        name='creme_config__custom_enums',
+    ),
+    re_path(
+        r'^enum/add/(?P<field_id>\d+)[/]?$',
+        custom_fields.CustomEnumsAdding.as_view(),
+        name='creme_config__add_custom_enums',
+    ),
+    re_path(
+        r'^enum/edit/(?P<enum_id>\d+)[/]?$',
+        custom_fields.CustomEnumEdition.as_view(),
+        name='creme_config__edit_custom_enum',
+    ),
+    re_path(
+        r'^enum/delete/(?P<enum_id>\d+)[/]?$',
+        custom_fields.CustomEnumDeletion.as_view(),
+        name='creme_config__delete_custom_enum',
+    ),
+    re_path(
+        r'^enum/reload/(?P<field_id>\d+)[/]?$',
+        custom_fields.CustomEnumBrickReloading.as_view(),
+        name='creme_config__reload_custom_enum_brick',
+    ),
 ]
 
 bricks_patterns = [

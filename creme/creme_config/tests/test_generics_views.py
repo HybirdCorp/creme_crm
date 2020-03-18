@@ -237,7 +237,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         pos2del = FakePosition.objects.create(title='Kunoichi')
         url = reverse('creme_config__delete_instance',
                       args=('creme_core', 'fake_position', pos2del.pk),
-                      )
+                     )
         fname = 'replace_creme_core__fakecontact_position'
 
         # No related entity ---
@@ -887,9 +887,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         doc2.categories.set([cat2del, cat1])  # <= after replacement, "cat1" should not be duplicated
 
         response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('creme_core', 'fake_documentcat', cat2del.id),
-                    ),
+            reverse(
+                'creme_config__delete_instance',
+                args=('creme_core', 'fake_documentcat', cat2del.id),
+            ),
             data={
                 'replace_creme_core__fakedocument_categories': cat1.id,
             },
