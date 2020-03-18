@@ -102,17 +102,17 @@ class GenericModelBrick(QuerysetBrick):
         displayable_fields.extend(meta.many_to_many)
 
         return self._render(self.get_template_context(
-                    context,
-                    model.objects.all(),
+            context,
+            model.objects.all(),
 
-                    model=model,
-                    meta=meta,
+            model=model,
+            meta=meta,
 
-                    app_name=self.app_name,
-                    model_config=model_config,
+            app_name=self.app_name,
+            model_config=model_config,
 
-                    model_is_reorderable=is_reorderable,
-                    displayable_fields=displayable_fields,
+            model_is_reorderable=is_reorderable,
+            displayable_fields=displayable_fields,
         ))
 
 
@@ -129,16 +129,17 @@ class SettingsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         app_name = context['app_name']
-        skeys_ids = [skey.id
-                        for skey in self.setting_key_registry
-                            if skey.app_label == app_name and not skey.hidden
-                    ]
+        skeys_ids = [
+            skey.id
+                for skey in self.setting_key_registry
+                    if skey.app_label == app_name and not skey.hidden
+        ]
 
         return self._render(self.get_template_context(
-                                context,
-                                SettingValue.objects.filter(key_id__in=skeys_ids),
-                                app_name=app_name,
-                           ))
+            context,
+            SettingValue.objects.filter(key_id__in=skeys_ids),
+            app_name=app_name,
+        ))
 
 
 class _ConfigAdminBrick(QuerysetBrick):
@@ -156,8 +157,8 @@ class PropertyTypesBrick(_ConfigAdminBrick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context,
-                    CremePropertyType.objects.annotate(stats=Count('cremeproperty')),
+            context,
+            CremePropertyType.objects.annotate(stats=Count('cremeproperty')),
         ))
 
 
@@ -169,11 +170,11 @@ class RelationTypesBrick(_ConfigAdminBrick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context,
-                    RelationType.objects.filter(is_custom=False,
-                                                pk__contains='-subject_',
-                                               ),
-                    custom=False,
+            context,
+            RelationType.objects.filter(is_custom=False,
+                                        pk__contains='-subject_',
+                                       ),
+            custom=False,
         ))
 
 
@@ -185,11 +186,11 @@ class CustomRelationTypesBrick(_ConfigAdminBrick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context,
-                    RelationType.objects.filter(is_custom=True,
-                                                pk__contains='-subject_',
-                                               ),
-                    custom=True,
+            context,
+            RelationType.objects.filter(is_custom=True,
+                                        pk__contains='-subject_',
+                                       ),
+            custom=True,
         ))
 
 
@@ -201,10 +202,12 @@ class SemiFixedRelationTypesBrick(_ConfigAdminBrick):
 
     def detailview_display(self, context):
         btc = self.get_template_context(
-                    context, SemiFixedRelationType.objects.all(),
+            context, SemiFixedRelationType.objects.all(),
         )
 
-        CremeEntity.populate_real_entities([sfrt.object_entity for sfrt in btc['page'].object_list])
+        CremeEntity.populate_real_entities(
+            [sfrt.object_entity for sfrt in btc['page'].object_list]
+        )
 
         return self._render(btc)
 
@@ -261,34 +264,56 @@ class CustomFieldsBrick(Brick):
                 self.ctype = ctype
                 self.cfields = cfields
 
-        cfields = CustomField.objects.all()
+        # cfields = CustomField.objects.all()
+        cfields = CustomField.objects\
+                             .order_by('id')\
+                             .annotate(enum_count=Count('customfieldenumvalue_set'))
 
-        # Retrieve & cache Enum values (in order to display them of course)
+        # # Retrieve & cache Enum values (in order to display them of course)
+        # enums_types = {CustomField.ENUM, CustomField.MULTI_ENUM}
+        # enums_cfields = [
+        #     cfield
+        #         for cfield in cfields
+        #             if cfield.field_type in enums_types
+        # ]
+        # evalues_map = defaultdict(list)
+        #
+        # for enum_value in CustomFieldEnumValue.objects.filter(custom_field__in=enums_cfields):
+        #     evalues_map[enum_value.custom_field_id].append(enum_value.value)
+        #
+        # for enums_cfield in enums_cfields:
+        #     enums_cfield.enum_values = evalues_map[enums_cfield.id]
         enums_types = {CustomField.ENUM, CustomField.MULTI_ENUM}
-        enums_cfields = [cfield
-                            for cfield in cfields
-                                if cfield.field_type in enums_types
-                        ]
-        evalues_map = defaultdict(list)
+        for cfield in cfields:
+            cfield.is_enum = (cfield.field_type in enums_types)   # TODO: templatetag instead ?
 
-        for enum_value in CustomFieldEnumValue.objects.filter(custom_field__in=enums_cfields):
-            evalues_map[enum_value.custom_field_id].append(enum_value.value)
-
-        for enums_cfield in enums_cfields:
-            enums_cfield.enum_values = evalues_map[enums_cfield.id]
         # ------
-
         cfields_per_ct_id = defaultdict(list)
         for cfield in cfields:
             cfields_per_ct_id[cfield.content_type_id].append(cfield)
 
         get_ct = ContentType.objects.get_for_id
-        ctypes = [_ContentTypeWrapper(get_ct(ct_id), ct_cfields)
-                    for ct_id, ct_cfields in cfields_per_ct_id.items()
-                 ]
+        ctypes = [
+            _ContentTypeWrapper(get_ct(ct_id), ct_cfields)
+                for ct_id, ct_cfields in cfields_per_ct_id.items()
+        ]
 
         return self._render(self.get_template_context(
-                        context, ctypes=ctypes,
+            context, ctypes=ctypes,
+        ))
+
+
+class CustomEnumsBrick(_ConfigAdminBrick):
+    id_           = _ConfigAdminBrick.generate_id('creme_config', 'custom_enums')
+    dependencies  = (CustomFieldEnumValue,)
+    order_by      = 'id'  # TODO: 'value' ? a new field 'order' ?
+    verbose_name  = 'Custom-field choices'
+    template_name = 'creme_config/bricks/custom-enums.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            CustomFieldEnumValue.objects.filter(custom_field=context['custom_field']),
         ))
 
 
@@ -314,11 +339,12 @@ class UsersBrick(_ConfigAdminBrick):
         page = btc['page']
         page_users = page.object_list
         TIME_ZONE = settings.TIME_ZONE
-        btc['display_tz'] = (any(user.time_zone != TIME_ZONE for user in page_users)
-                             # All users are displayed if our page
-                             if page.paginator.count == len(page_users) else
-                             User.objects.exclude(time_zone=TIME_ZONE).exists()
-                            )
+        btc['display_tz'] = (
+            any(user.time_zone != TIME_ZONE for user in page_users)
+            # All users are displayed if our page
+            if page.paginator.count == len(page_users) else
+            User.objects.exclude(time_zone=TIME_ZONE).exists()
+        )
 
         return self._render(btc)
 
@@ -332,7 +358,7 @@ class TeamsBrick(_ConfigAdminBrick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context, User.objects.filter(is_team=True),
+            context, User.objects.filter(is_team=True),
         ))
 
 
@@ -410,9 +436,10 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
 
             locations_info.sort(key=lambda t: sort_key(t[1]))  # Sort by role label
 
-        btc['default_count'] = BrickDetailviewLocation.objects.filter(content_type=None,
-                                                                      role=None, superuser=False,
-                                                                     ).count()
+        btc['default_count'] = BrickDetailviewLocation.objects.filter(
+            content_type=None,
+            role=None, superuser=False,
+        ).count()
 
         return self._render(btc)
 
@@ -441,7 +468,9 @@ class BrickHomeLocationsBrick(_ConfigAdminBrick):
         )
 
         # NB: lambda => lazy
-        btc['get_default_count'] = lambda: BrickHomeLocation.objects.filter(role=None, superuser=False).count()
+        btc['get_default_count'] = lambda: BrickHomeLocation.objects.filter(
+                                                role=None, superuser=False,
+                                           ).count()
 
         paginator = btc['page'].paginator
         btc['show_add_button'] = (
@@ -463,8 +492,8 @@ class BrickDefaultMypageLocationsBrick(_ConfigAdminBrick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context,
-                    BrickMypageLocation.objects.filter(user=None),
+            context,
+            BrickMypageLocation.objects.filter(user=None),
         ))
 
 
@@ -476,8 +505,8 @@ class BrickMypageLocationsBrick(_ConfigAdminBrick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context,
-                    BrickMypageLocation.objects.filter(user=context['user']),
+            context,
+            BrickMypageLocation.objects.filter(user=context['user']),
         ))
 
 
@@ -490,7 +519,7 @@ class RelationBricksConfigBrick(_ConfigAdminBrick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context, RelationBrickItem.objects.all(),
+            context, RelationBrickItem.objects.all(),
         ))
 
 
@@ -564,16 +593,17 @@ class ButtonMenuBrick(Brick):
         default_buttons = build_verbose_names(buttons_map.pop(None, ()))
 
         get_ct = ContentType.objects.get_for_id
-        buttons = [(get_ct(ct_id), build_verbose_names(bm_items))
-                        for ct_id, bm_items in buttons_map.items()
-                  ]
+        buttons = [
+            (get_ct(ct_id), build_verbose_names(bm_items))
+                for ct_id, bm_items in buttons_map.items()
+        ]
         sort_key = collator.sort_key
         buttons.sort(key=lambda t: sort_key(str(t[0])))
 
         return self._render(self.get_template_context(
-                    context,
-                    default_buttons=default_buttons,
-                    buttons=buttons,
+            context,
+            default_buttons=default_buttons,
+            buttons=buttons,
         ))
 
 
@@ -604,9 +634,9 @@ class SearchConfigBrick(PaginatedBrick):
         ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
 
         btc = self.get_template_context(
-                context, ctypes,
-                # NB: '+ 2' is for default config + super-users config.
-                max_conf_count=UserRole.objects.count() + 2,
+            context, ctypes,
+            # NB: '+ 2' is for default config + super-users config.
+            max_conf_count=UserRole.objects.count() + 2,
         )
 
         ctypes_wrappers = btc['page'].object_list
@@ -622,11 +652,12 @@ class SearchConfigBrick(PaginatedBrick):
         for ctw in ctypes_wrappers:
             ctype = ctw.ctype
             ctw.sc_items = sc_items = sci_map.get(ctype.id) or []
-            sc_items.sort(key=lambda sci: sort_key(str(sci.role) if sci.role
-                                                   else superusers_label if sci.superuser
-                                                   else ''
-                                                  )
-                         )
+            sc_items.sort(
+                key=lambda sci: sort_key(str(sci.role) if sci.role
+                                         else superusers_label if sci.superuser
+                                         else ''
+                                        )
+            )
 
             if not sc_items or not sc_items[0].is_default:  # No default config -> we build it
                 SearchConfigItem.objects.create(content_type=ctype)
@@ -692,10 +723,10 @@ class UserSettingValuesBrick(Brick):
             count += 1
 
         return self._render(self.get_template_context(
-                    context,
-                    values_per_app=[
-                        (get_app_config(app_label).verbose_name, svalues)
-                            for app_label, svalues in sv_info_per_app.items()
-                    ],
-                    count=count,
+            context,
+            values_per_app=[
+                (get_app_config(app_label).verbose_name, svalues)
+                    for app_label, svalues in sv_info_per_app.items()
+            ],
+            count=count,
         ))

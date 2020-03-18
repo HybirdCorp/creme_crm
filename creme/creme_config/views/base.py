@@ -54,7 +54,7 @@ class ConfigModelEdition(generic.CremeModelEditionPopup):
 
 
 class ConfigDeletion(generic.CheckedView):
-    permissions = 'creme_core.can_admin'
+    permissions = _PERM
 
     def perform_deletion(self, request):
         raise NotImplementedError

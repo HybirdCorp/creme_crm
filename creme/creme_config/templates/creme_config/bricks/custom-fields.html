@@ -31,9 +31,16 @@
                         <td class="cfields-config-name">{{cfield.name}}</td>
                         <td class="cfields-config-type">
                             {{cfield.type_verbose_name}}
+{% comment %}
                             {% with values=cfield.enum_values %}
                                 {% if values %}({{values|join:' / '}}){% endif %}
                             {% endwith %}
+{% endcomment %}
+                            {% if cfield.is_enum %}
+                                {% url 'creme_config__custom_enums' cfield.id as enums_url %}
+                                {% blocktrans with count=cfield.enum_count asvar enums_label %}See & manage the choices (currently {{count}}){% endblocktrans %}
+                                {% brick_table_action id='redirect' url=enums_url label=enums_label type='view' display='both' %}
+                            {% endif %}
                         </td>
                         <td {% brick_table_data_status action %}>{% url 'creme_config__edit_custom_field' cfield.id as edit_url %}
                             {% brick_table_action id='edit' url=edit_url label=_('Edit this custom field') enabled=admin_perm %}

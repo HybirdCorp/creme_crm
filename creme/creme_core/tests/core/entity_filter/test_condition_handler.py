@@ -1631,9 +1631,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         swordfish = create_orga(name='Swordfish')
         redtail   = create_orga(name='RedTail')
 
-        create_evalue = partial(CustomFieldEnum.objects.create, custom_field=custom_field)
-        create_evalue(entity=swordfish, value=enum_small)
-        create_evalue(entity=bebop,     value=enum_big)
+        create_enum = partial(CustomFieldEnum.objects.create, custom_field=custom_field)
+        create_enum(entity=swordfish, value=enum_small)
+        create_enum(entity=bebop,     value=enum_big)
 
         # EQUALS ---
         handler1 = CustomFieldConditionHandler(

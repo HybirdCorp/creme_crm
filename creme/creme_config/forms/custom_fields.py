@@ -20,29 +20,42 @@
 
 from collections import Counter
 from functools import partial
+import warnings
 
-from django.forms import TypedChoiceField, CharField, ValidationError
+from django import forms
+from django.core.exceptions import ValidationError
 from django.forms.widgets import Textarea
 from django.utils.translation import gettext_lazy as _, gettext
 
+from creme.creme_core.core.deletion import FixedValueReplacer
+from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.fields import EntityCTypeChoiceField, ListEditionField
-from creme.creme_core.forms.widgets import DynamicSelect
-from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue, _TABLES
+from creme.creme_core.forms.widgets import DynamicSelect, Label
+from creme.creme_core.models import DeletionCommand, Job
+from creme.creme_core.models.custom_field import (
+    CustomField,
+    CustomFieldEnumValue,
+    _TABLES,
+)
 
 # TODO: User friendly order in choices fields
 # TODO: rename CustomField*Form (without 's')
 
 
 class CustomFieldsBaseForm(CremeModelForm):
-    field_type  = TypedChoiceField(label=_('Type of field'), coerce=int,
-                                   choices=[(i, klass.verbose_name) for i, klass in _TABLES.items()],
-                                  )
-    enum_values = CharField(widget=Textarea(), label=_('Available choices'), required=False,
-                            help_text=_('Give the possible choices (one per line) '
-                                        'if you choose the type "Choice list".'
-                                       ),
-                           )
+    field_type = forms.TypedChoiceField(
+        label=_('Type of field'), coerce=int,
+        choices=[(i, klass.verbose_name) for i, klass in _TABLES.items()],
+    )
+    enum_values = forms.CharField(
+        widget=Textarea(),
+        label=_('Available choices'),
+        required=False,
+        help_text=_('Give the possible choices (one per line) '
+                    'if you choose the type "Choice list".'
+                   ),
+    )
 
     error_messages = {
         'empty_list': _('The choices list must not be empty '
@@ -99,12 +112,12 @@ class CustomFieldsBaseForm(CremeModelForm):
 
 class CustomFieldsCTAddForm(CustomFieldsBaseForm):
     content_type = EntityCTypeChoiceField(
-                        label=_('Related resource'),
-                        help_text=_('The other custom fields for this type of resource '
-                                    'will be chosen by editing the configuration'
-                                   ),
-                        widget=DynamicSelect({'autocomplete': True})
-                    )
+        label=_('Related resource'),
+        help_text=_('The other custom fields for this type of resource '
+                    'will be chosen by editing the configuration'
+                   ),
+        widget=DynamicSelect({'autocomplete': True}),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -143,10 +156,8 @@ class CustomFieldsAddForm(CustomFieldsBaseForm):
 
 
 class CustomFieldsEditForm(CremeModelForm):
-    # TODO: factorise
     error_messages = {
         'duplicated_name': _('There is already a custom field with this name.'),
-        'duplicated_choice': _('The choice «{}» is duplicated.'),
     }
 
     class Meta:
@@ -154,8 +165,12 @@ class CustomFieldsEditForm(CremeModelForm):
         fields = ('name',)
 
     def __init__(self, *args, **kwargs):
+        warnings.warn(
+            'creme_config.forms.custom_fields.CustomFieldsEditForm is deprecated.',
+            DeprecationWarning
+        )
+
         super().__init__(*args, **kwargs)
-        self.new_choices = ()
 
         if self.instance.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
             self._enum_values = CustomFieldEnumValue.objects.filter(custom_field=self.instance)
@@ -166,7 +181,7 @@ class CustomFieldsEditForm(CremeModelForm):
                 label=gettext('Existing choices of the list'),
                 help_text=gettext('Uncheck the choices you want to delete.'),
             )
-            fields['new_choices'] = CharField(
+            fields['new_choices'] = forms.CharField(
                 widget=Textarea(), required=False,
                 label=gettext('New choices of the list'),
                 help_text=gettext('Give the new possible choices (one per line).'),
@@ -185,36 +200,10 @@ class CustomFieldsEditForm(CremeModelForm):
 
         return name
 
-    def clean(self):
-        cdata = super().clean()
-
-        if not self._errors and 'new_choices' in self.fields:
-            new_choices = cdata['new_choices'].splitlines()
-
-            # TODO: factorise ??
-            max_choice, max_count = Counter(new_choices).most_common(1)[0]
-            if max_count > 1:
-                self.add_error(
-                    'new_choices',
-                    self.error_messages['duplicated_choice'].format(max_choice)
-                )
-
-            old_choices = {*cdata['old_choices']}
-            for new_choice in new_choices:
-                if new_choice in old_choices:
-                    self.add_error(
-                        'new_choices',
-                        self.error_messages['duplicated_choice'].format(new_choice)
-                    )
-
-            self.new_choices = new_choices
-
-        return cdata
-
     def save(self):
         cfield = super().save()
 
-        if 'old_choices' in self.fields:
+        if cfield.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
             cleaned_data = self.cleaned_data
 
             for cfev, new_value in zip(self._enum_values, cleaned_data['old_choices']):
@@ -224,14 +213,144 @@ class CustomFieldsEditForm(CremeModelForm):
                     cfev.value = new_value
                     cfev.save()
 
-            # TODO: factorise
-            new_choices = self.new_choices
-            if new_choices:
-                create_enum_value = partial(CustomFieldEnumValue.objects.create,
-                                            custom_field=cfield,
-                                           )
-
-                for enum_value in new_choices:
-                    create_enum_value(value=enum_value)
+            create_enum_value = CustomFieldEnumValue.objects.create
+            for enum_value in cleaned_data['new_choices'].splitlines():
+                create_enum_value(custom_field=cfield, value=enum_value)
 
         return cfield
+
+
+class CustomFieldEditionForm(CremeModelForm):
+    # TODO: factorise
+    error_messages = {
+        'duplicated_name': _('There is already a custom field with this name.'),
+    }
+
+    class Meta:
+        model = CustomField
+        fields = ('name',)
+
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        instance = self.instance
+
+        if CustomField.objects.filter(content_type=instance.content_type, name=name)\
+                              .exclude(id=instance.id)\
+                              .exists():
+            raise ValidationError(self.error_messages['duplicated_name'],
+                                  code='duplicated_name',
+                                 )
+
+        return name
+
+
+class CustomEnumsAddingForm(CremeModelForm):
+    choices = forms.CharField(
+        widget=Textarea(),
+        label=gettext('New choices of the list'),
+        help_text=gettext('Give the new possible choices (one per line).'),
+    )
+
+    # TODO: factorise
+    error_messages = {
+        'duplicated_choice': _('The choice «{}» is duplicated.'),
+    }
+
+    class Meta:
+        model = CustomField
+        fields = ()
+
+    def clean_choices(self):
+        choices = self.cleaned_data['choices'].splitlines()
+
+        # TODO: factorise ??
+        max_choice, max_count = Counter(choices).most_common(1)[0]
+        if max_count > 1:
+            raise ValidationError(
+                self.error_messages['duplicated_choice'].format(max_choice),
+                code='duplicated_choice',
+            )
+
+        existing = CustomFieldEnumValue.objects.filter(
+            custom_field=self.instance,
+            value__in=choices,
+        ).first()
+        if existing:
+            raise ValidationError(
+                self.error_messages['duplicated_choice'].format(existing),
+                code='duplicated_choice',
+            )
+
+        return choices
+
+    def save(self):
+        # cfield = super().save()  NOPE
+        cfield = self.instance
+
+        create_enum_value = partial(
+            CustomFieldEnumValue.objects.create,
+            custom_field=cfield,
+        )
+
+        for enum_value in self.cleaned_data['choices']:
+            create_enum_value(value=enum_value)
+
+        return cfield
+
+
+class CustomEnumEditionForm(CremeModelForm):
+    class Meta:
+        model = CustomFieldEnumValue
+        fields = ('value', )
+
+
+class CustomEnumDeletionForm(CremeModelForm):
+    class Meta:
+        model = DeletionCommand
+        fields = ()
+
+    def __init__(self, choice_to_delete, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.choice_to_delete = choice_to_delete
+
+        if choice_to_delete.custom_field.get_value_class().objects.filter(value=choice_to_delete).exists():
+            self.fields['to_choice'] = forms.ModelChoiceField(
+                label=_('Choose a choice to transfer to'),
+                help_text=_('The selected choice will replace the deleted one in entities which use it.'),
+                required=False,
+                queryset=CustomFieldEnumValue.objects
+                                             .filter(custom_field=choice_to_delete.custom_field)
+                                             .exclude(id=choice_to_delete.id),
+            )
+        else:
+            self.fields['info'] = forms.CharField(
+                label=gettext('Information'),
+                required=False,
+                widget=Label,
+                initial=gettext('This choice is not used by any entity, '
+                                'you can delete it safely.'
+                               ),
+            )
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        instance.instance_to_delete = choice_to_delete = self.choice_to_delete
+        cf_value_model = choice_to_delete.custom_field.get_value_class()
+
+        replacement = self.cleaned_data.get('to_choice')
+        if replacement:
+            instance.replacers = [
+                FixedValueReplacer(
+                    model_field=cf_value_model._meta.get_field('value'),
+                    value=replacement,
+                )
+            ]
+        instance.total_count = cf_value_model.objects\
+                                             .filter(value=choice_to_delete)\
+                                             .count()
+        instance.job = Job.objects.create(
+            type_id=deletor_type.id,
+            user=self.user,
+        )
+
+        return super().save(*args, **kwargs)
