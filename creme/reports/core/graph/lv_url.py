@@ -18,17 +18,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Optional, Type
+
 from django.db.models.query_utils import Q
 
 from creme.creme_core.utils.queries import QSerializer
 from creme.creme_core.views.generic import EntitiesList
+from creme.creme_core.models import CremeEntity, EntityFilter
+
 
 # TODO: move to creme_core ?
 class ListViewURLBuilder:
     entity_filter_id_arg = EntitiesList.entity_filter_id_arg
     requested_q_arg      = EntitiesList.requested_q_arg
 
-    def __init__(self, model, filter=None):
+    def __init__(self,
+                 model: Type[CremeEntity],
+                 filter: Optional[EntityFilter] = None):
         fmt = getattr(model, 'get_lv_absolute_url', None)
 
         if fmt:
@@ -43,7 +49,7 @@ class ListViewURLBuilder:
 
         self._fmt = fmt
 
-    def __call__(self, q_filter=None):
+    def __call__(self, q_filter: Optional[dict] = None) -> Optional[str]:
         fmt = self._fmt
 
         return fmt.format(

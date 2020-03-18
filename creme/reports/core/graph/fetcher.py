@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+from typing import Optional, List, Tuple
 
 from django.utils.translation import gettext_lazy as _, gettext
 from django.db.models import FieldDoesNotExist, ForeignKey, Q
@@ -42,23 +43,29 @@ class GraphFetcher:
     """
     def __init__(self, graph):
         self.graph = graph
-        self.error = None
-        self.verbose_volatile_column = _('No volatile column')
+        self.error: Optional[str] = None
+        self.verbose_volatile_column: str = _('No volatile column')
 
-    def fetch(self, user, order='ASC'):
+    def fetch(self, user, order: str = 'ASC') -> Tuple[List[str], list]:
         return self.graph.fetch(user=user, order=order)
 
-    def _aux_fetch_4_entity(self, entity, user, order):
+    def _aux_fetch_4_entity(self,
+                            entity: CremeEntity,
+                            user,
+                            order: str):
         "To be overload in child classes."
         return self.fetch(user=user, order=order)
 
-    def fetch_4_entity(self, entity, user, order='ASC'):
+    def fetch_4_entity(self,
+                       entity: CremeEntity,
+                       user,
+                       order: str = 'ASC') -> Tuple[List[str], list]:
         return ([], []) \
                if self.error else \
                self._aux_fetch_4_entity(entity=entity, user=user, order=order)
 
     @property
-    def verbose_name(self):
+    def verbose_name(self) -> str:
         return f'{self.graph} - {self.verbose_volatile_column}'
 
 
@@ -66,7 +73,8 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
     def __init__(self, field_name, *args, **kwargs):
         super().__init__(*args, **kwargs)
         model = self.graph.model
-        self.field_name = None
+        # self.field_name = None
+        self._field_name = None
         self.verbose_volatile_column = '??'
 
         try:
