@@ -22,8 +22,8 @@ from datetime import timedelta, datetime
 import logging
 
 from django.db import connection
-from django.db.models import Min, Max, Count, FieldDoesNotExist, Q, ForeignKey
-from django.utils.translation import gettext_lazy as _, gettext
+from django.db.models import Min, Max, Count, FieldDoesNotExist
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
 from creme.creme_core.models import (
@@ -31,13 +31,12 @@ from creme.creme_core.models import (
     RelationType, Relation,
     CustomField, CustomFieldEnumValue,
 )
-from creme.creme_core.utils.meta import FieldInfo
-from creme.creme_core.utils.queries import QSerializer
-from creme.creme_core.views.generic import EntitiesList
 
-from ..constants import *
-from ..report_aggregation_registry import field_aggregation_registry
-from ..utils import sparsezip
+from creme.reports.constants import *
+from creme.reports.utils import sparsezip
+
+from .lv_url import ListViewURLBuilder
+from .y_calculator import ReportGraphYCalculator, RGYCAggregation
 
 logger = logging.getLogger(__name__)
 
@@ -54,148 +53,8 @@ def _db_grouping_format():
     if vendor == 'postgresql': return "((%s::date - %s::date) / %s)"
 
 
-# TODO: move to creme_core ?
-class ListViewURLBuilder:
-    entity_filter_id_arg = EntitiesList.entity_filter_id_arg
-    requested_q_arg      = EntitiesList.requested_q_arg
-
-    def __init__(self, model, filter=None):
-        fmt = getattr(model, 'get_lv_absolute_url', None)
-
-        if fmt:
-            fmt = '{url}?{arg}={value}'.format(
-                url=model.get_lv_absolute_url(),
-                arg=self.requested_q_arg,
-                value='{}',
-            )
-
-            if filter:
-                fmt += f'&{self.entity_filter_id_arg}={filter.id}'
-
-        self._fmt = fmt
-
-    def __call__(self, q_filter=None):
-        fmt = self._fmt
-
-        return fmt.format(QSerializer().dumps(Q(**q_filter)) if q_filter is not None else '') if fmt else None
-
-
-class ReportGraphHandRegistry:
-    __slots__ = ('_hands', )
-
-    def __init__(self):
-        self._hands = {}
-
-    def __call__(self, hand_id):
-        assert hand_id not in self._hands, 'ID collision'
-
-        def _aux(cls):
-            self._hands[hand_id] = cls
-            cls.hand_id = hand_id
-            return cls
-
-        return _aux
-
-    def __getitem__(self, i):
-        return self._hands[i]
-
-    def __iter__(self):
-        return iter(self._hands)
-
-    def get(self, i):
-        return self._hands.get(i)
-
-
-RGRAPH_HANDS_MAP = ReportGraphHandRegistry()
-
-
-class ReportGraphYCalculator:
-    def __init__(self):
-        self.error = None
-
-    def __call__(self, entities):
-        return 0
-
-    @staticmethod
-    def build(graph):
-        if graph.is_count:
-            calculator = RGYCCount()
-        else:
-            ordinate = graph.ordinate
-            ordinate_col, sep, aggregation_name = ordinate.rpartition('__')
-            aggregation = field_aggregation_registry.get(aggregation_name)  # TODO: manage invalid aggregation ??
-
-            if ordinate_col.isdigit():  # CustomField
-                try:
-                    calculator = RGYCCustomField(CustomField.objects.get(pk=ordinate_col), aggregation)
-                except CustomField.DoesNotExist:
-                    calculator = ReportGraphYCalculator()
-                    calculator.error = _('the custom field does not exist any more.')
-            else:  # Regular Field
-                try:
-                    field = graph.model._meta.get_field(ordinate_col)
-                except FieldDoesNotExist:
-                    calculator = ReportGraphYCalculator()
-                    calculator.error = _('the field does not exist any more.')
-                else:
-                    calculator = RGYCField(field, aggregation)
-
-        return calculator
-
-    @property
-    def verbose_name(self):
-        return '??'
-
-
-class RGYCCount(ReportGraphYCalculator):
-    def __call__(self, entities):
-        return entities.count()
-
-    @property
-    def verbose_name(self):
-        return _('Count')
-
-
-class RGYCAggregation(ReportGraphYCalculator):
-    def __init__(self, aggregation, aggregate_value):
-        super().__init__()
-        self._aggregation = aggregation
-        self._aggregate_value = aggregate_value
-
-    def __call__(self, entities):
-        return entities.aggregate(rgyc_value_agg=self._aggregate_value).get('rgyc_value_agg') or 0
-
-    def _name(self):
-        raise NotImplementedError
-
-    @property
-    def verbose_name(self):
-        return f'{self._name()} - {self._aggregation.title}'
-
-
-class RGYCField(RGYCAggregation):
-    def __init__(self, field, aggregation):
-        super().__init__(aggregation, aggregation.func(field.name))
-        self._field = field
-
-    def _name(self):
-        return self._field.verbose_name
-
-
-class RGYCCustomField(RGYCAggregation):
-    def __init__(self, cfield, aggregation):
-        super().__init__(
-            aggregation,
-            aggregation.func(f'{cfield.get_value_class().get_related_name()}__value'),
-        )
-        self._cfield = cfield
-
-    def _name(self):
-        return self._cfield.name
-
-
 class ReportGraphHand:
-    "Class that computes abscissa & ordinate values of a ReportGraph"
+    "Class that computes abscissa & ordinate values of a ReportGraph."
     verbose_name = 'OVERLOADME'
     hand_id = None  # Set by ReportGraphHandRegistry decorator
 
@@ -258,6 +117,35 @@ class ReportGraphHand:
         # print 'results:', aggregates
 
         return aggregates
+
+
+class ReportGraphHandRegistry:
+    __slots__ = ('_hands', )
+
+    def __init__(self):
+        self._hands = {}
+
+    def __call__(self, hand_id):
+        assert hand_id not in self._hands, 'ID collision'
+
+        def _aux(cls):
+            self._hands[hand_id] = cls
+            cls.hand_id = hand_id
+            return cls
+
+        return _aux
+
+    def __getitem__(self, i):
+        return self._hands[i]
+
+    def __iter__(self):
+        return iter(self._hands)
+
+    def get(self, i):
+        return self._hands.get(i)
+
+
+RGRAPH_HANDS_MAP = ReportGraphHandRegistry()
 
 
 class _RGHRegularField(ReportGraphHand):
@@ -485,17 +373,21 @@ class RGHRange(_RGHRegularField):
                 after  = interval.after
                 sub_entities = entities_filter(**{query_cmd: (before, after)})
 
-                yield ('{}-{}'.format(interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
-                                      interval.end.strftime('%d/%m/%Y'),
-                                     ),
-                       [y_value_func(sub_entities),
-                        build_url({query_cmd: [before.strftime('%Y-%m-%d'),
-                                               after.strftime('%Y-%m-%d'),
-                                              ]
-                                  }
-                               )
-                       ],
-                      )
+                yield (
+                    '{}-{}'.format(
+                        interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
+                        interval.end.strftime('%d/%m/%Y'),
+                    ),
+                    [
+                        y_value_func(sub_entities),
+                        build_url({
+                            query_cmd: [
+                                before.strftime('%Y-%m-%d'),
+                                after.strftime('%Y-%m-%d'),
+                            ],
+                        }),
+                    ],
+                )
 
 
 @RGRAPH_HANDS_MAP(RGT_FK)
@@ -528,7 +420,13 @@ class RGHForeignKey(_RGHRegularField):
 
         for choice in choices:
             kwargs = {abscissa: choice['value']}
-            yield choice['label'], [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
+            yield (
+                choice['label'],
+                [
+                    y_value_func(entities_filter(**kwargs)),
+                    build_url(kwargs),
+                ],
+            )
 
 
 @RGRAPH_HANDS_MAP(RGT_RELATION)
@@ -562,9 +460,13 @@ class RGHRelation(ReportGraphHand):
             subj_ids = rel_filter(object_entity=obj_id).order_by('subject_entity__id')\
                                                        .values_list('subject_entity')
 
-            yield (str(ce_objects_get(pk=obj_id).get_real_entity()),
-                   [y_value_func(entities_filter(pk__in=subj_ids)), build_url({'pk__in': [e[0] for e in subj_ids]})],
-                  )
+            yield (
+                str(ce_objects_get(pk=obj_id).get_real_entity()),
+                [
+                    y_value_func(entities_filter(pk__in=subj_ids)),
+                    build_url({'pk__in': [e[0] for e in subj_ids]}),
+                ],
+            )
 
     @property
     def verbose_abscissa(self):
@@ -648,10 +550,11 @@ class RGHCustomDay(_RGHCustomField):
     def _fetch(self, entities, order, user):
         return self._get_custom_dates_values(
             entities, self._graph.abscissa, 'day',
-            qdict_builder=lambda date: {'customfielddatetime__value__year':  date.year,
-                                        'customfielddatetime__value__month': date.month,
-                                        'customfielddatetime__value__day':   date.day,
-                                       },
+            qdict_builder=lambda date: {
+                'customfielddatetime__value__year':  date.year,
+                'customfielddatetime__value__month': date.month,
+                'customfielddatetime__value__day':   date.day,
+            },
             date_format="%d/%m/%Y", order=order,
         )
 
@@ -663,9 +566,10 @@ class RGHCustomMonth(_RGHCustomField):
     def _fetch(self, entities, order, user):
         return self._get_custom_dates_values(
             entities, self._graph.abscissa, 'month',
-            qdict_builder=lambda date: {'customfielddatetime__value__year':  date.year,
-                                        'customfielddatetime__value__month': date.month,
-                                       },
+            qdict_builder=lambda date: {
+                'customfielddatetime__value__year':  date.year,
+                'customfielddatetime__value__month': date.month,
+            },
             date_format='%m/%Y', order=order,
         )
 
@@ -705,8 +609,10 @@ class RGHCustomRange(_RGHCustomField):
         cfield = self._cfield
         entities = entities.filter(customfielddatetime__custom_field=cfield)
 
-        date_aggregates = entities.aggregate(min_date=Min('customfielddatetime__value'),
-                                             max_date=Max('customfielddatetime__value'))
+        date_aggregates = entities.aggregate(
+            min_date=Min('customfielddatetime__value'),
+            max_date=Max('customfielddatetime__value'),
+        )
         min_date = date_aggregates['min_date']
         max_date = date_aggregates['max_date']
 
@@ -725,22 +631,27 @@ class RGHCustomRange(_RGHCustomField):
             aggregates = self._aggregate_by_key(entities, x_value_key, 'ASC')
 
             for interval, value in sparsezip(intervals, aggregates, 0):
-                range_label = '{}-{}'.format(interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
-                                             interval.end.strftime('%d/%m/%Y')
-                                            )
+                range_label = '{}-{}'.format(
+                    interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
+                    interval.end.strftime('%d/%m/%Y')
+                )
                 value_range = [interval.before.strftime('%Y-%m-%d'), interval.after.strftime('%Y-%m-%d')]
-                url = build_url({'customfielddatetime__custom_field': cfield.id,
-                                 'customfielddatetime__value__range': value_range})
+                url = build_url({
+                    'customfielddatetime__custom_field': cfield.id,
+                    'customfielddatetime__value__range': value_range,
+                })
 
                 yield range_label, [value, url]
 
     def _fetch_fallback(self, entities, order):
         cfield = self._cfield
         entities_filter = entities.filter
-        date_aggregates = entities_filter(customfielddatetime__custom_field=cfield) \
-                                         .aggregate(min_date=Min('customfielddatetime__value'),
-                                                    max_date=Max('customfielddatetime__value'),
-                                                   )
+        date_aggregates = entities_filter(
+            customfielddatetime__custom_field=cfield
+        ).aggregate(
+            min_date=Min('customfielddatetime__value'),
+            max_date=Max('customfielddatetime__value'),
+        )
         min_date = date_aggregates['min_date']
         max_date = date_aggregates['max_date']
 
@@ -751,22 +662,27 @@ class RGHCustomRange(_RGHCustomField):
             for interval in DateInterval.generate((self._graph.days or 1) - 1, min_date, max_date, order):
                 before = interval.before
                 after  = interval.after
-                sub_entities = entities_filter(customfielddatetime__custom_field=cfield,
-                                               customfielddatetime__value__range=(before, after),
-                                              )
+                sub_entities = entities_filter(
+                    customfielddatetime__custom_field=cfield,
+                    customfielddatetime__value__range=(before, after),
+                )
 
-                yield ('{}-{}'.format(interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
-                                      interval.end.strftime('%d/%m/%Y'),
-                                     ),
-                       [y_value_func(sub_entities),
-                        build_url({'customfielddatetime__custom_field': cfield.id,
-                                   'customfielddatetime__value__range': [before.strftime('%Y-%m-%d'),
-                                                                         after.strftime('%Y-%m-%d'),
-                                                                        ],
-                                  }
-                                 )
-                       ]
-                      )
+                yield (
+                    '{}-{}'.format(
+                        interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
+                        interval.end.strftime('%d/%m/%Y'),
+                    ),
+                    [
+                        y_value_func(sub_entities),
+                        build_url({
+                            'customfielddatetime__custom_field': cfield.id,
+                            'customfielddatetime__value__range': [
+                                before.strftime('%Y-%m-%d'),
+                                after.strftime('%Y-%m-%d'),
+                            ],
+                        }),
+                    ]
+                )
 
 
 @RGRAPH_HANDS_MAP(RGT_CUSTOM_FK)
@@ -777,7 +693,9 @@ class RGHCustomFK(_RGHCustomField):
         entities_filter = entities.filter
         y_value_func = self._y_calculator
         build_url = self._listview_url_builder()
-        related_instances = [*CustomFieldEnumValue.objects.filter(custom_field=self._cfield)]
+        related_instances = [
+            *CustomFieldEnumValue.objects.filter(custom_field=self._cfield),
+        ]
 
         if order == 'DESC':
             related_instances.reverse()
@@ -786,103 +704,3 @@ class RGHCustomFK(_RGHCustomField):
             kwargs = {'customfieldenum__value': instance.id}
 
             yield str(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
-
-
-# TODO: use a map/registry of GraphFetcher classes, and use it in get_fetcher_from_instance_brick()
-#       and in ReportGraph form to build choices.
-class GraphFetcher:
-    """A graph fetcher can fetch the result of a given ReportGraph, with or without
-    a volatile link.
-    It stores the verbose name of this link (for UI), and an error if the link data
-    were invalid.
-    """
-    def __init__(self, graph):
-        self.graph = graph
-        self.error = None
-        self.verbose_volatile_column = _('No volatile column')
-
-    def fetch(self, user, order='ASC'):
-        return self.graph.fetch(user=user, order=order)
-
-    def _aux_fetch_4_entity(self, entity, user, order):
-        "To be overload in child classes"
-        return self.fetch(user=user, order=order)
-
-    def fetch_4_entity(self, entity, user, order='ASC'):
-        return ([], []) \
-               if self.error else \
-               self._aux_fetch_4_entity(entity=entity, user=user, order=order)
-
-    @property
-    def verbose_name(self):
-        return f'{self.graph} - {self.verbose_volatile_column}'
-
-
-class RegularFieldLinkedGraphFetcher(GraphFetcher):
-    def __init__(self, field_name, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        model = self.graph.model
-        self.field_name = None
-        self.verbose_volatile_column = '??'
-
-        try:
-            field = model._meta.get_field(field_name)
-        except FieldDoesNotExist:
-            logger.warning('Instance block: invalid field %s.%s in block config.',
-                           model.__name__, field_name,
-                          )
-            self.error = _('The field is invalid.')
-        else:
-            if isinstance(field, ForeignKey):
-                self.verbose_volatile_column = gettext('{field} (Field)').format(field=field.verbose_name)
-                self._field_name = field_name
-                self._volatile_model = field.remote_field.model
-            else:
-                logger.warning('Instance block: field %s.%s in block config is not a FK.',
-                               model.__name__, field_name,
-                              )
-                self.error = _('The field is invalid (not a foreign key).')
-
-    def _aux_fetch_4_entity(self, entity, order, user):
-        return self.graph.fetch(extra_q=Q(**{self._field_name: entity.pk}), order=order, user=user) \
-               if isinstance(entity, self._volatile_model) else \
-               ([], [])
-
-    @staticmethod
-    def validate_fieldname(graph, field_name):
-        try:
-            field_info = FieldInfo(graph.model, field_name)
-        except FieldDoesNotExist:
-            return f'invalid field "{field_name}"'
-
-        if len(field_info) > 1:
-            return f'field "{field_name}" with deep > 1'
-
-        field = field_info[0]
-
-        if not (isinstance(field, ForeignKey) and issubclass(field.remote_field.model, CremeEntity)):
-            return f'field "{field_name}" is not a ForeignKey to CremeEntity'
-
-
-class RelationLinkedGraphFetcher(GraphFetcher):
-    def __init__(self, rtype_id, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        try:
-            rtype = RelationType.objects.get(pk=rtype_id)
-        except RelationType.DoesNotExist:
-            logger.warning('Instance block: invalid RelationType "%s" in block config.',
-                           rtype_id,
-                          )
-            self.error = _('The relationship type is invalid.')
-            self.verbose_volatile_column = '??'
-        else:
-            self.verbose_volatile_column = gettext('{rtype} (Relationship)').format(rtype=rtype)
-            self._rtype = rtype
-
-    def _aux_fetch_4_entity(self, entity, order, user):
-        return self.graph.fetch(extra_q=Q(relations__type=self._rtype,
-                                          relations__object_entity=entity.pk,
-                                         ),
-                                user=user,
-                                order=order,
-                               )
