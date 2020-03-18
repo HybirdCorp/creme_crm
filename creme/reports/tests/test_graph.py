@@ -41,7 +41,7 @@ try:
         RGT_CUSTOM_FK,
         RFT_FIELD, RFT_RELATION,
     )
-    from ..core.graph import ListViewURLBuilder
+    from ..core.graph.lv_url import ListViewURLBuilder
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 

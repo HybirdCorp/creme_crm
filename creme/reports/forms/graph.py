@@ -820,7 +820,7 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
                 model=model,
                 rgraph_type=instance.type,
             )
-            if abscissa_constraints:  # TODO: log if None ?
+            if abscissa_constraint:  # TODO: log if None ?
                 abscissa_f.initial = AbscissaInfo(
                     cell=abscissa_constraint.cell_class.build(
                         model,

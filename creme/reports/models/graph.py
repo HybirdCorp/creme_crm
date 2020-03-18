@@ -24,7 +24,11 @@ from typing import List, Optional, Tuple, Type, TYPE_CHECKING
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, pgettext_lazy, gettext
+from django.utils.translation import (
+    gettext_lazy as _,
+    pgettext_lazy,
+    gettext,
+)
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import (
@@ -113,7 +117,7 @@ class AbstractReportGraph(CremeEntity):
         @param instance_brick_config: An instance of InstanceBrickConfigItem.
         @return A GraphFetcher instance.
         """
-        from ..core import graph as core_graph
+        from ..core.graph import fetcher as core_fetcher
 
         data = instance_brick_config.data
         volatile_column = rfield_type = None
@@ -132,11 +136,11 @@ class AbstractReportGraph(CremeEntity):
 
         # TODO: use a map/registry of GraphFetcher classes
         if rfield_type == RFT_FIELD:
-            fetcher = core_graph.RegularFieldLinkedGraphFetcher(volatile_column, graph)
+            fetcher = core_fetcher.RegularFieldLinkedGraphFetcher(volatile_column, graph)
         elif rfield_type == RFT_RELATION:
-            fetcher = core_graph.RelationLinkedGraphFetcher(volatile_column, graph)
+            fetcher = core_fetcher.RelationLinkedGraphFetcher(volatile_column, graph)
         else:
-            fetcher = core_graph.GraphFetcher(graph)
+            fetcher = core_fetcher.GraphFetcher(graph)
 
         return fetcher
 
@@ -159,7 +163,7 @@ class AbstractReportGraph(CremeEntity):
                                           volatile_rtype: Optional[RelationType] = None,
                                           save: bool = True) -> Optional[InstanceBrickConfigItem]:
         from ..bricks import ReportGraphBrick
-        from ..core.graph import RegularFieldLinkedGraphFetcher
+        from ..core.graph.fetcher import RegularFieldLinkedGraphFetcher
 
         if volatile_field:
             assert volatile_rtype is None
