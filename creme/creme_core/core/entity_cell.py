@@ -376,8 +376,8 @@ class EntityCellCustomField(EntityCell):
             cfield = CustomField.objects.get(content_type=ct, id=customfield_id)
         except CustomField.DoesNotExist:
             logger.warning(
-                'EntityCellCustomField: custom field "%s" does not exist',
-                customfield_id,
+                'EntityCellCustomField: custom field "%s" (on model <%s>) does not exist',
+                customfield_id, ct,
             )
             return None
 

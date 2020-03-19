@@ -28,14 +28,14 @@ from typing import (
 )
 
 from django.db import connection
-from django.db.models import Min, Max, Count, FieldDoesNotExist, QuerySet
+from django.db.models import Min, Max, Count, QuerySet  # FieldDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
 from creme.creme_core.models import (
     CremeEntity,
-    RelationType, Relation,
-    CustomField, CustomFieldEnumValue,
+    Relation,  # RelationType
+    CustomFieldEnumValue,  # CustomField
 )
 
 from creme.reports.constants import *
@@ -169,15 +169,24 @@ RGRAPH_HANDS_MAP = ReportGraphHandRegistry()
 class _RGHRegularField(ReportGraphHand):
     def __init__(self, graph):
         super().__init__(graph)
-        model = graph.model
-
-        try:
-            field = model._meta.get_field(graph.abscissa)
-        except FieldDoesNotExist:
+        # model = graph.model
+        #
+        # try:
+        #     field = model._meta.get_field(graph.abscissa)
+        # except FieldDoesNotExist:
+        #     field = None
+        #     self.abscissa_error = _('the field does not exist any more.')
+        # else:
+        #     if graph.linked_report._fields_configs.get_4_model(model).is_field_hidden(field):
+        #         self.abscissa_error = _('this field should be hidden.')
+        cell = graph.abscissa_info.cell
+        if cell is None:
             field = None
             self.abscissa_error = _('the field does not exist any more.')
         else:
-            if graph.linked_report._fields_configs.get_4_model(model).is_field_hidden(field):
+            field = cell.field_info[0]
+
+            if graph.linked_report._fields_configs.get_4_model(graph.model).is_field_hidden(field):
                 self.abscissa_error = _('this field should be hidden.')
 
         self._field = field
@@ -454,11 +463,17 @@ class RGHRelation(ReportGraphHand):
     def __init__(self, graph):
         super().__init__(graph)
 
-        try:
-            rtype = RelationType.objects.get(pk=self._graph.abscissa)
-        except RelationType.DoesNotExist:
+        # try:
+        #     rtype = RelationType.objects.get(pk=self._graph.abscissa)
+        # except RelationType.DoesNotExist:
+        #     rtype = None
+        #     self.abscissa_error = _('the relationship type does not exist any more.')
+        cell = graph.abscissa_info.cell
+        if cell is None:
             rtype = None
             self.abscissa_error = _('the relationship type does not exist any more.')
+        else:
+            rtype = cell.relation_type
 
         self._rtype = rtype
 
@@ -495,13 +510,19 @@ class RGHRelation(ReportGraphHand):
 class _RGHCustomField(ReportGraphHand):
     def __init__(self, graph):
         super().__init__(graph)
-        abscissa = self._graph.abscissa
-
-        try:
-            cfield = CustomField.objects.get(pk=abscissa)
-        except CustomField.DoesNotExist:
+        # abscissa = self._graph.abscissa
+        #
+        # try:
+        #     cfield = CustomField.objects.get(pk=abscissa)
+        # except CustomField.DoesNotExist:
+        #     cfield = None
+        #     self.abscissa_error = _('the custom field does not exist any more.')
+        cell = graph.abscissa_info.cell
+        if cell is None:
             cfield = None
             self.abscissa_error = _('the custom field does not exist any more.')
+        else:
+            cfield = cell.custom_field
 
         self._cfield = cfield
 

@@ -13,6 +13,7 @@ try:
     from django.utils.translation import gettext as _, pgettext
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.core.entity_filter import condition_handler, operators
     from creme.creme_core.models import (
         RelationType, Relation,
@@ -41,7 +42,7 @@ try:
         RGT_CUSTOM_FK,
         RFT_FIELD, RFT_RELATION,
     )
-    from ..core.graph.lv_url import ListViewURLBuilder
+    from ..core.graph import AbscissaInfo, ListViewURLBuilder
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -268,6 +269,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertIsNone(hand.abscissa_error)
         self.assertIsNone(hand.ordinate_error)
 
+        abs_info = rgraph.abscissa_info
+        self.assertIsInstance(abs_info, AbscissaInfo)
+        self.assertEqual(gtype, abs_info.graph_type)
+        self.assertIsNone(abs_info.parameter)
+        self.assertEqual('regular_field-sector', abs_info.cell.key)
+
         # ------------------------------------------------------------
         response = self.assertGET200(rgraph.get_absolute_url())
         self.assertTemplateUsed(response, 'reports/view_graph.html')
@@ -315,10 +322,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             return self.client.post(
                 url,
                 data={
-                    'user':              user.id,
-                    'name':              name,
+                    'user': user.id,
+                    'name': name,
                     # 'abscissa_group_by': gtype,
-                    'chart':             'barchart',
+                    'chart': 'barchart',
                     **kwargs
                 },
             )
@@ -895,6 +902,45 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             response, 'form', 'abscissa',
             'This entity cell is not allowed.'
         )
+
+    def test_abscissa_info(self):
+        user = self.login()
+        report = self._create_simple_organisations_report()
+        rgraph = ReportGraph(
+            user=user, linked_report=report,
+            name='Capital per month of creation',
+            ordinate='capital__sum',
+            is_count=False,
+        )
+
+        rgraph.abscissa_info = AbscissaInfo(
+            graph_type=RGT_FK,
+            cell=EntityCellRegularField.build(FakeOrganisation, 'capital'),
+        )
+        self.assertEqual('capital', rgraph.abscissa)
+        self.assertEqual(RGT_FK, rgraph.type)
+        self.assertIsNone(rgraph.days)
+
+        abs_info1 = rgraph.abscissa_info
+        self.assertIsInstance(abs_info1, AbscissaInfo)
+        self.assertEqual(RGT_FK, abs_info1.graph_type)
+        self.assertIsNone(abs_info1.parameter)
+        self.assertEqual('regular_field-capital', abs_info1.cell.key)
+
+        # ---
+        rgraph.abscissa_info = AbscissaInfo(
+            graph_type=RGT_RANGE,
+            cell=EntityCellRegularField.build(FakeOrganisation, 'created'),
+            parameter=3,
+        )
+        self.assertEqual('created', rgraph.abscissa)
+        self.assertEqual(RGT_RANGE, rgraph.type)
+        self.assertEqual(3, rgraph.days)
+
+        abs_info2 = rgraph.abscissa_info
+        self.assertEqual(RGT_RANGE, abs_info2.graph_type)
+        self.assertEqual('regular_field-created', abs_info2.cell.key)
+        self.assertEqual(3, abs_info2.parameter)
 
     def test_editview01(self):
         user = self.login()
@@ -1748,7 +1794,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         "Aggregate."
         user = self.login()
         create_cf_dt = partial(CustomField.objects.create,
-                               content_type=self.ct_contact,
+                               content_type=self.ct_orga,
                                field_type=CustomField.DATETIME,
                               )
         cf  = create_cf_dt(name='First victory')
@@ -1859,7 +1905,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         "Count."
         user = self.login()
 
-        cf = CustomField.objects.create(content_type=self.ct_contact,
+        cf = CustomField.objects.create(content_type=self.ct_orga,
                                         name='First victory',
                                         field_type=CustomField.DATETIME,
                                        )
@@ -1986,7 +2032,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         "Count"
         user = self.login()
 
-        cf = CustomField.objects.create(content_type=self.ct_contact,
+        cf = CustomField.objects.create(content_type=self.ct_orga,
                                         name='First victory',
                                         field_type=CustomField.DATETIME,
                                        )

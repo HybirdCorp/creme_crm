@@ -38,6 +38,7 @@ from creme.creme_core.models import (
 )
 
 from ..constants import RFT_RELATION, RFT_FIELD, GROUP_TYPES
+from ..core.graph import AbscissaInfo, abscissa_constraints
 
 if TYPE_CHECKING:
     from ..core.graph import GraphFetcher, ReportGraphHand
@@ -63,7 +64,8 @@ class AbstractReportGraph(CremeEntity):
     creation_label = _("Create a report's graph")
     save_label     = pgettext_lazy('reports-graphs', 'Save the graph')
 
-    _hand = None
+    abscissa_constraints = abscissa_constraints
+    _hand: Optional['ReportGraphHand'] = None
 
     class Meta:
         abstract = True
@@ -89,6 +91,38 @@ class AbstractReportGraph(CremeEntity):
             ibci.delete()
 
         super().delete(*args, **kwargs)
+
+    @property
+    def abscissa_info(self) -> Optional[AbscissaInfo]:
+        report = self.linked_report
+        assert report is not None
+
+        model = report.ct.model_class()
+        abscissa_constraint = self.abscissa_constraints.get_constraint_by_rgraph_type(
+            model=model,
+            rgraph_type=self.type,
+        )
+        if not abscissa_constraint:
+            logger.warning(
+                'AbstractReportGraph.abscissa_info: invalid abscissa info (model=<%s> rgraph_type=%s)',
+                model, self.type,
+            )
+            return None
+
+        return AbscissaInfo(
+            cell=abscissa_constraint.cell_class.build(
+                model,
+                self.abscissa,
+            ),
+            graph_type=self.type,
+            parameter=self.days,
+        )
+
+    @abscissa_info.setter
+    def abscissa_info(self, abs_info: AbscissaInfo):
+        self.abscissa = abs_info.cell.value
+        self.type = abs_info.graph_type
+        self.days = abs_info.parameter
 
     # TODO: use creme_core.utils.meta.Order
     def fetch(self,

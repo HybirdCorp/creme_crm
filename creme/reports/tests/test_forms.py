@@ -34,15 +34,13 @@ try:
         RGT_RANGE,
         RGT_CUSTOM_RANGE,
     )
+    from creme.reports.core.graph import AbscissaInfo
     from creme.reports.core.graph.cell_constraint import (
         GraphHandCellConstraint,
         GHCCRegularFK, GHCCRegularDate, GHCCRelation, GHCCCustomEnum, GHCCCustomDate,
         GraphHandConstraintsRegistry, abscissa_constraints,
     )
-    from creme.reports.forms.graph import (
-        AbscissaInfo,
-        AbscissaField,
-    )
+    from creme.reports.forms.graph import AbscissaField
 
     from .base import AbcissaFieldMixin
 except Exception as e:

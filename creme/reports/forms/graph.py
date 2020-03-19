@@ -22,7 +22,7 @@ from collections import defaultdict
 from json import dumps as json_dump
 from functools import partial
 from typing import (
-    Any,  Optional, Type,
+    Optional, Type,
     Set,
 )
 
@@ -61,10 +61,10 @@ from ..constants import (
     # RGT_CUSTOM_FK,
 )
 # from ..core.graph import RGRAPH_HANDS_MAP
+from ..core.graph import AbscissaInfo
 from ..core.graph.cell_constraint import (
     GraphHandCellConstraint,
     GraphHandConstraintsRegistry,
-    abscissa_constraints,
 )
 from ..report_aggregation_registry import field_aggregation_registry
 from ..report_chart_registry import report_chart_registry
@@ -81,21 +81,6 @@ from ..report_chart_registry import report_chart_registry
 #             extra_args.update(attrs)
 #
 #         return super().get_context(name=name, value=value, attrs=extra_args)
-
-
-class AbscissaInfo:
-    def __init__(self,
-                 cell: EntityCell,
-                 graph_type: int,
-                 parameter: Optional[Any] = None):
-        self.cell = cell
-        self.graph_type = graph_type
-        self.parameter = parameter
-
-    def __repr__(self):
-        return f'AbscissaInfo(cell=<{self.cell}>, ' \
-                            f'graph_type={self.graph_type}, ' \
-                            f'parameter={self.parameter})'
 
 
 class AbscissaWidget(ChainedInput):
@@ -286,7 +271,7 @@ class AbscissaField(JSONField):
         if value is None:
             not_hiddable_cell_keys = set()
         else:
-            assert isinstance(value, AbscissaInfo)
+            assert isinstance(value, AbscissaInfo), type(value)
             # NB: If a cell (for a regular-field) has been selected before the
             #     related regular field has been hidden, it must be proposed to
             #     avoid silent modification of the abscissa (& so, the ReportGraph).
@@ -441,8 +426,6 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         ('ordinate', _('Y axis'), ['is_count', 'aggregate', 'aggregate_field']),
     )
 
-    abscissa_constraints = abscissa_constraints
-
     class Meta(CremeModelForm.Meta):
         model = get_rgraph_model()
         exclude = ('description',)
@@ -511,7 +494,7 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         # abscissa_field_f.widget.target_url = reverse('reports__graph_types', args=(report_ct.id,))
 
         abscissa_f.model = model
-        abscissa_f.constraint_registry = self.abscissa_constraints
+        abscissa_f.constraint_registry = instance.abscissa_constraints
 
         # Ordinate -------------------------------------------------------------
         def agg_field_excluder(field, deep):
@@ -587,21 +570,23 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
             # widget.target_val = instance.type
             #
             # fields['abscissa_group_by'].widget.attrs['data-initial-value'] = instance.type
-            abscissa_constraint = self.abscissa_constraints.get_constraint_by_rgraph_type(
-                model=model,
-                rgraph_type=instance.type,
-            )
-            if abscissa_constraint:  # TODO: log if None ?
-                abscissa_f.initial = AbscissaInfo(
-                    cell=abscissa_constraint.cell_class.build(
-                        model,
-                        instance.abscissa,
-                    ),
-                    graph_type=instance.type,
-                    parameter=instance.days,
-                )
 
-        # TODO: remove this sh*t when is_count is a real widget well initialized (disabling set by JS)
+            # abscissa_constraint = self.abscissa_constraints.get_constraint_by_rgraph_type(
+            #     model=model,
+            #     rgraph_type=instance.type,
+            # )
+            # if abscissa_constraint:  # TODO: log if None ?
+            #     abscissa_f.initial = AbscissaInfo(
+            #         cell=abscissa_constraint.cell_class.build(
+            #             model,
+            #             instance.abscissa,
+            #         ),
+            #         graph_type=instance.type,
+            #         parameter=instance.days,
+            #     )
+            abscissa_f.initial = instance.abscissa_info
+
+            # TODO: remove this sh*t when is_count is a real widget well initialized (disabling set by JS)
         if is_count_f.initial or instance.is_count or data.get('is_count'):
             disabled_attrs = {'disabled': True}
             aggregate_field_f.widget.attrs = disabled_attrs
@@ -744,10 +729,7 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
 
         # graph.abscissa = get_data('abscissa_field')
         # graph.type = get_data('abscissa_group_by')
-        abs_info: AbscissaInfo = cdata['abscissa']
-        graph.abscissa = abs_info.cell.value
-        graph.type = abs_info.graph_type
-        graph.days = abs_info.parameter
+        graph.abscissa_info = cdata['abscissa']
 
         agg_fields = get_data('aggregate_field')
         graph.ordinate = '{}__{}'.format(agg_fields, get_data('aggregate')) if agg_fields else ''
