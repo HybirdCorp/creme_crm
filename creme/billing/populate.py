@@ -419,7 +419,6 @@ class Populator(BasePopulator):
         from functools import partial
 
         from django.contrib.auth import get_user_model
-        from django.contrib.contenttypes.models import ContentType
 
         from creme.reports.constants import RFT_FIELD, RFT_RELATION, RGT_FK, RGT_MONTH
         from creme.reports.models import Report, Field, ReportGraph
@@ -436,44 +435,47 @@ class Populator(BasePopulator):
             create_field(name='issuing_date',          order=6)
             create_field(name='expiration_date',       order=7)
 
-        create_report = partial(Report.objects.create, user=admin,
-                                ct=ContentType.objects.get_for_model(Invoice),
-                               )
+        create_report = partial(Report.objects.create, user=admin, ct=Invoice)
         create_graph = partial(ReportGraph.objects.create, user=admin)
 
         # Create current year invoices report ----------------------------------
-        invoices_report1 = create_report(name=_('All invoices of the current year'),
-                                         filter=current_year_invoice_filter,
-                                        )
+        invoices_report1 = create_report(
+            name=_('All invoices of the current year'),
+            filter=current_year_invoice_filter,
+        )
         create_report_columns(invoices_report1)
 
         rgraph1 = create_graph(
             name=_('Sum of current year invoices total without taxes / month'),
             linked_report=invoices_report1,
-            abscissa='issuing_date', ordinate='total_no_vat__sum',
-            type=RGT_MONTH, is_count=False,
+            # abscissa='issuing_date', type=RGT_MONTH,
+            abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
+            ordinate='total_no_vat__sum', is_count=False,
         )
         create_graph(
             name=_('Sum of current year invoices total without taxes / invoices status'),
             linked_report=invoices_report1,
-            abscissa='status', ordinate='total_no_vat__sum',
-            type=RGT_FK, is_count=False,
+            # abscissa='status', type=RGT_FK,
+            abscissa_cell_value='status', abscissa_type=RGT_FK,
+            ordinate='total_no_vat__sum', is_count=False,
         )
         ibci = rgraph1.create_instance_brick_config_item()
 
         BrickHomeLocation.objects.create(brick_id=ibci.brick_id, order=11)
 
         # Create current year and unpaid invoices report -----------------------
-        invoices_report2 = create_report(name=_('Invoices unpaid of the current year'),
-                                         filter=current_year_unpaid_invoice_filter,
-                                        )
+        invoices_report2 = create_report(
+            name=_('Invoices unpaid of the current year'),
+            filter=current_year_unpaid_invoice_filter,
+        )
         create_report_columns(invoices_report2)
 
         rgraph = create_graph(
             name=_('Sum of current year and unpaid invoices total without taxes / month'),
             linked_report=invoices_report2,
-            abscissa='issuing_date', ordinate='total_no_vat__sum',
-            type=RGT_MONTH, is_count=False,
+            # abscissa='issuing_date', type=RGT_MONTH,
+            abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
+            ordinate='total_no_vat__sum', is_count=False,
         )
         ibci = rgraph.create_instance_brick_config_item()
 

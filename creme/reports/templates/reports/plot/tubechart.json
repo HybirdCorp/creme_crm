@@ -67,7 +67,8 @@
                 "show": false
             },
             "ticks": [""],
-            "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.type %} - {{rgraph.hand.verbose_name}}{% if rgraph.days %} ({{rgraph.days}}){% endif %}{% endif %}",
+{#            "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.type %} - {{rgraph.hand.verbose_name}}{% if rgraph.days %} ({{rgraph.days}}){% endif %}{% endif %}", #}
+            "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.abscissa_type %} - {{rgraph.hand.verbose_name}}{% if rgraph.abscissa_parameter %} ({{rgraph.abscissa_parameter}}){% endif %}{% endif %}",
             "labelOptions": {
                 "fontWeight": "bold",
                 "fontSize": "10pt",

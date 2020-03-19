@@ -10,6 +10,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cremeentity',
             name='description',
-            field=models.TextField(blank=True, verbose_name='Description'),
+            field=models.TextField(blank=True, c'Description'),
         ),
     ]

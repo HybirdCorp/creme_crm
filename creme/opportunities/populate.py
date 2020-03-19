@@ -314,31 +314,40 @@ class Populator(BasePopulator):
             return
 
         # TODO: helper method ('sum' => is_count=False, range only on DateFields etc...)
-        create_graph = partial(reports.get_rgraph_model().objects.create,
-                               linked_report=report, user=admin,
-                               is_count=False, ordinate='estimated_sales__sum',
-                              )
+        create_graph = partial(
+            reports.get_rgraph_model().objects.create,
+            linked_report=report, user=admin,
+            is_count=False, ordinate='estimated_sales__sum',
+        )
         esales_vname = FieldInfo(Opportunity, 'estimated_sales').verbose_name
-        rgraph1 = create_graph(name=_('Sum {estimated_sales} / {sales_phase}').format(
-                                    estimated_sales=esales_vname,
-                                    sales_phase=FieldInfo(Opportunity, 'sales_phase').verbose_name,
-                                ),
-                               abscissa='sales_phase', type=rep_constants.RGT_FK,
-                              )
-        rgraph2 = create_graph(name=_('Sum {estimated_sales} / Quarter (90 days on {closing_date})').format(
-                                    estimated_sales=esales_vname,
-                                    closing_date=FieldInfo(Opportunity, 'closing_date').verbose_name,
-                                ),
-                               abscissa='closing_date', type=rep_constants.RGT_RANGE, days=90,
-                              )
+        rgraph1 = create_graph(
+            name=_('Sum {estimated_sales} / {sales_phase}').format(
+                estimated_sales=esales_vname,
+                sales_phase=FieldInfo(Opportunity, 'sales_phase').verbose_name,
+            ),
+            # abscissa='sales_phase', type=rep_constants.RGT_FK,
+            abscissa_type=rep_constants.RGT_FK,
+            abscissa_cell_value='sales_phase',
+        )
+        rgraph2 = create_graph(
+            name=_('Sum {estimated_sales} / Quarter (90 days on {closing_date})').format(
+                estimated_sales=esales_vname,
+                closing_date=FieldInfo(Opportunity, 'closing_date').verbose_name,
+            ),
+            # abscissa='closing_date', type=rep_constants.RGT_RANGE, days=90,
+            abscissa_type=rep_constants.RGT_RANGE,
+            abscissa_cell_value='closing_date',
+            abscissa_parameter='90',
+        )
 
         # Create 2 instance block items for the 2 graphs ----------------------
         brick_id1 = rgraph1.create_instance_brick_config_item().brick_id
         brick_id2 = rgraph2.create_instance_brick_config_item().brick_id
 
-        create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
-                             zone=BrickDetailviewLocation.RIGHT, model=Opportunity,
-                            )
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            zone=BrickDetailviewLocation.RIGHT, model=Opportunity,
+        )
         create_bdl(brick=brick_id1, order=4)
         create_bdl(brick=brick_id2, order=6)
 
