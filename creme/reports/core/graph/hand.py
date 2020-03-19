@@ -549,7 +549,8 @@ class _RGHCustomField(ReportGraphHand):
     #       (differences here - 1: there is no need to exclude null values
     #       2: the entities have an additional filter,
     #       3: the qdicts have an additional value) and could be factored together
-    def _get_custom_dates_values(self, entities, abscissa, kind, qdict_builder, date_format, order):
+    # def _get_custom_dates_values(self, entities, abscissa, kind, qdict_builder, date_format, order):
+    def _get_custom_dates_values(self, *, entities, kind, qdict_builder, date_format, order):
         """
         @param kind 'day', 'month' or 'year'
         @param order 'ASC' or 'DESC'
@@ -588,13 +589,16 @@ class RGHCustomDay(_RGHCustomField):
 
     def _fetch(self, entities, order, user):
         return self._get_custom_dates_values(
-            entities, self._graph.abscissa, 'day',
+            entities=entities,
+            # abscissa=self._graph.abscissa,
+            kind='day',
             qdict_builder=lambda date: {
                 'customfielddatetime__value__year':  date.year,
                 'customfielddatetime__value__month': date.month,
                 'customfielddatetime__value__day':   date.day,
             },
-            date_format="%d/%m/%Y", order=order,
+            date_format="%d/%m/%Y",
+            order=order,
         )
 
 
@@ -604,12 +608,15 @@ class RGHCustomMonth(_RGHCustomField):
 
     def _fetch(self, entities, order, user):
         return self._get_custom_dates_values(
-            entities, self._graph.abscissa, 'month',
+            entities=entities,
+            # abscissa=self._graph.abscissa,
+            kind='month',
             qdict_builder=lambda date: {
                 'customfielddatetime__value__year':  date.year,
                 'customfielddatetime__value__month': date.month,
             },
-            date_format='%m/%Y', order=order,
+            date_format='%m/%Y',
+            order=order,
         )
 
 
@@ -619,9 +626,14 @@ class RGHCustomYear(_RGHCustomField):
 
     def _fetch(self, entities, order, user):
         return self._get_custom_dates_values(
-            entities, self._graph.abscissa, 'year',
-            qdict_builder=lambda date: {'customfielddatetime__value__year': date.year},
-            date_format='%Y', order=order,
+            entities=entities,
+            # abscissa=self._graph.abscissa,
+            kind='year',
+            qdict_builder=lambda date: {
+                'customfielddatetime__value__year': date.year,
+            },
+            date_format='%Y',
+            order=order,
         )
 
 
