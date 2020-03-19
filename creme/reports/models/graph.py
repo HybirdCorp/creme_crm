@@ -53,10 +53,14 @@ class AbstractReportGraph(CremeEntity):
                                       editable=False, on_delete=models.CASCADE,
                                      )
 
-    abscissa = models.CharField(_('X axis'), max_length=100, editable=False)
+    # type     = models.PositiveIntegerField(_('Grouping'), editable=False, choices=GROUP_TYPES.items())
+    # abscissa = models.CharField(_('X axis'), max_length=100, editable=False)
+    # days     = models.PositiveIntegerField(_('Days'), blank=True, null=True, editable=False)
+    abscissa_type       = models.PositiveIntegerField(_('Grouping'), editable=False, choices=GROUP_TYPES.items())
+    abscissa_cell_value = models.CharField(_('X axis'), max_length=100, editable=False)
+    abscissa_parameter  = models.TextField(_('X axis parameter'), null=True, editable=False)
+
     ordinate = models.CharField(_('Y axis'), max_length=100, editable=False)
-    type     = models.PositiveIntegerField(_('Grouping'), editable=False, choices=GROUP_TYPES.items())
-    days     = models.PositiveIntegerField(_('Days'), blank=True, null=True, editable=False)
     is_count = models.BooleanField(_('Make a count instead of aggregate?'), default=False)  # TODO: 'count' function instead ?
     chart    = models.CharField(_('Chart type'), max_length=100, null=True)
     asc      = models.BooleanField('ASC order', default=True, editable=False)  # TODO: not viewable ?
@@ -100,29 +104,29 @@ class AbstractReportGraph(CremeEntity):
         model = report.ct.model_class()
         abscissa_constraint = self.abscissa_constraints.get_constraint_by_rgraph_type(
             model=model,
-            rgraph_type=self.type,
+            rgraph_type=self.abscissa_type,
         )
         if not abscissa_constraint:
             logger.warning(
                 'AbstractReportGraph.abscissa_info: invalid abscissa info (model=<%s> rgraph_type=%s)',
-                model, self.type,
+                model, self.abscissa_type,
             )
             return None
 
         return AbscissaInfo(
             cell=abscissa_constraint.cell_class.build(
                 model,
-                self.abscissa,
+                self.abscissa_cell_value,
             ),
-            graph_type=self.type,
-            parameter=self.days,
+            graph_type=self.abscissa_type,
+            parameter=self.abscissa_parameter,
         )
 
     @abscissa_info.setter
     def abscissa_info(self, abs_info: AbscissaInfo):
-        self.abscissa = abs_info.cell.value
-        self.type = abs_info.graph_type
-        self.days = abs_info.parameter
+        self.abscissa_cell_value = abs_info.cell.value
+        self.abscissa_type = abs_info.graph_type
+        self.abscissa_parameter = abs_info.parameter
 
     # TODO: use creme_core.utils.meta.Order
     def fetch(self,
@@ -185,7 +189,8 @@ class AbstractReportGraph(CremeEntity):
         hand = self._hand
 
         if hand is None:
-            self._hand = hand = RGRAPH_HANDS_MAP[self.type](self)
+            # self._hand = hand = RGRAPH_HANDS_MAP[self.type](self)
+            self._hand = hand = RGRAPH_HANDS_MAP[self.abscissa_type](self)
 
         return hand
 

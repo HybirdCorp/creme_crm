@@ -244,7 +244,8 @@ class RGHDay(_RGHRegularField):
     verbose_name = _('By days')
 
     def _fetch(self, entities, order, user):
-        abscissa = self._graph.abscissa
+        # abscissa = self._graph.abscissa
+        abscissa = self._field.name
         year_key  = f'{abscissa}__year'
         month_key = f'{abscissa}__month'
         day_key   = f'{abscissa}__day'
@@ -264,7 +265,8 @@ class RGHMonth(_RGHRegularField):
     verbose_name = _('By months')
 
     def _fetch(self, entities, order, user):
-        abscissa = self._graph.abscissa
+        # abscissa = self._graph.abscissa
+        abscissa = self._field.name
         year_key  = f'{abscissa}__year'
         month_key = f'{abscissa}__month'
 
@@ -282,7 +284,8 @@ class RGHYear(_RGHRegularField):
     verbose_name = _('By years')
 
     def _fetch(self, entities, order, user):
-        abscissa = self._graph.abscissa
+        # abscissa = self._graph.abscissa
+        abscissa = self._field.name
 
         return self._get_dates_values(
             entities, abscissa, 'year',
@@ -319,8 +322,20 @@ class DateInterval:
                 max_date = end - timedelta(days=1)
 
 
+class _DateRangeMixin:
+    @staticmethod
+    def get_days(graph):
+        try:
+            days = int(graph.abscissa_info.parameter)
+        except (TypeError, ValueError) as e:
+            logger.warning('Invalid report graph days parameter "%s"', e)
+            days = 1
+
+        return days
+
+
 @RGRAPH_HANDS_MAP(RGT_RANGE)
-class RGHRange(_RGHRegularField):
+class RGHRange(_DateRangeMixin, _RGHRegularField):
     verbose_name = _('By X days')
 
     def __init__(self, graph):
@@ -334,12 +349,15 @@ class RGHRange(_RGHRegularField):
                           )
             self._fetch_method = self._fetch_fallback
 
+        self._days = self.get_days(graph)
+
     def _fetch(self, entities, order, user):
         return self._fetch_method(entities, order)
 
     def _fetch_with_group_by(self, entities, order):
         graph = self._graph
-        abscissa = graph.abscissa
+        # abscissa = graph.abscissa
+        abscissa = self._field.name
 
         # TODO: When migrating to Django 1.8 (with its support of expressions and sql functions) these queries can be refactored and get improved performance
         # by pushing part of the group key computation in the min/max aggregates query (converting the min/max date to a pivot key).
@@ -354,7 +372,8 @@ class RGHRange(_RGHRegularField):
         if min_date is not None and max_date is not None:
             build_url = self._listview_url_builder()
             query_cmd = f'{abscissa}__range'
-            days = graph.days or 1
+            # days = graph.days or 1
+            days = self._days
 
             field_name = _physical_field_name(self._field.model._meta.db_table, abscissa)
 
@@ -370,11 +389,16 @@ class RGHRange(_RGHRegularField):
 
             # Fill missing aggregate values and zip them with the date intervals
             for interval, value in sparsezip(intervals, aggregates, 0):
-                range_label = '{}-{}'.format(interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
-                                             interval.end.strftime('%d/%m/%Y')
-                                            )
-                url = build_url({query_cmd: [interval.before.strftime('%Y-%m-%d'),
-                                             interval.after.strftime('%Y-%m-%d')]})
+                range_label = '{}-{}'.format(
+                    interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
+                    interval.end.strftime('%d/%m/%Y')
+                )
+                url = build_url({
+                    query_cmd: [
+                        interval.before.strftime('%Y-%m-%d'),
+                        interval.after.strftime('%Y-%m-%d'),
+                    ],
+                })
 
                 yield range_label, [value, url]
 
@@ -436,7 +460,8 @@ class RGHForeignKey(_RGHRegularField):
         self._abscissa_enumerator = enumerator
 
     def _fetch(self, entities, order, user):
-        abscissa = self._graph.abscissa
+        # abscissa = self._graph.abscissa
+        abscissa = self._field.name
         build_url = self._listview_url_builder()
         entities_filter = entities.filter
         y_value_func = self._y_calculator
@@ -638,7 +663,7 @@ class RGHCustomYear(_RGHCustomField):
 
 
 @RGRAPH_HANDS_MAP(RGT_CUSTOM_RANGE)
-class RGHCustomRange(_RGHCustomField):
+class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
     verbose_name = _('By X days')
 
     def __init__(self, graph):
@@ -651,6 +676,8 @@ class RGHCustomRange(_RGHCustomField):
                            ' reverting to slower fallback method.', vendor
                           )
             self._fetch_method = self._fetch_fallback
+
+        self._days = self.get_days(graph)
 
     def _fetch(self, entities, order, user):
         return self._fetch_method(entities, order)
@@ -669,7 +696,8 @@ class RGHCustomRange(_RGHCustomField):
 
         if min_date is not None and max_date is not None:
             build_url = self._listview_url_builder()
-            days = self._graph.days or 1
+            # days = self._graph.days or 1
+            days = self._days
 
             field_name = _physical_field_name('creme_core_customfielddatetime', 'value')
 
