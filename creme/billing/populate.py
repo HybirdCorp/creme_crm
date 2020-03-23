@@ -420,8 +420,10 @@ class Populator(BasePopulator):
 
         from django.contrib.auth import get_user_model
 
+        from creme import reports
         from creme.reports.constants import RFT_FIELD, RFT_RELATION, RGT_FK, RGT_MONTH
-        from creme.reports.models import Report, Field, ReportGraph
+        # from creme.reports.models import Report, Field, ReportGraph
+        from creme.reports.models import Field
 
         admin = get_user_model().objects.get_admin()
 
@@ -435,8 +437,10 @@ class Populator(BasePopulator):
             create_field(name='issuing_date',          order=6)
             create_field(name='expiration_date',       order=7)
 
-        create_report = partial(Report.objects.create, user=admin, ct=Invoice)
-        create_graph = partial(ReportGraph.objects.create, user=admin)
+        # create_report = partial(Report.objects.create, user=admin, ct=Invoice)
+        create_report = partial(reports.get_report_model().objects.create, user=admin, ct=Invoice)
+        # create_graph = partial(ReportGraph.objects.create, user=admin)
+        create_graph = partial(reports.get_rgraph_model().objects.create, user=admin)
 
         # Create current year invoices report ----------------------------------
         invoices_report1 = create_report(
