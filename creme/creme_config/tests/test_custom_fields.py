@@ -418,7 +418,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         ct = ContentType.objects.get_for_model(FakeContact)
         create_cfield = partial(CustomField.objects.create,
                                 content_type=ct,
-                                field_type=CustomField.MULTI_ENUM,
+                                field_type=CustomField.ENUM,
                                )
         cfield1 = create_cfield(name='Programming languages')
         cfield2 = create_cfield(name='Countries')
@@ -511,6 +511,104 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertGET403(
             reverse('creme_config__add_custom_enums', args=(cfield.id,))
+        )
+
+    def test_add_enum_value01(self):
+        self.login(is_superuser=False, admin_4_apps=('creme_core',))
+
+        ct = ContentType.objects.get_for_model(FakeContact)
+        create_cfield = partial(CustomField.objects.create,
+                                content_type=ct,
+                                field_type=CustomField.ENUM,
+                               )
+        cfield1 = create_cfield(name='Programming languages')
+        cfield2 = create_cfield(name='Countries')
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield1)
+        create_evalue(value='C')
+        create_evalue(value='ABC')
+        create_evalue(value='Java')
+        create_evalue(value='Haskell', custom_field=cfield2)  # Should be ignored as duplicate
+
+        url = reverse('creme_config__add_custom_enum', args=(cfield1.id,))
+        response = self.assertGET200(url)
+        self.assertEqual(
+            _('Add this new choice'),
+            response.context.get('submit_label')
+        )
+
+        response = self.client.post(
+            url,
+            data={
+                'choice': 'Haskell',
+            },
+        )
+        self.assertNoFormError(response)
+
+        evalues = CustomFieldEnumValue.objects.filter(custom_field=cfield1).order_by('id')
+        self.assertEqual(
+            ['C', 'ABC', 'Java', 'Haskell'],
+            [cfev.value for cfev in evalues]
+        )
+        # self.assertWidgetResponse(response, evalues[3]) TODO ?
+        created_evalue = evalues[3]
+        self.assertDictEqual(
+            {'added': [[created_evalue.id, str(created_evalue)]],
+             'value': created_evalue.id,
+            },
+            response.json()
+        )
+
+    def test_add_enum_value02(self):
+        "MULTI_ENUM + duplicated choice."
+        self.login()
+
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            name='Programming languages',
+            field_type=CustomField.MULTI_ENUM,
+        )
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
+        eval01 = create_evalue(value='C')
+        __     = create_evalue(value='Java')
+
+        response = self.assertPOST200(
+            reverse('creme_config__add_custom_enum', args=(cfield.id,)),
+            data={
+                'choice': eval01.value,
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'choice',
+            _('The choice «{}» is duplicated.').format(eval01.value)
+        )
+
+    def test_add_enum_value03(self):
+        "Not Enum type => error."
+        self.login()
+
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            name='Programming languages',
+            field_type=CustomField.STR,
+        )
+        self.assertGET409(
+            reverse('creme_config__add_custom_enum', args=(cfield.id,))
+        )
+
+    def test_add_enum_value04(self):
+        "Not allowed."
+        self.login(is_superuser=False)
+
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            name='Programming languages',
+            field_type=CustomField.MULTI_ENUM,
+        )
+
+        self.assertGET403(
+            reverse('creme_config__add_custom_enum', args=(cfield.id,))
         )
 
     def test_edit_enum_value01(self):

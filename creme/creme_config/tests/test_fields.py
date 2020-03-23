@@ -1,29 +1,57 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.contrib.auth import get_user_model
     from django.urls import reverse
     from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import UserRole
+    from creme.creme_core.models import (
+        UserRole,
+        CustomField, CustomFieldEnumValue,
+        FakeContact, FakePosition, FakeSector,
+    )
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import FakePosition, FakeSector
 
-    from ..forms.fields import CreatorModelChoiceField, CreatorModelMultipleChoiceField
+    from ..forms.fields import (
+        CreatorModelChoiceField,
+        CreatorModelMultipleChoiceField,
+        CustomEnumChoiceField,
+        CustomMultiEnumChoiceField,
+    )
     from ..forms.widgets import CreatorModelChoiceWidget
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
 
+def create_user(admin=True):
+    role = UserRole(name='Average')
+    if admin:
+        role.admin_4_apps = ['creme_core']
+    else:
+        role.allowed_apps = ['creme_core']
+
+    role.save()
+
+    return get_user_model().objects.create(
+        username='averagejoe',
+        first_name='Joe',
+        last_name='Average',
+        email='averagejoe@company.com',
+        role=role,
+    )
+
+
 class CreatorModelChoiceFieldTestCase(CremeTestCase):
     ADD_URL = reverse('creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'))
 
-    def _create_superuser(self):
-        return get_user_model().objects.create_superuser(username='averagejoe',
-                                                         first_name='Joe',
-                                                         last_name='Average',
-                                                         email='averagejoe@company.com',
-                                                        )
+    # def _create_superuser(self):
+    #     return get_user_model().objects.create_superuser(username='averagejoe',
+    #                                                      first_name='Joe',
+    #                                                      last_name='Average',
+    #                                                      email='averagejoe@company.com',
+    #                                                     )
 
     def test_actions_not_admin(self):
         with self.assertNumQueries(0):
@@ -56,10 +84,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         role.admin_4_apps = ['creme_core']
         role.save()
 
-        admin = get_user_model().objects.create(username='chloe', role=role)
-        admin.role = role
-
-        field.user = admin
+        field.user = get_user_model().objects.create(username='chloe', role=role)
 
         render_str = field.widget.render('sector', None)
         self.assertIn(self.ADD_URL, render_str)
@@ -76,10 +101,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         role.admin_4_apps = ['creme_core']
         role.save()
 
-        admin = get_user_model().objects.create(username='chloe', role=role)
-        admin.role = role
-
-        field.user = admin
+        field.user = get_user_model().objects.create(username='chloe', role=role)
 
         render_str = field.widget.render('position', None)
         self.assertNotIn(reverse('creme_config__create_instance_from_widget',
@@ -104,9 +126,10 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         )
 
     def test_queryset02(self):
-        "With action"
+        "With action."
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
-        field.user = self._create_superuser()
+        # field.user = self._create_superuser()
+        field.user = create_user()
 
         with self.assertNoException():
             options = [*field.choices]
@@ -144,7 +167,8 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         first = FakeSector.objects.all()[0]
         second = FakeSector.objects.exclude(title=first.title)[0]
         field = CreatorModelChoiceField(queryset=FakeSector.objects.filter(pk=first.pk))
-        field.user = self._create_superuser()
+        # field.user = self._create_superuser()
+        field.user = create_user()
 
         render_str = field.widget.render('sector', None)
         self.assertIn('---------', render_str)
@@ -171,7 +195,8 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
     def test_queryset_property02(self):
         "With action"
         field = CreatorModelChoiceField(queryset=FakeSector.objects.none())
-        field.user = self._create_superuser()
+        # field.user = self._create_superuser()
+        field.user = create_user()
 
         sectors = [('', '---------')]
         self.assertListEqual(sectors, [*field.widget.choices])
@@ -184,21 +209,23 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
 
         self.assertEqual('', field.create_action_url)
-        self.assertEqual(('', False), field.creation_url_n_allowed)
+        self.assertTupleEqual(('', False), field.creation_url_n_allowed)
 
         field.create_action_url = url = self.ADD_URL
-        self.assertEqual((url, False), field.creation_url_n_allowed)
+        self.assertTupleEqual((url, False), field.creation_url_n_allowed)
 
-        field.user = self._create_superuser()
-        self.assertEqual((url, True), field.creation_url_n_allowed)
+        # field.user = self._create_superuser()
+        field.user = create_user()
+        self.assertTupleEqual((url, True), field.creation_url_n_allowed)
 
     def test_creation_url_n_allowed(self):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
 
-        self.assertEqual(('', False), field.creation_url_n_allowed)
+        self.assertTupleEqual(('', False), field.creation_url_n_allowed)
 
-        field.user = self._create_superuser()
-        self.assertEqual((self.ADD_URL, True), field.creation_url_n_allowed)
+        # field.user = self._create_superuser()
+        field.user = create_user()
+        self.assertTupleEqual((self.ADD_URL, True), field.creation_url_n_allowed)
 
     def test_render_url_n_allowed(self):
         widget = CreatorModelChoiceWidget(choices=[(1, 'A'), (2, 'B')],
@@ -256,7 +283,8 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
     ADD_URL = reverse('creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'))
 
     def test_actions_not_admin(self):
-        user = self.login(is_superuser=False, allowed_apps=('persons',))
+        # user = self.login(is_superuser=False, allowed_apps=('persons',))
+        user = create_user(admin=False)
 
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
 
@@ -278,7 +306,8 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertEqual(label, str(field.widget.creation_label))
 
     def test_actions_admin(self):
-        admin = self.login(is_superuser=False, admin_4_apps=('creme_core',))
+        # admin = self.login(is_superuser=False, admin_4_apps=('creme_core',))
+        admin = create_user()
 
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
         field.user = admin
@@ -288,7 +317,8 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertEqual(FakeSector.creation_label, field.widget.creation_label)
 
     def test_actions_admin_not_creatable(self):
-        admin = self.login(is_superuser=False, admin_4_apps=('creme_core',))
+        # admin = self.login(is_superuser=False, admin_4_apps=('creme_core',))
+        admin = create_user()
 
         field = CreatorModelMultipleChoiceField(queryset=FakePosition.objects.all())
         field.user = admin
@@ -298,7 +328,8 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertEqual(FakePosition.creation_label, field.widget.creation_label)
 
     def test_actions_superuser(self):
-        admin = self.login()
+        # admin = self.login()
+        admin = create_user()
 
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
         field.user = admin
@@ -308,7 +339,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertEqual(str(FakeSector.creation_label), field.widget.creation_label)
 
     def test_queryset_no_action(self):
-        "No action"
+        "No action."
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
 
         sectors = [(p.pk, str(p)) for p in FakeSector.objects.all()]
@@ -318,8 +349,9 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertNotIn(str(FakeSector.creation_label), render_str)
 
     def test_queryset(self):
-        "With action"
-        user = self.login()
+        "With action."
+        # user = self.login()
+        user = create_user()
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
         field.user = user
 
@@ -330,7 +362,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertIn(str(FakeSector.creation_label), render_str)
 
     def test_filtered_queryset_no_action(self):
-        "No action"
+        "No action."
         first_sector = FakeSector.objects.first()
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.filter(pk=first_sector.pk))
 
@@ -341,7 +373,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertNotIn(str(FakeSector.creation_label), render_str)
 
     def test_filtered_queryset(self):
-        "With action"
+        "With action."
         user = self.login()
         first_sector = FakeSector.objects.first()
 
@@ -355,7 +387,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertIn(str(FakeSector.creation_label), render_str)
 
     def test_set_queryset_property_no_action(self):
-        "No action"
+        "No action."
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.none())
 
         self.assertFalse(hasattr(field.widget, 'actions'))
@@ -373,8 +405,9 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertNotIn(str(FakeSector.creation_label), render_str)
 
     def test_set_queryset_property(self):
-        "With action"
-        user = self.login()
+        "With action."
+        # user = self.login()
+        user = create_user()
 
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.none())
         field.user = user
@@ -394,24 +427,314 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertIn(str(FakeSector.creation_label), render_str)
 
     def test_create_action_url(self):
-        user = self.login()
+        # user = self.login()
+        user = create_user()
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
 
         self.assertEqual('', field.create_action_url)
-        self.assertEqual(('', False), field.creation_url_n_allowed)
+        self.assertTupleEqual(('', False), field.creation_url_n_allowed)
 
         url = '/other_url'
         field.create_action_url = url
-        self.assertEqual((url, False), field.creation_url_n_allowed)
+        self.assertTupleEqual((url, False), field.creation_url_n_allowed)
 
         field.user = user
-        self.assertEqual((url, True), field.creation_url_n_allowed)
+        self.assertTupleEqual((url, True), field.creation_url_n_allowed)
 
     def test_creation_url_n_allowed(self):
-        user = self.login()
+        # user = self.login()
+        user = create_user()
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
 
-        self.assertEqual(('', False), field.creation_url_n_allowed)
+        self.assertTupleEqual(('', False), field.creation_url_n_allowed)
 
         field.user = user
-        self.assertEqual((self.ADD_URL, True), field.creation_url_n_allowed)
+        self.assertTupleEqual((self.ADD_URL, True), field.creation_url_n_allowed)
+
+
+class CustomEnumChoiceFieldTestCase(CremeTestCase):
+    @staticmethod
+    def _build_url(cfield):
+        return reverse('creme_config__add_custom_enum', args=(cfield.id,))
+
+    def test_ok(self):
+        cfield = CustomField.objects.create(
+            name='Programming languages',
+            content_type=FakeContact,
+            field_type=CustomField.ENUM,
+        )
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
+        cfeval01  = create_evalue(value='C')
+        cfeval02 = create_evalue(value='Python')
+
+        admin = create_user()
+
+        field = CustomEnumChoiceField(
+            custom_field=cfield,
+            user=admin,
+            choices=[
+                ('', '-------'),
+                (cfeval01.id, cfeval01.value),
+                (cfeval02.id, cfeval02.value),
+            ],
+            required=False,
+        )
+        self.assertEqual(cfield, field.custom_field)
+        self.assertEqual(admin, field.user)
+
+        url = self._build_url(cfield)
+
+        widget = field.widget
+        self.assertIs(widget.creation_allowed, True)
+        self.assertEqual(url, widget.creation_url)
+
+        expected_label = _('Create a choice')
+        self.assertEqual(expected_label, widget.creation_label)
+
+        name = f'cfield_{cfield.id}'
+        render_str = field.widget.render(name, None)
+        self.assertIn(url, render_str)
+        self.assertIn(expected_label, render_str)
+
+        self.assertEqual(cfeval01.id, field.clean(str(cfeval01.id)))
+        self.assertEqual(cfeval02.id, field.clean(str(cfeval02.id)))
+        self.assertEqual('',          field.clean(''))
+
+    def test_user_property(self):
+        cfield = CustomField.objects.create(
+            name='Programming languages',
+            content_type=FakeContact,
+            field_type=CustomField.ENUM,
+        )
+        field = CustomEnumChoiceField(custom_field=cfield)
+        self.assertIsNone(field.user)
+
+        widget = field.widget
+        self.assertIs(widget.creation_allowed, False)
+        self.assertEqual('', widget.creation_url)
+        self.assertEqual(_('Create a choice'), widget.creation_label)
+
+        # ---
+        field.user = create_user()
+        self.assertTrue(widget.creation_allowed)
+        self.assertEqual(self._build_url(cfield), widget.creation_url)
+
+        # ---
+        field.user = None
+        self.assertFalse(widget.creation_allowed)
+
+    def test_custom_field_property(self):
+        cfield = CustomField.objects.create(
+            name='Programming languages',
+            content_type=FakeContact,
+            field_type=CustomField.ENUM,
+        )
+        field = CustomEnumChoiceField(user=create_user())
+        self.assertIsNone(field.custom_field)
+
+        widget = field.widget
+        self.assertIs(widget.creation_allowed, False)
+        self.assertEqual('', widget.creation_url)
+        self.assertEqual(_('Create a choice'), widget.creation_label)
+
+        # ---
+        field.custom_field = cfield
+        self.assertTrue(widget.creation_allowed)
+        self.assertEqual(self._build_url(cfield), widget.creation_url)
+
+        # ---
+        field.custom_field = None
+        self.assertFalse(widget.creation_allowed)
+
+    def test_permission(self):
+        user = create_user(admin=False)
+        cfield = CustomField.objects.create(
+            name='Programming languages',
+            content_type=FakeContact,
+            field_type=CustomField.ENUM,
+        )
+        field = CustomEnumChoiceField(custom_field=cfield, user=user)
+
+        self.assertFalse(field.widget.creation_allowed)
+
+    def test_create_action_url_property(self):
+        cfield = CustomField.objects.create(
+            name='Programming languages',
+            content_type=FakeContact,
+            field_type=CustomField.ENUM,
+        )
+        field = CustomEnumChoiceField(custom_field=cfield)
+
+        self.assertEqual('', field.create_action_url)
+        self.assertTupleEqual(('', False), field.creation_url_n_allowed)
+
+        field.create_action_url = url = f'this/is/an/url/{cfield.id}'
+        self.assertTupleEqual((url, False), field.creation_url_n_allowed)
+
+        field.user = create_user()
+        self.assertTupleEqual((url, True), field.creation_url_n_allowed)
+
+    def test_creation_url_n_allowed(self):
+        cfield = CustomField.objects.create(
+            name='Programming languages',
+            content_type=FakeContact,
+            field_type=CustomField.ENUM,
+        )
+        field = CustomEnumChoiceField(custom_field=cfield)
+
+        self.assertTupleEqual(('', False), field.creation_url_n_allowed)
+
+        field.user = create_user()
+        self.assertTupleEqual(
+            (reverse('creme_config__add_custom_enum', args=(cfield.id,)), True),
+            field.creation_url_n_allowed
+        )
+
+
+class CustomMultiEnumChoiceFieldTestCase(CremeTestCase):
+    @staticmethod
+    def _build_url(cfield):
+        return reverse('creme_config__add_custom_enum', args=(cfield.id,))
+
+    def test_ok(self):
+        cfield = CustomField.objects.create(
+            name='Programming languages',
+            content_type=FakeContact,
+            field_type=CustomField.MULTI_ENUM,
+        )
+
+        create_evalue = partial(
+            CustomFieldEnumValue.objects.create,
+            custom_field=cfield,
+        )
+        cfeval01 = create_evalue(value='C')
+        cfeval02 = create_evalue(value='Python')
+
+        admin = create_user()
+
+        field = CustomMultiEnumChoiceField(
+            custom_field=cfield,
+            user=admin,
+            choices=[
+                ('', '-------'),
+                (cfeval01.id, cfeval01.value),
+                (cfeval02.id, cfeval02.value),
+            ],
+            required=False,
+        )
+        self.assertEqual(cfield, field.custom_field)
+        self.assertEqual(admin, field.user)
+
+        url = self._build_url(cfield)
+
+        widget = field.widget
+        self.assertIs(widget.creation_allowed, True)
+        self.assertEqual(url, widget.creation_url)
+
+        expected_label = _('Create a choice')
+        self.assertEqual(expected_label, widget.creation_label)
+
+        name = f'cfield_{cfield.id}'
+        render_str = field.widget.render(name, None)
+        self.assertIn(url, render_str)
+        self.assertIn(expected_label, render_str)
+
+        str_id1 = str(cfeval01.id)
+        str_id2 = str(cfeval02.id)
+        self.assertListEqual([cfeval01.id], field.clean([str_id1]))
+        self.assertListEqual([cfeval02.id], field.clean([str_id2]))
+        self.assertListEqual([cfeval01.id, cfeval02.id],
+                             field.clean([str_id1, str_id2])
+                            )
+        self.assertListEqual([], field.clean(''))
+
+    def test_user_property(self):
+        cfield = CustomField.objects.create(
+            name='Programming languages',
+            content_type=FakeContact,
+            field_type=CustomField.MULTI_ENUM,
+        )
+        field = CustomMultiEnumChoiceField(custom_field=cfield)
+        self.assertIsNone(field.user)
+
+        widget = field.widget
+        self.assertIs(widget.creation_allowed, False)
+        self.assertEqual('', widget.creation_url)
+        self.assertEqual(_('Create a choice'), widget.creation_label)
+
+        # ---
+        field.user = create_user()
+        self.assertTrue(widget.creation_allowed)
+        self.assertEqual(self._build_url(cfield), widget.creation_url)
+
+        # ---
+        field.user = None
+        self.assertFalse(widget.creation_allowed)
+
+    def test_custom_field_property(self):
+        cfield = CustomField.objects.create(
+            name='Programming languages',
+            content_type=FakeContact,
+            field_type=CustomField.MULTI_ENUM,
+        )
+        field = CustomMultiEnumChoiceField(user=create_user())
+        self.assertIsNone(field.custom_field)
+
+        widget = field.widget
+        self.assertIs(widget.creation_allowed, False)
+        self.assertEqual('', widget.creation_url)
+        self.assertEqual(_('Create a choice'), widget.creation_label)
+
+        # ---
+        field.custom_field = cfield
+        self.assertTrue(widget.creation_allowed)
+        self.assertEqual(self._build_url(cfield), widget.creation_url)
+
+        # ---
+        field.custom_field = None
+        self.assertFalse(widget.creation_allowed)
+
+    def test_permission(self):
+        user = create_user(admin=False)
+        cfield = CustomField.objects.create(
+            name='Programming languages',
+            content_type=FakeContact,
+            field_type=CustomField.MULTI_ENUM,
+        )
+        field = CustomMultiEnumChoiceField(custom_field=cfield, user=user)
+
+        self.assertFalse(field.widget.creation_allowed)
+
+    def test_create_action_url_property(self):
+        cfield = CustomField.objects.create(
+            name='Programming languages',
+            content_type=FakeContact,
+            field_type=CustomField.MULTI_ENUM,
+        )
+        field = CustomMultiEnumChoiceField(custom_field=cfield)
+
+        self.assertEqual('', field.create_action_url)
+        self.assertTupleEqual(('', False), field.creation_url_n_allowed)
+
+        field.create_action_url = url = f'this/is/an/url/{cfield.id}'
+        self.assertTupleEqual((url, False), field.creation_url_n_allowed)
+
+        field.user = create_user()
+        self.assertTupleEqual((url, True), field.creation_url_n_allowed)
+
+    def test_creation_url_n_allowed(self):
+        cfield = CustomField.objects.create(
+            name='Programming languages',
+            content_type=FakeContact,
+            field_type=CustomField.ENUM,
+        )
+        field = CustomMultiEnumChoiceField(custom_field=cfield)
+
+        self.assertTupleEqual(('', False), field.creation_url_n_allowed)
+
+        field.user = create_user()
+        self.assertTupleEqual(
+            (reverse('creme_config__add_custom_enum', args=(cfield.id,)), True),
+            field.creation_url_n_allowed
+        )

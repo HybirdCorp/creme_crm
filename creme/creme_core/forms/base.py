@@ -443,10 +443,12 @@ class CremeEntityForm(CremeModelForm):
     def _build_customfields(self) -> None:
         self._customs = self.instance.get_custom_fields_n_values()
         fields = self.fields
+        user = self.user
 
-        # TODO: why not use cfield.id as 'i' ??
-        for i, (cfield, cvalue) in enumerate(self._customs):
-            fields[_CUSTOM_NAME.format(i)] = cfield.get_formfield(cvalue)
+        # for i, (cfield, cvalue) in enumerate(self._customs):
+        #     fields[_CUSTOM_NAME.format(i)] = cfield.get_formfield(cvalue)
+        for cfield, cvalue in self._customs:
+            fields[_CUSTOM_NAME.format(cfield.id)] = cfield.get_formfield(cvalue, user=user)
 
     def _build_properties_field(self, forced_ptype_ids: Iterable[str]) -> None:
         instance = self.instance
@@ -630,9 +632,12 @@ class CremeEntityForm(CremeModelForm):
             cleaned_data = self.cleaned_data
             instance = self.instance
 
-            for i, (custom_field, custom_value) in enumerate(cfields_n_values):
-                value = cleaned_data[_CUSTOM_NAME.format(i)]  # TODO: factorize with _build_customfields() ?
-                CustomFieldValue.save_values_for_entities(custom_field, [instance], value)
+            # for i, (custom_field, custom_value) in enumerate(cfields_n_values):
+            #     value = cleaned_data[_CUSTOM_NAME.format(i)]
+            #     CustomFieldValue.save_values_for_entities(custom_field, [instance], value)
+            for cfield, cvalue in cfields_n_values:
+                value = cleaned_data[_CUSTOM_NAME.format(cfield.id)]
+                CustomFieldValue.save_values_for_entities(cfield, [instance], value)
 
     def _save_properties(self,
                          properties: Iterable[CremeProperty],

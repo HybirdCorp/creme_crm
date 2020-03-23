@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-12 20:42+0100\n"
+"POT-Creation-Date: 2020-03-23 10:31+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -188,7 +188,7 @@ msgstr "Propriétés"
 msgid "Relationships"
 msgstr "Relations"
 
-#: bricks.py:136 forms/bulk.py:140 models/custom_field.py:69
+#: bricks.py:136 forms/bulk.py:141 models/custom_field.py:68
 #: templates/creme_core/bricks/custom-fields.html:12
 #: templates/creme_core/forms/widgets/entity-cells.html:58
 msgid "Custom fields"
@@ -930,16 +930,16 @@ msgstr ""
 msgid "Description"
 msgstr "Description"
 
-#: forms/base.py:470
+#: forms/base.py:472
 #, python-brace-format
 msgid "This relationship will be added: {predicate} «{entity}»"
 msgstr "Cette relation va être ajoutée : {predicate} «{entity}»"
 
-#: forms/base.py:476
+#: forms/base.py:478
 msgid "These relationships will be added: {}"
 msgstr "Ces relations vont être ajoutées : {}"
 
-#: forms/base.py:508
+#: forms/base.py:510
 msgid "You are not allowed to link this kind of entity."
 msgstr "Vous n'êtes pas autorisé à relier ce type de fiche."
 
@@ -983,7 +983,7 @@ msgstr "Tout"
 msgid "Field to update"
 msgstr "Champ à mettre à jour"
 
-#: forms/bulk.py:211
+#: forms/bulk.py:219
 msgid "The field «{}» is empty"
 msgstr "Le champ «{}» est vide"
 
@@ -1655,13 +1655,13 @@ msgstr "Barre de titre"
 msgid "Download «{file}»"
 msgstr "Télécharger «{file}»"
 
-#: gui/field_printers.py:210 models/custom_field.py:279 models/history.py:160
+#: gui/field_printers.py:210 models/custom_field.py:280 models/history.py:160
 #: templates/creme_core/listview/search-widgets/boolean.html:5
 #: utils/__init__.py:264
 msgid "Yes"
 msgstr "Oui"
 
-#: gui/field_printers.py:210 models/custom_field.py:279 models/history.py:161
+#: gui/field_printers.py:210 models/custom_field.py:280 models/history.py:161
 #: templates/creme_core/listview/search-widgets/boolean.html:6
 #: utils/__init__.py:267
 msgid "No"
@@ -2004,7 +2004,7 @@ msgid "Save"
 msgstr "Enregistrer"
 
 #: models/bricks.py:123 models/bricks.py:526 models/button_menu.py:71
-#: models/custom_field.py:57
+#: models/custom_field.py:56
 msgid "Related type"
 msgstr "Type associé"
 
@@ -2108,23 +2108,23 @@ msgstr "Créer une devise"
 msgid "Currencies"
 msgstr "Devises"
 
-#: models/custom_field.py:56
+#: models/custom_field.py:55
 msgid "Field name"
 msgstr "Nom du champ"
 
-#: models/custom_field.py:58
+#: models/custom_field.py:57
 msgid "Field type"
 msgstr "Type du champ"
 
-#: models/custom_field.py:63
+#: models/custom_field.py:62
 msgid "Create a custom field"
 msgstr "Créer un champ personnalisé"
 
-#: models/custom_field.py:64
+#: models/custom_field.py:63
 msgid "Save the custom field"
 msgstr "Enregistrer le champ personnalisé"
 
-#: models/custom_field.py:68
+#: models/custom_field.py:67
 msgid "Custom field"
 msgstr "Champ personnalisé"
 
@@ -2140,19 +2140,19 @@ msgstr "Nombre entier"
 msgid "Decimal"
 msgstr "Nombre à virgule"
 
-#: models/custom_field.py:255
+#: models/custom_field.py:256
 msgid "Date and time"
 msgstr "Date et heure"
 
-#: models/custom_field.py:273
+#: models/custom_field.py:274
 msgid "Boolean (2 values: Yes/No)"
 msgstr "Booléen (2 valeurs: Oui/Non)"
 
-#: models/custom_field.py:310
+#: models/custom_field.py:311
 msgid "Choice list"
 msgstr "Liste de choix"
 
-#: models/custom_field.py:346
+#: models/custom_field.py:352
 msgid "Multiple choice list"
 msgstr "Liste de choix multiples"
 

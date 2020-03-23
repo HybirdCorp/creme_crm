@@ -567,11 +567,12 @@ class CremeCoreConfig(CremeAppConfig):
         def new_fk_formfield(self, **kwargs):
             model = self.remote_field.model
             if issubclass(model, CremeEntity):
-                return CreatorEntityField(label=self.verbose_name,
-                                          model=model,
-                                          required=not self.blank,
-                                          q_filter=self.remote_field.limit_choices_to,
-                                         )
+                return CreatorEntityField(
+                    label=self.verbose_name,
+                    model=model,
+                    required=not self.blank,
+                    q_filter=self.remote_field.limit_choices_to,
+                )
 
             return original_fk_formfield(
                 self, **{'form_class': CreatorModelChoiceField, **kwargs}

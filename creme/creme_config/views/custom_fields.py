@@ -31,6 +31,7 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import BricksReloading
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
+from creme.creme_core.views.utils import json_update_from_widget_response
 
 from ..bricks import CustomEnumsBrick
 from ..forms import custom_fields as cf_forms
@@ -111,14 +112,27 @@ class CustomEnumsDetail(EnumMixin, generic.CremeModelDetail):
         self.check_custom_field(instance)
 
 
-class CustomEnumsAdding(EnumMixin, base.ConfigModelEdition):
+class BaseCustomEnumAdding(EnumMixin, base.ConfigModelEdition):
     model = CustomField
-    form_class = cf_forms.CustomEnumsAddingForm
     pk_url_kwarg = 'field_id'
-    submit_label = _('Add these new choices')
 
     def check_instance_permissions(self, instance, user):
         self.check_custom_field(instance)
+
+
+class FromWidgetCustomEnumAdding(BaseCustomEnumAdding):
+    form_class = cf_forms.CustomEnumAddingForm
+    submit_label = _('Add this new choice')
+
+    def form_valid(self, form):
+        super().form_valid(form=form)
+
+        return json_update_from_widget_response(self.object)
+
+
+class CustomEnumsAdding(BaseCustomEnumAdding):
+    form_class = cf_forms.CustomEnumsAddingForm
+    submit_label = _('Add these new choices')
 
 
 class CustomEnumEdition(base.ConfigModelEdition):
