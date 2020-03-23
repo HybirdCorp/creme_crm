@@ -11,6 +11,7 @@ try:
     from django.contrib.auth import get_user_model
     from django.core.exceptions import ValidationError
     from django.db.models import Max
+    from django.forms import CharField
     from django.urls import reverse
     from django.utils.translation import gettext as _, ngettext
 
@@ -42,6 +43,7 @@ try:
     from creme.creme_core.views.entity import BulkUpdate, InnerEdition
 
     from creme.creme_config.models import FakeConfigEntity
+    from creme.creme_config.forms import fields as config_fields
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -1249,7 +1251,6 @@ class _BulkEditTestCase(ViewsTestCase):
 
     def create_image(self, name, user, categories=()):
         image = FakeImage.objects.create(user=user, name=name)
-        # image.categories = categories
         image.categories.set(categories)
 
         return image
@@ -1891,7 +1892,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertRaises(DoesNotExist, get_cf_values, cf_date, self.refresh(luigi))
 
     def test_custom_field_enum(self):
-        self.login()
+        user = self.login()
         get_cf_values = self.get_cf_values
 
         cf_enum = CustomField.objects.create(name='enum',
@@ -1904,6 +1905,14 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         create_evalue(value='Enum2')
 
         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT.format(cf_enum.id))
+
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            field = response.context['form'].fields['field_value']
+
+        self.assertIsInstance(field, config_fields.CustomEnumChoiceField)
+        self.assertEqual(user, field.user)
 
         # Enum
         response = self.client.post(url, data={'field_value': enum1.id,
@@ -2231,19 +2240,41 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertNoFormError(response)
         self.assertEqual('', self.refresh(comp).filedata.name)
 
-    def test_custom_field(self):
+    def test_custom_field01(self):
         self.login()
         mario = self.create_contact()
-        cfield = CustomField.objects.create(name='custom 1', content_type=mario.entity_type,
+        cfield = CustomField.objects.create(name='custom 1',
+                                            content_type=mario.entity_type,
                                             field_type=CustomField.STR,
                                            )
         url = self.build_inneredit_url(mario, _CUSTOMFIELD_FORMAT.format(cfield.id))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            field = response.context['form'].fields['field_value']
+
+        self.assertIsInstance(field, CharField)
 
         value = 'hihi'
         response = self.client.post(url, data={'field_value': value})
         self.assertNoFormError(response)
         self.assertEqual(value, self.get_cf_values(cfield, self.refresh(mario)).value)
+
+    def test_custom_field02(self):
+        user = self.login()
+        mario = self.create_contact()
+        cfield = CustomField.objects.create(name='custom 1',
+                                            content_type=mario.entity_type,
+                                            field_type=CustomField.ENUM,
+                                           )
+        url = self.build_inneredit_url(mario, _CUSTOMFIELD_FORMAT.format(cfield.id))
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            field = response.context['form'].fields['field_value']
+
+        self.assertIsInstance(field, config_fields.CustomEnumChoiceField)
+        self.assertEqual(user, field.user)
 
     def test_related_subfield_missing(self):
         self.login()

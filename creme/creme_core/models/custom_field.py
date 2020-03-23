@@ -22,10 +22,9 @@ from collections import defaultdict, OrderedDict
 from typing import Dict, Type
 import uuid
 
-from django.core.validators import EMPTY_VALUES
-from django.db.models import (UUIDField, ForeignKey, CharField, PositiveSmallIntegerField,
-        IntegerField, DecimalField, DateTimeField, BooleanField, ManyToManyField, CASCADE)
 from django import forms
+from django.core.validators import EMPTY_VALUES
+from django.db import models
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
 from django.utils.translation import gettext, gettext_lazy as _
@@ -52,10 +51,10 @@ class CustomField(CremeModel):
     ENUM        = 100
     MULTI_ENUM  = 101
 
-    uuid          = UUIDField(unique=True, editable=False, default=uuid.uuid4)
-    name          = CharField(_('Field name'), max_length=100)
+    uuid          = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
+    name          = models.CharField(_('Field name'), max_length=100)
     content_type  = CTypeForeignKey(verbose_name=_('Related type'))
-    field_type    = PositiveSmallIntegerField(_('Field type'))  # See INT, FLOAT etc...
+    field_type    = models.PositiveSmallIntegerField(_('Field type'))  # See INT, FLOAT etc...
     # default_value = CharField(_('Default value'), max_length=100, blank=True, null=True)
     # extra_args    = CharField(max_length=500, blank=True, null=True)
     # required      = BooleanField(defaut=False) ????
@@ -88,8 +87,9 @@ class CustomField(CremeModel):
     def get_value_class(self):
         return _TABLES[self.field_type]
 
-    def get_formfield(self, custom_value):
-        return self.get_value_class().get_formfield(self, custom_value)
+    # def get_formfield(self, custom_value):
+    def get_formfield(self, custom_value, user=None):
+        return self.get_value_class().get_formfield(self, custom_value, user=user)
 
     def get_pretty_value(self, entity_id):
         """Return unicode object containing the human readable value of this custom field for an entity
@@ -120,8 +120,8 @@ class CustomField(CremeModel):
 
 
 class CustomFieldValue(CremeModel):
-    custom_field = ForeignKey(CustomField, on_delete=CASCADE)
-    entity       = ForeignKey(CremeEntity, on_delete=CASCADE)
+    custom_field = models.ForeignKey(CustomField, on_delete=models.CASCADE)
+    entity       = models.ForeignKey(CremeEntity, on_delete=models.CASCADE)
     # value       = FoobarField()  --> implement in inherited classes
 
     class Meta:
@@ -201,7 +201,7 @@ class CustomFieldValue(CremeModel):
 
 
 class CustomFieldString(CustomFieldValue):
-    value = CharField(max_length=100)
+    value = models.CharField(max_length=100)
 
     verbose_name = _('String')
 
@@ -217,7 +217,7 @@ class CustomFieldString(CustomFieldValue):
 
 
 class CustomFieldInteger(CustomFieldValue):
-    value = IntegerField()
+    value = models.IntegerField()
 
     verbose_name = _('Integer')
 
@@ -234,7 +234,7 @@ class CustomFieldFloat(CustomFieldValue):
     _MAX_DIGITS = 12
     _DECIMAL_PLACES = 2
 
-    value = DecimalField(max_digits=_MAX_DIGITS, decimal_places=_DECIMAL_PLACES)
+    value = models.DecimalField(max_digits=_MAX_DIGITS, decimal_places=_DECIMAL_PLACES)
 
     verbose_name = _('Decimal')
 
@@ -243,14 +243,15 @@ class CustomFieldFloat(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
-        return forms.DecimalField(max_digits=CustomFieldFloat._MAX_DIGITS,
-                                  decimal_places=CustomFieldFloat._DECIMAL_PLACES,
-                                  **kwargs
-                                 )
+        return forms.DecimalField(
+            max_digits=CustomFieldFloat._MAX_DIGITS,
+            decimal_places=CustomFieldFloat._DECIMAL_PLACES,
+            **kwargs
+        )
 
 
 class CustomFieldDateTime(CustomFieldValue):
-    value = DateTimeField()
+    value = models.DateTimeField()
 
     verbose_name = _('Date and time')
 
@@ -268,7 +269,7 @@ class CustomFieldDateTime(CustomFieldValue):
 
 
 class CustomFieldBoolean(CustomFieldValue):
-    value = BooleanField(default=False)
+    value = models.BooleanField(default=False)
 
     verbose_name = _('Boolean (2 values: Yes/No)')
 
@@ -290,8 +291,8 @@ class CustomFieldBoolean(CustomFieldValue):
 
 
 class CustomFieldEnumValue(CremeModel):
-    custom_field = ForeignKey(CustomField, related_name='customfieldenumvalue_set', on_delete=CASCADE)
-    value        = CharField(max_length=100)
+    custom_field = models.ForeignKey(CustomField, related_name='customfieldenumvalue_set', on_delete=models.CASCADE)
+    value        = models.CharField(max_length=100)
 
     class Meta:
         app_label = 'creme_core'
@@ -305,7 +306,7 @@ class CustomFieldEnumValue(CremeModel):
 
 
 class CustomFieldEnum(CustomFieldValue):
-    value = ForeignKey(CustomFieldEnumValue, on_delete=CASCADE)
+    value = models.ForeignKey(CustomFieldEnumValue, on_delete=models.CASCADE)
 
     verbose_name = _('Choice list')
 
@@ -314,7 +315,10 @@ class CustomFieldEnum(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
-        return forms.ChoiceField(**kwargs)
+        # return forms.ChoiceField(**kwargs)
+        from creme.creme_config.forms.fields import CustomEnumChoiceField
+
+        return CustomEnumChoiceField(**kwargs)
 
     @classmethod
     def _get_4_entities(cls, entities, cfields):
@@ -329,6 +333,8 @@ class CustomFieldEnum(CustomFieldValue):
                                  .filter(custom_field=custom_field)
                                  .values_list('id', 'value'),
         ]
+        formfield.user = user
+        formfield.custom_field = custom_field
 
     def _set_formfield_value(self, field):
         field.initial = self.value_id
@@ -341,7 +347,7 @@ class CustomFieldEnum(CustomFieldValue):
 
 
 class CustomFieldMultiEnum(CustomFieldValue):
-    value = ManyToManyField(CustomFieldEnumValue)
+    value = models.ManyToManyField(CustomFieldEnumValue)
 
     verbose_name = _('Multiple choice list')
 
@@ -355,7 +361,10 @@ class CustomFieldMultiEnum(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
-        return forms.MultipleChoiceField(**kwargs)
+        # return forms.MultipleChoiceField(**kwargs)
+        from creme.creme_config.forms.fields import CustomMultiEnumChoiceField
+
+        return CustomMultiEnumChoiceField(**kwargs)
 
     @classmethod
     def _get_4_entities(cls, entities, cfields):
@@ -365,8 +374,11 @@ class CustomFieldMultiEnum(CustomFieldValue):
 
     @staticmethod
     def _build_formfield(custom_field, formfield, user=None):
-        formfield.choices = CustomFieldEnumValue.objects.filter(custom_field=custom_field) \
-                                                        .values_list('id', 'value')
+        formfield.choices = CustomFieldEnumValue.objects\
+                                                .filter(custom_field=custom_field) \
+                                                .values_list('id', 'value')
+        formfield.user = user
+        formfield.custom_field = custom_field
 
     def get_enumvalues(self):
         if self._enumvalues is None:

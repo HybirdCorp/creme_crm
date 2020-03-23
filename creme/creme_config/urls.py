@@ -135,7 +135,12 @@ custom_fields_patterns = [
         name='creme_config__custom_enums',
     ),
     re_path(
-        r'^enum/add/(?P<field_id>\d+)[/]?$',
+        r'^enum/add/widget/(?P<field_id>\d+)[/]?$',
+        custom_fields.FromWidgetCustomEnumAdding.as_view(),
+        name='creme_config__add_custom_enum',
+    ),
+    re_path(
+        r'^enum/add/multi/(?P<field_id>\d+)[/]?$',
         custom_fields.CustomEnumsAdding.as_view(),
         name='creme_config__add_custom_enums',
     ),

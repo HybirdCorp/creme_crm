@@ -244,13 +244,7 @@ class CustomFieldEditionForm(CremeModelForm):
         return name
 
 
-class CustomEnumsAddingForm(CremeModelForm):
-    choices = forms.CharField(
-        widget=Textarea(),
-        label=gettext('New choices of the list'),
-        help_text=gettext('Give the new possible choices (one per line).'),
-    )
-
+class BaseCustomEnumAddingForm(CremeModelForm):
     # TODO: factorise
     error_messages = {
         'duplicated_choice': _('The choice «{}» is duplicated.'),
@@ -260,26 +254,58 @@ class CustomEnumsAddingForm(CremeModelForm):
         model = CustomField
         fields = ()
 
+    def raise_duplicated_choice(self, choice):
+        raise ValidationError(
+            self.error_messages['duplicated_choice'].format(choice),
+            code='duplicated_choice',
+        )
+
+
+class CustomEnumAddingForm(BaseCustomEnumAddingForm):
+    choice = forms.CharField(label=gettext('New choice'))
+
+    def clean_choice(self):
+        choice = self.cleaned_data['choice']
+
+        if CustomFieldEnumValue.objects.filter(
+            custom_field=self.instance,
+            value=choice,
+        ).exists():
+            self.raise_duplicated_choice(choice)
+
+        return choice
+
+    def save(self):
+        # cfield = super().save()  NOPE
+        enum_value = CustomFieldEnumValue.objects.create(
+            custom_field=self.instance,
+            value=self.cleaned_data['choice']
+        )
+
+        return enum_value
+
+
+class CustomEnumsAddingForm(BaseCustomEnumAddingForm):
+    choices = forms.CharField(
+        widget=Textarea(),
+        label=gettext('New choices of the list'),
+        help_text=gettext('Give the new possible choices (one per line).'),
+    )
+
     def clean_choices(self):
         choices = self.cleaned_data['choices'].splitlines()
 
         # TODO: factorise ??
         max_choice, max_count = Counter(choices).most_common(1)[0]
         if max_count > 1:
-            raise ValidationError(
-                self.error_messages['duplicated_choice'].format(max_choice),
-                code='duplicated_choice',
-            )
+            self.raise_duplicated_choice(max_choice)
 
         existing = CustomFieldEnumValue.objects.filter(
             custom_field=self.instance,
             value__in=choices,
         ).first()
         if existing:
-            raise ValidationError(
-                self.error_messages['duplicated_choice'].format(existing),
-                code='duplicated_choice',
-            )
+            self.raise_duplicated_choice(existing)
 
         return choices
 

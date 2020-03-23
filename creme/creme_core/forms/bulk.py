@@ -107,9 +107,10 @@ class BulkForm(CremeForm):
 
     def _bulk_formfield(self, user, instance=None):
         if self.is_custom:
-            return self._bulk_custom_formfield(self.model_field, instance)
+            # return self._bulk_custom_formfield(self.model_field, instance)
+            return self._bulk_custom_formfield(self.model_field, user=user, instance=instance)
 
-        return self._bulk_updatable_formfield(self.model_field, user, instance)
+        return self._bulk_updatable_formfield(self.model_field, user=user, instance=instance)
 
     def _bulk_model_choices(self, model, entities):
         registry = self.bulk_update_registry
@@ -146,11 +147,18 @@ class BulkForm(CremeForm):
 
         return choices + sub_choices
 
-    def _bulk_custom_formfield(self, model_field, instance=None):
+    # TODO: rename "model_field"
+    # def _bulk_custom_formfield(self, model_field, instance=None):
+    def _bulk_custom_formfield(self, model_field, instance=None, user=None):
         if instance is not None:
-            return model_field.get_formfield(instance.get_custom_value(model_field))
+            # return model_field.get_formfield(instance.get_custom_value(model_field))
+            return model_field.get_formfield(
+                instance.get_custom_value(model_field),
+                user=user,
+            )
 
-        return model_field.get_formfield(None)
+        # return model_field.get_formfield(None)
+        return model_field.get_formfield(None, user=user)
 
     def _bulk_updatable_formfield(self, model_field, user, instance=None):
         form_field = model_field.formfield()

@@ -17,8 +17,13 @@ try:
         CremePropertyType,
         FieldsConfig,
         SetCredentials,
-        CustomField, CustomFieldInteger,
+        CustomField, CustomFieldInteger, CustomFieldEnumValue,
         FakeContact, FakeOrganisation, FakeAddress, FakeSector,
+    )
+
+    from creme.creme_config.forms.fields import (
+        CustomEnumChoiceField,
+        CustomMultiEnumChoiceField,
     )
 
     from ..base import CremeTestCase
@@ -265,16 +270,49 @@ class CremeEntityFormTestCase(CremeTestCase):
             content_type=ContentType.objects.get_for_model(FakeContact),
         )
         cfield1 = create_cf(name='Size',   field_type=CustomField.INT)
-        __      = create_cf(name='Cursed', field_type=CustomField.BOOL)
+        cfield2 = create_cf(name='Cursed', field_type=CustomField.BOOL)
+        cfield3 = create_cf(name='Animal', field_type=CustomField.ENUM)
+        cfield4 = create_cf(name='Sports', field_type=CustomField.MULTI_ENUM)
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        eval1_01 = create_evalue(value='Crab',        custom_field=cfield3)
+        eval1_02 = create_evalue(value='Monkey',      custom_field=cfield3)
+        eval2_01 = create_evalue(value='Basket Ball', custom_field=cfield4)
+        eval2_02 = create_evalue(value='Kendo',       custom_field=cfield4)
 
         fields = FakeContactForm(user=user).fields
 
         with self.assertNoException():
-            cf_f1 = fields['custom_field_0']
-            cf_f2 = fields['custom_field_1']
+            # cf_f1 = fields['custom_field_0']
+            # cf_f2 = fields['custom_field_1']
+            cf_f1 = fields[f'custom_field_{cfield1.id}']
+            cf_f2 = fields[f'custom_field_{cfield2.id}']
+            cf_f3 = fields[f'custom_field_{cfield3.id}']
+            cf_f4 = fields[f'custom_field_{cfield4.id}']
 
         self.assertIsInstance(cf_f1, forms.IntegerField)
         self.assertIsInstance(cf_f2, forms.NullBooleanField)
+
+        self.assertIsInstance(cf_f3, CustomEnumChoiceField)
+        self.assertEqual(user,    cf_f3.user)
+        self.assertEqual(cfield3, cf_f3.custom_field)
+        self.assertListEqual(
+            [('', '-------'),
+             (eval1_01.id, eval1_01.value),
+             (eval1_02.id, eval1_02.value),
+            ],
+            cf_f3.choices
+        )
+
+        self.assertIsInstance(cf_f4, CustomMultiEnumChoiceField)
+        self.assertEqual(user,    cf_f4.user)
+        self.assertEqual(cfield4, cf_f4.custom_field)
+        self.assertListEqual(
+            [(eval2_01.id, eval2_01.value),
+             (eval2_02.id, eval2_02.value),
+            ],
+            cf_f4.choices
+        )
 
         # ---
         first_name = 'Karen'
@@ -286,8 +324,11 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'first_name': first_name,
                 'last_name':  last_name,
 
-                'custom_field_0': '150',
-                'custom_field_1': '',
+                # 'custom_field_0': '150',
+                # 'custom_field_1': '',
+                f'custom_field_{cfield1.id}': '150',
+                f'custom_field_{cfield2.id}': '',
+                f'custom_field_{cfield3.id}': '',
              },
         )
         self.assertFalse(form.errors)

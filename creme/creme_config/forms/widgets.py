@@ -24,6 +24,8 @@ from django.utils.translation import gettext_lazy as _, gettext
 from creme.creme_core.forms.widgets import ActionButtonList, DynamicSelect
 
 
+# TODO: remove the 'Model' in name ?
+# TODO: move to creme_core ?
 class CreatorModelChoiceWidget(Select):
     template_name = 'creme_config/forms/widgets/creator-select.html'
 
@@ -41,15 +43,17 @@ class CreatorModelChoiceWidget(Select):
             final_attrs = context['widget']['attrs']
 
             if final_attrs is None or not ('disabled' in final_attrs or 'readonly' in final_attrs):
-                button_list = ActionButtonList(delegate=DynamicSelect(options=self.choices),
-                                               attrs=self.attrs,
-                                              )
+                button_list = ActionButtonList(
+                    delegate=DynamicSelect(options=self.choices),
+                    attrs=self.attrs,
+                )
 
                 allowed = self.creation_allowed
                 label = str(self.creation_label)
-                button_list.add_action('create', label, enabled=allowed, popupUrl=url,
-                                       title=label if allowed else gettext('Cannot create'),
-                                      )
+                button_list.add_action(
+                    'create', label, enabled=allowed, popupUrl=url,
+                    title=label if allowed else gettext('Cannot create'),
+                )
 
                 context = button_list.get_context(name=name, value=value, attrs=attrs)
 

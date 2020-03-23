@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-17 20:06+0100\n"
+"POT-Creation-Date: 2020-03-23 10:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -389,7 +389,7 @@ msgstr ""
 "La liste de choix ne doit pas être vide si vous choisissez un type \"Liste "
 "de choix\""
 
-#: forms/custom_fields.py:64 forms/custom_fields.py:256
+#: forms/custom_fields.py:64 forms/custom_fields.py:250
 msgid "The choice «{}» is duplicated."
 msgstr "le choix «{}» est en double."
 
@@ -414,34 +414,42 @@ msgstr "Choix existants de la liste"
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/custom_fields.py:186 forms/custom_fields.py:250
+#: forms/custom_fields.py:186 forms/custom_fields.py:291
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/custom_fields.py:187 forms/custom_fields.py:251
+#: forms/custom_fields.py:187 forms/custom_fields.py:292
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
-#: forms/custom_fields.py:318
+#: forms/custom_fields.py:265
+msgid "New choice"
+msgstr "Nouveau choix"
+
+#: forms/custom_fields.py:344
 msgid "Choose a choice to transfer to"
 msgstr "Choisissez un choice auquel transférer"
 
-#: forms/custom_fields.py:319
+#: forms/custom_fields.py:345
 msgid ""
 "The selected choice will replace the deleted one in entities which use it."
 msgstr ""
 "Le choix sélectionné remplacera le choix supprimé dans les fiches qui lui "
 "sont associés."
 
-#: forms/custom_fields.py:327 forms/user_role.py:322 forms/user_role.py:355
+#: forms/custom_fields.py:353 forms/user_role.py:322 forms/user_role.py:355
 msgid "Information"
 msgstr "Informations"
 
-#: forms/custom_fields.py:330
+#: forms/custom_fields.py:356
 msgid "This choice is not used by any entity, you can delete it safely."
 msgstr ""
 "Ce choix n'est utilisé par aucune fiche, vous pouvez le supprimer en toute "
 "sécurité."
+
+#: forms/fields.py:123
+msgid "Create a choice"
+msgstr "Créer un choix"
 
 #: forms/fields_config.py:35
 msgid ""
@@ -940,11 +948,11 @@ msgstr "Choisissez votre thème"
 msgid "Choose your time zone"
 msgstr "Choisissez votre fuseau horaire"
 
-#: forms/widgets.py:30
+#: forms/widgets.py:32
 msgid "Create"
 msgstr "Créer"
 
-#: forms/widgets.py:51
+#: forms/widgets.py:55
 msgid "Cannot create"
 msgstr "Création interdite"
 
@@ -1198,7 +1206,7 @@ msgid "No choice for this custom field"
 msgstr "Aucun choix pour ce champ personnalisé"
 
 #: templates/creme_config/bricks/custom-fields.html:12
-#: views/custom_fields.py:44
+#: views/custom_fields.py:45
 msgid "New custom field configuration"
 msgstr "Nouvelle configuration de champ personnalisé"
 
@@ -2106,25 +2114,29 @@ msgctxt "creme_config-property"
 msgid "Edit the type «{object}»"
 msgstr "Modifier le type «{object}»"
 
-#: views/custom_fields.py:60
+#: views/custom_fields.py:61
 #, python-brace-format
 msgid "New custom field for «{model}»"
 msgstr "Nouveau champ personnalisé pour «{model}»"
 
-#: views/custom_fields.py:118
-msgid "Add these new choices"
-msgstr ""
+#: views/custom_fields.py:125
+msgid "Add this new choice"
+msgstr "Ajouter ce nouveau choix"
 
-#: views/custom_fields.py:136 views/generics_views.py:219
+#: views/custom_fields.py:135
+msgid "Add these new choices"
+msgstr "Ajouter ces nouveaux choix"
+
+#: views/custom_fields.py:150 views/generics_views.py:219
 #, python-brace-format
 msgid "Replace & delete «{object}»"
 msgstr "Remplacer & supprimer «{object}»"
 
-#: views/custom_fields.py:137
+#: views/custom_fields.py:151
 msgid "Delete the choice"
 msgstr "Supprimer le choix"
 
-#: views/custom_fields.py:151
+#: views/custom_fields.py:165
 msgid "A deletion process for a choice already exists."
 msgstr "Il y a déjà un processus de suppression pour un choix."
 
