@@ -81,7 +81,7 @@
         <td>{{expand_icon.render}}{{collapse_icon.render}}</td>
         <td {% brick_table_data_status primary %}><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
         <td {% if hand.abscissa_error %} td_error{% endif %}>{{hand.verbose_abscissa}}</td>
-        <td {% if hand.abscissa_error %} td_error{% endif %}>{{hand.verbose_ordinate}}</td>
+        <td {% if hand.ordinate_error %} td_error{% endif %}>{{hand.verbose_ordinate}}</td>
 {#        <td>{{hand.verbose_name}}{% if graph.days %} ({{graph.days}}){% endif %}</td> #}
         <td>{{hand.verbose_name}}{% if graph.abscissa_parameter %} ({{graph.abscissa_parameter}}){% endif %}</td>{# TODO: hand.verbose parameter ? #}
         <td {% brick_table_data_status action %}>
