@@ -115,12 +115,14 @@ creme.reports.ReportFormController = creme.component.Component.sub({
     }
 });
 
+/*
 creme.reports.toggleDisableOthers = function(me, others) {
     var is_checked = me.checked; // More generic with all node types ?
     $.each(others, function(i, n) {
         $(n).attr('disabled', is_checked);
     });
 };
+*/
 
 creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', function(data) {
     var ticks = data['x'] || [];

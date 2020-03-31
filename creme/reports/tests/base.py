@@ -64,8 +64,9 @@ def skipIfCustomRGraph(test_func):
     return skipIf(skip_rgraph_tests, 'Custom ReportGraph model in use')(test_func)
 
 
-class AbcissaFieldMixin:
-    def formfield_value_abscissa(self, *, abscissa, graph_type, parameter=''):
+class AxisFieldsMixin:
+    @staticmethod
+    def formfield_value_abscissa(*, abscissa, graph_type, parameter=''):
         if isinstance(abscissa, ModelField):
             key = f'regular_field-{abscissa.name}'
         elif isinstance(abscissa, RelationType):
@@ -85,6 +86,21 @@ class AbcissaFieldMixin:
                     'grouping_category': 'not used',
                 },
                 'parameter': parameter,
+            },
+            separators=(',', ':'),
+        )
+
+    @staticmethod
+    def formfield_value_ordinate(*, aggr_id, cell=None):
+        return json_dump({
+                'aggregator': {
+                    'aggr_id': aggr_id,
+                    'aggr_category': 'not used',
+                },
+                'entity_cell': {
+                    'cell_key': cell.key,
+                    'aggr_category': 'not used',
+                } if cell else None,
             },
             separators=(',', ':'),
         )

@@ -18,31 +18,33 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Dict, Iterator, List, Optional, Tuple
+
 
 class ReportChart:
-    def __init__(self, name, label, template=None):
+    def __init__(self, name: str, label: str, template: Optional[str] = None):
         self.name = name
         self.label = label
-        self.template = template or f'reports/plot/{name}.json'
+        self.template: str = template or f'reports/plot/{name}.json'
 
 
 class ReportChartRegistry:
     __slots__ = ('_charts',)
 
     def __init__(self):
-        self._charts = {}
+        self._charts: Dict[str, ReportChart] = {}
 
-    def register(self, chart):
+    def register(self, chart: ReportChart) -> 'ReportChartRegistry':
         self._charts[chart.name] = chart
         return self
 
-    def get(self, name):
+    def get(self, name: str) -> Optional[ReportChart]:
         return self._charts.get(name)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Tuple[str, ReportChart]]:
         return iter(self._charts.items())
 
-    def choices(self):
+    def choices(self) -> List[Tuple[str, str]]:
         return [(chart.name, chart.label) for chart in self._charts.values()]
 
 

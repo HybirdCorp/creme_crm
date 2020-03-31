@@ -454,14 +454,18 @@ class Populator(BasePopulator):
             linked_report=invoices_report1,
             # abscissa='issuing_date', type=RGT_MONTH,
             abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
-            ordinate='total_no_vat__sum', is_count=False,
+            # ordinate='total_no_vat__sum', is_count=False,
+            ordinate_type='sum',
+            ordinate_cell_key='regular_field-total_no_vat',
         )
         create_graph(
             name=_('Sum of current year invoices total without taxes / invoices status'),
             linked_report=invoices_report1,
             # abscissa='status', type=RGT_FK,
             abscissa_cell_value='status', abscissa_type=RGT_FK,
-            ordinate='total_no_vat__sum', is_count=False,
+            # ordinate='total_no_vat__sum', is_count=False,
+            ordinate_type='sum',
+            ordinate_cell_key='regular_field-total_no_vat',
         )
         ibci = rgraph1.create_instance_brick_config_item()
 
@@ -479,7 +483,9 @@ class Populator(BasePopulator):
             linked_report=invoices_report2,
             # abscissa='issuing_date', type=RGT_MONTH,
             abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
-            ordinate='total_no_vat__sum', is_count=False,
+            # ordinate='total_no_vat__sum', is_count=False,
+            ordinate_type='total_no_vat__sum',
+            ordinate_cell_key='regular_field-total_no_vat',
         )
         ibci = rgraph.create_instance_brick_config_item()
 

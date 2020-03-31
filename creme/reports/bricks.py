@@ -59,7 +59,8 @@ class ReportGraphsBrick(core_bricks.QuerysetBrick):
     dependencies  = (ReportGraph,)
     verbose_name  = _("Report's graphs")
     template_name = 'reports/bricks/graphs.html'
-    order_by      = 'name'
+    # order_by      = 'name'
+    order_by      = 'created'
     target_ctypes = (Report,)
 
     def detailview_display(self, context):

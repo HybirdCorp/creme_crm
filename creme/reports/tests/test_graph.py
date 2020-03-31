@@ -13,7 +13,10 @@ try:
     from django.utils.translation import gettext as _, pgettext
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_cell import EntityCellRegularField
+    from creme.creme_core.core.entity_cell import (
+        EntityCellRegularField,
+        EntityCellCustomField,
+    )
     from creme.creme_core.core.entity_filter import condition_handler, operators
     from creme.creme_core.models import (
         RelationType, Relation,
@@ -28,7 +31,7 @@ try:
     from creme.creme_core.utils.queries import QSerializer
 
     from .base import (
-        BaseReportsTestCase, AbcissaFieldMixin,
+        BaseReportsTestCase, AxisFieldsMixin,
         skipIfCustomReport, skipIfCustomRGraph,
         Report, ReportGraph,
     )
@@ -41,8 +44,12 @@ try:
         RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE,
         RGT_CUSTOM_FK,
         RFT_FIELD, RFT_RELATION,
+        RGA_COUNT, RGA_AVG, RGA_MAX, RGA_MIN, RGA_SUM,
     )
-    from ..core.graph import AbscissaInfo, ListViewURLBuilder
+    from ..core.graph import (
+        AbscissaInfo, OrdinateInfo,
+        ListViewURLBuilder,
+    )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -50,7 +57,7 @@ except Exception as e:
 @skipIfCustomReport
 @skipIfCustomRGraph
 class ReportGraphTestCase(BrickTestCaseMixin,
-                          AbcissaFieldMixin,
+                          AxisFieldsMixin,
                           BaseReportsTestCase):
     @classmethod
     def setUpClass(cls):
@@ -134,10 +141,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Number of created documents / year',
             # abscissa='created', type=RGT_YEAR,
             abscissa_cell_value='created', abscissa_type=RGT_YEAR,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
-    def _create_invoice_report_n_graph(self, abscissa='issuing_date', ordinate='total_no_vat__sum'):
+    # def _create_invoice_report_n_graph(self, abscissa='issuing_date', ordinate='total_no_vat__sum'):
+    def _create_invoice_report_n_graph(self, abscissa='issuing_date',
+                                       ordinate_type=RGA_SUM, ordinate_field='total_no_vat'):
         self.report = report = Report.objects.create(
             user=self.user,
             name='All invoices of the current year',
@@ -152,8 +162,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             # abscissa=abscissa, type=RGT_MONTH,
             abscissa_cell_value=abscissa,
             abscissa_type=RGT_MONTH,
-            ordinate=ordinate,
-            is_count=False,
+            # ordinate=ordinate,
+            # is_count=False,
+            ordinate_type=ordinate_type,
+            ordinate_cell_key=f'regular_field-{ordinate_field}',
         )
 
     def _serialize_qfilter(self, **kwargs):
@@ -193,9 +205,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         "RGT_FK."
         user = self.login()
         report = self._create_simple_organisations_report()
-        cf = CustomField.objects.create(content_type=report.ct,
-                                        name='Soldiers', field_type=CustomField.INT,
-                                       )
+        # cf = CustomField.objects.create(content_type=report.ct,
+        #                                 name='Soldiers', field_type=CustomField.INT,
+        #                                )
 
         url = self._build_add_graph_url(report)
         context = self.assertGET200(url).context
@@ -248,7 +260,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                         graph_type=gtype,
                     ),
 
-                    'is_count': True,
+                    # 'is_count': True,
+                    'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
 
                     'chart': chart,
                 },
@@ -259,18 +272,21 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(user,      rgraph.user)
         # self.assertEqual(abscissa,  rgraph.abscissa)
         self.assertEqual(abscissa,  rgraph.abscissa_cell_value)
-        self.assertEqual('',        rgraph.ordinate)
+        # self.assertEqual('',        rgraph.ordinate)
+        self.assertEqual(RGA_COUNT, rgraph.ordinate_type)
+        self.assertEqual('',        rgraph.ordinate_cell_key)
         # self.assertEqual(gtype,     rgraph.type)
         self.assertEqual(gtype,     rgraph.abscissa_type)
         self.assertEqual(chart,     rgraph.chart)
         # self.assertIsNone(rgraph.days)
         self.assertIsNone(rgraph.abscissa_parameter)
-        self.assertIs(rgraph.is_count, True)
+        # self.assertIs(rgraph.is_count, True)
         self.assertIs(rgraph.asc,      True)
 
         hand = rgraph.hand
         self.assertEqual(_('Sector'), hand.verbose_abscissa)
         self.assertEqual(_('Count'),  hand.verbose_ordinate)
+        self.assertEqual(_('Count'),  hand.ordinate.verbose_name)
         self.assertIsNone(hand.abscissa_error)
         self.assertIsNone(hand.ordinate_error)
 
@@ -336,19 +352,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             )
 
         # response = post(abscissa_field='modified')
-        response = post(
-            abscissa=self.formfield_value_abscissa(
-                abscissa=FakeOrganisation._meta.get_field('modified'),
-                graph_type=gtype,
-            ),
-        )
-        self.assertEqual(200, response.status_code)
-        self.assertFormError(
-            response, 'form', None,
-            _("If you don't choose an ordinate field (or none available) "
-              "you have to check 'Make a count instead of aggregate ?'"
-             )
-         )
+        # self.assertEqual(200, response.status_code)
+        # self.assertFormError(
+        #     response, 'form', None,
+        #     _("If you don't choose an ordinate field (or none available) "
+        #       "you have to check 'Make a count instead of aggregate ?'"
+        #     )
+        #  )
 
         # response = post(abscissa_field='legal_form', aggregate_field=ordinate)
         response = post(
@@ -356,7 +366,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                 abscissa=FakeOrganisation._meta.get_field('legal_form'),
                 graph_type=gtype,
             ),
-            aggregate_field=ordinate
+            # aggregate_field=ordinate,
+            ordinate=self.formfield_value_ordinate(
+                aggr_id=RGA_MAX,
+                cell=EntityCellRegularField.build(FakeOrganisation, 'name'),
+            ),
         )
         self.assertEqual(200, response.status_code)
         # self.assertFormError(
@@ -367,12 +381,16 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             response, 'form', 'abscissa',
             'This entity cell is not allowed.'
         )
+        # self.assertFormError(
+        #     response, 'form', 'aggregate',
+        #     _('This field is required if you choose a field to aggregate.')
+        # )
         self.assertFormError(
-            response, 'form', 'aggregate',
-            _('This field is required if you choose a field to aggregate.')
+            response, 'form', 'ordinate',
+            'This entity cell is not allowed.'
         )
 
-        aggregate = 'max'
+        aggregate = RGA_MAX
         abscissa = 'created'
         # self.assertNoFormError(post(abscissa_field=abscissa,
         #                             aggregate_field=ordinate,
@@ -384,70 +402,72 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                 abscissa=FakeOrganisation._meta.get_field(abscissa),
                 graph_type=gtype,
             ),
-            aggregate_field=ordinate,
-            aggregate=aggregate,
+            ordinate=self.formfield_value_ordinate(
+                aggr_id=aggregate,
+                cell=EntityCellRegularField.build(FakeOrganisation, ordinate),
+            ),
         ))
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user,      rgraph.user)
         # self.assertEqual(abscissa,  rgraph.abscissa)
-        self.assertEqual(abscissa,  rgraph.abscissa_cell_value)
-        self.assertEqual(f'{ordinate}__{aggregate}', rgraph.ordinate)
         # self.assertEqual(gtype, rgraph.type)
-        self.assertEqual(gtype, rgraph.abscissa_type)
         # self.assertIsNone(rgraph.days)
+        self.assertEqual(abscissa,  rgraph.abscissa_cell_value)
+        self.assertEqual(gtype,     rgraph.abscissa_type)
         self.assertIsNone(rgraph.abscissa_parameter)
-        self.assertFalse(rgraph.is_count)
+        # self.assertEqual(f'{ordinate}__{aggregate}', rgraph.ordinate)
+        # self.assertFalse(rgraph.is_count)
+        self.assertEqual(aggregate,                   rgraph.ordinate_type)
+        self.assertEqual(f'regular_field-{ordinate}', rgraph.ordinate_cell_key)
 
-        self.assertEqual(_('Creation date'), rgraph.hand.verbose_abscissa)
+        hand = rgraph.hand
+        self.assertEqual(_('Creation date'), hand.verbose_abscissa)
         self.assertEqual('{} - {}'.format(_('Capital'), _('Maximum')),
-                         rgraph.hand.verbose_ordinate
+                         hand.verbose_ordinate
                         )
+        self.assertEqual(_('Maximum'), hand.ordinate.verbose_name)
+        self.assertEqual(_('Capital'), str(hand.ordinate.cell))
 
+    # def test_createview03(self):
+    #     "'aggregate_field' empty ==> 'is_count' mandatory."
+    #     user = self.login()
+    #     report = self._create_simple_contacts_report()
+    #     url = self._build_add_graph_url(report)
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         fields = response.context['form'].fields
+    #         fields_choices = fields['abscissa_field'].choices[0][1]
+    #
+    #     choices_set = {c[0] for c in fields_choices}
+    #     self.assertIn('created', choices_set)
+    #     self.assertIn('sector', choices_set)
+    #     self.assertIn('civility', choices_set)
+    #     self.assertNotIn('last_name', choices_set)
+    #
+    #     name = 'My Graph #1'
+    #     abscissa = 'sector'
+    #     self.assertNoFormError(self.client.post(
+    #         url,
+    #         data={
+    #             'user': user.id,
+    #             'name': name,
+    #             'chart': 'barchart',
+    #
+    #             # 'abscissa_field':     abscissa,
+    #             # 'abscissa_group_by':  RGT_FK,
+    #
+    #             # 'is_count': True, #useless
+    #         },
+    #     ))
+    #     rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
+    #     self.assertEqual(abscissa, rgraph.abscissa)
+    #     self.assertEqual('',       rgraph.ordinate)
+    #     self.assertTrue(rgraph.is_count)
+
+    # def test_createview04(self):
     def test_createview03(self):
-        "'aggregate_field' empty ==> 'is_count' mandatory."
-        user = self.login()
-        report = self._create_simple_contacts_report()
-        url = self._build_add_graph_url(report)
-        # response = self.assertGET200(url)
-        self.assertGET200(url)
-
-        # with self.assertNoException():
-        #     fields = response.context['form'].fields
-        #     fields_choices = fields['abscissa_field'].choices[0][1]
-        #
-        # choices_set = {c[0] for c in fields_choices}
-        # self.assertIn('created', choices_set)
-        # self.assertIn('sector', choices_set)
-        # self.assertIn('civility', choices_set)
-        # self.assertNotIn('last_name', choices_set)
-
-        name = 'My Graph #1'
-        abscissa = 'sector'
-        self.assertNoFormError(self.client.post(
-            url,
-            data={
-                'user': user.id,
-                'name': name,
-
-                # 'abscissa_field':     abscissa,
-                # 'abscissa_group_by':  RGT_FK,
-                'abscissa': self.formfield_value_abscissa(
-                    abscissa=FakeOrganisation._meta.get_field(abscissa),
-                    graph_type=RGT_FK,
-                ),
-
-                'chart': 'barchart',
-                # 'is_count': True, #useless
-            },
-        ))
-        rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
-        # self.assertEqual(abscissa, rgraph.abscissa)
-        self.assertEqual(abscissa, rgraph.abscissa_cell_value)
-        self.assertEqual('',       rgraph.ordinate)
-        self.assertTrue(rgraph.is_count)
-
-    def test_createview04(self):
         "RGT_RELATION."
         user = self.login()
         report = self._create_simple_organisations_report()
@@ -482,14 +502,15 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             data={
                 'user': user.pk,
                 'name': name,
+                'chart': 'barchart',
 
                 'abscissa': self.formfield_value_abscissa(
                     abscissa=rtype,
                     graph_type=gtype,
                 ),
 
-                'is_count': True,
-                'chart':    'barchart',
+                # 'is_count': True,
+                'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
             },
         ))
 
@@ -497,8 +518,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(user,      rgraph.user)
         # self.assertEqual(rtype_id,  rgraph.abscissa)
         self.assertEqual(rtype_id,  rgraph.abscissa_cell_value)
-        self.assertEqual('',        rgraph.ordinate)
-        self.assertTrue(rgraph.is_count)
+        # self.assertEqual('',        rgraph.ordinate)
+        # self.assertTrue(rgraph.is_count)
+        self.assertEqual(RGA_COUNT, rgraph.ordinate_type)
+        self.assertEqual('',        rgraph.ordinate_cell_key)
 
         self.assertEqual('employs', rgraph.hand.verbose_abscissa)
 
@@ -509,6 +532,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         name = 'My Graph #1'
         ordinate = 'capital'
+        aggregate = RGA_MIN
 
         # def post(**kwargs):
         def post(abscissa_field, **kwargs):
@@ -517,6 +541,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                 data={
                     'user': self.user.pk,
                     'name': name,
+                    'chart': 'barchart',
 
                     # 'abscissa_group_by': gtype,
                     'abscissa': self.formfield_value_abscissa(
@@ -524,10 +549,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                         graph_type=gtype,
                     ),
 
-                    'aggregate_field': ordinate,
-                    'aggregate':      'max',
+                    # 'aggregate_field': ordinate,
+                    # 'aggregate':      'max',
+                    'ordinate': self.formfield_value_ordinate(
+                        aggr_id=aggregate,
+                        cell=EntityCellRegularField.build(FakeOrganisation, ordinate),
+                    ),
 
-                    'chart': 'barchart',
                     **kwargs
                 },
             )
@@ -543,34 +571,39 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             'This entity cell is not allowed.'
         )
 
-        aggregate = 'min'
         abscissa = 'created'
-        self.assertNoFormError(post(abscissa_field=abscissa, aggregate=aggregate))
+        # self.assertNoFormError(post(abscissa_field=abscissa, aggregate=aggregate))
+        self.assertNoFormError(post(abscissa_field=abscissa))
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(self.user, rgraph.user)
         # self.assertEqual(abscissa,  rgraph.abscissa)
         self.assertEqual(abscissa,  rgraph.abscissa_cell_value)
-        self.assertEqual(f'{ordinate}__{aggregate}', rgraph.ordinate)
+        # self.assertEqual(f'{ordinate}__{aggregate}', rgraph.ordinate)
         # self.assertEqual(gtype, rgraph.type)
         self.assertEqual(gtype, rgraph.abscissa_type)
         # self.assertIsNone(rgraph.days)
         self.assertIsNone(rgraph.abscissa_parameter)
-        self.assertFalse(rgraph.is_count)
+        # self.assertFalse(rgraph.is_count)
+        self.assertEqual(aggregate,                   rgraph.ordinate_type)
+        self.assertEqual(f'regular_field-{ordinate}', rgraph.ordinate_cell_key)
 
-    def test_createview05(self):
+    # def test_createview05(self):
+    def test_createview04(self):
         "RGT_MONTH."
         self.login()
         # self._aux_test_createview_with_date(RGT_MONTH, _('By months'))
         self._aux_test_createview_with_date(RGT_MONTH)
 
-    def test_createview06(self):
+    # def test_createview06(self):
+    def test_createview05(self):
         "RGT_YEAR."
         self.login()
         # self._aux_test_createview_with_date(RGT_YEAR, _('By years'))
         self._aux_test_createview_with_date(RGT_YEAR)
 
-    def test_createview07(self):
+    # def test_createview07(self):
+    def test_createview06(self):
         "RGT_RANGE."
         user = self.login()
         report = self._create_simple_organisations_report()
@@ -581,12 +614,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         gtype = RGT_RANGE
 
         # def post(**kwargs):
-        def post(abscissa_field, parameter='', **kwargs):
+        def post(abscissa_field, parameter='', aggr_id=RGA_MAX, **kwargs):
             return self.client.post(
                 url,
                 data={
                     'user': user.id,
                     'name': name,
+                    'chart': 'barchart',
 
                     # 'abscissa_group_by': gtype,
                     'abscissa': self.formfield_value_abscissa(
@@ -595,10 +629,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                         parameter=parameter,
                     ),
 
-                    'aggregate_field': ordinate,
-                    'aggregate':       'max',
+                    # 'aggregate_field': ordinate,
+                    # 'aggregate':       'max',
+                    'ordinate': self.formfield_value_ordinate(
+                        aggr_id=aggr_id,
+                        cell=EntityCellRegularField.build(FakeOrganisation, ordinate),
+                    ),
 
-                    'chart': 'barchart',
                     **kwargs
                 },
             )
@@ -618,63 +655,66 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         #     _("You have to specify a day range if you use 'by X days'")
         # )
 
-        aggregate = 'avg'
+        aggregate = RGA_AVG
         abscissa = 'modified'
         # days = 25
         days = '25'
         # self.assertNoFormError(post(abscissa_field=abscissa, aggregate=aggregate, days=days))
-        self.assertNoFormError(post(abscissa_field=abscissa, parameter=days, aggregate=aggregate))
+        self.assertNoFormError(post(abscissa_field=abscissa, parameter=days, aggr_id=aggregate))
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user, rgraph.user)
-        # self.assertEqual(abscissa, rgraph.abscissa)
-        self.assertEqual(abscissa, rgraph.abscissa_cell_value)
-        self.assertEqual(f'{ordinate}__{aggregate}', rgraph.ordinate)
         # self.assertEqual(gtype, rgraph.type)
-        self.assertEqual(gtype, rgraph.abscissa_type)
+        # self.assertEqual(abscissa, rgraph.abscissa)
         # self.assertEqual(days, rgraph.days)
-        self.assertEqual(days, rgraph.abscissa_parameter)
-        self.assertFalse(rgraph.is_count)
+        self.assertEqual(abscissa, rgraph.abscissa_cell_value)
+        self.assertEqual(gtype,    rgraph.abscissa_type)
+        self.assertEqual(days,     rgraph.abscissa_parameter)
+        # self.assertEqual(f'{ordinate}__{aggregate}', rgraph.ordinate)
+        # self.assertFalse(rgraph.is_count)
+        self.assertEqual(aggregate,                   rgraph.ordinate_type)
+        self.assertEqual(f'regular_field-{ordinate}', rgraph.ordinate_cell_key)
 
-    def test_createview08(self):
+    # def test_createview08(self):
+    def test_createview07(self):
         "RGT_CUSTOM_FK."
         user = self.login()
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct_contact)
         cf_enum    = create_cf(name='Hair',        field_type=CustomField.ENUM)      # OK for abscissa (group by), not for ordinate (aggregate)
-        cf_dt      = create_cf(name='First fight', field_type=CustomField.DATETIME)  # idem
-        cf_int     = create_cf(name='Size (cm)',   field_type=CustomField.INT)       # INT -> not usable for abscissa , but OK for ordinate
-        cf_decimal = create_cf(name='Weight (kg)', field_type=CustomField.FLOAT)     # FLOAT -> not usable for abscissa , but OK for ordinate
+        # cf_dt      = create_cf(name='First fight', field_type=CustomField.DATETIME)  # idem
+        # cf_int     = create_cf(name='Size (cm)',   field_type=CustomField.INT)       # INT -> not usable for abscissa , but OK for ordinate
+        # cf_decimal = create_cf(name='Weight (kg)', field_type=CustomField.FLOAT)     # FLOAT -> not usable for abscissa , but OK for ordinate
 
-        # Bad CT
-        ct_orga = self.ct_orga
-        create_cf(content_type=ct_orga, name='Totem', field_type=CustomField.ENUM)
-        create_cf(content_type=ct_orga, name='Gold',  field_type=CustomField.INT)
-
-        create_enum_value = partial(CustomFieldEnumValue.objects.create, custom_field=cf_enum)
-        blue = create_enum_value(value='Blue')
-        red  = create_enum_value(value='Red')
-        create_enum_value(value='Black')  # Not used
-
-        create_contact = partial(FakeContact.objects.create, user=user)
-        ryomou  = create_contact(first_name='Ryomou',  last_name='Shimei')
-        kanu    = create_contact(first_name='Kan-u',  last_name='Unchô')
-        sonsaku = create_contact(first_name='Sonsaku', last_name='Hakuf')
-
-        create_enum = partial(CustomFieldEnum.objects.create, custom_field=cf_enum)
-        create_enum(entity=ryomou,  value=blue)
-        create_enum(entity=kanu,    value=blue)
-        create_enum(entity=sonsaku, value=red)
+        # # Bad CT
+        # ct_orga = self.ct_orga
+        # create_cf(content_type=ct_orga, name='Totem', field_type=CustomField.ENUM)
+        # create_cf(content_type=ct_orga, name='Gold',  field_type=CustomField.INT)
+        #
+        # create_enum_value = partial(CustomFieldEnumValue.objects.create, custom_field=cf_enum)
+        # blue = create_enum_value(value='Blue')
+        # red  = create_enum_value(value='Red')
+        # create_enum_value(value='Black')  # Not used
+        #
+        # create_contact = partial(FakeContact.objects.create, user=user)
+        # ryomou  = create_contact(first_name='Ryomou',  last_name='Shimei')
+        # kanu    = create_contact(first_name='Kan-u',   last_name='Unchô')
+        # sonsaku = create_contact(first_name='Sonsaku', last_name='Hakuf')
+        #
+        # create_enum = partial(CustomFieldEnum.objects.create, custom_field=cf_enum)
+        # create_enum(entity=ryomou,  value=blue)
+        # create_enum(entity=kanu,    value=blue)
+        # create_enum(entity=sonsaku, value=red)
 
         report = self._create_simple_contacts_report()
         url = self._build_add_graph_url(report)
 
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-            # abs_choices = fields['abscissa_field'].choices
-            ord_choices = fields['aggregate_field'].choices
+        # response = self.assertGET200(url)
+        #
+        # with self.assertNoException():
+        #     fields = response.context['form'].fields
+        #     abs_choices = fields['abscissa_field'].choices
+        #     ord_choices = fields['aggregate_field'].choices
 
         # self.assertEqual(3, len(abs_choices))
         #
@@ -686,9 +726,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         #                     {*cf_choice[1]}
         #                    )
 
-        self.assertEqual([(cf_int.id, cf_int.name), (cf_decimal.id, cf_decimal.name)],
-                         ord_choices
-                        )
+        # self.assertEqual([(cf_int.id, cf_int.name), (cf_decimal.id, cf_decimal.name)],
+        #                  ord_choices
+        #                 )
 
         name = 'My Graph #1'
         gtype = RGT_CUSTOM_FK
@@ -716,12 +756,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             data={
                 'user': user.pk,
                 'name': name,
+                'chart': 'barchart',
                 'abscissa': self.formfield_value_abscissa(
                     abscissa=cf_enum,
                     graph_type=gtype,
                 ),
-                'is_count': True,
-                'chart': 'barchart',
+                'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
             },
         ))
 
@@ -772,12 +812,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             data={
                 'user': self.user.pk,
                 'name': name,
+                'chart': 'barchart',
                 'abscissa': self.formfield_value_abscissa(
                     abscissa=cf_dt,
                     graph_type=gtype,
                 ),
-                'is_count': True,
-                'chart': 'barchart',
+                'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
             },
         ))
 
@@ -787,31 +827,37 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(str(cf_dt.id), rgraph.abscissa_cell_value)
         # self.assertEqual(gtype,         rgraph.type)
         self.assertEqual(gtype,         rgraph.abscissa_type)
+        self.assertEqual(RGA_COUNT,       rgraph.ordinate_type)
+        self.assertEqual('',            rgraph.ordinate_cell_key)
 
         self.assertEqual(cf_dt.name, rgraph.hand.verbose_abscissa)
 
-    def test_createview09(self):
+    # def test_createview09(self):
+    def test_createview08(self):
         "RGT_CUSTOM_DAY."
         self.login()
         self._aux_test_createview_with_customdate(RGT_CUSTOM_DAY)
 
-    def test_createview10(self):
+    # def test_createview10(self):
+    def test_createview09(self):
         "RGT_CUSTOM_MONTH."
         self.login()
         self._aux_test_createview_with_customdate(RGT_CUSTOM_MONTH)
 
-    def test_createview11(self):
+    # def test_createview11(self):
+    def test_createview10(self):
         "RGT_CUSTOM_YEAR."
         self.login()
         self._aux_test_createview_with_customdate(RGT_CUSTOM_YEAR)
 
-    def test_createview12(self):
+    # def test_createview12(self):
+    def test_createview11(self):
         "RGT_CUSTOM_RANGE."
         user = self.login()
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct_orga)
         cf_dt  = create_cf(name='First victory', field_type=CustomField.DATETIME)
-        cf_int = create_cf(name='Gold',          field_type=CustomField.INT)
+        # cf_int = create_cf(name='Gold',          field_type=CustomField.INT)
 
         report = self._create_simple_organisations_report()
         url = self._build_add_graph_url(report)
@@ -848,13 +894,14 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             data={
                 'user': self.user.pk,
                 'name': name,
+                'chart': 'barchart',
+
                 'abscissa': self.formfield_value_abscissa(
                     abscissa=cf_dt,
                     graph_type=gtype,
                     parameter=days,
                 ),
-                'is_count': True,
-                'chart': 'barchart',
+                'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
             },
         ))
 
@@ -866,6 +913,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(gtype,         rgraph.abscissa_type)
         # self.assertEqual(days,          rgraph.days)
         self.assertEqual(days,          rgraph.abscissa_parameter)
+        self.assertEqual(RGA_COUNT,       rgraph.ordinate_type)
+        self.assertEqual('',            rgraph.ordinate_cell_key)
 
         self.assertEqual(cf_dt.name, rgraph.hand.verbose_abscissa)
 
@@ -880,51 +929,59 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         report = self._create_simple_organisations_report()
 
         hidden_fname1 = 'sector'
+        hidden_fname2 = 'capital'
         FieldsConfig.objects.create(
             content_type=FakeOrganisation,
             descriptions=[
                 (hidden_fname1, {FieldsConfig.HIDDEN: True}),
-                ('capital',     {FieldsConfig.HIDDEN: True}),
+                (hidden_fname2, {FieldsConfig.HIDDEN: True}),
             ],
         )
 
         url = self._build_add_graph_url(report)
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-            # abscissa_choices = fields['abscissa_field'].choices
-            aggrfields_choices = fields['aggregate_field'].choices
-
+        # response = self.assertGET200(url)
+        #
+        # with self.assertNoException():
+        #     fields = response.context['form'].fields
+        #     abscissa_choices = fields['abscissa_field'].choices
+        #     aggrfields_choices = fields['aggregate_field'].choices
+        #
         # fields_choices = abscissa_choices[0]
         # self.assertEqual(_('Fields'), fields_choices[0])
         #
         # choices_set = {c[0] for c in fields_choices[1]}
         # self.assertIn('created', choices_set)
         # self.assertNotIn(hidden_fname1, choices_set)
-
-        self.assertEqual([('', _('No field is usable for aggregation'))],
-                         aggrfields_choices
-                        )
+        #
+        # self.assertEqual([('', _('No field is usable for aggregation'))],
+        #                  aggrfields_choices
+        #                 )
 
         response = self.assertPOST200(
             url,
             data={
                 'user': user.pk,
                 'name': 'My Graph #1',
+                'chart': 'barchart',
 
                 'abscissa': self.formfield_value_abscissa(
                     abscissa=FakeOrganisation._meta.get_field(hidden_fname1),
                     graph_type=RGT_FK,
                 ),
 
-                'is_count': True,
-
-                'chart': 'barchart',
+                # 'is_count': True,
+                'ordinate': self.formfield_value_ordinate(
+                    aggr_id=RGA_SUM,
+                    cell=EntityCellRegularField.build(FakeOrganisation, hidden_fname2),
+                ),
             },
         )
         self.assertFormError(
             response, 'form', 'abscissa',
+            'This entity cell is not allowed.'
+        )
+        self.assertFormError(
+            response, 'form', 'ordinate',
             'This entity cell is not allowed.'
         )
 
@@ -934,8 +991,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph(
             user=user, linked_report=report,
             name='Capital per month of creation',
-            ordinate='capital__sum',
-            is_count=False,
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key='regular_field-capital',
         )
 
         rgraph.abscissa_info = AbscissaInfo(
@@ -967,18 +1024,88 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual('regular_field-created', abs_info2.cell.key)
         self.assertEqual('3', abs_info2.parameter)
 
+    def test_ordinate_info01(self):
+        user = self.login()
+        report = self._create_simple_organisations_report()
+        rgraph = ReportGraph(
+            user=user, linked_report=report,
+            name='Capital per month of creation',
+        )
+        aggr_id1 = RGA_MAX
+        cell1 = EntityCellRegularField.build(FakeOrganisation, 'capital')
+        rgraph.ordinate_info = OrdinateInfo(aggr_id=aggr_id1, cell=cell1)
+        self.assertEqual(aggr_id1,  rgraph.ordinate_type)
+        self.assertEqual(cell1.key, rgraph.ordinate_cell_key)
+
+        ord_info1 = rgraph.ordinate_info
+        self.assertIsInstance(ord_info1, OrdinateInfo)
+        self.assertEqual(aggr_id1,  ord_info1.aggr_id)
+        self.assertEqual(cell1.key, ord_info1.cell.key)
+
+        # ---
+        cfield = CustomField.objects.create(
+            content_type=FakeOrganisation,
+            name='Value',
+            field_type=CustomField.INT,
+        )
+        cell2 = EntityCellCustomField(cfield)
+        aggr_id2 = RGA_MIN
+        rgraph.ordinate_info = OrdinateInfo(aggr_id=aggr_id2, cell=cell2)
+
+        self.assertEqual(aggr_id2,  rgraph.ordinate_type)
+        self.assertEqual(cell2.key, rgraph.ordinate_cell_key)
+
+        ord_info2 = rgraph.ordinate_info
+        self.assertEqual(aggr_id2,  ord_info2.aggr_id)
+        self.assertEqual(cell2.key, ord_info2.cell.key)
+
+        # ---
+        aggr_id3 = RGA_COUNT
+        rgraph.ordinate_info = OrdinateInfo(aggr_id=aggr_id3)
+
+        self.assertEqual(aggr_id3, rgraph.ordinate_type)
+        self.assertEqual('',       rgraph.ordinate_cell_key)
+
+        ord_info3 = rgraph.ordinate_info
+        self.assertEqual(aggr_id3,  ord_info3.aggr_id)
+        self.assertIsNone(ord_info3.cell)
+
+    def test_ordinate_info02(self):
+        "Ignore FieldSConfig."
+        user = self.login()
+        hidden_fname = 'capital'
+        FieldsConfig.objects.create(
+            content_type=FakeOrganisation,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
+
+        report = self._create_simple_organisations_report()
+        cell_key = f'regular_field-{hidden_fname}'
+        aggr_id = RGA_MAX
+        rgraph = ReportGraph(
+            user=user, linked_report=report,
+            name='Max capital per month of creation',
+            ordinate_type=aggr_id,
+            ordinate_cell_key=cell_key,
+        )
+
+        ord_info = rgraph.ordinate_info
+        self.assertIsInstance(ord_info, OrdinateInfo)
+        self.assertEqual(aggr_id,  ord_info.aggr_id)
+        self.assertEqual(cell_key, ord_info.cell.key)
+
     def test_editview01(self):
         user = self.login()
         report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Capital per month of creation',
-            # abscissa='created',
+            # abscissa='created', type=RGT_MONTH,
             abscissa_cell_value='created',
-            ordinate='capital__sum',
-            # type=RGT_MONTH,
             abscissa_type=RGT_MONTH,
-            is_count=False,
+            # ordinate='capital__sum', is_count=False,
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key='regular_field-capital',
         )
 
         url = self._build_edit_url(rgraph)
@@ -993,12 +1120,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         with self.assertNoException():
             fields = context['form'].fields
             abscissa_f = fields['abscissa']
-            aggregate_field_f = fields['aggregate_field']
+            # aggregate_field_f = fields['aggregate_field']
 
         self.assertSetEqual({'regular_field-created'},
                             abscissa_f.not_hiddable_cell_keys
                            )
-        self.assertFalse(aggregate_field_f.help_text)
+        # self.assertFalse(aggregate_field_f.help_text)
 
         name = 'Organisations per sector'
         abscissa = 'sector'
@@ -1008,6 +1135,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             data={
                 'user': user.pk,
                 'name': name,
+                'chart': 'barchart',
 
                 # 'abscissa_field':    abscissa,
                 # 'abscissa_group_by': gtype,
@@ -1016,9 +1144,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                     graph_type=gtype,
                 ),
 
-                'is_count': True,
-
-                'chart': 'barchart',
+                # 'is_count': True,
+                'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
             },
         ))
 
@@ -1026,12 +1153,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(name,     rgraph.name)
         # self.assertEqual(abscissa, rgraph.abscissa)
         self.assertEqual(abscissa, rgraph.abscissa_cell_value)
-        self.assertEqual('',       rgraph.ordinate)
+        # self.assertEqual('',       rgraph.ordinate)
+        self.assertEqual(RGA_COUNT,  rgraph.ordinate_type)
         # self.assertEqual(gtype,    rgraph.type)
         self.assertEqual(gtype,    rgraph.abscissa_type)
         # self.assertIsNone(rgraph.days)
         self.assertIsNone(rgraph.abscissa_parameter)
-        self.assertTrue(rgraph.is_count)
+        # self.assertTrue(rgraph.is_count)
 
     def test_editview02(self):
         "Another ContentType."
@@ -1041,13 +1169,15 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            aggregate_field_f = response.context['form'].fields['aggregate_field']
+            # aggregate_field_f = response.context['form'].fields['aggregate_field']
+            ordinate_f = response.context['form'].fields['ordinate']
 
         self.assertEqual(
             _('If you use a field related to money, the entities should use the same '
               'currency or the result will be wrong. Concerned fields are : {}'
              ).format('{}, {}'.format(_('Total with VAT'), _('Total without VAT'))),
-            aggregate_field_f.help_text
+            # aggregate_field_f.help_text
+            ordinate_f.help_text
         )
 
         abscissa = 'created'
@@ -1057,6 +1187,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             data={
                 'user': user.pk,
                 'name': rgraph.name,
+                'chart': 'barchart',
 
                 # 'abscissa_field':    abscissa,
                 # 'abscissa_group_by': gtype,
@@ -1065,55 +1196,85 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                     graph_type=gtype,
                 ),
 
-                'aggregate_field': 'total_vat',
-                'aggregate':       'avg',
-
-                'chart': 'barchart',
+                # 'aggregate_field': 'total_vat',
+                # 'aggregate':       'avg',
+                'ordinate': self.formfield_value_ordinate(
+                    aggr_id=RGA_AVG,
+                    cell=EntityCellRegularField.build(FakeInvoice, 'total_vat'),
+                ),
             },
         ))
 
         rgraph = self.refresh(rgraph)
         # self.assertEqual(abscissa,         rgraph.abscissa)
         self.assertEqual(abscissa,         rgraph.abscissa_cell_value)
-        self.assertEqual('total_vat__avg', rgraph.ordinate)
+        # self.assertEqual('total_vat__avg', rgraph.ordinate)
         # self.assertEqual(gtype,            rgraph.type)
         self.assertEqual(gtype,            rgraph.abscissa_type)
         # self.assertIsNone(rgraph.days)
         self.assertIsNone(rgraph.abscissa_parameter)
-        self.assertFalse(rgraph.is_count)
+        # self.assertFalse(rgraph.is_count)
+        self.assertEqual(RGA_AVG,                     rgraph.ordinate_type)
+        self.assertEqual('regular_field-total_vat', rgraph.ordinate_cell_key)
 
     def test_editview03(self):
         "With FieldsConfig."
-        self.login()
-        rgraph = self._create_invoice_report_n_graph(ordinate='total_vat__sum')
+        user = self.login()
+        # rgraph = self._create_invoice_report_n_graph(ordinate='total_vat__sum')
+        rgraph = self._create_invoice_report_n_graph(
+            ordinate_type=RGA_SUM,
+            ordinate_field='total_vat',
+        )
 
         # hidden_fname1 = 'expiration_date'
+        hidden_fname = 'total_no_vat'
         FieldsConfig.objects.create(
             content_type=FakeInvoice,
             descriptions=[
                 # (hidden_fname1,  {FieldsConfig.HIDDEN: True}),
-                ('expiration_date', {FieldsConfig.HIDDEN: True}),
                 ('total_no_vat',    {FieldsConfig.HIDDEN: True}),
             ],
         )
 
-        response = self.assertGET200(self._build_edit_url(rgraph))
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-            # abscissa_choices = fields['abscissa_field'].choices
-            aggrfields_choices = fields['aggregate_field'].choices
-
+        # response = self.assertGET200(self._build_edit_url(rgraph))
+        #
+        # with self.assertNoException():
+        #     fields = response.context['form'].fields
+        #     abscissa_choices = fields['abscissa_field'].choices
+        #     aggrfields_choices = fields['aggregate_field'].choices
+        #
         # fields_choices = abscissa_choices[0]
         # self.assertEqual(_('Fields'), fields_choices[0])
         #
         # choices_set = {c[0] for c in fields_choices[1]}
         # self.assertIn('created', choices_set)
         # self.assertNotIn(hidden_fname1, choices_set)
+        #
+        # self.assertEqual([('total_vat', _('Total with VAT'))],
+        #                  aggrfields_choices
+        #                 )
+        response = self.assertPOST200(
+            self._build_edit_url(rgraph),
+            data={
+                'user': user.pk,
+                'name': rgraph.name,
+                'chart': 'barchart',
 
-        self.assertEqual([('total_vat', _('Total with VAT'))],
-                         aggrfields_choices
-                        )
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=FakeInvoice._meta.get_field('expiration_date'),
+                    graph_type=RGT_MONTH,
+                ),
+
+                'ordinate': self.formfield_value_ordinate(
+                    aggr_id=RGA_AVG,
+                    cell=EntityCellRegularField.build(FakeInvoice, hidden_fname),
+                ),
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'ordinate',
+            'This entity cell is not allowed.'
+        )
 
     def test_editview04(self):
         "With FieldsConfig: if fields are already selected => still proposed (abscissa)."
@@ -1140,8 +1301,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         response = self.client.post(
             self._build_edit_url(rgraph),
             data={
-                'user': rgraph.user.pk,
+                'user':  rgraph.user.pk,
                 'name':  rgraph.name,
+                'chart': 'barchart',
 
                 # 'abscissa_field':    hidden_fname,
                 # 'abscissa_group_by': rgraph.type,
@@ -1150,10 +1312,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                     graph_type=rgraph.abscissa_type,
                 ),
 
-                'aggregate_field': 'total_no_vat',
-                'aggregate':       'sum',
-
-                'chart': 'barchart',
+                # 'aggregate_field': 'total_no_vat',
+                # 'aggregate':       'sum',
+                'ordinate': self.formfield_value_ordinate(
+                    aggr_id=RGA_SUM,
+                    cell=EntityCellRegularField.build(FakeInvoice, 'total_no_vat'),
+                ),
             },
         )
         self.assertNoFormError(response)
@@ -1172,23 +1336,46 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         "With FieldsConfig: if fields are already selected => still proposed (ordinate)."
         self.login()
         hidden_fname = 'total_no_vat'
-        rgraph = self._create_invoice_report_n_graph(ordinate=hidden_fname + '__sum')
+        # rgraph = self._create_invoice_report_n_graph(ordinate=hidden_fname + '__sum')
+        rgraph = self._create_invoice_report_n_graph(
+            ordinate_type=RGA_SUM,
+            ordinate_field=hidden_fname,
+        )
 
         FieldsConfig.objects.create(
             content_type=FakeInvoice,
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        response = self.assertGET200(self._build_edit_url(rgraph))
+        # response = self.assertGET200(self._build_edit_url(rgraph))
+        #
+        # with self.assertNoException():
+        #     aggrfields_choices = response.context['form'].fields['aggregate_field'].choices
+        #
+        # self.assertEqual([('total_vat',    _('Total with VAT')),
+        #                   ('total_no_vat', _('Total without VAT')),
+        #                  ],
+        #                  aggrfields_choices
+        #                 )
+        response = self.client.post(
+            self._build_edit_url(rgraph),
+            data={
+                'user':  rgraph.user.pk,
+                'name':  rgraph.name,
+                'chart': 'barchart',
 
-        with self.assertNoException():
-            aggrfields_choices = response.context['form'].fields['aggregate_field'].choices
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=FakeInvoice._meta.get_field(rgraph.abscissa_cell_value),
+                    graph_type=rgraph.abscissa_type,
+                ),
 
-        self.assertEqual([('total_vat',    _('Total with VAT')),
-                          ('total_no_vat', _('Total without VAT')),
-                         ],
-                         aggrfields_choices
-                        )
+                'ordinate': self.formfield_value_ordinate(
+                    aggr_id=rgraph.ordinate_type,
+                    cell=EntityCellRegularField.build(FakeInvoice, hidden_fname),
+                ),
+            },
+        )
+        self.assertNoFormError(response)
 
     def test_editview06(self):
         "Custom field."
@@ -1207,13 +1394,17 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             # type=RGT_CUSTOM_FK, abscissa=str(cf.id)
             abscissa_type=RGT_CUSTOM_FK,
             abscissa_cell_value=str(cf.id),
-            is_count=True,
+            # is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         response = self.assertGET200(self._build_edit_url(rgraph))
 
         with self.assertNoException():
             abscissa_f = response.context['form'].fields['abscissa']
+            # is_count_f = response.context['form'].fields['is_count']
+
+        # self.assertIs(is_count_f.initial, True)
 
         self.assertSetEqual({f'custom_field-{cf.id}'},
                             abscissa_f.not_hiddable_cell_keys
@@ -1286,7 +1477,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Contacts by position',
             # abscissa='position', type=RGT_FK,
             abscissa_cell_value='position', abscissa_type=RGT_FK,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         with self.assertNoException():
@@ -1298,7 +1490,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(len(x_asc), len(y_asc))
 
         fmt = lambda pk: '/tests/contacts?q_filter={}&filter=test-filter'.format(
-                self._serialize_qfilter(position=pk),
+            self._serialize_qfilter(position=pk),
         )
         self.assertEqual([1, fmt(hand.id)], y_asc[x_asc.index(hand.title)])
         self.assertEqual([2, fmt(lord.id)], y_asc[x_asc.index(lord.title)])
@@ -1339,7 +1531,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Capital max by sector',
             # abscissa='sector', type=RGT_FK,
             abscissa_cell_value='sector', abscissa_type=RGT_FK,
-            ordinate='capital__max', is_count=False,
+            # ordinate='capital__max', is_count=False,
+            ordinate_type=RGA_MAX,
+            ordinate_cell_key='regular_field-capital',
         )
 
         with self.assertNoException():
@@ -1349,7 +1543,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListEqual([*FakeSector.objects.values_list('title', flat=True)], x_asc)
 
         fmt = lambda pk: '/tests/organisations?q_filter={}&filter=test-filter'.format(
-                self._serialize_qfilter(sector=pk),
+            self._serialize_qfilter(sector=pk),
         )
         index = x_asc.index
         self.assertEqual([100,  fmt(war.id)],   y_asc[index(war.title)])
@@ -1370,9 +1564,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         starks     = create_orga(name='House Stark',     sector=war)
         targaryens = create_orga(name='House Targaryen', sector=war)
 
-        cf = CustomField.objects.create(content_type=self.ct_orga, name='Soldiers',
-                                        field_type=CustomField.INT,
-                                       )
+        cf = CustomField.objects.create(
+            content_type=self.ct_orga,
+            name='Soldiers',
+            field_type=CustomField.INT,
+        )
 
         create_cfval = partial(CustomFieldInteger.objects.create, custom_field=cf)
         create_cfval(entity=lannisters, value=500)
@@ -1385,18 +1581,22 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Max soldiers by sector',
             # abscissa='sector', type=RGT_FK,
             abscissa_cell_value='sector', abscissa_type=RGT_FK,
-            ordinate=f'{cf.id}__max',
-            is_count=False,
+            # ordinate=f'{cf.id}__max', is_count=False,
+            ordinate_type=RGA_MAX,
+            ordinate_cell_key=f'custom_field-{cf.id}',
         )
 
-        self.assertEqual('{} - {}'.format(cf, _('Maximum')), rgraph.hand.verbose_ordinate)
+        hand = rgraph.hand
+        self.assertEqual('{} - {}'.format(cf, _('Maximum')), hand.verbose_ordinate)
+        self.assertEqual(_('Maximum'), hand.ordinate.verbose_name)
+        self.assertEqual(cf.name,      str(hand.ordinate.cell))
 
         x_asc, y_asc = rgraph.fetch(user)
         self.assertListEqual([*FakeSector.objects.values_list('title', flat=True)], x_asc)
 
         index = x_asc.index
         fmt = lambda pk: '/tests/organisations?q_filter={}'.format(
-                self._serialize_qfilter(sector=pk),
+            self._serialize_qfilter(sector=pk),
         )
         self.assertEqual([400, fmt(war.id)],   y_asc[index(war.title)])
         self.assertEqual([500, fmt(trade.id)], y_asc[index(trade.title)])
@@ -1411,8 +1611,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Max soldiers by sector',
             # abscissa='sector', type=RGT_FK,
             abscissa_cell_value='sector', abscissa_type=RGT_FK,
-            ordinate='unknown__max',  # <=====
-            is_count=False,
+            # ordinate='unknown__max',  # <=====
+            # is_count=False,
+            ordinate_type=RGA_MAX,
+            ordinate_cell_key='regular_field-unknown',  # <=====
         )
 
         with self.assertNoException():
@@ -1429,6 +1631,31 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                         )
 
     def test_fetch_with_fk_05(self):
+        "Aggregate ordinate with invalid aggregate."
+        user = self.login()
+        rgraph = ReportGraph.objects.create(
+            user=user,
+            linked_report=self._create_simple_organisations_report(),
+            name='Max soldiers by sector',
+            abscissa_cell_value='sector', abscissa_type=RGT_FK,
+            ordinate_type='invalid',  # <=====
+            ordinate_cell_key='regular_field-capital',
+        )
+
+        with self.assertNoException():
+            x_asc, y_asc = rgraph.fetch(user)
+
+        sectors = FakeSector.objects.all()
+        self.assertEqual([s.title for s in sectors], x_asc)
+        self.assertEqual(
+            [0, '/tests/organisations?q_filter={}'.format(self._serialize_qfilter(sector=sectors[0].id))],
+            y_asc[0]
+        )
+        self.assertEqual(_('the aggregation function is invalid.'),
+                         rgraph.hand.ordinate_error
+                        )
+
+    def test_fetch_with_fk_06(self):
         "Aggregate ordinate with invalid custom field."
         user = self.login()
         rgraph = ReportGraph.objects.create(
@@ -1437,8 +1664,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Max soldiers by sector',
             # abscissa='sector', type=RGT_FK,
             abscissa_cell_value='sector', abscissa_type=RGT_FK,
-            ordinate='1000__max',  # <=====
-            is_count=False,
+            # ordinate='1000__max',  # <=====
+            # is_count=False,
+            ordinate_type=RGA_MAX,
+            ordinate_cell_key='custom_field-1000',  # <=====
         )
 
         with self.assertNoException():
@@ -1454,7 +1683,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                          rgraph.hand.ordinate_error
                         )
 
-    def test_fetch_with_fk_06(self):
+    def test_fetch_with_fk_07(self):
         "Abscissa field on Users has a limit_choices_to which excludes staff users."
         user = self.login(is_staff=True)
         other_user = self.other_user
@@ -1482,7 +1711,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Contacts count by User',
             # abscissa='user', type=RGT_FK,
             abscissa_cell_value='user', abscissa_type=RGT_FK,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         with self.assertNoException():
@@ -1491,7 +1721,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertIn(str(other_user), x_asc)
         self.assertNotIn(str(user), x_asc)  # <===
 
-    def test_fetch_with_fk_07(self):
+    def test_fetch_with_fk_08(self):
         "Abscissa field on ContentType enumerates only entities types."
         user = self.login()
 
@@ -1506,7 +1736,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Report count by CTypes',
             # abscissa='ct', type=RGT_FK,
             abscissa_cell_value='ct', abscissa_type=RGT_FK,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         with self.assertNoException():
@@ -1515,7 +1746,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertIn(str(get_ct(FakeOrganisation)), x_asc)
         self.assertNotIn(str(get_ct(FakePosition)), x_asc)  # <===
 
-    def test_fetch_with_fk_08(self):
+    def test_fetch_with_fk_09(self):
         "Invalid field (not enumerable)."
         user = self.login()
         report = self._create_simple_contacts_report()
@@ -1524,7 +1755,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Contact count per address',
             # abscissa='address', type=RGT_FK,
             abscissa_cell_value='address', abscissa_type=RGT_FK,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         x_asc, y_asc = rgraph.fetch(user)
@@ -1549,7 +1781,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                 # abscissa='creation_date', type=RGT_RANGE, days=days,
                 abscissa_cell_value='creation_date',
                 abscissa_type=RGT_RANGE, abscissa_parameter=str(days),
-                is_count=True,
+                # is_count=True,
+                ordinate_type=RGA_COUNT,
             )
 
         rgraph = create_graph(15)
@@ -1607,8 +1840,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             # abscissa='creation_date',type=RGT_RANGE, days=days,
             abscissa_cell_value='creation_date',
             abscissa_type=RGT_RANGE, abscissa_parameter=str(days),
-            ordinate='capital__sum',
-            is_count=False,
+            # ordinate='capital__sum', is_count=False,
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key='regular_field-capital',
         )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1649,7 +1883,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                 # abscissa='creation_date', type=RGT_RANGE, days=days,
                 abscissa_cell_value='creation_date',
                 abscissa_type=RGT_RANGE, abscissa_parameter=str(days),
-                is_count=True,
+                # is_count=True,
+                ordinate_type=RGA_COUNT,
             )
 
         rgraph = create_graph(15)
@@ -1706,9 +1941,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         "Count."
         user = self.login()
 
-        create_cf = partial(CustomField.objects.create, content_type=self.ct_orga,
-                            field_type=CustomField.DATETIME,
-                           )
+        create_cf = partial(
+            CustomField.objects.create,
+            content_type=self.ct_orga,
+            field_type=CustomField.DATETIME,
+        )
         cf = create_cf(name='First victory')
         cf2 = create_cf(name='First defeat')  # This one is annoying because the values are in the same table
                                               # so the query must be more complex to not retrieve them
@@ -1741,7 +1978,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             # abscissa=cf.id,type=RGT_CUSTOM_RANGE, days=days,
             abscissa_cell_value=cf.id,
             abscissa_type=RGT_CUSTOM_RANGE, abscissa_parameter=str(days),
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         # ASC -----------------------------------------------------------------
@@ -1751,20 +1989,22 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                         )
 
         self.assertEqual(4, y_asc[0][0])
-        self.assertURL(y_asc[0][1],  # base_url,
-                       FakeOrganisation,
-                       Q(customfielddatetime__custom_field=cf.id,
-                         customfielddatetime__value__range=['2013-12-21', '2014-01-04'],
-                        )
-                      )
+        self.assertURL(
+            y_asc[0][1],  # base_url,
+            FakeOrganisation,
+            Q(customfielddatetime__custom_field=cf.id,
+              customfielddatetime__value__range=['2013-12-21', '2014-01-04'],
+            ),
+        )
 
         self.assertEqual(2, y_asc[1][0])
-        self.assertURL(y_asc[1][1],
-                       FakeOrganisation,
-                       Q(customfielddatetime__custom_field=cf.id,
-                         customfielddatetime__value__range=['2014-01-05', '2014-01-19'],
-                        )
-                      )
+        self.assertURL(
+            y_asc[1][1],
+            FakeOrganisation,
+            Q(customfielddatetime__custom_field=cf.id,
+              customfielddatetime__value__range=['2014-01-05', '2014-01-19'],
+            ),
+        )
 
         # DESC ----------------------------------------------------------------
         x_desc, y_desc = rgraph.fetch(order='DESC', user=user)
@@ -1801,7 +2041,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             abscissa_cell_value=1000,  # <====
             # type=RGT_CUSTOM_RANGE, days=11,
             abscissa_type=RGT_CUSTOM_RANGE, abscissa_parameter='11',
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         x_asc, y_asc = rgraph.fetch(user)
@@ -1818,8 +2059,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             # abscissa='creation_date', type=RGT_DAY,
             abscissa_cell_value='creation_date',
             abscissa_type=RGT_DAY,
-            ordinate='capital__avg',
-            is_count=False,
+            # ordinate='capital__avg', is_count=False,
+            ordinate_type=RGA_AVG,
+            ordinate_cell_key='regular_field-capital',
         )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1878,8 +2120,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Average of capital by 1rst victory (by day)',
             # abscissa=cf.id, type=RGT_CUSTOM_DAY,
             abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_DAY,
-            ordinate='capital__avg',
-            is_count=False,
+            # ordinate='capital__avg', is_count=False,
+            ordinate_type=RGA_AVG,
+            ordinate_cell_key='regular_field-capital',
         )
 
         # ASC -----------------------------------------------------------------
@@ -1914,8 +2157,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             abscissa_cell_value=1000,  # <====
             # type=RGT_CUSTOM_DAY,
             abscissa_type=RGT_CUSTOM_DAY,
-            ordinate='capital__avg',
-            is_count=False,
+            # ordinate='capital__avg', is_count=False,
+            ordinate_type=RGA_AVG,
+            ordinate_cell_key='regular_field-capital',
         )
 
         x_asc, y_asc = rgraph.fetch(user=user)
@@ -1938,7 +2182,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             # abscissa='creation_date', type=RGT_MONTH,
             abscissa_cell_value='creation_date',
             abscissa_type=RGT_MONTH,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1954,7 +2199,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(2, y_asc[0][0])
         self.assertURL(y_asc[0][1],
                        FakeOrganisation,
-                       Q(creation_date__month=6, creation_date__year=2013)
+                       Q(creation_date__month=6, creation_date__year=2013),
                       )
 
         self.assertEqual(1, y_asc[1][0])
@@ -1987,7 +2232,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Number of houses by 1rst victory (period of 1 month)',
             # abscissa=cf.id, type=RGT_CUSTOM_MONTH,
             abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_MONTH,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         x_asc, y_asc = rgraph.fetch(user=user)
@@ -2004,7 +2250,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             # abscissa='creation_date', type=RGT_YEAR,
             abscissa_cell_value='creation_date',
             abscissa_type=RGT_YEAR,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2055,8 +2302,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             # abscissa='creation_date', type=RGT_YEAR,
             abscissa_cell_value='creation_date',
             abscissa_type=RGT_YEAR,
-            ordinate=f'{cf.id}__sum',
-            is_count=False,
+            # ordinate=f'{cf.id}__sum',
+            # is_count=False,
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key=f'custom_field-{cf.id}',
         )
 
         x_asc, y_asc = rgraph.fetch(user)
@@ -2081,7 +2330,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             abscissa_cell_value='invalid',  # <=====
             # type=RGT_YEAR,
             abscissa_type=RGT_YEAR,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         x_asc, y_asc = rgraph.fetch(user)
@@ -2120,7 +2370,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Number of house by 1rst victory (period of 1 year)',
             # abscissa=cf.id, type=RGT_CUSTOM_YEAR,
             abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_YEAR,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         x_asc, y_asc = rgraph.fetch(user=user)
@@ -2165,7 +2416,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             abscissa_cell_value=fake_constants.FAKE_REL_SUB_EMPLOYED_BY,
             # type=RGT_RELATION,
             abscissa_type=RGT_RELATION,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         # ASC -----------------------------------------------------------------
@@ -2225,8 +2477,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             # abscissa=rtype.id, type=RGT_RELATION,
             abscissa_cell_value=rtype.id,
             abscissa_type=RGT_RELATION,
-            ordinate='capital__sum',
-            is_count=False,
+            # ordinate='capital__sum', is_count=False,
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key='regular_field-capital',
         )
 
         # ASC -----------------------------------------------------------------
@@ -2298,8 +2551,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Contacts HP by house',
             # abscissa=rtype_id, type=RGT_RELATION,
             abscissa_cell_value=rtype_id, abscissa_type=RGT_RELATION,
-            ordinate=f'{cf.id}__sum',
-            is_count=False,
+            # ordinate=f'{cf.id}__sum', is_count=False,
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key=f'custom_field-{cf.id}',
         )
 
         x_asc, y_asc = rgraph.fetch(user)
@@ -2327,8 +2581,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             abscissa_cell_value='invalidrtype',  # <====
             # type=RGT_RELATION,
             abscissa_type=RGT_RELATION,
-            ordinate='capital__avg',
-            is_count=False,
+            # ordinate='capital__avg', is_count=False,
+            ordinate_type=RGA_AVG,
+            ordinate_cell_key='regular_field-capital',
         )
 
         x_asc, y_asc = rgraph.fetch(user)
@@ -2351,7 +2606,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             abscissa_cell_value=1000,  # <=========
             # type=RGT_CUSTOM_FK,
             abscissa_type=RGT_CUSTOM_FK,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         with self.assertNoException():
@@ -2393,7 +2649,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Contacts by title',
             # abscissa=cf.id, type=RGT_CUSTOM_FK,
             abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_FK,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         with self.assertNoException():
@@ -2416,7 +2673,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         "Aggregate."
         user = self.login()
         cf = CustomField.objects.create(content_type=self.ct_orga,
-                                        name='Policy', field_type=CustomField.ENUM,
+                                        name='Policy',
+                                        field_type=CustomField.ENUM,
                                        )
         create_enum_value = partial(CustomFieldEnumValue.objects.create, custom_field=cf)
         fight     = create_enum_value(value='Fight')
@@ -2438,7 +2696,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Capital by policy',
             # abscissa=cf.id, type=RGT_CUSTOM_FK,
             abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_FK,
-            ordinate='capital__sum', is_count=False,
+            # ordinate='capital__sum', is_count=False,
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key='regular_field-capital',
         )
 
         self.assertEqual(cf.name, rgraph.hand.verbose_abscissa)
@@ -2462,7 +2722,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
     def test_fetchgraphview_with_decimal_ordinate(self):
         "Test json encoding for Graph with Decimal in fetch_graph view."
         user = self.login()
-        rgraph = self._create_invoice_report_n_graph(ordinate='total_vat__sum')
+        # rgraph = self._create_invoice_report_n_graph(ordinate='total_vat__sum')
+        rgraph = self._create_invoice_report_n_graph(
+            ordinate_type=RGA_SUM,
+            ordinate_field='total_vat',
+        )
+
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='BullFrog')
         orga2 = create_orga(name='Maxis')
@@ -2622,7 +2887,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Number of created contacts / year',
             # abscissa='created', type=RGT_YEAR,
             abscissa_cell_value='created', abscissa_type=RGT_YEAR,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         rtype = RelationType.create(
@@ -2631,9 +2897,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )[0]
 
         ibci = rgraph.create_instance_brick_config_item(volatile_rtype=rtype)
-        self.assertEqual(f'instanceblock_reports-graph|{rgraph.id}-{rtype.id}|{RFT_RELATION}',
-                         ibci.brick_id
-                        )
+        self.assertEqual(
+            f'instanceblock_reports-graph|{rgraph.id}-{rtype.id}|{RFT_RELATION}',
+            ibci.brick_id
+        )
         self.assertEqual(f'{rtype.id}|{RFT_RELATION}', ibci.data)
         fmt = _('{rtype} (Relationship)').format
         self.assertEqual(f'{rgraph.name} - {fmt(rtype=rtype)}',
@@ -2921,7 +3188,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Number of created contacts / year',
             # abscissa='created', type=RGT_YEAR,
             abscissa_cell_value='created', abscissa_type=RGT_YEAR,
-            ordinate='', is_count=True,
+            # ordinate='', is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         url = self._build_add_brick_url(rgraph)
@@ -3115,7 +3383,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             # abscissa='creation_date', type=RGT_RANGE, days=1,
             abscissa_cell_value='creation_date',
             abscissa_type=RGT_RANGE, abscissa_parameter='1',
-            is_count=True,
+            # is_count=True,
+            ordinate_type=RGA_COUNT,
         )
 
         interval_day_count = 300
@@ -3154,8 +3423,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             # abscissa='creation_date', type=RGT_RANGE, days=1,
             abscissa_cell_value='creation_date',
             abscissa_type=RGT_RANGE, abscissa_parameter='1',
-            ordinate='capital__sum',
-            is_count=False,
+            # ordinate='capital__sum', is_count=False,
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key='regular_field-capital',
         )
 
         interval_day_count = 300
@@ -3184,12 +3454,15 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='capital per month of creation',
-            # abscissa='created',
-            abscissa_cell_value='created',
-            ordinate='capital__sum',
-            # type=RGT_MONTH, is_count=False,
-            abscissa_type=RGT_MONTH, is_count=False,
             chart='barchart',
+            # abscissa='created',
+            # type=RGT_MONTH, is_count=False,
+            # ordinate='capital__sum', is_count=False,
+            abscissa_cell_value='created',
+            abscissa_type=RGT_MONTH,
+            # ordinate='capital__sum',
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key='regular_field-capital',
         )
 
         build_url = self.build_inneredit_url
@@ -3209,7 +3482,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertGET(400, build_url(rgraph, 'ordinate'))
         self.assertGET(400, build_url(rgraph, 'type'))
         self.assertGET(400, build_url(rgraph, 'days'))
-        self.assertGET(400, build_url(rgraph, 'is_count'))
+        # self.assertGET(400, build_url(rgraph, 'is_count'))
         self.assertGET(400, build_url(rgraph, 'chart'))
 
     def test_clone_report(self):
@@ -3218,12 +3491,14 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='capital per month of creation',
+            chart='barchart',
+            # type=RGT_MONTH,
             # abscissa='created',
             abscissa_cell_value='created',
-            ordinate='capital__sum',
-            # type=RGT_MONTH, is_count=False,
-            abscissa_type=RGT_MONTH, is_count=False,
-            chart='barchart',
+            abscissa_type=RGT_MONTH,
+            # ordinate='capital__sum', is_count=False,
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key='regular_field-capital',
         )
 
         cloned_report = report.clone()
@@ -3233,16 +3508,21 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         cloned_rgraph = rgrahes[0]
         self.assertNotEqual(rgraph.id, cloned_rgraph.id)
-        self.assertEqual(rgraph.name,     cloned_rgraph.name)
+        self.assertEqual(rgraph.name,  cloned_rgraph.name)
+
         # self.assertEqual(rgraph.abscissa, cloned_rgraph.abscissa)
         self.assertEqual(rgraph.abscissa_cell_value, cloned_rgraph.abscissa_cell_value)
-        self.assertEqual(rgraph.ordinate, cloned_rgraph.ordinate)
+        # self.assertEqual(rgraph.ordinate, cloned_rgraph.ordinate)
         # self.assertEqual(rgraph.type,     cloned_rgraph.type)
-        self.assertEqual(rgraph.abscissa_type, cloned_rgraph.abscissa_type)
+        self.assertEqual(rgraph.abscissa_type,       cloned_rgraph.abscissa_type)
         # self.assertEqual(rgraph.days,     cloned_rgraph.days)
-        self.assertEqual(rgraph.abscissa_parameter,     cloned_rgraph.abscissa_parameter)
-        self.assertEqual(rgraph.is_count, cloned_rgraph.is_count)
-        self.assertEqual(rgraph.chart,    cloned_rgraph.chart)
+        self.assertEqual(rgraph.abscissa_parameter,  cloned_rgraph.abscissa_parameter)
+
+        # self.assertEqual(rgraph.is_count, cloned_rgraph.is_count)
+        self.assertEqual(rgraph.ordinate_type,     cloned_rgraph.ordinate_type)
+        self.assertEqual(rgraph.ordinate_cell_key, cloned_rgraph.ordinate_cell_key)
+
+        self.assertEqual(rgraph.chart, cloned_rgraph.chart)
 
     def test_credentials01(self):
         "Filter retrieved entities with permission."
@@ -3268,6 +3548,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             data={
                 'user': user.id,
                 'name': name,
+                'chart': 'barchart',
 
                 # 'abscissa_field':    'user',
                 # 'abscissa_group_by': RGT_FK,
@@ -3276,10 +3557,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                     graph_type=RGT_FK,
                 ),
 
-                'aggregate_field': 'capital',
-                'aggregate':       'max',
-
-                'chart': 'barchart',
+                # 'aggregate_field': 'capital',
+                # 'aggregate':       'max',
+                'ordinate': self.formfield_value_ordinate(
+                    aggr_id=RGA_MAX,
+                    cell=EntityCellRegularField.build(FakeOrganisation, 'capital'),
+                ),
             })
         )
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)

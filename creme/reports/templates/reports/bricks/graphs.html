@@ -62,12 +62,18 @@
 {% endblock %}
 
 {% block brick_table_columns %}
+{% comment %}
     {% brick_table_column_for_field ctype=objects_ctype field='name' title=_('Name') status='primary nowrap' colspan=2 %}
-{#    {% brick_table_column_for_field ctype=objects_ctype field='abscissa' %} #}
-    {% brick_table_column_for_field ctype=objects_ctype field='abscissa_cell_value' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='abscissa' %}
     {% brick_table_column_for_field ctype=objects_ctype field='ordinate' %}
-{#    {% brick_table_column_for_field ctype=objects_ctype field='type' title=_('Type') %} #}
-    {% brick_table_column_for_field ctype=objects_ctype field='abscissa_type' title=_('Type') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='type' title=_('Type') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endcomment %}
+    {% brick_table_column title=_('Name') status='primary nowrap' colspan=2 %}
+    {% brick_table_column title=_('X axis (field)') %}
+    {% brick_table_column title=_('X axis (grouping)') %}
+    {% brick_table_column title=_('Y axis (type)') %}
+    {% brick_table_column title=_('Y axis (field)') %}
     {% brick_table_column title=_('Actions') status='action' colspan=2 %}
 {% endblock %}
 
@@ -80,10 +86,14 @@
     <tr class="graph-row-header graph-row-collapsed" data-graph-id="{{graph.id}}">
         <td>{{expand_icon.render}}{{collapse_icon.render}}</td>
         <td {% brick_table_data_status primary %}><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
-        <td {% if hand.abscissa_error %} td_error{% endif %}>{{hand.verbose_abscissa}}</td>
-        <td {% if hand.ordinate_error %} td_error{% endif %}>{{hand.verbose_ordinate}}</td>
+        <td {% if hand.abscissa_error != None %}class="td_error"{% endif %}>{{hand.verbose_abscissa}}</td>
 {#        <td>{{hand.verbose_name}}{% if graph.days %} ({{graph.days}}){% endif %}</td> #}
-        <td>{{hand.verbose_name}}{% if graph.abscissa_parameter %} ({{graph.abscissa_parameter}}){% endif %}</td>{# TODO: hand.verbose parameter ? #}
+        <td {% if hand.abscissa_error != None %}class="td_error"{% endif %}>{{hand.verbose_name}}{% if graph.abscissa_parameter %} ({{graph.abscissa_parameter}}){% endif %}</td>{# TODO: hand.verbose parameter ? #}
+{#        <td {% if hand.ordinate_error %}class="td_error"{% endif %}>{{hand.verbose_ordinate}}</td> #}
+        {% with ordinate=hand.ordinate %}
+        <td {% if ordinate.error != None %}class="td_error"{% endif %}>{{ordinate.verbose_name}}</td>
+        <td {% if ordinate.error != None %}class="td_error"{% endif %}>{{ordinate.cell|default:'—'}}</td>
+        {% endwith %}
         <td {% brick_table_data_status action %}>
             {% has_perm_to change graph as graph_edit_perm %}{% url 'reports__edit_graph' graph.id as edition_url %}
             {% brick_table_action id='edit' url=edition_url enabled=graph_edit_perm %}
@@ -94,7 +104,8 @@
         </td>
     </tr>
     <tr data-graph-chart="{{graph.chart|default:''}}" data-graph-id="{{graph.id}}" class="graph-row graph-row-collapsed">
-        <td class="reports-graph-brick" colspan="7">
+{#        <td class="reports-graph-brick" colspan="7"> #}
+        <td class="reports-graph-brick" colspan="8">
             <div class="brick-graph-header">
                 <div class="graph-controls">
                     <div class="graph-control graph-controls-type">

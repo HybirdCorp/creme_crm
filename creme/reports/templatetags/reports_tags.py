@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ register = Library()
 
 
 @register.simple_tag
-def report_chart_json(rgraph, chart, is_small=False):
+def report_chart_json(rgraph, chart, is_small=False):  # TODO: reportS
     return loader.render_to_string(
         chart.template,
         {'rgraph': rgraph, 'chart': chart, 'is_small': is_small},
@@ -32,6 +32,17 @@ def report_chart_json(rgraph, chart, is_small=False):
 
 
 @register.inclusion_tag('reports/templatetags/report_chart_selectors.html', takes_context=True)
-def report_chart_selector(context, rgraph):
+def report_chart_selector(context, rgraph):  # TODO: reportS
     context['rgraph'] = rgraph
     return context
+
+
+@register.simple_tag
+def reports_graph_ordinate(rgraph):
+    aggregator = rgraph.hand.ordinate
+
+    return (
+        f'{aggregator.cell} - {aggregator.verbose_name}'
+        if aggregator.cell else
+        aggregator.verbose_name
+    )

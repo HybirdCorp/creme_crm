@@ -47,9 +47,9 @@ from creme.creme_core.forms.widgets import (
     PolymorphicInput,
     DynamicInput,
 )
-from creme.creme_core.models import CremeEntity, CustomField, FieldsConfig  # RelationType
+from creme.creme_core.models import CremeEntity  # CustomField, FieldsConfig RelationType
 from creme.creme_core.models.fields import MoneyField
-from creme.creme_core.utils.meta import ModelFieldEnumerator
+# from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.utils.unicode_collation import collator
 
 from .. import get_rgraph_model
@@ -59,17 +59,19 @@ from ..constants import (
     # RGT_FK, RGT_RELATION,
     # RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE,
     # RGT_CUSTOM_FK,
+    AGGREGATOR_TYPES,
 )
 # from ..core.graph import RGRAPH_HANDS_MAP
-from ..core.graph import AbscissaInfo
+from ..core.graph import AbscissaInfo, OrdinateInfo
 from ..core.graph.cell_constraint import (
-    GraphHandCellConstraint,
-    GraphHandConstraintsRegistry,
+    GraphHandCellConstraint,  GraphHandConstraintsRegistry,
+    AggregatorCellConstraint, AggregatorConstraintsRegistry,
 )
-from ..report_aggregation_registry import field_aggregation_registry
+# from ..report_aggregation_registry import field_aggregation_registry
 from ..report_chart_registry import report_chart_registry
 
 
+# Abscissa ---------------------------------------------------------------------
 # class AbscissaGroupBySelect(forms.Select):
 #     def get_context(self, name, value, attrs):
 #         extra_args = {
@@ -81,7 +83,6 @@ from ..report_chart_registry import report_chart_registry
 #             extra_args.update(attrs)
 #
 #         return super().get_context(name=name, value=value, attrs=extra_args)
-
 
 class AbscissaWidget(ChainedInput):
     cell_groups = [
@@ -106,7 +107,7 @@ class AbscissaWidget(ChainedInput):
         self.model: Type[CremeEntity] = model
         self.constraint_registry: GraphHandConstraintsRegistry = \
             constraint_registry or GraphHandConstraintsRegistry()
-        self.not_hiddable_cell_keys: Set[int] = set()
+        self.not_hiddable_cell_keys: Set[str] = set()
 
     def build_cell_choices(self):
         constraints_by_cell_cls = defaultdict(list)
@@ -392,6 +393,275 @@ class AbscissaField(JSONField):
         }
 
 
+# Ordinate ---------------------------------------------------------------------
+class OrdinateWidget(ChainedInput):
+    # TODO: move to in EntityCell classes ?
+    cell_groups = [
+        (EntityCellRegularField, _('Fields')),
+        (EntityCellRelation,     _('Relationships')),
+        (EntityCellCustomField,  _('Custom fields')),
+        # (EntityCellFunctionField, _('Function fields')),
+    ]
+
+    cell_data_name = 'entity_cell'
+    aggr_data_name = 'aggregator'
+
+    cell_key_data_name = 'cell_key'
+    aggr_id_data_name = 'aggr_id'
+    constraint_data_name = 'aggr_category'
+
+    def __init__(self,
+                 attrs=None,
+                 model=CremeEntity,
+                 constraint_registry: Optional[AggregatorConstraintsRegistry] = None):
+        super().__init__(attrs=attrs)
+        self.model: Type[CremeEntity] = model
+        self.constraint_registry: AggregatorConstraintsRegistry = \
+             constraint_registry or AggregatorConstraintsRegistry()
+        self.not_hiddable_cell_keys: Set[str] = set()
+
+    def build_aggr_choices(self, cells_per_aggr_category):
+        aggr_choices = []
+        aggr_id_dname = self.aggr_id_data_name
+        constraint_dname = self.constraint_data_name
+
+        # TODO: sort ?
+        for cell_constraint in self.constraint_registry.cell_constraints(self.model):
+            category = cell_constraint.type_id
+
+            if not cell_constraint.cell_classes or cells_per_aggr_category.get(category):
+                for aggr_id in cell_constraint.aggregator_ids:
+                    aggr_choices.append(
+                        (
+                            json_dump({
+                                aggr_id_dname: aggr_id,
+                                constraint_dname: category,
+                            }),
+                            AGGREGATOR_TYPES.get(aggr_id, '??'),
+                        )
+                    )
+
+        return aggr_choices
+
+    def build_cell_choices(self, cells_per_aggr_category):
+        cells_by_cls = defaultdict(list)
+        sort_key = collator.sort_key
+
+        for category, cells in cells_per_aggr_category.items():
+            for cell in cells:
+                cell.grouping_category = category  # NB: new dynamic attribute
+                cells_by_cls[type(cell)].append(cell)
+
+        ckey_dname = self.cell_key_data_name
+        constraint_dname = self.constraint_data_name
+        cell_choices = []
+        for cell_cls, group_title in self.cell_groups:
+            cells = cells_by_cls.get(cell_cls)
+
+            if cells:
+                cells.sort(key=lambda cell: sort_key(str(cell)))
+
+                cell_choices.append(
+                    (group_title,
+                     [(json_dump({
+                         ckey_dname: cell.key,
+                         constraint_dname: cell.grouping_category,
+                       }),
+                       str(cell)
+                      ) for cell in cells
+                     ]
+                    )
+                )
+
+        return cell_choices
+
+    def get_context(self, name, value, attrs):
+        # We build the cells once to avoid some queries (to retrieve CustomFields)
+        cells_per_aggr_category = defaultdict(list)
+        for cell_constraint in self.constraint_registry.cell_constraints(self.model):
+            cells_per_aggr_category[cell_constraint.type_id].extend(
+                cell_constraint.cells(self.not_hiddable_cell_keys)
+            )
+
+        field_attrs = {'auto': False, 'datatype': 'json'}
+        aggr_data_name = self.aggr_data_name
+        constraint_dname = self.constraint_data_name
+
+        self.add_dselect(
+            aggr_data_name,
+            options=self.build_aggr_choices(cells_per_aggr_category),
+            attrs=field_attrs,
+        )
+        self.add_dselect(
+            self.cell_data_name,
+            options=self.build_cell_choices(cells_per_aggr_category),
+            attrs={
+                **field_attrs,
+                'filter': f'context.{aggr_data_name} && item.value ? '
+                          f'item.value.{constraint_dname} === context.{aggr_data_name}.{constraint_dname} : '
+                          f'true',
+                'dependencies': aggr_data_name,
+            },
+        )
+
+        return super().get_context(name=name, value=value, attrs=attrs)
+
+
+class OrdinateField(JSONField):
+    default_error_messages = {
+        'aggridrequired': 'The aggregation id is required.',
+        'aggridinvalid':  'The aggregation id is invalid.',
+
+        'ecellrequired':   'The entity cell is required.',
+        'ecellnotallowed': 'This entity cell is not allowed.',
+    }
+
+    value_type = dict
+    widget = OrdinateWidget
+
+    aggr_data_name       = OrdinateWidget.aggr_data_name
+    aggr_id_data_name    = OrdinateWidget.aggr_id_data_name
+    cell_data_name       = OrdinateWidget.cell_data_name
+    cell_key_data_name   = OrdinateWidget.cell_key_data_name
+    constraint_data_name = OrdinateWidget.constraint_data_name
+
+    _model: Type[CremeEntity]
+    _constraint_registry: AggregatorConstraintsRegistry
+    not_hiddable_cell_keys: Set[str]
+
+    def __init__(self, *,
+                 model=CremeEntity,
+                 ordinate_constraints=None,
+                 **kwargs):
+        self._initial = None
+        super().__init__(**kwargs)
+        self.model = model
+        self.constraint_registry = ordinate_constraints or AggregatorConstraintsRegistry()
+        # TODO: when required=False => empty choice for aggr type
+
+    @property
+    def constraint_registry(self):
+        return self._constraint_registry
+
+    @constraint_registry.setter
+    def constraint_registry(self, registry: AggregatorConstraintsRegistry):
+        self._constraint_registry = self.widget.constraint_registry = registry
+
+    @property
+    def initial(self):
+        return self._initial
+
+    @initial.setter
+    def initial(self, value):
+        self._initial = value
+        if value is None:
+            not_hiddable_cell_keys = set()
+        else:
+            assert isinstance(value, OrdinateInfo), type(value)
+            # NB: If a cell (for a regular-field) has been selected before the
+            #     related regular field has been hidden, it must be proposed to
+            #     avoid silent modification of the ordinate (& so, the ReportGraph).
+            cell = value.cell
+            not_hiddable_cell_keys = {value.cell.key} if cell else set()
+
+        # TODO: property "not_hiddable_cell_keys" in widget to copy ??
+        self.not_hiddable_cell_keys = self.widget.not_hiddable_cell_keys = not_hiddable_cell_keys
+
+    @property
+    def model(self):
+        return self._model
+
+    @model.setter
+    def model(self, model):
+        self._model = self.widget.model = model
+
+    def _clean_aggr_id(self, data) -> Optional[str]:
+        clean_value = self.clean_value
+
+        aggr_info = clean_value(data, self.aggr_data_name, dict, True, 'aggridrequired')
+        if not aggr_info:
+            raise ValidationError(
+                self.error_messages['aggridrequired'],
+                code='aggridrequired',
+            )
+
+        return clean_value(aggr_info, self.aggr_id_data_name, str, self.required, 'aggridrequired')
+
+    def _clean_cell(self, data, constraint: AggregatorCellConstraint) -> Optional[EntityCell]:
+        clean_value = self.clean_value
+
+        cell_info = clean_value(data, self.cell_data_name, dict, False, 'ecellrequired')
+        if not cell_info:
+            if constraint.cell_classes:
+                raise ValidationError(self.error_messages['ecellrequired'],
+                                      code='ecellrequired',
+                                     )
+
+            return None
+
+        cell_key = clean_value(cell_info, self.cell_key_data_name, str, True, 'ecellrequired')
+        if not cell_key:
+            raise ValidationError(self.error_messages['ecellrequired'],
+                                  code='ecellrequired',
+                                 )
+
+        cell = constraint.get_cell(
+            cell_key=cell_key,
+            not_hiddable_cell_keys=self.not_hiddable_cell_keys,
+        )
+        if cell is None:
+            raise ValidationError(self.error_messages['ecellnotallowed'],
+                                  code='ecellnotallowed',
+                                 )
+
+        return cell
+
+    def _value_from_unjsonfied(self, data):
+        aggr_id = self._clean_aggr_id(data)
+        if not aggr_id:
+            return None
+
+        constraint = self.constraint_registry.get_constraint_by_aggr_id(
+            model=self.model,
+            aggr_id=aggr_id,
+        )
+        if constraint is None:
+            raise ValidationError(
+                self.error_messages['aggridinvalid'],
+                code='aggridinvalid',
+            )
+
+        cell = self._clean_cell(data, constraint)
+
+        return OrdinateInfo(
+            aggr_id=aggr_id,
+            cell=cell,
+        )
+
+    def _value_to_jsonifiable(self, value):
+        cell = value.cell
+
+        constraint = self.constraint_registry.get_constraint_by_aggr_id(
+            model=self.model,
+            aggr_id=value.aggr_id,
+        )
+        category = constraint.type_id if constraint else '??'
+
+        constraint_dname = self.constraint_data_name
+
+        return {
+            self.aggr_data_name: {
+                self.aggr_id_data_name: value.aggr_id,
+                constraint_dname: category,
+            },
+            self.cell_data_name: {
+                self.cell_key_data_name: cell.key,
+                constraint_dname: category,
+            } if cell else None,
+        }
+
+
+# ------------------------------------------------------------------------------
 class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Relationships & CremeProperties
     chart = forms.ChoiceField(label=_('Chart type'), choices=report_chart_registry.choices())
 
@@ -405,25 +675,27 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
     # )
     abscissa = AbscissaField(label=_('X axis'))
 
-    aggregate = forms.ChoiceField(
-        label=_('Aggregate'), required=False,
-        choices=[(agg.name, agg.title)
-                    for agg in field_aggregation_registry.aggregations
-                ],
-    )
-    aggregate_field = forms.ChoiceField(label=_('Field'), choices=(), required=False)
-    is_count        = forms.BooleanField(
-        label=_('Entities count'), required=False,
-        help_text=_('Make a count instead of aggregate ?'),
-        widget=forms.CheckboxInput(
-             attrs={'onchange': "creme.reports.toggleDisableOthers(this, ['#id_aggregate', '#id_aggregate_field']);"},
-        ),
-    )
+    # aggregate = forms.ChoiceField(
+    #     label=_('Aggregate'), required=False,
+    #     choices=[(agg.name, agg.title)
+    #                 for agg in field_aggregation_registry.aggregations
+    #             ],
+    # )
+    # aggregate_field = forms.ChoiceField(label=_('Field'), choices=(), required=False)
+    # is_count        = forms.BooleanField(
+    #     label=_('Entities count'), required=False,
+    #     help_text=_('Make a count instead of aggregate?'),
+    #     widget=forms.CheckboxInput(
+    #          attrs={'onchange': "creme.reports.toggleDisableOthers(this, ['#id_aggregate', '#id_aggregate_field']);"},
+    #     ),
+    # )
+    ordinate = OrdinateField(label=_('Y axis'))
 
     blocks = CremeModelForm.blocks.new(
         # ('abscissa', _('X axis'), ['abscissa_field', 'abscissa_group_by', 'days']),
         ('abscissa', _('X axis'), ['abscissa']),
-        ('ordinate', _('Y axis'), ['is_count', 'aggregate', 'aggregate_field']),
+        # ('ordinate', _('Y axis'), ['is_count', 'aggregate', 'aggregate_field']),
+        ('ordinate', _('Y axis'), ['ordinate']),
     )
 
     class Meta(CremeModelForm.Meta):
@@ -440,13 +712,11 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         fields = self.fields
 
         # abscissa_field_f  = fields['abscissa_field']
-        abscissa_f = fields['abscissa']
-        aggregate_field_f = fields['aggregate_field']
-        is_count_f        = fields['is_count']
+        # aggregate_field_f = fields['aggregate_field']
+        # is_count_f        = fields['is_count']
 
-        get_fconf = FieldsConfig.LocalCache().get_4_model
-        # TODO: split('__', 1) when 'count' is an aggregate operator
-        ordinate_field_name, __, aggregate = instance.ordinate.rpartition('__')
+        # get_fconf = FieldsConfig.LocalCache().get_4_model
+        # ordinate_field_name, __, aggregate = instance.ordinate.rpartition('__')
 
         # Abscissa -------------------------------------------------------------
         # def absc_field_excluder(field, deep):
@@ -493,65 +763,83 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         # abscissa_field_f.choices = abscissa_choices
         # abscissa_field_f.widget.target_url = reverse('reports__graph_types', args=(report_ct.id,))
 
+        abscissa_f = fields['abscissa']
         abscissa_f.model = model
         abscissa_f.constraint_registry = instance.abscissa_constraints
 
         # Ordinate -------------------------------------------------------------
-        def agg_field_excluder(field, deep):
-            return get_fconf(field.model).is_field_hidden(field) and \
-                   field.name != ordinate_field_name
+        # def agg_field_excluder(field, deep):
+        #     return get_fconf(field.model).is_field_hidden(field) and \
+        #            field.name != ordinate_field_name
+        #
+        # aggfields = [
+        #     field_info[0]
+        #         for field_info in ModelFieldEnumerator(model, deep=0)
+        #                             .filter((lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),
+        #                                     viewable=True
+        #                                    )
+        #                             .exclude(agg_field_excluder)
+        # ]
+        # aggfield_choices = [(field.name, field.verbose_name) for field in aggfields]
+        # aggcustom_choices = [
+        #     *CustomField.objects
+        #                 .filter(field_type__in=field_aggregation_registry.authorized_customfields,
+        #                         content_type=report_ct,
+        #                        )
+        #                 .values_list('id', 'name')
+        # ]
+        # ordinate_choices = aggfield_choices or aggcustom_choices
+        #
+        # if ordinate_choices:
+        #     self.force_count = False
+        #
+        #     money_fields = [field for field in aggfields if isinstance(field, MoneyField)]
+        #     if money_fields:
+        #         aggregate_field_f.help_text = gettext(
+        #                 'If you use a field related to money, the entities should use the same '
+        #                 'currency or the result will be wrong. Concerned fields are : {}'
+        #             ).format(', '.join(str(field.verbose_name) for field in money_fields))
+        #
+        #     if aggcustom_choices and aggfield_choices:
+        #         ordinate_choices = [
+        #             (_('Fields'),        aggfield_choices),
+        #             (_('Custom fields'), aggcustom_choices),
+        #         ]
+        # else:
+        #     self.force_count = True
+        #     ordinate_choices = [('', _('No field is usable for aggregation'))]
+        #
+        #     disabled_attrs = {'disabled': True}
+        #     aggregate_field_f.widget.attrs = disabled_attrs
+        #     fields['aggregate'].widget.attrs = disabled_attrs
+        #
+        #     is_count_f.help_text = _('You must make a count because no field is usable for aggregation')
+        #     is_count_f.initial = True
+        #     is_count_f.widget.attrs = disabled_attrs
+        #
+        # aggregate_field_f.choices = ordinate_choices
 
-        aggfields = [
-            field_info[0]
-                for field_info in ModelFieldEnumerator(model, deep=0)
-                                    .filter((lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),
-                                            viewable=True
-                                           )
-                                    .exclude(agg_field_excluder)
+        ordinate_f = fields['ordinate']
+        ordinate_f.model = model
+        ordinate_f.constraint_registry = instance.ordinate_constraints
+
+        # TODO: sadly it performs a query to get the CustomFields => cache
+        money_fields = [
+            cell.field_info[-1]
+                for cell_constraint in instance.ordinate_constraints.cell_constraints(model)
+                    for cell in cell_constraint.cells(ordinate_f.not_hiddable_cell_keys)
+                        if isinstance(cell, EntityCellRegularField) and
+                           isinstance(cell.field_info[-1], MoneyField)
         ]
-        aggfield_choices = [(field.name, field.verbose_name) for field in aggfields]
-        aggcustom_choices = [
-            *CustomField.objects
-                        .filter(field_type__in=field_aggregation_registry.authorized_customfields,
-                                content_type=report_ct,
-                               )
-                        .values_list('id', 'name')
-        ]
-        ordinate_choices = aggfield_choices or aggcustom_choices
-
-        if ordinate_choices:
-            self.force_count = False
-
-            money_fields = [field for field in aggfields if isinstance(field, MoneyField)]
-            if money_fields:
-                # TODO: lazy lazily-translated-string interpolation
-                aggregate_field_f.help_text = gettext(
-                        'If you use a field related to money, the entities should use the same '
-                        'currency or the result will be wrong. Concerned fields are : {}'
-                    ).format(', '.join(str(field.verbose_name) for field in money_fields))
-
-            if aggcustom_choices and aggfield_choices:
-                ordinate_choices = [
-                    (_('Fields'),        aggfield_choices),
-                    (_('Custom fields'), aggcustom_choices),
-                ]
-        else:
-            self.force_count = True
-            ordinate_choices = [('', _('No field is usable for aggregation'))]
-
-            disabled_attrs = {'disabled': True}
-            aggregate_field_f.widget.attrs = disabled_attrs
-            fields['aggregate'].widget.attrs = disabled_attrs
-
-            is_count_f.help_text = _('You must make a count because no field is usable for aggregation')
-            is_count_f.initial = True
-            is_count_f.widget.attrs = disabled_attrs
-
-        aggregate_field_f.choices = ordinate_choices
+        if money_fields:
+            ordinate_f.help_text = gettext(
+                'If you use a field related to money, the entities should use the same '
+                'currency or the result will be wrong. Concerned fields are : {}'
+            ).format(', '.join(str(field.verbose_name) for field in money_fields))
 
         # Initial data ---------------------------------------------------------
-        data = self.data
-
+        # data = self.data
+        #
         # if data:
         #     get_data = data.get
         #     widget = abscissa_field_f.widget
@@ -561,8 +849,8 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         #     fields['abscissa_group_by'].widget.attrs['data-initial-value'] = get_data('abscissa_group_by')
         # elif instance.pk is not None:
         if instance.pk:
-            fields['aggregate'].initial = aggregate
-            aggregate_field_f.initial   = ordinate_field_name
+            # fields['aggregate'].initial = aggregate
+            # aggregate_field_f.initial   = ordinate_field_name
             # abscissa_field_f.initial    = instance.abscissa
             #
             # widget = abscissa_field_f.widget
@@ -575,7 +863,7 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
             #     model=model,
             #     rgraph_type=instance.type,
             # )
-            # if abscissa_constraint:  # TODO: log if None ?
+            # if abscissa_constraint:
             #     abscissa_f.initial = AbscissaInfo(
             #         cell=abscissa_constraint.cell_class.build(
             #             model,
@@ -585,12 +873,12 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
             #         parameter=instance.days,
             #     )
             abscissa_f.initial = instance.abscissa_info
+            ordinate_f.initial = instance.ordinate_info
 
-            # TODO: remove this sh*t when is_count is a real widget well initialized (disabling set by JS)
-        if is_count_f.initial or instance.is_count or data.get('is_count'):
-            disabled_attrs = {'disabled': True}
-            aggregate_field_f.widget.attrs = disabled_attrs
-            fields['aggregate'].widget.attrs = disabled_attrs
+        # if is_count_f.initial or instance.is_count or data.get('is_count'):
+        #     disabled_attrs = {'disabled': True}
+        #     aggregate_field_f.widget.attrs = disabled_attrs
+        #     fields['aggregate'].widget.attrs = disabled_attrs
 
     # def _filter_abcissa_field(self, field, depth):
     #     if isinstance(field, DateField):
@@ -625,8 +913,8 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
     #
     #     return graph_type
 
-    def clean_is_count(self):
-        return self.cleaned_data.get('is_count', False) or self.force_count
+    # def clean_is_count(self):
+    #     return self.cleaned_data.get('is_count', False) or self.force_count
 
     # def _clean_field(self, model, name, field_types, formfield_name='abscissa_field'):
     #     try:
@@ -665,65 +953,65 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
     #         else:
     #             return cfield
 
-    def clean(self):
-        cleaned_data = super().clean()
-        get_data     = cleaned_data.get
-        # model = self.report.ct.model_class()
-        #
-        # abscissa_name = get_data('abscissa_field')
-        # abscissa_group_by = cleaned_data['abscissa_group_by']
-        #
-        # if abscissa_group_by == RGT_FK:
-        #     self._clean_field(model, abscissa_name, field_types=(ForeignKey,))
-        # elif abscissa_group_by == RGT_CUSTOM_FK:
-        #     self._clean_customfield(abscissa_name, cfield_types=(CustomField.ENUM,))
-        # elif abscissa_group_by == RGT_RELATION:
-        #     if abscissa_name not in self.rtypes:
-        #         self.add_error('abscissa_field', 'Unknown relationship type.')
-        # elif abscissa_group_by in (RGT_DAY, RGT_MONTH, RGT_YEAR):
-        #     self._clean_field(model, abscissa_name, field_types=(DateField, DateTimeField))
-        # elif abscissa_group_by == RGT_RANGE:
-        #     self._clean_field(model, abscissa_name, field_types=(DateField, DateTimeField))
-        #
-        #     if not cleaned_data.get('days'):
-        #         self.add_error(
-        #             'days',
-        #             _("You have to specify a day range if you use 'by X days'"),
-        #         )
-        # elif abscissa_group_by in (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR):
-        #     self._clean_customfield(abscissa_name, cfield_types=(CustomField.DATETIME,))
-        # elif abscissa_group_by == RGT_CUSTOM_RANGE:
-        #     self._clean_customfield(abscissa_name, cfield_types=(CustomField.DATETIME,))
-        #
-        #     if not cleaned_data.get('days'):
-        #         self.add_error(
-        #             'days',
-        #             _("You have to specify a day range if you use 'by X days'"),
-        #         )
-        # else:
-        #     raise ValidationError('Unknown graph type')
-        #
-        # if cleaned_data.get('days') and abscissa_group_by not in (RGT_RANGE, RGT_CUSTOM_RANGE):
-        #     cleaned_data['days'] = None
-
-        if get_data('aggregate_field'):
-            if not field_aggregation_registry.get(get_data('aggregate')):
-                self.add_error(
-                    'aggregate',
-                    _('This field is required if you choose a field to aggregate.'),
-                )
-        elif not get_data('is_count'):
-            raise ValidationError(
-                gettext("If you don't choose an ordinate field (or none available) "
-                        "you have to check 'Make a count instead of aggregate ?'"
-                       )
-            )
-
-        return cleaned_data
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     get_data     = cleaned_data.get
+    #     model = self.report.ct.model_class()
+    #
+    #     abscissa_name = get_data('abscissa_field')
+    #     abscissa_group_by = cleaned_data['abscissa_group_by']
+    #
+    #     if abscissa_group_by == RGT_FK:
+    #         self._clean_field(model, abscissa_name, field_types=(ForeignKey,))
+    #     elif abscissa_group_by == RGT_CUSTOM_FK:
+    #         self._clean_customfield(abscissa_name, cfield_types=(CustomField.ENUM,))
+    #     elif abscissa_group_by == RGT_RELATION:
+    #         if abscissa_name not in self.rtypes:
+    #             self.add_error('abscissa_field', 'Unknown relationship type.')
+    #     elif abscissa_group_by in (RGT_DAY, RGT_MONTH, RGT_YEAR):
+    #         self._clean_field(model, abscissa_name, field_types=(DateField, DateTimeField))
+    #     elif abscissa_group_by == RGT_RANGE:
+    #         self._clean_field(model, abscissa_name, field_types=(DateField, DateTimeField))
+    #
+    #         if not cleaned_data.get('days'):
+    #             self.add_error(
+    #                 'days',
+    #                 _("You have to specify a day range if you use 'by X days'"),
+    #             )
+    #     elif abscissa_group_by in (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR):
+    #         self._clean_customfield(abscissa_name, cfield_types=(CustomField.DATETIME,))
+    #     elif abscissa_group_by == RGT_CUSTOM_RANGE:
+    #         self._clean_customfield(abscissa_name, cfield_types=(CustomField.DATETIME,))
+    #
+    #         if not cleaned_data.get('days'):
+    #             self.add_error(
+    #                 'days',
+    #                 _("You have to specify a day range if you use 'by X days'"),
+    #             )
+    #     else:
+    #         raise ValidationError('Unknown graph type')
+    #
+    #     if cleaned_data.get('days') and abscissa_group_by not in (RGT_RANGE, RGT_CUSTOM_RANGE):
+    #         cleaned_data['days'] = None
+    #
+    #     if get_data('aggregate_field'):
+    #         if not field_aggregation_registry.get(get_data('aggregate')):
+    #             self.add_error(
+    #                 'aggregate',
+    #                 _('This field is required if you choose a field to aggregate.'),
+    #             )
+    #     elif not get_data('is_count'):
+    #         raise ValidationError(
+    #             gettext("If you don't choose an ordinate field (or none available) "
+    #                     "you have to check 'Make a count instead of aggregate ?'"
+    #                    )
+    #         )
+    #
+    #     return cleaned_data
 
     def save(self, *args, **kwargs):
         cdata = self.cleaned_data
-        get_data = cdata.get
+        # get_data = cdata.get
         graph = self.instance
         graph.linked_report = self.report
 
@@ -731,7 +1019,8 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         # graph.type = get_data('abscissa_group_by')
         graph.abscissa_info = cdata['abscissa']
 
-        agg_fields = get_data('aggregate_field')
-        graph.ordinate = '{}__{}'.format(agg_fields, get_data('aggregate')) if agg_fields else ''
+        # agg_field = get_data('aggregate_field')
+        # graph.ordinate = '{}__{}'.format(agg_fields, get_data('aggregate')) if agg_field else ''
+        graph.ordinate_info = cdata['ordinate']
 
         return super().save(*args, **kwargs)

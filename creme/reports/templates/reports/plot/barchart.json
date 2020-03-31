@@ -1,3 +1,4 @@
+{% load reports_tags %}
 {
     "title": {
         "text":       "<b>{{rgraph}}</b>",
@@ -59,7 +60,8 @@
                 "textColor":  "black",
                 "fontSize":   {% if is_small %}"8pt"{% else %}"9pt"{% endif %}
             },
-            "label": "{{rgraph.hand.verbose_ordinate}}",
+{#            "label": "{{rgraph.hand.verbose_ordinate}}", #}
+            "label": "{% reports_graph_ordinate rgraph %}",
             "labelOptions": {
                 "fontWeight": "bold",
                 "fontSize":   "10pt",

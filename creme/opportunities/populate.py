@@ -313,11 +313,13 @@ class Populator(BasePopulator):
             logger.info('ReportGraph model is custom => no Opportunity report-graph is created.')
             return
 
-        # TODO: helper method ('sum' => is_count=False, range only on DateFields etc...)
+        # TODO: helper method (range only on DateFields etc...)
         create_graph = partial(
             reports.get_rgraph_model().objects.create,
             linked_report=report, user=admin,
-            is_count=False, ordinate='estimated_sales__sum',
+            # is_count=False, ordinate='estimated_sales__sum',
+            ordinate_type='sum',
+            ordinate_cell_key='regular_field-estimated_sales',
         )
         esales_vname = FieldInfo(Opportunity, 'estimated_sales').verbose_name
         rgraph1 = create_graph(

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-19 15:48+0100\n"
+"POT-Creation-Date: 2020-03-31 16:44+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -34,31 +34,31 @@ msgstr "Rapports"
 msgid "Analysis"
 msgstr "Analyse"
 
-#: apps.py:91
+#: apps.py:91 constants.py:58
 msgid "Average"
 msgstr "Moyenne"
 
-#: apps.py:92
+#: apps.py:92 constants.py:60
 msgid "Minimum"
 msgstr "Minimum"
 
-#: apps.py:93
+#: apps.py:93 constants.py:59
 msgid "Maximum"
 msgstr "Maximum"
 
-#: apps.py:94
+#: apps.py:94 constants.py:61
 msgid "Sum"
 msgstr "Somme"
 
-#: apps.py:99 templates/reports/bricks/graphs.html:103
+#: apps.py:101 templates/reports/bricks/graphs.html:114
 msgid "Histogram"
 msgstr "Histogramme"
 
-#: apps.py:100
+#: apps.py:103
 msgid "Pie"
 msgstr "Camembert"
 
-#: apps.py:101
+#: apps.py:105
 msgid "Tube"
 msgstr "Barres empilées 100%"
 
@@ -70,27 +70,27 @@ msgstr "Colonnes du rapport"
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
 
-#: constants.py:35 core/graph/hand.py:244 core/graph/hand.py:613
+#: constants.py:35 core/graph/hand.py:265 core/graph/hand.py:637
 msgid "By days"
 msgstr "Par jours"
 
-#: constants.py:36 core/graph/hand.py:265 core/graph/hand.py:632
+#: constants.py:36 core/graph/hand.py:286 core/graph/hand.py:656
 msgid "By months"
 msgstr "Par mois"
 
-#: constants.py:37 core/graph/hand.py:284 core/graph/hand.py:650
+#: constants.py:37 core/graph/hand.py:305 core/graph/hand.py:674
 msgid "By years"
 msgstr "Par années"
 
-#: constants.py:38 core/graph/hand.py:339 core/graph/hand.py:667
+#: constants.py:38 core/graph/hand.py:360 core/graph/hand.py:691
 msgid "By X days"
 msgstr "Par X jours"
 
-#: constants.py:39 core/graph/hand.py:446
+#: constants.py:39 core/graph/hand.py:468
 msgid "By values"
 msgstr "Par valeurs"
 
-#: constants.py:40 core/graph/hand.py:486
+#: constants.py:40 core/graph/hand.py:509
 msgid "By values (of related entities)"
 msgstr "Par valeurs (des fiches liées)"
 
@@ -110,11 +110,27 @@ msgstr "Par années (champ personnalisé)"
 msgid "By X days (custom field)"
 msgstr "Par X jours (champ personnalisé)"
 
-#: constants.py:45 core/graph/hand.py:769
+#: constants.py:45 core/graph/hand.py:794
 msgid "By values (of custom choices)"
 msgstr "Par valeurs (de choix personnalisé)"
 
-#: core/graph/cell_constraint.py:283
+#: constants.py:57
+msgid "Count"
+msgstr "Comptage"
+
+#: core/graph/aggregator.py:86
+msgid "the aggregation function is invalid."
+msgstr "la fonction d'agrégation est invalide."
+
+#: core/graph/aggregator.py:134 core/graph/hand.py:206
+msgid "the field does not exist any more."
+msgstr "le champ n'existe plus."
+
+#: core/graph/aggregator.py:139 core/graph/hand.py:211
+msgid "this field should be hidden."
+msgstr "ce champ devrait être caché"
+
+#: core/graph/cell_constraint.py:286
 msgid "Number of days"
 msgstr "Nombre de jours"
 
@@ -144,29 +160,17 @@ msgstr "Le type de relation est invalide."
 msgid "{rtype} (Relationship)"
 msgstr "{rtype} (Relation)"
 
-#: core/graph/hand.py:185 core/graph/y_calculator.py:63
-msgid "the field does not exist any more."
-msgstr "le champ personnalisé n'existe plus."
-
-#: core/graph/hand.py:190
-msgid "this field should be hidden."
-msgstr "ce champ devrait être caché"
-
-#: core/graph/hand.py:458
+#: core/graph/hand.py:480
 msgid "this field cannot be used as abscissa."
 msgstr "ce champ ne peut pas être utilisé comme abscisse."
 
-#: core/graph/hand.py:499
+#: core/graph/hand.py:522
 msgid "the relationship type does not exist any more."
 msgstr "le type de relation n'existe plus."
 
-#: core/graph/hand.py:548 core/graph/y_calculator.py:57
+#: core/graph/hand.py:572
 msgid "the custom field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
-
-#: core/graph/y_calculator.py:80
-msgid "Count"
-msgstr "Comptage"
 
 #: core/report.py:212
 msgid "Regular field"
@@ -197,7 +201,7 @@ msgid "Related field"
 msgstr "Champ relatif"
 
 #: forms/bricks.py:36 templates/reports/bricks/graph.html:64
-#: templates/reports/bricks/graphs.html:116
+#: templates/reports/bricks/graphs.html:127
 #: templates/reports/bricks/instance-bricks-info.html:11
 msgid "Volatile column"
 msgstr "Colonne volatile"
@@ -212,11 +216,11 @@ msgstr ""
 "les fiches reliées à cette fiche par le lien ci-dessous sont utilisées pour "
 "calculer le graphique."
 
-#: forms/bricks.py:69 forms/graph.py:88 forms/graph.py:535
+#: forms/bricks.py:69 forms/graph.py:89 forms/graph.py:400
 msgid "Fields"
 msgstr "Champs"
 
-#: forms/bricks.py:72 forms/graph.py:89
+#: forms/bricks.py:72 forms/graph.py:90 forms/graph.py:401
 msgid "Relationships"
 msgstr "Relations"
 
@@ -262,44 +266,28 @@ msgstr ""
 "Le champ filtre ne peut être modifié que pour des rapport ciblant le même "
 "type de fiche (ex: seulement les contacts)."
 
-#: forms/graph.py:90 forms/graph.py:536
+#: forms/graph.py:91 forms/graph.py:402
 #: templates/reports/forms/widgets/report-hands.html:37
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
-#: forms/graph.py:232
+#: forms/graph.py:233
 msgid "The parameter is invalid. {}"
 msgstr "Le paramètre est invalide. {}"
 
-#: forms/graph.py:396 models/graph.py:65
+#: forms/graph.py:666 models/graph.py:86
 msgid "Chart type"
 msgstr "Type de graphique"
 
-#: forms/graph.py:406 forms/graph.py:425 models/graph.py:60
+#: forms/graph.py:676 forms/graph.py:696
 msgid "X axis"
 msgstr "Axe X"
 
-#: forms/graph.py:409
-msgid "Aggregate"
-msgstr "Valeur calculée"
-
-#: forms/graph.py:414
-msgid "Field"
-msgstr "Champ"
-
-#: forms/graph.py:416
-msgid "Entities count"
-msgstr "Comptage de fiches"
-
-#: forms/graph.py:417
-msgid "Make a count instead of aggregate ?"
-msgstr "Effectuer un comptage à la place des valeurs calculées ?"
-
-#: forms/graph.py:426 models/graph.py:63
+#: forms/graph.py:692 forms/graph.py:698
 msgid "Y axis"
 msgstr "Axe Y"
 
-#: forms/graph.py:529
+#: forms/graph.py:836
 msgid ""
 "If you use a field related to money, the entities should use the same "
 "currency or the result will be wrong. Concerned fields are : {}"
@@ -307,28 +295,6 @@ msgstr ""
 "Si vous utilisez un champ relatif à de l'argent, les fiches devraient "
 "utiliser la même monnaie, ou alors le résultat sera faux.  Les champs "
 "concernés sont : {}"
-
-#: forms/graph.py:540
-msgid "No field is usable for aggregation"
-msgstr "Aucun n'est utilisable pour une agrégation"
-
-#: forms/graph.py:546
-msgid "You must make a count because no field is usable for aggregation"
-msgstr ""
-"Vous devez effectuer un comptage parce qu'aucun champ n'est utilisable pour "
-"une agrégation"
-
-#: forms/graph.py:713
-msgid "This field is required if you choose a field to aggregate."
-msgstr "Ce champ est obligatoire si vous choisissez un champ à aggréger."
-
-#: forms/graph.py:717
-msgid ""
-"If you don't choose an ordinate field (or none available) you have to check "
-"'Make a count instead of aggregate ?'"
-msgstr ""
-"Si vous ne choisissez aucun champ d'ordonnée (ou qu'aucun n'est disponible) "
-"vous devez cocher 'Effectuer un comptage à la place des valeurs calculées ?'"
 
 #: forms/report.py:98
 msgid "Existing view"
@@ -384,41 +350,49 @@ msgctxt "reports-date_filter"
 msgid "None"
 msgstr "Aucun"
 
-#: models/graph.py:50
+#: models/graph.py:54
 msgctxt "reports-graphs"
 msgid "Name of the graph"
 msgstr "Nom du graphique"
 
-#: models/graph.py:59
-msgid "Grouping"
-msgstr "Groupage"
+#: models/graph.py:66 templates/reports/bricks/graphs.html:74
+msgid "X axis (grouping)"
+msgstr "Axe X (groupage)"
 
-#: models/graph.py:61
+#: models/graph.py:69 templates/reports/bricks/graphs.html:73
+msgid "X axis (field)"
+msgstr "Axe X (champ)"
+
+#: models/graph.py:72
 msgid "X axis parameter"
 msgstr "Paramètre de axe X"
 
-#: models/graph.py:64
-msgid "Make a count instead of aggregate?"
-msgstr "Effectuer un comptage à la place des valeurs calculées ?"
+#: models/graph.py:78 templates/reports/bricks/graphs.html:75
+msgid "Y axis (type)"
+msgstr "Axe Y (type)"
 
-#: models/graph.py:68
+#: models/graph.py:83 templates/reports/bricks/graphs.html:76
+msgid "Y axis (field)"
+msgstr "Axe Y (champ)"
+
+#: models/graph.py:89
 msgid "Create a report's graph"
 msgstr "Créer un graphique de rapport"
 
-#: models/graph.py:69
+#: models/graph.py:90
 msgctxt "reports-graphs"
 msgid "Save the graph"
 msgstr "Enregistrer le graphique"
 
-#: models/graph.py:78
+#: models/graph.py:100
 msgid "Report's graph"
 msgstr "Graphique de rapport"
 
-#: models/graph.py:79
+#: models/graph.py:101
 msgid "Reports' graphs"
 msgstr "Graphiques de rapport"
 
-#: models/graph.py:229
+#: models/graph.py:281
 #, python-brace-format
 msgid "The instance block for «{graph}» with these parameters already exists!"
 msgstr "Le bloc d'instance pour «{graph}» avec ces paramètres existe déjà !"
@@ -476,7 +450,6 @@ msgid "Displayed in the report"
 msgstr "Affiché dans le rapport"
 
 #: templates/reports/bricks/fields.html:39
-#: templates/reports/bricks/graphs.html:70
 msgid "Type"
 msgstr "Type"
 
@@ -519,7 +492,7 @@ msgstr "Lier un rapport"
 
 #: templates/reports/bricks/graph.html:17
 #: templates/reports/bricks/graphs.html:16
-#: templates/reports/bricks/graphs.html:109
+#: templates/reports/bricks/graphs.html:120
 #: templates/reports/templatetags/report_chart_selectors.html:13
 msgid "Ascending"
 msgstr "Ascendant"
@@ -532,7 +505,7 @@ msgstr "Descendant"
 
 #: templates/reports/bricks/graph.html:39
 #: templates/reports/bricks/graph.html:53
-#: templates/reports/bricks/graphs.html:101
+#: templates/reports/bricks/graphs.html:112
 #: templates/reports/templatetags/report_chart_selectors.html:3
 msgctxt "reports-graphs"
 msgid "Graph"
@@ -547,18 +520,18 @@ msgid "Reload"
 msgstr "Recharger"
 
 #: templates/reports/bricks/graph.html:54
-#: templates/reports/bricks/graphs.html:102
+#: templates/reports/bricks/graphs.html:113
 msgid "Select the type of visualisation for this graph"
 msgstr "Sélectionner le type de visualisation du graphique"
 
 #: templates/reports/bricks/graph.html:57
-#: templates/reports/bricks/graphs.html:107
+#: templates/reports/bricks/graphs.html:118
 #: templates/reports/templatetags/report_chart_selectors.html:11
 msgid "Sorting"
 msgstr "Tri"
 
 #: templates/reports/bricks/graph.html:58
-#: templates/reports/bricks/graphs.html:108
+#: templates/reports/bricks/graphs.html:119
 msgid "Select the sort order"
 msgstr "Sélectionner l'ordre de tri"
 
@@ -585,38 +558,38 @@ msgstr "{count} Graphiques"
 msgid "Create a new graph"
 msgstr "Créer un nouveau graphique"
 
-#: templates/reports/bricks/graphs.html:65
+#: templates/reports/bricks/graphs.html:72
 msgid "Name"
 msgstr "Nom"
 
-#: templates/reports/bricks/graphs.html:71
+#: templates/reports/bricks/graphs.html:77
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/reports/bricks/graphs.html:76
+#: templates/reports/bricks/graphs.html:82
 msgid "Expand"
 msgstr "Agrandir"
 
-#: templates/reports/bricks/graphs.html:77
+#: templates/reports/bricks/graphs.html:83
 msgid "Close"
 msgstr "Fermer"
 
-#: templates/reports/bricks/graphs.html:93
+#: templates/reports/bricks/graphs.html:103
 msgid "Delete this graph"
 msgstr "Supprimer ce graphique"
 
-#: templates/reports/bricks/graphs.html:120
+#: templates/reports/bricks/graphs.html:131
 #, python-format
 msgid "%(count)s configured block"
 msgid_plural "%(count)s configured blocks"
 msgstr[0] "%(count)s bloc configuré"
 msgstr[1] "%(count)s blocs configurés"
 
-#: templates/reports/bricks/graphs.html:128
+#: templates/reports/bricks/graphs.html:139
 msgid "Create a block for this graph"
 msgstr "Créer un bloc pour ce graphique"
 
-#: templates/reports/bricks/graphs.html:152
+#: templates/reports/bricks/graphs.html:163
 msgid "No graphs registered for the moment"
 msgstr "Aucun graphique enregistré pour le moment"
 
@@ -801,6 +774,40 @@ msgstr "Lier"
 msgid "Edit columns of «{object}»"
 msgstr "Modifier les colonnes de «{object}»"
 
+#~ msgid "Aggregate"
+#~ msgstr "Valeur calculée"
+
+#~ msgid "Field"
+#~ msgstr "Champ"
+
+#~ msgid "Entities count"
+#~ msgstr "Comptage de fiches"
+
+#~ msgid "Make a count instead of aggregate?"
+#~ msgstr "Effectuer un comptage à la place des valeurs calculées ?"
+
+#~ msgid "No field is usable for aggregation"
+#~ msgstr "Aucun n'est utilisable pour une agrégation"
+
+#~ msgid "You must make a count because no field is usable for aggregation"
+#~ msgstr ""
+#~ "Vous devez effectuer un comptage parce qu'aucun champ n'est utilisable "
+#~ "pour une agrégation"
+
+#~ msgid "This field is required if you choose a field to aggregate."
+#~ msgstr "Ce champ est obligatoire si vous choisissez un champ à aggréger."
+
+#~ msgid ""
+#~ "If you don't choose an ordinate field (or none available) you have to "
+#~ "check 'Make a count instead of aggregate ?'"
+#~ msgstr ""
+#~ "Si vous ne choisissez aucun champ d'ordonnée (ou qu'aucun n'est "
+#~ "disponible) vous devez cocher 'Effectuer un comptage à la place des "
+#~ "valeurs calculées ?'"
+
+#~ msgid "Grouping"
+#~ msgstr "Groupage"
+
 #~ msgid "Days"
 #~ msgstr "Jours"
 
@@ -843,9 +850,6 @@ msgstr "Modifier les colonnes de «{object}»"
 
 #~ msgid "Volatile column : %(vc)s"
 #~ msgstr "Colonne volatile : %(vc)s"
-
-#~ msgid "Edit"
-#~ msgstr "Modifier"
 
 #~ msgid "Reduce"
 #~ msgstr "Réduire"
@@ -919,9 +923,6 @@ msgstr "Modifier les colonnes de «{object}»"
 #~ msgid "Problem with function field"
 #~ msgstr "Problème avec le champ fonction"
 
-#~ msgid "Relations"
-#~ msgstr "Relations"
-
 #~ msgid "Functions"
 #~ msgstr "Fonctions"
 
@@ -933,18 +934,6 @@ msgstr "Modifier les colonnes de «{object}»"
 
 #~ msgid "Add a column"
 #~ msgstr "Ajouter une colonne"
-
-#~ msgid "Add"
-#~ msgstr "Ajouter"
-
-#~ msgid "Can't add"
-#~ msgstr "Création interdite"
-
-#~ msgid "Relation"
-#~ msgstr "Relation"
-
-#~ msgid "N/A"
-#~ msgstr "NC"
 
 #~ msgid "Or"
 #~ msgstr "Ou"
