@@ -20,12 +20,13 @@
 
 from typing import (
     Optional, Type,
-    Container, Iterable, Iterator,
-    Dict, Tuple,
+    Collection, Container, Iterable, Iterator,
+    Dict, List, Tuple,
 )
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.db.models import ForeignKey
 from django.utils.translation import gettext_lazy as _
 
@@ -93,6 +94,9 @@ class GHCCRegularField(GraphHandCellConstraint):
     def _accept_field(self, field, not_hiddable_cell_keys):
         model = field.model
 
+        if not field.get_tag('viewable'):  # TODO: test
+            return False
+
         if self.fields_configs.get_4_model(model).is_field_hidden(field):
             cell = EntityCellRegularField.build(model, field.name)
             return cell.key in not_hiddable_cell_keys
@@ -107,8 +111,7 @@ class GHCCRegularField(GraphHandCellConstraint):
                     deep=0,
                     only_leafs=False,
                 ).filter(
-                    (lambda field, depth: self._accept_field(field, not_hiddable_cell_keys)),
-                    viewable=True,
+                    lambda field, depth: self._accept_field(field, not_hiddable_cell_keys),
                 ):
             yield EntityCellRegularField.build(
                 model=model,
@@ -281,4 +284,167 @@ abscissa_constraints = GraphHandConstraintsRegistry(
         constants.RGT_CUSTOM_RANGE,
     ],
     formfield=forms.IntegerField(label=_('Number of days')),
+)
+
+
+# ------------------------------------------------------------------------------
+class AggregatorCellConstraint:
+    type_id: str = ''
+    aggregator_ids: Collection[str] = []
+    cell_classes: Collection[Type[EntityCell]] = []
+
+    def __init__(self, model: Type[CremeEntity]):
+        self.model = model
+
+    def cells(self, not_hiddable_cell_keys: Container[str] = ()) -> Iterator[EntityCell]:
+        yield from ()
+
+    def check_cell(self,
+                   cell: EntityCell,
+                   not_hiddable_cell_keys: Container[str] = ()) -> bool:
+        return True
+
+    def get_cell(self,
+                 cell_key: str,
+                 not_hiddable_cell_keys: Container[str] = (),
+                 check: bool = True) -> Optional[EntityCell]:
+        try:
+            cell_type_id, cell_value = cell_key.split('-', 1)
+        except ValueError:
+            pass
+        else:
+            for cell_cls in self.cell_classes:
+                if cell_type_id == cell_cls.type_id:
+                    cell = cell_cls.build(self.model, cell_value)
+
+                    if not check:
+                        return cell
+
+                    return (
+                        cell
+                        if cell and self.check_cell(cell, not_hiddable_cell_keys=not_hiddable_cell_keys) else
+                        None
+                    )
+
+        return None
+
+
+class ACCCount(AggregatorCellConstraint):
+    type_id = 'count'
+    aggregator_ids = [constants.RGA_COUNT]
+
+
+class ACCFieldAggregation(AggregatorCellConstraint):
+    type_id = 'field_aggregation'
+    aggregator_ids = [
+        constants.RGA_AVG,
+        constants.RGA_MAX,
+        constants.RGA_MIN,
+        constants.RGA_SUM,
+    ]
+    cell_classes: List[Type[EntityCell]] = [
+        EntityCellRegularField,
+        EntityCellCustomField,
+    ]
+
+    model_field_classes: Tuple[models.Field, ...] = (
+        models.IntegerField,
+        models.DecimalField,
+        models.FloatField,
+    )
+    custom_field_types: Tuple[int, ...] = (
+        CustomField.INT,
+        CustomField.FLOAT,
+    )
+
+    def __init__(self, model):
+        super().__init__(model=model)
+        self.fields_configs = FieldsConfig.LocalCache()
+
+    def _accept_field(self, field, not_hiddable_cell_keys):
+        model = field.model
+
+        if not isinstance(field, self.model_field_classes):
+            return False
+
+        if not field.get_tag('viewable'):  # TODO: test
+            return False
+
+        if self.fields_configs.get_4_model(model).is_field_hidden(field):
+            cell = EntityCellRegularField.build(model, field.name)
+            return cell.key in not_hiddable_cell_keys
+
+        return True
+
+    def _cfield_cells(self):
+        types = self.custom_field_types
+
+        if types:  # NB: avoid useless query in types is empty
+            for cfield in CustomField.objects.filter(
+                content_type=ContentType.objects.get_for_model(self.model),
+                field_type__in=types,
+            ):
+                yield EntityCellCustomField(cfield)
+
+    def _rfield_cells(self, not_hiddable_cell_keys=()):
+        model = self.model
+
+        for field_chain in ModelFieldEnumerator(
+            self.model, deep=0,
+        ).filter(
+            lambda field, depth: self._accept_field(field, not_hiddable_cell_keys)
+        ):
+            yield EntityCellRegularField.build(
+                model=model,
+                name='__'.join(field.name for field in field_chain),
+            )
+
+    def cells(self, not_hiddable_cell_keys=()):
+        yield from self._rfield_cells(not_hiddable_cell_keys)
+        yield from self._cfield_cells()
+
+    def check_cell(self, cell, not_hiddable_cell_keys=()):
+        if isinstance(cell, EntityCellRegularField):
+            field_info = cell.field_info
+            return len(field_info) == 1 and self._accept_field(field_info[0], not_hiddable_cell_keys)
+
+        if isinstance(cell, EntityCellCustomField):
+            return cell.custom_field.field_type in self.custom_field_types
+
+
+class AggregatorConstraintsRegistry:
+    class RegistrationError(Exception):
+        pass
+
+    def __init__(self):
+        self._constraints_by_type_id: Dict[str, Type[AggregatorCellConstraint]] = {}
+
+    def cell_constraints(self, model: Type[CremeEntity]) -> Iterator[AggregatorCellConstraint]:
+        for constraint_class in self._constraints_by_type_id.values():
+            yield constraint_class(model)
+
+    def get_constraint_by_aggr_id(self,
+                                  model: Type[CremeEntity],
+                                  aggr_id: str) -> Optional[AggregatorCellConstraint]:
+        for constraint_cls in self._constraints_by_type_id.values():
+            if aggr_id in constraint_cls.aggregator_ids:
+                return constraint_cls(model)
+
+        return None
+
+    def register_cell_constraints(self, *constraint_classes: Type[AggregatorCellConstraint]) -> 'AggregatorConstraintsRegistry':
+        for constraint_cls in constraint_classes:
+            if self._constraints_by_type_id.setdefault(constraint_cls.type_id, constraint_cls) is not constraint_cls:
+                raise self.RegistrationError(
+                    f'{type(self).__name__}.register_cell_constraints(): '
+                    f'a constraint with type_id="{constraint_cls.type_id}" is already registered.'
+                )
+
+        return self
+
+
+ordinate_constraints = AggregatorConstraintsRegistry(
+).register_cell_constraints(
+    ACCCount,
+    ACCFieldAggregation,
 )

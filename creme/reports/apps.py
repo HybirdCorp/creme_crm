@@ -96,6 +96,11 @@ class ReportsConfig(CremeAppConfig):
     def register_reports_charts(self):
         from .report_chart_registry import report_chart_registry, ReportChart
 
-        report_chart_registry.register(ReportChart('barchart',  _('Histogram'))) \
-                             .register(ReportChart('piechart',  _('Pie'))) \
-                             .register(ReportChart('tubechart', _('Tube')))
+        # TODO: register several at once
+        report_chart_registry.register(
+            ReportChart('barchart',  _('Histogram')),
+        ).register(
+            ReportChart('piechart',  _('Pie')),
+        ).register(
+            ReportChart('tubechart', _('Tube')),
+        )

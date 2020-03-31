@@ -38,3 +38,14 @@ class AbscissaInfo:
                          f'graph_type={self.graph_type}, '
                          f'parameter={self.parameter})'
         )
+
+
+class OrdinateInfo:
+    def __init__(self,
+                 aggr_id: str,
+                 cell: Optional[EntityCell] = None):
+        self.aggr_id = aggr_id
+        self.cell = cell
+
+    def __repr__(self):
+        return f'OrdinateInfo(cell=<{self.cell}>, graph_type="{self.aggr_id}")'

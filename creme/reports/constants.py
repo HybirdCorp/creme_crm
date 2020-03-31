@@ -18,7 +18,7 @@ RFT_RELATED    = 7  # Related entities (only allowed by the model)
                     # TODO: used only in reports for the moment, integrate into HeaderFilters ?
 
 
-# ReportGraph types
+# ReportGraph types (abscissa)
 RGT_DAY             = 1
 RGT_MONTH           = 2
 RGT_YEAR            = 3
@@ -43,4 +43,20 @@ GROUP_TYPES = {
     RGT_CUSTOM_YEAR:    _('By years (custom field)'),
     RGT_CUSTOM_RANGE:   _('By X days (custom field)'),
     RGT_CUSTOM_FK:      _('By values (of custom choices)'),
+}
+
+
+# ReportGraph aggregators (ordinate)
+RGA_COUNT = 'count'
+RGA_AVG   = 'avg'
+RGA_MAX   = 'max'
+RGA_MIN   = 'min'
+RGA_SUM   = 'sum'
+
+AGGREGATOR_TYPES = {
+    RGA_COUNT: _('Count'),
+    RGA_AVG:   _('Average'),
+    RGA_MAX:   _('Maximum'),
+    RGA_MIN:   _('Minimum'),
+    RGA_SUM:   _('Sum'),
 }

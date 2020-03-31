@@ -71,9 +71,11 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the graph')),
-                ('abscissa', models.CharField(verbose_name='X axis', max_length=100, editable=False)),
+                # ('abscissa', models.CharField(verbose_name='X axis', max_length=100, editable=False)),
+                ('abscissa', models.CharField(verbose_name='X axis (field)', max_length=100, editable=False)),
                 ('ordinate', models.CharField(verbose_name='Y axis', max_length=100, editable=False)),
-                ('type', models.PositiveIntegerField(verbose_name='Grouping', editable=False,
+                # ('type', models.PositiveIntegerField(verbose_name='Grouping', editable=False,
+                ('type', models.PositiveIntegerField(verbose_name='X axis (grouping)', editable=False,
                                                      choices=[(1, 'By days'), (2, 'By months'), (3, 'By years'), (4, 'By X days'),
                                                               (5, 'By values'), (6, 'By values (of related entities)'),
                                                               (11, 'By days (custom field)'), (12, 'By months (custom field)'),

@@ -26,6 +26,7 @@ from typing import (
     Dict, List, Tuple,
     TYPE_CHECKING,
 )
+import warnings
 
 from django.db import connection
 from django.db.models import Min, Max, Count, QuerySet  # FieldDoesNotExist
@@ -38,11 +39,12 @@ from creme.creme_core.models import (
     CustomFieldEnumValue,  # CustomField
 )
 
-from creme.reports.constants import *
+from creme.reports import constants
 from creme.reports.utils import sparsezip
 
+from .aggregator import AGGREGATORS_MAP, ReportGraphAggregator
 from .lv_url import ListViewURLBuilder
-from .y_calculator import ReportGraphYCalculator, RGYCAggregation
+# from .y_calculator import ReportGraphYCalculator, RGYCAggregation
 
 if TYPE_CHECKING:
     from creme.reports.models import AbstractReportGraph
@@ -72,12 +74,14 @@ class ReportGraphHand:
 
     def __init__(self, graph: 'AbstractReportGraph'):
         self._graph = graph
-        self._y_calculator = y_calculator = ReportGraphYCalculator.build(graph)
+        # self._y_calculator = y_calculator = ReportGraphYCalculator.build(graph)
+        self._y_calculator = y_calculator = AGGREGATORS_MAP[graph]
         self.abscissa_error: Optional[str] = None
         self.ordinate_error: Optional[str] = y_calculator.error
 
     def _listview_url_builder(self):
-        return ListViewURLBuilder(self._graph.model, self._graph.linked_report.filter)
+        graph = self._graph
+        return ListViewURLBuilder(graph.model, graph.linked_report.filter)
 
     def _fetch(self,
                entities: QuerySet,
@@ -108,31 +112,48 @@ class ReportGraphHand:
 
         return x_values, y_values
 
+    # TODO: deprecate & replace by a property @cell ??
     @property
     def verbose_abscissa(self) -> str:
         raise NotImplementedError
 
     @property
+    def ordinate(self) -> ReportGraphAggregator:
+        return self._y_calculator
+
+    @property
     def verbose_ordinate(self) -> str:
-        return self._y_calculator.verbose_name
+        # return self._y_calculator.verbose_name
+        warnings.warn(
+            'The property "verbose_ordinate" is deprecated ; '
+            'you can use the templatetag {% reports_graph_ordinate %} instead.',
+            DeprecationWarning,
+        )
+
+        from creme.reports.templatetags.reports_tags import reports_graph_ordinate
+        return reports_graph_ordinate(self._graph)
 
     # TODO: The 'group by' query could be extracted into a common Manager
     def _aggregate_by_key(self, entities, key, order):
-        y_value_func = self._y_calculator
-        if isinstance(y_value_func, RGYCAggregation):
-            y_value_aggregator = y_value_func._aggregate_value
-        else:
-            # TMP: meh, we could model count as an aggregation
-            #     (caveat: count is technically *not* aggregating a field here, whereas our aggregation operators do)
-            y_value_aggregator = Count('pk')  # Is there a way to count(*) ?
-
+        # y_value_func = self._y_calculator
+        # if isinstance(y_value_func, RGYCAggregation):
+        #     y_value_aggregator = y_value_func._aggregate_value
+        # else:
+        #     # TMP: meh, we could model count as an aggregation
+        #     #     (caveat: count is technically *not* aggregating a field here, whereas our aggregation operators do)
+        #     y_value_aggregator = Count('pk')  # Is there a way to count(*) ?
+        #
+        # aggregates = entities.extra({'key': key}) \
+        #                      .values('key').order_by('key' if order == 'ASC' else '-key') \
+        #                      .annotate(value=y_value_aggregator) \
+        #                      .values_list('key', 'value')
         aggregates = entities.extra({'key': key}) \
                              .values('key').order_by('key' if order == 'ASC' else '-key') \
-                             .annotate(value=y_value_aggregator) \
+                             .annotate(value=self._y_calculator.annotate()) \
                              .values_list('key', 'value')
 
-        # print 'query:', aggregates.query, '\n'
-        # print 'results:', aggregates
+        # print('query:', aggregates.query, '\n')
+        # print('results:', aggregates)
 
         return aggregates
 
@@ -239,7 +260,7 @@ class _RGHRegularField(ReportGraphHand):
         return field.verbose_name if field else '??'
 
 
-@RGRAPH_HANDS_MAP(RGT_DAY)
+@RGRAPH_HANDS_MAP(constants.RGT_DAY)
 class RGHDay(_RGHRegularField):
     verbose_name = _('By days')
 
@@ -260,7 +281,7 @@ class RGHDay(_RGHRegularField):
         )
 
 
-@RGRAPH_HANDS_MAP(RGT_MONTH)
+@RGRAPH_HANDS_MAP(constants.RGT_MONTH)
 class RGHMonth(_RGHRegularField):
     verbose_name = _('By months')
 
@@ -279,7 +300,7 @@ class RGHMonth(_RGHRegularField):
         )
 
 
-@RGRAPH_HANDS_MAP(RGT_YEAR)
+@RGRAPH_HANDS_MAP(constants.RGT_YEAR)
 class RGHYear(_RGHRegularField):
     verbose_name = _('By years')
 
@@ -334,7 +355,7 @@ class _DateRangeMixin:
         return days
 
 
-@RGRAPH_HANDS_MAP(RGT_RANGE)
+@RGRAPH_HANDS_MAP(constants.RGT_RANGE)
 class RGHRange(_DateRangeMixin, _RGHRegularField):
     verbose_name = _('By X days')
 
@@ -417,7 +438,8 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
             build_url = self._listview_url_builder()
             query_cmd = f'{abscissa}__range'
             entities_filter = entities.filter
-            y_value_func = self._y_calculator
+            # y_value_func = self._y_calculator
+            y_value_func = self._y_calculator.aggregrate
 
             for interval in DateInterval.generate((graph.days or 1) - 1, min_date, max_date, order):
                 before = interval.before
@@ -441,7 +463,7 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
                 )
 
 
-@RGRAPH_HANDS_MAP(RGT_FK)
+@RGRAPH_HANDS_MAP(constants.RGT_FK)
 class RGHForeignKey(_RGHRegularField):
     verbose_name = _('By values')
 
@@ -464,7 +486,8 @@ class RGHForeignKey(_RGHRegularField):
         abscissa = self._field.name
         build_url = self._listview_url_builder()
         entities_filter = entities.filter
-        y_value_func = self._y_calculator
+        # y_value_func = self._y_calculator
+        y_value_func = self._y_calculator.aggregrate
         choices = self._abscissa_enumerator.choices(user=user)
 
         if order == 'DESC':
@@ -481,7 +504,7 @@ class RGHForeignKey(_RGHRegularField):
             )
 
 
-@RGRAPH_HANDS_MAP(RGT_RELATION)
+@RGRAPH_HANDS_MAP(constants.RGT_RELATION)
 class RGHRelation(ReportGraphHand):
     verbose_name = _('By values (of related entities)')
 
@@ -512,7 +535,8 @@ class RGHRelation(ReportGraphHand):
         rel_filter = relations.filter
         ce_objects_get = CremeEntity.objects.get
         entities_filter = entities.filter
-        y_value_func = self._y_calculator
+        # y_value_func = self._y_calculator
+        y_value_func = self._y_calculator.aggregrate
 
         for obj_id in relations.values_list('object_entity', flat=True).distinct():
             subj_ids = rel_filter(object_entity=obj_id).order_by('subject_entity__id')\
@@ -608,7 +632,7 @@ class _RGHCustomField(ReportGraphHand):
         return cfield.name if cfield else '??'
 
 
-@RGRAPH_HANDS_MAP(RGT_CUSTOM_DAY)
+@RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_DAY)
 class RGHCustomDay(_RGHCustomField):
     verbose_name = _('By days')
 
@@ -627,7 +651,7 @@ class RGHCustomDay(_RGHCustomField):
         )
 
 
-@RGRAPH_HANDS_MAP(RGT_CUSTOM_MONTH)
+@RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_MONTH)
 class RGHCustomMonth(_RGHCustomField):
     verbose_name = _('By months')
 
@@ -645,7 +669,7 @@ class RGHCustomMonth(_RGHCustomField):
         )
 
 
-@RGRAPH_HANDS_MAP(RGT_CUSTOM_YEAR)
+@RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_YEAR)
 class RGHCustomYear(_RGHCustomField):
     verbose_name = _('By years')
 
@@ -662,7 +686,7 @@ class RGHCustomYear(_RGHCustomField):
         )
 
 
-@RGRAPH_HANDS_MAP(RGT_CUSTOM_RANGE)
+@RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_RANGE)
 class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
     verbose_name = _('By X days')
 
@@ -735,7 +759,8 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
         max_date = date_aggregates['max_date']
 
         if min_date is not None and max_date is not None:
-            y_value_func = self._y_calculator
+            # y_value_func = self._y_calculator
+            y_value_func = self._y_calculator.aggregrate
             build_url = self._listview_url_builder()
 
             for interval in DateInterval.generate((self._graph.days or 1) - 1, min_date, max_date, order):
@@ -764,13 +789,14 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
                 )
 
 
-@RGRAPH_HANDS_MAP(RGT_CUSTOM_FK)
+@RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_FK)
 class RGHCustomFK(_RGHCustomField):
     verbose_name = _('By values (of custom choices)')
 
     def _fetch(self, entities, order, user):
         entities_filter = entities.filter
-        y_value_func = self._y_calculator
+        # y_value_func = self._y_calculator
+        y_value_func = self._y_calculator.aggregrate
         build_url = self._listview_url_builder()
         related_instances = [
             *CustomFieldEnumValue.objects.filter(custom_field=self._cfield),
