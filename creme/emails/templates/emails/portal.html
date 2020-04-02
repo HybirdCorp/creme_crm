@@ -1,7 +1,0 @@
-{% extends "creme_core/generics/portal.html" %}
-{% load i18n creme_widgets %}
-
-{% block logo %}{% widget_icon name='email' size='brick-hat-bar' label=_('Emails') %}{% endblock %}
-{% block title %}{% trans 'Emails & Campaigns portal' %}{% endblock %}
-{% block list_url %}{% url 'emails__list_campaigns' %}{% endblock %}
-{% block list_msg %}{% trans 'List of campaigns' %}{% endblock %}
