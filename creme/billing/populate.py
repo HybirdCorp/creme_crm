@@ -421,11 +421,19 @@ class Populator(BasePopulator):
         from django.contrib.auth import get_user_model
 
         from creme import reports
-        from creme.reports.constants import RFT_FIELD, RFT_RELATION, RGT_FK, RGT_MONTH
+        from creme.reports.constants import (
+            RFT_FIELD, RFT_RELATION, RGT_FK, RGT_MONTH,
+            RGA_SUM,
+        )
         # from creme.reports.models import Report, Field, ReportGraph
         from creme.reports.models import Field
 
         admin = get_user_model().objects.get_admin()
+
+        total_no_vat_cell = EntityCellRegularField.build(Invoice, 'total_no_vat')
+        if total_no_vat_cell is None:
+            logger.warning('Invoice seems not having a field "total_no_vat" => no Report/ReportGraph created.')
+            return
 
         def create_report_columns(report):
             create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
@@ -449,14 +457,15 @@ class Populator(BasePopulator):
         )
         create_report_columns(invoices_report1)
 
+        cell_key = total_no_vat_cell.key
         rgraph1 = create_graph(
             name=_('Sum of current year invoices total without taxes / month'),
             linked_report=invoices_report1,
             # abscissa='issuing_date', type=RGT_MONTH,
             abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
             # ordinate='total_no_vat__sum', is_count=False,
-            ordinate_type='sum',
-            ordinate_cell_key='regular_field-total_no_vat',
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key=cell_key,
         )
         create_graph(
             name=_('Sum of current year invoices total without taxes / invoices status'),
@@ -464,8 +473,8 @@ class Populator(BasePopulator):
             # abscissa='status', type=RGT_FK,
             abscissa_cell_value='status', abscissa_type=RGT_FK,
             # ordinate='total_no_vat__sum', is_count=False,
-            ordinate_type='sum',
-            ordinate_cell_key='regular_field-total_no_vat',
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key=cell_key,
         )
         ibci = rgraph1.create_instance_brick_config_item()
 
@@ -484,8 +493,8 @@ class Populator(BasePopulator):
             # abscissa='issuing_date', type=RGT_MONTH,
             abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
             # ordinate='total_no_vat__sum', is_count=False,
-            ordinate_type='total_no_vat__sum',
-            ordinate_cell_key='regular_field-total_no_vat',
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key=cell_key,
         )
         ibci = rgraph.create_instance_brick_config_item()
 

@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from typing import Dict, Optional, Type, TYPE_CHECKING
 
 from django.db.models import QuerySet, aggregates
@@ -34,6 +35,8 @@ from creme.reports import constants
 
 if TYPE_CHECKING:
     from creme.reports.models import AbstractReportGraph
+
+logger = logging.getLogger(__name__)
 
 
 class ReportGraphAggregator:
@@ -81,6 +84,10 @@ class ReportGraphAggregatorRegistry:
     def __getitem__(self, rgraph: 'AbstractReportGraph') -> ReportGraphAggregator:
         agg_cls = self._aggregator_classes.get(rgraph.ordinate_type)
         if agg_cls is None:
+            logger.warning(
+                'ReportGraphAggregatorRegistry: the aggregation function <%s> is invalid',
+                rgraph.ordinate_type,
+            )
             return ReportGraphAggregator(
                 cell=None,
                 error=_('the aggregation function is invalid.'),
@@ -88,6 +95,10 @@ class ReportGraphAggregatorRegistry:
 
         ord_info = rgraph.ordinate_info
         if ord_info is None:
+            logger.warning(
+                'ReportGraphAggregatorRegistry: the aggregated field <%s> has a bad type',
+                rgraph.ordinate_cell_key,
+            )
             return ReportGraphAggregator(
                 cell=None,
                 error='the aggregated field has a bad type.',
@@ -96,6 +107,7 @@ class ReportGraphAggregatorRegistry:
         try:
             return agg_cls(ord_info.cell)
         except ValueError as e:
+            logger.warning('ReportGraphAggregatorRegistry: %s', e)
             return ReportGraphAggregator(
                 cell=None,
                 error=str(e),
