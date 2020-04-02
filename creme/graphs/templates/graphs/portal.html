@@ -1,7 +1,0 @@
-{% extends "creme_core/generics/portal.html" %}
-{% load i18n creme_widgets %}
-
-{% block logo %}{% trans 'Graph' context 'graphs' as label %}{% widget_icon name='graph' size='brick-hat-bar' label=label %}{% endblock %}
-{% block title %}{% trans "Graphs portal" %}{% endblock %}
-{% block list_url %}{% url 'graphs__list_graphs' %}{% endblock %}
-{% block list_msg %}{% trans 'List of Graphs' context 'graphs' %}{% endblock %}
