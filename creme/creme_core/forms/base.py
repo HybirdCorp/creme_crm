@@ -426,7 +426,7 @@ class CremeEntityForm(CremeModelForm):
         @param kwargs: see CremeModelForm.
         """
         super().__init__(*args, **kwargs)
-        assert self.instance, CremeEntity
+        assert isinstance(self.instance, CremeEntity)
         self._build_customfields()
 
         self.forced_ptype_ids = ptypes_ids = [
