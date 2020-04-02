@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,11 @@ from django.db import models
 from django.db.transaction import atomic
 from django.db.utils import IntegrityError
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import (
+    gettext_lazy as _,
+    gettext,
+    pgettext_lazy,
+)
 
 from creme.creme_core.models import CremeModel, CremeEntity
 from creme.creme_core.models.fields import UnsafeHTMLField
@@ -93,8 +97,10 @@ class AbstractEntityEmail(_Email, CremeEntity):
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'emails'
-        verbose_name = _('Email')
-        verbose_name_plural = _('Emails')
+        # verbose_name = _('Email')
+        # verbose_name_plural = _('Emails')
+        verbose_name = pgettext_lazy('emails', 'Email')
+        verbose_name_plural = pgettext_lazy('emails', 'Emails')
         ordering = ('-sending_date',)
 
     def genid_n_save(self):
