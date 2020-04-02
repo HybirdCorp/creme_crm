@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-01 16:50+0200\n"
+"POT-Creation-Date: 2020-04-01 19:19+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -27,7 +27,7 @@ msgstr "Ré-envoyer les e-mails"
 #: templates/emails/bricks/lw-mails.html:7
 #: templates/emails/bricks/mails-history.html:7
 #: templates/emails/bricks/synchronization.html:9
-#: templates/emails/portal.html:4 templates/emails/synchronize.html:9
+#: templates/emails/synchronize.html:9
 msgid "Emails"
 msgstr "E-mails"
 
@@ -145,47 +145,51 @@ msgstr "Création de {entity}"
 msgid "Lists"
 msgstr "Listes"
 
-#: forms/mail.py:57 models/mail.py:54
+#: forms/mail.py:62 models/mail.py:54
 msgid "Sender"
 msgstr "Émetteur"
 
-#: forms/mail.py:59 forms/mailing_list.py:45
+#: forms/mail.py:64 forms/mailing_list.py:45
 msgid "Contacts"
 msgstr "Contacts"
 
-#: forms/mail.py:60 forms/mailing_list.py:64
+#: forms/mail.py:65 forms/mailing_list.py:64
 msgid "Organisations"
 msgstr "Sociétés"
 
-#: forms/mail.py:62
+#: forms/mail.py:67
 msgid "Send me a copy of this mail"
 msgstr "Envoyez moi une copie de cet e-mail"
 
-#: forms/mail.py:65
+#: forms/mail.py:70
 msgid "Select at least a Contact or an Organisation"
 msgstr "Sélectionnez au moins un Contact ou une Société"
 
-#: forms/mail.py:69
+#: forms/mail.py:74
 msgid "Who"
 msgstr "Qui"
 
-#: forms/mail.py:70
+#: forms/mail.py:75
 msgid "What"
 msgstr "Quoi"
 
-#: forms/mail.py:71
+#: forms/mail.py:76
 msgid "With"
 msgstr "Avec"
 
-#: forms/mail.py:83
+#: forms/mail.py:77
+msgid "Required custom fields"
+msgstr "Champs personnalisés obligatoires"
+
+#: forms/mail.py:89
 msgid "Beware: the contact «{}» has no email address!"
 msgstr "Attention : le contact «{}» n'a pas d'adresse e-mail !"
 
-#: forms/mail.py:85
+#: forms/mail.py:91
 msgid "Beware: the organisation «{}» has no email address!"
 msgstr "Attention : la société «{}» n'a pas d'adresse e-mail !"
 
-#: forms/mail.py:103
+#: forms/mail.py:109
 msgid ""
 "Beware: the field «Email address» is hidden ; please contact your "
 "administrator."
@@ -193,16 +197,16 @@ msgstr ""
 "Attention : le champ «Adresse email» est caché ; veuillez contacter votre "
 "administrateur."
 
-#: forms/mail.py:125
+#: forms/mail.py:131
 msgid "The email address for {} is invalid"
 msgstr "L'adresse e-mail pour {} est invalide"
 
-#: forms/mail.py:194
+#: forms/mail.py:200
 msgctxt "emails"
 msgid "Template"
 msgstr "Patron d'e-mail"
 
-#: forms/mail.py:199
+#: forms/mail.py:205
 msgid "Select this template"
 msgstr "Sélectionner ce patron"
 
@@ -1117,14 +1121,6 @@ msgstr "Marquer comme traité"
 msgid "Mark as spam"
 msgstr "Marquer comme spam"
 
-#: templates/emails/portal.html:5
-msgid "Emails & Campaigns portal"
-msgstr "Portail E-mails & Campagnes"
-
-#: templates/emails/portal.html:7
-msgid "List of campaigns"
-msgstr "Liste des campagnes"
-
 #: templates/emails/synchronize.html:4 templates/emails/synchronize.html:10
 msgid "Synchronization of incoming emails with Creme"
 msgstr "Synchronisation des e-mails externes dans Creme"
@@ -1229,6 +1225,12 @@ msgstr "Nouveaux fichiers joints pour «{entity}»"
 #: views/template.py:54
 msgid "Add the attachments"
 msgstr "Ajouter les fichiers joints"
+
+#~ msgid "Emails & Campaigns portal"
+#~ msgstr "Portail E-mails & Campagnes"
+
+#~ msgid "List of campaigns"
+#~ msgstr "Liste des campagnes"
 
 #~ msgid "not sent"
 #~ msgstr "non envoyé"

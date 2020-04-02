@@ -30,7 +30,7 @@
                     <tr>
                         <td class="cfields-config-name">{{cfield.name}}</td>
                         <td class="cfields-config-type">
-                            {{cfield.type_verbose_name}}
+                            {{cfield.type_verbose_name}}{% if cfield.is_required %}&nbsp;<span class="cfields-config-required">{% trans '(required)' %}</span>{% endif %}
 {% comment %}
                             {% with values=cfield.enum_values %}
                                 {% if values %}({{values|join:' / '}}){% endif %}

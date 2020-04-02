@@ -208,18 +208,21 @@ def persons_portal(request):
 
     return render(
         request, 'mobile/directory.html',
-        {'favorite_contacts': cred_filter(Contact.objects.filter(is_deleted=False,
-                                                                 mobile_favorite__user=user,
-                                                                )
-                                         ),
-         'contact_model': Contact,
+        {
+            'favorite_contacts': cred_filter(
+                Contact.objects.filter(is_deleted=False,
+                                       mobile_favorite__user=user,
+                                      )
+            ),
+            'contact_model': Contact,
 
-         'favorite_organisations': cred_filter(Organisation.objects.filter(is_deleted=False,
-                                                                           mobile_favorite__user=user,
-                                                                          )
-                                              ),
-         'orga_model': Organisation,
-        }
+            'favorite_organisations': cred_filter(
+                Organisation.objects.filter(is_deleted=False,
+                                            mobile_favorite__user=user,
+                                           )
+            ),
+            'orga_model': Organisation,
+        },
     )
 
 
@@ -285,16 +288,18 @@ def search_person(request):
                                 .filter(name__icontains=search)
         )[:30]
 
-    return render(request, 'mobile/search.html',
-                  {'search':        search,
+    return render(
+        request, 'mobile/search.html',
+        {
+            'search':        search,
 
-                   'contacts':      contacts,
-                   'contact_model': Contact,
+            'contacts':      contacts,
+            'contact_model': Contact,
 
-                   'organisations': orgas,
-                   'orga_model':    Organisation,
-                  }
-                 )
+            'organisations': orgas,
+            'orga_model':    Organisation,
+        },
+    )
 
 
 def _get_page_url(request):
@@ -351,19 +356,23 @@ def activities_portal(request):
     user = request.user
     cred_filter = partial(EntityCredentials.filter, user)
     now_val = now()
-    activities = Activity.objects.filter(is_deleted=False,
-                                         relations__type=act_constants.REL_OBJ_PART_2_ACTIVITY,
-                                         relations__object_entity=user.linked_contact,
-                                        ) \
-                                 .exclude(status__in=(act_constants.STATUS_DONE, act_constants.STATUS_CANCELLED)) \
-                                 .order_by('start')
+    activities = Activity.objects.filter(
+        is_deleted=False,
+        relations__type=act_constants.REL_OBJ_PART_2_ACTIVITY,
+        relations__object_entity=user.linked_contact,
+    ).exclude(
+        status__in=(act_constants.STATUS_DONE, act_constants.STATUS_CANCELLED),
+    ).order_by('start')
 
-    phone_calls = cred_filter(activities.filter(type=act_constants.ACTIVITYTYPE_PHONECALL,
-                                                start__lte=now_val,
-                                               )
-                             )[:10]
+    phone_calls = cred_filter(
+        activities.filter(type=act_constants.ACTIVITYTYPE_PHONECALL,
+                          start__lte=now_val,
+                         )
+    )[:10]
 
-    floating_qs = cred_filter(activities.filter(floating_type=act_constants.FLOATING).order_by('title'))
+    floating_qs = cred_filter(
+        activities.filter(floating_type=act_constants.FLOATING).order_by('title')
+    )
     floating = floating_qs[:FLOATING_SIZE]
     floating_count = len(floating)
 
@@ -372,28 +381,32 @@ def activities_portal(request):
         floating_count = floating_qs.count()
 
     tomorrow = localtime(now_val + timedelta(days=1))
-    build_dt = lambda h, m, s: datetime(year=tomorrow.year, month=tomorrow.month, day=tomorrow.day,
-                                        hour=h, minute=m, second=s,
-                                        tzinfo=tomorrow.tzinfo,
-                                       )
-    tomorrow_act = cred_filter(activities.filter(start__range=(build_dt(0,  0,  0),
-                                                               build_dt(23, 59, 59),
-                                                              ),
-                                                )
-                              )
+    build_dt = lambda h, m, s: datetime(
+        year=tomorrow.year, month=tomorrow.month, day=tomorrow.day,
+        hour=h, minute=m, second=s,
+        tzinfo=tomorrow.tzinfo,
+    )
+    tomorrow_act = cred_filter(
+        activities.filter(start__range=(build_dt(0,  0,  0),
+                                        build_dt(23, 59, 59),
+                                       ),
+                         )
+    )
 
     # TODO: populate participants (regroup queries for Relation + real entities) ??
 
-    return render(request, 'mobile/activities.html',
-                  {'phone_calls':               phone_calls,
+    return render(
+        request, 'mobile/activities.html',
+        {
+            'phone_calls':               phone_calls,
 
-                   'floating_activities':       floating,
-                   'floating_activities_count': floating_count,
+            'floating_activities':       floating,
+            'floating_activities_count': floating_count,
 
-                   'tomorrow_activities':       tomorrow_act,
-                   'tomorrow':                  tomorrow,
-                  }
-                 )
+            'tomorrow_activities':       tomorrow_act,
+            'tomorrow':                  tomorrow,
+        },
+    )
 
 
 def _build_date_or_404(date_str):
@@ -476,10 +489,11 @@ def _get_pcall(request):
 # @POST_only
 @require_POST
 def phonecall_workflow_done(request, pcall_id):
-    pcall = get_object_or_404(Activity,
-                              type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-                              id=pcall_id,
-                             )
+    pcall = get_object_or_404(
+        Activity,
+        type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+        id=pcall_id,
+    )
 
     request.user.has_perm_to_change_or_die(pcall)
 

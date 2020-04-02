@@ -1,38 +1,37 @@
 # -*- coding: utf-8 -*-
 
-from ..forms import CremeModelForm, CremeEntityForm  # CremeModelWithUserForm
+from .. import forms
 from ..forms.mass_import import ImportForm4CremeEntity, extractorfield_factory
 from ..forms.merge import MergeEntitiesBaseForm
 
 from .fake_models import FakeContact, FakeOrganisation, FakeAddress, FakeEmailCampaign, FakeProduct
 
 
-class FakeContactQuickForm(CremeModelForm):  # Not CremeEntityForm to ignore custom fields
+class FakeContactQuickForm(forms.CremeEntityQuickForm):
     class Meta:
         model = FakeContact
         fields = ('user', 'last_name', 'first_name', 'phone', 'email')
 
 
-class FakeContactForm(CremeEntityForm):
+class FakeContactForm(forms.CremeEntityForm):
     class Meta:
         model = FakeContact
         fields = '__all__'
 
 
-# class FakeOrganisationQuickForm(CremeModelWithUserForm):
-class FakeOrganisationQuickForm(CremeModelForm):
+class FakeOrganisationQuickForm(forms.CremeEntityQuickForm):
     class Meta:
         model = FakeOrganisation
         fields = ('name', 'user')
 
 
-class FakeOrganisationForm(CremeEntityForm):
+class FakeOrganisationForm(forms.CremeEntityForm):
     class Meta:
         model = FakeOrganisation
         fields = '__all__'
 
 
-class FakeAddressForm(CremeModelForm):
+class FakeAddressForm(forms.CremeModelForm):
     class Meta:
         model = FakeAddress
         fields = '__all__'
@@ -90,13 +89,13 @@ def get_merge_form_builder():
     return MergeEntitiesBaseForm
 
 
-class FakeEmailCampaignForm(CremeEntityForm):
+class FakeEmailCampaignForm(forms.CremeEntityForm):
     class Meta:
         model = FakeEmailCampaign
         fields = '__all__'
 
 
-class FakeProductForm(CremeEntityForm):
+class FakeProductForm(forms.CremeEntityForm):
     class Meta:
         model = FakeProduct
         fields = '__all__'

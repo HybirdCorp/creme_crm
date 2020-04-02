@@ -26,7 +26,7 @@ try:
     )
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.forms import CremeModelForm  # CremeModelWithUserForm
+    from creme.creme_core.forms import CremeModelForm, CremeEntityQuickForm  # CremeModelWithUserForm
     from creme.creme_core.gui.button_menu import Button, ButtonsRegistry
     from creme.creme_core.gui.fields_config import FieldsConfigRegistry
     from creme.creme_core.gui.field_printers import (
@@ -720,13 +720,22 @@ class GuiTestCase(CremeTestCase):
                            )
 
         # ---
-        class OtherContactQuickForm(CremeModelForm):
+        class OtherContactQuickForm(CremeEntityQuickForm):
             class Meta:
                 model = FakeContact
                 fields = ('user', 'last_name', 'first_name')
 
         with self.assertRaises(registry.RegistrationError):
             registry.register(FakeContact, OtherContactQuickForm)
+
+        # ---
+        class CampaignQuickForm(CremeModelForm):  # does not inherit CremeEntityQuickForm
+            class Meta:
+                model = FakeEmailCampaign
+                fields = ('user', 'name')
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.register(FakeEmailCampaign, CampaignQuickForm)
 
     def test_quickforms_registry02(self):
         "Un-registration."

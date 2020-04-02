@@ -18,12 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Dict, Iterator, Optional, Type
+from typing import Dict, Iterator, Optional, Type, TYPE_CHECKING
 import warnings
 
-from django.forms.forms import BaseForm
-
 from creme.creme_core.models import CremeEntity
+
+if TYPE_CHECKING:
+    from creme.creme_core.forms.base import CremeEntityQuickForm
 
 
 class QuickFormsRegistry:
@@ -40,20 +41,27 @@ class QuickFormsRegistry:
         pass
 
     def __init__(self):
-        self._forms: Dict[Type[CremeEntity], Type[BaseForm]] = {}
+        self._forms: Dict[Type[CremeEntity], Type['CremeEntityQuickForm']] = {}
 
     # TODO: rename form=>form_class
     def register(self,
                  model: Type[CremeEntity],
-                 form: Type[BaseForm]) -> 'QuickFormsRegistry':
+                 form: Type['CremeEntityQuickForm']) -> 'QuickFormsRegistry':
         """Register a form for a given model.
         @raise RegistrationError if a form is already registered.
         """
+        from creme.creme_core.forms.base import CremeEntityQuickForm
+
         forms = self._forms
 
         if model in forms:
             raise self.RegistrationError(
                 f'A Quick Form is already registered for the model : {model}'
+            )
+
+        if not issubclass(form, CremeEntityQuickForm):
+            raise self.RegistrationError(
+                f'A Quick Form class must inherit <creme_core.forms.base.CremeEntityQuickForm> : {form}'
             )
 
         forms[model] = form
@@ -78,14 +86,14 @@ class QuickFormsRegistry:
                      )
         return self._forms.keys()
 
-    def get_form(self, model: Type[CremeEntity]) -> Optional[Type[BaseForm]]:
+    def get_form(self, model: Type[CremeEntity]) -> Optional[Type['CremeEntityQuickForm']]:
         warnings.warn('QuickFormsRegistry.get_form() is deprecated ;'
                       'use get_form_class() instead.',
                       DeprecationWarning
                      )
         return self._forms.get(model)
 
-    def get_form_class(self, model: Type[CremeEntity]) -> Optional[Type[BaseForm]]:
+    def get_form_class(self, model: Type[CremeEntity]) -> Optional[Type['CremeEntityQuickForm']]:
         return self._forms.get(model)
 
     @property

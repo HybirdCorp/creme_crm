@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2019  Hybird
+#    Copyright (C) 2014-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,14 +23,14 @@ from django.forms.fields import BooleanField
 from django.forms.widgets import Input
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.forms import CremeModelForm
+# from creme.creme_core.forms import CremeModelForm
 
-from creme.persons import get_organisation_model
-from creme.persons.forms.quick import ContactQuickForm
+# from creme.persons import get_organisation_model
+from creme.persons.forms import quick
 
 from .models import MobileFavorite
 
-Organisation = get_organisation_model()
+# Organisation = get_organisation_model()
 
 
 class MobileAuthenticationForm(AuthenticationForm):
@@ -53,21 +53,13 @@ class PhoneInput(Input):
     input_type = 'tel'
 
 
-class MobileContactCreateForm(ContactQuickForm):
-    is_favorite = BooleanField(label=pgettext_lazy('mobile-contact', 'Is favorite'), required=False)
-
-    class Meta(ContactQuickForm.Meta):
-        fields = ('last_name', 'first_name', 'phone', 'mobile', 'email')
-        widgets = {
-            'phone':  PhoneInput,
-            'mobile': PhoneInput,
-          }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class MobilePersonCreationFormMixin:
+    def __init__(self):
         self.instance.user = self.user
 
+        # NB: used by template (add_contact.html/add_orga.html)
         errors = self.errors
+
         for fname, field in self.fields.items():
             if fname != 'is_favorite':
                 attrs = field.widget.attrs
@@ -76,6 +68,40 @@ class MobileContactCreateForm(ContactQuickForm):
 
                 if field.required:
                     attrs['required'] = ''
+
+        self.custom_field_names = [
+            self._build_customfield_name(cfield)
+                for cfield, cvalue in self._customs
+        ]
+
+
+# class MobileContactCreateForm(quick.ContactQuickForm):
+class MobileContactCreateForm(MobilePersonCreationFormMixin,
+                              quick.ContactQuickForm):
+    is_favorite = BooleanField(label=pgettext_lazy('mobile-contact', 'Is favorite'), required=False)
+
+    class Meta(quick.ContactQuickForm.Meta):
+        fields = ('last_name', 'first_name', 'phone', 'mobile', 'email')
+        widgets = {
+            'phone':  PhoneInput,
+            'mobile': PhoneInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        # super().__init__(*args, **kwargs)
+        quick.ContactQuickForm.__init__(self, *args, **kwargs)
+        # self.instance.user = self.user
+        #
+        # errors = self.errors
+        # for fname, field in self.fields.items():
+        #     if fname != 'is_favorite':
+        #         attrs = field.widget.attrs
+        #         attrs['class'] = 'form-input' if fname not in errors else \
+        #                          'form-input form-input-invalid'
+        #
+        #         if field.required:
+        #             attrs['required'] = ''
+        MobilePersonCreationFormMixin.__init__(self)
 
     def clean(self):
         self.cleaned_data['user'] = self.user  # NB: used in super().clean()
@@ -90,28 +116,32 @@ class MobileContactCreateForm(ContactQuickForm):
         return contact
 
 
-class MobileOrganisationCreateForm(CremeModelForm):
+# class MobileOrganisationCreateForm(CremeModelForm):
+class MobileOrganisationCreateForm(MobilePersonCreationFormMixin,
+                                   quick.OrganisationQuickForm):
     is_favorite = BooleanField(label=pgettext_lazy('mobile-orga', 'Is favorite'), required=False)
 
-    class Meta:
-        model = Organisation
+    # class Meta:
+    class Meta(quick.OrganisationQuickForm.Meta):
+        # model = Organisation
         fields = ('name', 'phone')
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.instance.user = self.user
-
-        # TODO: factorise
-        errors = self.errors
-
-        for fname, field in self.fields.items():
-            if fname != 'is_favorite':
-                attrs = field.widget.attrs
-                attrs['class'] = 'form-input' if fname not in errors else \
-                                 'form-input form-input-invalid'
-
-                if field.required:
-                    attrs['required'] = ''
+        # super().__init__(*args, **kwargs)
+        quick.OrganisationQuickForm.__init__(self, *args, **kwargs)
+        # self.instance.user = self.user
+        #
+        # errors = self.errors
+        #
+        # for fname, field in self.fields.items():
+        #     if fname != 'is_favorite':
+        #         attrs = field.widget.attrs
+        #         attrs['class'] = 'form-input' if fname not in errors else \
+        #                          'form-input form-input-invalid'
+        #
+        #         if field.required:
+        #             attrs['required'] = ''
+        MobilePersonCreationFormMixin.__init__(self)
 
     def save(self, *args, **kwargs):
         orga = super().save(*args, **kwargs)

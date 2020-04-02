@@ -133,7 +133,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         response = self.client.post(url, data={'step':     0,
                                                'document': doc.id,
                                                # has_header
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
 
@@ -166,7 +166,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertEqual([_('Import «{model}» from {doc}').format(
                                 model='Test Contact',
                                 doc=doc,
-                            )
+                            ),
                          ],
                          job.description
                         )  # TODO: description of columns ????
@@ -223,10 +223,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                         )
 
         # Reload brick -----------
+        reload_url = reverse('creme_core__reload_job_bricks', args=(job.id,))
         brick_id = MassImportJobErrorsBrick.id_
-        response = self.assertGET200(reverse('creme_core__reload_job_bricks', args=(job.id,)),
-                                     data={'brick_id': brick_id},
-                                    )
+        response = self.assertGET200(reload_url, data={'brick_id': brick_id})
+
         with self.assertNoException():
             result = response.json()
 
@@ -241,9 +241,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         tree = self.get_html_tree(result[1])
         self.get_brick_node(tree, brick_id)
 
-        self.assertGET404(reverse('creme_core__reload_job_bricks', args=(job.id,)),
-                          data={'brick_id': JobErrorsBrick.id_},
-                         )
+        self.assertGET404(reload_url, data={'brick_id': JobErrorsBrick.id_})
 
     def _test_import02(self, builder):
         "Use header, default value, model search and create, properties, fixed and dynamic relations"
@@ -259,29 +257,32 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         ptype = CremePropertyType.create(str_pk='test-prop_cute', text='Really cute in her suit')
 
-        employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
-                                       ('persons-object_employed_by',  'employs')
-                                      )[0]
-        loves = RelationType.create(('test-subject_loving', 'is loving'),
-                                    ('test-object_loving',  'is loved by')
-                                   )[0]
+        employed = RelationType.create(
+            ('persons-subject_employed_by', 'is an employee of'),
+            ('persons-object_employed_by',  'employs'),
+        )[0]
+        loves = RelationType.create(
+            ('test-subject_loving', 'is loving'),
+            ('test-object_loving',  'is loved by')
+        )[0]
 
         nerv = FakeOrganisation.objects.create(user=self.user, name='Nerv')
         shinji = FakeContact.objects.create(user=self.user, first_name='Shinji', last_name='Ikari')
         contact_count = FakeContact.objects.count()
 
         city = 'Tokyo'
-        lines = [('First name', 'Last name', 'Position', 'Sector',   'City', 'Organisation'),
-                 ('Rei',        'Ayanami',   pos_title,  sctr_title, city,   nerv.name),
-                 ('Asuka',      'Langley',   pos_title,  sctr_title, '',     ''),
-                ]
+        lines = [
+            ('First name', 'Last name', 'Position', 'Sector',   'City', 'Organisation'),
+            ('Rei',        'Ayanami',   pos_title,  sctr_title, city,   nerv.name),
+            ('Asuka',      'Langley',   pos_title,  sctr_title, '',     ''),
+        ]
 
         doc = builder(lines)
         url = self._build_import_url(FakeContact)
         response = self.client.post(url, data={'step':       0,
                                                'document':   doc.id,
                                                'has_header': True,
-                                              }
+                                              },
                                     )
         self.assertNoFormError(response)
 
@@ -378,9 +379,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         orga_name = 'Nerv'
         self.assertFalse(FakeOrganisation.objects.filter(name=orga_name))
 
-        employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
-                                       ('persons-object_employed_by',  'employs')
-                                      )[0]
+        employed = RelationType.create(
+            ('persons-subject_employed_by', 'is an employee of'),
+            ('persons-object_employed_by',  'employs'),
+        )[0]
         doc = builder([('Ayanami', 'Rei', orga_name)])
         response = self.client.post(
             self._build_import_url(FakeContact), follow=True,
@@ -479,9 +481,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         "Same Relation in fixed & dynamic fields at creation"
         user = self.login()
 
-        employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
-                                       ('persons-object_employed_by',  'employs')
-                                      )[0]
+        employed = RelationType.create(
+            ('persons-subject_employed_by', 'is an employee of'),
+            ('persons-object_employed_by',  'employs'),
+        )[0]
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
@@ -530,7 +533,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         return self.get_object_or_fail(cf.get_value_class(), custom_field=cf, entity=entity)
 
     def test_mass_import_customfields01(self):
-        "CustomField.INT, STR & FLOAT, update, cast error"
+        "CustomField.INT, STR & FLOAT, update, cast error."
         user = self.login()
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
@@ -538,12 +541,13 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         cf_dec = create_cf(name='Weight (kg)', field_type=CustomField.FLOAT)
         cf_str = create_cf(name='Nickname',    field_type=CustomField.STR)
 
-        lines = [('First name', 'Last name', 'Size',   'Weight'),
-                 ('Unchô',      'Kan-u',     '180',    '55'),
-                 ('Gentoku',    'Ryûbi',     '155',    ''),
-                 ('Hakufu',     'Sonsaku',   '',       '50.2'),
-                 ('Shimei',     'Ryomou',    'notint', '48'),
-                ]
+        lines = [
+            ('First name', 'Last name', 'Size',   'Weight'),
+            ('Unchô',      'Kan-u',     '180',    '55'),
+            ('Gentoku',    'Ryûbi',     '155',    ''),
+            ('Hakufu',     'Sonsaku',   '',       '50.2'),
+            ('Shimei',     'Ryomou',    'notint', '48'),
+        ]
 
         kanu = FakeContact.objects.create(user=user, first_name=lines[1][0],
                                           last_name=lines[1][1],
@@ -610,7 +614,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertEqual(ryomou, jr_error.entity.get_real_entity())
 
     def test_mass_import_customfields02(self):
-        "CustomField.ENUM/MULTI_ENUM (no creation of choice)"
+        "CustomField.ENUM/MULTI_ENUM (no creation of choice)."
         user = self.login()
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
@@ -629,10 +633,11 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         create_evalue(custom_field=cf_menum, value='Sword')
         spear = create_evalue(custom_field=cf_menum, value='Spear')
 
-        lines = [('First name', 'Last name', 'Attack',        'Weapons'),
-                 ('Hakufu',     'Sonsaku',   'punch',         ''),
-                 ('Unchô',      'Kan-u',     'strangulation', 'Spear'),
-                ]
+        lines = [
+            ('First name', 'Last name', 'Attack',        'Weapons'),
+            ('Hakufu',     'Sonsaku',   'punch',         ''),
+            ('Unchô',      'Kan-u',     'strangulation', 'Spear'),
+        ]
 
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(FakeContact),
@@ -711,11 +716,12 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         punch = create_evalue(custom_field=cf_enum,  value='Punch')
         sword = create_evalue(custom_field=cf_menum, value='Sword')
 
-        lines = [('First name', 'Last name', 'Attack',        'Weapons'),
-                 ('Hakufu',     'Sonsaku',   'punch',         'sword'),
-                 ('Unchô',      'Kan-u',     'strangulation', 'spear'),
-                 ('Gentoku',    'Ryûbi',     '',              ''),
-                ]
+        lines = [
+            ('First name', 'Last name', 'Attack',        'Weapons'),
+            ('Hakufu',     'Sonsaku',   'punch',         'sword'),
+            ('Unchô',      'Kan-u',     'strangulation', 'spear'),
+            ('Gentoku',    'Ryûbi',     '',              ''),
+        ]
 
         doc = self._build_csv_doc(lines)
         response = self.client.post(
@@ -779,9 +785,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         create_evalue(custom_field=cf_enum,  value='Punch')
         create_evalue(custom_field=cf_menum, value='Sword')
 
-        lines = [('First name', 'Last name', 'Attack',        'Weapons'),
-                 ('Unchô',      'Kan-u',     'strangulation', 'spear'),
-                ]
+        lines = [
+            ('First name', 'Last name', 'Attack',        'Weapons'),
+            ('Unchô',      'Kan-u',     'strangulation', 'spear'),
+        ]
 
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(FakeContact)
@@ -840,9 +847,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         punch = create_evalue(custom_field=cf_enum,  value='Punch')
         sword = create_evalue(custom_field=cf_menum, value='Sword')
 
-        lines = [('First name', 'Last name', 'Size', 'Attack', 'Weapons'),
-                 ('Unchô',      'Kan-u',   '',     '',       ''),
-                ]
+        lines = [
+            ('First name', 'Last name', 'Size', 'Attack', 'Weapons'),
+            ('Unchô',      'Kan-u',   '',     '',       ''),
+        ]
 
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(FakeContact)
@@ -930,7 +938,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertFormError(response, 'form', 'capital', _('Enter a whole number.'))
 
     def test_import_error03(self):
-        "Required field without column or default value"
+        "Required field without column or default value."
         user = self.login()
 
         lines = [('Capital',), ('1000',)]  # No 'Name'
@@ -950,9 +958,41 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         )
         self.assertFormError(response, 'form', 'name', _('This field is required.'))
 
-    @override_settings(MAX_JOBS_PER_USER=1)
     def test_import_error04(self):
-        "Max jobs"
+        "Required custom-field without column or default value."
+        user = self.login()
+
+        create_cf = partial(CustomField.objects.create,
+                            content_type=ContentType.objects.get_for_model(FakeContact),
+                           )
+        cf1 = create_cf(field_type=CustomField.STR, name='Dogtag')
+        cf2 = create_cf(field_type=CustomField.INT, name='Eva number', is_required=True)
+
+        lines = [('Ayanami', )]
+        doc = self._build_csv_doc(lines, separator=';')
+        url = self._build_import_url(FakeContact)
+        response = self.assertPOST200(
+            url,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+
+                f'custom_field_{cf1.id}_colselect': 0,
+
+                f'custom_field_{cf2.id}_colselect': 0,
+                # f'custom_field_{cf2.id}_defval': 1,
+            },
+        )
+        self.assertFormError(
+            response, 'form', f'custom_field_{cf2.id}',
+            _('This field is required.')
+        )
+        self.assertNotIn(f'custom_field_{cf1.id}', response.context['form'].errors)
+
+    @override_settings(MAX_JOBS_PER_USER=1)
+    def test_import_error05(self):
+        "Max jobs."
         user = self.login()
         Job.objects.create(user=user,
                            type_id=mass_import_type.id,
@@ -1002,9 +1042,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                           creatable_models=[FakeContact, Document],  # Not Organisation
                          )
 
-        employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
-                                       ('persons-object_employed_by',  'employs')
-                                      )[0]
+        employed = RelationType.create(
+            ('persons-subject_employed_by', 'is an employee of'),
+            ('persons-object_employed_by',  'employs'),
+        )[0]
         doc = self._build_csv_doc([('Ayanami', 'Rei', 'NERV')])
         response = self.assertPOST200(
             self._build_import_url(FakeContact),
@@ -1067,10 +1108,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                         )
 
         count = FakeContact.objects.count()
-        doc = self._build_csv_doc([(d['first_name'], d['last_name'], d['phone'], d['email'])
-                                        for d in (rei_info, asuka_info)
-                                  ]
-                                 )
+        doc = self._build_csv_doc([
+            (d['first_name'], d['last_name'], d['phone'], d['email'])
+                for d in (rei_info, asuka_info)
+        ])
         response = self.client.post(
             self._build_import_url(FakeContact),
             follow=True,
@@ -1141,9 +1182,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         last_name = 'Ayanami'
         first_name = 'Rei'
 
-        create_contact = partial(FakeContact.objects.get_or_create, user=user,
+        create_contact = partial(FakeContact.objects.get_or_create,
+                                 user=user,
                                  last_name=last_name,
-                                 )
+                                )
         create_contact(first_name='Lei')
         create_contact(first_name='Rey')
 
@@ -1187,7 +1229,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertEqual(rei, jr_error.entity.get_real_entity())
 
     def test_import_with_update03(self):
-        "Ignore trashed entities"
+        "Ignore trashed entities."
         user = self.login()
 
         last_name = 'Ayanami'
@@ -1356,14 +1398,15 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        rei_info = {'first_name': 'Rei', 'last_name': 'Ayanami',
-                    hidden_fname: '111111', 'email': 'rei.ayanami@nerv.jp',
-                   }
-        doc = self._build_csv_doc([(rei_info['first_name'], rei_info['last_name'],
-                                    rei_info['phone'], rei_info['email'],
-                                   )
-                                  ]
-                                 )
+        rei_info = {
+            'first_name': 'Rei', 'last_name': 'Ayanami',
+            hidden_fname: '111111', 'email': 'rei.ayanami@nerv.jp',
+        }
+        doc = self._build_csv_doc([
+            (rei_info['first_name'], rei_info['last_name'],
+             rei_info['phone'], rei_info['email'],
+            ),
+        ])
         url = self._build_import_url(FakeContact)
         response = self.client.post(url, data={'step': 0, 'document': doc.id})
         self.assertNoFormError(response)
@@ -1424,8 +1467,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         asuka_line = lines[1]
         self.get_object_or_fail(FakeContact, first_name=asuka_line[0], last_name=asuka_line[1])
 
-    def _aux_test_dl_errors(self, doc_builder, result_builder, ext, header=False, follow=False):
-        "CSV, no header"
+    # def _aux_test_dl_errors(self, doc_builder, result_builder, ext, header=False, follow=False):
+    def _aux_test_dl_errors(self, doc_builder, result_builder, ext, header=False):
+        "CSV, no header."
         user = self.login()
 
         first_name = 'Unchô'
@@ -1487,7 +1531,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                ]
 
     def test_dl_errors01(self):
-        "CSV, no header"
+        "CSV, no header."
         self._aux_test_dl_errors(self._build_csv_doc,
                                  result_builder=self._csv_to_list,
                                  ext='csv',
@@ -1495,7 +1539,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                                 )
 
     def test_dl_errors02(self):
-        "CSV, header"  # TODO: other separator
+        "CSV, header."  # TODO: other separator
         self._aux_test_dl_errors(self._build_csv_doc,
                                  result_builder=self._csv_to_list,
                                  ext='csv',
@@ -1513,7 +1557,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                                  result_builder=result_builder,
                                  ext='xls',
                                  header=True,
-                                 follow=True,
+                                 # follow=True,
                                 )
 
     def test_dl_errors04(self):

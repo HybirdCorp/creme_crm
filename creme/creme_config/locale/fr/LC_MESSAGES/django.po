@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-23 10:32+0100\n"
+"POT-Creation-Date: 2020-04-01 18:53+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -323,7 +323,7 @@ msgstr "Colonnes"
 msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
-#: forms/bricks.py:459 forms/button_menu.py:37 forms/custom_fields.py:115
+#: forms/bricks.py:459 forms/button_menu.py:37 forms/custom_fields.py:118
 #: forms/fields_config.py:34 forms/fields_config.py:73
 msgid "Related resource"
 msgstr "Ressource associée"
@@ -366,15 +366,15 @@ msgstr "Aucun type séléctionné signifiera que tous les types sont acceptés"
 msgid "A property type with this name already exists."
 msgstr "Un type de propriété avec ce nom existe déjà."
 
-#: forms/custom_fields.py:48
+#: forms/custom_fields.py:51
 msgid "Type of field"
 msgstr "Type du champ"
 
-#: forms/custom_fields.py:53
+#: forms/custom_fields.py:56
 msgid "Available choices"
 msgstr "Choix disponibles"
 
-#: forms/custom_fields.py:55
+#: forms/custom_fields.py:58
 msgid ""
 "Give the possible choices (one per line) if you choose the type \"Choice list"
 "\"."
@@ -382,18 +382,18 @@ msgstr ""
 "Mettez les choix possibles (un par ligne) si vous avez choisi le type  "
 "\"Liste de choix\"."
 
-#: forms/custom_fields.py:61
+#: forms/custom_fields.py:64
 msgid ""
 "The choices list must not be empty if you choose the type \"Choice list\"."
 msgstr ""
 "La liste de choix ne doit pas être vide si vous choisissez un type \"Liste "
 "de choix\""
 
-#: forms/custom_fields.py:64 forms/custom_fields.py:250
+#: forms/custom_fields.py:67 forms/custom_fields.py:253
 msgid "The choice «{}» is duplicated."
 msgstr "le choix «{}» est en double."
 
-#: forms/custom_fields.py:116
+#: forms/custom_fields.py:119
 msgid ""
 "The other custom fields for this type of resource will be chosen by editing "
 "the configuration"
@@ -401,47 +401,47 @@ msgstr ""
 "Les autres champs personnalisés de ce type de ressource seront choisis en "
 "modifiant la configuration"
 
-#: forms/custom_fields.py:133 forms/custom_fields.py:160
-#: forms/custom_fields.py:226
+#: forms/custom_fields.py:136 forms/custom_fields.py:163
+#: forms/custom_fields.py:229
 msgid "There is already a custom field with this name."
 msgstr "Il y a déjà un champ personnalisé avec ce nom."
 
-#: forms/custom_fields.py:181
+#: forms/custom_fields.py:184
 msgid "Existing choices of the list"
 msgstr "Choix existants de la liste"
 
-#: forms/custom_fields.py:182
+#: forms/custom_fields.py:185
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/custom_fields.py:186 forms/custom_fields.py:291
+#: forms/custom_fields.py:189 forms/custom_fields.py:294
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/custom_fields.py:187 forms/custom_fields.py:292
+#: forms/custom_fields.py:190 forms/custom_fields.py:295
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
-#: forms/custom_fields.py:265
+#: forms/custom_fields.py:268
 msgid "New choice"
 msgstr "Nouveau choix"
 
-#: forms/custom_fields.py:344
+#: forms/custom_fields.py:347
 msgid "Choose a choice to transfer to"
 msgstr "Choisissez un choice auquel transférer"
 
-#: forms/custom_fields.py:345
+#: forms/custom_fields.py:348
 msgid ""
 "The selected choice will replace the deleted one in entities which use it."
 msgstr ""
 "Le choix sélectionné remplacera le choix supprimé dans les fiches qui lui "
 "sont associés."
 
-#: forms/custom_fields.py:353 forms/user_role.py:322 forms/user_role.py:355
+#: forms/custom_fields.py:356 forms/user_role.py:322 forms/user_role.py:355
 msgid "Information"
 msgstr "Informations"
 
-#: forms/custom_fields.py:356
+#: forms/custom_fields.py:359
 msgid "This choice is not used by any entity, you can delete it safely."
 msgstr ""
 "Ce choix n'est utilisé par aucune fiche, vous pouvez le supprimer en toute "
@@ -1213,6 +1213,10 @@ msgstr "Nouvelle configuration de champ personnalisé"
 #: templates/creme_config/bricks/custom-fields.html:23
 msgid "Create a custom field"
 msgstr "Créer un champ personnalisé"
+
+#: templates/creme_config/bricks/custom-fields.html:33
+msgid "(required)"
+msgstr "(obligatoire)"
 
 #: templates/creme_config/bricks/custom-fields.html:41
 #, python-format

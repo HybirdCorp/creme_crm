@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,11 +26,18 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.transaction import atomic
 from django.forms.fields import EmailField, BooleanField, CharField
-from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
+from django.utils.translation import (
+    gettext_lazy as _,
+    gettext,
+    pgettext_lazy,
+)
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import base as base_forms
-from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntityField
+from creme.creme_core.forms.fields import (
+    MultiCreatorEntityField,
+    CreatorEntityField,
+)
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import Relation, FieldsConfig
 
@@ -38,7 +45,11 @@ from creme.documents import get_document_model
 
 from creme import persons, emails
 
-from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, MAIL_STATUS_SENDINGERROR
+from ..constants import (
+    REL_SUB_MAIL_RECEIVED,
+    REL_SUB_MAIL_SENDED,
+    MAIL_STATUS_SENDINGERROR,
+)
 from ..creme_jobs import entity_emails_send_type
 
 logger = logging.getLogger(__name__)
@@ -49,8 +60,9 @@ EntityEmail   = emails.get_entityemail_model()
 EmailTemplate = emails.get_emailtemplate_model()
 
 
-# NB: CremeModelForm, not CremeEntityForm, to avoid CustomFields, Relations & CremeProperties
-class EntityEmailForm(base_forms.CremeModelForm):
+# NB: Not CremeEntityForm, to avoid CustomFields, Relations & CremeProperties
+# class EntityEmailForm(base_forms.CremeModelForm):
+class EntityEmailForm(base_forms.CremeEntityQuickForm):
     """Mails are related to the selected contacts/organisations & the 'current' entity.
     Mails are send to selected contacts/organisations.
     """
@@ -69,6 +81,7 @@ class EntityEmailForm(base_forms.CremeModelForm):
         ('recipients', _('Who'),  ['user', 'sender', 'send_me', 'c_recipients', 'o_recipients']),
         ('content',    _('What'), ['subject', 'body', 'body_html']),
         ('extra',      _('With'), ['signature', 'attachments']),
+        ('required_cfields', _('Required custom fields'), '*'),
     )
 
     class Meta:
@@ -98,12 +111,12 @@ class EntityEmailForm(base_forms.CremeModelForm):
         def finalize_recipient_field(name, model):
             if FieldsConfig.objects.get_for_model(model).is_fieldname_hidden('email'):
                 self.fields[name] = CharField(
-                        label=self.fields[name].label,
-                        required=False, widget=Label,
-                        initial=gettext('Beware: the field «Email address» is hidden ;'
-                                        ' please contact your administrator.'
-                                       ),
-                    )
+                    label=self.fields[name].label,
+                    required=False, widget=Label,
+                    initial=gettext('Beware: the field «Email address» is hidden ;'
+                                    ' please contact your administrator.'
+                                   ),
+                )
 
         finalize_recipient_field('c_recipients', Contact)
         finalize_recipient_field('o_recipients', Organisation)

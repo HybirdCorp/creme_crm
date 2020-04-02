@@ -4,12 +4,13 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+    from django.forms import IntegerField
     from django.urls import reverse
     from django.utils.html import escape
     from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import SetCredentials
+    from creme.creme_core.models import SetCredentials, CustomField
 
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
@@ -60,7 +61,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
                 'user': user.id,
                 'first_name': first_name,
                 'last_name': last_name,
-            }
+            },
         )
         self.assertNoFormError(response)
 
@@ -93,7 +94,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
                 'first_name': first_name,
                 'last_name': last_name,
                 'is_employed': 'on',
-            }
+            },
         )
         self.assertNoFormError(response)
 
@@ -128,7 +129,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
                 'first_name': first_name,
                 'last_name': last_name,
                 'is_employed': 'on',  # Should not be used
-            }
+            },
         )
         self.assertNoFormError(response)
 
@@ -216,3 +217,25 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
             allowed_models={Contact, Organisation},
             error_403=True,
         )
+
+    def test_create_related_contact_customfields(self):
+        "Required CustomFields."
+        self.login()
+
+        create_cf = partial(
+            CustomField.objects.create,
+            content_type=ContentType.objects.get_for_model(Contact),
+        )
+        cf1 = create_cf(field_type=CustomField.STR, name='Dogtag')
+        cf2 = create_cf(field_type=CustomField.INT, name='Eva number', is_required=True)
+
+        opp, target, emitter = self._create_opportunity_n_organisations()
+
+        response = self.assertGET200(self._build_url(opp))
+
+        fields = response.context['form'].fields
+        self.assertNotIn(f'custom_field_{cf1.id}', fields)
+
+        cf2_f = fields.get(f'custom_field_{cf2.id}')
+        self.assertIsInstance(cf2_f, IntegerField)
+        self.assertTrue(cf2_f.required)

@@ -55,9 +55,15 @@ class CustomField(CremeModel):
     name          = models.CharField(_('Field name'), max_length=100)
     content_type  = CTypeForeignKey(verbose_name=_('Related type'))
     field_type    = models.PositiveSmallIntegerField(_('Field type'))  # See INT, FLOAT etc...
+    is_required   = models.BooleanField(
+        _('Is required?'), default=False,
+        help_text=_(
+            'A required custom-field must be filled when a new entity is created ; '
+            'existing entities are not immediately impacted.'
+        ),
+    )
     # default_value = CharField(_('Default value'), max_length=100, blank=True, null=True)
     # extra_args    = CharField(max_length=500, blank=True, null=True)
-    # required      = BooleanField(defaut=False) ????
 
     creation_label = _('Create a custom field')
     save_label     = _('Save the custom field')
@@ -89,6 +95,7 @@ class CustomField(CremeModel):
 
     # def get_formfield(self, custom_value):
     def get_formfield(self, custom_value, user=None):
+        # return self.get_value_class().get_formfield(self, custom_value)
         return self.get_value_class().get_formfield(self, custom_value, user=user)
 
     def get_pretty_value(self, entity_id):
@@ -96,7 +103,10 @@ class CustomField(CremeModel):
         It manages CustomField which type is ENUM.
         """
         # TODO: select_related() for enum ???
-        cf_values = self.get_value_class().objects.filter(custom_field=self.id, entity=entity_id)
+        cf_values = self.get_value_class().objects.filter(
+            custom_field=self.id,
+            entity=entity_id,
+        )
 
         return str(cf_values[0]) if cf_values else ''
 
@@ -166,7 +176,10 @@ class CustomFieldValue(CremeModel):
 
     @classmethod
     def get_formfield(cls, custom_field, custom_value, user=None):
-        field = cls._get_formfield(label=custom_field.name, required=False)
+        # field = cls._get_formfield(label=custom_field.name, required=False)
+        field = cls._get_formfield(label=custom_field.name,
+                                   required=custom_field.is_required,
+                                  )
         cls._build_formfield(custom_field, field, user)
         if custom_value:
             custom_value._set_formfield_value(field)
@@ -280,8 +293,14 @@ class CustomFieldBoolean(CustomFieldValue):
         return gettext('Yes') if self.value else gettext('No')
 
     @staticmethod
+    # def _get_formfield(**kwargs):
+    #     return forms.NullBooleanField(**kwargs)
     def _get_formfield(**kwargs):
-        return forms.NullBooleanField(**kwargs)
+        required = kwargs.get('required', False)
+        kwargs['required'] = False
+
+        return forms.BooleanField(**kwargs) if required else \
+               forms.NullBooleanField(**kwargs)
 
     def set_value_n_save(self, value):
         # Boolean default value is False

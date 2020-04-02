@@ -49,7 +49,7 @@ from . import fields, widgets
 __all__ = (
     'FieldBlockManager', 'CremeForm', 'CremeModelForm',
     # 'CremeModelWithUserForm',
-    'CremeEntityForm',
+    'CremeEntityForm', 'CremeEntityQuickForm',
 )
 
 logger = logging.getLogger(__name__)
@@ -359,8 +359,35 @@ class CremeModelForm(HookableFormMixin, forms.ModelForm):
 #         user_f.queryset = get_user_model().objects.filter(is_staff=False)
 #         user_f.initial = user.id
 
+class CustomFieldsMixin:
+    @staticmethod
+    def _build_customfield_name(cfield):
+        return _CUSTOM_NAME.format(cfield.id)
 
-class CremeEntityForm(CremeModelForm):
+    def _build_customfields(self, only_required=False) -> None:
+        self._customs = self.instance.get_custom_fields_n_values(only_required=only_required)
+        fields = self.fields
+        user = self.user
+        build_name = self._build_customfield_name
+
+        for cfield, cvalue in self._customs:
+            fields[build_name(cfield)] = cfield.get_formfield(cvalue, user=user)
+
+    def _save_customfields(self) -> None:
+        cfields_n_values = self._customs
+
+        if cfields_n_values:
+            cleaned_data = self.cleaned_data
+            instance = self.instance
+            build_name = self._build_customfield_name
+
+            for cfield, cvalue in cfields_n_values:
+                value = cleaned_data[build_name(cfield)]
+                CustomFieldValue.save_values_for_entities(cfield, [instance], value)
+
+
+# class CremeEntityForm(CremeModelForm):
+class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
     property_types = fields.EnhancedModelMultipleChoiceField(
         queryset=CremePropertyType.objects.none(),
         label=_('Properties'),
@@ -440,15 +467,13 @@ class CremeEntityForm(CremeModelForm):
         ]
         self._build_relations_fields(forced_relations_info=forced_relations_info)
 
-    def _build_customfields(self) -> None:
-        self._customs = self.instance.get_custom_fields_n_values()
-        fields = self.fields
-        user = self.user
-
-        # for i, (cfield, cvalue) in enumerate(self._customs):
-        #     fields[_CUSTOM_NAME.format(i)] = cfield.get_formfield(cvalue)
-        for cfield, cvalue in self._customs:
-            fields[_CUSTOM_NAME.format(cfield.id)] = cfield.get_formfield(cvalue, user=user)
+    # def _build_customfields(self):
+    #     self._customs = self.instance.get_custom_fields_n_values()
+    #     fields = self.fields
+    #     user = self.user
+    #
+    #     for i, (cfield, cvalue) in enumerate(self._customs):
+    #         fields[_CUSTOM_NAME.format(i)] = cfield.get_formfield(cvalue)
 
     def _build_properties_field(self, forced_ptype_ids: Iterable[str]) -> None:
         instance = self.instance
@@ -625,19 +650,16 @@ class CremeEntityForm(CremeModelForm):
                 for ptype_id in ptype_ids
         )
 
-    def _save_customfields(self) -> None:
-        cfields_n_values = self._customs
-
-        if cfields_n_values:
-            cleaned_data = self.cleaned_data
-            instance = self.instance
-
-            # for i, (custom_field, custom_value) in enumerate(cfields_n_values):
-            #     value = cleaned_data[_CUSTOM_NAME.format(i)]
-            #     CustomFieldValue.save_values_for_entities(custom_field, [instance], value)
-            for cfield, cvalue in cfields_n_values:
-                value = cleaned_data[_CUSTOM_NAME.format(cfield.id)]
-                CustomFieldValue.save_values_for_entities(cfield, [instance], value)
+    # def _save_customfields(self):
+    #     cfields_n_values = self._customs
+    #
+    #     if cfields_n_values:
+    #         cleaned_data = self.cleaned_data
+    #         instance = self.instance
+    #
+    #         for i, (custom_field, custom_value) in enumerate(cfields_n_values):
+    #             value = cleaned_data[_CUSTOM_NAME.format(i)]
+    #             CustomFieldValue.save_values_for_entities(custom_field, [instance], value)
 
     def _save_properties(self,
                          properties: Iterable[CremeProperty],
@@ -659,5 +681,22 @@ class CremeEntityForm(CremeModelForm):
         self._save_relations(relations=self._get_relations_to_create(),
                              check_existing=not created,
                             )
+
+        return instance
+
+
+class CremeEntityQuickForm(CustomFieldsMixin, CremeModelForm):
+    class Meta:
+        fields: Union[str, Tuple[str, ...]] = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        assert isinstance(self.instance, CremeEntity)
+
+        self._build_customfields(only_required=True)
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        self._save_customfields()
 
         return instance

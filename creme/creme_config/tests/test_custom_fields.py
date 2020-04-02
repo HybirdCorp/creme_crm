@@ -60,6 +60,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(ct,         cfield.content_type)
         self.assertEqual(name,       cfield.name)
         self.assertEqual(field_type, cfield.field_type)
+        self.assertIs(cfield.is_required, False)
 
         response = self.assertGET200(url)
 
@@ -70,6 +71,27 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(ContentType.objects.get_for_model(FakeOrganisation), ctypes)
 
     def test_add_ct02(self):
+        self.login()
+
+        ct = ContentType.objects.get_for_model(FakeContact)
+        name = 'Eva'
+        field_type = CustomField.ENUM
+        self.assertNoFormError(self.client.post(
+            reverse('creme_config__create_first_ctype_custom_field'),
+            data={
+                'content_type': ct.id,
+                'name':         name,
+                'is_required':  'on',
+                'field_type':   field_type,
+                'enum_values': 'Eva01\nEva02\nEva03',
+            },
+        ))
+
+        cfield = self.get_object_or_fail(CustomField, content_type=ct.id, name=name)
+        self.assertEqual(field_type, cfield.field_type)
+        self.assertIs(cfield.is_required, True)
+
+    def test_add_ct_error01(self):
         "Empty choice list."
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -88,7 +110,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             _('The choices list must not be empty if you choose the type "Choice list".')
         )
 
-    def test_add_ct03(self):
+    def test_add_ct_error02(self):
         "Duplicated choices."
         self.login()
         response = self.assertPOST200(
@@ -105,7 +127,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             _('The choice «{}» is duplicated.').format('Eva01')
         )
 
-    def test_add_ct04(self):
+    def test_add_ct_error03(self):
         self.login(is_superuser=False)  # admin_4_apps=('creme_core',)
         self.assertGET403(reverse('creme_config__create_first_ctype_custom_field'))
 
@@ -147,7 +169,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         name = 'Eva'
         create_cf = CustomField.objects.create
-        create_cf(content_type=contact_ct, field_type=CustomField.BOOL, name='Operational ?')
+        create_cf(content_type=contact_ct, field_type=CustomField.BOOL, name='Operational?')
         create_cf(content_type=orga_ct,    field_type=CustomField.INT,  name=name)  # <= same name but not same CT
 
         url = reverse('creme_config__create_custom_field', args=(contact_ct.id,))
@@ -171,7 +193,8 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(2, len(cfields))
 
         cfield2 = cfields[1]
-        self.assertEqual(name,       cfield2.name)
+        self.assertEqual(name, cfield2.name)
+        self.assertFalse(cfield2.is_required)
         self.assertEqual(field_type, cfield2.field_type)
         self.assertEqual(
             ['Eva01', 'Eva02', 'Eva03'],
@@ -242,9 +265,13 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_edit01(self):
         self.login(is_superuser=False, admin_4_apps=('creme_core',))
 
-        ct = ContentType.objects.get_for_model(FakeContact)
         name = 'nickname'
-        cfield = CustomField.objects.create(content_type=ct, name=name, field_type=CustomField.STR)
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            name=name,
+            field_type=CustomField.STR,
+        )
+        self.assertFalse(cfield.is_required)
 
         url = reverse('creme_config__edit_custom_field', args=(cfield.id,))
         response = self.assertGET200(url)
@@ -255,8 +282,17 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # ---
         name = name.title()
-        self.assertNoFormError(self.client.post(url, data={'name': name}))
-        self.assertEqual(name, self.refresh(cfield).name)
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'name': name,
+                'is_required': 'on',
+            }
+        ))
+
+        cfield = self.refresh(cfield)
+        self.assertEqual(name, cfield.name)
+        self.assertTrue(cfield.is_required)
 
     # def test_edit02(self):
     #     "ENUM."
