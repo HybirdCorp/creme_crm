@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-26 10:50+0100\n"
+"POT-Creation-Date: 2020-04-01 16:50+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +23,7 @@ msgstr "Ré-envoyer l'e-mail"
 msgid "Re-send email(s)"
 msgstr "Ré-envoyer les e-mails"
 
-#: apps.py:28 models/mail.py:97 templates/emails/bricks/lw-mails-history.html:7
+#: apps.py:28 templates/emails/bricks/lw-mails-history.html:7
 #: templates/emails/bricks/lw-mails.html:7
 #: templates/emails/bricks/mails-history.html:7
 #: templates/emails/bricks/synchronization.html:9
@@ -71,7 +71,7 @@ msgid "Parent mailing lists"
 msgstr "Listes de diffusion parentes"
 
 #: bricks.py:188 forms/template.py:45 forms/template.py:85 forms/template.py:87
-#: models/mail.py:85 models/sending.py:93 models/template.py:40
+#: models/mail.py:89 models/sending.py:94 models/template.py:40
 #: templates/emails/bricks/attachments.html:7
 msgid "Attachments"
 msgstr "Fichiers attachés"
@@ -80,11 +80,11 @@ msgstr "Fichiers attachés"
 msgid "Sendings"
 msgstr "Envois"
 
-#: bricks.py:248
+#: bricks.py:249
 msgid "Emails history"
 msgstr "Historique des e-mails"
 
-#: bricks.py:298
+#: bricks.py:299
 msgid "Campaigns emails history"
 msgstr "Historique des e-mails des campagnes"
 
@@ -145,7 +145,7 @@ msgstr "Création de {entity}"
 msgid "Lists"
 msgstr "Listes"
 
-#: forms/mail.py:57 models/mail.py:50
+#: forms/mail.py:57 models/mail.py:54
 msgid "Sender"
 msgstr "Émetteur"
 
@@ -254,7 +254,7 @@ msgstr ""
 msgid "CSV file"
 msgstr "Fichier CSV"
 
-#: forms/sending.py:41 models/sending.py:70
+#: forms/sending.py:41 models/sending.py:71
 msgid "Sender address"
 msgstr "Adresse e-mail de l'expéditeur"
 
@@ -262,8 +262,8 @@ msgstr "Adresse e-mail de l'expéditeur"
 msgid "Email template"
 msgstr "Patron d'e-mail"
 
-#: forms/sending.py:45 forms/sending.py:55 models/mail.py:54
-#: models/sending.py:79
+#: forms/sending.py:45 forms/sending.py:55 models/mail.py:58
+#: models/sending.py:80
 msgid "Sending date"
 msgstr "Date d'envoi"
 
@@ -311,12 +311,12 @@ msgstr "La date d'envoi doit être dans le futur"
 msgid "You can use variables: {}"
 msgstr "Vous pouvez utiliser les variables : {}"
 
-#: forms/template.py:43 models/mail.py:53 models/sending.py:87
+#: forms/template.py:43 models/mail.py:57 models/sending.py:88
 #: models/signature.py:34 models/template.py:35
 msgid "Body"
 msgstr "Corps"
 
-#: forms/template.py:44 models/mail.py:79 models/sending.py:88
+#: forms/template.py:44 models/mail.py:83 models/sending.py:89
 #: models/template.py:36
 msgid "Body (HTML)"
 msgstr "Corps (HTML)"
@@ -350,53 +350,59 @@ msgstr "Campagne d'envois d'e-mails"
 msgid "Emailing campaigns"
 msgstr "Campagnes d'envois d'e-mails"
 
-#: models/mail.py:42
+#: models/mail.py:46
 msgid "Number of reads"
 msgstr "Nombre de lecture"
 
-#: models/mail.py:45 templates/emails/bricks/base/synchronization.html:17
+#: models/mail.py:49 templates/emails/bricks/base/synchronization.html:17
 #: templates/emails/bricks/lw-mails.html:13
 msgid "Status"
 msgstr "Statut"
 
-#: models/mail.py:51 templates/emails/bricks/lw-mails.html:12
+#: models/mail.py:55 templates/emails/bricks/lw-mails.html:12
 msgid "Recipient"
 msgstr "Destinataire"
 
-#: models/mail.py:52 models/sending.py:86 models/template.py:34
+#: models/mail.py:56 models/sending.py:87 models/template.py:34
 #: templates/emails/bricks/base/synchronization.html:20
 msgid "Subject"
 msgstr "Sujet"
 
-#: models/mail.py:55
+#: models/mail.py:59
 msgid "Reception date"
 msgstr "Date de réception"
 
-#: models/mail.py:75 models/sending.py:174
+#: models/mail.py:79 models/sending.py:187
 msgid "Email ID"
 msgstr "Identifiant de l'e-mail"
 
-#: models/mail.py:80 models/sending.py:89 models/template.py:37
+#: models/mail.py:84 models/sending.py:90 models/template.py:37
 msgid "Signature"
 msgstr "Signature"
 
-#: models/mail.py:88
+#: models/mail.py:92
 msgid "Create an email"
 msgstr "Créer un e-mail"
 
-#: models/mail.py:89
+#: models/mail.py:93
 msgid "Save the email"
 msgstr "Enregister l'e-mail"
 
-#: models/mail.py:90 views/mail.py:92
+#: models/mail.py:94 views/mail.py:92
 msgid "Send the email"
 msgstr "Envoyer l'e-mail"
 
-#: models/mail.py:96
+#: models/mail.py:102
+msgctxt "emails"
 msgid "Email"
 msgstr "E-mail"
 
-#: models/mail.py:114
+#: models/mail.py:103
+msgctxt "emails"
+msgid "Emails"
+msgstr "E-mails"
+
+#: models/mail.py:120
 #, python-brace-format
 msgid "EMail <from: {sender}> <to: {to}> <status: {status}>"
 msgstr "E-Mail <de: {sender}> <à: {to}> <statut: {status}>"
@@ -450,75 +456,75 @@ msgctxt "emails"
 msgid "Recipients"
 msgstr "Destinataires"
 
-#: models/sending.py:52
+#: models/sending.py:53
 msgid "Immediate"
 msgstr "Immédiat"
 
-#: models/sending.py:53
+#: models/sending.py:54
 msgctxt "emails-sending"
 msgid "Deferred"
 msgstr "Différé"
 
-#: models/sending.py:62
+#: models/sending.py:63
 msgctxt "emails-sending"
 msgid "Done"
 msgstr "Effectué"
 
-#: models/sending.py:63
+#: models/sending.py:64
 msgid "In progress"
 msgstr "En cours"
 
-#: models/sending.py:64
+#: models/sending.py:65
 msgctxt "emails-sending"
 msgid "Planned"
 msgstr "Prévu"
 
-#: models/sending.py:65
+#: models/sending.py:66
 msgid "Error during sending"
 msgstr "Erreur pendant l'envoi."
 
-#: models/sending.py:72
+#: models/sending.py:73
 msgctxt "emails"
 msgid "Related campaign"
 msgstr "Campagne associée"
 
-#: models/sending.py:75
+#: models/sending.py:76
 msgid "Sending type"
 msgstr "Type d'envoi"
 
-#: models/sending.py:80
+#: models/sending.py:81
 msgid "Sending state"
 msgstr "État de l'envoi"
 
-#: models/sending.py:96
+#: models/sending.py:97
 msgctxt "emails"
 msgid "Create a sending"
 msgstr "Créer un envoi"
 
-#: models/sending.py:97
+#: models/sending.py:98
 msgctxt "emails"
 msgid "Save the sending"
 msgstr "Enregistrer l'envoi"
 
-#: models/sending.py:101
+#: models/sending.py:102
 msgid "Email campaign sending"
 msgstr "Envoi de campagne d'e-mails"
 
-#: models/sending.py:102
+#: models/sending.py:103
 msgid "Email campaign sendings"
 msgstr "Envois de campagne d'e-mails"
 
-#: models/sending.py:105
+#: models/sending.py:106
 #, python-brace-format
 msgctxt "emails"
 msgid "Sending of «{campaign}» on {date}"
 msgstr "Envoi de «{campaign}» du {date}"
 
-#: models/sending.py:126
+#: models/sending.py:135
 msgid "[CremeCRM] Campaign email sending error."
 msgstr "[CremeCRM] Erreur d'envoi de campagne d'e-mail."
 
-#: models/sending.py:127
+#: models/sending.py:136
 #, python-brace-format
 msgid ""
 "Emails in the sending of the campaign «{campaign}» on {date} weren't sent "
@@ -528,15 +534,15 @@ msgstr ""
 "pas été envoyés car l'image «{image}» n'est plus disponible dans le patron "
 "d'e-mail."
 
-#: models/sending.py:175
+#: models/sending.py:188
 msgid "Related sending"
 msgstr "Envoi associé"
 
-#: models/sending.py:185
+#: models/sending.py:198
 msgid "Email of campaign"
 msgstr "E-mail de campagne"
 
-#: models/sending.py:186
+#: models/sending.py:199
 msgid "Emails of campaign"
 msgstr "E-mails  de campagne"
 
@@ -816,7 +822,7 @@ msgstr "{count} E-mails de campagne dans l'historique"
 
 #: templates/emails/bricks/lw-mails-history.html:24
 #: templates/emails/bricks/mails-history.html:42
-#: templates/emails/bricks/sendings.html:33
+#: templates/emails/bricks/sendings.html:32
 msgid "Details"
 msgstr "Détails"
 
@@ -1003,18 +1009,18 @@ msgstr "État"
 msgid "Number of email(s)"
 msgstr "Nombre d'e-mail(s)"
 
-#: templates/emails/bricks/sendings.html:31
+#: templates/emails/bricks/sendings.html:30
 #, python-format
 msgid "%(count)s not sent"
 msgid_plural "%(count)s not sent"
 msgstr[0] "%(count)s non envoyé"
 msgstr[1] "%(count)s non envoyés"
 
-#: templates/emails/bricks/sendings.html:36
+#: templates/emails/bricks/sendings.html:35
 msgid "Delete this sending"
 msgstr "Supprimer cet envoi"
 
-#: templates/emails/bricks/sendings.html:43
+#: templates/emails/bricks/sendings.html:42
 msgid "No sending for the moment"
 msgstr "Aucun envoi pour le moment"
 
