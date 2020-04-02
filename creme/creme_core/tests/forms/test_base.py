@@ -262,7 +262,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertEqual(last_name,  contact.last_name)
         self.assertIsNotNone(contact.id)
 
-    def test_customfields(self):
+    def test_customfields01(self):
         user = self.login()
 
         create_cf = partial(
@@ -291,7 +291,12 @@ class CremeEntityFormTestCase(CremeTestCase):
             cf_f4 = fields[f'custom_field_{cfield4.id}']
 
         self.assertIsInstance(cf_f1, forms.IntegerField)
+        self.assertEqual(cfield1.name, cf_f1.label)
+        self.assertFalse(cf_f1.required)
+
         self.assertIsInstance(cf_f2, forms.NullBooleanField)
+        self.assertEqual(cfield2.name, cf_f2.label)
+        self.assertFalse(cf_f2.required)
 
         self.assertIsInstance(cf_f3, CustomEnumChoiceField)
         self.assertEqual(user,    cf_f3.user)
@@ -343,6 +348,45 @@ class CremeEntityFormTestCase(CremeTestCase):
                                            entity=contact,
                                           )
         self.assertEqual(150, cf_value.value)
+
+    def test_customfields02(self):
+        "Required."
+        user = self.login()
+
+        cfield = CustomField.objects.create(
+            name='Size',
+            content_type=FakeContact,
+            field_type=CustomField.INT,
+            is_required=True,
+        )
+
+        fields = FakeContactForm(user=user).fields
+
+        with self.assertNoException():
+            cfield_f = fields[f'custom_field_{cfield.id}']
+
+        self.assertIsInstance(cfield_f, forms.IntegerField)
+        self.assertTrue(cfield_f.required)
+
+    def test_customfields03(self):
+        "Required + Boolean."
+        user = self.login()
+
+        cfield = CustomField.objects.create(
+            name='Cursed?',
+            content_type=FakeContact,
+            field_type=CustomField.BOOL,
+            is_required=True,
+        )
+
+        fields = FakeContactForm(user=user).fields
+
+        with self.assertNoException():
+            cfield_f = fields[f'custom_field_{cfield.id}']
+
+        self.assertIsInstance(cfield_f, forms.BooleanField)
+        self.assertNotIsInstance(cfield_f, forms.NullBooleanField)
+        self.assertFalse(cfield_f.required)
 
     def test_properties01(self):
         user = self.login()

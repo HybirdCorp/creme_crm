@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.forms import ImageField
 from django.utils.translation import gettext as _
 
 from creme.creme_core.backends import import_backend_registry
-from creme.creme_core.forms.base import CremeModelForm
+from creme.creme_core.forms.base import CremeEntityQuickForm  #CremeModelForm
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
@@ -35,7 +35,8 @@ from ..utils import get_csv_folder_or_create
 Document = get_document_model()
 
 
-class DocumentQuickForm(CremeModelForm):
+# class DocumentQuickForm(CremeModelForm):
+class DocumentQuickForm(CremeEntityQuickForm):
     class Meta:
         model = Document
         fields = ('user', 'filedata', 'linked_folder')
@@ -96,7 +97,8 @@ class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
 
 
 # TODO: factorise
-class ImageQuickForm(CremeModelForm):
+# class ImageQuickForm(CremeModelForm):
+class ImageQuickForm(CremeEntityQuickForm):
     image = ImageField(label=_('Image file'), max_length=Document._meta.get_field('filedata').max_length)
 
     class Meta:

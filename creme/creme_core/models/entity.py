@@ -294,9 +294,12 @@ class CremeEntity(CremeModel):
     def get_entity_summary(self, user) -> str:
         return escape(self.allowed_str(user))
 
-    def get_custom_fields_n_values(self) -> List[Tuple['CustomField', Any]]:
+    def get_custom_fields_n_values(self, only_required: bool = False) -> List[Tuple['CustomField', Any]]:
         # TODO: in a staticmethod of CustomField ??
         cfields = CustomField.objects.filter(content_type=self.entity_type_id)
+
+        if only_required:
+            cfields = cfields.filter(is_required=True)
 
         CremeEntity.populate_custom_values([self], cfields)
 

@@ -30,7 +30,10 @@ from django.utils.translation import gettext_lazy as _, gettext
 from creme.creme_core.core.deletion import FixedValueReplacer
 from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.fields import EntityCTypeChoiceField, ListEditionField
+from creme.creme_core.forms.fields import (
+    EntityCTypeChoiceField,
+    ListEditionField,
+)
 from creme.creme_core.forms.widgets import DynamicSelect, Label
 from creme.creme_core.models import DeletionCommand, Job
 from creme.creme_core.models.custom_field import (
@@ -228,7 +231,7 @@ class CustomFieldEditionForm(CremeModelForm):
 
     class Meta:
         model = CustomField
-        fields = ('name',)
+        fields = ('name', 'is_required')
 
     def clean_name(self):
         name = self.cleaned_data['name']

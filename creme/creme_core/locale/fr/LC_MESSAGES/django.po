@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-23 10:31+0100\n"
+"POT-Creation-Date: 2020-04-02 18:31+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -176,19 +176,19 @@ msgstr "Fichier XLSX"
 msgid "XLSX file extension introduced by Microsoft Excel 2007."
 msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 
-#: bricks.py:42 forms/base.py:366 forms/base.py:400 forms/mass_import.py:1255
+#: bricks.py:42 forms/base.py:393 forms/base.py:427 forms/mass_import.py:1255
 #: function_fields.py:48 models/creme_property.py:233
 #: templates/creme_core/bricks/properties.html:7
 msgid "Properties"
 msgstr "Propriétés"
 
-#: bricks.py:59 forms/base.py:401 forms/relation.py:37 gui/bricks.py:430
+#: bricks.py:59 forms/base.py:428 forms/relation.py:37 gui/bricks.py:430
 #: models/relation.py:419 templates/creme_core/bricks/relations.html:7
 #: templates/creme_core/forms/widgets/entity-cells.html:83
 msgid "Relationships"
 msgstr "Relations"
 
-#: bricks.py:136 forms/bulk.py:141 models/custom_field.py:68
+#: bricks.py:136 forms/bulk.py:141 models/custom_field.py:74
 #: templates/creme_core/bricks/custom-fields.html:12
 #: templates/creme_core/forms/widgets/entity-cells.html:58
 msgid "Custom fields"
@@ -890,19 +890,19 @@ msgstr "Privé ({})"
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:371
+#: forms/base.py:398
 msgid "Information on relationships"
 msgstr "Informations sur les relations"
 
-#: forms/base.py:376
+#: forms/base.py:403
 msgid "Relationships to add"
 msgstr "Relations à ajouter"
 
-#: forms/base.py:381 forms/relation.py:38 models/relation.py:491
+#: forms/base.py:408 forms/relation.py:38 models/relation.py:491
 msgid "Semi-fixed types of relationship"
 msgstr "Types de relation semi-fixés"
 
-#: forms/base.py:389
+#: forms/base.py:416
 #, python-format
 msgid ""
 "The property «%(property)s» is mandatory in order to use the relationship "
@@ -911,7 +911,7 @@ msgstr ""
 "La propriété «%(property)s» est obligatoire pour pouvoir utiliser la "
 "relation «%(predicate)s»"
 
-#: forms/base.py:392
+#: forms/base.py:419
 #, python-format
 msgid ""
 "These properties are mandatory in order to use the relationship "
@@ -920,26 +920,26 @@ msgstr ""
 "Ces propriétés sont obligatoires pour pouvoir utiliser la relation "
 "«%(predicate)s» : %(properties)s"
 
-#: forms/base.py:395
+#: forms/base.py:422
 msgid "You are not allowed to link the created entity (wrong owner?)."
 msgstr ""
 "Vous n'êtes pas autorisé à relier la fiche créée (mauvais propriétaire ?)"
 
-#: forms/base.py:399 models/entity.py:59
+#: forms/base.py:426 models/entity.py:59
 #: templates/creme_core/bricks/job.html:64
 msgid "Description"
 msgstr "Description"
 
-#: forms/base.py:472
+#: forms/base.py:497
 #, python-brace-format
 msgid "This relationship will be added: {predicate} «{entity}»"
 msgstr "Cette relation va être ajoutée : {predicate} «{entity}»"
 
-#: forms/base.py:478
+#: forms/base.py:503
 msgid "These relationships will be added: {}"
 msgstr "Ces relations vont être ajoutées : {}"
 
-#: forms/base.py:510
+#: forms/base.py:535
 msgid "You are not allowed to link this kind of entity."
 msgstr "Vous n'êtes pas autorisé à relier ce type de fiche."
 
@@ -1655,13 +1655,13 @@ msgstr "Barre de titre"
 msgid "Download «{file}»"
 msgstr "Télécharger «{file}»"
 
-#: gui/field_printers.py:210 models/custom_field.py:280 models/history.py:160
+#: gui/field_printers.py:210 models/custom_field.py:293 models/history.py:160
 #: templates/creme_core/listview/search-widgets/boolean.html:5
 #: utils/__init__.py:264
 msgid "Yes"
 msgstr "Oui"
 
-#: gui/field_printers.py:210 models/custom_field.py:280 models/history.py:161
+#: gui/field_printers.py:210 models/custom_field.py:293 models/history.py:161
 #: templates/creme_core/listview/search-widgets/boolean.html:6
 #: utils/__init__.py:267
 msgid "No"
@@ -2116,43 +2116,55 @@ msgstr "Nom du champ"
 msgid "Field type"
 msgstr "Type du champ"
 
-#: models/custom_field.py:62
+#: models/custom_field.py:59
+msgid "Is required?"
+msgstr "Est obligatoire ?"
+
+#: models/custom_field.py:61
+msgid ""
+"A required custom-field must be filled when a new entity is created ; "
+"existing entities are not immediately impacted."
+msgstr ""
+"Un champ personnalisé obligatoire doit être rempli quand une nouvelle fiche "
+"est créée ; les fiches existantes ne sont pas immédiatement concernées."
+
+#: models/custom_field.py:68
 msgid "Create a custom field"
 msgstr "Créer un champ personnalisé"
 
-#: models/custom_field.py:63
+#: models/custom_field.py:69
 msgid "Save the custom field"
 msgstr "Enregistrer le champ personnalisé"
 
-#: models/custom_field.py:67
+#: models/custom_field.py:73
 msgid "Custom field"
 msgstr "Champ personnalisé"
 
-#: models/custom_field.py:206
+#: models/custom_field.py:219
 msgid "String"
 msgstr "Chaîne de caractères"
 
-#: models/custom_field.py:222
+#: models/custom_field.py:235
 msgid "Integer"
 msgstr "Nombre entier"
 
-#: models/custom_field.py:239
+#: models/custom_field.py:252
 msgid "Decimal"
 msgstr "Nombre à virgule"
 
-#: models/custom_field.py:256
+#: models/custom_field.py:269
 msgid "Date and time"
 msgstr "Date et heure"
 
-#: models/custom_field.py:274
+#: models/custom_field.py:287
 msgid "Boolean (2 values: Yes/No)"
 msgstr "Booléen (2 valeurs: Oui/Non)"
 
-#: models/custom_field.py:311
+#: models/custom_field.py:330
 msgid "Choice list"
 msgstr "Liste de choix"
 
-#: models/custom_field.py:352
+#: models/custom_field.py:371
 msgid "Multiple choice list"
 msgstr "Liste de choix multiples"
 

@@ -1246,7 +1246,9 @@ class _BulkEditTestCase(ViewsTestCase):
         super().setUpClass()
         cls._original_bulk_update_registry = bulk_update.bulk_update_registry
 
-    def get_cf_values(self, cf, entity):
+    @staticmethod
+    # def get_cf_values(self, cf, entity):
+    def get_cf_values(cf, entity):
         return cf.get_value_class().objects.get(custom_field=cf, entity=entity)
 
     def create_image(self, name, user, categories=()):
@@ -1742,7 +1744,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         # Int
         response = self.client.post(url, data={'field_value': 10,
-                                               'entities': [mario.pk, luigi.pk]
+                                               'entities': [mario.pk, luigi.pk],
                                               },
                                    )
         self.assertNoFormError(response)
@@ -1751,7 +1753,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         # Int empty
         response = self.client.post(url, data={'field_value': '',
-                                               'entities': [mario.pk, luigi.pk]
+                                               'entities': [mario.pk, luigi.pk],
                                               },
                                    )
         self.assertNoFormError(response)
@@ -1771,7 +1773,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         # Float
         response = self.client.post(url, data={'field_value': '10.2',
-                                               'entities': [mario.pk, luigi.pk]
+                                               'entities': [mario.pk, luigi.pk],
                                               },
                                    )
         self.assertNoFormError(response)
@@ -1780,7 +1782,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         # Float empty
         response = self.client.post(url, data={'field_value': '',
-                                               'entities': [mario.pk, luigi.pk]
+                                               'entities': [mario.pk, luigi.pk],
                                               },
                                    )
         self.assertNoFormError(response)

@@ -10,17 +10,25 @@ try:
 
     from django.conf import settings
     from django.contrib.auth import get_user_model
+    from django.forms import IntegerField
     from django.urls import reverse
     from django.utils.timezone import now, localtime
     from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Relation, SetCredentials
+    from creme.creme_core.models import (
+        Relation,
+        SetCredentials,
+        CustomField,
+    )
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
+    from creme.persons.tests.base import (
+        skipIfCustomContact,
+        skipIfCustomOrganisation,
+    )
 
     from creme.activities import get_activity_model
     from creme.activities.constants import (
@@ -58,7 +66,8 @@ class MobileTestCase(CremeTestCase):
     WF_LASTED5MIN_URL = reverse('mobile__pcall_wf_lasted_5_minutes')
     WF_JUSTDONE_URL   = reverse('mobile__pcall_wf_just_done')
 
-    def login(self, is_superuser=True, is_staff=False, allowed_apps=('activities', 'persons'), *args, **kwargs):
+    def login(self, is_superuser=True, is_staff=False,
+              allowed_apps=('activities', 'persons'), *args, **kwargs):
         return super().login(is_superuser=is_superuser,
                              is_staff=is_staff,
                              allowed_apps=allowed_apps,
@@ -72,12 +81,13 @@ class MobileTestCase(CremeTestCase):
         return reverse('mobile__stop_activity', args=(activity.id,))
 
     def _create_floating(self, title, participant, status_id=None):
-        activity = Activity.objects.create(user=self.user, title=title,
-                                           type_id=ACTIVITYTYPE_MEETING,
-                                           sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                           status_id=status_id,
-                                           floating_type=FLOATING,
-                                          )
+        activity = Activity.objects.create(
+            user=self.user, title=title,
+            type_id=ACTIVITYTYPE_MEETING,
+            sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+            status_id=status_id,
+            floating_type=FLOATING,
+        )
 
         Relation.objects.create(subject_entity=participant, user=self.user,
                                 type_id=REL_SUB_PART_2_ACTIVITY,
@@ -93,14 +103,15 @@ class MobileTestCase(CremeTestCase):
         if end is None:
             end = start + timedelta(hours=1)
 
-        activity = Activity.objects.create(user=self.user, title=title,
-                                           type_id=ACTIVITYTYPE_MEETING,
-                                           sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                           status_id=status_id,
-                                           start=start,
-                                           end=end,
-                                           **kwargs
-                                          )
+        activity = Activity.objects.create(
+            user=self.user, title=title,
+            type_id=ACTIVITYTYPE_MEETING,
+            sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+            status_id=status_id,
+            start=start,
+            end=end,
+            **kwargs
+        )
 
         if participant is not None:
             Relation.objects.create(subject_entity=participant, user=self.user,
@@ -182,10 +193,11 @@ class MobileTestCase(CremeTestCase):
         now_val = localtime(now())
 
         def today(hour=14, minute=0, second=0):
-            return datetime(year=now_val.year, month=now_val.month, day=now_val.day,
-                            hour=hour, minute=minute, second=second,
-                            tzinfo=now_val.tzinfo
-                           )
+            return datetime(
+                year=now_val.year, month=now_val.month, day=now_val.day,
+                hour=hour, minute=minute, second=second,
+                tzinfo=now_val.tzinfo,
+            )
 
         past_midnight = today(0)
 
@@ -333,13 +345,62 @@ class MobileTestCase(CremeTestCase):
             [f.entity.get_real_entity() for f in self.user.mobile_favorite.all()]
         )
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_create_contact03(self):
+        self.login()
+
+        name = 'HP'
+        create_cf = partial(CustomField.objects.create, content_type=Contact)
+        cfield1 = create_cf(field_type=CustomField.STR, name='Special attacks')
+        cfield2 = create_cf(field_type=CustomField.INT,  name=name, is_required=True)
+
+        url = self.CREATE_CONTACT_URL
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'mobile/add_contact.html')
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            cfield_f2 = fields[f'custom_field_{cfield2.id}']
+
+        self.assertNotIn(f'custom_field_{cfield1.id}', fields)
+        self.assertIsInstance(cfield_f2, IntegerField)
+
+        self.assertContains(
+            response,
+            f'id="id_custom_field_{cfield2.id}"'
+        )
+        self.assertContains(
+            response,
+            f"<label class='field-label' for='id_custom_field_{cfield2.id}'>{name}"
+        )
+
+        first_name = 'May'
+        last_name = 'Shiranui'
+        response = self.assertPOST200(
+            url,
+            follow=True,
+            data={
+                'first_name':   first_name,
+                'last_name':    last_name,
+                f'custom_field_{cfield2.id}': 150,
+            },
+        )
+        self.assertNoFormError(response)
+
+        may = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        self.assertEqual(
+            150,
+            cfield2.get_value_class().objects.get(custom_field=cfield2.id, entity=may.id).value
+        )
+
+    def test_create_contact_error01(self):
         "Not logged."
         url = self.CREATE_CONTACT_URL
         response = self.assertGET(302, url)
         self.assertRedirects(response, '{}?next={}'.format(reverse('mobile__login'), url))
 
-    def test_create_contact04(self):
+    def test_create_contact_error02(self):
         "Not allowed."
         self.login(is_superuser=False, creatable_models=[Organisation])
 
@@ -350,7 +411,7 @@ class MobileTestCase(CremeTestCase):
             _('You do not have access to this page, please contact your administrator.')
         )
 
-    def test_create_contact05(self):
+    def test_create_contact_error03(self):
         "Not super-user."
         self.login(is_superuser=False, creatable_models=[Contact])
         self.assertGET200(self.CREATE_CONTACT_URL)
@@ -396,15 +457,64 @@ class MobileTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         ff = self.get_object_or_fail(Organisation, name=name)
-        self.assertEqual([ff], [f.entity.get_real_entity() for f in self.user.mobile_favorite.all()])
+        self.assertListEqual(
+            [ff],
+            [f.entity.get_real_entity() for f in self.user.mobile_favorite.all()]
+        )
 
+    @skipIfCustomOrganisation
     def test_create_orga03(self):
+        self.login()
+
+        cf_name = 'Prize'
+        create_cf = partial(CustomField.objects.create, content_type=Organisation)
+        cfield1 = create_cf(field_type=CustomField.STR, name='Baseline')
+        cfield2 = create_cf(field_type=CustomField.INT,  name=cf_name, is_required=True)
+
+        url = self.CREATE_ORGA_URL
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'mobile/add_orga.html')
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            cfield_f2 = fields[f'custom_field_{cfield2.id}']
+
+        self.assertNotIn(f'custom_field_{cfield1.id}', fields)
+        self.assertIsInstance(cfield_f2, IntegerField)
+
+        self.assertContains(
+            response,
+            f'id="id_custom_field_{cfield2.id}"'
+        )
+        self.assertContains(
+            response,
+            f"<label class='field-label' for='id_custom_field_{cfield2.id}'>{cfield2.name}"
+        )
+
+        name = 'Fatal Fury Inc.'
+        response = self.assertPOST200(
+            url,
+            follow=True,
+            data={
+                'name': name,
+                f'custom_field_{cfield2.id}': 150,
+            },
+        )
+        self.assertNoFormError(response)
+
+        ffinc = self.get_object_or_fail(Organisation, name=name)
+        self.assertEqual(
+            150,
+            cfield2.get_value_class().objects.get(custom_field=cfield2.id, entity=ffinc.id).value
+        )
+
+    def test_create_orga_error01(self):
         "Not logged."
         url = self.CREATE_ORGA_URL
         response = self.assertGET(302, url)
         self.assertRedirects(response, '{}?next={}'.format(reverse('mobile__login'), url))
 
-    def test_create_orga04(self):
+    def test_create_orga_error02(self):
         self.login(is_superuser=False, creatable_models=[Contact])
 
         response = self.assertGET403(self.CREATE_ORGA_URL)
@@ -552,10 +662,11 @@ class MobileTestCase(CremeTestCase):
         now_val = now()
 
         def today(hour=14, minute=0):
-            return datetime(year=now_val.year, month=now_val.month, day=now_val.day,
-                            hour=hour, minute=minute,
-                            tzinfo=now_val.tzinfo
-                           )
+            return datetime(
+                year=now_val.year, month=now_val.month, day=now_val.day,
+                hour=hour, minute=minute,
+                tzinfo=now_val.tzinfo
+            )
 
         end = today(23, 59)
         meeting = self._create_meeting(
@@ -871,7 +982,7 @@ class MobileTestCase(CremeTestCase):
         self.assertNotIn('phone_call', context)
         self.assertEqual(mobile, context['number'])
         self.assertNotIn('participant_contacts', context)
-        self.assertEqual([zalem], orgas)
+        self.assertListEqual([zalem], orgas)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -1083,12 +1194,13 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(start, pcall.start)
         self.assertEqual(start, pcall.end)
 
-        self.assertEqual(_('{status} call to {person} from Creme Mobile').format(
-                                status=_('Failed'),
-                                person=other_contact,
-                            ),
-                         pcall.title
-                        )
+        self.assertEqual(
+            _('{status} call to {person} from Creme Mobile').format(
+                status=_('Failed'),
+                person=other_contact,
+            ),
+            pcall.title
+        )
 
         get_cal = Calendar.objects.get_default_calendar
         self.assertSetEqual({get_cal(user), get_cal(self.other_user)},
@@ -1277,7 +1389,9 @@ class MobileTestCase(CremeTestCase):
         pcall = self.refresh(pcall)
         self.assertEqual(STATUS_DONE, pcall.status_id)
 
-        create_dt = partial(self.create_datetime, utc=True, year=2014, month=3, day=10, hour=11)
+        create_dt = partial(self.create_datetime,
+                            utc=True, year=2014, month=3, day=10, hour=11,
+                           )
         self.assertEqual(create_dt(minute=30, second=28), pcall.start)
         self.assertEqual(create_dt(minute=35, second=28), pcall.end)
         self.assertEqual('', pcall.minutes)
@@ -1486,8 +1600,9 @@ class MobileTestCase(CremeTestCase):
     @skipIfCustomContact
     def test_unmark_favorite(self):
         user = self.login()
-        may = Contact.objects.create(user=user, first_name='May',
-                                     last_name='Shiranui'
+        may = Contact.objects.create(user=user,
+                                     first_name='May',
+                                     last_name='Shiranui',
                                     )
         fav = MobileFavorite.objects.create(entity=may, user=user)
 
