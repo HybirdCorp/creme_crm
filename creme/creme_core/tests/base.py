@@ -244,6 +244,36 @@ class _CremeTestCase:
                 f'An exception <{e.__class__.__name__}> occurred: {e}'
             ) from e
 
+    def assertInChoices(self, value, label, choices):
+        """Search a choice among a classical sequence of Django's choices
+        (ie: tuples (value, label).
+        """
+        for i, (choice_value, choice_label) in enumerate(choices):
+            if value == choice_value:
+                if choice_label != label:
+                    self.fail(
+                        f'The choice "{value}" has been found, but with the label "{choice_label}".'
+                    )
+
+                return i
+
+        self.fail(
+            'The choice "{value}" has not been found in {values}.'.format(
+                value=value,
+                values=[c[0] for c in choices],
+            )
+        )
+
+    def assertNotInChoices(self, value, choices):
+        """Check a choice's value is not found in a classical sequence of
+        Django's choices (ie: tuples (value, label).
+        """
+        for choice_value, choice_label in choices:
+            if choice_value == value:
+                self.fail(
+                    f'The choice "{value}" has been unexpectedly found with label="{choice_label}".'
+                )
+
     def assertFormInstanceErrors(self, form, *errors):
         form_errors = form.errors
         field_names = set()

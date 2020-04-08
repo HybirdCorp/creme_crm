@@ -5,8 +5,11 @@ try:
     from django.urls import reverse
     from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import ButtonMenuItem, FakeContact, FakeOrganisation
     from creme.creme_core.gui.button_menu import Button, button_registry
+    from creme.creme_core.models import (
+        ButtonMenuItem,
+        FakeContact, FakeOrganisation,
+    )
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
@@ -41,13 +44,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
                          response.context.get('bricks_reload_url')
                         )
 
-    def _find_field_index(self, formfield, button_id):
-        for i, (f_button_id, f_button_vname) in enumerate(formfield.choices):
-            if f_button_id == button_id:
-                return i
-
-        self.fail(f'No "{button_id}" in button IDs')
-
     def test_wizard(self):
         class TestButton(Button):
             id_          = Button.generate_id('creme_config', 'test_wizard')
@@ -65,28 +61,38 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertIn(ct, ctypes)
 
         step_key = 'button_menu_wizard-current_step'
-        response = self.assertPOST200(url, data={step_key: '0',
-                                                 '0-ctype': ct.id,
-                                                },
-                                     )
+        response = self.assertPOST200(
+            url,
+            data={
+                step_key: '0',
+                '0-ctype': ct.id,
+            },
+        )
 
         with self.assertNoException():
-            button_ids = response.context['form'].fields['button_ids']
+            choices = response.context['form'].fields['button_ids'].choices
 
-        button_index = self._find_field_index(button_ids, TestButton.id_)
+        button_index = self.assertInChoices(
+            value=TestButton.id_,
+            label=TestButton.verbose_name,
+            choices=choices,
+        )
 
-        response = self.client.post(url,
-                                    data={
-                                        step_key: '1',
-                                        f'1-button_ids_check_{button_index}': 'on',
-                                        f'1-button_ids_value_{button_index}': TestButton.id_,
-                                        f'1-button_ids_order_{button_index}': 1,
-                                    },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                step_key: '1',
+                f'1-button_ids_check_{button_index}': 'on',
+                f'1-button_ids_value_{button_index}': TestButton.id_,
+                f'1-button_ids_order_{button_index}': 1,
+            },
+        )
         self.assertNoFormError(response)
-        self.assertEqual(
+        self.assertListEqual(
             [(TestButton.id_, 1000)],
-            [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=ct)]
+            [*ButtonMenuItem.objects.filter(content_type=ct)
+                                    .values_list('button_id', 'order')
+            ]
         )
 
     def test_edit01(self):
@@ -112,21 +118,28 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertEqual(_('Save the modifications'),     context.get('submit_label'))
 
         with self.assertNoException():
-            button_ids = context['form'].fields['button_ids']
+            choices = context['form'].fields['button_ids'].choices
 
-        button_index = self._find_field_index(button_ids, TestButton.id_)
+        button_index = self.assertInChoices(
+            value=TestButton.id_,
+            label=TestButton.verbose_name,
+            choices=choices,
+        )
 
-        response = self.client.post(url,
-                                    data={
-                                        f'button_ids_check_{button_index}': 'on',
-                                        f'button_ids_value_{button_index}': TestButton.id_,
-                                        f'button_ids_order_{button_index}': 1,
-                                    },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                f'button_ids_check_{button_index}': 'on',
+                f'button_ids_value_{button_index}': TestButton.id_,
+                f'button_ids_order_{button_index}': 1,
+            },
+        )
         self.assertNoFormError(response)
-        self.assertEqual(
+        self.assertListEqual(
             [(TestButton.id_, 1)],
-            [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=None)]
+            [*ButtonMenuItem.objects.filter(content_type=None)
+                                    .values_list('button_id', 'order')
+            ]
         )
 
     def test_edit03(self):
@@ -134,12 +147,12 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         class TestButton01(Button):
             id_          = Button.generate_id('creme_config', 'test_edit03_1')
-            verbose_name = 'Testing purpose'
+            verbose_name = 'Test button #1'
 
 
         class TestButton02(Button):
             id_          = Button.generate_id('creme_config', 'test_edit03_2')
-            verbose_name = 'Testing purpose'
+            verbose_name = 'Test button #2'
 
             def get_ctypes(self):
                 return [FakeContact, FakeOrganisation]
@@ -147,7 +160,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         class TestButton03(Button):
             id_          = Button.generate_id('creme_config', 'test_edit03_3')
-            verbose_name = 'Testing purpose'
+            verbose_name = 'Test button #3'
 
             def get_ctypes(self):
                 return [FakeOrganisation]  # No Contact
@@ -158,19 +171,27 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         url = reverse('creme_config__edit_ctype_buttons', args=(ct.id,))
         context = self.assertGET200(url).context
-        self.assertEqual(_('Edit configuration for «{model}»').format(model=ct),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Edit configuration for «{model}»').format(model=ct),
+            context.get('title')
+        )
 
         with self.assertNoException():
-            button_ids = context['form'].fields['button_ids']
+            choices = context['form'].fields['button_ids'].choices
 
-        button01_index = self._find_field_index(button_ids, TestButton01.id_)
-        button02_index = self._find_field_index(button_ids, TestButton02.id_)
+        button01_index = self.assertInChoices(
+            value=TestButton01.id_,
+            label=TestButton01.verbose_name,
+            choices=choices,
+        )
+        button02_index = self.assertInChoices(
+            value=TestButton02.id_,
+            label=TestButton02.verbose_name,
+            choices=choices,
+        )
 
-        for i, (f_button_id, f_button_vname) in enumerate(button_ids.choices):
-            if f_button_id == TestButton03.id_:
-                self.fail('Button03 is incompatible with Contact')
+        # NB: Button03 is incompatible with Contact
+        self.assertNotInChoices(value=TestButton03.id_, choices=choices)
 
         response = self.client.post(
             url,
@@ -185,16 +206,16 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             },
         )
         self.assertNoFormError(response)
-        self.assertEqual(
+        self.assertListEqual(
             [(TestButton01.id_, 1000), (TestButton02.id_, 1001)],
-            [(bmi.button_id, bmi.order)
-                 for bmi in ButtonMenuItem.objects.filter(content_type=ct)
-                                                  .order_by('order')
+            [*ButtonMenuItem.objects.filter(content_type=ct)
+                                    .order_by('order')
+                                    .values_list('button_id', 'order')
             ]
         )
 
     def test_delete01(self):
-        "Can not delete default conf"
+        "Can not delete default configuration."
         url = self.DEL_URL
         bmi = ButtonMenuItem.objects.create(content_type=None, button_id='', order=1)
         self.assertPOST404(url)

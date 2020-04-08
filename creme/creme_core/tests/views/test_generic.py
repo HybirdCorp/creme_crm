@@ -298,8 +298,8 @@ class CreationTestCase(ViewsTestCase):
         self.assertNotIn('rtypes_info', fields)
         self.assertIn('relation_types', fields)
 
-        self.assertIn((sfrt1.id, sfrt1.predicate), sf_choices)
-        self.assertIn((sfrt2.id, sfrt2.predicate), sf_choices)
+        self.assertInChoices(value=sfrt1.id, label=sfrt1.predicate, choices=sf_choices)
+        self.assertInChoices(value=sfrt2.id, label=sfrt2.predicate, choices=sf_choices)
 
         # POST ---
         first_name = 'Spike'

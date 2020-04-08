@@ -2,6 +2,7 @@
 
 try:
     from django.urls import reverse
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.gui.actions import actions_registry
     from creme.creme_core.tests.base import CremeTestCase
@@ -13,17 +14,17 @@ except Exception as e:
 
 class VcfsTestCase(CremeTestCase):
     def test_config(self):
-        "Should not be available when creating UserRoles"
+        "Should not be available when creating UserRoles."
         self.login()
 
         response = self.assertGET200(reverse('creme_config__create_role'))
 
         with self.assertNoException():
-            app_labels = {c[0] for c in response.context['form'].fields['allowed_apps'].choices}
+            app_labels = response.context['form'].fields['allowed_apps'].choices
 
-        self.assertIn('creme_core', app_labels)
-        self.assertIn('persons',    app_labels)
-        self.assertNotIn('vcfs', app_labels)  # <==
+        self.assertInChoices(value='creme_core', label=_('Core'),                  choices=app_labels)
+        self.assertInChoices(value='persons',    label=_('Accounts and Contacts'), choices=app_labels)
+        self.assertNotInChoices(value='vcfs', choices=app_labels)  # <==
 
     def test_actions(self):
         user = self.login()

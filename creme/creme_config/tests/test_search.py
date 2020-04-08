@@ -33,28 +33,11 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     def setUp(self):
         self.login()
 
-    def assertNoChoice(self, formfield, field_name):
-        for i, (f_field_name, f_field_vname) in enumerate(formfield.choices):
-            if f_field_name == field_name:
-                self.fail(field_name + ' in choices')
-
     def _build_add_url(self, ctype):
         return reverse('creme_config__create_search_config', args=(ctype.id,))
 
     def _build_edit_url(self, sci):
         return reverse('creme_config__edit_search_config', args=(sci.id,))
-
-    def _find_field_index(self, formfield, field_name):
-        for i, (f_field_name, f_field_vname) in enumerate(formfield.choices):
-            if f_field_name == field_name:
-                return i
-
-        self.fail(f'No "{field_name}" in field')
-
-    def _assertNotInChoices(self, formfield, field_name):
-        for f_field_name, f_field_vname in formfield.choices:
-            if f_field_name == field_name:
-                self.fail(f'"{field_name}" found in choices')
 
     def _get_first_entity_ctype(self):
         ctypes = [*creme_entity_content_types()]
@@ -109,15 +92,20 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         with self.assertNoException():
             fields = context['form'].fields['fields']
+            choices = fields.choices
 
         self.assertFalse(fields.initial)
 
         fname = 'last_name'
-        index = self._find_field_index(fields, fname)
+        index = self.assertInChoices(value=fname, label=_('Last name'), choices=choices)
 
-        self._find_field_index(fields, 'first_name')
-        self._find_field_index(fields, 'civility__title')
-        self.assertNoChoice(fields, 'birthday')
+        self.assertInChoices(value='first_name', label=_('First name'), choices=choices)
+        self.assertInChoices(
+            value='civility__title',
+            label='[{}] - {}'.format(_('Civility'), _('Title')),
+            choices=choices,
+        )
+        self.assertNotInChoices(value='birthday', choices=choices)
 
         self.assertNoFormError(self.client.post(
             url,
@@ -154,7 +142,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(sc_item.all_fields)
 
     def test_add03(self):
-        "Unique configuration"
+        "Unique configuration."
         role = self.role
         ct = self.ct_contact
         SearchConfigItem.objects.create(content_type=ct, role=role)
@@ -169,9 +157,8 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertEqual('*{}*'.format(_('Superuser')), role_f.empty_label)
 
-        role_ids = {c[0] for c in choices}
-        self.assertIn(role2.id, role_ids)
-        self.assertNotIn(role.id, role_ids)
+        self.assertInChoices(value=role2.id, label=str(role2), choices=choices)
+        self.assertNotInChoices(value=role.id, choices=choices)
 
     def test_add04(self):
         "Unique configuration (super-user)"
@@ -220,82 +207,87 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         with self.assertNoException():
             fields = context['form'].fields['fields']
+            choices = fields.choices
 
         self.assertEqual(['last_name'], fields.initial)
 
         fname1 = 'last_name'
-        index1 = self._find_field_index(fields, fname1)
+        index1 = self.assertInChoices(value=fname1, label=_('Last name'), choices=choices)
 
         fname2 = 'first_name'
-        index2 = self._find_field_index(fields, fname2)
+        index2 = self.assertInChoices(value=fname2, label=_('First name'), choices=choices)
 
-        self._find_field_index(fields, 'civility__title')
-        self.assertNoChoice(fields, 'birthday')
+        self.assertInChoices(
+            value='civility__title',
+            label='[{}] - {}'.format(_('Civility'), _('Title')),
+            choices=choices,
+        )
+        self.assertNotInChoices(value='birthday', choices=choices)
 
         sci = self._edit_config(url, sci, ((fname1, index1), (fname2, index2)))
         self.assertFalse(sci.disabled)
 
     def test_edit02(self):
-        "Other CT + role + exclude BooleanField"
+        "Other CT + role + exclude BooleanField."
         sci = SearchConfigItem.objects.create(content_type=self.ct_orga, role=self.role)
         url = self._build_edit_url(sci)
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            fields = response.context['form'].fields['fields']
+            choices = response.context['form'].fields['fields'].choices
 
         fname1 = 'name'
-        index1 = self._find_field_index(fields, fname1)
+        index1 = self.assertInChoices(value=fname1, label=_('Name'), choices=choices)
 
         fname2 = 'description'
-        index2 = self._find_field_index(fields, fname2)
+        index2 = self.assertInChoices(value=fname2, label=_('Description'), choices=choices)
 
-        self.assertNoChoice(fields, 'subject_to_vat')
+        self.assertNotInChoices(value='subject_to_vat', choices=choices)
 
         self._edit_config(url, sci, ((fname1, index1), (fname2, index2)))
 
     def test_edit03(self):
-        "Disabled"
+        "Disabled."
         sci = SearchConfigItem.objects.create(content_type=self.ct_contact)
         url = self._build_edit_url(sci)
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            fields = response.context['form'].fields['fields']
+            choices = response.context['form'].fields['fields'].choices
 
-        fname1 = 'last_name'
-        index1 = self._find_field_index(fields, fname1)
-        sci = self._edit_config(url, sci, [(fname1, index1)], disabled='on')
+        fname = 'last_name'
+        index = self.assertInChoices(value=fname, label=_('Last name'), choices=choices)
+        sci = self._edit_config(url, sci, [(fname, index)], disabled='on')
         self.assertTrue(sci.disabled)
 
     def test_edit04(self):
-        "Fields with 'choices' are not valid"
+        "Fields with 'choices' are not valid."
         fname = 'discount_unit'
         mfield = FakeInvoiceLine._meta.get_field(fname)
         self.assertTrue(mfield.choices)
 
-        sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(FakeInvoiceLine))
+        sci = SearchConfigItem.objects.create(content_type=FakeInvoiceLine)
         response = self.assertGET200(self._build_edit_url(sci))
 
         with self.assertNoException():
-            fields = response.context['form'].fields['fields']
+            choices = response.context['form'].fields['fields'].choices
 
-        self._find_field_index(fields, 'item')
-        self.assertNoChoice(fields, fname)
+        self.assertInChoices(value='item', label='Item', choices=choices)
+        self.assertNotInChoices(value=fname, choices=choices)
 
     def test_edit05(self):
-        "Exclude DateperiodField"
+        "Exclude DatePeriodField."
         sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(FakeInvoice))
         response = self.assertGET200(self._build_edit_url(sci))
 
         with self.assertNoException():
-            fields = response.context['form'].fields['fields']
+            choices = response.context['form'].fields['fields'].choices
 
-        self._find_field_index(fields, 'name')
-        self.assertNoChoice(fields, 'periodicity')
+        self.assertInChoices(value='name', label=_('Name'), choices=choices)
+        self.assertNotInChoices(value='periodicity', choices=choices)
 
     def test_edit06(self):
-        "With FieldsConfig"
+        "With FieldsConfig."
         model = FakeContact
         hidden_fname1 = 'description'
         hidden_fname2 = 'position'
@@ -312,14 +304,19 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         with self.assertNoException():
             fields_f = response.context['form'].fields['fields']
+            choices = fields_f.choices
 
-        self.assertEqual(['first_name'], fields_f.initial)
+        self.assertListEqual(['first_name'], fields_f.initial)
 
-        self._find_field_index(fields_f, 'first_name')
-        self._find_field_index(fields_f, 'civility__title')
+        self.assertInChoices(value='first_name', label=_('First name'), choices=choices)
+        self.assertInChoices(
+            value='civility__title',
+            label='[{}] - {}'.format(_('Civility'), _('Title')),
+            choices=choices,
+        )
 
-        self._assertNotInChoices(fields_f, hidden_fname1)
-        self._assertNotInChoices(fields_f, 'position__title')
+        self.assertNotInChoices(value=hidden_fname1,     choices=choices)
+        self.assertNotInChoices(value='position__title', choices=choices)
 
     def test_edit07(self):
         "With FieldsConfig + selected hidden fields."
@@ -344,14 +341,19 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         with self.assertNoException():
             fields_f = response.context['form'].fields['fields']
+            choices = fields_f.choices
 
         self.assertEqual(['first_name', hidden_fname1, hidden_sub_fname2],
                          fields_f.initial
                         )
 
-        self._find_field_index(fields_f, 'first_name')
-        self._find_field_index(fields_f, hidden_fname1)
-        self._find_field_index(fields_f, hidden_sub_fname2)
+        self.assertInChoices(value='first_name',  label=_('First name'),  choices=choices)
+        self.assertInChoices(value=hidden_fname1, label=_('Description'), choices=choices)
+        self.assertInChoices(
+            value=hidden_sub_fname2,
+            label='[{}] - {}'.format(_('Position'), _('Title')),
+            choices=choices,
+        )
 
     def test_delete01(self):
         sci = SearchConfigItem.objects.create_if_needed(

@@ -1331,14 +1331,14 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertNoFormError(response)
 
         with self.assertNoException():
-            key_choices = {c[0] for c in response.context['form'].fields['key_fields'].choices}
+            key_choices = response.context['form'].fields['key_fields'].choices
 
-        self.assertIn('civility', key_choices)
-        self.assertNotIn('civility__title',    key_choices)
-        self.assertNotIn('civility__shortcut', key_choices)
-        self.assertNotIn('address', key_choices)  # Not enumerable
-        self.assertNotIn('address__city', key_choices)  # Idem
-        self.assertNotIn('languages', key_choices)  # M2M
+        self.assertInChoices(value='civility', label=_('Civility'), choices=key_choices)
+        self.assertNotInChoices(value='civility__title',    choices=key_choices)
+        self.assertNotInChoices(value='civility__shortcut', choices=key_choices)
+        self.assertNotInChoices(value='address',            choices=key_choices)  # Not enumerable
+        self.assertNotInChoices(value='address__city',      choices=key_choices)  # Idem
+        self.assertNotInChoices(value='languages',          choices=key_choices)  # M2M
 
         # Final POST
         response = self.client.post(
@@ -1413,24 +1413,25 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         with self.assertNoException():
             fields = response.context['form'].fields
-            key_choices = {c[0] for c in fields['key_fields'].choices}
+            key_choices = fields['key_fields'].choices
 
-        self.assertIn('last_name', key_choices)
-        self.assertNotIn(hidden_fname, key_choices)
+        self.assertInChoices(value='last_name', label=_('Last name'), choices=key_choices)
+        self.assertNotInChoices(value=hidden_fname, choices=key_choices)
 
         self.assertIn('last_name', fields)
         self.assertNotIn(hidden_fname, fields)
 
-        response = self.client.post(url, follow=True,
-                                    data={
-                                        **self.lv_import_data,
-                                        'document': doc.id,
-                                        'user': user.id,
-                                        'key_fields': ['first_name', 'last_name'],
-                                        'phone_colselect': 3,  # Should be ignored
-                                        'email_colselect': 4,
-                                    },
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'key_fields': ['first_name', 'last_name'],
+                'phone_colselect': 3,  # Should be ignored
+                'email_colselect': 4,
+            },
+        )
         self.assertNoFormError(response)
 
         self._execute_job(response)

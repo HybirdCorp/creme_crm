@@ -5,6 +5,7 @@ try:
 
     from django.urls import reverse
     from django.utils.timezone import now
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -50,17 +51,17 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         return user
 
     def test_config(self):
-        "Should not ne available when creating UserRoles"
+        "Should not ne available when creating UserRoles."
         self.login()
 
         response = self.assertGET200(reverse('creme_config__create_role'))
 
         with self.assertNoException():
-            app_labels = {c[0] for c in response.context['form'].fields['allowed_apps'].choices}
+            app_labels = response.context['form'].fields['allowed_apps'].choices
 
-        self.assertIn('creme_core', app_labels)
-        self.assertIn('persons',    app_labels)
-        self.assertNotIn('cti', app_labels)  # <==
+        self.assertInChoices(value='creme_core', label=_('Core'),                  choices=app_labels)
+        self.assertInChoices(value='persons',    label=_('Accounts and Contacts'), choices=app_labels)
+        self.assertNotInChoices(value='cti', choices=app_labels)  # <==
 
     def test_print_phone(self):
         user = self.login()
@@ -110,7 +111,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomActivity
     def test_add_phonecall02(self):
-        "No contact"
+        "No contact."
         self.login()
 
         self.assertPOST404(self.ADD_PCALL_URL, data={'entity_id': '1024'})
@@ -118,7 +119,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_add_phonecall03(self):
-        "Organisation"
+        "Organisation."
         user = self.login()
 
         orga = Organisation.objects.create(user=user, name='Gunsmith Cats')
@@ -133,7 +134,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomContact
     def test_respond_to_a_call01(self):
-        "Contact"
+        "Contact."
         user = self.login()
 
         phone = '558899'
@@ -170,7 +171,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomContact
     def test_respond_to_a_call02(self):
-        "Contact's other field (mobile)"
+        "Contact's other field (mobile)."
         user = self.login()
 
         phone = '558899'
@@ -181,7 +182,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_respond_to_a_call03(self):
-        "Organisation"
+        "Organisation."
         user = self.login()
 
         phone = '558899'
@@ -211,7 +212,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomContact
     def test_respond_to_a_call05(self):
-        """FieldsConfig: some fields are hidden"""
+        """FieldsConfig: some fields are hidden."""
         user = self.login()
 
         FieldsConfig.objects.create(
@@ -245,7 +246,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
                                                       'first_name': first_name,
                                                       'last_name':  last_name,
                                                       'phone':      phone,
-                                                     }
+                                                     },
                                                )
                               )
         contact = self.get_object_or_fail(Contact, phone=phone)
@@ -271,7 +272,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
                                                 data={'user':  user.id,
                                                       'name':  name,
                                                       'phone': phone,
-                                                     }
+                                                     },
                                                )
                               )
         orga = self.get_object_or_fail(Organisation, phone=phone)

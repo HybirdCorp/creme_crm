@@ -106,8 +106,8 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             hours = context['form'].fields['deadline_hour'].choices
 
-        self.assertIn((0, '0h'), hours)
-        self.assertIn((23, '23h'), hours)
+        self.assertInChoices(value=0, label='0h', choices=hours)
+        self.assertInChoices(value=23, label='23h', choices=hours)
         self.assertEqual(24, len(hours))
 
         # ---

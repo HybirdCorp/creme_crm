@@ -65,26 +65,28 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         active_group = choices[0]
         self.assertEqual('', active_group[0])
 
-        def find_user_choice(u, choices):
-            user_id = u.id
-
-            for i, choice in enumerate(choices):
-                if user_id == choice[0]:
-                    return i, choice[1]
-
-            self.fail(f'User "{u}" not found in {choices}')
-
         active_choices = active_group[1]
-        user_index, user_label = find_user_choice(user, active_choices)
-        self.assertEqual(str(user), user_label)
+        user_index = self.assertInChoices(
+            value=user.id,
+            label=str(user),
+            choices=active_choices,
+        )
+        other_index = self.assertInChoices(
+            value=other_user.id,
+            label=str(other_user),
+            choices=active_choices,
+        )
+        first_index = self.assertInChoices(
+            value=first_user.id,
+            label=str(first_user),
+            choices=active_choices,
+        )
 
-        other_index, other_label = find_user_choice(other_user, active_choices)
-        self.assertEqual(str(other_user), other_label)
-
-        first_index, first_label = find_user_choice(first_user, active_choices)
-        self.assertEqual(str(first_user), first_label)
-
-        find_user_choice(staff, active_choices)
+        self.assertInChoices(
+            value=staff.id,
+            label=str(staff),
+            choices=active_choices,
+        )
 
         self.assertGreater(other_index, user_index)
         self.assertGreater(user_index,  first_index)
@@ -113,9 +115,9 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         self.assertEqual('', active_group[0])
 
         active_choices = active_group[1]
-        self.assertIn((user.id, str(user)),             active_choices)
-        self.assertIn((other_user.id, str(other_user)), active_choices)
-        self.assertNotIn((staff.id, str(staff)),        active_choices)
+        self.assertInChoices(value=user.id,       label=str(user),       choices=active_choices)
+        self.assertInChoices(value=other_user.id, label=str(other_user), choices=active_choices)
+        self.assertNotInChoices(value=staff.id, choices=active_choices)
 
     def test_initial(self):
         self.login()
@@ -149,9 +151,9 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         self.assertEqual('', active_group[0])
 
         active_choices = active_group[1]
-        self.assertIn((user.id, str(user)),             active_choices)
-        self.assertIn((other_user.id, str(other_user)), active_choices)
-        self.assertNotIn(inactive1.id, {c[0] for c in active_choices})
+        self.assertInChoices(value=user.id,       label=str(user),       choices=active_choices)
+        self.assertInChoices(value=other_user.id, label=str(other_user), choices=active_choices)
+        self.assertNotInChoices(value=inactive1.id, choices=active_choices)
 
         inactive_group = choices[1]
         self.assertEqual(_('Inactive users'), inactive_group[0])
@@ -179,9 +181,9 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         self.assertEqual('', active_group[0])
 
         active_choices = active_group[1]
-        self.assertIn((user.id, str(user)),             active_choices)
-        self.assertIn((other_user.id, str(other_user)), active_choices)
-        self.assertNotIn(team.id, {c[0] for c in active_choices})
+        self.assertInChoices(value=user.id,       label=str(user),       choices=active_choices)
+        self.assertInChoices(value=other_user.id, label=str(other_user), choices=active_choices)
+        self.assertNotInChoices(value=team.id, choices=active_choices)
 
         team_group = choices[1]
         self.assertEqual(_('Teams'), team_group[0])
@@ -239,9 +241,9 @@ class DatePeriodFieldTestCase(FieldTestCase):
 
     def test_choices(self):
         choices = [*DatePeriodField().choices]
-        self.assertIn((MinutesPeriod.name, MinutesPeriod.verbose_name), choices)
-        self.assertIn((HoursPeriod.name,   HoursPeriod.verbose_name),   choices)
-        self.assertIn((DaysPeriod.name,    DaysPeriod.verbose_name),    choices)
+        self.assertInChoices(value=MinutesPeriod.name, label=MinutesPeriod.verbose_name, choices=choices)
+        self.assertInChoices(value=HoursPeriod.name,   label=HoursPeriod.verbose_name,   choices=choices)
+        self.assertInChoices(value=DaysPeriod.name,    label=DaysPeriod.verbose_name,    choices=choices)
 
     def test_period_names(self):
         clean = DatePeriodField(period_names=('months',)).clean
@@ -249,9 +251,10 @@ class DatePeriodFieldTestCase(FieldTestCase):
         self.assertIsInstance(period, DatePeriod)
 
         name = 'years'
-        self.assertFieldValidationError(ChoiceField, 'invalid_choice', clean,
-                                        [name, '2'], message_args={'value': name},
-                                       )
+        self.assertFieldValidationError(
+            ChoiceField, 'invalid_choice', clean,
+            [name, '2'], message_args={'value': name},
+        )
 
     def test_notnull(self):
         with self.assertRaises(ValidationError) as cm:
@@ -259,7 +262,7 @@ class DatePeriodFieldTestCase(FieldTestCase):
 
         self.assertEqual(
             [_('Ensure this value is greater than or equal to %(limit_value)s.') % {
-                'limit_value': 1
+                'limit_value': 1,
              },
             ],
             cm.exception.messages
@@ -448,13 +451,16 @@ class ChoiceOrCharFieldTestCase(FieldTestCase):
         with self.assertNoException():
             choices = field.choices
 
-        self.assertIn((0, _('Other')), choices)
+        self.assertInChoices(value=0, label=_('Other'), choices=choices)
 
         other = 'Shikamaru'
         self.assertEqual((0, other), field.clean([0, other]))
 
     def test_empty_ok(self):
-        field = ChoiceOrCharField(choices=enumerate(self._team, start=1), required=False)
+        field = ChoiceOrCharField(
+            choices=enumerate(self._team, start=1),
+            required=False,
+        )
 
         with self.assertNoException():
             cleaned = field.clean(['', ''])
