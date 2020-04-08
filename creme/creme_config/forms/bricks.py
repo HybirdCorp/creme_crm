@@ -20,20 +20,30 @@
 
 from itertools import chain
 
+from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db.models import URLField, EmailField, ManyToManyField, ForeignKey
-from django.forms import MultipleChoiceField, ChoiceField, ModelChoiceField, ValidationError
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
-from creme.creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
+from creme.creme_core.core.entity_cell import (
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.forms import (
+    base,
+    widgets as core_widgets,
+)
 from creme.creme_core.forms.fields import EntityCTypeChoiceField
 from creme.creme_core.forms.header_filter import EntityCellsField
-from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget, DynamicSelect, CremeRadioSelect
 from creme.creme_core.gui import bricks as gui_bricks
-from creme.creme_core.models import (RelationType, CremeEntity, UserRole,
-        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
-        RelationBrickItem, CustomBrickConfigItem)
+from creme.creme_core.models import (
+    CremeEntity,
+    RelationType,
+    UserRole,
+    BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
+    RelationBrickItem, CustomBrickConfigItem,
+)
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
@@ -47,19 +57,22 @@ __all__ = (
 )
 
 
-class BrickLocationsField(MultipleChoiceField):
-    def __init__(self, *, required=False, choices=(), widget=OrderedMultipleChoiceWidget, **kwargs):
+class BrickLocationsField(forms.MultipleChoiceField):
+    def __init__(self, *, required=False, choices=(),
+                 widget=core_widgets.OrderedMultipleChoiceWidget,
+                 **kwargs):
         super().__init__(required=required, choices=choices,
                          widget=widget, **kwargs
                         )
 
 
-class _BrickLocationsForm(CremeForm):
+class _BrickLocationsForm(base.CremeForm):
     def _build_home_locations_field(self, field_name, brick_locations):
         bricks = self.fields[field_name]
-        choices = [(brick.id_, str(brick.verbose_name))
-                        for brick in gui_bricks.brick_registry.get_compatible_home_bricks()
-                  ]
+        choices = [
+            (brick.id_, str(brick.verbose_name))
+                for brick in gui_bricks.brick_registry.get_compatible_home_bricks()
+        ]
         sort_key = collator.sort_key
         choices.sort(key=lambda c: sort_key(c[1]))
 
@@ -76,7 +89,9 @@ class _BrickLocationsForm(CremeForm):
 
         if lendiff < 0:
             locations_store = old_locations[:needed]
-            location_model.objects.filter(pk__in=[loc.id for loc in old_locations[needed:]]).delete()
+            location_model.objects.filter(
+                pk__in=[loc.id for loc in old_locations[needed:]],
+            ).delete()
         else:
             locations_store = [*old_locations]
 
@@ -101,7 +116,7 @@ class _BrickLocationsForm(CremeForm):
 
 
 class _BrickDetailviewLocationsForm(_BrickLocationsForm):
-    hat    = ChoiceField(label=_('Header block'), widget=CremeRadioSelect)
+    hat    = forms.ChoiceField(label=_('Header block'), widget=core_widgets.CremeRadioSelect)
     top    = BrickLocationsField(label=_('Blocks to display on top'))
     left   = BrickLocationsField(label=_('Blocks to display on left side'))
     right  = BrickLocationsField(label=_('Blocks to display on right side'))
@@ -195,12 +210,15 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
 
 
 class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
-    role = ModelChoiceField(label=_('Role'), queryset=UserRole.objects.none(),
-                            empty_label=None, required=False,
-                           )
+    role = forms.ModelChoiceField(
+        label=_('Role'), queryset=UserRole.objects.none(),
+        empty_label=None, required=False,
+    )
 
     # TODO: manage Meta.fields in '*'
-    blocks = FieldBlockManager(('general', _('Configuration'), ('role', 'hat', 'top', 'left', 'right', 'bottom')))
+    blocks = base.FieldBlockManager(
+        ('general', _('Configuration'), ('role', 'hat', 'top', 'left', 'right', 'bottom')),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -256,10 +274,11 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
 
 
 class BrickHomeLocationsAddingForm(_BrickLocationsForm):
-    role = ModelChoiceField(label=_('Role'),
-                            queryset=UserRole.objects.none(),
-                            empty_label=None, required=False,
-                           )
+    role = forms.ModelChoiceField(
+        label=_('Role'),
+        queryset=UserRole.objects.none(),
+        empty_label=None, required=False,
+    )
     bricks = BrickLocationsField(label=_('Blocks to display on the home'))
 
     def __init__(self, *args, **kwargs):
@@ -331,12 +350,13 @@ class BrickMypageLocationsForm(_BrickLocationsForm):
                             )
 
 
-class RTypeBrickAddForm(CremeModelForm):
-    relation_type = ModelChoiceField(RelationType.objects, empty_label=None,
-                                     widget=DynamicSelect(attrs={'autocomplete': True}),
-                                    )
+class RTypeBrickAddForm(base.CremeModelForm):
+    relation_type = forms.ModelChoiceField(
+        RelationType.objects.none(), empty_label=None,
+        widget=core_widgets.DynamicSelect(attrs={'autocomplete': True}),
+    )
 
-    class Meta(CremeModelForm.Meta):
+    class Meta(base.CremeModelForm.Meta):
         model = RelationBrickItem
 
     def __init__(self, *args, **kwargs):
@@ -344,21 +364,23 @@ class RTypeBrickAddForm(CremeModelForm):
 
         existing_type_ids = RelationBrickItem.objects.values_list('relation_type_id', flat=True)
 
-        relation_type = self.fields['relation_type']
-        relation_type.queryset = RelationType.objects.exclude(pk__in=existing_type_ids)
+        self.fields['relation_type'].queryset = RelationType.objects.exclude(
+            pk__in=existing_type_ids,
+        )
 
     def save(self, *args, **kwargs):
         self.instance.brick_id = gui_bricks.SpecificRelationsBrick.generate_id(
-                                        'creme_config',
-                                        self.cleaned_data['relation_type'].id,
-                                    )
+            'creme_config',
+            self.cleaned_data['relation_type'].id,
+        )
         return super().save(*args, **kwargs)
 
 
-class RTypeBrickItemAddCtypeForm(CremeModelForm):
-    ctype = EntityCTypeChoiceField(label=_('Customised resource'),
-                                   widget=DynamicSelect({'autocomplete': True}),
-                                  )
+class RTypeBrickItemAddCtypeForm(base.CremeModelForm):
+    ctype = EntityCTypeChoiceField(
+        label=_('Customised resource'),
+        widget=core_widgets.DynamicSelect({'autocomplete': True}),
+    )
 
     class Meta:
         model = RelationBrickItem
@@ -384,7 +406,7 @@ class RTypeBrickItemAddCtypeForm(CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-class RTypeBrickItemEditCtypeForm(CremeModelForm):
+class RTypeBrickItemEditCtypeForm(base.CremeModelForm):
     cells = EntityCellsField(label=_('Columns'))
 
     class Meta:
@@ -433,8 +455,8 @@ class RTypeBrickItemEditCtypeForm(CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-class _CustomBrickConfigItemBaseForm(CremeModelForm):
-    class Meta(CremeModelForm.Meta):
+class _CustomBrickConfigItemBaseForm(base.CremeModelForm):
+    class Meta(base.CremeModelForm.Meta):
         model = CustomBrickConfigItem
 
     def save(self, commit=True, *args, **kwargs):
@@ -456,19 +478,21 @@ class _CustomBrickConfigItemBaseForm(CremeModelForm):
 
 
 class CustomBrickConfigItemCreateForm(_CustomBrickConfigItemBaseForm):
-    ctype = EntityCTypeChoiceField(label=_('Related resource'),
-                                   widget=DynamicSelect(attrs={'autocomplete': True}),
-                                  )
+    ctype = EntityCTypeChoiceField(
+        label=_('Related resource'),
+        widget=core_widgets.DynamicSelect(attrs={'autocomplete': True}),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # TODO: add an 'exclude' argument in creme_entity_content_types() ??
         get_for_model = ContentType.objects.get_for_model
         is_invalid = gui_bricks.brick_registry.is_model_invalid
-        self.fields['ctype'].ctypes = (get_for_model(model)
-                                           for model in creme_registry.iter_entity_models()
-                                              if not is_invalid(model)
-                                      )
+        self.fields['ctype'].ctypes = (
+            get_for_model(model)
+                for model in creme_registry.iter_entity_models()
+                    if not is_invalid(model)
+        )
 
     def clean(self, *args, **kwargs):
         cdata = super().clean(*args, **kwargs)
@@ -482,7 +506,9 @@ class CustomBrickConfigItemCreateForm(_CustomBrickConfigItemBaseForm):
 class CustomBrickConfigItemEditForm(_CustomBrickConfigItemBaseForm):
     cells = EntityCellsField(label=_('Lines'))
 
-    blocks = CremeModelForm.blocks.new(('cells', 'Columns', ['cells']))
+    blocks = base.CremeModelForm.blocks.new(
+        ('cells', 'Columns', ['cells']),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

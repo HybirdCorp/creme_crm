@@ -22,10 +22,10 @@ try:
         BrickState,
         BrickDetailviewLocation, CustomBrickConfigItem, RelationBrickItem,
         InstanceBrickConfigItem,
+        FakeContact, FakeOrganisation, FakeAddress,
     )
 
     from ..base import CremeTestCase
-    from ..fake_models import FakeContact, FakeOrganisation, FakeAddress
 
     from .base import BrickTestCaseMixin
 except Exception as e:
@@ -121,7 +121,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(user_bstate.show_empty_fields)
 
     def test_set_state04(self):
-        "Brick ids with |"
+        "Instance brick."
+        # "Brick ids with |"
         user = self.login()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
@@ -139,22 +140,27 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                 # return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'  # Useless :)
                 return f'<table id="{self.id_}"><thead><tr>{self.config_item.entity}</tr></thead></table>'  # Useless :)
 
-        self.assertTrue(InstanceBrickConfigItem.id_is_specific(ContactBrick.id_))
+        # self.assertTrue(InstanceBrickConfigItem.id_is_specific(ContactBrick.id_))
 
-        ibci = InstanceBrickConfigItem.objects \
-                                      .create(entity=casca,
-                                              brick_id=InstanceBrickConfigItem.generate_id(ContactBrick, casca, ''),
-                                              verbose='I am an awesome brick',
-                                              data='',
-                                             )
+        ibci = InstanceBrickConfigItem.objects.create(
+            entity=casca,
+            # brick_id=InstanceBrickConfigItem.generate_id(ContactBrick, casca, ''),
+            brick_class_id=ContactBrick.id_,
+            # verbose='I am an awesome brick',
+            # data='',
+        )
 
         brick_registry = _BrickRegistry()
         brick_registry.register_4_instance(ContactBrick)
 
-        bricks = [*brick_registry.get_bricks([ibci.brick_id], entity=casca)]
-        brick_id = bricks[0].id_
+        # bricks = [*brick_registry.get_bricks([ibci.brick_id], entity=casca)]
+        # brick_id = bricks[0].id_
+        brick_id = ibci.brick_id
 
-        self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1})
+        self.assertPOST200(
+            self.SET_STATE_URL,
+            data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
+        )
 
     def test_reload_basic01(self):
         self.login()

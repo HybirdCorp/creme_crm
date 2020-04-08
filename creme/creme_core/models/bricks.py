@@ -447,23 +447,42 @@ class RelationBrickItem(CremeModel):
 
 
 class InstanceBrickConfigItem(CremeModel):
-    brick_id = models.CharField(_('Block ID'), max_length=300, blank=False,
-                                null=False, editable=False,
-                               )
-    entity   = models.ForeignKey(CremeEntity, on_delete=models.CASCADE,
-                                 verbose_name=_('Block related entity'),
-                                )
-    data     = models.TextField(blank=True, null=True)
-    verbose  = models.CharField(_('Verbose'), max_length=200, blank=True, null=True)  # TODO: remove
+    # brick_id = models.CharField(_('Block ID'), max_length=300, blank=False,
+    #                             null=False, editable=False,
+    #                            )
+    brick_class_id = models.CharField(
+        'Block class ID',
+        max_length=300, editable=False,
+    )
+
+    entity = models.ForeignKey(
+        CremeEntity,
+        verbose_name=_('Block related entity'),
+        on_delete=models.CASCADE, editable=False,
+    )
+
+    # data     = models.TextField(blank=True, null=True)
+    # NB: do not use directly ; use the function get_extra_data() & set_extra_data()
+    json_extra_data = models.TextField(
+        editable=False,
+        default='{}',
+    ).set_tags(viewable=False)  # TODO: JSONField ?
+
+    # verbose  = models.CharField(_('Verbose'), max_length=200, blank=True, null=True)
 
     creation_label = _('Create a block')
     save_label     = _('Save the block')
 
     _brick: Optional['InstanceBrick'] = None
+    _brick_id_prefix = 'instanceblock'
 
     class Meta:
         app_label = 'creme_core'
         ordering = ('id',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._extra_data = json_load(self.json_extra_data)
 
     def __str__(self):
         return self.brick.verbose_name
@@ -489,36 +508,92 @@ class InstanceBrickConfigItem(CremeModel):
         return brick
 
     @property
+    def brick_id(self) -> str:
+        my_id = self.id
+
+        if my_id is None:
+            raise ValueError(
+                f'{type(self).__name__}.brick_id: must be called on a saved instance.'
+            )
+
+        return f'{self._brick_id_prefix}-{my_id}'
+
+    @property
     def errors(self) -> Optional[List[str]]:
         # return getattr(self.brick, 'errors', None)
         return self.brick.errors
 
-    @staticmethod
-    def id_is_specific(brick_id: str) -> bool:
-        return brick_id.startswith('instanceblock_')
+    # TODO ?
+    # def del_extra_data(self, key: str) -> None:
+    #     del self._extra_data[key]
 
-    @staticmethod
-    def generate_base_id(app_name: str, name: str) -> str:
-        return f'instanceblock_{app_name}-{name}'
+    def get_extra_data(self, key: str):
+        return self._extra_data.get(key)
 
-    @staticmethod
-    def generate_id(brick_class: Type['Brick'],
-                    entity: CremeEntity,
-                    key: str) -> str:
-        """@param key: String that allows to make the difference between 2 instances
-                       of the same Block class and the same CremeEntity instance.
-        """
-        if key and any((c in key) for c in ('#', '@', '&', ':', ' ')):
-            raise ValueError(
-                f'InstanceBrickConfigItem.generate_id: usage of a '
-                f'forbidden character in key "{key}"'
+    def set_extra_data(self, key: str, value) -> bool:
+        old_value = self._extra_data.get(key)
+        self._extra_data[key] = value
+
+        return old_value != value
+
+    @property
+    def extra_data_items(self):
+        return iter(self._extra_data.items())
+
+    # @staticmethod
+    # def id_is_specific(brick_id):
+    #     return brick_id.startswith('instanceblock_')
+
+    @classmethod
+    def id_from_brick_id(cls, brick_id: str) -> Optional[int]:
+        try:
+            prefix, ibci_id = brick_id.split('-', 1)
+        except ValueError:  # Unpacking error
+            return None
+
+        if prefix != cls._brick_id_prefix:
+            return None
+
+        try:
+            ibci_id = int(ibci_id)
+        except ValueError:
+            logger.critical(
+                '%s.id_from_brick_id(): invalid instance ID stored in Brick ID: %s',
+                cls.__name__, brick_id,
             )
+            return None
 
-        return f'{brick_class.id_}|{entity.id}-{key}'
+        return ibci_id
 
-    @staticmethod
-    def get_base_id(brick_id: str) -> str:
-        return brick_id.split('|', 1)[0]
+    # @staticmethod
+    @classmethod
+    # def generate_base_id(app_name: str, name: str) -> str:
+    def generate_base_id(cls, app_name: str, name: str) -> str:
+        # return f'instanceblock_{app_name}-{name}'
+        return f'{cls._brick_id_prefix}_{app_name}-{name}'
+
+    # @staticmethod
+    # def generate_id(brick_class: Type['Brick'],
+    #                 entity: CremeEntity,
+    #                 key: str) -> str:
+    #     """@param key: String that allows to make the difference between 2 instances
+    #                    of the same Brick class and the same CremeEntity instance.
+    #     """
+    #     if key and any((c in key) for c in ('#', '@', '&', ':', ' ')):
+    #         raise ValueError(
+    #             f'InstanceBrickConfigItem.generate_id: usage of a '
+    #             f'forbidden character in key "{key}"'
+    #         )
+    #
+    #     return f'{brick_class.id_}|{entity.id}-{key}'
+
+    # @staticmethod
+    # def get_base_id(brick_id: str) -> str:
+    #     return brick_id.split('|', 1)[0]
+
+    def save(self, **kwargs):
+        self.json_extra_data = json_encode(self._extra_data)
+        super().save(**kwargs)
 
 
 class CustomBrickConfigItem(CremeModel):
@@ -528,6 +603,8 @@ class CustomBrickConfigItem(CremeModel):
     json_cells   = models.TextField(editable=False, default='[]')  # TODO: JSONField
 
     _cells = None
+
+    # TODO: _brick_id_prefix
 
     class Meta:
         app_label = 'creme_core'
@@ -548,6 +625,7 @@ class CustomBrickConfigItem(CremeModel):
 
         super().delete(*args, **kwargs)
 
+    # TODO: property brick_id ?
     def generate_id(self) -> str:
         return f'customblock-{self.id}'
 

@@ -269,18 +269,19 @@ class GraphFetchingForInstance(base.EntityRelatedMixin, GraphFetchingBase):
         brick_item = self.instance_brick_item
 
         if brick_item is None:
-            self.instance_brick_item = brick_item = \
-                get_object_or_404(InstanceBrickConfigItem,
-                                  pk=self.kwargs[self.brick_item_id_url_kwarg],
-                                 )
+            self.instance_brick_item = brick_item = get_object_or_404(
+                InstanceBrickConfigItem,
+                pk=self.kwargs[self.brick_item_id_url_kwarg],
+            )
 
         return brick_item
 
     def get_graph_data(self, request, order):
         brick_item = self.get_instance_brick_item()
         fetcher = ReportGraph.get_fetcher_from_instance_brick(brick_item)
-        x, y = fetcher.fetch_4_entity(entity=self.get_related_entity(),
-                                      order=order, user=request.user,
-                                     )
+        x, y = fetcher.fetch_4_entity(
+            entity=self.get_related_entity(),
+            order=order, user=request.user,
+        )
 
         return fetcher.graph, x, y

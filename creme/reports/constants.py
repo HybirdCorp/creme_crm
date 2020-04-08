@@ -60,3 +60,8 @@ AGGREGATOR_TYPES = {
     RGA_MIN:   _('Minimum'),
     RGA_SUM:   _('Sum'),
 }
+
+# ReportGraph fetchers
+RGF_NOLINK   = 'reports-no_link'
+RGF_FK       = 'reports-fk'
+RGF_RELATION = 'reports-relation'

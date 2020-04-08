@@ -58,9 +58,6 @@ class _BaseCompleteBrick(Brick):
     def home_display(self, context):
         return f'<table id="{self.id_}"></table>'
 
-    # def portal_display(self, context, ct_ids):
-    #     return '<table id="{}"></table>'.format(self.id_)
-
 
 class CompleteBrick1(_BaseCompleteBrick):
     id_ = Brick.generate_id('creme_config', 'testbrickconfig_complete_1')
@@ -782,10 +779,13 @@ class BricksConfigTestCase(CremeTestCase):
 
         naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
-        instance_brick_id = InstanceBrickConfigItem.generate_id(DetailviewInstanceBrick, naru, '')
-        InstanceBrickConfigItem.objects.create(brick_id=instance_brick_id,
-                                               entity=naru, verbose='All stuffes',
-                                              )
+        # instance_brick_id = InstanceBrickConfigItem.generate_id(DetailviewInstanceBrick, naru, '')
+        ibci = InstanceBrickConfigItem.objects.create(
+            # brick_id=instance_brick_id,
+            brick_class_id=DetailviewInstanceBrick.id_,
+            entity=naru,
+            # verbose='All stuffes',
+        )
 
         response = self.assertGET200(self._build_editdetail_url(ct))
 
@@ -794,7 +794,8 @@ class BricksConfigTestCase(CremeTestCase):
 
         choices = [brick_id for brick_id, brick_vname in top_field.choices]
         self.assertIn(rtype_brick_id,    choices)
-        self.assertIn(instance_brick_id, choices)
+        # self.assertIn(instance_brick_id, choices)
+        self.assertIn(ibci.brick_id, choices)
 
     def test_edit_detailview08(self):
         "Invalid models"
@@ -1058,7 +1059,7 @@ class BricksConfigTestCase(CremeTestCase):
     # def test_edit_home(self):
     def test_edit_home01(self):
         "Default configuration"
-        self.login()
+        user = self.login()
 
         already_chosen_id = HistoryBrick.id_
         BrickHomeLocation.objects.create(brick_id=already_chosen_id, order=8)
@@ -1069,9 +1070,14 @@ class BricksConfigTestCase(CremeTestCase):
         BrickHomeLocation.objects.create(brick_id=not_already_chosen_id1, order=8, role=self.role)
         BrickHomeLocation.objects.create(brick_id=not_already_chosen_id2, order=8, superuser=True)
 
-        naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
-        instance_brick_id = InstanceBrickConfigItem.generate_id(HomeInstanceBrick, naru, '')
-        InstanceBrickConfigItem.objects.create(brick_id=instance_brick_id, entity=naru, verbose='All stuffes')
+        naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
+        # instance_brick_id = InstanceBrickConfigItem.generate_id(HomeInstanceBrick, naru, '')
+        ibci = InstanceBrickConfigItem.objects.create(
+            # brick_id=instance_brick_id,
+            brick_class_id=HomeInstanceBrick.id_,
+            entity=naru,
+            # verbose='All stuffes',
+        )
 
         url = reverse('creme_config__edit_home_bricks', args=('default',))
         response = self.assertGET200(url)
@@ -1093,7 +1099,8 @@ class BricksConfigTestCase(CremeTestCase):
         self._find_field_index(bricks_field, not_already_chosen_id1)
         self._find_field_index(bricks_field, not_already_chosen_id2)
         self._find_field_index(bricks_field, HomePortalBrick.id_)
-        self._find_field_index(bricks_field, instance_brick_id)
+        # self._find_field_index(bricks_field, instance_brick_id)
+        self._find_field_index(bricks_field, ibci.brick_id)
 
         self._assertNotInChoices(bricks_field, RelationsBrick.id_, 'No home_display().')
         self._assertNotInChoices(bricks_field, HomeOnlyBrick2.id_, 'Brick is not configurable')
@@ -1837,31 +1844,38 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertDoesNotExist(loc)
 
     def test_delete_instancebrick(self):
-        self.login()
+        user = self.login()
         naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_id=InstanceBrickConfigItem.generate_id(DetailviewInstanceBrick, naru, ''),
-            entity=naru, verbose='All stuffes',
+            # brick_id=InstanceBrickConfigItem.generate_id(DetailviewInstanceBrick, naru, ''),
+            brick_class_id=DetailviewInstanceBrick.id_,
+            entity=naru,
+            # verbose='All stuffes',
         )
 
         create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
                              zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
                             )
-        dloc1 = create_bdl(brick=ibi.brick_id,       order=5)
+        brick_id = ibi.brick_id
+        # dloc1 = create_bdl(brick=ibi.brick_id,       order=5)
+        dloc1 = create_bdl(brick=brick_id,           order=5)
         dloc2 = create_bdl(brick=CompleteBrick1.id_, order=6)
 
         create_bhl = BrickHomeLocation.objects.create
-        hloc1 = create_bhl(brick_id=ibi.brick_id,       order=5)
+        # hloc1 = create_bhl(brick_id=ibi.brick_id,       order=5)
+        hloc1 = create_bhl(brick_id=brick_id,           order=5)
         hloc2 = create_bhl(brick_id=CompleteBrick1.id_, order=6)
 
         create_bml = BrickMypageLocation.objects.create
-        mloc1 = create_bml(brick_id=ibi.brick_id,       order=5)
+        # mloc1 = create_bml(brick_id=ibi.brick_id,       order=5)
+        mloc1 = create_bml(brick_id=brick_id,           order=5)
         mloc2 = create_bml(brick_id=CompleteBrick1.id_, order=6)
 
         create_state = BrickState.objects.create
-        state1 = create_state(brick_id=ibi.brick_id,       user=self.user)
-        state2 = create_state(brick_id=CompleteBrick1.id_, user=self.user)
+        # state1 = create_state(brick_id=ibi.brick_id,       user=self.user)
+        state1 = create_state(brick_id=brick_id,           user=user)
+        state2 = create_state(brick_id=CompleteBrick1.id_, user=user)
 
         self.assertPOST200(reverse('creme_config__delete_instance_brick'), data={'id': ibi.id})
         self.assertDoesNotExist(ibi)

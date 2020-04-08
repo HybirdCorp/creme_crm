@@ -45,6 +45,7 @@ try:
         RGT_CUSTOM_FK,
         RFT_FIELD, RFT_RELATION,
         RGA_COUNT, RGA_AVG, RGA_MAX, RGA_MIN, RGA_SUM,
+        RGF_FK, RGF_RELATION, RGF_NOLINK,
     )
     from ..core.graph import (
         AbscissaInfo, OrdinateInfo,
@@ -2830,13 +2831,16 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertFalse(rgraph.asc)
 
     def test_create_instance_brick_config_item01(self):
-        "No link"
+        "No link."
         self.login()
         rgraph = self._create_documents_rgraph()
 
         ibci = rgraph.create_instance_brick_config_item()
-        self.assertEqual(f'instanceblock_reports-graph|{rgraph.id}-', ibci.brick_id)
-        self.assertEqual('', ibci.data)
+        # self.assertEqual(f'instanceblock_reports-graph|{rgraph.id}-', ibci.brick_id)
+        self.assertEqual(f'instanceblock_reports-graph', ibci.brick_class_id)
+        # self.assertEqual('', ibci.data)
+        self.assertEqual(RGF_NOLINK, ibci.get_extra_data('type'))
+        self.assertIsNone(ibci.get_extra_data('value'))
 
         volatile = _('No volatile column')
         self.assertEqual(f'{rgraph.name} - {volatile}',
@@ -2858,11 +2862,14 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         fk_name = 'linked_folder'
         ibci = create_ibci(volatile_field=fk_name)
-        self.assertEqual(
-            f'instanceblock_reports-graph|{rgraph.id}-{fk_name}|{RFT_FIELD}',
-            ibci.brick_id
-        )
-        self.assertEqual(f'{fk_name}|{RFT_FIELD}', ibci.data)
+        # self.assertEqual(
+        #     f'instanceblock_reports-graph|{rgraph.id}-{fk_name}|{RFT_FIELD}',
+        #     ibci.brick_id
+        # )
+        self.assertEqual(ReportGraphBrick.id_, ibci.brick_class_id)
+        # self.assertEqual(f'{fk_name}|{RFT_FIELD}', ibci.data)
+        self.assertEqual(RGF_FK, ibci.get_extra_data('type'))
+        self.assertEqual(fk_name, ibci.get_extra_data('value'))
 
         self.assertIsNone(create_ibci(volatile_field='unknown'))
         self.assertIsNone(create_ibci(volatile_field='description'))  # Not FK
@@ -2897,11 +2904,15 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )[0]
 
         ibci = rgraph.create_instance_brick_config_item(volatile_rtype=rtype)
-        self.assertEqual(
-            f'instanceblock_reports-graph|{rgraph.id}-{rtype.id}|{RFT_RELATION}',
-            ibci.brick_id
-        )
-        self.assertEqual(f'{rtype.id}|{RFT_RELATION}', ibci.data)
+        # self.assertEqual(
+        #     f'instanceblock_reports-graph|{rgraph.id}-{rtype.id}|{RFT_RELATION}',
+        #     ibci.brick_id
+        # )
+        self.assertEqual(ReportGraphBrick.id_, ibci.brick_class_id)
+        # self.assertEqual(f'{rtype.id}|{RFT_RELATION}', ibci.data)
+        self.assertEqual(RGF_RELATION, ibci.get_extra_data('type'))
+        self.assertEqual(rtype.id,      ibci.get_extra_data('value'))
+
         fmt = _('{rtype} (Relationship)').format
         self.assertEqual(f'{rgraph.name} - {fmt(rtype=rtype)}',
                          ReportGraphBrick(ibci).verbose_name
@@ -2935,9 +2946,15 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(1, len(items))
 
         item = items[0]
-        self.assertEqual(f'instanceblock_reports-graph|{rgraph.id}-', item.brick_id)
-        self.assertEqual('', item.data)
+        # self.assertEqual(f'instanceblock_reports-graph|{rgraph.id}-', item.brick_id)
+        self.assertEqual(f'instanceblock_reports-graph', item.brick_class_id)
+        # self.assertEqual('', item.data)
+        self.assertEqual(RGF_NOLINK, item.get_extra_data('type'))
+        self.assertIsNone(item.get_extra_data('value'))
         self.assertIsNone(item.errors)
+
+        brick_id = item.brick_id
+        self.assertEqual(f'instanceblock-{item.id}', brick_id)
 
         title = '{} - {}'.format(rgraph.name, _('No volatile column'))
         self.assertEqual(title, ReportGraphBrick(item).verbose_name)
@@ -2965,17 +2982,21 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # ---------------------------------------------------------------------
         # Display on home
         BrickHomeLocation.objects.all().delete()
-        BrickHomeLocation.objects.create(brick_id=item.brick_id, order=1)
+        # BrickHomeLocation.objects.create(brick_id=item.brick_id, order=1)
+        BrickHomeLocation.objects.create(brick_id=brick_id, order=1)
         response = self.assertGET200('/')
         self.assertTemplateUsed(response, 'reports/bricks/graph.html')
-        self.get_brick_node(self.get_html_tree(response.content), item.brick_id)
+        # self.get_brick_node(self.get_html_tree(response.content), item.brick_id)
+        self.get_brick_node(self.get_html_tree(response.content), brick_id)
 
         # ---------------------------------------------------------------------
         # Display on detailview
         ct = self.ct_invoice
         BrickDetailviewLocation.objects.filter(content_type=ct).delete()
         BrickDetailviewLocation.objects.create_if_needed(
-            brick=item.brick_id, order=1,
+            # brick=item.brick_id,
+            brick=brick_id,
+            order=1,
             zone=BrickDetailviewLocation.RIGHT, model=FakeInvoice,
         )
 
@@ -2989,7 +3010,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         response = self.assertGET200(invoice.get_absolute_url())
         self.assertTemplateUsed(response, 'reports/bricks/graph.html')
-        self.get_brick_node(self.get_html_tree(response.content), item.brick_id)
+        # self.get_brick_node(self.get_html_tree(response.content), item.brick_id)
+        self.get_brick_node(self.get_html_tree(response.content), brick_id)
 
         # ---------------------------------------------------------------------
         response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC'))
@@ -3052,11 +3074,16 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(1, len(items))
 
         item = items[0]
-        self.assertEqual(
-            f'instanceblock_reports-graph|{rgraph.id}-{fk_name}|{RFT_FIELD}',
-            item.brick_id
-        )
-        self.assertEqual(f'{fk_name}|{RFT_FIELD}', item.data)
+        # self.assertEqual(
+        #     f'instanceblock_reports-graph|{rgraph.id}-{fk_name}|{RFT_FIELD}',
+        #     item.brick_id
+        # )
+        self.assertEqual(f'instanceblock_reports-graph',
+                         item.brick_class_id
+                        )
+        # self.assertEqual(f'{fk_name}|{RFT_FIELD}', item.data)
+        self.assertEqual(RGF_FK, item.get_extra_data('type'))
+        self.assertEqual(fk_name, item.get_extra_data('value'))
 
         title = '{} - {}'.format(rgraph.name, _('{field} (Field)').format(field=_('Folder')))
         self.assertEqual(title, ReportGraphBrick(item).verbose_name)
@@ -3075,7 +3102,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         ct = folder1.entity_type
         BrickDetailviewLocation.objects.filter(content_type=ct).delete()
         BrickDetailviewLocation.objects.create_if_needed(
-            brick=item.brick_id, order=1,
+            brick=item.brick_id,
+            order=1,
             zone=BrickDetailviewLocation.RIGHT, model=FakeReportsFolder,
         )
 
@@ -3117,13 +3145,18 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = self._create_documents_rgraph()
 
         # We create voluntarily an invalid item
-        # TODO: factorise
         fname = 'invalid'
+        # ibci = InstanceBrickConfigItem.objects.create(
+        #     entity=rgraph,
+        #     brick_id=f'instanceblock_reports-graph|{rgraph.id}-{fname}|{RFT_FIELD}',
+        #     data=f'{fname}|{RFT_FIELD}',
+        # )
         ibci = InstanceBrickConfigItem.objects.create(
             entity=rgraph,
-            brick_id=f'instanceblock_reports-graph|{rgraph.id}-{fname}|{RFT_FIELD}',
-            data=f'{fname}|{RFT_FIELD}',
+            brick_class_id=ReportGraphBrick.id_,
         )
+        ibci.set_extra_data(key='type',  value=RGF_FK)
+        ibci.set_extra_data(key='value', value=fname)
 
         folder = FakeReportsFolder.objects.create(user=user, title='My folder')
 
@@ -3144,11 +3177,17 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         # We create voluntarily an invalid item
         fname = 'description'
-        ibci = InstanceBrickConfigItem.objects.create(
+        # ibci = InstanceBrickConfigItem.objects.create(
+        #     entity=rgraph,
+        #     brick_id=f'instanceblock_reports-graph|{rgraph.id}-{fname}|{RFT_FIELD}',
+        #     data=f'{fname}|{RFT_FIELD}',
+        # )
+        ibci = InstanceBrickConfigItem(
             entity=rgraph,
-            brick_id=f'instanceblock_reports-graph|{rgraph.id}-{fname}|{RFT_FIELD}',
-            data=f'{fname}|{RFT_FIELD}',
+            brick_class_id=ReportGraphBrick.id_,
         )
+        ibci.set_extra_data(key='type',  value=RGF_FK)
+        ibci.set_extra_data(key='value', value=fname)
 
         folder = FakeReportsFolder.objects.create(user=user, title='My folder')
 
@@ -3214,11 +3253,17 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(1, len(items))
 
         item = items[0]
-        self.assertEqual(
-            f'instanceblock_reports-graph|{rgraph.id}-{rtype.id}|{RFT_RELATION}',
-            item.brick_id
-        )
-        self.assertEqual(f'{rtype.id}|{RFT_RELATION}', item.data)
+        # self.assertEqual(
+        #     f'instanceblock_reports-graph|{rgraph.id}-{rtype.id}|{RFT_RELATION}',
+        #     item.brick_id
+        # )
+        self.assertEqual(f'instanceblock_reports-graph',
+                         item.brick_class_id
+                        )
+        # self.assertEqual(f'{rtype.id}|{RFT_RELATION}', item.data)
+        self.assertEqual(RGF_RELATION, item.get_extra_data('type'))
+        self.assertEqual(rtype.id,      item.get_extra_data('value'))
+
         self.assertEqual('{} - {}'.format(
                             rgraph.name,
                             _('{rtype} (Relationship)').format(rtype=rtype),
@@ -3260,17 +3305,23 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
     def test_add_graph_instance_brick03_error(self):
-        "Volatile column (RFT_RELATION): invalid relation type"
+        "Volatile column (RFT_RELATION): invalid relation type."
         user = self.login()
         rgraph = self._create_documents_rgraph()
 
         # We create voluntarily an invalid item
         rtype_id = 'invalid'
+        # ibci = InstanceBrickConfigItem.objects.create(
+        #     entity=rgraph,
+        #     brick_id=f'instanceblock_reports-graph|{rgraph.id}-{rtype_id}|{RFT_RELATION}',
+        #     data=f'{rtype_id}|{RFT_RELATION}',
+        # )
         ibci = InstanceBrickConfigItem.objects.create(
             entity=rgraph,
-            brick_id=f'instanceblock_reports-graph|{rgraph.id}-{rtype_id}|{RFT_RELATION}',
-            data=f'{rtype_id}|{RFT_RELATION}',
+            brick_class_id=ReportGraphBrick.id_,
         )
+        ibci.set_extra_data(key='type',  value=RGF_RELATION)
+        ibci.set_extra_data(key='value', value=rtype_id)
 
         fetcher = ReportGraph.get_fetcher_from_instance_brick(ibci)
         x, y = fetcher.fetch_4_entity(entity=user.linked_contact, user=user)
@@ -3287,7 +3338,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         brick_id = ibci.brick_id
         bdl = BrickDetailviewLocation.objects.create_if_needed(
-            brick=brick_id, order=1,
+            brick=brick_id,
+            order=1,
             zone=BrickDetailviewLocation.RIGHT,
             model=FakeContact,
         )

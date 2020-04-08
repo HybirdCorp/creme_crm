@@ -476,9 +476,15 @@ class Populator(BasePopulator):
             ordinate_type=RGA_SUM,
             ordinate_cell_key=cell_key,
         )
-        ibci = rgraph1.create_instance_brick_config_item()
+        ibci1 = rgraph1.create_instance_brick_config_item()
 
-        BrickHomeLocation.objects.create(brick_id=ibci.brick_id, order=11)
+        if ibci1 is not None:
+            BrickHomeLocation.objects.create(brick_id=ibci1.brick_id, order=11)
+        else:
+            logger.warning(
+                'There is a problem with the graph "%s" ; no related block created',
+                rgraph1,
+            )
 
         # Create current year and unpaid invoices report -----------------------
         invoices_report2 = create_report(
@@ -487,7 +493,7 @@ class Populator(BasePopulator):
         )
         create_report_columns(invoices_report2)
 
-        rgraph = create_graph(
+        rgraph3 = create_graph(
             name=_('Sum of current year and unpaid invoices total without taxes / month'),
             linked_report=invoices_report2,
             # abscissa='issuing_date', type=RGT_MONTH,
@@ -496,6 +502,12 @@ class Populator(BasePopulator):
             ordinate_type=RGA_SUM,
             ordinate_cell_key=cell_key,
         )
-        ibci = rgraph.create_instance_brick_config_item()
+        ibci3 = rgraph3.create_instance_brick_config_item()
 
-        BrickHomeLocation.objects.create(brick_id=ibci.brick_id, order=12)
+        if ibci3:
+            BrickHomeLocation.objects.create(brick_id=ibci3.brick_id, order=12)
+        else:
+            logger.warning(
+                'There is a problem with the graph "%s" ; no related block created',
+                rgraph3,
+            )

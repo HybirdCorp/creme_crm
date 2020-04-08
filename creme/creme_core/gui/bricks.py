@@ -511,6 +511,7 @@ class InstanceBrick(Brick):
     def __init__(self, instance_brick_config_item: InstanceBrickConfigItem):
         super().__init__()
         self.config_item = instance_brick_config_item
+        self.id_ = instance_brick_config_item.brick_id
 
 
 class CustomBrick(Brick):
@@ -525,12 +526,14 @@ class CustomBrick(Brick):
         # TODO: related models (by FK/M2M/...) ?
         self.dependencies = deps = [customblock_conf_item.content_type.model_class()]
 
-        rtype_ids = [rtype.id for rtype in filter(None,
-                                                  (getattr(cell, 'relation_type', None)
-                                                       for cell in customblock_conf_item.cells
-                                                  )
-                                                 )
-                    ]
+        rtype_ids = [
+            rtype.id
+                for rtype in filter(None,
+                                    (getattr(cell, 'relation_type', None)
+                                         for cell in customblock_conf_item.cells
+                                    )
+                                   )
+        ]
 
         if rtype_ids:
             deps.append(Relation)
@@ -771,11 +774,13 @@ class _BrickRegistry:
         @param entity: CremeEntity instance if your Brick has to be displayed on its detail-view.
         @return Brick instance.
         """
-        brick_id = ibi.brick_id
-        brick_class = self._instance_brick_classes.get(InstanceBrickConfigItem.get_base_id(brick_id))
+        # brick_id = ibi.brick_id
+        # brick_class = self._instance_brick_classes.get(InstanceBrickConfigItem.get_base_id(brick_id))
+        brick_class_id = ibi.brick_class_id
+        brick_class = self._instance_brick_classes.get(brick_class_id)
 
         if brick_class is None:
-            logger.warning('Brick class seems deprecated: %s', brick_id)
+            logger.warning('Brick class seems deprecated: %s', brick_class_id)
 
             # brick = Brick()
             brick = InstanceBrick(ibi)
@@ -784,10 +789,10 @@ class _BrickRegistry:
             brick.errors = [_('Unknown type of block (bad uninstall ?)')]
         else:
             brick = brick_class(ibi)
-            brick.id_ = brick_id
+            # brick.id_ = brick_id
 
             if entity:
-                # When an InstanceBlock is on a detailview of a entity, the content
+                # When an InstanceBrick is on a detail-view of a entity, the content
                 # of this brick depends (generally) of this entity, so we have to
                 # complete the dependencies.
                 model = entity.__class__
@@ -801,14 +806,15 @@ class _BrickRegistry:
     def get_bricks(self,
                    brick_ids: Sequence[str],
                    entity: Optional[CremeEntity] = None) -> Iterator[Brick]:
-        """Bricks type can be SpecificRelationsBlock/InstanceBrickConfigItem:
+        """Bricks type can be SpecificRelationsBrick/InstanceBrickConfigItem:
         in this case, they are not really registered, but created on the fly.
         @param brick_ids: Sequence of bricks' IDs.
         @param entity: if the bricks are displayed of the detail-view of an entity,
                        it should be given.
         """
         specific_ids = [*filter(SpecificRelationsBrick.id_is_specific, brick_ids)]
-        instance_ids = [*filter(InstanceBrickConfigItem.id_is_specific, brick_ids)]
+        # instance_ids = [*filter(InstanceBrickConfigItem.id_is_specific, brick_ids)]
+        instance_ids = [*filter(None, map(InstanceBrickConfigItem.id_from_brick_id, brick_ids))]
         custom_ids   = [*filter(None, map(CustomBrickConfigItem.id_from_brick_id, brick_ids))]
 
         relation_bricks_items = {
@@ -816,8 +822,10 @@ class _BrickRegistry:
                 for rbi in RelationBrickItem.objects.filter(brick_id__in=specific_ids)
         } if specific_ids else {}
         instance_bricks_items = {
+            # ibi.brick_id: ibi
             ibi.brick_id: ibi
-                for ibi in InstanceBrickConfigItem.objects.filter(brick_id__in=instance_ids)
+                # for ibi in InstanceBrickConfigItem.objects.filter(brick_id__in=instance_ids)
+                for ibi in InstanceBrickConfigItem.objects.filter(id__in=instance_ids)
         } if instance_ids else {}
         custom_bricks_items = {
             cbci.generate_id(): cbci
