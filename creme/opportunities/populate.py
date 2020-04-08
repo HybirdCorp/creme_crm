@@ -297,8 +297,11 @@ class Populator(BasePopulator):
             return
 
         # Create the report ----------------------------------------------------
-        report = reports.get_report_model() \
-                        .objects.create(name=_('Opportunities'), user=admin, ct=Opportunity)
+        report = reports.get_report_model().objects.create(
+            name=_('Opportunities'),
+            user=admin,
+            ct=Opportunity,
+        )
 
         # TODO: helper method(s) (see EntityFilterCondition)
         create_field = partial(Field.objects.create, report=report, type=rep_constants.RFT_FIELD)
@@ -308,7 +311,7 @@ class Populator(BasePopulator):
         create_field(name='sales_phase__name', order=4)
         create_field(name=rt_obj_emit_orga.id, order=5, type=rep_constants.RFT_RELATION)
 
-        # Create 2 graphs -----------------------------------------------------
+        # Create 2 graphs ------------------------------------------------------
         if reports.rgraph_model_is_custom():
             logger.info('ReportGraph model is custom => no Opportunity report-graph is created.')
             return
@@ -347,16 +350,32 @@ class Populator(BasePopulator):
             abscissa_parameter='90',
         )
 
-        # Create 2 instance block items for the 2 graphs ----------------------
-        brick_id1 = rgraph1.create_instance_brick_config_item().brick_id
-        brick_id2 = rgraph2.create_instance_brick_config_item().brick_id
+        # Create 2 instance block items for the 2 graphs -----------------------
+        ibci1 = rgraph1.create_instance_brick_config_item()
+        ibci2 = rgraph2.create_instance_brick_config_item()
 
         create_bdl = partial(
             BrickDetailviewLocation.objects.create_if_needed,
             zone=BrickDetailviewLocation.RIGHT, model=Opportunity,
         )
-        create_bdl(brick=brick_id1, order=4)
-        create_bdl(brick=brick_id2, order=6)
+        create_hbl = BrickHomeLocation.objects.create
 
-        BrickHomeLocation.objects.create(brick_id=brick_id1, order=5)
-        BrickHomeLocation.objects.create(brick_id=brick_id2, order=6)
+        if ibci1:
+            brick_id1 = ibci1.brick_id
+            create_bdl(brick=brick_id1, order=4)
+            create_hbl(brick_id=brick_id1, order=5)
+        else:
+            logger.warning(
+                'There is a problem with the graph "%s" ; no related block created',
+                rgraph1,
+            )
+
+        if ibci2:
+            brick_id2 = ibci2.brick_id
+            create_bdl(brick=brick_id2, order=6)
+            create_hbl(brick_id=brick_id2, order=6)
+        else:
+            logger.warning(
+                'There is a problem with the graph "%s" ; no related block created',
+                rgraph2,
+            )

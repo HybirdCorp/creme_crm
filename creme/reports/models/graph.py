@@ -37,7 +37,11 @@ from creme.creme_core.models import (
     InstanceBrickConfigItem,
 )
 
-from ..constants import RFT_RELATION, RFT_FIELD, GROUP_TYPES, AGGREGATOR_TYPES
+from ..constants import (
+    # RFT_RELATION, RFT_FIELD,
+    GROUP_TYPES, AGGREGATOR_TYPES,
+    RGF_FK, RGF_RELATION, RGF_NOLINK,
+)
 from ..core.graph import (
     AbscissaInfo, OrdinateInfo,
     abscissa_constraints, ordinate_constraints,
@@ -201,35 +205,63 @@ class AbstractReportGraph(CremeEntity):
 
         return self.hand.fetch(entities=entities, order=order, user=user)
 
-    @staticmethod
-    def get_fetcher_from_instance_brick(instance_brick_config: InstanceBrickConfigItem) -> 'GraphFetcher':
+    # @staticmethod
+    # def get_fetcher_from_instance_brick(instance_brick_config):
+    #     """Build a GraphFetcher related to this ReportGraph & an InstanceBrickConfigItem.
+    #     @param instance_brick_config: An instance of InstanceBrickConfigItem.
+    #     @return A GraphFetcher instance.
+    #     """
+    #     from ..core.graph import fetcher as core_fetcher
+    #
+    #     data = instance_brick_config.data
+    #     volatile_column = rfield_type = None
+    #
+    #     if data:
+    #         try:
+    #             volatile_column, rfield_type = data.split('|', 1)
+    #             rfield_type = int(rfield_type)
+    #         except ValueError as e:
+    #             logger.warning('Instance block: invalid link type "%s" in block "%s" [%s].',
+    #                            data, instance_brick_config, e,
+    #                           )
+    #
+    #     graph = instance_brick_config.entity.get_real_entity()
+    #
+    #     if rfield_type == RFT_FIELD:
+    #         fetcher = core_fetcher.RegularFieldLinkedGraphFetcher(volatile_column, graph)
+    #     elif rfield_type == RFT_RELATION:
+    #         fetcher = core_fetcher.RelationLinkedGraphFetcher(volatile_column, graph)
+    #     else:
+    #         fetcher = core_fetcher.GraphFetcher(graph)
+    #
+    #     return fetcher
+    @classmethod
+    def get_fetcher_from_instance_brick(cls, instance_brick_config: InstanceBrickConfigItem) -> 'GraphFetcher':
         """Build a GraphFetcher related to this ReportGraph & an InstanceBrickConfigItem.
         @param instance_brick_config: An instance of InstanceBrickConfigItem.
         @return A GraphFetcher instance.
         """
         from ..core.graph import fetcher as core_fetcher
 
-        data = instance_brick_config.data
-        volatile_column = rfield_type = None
-
-        if data:
-            try:
-                volatile_column, rfield_type = data.split('|', 1)
-                rfield_type = int(rfield_type)
-            except ValueError as e:
-                logger.warning('Instance block: invalid link type "%s" in block "%s" [%s].',
-                               data, instance_brick_config, e,
-                              )
-
         graph = instance_brick_config.entity.get_real_entity()
-        fetcher: GraphFetcher
+        get_data = instance_brick_config.get_extra_data
+        volatile_link = get_data('type')
 
         # TODO: use a map/registry of GraphFetcher classes
-        if rfield_type == RFT_FIELD:
-            fetcher = core_fetcher.RegularFieldLinkedGraphFetcher(volatile_column, graph)
-        elif rfield_type == RFT_RELATION:
-            fetcher = core_fetcher.RelationLinkedGraphFetcher(volatile_column, graph)
+        # TODO: check "value" ? (on check is empty ?)
+        if volatile_link == RGF_FK:
+            fetcher = core_fetcher.RegularFieldLinkedGraphFetcher(get_data('value'), graph)
+        elif volatile_link == RGF_RELATION:
+            fetcher = core_fetcher.RelationLinkedGraphFetcher(get_data('value'), graph)
+        elif volatile_link == RGF_NOLINK:
+            # TODO: assert volatile_link is empty ?
+            fetcher = core_fetcher.GraphFetcher(graph)
         else:
+            logger.warning(
+                '%s.get_fetcher_from_instance_brick(): invalid ID "%s" for fetcher '
+                '(basic fetcher is used).',
+                cls.__name__, volatile_link,
+            )
             fetcher = core_fetcher.GraphFetcher(graph)
 
         return fetcher
@@ -249,6 +281,45 @@ class AbstractReportGraph(CremeEntity):
     class InstanceBrickConfigItemError(Exception):
         pass
 
+    # def create_instance_brick_config_item(self,
+    #                                       volatile_field=None,
+    #                                       volatile_rtype=None,
+    #                                       save=True):
+    #     from ..bricks import ReportGraphBrick
+    #     from ..core.graph.fetcher import RegularFieldLinkedGraphFetcher
+    #
+    #     if volatile_field:
+    #         assert volatile_rtype is None
+    #         error = RegularFieldLinkedGraphFetcher.validate_fieldname(self, volatile_field)
+    #
+    #         if error:
+    #             logger.info('ReportGraph.create_instance_brick_config_item(): '
+    #                         '%s -> InstanceBrickConfigItem not built.', error
+    #                        )
+    #
+    #             return None
+    #
+    #         key = f'{volatile_field}|{RFT_FIELD}'
+    #     elif volatile_rtype:
+    #         key = f'{volatile_rtype.id}|{RFT_RELATION}'
+    #     else:
+    #         key = ''
+    #
+    #     brick_id = InstanceBrickConfigItem.generate_id(ReportGraphBrick, self, key)
+    #
+    #     if InstanceBrickConfigItem.objects.filter(brick_id=brick_id).exists():
+    #         raise self.InstanceBrickConfigItemError(
+    #             gettext(
+    #                 'The instance block for «{graph}» with these parameters already exists!'
+    #             ).format(graph=self)
+    #         )
+    #
+    #     ibci = InstanceBrickConfigItem(entity=self, brick_id=brick_id, data=key)
+    #
+    #     if save:
+    #         ibci.save()
+    #
+    #     return ibci
     def create_instance_brick_config_item(self,
                                           volatile_field: Optional[str] = None,
                                           volatile_rtype: Optional[RelationType] = None,
@@ -256,33 +327,44 @@ class AbstractReportGraph(CremeEntity):
         from ..bricks import ReportGraphBrick
         from ..core.graph.fetcher import RegularFieldLinkedGraphFetcher
 
+        ibci = InstanceBrickConfigItem(
+            entity=self,
+            brick_class_id=ReportGraphBrick.id_,
+        )
+
         if volatile_field:
             assert volatile_rtype is None
             error = RegularFieldLinkedGraphFetcher.validate_fieldname(self, volatile_field)
 
             if error:
-                logger.info('ReportGraph.create_instance_brick_config_item(): '
-                            '%s -> InstanceBrickConfigItem not built.', error
-                           )
+                logger.warning(
+                    'ReportGraph.create_instance_brick_config_item(): '
+                    '%s -> InstanceBrickConfigItem not built.',
+                    error,
+                )
 
                 return None
 
-            key = f'{volatile_field}|{RFT_FIELD}'
+            ibci.set_extra_data(key='type',  value=RGF_FK)
+            ibci.set_extra_data(key='value', value=volatile_field)
         elif volatile_rtype:
-            key = f'{volatile_rtype.id}|{RFT_RELATION}'
+            ibci.set_extra_data(key='type',  value=RGF_RELATION)
+            ibci.set_extra_data(key='value', value=volatile_rtype.id)
         else:
-            key = ''
+            ibci.set_extra_data(key='type', value=RGF_NOLINK)
 
-        brick_id = InstanceBrickConfigItem.generate_id(ReportGraphBrick, self, key)
+        extra_items = dict(ibci.extra_data_items)
 
-        if InstanceBrickConfigItem.objects.filter(brick_id=brick_id).exists():
-            raise self.InstanceBrickConfigItemError(
-                gettext(
-                    'The instance block for «{graph}» with these parameters already exists!'
-                ).format(graph=self)
-            )
-
-        ibci = InstanceBrickConfigItem(entity=self, brick_id=brick_id, data=key)
+        for other_ibci in InstanceBrickConfigItem.objects.filter(
+            entity=self,
+            brick_class_id=ReportGraphBrick.id_,
+        ):
+            if extra_items == dict(other_ibci.extra_data_items):
+                raise self.InstanceBrickConfigItemError(
+                    gettext(
+                        'The instance block for «{graph}» with these parameters already exists!'
+                    ).format(graph=self)
+                )
 
         if save:
             ibci.save()

@@ -9,16 +9,29 @@ try:
     from django.utils.translation import gettext as _
 
     from ..base import CremeTestCase
-    from ..fake_models import FakeContact, FakeOrganisation, FakeImage
 
     from creme.creme_core import setting_keys
-    from creme.creme_core.bricks import RelationsBrick, PropertiesBrick, CustomFieldsBrick, HistoryBrick
-    from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
+    from creme.creme_core.bricks import (
+        RelationsBrick,
+        PropertiesBrick,
+        CustomFieldsBrick,
+        HistoryBrick,
+    )
+    from creme.creme_core.core.entity_cell import (
+        EntityCellRegularField,
+        EntityCellFunctionField,
+    )
     from creme.creme_core.gui.bricks import Brick
-    from creme.creme_core.models import (CremeEntity, UserRole, RelationType,
-            BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
-            InstanceBrickConfigItem, RelationBrickItem, CustomBrickConfigItem,
-            BrickState, SettingValue)
+    from creme.creme_core.models import (
+        CremeEntity,
+        UserRole,
+        RelationType,
+        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
+        InstanceBrickConfigItem, RelationBrickItem, CustomBrickConfigItem,
+        BrickState,
+        SettingValue,
+        FakeContact, FakeOrganisation, FakeImage,
+    )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -608,35 +621,81 @@ class BrickTestCase(CremeTestCase):
         cbci = self.refresh(cbci)
         self.assertEqual(1, len(cbci.cells))
 
-    # See reports for InstanceBrickConfigItem with a working classes; here are the error cases
-    def test_instance_brick(self):
-        self.login()
+    # NB: see reports for InstanceBrickConfigItem with a working Brick class
+    def test_instance_brick01(self):
+        user = self.login()
 
         class TestInstanceBrick(Brick):
             id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
 
-        brick_entity = CremeEntity.objects.create(user=self.user)
+        brick_entity = CremeEntity.objects.create(user=user)
 
-        generate_id = InstanceBrickConfigItem.generate_id
-        self.assertRaises(ValueError, generate_id, TestInstanceBrick, brick_entity, 'foo#bar')
+        # generate_id = InstanceBrickConfigItem.generate_id
+        # self.assertRaises(ValueError, generate_id, TestInstanceBrick, brick_entity, 'foo#bar')
 
         ibi = InstanceBrickConfigItem(
-                brick_id=generate_id(TestInstanceBrick, brick_entity, ''),
-                entity=brick_entity,
+            # brick_id=generate_id(TestInstanceBrick, brick_entity, ''),
+            brick_class_id=TestInstanceBrick.id_,
+            entity=brick_entity,
         )
 
-        id_is_specific = InstanceBrickConfigItem.id_is_specific
-        self.assertFalse(id_is_specific(Brick.generate_id('creme_core', 'foobar')))
-        self.assertTrue(id_is_specific(ibi.brick_id))
+        with self.assertRaises(ValueError):
+            __ = ibi.brick_id
+
+        # id_is_specific = InstanceBrickConfigItem.id_is_specific
+        # self.assertFalse(id_is_specific(Brick.generate_id('creme_core', 'foobar')))
+        # self.assertTrue(id_is_specific(ibi.brick_id))
+        ibi.save()
+        brick_id = f'instanceblock-{ibi.id}'
+        self.assertEqual(brick_id, ibi.brick_id)
+
+        id_from_brick_id = InstanceBrickConfigItem.id_from_brick_id
+        self.assertEqual(ibi.id, id_from_brick_id(brick_id))
+        self.assertIsNone(id_from_brick_id('invalid'))
+        self.assertIsNone(id_from_brick_id(f'invalid-{ibi.id}'))
+        self.assertIsNone(id_from_brick_id('instanceblock-notanint'))
 
         brick = ibi.brick
         self.assertIsInstance(brick, Brick)
         self.assertFalse(isinstance(brick, TestInstanceBrick))  # Because the class is not registered
+        self.assertEqual(brick_id, brick.id_)
         self.assertEqual('??', brick.verbose_name)
 
         errors = [_('Unknown type of block (bad uninstall ?)')]
         self.assertEqual(errors, getattr(brick, 'errors', None))
         self.assertEqual(errors, ibi.errors)
+
+    def test_instance_brick02(self):
+        "Extra data."
+        user = self.login()
+
+        class TestInstanceBrick(Brick):
+            id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
+
+        brick_entity = CremeEntity.objects.create(user=user)
+
+        ibi = InstanceBrickConfigItem(
+            brick_class_id=TestInstanceBrick.id_,
+            entity=brick_entity,
+        )
+        self.assertIsNone(ibi.get_extra_data('key1'))
+
+        ibi.set_extra_data(key='key1', value='value1')
+        ibi.set_extra_data(key='key2', value='value2')
+        ibi.save()
+
+        ibi = self.refresh(ibi)
+        self.assertEqual('value1', ibi.get_extra_data('key1'))
+        self.assertEqual('value2', ibi.get_extra_data('key2'))
+        self.assertIsNone(ibi.get_extra_data('key3'))
+
+        self.assertDictEqual(
+            {
+                'key1': 'value1',
+                'key2': 'value2',
+            },
+            dict(ibi.extra_data_items)
+        )
 
     # def test_brick_state_get_for_brick_ids01(self):
     #     "States do not exist in DB."

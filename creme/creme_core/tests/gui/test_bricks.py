@@ -8,9 +8,12 @@ try:
     from django.utils.translation import gettext as _
 
     from ..base import CremeTestCase
-    from ..fake_models import FakeContact, FakeOrganisation, FakeImage
+
     from creme.creme_core.constants import MODELBRICK_ID
-    from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
+    from creme.creme_core.core.entity_cell import (
+        EntityCellRegularField,
+        EntityCellRelation,
+    )
     from creme.creme_core.gui.bricks import (
         _BrickRegistry, BricksManager,
         Brick, SimpleBrick, QuerysetBrick,
@@ -19,6 +22,7 @@ try:
     from creme.creme_core.models import (
         Relation, RelationType,
         InstanceBrickConfigItem, RelationBrickItem, CustomBrickConfigItem,
+        FakeContact, FakeOrganisation, FakeImage,
     )
     # from creme.creme_core.views.bricks import build_context
 except Exception as e:
@@ -146,14 +150,17 @@ class BrickRegistryTestCase(CremeTestCase):
         class FoobarInstanceBrick3(_FoobarInstanceBrick):
             id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_3')
 
-        create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca, data='')
+        # create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca, data='')
+        create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
         ibci1 = create_ibci(
-            verbose='I am an awesome brick',
-            brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick1, casca, ''),
+            # verbose='I am an awesome brick',
+            # brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick1, casca, ''),
+            brick_class_id=FoobarInstanceBrick1.id_,
         )
         ibci2 = create_ibci(
-            verbose='I am an awesome brick too',
-            brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick2, casca, ''),
+            # verbose='I am an awesome brick too',
+            # brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick2, casca, ''),
+            brick_class_id=FoobarInstanceBrick2.id_,
         )
         brick_registry = _BrickRegistry()
 
@@ -281,9 +288,11 @@ class BrickRegistryTestCase(CremeTestCase):
                 return f'<table id="{self.id_}"><thead><tr>{self.config_item.entity}</tr></thead></table>'
 
         ibci = InstanceBrickConfigItem.objects.create(
-            entity=casca, data='',
-            verbose='I am an awesome brick',
-            brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick, casca, ''),
+            entity=casca,
+            # data='',
+            # verbose='I am an awesome brick',
+            # brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick, casca, ''),
+            brick_class_id=FoobarInstanceBrick.id_,
         )
         brick_registry = _BrickRegistry()
 
@@ -368,41 +377,65 @@ class BrickRegistryTestCase(CremeTestCase):
                 # return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'
                 return f'<table id="{self.id_}"><thead><tr>{self.config_item.entity}</tr></thead></table>'
 
-        create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca, data='')
-        ibci1 = create_ibci(verbose='I am an awesome brick',
-                            brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick1, casca, ''),
-                           )
-        ibci2 = create_ibci(verbose='I am an awesome brick too',
-                            brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick2, casca, ''),
-                           )
-        create_ibci(verbose='I am a poor brick',
-                    brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick3, casca, ''),
-                   )
-        create_ibci(verbose='I am a poor brick too',
-                    brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick4, casca, ''),
-                   )
+        # create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca, data='')
+        create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
+        ibci1 = create_ibci(
+            # verbose='I am an awesome brick',
+            # brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick1, casca, ''),
+            brick_class_id=FoobarInstanceBrick1.id_,
+        )
+        ibci2 = create_ibci(
+            # verbose='I am an awesome brick too',
+            # brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick2, casca, ''),
+            brick_class_id=FoobarInstanceBrick2.id_,
+        )
+        create_ibci(
+            # verbose='I am a poor brick',
+            # brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick3, casca, ''),
+            brick_class_id=FoobarInstanceBrick3.id_,
+        )
+        create_ibci(
+            # verbose='I am a poor brick too',
+            # brick_id=InstanceBrickConfigItem.generate_id(FoobarInstanceBrick4, casca, ''),
+            brick_class_id=FoobarInstanceBrick4.id_,
+        )
 
         brick_registry = _BrickRegistry()
 
-        rtype1 = RelationType.create(('test-subject_loves', 'loves'), ('test-object_loved', 'is loved by'))[0]
+        rtype1 = RelationType.create(
+            ('test-subject_loves', 'loves'),
+            ('test-object_loved', 'is loved by'),
+        )[0]
         RelationBrickItem.objects.create_if_needed(rtype1)
 
         create_cbci = CustomBrickConfigItem.objects.create
-        cbci = create_cbci(id='test-contacts01', name='General (contact)', content_type=FakeContact,
-                           cells=[EntityCellRegularField.build(FakeContact, 'last_name')],
-                          )
-        create_cbci(id='test-organisations01', name='General (orga)', content_type=FakeOrganisation,
-                    cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
-                   )  # Not compatible with Contact
+        cbci = create_cbci(
+            id='test-contacts01', name='General (contact)',
+            content_type=FakeContact,
+            cells=[EntityCellRegularField.build(FakeContact, 'last_name')],
+        )
+        create_cbci(
+            id='test-organisations01', name='General (orga)',
+            content_type=FakeOrganisation,
+            cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
+        )  # Not compatible with Contact
 
-        brick_registry.register(FoobarBrick1, FoobarBrick2, FoobarBrick3, FoobarBrick4, FoobarBrick5)
-        brick_registry.register_4_model(FakeContact,      FakeContactBrick)
-        brick_registry.register_4_model(FakeOrganisation, FakeOrganisationBrick)
-        brick_registry.register_4_instance(FoobarInstanceBrick1,
-                                           FoobarInstanceBrick2,
-                                           FoobarInstanceBrick3,
-                                           FoobarInstanceBrick4,
-                                          )
+        brick_registry.register(
+            FoobarBrick1,
+            FoobarBrick2,
+            FoobarBrick3,
+            FoobarBrick4,
+            FoobarBrick5,
+        ).register_4_model(
+            FakeContact, FakeContactBrick,
+        ).register_4_model(
+            FakeOrganisation, FakeOrganisationBrick
+        ).register_4_instance(
+            FoobarInstanceBrick1,
+            FoobarInstanceBrick2,
+            FoobarInstanceBrick3,
+            FoobarInstanceBrick4,
+        )
 
         bricks = sorted(brick_registry.get_compatible_bricks(FakeContact), key=lambda b: b.id_)
         self.assertEqual(7, len(bricks))
@@ -625,7 +658,7 @@ class BrickRegistryTestCase(CremeTestCase):
             id_          = SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_3')
             verbose_name = 'Testing purpose #3'
 
-        self.assertFalse(InstanceBrickConfigItem.id_is_specific(QuuxBrick1.id_))
+        # self.assertFalse(InstanceBrickConfigItem.id_is_specific(QuuxBrick1.id_))
 
         brick_registry = _BrickRegistry()
         brick_registry.register(QuuxBrick1, QuuxBrick2, QuuxBrick3)
@@ -642,7 +675,11 @@ class BrickRegistryTestCase(CremeTestCase):
                     )
 
         # Not registered -------------
-        bricks = [*brick_registry.get_bricks([SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_4')])]
+        bricks = [
+            *brick_registry.get_bricks([
+                SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_4'),
+            ])
+        ]
         self.assertEqual(1, len(bricks))
         self.assertIsInstance(bricks[0], Brick)
 
@@ -800,46 +837,57 @@ class BrickRegistryTestCase(CremeTestCase):
                 # return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'  # useless :)
                 return f'<table id="{self.id_}"><thead><tr>{self.config_item.entity}</tr></thead></table>'  # useless :)
 
-        self.assertTrue(InstanceBrickConfigItem.id_is_specific(ContactBrick.id_))
+        # self.assertTrue(InstanceBrickConfigItem.id_is_specific(ContactBrick.id_))
 
-        ibci = InstanceBrickConfigItem.objects \
-                                      .create(entity=casca,
-                                              brick_id=InstanceBrickConfigItem.generate_id(ContactBrick, casca, ''),
-                                              verbose='I am an awesome block',
-                                              data='',
-                                             )
+        ibci = InstanceBrickConfigItem.objects.create(
+            entity=casca,
+            # brick_id=InstanceBrickConfigItem.generate_id(ContactBrick, casca, ''),
+            brick_class_id=ContactBrick.id_,
+            # verbose='I am an awesome block',
+            # data='',
+        )
 
         brick_registry = _BrickRegistry()
         brick_registry.register_4_instance(ContactBrick)
 
-        bricks = [*brick_registry.get_bricks([ibci.brick_id])]
+        brick_id = ibci.brick_id
+        bricks = [*brick_registry.get_bricks([brick_id])]
         self.assertEqual(1, len(bricks))
 
         brick = bricks[0]
         self.assertIsInstance(brick, ContactBrick)
         # self.assertEqual(ibci, brick.ibci)
         self.assertEqual(ibci, brick.config_item)
-        self.assertEqual(ibci.brick_id, brick.id_)
+        # self.assertEqual(ibci.brick_id, brick.id_)
+        self.assertEqual(brick_id, brick.id_)
         self.assertEqual((FakeOrganisation,), brick.dependencies)
 
         # ----------------------------------------------------------------------
         # In detail-views of an entity we give it in order to compute dependencies correctly.
         judo = create_contact(user=user, first_name='Judo',  last_name='Doe')
-        brick = next(brick_registry.get_bricks([ibci.brick_id], entity=judo))
+        # brick = next(brick_registry.get_bricks([ibci.brick_id], entity=judo))
+        brick = next(brick_registry.get_bricks([brick_id], entity=judo))
         self.assertEqual((FakeOrganisation, FakeContact), brick.dependencies)
 
         hawk = FakeOrganisation.objects.create(user=user, name='Hawk')
-        brick = next(brick_registry.get_bricks([ibci.brick_id], entity=hawk))
+        # brick = next(brick_registry.get_bricks([ibci.brick_id], entity=hawk))
+        brick = next(brick_registry.get_bricks([brick_id], entity=hawk))
         self.assertEqual((FakeOrganisation,), brick.dependencies)
 
         # ----------------------------------------------------------------------
-        bad_brick_id = InstanceBrickConfigItem.generate_base_id('creme_core', 'does_not_exist') + f'#{casca.id}_'
-        InstanceBrickConfigItem.objects.create(entity=casca,
-                                               brick_id=bad_brick_id,
-                                               verbose='I am bad',
-                                               data='',
-                                              )
-        bricks = [*brick_registry.get_bricks([bad_brick_id])]
+        # bad_brick_id = InstanceBrickConfigItem.generate_base_id('creme_core', 'does_not_exist') + f'#{casca.id}_'
+        bad_ibci = InstanceBrickConfigItem.objects.create(
+            entity=casca,
+            # brick_id=bad_brick_id,
+            brick_class_id=InstanceBrickConfigItem.generate_base_id(
+                'creme_core',
+                'does_not_exist', # <==
+            ),
+            # verbose='I am bad',
+            # data='',
+        )
+        # bricks = [*brick_registry.get_bricks([bad_brick_id])]
+        bricks = [*brick_registry.get_bricks([bad_ibci.brick_id])]
         self.assertEqual(1, len(bricks))
         self.assertIsInstance(bricks[0], Brick)
 
