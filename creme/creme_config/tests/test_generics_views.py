@@ -362,9 +362,9 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                          replace_field.label
                         )
 
-        self.assertIn(('', '---------'),    choices)
-        self.assertIn((civ1.id, str(civ1)), choices)
-        self.assertNotIn((civ2del.id, str(civ2del)), choices)
+        self.assertInChoices(value='',      label='---------', choices=choices)
+        self.assertInChoices(value=civ1.id, label=str(civ1),   choices=choices)
+        self.assertNotInChoices(value=civ2del.id, choices=choices)
 
         response = self.client.post(url)
         self.assertNoFormError(response)
@@ -433,17 +433,17 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             choices1 = [*replace_field1.choices]
             choices2 = [*replace_field2.choices]
 
-        self.assertIn(('', '---------'),          choices1)
-        self.assertIn((sector1.id, str(sector1)), choices1)
-        self.assertIn((sector2.id, str(sector2)), choices1)
-        self.assertIn((sector3.id, str(sector3)), choices1)
-        self.assertNotIn((sector2del.id, str(sector2del)), choices1)
-        self.assertNotIn((sector4.id,    str(sector4)),    choices1)
+        self.assertInChoices(value='',         label='---------',  choices=choices1)
+        self.assertInChoices(value=sector1.id, label=str(sector1), choices=choices1)
+        self.assertInChoices(value=sector2.id, label=str(sector2), choices=choices1)
+        self.assertInChoices(value=sector3.id, label=str(sector3), choices=choices1)
+        self.assertNotInChoices(value=sector2del.id, choices=choices1)
+        self.assertNotInChoices(value=sector4.id,    choices=choices1)
 
-        self.assertNotIn(('', '---------'),       choices2)
-        self.assertIn((sector1.id, str(sector1)), choices2)
-        self.assertIn((sector4.id, str(sector4)), choices2)
-        self.assertNotIn((sector2del.id, str(sector2del)), choices2)
+        self.assertNotInChoices(value='', choices=choices2)
+        self.assertInChoices(value=sector1.id, label=str(sector1), choices=choices2)
+        self.assertInChoices(value=sector4.id, label=str(sector4), choices=choices2)
+        self.assertNotInChoices(value=sector2del.id, choices=choices2)
 
         response = self.assertPOST200(
             url,
@@ -850,10 +850,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertFalse(replace_field.required)
 
-        self.assertIn(('', '---------'),    choices)
-        self.assertIn((cat1.id, str(cat1)), choices)
-        self.assertIn((cat2.id, str(cat2)), choices)
-        self.assertNotIn((cat2del.id, str(cat2del)), choices)
+        self.assertInChoices(value='',      label='---------', choices=choices)
+        self.assertInChoices(value=cat1.id, label=str(cat1),   choices=choices)
+        self.assertInChoices(value=cat2.id, label=str(cat2),   choices=choices)
+        self.assertNotInChoices(value=cat2del.id, choices=choices)
 
         self.assertEqual(1, len(fields), fields)
 
@@ -936,10 +936,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             choices = [*replace_field.choices]
 
         self.assertTrue(replace_field.required)
-        self.assertIn((ing1.id, str(ing1)), choices)
-        self.assertIn((ing2.id, str(ing2)), choices)
-        self.assertNotIn((ing2del.id, str(ing2del)), choices)
-        self.assertNotIn(('', '---------'),          choices)
+        self.assertInChoices(value=ing1.id, label=str(ing1), choices=choices)
+        self.assertInChoices(value=ing2.id, label=str(ing2), choices=choices)
+        self.assertNotInChoices(value=ing2del.id, choices=choices)
+        self.assertNotInChoices(value='',         choices=choices)
 
     def test_delete_hidden_related(self):
         "ForeignKey(..., related_name='+', ...) => use the field anyway."
@@ -962,9 +962,9 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                          replace_field.label
                         )
 
-        self.assertIn(('', '---------'),      choices)
-        self.assertIn((lform.id, str(lform)), choices)
-        self.assertNotIn((lform2del.id, str(lform2del)), choices)
+        self.assertInChoices(value='',       label='---------', choices=choices)
+        self.assertInChoices(value=lform.id, label=str(lform),  choices=choices)
+        self.assertNotInChoices(value=lform2del.id, choices=choices)
 
     def test_delete_hiddenfields01(self):
         "SET_NULL."
@@ -1273,9 +1273,9 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertTrue(replace_field.required)
 
-        self.assertNotIn(('', '---------'),       choices)
-        self.assertIn((sector1.id, str(sector1)), choices)
-        self.assertNotIn((sector2del.id, str(sector2del)), choices)
+        self.assertNotInChoices(value='', choices=choices)
+        self.assertInChoices(value=sector1.id, label=str(sector1), choices=choices)
+        self.assertNotInChoices(value=sector2del.id, choices=choices)
 
         # POST ---
         response = self.client.post(
@@ -1283,7 +1283,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             data={
                 fname1: sector1.id,
                 fname2: sector1.id,
-            }
+            },
         )
         self.assertNoFormError(response)
 

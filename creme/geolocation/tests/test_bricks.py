@@ -83,8 +83,8 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         self.assertEqual(contacts_title, contact_group[0])
 
         contact_opt = contact_group[1]
-        self.assertIn((contact_me.pk, f'{contacts_title} - {contact_me.name}'), contact_opt)
-        self.assertIn((efilter1.pk,   f'{contacts_title} - {efilter1.name}'),   contact_opt)
+        self.assertInChoices(value=contact_me.pk, label=f'{contacts_title} - {contact_me.name}', choices=contact_opt)
+        self.assertInChoices(value=efilter1.pk,   label=f'{contacts_title} - {efilter1.name}',   choices=contact_opt)
 
         # -----
         orga_group = self.brick.get_filter_choices(user, Organisation)[0]
@@ -92,8 +92,8 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         self.assertEqual(orgas_title, orga_group[0])
 
         orga_opt = orga_group[1]
-        self.assertIn((managed_orgas.pk, f'{orgas_title} - {managed_orgas.name}'), orga_opt)
-        self.assertIn((efilter2.pk,      f'{orgas_title} - {efilter2.name}'),      orga_opt)
+        self.assertInChoices(value=managed_orgas.pk, label=f'{orgas_title} - {managed_orgas.name}', choices=orga_opt)
+        self.assertInChoices(value=efilter2.pk,      label=f'{orgas_title} - {efilter2.name}',      choices=orga_opt)
 
         # -----
         self.assertEqual([contact_group, orga_group],
@@ -110,16 +110,17 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
                                     )
 
         title = self.organisations_title
-        self.assertEqual([(title,
-                           [(managed_orgas.pk, f'{title} - {managed_orgas.name}')]
-                          )
-                         ],
-                         self.brick.get_filter_choices(user, Organisation)
-                        )
+        self.assertListEqual(
+            [(title,
+              [(managed_orgas.pk, f'{title} - {managed_orgas.name}')]
+             )
+            ],
+            self.brick.get_filter_choices(user, Organisation)
+        )
 
         orga_group = self.brick.get_filter_choices(other_user, Organisation)[0]
         self.assertEqual(title, orga_group[0])
 
         orga_opt = orga_group[1]
-        self.assertIn((managed_orgas.pk, f'{title} - {managed_orgas.name}'), orga_opt)
-        self.assertIn((efilter.pk,       f'{title} - {efilter.name}'),       orga_opt)
+        self.assertInChoices(value=managed_orgas.pk, label=f'{title} - {managed_orgas.name}', choices=orga_opt)
+        self.assertInChoices(value=efilter.pk,       label=f'{title} - {efilter.name}',       choices=orga_opt)

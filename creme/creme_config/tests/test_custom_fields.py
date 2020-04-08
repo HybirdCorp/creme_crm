@@ -788,11 +788,11 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertNotIn('info', fields)
 
-        self.assertIn(('', '---------'), choices)
-        self.assertIn((eval1_01.id, eval1_01.value), choices)
-        self.assertIn((eval1_03.id, eval1_03.value), choices)
-        self.assertNotIn((eval1_02.id, eval1_02.value), choices)
-        self.assertNotIn((eval2_01.id, eval2_01.value), choices)
+        self.assertInChoices(value='',          label='---------',    choices=choices)
+        self.assertInChoices(value=eval1_01.id, label=eval1_01.value, choices=choices)
+        self.assertInChoices(value=eval1_03.id, label=eval1_03.value, choices=choices)
+        self.assertNotInChoices(value=eval1_02.id, choices=choices)
+        self.assertNotInChoices(value=eval2_01.id, choices=choices)
 
         response = self.client.post(url, data={'to_choice': eval1_01.id})
         self.assertNoFormError(response)
@@ -992,11 +992,11 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertNotIn('info', fields)
 
-        self.assertIn(('', '---------'), choices)
-        self.assertIn((eval1_01.id, eval1_01.value), choices)
-        self.assertIn((eval1_03.id, eval1_03.value), choices)
-        self.assertNotIn((eval1_02.id, eval1_02.value), choices)
-        self.assertNotIn((eval2_01.id, eval2_01.value), choices)
+        self.assertInChoices(value='',          label='---------',    choices=choices)
+        self.assertInChoices(value=eval1_01.id, label=eval1_01.value, choices=choices)
+        self.assertInChoices(value=eval1_03.id, label=eval1_03.value, choices=choices)
+        self.assertNotInChoices(value=eval1_02.id, choices=choices)
+        self.assertNotInChoices(value=eval2_01.id, choices=choices)
 
         response = self.client.post(url, data={'to_choice': eval1_01.id})
         self.assertNoFormError(response)

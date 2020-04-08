@@ -606,8 +606,8 @@ class CremeEntityFormTestCase(CremeTestCase):
         with self.assertNoException():
             sf_choices = fields['semifixed_rtypes'].choices
 
-        self.assertIn((sfrt1.id, sfrt1.predicate), sf_choices)
-        self.assertIn((sfrt2.id, sfrt2.predicate), sf_choices)
+        self.assertInChoices(value=sfrt1.id, label=sfrt1.predicate, choices=sf_choices)
+        self.assertInChoices(value=sfrt2.id, label=sfrt2.predicate, choices=sf_choices)
 
         # ---
         blocks = form.get_blocks()
@@ -841,8 +841,8 @@ class CremeEntityFormTestCase(CremeTestCase):
         with self.assertNoException():
             sf_choices = fields['semifixed_rtypes'].choices
 
-        self.assertIn((sfrt1.id, sfrt1.predicate), sf_choices)
-        self.assertNotIn((sfrt2.id, sfrt2.predicate), sf_choices)
+        self.assertInChoices(value=sfrt1.id, label=sfrt1.predicate, choices=sf_choices)
+        self.assertNotInChoices(value=sfrt2.id, choices=sf_choices)
 
     def test_relations_credentials02(self):
         "Label if cannot link the future entity."
@@ -1077,13 +1077,14 @@ class CremeEntityFormTestCase(CremeTestCase):
         with self.assertNoException():
             sf_choices = form1.fields['semifixed_rtypes'].choices
 
-        self.assertIn((sfrt.id, sfrt.predicate), sf_choices)
+        self.assertInChoices(value=sfrt.id, label=sfrt.predicate, choices=sf_choices)
 
         # ---
-        data = {'user': user.id,
-                'first_name': 'Spike',
-                'last_name': 'Spiegel',
-               }
+        data = {
+            'user': user.id,
+            'first_name': 'Spike',
+            'last_name': 'Spiegel',
+        }
 
         form2 = FakeContactForm(
             user=user,

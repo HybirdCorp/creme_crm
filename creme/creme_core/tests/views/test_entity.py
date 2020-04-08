@@ -1352,11 +1352,11 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         with self.assertNoException():
             choices = context['form'].fields['_bulk_fieldname'].choices
 
-        self.assertIn((url, _('First name')), choices)
-        self.assertIn((build_url(field='user'), _('Owner user')), choices)
+        self.assertInChoices(value=url,                     label=_('First name'), choices=choices)
+        self.assertInChoices(value=build_url(field='user'), label=_('Owner user'), choices=choices)
 
         baddr_choices = dict(choices)[_('Billing address')]
-        self.assertIn((build_url(field='address__city'), _('City')), baddr_choices)
+        self.assertInChoices(value=build_url(field='address__city'), label=_('City'), choices=baddr_choices)
 
         # ---
         first_name = 'Marioooo'
@@ -1638,8 +1638,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         with self.assertNoException():
             choices = response.context['form'].fields['_bulk_fieldname'].choices
 
-        self.assertIn((url, _('Owner user')), choices)
-        self.assertIn((build_url(field='first_name'), _('First name')), choices)
+        self.assertInChoices(value=url,                           label=_('Owner user'), choices=choices)
+        self.assertInChoices(value=build_url(field='first_name'), label=_('First name'), choices=choices)
 
     def test_regular_field_file01(self):
         "FileFields are excluded."

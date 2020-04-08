@@ -78,20 +78,26 @@ class BatchOperatorTestCase(CremeTestCase):
         self.assertEqual(2, op(9, op.cast('4')))
 
     def test_operators01(self):
-        ops = {(op_name, str(op)) for op_name, op in batch_operator_manager.operators(models.CharField)}
-        self.assertIn(('upper', _('To upper case')), ops)
-        self.assertIn(('lower', _('To lower case')), ops)
-        self.assertNotIn('add_int', (e[0] for e in ops))
+        ops = [
+            (op_name, str(op))
+                for op_name, op in batch_operator_manager.operators(models.CharField)
+        ]
+        self.assertInChoices(value='upper', label=_('To upper case'), choices=ops)
+        self.assertInChoices(value='lower', label=_('To lower case'), choices=ops)
+        self.assertNotInChoices(value='add_int', choices=ops)
 
     def test_operators02(self):
-        ops = {(op_name, str(op)) for op_name, op in batch_operator_manager.operators(models.IntegerField)}
-        self.assertIn(('add_int', _('Add')), ops)
-        self.assertNotIn('prefix', (e[0] for e in ops))
+        ops = [
+            (op_name, str(op))
+                for op_name, op in batch_operator_manager.operators(models.IntegerField)
+        ]
+        self.assertInChoices(value='add_int', label=_('Add'), choices=ops)
+        self.assertNotInChoices(value='prefix', choices=ops)
 
     def test_operators03(self):
-        ops = {(op_name, str(op)) for op_name, op in batch_operator_manager.operators()}
-        self.assertIn(('mul_int', _('Multiply')), ops)
-        self.assertIn(('suffix',  _('Suffix')), ops)
+        ops = [(op_name, str(op)) for op_name, op in batch_operator_manager.operators()]
+        self.assertInChoices(value='mul_int', label=_('Multiply'), choices=ops)
+        self.assertInChoices(value='suffix',  label=_('Suffix'),   choices=ops)
 
 
 class BatchActionTestCase(CremeTestCase):

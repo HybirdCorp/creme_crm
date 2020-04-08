@@ -91,11 +91,11 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(_('Next step'), context1.get('submit_label'))
 
         with self.assertNoException():
-            app_labels = {c[0] for c in context1['form'].fields['allowed_apps'].choices}
+            app_labels = context1['form'].fields['allowed_apps'].choices
 
-        self.assertIn(apps[0], app_labels)
-        self.assertIn(apps[1], app_labels)
-        self.assertIn('activities', app_labels)
+        self.assertInChoices(value=apps[0],      label=_('Accounts and Contacts'), choices=app_labels)
+        self.assertInChoices(value=apps[1],      label=_('Documents'),             choices=app_labels)
+        self.assertInChoices(value='activities', label=_('Activities'),            choices=app_labels)
 
         step_key = 'role_creation_wizard-current_step'
         response = self.client.post(url,
@@ -108,17 +108,19 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         # Step 2
         with self.assertNoException():
-            adm_app_labels = {c[0] for c in response.context['form'].fields['admin_4_apps'].choices}
+            adm_app_labels = response.context['form'].fields['admin_4_apps'].choices
 
-        self.assertIn(apps[0], adm_app_labels)
-        self.assertIn(apps[1], adm_app_labels)
-        self.assertNotIn('activities', adm_app_labels)
+        self.assertInChoices(value=apps[0], label=_('Accounts and Contacts'), choices=adm_app_labels)
+        self.assertInChoices(value=apps[1], label=_('Documents'),             choices=adm_app_labels)
+        self.assertNotInChoices(value='activities', choices=adm_app_labels)
 
-        response = self.client.post(url,
-                                    {step_key: '1',
-                                     '1-admin_4_apps': adm_apps,
-                                    },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                step_key: '1',
+                '1-admin_4_apps': adm_apps,
+            },
+        )
         self.assertNoFormError(response)
 
         # Step 3
@@ -135,11 +137,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(ct_doc, creatable_ctypes)
         self.assertNotIn(get_ct(Activity), creatable_ctypes)  # App not allowed
 
-        response = self.client.post(url,
-                                    {step_key: '2',
-                                     '2-creatable_ctypes': [ct_contact.id, ct_doc.id],
-                                    },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                step_key: '2',
+                '2-creatable_ctypes': [ct_contact.id, ct_doc.id],
+            },
+        )
         self.assertNoFormError(response)
 
         # Step 4
@@ -152,11 +156,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(ct_doc, exp_ctypes)
         self.assertNotIn(get_ct(Activity), exp_ctypes)  # App not allowed
 
-        response = self.client.post(url,
-                                    {step_key: '3',
-                                     '3-exportable_ctypes': [ct_contact.id],
-                                    },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                step_key: '3',
+                '3-exportable_ctypes': [ct_contact.id],
+            },
+        )
         self.assertNoFormError(response)
 
         # Step 5
@@ -213,8 +219,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual({*apps},     role.allowed_apps)
         self.assertEqual({*adm_apps}, role.admin_4_apps)
 
-        self.assertEqual({ct_contact, ct_doc}, {*role.creatable_ctypes.all()})
-        self.assertEqual([ct_contact],         [*role.exportable_ctypes.all()])
+        self.assertSetEqual({ct_contact, ct_doc}, {*role.creatable_ctypes.all()})
+        self.assertListEqual([ct_contact],        [*role.exportable_ctypes.all()])
 
         setcreds = role.credentials.all()
         self.assertEqual(1, len(setcreds))
@@ -1887,34 +1893,38 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(_('Next step'), context1.get('submit_label'))
 
         with self.assertNoException():
-            app_labels = {c[0] for c in context1['form'].fields['allowed_apps'].choices}
+            app_labels = context1['form'].fields['allowed_apps'].choices
 
-        self.assertIn(apps[0], app_labels)
-        self.assertIn(apps[1], app_labels)
-        self.assertIn('activities', app_labels)
+        self.assertInChoices(value=apps[0],      label=_('Accounts and Contacts'), choices=app_labels)
+        self.assertInChoices(value=apps[1],      label=_('Documents'),             choices=app_labels)
+        self.assertInChoices(value='activities', label=_('Activities'),            choices=app_labels)
 
         step_key = 'role_edition_wizard-current_step'
-        response = self.client.post(url,
-                                    {step_key: '0',
-                                     '0-name': name,
-                                     '0-allowed_apps': apps,
-                                    },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                step_key: '0',
+                '0-name': name,
+                '0-allowed_apps': apps,
+            },
+        )
         self.assertNoFormError(response)
 
         # Step 2 ---
         with self.assertNoException():
-            adm_app_labels = {c[0] for c in response.context['form'].fields['admin_4_apps'].choices}
+            adm_app_labels = response.context['form'].fields['admin_4_apps'].choices
 
-        self.assertIn(apps[0], adm_app_labels)
-        self.assertIn(apps[1], adm_app_labels)
-        self.assertNotIn('activities', adm_app_labels)
+        self.assertInChoices(value=apps[0],      label=_('Accounts and Contacts'), choices=adm_app_labels)
+        self.assertInChoices(value=apps[1],      label=_('Documents'),             choices=adm_app_labels)
+        self.assertNotInChoices(value='activities', choices=adm_app_labels)
 
-        response = self.client.post(url,
-                                    {step_key: '1',
-                                     '1-admin_4_apps': adm_apps,
-                                    },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                step_key: '1',
+                '1-admin_4_apps': adm_apps,
+            },
+        )
         self.assertNoFormError(response)
 
         # Step 3 ---
@@ -1931,11 +1941,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(ct_doc, creatable_ctypes)
         self.assertNotIn(get_ct(Activity), creatable_ctypes)  # App not allowed
 
-        response = self.client.post(url,
-                                    {step_key: '2',
-                                     '2-creatable_ctypes': [ct_contact.id, ct_doc.id],
-                                    },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                step_key: '2',
+                '2-creatable_ctypes': [ct_contact.id, ct_doc.id],
+            },
+        )
         self.assertNoFormError(response)
 
         # Step 4 ---
@@ -1951,11 +1963,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(ct_doc, exp_ctypes)
         self.assertNotIn(get_ct(Activity), exp_ctypes)  # App not allowed
 
-        response = self.client.post(url,
-                                    {step_key: '3',
-                                     '3-exportable_ctypes': [ct_contact.id],
-                                    },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                step_key: '3',
+                '3-exportable_ctypes': [ct_contact.id],
+            },
+        )
         self.assertNoFormError(response)
 
         role = self.refresh(role)
@@ -2016,9 +2030,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         dcom = self.get_deletion_command_or_fail(UserRole)
         self.assertEqual(role,      dcom.instance_to_delete)
         self.assertEqual(role.name, dcom.deleted_repr)
-        self.assertFalse(
-            dcom.replacers
-        )
+        self.assertFalse(dcom.replacers)
         self.assertEqual(0, dcom.total_count)
         self.assertEqual(0, dcom.updated_count)
 
@@ -2048,9 +2060,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertNotIn('info', fields)
 
-        self.assertIn((replacing_role.id, str(replacing_role)), choices)
-        self.assertIn((other_role.id,     str(other_role)),     choices)
-        self.assertNotIn((role_2_del.id,  str(role_2_del)),     choices)
+        self.assertInChoices(value=replacing_role.id, label=str(replacing_role), choices=choices)
+        self.assertInChoices(value=other_role.id,     label=str(other_role),     choices=choices)
+        self.assertNotInChoices(value=role_2_del.id, choices=choices)
 
         response = self.client.post(url, data={'to_role': replacing_role.id})
         self.assertNoFormError(response)

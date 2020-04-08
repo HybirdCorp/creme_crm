@@ -3242,10 +3242,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         rel_choices = frozenset((k, str(v)) for k, v in rel_group[1])
         choice_id = f'rtype-{rtype.id}'
-        self.assertIn((choice_id, str(rtype)), rel_choices)
-        self.assertNotIn((f'rtype-{incompatible_rtype.id}', str(incompatible_rtype)),
-                         rel_choices
-                        )
+        self.assertInChoices(value=choice_id, label=str(rtype), choices=rel_choices)
+        self.assertNotInChoices(value=f'rtype-{incompatible_rtype.id}', choices=rel_choices)
 
         self.assertNoFormError(self.client.post(url, data={'volatile_column': choice_id}))
 

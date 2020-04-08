@@ -1221,9 +1221,9 @@ class ListViewTestCase(ViewsTestCase):
         # self.assertEqual(_('Sector'), widget_node.attrib.get('title'))  TODO
 
         options = self._get_options_for_select_node(widget_node)
-        self.assertIn(('', _('All')), options)
-        self.assertIn((str(mercenary.id), mercenary.title), options)
-        self.assertIn((str(robotics.id),  robotics.title),  options)
+        self.assertInChoices(value='',                label=_('All'),        choices=options)
+        self.assertInChoices(value=str(mercenary.id), label=mercenary.title, choices=options)
+        self.assertInChoices(value=str(robotics.id),  label=robotics.title,  choices=options)
 
         # ----------------------------------------------------------------------
         response = self.assertPOST200(url, data={**data, 'search-' + cell.key: str(mercenary.id)})
@@ -1261,9 +1261,9 @@ class ListViewTestCase(ViewsTestCase):
                                                       )[0]
 
         options = self._get_options_for_select_node(widget_node)
-        self.assertIn(('',  _('All')), options)
-        self.assertIn(('1', _('Yes')), options)
-        self.assertIn(('0', _('No')),  options)
+        self.assertInChoices(value='',  label=_('All'), choices=options)
+        self.assertInChoices(value='1', label=_('Yes'), choices=options)
+        self.assertInChoices(value='0', label=_('No'),  choices=options)
         self.assertEqual(3, len(options))
 
         # ----------------------------------------------------------------------
@@ -1414,7 +1414,7 @@ class ListViewTestCase(ViewsTestCase):
                                                       )[0]
 
         options = self._get_options_for_select_node(widget_node)
-        self.assertIn(('', _('All')), options)
+        self.assertInChoices(value='', label=_('All'), choices=options)
 
         # ---------------------------------------------------------------------
         response = self.assertPOST200(
@@ -1473,8 +1473,8 @@ class ListViewTestCase(ViewsTestCase):
 
         civ_widget_node = get_widget_node(cell_key=cell_civ.key, input_type='select')[0]
         options = self._get_options_for_select_node(civ_widget_node)
-        self.assertIn((str(mister.id), mister.title), options)
-        self.assertIn((str(miss.id),   miss.title),   options)
+        self.assertInChoices(value=str(mister.id), label=mister.title, choices=options)
+        self.assertInChoices(value=str(miss.id),   label=miss.title,   choices=options)
 
         # ---------------------------------------------------------------------
         response = self.assertPOST200(url, data={'hfilter': hf.id})
@@ -2000,26 +2000,32 @@ class ListViewTestCase(ViewsTestCase):
                                                       )[0]
 
         options = self._get_options_for_select_node(widget_node)
-        self.assertIn(('NULL',        _('* is empty *')), options)
-        self.assertIn((str(type1.id), type1.value),       options)
-        self.assertIn((str(type2.id), type2.value),       options)
+        self.assertInChoices(value='NULL',        label=_('* is empty *'), choices=options)
+        self.assertInChoices(value=str(type1.id), label=type1.value,       choices=options)
+        self.assertInChoices(value=str(type2.id), label=type2.value,       choices=options)
 
         # ----------------------------------------------------------------------
-        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      'search-regular_field-name': '',
-                                                      'search-' + cell.key: type1.id,
-                                                     }
-                                     )
+        response = self.assertPOST200(
+            self.url,
+            data={
+                'hfilter': hf.id,
+                'search-regular_field-name': '',
+                'search-' + cell.key: type1.id,
+            },
+        )
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop,   orgas_set)
         self.assertIn(swordfish,  orgas_set)
         self.assertIn(redtail,    orgas_set)
         self.assertNotIn(dragons, orgas_set)
 
-        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      'search-' + cell.key: 'NULL',
-                                                     }
-                                     )
+        response = self.assertPOST200(
+            self.url,
+            data={
+                'hfilter': hf.id,
+                'search-' + cell.key: 'NULL',
+            },
+        )
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop,     orgas_set)
         self.assertNotIn(swordfish, orgas_set)
@@ -2062,26 +2068,32 @@ class ListViewTestCase(ViewsTestCase):
                                                       )[0]
 
         options = self._get_options_for_select_node(widget_node)
-        self.assertIn(('NULL',           _('* is empty *')), options)
-        self.assertIn((str(can_walk.id), can_walk.value),    options)
+        self.assertInChoices(value='NULL',           label=_('* is empty *'), choices=options)
+        self.assertInChoices(value=str(can_walk.id), label=can_walk.value,    choices=options)
 
         # ----------------------------------------------------------------------
-        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      'search-regular_field-name': '',
-                                                      'search-' + cell.key: can_walk.id,
-                                                     },
-                                     )
+        response = self.assertPOST200(
+            self.url,
+            data={
+                'hfilter': hf.id,
+                'search-regular_field-name': '',
+                'search-' + cell.key: can_walk.id,
+            },
+        )
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop,   orgas_set)
         self.assertNotIn(dragons, orgas_set)
         self.assertIn(eva01,      orgas_set)
         self.assertIn(valkyrie,   orgas_set)
 
-        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
-                                                      'search-regular_field-name': '',
-                                                      'search-' + cell.key: 'NULL',
-                                                     },
-                                     )
+        response = self.assertPOST200(
+            self.url,
+            data={
+                'hfilter': hf.id,
+                'search-regular_field-name': '',
+                'search-' + cell.key: 'NULL',
+            },
+        )
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop,    orgas_set)
         self.assertNotIn(eva01,    orgas_set)
@@ -2099,7 +2111,8 @@ class ListViewTestCase(ViewsTestCase):
         dragons   = create_orga(name='Red Dragons')
 
         create_cfield = partial(CustomField.objects.create,
-                                content_type=self.ctype, field_type=CustomField.ENUM,
+                                content_type=self.ctype,
+                                field_type=CustomField.ENUM,
                                )
         cfield_type  = create_cfield(name='Type')
         cfield_color = create_cfield(name='Color')
@@ -2354,9 +2367,9 @@ class ListViewTestCase(ViewsTestCase):
                                                       )[0]
 
         options = self._get_options_for_select_node(widget_node)
-        self.assertIn(('',  _('All')), options)
-        self.assertIn(('1', _('Yes')), options)
-        self.assertIn(('0', _('No')),  options)
+        self.assertInChoices(value='',  label=_('All'), choices=options)
+        self.assertInChoices(value='1', label=_('Yes'), choices=options)
+        self.assertInChoices(value='0', label=_('No'),  choices=options)
         self.assertEqual(3, len(options))
 
         # ----------------------------------------------------------------------
@@ -2414,7 +2427,7 @@ class ListViewTestCase(ViewsTestCase):
         # ----------------------------------------------------------------------
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       'search-' + cell.key: is_red.id,
-                                                     }
+                                                     },
                                      )
         orgas_set = self._get_entities_set(response)
         self.assertIn(swordfish, orgas_set)

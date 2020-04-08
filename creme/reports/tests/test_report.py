@@ -392,8 +392,8 @@ class ReportTestCase(BaseReportsTestCase):
         with self.assertNoException():
             filter_choices = response.context['form'].fields['filter'].choices
 
-        self.assertIn((efilter.id, str(efilter)), filter_choices)
-        self.assertNotIn((system_efilter.id, str(system_efilter)), filter_choices)
+        self.assertInChoices(value=efilter.id, label=str(efilter), choices=filter_choices)
+        self.assertNotInChoices(value=system_efilter.id, choices=filter_choices)
 
         # POST ---
         response = self.client.post(url, follow=True, 
@@ -409,7 +409,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(efilter, report.filter)
 
     def test_editview02(self):
-        "Cannot edit the 'filter' field when its a private filter which belongs to another user"
+        "Cannot edit the 'filter' field when its a private filter which belongs to another user."
         user = self.login()
 
         create_efilter = EntityFilter.objects.smart_update_or_create
