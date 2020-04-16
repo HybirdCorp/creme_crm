@@ -20,6 +20,7 @@
 
 from functools import partial
 
+from django.apps import apps
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
@@ -44,6 +45,9 @@ class PersonsConfig(CremeAppConfig):
         self.hook_user_form()
 
         from . import signals
+
+        if apps.is_installed('creme.reports'):
+            self.register_reports_graph_fetchers()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Contact, self.Organisation)
@@ -272,10 +276,20 @@ class PersonsConfig(CremeAppConfig):
             cdata = form.cleaned_data
             user = form.instance
 
-            Relation.objects.create(user=user, subject_entity=user.linked_contact,
-                                    type=cdata['relation'],
-                                    object_entity=cdata['organisation'],
-                                   )
+            Relation.objects.create(
+                user=user, subject_entity=user.linked_contact,
+                type=cdata['relation'],
+                object_entity=cdata['organisation'],
+            )
 
         UserAddForm.add_post_init_callback(_add_related_orga_fields)
         UserAddForm.add_post_save_callback(_save_related_orga_fields)
+
+    def register_reports_graph_fetchers(self):
+        from creme.reports.graph_fetcher_registry import graph_fetcher_registry
+
+        from . import reports
+
+        graph_fetcher_registry.register(
+            reports.OwnedGraphFetcher,
+        )
