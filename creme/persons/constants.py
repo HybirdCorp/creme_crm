@@ -40,3 +40,5 @@ DEFAULT_HFILTER_ORGA_CUSTOMERS = 'persons-hf_leadcustomer'
 #     different DB (eg: for importing/exporting data).
 UUID_FIRST_CONTACT = '498b1986-5f70-409e-82c0-a8df1b2b9c39'
 UUID_FIRST_ORGA    = 'bb93b21d-f7f1-46d7-a92f-7edda7b9ec2b'
+
+RGF_OWNED = 'persons-owned'
