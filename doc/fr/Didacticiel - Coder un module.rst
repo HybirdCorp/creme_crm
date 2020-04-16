@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 10-01-2020 pour la version 2.2 de Creme
+:Version: 16-04-2020 pour la version 2.2 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -1560,8 +1560,24 @@ de création rapide des Sociétés n'a que 2 champs ("nom" et "propriétaire").
 Ces formulaires sont aussi utilisés dans certains *widgets* de sélection de fiche,
 qui permettent de créer des fiches à la volée.
 
-Si vous souhaitez ajouter la possibilité de création rapide à vos castors, c'est
-très simple. Dans votre ``apps.py``, ajoutez la méthode ``register_quickforms()``
+Dans ``forms/beaver.py``, ajoutons une classe de formulaire, elle doit dériver
+de la classe ``CremeEntityQuickForm``  : ::
+
+    [...]
+
+    from creme.creme_core.forms import (
+        CremeEntityForm,
+        CremeEntityQuickForm,  # <== NEW
+    )
+
+    [...]
+
+    class BeaverQuickForm(CremeEntityQuickForm):  # <== NEW
+        class Meta(CremeEntityQuickForm.Meta):
+            model = Beaver
+
+
+Puis dans votre ``apps.py``, ajoutez la méthode ``register_quickforms()``
 telle que : ::
 
     [...]
@@ -1570,19 +1586,12 @@ telle que : ::
         [...]
 
         def register_quickforms(self, quickforms_registry):  # <- NEW
-            from .forms.beaver import BeaverForm
+            from .forms.beaver import BeaverQuickForm
 
-            quickforms_registry.register(Beaver, BeaverForm)
+            quickforms_registry.register(Beaver, BeaverQuickForm)
 
 
-Ici nous utilisons le formulaire classique des castors, et non une version
-simplifiée, car :
-
- - il est déjà simple.
- - l'écriture d'un tel formulaire (dans ``beavers/forms/quick.py`` classiquement)
-   est laissée en exercice au lecteur !
-
-**Attention** : n'enregistrez que des classes dérivant de ``CremeEntity``. Si
+**Attention** : n'enregistrez que des modèles dérivant de ``CremeEntity``. Si
 vous enregistrez d'autres types de classes, les droits de création ne seront
 accordés qu'aux super-utilisateurs (car leurs tests de droit sont évités), en
 clair les utilisateurs lambda ne verront pas la classe dans la liste des créations
