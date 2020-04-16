@@ -4,7 +4,7 @@ try:
     from json import dumps as json_dump, loads as json_load
 
     from django.core.exceptions import ValidationError
-    from django.utils.translation import gettext as _
+    from django.utils.translation import gettext as _, pgettext
 
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.core.entity_cell import (
@@ -18,20 +18,42 @@ try:
         RelationType,
         CustomField,
         FieldsConfig,
-        FakeOrganisation, FakeContact, FakeInvoiceLine,
+        InstanceBrickConfigItem,
+        FakeOrganisation, FakeContact, FakeInvoiceLine, FakeImage,
+    )
+    from creme.creme_core.tests.fake_constants import (
+        FAKE_REL_SUB_EMPLOYED_BY,
+        FAKE_REL_SUB_BILL_ISSUED,
     )
     from creme.creme_core.tests.forms.base import FieldTestCase
 
     from creme.reports import constants
+    from creme.reports.bricks import ReportGraphBrick
     from creme.reports.core.graph import AbscissaInfo, OrdinateInfo
     from creme.reports.core.graph.cell_constraint import (
         ACCCount, ACCFieldAggregation,
         abscissa_constraints,
         ordinate_constraints,
     )
-    from creme.reports.forms.graph import AbscissaField, OrdinateField
+    from creme.reports.core.graph.fetcher import (
+        SimpleGraphFetcher,
+        RegularFieldLinkedGraphFetcher,
+        RelationLinkedGraphFetcher,
+    )
+    from creme.reports.forms.bricks import (
+        GraphFetcherField,
+        FetcherChoiceIterator,
+        GraphInstanceBrickForm,
+    )
+    from creme.reports.forms.graph import (
+        AbscissaField,
+        OrdinateField,
+    )
 
-    from .base import AxisFieldsMixin
+    from .base import (
+        AxisFieldsMixin, BaseReportsTestCase,
+        Report, ReportGraph,
+    )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -1404,3 +1426,331 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
             },
             json_load(field.from_python(OrdinateInfo(aggr_id=aggr_id, cell=cell)))
         )
+
+
+class GraphFetcherFieldTestCase(FieldTestCase):
+    def _build_graph(self):
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+
+        return ReportGraph(user=user, name='Field Test', linked_report=report)
+
+    def test_clean_empty_not_required(self):
+        with self.assertNoException():
+            cleaned = GraphFetcherField(required=False).clean(None)
+
+        self.assertIsNone(cleaned)
+
+    def test_clean_empty_required(self):
+        field = GraphFetcherField()
+        self.assertTrue(field.required)
+
+        with self.assertRaises(ValidationError) as cm:
+            __ = field.clean(None)
+
+        exception = cm.exception
+        self.assertEqual('required', exception.code)
+        self.assertEqual(
+            _('This field is required.'),
+            exception.message
+        )
+
+    def test_graph_n_iterator01(self):
+        graph = self._build_graph()
+
+        field = GraphFetcherField()
+        self.assertIsNone(field.graph)
+        self.assertEqual('|', field.choice_separator)
+
+        choices_it1 = field.widget.choices
+        self.assertIsInstance(choices_it1, FetcherChoiceIterator)
+        self.assertIsNone(choices_it1.graph)
+        self.assertEqual('|', choices_it1.separator)
+        self.assertFalse([*choices_it1])
+
+        # ---
+        field.graph = graph
+        self.assertEqual(graph, field.graph)
+
+        choices_it2 = field.widget.choices
+        self.assertEqual(graph, choices_it2.graph)
+
+        choices = [*choices_it2]
+        self.assertInChoices(
+            value=f'{constants.RGF_NOLINK}|',
+            label=pgettext('reports-volatile_choice', 'None'),
+            choices=choices,
+        )
+
+        fields_group = self.get_choices_group_or_fail(_('Fields'), choices)
+        self.assertInChoices(
+            value=f'{constants.RGF_FK}|image',
+            label=_('Photograph'),
+            choices=fields_group,
+        )
+        self.assertNotInChoices(f'{constants.RGF_FK}|is_user', fields_group)
+
+        relations_group = self.get_choices_group_or_fail(_('Relationships'), choices)
+        self.assertInChoices(
+            value=f'{constants.RGF_RELATION}|{FAKE_REL_SUB_EMPLOYED_BY}',
+            label='is an employee of — employs',
+            choices=relations_group,
+        )
+        self.assertNotInChoices(
+            f'{constants.RGF_RELATION}|{FAKE_REL_SUB_BILL_ISSUED}',
+            relations_group
+        )
+
+    def test_graph_n_iterator02(self):
+        "Hidden field."
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[('image', {FieldsConfig.HIDDEN: True})],
+        )
+
+        graph = self._build_graph()
+
+        field = GraphFetcherField(graph=graph)
+        choices = [*field.widget.choices]
+        self.get_choices_group_or_fail(_('Relationships'), choices)
+
+        empty_group_name = _('Fields')
+        for choice in choices:
+            if choice[0] == empty_group_name:
+                self.fail(f'Group "{empty_group_name}" unexpectedly found.')
+
+    def test_clean_ok(self):
+        graph = self._build_graph()
+
+        field = GraphFetcherField(graph=graph)
+        self.assertEqual(graph, field.graph)
+
+        # RGF_NOLINK ---
+        fetcher1a = field.clean(value=constants.RGF_NOLINK)
+        self.assertIsInstance(fetcher1a, SimpleGraphFetcher)
+        self.assertIsNone(fetcher1a.error)
+
+        fetcher1b = field.clean(value=f'{constants.RGF_NOLINK}|')
+        self.assertIsInstance(fetcher1b, SimpleGraphFetcher)
+        self.assertIsNone(fetcher1b.error)
+
+        # RGF_FK ---
+        fetcher2 = field.clean(value=f'{constants.RGF_FK}|image')
+        self.assertIsInstance(fetcher2, RegularFieldLinkedGraphFetcher)
+        self.assertIsNone(fetcher2.error)
+        self.assertEqual('image', fetcher2._field_name)
+        self.assertEqual(FakeImage, fetcher2._volatile_model)
+
+        # RGF_RELATION ---
+        fetcher3 = field.clean(
+            value=f'{constants.RGF_RELATION}|{FAKE_REL_SUB_EMPLOYED_BY}',
+        )
+        self.assertIsInstance(fetcher3, RelationLinkedGraphFetcher)
+        self.assertIsNone(fetcher3.error)
+        self.assertEqual(FAKE_REL_SUB_EMPLOYED_BY, fetcher3._rtype.id)
+
+    def test_clean_ko01(self):
+        "type=RGF_NOLINK."
+        graph = self._build_graph()
+
+        field = GraphFetcherField(graph=graph)
+
+        value = f'{constants.RGF_NOLINK}|whatever'
+        self.assertFieldValidationError(
+            GraphFetcherField, 'invalid_choice', field.clean, value,
+            message_args={'value': value},
+        )
+
+    def test_clean_ko02(self):
+        "type=RGF_FK."
+        hidden_fname = 'image'
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
+
+        graph = self._build_graph()
+        field = GraphFetcherField(graph=graph)
+
+        # Empty field
+        value1 = constants.RGF_FK
+        self.assertFieldValidationError(
+            GraphFetcherField, 'invalid_choice', field.clean, value1,
+            message_args={'value': value1},
+        )
+
+        # Unknown field
+        value2 = f'{constants.RGF_FK}|invalid'
+        self.assertFieldValidationError(
+            GraphFetcherField, 'invalid_choice', field.clean, value2,
+            message_args={'value': value2},
+        )
+
+        # Invalid field (not FK)
+        value3 = f'{constants.RGF_FK}|last_name'
+        self.assertFieldValidationError(
+            GraphFetcherField, 'invalid_choice', field.clean, value3,
+            message_args={'value': value3},
+        )
+
+        # Invalid field (not FK to CremeEntity)
+        value4 = f'{constants.RGF_FK}|sector'
+        self.assertFieldValidationError(
+            GraphFetcherField, 'invalid_choice', field.clean, value4,
+            message_args={'value': value4},
+        )
+
+        # Hidden field
+        value5 = f'{constants.RGF_FK}|{hidden_fname}'
+        self.assertFieldValidationError(
+            GraphFetcherField, 'invalid_choice', field.clean, value5,
+            message_args={'value': value5},
+        )
+
+    def test_clean_ko03(self):
+        "type=RGF_RELATIONS."
+        graph = self._build_graph()
+        field = GraphFetcherField(graph=graph)
+        value = f'{constants.RGF_RELATION}|{FAKE_REL_SUB_BILL_ISSUED}'
+        self.assertFieldValidationError(
+            GraphFetcherField, 'invalid_choice', field.clean, value,
+            message_args={'value': value},
+        )
+
+    def test_separator01(self):
+        field = GraphFetcherField(choice_separator='#')
+        self.assertEqual('#', field.choice_separator)
+
+        self.assertEqual('#', field.widget.choices.separator)
+
+        # ---
+        field.graph = self._build_graph()
+        choices_it = field.widget.choices
+        self.assertEqual('#', choices_it.separator)
+
+        fields_group = self.get_choices_group_or_fail(_('Fields'), [*choices_it])
+        value = f'{constants.RGF_FK}#image'
+        self.assertInChoices(
+            value=value,
+            label=_('Photograph'),
+            choices=fields_group,
+        )
+
+        fetcher = field.clean(value=value)
+        self.assertIsInstance(fetcher, RegularFieldLinkedGraphFetcher)
+        self.assertIsNone(fetcher.error)
+        self.assertEqual('image', fetcher._field_name)
+        self.assertEqual(FakeImage, fetcher._volatile_model)
+
+    def test_separator02(self):
+        "Set graph then separator"
+        field = GraphFetcherField(graph=self._build_graph())
+        field.choice_separator = '#'
+        self.assertEqual('#', field.choice_separator)
+        self.assertEqual('#', field.widget.choices.separator)
+
+
+class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
+    def test_init_n_clean(self):
+        user = self.create_user()
+        graph = self._create_documents_rgraph(user)
+
+        form1 = GraphInstanceBrickForm(user=user, graph=graph)
+
+        fetcher_f = form1.fields.get('fetcher')
+        self.assertIsInstance(fetcher_f, GraphFetcherField)
+        self.assertEqual(graph, fetcher_f.graph)
+
+        fk_name = 'linked_folder'
+        form2 = GraphInstanceBrickForm(
+            user=user, graph=graph,
+            data={
+                'fetcher': f'{constants.RGF_FK}|{fk_name}',
+            },
+        )
+        self.assertTrue(form2.is_valid())
+
+        ibci = form2.save()
+        self.assertIsInstance(ibci, InstanceBrickConfigItem)
+        self.assertEqual(graph.id, ibci.entity_id)
+        self.assertEqual(constants.RGF_FK, ibci.get_extra_data('type'))
+        self.assertEqual(fk_name,          ibci.get_extra_data('value'))
+
+    def test_uniqueness01(self):
+        user = self.create_user()
+        graph = self._create_documents_rgraph(user)
+
+        fk_name = 'linked_folder'
+        RegularFieldLinkedGraphFetcher(
+            graph=graph,
+            value=fk_name,
+        ).create_brick_config_item()
+
+        form1 = GraphInstanceBrickForm(
+            user=user, graph=graph,
+            data={
+                'fetcher': f'{constants.RGF_FK}|{fk_name}',
+            },
+        )
+        self.assertFormInstanceErrors(
+            form1,
+            ('fetcher',
+             _('The instance block for «{graph}» with these parameters already exists!').format(
+                 graph=graph,
+             )
+            )
+        )
+
+        form2 = GraphInstanceBrickForm(
+            user=user, graph=graph,
+            data={
+                'fetcher': constants.RGF_NOLINK,
+            },
+        )
+        self.assertTrue(form2.is_valid())
+
+    def test_uniqueness02(self):
+        "Not same graph."
+        user = self.create_user()
+        graph1 = self._create_documents_rgraph(user)
+        graph2 = self._create_documents_rgraph(user)
+
+        fk_name = 'linked_folder'
+        RegularFieldLinkedGraphFetcher(
+            graph=graph2,  # Not same graph => collision
+            value=fk_name,
+        ).create_brick_config_item()
+
+        form = GraphInstanceBrickForm(
+            user=user, graph=graph1,
+            data={
+                'fetcher': f'{constants.RGF_FK}|{fk_name}',
+            },
+        )
+        self.assertTrue(form.is_valid())
+
+    def test_uniqueness03(self):
+        "Not same brick class."
+        user = self.create_user()
+        graph = self._create_documents_rgraph(user)
+
+        class OtherReportGraphBrick(ReportGraphBrick):
+            id_ = ReportGraphBrick.generate_id('reports', 'other_graph')
+
+        fk_name = 'linked_folder'
+        RegularFieldLinkedGraphFetcher(
+            graph=graph, value=fk_name,
+        ).create_brick_config_item(
+            brick_class=OtherReportGraphBrick,
+        )
+
+        form = GraphInstanceBrickForm(
+            user=user, graph=graph,
+            data={
+                'fetcher': f'{constants.RGF_FK}|{fk_name}',
+            },
+        )
+        self.assertTrue(form.is_valid())
+
+# TODO: test Report's forms
+# TODO: test ReportGraphForm

@@ -569,6 +569,13 @@ class _CremeTestCase:
 
         return obj
 
+    def get_choices_group_or_fail(self, label, choices):
+        for choice in choices:
+            if choice[0] == label:
+                return choice[1]
+
+        self.fail(f'Group "{label}" not found.')
+
     def get_deletion_command_or_fail(self, model):
         return self.get_object_or_fail(
             DeletionCommand,

@@ -425,6 +425,7 @@ class Populator(BasePopulator):
             RFT_FIELD, RFT_RELATION, RGT_FK, RGT_MONTH,
             RGA_SUM,
         )
+        from creme.reports.core.graph.fetcher import SimpleGraphFetcher
         # from creme.reports.models import Report, Field, ReportGraph
         from creme.reports.models import Field
 
@@ -476,15 +477,9 @@ class Populator(BasePopulator):
             ordinate_type=RGA_SUM,
             ordinate_cell_key=cell_key,
         )
-        ibci1 = rgraph1.create_instance_brick_config_item()
-
-        if ibci1 is not None:
-            BrickHomeLocation.objects.create(brick_id=ibci1.brick_id, order=11)
-        else:
-            logger.warning(
-                'There is a problem with the graph "%s" ; no related block created',
-                rgraph1,
-            )
+        # ibci1 = rgraph1.create_instance_brick_config_item()
+        ibci1 = SimpleGraphFetcher(graph=rgraph1).create_brick_config_item()
+        BrickHomeLocation.objects.create(brick_id=ibci1.brick_id, order=11)
 
         # Create current year and unpaid invoices report -----------------------
         invoices_report2 = create_report(
@@ -502,12 +497,6 @@ class Populator(BasePopulator):
             ordinate_type=RGA_SUM,
             ordinate_cell_key=cell_key,
         )
-        ibci3 = rgraph3.create_instance_brick_config_item()
-
-        if ibci3:
-            BrickHomeLocation.objects.create(brick_id=ibci3.brick_id, order=12)
-        else:
-            logger.warning(
-                'There is a problem with the graph "%s" ; no related block created',
-                rgraph3,
-            )
+        # ibci3 = rgraph3.create_instance_brick_config_item()
+        ibci3 = SimpleGraphFetcher(rgraph3).create_brick_config_item()
+        BrickHomeLocation.objects.create(brick_id=ibci3.brick_id, order=12)

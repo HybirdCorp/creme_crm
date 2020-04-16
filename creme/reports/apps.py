@@ -31,6 +31,7 @@ class ReportsConfig(CremeAppConfig):
     def ready(self):
         self.register_reports_aggregations()
         self.register_reports_charts()
+        self.register_reports_graph_fetchers()
 
         from . import signals
 
@@ -103,4 +104,14 @@ class ReportsConfig(CremeAppConfig):
             ReportChart('piechart',  _('Pie')),
         ).register(
             ReportChart('tubechart', _('Tube')),
+        )
+
+    def register_reports_graph_fetchers(self):
+        from .core.graph import fetcher
+        from .graph_fetcher_registry import graph_fetcher_registry
+
+        graph_fetcher_registry.register(
+            fetcher.SimpleGraphFetcher,
+            fetcher.RegularFieldLinkedGraphFetcher,
+            fetcher.RelationLinkedGraphFetcher,
         )

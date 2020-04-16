@@ -95,6 +95,11 @@ Those templates need to be cleaned up */
     cursor: default;
 }
 
+.brick .brick-content .brick-error {
+    background: #f08080;
+    color: #666;
+}
+
 .brick.brick-hat-bar .brick-content {
     padding-top: 2px;
     padding-bottom: 0px;
