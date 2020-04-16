@@ -15,7 +15,8 @@
 {% block brick_table_rows %}
     {% for ibci in page.object_list %}
     <tr>
-        <td {% brick_table_data_status primary %}>{{ibci.fetcher.verbose_volatile_column}}</td>
+{#        <td {% brick_table_data_status primary %}>{{ibci.fetcher.verbose_volatile_column}}</td> #}
+        <td {% brick_table_data_status primary %}>{{ibci.fetcher.verbose_name}}</td>
         <td>{{ibci.fetcher.error|default:'—'}}</td>
     </tr>
     {% endfor %}

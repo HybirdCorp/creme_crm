@@ -21,14 +21,17 @@
 import logging
 import warnings
 
-from django.db.models import FieldDoesNotExist, DateField, DateTimeField, ForeignKey
+from django.core.exceptions import FieldDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core import utils
 from creme.creme_core.auth.decorators import login_required
+from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.http import CremeJsonResponse
-from creme.creme_core.models import InstanceBrickConfigItem, RelationType, CustomField
+from creme.creme_core.models import InstanceBrickConfigItem
+
 from creme.creme_core.utils.meta import Order
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import jsonify
@@ -37,7 +40,7 @@ from creme.creme_core.views.generic import base
 from creme import reports
 
 from .. import constants
-from ..core.graph import RGRAPH_HANDS_MAP
+from ..core.graph import RGRAPH_HANDS_MAP, GraphFetcher
 from ..forms.graph import ReportGraphForm
 from ..report_chart_registry import report_chart_registry
 
@@ -51,6 +54,9 @@ def _get_available_report_graph_types(ct, name):
     warnings.warn('reports.views.graph._get_available_report_graph_types() is deprecated.',
                   DeprecationWarning
                  )
+
+    from django.db.models import DateField, DateTimeField, ForeignKey
+    from creme.creme_core.models import RelationType, CustomField
 
     model = ct.model_class()
 
@@ -278,10 +284,25 @@ class GraphFetchingForInstance(base.EntityRelatedMixin, GraphFetchingBase):
 
     def get_graph_data(self, request, order):
         brick_item = self.get_instance_brick_item()
-        fetcher = ReportGraph.get_fetcher_from_instance_brick(brick_item)
-        x, y = fetcher.fetch_4_entity(
-            entity=self.get_related_entity(),
-            order=order, user=request.user,
-        )
+        entity = self.get_related_entity()
+        # fetcher = ReportGraph.get_fetcher_from_instance_brick(brick_item)
+        brick = brick_registry.get_brick_4_instance(brick_item, entity=entity)
+
+        try:
+            fetcher = brick.fetcher
+        except AttributeError as e:
+            raise ConflictError('Invalid brick: {e}') from e  # TODO: test
+
+        try:
+            x, y = fetcher.fetch_4_entity(
+                entity=entity,
+                order=order, user=request.user,
+            )
+        except (GraphFetcher.IncompatibleContentType, GraphFetcher.UselessResult):
+            logger.exception(
+                'Fetching error in %s.get_graph_data()',
+                type(self).__name__,
+            )
+            x = y = None
 
         return fetcher.graph, x, y

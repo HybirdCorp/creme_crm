@@ -98,6 +98,11 @@ Those templates need to be cleaned up */
     cursor: default;
 }
 
+.brick .brick-content .brick-error {
+    background: #f08080;
+    color: #555;
+}
+
 /* blocks end */
 
 /* block menu */

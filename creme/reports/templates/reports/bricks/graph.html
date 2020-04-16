@@ -1,7 +1,7 @@
 {% extends 'creme_core/bricks/base/base.html' %}
 {% load i18n creme_core_tags creme_bricks reports_tags %}
 
-{% block brick_extra_class %}reports-graph-brick{% endblock %}
+{% block brick_extra_class %}reports-graph-brick{% if hide_brick %} is-empty{% endif %}{% endblock %}
 
 {% block brick_script %}
     {% if x %}
@@ -85,7 +85,7 @@
         </div>
     </div>
     {% elif error %}
-    <div class="brick-graph-container brick-empty">{{error}}</div>
+    <div class="brick-graph-container brick-empty brick-error">{{error}}</div>
     {% else %}
     <div class="brick-graph-container brick-empty">{% trans 'No values or graph is not applicable here' %}</div>
     {% endif %}

@@ -44,7 +44,11 @@ try:
         report_model_is_custom, rgraph_model_is_custom,
         get_report_model, get_rgraph_model,
     )
-    from ..constants import RFT_FIELD
+    from ..constants import (
+        RFT_FIELD,
+        RGT_YEAR,
+        RGA_COUNT,
+    )
     from ..models import Field
 
     skip_report_tests = report_model_is_custom()
@@ -208,3 +212,13 @@ class BaseReportsTestCase(CremeTestCase):
         create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
 
         return invoice
+
+    def _create_documents_rgraph(self, user=None):
+        user = user or self.user
+        report = self._create_simple_documents_report(user)
+        return ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='Number of created documents / year',
+            abscissa_cell_value='created', abscissa_type=RGT_YEAR,
+            ordinate_type=RGA_COUNT,
+        )

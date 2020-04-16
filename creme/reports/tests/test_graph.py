@@ -51,6 +51,11 @@ try:
         AbscissaInfo, OrdinateInfo,
         ListViewURLBuilder,
     )
+    from ..core.graph.fetcher import (
+        SimpleGraphFetcher,
+        RegularFieldLinkedGraphFetcher,
+        RelationLinkedGraphFetcher,
+    )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -134,17 +139,15 @@ class ReportGraphTestCase(BrickTestCaseMixin,
     def _build_graph_types_url(self, ct):
         return reverse('reports__graph_types', args=(ct.id,))
 
-    def _create_documents_rgraph(self, user=None):
-        user = user or self.user
-        report = self._create_simple_documents_report(user)
-        return ReportGraph.objects.create(
-            user=user, linked_report=report,
-            name='Number of created documents / year',
-            # abscissa='created', type=RGT_YEAR,
-            abscissa_cell_value='created', abscissa_type=RGT_YEAR,
-            # ordinate='', is_count=True,
-            ordinate_type=RGA_COUNT,
-        )
+    # def _create_documents_rgraph(self, user=None):
+    #     user = user or self.user
+    #     report = self._create_simple_documents_report(user)
+    #     return ReportGraph.objects.create(
+    #         user=user, linked_report=report,
+    #         name='Number of created documents / year',
+    #         abscissa='created', type=RGT_YEAR,
+    #         ordinate='', is_count=True,
+    #     )
 
     # def _create_invoice_report_n_graph(self, abscissa='issuing_date', ordinate='total_no_vat__sum'):
     def _create_invoice_report_n_graph(self, abscissa='issuing_date',
@@ -2801,36 +2804,40 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         folder = FakeReportsFolder.objects.create(title='my Folder', user=user)
         rgraph = self._create_documents_rgraph()
 
-        item = rgraph.create_instance_brick_config_item(volatile_field='linked_folder')
-        self.assertIsNotNone(item)
+        # ibci = rgraph.create_instance_brick_config_item(volatile_field='linked_folder')
+        # self.assertIsNotNone(ibci)
+        fetcher = RegularFieldLinkedGraphFetcher(graph=rgraph, value='linked_folder')
+        self.assertIsNone(fetcher.error)
+
+        ibci = fetcher.create_brick_config_item()
 
         chart = 'piechart'
         url = self._build_fetchfrombrick_url
-        self.assertGET200(url(item, folder, 'ASC', chart=chart))
+        self.assertGET200(url(ibci, folder, 'ASC', chart=chart))
         rgraph = self.refresh(rgraph)
         self.assertIsNone(rgraph.chart)
         self.assertTrue(rgraph.asc)
 
-        self.assertGET200(url(item, folder, 'ASC', chart=chart, save_settings='false'))
+        self.assertGET200(url(ibci, folder, 'ASC', chart=chart, save_settings='false'))
         self.assertIsNone(self.refresh(rgraph).chart)
 
-        self.assertGET404(url(item, folder, 'ASC', chart=chart, save_settings='invalid'))
+        self.assertGET404(url(ibci, folder, 'ASC', chart=chart, save_settings='invalid'))
         self.assertIsNone(self.refresh(rgraph).chart)
 
-        self.assertGET404(url(item, folder, 'ASC', chart='invalid', save_settings='true'))
+        self.assertGET404(url(ibci, folder, 'ASC', chart='invalid', save_settings='true'))
         self.assertIsNone(self.refresh(rgraph).chart)
 
-        self.assertGET200(url(item, folder, 'ASC', chart=chart, save_settings='true'))
+        self.assertGET200(url(ibci, folder, 'ASC', chart=chart, save_settings='true'))
         rgraph = self.refresh(rgraph)
         self.assertEqual(chart, rgraph.chart)
         self.assertTrue(rgraph.asc)
 
-        self.assertGET200(url(item, folder, 'DESC', save_settings='true'))
+        self.assertGET200(url(ibci, folder, 'DESC', save_settings='true'))
         rgraph = self.refresh(rgraph)
         self.assertEqual(chart, rgraph.chart)
         self.assertFalse(rgraph.asc)
 
-    def test_create_instance_brick_config_item01(self):
+    def test_create_instance_brick_config_item01(self):  # DEPRECATED
         "No link."
         self.login()
         rgraph = self._create_documents_rgraph()
@@ -2854,7 +2861,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                          ReportGraphBrick(ibci).verbose_name
                         )
 
-    def test_create_instance_brick_config_item02(self):
+    def test_create_instance_brick_config_item02(self):  # DEPRECATED
         "Link: regular field."
         self.login()
         rgraph = self._create_documents_rgraph()
@@ -2884,7 +2891,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ReportGraphBrick(ibci).verbose_name
         )
 
-    def test_create_instance_brick_config_item03(self):
+    def test_create_instance_brick_config_item03(self):  # DEPRECATED
         "Link: relation type."
         user = self.login()
         report = self._create_simple_contacts_report()
@@ -2911,7 +2918,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(ReportGraphBrick.id_, ibci.brick_class_id)
         # self.assertEqual(f'{rtype.id}|{RFT_RELATION}', ibci.data)
         self.assertEqual(RGF_RELATION, ibci.get_extra_data('type'))
-        self.assertEqual(rtype.id,      ibci.get_extra_data('value'))
+        self.assertEqual(rtype.id,     ibci.get_extra_data('value'))
 
         fmt = _('{rtype} (Relationship)').format
         self.assertEqual(f'{rgraph.name} - {fmt(rtype=rtype)}',
@@ -2927,20 +2934,36 @@ class ReportGraphTestCase(BrickTestCaseMixin,
     def test_add_graph_instance_brick01(self):
         user = self.login()
         rgraph = self._create_invoice_report_n_graph()
-        self.assertFalse(InstanceBrickConfigItem.objects.filter(entity=rgraph.id).exists())
+        self.assertFalse(
+            InstanceBrickConfigItem.objects.filter(entity=rgraph.id).exists()
+        )
 
         url = self._build_add_brick_url(rgraph)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+        self.assertTemplateUsed(
+            response,
+            'creme_core/generics/blockform/add-popup.html',
+        )
 
         context = response.context
-        self.assertEqual(_('Create an instance block for «{entity}»').format(entity=rgraph),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Create an instance block for «{entity}»').format(entity=rgraph),
+            context.get('title')
+        )
         self.assertEqual(_('Save the block'), context.get('submit_label'))
 
         # ---
-        self.assertNoFormError(self.client.post(url))
+        # self.assertNoFormError(self.client.post(url))
+        response = self.client.post(url)
+        self.assertFormError(
+            response, 'form', 'fetcher',
+            _('This field is required.')
+        )
+
+        self.assertNoFormError(self.client.post(
+            url,
+            data={'fetcher': RGF_NOLINK},
+        ))
 
         items = InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
         self.assertEqual(1, len(items))
@@ -2966,12 +2989,17 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(item,  brick.config_item)
 
         # ---------------------------------------------------------------------
-        response = self.assertPOST200(url)
+        # response = self.assertPOST200(url)
+        response = self.assertPOST200(
+            url,
+            data={'fetcher': RGF_NOLINK},
+        )
         self.assertFormError(
-            response, 'form', None,
+            # response, 'form', None,
+            response, 'form', 'fetcher',
             _('The instance block for «{graph}» with these parameters already exists!').format(
-                    graph=rgraph.name,
-               )
+                graph=rgraph.name,
+            )
         )
 
         # ---------------------------------------------------------------------
@@ -3020,8 +3048,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertIsInstance(result, dict)
         self.assertEqual(2, len(result))
 
-        x_fmt = '%02i/2014'  # NB: RGT_MONTH
-        self.assertEqual([x_fmt % 10, x_fmt % 11], result.get('x'))
+        x_fmt = '{:02}/2014'.format  # NB: RGT_MONTH
+        self.assertEqual([x_fmt(10), x_fmt(11)], result.get('x'))
 
         y = result.get('y')
         self.assertEqual(0, y[0][0])
@@ -3036,7 +3064,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # ---------------------------------------------------------------------
         response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'DESC'))
         result = response.json()
-        self.assertEqual([x_fmt % 11, x_fmt % 10], result.get('x'))
+        self.assertEqual([x_fmt(11), x_fmt(10)], result.get('x'))
 
         y = result.get('y')
         self.assertEqual(0, y[0][0])
@@ -3049,7 +3077,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertGET404(self._build_fetchfrombrick_url(item, invoice, 'FOOBAR'))
 
     def test_add_graph_instance_brick02(self):
-        "Volatile column (RFT_FIELD)."
+        "Volatile column (RGF_FK)."
         user = self.login()
         rgraph = self._create_documents_rgraph()
 
@@ -3057,18 +3085,34 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            choices = response.context['form'].fields['volatile_column'].choices
+            # choices = response.context['form'].fields['volatile_column'].choices
+            choices = [*response.context['form'].fields['fetcher'].widget.choices]
 
-        self.assertEqual(3, len(choices))
-        self.assertEqual(('', pgettext('reports-volatile_choice', 'None')), choices[0])
+        # self.assertEqual(3, len(choices))
+        self.assertGreaterEqual(len(choices), 3)
+        # self.assertEqual(('', pgettext('reports-volatile_choice', 'None')), choices[0])
+        self.assertInChoices(
+            value=f'{RGF_NOLINK}|',
+            label=pgettext('reports-volatile_choice', 'None'),
+            choices=choices,
+        )
 
         fk_name = 'linked_folder'
-        folder_choice = f'fk-{fk_name}'
-        self.assertEqual((_('Fields'), [(folder_choice, _('Folder'))]),
-                         choices[1]
-                        )
+        # folder_choice = f'fk-{fk_name}'
+        folder_choice = f'{RGF_FK}|{fk_name}'
+        # self.assertEqual(
+        #     (_('Fields'), [(folder_choice, _('Folder'))]),
+        #     choices[1]
+        # )
+        field_choices = self.get_choices_group_or_fail(label=_('Fields'), choices=choices)
+        self.assertInChoices(
+            value=folder_choice,
+            label=_('Folder'),
+            choices=field_choices,
+        )
 
-        self.assertNoFormError(self.client.post(url, data={'volatile_column': folder_choice}))
+        # self.assertNoFormError(self.client.post(url, data={'volatile_column': folder_choice}))
+        self.assertNoFormError(self.client.post(url, data={'fetcher': folder_choice}))
 
         items = InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
         self.assertEqual(1, len(items))
@@ -3160,13 +3204,15 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         folder = FakeReportsFolder.objects.create(user=user, title='My folder')
 
-        fetcher = ReportGraph.get_fetcher_from_instance_brick(ibci)
+        # fetcher = ReportGraph.get_fetcher_from_instance_brick(ibci)
+        fetcher = ReportGraphBrick(ibci).fetcher
         x, y = fetcher.fetch_4_entity(entity=folder, user=user)
 
         self.assertEqual([], x)
         self.assertEqual([], y)
         self.assertEqual(_('The field is invalid.'), fetcher.error)
-        self.assertEqual('??',                       fetcher.verbose_volatile_column)
+        # self.assertEqual('??',                       fetcher.verbose_volatile_column)
+        self.assertEqual('??',                       fetcher.verbose_name)
 
         self.assertEqual([_('The field is invalid.')], ibci.errors)
 
@@ -3188,10 +3234,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
         ibci.set_extra_data(key='type',  value=RGF_FK)
         ibci.set_extra_data(key='value', value=fname)
+        ibci.save()
 
         folder = FakeReportsFolder.objects.create(user=user, title='My folder')
 
-        fetcher = ReportGraph.get_fetcher_from_instance_brick(ibci)
+        # fetcher = ReportGraph.get_fetcher_from_instance_brick(ibci)
+        fetcher = ReportGraphBrick(ibci).fetcher
         x, y = fetcher.fetch_4_entity(entity=folder, user=user)
 
         self.assertEqual([], x)
@@ -3199,21 +3247,25 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(_('The field is invalid (not a foreign key).'), fetcher.error)
 
     def test_add_graph_instance_brick02_error03(self):
-        "Volatile column (RFT_FIELD): field is not a FK to the given Entity type."
+        "Volatile column (RGF_FK): field is not a FK to the given Entity type."
         user = self.login()
         rgraph = self._create_documents_rgraph()
 
-        ibci = rgraph.create_instance_brick_config_item(volatile_field='linked_folder')
+        # ibci = rgraph.create_instance_brick_config_item(volatile_field='linked_folder')
+        fetcher = RegularFieldLinkedGraphFetcher(graph=rgraph, value='linked_folder')
+        self.assertIsNone(fetcher.error)
+
+        ibci = fetcher.create_brick_config_item()
         self.assertIsNotNone(ibci)
 
-        fetcher = ReportGraph.get_fetcher_from_instance_brick(ibci)
+        # fetcher = ReportGraph.get_fetcher_from_instance_brick(ibci)
         x, y = fetcher.fetch_4_entity(entity=user.linked_contact, user=user)
         self.assertEqual([], x)
         self.assertEqual([], y)
         self.assertIsNone(fetcher.error)
 
     def test_add_graph_instance_brick03(self):
-        "Volatile column (RFT_RELATION)."
+        "Volatile column (RGF_RELATION)."
         user = self.login()
         report = self._create_simple_contacts_report()
         rtype = RelationType.objects.get(pk=fake_constants.FAKE_REL_SUB_EMPLOYED_BY)
@@ -3235,17 +3287,21 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            choices = response.context['form'].fields['volatile_column'].choices
+            # choices = response.context['form'].fields['volatile_column'].choices
+            choices = [*response.context['form'].fields['fetcher'].widget.choices]
 
-        rel_group = choices[2]
-        self.assertEqual(_('Relationships'), rel_group[0])
+        # rel_group = choices[2]
+        # self.assertEqual(_('Relationships'), rel_group[0])
+        rel_choices = self.get_choices_group_or_fail(label=_('Relationships'), choices=choices)
 
-        rel_choices = frozenset((k, str(v)) for k, v in rel_group[1])
-        choice_id = f'rtype-{rtype.id}'
+        # rel_choices = frozenset((k, str(v)) for k, v in rel_group[1])
+        # choice_id = f'rtype-{rtype.id}'
+        choice_id = f'{RGF_RELATION}|{rtype.id}'
         self.assertInChoices(value=choice_id, label=str(rtype), choices=rel_choices)
         self.assertNotInChoices(value=f'rtype-{incompatible_rtype.id}', choices=rel_choices)
 
-        self.assertNoFormError(self.client.post(url, data={'volatile_column': choice_id}))
+        # self.assertNoFormError(self.client.post(url, data={'volatile_column': choice_id}))
+        self.assertNoFormError(self.client.post(url, data={'fetcher': choice_id}))
 
         items = InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
         self.assertEqual(1, len(items))
@@ -3294,12 +3350,14 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         # Invalid choice
         choice = 'invalid'
-        response = self.assertPOST200(url, data={'volatile_column': choice})
+        # response = self.assertPOST200(url, data={'volatile_column': choice})
+        response = self.assertPOST200(url, data={'fetcher': choice})
         self.assertFormError(
-            response, 'form', 'volatile_column',
+            # response, 'form', 'volatile_column',
+            response, 'form', 'fetcher',
             _('Select a valid choice. %(value)s is not one of the available choices.') % {
                 'value': choice,
-            }
+            },
         )
 
     def test_add_graph_instance_brick03_error(self):
@@ -3326,13 +3384,37 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual([], x)
         self.assertEqual([], y)
         self.assertEqual(_('The relationship type is invalid.'), fetcher.error)
-        self.assertEqual('??',                                   fetcher.verbose_volatile_column)
+        # self.assertEqual('??',                                   fetcher.verbose_volatile_column)
+        self.assertEqual('??',                                   fetcher.verbose_name)
+
+    def test_get_fetcher_from_instance_brick(self):
+        "Invalid type."
+        self.login()
+        rgraph = self._create_documents_rgraph()
+
+        ibci = InstanceBrickConfigItem.objects.create(
+            brick_class_id=ReportGraphBrick.id_,
+            entity=rgraph,
+        )
+
+        # No extra data
+        fetcher1 = ReportGraph.get_fetcher_from_instance_brick(ibci)
+        self.assertIsInstance(fetcher1, SimpleGraphFetcher)
+        msg = _('Invalid volatile link ; please contact your administrator.')
+        self.assertEqual(msg, fetcher1.error)
+
+        # Invalid type
+        ibci.set_extra_data(key='type', value='invalid')
+        fetcher2 = ReportGraph.get_fetcher_from_instance_brick(ibci)
+        self.assertIsInstance(fetcher2, SimpleGraphFetcher)
+        self.assertEqual(msg, fetcher2.error)
 
     def test_delete_graph_instance(self):
         "BrickDetailviewLocation instances must be deleted in cascade."
         self.login()
         rgraph = self._create_documents_rgraph()
-        ibci = rgraph.create_instance_brick_config_item()
+        # ibci = rgraph.create_instance_brick_config_item()
+        ibci = SimpleGraphFetcher(graph=rgraph).create_brick_config_item()
 
         brick_id = ibci.brick_id
         bdl = BrickDetailviewLocation.objects.create_if_needed(
@@ -3651,10 +3733,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         rgraph = self._create_documents_rgraph()
 
-        item = rgraph.create_instance_brick_config_item(volatile_field='linked_folder')
-        self.assertIsNotNone(item)
+        # ibci = rgraph.create_instance_brick_config_item(volatile_field='linked_folder')
+        # self.assertIsNotNone(ibci)
+        fetcher = RegularFieldLinkedGraphFetcher(graph=rgraph, value='linked_folder')
+        self.assertIsNone(fetcher.error)
 
-        response = self.assertGET200(self._build_fetchfrombrick_url(item, folder, 'ASC'))
+        ibci = fetcher.create_brick_config_item()
+        response = self.assertGET200(self._build_fetchfrombrick_url(ibci, folder, 'ASC'))
         result = response.json()
         self.assertEqual([str(doc1.created.year)], result.get('x'))
         self.assertEqual(2, result.get('y')[0][0])

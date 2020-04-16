@@ -20,6 +20,7 @@
 
 import logging
 from typing import List, Optional, Tuple, Type, TYPE_CHECKING
+import warnings
 
 from django.conf import settings
 from django.db import models
@@ -40,12 +41,12 @@ from creme.creme_core.models import (
 from ..constants import (
     # RFT_RELATION, RFT_FIELD,
     GROUP_TYPES, AGGREGATOR_TYPES,
-    RGF_FK, RGF_RELATION, RGF_NOLINK,
 )
 from ..core.graph import (
     AbscissaInfo, OrdinateInfo,
     abscissa_constraints, ordinate_constraints,
 )
+from ..graph_fetcher_registry import graph_fetcher_registry
 
 if TYPE_CHECKING:
     from ..core.graph import GraphFetcher, ReportGraphHand
@@ -95,6 +96,7 @@ class AbstractReportGraph(CremeEntity):
 
     abscissa_constraints = abscissa_constraints
     ordinate_constraints = ordinate_constraints
+    fetcher_registry = graph_fetcher_registry
     _hand: Optional['ReportGraphHand'] = None
 
     class Meta:
@@ -207,10 +209,6 @@ class AbstractReportGraph(CremeEntity):
 
     # @staticmethod
     # def get_fetcher_from_instance_brick(instance_brick_config):
-    #     """Build a GraphFetcher related to this ReportGraph & an InstanceBrickConfigItem.
-    #     @param instance_brick_config: An instance of InstanceBrickConfigItem.
-    #     @return A GraphFetcher instance.
-    #     """
     #     from ..core.graph import fetcher as core_fetcher
     #
     #     data = instance_brick_config.data
@@ -235,36 +233,20 @@ class AbstractReportGraph(CremeEntity):
     #         fetcher = core_fetcher.GraphFetcher(graph)
     #
     #     return fetcher
-    @classmethod
-    def get_fetcher_from_instance_brick(cls, instance_brick_config: InstanceBrickConfigItem) -> 'GraphFetcher':
+    @staticmethod
+    def get_fetcher_from_instance_brick(instance_brick_config: InstanceBrickConfigItem) -> 'GraphFetcher':
         """Build a GraphFetcher related to this ReportGraph & an InstanceBrickConfigItem.
         @param instance_brick_config: An instance of InstanceBrickConfigItem.
         @return A GraphFetcher instance.
         """
-        from ..core.graph import fetcher as core_fetcher
+        warnings.warn(
+            'AbstractReportGraph.get_fetcher_from_instance_brick() is deprecated ; '
+            'use ReportGraphBrick(...).fetcher instead.',
+            DeprecationWarning
+        )
 
-        graph = instance_brick_config.entity.get_real_entity()
-        get_data = instance_brick_config.get_extra_data
-        volatile_link = get_data('type')
-
-        # TODO: use a map/registry of GraphFetcher classes
-        # TODO: check "value" ? (on check is empty ?)
-        if volatile_link == RGF_FK:
-            fetcher = core_fetcher.RegularFieldLinkedGraphFetcher(get_data('value'), graph)
-        elif volatile_link == RGF_RELATION:
-            fetcher = core_fetcher.RelationLinkedGraphFetcher(get_data('value'), graph)
-        elif volatile_link == RGF_NOLINK:
-            # TODO: assert volatile_link is empty ?
-            fetcher = core_fetcher.GraphFetcher(graph)
-        else:
-            logger.warning(
-                '%s.get_fetcher_from_instance_brick(): invalid ID "%s" for fetcher '
-                '(basic fetcher is used).',
-                cls.__name__, volatile_link,
-            )
-            fetcher = core_fetcher.GraphFetcher(graph)
-
-        return fetcher
+        from ..bricks import ReportGraphBrick
+        return ReportGraphBrick(instance_brick_config).fetcher
 
     @property
     def hand(self) -> 'ReportGraphHand':
@@ -279,7 +261,12 @@ class AbstractReportGraph(CremeEntity):
         return hand
 
     class InstanceBrickConfigItemError(Exception):
-        pass
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            warnings.warn(
+                'AbstractReportGraph.InstanceBrickConfigItemError is deprecated.',
+                DeprecationWarning
+            )
 
     # def create_instance_brick_config_item(self,
     #                                       volatile_field=None,
@@ -324,7 +311,14 @@ class AbstractReportGraph(CremeEntity):
                                           volatile_field: Optional[str] = None,
                                           volatile_rtype: Optional[RelationType] = None,
                                           save: bool = True) -> Optional[InstanceBrickConfigItem]:
+        warnings.warn(
+            'AbstractReportGraph.create_instance_brick_config_item() is deprecated ; '
+            'use GraphFetcher.create_brick_config_item() instead.',
+            DeprecationWarning
+        )
+
         from ..bricks import ReportGraphBrick
+        from ..constants import RGF_FK, RGF_RELATION, RGF_NOLINK
         from ..core.graph.fetcher import RegularFieldLinkedGraphFetcher
 
         ibci = InstanceBrickConfigItem(

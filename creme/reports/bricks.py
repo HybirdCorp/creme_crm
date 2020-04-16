@@ -26,6 +26,7 @@ from creme.creme_core.gui import bricks as core_bricks
 from creme.creme_core.models import InstanceBrickConfigItem
 
 from creme import reports
+from .core.graph import GraphFetcher
 from .models import Field
 from .report_chart_registry import report_chart_registry
 
@@ -116,34 +117,57 @@ class ReportGraphBrick(core_bricks.InstanceBrick):
     #     self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(instance_brick_config)
     def __init__(self, instance_brick_config_item):
         super().__init__(instance_brick_config_item)
-        self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(
-            instance_brick_config_item,
+        # self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(
+        #     instance_brick_config_item,
+        # )
+        get_data = instance_brick_config_item.get_extra_data
+        self.fetcher = fetcher = ReportGraph.fetcher_registry.get(
+            graph=instance_brick_config_item.entity.get_real_entity(),
+            fetcher_dict={
+                key: get_data(key)
+                for key in GraphFetcher.DICT_KEYS
+            },
         )
-        self.verbose_name = fetcher.verbose_name
+
+        # self.verbose_name = fetcher.verbose_name
+        fetcher_vname = fetcher.verbose_name
+        self.verbose_name = f'{fetcher.graph} - {fetcher_vname}' if fetcher_vname else str(fetcher.graph)
 
         error = fetcher.error
         self.errors = [error] if error else None
 
-    def _auxiliary_display(self, context, x, y):
+    # def _auxiliary_display(self, context, x, y):
+    def _auxiliary_display(self, context, x, y, error=None, **extra_context):
         fetcher = self.fetcher
 
         return self._render(self.get_template_context(
             context,
             graph=fetcher.graph,
             x=x, y=y,
-            error=fetcher.error,
-            volatile_column=fetcher.verbose_volatile_column,
+            error=fetcher.error or error,
+            # volatile_column=fetcher.verbose_volatile_column,
+            volatile_column=fetcher.verbose_name,
             # instance_brick_id=self.instance_brick_id,
             instance_brick_id=self.config_item.id,
             report_charts=report_chart_registry,
+            **extra_context
         ))
 
     def detailview_display(self, context):
-        x, y = self.fetcher.fetch_4_entity(entity=context['object'],
-                                           user=context['user'],
-                                          )
+        kwargs = {}
+        try:
+            x, y = self.fetcher.fetch_4_entity(
+                entity=context['object'],
+                user=context['user'],
+            )
+        except GraphFetcher.IncompatibleContentType as e:
+            x = y = None
+            kwargs['error'] = str(e)
+        except GraphFetcher.UselessResult as e:
+            x = y = None
+            kwargs['hide_brick'] = True
 
-        return self._auxiliary_display(context=context, x=x, y=y)
+        return self._auxiliary_display(context=context, x=x, y=y, **kwargs)
 
     def home_display(self, context):
         x, y = self.fetcher.fetch(user=context['user'])
