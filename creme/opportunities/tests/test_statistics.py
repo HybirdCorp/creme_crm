@@ -22,12 +22,15 @@ except Exception as e:
 @skipIfCustomOpportunity
 class StatisticsTestCase(OpportunitiesBaseTestCase):
     def test_current_year01(self):
-        "Empty"
-        self.login()
-        self.assertEqual([], CurrentYearStatistics(Opportunity, Organisation)())
+        "Empty."
+        self.create_user()
+        self.assertListEqual(
+            [],
+            CurrentYearStatistics(Opportunity, Organisation)()
+        )
 
     def test_current_year02(self):
-        "Several managed organisation + only won"
+        "Several managed organisation + only won."
         user = self.login()
         statf = CurrentYearStatistics(Opportunity, Organisation)
 
@@ -45,52 +48,61 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
                             )
         create_opp(name='Opp #1', emitter=emitter1, target=target)
         fmt = _('For {organisation}: {won_stats} / {lost_stats}').format
-        self.assertEqual([fmt(organisation=emitter1,
-                              won_stats=ngettext('{count} won opportunity',
-                                                 '{count} won opportunities',
-                                                 1
-                                                ).format(count=1),
-                              lost_stats=ngettext('{count} lost opportunity',
-                                                  '{count} lost opportunities',
-                                                  0
-                                                 ).format(count=0),
-                             ),
-                         ],
-                         statf()
-                        )
+        self.assertEqual(
+            [
+                fmt(
+                    organisation=emitter1,
+                    won_stats=ngettext('{count} won opportunity',
+                                       '{count} won opportunities',
+                                       1
+                                      ).format(count=1),
+                    lost_stats=ngettext('{count} lost opportunity',
+                                        '{count} lost opportunities',
+                                        0
+                                       ).format(count=0),
+                ),
+            ],
+            statf()
+        )
 
         create_opp(name='Opp #2', emitter=emitter1, target=target)
-        msg_emitter1 = fmt(organisation=emitter1,
-                           won_stats=ngettext('{count} won opportunity',
-                                              '{count} won opportunities',
-                                              2
-                                             ).format(count=2),
-                           lost_stats=ngettext('{count} lost opportunity',
-                                               '{count} lost opportunities',
-                                               0
-                                              ).format(count=0),
-                          )
+        msg_emitter1 = fmt(
+            organisation=emitter1,
+            won_stats=ngettext('{count} won opportunity',
+                               '{count} won opportunities',
+                               2
+                              ).format(count=2),
+            lost_stats=ngettext('{count} lost opportunity',
+                                '{count} lost opportunities',
+                                0
+                               ).format(count=0),
+        )
         self.assertEqual([msg_emitter1], statf())
 
         create_opp(name='Opp #3', emitter=emitter2, target=target)
-        self.assertEqual([msg_emitter1,
-                          fmt(organisation=emitter2,
-                              won_stats=ngettext('{count} won opportunity',
-                                                 '{count} won opportunities',
-                                                 1
-                                                ).format(count=1),
-                              lost_stats=ngettext('{count} lost opportunity',
-                                                  '{count} lost opportunities',
-                                                  0
-                                                 ).format(count=0),
-                             )
-                         ],
-                         statf()
-                        )
+        self.assertListEqual(
+            [
+                msg_emitter1,
+                fmt(
+                    organisation=emitter2,
+                    won_stats=ngettext(
+                        '{count} won opportunity',
+                        '{count} won opportunities',
+                        1
+                    ).format(count=1),
+                    lost_stats=ngettext(
+                        '{count} lost opportunity',
+                        '{count} lost opportunities',
+                        0
+                    ).format(count=0),
+                )
+            ],
+            statf()
+        )
 
     def test_current_year03(self):
-        "Lost opportunities"
-        user = self.login()
+        "Lost opportunities."
+        user = self.create_user()
 
         create_orga = partial(Organisation.objects.create, user=user)
         emitter = create_orga(name='Emitter', is_managed=True)
@@ -112,7 +124,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
         create_opp(name='Opp #5', sales_phase=won_sp)
         create_opp(name='Opp #6', sales_phase=neutral_sp)
 
-        self.assertEqual(
+        self.assertListEqual(
             [_('For {organisation}: {won_stats} / {lost_stats}').format(
                   organisation=emitter,
                   won_stats=ngettext('{count} won opportunity',
@@ -129,8 +141,8 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
         )
 
     def test_current_year04(self):
-        "Since 1rst january"
-        user = self.login()
+        "Since 1rst january."
+        user = self.create_user()
 
         create_orga = partial(Organisation.objects.create, user=user)
         emitter = create_orga(name='Emitter', is_managed=True)
@@ -153,7 +165,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
         create_opp(name='Opp #4', sales_phase=won_sp, closing_date=last_year)
         create_opp(name='Opp #5', sales_phase=won_sp)
 
-        self.assertEqual(
+        self.assertListEqual(
             [_('For {organisation}: {won_stats} / {lost_stats}').format(
                   organisation=emitter,
                   won_stats=ngettext('{count} won opportunity',
@@ -171,7 +183,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
 
     def test_current_year05(self):
         "closing_date is hidden."
-        user = self.login()
+        user = self.create_user()
 
         FieldsConfig.objects.create(
             content_type=Opportunity,

@@ -374,7 +374,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 #        self.assertEqual(_SubContactInnerEdit,  status(SubContact).get_form('last_name'))
 
     def test_subfield_innerforms(self):
-        user = self.login()
+        user = self.create_user()
 
         bulk_update_registry = self.bulk_update_registry
         bulk_update_registry.register(FakeContact)
@@ -384,19 +384,25 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         contact = FakeContact.objects.create(last_name='contact', user=user)
 
-        form = bulk_update_registry.get_form(FakeContact, 'address__zipcode', BulkDefaultEditForm) \
-                                             (user=user, entities=[contact])
+        form = bulk_update_registry.get_form(
+            FakeContact, 'address__zipcode', BulkDefaultEditForm,
+        )(
+            user=user, entities=[contact],
+        )
 
         self.assertIsInstance(form, BulkDefaultEditForm)
 
-        bulk_update_registry.register(FakeAddress, innerforms={'zipcode': _ZipcodeInnerEdit})
+        bulk_update_registry.register(
+            FakeAddress, innerforms={'zipcode': _ZipcodeInnerEdit},
+        )
 
-        form = bulk_update_registry.get_form(FakeContact, 'address__zipcode', BulkDefaultEditForm) \
-                                            (user=user, entities=[contact])
+        form = bulk_update_registry.get_form(
+            FakeContact, 'address__zipcode', BulkDefaultEditForm,
+        )(user=user, entities=[contact])
         self.assertIsInstance(form, _ZipcodeInnerEdit)
 
     def test_expandable_innerforms(self):
-        user = self.login()
+        user = self.create_user()
 
         contact = FakeContact.objects.create(last_name='contact', user=user)
 
@@ -406,12 +412,13 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         with self.assertRaises(FieldNotAllowed):
             bulk_update_registry.get_form(FakeContact, 'address', BulkDefaultEditForm)
 
-        form = bulk_update_registry.get_form(FakeContact, 'address__zipcode', BulkDefaultEditForm)\
-                                            (user=user, entities=[contact])
+        form = bulk_update_registry.get_form(
+            FakeContact, 'address__zipcode', BulkDefaultEditForm,
+        )(user=user, entities=[contact])
         self.assertIsInstance(form, BulkDefaultEditForm)
 
     def test_fk_innerform01(self):
-        user = self.login()
+        user = self.create_user()
 
         civility_field = FakeContact._meta.get_field('civility')
         self.assertFalse(civility_field.remote_field.limit_choices_to)
@@ -424,22 +431,26 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertQuerysetSQLEqual(FakeCivility.objects.all(), field_value_f.queryset)
 
     def test_fk_innerform02(self):
-        "limit_choices_to: dict"
-        user = self.login()
+        "limit_choices_to: dict."
+        user = self.create_user()
 
         lform_field = FakeOrganisation._meta.get_field('legal_form')
-        self.assertEqual({'title__endswith': '[OK]'}, lform_field.remote_field.limit_choices_to)
+        self.assertEqual(
+            {'title__endswith': '[OK]'},
+            lform_field.remote_field.limit_choices_to
+        )
 
         orga = FakeOrganisation.objects.create(user=user, name='A')
 
         form = BulkDefaultEditForm(FakeContact, lform_field, user, [orga])
-        self.assertQuerysetSQLEqual(FakeLegalForm.objects.filter(title__endswith='[OK]'),
-                                    form.fields['field_value'].queryset
-                                   )
+        self.assertQuerysetSQLEqual(
+            FakeLegalForm.objects.filter(title__endswith='[OK]'),
+            form.fields['field_value'].queryset
+        )
 
     def test_fk_innerform03(self):
         "limit_choices_to: callable yielding Q"
-        user = self.login()
+        user = self.create_user()
 
         sector_field = FakeContact._meta.get_field('sector')
         # NB: limit_choices_to=lambda: ~Q(title='[INVALID]')
@@ -448,12 +459,13 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         contact = FakeContact.objects.create(first_name='A', last_name='B', user=user)
 
         form = BulkDefaultEditForm(FakeContact, sector_field, user, [contact])
-        self.assertQuerysetSQLEqual(FakeSector.objects.exclude(title='[INVALID]'),
-                                    form.fields['field_value'].queryset
-                                   )
+        self.assertQuerysetSQLEqual(
+            FakeSector.objects.exclude(title='[INVALID]'),
+            form.fields['field_value'].queryset
+        )
 
     def test_fk_entity_innerform01(self):
-        user = self.login()
+        user = self.create_user()
 
         image_field = FakeContact._meta.get_field('image')
         self.assertFalse(image_field.remote_field.limit_choices_to)
@@ -465,8 +477,8 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(form.fields['field_value'].q_filter)
 
     def test_fk_entity_innerform02(self):
-        "limit_choices_to"
-        user = self.login()
+        "limit_choices_to."
+        user = self.create_user()
 
         image_field = FakeOrganisation._meta.get_field('image')
         # NB: limit_choices_to=lambda: {'user__is_staff': False}
@@ -488,7 +500,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         #                 )
 
     def test_manytomany_innerform01(self):
-        user = self.login()
+        user = self.create_user()
 
         categories_field = FakeImage._meta.get_field('categories')
         self.assertFalse(categories_field.remote_field.limit_choices_to)
@@ -504,7 +516,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
     def test_manytomany_innerform02(self):
         "limit_choices_to"
-        user = self.login()
+        user = self.create_user()
 
         languages_field = FakeContact._meta.get_field('languages')
         # NB: limit_choices_to=~Q(name__contains='[deprecated]')
@@ -513,12 +525,13 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         contact = FakeContact.objects.create(user=user, first_name='A', last_name='B')
 
         form = BulkDefaultEditForm(FakeImage, languages_field, user, [contact])
-        self.assertQuerysetSQLEqual(Language.objects.exclude(name__contains='[deprecated]'),
-                                    form.fields['field_value'].queryset
-                                   )
+        self.assertQuerysetSQLEqual(
+            Language.objects.exclude(name__contains='[deprecated]'),
+            form.fields['field_value'].queryset
+        )
 
     def test_manytomany_entity_innerform01(self):
-        user = self.login()
+        user = self.create_user()
 
         mailing_lists_field = FakeEmailCampaign._meta.get_field('mailing_lists')
         self.assertFalse(mailing_lists_field.remote_field.limit_choices_to)
@@ -532,11 +545,14 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(field_value_f.q_filter)
 
     def test_manytomany_entity_innerform02(self):
-        "limit_choices_to"
-        user = self.login()
+        "limit_choices_to."
+        user = self.create_user()
 
         images_field = FakeProduct._meta.get_field('images')
-        self.assertEqual({'user__is_active': True}, images_field.remote_field.limit_choices_to)
+        self.assertDictEqual(
+            {'user__is_active': True},
+            images_field.remote_field.limit_choices_to
+        )
 
         product = FakeProduct.objects.create(user=user, name='P1')
 
@@ -552,50 +568,62 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         #                 )
 
     def test_inner_uri01(self):
-        "Regular field"
-        user = self.login()
+        "Regular field."
+        user = self.create_user()
         model = FakeContact
-        instance = model.objects.create(user=user, first_name='Guybrush', last_name='Threepwood')
+        instance = model.objects.create(
+            user=user, first_name='Guybrush', last_name='Threepwood',
+        )
         ct_id = instance.entity_type_id
         pk = instance.id
 
         fname1 = 'first_name'
         cell1 = entity_cell.EntityCellRegularField.build(model=model, name=fname1)
-        self.assertEqual(reverse('creme_core__inner_edition', args=(ct_id, pk, fname1)),
-                         self.bulk_update_registry.inner_uri(cell=cell1, instance=instance, user=user)
-                        )
+        self.assertEqual(
+            reverse('creme_core__inner_edition', args=(ct_id, pk, fname1)),
+            self.bulk_update_registry.inner_uri(cell=cell1, instance=instance, user=user)
+        )
 
         fname2 = 'last_name'
         cell2 = entity_cell.EntityCellRegularField.build(model=model, name=fname2)
-        self.assertEqual(reverse('creme_core__inner_edition', args=(ct_id, pk, fname2)),
-                         self.bulk_update_registry.inner_uri(cell=cell2, instance=instance, user=user)
-                        )
+        self.assertEqual(
+            reverse('creme_core__inner_edition', args=(ct_id, pk, fname2)),
+            self.bulk_update_registry.inner_uri(cell=cell2, instance=instance, user=user)
+        )
 
-    def test_inner_editor02(self):
-        "Not inner-editable field"
-        user = self.login()
+    def test_inner_uri02(self):
+        "Not inner-editable field."
+        user = self.create_user()
         model = FakeContact
         fname = 'first_name'
 
         registry = self.bulk_update_registry
         registry.register(model, exclude=[fname])
 
-        instance = model.objects.create(user=user, first_name='Guybrush', last_name='Threepwood')
+        instance = model.objects.create(
+            user=user, first_name='Guybrush', last_name='Threepwood',
+        )
         cell = entity_cell.EntityCellRegularField.build(model=model, name=fname)
         self.assertIsNone(registry.inner_uri(cell=cell, instance=instance, user=user))
 
-    def test_inner_editor03(self):
-        "Custom field"
-        user = self.login()
+    def test_inner_uri03(self):
+        "Custom field."
+        user = self.create_user()
         model = FakeContact
 
         ct = ContentType.objects.get_for_model(model)
-        cfield = CustomField.objects.create(name='A', content_type=ct, field_type=CustomField.STR)
+        cfield = CustomField.objects.create(
+            name='A', content_type=ct, field_type=CustomField.STR,
+        )
 
-        instance = model.objects.create(user=user, first_name='Guybrush', last_name='Threepwood')
+        instance = model.objects.create(
+            user=user, first_name='Guybrush', last_name='Threepwood',
+        )
         cell = entity_cell.EntityCellCustomField.build(model=model, customfield_id=cfield.id)
-        self.assertEqual(reverse('creme_core__inner_edition',
-                                 args=(ct.id, instance.id, f'customfield-{cfield.id}')
-                                ),
-                         self.bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user)
-                        )
+        self.assertEqual(
+            reverse(
+                'creme_core__inner_edition',
+                args=(ct.id, instance.id, f'customfield-{cfield.id}'),
+            ),
+            self.bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user)
+        )

@@ -118,7 +118,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         )
 
     def test_invalid_field02(self):
-        user = self.login()
+        user = self.create_user()
 
         block_id = 'particulars'
         block_vname = 'Particulars'
@@ -127,11 +127,12 @@ class FieldBlockManagerTestCase(CremeTestCase):
             class Meta(FakeContactForm.Meta):
                 exclude = ('mobile', )  # <===
 
-            blocks = FakeContactForm.blocks.new((block_id, block_vname,
-                                                 # 'mobile' is excluded
-                                                 ['phone', 'mobile', 'email', 'url_site']
-                                                )
-                                               )
+            blocks = FakeContactForm.blocks.new(
+                (block_id, block_vname,
+                 # 'mobile' is excluded
+                 ['phone', 'mobile', 'email', 'url_site'],
+                )
+            )
 
         form = TestFakeContactForm(user=user)
 

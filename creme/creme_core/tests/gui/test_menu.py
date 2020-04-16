@@ -362,7 +362,7 @@ class MenuTestCase(CremeTestCase):
         self.assertFalse(group.label)
 
     def test_creation_forms_item01(self):
-        user = self.login()
+        user = self.create_user()
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
         cfi.get_or_create_group('persons', 'Directory') \
@@ -533,7 +533,7 @@ class MenuTestCase(CremeTestCase):
 
     def test_creation_forms_item02(self):
         "Simplified API"
-        user = self.login()
+        user = self.create_user()
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
         cfi.get_or_create_group('persons', 'Directory').add_link('add_contact', FakeContact)
@@ -569,8 +569,8 @@ class MenuTestCase(CremeTestCase):
            group.add_link('add_contact', label=label, url=url)  # No model + missing perm
 
     def test_creation_forms_item03(self):
-        "Link priority"
-        user = self.login()
+        "Link priority."
+        user = self.create_user()
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
         group = cfi.get_or_create_group('persons', 'Directory')
 
@@ -634,8 +634,8 @@ class MenuTestCase(CremeTestCase):
             group.change_priority(2, 'add_customer', 'unknown')
 
     def test_creation_forms_item04(self):
-        "Remove Link"
-        user = self.login()
+        "Remove Link."
+        user = self.create_user()
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
         group = cfi.get_or_create_group('persons', 'Directory')
 
@@ -654,8 +654,8 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_creation_forms_item05(self):
-        "Group priority"
-        user = self.login()
+        "Group priority."
+        user = self.create_user()
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
         cfi.get_or_create_group('persons', 'Directory', priority=10).add_link('add_contact', FakeContact)
@@ -689,8 +689,8 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_creation_forms_item06(self):
-        "Remove Group"
-        user = self.login()
+        "Remove Group."
+        user = self.create_user()
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
         cfi.get_or_create_group('tools', 'Tools').add_link('add_doc', FakeDocument)
@@ -708,7 +708,7 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_creation_forms_item07(self):
-        "Credentials"
+        "Credentials."
         user = self.login(is_superuser=False, creatable_models=[FakeContact])
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
 

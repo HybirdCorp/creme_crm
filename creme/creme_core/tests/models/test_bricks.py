@@ -623,7 +623,7 @@ class BrickTestCase(CremeTestCase):
 
     # NB: see reports for InstanceBrickConfigItem with a working Brick class
     def test_instance_brick01(self):
-        user = self.login()
+        user = self.create_user()
 
         class TestInstanceBrick(Brick):
             id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
@@ -667,7 +667,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_instance_brick02(self):
         "Extra data."
-        user = self.login()
+        user = self.create_user()
 
         class TestInstanceBrick(Brick):
             id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
@@ -861,31 +861,32 @@ class BrickTestCase(CremeTestCase):
 
     def test_brick_state_manager_get_for_brick_id01(self):
         "State does not exist in DB."
-        user = self.login()
+        user1 = self.create_user(index=0)
+        user2 = self.create_user(index=1)
 
         class TestBrick(Brick):
             id_ = Brick.generate_id('creme_core', 'test_brick_models_state01')
 
         # Not used (other user)
         BrickState.objects.create(
-            user=self.other_user,
+            user=user2,
             brick_id=TestBrick.id_,
             is_open=True,
             show_empty_fields=False,
         )
 
         with self.assertNumQueries(2): # try to retrieve state + SettingValues
-            state = BrickState.objects.get_for_brick_id(user=user, brick_id=TestBrick.id_)
+            state = BrickState.objects.get_for_brick_id(user=user1, brick_id=TestBrick.id_)
 
         self.assertIsInstance(state, BrickState)
-        self.assertEqual(user, state.user)
+        self.assertEqual(user1, state.user)
         self.assertIs(state.is_open,           True)
         self.assertIs(state.show_empty_fields, True)
         self.assertIsNone(state.pk)
 
     def test_brick_state_manager_get_for_brick_id02(self):
         "State stored in DB."
-        user = self.login()
+        user = self.create_user()
 
         class TestBrick(Brick):
             id_ = Brick.generate_id('creme_core', 'test_brick_models_state02')
@@ -907,7 +908,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_brick_state_manager_get_for_brick_id03(self):
         "Other value for SettingValues."
-        user = self.login()
+        user = self.create_user()
 
         class TestBrick(Brick):
             id_ = Brick.generate_id('creme_core', 'test_brick_models_state03')
@@ -930,7 +931,7 @@ class BrickTestCase(CremeTestCase):
         self.assertFalse(state.show_empty_fields)
 
     def test_brick_state_extra_data(self):
-        user = self.login()
+        user = self.create_user()
 
         class TestBrick(Brick):
             id_ = Brick.generate_id('creme_core', 'test_brick_state_extra')
@@ -975,7 +976,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_brick_state_manager_get_for_brick_ids01(self):
         "States do not exist in DB."
-        user = self.login()
+        user = self.create_user()
 
         class TestBrick1(Brick):
             id_ = Brick.generate_id('creme_core', 'test_brick_models_states01_01')
@@ -1008,7 +1009,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_brick_state_manager_get_for_brick_ids02(self):
         "A state is stored in DB."
-        user = self.login()
+        user1 = self.create_user(index=0)
+        user2 = self.create_user(index=1)
 
         class TestBrick1(Brick):
             id_ = Brick.generate_id('creme_core', 'test_brick_models_states02_01')
@@ -1017,20 +1019,20 @@ class BrickTestCase(CremeTestCase):
             id_ = Brick.generate_id('creme_core', 'test_brick_models_states02_02')
 
         stored_state1 = BrickState.objects.create(
-            user=user,
+            user=user1,
             brick_id=TestBrick1.id_,
             is_open=False,
             show_empty_fields=True,
         )
         BrickState.objects.create(
-            user=self.other_user,  # <== not used
+            user=user2,  # <== not used
             brick_id=TestBrick2.id_,
             is_open=True,
             show_empty_fields=False,
         )
 
         states = BrickState.objects.get_for_brick_ids(
-            user=user,
+            user=user1,
             brick_ids=[TestBrick1.id_, TestBrick2.id_],
         )
         self.assertIsInstance(states, dict)
@@ -1043,12 +1045,12 @@ class BrickTestCase(CremeTestCase):
         # ---
         with self.assertNumQueries(1):
             BrickState.objects.get_for_brick_ids(
-                user=user, brick_ids=[TestBrick1.id_],
+                user=user1, brick_ids=[TestBrick1.id_],
             )
 
     def test_brick_state_manager_get_for_brick_ids03(self):
         "Other value for SettingValues."
-        user = self.login()
+        user = self.create_user()
 
         class TestBrick(Brick):
             id_ = Brick.generate_id('creme_core', 'test_brick_models_states03')

@@ -64,7 +64,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertSetEqual({i.pk for i in instances}, {*v})
 
     def test_regularfield_init(self):
-        user = self.login()
+        user = self.create_user()
 
         fname = 'name'
         operator_id = operators.ICONTAINS
@@ -178,7 +178,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             )
 
     def test_regularfield_formfield(self):
-        user = self.login()
+        user = self.create_user()
         efilter_registry = _EntityFilterRegistry(id=None, verbose_name='Test')
 
         formfield1 = RegularFieldConditionHandler.formfield(
@@ -205,7 +205,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsNone(formfield2.user)
 
     def test_regularfield_accept_string(self):
-        user = self.login()
+        user = self.create_user()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         o1 = create_orga(name='Evil Corp', description='Very evil')
@@ -243,7 +243,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler3.accept(entity=o2, user=user), False)
 
     def test_regularfield_accept_int(self):
-        user = self.login()
+        user = self.create_user()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         o1 = create_orga(name='Corp #1', capital=1000)
@@ -272,7 +272,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler2.accept(entity=o3, user=user), False)
 
     def test_regularfield_accept_boolean(self):
-        user = self.login()
+        user = self.create_user()
 
         create_contact = partial(FakeContact.objects.create, user=user, last_name='Doe')
         c1 = create_contact(loves_comics=True)
@@ -301,7 +301,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler2.accept(entity=c3, user=user), False)
 
     def test_regularfield_accept_decimal(self):
-        user = self.login()
+        user = self.create_user()
         handler = RegularFieldConditionHandler(
             model=FakeInvoiceLine,
             field_name='unit_price',
@@ -321,7 +321,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_accept_fk01(self):
         "ForeignKey."
-        user = self.login()
+        user = self.create_user()
         sector1, sector2 = FakeSector.objects.all()[:2]
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -352,7 +352,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_accept_fk02(self):
         "ForeignKey sub-field."
-        user = self.login()
+        user = self.create_user()
         sector1, sector2 = FakeSector.objects.all()[:2]
 
         handler = RegularFieldConditionHandler(
@@ -374,7 +374,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_accept_fk03(self):
         "Nested ForeignKey (sub-field)."
-        user = self.login()
+        user = self.create_user()
 
         create_cat = FakeFolderCategory.objects.create
         cat1 = create_cat(name='Pix')
@@ -402,7 +402,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_accept_fk04(self):
         "Nullable nested ForeignKey (sub-field)."
-        user = self.login()
+        user = self.create_user()
 
         create_efilter = EntityFilter.objects.create
         efilter1 = create_efilter(pk='creme_core-test_condition01',
@@ -431,7 +431,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_accept_fk05(self):
         "Primary key is a CharField => BEWARE to ISEMPTY which need boolean value."
-        user = self.login()
+        user = self.create_user()
 
         create_efilter = partial(EntityFilter.objects.create, entity_type=FakeContact)
         efilter1 = create_efilter(pk='creme_core-test_condition01', name='Filter#1')
@@ -493,7 +493,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_accept_m2m_01(self):
         "M2M."
-        user = self.login()
+        user = self.create_user()
 
         create_cat = FakeDocumentCategory.objects.create
         cat1 = create_cat(name='Picture')
@@ -554,7 +554,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_accept_m2m_02(self):
         "M2M + subfield."
-        user = self.login()
+        user = self.create_user()
 
         create_cat = FakeDocumentCategory.objects.create
         cat1 = create_cat(name='Picture')
@@ -585,7 +585,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_accept_m2m_03(self):
         "Subfield is a M2M."
-        user = self.login()
+        user = self.create_user()
         cat1, cat2 = FakeImageCategory.objects.all()[:2]
 
         handler = RegularFieldConditionHandler(
@@ -778,7 +778,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_get_q(self):
         "ForeignKey."
-        user = self.login()
+        user = self.create_user()
         sector_id = 3
         handler = RegularFieldConditionHandler(
             model=FakeOrganisation,
@@ -794,7 +794,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
     def test_regularfield_description01(self):
-        user = self.login()
+        user = self.create_user()
 
         value = 'Corp'
         handler = RegularFieldConditionHandler(
@@ -813,7 +813,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_description02(self):
         "Other field & operator."
-        user = self.login()
+        user = self.create_user()
 
         value = 'Spiegel'
         handler = RegularFieldConditionHandler(
@@ -832,7 +832,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_description03(self):
         "ForeignKey."
-        user = self.login()
+        user = self.create_user()
         position1, position2 = FakePosition.objects.all()[:2]
 
         handler1 = RegularFieldConditionHandler(
@@ -907,7 +907,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_description05(self):
         "ManyToManyField."
-        user = self.login()
+        user = self.create_user()
         cat1, cat2 = FakeImageCategory.objects.all()[:2]
 
         handler1 = RegularFieldConditionHandler(
@@ -1050,7 +1050,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             )
 
     def test_dateregularfield_formfield(self):
-        user = self.login()
+        user = self.create_user()
 
         formfield1 = DateRegularFieldConditionHandler.formfield(user=user)
         self.assertIsInstance(formfield1, ef_fields.DateFieldsConditionsField)
@@ -1188,7 +1188,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
     def test_dateregularfield_description01(self):
-        user = self.login()
+        user = self.create_user()
 
         handler = DateRegularFieldConditionHandler(
             model=FakeOrganisation,
@@ -1204,7 +1204,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_dateregularfield_description02(self):
         "Other field & named range."
-        user = self.login()
+        user = self.create_user()
 
         handler = DateRegularFieldConditionHandler(
             model=FakeContact,
@@ -1220,7 +1220,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_dateregularfield_description03(self):
         "Custom ranges."
-        user = self.login()
+        user = self.create_user()
 
         start = date(year=2000, month=6, day=1)
         handler1 = DateRegularFieldConditionHandler(
@@ -1474,7 +1474,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             )
 
     def test_customfield_formfield(self):
-        user = self.login()
+        user = self.create_user()
 
         formfield1 = CustomFieldConditionHandler.formfield(user=user)
         self.assertIsInstance(formfield1, ef_fields.CustomFieldsConditionsField)
@@ -1492,7 +1492,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsNone(formfield2.user)
 
     def test_customfield_accept_int(self):
-        user = self.login()
+        user = self.create_user()
 
         custom_field = CustomField.objects.create(
             name='Number of ships', field_type=CustomField.INT,
@@ -1536,7 +1536,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler2.accept(entity=swordfish, user=user), False)
 
     def test_customfield_accept_bool(self):
-        user = self.login()
+        user = self.create_user()
 
         custom_field = CustomField.objects.create(
             name='Accept bounties?', field_type=CustomField.BOOL,
@@ -1580,7 +1580,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler2.accept(entity=swordfish, user=user), False)
 
     def test_customfield_accept_decimal(self):
-        user = self.login()
+        user = self.create_user()
 
         custom_field = CustomField.objects.create(
             name='Average turnover', field_type=CustomField.FLOAT,
@@ -1612,7 +1612,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler.accept(entity=swordfish, user=user), False)
 
     def test_customfield_accept_enum(self):
-        user = self.login()
+        user = self.create_user()
 
         custom_field = CustomField.objects.create(
             name='Type of ship', field_type=CustomField.ENUM,
@@ -1673,7 +1673,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_customfield_accept_multienum(self):
         "MULTI_ENUM."
-        user = self.login()
+        user = self.create_user()
 
         custom_field = CustomField.objects.create(
             name='Type of ship', field_type=CustomField.MULTI_ENUM,
@@ -1868,7 +1868,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_customfield_get_q_bool(self):
         "get_q() not empty."
-        user = self.login()
+        user = self.create_user()
 
         custom_field = CustomField.objects.create(
             name='Is a ship?', field_type=CustomField.BOOL,
@@ -1927,7 +1927,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
     def test_customfield_description01(self):
-        user = self.login()
+        user = self.create_user()
 
         custom_field = CustomField.objects.create(
             name='Size', field_type=CustomField.INT,
@@ -1951,7 +1951,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_customfield_description02(self):
         "Other field & operator."
-        user = self.login()
+        user = self.create_user()
 
         custom_field = CustomField.objects.create(
             name='Degree', field_type=CustomField.STR,
@@ -1975,7 +1975,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_customfield_description03(self):
         "ENUM."
-        user = self.login()
+        user = self.create_user()
 
         custom_field = CustomField.objects.create(
             name='Mark', field_type=CustomField.ENUM,
@@ -2030,7 +2030,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_customfield_description04(self):
         "MULTI_ENUM."
-        user = self.login()
+        user = self.create_user()
 
         custom_field = CustomField.objects.create(
             name='Colors', field_type=CustomField.MULTI_ENUM,
@@ -2064,7 +2064,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_customfield_description05(self):
         "Deleted CustomField."
-        user = self.login()
+        user = self.create_user()
 
         handler = CustomFieldConditionHandler(
             model=FakeOrganisation,
@@ -2203,7 +2203,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             )
 
     def test_datecustomfield_formfield(self):
-        user = self.login()
+        user = self.create_user()
 
         formfield1 = DateCustomFieldConditionHandler.formfield(user=user)
         self.assertIsInstance(formfield1, ef_fields.DateCustomFieldsConditionsField)
@@ -2292,7 +2292,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_datecustomfield_get_q(self):
         "get_q() not empty."
-        user = self.login()
+        user = self.create_user()
 
         custom_field = CustomField.objects.create(
             name='First fight', field_type=CustomField.DATETIME,
@@ -2327,7 +2327,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
     def test_datecustomfield_description01(self):
-        user = self.login()
+        user = self.create_user()
 
         custom_field = CustomField.objects.create(
             name='First fight', field_type=CustomField.DATETIME,
@@ -2357,9 +2357,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             handler2.description(user=user)
         )
 
-    def test_datecustomfield_description03(self):
+    def test_datecustomfield_description02(self):
         "Custom ranges."
-        user = self.login()
+        user = self.create_user()
 
         custom_field = CustomField.objects.create(
             name='First fight', field_type=CustomField.DATETIME,
@@ -2393,9 +2393,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             handler2.description(user=user)
         )
 
-    def test_datecustomfield_description04(self):
+    def test_datecustomfield_description03(self):
         "Deleted CustomField."
-        user = self.login()
+        user = self.create_user()
 
         handler = DateCustomFieldConditionHandler(
             model=FakeOrganisation,
@@ -2406,7 +2406,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual('???', handler.description(user=user))
 
     def test_relation_init01(self):
-        user = self.login()
+        user = self.create_user()
         rtype = RelationType.create(('test-subject_love', 'Is loving'),
                                     ('test-object_love',  'Is loved by')
                                    )[0]
@@ -2516,7 +2516,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_relation_init04(self):
         "Pass an instance of CremeEntity."
-        user = self.login()
+        user = self.create_user()
         entity = FakeOrganisation.objects.create(user=user, name='Acme')
         handler = RelationConditionHandler(
             model=FakeOrganisation,
@@ -2624,7 +2624,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             )
 
     def test_relation_formfield(self):
-        user = self.login()
+        user = self.create_user()
 
         formfield1 = RelationConditionHandler.formfield(user=user)
         self.assertIsInstance(formfield1, ef_fields.RelationsConditionsField)
@@ -2643,11 +2643,12 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_relation_condition(self):
         "Build condition."
-        user = self.login()
+        user = self.create_user()
 
-        loves, loved = RelationType.create(('test-subject_love', 'Is loving'),
-                                           ('test-object_love',  'Is loved by')
-                                          )
+        loves, loved = RelationType.create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by'),
+        )
 
         build_cond = partial(RelationConditionHandler.build_condition, model=FakeContact)
         condition1 = build_cond(rtype=loves, has=True)
@@ -2731,7 +2732,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_relation_get_q(self):
         "get_q() not empty."
-        user = self.login()
+        user = self.create_user()
 
         loves, loved = RelationType.create(('test-subject_love', 'Is loving'),
                                            ('test-object_love',  'Is loved by')
@@ -2801,7 +2802,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
     def test_relation_accept(self):
-        user = self.login()
+        user = self.create_user()
         loves = RelationType.create(('test-subject_love', 'Is loving'),
                                     ('test-object_love',  'Is loved by')
                                    )[0]
@@ -3116,7 +3117,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler.applicable_on_entity_base, True)
 
     def test_subfilter_formfield(self):
-        user = self.login()
+        user = self.create_user()
 
         formfield1 = SubFilterConditionHandler.formfield(user=user)
         self.assertIsInstance(formfield1, ef_fields.SubfiltersConditionsField)
@@ -3134,7 +3135,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsNone(formfield2.user)
 
     def test_subfilter_accept(self):
-        user = self.login()
+        user = self.create_user()
         sub_efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter01', model=FakeContact, is_custom=True,
             conditions=[
@@ -3198,7 +3199,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # self.assertIsNone(condition2.handler) TODO ?
 
     def test_subfilter_description01(self):
-        user = self.login()
+        user = self.create_user()
         sub_efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter01', model=FakeOrganisation, is_custom=True,
             conditions=[
@@ -3219,7 +3220,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
     def test_subfilter_description02(self):
-        user = self.login()
+        user = self.create_user()
         handler = SubFilterConditionHandler(
             model=FakeOrganisation,
             subfilter='doesnotexist',
@@ -3363,7 +3364,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual("'invalid' is not a valid filter ID", handler.error)
 
     def test_relation_subfilter_formfield(self):
-        user = self.login()
+        user = self.create_user()
 
         formfield1 = RelationSubFilterConditionHandler.formfield(user=user)
         self.assertIsInstance(formfield1, ef_fields.RelationSubfiltersConditionsField)
@@ -3461,7 +3462,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_relation_subfilter_get_q(self):
         "get_q() not empty."
-        user = self.login()
+        user = self.create_user()
 
         loves, loved = RelationType.create(('test-subject_love', 'Is loving'),
                                            ('test-object_love',  'Is loved by')
@@ -3511,7 +3512,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                         )
 
     def test_relation_subfilter_description01(self):
-        user = self.login()
+        user = self.create_user()
 
         rtype = RelationType.create(('test-subject_love', 'Is loving'),
                                     ('test-object_love',  'Is loved by')
@@ -3556,7 +3557,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
     def test_relation_subfilter_description02(self):
-        user = self.login()
+        user = self.create_user()
 
         sub_filter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter Ikari', model=FakeContact, is_custom=True,
@@ -3677,7 +3678,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             )
 
     def test_property_formfield(self):
-        user = self.login()
+        user = self.create_user()
 
         formfield1 = PropertyConditionHandler.formfield(user=user)
         self.assertIsInstance(formfield1, ef_fields.PropertiesConditionsField)
@@ -3744,7 +3745,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_property_get_q(self):
         "get_q() not empty."
-        user = self.login()
+        user = self.create_user()
 
         create_ptype = CremePropertyType.create
         cute  = create_ptype(str_pk='test-prop_cute',  text='Cute')
@@ -3789,7 +3790,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
     def test_property_accept(self):
-        user = self.login()
+        user = self.create_user()
         create_ptype = CremePropertyType.create
         cute = create_ptype(str_pk='test-prop_cute',  text='Cute')
         pilot = create_ptype(str_pk='test-prop_pilot', text='Pilot')
@@ -3823,7 +3824,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler2.accept(entity=misato, user=user), True)
 
     def test_property_description01(self):
-        user = self.login()
+        user = self.create_user()
         cute = CremePropertyType.create(str_pk='test-prop_cute', text='Cute')
         handler = PropertyConditionHandler(
             model=FakeOrganisation,
@@ -3836,7 +3837,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
     def test_property_description02(self):
-        user = self.login()
+        user = self.create_user()
         cute = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
         handler = PropertyConditionHandler(
             model=FakeOrganisation,
@@ -3850,7 +3851,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_property_description03(self):
         "Deleted CremePropertyType."
-        user = self.login()
+        user = self.create_user()
         handler = PropertyConditionHandler(
             model=FakeOrganisation,
             ptype='doesnotexist',
@@ -3860,10 +3861,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
     def test_operand_currentuser(self):
         user = self.login()
 
-        user2 = CremeUser.objects.create(
-            username='chloe', email='chloe@noir.jp',
-            first_name='Chloe', last_name='Noir',
-        )
+        user2 = CremeUser.objects.create(**self.USERS_DATA[2])
         team = CremeUser.objects.create(username='NOIR', is_team=True)
         team.teammates = [user2]
 

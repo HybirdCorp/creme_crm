@@ -110,7 +110,7 @@ class OperatorTestCase(CremeTestCase):
 
     def test_validate_field_values04(self):
         "Operand."
-        user = self.login()
+        user = self.create_user()
         registry = _EntityFilterRegistry(id=10, verbose_name='Test')
 
         op = operators.ConditionOperator()

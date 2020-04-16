@@ -115,7 +115,7 @@ class GuiTestCase(CremeTestCase):
 
     def test_field_printers01(self):
         "Register by field types, different outputs..."
-        user = self.login()
+        user = self.create_user()
 
         print_charfield_html_args = []
         print_integerfield_html_args = []
@@ -160,7 +160,7 @@ class GuiTestCase(CremeTestCase):
 
     def test_field_printers02(self):
         "ForeignKey."
-        user = self.login()
+        user = self.create_user()
 
         print_foreignkey_html = FKPrinter(none_printer=FKPrinter.print_fk_null_html,
                                           default_printer=simple_print_html,
@@ -181,10 +181,11 @@ class GuiTestCase(CremeTestCase):
         img.categories.set([cat1, cat2])
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        casca = create_contact(first_name='Casca', last_name='Mylove',
-                               position=FakePosition.objects.create(title='Warrior<script>'),
-                               image=img,
-                              )
+        casca = create_contact(
+            first_name='Casca', last_name='Mylove',
+            position=FakePosition.objects.create(title='Warrior<script>'),
+            image=img,
+        )
         judo = create_contact(first_name='Judo', last_name='Doe')
 
         escaped_title = 'Warrior&lt;script&gt;'
@@ -240,7 +241,7 @@ class GuiTestCase(CremeTestCase):
 
     def test_field_printers03(self):
         "ManyToMany (simple model)."
-        user = self.login()
+        user = self.create_user()
         field_printers_registry = _FieldPrintersRegistry()
 
         create_lang = Language.objects.create
@@ -366,7 +367,7 @@ class GuiTestCase(CremeTestCase):
 
     def test_field_printers06(self):
         "Boolean Field."
-        user = self.login()
+        user = self.create_user()
         field_printers_registry = _FieldPrintersRegistry()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -387,7 +388,7 @@ class GuiTestCase(CremeTestCase):
 
     def test_field_printers07(self):
         "Numerics Field."
-        user = self.login()
+        user = self.create_user()
         field_printers_registry = _FieldPrintersRegistry()
 
         # Integer
@@ -419,7 +420,7 @@ class GuiTestCase(CremeTestCase):
     @override_settings(URLIZE_TARGET_BLANK=False)
     def test_field_printers08(self):
         "Test TexField: link => no target."
-        user = self.login()
+        user = self.create_user()
         field_printers_registry = _FieldPrintersRegistry()
 
         hawk = FakeOrganisation.objects.create(
@@ -436,7 +437,7 @@ class GuiTestCase(CremeTestCase):
     @override_settings(URLIZE_TARGET_BLANK=True)
     def test_field_printers09(self):
         "Test TexField: link => target='_blank'."
-        user = self.login()
+        user = self.create_user()
         field_printers_registry = _FieldPrintersRegistry()
 
         hawk = FakeOrganisation.objects.create(user=user, name='Hawk',
@@ -452,7 +453,7 @@ class GuiTestCase(CremeTestCase):
         )
 
     def test_statistics01(self):
-        user = self.login()
+        user = self.create_user()
 
         registry = _StatisticsRegistry()
 

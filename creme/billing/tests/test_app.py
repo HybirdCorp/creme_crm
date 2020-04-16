@@ -85,7 +85,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_algoconfig(self):
-        user = self.login()
+        user = self.create_user()
         orga = Organisation.objects.create(user=user, name='NERV')
 
         self.assertFalse(ConfigBillingAlgo.objects.filter(organisation=orga))

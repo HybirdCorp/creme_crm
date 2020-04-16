@@ -416,7 +416,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
         )
 
     def test_optionize_model_iterable_filter(self):
-        user = self.login()
+        user = self.create_user()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='Amestris')

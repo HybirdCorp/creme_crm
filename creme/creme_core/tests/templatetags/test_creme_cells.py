@@ -56,7 +56,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
     def test_cell_4_regularfield03(self):
         "By instance."
-        user = self.login()
+        user = self.create_user()
 
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
 
@@ -75,7 +75,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
     def test_cell_4_regularfield04(self):
         "No assignment."
-        user = self.login()
+        user = self.create_user()
 
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
 
@@ -108,7 +108,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
     def test_cell_render01(self):
         "Direct render ; default output."
-        user = self.login()
+        user = self.create_user()
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
         cell = EntityCellRegularField.build(model=FakeContact, name='last_name')
 
@@ -123,8 +123,10 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
     def test_cell_render02(self):
         "Direct render ; html output."
-        user = self.login()
-        ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley', email='hripley@nostromo.corp')
+        user = self.create_user()
+        ripley = FakeContact(
+            user=user, first_name='Helen', last_name='Ripley', email='hripley@nostromo.corp',
+        )
         cell = EntityCellRegularField.build(model=FakeContact, name='email')
 
         with self.assertNoException():
@@ -141,7 +143,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
     def test_cell_render03(self):
         "Direct render ; CSV output."
-        user = self.login()
+        user = self.create_user()
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley',
                              email='hripley@nostromo.corp',
                             )
@@ -158,7 +160,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
     def test_cell_render04(self):
         "Assignment."
-        user = self.login()
+        user = self.create_user()
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley',
                              email='hripley@nostromo.corp',
                             )

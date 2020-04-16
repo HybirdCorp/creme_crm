@@ -275,7 +275,7 @@ class FieldsConfigTestCase(CremeTestCase):
         )
 
     def test_form_update01(self):
-        user = self.login()
+        user = self.create_user()
         self._create_contact_conf()
 
         fields = FakeContactForm(user=user).fields
@@ -284,7 +284,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNotIn('mobile', fields)
 
     def test_form_update02(self):
-        "In view"
+        "In view."
         user = self.login()
         self._create_contact_conf()
 
@@ -317,8 +317,8 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertIsNone(hitagi.mobile)
 
     def test_form_update03(self):
-        "Field not in form"
-        user = self.login()
+        "Field not in form."
+        user = self.create_user()
         self._create_contact_conf()
 
         class TestFakeContactForm(FakeContactForm):

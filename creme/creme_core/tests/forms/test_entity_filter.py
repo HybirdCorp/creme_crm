@@ -2015,13 +2015,13 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
     def test_ok03(self):
         "Wanted entity."
-        user = self.login()
+        user = self.create_user()
 
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
         field = RelationsConditionsField(model=FakeContact)
         ct = ContentType.objects.get_for_model(FakeContact)
         conditions = field.clean(json_dump(
-                [{'rtype': self.rtype01.id, 'has': True, 'ctype': ct.id, 'entity': str(naru.id)}]
+            [{'rtype': self.rtype01.id, 'has': True, 'ctype': ct.id, 'entity': str(naru.id)}]
         ))
         self.assertEqual(1, len(conditions))
 
@@ -2033,7 +2033,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
     def test_ok04(self):
         "Wanted CT + wanted entity."
-        user = self.login()
+        user = self.create_user()
 
         ct_id = ContentType.objects.get_for_model(FakeContact).id
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
@@ -2059,7 +2059,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
     def test_ok05(self):
         "Wanted entity is deleted."
-        user = self.login()
+        user = self.create_user()
 
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -2073,11 +2073,12 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         )
         field = RelationsConditionsField(model=FakeContact)
 
-        jsondict = {'entity': naru.id,
-                    'has':    'true',
-                    'ctype':  naru.entity_type_id,
-                    'rtype':  self.rtype01.id,
-                   }
+        jsondict = {
+            'entity': naru.id,
+            'has':    'true',
+            'ctype':  naru.entity_type_id,
+            'rtype':  self.rtype01.id,
+        }
         self.assertListEqual(
             [jsondict],
             json_load(field.from_python([*efilter.conditions.all()]))
@@ -2102,7 +2103,9 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
             field.model = FakeContact
 
         rt_id = self.rtype01.id
-        conditions = field.clean(json_dump([{'rtype': rt_id, 'has': True,  'ctype': 0, 'entity': None}]))
+        conditions = field.clean(json_dump(
+            [{'rtype': rt_id, 'has': True,  'ctype': 0, 'entity': None}]
+        ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -2152,7 +2155,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, json_dump([{'has': True}]))
 
     def test_unknown_filter(self):
-        user = self.login()
+        user = self.create_user()
         field = RelationSubfiltersConditionsField(model=FakeContact)
         field.user = user
         self.assertFieldValidationError(
@@ -2166,7 +2169,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_ok(self):
-        user = self.login()
+        user = self.create_user()
 
         with self.assertNumQueries(0):
             field = RelationSubfiltersConditionsField(model=FakeContact)
@@ -2200,7 +2203,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
                             )
 
     def test_filter_type(self):
-        user = self.login()
+        user = self.create_user()
 
         field = RelationSubfiltersConditionsField(
             model=FakeContact,
@@ -2243,7 +2246,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
 
 class EntityFilterFormsTestCase(FieldTestCase):
     def test_creation_form01(self):
-        user = self.login()
+        user = self.create_user()
         efilter_registry = _EntityFilterRegistry(
             # id=None,
             id=-1,
@@ -2312,7 +2315,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
         )
 
     def test_creation_form02(self):
-        user = self.login()
+        user = self.create_user()
         efilter_registry = _EntityFilterRegistry(
             # id=None,
             id=-1,
@@ -2335,7 +2338,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
         self.assertEqual(FakeOrganisation, prop_f.model)
 
     def test_edition_form01(self):
-        user = self.login()
+        user = self.create_user()
         efilter_registry = _EntityFilterRegistry(
             # id=None,
             id=-1,
@@ -2417,7 +2420,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
         )
 
     def test_edition_form02(self):
-        user = self.login()
+        user = self.create_user()
         efilter_registry = _EntityFilterRegistry(
             # id=None,
             id=-1,

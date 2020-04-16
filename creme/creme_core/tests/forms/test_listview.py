@@ -214,11 +214,7 @@ class SearchFieldsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-
-        cls.user = user = CremeUser(username='yui', email='kawa.yui@kimengumi.jp',
-                                    first_name='Yui', last_name='Kawa',
-                                   )
-        user.save()
+        cls.user = cls.create_user()
 
     def test_regular_charfield01(self):
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='name')

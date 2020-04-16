@@ -79,18 +79,58 @@ class _CremeTestCase:
     def tearDown(self):
         clear_global_info()
 
+    USER_PASSWORD = 'test'
+    USERS_DATA = [
+        {
+            'username': 'kirika',
+            'first_name': 'Kirika',
+            'last_name': 'Yumura',
+            'email': 'kirika@noir.jp',
+        }, {
+            'username': 'mireille',
+            'first_name': 'Mireille',
+            'last_name': 'Bouquet',
+            'email': 'mireille@noir.jp',
+        }, {
+            'username': 'chloe',
+            'first_name': 'Chloé',
+            'last_name': '??',
+            'email': 'chloe@noir.jp',
+        },
+    ]
+
+    @classmethod
+    def create_user(cls, index=0, **kwargs):
+        user_data = {
+            **cls.USERS_DATA[index],
+            **kwargs,
+        }
+
+        if not user_data.get('role'):
+            user_data['is_superuser'] = True
+
+        user = CremeUser(**user_data)
+        user.set_password(cls.USER_PASSWORD)
+        user.save()
+
+        return user
+
     def login(self, is_superuser=True, is_staff=False, allowed_apps=('creme_core',),
               creatable_models=None, admin_4_apps=()):
         self.password = password = 'test'
 
-        superuser = CremeUser(
-            username='kirika', email='kirika@noir.jp',
-            first_name='Kirika', last_name='Yumura',
-            is_superuser=True or is_staff,
+        # superuser = CremeUser(
+        #     username='kirika', email='kirika@noir.jp',
+        #     first_name='Kirika', last_name='Yumura',
+        #     is_superuser=True or is_staff,
+        #     is_staff=is_staff,
+        # )
+        # superuser.set_password(password)
+        # superuser.save()
+        superuser = self.create_user(
+            index=0,
             is_staff=is_staff,
         )
-        superuser.set_password(password)
-        superuser.save()
 
         role = UserRole(name='Basic')
         role.allowed_apps = allowed_apps
@@ -103,14 +143,18 @@ class _CremeTestCase:
 
         self.role = role
 
-        basic_user = CremeUser(
-            username='mireille',
-            email='mireille@noir.jp',
+        # basic_user = CremeUser(
+        #     username='mireille',
+        #     email='mireille@noir.jp',
+        #     role=role,
+        #     first_name='Mireille', last_name='Bouquet',
+        # )
+        # basic_user.set_password(password)
+        # basic_user.save()
+        basic_user = self.create_user(
+            index=1,
             role=role,
-            first_name='Mireille', last_name='Bouquet',
         )
-        basic_user.set_password(password)
-        basic_user.save()
 
         self.user, self.other_user = (superuser, basic_user) if is_superuser else \
                                      (basic_user, superuser)
@@ -227,7 +271,8 @@ class _CremeTestCase:
     def assertIsSubclass(self, cls, parent_cls, msg=None):
         if not issubclass(cls, parent_cls):
             if msg is None:
-                msg = f'{cls} is not a subclass of {parent_cls} [list of parent classes {cls.__mro__}]'
+                msg = f'{cls} is not a subclass of {parent_cls} ' \
+                      f'[list of parent classes {cls.__mro__}]'
 
             self.fail(msg)
 
@@ -252,7 +297,8 @@ class _CremeTestCase:
             if value == choice_value:
                 if choice_label != label:
                     self.fail(
-                        f'The choice "{value}" has been found, but with the label "{choice_label}".'
+                        f'The choice "{value}" has been found, but with the '
+                        f'label "{choice_label}".'
                     )
 
                 return i
@@ -271,7 +317,8 @@ class _CremeTestCase:
         for choice_value, choice_label in choices:
             if choice_value == value:
                 self.fail(
-                    f'The choice "{value}" has been unexpectedly found with label="{choice_label}".'
+                    f'The choice "{value}" has been unexpectedly found with '
+                    f'label="{choice_label}".'
                 )
 
     def assertFormInstanceErrors(self, form, *errors):
@@ -281,14 +328,19 @@ class _CremeTestCase:
         for field_name, message in errors:
             # TODO: test all the errors in the field
             if field_name not in form_errors:
-                self.fail('The error "{field}" has not been found in the form (fields: {fields})'.format(
-                    field=field_name,
-                    fields=[*form_errors.keys()],
+                self.fail(
+                    'The error "{field}" has not been found in the form '
+                    '(fields: {fields})'.format(
+                        field=field_name,
+                        fields=[*form_errors.keys()],
                 ))
 
             field_errors = form_errors[field_name]
             if message not in field_errors:
-                self.fail(f'The error "{message}" has not been found in the field errors ({field_errors})')
+                self.fail(
+                    f'The error "{message}" has not been found in the field '
+                    f'errors ({field_errors})'
+                )
 
             field_names.add(field_name)
 
@@ -341,9 +393,10 @@ class _CremeTestCase:
             if not all_errors:
                 return
 
-            self.assertIsInstance(formset_obj, BaseFormSet,
-                                  f"context field '{formset_obj}' is not a FormSet"
-                                 )
+            self.assertIsInstance(
+                formset_obj, BaseFormSet,
+                f"context field '{formset_obj}' is not a FormSet"
+            )
             self.assertGreaterEqual(form_index, 0)
             self.assertLess(form_index, len(all_errors))
 
@@ -352,7 +405,8 @@ class _CremeTestCase:
             if field is None:
                 if errors:
                     self.fail(
-                        f"The formset '{formset}' number {form_index} contains errors: {errors}"
+                        f"The formset '{formset}' number {form_index} contains "
+                        f"errors: {errors}"
                     )
             else:
                 try:
@@ -528,15 +582,21 @@ class _CremeTestCase:
             self.fail(f'Bad populate: unfoundable RelationType with pk={pk}')
 
         get_ct = ContentType.objects.get_for_model
-        self.assertListEqual(sorted((get_ct(model) for model in sub_models), key=lambda ct: ct.id),
-                             [*rt.subject_ctypes.order_by('id')]
-                            )
-        self.assertListEqual(sorted((get_ct(model) for model in obj_models), key=lambda ct: ct.id),
-                             [*rt.object_ctypes.order_by('id')]
-                            )
+        self.assertListEqual(
+            sorted((get_ct(model) for model in sub_models), key=lambda ct: ct.id),
+            [*rt.subject_ctypes.order_by('id')]
+        )
+        self.assertListEqual(
+            sorted((get_ct(model) for model in obj_models), key=lambda ct: ct.id),
+            [*rt.object_ctypes.order_by('id')]
+        )
 
-        self.assertSetEqual({*sub_props}, {*rt.subject_properties.values_list('id', flat=True)})
-        self.assertSetEqual({*obj_props}, {*rt.object_properties.values_list('id', flat=True)})
+        self.assertSetEqual(
+            {*sub_props}, {*rt.subject_properties.values_list('id', flat=True)}
+        )
+        self.assertSetEqual(
+            {*obj_props}, {*rt.object_properties.values_list('id', flat=True)}
+        )
 
         self.assertNotEqual(rt.pk, rt.symmetric_type_id,
                             'Be careful your type is its own symmetric type'
@@ -551,9 +611,11 @@ class _CremeTestCase:
             self.fail(f'Bad populate: unfoundable CremePropertyType with pk={pk}')
 
         get_ct = ContentType.objects.get_for_model
-        self.assertSetEqual({get_ct(model).id for model in models},
-                            {*pt.subject_ctypes.values_list('id', flat=True)}
-                           )
+        self.assertSetEqual(
+            {get_ct(model).id for model in models},
+            {*pt.subject_ctypes.values_list('id', flat=True)}
+        )
+
         return pt
 
     @staticmethod
@@ -579,9 +641,10 @@ class _CremeTestCase:
 
     @staticmethod
     def formfield_value_generic_entity(entity):
-        return json_dump({'ctype': {'id': str(entity.entity_type_id)},
-                          'entity': str(entity.id),
-                         })
+        return json_dump({
+            'ctype': {'id': str(entity.entity_type_id)},
+            'entity': str(entity.id),
+        })
 
     @staticmethod
     def formfield_value_multi_generic_entity(*entities):
@@ -597,10 +660,11 @@ class _CremeTestCase:
 
     @staticmethod
     def formfield_value_relation_entity(rtype_id, entity):
-        return json_dump({'rtype':  rtype_id,
-                          'ctype':  str(entity.entity_type_id),
-                          'entity': str(entity.id),
-                         })
+        return json_dump({
+            'rtype':  rtype_id,
+            'ctype':  str(entity.entity_type_id),
+            'entity': str(entity.id),
+        })
 
     @staticmethod
     def formfield_value_multi_relation_entity(*relations):
@@ -613,9 +677,10 @@ class _CremeTestCase:
 
     @staticmethod
     def formfield_value_filtered_entity_type(ctype=None, efilter=None):
-        return json_dump({'ctype': str(ctype.id if ctype else 0),
-                          'efilter': efilter.id if efilter else '',
-                         })
+        return json_dump({
+            'ctype': str(ctype.id if ctype else 0),
+            'efilter': efilter.id if efilter else '',
+        })
 
     @staticmethod
     def http_file(file_path):

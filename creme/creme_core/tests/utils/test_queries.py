@@ -78,7 +78,7 @@ class QueriesTestCase(CremeTestCase):
 
     def test_q_serializer_02(self):
         "2 conditions + operator"
-        user = self.login()
+        user = self.create_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
         adrian = create_contact(first_name='Adrian', last_name='Velbà')
@@ -141,13 +141,14 @@ class QueriesTestCase(CremeTestCase):
 
     def test_q_serializer_07(self): 
         "Datetimes"
-        user = self.login()
+        user = self.create_user()
 
         create_dt = partial(self.create_datetime, year=2015, month=2, minute=0)
         create_act = partial(FakeActivity.objects.create, user=user, type=self._create_activity_type())
-        acts = [create_act(title='T#1', start=create_dt(day=19, hour=8)),
-                create_act(title='T#2', start=create_dt(day=19, hour=12)),
-               ]
+        acts = [
+            create_act(title='T#1', start=create_dt(day=19, hour=8)),
+            create_act(title='T#2', start=create_dt(day=19, hour=12)),
+        ]
 
         q = Q(start__lt=create_dt(day=19, hour=9))
         self._assertQIsOK(q, [acts[0]])
@@ -156,8 +157,8 @@ class QueriesTestCase(CremeTestCase):
         self._assertQEqual(FakeActivity, q, QSerializer().loads(str_q))
 
     def test_q_serializer_08(self): 
-        "Range"
-        user = self.login()
+        "Range."
+        user = self.create_user()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         create_orga(name='Vallée des rois',     capital=15000)
@@ -171,15 +172,16 @@ class QueriesTestCase(CremeTestCase):
         self._assertQEqual(FakeOrganisation, q, QSerializer().loads(str_q))
 
     def test_q_serializer_09(self): 
-        "Datetime range"
-        user = self.login()
+        "Datetime range."
+        user = self.create_user()
 
         create_dt = partial(self.create_datetime, year=2015, month=2, minute=0)
         create_act = partial(FakeActivity.objects.create, user=user, type=self._create_activity_type())
-        acts = [create_act(title='T#1', start=create_dt(day=18, hour=8)),
-                create_act(title='T#2', start=create_dt(day=19, hour=8)),
-                create_act(title='T#3', start=create_dt(day=20, hour=8)),
-               ]
+        acts = [
+            create_act(title='T#1', start=create_dt(day=18, hour=8)),
+            create_act(title='T#2', start=create_dt(day=19, hour=8)),
+            create_act(title='T#3', start=create_dt(day=20, hour=8)),
+        ]
 
         q = Q(start__range=(create_dt(day=18, hour=9),
                             create_dt(day=19, hour=9),
