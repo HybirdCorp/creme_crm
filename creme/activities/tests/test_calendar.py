@@ -4,6 +4,8 @@ try:
     from datetime import timedelta, date
     from functools import partial
 
+    from parameterized import parameterized
+
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.sessions.models import Session
     from django.core.exceptions import ValidationError
@@ -18,6 +20,7 @@ try:
     from creme.creme_core.creme_jobs import deletor_type
     from creme.creme_core.models import (Relation, SetCredentials, CremeUser,
         Job, DeletionCommand)
+    from creme.creme_core.tests.base import CremeTestCase
 
     from .base import _ActivitiesTestCase, skipIfCustomActivity
 
@@ -747,7 +750,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         act.calendars.add(Calendar.objects.get_default_calendar(user))
         self.assertGET403(self.build_link_url(act.id))
 
-    def test_activities_data01(self):
+    def test_activities_data_one_user_empty(self):
         "One user, no Activity"
         user = self.login()
 
@@ -756,7 +759,53 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual([], response.json())
 
     @skipIfCustomActivity
-    def test_activities_data02(self):
+    @parameterized.expand([
+        (CremeTestCase.create_datetime(2013, 3, 1), CremeTestCase.create_datetime(2013, 3, 1), False,
+         '2013-03-01T00:00:00', '2013-03-01T00:00:00'),
+        (CremeTestCase.create_datetime(2013, 3, 1), CremeTestCase.create_datetime(2013, 3, 5, 11), False,
+         '2013-03-01T00:00:00', '2013-03-05T11:00:00'),
+        # All day => ends on 00:00 of the next day
+        (CremeTestCase.create_datetime(2013, 3, 1), CremeTestCase.create_datetime(2013, 3, 1), True,
+         '2013-03-01T00:00:00', '2013-03-02T00:00:00'),
+        # All day => ends on 00:00 of the next day
+        (CremeTestCase.create_datetime(2013, 3, 1), CremeTestCase.create_datetime(2013, 3, 5, 11), True,
+         '2013-03-01T00:00:00', '2013-03-06T00:00:00'),
+    ])
+    def test_activities_data_one_user_one_event(
+            self, start, end, is_all_day, data_start, data_end):
+        user = self.login()
+        calendar = Calendar.objects.get_default_calendar(user)
+        activity = Activity.objects.create(
+            title='Act#1',
+            user=user,
+            type_id=ACTIVITYTYPE_TASK,
+            start=start,
+            end=end,
+            is_all_day=is_all_day
+        )
+        activity.calendars.set([calendar])
+
+        response = self.assertGET200(reverse('activities__calendars_activities'), data={
+            'calendar_id': calendar.pk,
+            'start': start.strftime('%s'),
+            'end': end.strftime('%s'),
+        })
+
+        self.assertEqual([{
+            'id':       activity.id,
+            'title':    'Act#1',
+            'start':    data_start,
+            'end':      data_end,
+            'allDay':   is_all_day,
+            'calendar': calendar.pk,
+            'color':    f'#{calendar.color}',
+            'url':      reverse('activities__view_activity_popup', args=(activity.id,)),
+            'editable': True,
+            'type':     _('Task'),
+        }], response.json())
+
+    @skipIfCustomActivity
+    def test_activities_data_one_user(self):
         "One user, several activities."
         user = self.login()
         cal = Calendar.objects.get_default_calendar(user)
@@ -803,7 +852,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual({'id':         act3.id,
                           'title':      'Act#3',
                           'start':      formatted_dt(act3.start),
-                          'end':        formatted_dt(act3.end),
+                          # On fullcalendar side a full day ends on the next day at 00:00:00
+                          'end':        formatted_dt(create_dt(year=2013, month=4, day=2)),
                           'allDay':     True,
                           'calendar':   cal.id,
                           'color':      f'#{cal.color}',
@@ -829,7 +879,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual({'id':         act0.id,
                           'title':      'Act#0',
                           'start':      formatted_dt(act0.start),
-                          'end':        formatted_dt(act0.end + timedelta(seconds=1)),
+                          'end':        formatted_dt(act0.end),
                           'allDay':     False,
                           'calendar':   cal.id,
                           'color':      f'#{cal.color}',
@@ -843,7 +893,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @skipIfCustomActivity
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
-    def test_activities_data03(self):
+    def test_activities_data_multiple_users_private_default(self):
         "2 Users, 2 Calendars, Unavailability."
         user = self.login()
         other_user = self.other_user
@@ -898,7 +948,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @skipIfCustomActivity
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
-    def test_activities_data04(self):
+    def test_activities_data_multiple_users_public_default(self):
         "Activity in several Calendars."
         user = self.login()
         other_user = self.other_user

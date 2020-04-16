@@ -22,20 +22,23 @@ from datetime import datetime
 from functools import partial
 from typing import Type
 
+from dateutil.parser import isoparse
+
 from django.db.models import Q
 from django.forms.forms import BaseForm
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
+from django.utils.timezone import get_current_timezone, make_naive, is_naive
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.gui.listview import CreationButton
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import CremeEntity, RelationType
-from creme.creme_core.utils import get_from_GET_or_404
+from creme.creme_core.utils import get_from_GET_or_404, bool_from_str_extended
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic import base
 
@@ -47,6 +50,7 @@ from ..models import ActivityType, ActivitySubType
 from ..utils import get_ical
 
 Activity = get_activity_model()
+
 _CREATION_PERM_STR = cperm(Activity)
 _TYPES_MAP = {
     'meeting':   constants.ACTIVITYTYPE_MEETING,
@@ -111,16 +115,27 @@ class ActivityCreationPopup(generic.EntityCreationPopup):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         request = self.request
+        tz = get_current_timezone()
+
+        def isoparse_naive(value):
+            if value is not None:
+                value = isoparse(value)
+
+                if not is_naive(value):
+                    value = make_naive(value, tz)
+
+            return value
 
         if request.method == 'GET':
-            get = partial(get_from_GET_or_404, GET=request.GET, cast=int)
-            today = datetime.today()
-            kwargs['start'] = datetime(
-                  year=get(key='year',   default=today.year),
-                 month=get(key='month',  default=today.month),
-                   day=get(key='day',    default=today.day),
-                  hour=get(key='hour',   default=today.hour),
-                minute=get(key='minute', default=today.minute),
+            get = partial(get_from_GET_or_404, GET=request.GET)
+            allDay = get(key='allDay', default='0', cast=bool_from_str_extended)
+            start = get(key='start', cast=isoparse_naive)
+            end = get(key='end', default=None, cast=isoparse_naive)
+
+            kwargs.update(
+                start=start,
+                end=end,
+                is_all_day=allDay
             )
 
         return kwargs

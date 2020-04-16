@@ -527,7 +527,8 @@ class _CremeTestCase:
     def build_merge_url(self, entity1, entity2):
         return reverse('creme_core__merge_entities') + f'?id1={entity1.id}&id2={entity2.id}'
 
-    def create_datetime(self, *args, **kwargs):
+    @staticmethod
+    def create_datetime(*args, **kwargs):
         tz = utc if kwargs.pop('utc', False) else get_current_timezone()
         return make_aware(datetime(*args, **kwargs), tz)
 

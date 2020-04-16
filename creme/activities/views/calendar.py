@@ -215,12 +215,8 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
         start = make_naive(activity.start, tz)
         end = make_naive(activity.end, tz)
 
-        # HACK: to hide start time of floating time activities,
-        #       only way to do that without change JS calendar API.
-        is_all_day = activity.is_all_day or activity.floating_type == constants.FLOATING_TIME
-
-        if start == end and not is_all_day:
-            end += timedelta(seconds=1)
+        if activity.is_all_day:
+            end = datetime(year=end.year, month=end.month, day=end.day) + timedelta(days=1)
 
         # NB: _get_one_activity_per_calendar() adds this 'attribute'
         calendar = activity.calendar
@@ -231,7 +227,7 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
 
             'start':  start.isoformat(),
             'end':    end.isoformat(),
-            'allDay': is_all_day,
+            'allDay': activity.is_all_day,
 
             'url': reverse('activities__view_activity_popup', args=(activity.id,)),
 

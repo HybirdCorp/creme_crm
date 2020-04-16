@@ -38,7 +38,8 @@ var FULLCALENDAR_SETTINGS = {
         week: {
             titleFormat: 'D MMMM YYYY',
             titleRangeSeparator: ' − ',
-            columnFormat: 'dddd D MMMM'
+            columnFormat: 'dddd D MMMM',
+            selectHelper: true
         },
         day: {
             titleFormat: 'dddd d MMMM YYYY',
@@ -500,11 +501,9 @@ creme.activities.CalendarController = creme.component.Component.sub({
 
     _onCalendarEventCreate: function(calendar, event) {
         var data = {
-            'year':   event.start.year(),
-            'month':  event.start.month() + 1,
-            'day':    event.start.date(),  // date() is DAY OF MONTH !!! (WTF !)
-            'hour':   event.start.hour(),
-            'minute': event.start.minute()
+            start: event.start.format(),
+            end: event.end.format(),
+            allDay: event.allDay ? 1 : 0
         };
 
         creme.dialogs.form(this.eventCreateUrl(), {}, data)
@@ -533,6 +532,14 @@ creme.activities.CalendarController = creme.component.Component.sub({
 
         item.css('background-color', event.color);
         item.css('color', foreground);
+    },
+
+    _renderCalendarSelection: function(calendar, event, item, view) {
+        item.html('${start} − ${end}'.template({
+            start: event.start.format(view.options.timeFormat),
+            end: event.end.format(view.options.timeFormat)
+        }));
+        item.addClass('fc-event-highlight');
     },
 
     _renderCalendarView: function(calendar, view) {
@@ -578,7 +585,11 @@ creme.activities.CalendarController = creme.component.Component.sub({
                 self._renderCalendarView(calendar, view);
             },
             eventRender: function(event, item, view) {
-                self._renderCalendarEvent(calendar, event, item, view);
+                if (event._id) {
+                    self._renderCalendarEvent(calendar, event, item, view);
+                } else {
+                    self._renderCalendarSelection(calendar, event, item, view);
+                }
             },
             // eventDragStart: function(calEvent, domEvent, ui, view) {},
             // see https://fullcalendar.io/docs/drop
