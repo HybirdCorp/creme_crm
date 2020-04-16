@@ -121,7 +121,7 @@ class ListViewSearchTestCase(CremeTestCase):
         registry = lv_search.RegularRelatedFieldSearchRegistry() \
                             .register_related_model(model=CremeUser,
                                                     sfield_builder=MyUserRegistry,
-                                                    )
+                                                   )
 
         cell = EntityCellRegularField.build(model=FakeContact, name='user')
         get_field = registry.get_field

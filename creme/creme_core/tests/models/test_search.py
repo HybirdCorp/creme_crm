@@ -264,8 +264,8 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertListEqual(['name', 'phone'], [sf.name for sf in sc_item.searchfields])
 
     def test_get_4_models01(self):  # DEPRECATED
-        "No model"
-        user = self.login()
+        "No model."
+        user = self.create_user()
 
         configs = SearchConfigItem.get_4_models([], user)
         self.assertListEqual([], [*configs])
@@ -291,13 +291,13 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_manager_get_for_models01(self):
         "No model"
-        user = self.login()
+        user = self.create_user()
 
         self.assertListEqual([], [*SearchConfigItem.objects.iter_for_models([], user)])
 
     def test_manager_get_for_models02(self):
         "One model, no config in BD."
-        user = self.login()
+        user = self.create_user()
 
         configs = [*SearchConfigItem.objects.iter_for_models([FakeContact], user)]
         self.assertEqual(1, len(configs))
@@ -312,7 +312,7 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_manager_get_for_models03(self):
         "One model, 1 config in DB."
-        user = self.login()
+        user = self.create_user()
 
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeContact, ['first_name', 'last_name'],
@@ -357,7 +357,7 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_manager_get_for_models06(self):
         "One model, 2 configs in DB (super-user)."
-        user = self.login()
+        user = self.create_user()
 
         create_role = UserRole.objects.create
         role2 = create_role(name='CEO')
@@ -376,7 +376,7 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_manager_get_for_models07(self):
         "One model, 2 configs in DB (super-user) (other order)."
-        user = self.login()
+        user = self.create_user()
 
         create = SearchConfigItem.objects.create_if_needed
         sc_item = create(FakeContact, ['last_name'], role='superuser')
@@ -389,7 +389,7 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_manager_get_for_models08(self):
         "2 models."
-        user = self.login()
+        user = self.create_user()
 
         configs = [
             *SearchConfigItem.objects

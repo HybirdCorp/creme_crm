@@ -281,7 +281,7 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related05(self):
         "Two fields related to the same model"
-        user = self.login()
+        user = self.create_user()
 
         create_contact = partial(FakeContact.objects.create, user=user, last_name='Simpson')
         marge = create_contact(first_name='Marge')
@@ -319,7 +319,7 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related07(self):
         "Field with depth=1 is a FK"
-        user = self.login()
+        user = self.create_user()
 
         create_folder = partial(FakeFolder.objects.create, user=user)
         folder1  = create_folder(title='Maps')
@@ -365,10 +365,11 @@ class DBTestCase(CremeTestCase):
         folder2 = create_folder(title='Blue prints')
 
         create_doc = partial(FakeDocument.objects.create, user=user)
-        docs = [create_doc(title='Japan map part#1', linked_folder=folder1),
-                create_doc(title='Mars city 1',      linked_folder=folder11),
-                create_doc(title='Swordfish',        linked_folder=folder2, user=user2),
-               ]
+        docs = [
+            create_doc(title='Japan map part#1', linked_folder=folder1),
+            create_doc(title='Mars city 1',      linked_folder=folder11),
+            create_doc(title='Swordfish',        linked_folder=folder2, user=user2),
+        ]
         docs = [self.refresh(c) for c in docs]
 
         # 3 queries:
@@ -415,9 +416,10 @@ class DBTestCase(CremeTestCase):
         user2 = self.other_user
 
         create_contact = partial(FakeContact.objects.create, user=user, last_name='Simpson')
-        contacts = [create_contact(first_name='Homer'),
-                    create_contact(first_name='Lisa', user=user2),
-                   ]
+        contacts = [
+            create_contact(first_name='Homer'),
+            create_contact(first_name='Lisa', user=user2),
+        ]
 
         contacts = [self.refresh(c) for c in contacts]
         _ = contacts[1].user  # 'user' is cached

@@ -246,7 +246,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_file_html01(self):
         "Not image."
-        user = self.login()
+        user = self.create_user()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
         file_name = 'FieldsPrintersTestCase_test_print_file_html01.txt'
@@ -296,7 +296,7 @@ class FieldsPrintersTestCase(CremeTestCase):
     @override_settings(ALLOWED_IMAGES_EXTENSIONS=['gif', 'png', 'jpg'])
     def test_print_file_html02(self):
         "Image."
-        user = self.login()
+        user = self.create_user()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
         file_name = 'add_16.png'
@@ -356,7 +356,7 @@ class FieldsPrintersTestCase(CremeTestCase):
     @override_settings(ALLOWED_IMAGES_EXTENSIONS=['gif', 'jpg'])  # Not 'png'
     def test_print_file_html03(self):
         "Not allowed image extensions."
-        user = self.login()
+        user = self.create_user()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
         file_name = 'add_16.png'
@@ -393,7 +393,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_file_html04(self):
         "Field not registered for download."
-        user = self.login()
+        user = self.create_user()
 
         file_name = 'FieldsPrintersTestCase_test_print_file_html04.txt'
         file_path = self.create_uploaded_file(file_name=file_name, dir_name='gui')
@@ -418,7 +418,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     @override_settings(ALLOWED_IMAGES_EXTENSIONS=['gif', 'png', 'jpg'])
     def test_print_image_html(self):
-        user = self.login()
+        user = self.create_user()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
         file_name = 'add_16.png'
@@ -476,7 +476,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_fk_printer01(self):
-        user = self.login()
+        user = self.create_user()
 
         c = FakeContact()
         field1 = c._meta.get_field('sector')
@@ -505,7 +505,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_fk_printer02(self):
         "CremeEntity."
-        user = self.login()
+        user = self.create_user()
         c = FakeContact()
         field = c._meta.get_field('image')
 
@@ -523,7 +523,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_fk_printer03(self):
         "EntityFilter."
-        user = self.login()
+        user = self.create_user()
 
         name = 'Nerv'
         desc1 = 'important'
@@ -571,7 +571,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_print_foreignkey_csv01(self):
-        user = self.login()
+        user = self.create_user()
 
         c = FakeContact()
         field1 = c._meta.get_field('sector')
@@ -602,7 +602,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_m2m_printer(self):
-        user = self.login()
+        user = self.create_user()
         img = FakeImage.objects.create(user=user, name='My img')
         field = img._meta.get_field('categories')
 
@@ -623,7 +623,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_many2many_printer_html01(self):
-        user = self.login()
+        user = self.create_user()
         img = FakeImage.objects.create(user=user, name='My img')
         field = img._meta.get_field('categories')
 
@@ -645,7 +645,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_many2many_printer_html02(self):
         "Entity without specific handler."
-        user = self.login()
+        user = self.create_user()
         prod = FakeProduct.objects.create(user=user, name='Bebop')
         field = prod._meta.get_field('images')
 
@@ -699,7 +699,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_print_many2many_csv01(self):
-        user = self.login()
+        user = self.create_user()
         img = FakeImage.objects.create(user=user, name='My img')
         field = img._meta.get_field('categories')
 

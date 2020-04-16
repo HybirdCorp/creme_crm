@@ -48,7 +48,7 @@ class RegistryTestCase(CremeTestCase):
         self.assertEqual(2, len([*registry.apps()]))
 
     def test_register_model01(self):
-        user = self.login()
+        user = self.create_user()
 
         registry = _ConfigRegistry()
 
@@ -111,7 +111,7 @@ class RegistryTestCase(CremeTestCase):
 
     def test_register_model02(self):
         "Another model ; get_app()/get_model_conf() ; no 'name_in_url' argument."
-        user = self.login()
+        user = self.create_user()
         registry = _ConfigRegistry()
 
         registry.register_model(DocumentCategory)
@@ -147,7 +147,7 @@ class RegistryTestCase(CremeTestCase):
 
     def test_register_model03(self):
         "Change name_in_url."
-        user = self.login()
+        user = self.create_user()
 
         registry = _ConfigRegistry()
         self.assertFalse([*registry.apps()])
@@ -205,7 +205,7 @@ class RegistryTestCase(CremeTestCase):
 
     def test_register_model05(self):
         "Register specific URLs."
-        user = self.login()
+        user = self.create_user()
         registry = _ConfigRegistry()
 
         creation_url_name = 'creme_config__create_team'
@@ -252,7 +252,8 @@ class RegistryTestCase(CremeTestCase):
 
     def test_register_model06(self):
         "Disable edition forms."
-        user = self.login()
+        user1 = self.create_user(index=0)
+        user2 = self.create_user(index=1)
         registry = _ConfigRegistry()
 
         civ1, civ2 = FakeCivility.objects.all()[:2]
@@ -268,27 +269,28 @@ class RegistryTestCase(CremeTestCase):
         url1 = reverse('creme_config__edit_instance',
                        args=('creme_core', 'fakecivility', civ1.id),
                       )
-        self.assertEqual(url1, editor.get_url(instance=civ1, user=user))
-        self.assertEqual(url1, editor.get_url(instance=civ1, user=self.other_user))
-        self.assertIsNone(editor.get_url(instance=civ2, user=user))
+        self.assertEqual(url1, editor.get_url(instance=civ1, user=user1))
+        self.assertEqual(url1, editor.get_url(instance=civ1, user=user2))
+        self.assertIsNone(editor.get_url(instance=civ2, user=user1))
 
         # Disable with user
-        user_name = user.username
+        user_name = user1.username
         editor.enable_func = lambda instance, user: user.username == user_name
-        self.assertEqual(url1, editor.get_url(instance=civ1, user=user))
+        self.assertEqual(url1, editor.get_url(instance=civ1, user=user1))
         self.assertEqual(reverse('creme_config__edit_instance',
                                  args=('creme_core', 'fakecivility', civ2.id),
                                 ),
-                         editor.get_url(instance=civ2, user=user)
+                         editor.get_url(instance=civ2, user=user1)
                         )
-        self.assertIsNone(editor.get_url(instance=civ1, user=self.other_user))
+        self.assertIsNone(editor.get_url(instance=civ1, user=user2))
 
     def test_register_model07(self):
         "Disable creation forms."
-        user = self.login()
+        user1 = self.create_user(index=0)
+        user2 = self.create_user(index=1)
         registry = _ConfigRegistry()
 
-        user_name = user.username
+        user_name = user1.username
         registry.register_model(FakeCivility)\
                 .creation(enable_func=lambda user: user.username == user_name)
 
@@ -299,9 +301,9 @@ class RegistryTestCase(CremeTestCase):
             reverse('creme_config__create_instance',
                     args=('creme_core', 'fakecivility')
                    ),
-            creator.get_url(user=user)
+            creator.get_url(user=user1)
         )
-        self.assertIsNone(creator.get_url(user=self.other_user))
+        self.assertIsNone(creator.get_url(user=user2))
 
         editor = model_config.editor
         self.assertIsSubclass(editor.form_class, CremeModelForm)
@@ -311,12 +313,13 @@ class RegistryTestCase(CremeTestCase):
             reverse('creme_config__edit_instance',
                     args=('creme_core', 'fakecivility', civ.id),
                    ),
-            editor.get_url(civ, user=user)
+            editor.get_url(civ, user=user1)
         )
 
     def test_register_model08(self):
         "Disable deletion forms."
-        user = self.login()
+        user1 = self.create_user(index=0)
+        user2 = self.create_user(index=1)
         registry = _ConfigRegistry()
 
         civ1, civ2 = FakeCivility.objects.all()[:2]
@@ -332,20 +335,20 @@ class RegistryTestCase(CremeTestCase):
         url1 = reverse('creme_config__delete_instance',
                        args=('creme_core', 'fakecivility', civ1.id),
                       )
-        self.assertEqual(url1, deletor.get_url(instance=civ1, user=user))
-        self.assertEqual(url1, deletor.get_url(instance=civ1, user=self.other_user))
-        self.assertIsNone(deletor.get_url(instance=civ2, user=user))
+        self.assertEqual(url1, deletor.get_url(instance=civ1, user=user1))
+        self.assertEqual(url1, deletor.get_url(instance=civ1, user=user2))
+        self.assertIsNone(deletor.get_url(instance=civ2, user=user1))
 
         # Disable with user
-        user_name = user.username
+        user_name = user1.username
         deletor.enable_func = lambda instance, user: user.username == user_name
-        self.assertEqual(url1, deletor.get_url(instance=civ1, user=user))
+        self.assertEqual(url1, deletor.get_url(instance=civ1, user=user1))
         self.assertEqual(reverse('creme_config__delete_instance',
                                  args=('creme_core', 'fakecivility', civ2.id),
                                 ),
-                         deletor.get_url(instance=civ2, user=user)
+                         deletor.get_url(instance=civ2, user=user1)
                         )
-        self.assertIsNone(deletor.get_url(instance=civ1, user=self.other_user))
+        self.assertIsNone(deletor.get_url(instance=civ1, user=user2))
 
     def test_register_model09(self):
         "Register specific Brick."

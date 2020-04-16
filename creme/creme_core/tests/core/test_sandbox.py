@@ -85,7 +85,7 @@ class SandboxTestCase(CremeTestCase):
                         )
 
     def test_sandbox_data(self):
-        user = self.login()
+        user = self.create_user()
         fmt = 'Restricted to "{}"'
 
         class TestSandboxType3(SandboxType):

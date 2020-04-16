@@ -126,8 +126,10 @@ class BrickRegistryTestCase(CremeTestCase):
                         )
 
     def test_register_4_instance01(self):
-        user = self.login()
-        casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
+        user = self.create_user()
+        casca = FakeContact.objects.create(
+            user=user, first_name='Casca', last_name='Mylove',
+        )
 
         # class _FoobarInstanceBrick(Brick):
         class _FoobarInstanceBrick(InstanceBrick):
@@ -270,7 +272,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
     def test_get_brick_4_instance(self):
         "With 'entity' argument."
-        user = self.login()
+        user = self.create_user()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
         # class FoobarInstanceBrick(Brick):
@@ -303,7 +305,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertEqual((FakeOrganisation, FakeContact), ibrick.dependencies)
 
     def test_get_compatible_bricks01(self):
-        user = self.login()
+        user = self.create_user()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
         class FoobarBrick1(Brick):
@@ -685,7 +687,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
     def test_get_bricks02(self):
         "Model brick."
-        user = self.login()
+        user = self.create_user()
 
         class ContactBrick(EntityBrick):
             template_name = 'persons/bricks/my_contact.html'
@@ -739,9 +741,11 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertEqual(cbci.name,          custom_brick.verbose_name)
 
     def test_get_bricks04(self):
-        "Hat brick"
-        user = self.login()
-        casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
+        "Hat brick."
+        user = self.create_user()
+        casca = FakeContact.objects.create(
+            user=user, first_name='Casca', last_name='Mylove',
+        )
 
         class FakeContactBasicHatBrick(SimpleBrick):
             template_name = 'creme_core/bricks/fake_contact_hat.html'  # (does not exists)
@@ -788,8 +792,10 @@ class BrickRegistryTestCase(CremeTestCase):
     def test_brick_4_model02(self):
         brick_registry = _BrickRegistry()
 
-        user = self.login()
-        casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
+        user = self.create_user()
+        casca = FakeContact.objects.create(
+            user=user, first_name='Casca', last_name='Mylove',
+        )
 
         brick = brick_registry.get_brick_4_object(casca)
         self.assertEqual(brick.__class__, EntityBrick)
@@ -818,7 +824,7 @@ class BrickRegistryTestCase(CremeTestCase):
             brick_registry.register_4_model(FakeContact, ContactBrick)
 
     def test_brick_4_instance01(self):
-        user = self.login()
+        user = self.create_user()
 
         create_contact = FakeContact.objects.create
         casca = create_contact(user=user, first_name='Casca', last_name='Mylove')

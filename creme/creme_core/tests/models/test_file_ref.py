@@ -128,7 +128,7 @@ class FileRefTestCase(base.CremeTestCase):
         self.assertStillExists(file_ref)
 
     def test_create_at_deletion01(self):
-        user = self.login()
+        user = self.create_user()
 
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]
         # path = _create_file('FileRefTestCase_test_create_at_deletion.txt')
@@ -169,7 +169,7 @@ class FileRefTestCase(base.CremeTestCase):
 
 class FileRefTestDeleteCase(base.CremeTransactionTestCase):
     def test_delete_model_with_file01(self):
-        user = self.login()
+        user = self.create_user()
 
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]
         # path = _create_file('FileRefTestDeleteCase_test_delete_model_with_file01.txt')
@@ -198,7 +198,7 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
         self.assertTrue(exists(full_path))
 
     def test_delete_model_with_file02(self):
-        user = self.login()
+        user = self.create_user()
 
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]
         # path = _create_file('FileRefTestDeleteCase_test_delete_model_with_file02.txt')

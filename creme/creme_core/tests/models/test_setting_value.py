@@ -350,13 +350,14 @@ class UserSettingValueTestCase(CremeTestCase):
         self._registered_skey.extend(skeys)
 
     def test_basic(self):
-        user = self.login()
+        user = self.create_user()
 
-        sk = UserSettingKey('creme_core-test_model_string',
-                            description='Page title',
-                            app_label='creme_core',
-                            type=SettingKey.STRING, hidden=False,
-                           )
+        sk = UserSettingKey(
+            'creme_core-test_model_string',
+            description='Page title',
+            app_label='creme_core',
+            type=SettingKey.STRING, hidden=False,
+        )
         self._register_key(sk)
 
         title = 'May the source be with you'
@@ -382,13 +383,14 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertEqual(title, value)
 
     def test_get(self):
-        user = self.login()
+        user = self.create_user()
 
-        sk = UserSettingKey('creme_core-test_model_string',
-                            description='Page title',
-                            app_label='creme_core',
-                            type=SettingKey.STRING, hidden=False,
-                           )
+        sk = UserSettingKey(
+            'creme_core-test_model_string',
+            description='Page title',
+            app_label='creme_core',
+            type=SettingKey.STRING, hidden=False,
+        )
         self._register_key(sk)
 
         settings = user.settings
@@ -414,13 +416,14 @@ class UserSettingValueTestCase(CremeTestCase):
 
     def test_serialise(self):
         "JSON in DB + int."
-        user = self.login()
+        user = self.create_user()
 
-        sk = UserSettingKey('creme_core-test_model_int',
-                            description='Page size',
-                            app_label='creme_core',
-                            type=SettingKey.INT, hidden=False,
-                           )
+        sk = UserSettingKey(
+            'creme_core-test_model_int',
+            description='Page size',
+            app_label='creme_core',
+            type=SettingKey.INT, hidden=False,
+        )
         self._register_key(sk)
 
         size = 142
@@ -436,13 +439,14 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertEqual(size, value)
 
     def test_bool(self):
-        user = self.login()
+        user = self.create_user()
 
-        sk = UserSettingKey('creme_core-test_model_bool',
-                            description='Page displayed',
-                            app_label='creme_core',
-                            type=SettingKey.BOOL, hidden=False,
-                           )
+        sk = UserSettingKey(
+            'creme_core-test_model_bool',
+            description='Page displayed',
+            app_label='creme_core',
+            type=SettingKey.BOOL, hidden=False,
+        )
         self._register_key(sk)
 
         def test_value(displayed):
@@ -458,7 +462,7 @@ class UserSettingValueTestCase(CremeTestCase):
         test_value(False)
 
     def test_multi_save(self):
-        user = self.login()
+        user = self.create_user()
 
         build_key = partial(UserSettingKey, app_label='creme_core',
                             type=SettingKey.INT, hidden=False,
@@ -490,7 +494,7 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertEqual(height, value2)
 
     def _aux_test_pop(self):
-        user = self.login()
+        user = self.create_user()
 
         sk = UserSettingKey('creme_core-test_model_int',
                             description='Page size',
@@ -542,13 +546,14 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertEqual(default, value)
 
     def test_cast_int(self):
-        user = self.login()
+        user = self.create_user()
 
-        sk = UserSettingKey('creme_core-test_model_int',
-                            description='Page size',
-                            app_label='creme_core',
-                            type=SettingKey.INT, hidden=False,
-                           )
+        sk = UserSettingKey(
+            'creme_core-test_model_int',
+            description='Page size',
+            app_label='creme_core',
+            type=SettingKey.INT, hidden=False,
+        )
         self._register_key(sk)
 
         size = 143
@@ -568,7 +573,7 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertIsInstance(d.get(sk.id), int)
 
     def test_cast_bool(self):
-        user = self.login()
+        user = self.create_user()
 
         sk = UserSettingKey('creme_core-test_model_bool',
                             description='Page displayed',
@@ -602,7 +607,7 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertIsInstance(d.get(sk.id), bool)
 
     def test_as_html(self):
-        user = self.login()
+        user = self.create_user()
 
         sk1 = UserSettingKey('creme_core-test_model_bool',
                              description='Page displayed',

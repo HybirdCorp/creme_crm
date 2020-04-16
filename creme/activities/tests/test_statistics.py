@@ -14,7 +14,11 @@ try:
     from creme.activities.statistics import AveragePerMonthStatistics
 
     from .base import Activity, skipIfCustomActivity
-    from ..constants import ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL, ACTIVITYTYPE_TASK
+    from ..constants import (
+        ACTIVITYTYPE_MEETING,
+        ACTIVITYTYPE_PHONECALL,
+        ACTIVITYTYPE_TASK,
+    )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -22,7 +26,7 @@ except Exception as e:
 class StatisticsTestCase(CremeTestCase):
     def test_average_per_month01(self):
         "Empty"
-        self.login()
+        # self.login()
         self.assertEqual(
             [_('No meeting since one year'),
              _('No phone call since one year'),
@@ -32,11 +36,13 @@ class StatisticsTestCase(CremeTestCase):
 
     @skipIfCustomActivity
     def test_average_per_month02(self):
-        "1 meeting per month"
-        user = self.login()
-
+        "1 meeting per month."
         now_value = now()
-        create_activity = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_MEETING)
+        create_activity = partial(
+            Activity.objects.create,
+            user=self.create_user(),
+            type_id=ACTIVITYTYPE_MEETING,
+        )
 
         for i in range(1, 13):
             create_activity(title='Meeting #{}'.format(i), start=now_value - relativedelta(months=i))
@@ -59,10 +65,12 @@ class StatisticsTestCase(CremeTestCase):
     @skipIfCustomActivity
     def test_average_per_month03(self):
         "1.5 meeting per month."
-        user = self.login()
-
         now_value = now()
-        create_activity = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_MEETING)
+        create_activity = partial(
+            Activity.objects.create,
+            user=self.create_user(),
+            type_id=ACTIVITYTYPE_MEETING,
+        )
 
         for i in range(1, 13):
             create_activity(title=f'Meeting #A-{i}',
@@ -82,10 +90,12 @@ class StatisticsTestCase(CremeTestCase):
                            )
 
         self.assertEqual(
-            [ngettext('{count} meeting per month',
-                      '{count} meetings per month',
-                      1.5
-                     ).format(count=number_format(1.5, decimal_pos=1, use_l10n=True),
+            [ngettext(
+                '{count} meeting per month',
+                '{count} meetings per month',
+                1.5
+             ).format(
+                count=number_format(1.5, decimal_pos=1, use_l10n=True),
              ),
              _('No phone call since one year'),
             ],
@@ -95,10 +105,12 @@ class StatisticsTestCase(CremeTestCase):
     @skipIfCustomActivity
     def test_average_per_month04(self):
         "0.5 phone call per month."
-        user = self.login()
-
         now_value = now()
-        create_activity = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_PHONECALL)
+        create_activity = partial(
+            Activity.objects.create,
+            user=self.create_user(),
+            type_id=ACTIVITYTYPE_PHONECALL,
+        )
 
         create_activity(title='Task', start=now_value - relativedelta(months=1),
                         type_id=ACTIVITYTYPE_TASK,
@@ -111,10 +123,12 @@ class StatisticsTestCase(CremeTestCase):
 
         self.assertEqual(
             [_('No meeting since one year'),
-             ngettext('{count} phone call per month',
-                      '{count} phone calls per month',
-                      0.5
-                     ).format(count=number_format(0.5, decimal_pos=1, use_l10n=True),
+             ngettext(
+                 '{count} phone call per month',
+                 '{count} phone calls per month',
+                 0.5
+             ).format(
+                 count=number_format(0.5, decimal_pos=1, use_l10n=True),
              ),
             ],
             AveragePerMonthStatistics(Activity)()

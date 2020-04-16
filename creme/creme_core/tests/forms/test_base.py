@@ -34,7 +34,7 @@ except Exception as e:
 
 class CremeFormTestCase(CremeTestCase):
     def test_user(self):
-        user = self.login()
+        user = self.create_user()
 
         class TestCremeForm(CremeForm):
             order = forms.IntegerField(label='Order')
@@ -43,7 +43,7 @@ class CremeFormTestCase(CremeTestCase):
         self.assertEqual(user, form.fields['order'].user)
 
     def test_blocks(self):
-        user = self.login()
+        user = self.create_user()
 
         class TestCremeForm(CremeForm):
             order = forms.IntegerField(label='Order')
@@ -79,7 +79,7 @@ class CremeFormTestCase(CremeTestCase):
         self.assertIs(item2[1], False)
 
     def test_hook(self):
-        user = self.login()
+        user = self.create_user()
 
         class TestCremeForm(CremeForm):
             order = forms.IntegerField(label='Order')
@@ -119,7 +119,7 @@ class CremeFormTestCase(CremeTestCase):
 
 class CremeModelFormTestCase(CremeTestCase):
     def test_basic(self):
-        user = self.login()
+        user = self.create_user()
 
         class FakeSectorForm(CremeModelForm):
             class Meta:
@@ -162,7 +162,7 @@ class CremeModelFormTestCase(CremeTestCase):
         self.assertIsNotNone(sector.id)
 
     def test_hook(self):
-        user = self.login()
+        user = self.create_user()
 
         class FakeSectorForm(CremeModelForm):
             class Meta:
@@ -202,7 +202,7 @@ class CremeModelFormTestCase(CremeTestCase):
         self.assertListEqual([form], save_cb_args)
 
     def test_fields_config(self):
-        user = self.login()
+        user = self.create_user()
 
         FieldsConfig.objects.create(
             content_type=FakeAddress,
@@ -224,7 +224,7 @@ class CremeModelFormTestCase(CremeTestCase):
 @override_settings(FORMS_RELATION_FIELDS=True)
 class CremeEntityFormTestCase(CremeTestCase):
     def test_basic(self):
-        user = self.login()
+        user = self.create_user()
 
         form = FakeContactForm(user=user)
         fields = form.fields
@@ -263,7 +263,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertIsNotNone(contact.id)
 
     def test_customfields01(self):
-        user = self.login()
+        user = self.create_user()
 
         create_cf = partial(
             CustomField.objects.create,
@@ -351,7 +351,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
     def test_customfields02(self):
         "Required."
-        user = self.login()
+        user = self.create_user()
 
         cfield = CustomField.objects.create(
             name='Size',
@@ -370,7 +370,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
     def test_customfields03(self):
         "Required + Boolean."
-        user = self.login()
+        user = self.create_user()
 
         cfield = CustomField.objects.create(
             name='Cursed?',
@@ -389,7 +389,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertFalse(cfield_f.required)
 
     def test_properties01(self):
-        user = self.login()
+        user = self.create_user()
 
         create_ptype = CremePropertyType.create
         ptype01 = create_ptype(str_pk='test-prop_spirit',   text='Haunted by a spirit')
@@ -448,7 +448,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
     def test_properties02(self):
         "Forced CremePropertyTypes (IDs)."
-        user = self.login()
+        user = self.create_user()
 
         create_ptype = CremePropertyType.create
         ptype01 = create_ptype(str_pk='test-prop_spirit',   text='Haunted by a spirit')
@@ -471,7 +471,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
     def test_properties03(self):
         "Forced CremePropertyTypes (instances)."
-        user = self.login()
+        user = self.create_user()
 
         create_ptype = CremePropertyType.create
         ptype01 = create_ptype(str_pk='test-prop_spirit',   text='Haunted by a spirit')
@@ -495,7 +495,7 @@ class CremeEntityFormTestCase(CremeTestCase):
     @override_settings(FORMS_RELATION_FIELDS=False)
     def test_properties04(self):
         "Forced CremePropertyTypes + no <properties> field."
-        user = self.login()
+        user = self.create_user()
 
         ptype = CremePropertyType.create(str_pk='test-prop_spirit',   text='Haunted by a spirit')
 
@@ -514,7 +514,7 @@ class CremeEntityFormTestCase(CremeTestCase):
                             )
 
     def test_relations01(self):
-        user = self.login()
+        user = self.create_user()
 
         contact = FakeContact.objects.create(user=user,
                                              first_name='Hitagi',
@@ -523,12 +523,14 @@ class CremeEntityFormTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
         create_rtype = RelationType.create
-        rtype1 = create_rtype(('test-subject_loves', 'loves'),
-                              ('test-object_loves',  'is loved'),
-                             )[0]
-        rtype2 = create_rtype(('test-subject_heals', 'has healed', [FakeOrganisation]),
-                              ('test-object_heals',  'healed by',  [FakeContact]),
-                             )[1]
+        rtype1 = create_rtype(
+            ('test-subject_loves', 'loves'),
+            ('test-object_loves',  'is loved'),
+        )[0]
+        rtype2 = create_rtype(
+            ('test-subject_heals', 'has healed', [FakeOrganisation]),
+            ('test-object_heals',  'healed by',  [FakeContact]),
+        )[1]
 
         form = FakeContactForm(user=user)
         fields = form.fields
@@ -572,7 +574,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
     def test_relations02(self):
         "Semi-fixed."
-        user = self.login()
+        user = self.create_user()
 
         contact = FakeContact.objects.create(user=user,
                                              first_name='Hitagi',
@@ -581,12 +583,14 @@ class CremeEntityFormTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
         create_rtype = RelationType.create
-        rtype1 = create_rtype(('test-subject_loves', 'loves'),
-                              ('test-object_loves',  'is loved'),
-                             )[0]
-        rtype2 = create_rtype(('test-subject_heals', 'has healed', [FakeOrganisation]),
-                              ('test-object_heals',  'healed by',  [FakeContact]),
-                             )[1]
+        rtype1 = create_rtype(
+            ('test-subject_loves', 'loves'),
+            ('test-object_loves',  'is loved'),
+        )[0]
+        rtype2 = create_rtype(
+            ('test-subject_heals', 'has healed', [FakeOrganisation]),
+            ('test-object_heals',  'healed by',  [FakeContact]),
+        )[1]
 
         create_strt = SemiFixedRelationType.objects.create
         sfrt1 = create_strt(predicate='Healed by Oshino',
@@ -643,7 +647,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
     def test_relations03(self):
         "Fixed & semi-fixed."
-        user = self.login()
+        user = self.create_user()
 
         contact = FakeContact.objects.create(user=user,
                                              first_name='Hitagi',
@@ -691,7 +695,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
     def test_relations04(self):
         "Forced Relations."
-        user = self.login()
+        user = self.create_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
         contact1 = create_contact(first_name='Hitagi', last_name='Senjyogahara')
@@ -763,7 +767,7 @@ class CremeEntityFormTestCase(CremeTestCase):
     @override_settings(FORMS_RELATION_FIELDS=False)
     def test_relations05(self):
         "Forced Relations (no <relations> block)."
-        user = self.login()
+        user = self.create_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
         rtype = RelationType.create(('test-subject_heals', 'has healed'),
@@ -779,7 +783,7 @@ class CremeEntityFormTestCase(CremeTestCase):
     @override_settings(FORMS_RELATION_FIELDS=False)
     def test_no_relations_fields01(self):
         "FORMS_RELATION_FIELDS == False."
-        user = self.login()
+        user = self.create_user()
 
         fields = FakeContactForm(user=user).fields
         self.assertNotIn('property_types',   fields)
@@ -789,7 +793,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
     def test_no_relations_fields02(self):
         "Edition => no relations/properties field."
-        user = self.login()
+        user = self.create_user()
 
         contact = FakeContact.objects.create(
             user=user, first_name='Kanbaru', last_name='Suruga',
@@ -803,14 +807,15 @@ class CremeEntityFormTestCase(CremeTestCase):
 
     def test_relations_credentials01(self):
         user = self.login(is_superuser=False, creatable_models=[FakeContact])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW   |
+                  EntityCredentials.CHANGE |
+                  EntityCredentials.DELETE |
+                  EntityCredentials.LINK   |
+                  EntityCredentials.UNLINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         create_contact = FakeContact.objects.create
         contact1 = create_contact(user=user, first_name='Kanbaru', last_name='Suruga')
@@ -1158,7 +1163,7 @@ class CremeEntityFormTestCase(CremeTestCase):
     @override_settings(FORMS_RELATION_FIELDS=True)
     def test_relations_n_properties(self):
         "The properties needed by the relation types are added."
-        user = self.login()
+        user = self.create_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Bebop')
 

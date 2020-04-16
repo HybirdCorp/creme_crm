@@ -88,8 +88,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         )
 
     def test_manager_create_if_needed02(self):
-        "With cells"
-        user = self.login()
+        "With cells."
+        user = self.create_user()
 
         create_rtype = RelationType.create
         loves = create_rtype(('test-subject_love', 'Is loving'),
@@ -154,9 +154,9 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertIsNone(hf.user)
         self.assertEqual(1, len(hf.cells))
 
-    def test_test_manager_create_if_needed04(self):
+    def test_manager_create_if_needed04(self):
         "Errors."
-        user = self.login()
+        user = self.create_user()
 
         # Private + no user => error
         with self.assertRaises(ValueError):
@@ -304,7 +304,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_populate_entities_fields01(self):
         "Regular fields: no FK."
-        user = self.login()
+        user = self.create_user()
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf', name='Contact view', model=FakeContact,
             cells_desc=[
@@ -328,7 +328,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_populate_entities_fields02(self):
         "Regular fields: FK"
-        user = self.login()
+        user = self.create_user()
         build = partial(EntityCellRegularField.build, model=FakeContact)
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf', name='Contact view', model=FakeContact,
@@ -360,7 +360,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_populate_entities_fields03(self):
         "Regular fields: invalid fields are removed automatically."
-        user = self.login()
+        user = self.create_user()
 
         cell1 = EntityCellRegularField.build(model=FakeContact, name='last_name')
 
@@ -419,7 +419,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertCellEqual(cell1, hf.cells[0])
 
     def test_populate_entities_relations01(self):
-        user = self.login()
+        user = self.create_user()
 
         create_rt = RelationType.create
         loved = create_rt(('test-subject_love', 'Is loving'), ('test-object_love', 'Is loved by'))[1]
@@ -537,14 +537,14 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_filterlist01(self):
         user = self.login()
-        create_hf = partial(HeaderFilter.objects.create_if_needed,
-                            name='Orga view',
-                            model=FakeOrganisation,
-                            cells_desc=[EntityCellRegularField.build(
-                                                model=FakeOrganisation, name='name',
-                                            ),
-                                       ],
-                           )
+        create_hf = partial(
+            HeaderFilter.objects.create_if_needed,
+            name='Orga view',
+            model=FakeOrganisation,
+            cells_desc=[
+                EntityCellRegularField.build(model=FakeOrganisation, name='name'),
+            ],
+        )
         hf1 = create_hf(pk='test-hf_orga1')
         hf2 = create_hf(pk='test-hf_orga2', user=user)
         hf3 = create_hf(pk='test-hf_contact', model=FakeContact, name='Contact view')
