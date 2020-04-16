@@ -254,7 +254,7 @@ class RelationType(CremeModel):
                is_custom: bool = False,
                generate_pk: bool = False,
                is_internal: bool = False,
-               is_copiable: Tuple[bool, bool]=(True, True),
+               is_copiable: Union[bool, Tuple[bool, bool]]=(True, True),
                minimal_display: Tuple[bool, bool] = (False, False)) -> Tuple['RelationType', 'RelationType']:
         """
         @param subject_desc: Tuple (string_pk, predicate_string [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]])
