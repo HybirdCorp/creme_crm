@@ -667,6 +667,38 @@ QUnit.test('creme.activities.CalendarController.rendering (week view)', function
     }).get());
 });
 
+QUnit.test('creme.activities.CalendarController.rendering (hilight, week view)', function(assert) {
+    var element = $(this.createDefaultCalendarHtml()).appendTo(this.qunitFixture());
+    var controller = new creme.activities.CalendarController({
+                         eventFetchUrl: 'mock/calendar/events'
+                     }).bind(element);
+
+    controller.fullCalendar('renderView', 'agendaWeek');
+
+    var view = controller.fullCalendar().view;
+    var start = todayAt({hours: 8});
+    var end = todayAt({hours: 9, minutes: 45});
+
+    deepEqual([], element.find('.calendar .fc-event.fc-event-highlight').get());
+
+    // HACK : Simulate range selection rendering
+    view.timeGrid.renderSelectionFootprint(new $.fullCalendar.ComponentFootprint(
+        new $.fullCalendar.UnzonedRange(start, end),
+        false  /* all day */
+    ));
+
+    deepEqual([{
+        content: '${start} − ${end}'.template({
+            start: start.format(view.options.timeFormat),
+            end: end.format(view.options.timeFormat)
+        })
+    }], element.find('.calendar .fc-event.fc-event-highlight').map(function() {
+        return {
+            content: $(this).text()
+        };
+    }).get());
+});
+
 QUnit.test('creme.activities.CalendarController.visibleCalendarIds (selection)', function(assert) {
     var controller = this.createDefaultCalendar();
     var element = controller.element();
@@ -858,12 +890,15 @@ QUnit.test('creme.activities.CalendarController.filter (floating events)', funct
     );
 });
 
-QUnit.test('creme.activities.CalendarController.create (canceled)', function(assert) {
+QUnit.test('creme.activities.CalendarController.create (canceled, allDay)', function(assert) {
     var controller = this.createDefaultCalendar({
         options: {debounceDelay: 0}
     });
     var view = controller.fullCalendar().view;
-    var today = todayAt();
+    var today = $.fullCalendar.moment(todayAt());
+
+    today.stripTime();
+    equal(false, today.hasTime());
 
     this.assertClosedDialog();
 
@@ -879,21 +914,22 @@ QUnit.test('creme.activities.CalendarController.create (canceled)', function(ass
             end: view.end.unix()
         }],
         ['mock/calendar/event/create', 'GET', {
-            year:   today.year(),
-            month:  today.month() + 1,
-            day:    today.date(),
-            hour:   0,
-            minute: 0
+            start: today.format(),
+            end: today.format(),
+            allDay: 1
         }]
     ], this.mockBackendUrlCalls());
 });
 
-QUnit.test('creme.activities.CalendarController.create (ok)', function(assert) {
+QUnit.test('creme.activities.CalendarController.create (ok, allDay)', function(assert) {
     var controller = this.createDefaultCalendar({
         options: {debounceDelay: 0}
     });
     var view = controller.fullCalendar().view;
-    var today = todayAt();
+    var today = $.fullCalendar.moment(todayAt());
+
+    today.stripTime();
+    equal(false, today.hasTime());
 
     this.assertClosedDialog();
 
@@ -908,11 +944,9 @@ QUnit.test('creme.activities.CalendarController.create (ok)', function(assert) {
             end: view.end.unix()
         }],
         ['mock/calendar/event/create', 'GET', {
-            year:   today.year(),
-            month:  today.month() + 1,
-            day:    today.date(),
-            hour:   0,
-            minute: 0
+            start: today.format(),
+            end: today.format(),
+            allDay: 1
         }]
     ], this.mockBackendUrlCalls());
 
@@ -925,11 +959,62 @@ QUnit.test('creme.activities.CalendarController.create (ok)', function(assert) {
             end: view.end.unix()
         }],
         ['mock/calendar/event/create', 'GET', {
-            year:   today.year(),
-            month:  today.month() + 1,
-            day:    today.date(),
-            hour:   0,
-            minute: 0
+            start: today.format(),
+            end: today.format(),
+            allDay: 1
+        }],
+        ['mock/calendar/event/create', 'POST', {}],
+        ['mock/calendar/events', 'GET', {
+            calendar_id: ['1', '2', '10', '11', '20'],
+            start: view.start.unix(),
+            end: view.end.unix()
+        }]
+    ], this.mockBackendUrlCalls());
+});
+
+
+QUnit.test('creme.activities.CalendarController.create (ok)', function(assert) {
+    var controller = this.createDefaultCalendar({
+        options: {debounceDelay: 0}
+    });
+    var view = controller.fullCalendar().view;
+    var eventStart = $.fullCalendar.moment(todayAt({hours: 8}));
+    var eventEnd = eventStart.clone().add(controller.fullCalendar().defaultTimedEventDuration);
+
+    equal(true, eventStart.hasTime());
+    equal(true, eventEnd.hasTime());
+
+    this.assertClosedDialog();
+
+    controller.fullCalendar('select', eventStart);
+
+    this.assertOpenedDialog();
+
+    deepEqual([
+        ['mock/calendar/events', 'GET', {
+            calendar_id: ['1', '2', '10', '11', '20'],
+            start: view.start.unix(),
+            end: view.end.unix()
+        }],
+        ['mock/calendar/event/create', 'GET', {
+            start: eventStart.format(),
+            end: eventEnd.format(),
+            allDay: 0
+        }]
+    ], this.mockBackendUrlCalls());
+
+    this.submitFormDialog();
+
+    deepEqual([
+        ['mock/calendar/events', 'GET', {
+            calendar_id: ['1', '2', '10', '11', '20'],
+            start: view.start.unix(),
+            end: view.end.unix()
+        }],
+        ['mock/calendar/event/create', 'GET', {
+            start: eventStart.format(),
+            end: eventEnd.format(),
+            allDay: 0
         }],
         ['mock/calendar/event/create', 'POST', {}],
         ['mock/calendar/events', 'GET', {

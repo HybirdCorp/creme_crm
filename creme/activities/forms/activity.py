@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -479,17 +479,23 @@ class CalendarActivityCreateForm(ActivityCreateForm):
     class Meta(ActivityCreateForm.Meta):
         exclude = (*ActivityCreateForm.Meta.exclude, 'minutes')
 
-    def __init__(self, start=None, *args, **kwargs):
+    def __init__(self, start=None, end=None, is_all_day=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if start:  # Normally there's always a start_date for this kind of add
-            fields = self.fields
-            fields['start'].initial = start
-            hour = start.hour
-            minute = start.minute
+        fields = self.fields
+        fields['is_all_day'].initial = is_all_day
 
-            if hour or minute:  # In case start date is not a simple date (add from month view in the calendar)
-                fields['start_time'].initial = time(hour=hour, minute=minute)  # Avoid 00h00 for start time in this case
+        def _set_datefield(key, value):
+            if value:
+                fields[key].initial = value
+
+                if value.hour or value.minute:
+                    fields[f'{key}_time'].initial = time(
+                        hour=value.hour, minute=value.minute
+                    )
+
+        _set_datefield('start', start)
+        _set_datefield('end', end)
 
 
 class IndisponibilityCreateForm(_ActivityCreateForm):

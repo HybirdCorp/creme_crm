@@ -1,0 +1,3 @@
+-r requirements.txt
+
+parameterized>=0.7.1,<0.7.1024

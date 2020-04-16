@@ -49,7 +49,6 @@ except Exception as e:
 
 @skipIfCustomActivity
 class ActivityTestCase(_ActivitiesTestCase):
-    ADD_POPUP_URL   = reverse('activities__create_activity_popup')
     ADD_INDISPO_URL = reverse('activities__create_indispo')
 
     def _build_add_related_uri(self, related, act_type_id=None):
@@ -751,22 +750,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertIn(str(akane), body)
         self.assertIn(str(me), body)
         self.assertIn(str(ranma), body)
-
-    @skipIfNotInstalled('creme.assistants')
-    def test_createview_usermsg02(self):
-        "Setting: no 'informed_users' field"
-        self.login()
-
-        sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_FORM_USERS_MSG)
-        sv.value = False
-        sv.save()
-
-        response = self.assertGET200(self.ADD_POPUP_URL)
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-
-        self.assertNotIn('informed_users', fields)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -1874,177 +1857,6 @@ class ActivityTestCase(_ActivitiesTestCase):
             'replace_activities__activity_type',
             _('Deletion is not possible.')
         )
-
-    def test_createview_popup1(self):
-        "With existing activity type and start date given"
-        user = self.login()
-        my_calendar = Calendar.objects.get_default_calendar(user)
-
-        url = self.ADD_POPUP_URL
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'activities/forms/add-activity-popup.html')
-
-        context = response.context
-        self.assertEqual(Activity.creation_label, context.get('title'))
-        self.assertEqual(Activity.save_label,     context.get('submit_label'))
-
-        with self.assertNoException():
-            fields = context['form'].fields
-            start_f = fields['start']
-            end_f = fields['end']
-
-        self.assertTemplateUsed(response, 'activities/frags/activity_form_content.html')
-        self.assertContains(response, 'name="title"')  # It seems TemplateDoesNotExists is not raised in unit tests
-
-        initial_start = start_f.initial
-        self.assertIsInstance(initial_start, datetime)
-        self.assertDatetimesAlmostEqual(datetime.today().replace(second=0, microsecond=0),
-                                        initial_start
-                                       )
-
-        initial_end = end_f.initial
-        self.assertIsNone(initial_end)
-
-        title = 'meeting activity popup 1'
-        data = {'user':          user.pk,
-                'title':         title,
-                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                           constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                          ),
-                'start':         '2010-1-10',
-                'end':           '2010-1-10',
-                'start_time':    '09:30:00',
-                'end_time':      '15:00:00',
-               }
-
-        response = self.client.post(url, data=data)
-        self.assertFormError(response, 'form', None, _('No participant'))
-
-        response = self.client.post(url, data={**data, 'my_participation_0': True})
-        self.assertFormError(response, 'form', 'my_participation',
-                             _('Enter a value if you check the box.')
-                            )
-
-        response = self.client.post(url, data={**data,
-                                               'my_participation_0': True,
-                                               'my_participation_1': my_calendar.pk,
-                                              },
-                                   )
-        self.assertNoFormError(response)
-        self.assertEqual(1, Activity.objects.count())
-
-        activity = self.get_object_or_fail(Activity, title=title)
-        create_dt = self.create_datetime
-        self.assertEqual(create_dt(year=2010, month=1, day=10, hour=9, minute=30, second=0), activity.start)
-        self.assertEqual(create_dt(year=2010, month=1, day=10, hour=15, minute=0, second=0), activity.end)
-        self.assertEqual(constants.ACTIVITYTYPE_MEETING, activity.type_id)
-        self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, activity.sub_type_id)
-
-    def test_createview_popup2(self):
-        "With existing activity type and start date given"
-        user = self.login()
-        my_calendar = Calendar.objects.get_default_calendar(user)
-        title = "meeting activity popup 2"
-        response = self.client.post(
-            self.ADD_POPUP_URL,
-            data={'user':           self.user.pk,
-                  'title':          title,
-                  'type_selector':  self._acttype_field_value(constants.ACTIVITYTYPE_PHONECALL,
-                                                              constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
-                                                             ),
-
-                  'my_participation_0': True,
-                  'my_participation_1': my_calendar.pk,
-
-                  'start':      '2010-3-15',
-                  'end':        '2010-3-15',
-                  'start_time': '19:30:00',
-                  'end_time':   '20:00:00',
-                 }
-        )
-
-        self.assertNoFormError(response)
-        self.assertEqual(1, Activity.objects.count())
-
-        activity = self.get_object_or_fail(Activity, title=title)
-        create_dt = partial(self.create_datetime, year=2010, month=3, day=15)
-        self.assertEqual(create_dt(hour=19, minute=30, second=0), activity.start)
-        self.assertEqual(create_dt(hour=20, minute=0,  second=0), activity.end)
-        self.assertEqual(constants.ACTIVITYTYPE_PHONECALL, activity.type_id)
-        self.assertEqual(constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE, activity.sub_type_id)
-
-    def test_createview_popup3(self):
-        "With custom activity type and without start date given"
-        user = self.login()
-        my_calendar = Calendar.objects.get_default_calendar(user)
-
-        atype = ActivityType.objects.create(id='activities-test_createview_popup3',
-                                            name='Karate session',
-                                            default_day_duration=0,
-                                            default_hour_duration='00:15:00',
-                                            is_custom=True,
-                                           )
-
-        create_dt = self.create_datetime
-
-        def post(title, today):
-            response = self.client.post(self.ADD_POPUP_URL,
-                                        data={'user':               user.pk,
-                                              'title':              title,
-                                              'type_selector':      self._acttype_field_value(atype.id),
-                                              'start':              date_format(today),
-                                              'my_participation_0': True,
-                                              'my_participation_1': my_calendar.pk,
-                                             }
-                                    )
-
-            self.assertNoFormError(response)
-
-            activity = self.get_object_or_fail(Activity, title=title)
-            self.assertEqual(atype, activity.type)
-            self.assertIsNone(activity.sub_type)
-
-            create_today_dt = partial(create_dt, year=today.year, month=today.month, day=today.day)
-            self.assertEqual(create_today_dt(hour=0,  minute=0,  second=0), activity.start)
-            self.assertEqual(create_today_dt(hour=23, minute=59, second=0), activity.end)
-
-        post("meeting activity popup 3a", create_dt(year=2013, month=10, day=28, hour=11))  # No DST change for Europe/Paris
-        post("meeting activity popup 3b", create_dt(year=2013, month=10, day=27, hour=11))  # Timezone DST change for Europe/Paris
-
-    def test_createview_popup4(self):
-        "Beware when it's 23 o clock (bugfix)"
-        self.login()
-
-        response = self.assertGET200(self.ADD_POPUP_URL,
-                                     data={'year':   2012,
-                                           'month':  3,
-                                           'day':    26,
-                                           'hour':   23,
-                                           'minute': 16,
-                                          }
-                                    )
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-            start_f = fields['start']
-            end_f = fields['end']
-            start_time_f = fields['start_time']
-            end_time_f = fields['end_time']
-
-        self.assertEqual(date(year=2012, month=3, day=26), start_f.initial.date())
-        self.assertIsNone(end_f.initial)
-        self.assertEqual(time(hour=23, minute=16), start_time_f.initial)
-        self.assertIsNone(end_time_f.initial)
-
-    def test_createview_popup5(self):
-        "Not super-user"
-        self.login(is_superuser=False, creatable_models=[Activity])
-        self.assertGET200(self.ADD_POPUP_URL)
-
-    def test_createview_popup6(self):
-        "Creation perm is needed"
-        self.login(is_superuser=False)  # creatable_models=[Activity]
-        self.assertGET403(self.ADD_POPUP_URL)
 
     def test_dl_ical(self):
         user = self.login()
