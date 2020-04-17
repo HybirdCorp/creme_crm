@@ -39,6 +39,12 @@ class GraphFetcherRegistry:
         self._fetcher_classes: Dict[str, Type[GraphFetcher]] = {}
         self.default_class = default_class
 
+    def _build_default_fetcher(self, graph):
+        fetcher = self.default_class(graph=graph)
+        fetcher.error = _('Invalid volatile link ; please contact your administrator.')
+
+        return fetcher
+
     def register(self, *fetcher_classes: Type[GraphFetcher]) -> 'GraphFetcherRegistry':
         set_default = self._fetcher_classes.setdefault
 
@@ -54,19 +60,26 @@ class GraphFetcherRegistry:
 
     def get(self,
             graph: 'AbstractReportGraph',
-            fetcher_dict: dict) -> GraphFetcher:
-        fetcher_type_id = fetcher_dict.get(GraphFetcher.DICT_KEY_TYPE)
-        fetcher_cls = self._fetcher_classes.get(fetcher_type_id)
-        if fetcher_cls is None:
+            fetcher_dict: Dict[str, str]) -> GraphFetcher:
+        try:
+            fetcher_type_id = fetcher_dict[GraphFetcher.DICT_KEY_TYPE]
+        except KeyError:
             logger.warning(
-                '%s.get(): invalid ID "%s" for fetcher (basic fetcher is used).',
-                type(self).__name__, fetcher_type_id,
+                '%s.get(): no fetcher ID given (basic fetcher is used).',
+                type(self).__name__,
             )
 
-            fetcher = self.default_class(graph=graph)
-            fetcher.error = _('Invalid volatile link ; please contact your administrator.')
+            return self._build_default_fetcher(graph)
+        else:
+            fetcher_cls = self._fetcher_classes.get(fetcher_type_id)
 
-            return fetcher
+            if fetcher_cls is None:
+                logger.warning(
+                    '%s.get(): invalid ID "%s" for fetcher (basic fetcher is used).',
+                    type(self).__name__, fetcher_type_id,
+                )
+
+                return self._build_default_fetcher(graph)
 
         return fetcher_cls(
             graph=graph,

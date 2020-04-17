@@ -105,7 +105,7 @@ class ReportGraphAggregatorRegistry:
             )
 
         try:
-            return agg_cls(ord_info.cell)
+            return agg_cls(cell=ord_info.cell)
         except ValueError as e:
             logger.warning('ReportGraphAggregatorRegistry: %s', e)
             return ReportGraphAggregator(
@@ -119,11 +119,10 @@ AGGREGATORS_MAP = ReportGraphAggregatorRegistry()
 
 @AGGREGATORS_MAP(constants.RGA_COUNT)
 class RGACount(ReportGraphAggregator):
-    def __init__(self, cell):
-        if cell is not None:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self._cell is not None:
             raise ValueError('RGACount does not work with a cell.')
-
-        super().__init__()
 
     def annotate(self):
         # TMP: meh, we could model count as an aggregation
@@ -139,8 +138,9 @@ class _RGAFieldAggregation(ReportGraphAggregator):
 
     _aggregate: aggregates.Aggregate
 
-    def __init__(self, cell):
-        super().__init__(cell=cell)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        cell = self._cell
 
         if cell is None:
             raise ValueError(_('the field does not exist any more.'))
