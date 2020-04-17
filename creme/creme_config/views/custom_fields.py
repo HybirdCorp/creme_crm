@@ -41,7 +41,8 @@ from . import base
 
 class FirstCTypeCustomFieldCreation(base.ConfigModelCreation):
     model = CustomField
-    form_class = cf_forms.CustomFieldsCTAddForm
+    # form_class = cf_forms.CustomFieldsCTAddForm
+    form_class = cf_forms.FirstCustomFieldCreationForm
     title = _('New custom field configuration')
 
 
@@ -49,7 +50,8 @@ class CustomFieldCreation(EntityCTypeRelatedMixin,
                           base.ConfigModelCreation,
                          ):
     model = CustomField
-    form_class = cf_forms.CustomFieldsAddForm
+    # form_class = cf_forms.CustomFieldsAddForm
+    form_class = cf_forms.CustomFieldCreationForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
