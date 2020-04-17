@@ -1,7 +1,7 @@
 {% load creme_cells %}
 
 {% block address_content %}
-    {% for cell in cells.itervalues %}
+    {% for cell in cells.values %}
         <div class='address-options'>
             <div class='address-option'>
                 <span class='address-option-key'>{{cell}}</span>
