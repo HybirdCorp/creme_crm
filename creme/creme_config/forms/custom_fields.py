@@ -43,10 +43,10 @@ from creme.creme_core.models.custom_field import (
 )
 
 # TODO: User friendly order in choices fields
-# TODO: rename CustomField*Form (without 's')
 
 
-class CustomFieldsBaseForm(CremeModelForm):
+# class CustomFieldsBaseForm(CremeModelForm):
+class CustomFieldBaseForm(CremeModelForm):
     field_type = forms.TypedChoiceField(
         label=_('Type of field'), coerce=int,
         choices=[(i, klass.verbose_name) for i, klass in _TABLES.items()],
@@ -113,7 +113,11 @@ class CustomFieldsBaseForm(CremeModelForm):
         return instance
 
 
-class CustomFieldsCTAddForm(CustomFieldsBaseForm):
+CustomFieldsBaseForm = CustomFieldBaseForm  # DEPRECATED
+
+
+# class CustomFieldsCTAddForm(CustomFieldsBaseForm):
+class FirstCustomFieldCreationForm(CustomFieldBaseForm):
     content_type = EntityCTypeChoiceField(
         label=_('Related resource'),
         help_text=_('The other custom fields for this type of resource '
@@ -130,7 +134,19 @@ class CustomFieldsCTAddForm(CustomFieldsBaseForm):
         ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
 
 
-class CustomFieldsAddForm(CustomFieldsBaseForm):
+class CustomFieldsCTAddForm(FirstCustomFieldCreationForm):
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            'creme_config.forms.custom_fields.CustomFieldsCTAddForm is deprecated ;'
+            'use FirstCustomFieldCreationForm instead.',
+            DeprecationWarning
+        )
+
+        super().__init__(*args, **kwargs)
+
+
+# class CustomFieldsAddForm(CustomFieldsBaseForm):
+class CustomFieldCreationForm(CustomFieldBaseForm):
     error_messages = {
         **CustomFieldsBaseForm.error_messages,
         'duplicated_name': _('There is already a custom field with this name.'),
@@ -158,6 +174,16 @@ class CustomFieldsAddForm(CustomFieldsBaseForm):
         return super().save()
 
 
+class CustomFieldsAddForm(CustomFieldCreationForm):
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            'creme_config.forms.custom_fields.CustomFieldsAddForm is deprecated ; '
+            'use CustomFieldCreationForm instead.',
+            DeprecationWarning
+        )
+        super().__init__(*args, **kwargs)
+
+
 class CustomFieldsEditForm(CremeModelForm):
     error_messages = {
         'duplicated_name': _('There is already a custom field with this name.'),
@@ -169,7 +195,8 @@ class CustomFieldsEditForm(CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         warnings.warn(
-            'creme_config.forms.custom_fields.CustomFieldsEditForm is deprecated.',
+            'creme_config.forms.custom_fields.CustomFieldsEditForm is deprecated ; '
+            'use CustomFieldEditionForm instead.',
             DeprecationWarning
         )
 
