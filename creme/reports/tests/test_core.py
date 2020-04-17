@@ -906,11 +906,18 @@ class GraphFetcherRegistryTestCase(CremeTestCase):
             'type': RGF_FK,
             'value': 'image',
         }
-        fetcher1 = registry.get(graph=graph, fetcher_dict=fetcher_dict)
+
+        with self.assertLogs(level='WARNING') as logs_manager1:
+            fetcher1 = registry.get(graph=graph, fetcher_dict=fetcher_dict)
+
         self.assertIsInstance(fetcher1, SimpleGraphFetcher)
         self.assertEqual(
             _('Invalid volatile link ; please contact your administrator.'),
             fetcher1.error
+        )
+        self.assertIn(
+            'invalid ID "reports-fk" for fetcher (basic fetcher is used)',
+            logs_manager1.output[0]
         )
 
         # -----
@@ -928,6 +935,20 @@ class GraphFetcherRegistryTestCase(CremeTestCase):
         fetcher2 = registry.get(graph=graph, fetcher_dict=fetcher_dict)
         self.assertIsInstance(fetcher2, RegularFieldLinkedGraphFetcher)
         self.assertIsNone(fetcher2.error)
+
+        # Invalid dict (no type) --
+        with self.assertLogs(level='WARNING') as logs_manager2:
+            fetcher3 = registry.get(graph=graph, fetcher_dict={'value': 'image'})
+
+        self.assertIsInstance(fetcher3, SimpleGraphFetcher)
+        self.assertEqual(
+            _('Invalid volatile link ; please contact your administrator.'),
+            fetcher3.error
+        )
+        self.assertIn(
+            'no fetcher ID given (basic fetcher is used)',
+            logs_manager2.output[0]
+        )
 
     def test_register02(self):
         "Duplicates."

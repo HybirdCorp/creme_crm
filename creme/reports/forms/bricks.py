@@ -133,10 +133,7 @@ class GraphFetcherField(Field):
         if not value:
             return None
 
-        parts = value.split(self._choice_separator, 1)
-        fetcher_type_id = parts[0]
-        fetcher_value = parts[1] if len(parts) == 2 else ''
-
+        fetcher_type_id, __, fetcher_value = value.partition(self._choice_separator)
         graph = self.graph
         fetcher = graph.fetcher_registry.get(
             graph=graph,
@@ -145,6 +142,7 @@ class GraphFetcherField(Field):
                 GraphFetcher.DICT_KEY_VALUE: fetcher_value,
             },
         )
+
         if fetcher.error:
             raise ValidationError(
                 self.error_messages['invalid_choice'],

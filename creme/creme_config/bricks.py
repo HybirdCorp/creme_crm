@@ -534,8 +534,9 @@ class InstanceBricksConfigBrick(_ConfigAdminBrick):
     template_name = 'creme_config/bricks/instancebricks-configs.html'
 
     def detailview_display(self, context):
+        # TODO: populate 'entity' ?
         return self._render(self.get_template_context(
-                    context, InstanceBrickConfigItem.objects.all(),
+            context, InstanceBrickConfigItem.objects.all(),
         ))
 
 
