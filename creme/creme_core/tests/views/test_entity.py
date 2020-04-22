@@ -1249,7 +1249,7 @@ class _BulkEditTestCase(ViewsTestCase):
     @staticmethod
     # def get_cf_values(self, cf, entity):
     def get_cf_values(cf, entity):
-        return cf.get_value_class().objects.get(custom_field=cf, entity=entity)
+        return cf.value_class.objects.get(custom_field=cf, entity=entity)
 
     def create_image(self, name, user, categories=()):
         image = FakeImage.objects.create(user=user, name=name)

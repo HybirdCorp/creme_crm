@@ -249,7 +249,7 @@ class EntityTestCase(CremeTestCase):
         clone = orga.clone()
 
         def get_cf_values(cf, entity):
-            return cf.get_value_class().objects.get(custom_field=cf, entity=entity)
+            return cf.value_class.objects.get(custom_field=cf, entity=entity)
 
         self.assertEqual(get_cf_values(cf_int,   orga).value, get_cf_values(cf_int,   clone).value)
         self.assertEqual(get_cf_values(cf_float, orga).value, get_cf_values(cf_float, clone).value)

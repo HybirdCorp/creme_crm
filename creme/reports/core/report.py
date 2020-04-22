@@ -513,9 +513,10 @@ class RHAggregateCustomField(RHAggregate):
         if cfield.field_type not in field_aggregation_registry.authorized_customfields:
             raise ReportHand.ValueError(f'This type of custom field can not be aggregated: "{field_name}"')
 
-        return (aggregation.func(f'{cfield.get_value_class().get_related_name()}__value'),
-                cfield.name,
-               )
+        return (
+            aggregation.func(f'{cfield.value_class.get_related_name()}__value'),
+            cfield.name,
+        )
 
 
 @REPORT_HANDS_MAP(RFT_RELATED)

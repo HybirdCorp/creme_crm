@@ -131,9 +131,9 @@ class QuickFormTestCase(CremeTestCase):
                                          )
 
         with self.assertNoException():
-            cf_value = cf2.get_value_class().objects.get(custom_field=cf2,
-                                                         entity=contact,
-                                                        ).value
+            cf_value = cf2.value_class.objects.get(custom_field=cf2,
+                                                   entity=contact,
+                                                  ).value
 
         self.assertEqual(3, cf_value)
 

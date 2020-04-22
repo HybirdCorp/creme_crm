@@ -742,7 +742,7 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
             super().__init__(model=custom_field.content_type.model_class())
             self._custom_field_id = custom_field.id
             self._custom_field    = custom_field
-            self._related_name = custom_field.get_value_class().get_related_name()
+            self._related_name = custom_field.value_class.get_related_name()
         else:
             if model is None:
                 raise TypeError(
@@ -907,7 +907,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
                 f'{cls.__name__}.build_condition(): value is not an array'
             )
 
-        cf_value_class = custom_field.get_value_class()
+        cf_value_class = custom_field.value_class
 
         try:
             # TODO: move this in Operator code
@@ -1071,7 +1071,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
             )
 
         value = cls._build_daterange_dict(date_range, start, end)
-        value['rname'] = custom_field.get_value_class().get_related_name()
+        value['rname'] = custom_field.value_class.get_related_name()
 
         return condition_cls(
             filter_type=filter_type,

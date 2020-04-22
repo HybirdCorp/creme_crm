@@ -62,39 +62,39 @@ except Exception:
 @skipIfCustomFolder
 class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickTestCaseMixin):
     lv_import_data = {
-            'step': 1,
-            # 'document':   doc.id,
-            # 'has_header': True,
-            # 'user':       self.user.id,
+        'step': 1,
+        # 'document':   doc.id,
+        # 'has_header': True,
+        # 'user':       self.user.id,
 
-            'first_name_colselect': 1,
-            'last_name_colselect':  2,
+        'first_name_colselect': 1,
+        'last_name_colselect':  2,
 
-            'civility_colselect':    0,
-            'description_colselect': 0,
-            'phone_colselect':       0,
-            'mobile_colselect':      0,
-            'position_colselect':    0,
-            'sector_colselect':      0,
-            'email_colselect':       0,
-            'url_site_colselect':    0,
-            'birthday_colselect':    0,
-            'image_colselect':       0,
+        'civility_colselect':    0,
+        'description_colselect': 0,
+        'phone_colselect':       0,
+        'mobile_colselect':      0,
+        'position_colselect':    0,
+        'sector_colselect':      0,
+        'email_colselect':       0,
+        'url_site_colselect':    0,
+        'birthday_colselect':    0,
+        'image_colselect':       0,
 
-            'is_a_nerd_colselect':    0,
-            'loves_comics_colselect': 0,
-            'languages_colselect':    0,
+        'is_a_nerd_colselect':    0,
+        'loves_comics_colselect': 0,
+        'languages_colselect':    0,
 
-            # 'property_types',
-            # 'fixed_relations',
-            # 'dyn_relations',
+        # 'property_types',
+        # 'fixed_relations',
+        # 'dyn_relations',
 
-            'address_value_colselect':      0,
-            'address_zipcode_colselect':    0,
-            'address_city_colselect':       0,
-            'address_department_colselect': 0,
-            'address_country_colselect':    0,
-        }
+        'address_value_colselect':      0,
+        'address_zipcode_colselect':    0,
+        'address_city_colselect':       0,
+        'address_department_colselect': 0,
+        'address_country_colselect':    0,
+    }
 
     @classmethod
     def setUpClass(cls):
@@ -530,7 +530,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.get_object_or_fail(FakeContact, last_name=last_name, first_name=first_name)
 
     def _get_cf_values(self, cf, entity):
-        return self.get_object_or_fail(cf.get_value_class(), custom_field=cf, entity=entity)
+        return self.get_object_or_fail(cf.value_class, custom_field=cf, entity=entity)
 
     def test_mass_import_customfields01(self):
         "CustomField.INT, STR & FLOAT, update, cast error."
@@ -552,26 +552,27 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         kanu = FakeContact.objects.create(user=user, first_name=lines[1][0],
                                           last_name=lines[1][1],
                                          )
-        cf_int.get_value_class()(custom_field=cf_dec, entity=kanu).set_value_n_save(Decimal('56'))
-        cf_str.get_value_class()(custom_field=cf_str, entity=kanu).set_value_n_save('Kan')
+        cf_int.value_class(custom_field=cf_dec, entity=kanu).set_value_n_save(Decimal('56'))
+        cf_str.value_class(custom_field=cf_str, entity=kanu).set_value_n_save('Kan')
 
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         doc = self._build_csv_doc(lines)
-        response = self.client.post(self._build_import_url(FakeContact),
-                                    follow=True,
-                                    data={
-                                        **self.lv_import_data,
-                                        'document': doc.id,
-                                        'has_header': True,
-                                        'user': user.id,
-                                        'key_fields': ['first_name', 'last_name'],
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'has_header': True,
+                'user': user.id,
+                'key_fields': ['first_name', 'last_name'],
 
-                                        f'custom_field_{cf_int.id}_colselect': 3,
-                                        f'custom_field_{cf_str.id}_colselect': 0,
-                                        f'custom_field_{cf_dec.id}_colselect': 4,
-                                    },
-                                   )
+                f'custom_field_{cf_int.id}_colselect': 3,
+                f'custom_field_{cf_str.id}_colselect': 0,
+                f'custom_field_{cf_dec.id}_colselect': 4,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -590,14 +591,14 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         ryubi = get_contact(2)
         self.assertEqual(155, get_cf_values(cf_int, ryubi).value)
-        self.assertFalse(cf_dec.get_value_class().objects.filter(entity=ryubi))
+        self.assertFalse(cf_dec.value_class.objects.filter(entity=ryubi))
 
         sonsaku = get_contact(3)
-        self.assertFalse(cf_int.get_value_class().objects.filter(entity=sonsaku))
+        self.assertFalse(cf_int.value_class.objects.filter(entity=sonsaku))
         self.assertEqual(Decimal('50.2'), get_cf_values(cf_dec, sonsaku).value)
 
         ryomou = get_contact(4)
-        self.assertFalse(cf_int.get_value_class().objects.filter(entity=ryomou))
+        self.assertFalse(cf_int.value_class.objects.filter(entity=ryomou))
         self.assertEqual(Decimal('48'), get_cf_values(cf_dec, ryomou).value)
 
         results = self._get_job_results(job)
@@ -640,19 +641,20 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         ]
 
         doc = self._build_csv_doc(lines)
-        response = self.client.post(self._build_import_url(FakeContact),
-                                    follow=True,
-                                    data={
-                                        **self.lv_import_data,
-                                        'document': doc.id,
-                                        'has_header': True,
-                                        'user': user.id,
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'has_header': True,
+                'user': user.id,
 
-                                        f'custom_field_{cf_enum.id}_colselect':  3,
-                                        f'custom_field_{cf_enum2.id}_colselect': 0,
-                                        f'custom_field_{cf_menum.id}_colselect': 4,
-                                    },
-                                   )
+                f'custom_field_{cf_enum.id}_colselect':  3,
+                f'custom_field_{cf_enum2.id}_colselect': 0,
+                f'custom_field_{cf_menum.id}_colselect': 4,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -669,7 +671,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertEqual(punch, get_cf_values(cf_enum, sonsaku).value)
 
         kanu = get_contact(2)
-        self.assertFalse(cf_enum.get_value_class().objects.filter(entity=kanu))
+        self.assertFalse(cf_enum.value_class.objects.filter(entity=kanu))
         self.assertListEqual([spear], [*get_cf_values(cf_menum, kanu).value.all()])
 
         results = self._get_job_results(job)
@@ -690,17 +692,19 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         #                  ],
         #                  jr_error.messages
         #                 )
-        self.assertEqual([_('Error while extracting value: the choice «{value}» '
-                                    'was not found in existing choices (column {column}). '
-                                    'Hint: fix your imported file, or configure the import to '
-                                    'create new choices.'
-                                   ).format(
-                                column=3,
-                                value='strangulation',
-                            ),
-                         ],
-                         jr_error.messages
-                        )
+        self.assertListEqual(
+            [
+                _('Error while extracting value: the choice «{value}» '
+                  'was not found in existing choices (column {column}). '
+                  'Hint: fix your imported file, or configure the import to '
+                  'create new choices.'
+                ).format(
+                    column=3,
+                    value='strangulation',
+                ),
+            ],
+            jr_error.messages
+        )
         self.assertEqual(kanu, jr_error.entity.get_real_entity())
 
     def test_mass_import_customfields03(self):
@@ -757,16 +761,21 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertListEqual([sword], [*get_cf_values(cf_menum, sonsaku).value.all()])
 
         kanu = get_contact(2)
-        strang = self.get_object_or_fail(CustomFieldEnumValue, custom_field=cf_enum,
+        strang = self.get_object_or_fail(CustomFieldEnumValue,
+                                         custom_field=cf_enum,
                                          value='strangulation',
                                         )
         self.assertEqual(strang, get_cf_values(cf_enum, kanu).value)
-        spear = self.get_object_or_fail(CustomFieldEnumValue, custom_field=cf_menum,
+        spear = self.get_object_or_fail(CustomFieldEnumValue,
+                                        custom_field=cf_menum,
                                         value='spear',
                                        )
         self.assertListEqual([spear], [*get_cf_values(cf_menum, kanu).value.all()])
 
-        self.assertEqual(2, CustomFieldEnumValue.objects.filter(custom_field=cf_enum).count())  # Not '' choice
+        self.assertEqual(
+            2,
+            CustomFieldEnumValue.objects.filter(custom_field=cf_enum).count()
+        )  # Not '' choice
 
         self._assertNoResultError(self._get_job_results(job))
 
@@ -1219,12 +1228,14 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         jr_error = jr_errors[0]
         self.assertEqual([last_name, first_name], jr_error.line)
-        self.assertEqual([_('Several entities corresponding to the search have been found. '
-                            'So a new entity have been created to avoid errors.'
-                           )
-                         ],
-                         jr_error.messages
-                        )
+        self.assertListEqual(
+            [
+                _('Several entities corresponding to the search have been found. '
+                  'So a new entity have been created to avoid errors.'
+                )
+            ],
+            jr_error.messages
+        )
 
         self.assertEqual(rei, jr_error.entity.get_real_entity())
 
@@ -1267,20 +1278,23 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         user = self.login(is_superuser=False, allowed_apps=['creme_core', 'documents'],
                           creatable_models=[FakeContact, Document],
                          )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            # EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                      ctype=FakeContact,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW   |
+                  # EntityCredentials.CHANGE |
+                  EntityCredentials.DELETE |
+                  EntityCredentials.LINK   |
+                  EntityCredentials.UNLINK,
+            set_type=SetCredentials.ESET_ALL,
+            ctype=FakeContact,
+        )
 
         last_name = 'Ayanami'
         first_name = 'Rei'
 
-        c = FakeContact.objects.create(user=self.other_user, last_name=last_name, first_name='Lei')
+        c = FakeContact.objects.create(
+            user=self.other_user, last_name=last_name, first_name='Lei',
+        )
         self.assertTrue(user.has_perm_to_view(c))
         self.assertFalse(user.has_perm_to_change(c))
 

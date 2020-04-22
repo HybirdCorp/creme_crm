@@ -31,7 +31,7 @@ except Exception as e:
 class CustomFieldsTestCase(CremeTestCase):
     def assertValueEqual(self, *, cfield, entity, value):
         cf_value = self.get_object_or_fail(
-            cfield.get_value_class(),
+            cfield.value_class,
             custom_field=cfield,
             entity=entity,
         )
@@ -58,6 +58,7 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertIs(cfield.is_required, False)
         self.assertEqual(name, str(cfield))
         self.assertEqual(CustomFieldInteger, cfield.get_value_class())
+        self.assertEqual(CustomFieldInteger, cfield.value_class)
         self.assertEqual(_('Integer'), cfield.type_verbose_name())
 
         self.assertEqual(
@@ -118,6 +119,7 @@ class CustomFieldsTestCase(CremeTestCase):
             is_required=True,
         )
         self.assertEqual(CustomFieldString, cfield.get_value_class())
+        self.assertEqual(CustomFieldString, cfield.value_class)
         self.assertEqual(_('String'), cfield.type_verbose_name())
 
         self.assertEqual(
@@ -145,7 +147,7 @@ class CustomFieldsTestCase(CremeTestCase):
             field_type=CustomField.FLOAT,
             content_type=FakeOrganisation,
         )
-        self.assertEqual(CustomFieldFloat, cfield.get_value_class())
+        self.assertEqual(CustomFieldFloat, cfield.value_class)
         self.assertEqual(_('Decimal'), cfield.type_verbose_name())
 
         orga = self._create_orga()
@@ -171,7 +173,7 @@ class CustomFieldsTestCase(CremeTestCase):
             field_type=CustomField.DATETIME,
             content_type=FakeOrganisation,
         )
-        self.assertEqual(CustomFieldDateTime, cfield.get_value_class())
+        self.assertEqual(CustomFieldDateTime, cfield.value_class)
         self.assertEqual(_('Date and time'), cfield.type_verbose_name())
 
         orga = FakeOrganisation.objects.create(user=user, name='Arcadia')
@@ -193,7 +195,7 @@ class CustomFieldsTestCase(CremeTestCase):
             content_type=ContentType.objects.get_for_model(FakeOrganisation),
         )
         cfield1 = create_cfield(name='Ship is armed?')
-        self.assertEqual(CustomFieldBoolean, cfield1.get_value_class())
+        self.assertEqual(CustomFieldBoolean, cfield1.value_class)
         self.assertEqual(_('Boolean (2 values: Yes/No)'), cfield1.type_verbose_name())
 
         orga = self._create_orga()
@@ -257,7 +259,7 @@ class CustomFieldsTestCase(CremeTestCase):
             field_type=CustomField.ENUM,
             content_type=FakeOrganisation,
         )
-        self.assertEqual(CustomFieldEnum, cfield.get_value_class())
+        self.assertEqual(CustomFieldEnum, cfield.value_class)
         self.assertEqual(_('Choice list'), cfield.type_verbose_name())
 
         enum_value = CustomFieldEnumValue.objects.create(
@@ -316,7 +318,7 @@ class CustomFieldsTestCase(CremeTestCase):
             field_type=CustomField.MULTI_ENUM,
             content_type=FakeOrganisation,
         )
-        self.assertEqual(CustomFieldMultiEnum, cfield.get_value_class())
+        self.assertEqual(CustomFieldMultiEnum, cfield.value_class)
         self.assertEqual(_('Multiple choice list'), cfield.type_verbose_name())
 
         create_enum_value = partial(

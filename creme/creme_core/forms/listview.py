@@ -572,13 +572,13 @@ class CustomCharField(ListViewSearchField):
             cfield = self.cell.custom_field
 
             # TODO: optimized version if only one CustomField
-            #       related_name = cfield.get_value_class().get_related_name()
+            #       related_name = cfield.value_class.get_related_name()
             #       return Q(**{'{}__value__icontains'.format(related_name): value,
             #                   '{}__custom_field'.format(related_name): cfield.id,
             #                  }
             #               )
             return Q(
-                pk__in=cfield.get_value_class()
+                pk__in=cfield.value_class
                              .objects
                              .filter(custom_field=cfield, value__icontains=value)
                              .values_list('entity_id', flat=True)
@@ -592,7 +592,7 @@ class CustomOperationsFieldMixin:
         cfield = self.cell.custom_field
 
         return Q(
-            pk__in=cfield.get_value_class()
+            pk__in=cfield.value_class
                          .objects
                          .filter(custom_field=cfield,
                                  **{f'value__{op}': number
@@ -622,13 +622,13 @@ class CustomBooleanField(ListViewSearchField):
             cfield = self.cell.custom_field
 
             # TODO: optimized version if only one CustomField
-            #       related_name = cfield.get_value_class().get_related_name()
+            #       related_name = cfield.value_class.get_related_name()
             #       return Q(**{'{}__value'.format(related_name): value,
             #                   '{}__custom_field'.format(related_name): cfield.id,
             #                  }
             #               )
             return Q(
-                pk__in=cfield.get_value_class()
+                pk__in=cfield.value_class
                              .objects
                              .filter(custom_field=cfield, value=value)
                              .values_list('entity_id', flat=True)
@@ -663,11 +663,12 @@ class CustomDatetimeField(ListViewSearchField):
                 cfield = self.cell.custom_field
 
                 return Q(
-                    pk__in=cfield.get_value_class()
+                    pk__in=cfield.value_class
                                  .objects
-                                 .filter(custom_field=cfield,
-                                         **CustomRange(start=start, end=end).get_q_dict('value', now())
-                                        )
+                                 .filter(
+                                    custom_field=cfield,
+                                    **CustomRange(start=start, end=end).get_q_dict('value', now()),
+                                 )
                                  .values_list('entity_id', flat=True)
                 )
 
@@ -690,12 +691,12 @@ class CustomChoiceField(BaseChoiceField):
         cfield = self.cell.custom_field
 
         # TODO: optimized version if only one CustomField
-        #       related_name = cfield.get_value_class().get_related_name()
+        #       related_name = cfield.value_class.get_related_name()
         #       Q(**{'{}__value'.format(related_name): value,
         #            '{}__custom_field'.format(related_name): cfield.id,
         #           }
         #        )
-        return Q(pk__in=cfield.get_value_class()
+        return Q(pk__in=cfield.value_class
                               .objects
                               .filter(custom_field=cfield, value=choice_value)
                               .values_list('entity_id', flat=True)
@@ -705,13 +706,14 @@ class CustomChoiceField(BaseChoiceField):
         cfield = self.cell.custom_field
 
         # TODO: optimized version if only one CustomField
-        #       related_name = cfield.get_value_class().get_related_name()
+        #       related_name = cfield.value_class.get_related_name()
         #       Q(**{'{}__isnull'.format(related_name): True})
-        return ~Q(pk__in=cfield.get_value_class()
-                               .objects
-                               .filter(custom_field=cfield)
-                               .values_list('entity_id', flat=True)
-                 )
+        return ~Q(
+            pk__in=cfield.value_class
+                         .objects
+                         .filter(custom_field=cfield)
+                         .values_list('entity_id', flat=True)
+        )
 
 
 # For Relations

@@ -153,7 +153,7 @@ class _RGAFieldAggregation(ReportGraphAggregator):
             self._aggregate = self.aggregate_cls(cell.field_info[0].name)
         elif isinstance(cell, EntityCellCustomField):
             self._aggregate = self.aggregate_cls(
-                f'{cell.custom_field.get_value_class().get_related_name()}__value'
+                f'{cell.custom_field.value_class.get_related_name()}__value'
             )
         else:  # Should not happen (cell constraint used before to retrieve the cell)
             raise ValueError(f'RGARegularField: invalid type of cell <{type(cell)}>')
