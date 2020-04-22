@@ -109,6 +109,43 @@ class BrickTestCaseMixin:
 
         return value_node
 
+    def get_brick_title(self, brick_node):
+        span_node = brick_node.find('.//span[@class="brick-title"]')
+        self.assertIsNotNone(span_node)
+
+        return span_node.text.strip()
+
+    def get_brick_header_buttons(self, brick_node):
+        buttons_node = brick_node.find('.//div[@class="brick-header-buttons"]')
+        self.assertIsNotNone(buttons_node)
+
+        return buttons_node
+
+    def assertBrickHeaderHasButton(self, buttons_node, url, label):
+        button_node = buttons_node.find(f'.//a[@href="{url}"]')
+        if button_node is None:
+            self.fail(
+                'The <a> markup with href="{url}" has not been found (URLs found: {found}).'.format(
+                    url=url,
+                    found=', '.join(
+                        '"{}"'.format(a.attrib.get('href'))
+                        for a in buttons_node.findall('.//a')
+                    ),
+            ))
+
+        button_label = button_node.attrib.get('title')  # TODO: get the inner-span instead ?
+        if label != button_label:
+            self.fail(
+                f'The button has been found but with a different label:\n'
+                f'Expected: {label}\n'
+                f'Found: {button_label}'
+            )
+
+    def assertBrickHeaderHasNoButton(self, buttons_node, url):
+        button_node = buttons_node.find(f'.//a[@href="{url}"]')
+        if button_node is not None:
+            self.fail(f'The <a> markup with href="{url}" has been unexpectedly found.')
+
 
 # class CSVImportBaseTestCaseMixin:
 class MassImportBaseTestCaseMixin:

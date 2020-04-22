@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2019  Hybird
+#    Copyright (C) 2014-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,11 +41,11 @@ class FavoritePersonsBrick(QuerysetBrick):
     def detailview_display(self, context):
         person = context['object']
         btc = self.get_template_context(
-                                context,
-                                get_user_model().objects.filter(mobile_favorite__entity=person.id),
-                                is_contact=isinstance(person, Contact),
-                                is_orga=isinstance(person, Organisation),
-                               )
+            context,
+            get_user_model().objects.filter(mobile_favorite__entity=person.id),
+            is_contact=isinstance(person, Contact),
+            is_orga=isinstance(person, Organisation),
+        )
 
         page = btc['page']
         current_user = context['user']
@@ -53,7 +53,11 @@ class FavoritePersonsBrick(QuerysetBrick):
         current_user_fav = any(current_user == user for user in page.object_list)
 
         if not current_user_fav and page.paginator.num_pages > 1:
-            current_user_fav = MobileFavorite.objects.filter(entity=person.id, user=current_user).exists()
+            # TODO: unit test
+            current_user_fav = MobileFavorite.objects.filter(
+                entity=person.id,
+                user=current_user,
+            ).exists()
 
         btc['current_user_fav'] = current_user_fav
 

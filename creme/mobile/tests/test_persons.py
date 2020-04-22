@@ -10,7 +10,9 @@ try:
     from creme.creme_core.models import (
         Relation,
         CustomField,
+        BrickDetailviewLocation,
     )
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.tests.base import (
@@ -18,6 +20,7 @@ try:
         skipIfCustomOrganisation,
     )
 
+    from creme.mobile.bricks import FavoritePersonsBrick
     from creme.mobile.models import MobileFavorite
 
     from .base import (
@@ -28,7 +31,7 @@ except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
 
-class MobilePersonsTestCase(MobileBaseTestCase):
+class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
     PERSONS_PORTAL_URL = reverse('mobile__directory')
     CREATE_CONTACT_URL = reverse('mobile__create_contact')
     CREATE_ORGA_URL    = reverse('mobile__create_organisation')
@@ -428,7 +431,9 @@ class MobilePersonsTestCase(MobileBaseTestCase):
     @skipIfCustomContact
     def test_mark_as_favorite(self):
         user = self.login()
-        may = Contact.objects.create(user=user, first_name='May', last_name='Shiranui')
+        may = Contact.objects.create(
+            user=user, first_name='May', last_name='Shiranui',
+        )
 
         url = reverse('mobile__mark_as_favorite', args=(may.id,))
         # self.assertGET404(url)
@@ -443,10 +448,9 @@ class MobilePersonsTestCase(MobileBaseTestCase):
     @skipIfCustomContact
     def test_unmark_favorite(self):
         user = self.login()
-        may = Contact.objects.create(user=user,
-                                     first_name='May',
-                                     last_name='Shiranui',
-                                    )
+        may = Contact.objects.create(
+            user=user, first_name='May', last_name='Shiranui',
+        )
         fav = MobileFavorite.objects.create(entity=may, user=user)
 
         url = reverse('mobile__unmark_favorite', args=(may.id,))
@@ -456,4 +460,90 @@ class MobilePersonsTestCase(MobileBaseTestCase):
         self.assertPOST200(url)
         self.assertDoesNotExist(fav)
 
-# TODO: smart word splitting ; special chars like " ??
+    @skipIfCustomContact
+    def test_favorite_brick01(self):
+        user = self.login()
+        may = Contact.objects.create(
+            user=user, first_name='May', last_name='Shiranui',
+        )
+        MobileFavorite.objects.create(entity=may, user=user)
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=FavoritePersonsBrick,
+            order=1,
+            zone=BrickDetailviewLocation.TOP,
+            model=Contact,
+        )
+
+        response = self.assertGET200(may.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick_id=FavoritePersonsBrick.id_,
+        )
+        title = self.get_brick_title(brick_node)
+        self.assertEqual(
+            _('This contact is a favorite for {count} user').format(count=1),
+            title,
+        )
+
+        buttons_node = self.get_brick_header_buttons(brick_node)
+        self.assertBrickHeaderHasNoButton(
+            buttons_node,
+            url=reverse('mobile__mark_as_favorite', args=(may.id,)),
+        )
+
+    @skipIfCustomContact
+    def test_favorite_brick02(self):
+        "Favorite of another user."
+        user = self.login()
+        may = Contact.objects.create(
+            user=user, first_name='May', last_name='Shiranui',
+        )
+        MobileFavorite.objects.create(entity=may, user=self.other_user)
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=FavoritePersonsBrick,
+            order=1,
+            zone=BrickDetailviewLocation.TOP,
+            model=Contact,
+        )
+
+        response = self.assertGET200(may.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick_id=FavoritePersonsBrick.id_,
+        )
+
+        buttons_node = self.get_brick_header_buttons(brick_node)
+        self.assertBrickHeaderHasButton(
+            buttons_node,
+            url=reverse('mobile__mark_as_favorite', args=(may.id,)),
+            label=_('Mark as favorite'),
+        )
+
+    @skipIfCustomOrganisation
+    def test_favorite_brick03(self):
+        "Organisation case."
+        user = self.login()
+        kof = Organisation.objects.create(user=user, name='KingOfFighters')
+        MobileFavorite.objects.create(entity=kof, user=user)
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=FavoritePersonsBrick,
+            order=1,
+            zone=BrickDetailviewLocation.TOP,
+            model=Organisation,
+        )
+
+        response = self.assertGET200(kof.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick_id=FavoritePersonsBrick.id_,
+        )
+        title = self.get_brick_title(brick_node)
+        self.assertEqual(
+            _('This organisation is a favorite for {count} user').format(count=1),
+            title,
+        )
+
+# TODO: search with smart word splitting ? special chars like " ??
