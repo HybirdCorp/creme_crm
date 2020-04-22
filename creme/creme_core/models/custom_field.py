@@ -19,8 +19,9 @@
 ################################################################################
 
 from collections import defaultdict, OrderedDict
-from typing import Dict, Type
+from typing import Any, DefaultDict, Dict, Iterable, Type
 import uuid
+import warnings
 
 from django import forms
 from django.core.validators import EMPTY_VALUES
@@ -87,9 +88,11 @@ class CustomField(CremeModel):
 
         super().delete(*args, **kwargs)
 
+    # TODO: property ?
     def type_verbose_name(self):
         return _TABLES[self.field_type].verbose_name
 
+    # TODO: property "value_class" ?
     def get_value_class(self):
         return _TABLES[self.field_type]
 
@@ -99,10 +102,15 @@ class CustomField(CremeModel):
         return self.get_value_class().get_formfield(self, custom_value, user=user)
 
     def get_pretty_value(self, entity_id):
-        """Return unicode object containing the human readable value of this custom field for an entity
+        """Return string object containing the human readable value of this
+        custom field for an entity.
         It manages CustomField which type is ENUM.
         """
-        # TODO: select_related() for enum ???
+        warnings.warn(
+            'CustomField.get_pretty_value() is deprecated.',
+            DeprecationWarning,
+        )
+
         cf_values = self.get_value_class().objects.filter(
             custom_field=self.id,
             entity=entity_id,
@@ -111,15 +119,17 @@ class CustomField(CremeModel):
         return str(cf_values[0]) if cf_values else ''
 
     @staticmethod
-    def get_custom_values_map(entities, custom_fields):
+    def get_custom_values_map(entities: Iterable[CremeEntity],
+                              custom_fields: Iterable['CustomField']) -> DefaultDict[int, Dict[int, Any]]:
         """
-        @return { Entity -> { CustomField's id -> CustomValue } }
+        @return { Entity's id -> { CustomField's id -> CustomValue } }
         """
         cfield_map = defaultdict(list)
         for cfield in custom_fields:
             cfield_map[cfield.field_type].append(cfield)
 
-        cvalues_map = defaultdict(lambda: defaultdict(list))
+        # cvalues_map = defaultdict(lambda: defaultdict(list))
+        cvalues_map = defaultdict(dict)
         entities = [e.id for e in entities]  # NB: 'list(entities)' ==> made strangely a query for every entity ;(
 
         for field_type, cfields_list in cfield_map.items():
@@ -153,6 +163,11 @@ class CustomFieldValue(CremeModel):
 
     @staticmethod
     def delete_all(entity):
+        warnings.warn(
+            'CustomFieldValue.delete_all() is deprecated.',
+            DeprecationWarning,
+        )
+
         cf_types = {
             *CustomField.objects
                         .filter(content_type=entity.entity_type_id)
@@ -171,8 +186,9 @@ class CustomFieldValue(CremeModel):
         field.initial = self.value
 
     @staticmethod
-    def _get_formfield(**kwargs):  # Overload meeee
-        return forms.Field(**kwargs)
+    def _get_formfield(**kwargs) -> forms.Field:
+        # return forms.Field(**kwargs)
+        raise NotImplementedError()
 
     @classmethod
     def get_formfield(cls, custom_field, custom_value, user=None):
@@ -199,15 +215,32 @@ class CustomFieldValue(CremeModel):
     def save_values_for_entities(cls, custom_field, entities, value):
         cfv_klass = custom_field.get_value_class()
 
-        if cls.is_empty_value(value):
-            cfv_klass.objects.filter(custom_field=custom_field, entity__in=entities).delete()
+        cf_values_qs = cfv_klass.objects.filter(
+            custom_field=custom_field,
+            entity__in=entities,
+        )
 
+        if cls.is_empty_value(value):
+            # cfv_klass.objects.filter(custom_field=custom_field, entity__in=entities).delete()
+            cf_values_qs.delete()
         else:
-            cfv_get = cfv_klass.objects.get
+            # cfv_get = cfv_klass.objects.get
+            # for entity in entities:
+            #     try:
+            #         custom_value = cfv_get(custom_field=custom_field, entity=entity)
+            #     except cfv_klass.DoesNotExist:
+            #         custom_value = cfv_klass(custom_field=custom_field, entity=entity)
+            #
+            #     custom_value.set_value_n_save(value)
+            cf_values = {
+                cf_value.entity_id: cf_value
+                for cf_value in cf_values_qs
+            }
+
             for entity in entities:
                 try:
-                    custom_value = cfv_get(custom_field=custom_field, entity=entity)
-                except cfv_klass.DoesNotExist:
+                    custom_value = cf_values[entity.id]
+                except KeyError:
                     custom_value = cfv_klass(custom_field=custom_field, entity=entity)
 
                 custom_value.set_value_n_save(value)

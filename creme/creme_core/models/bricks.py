@@ -444,6 +444,7 @@ class RelationBrickItem(CremeModel):
     def set_cells(self, ctype: ContentType, cells: List[EntityCell]) -> None:
         self._cells_by_ct()[ctype.id] = cells
         self._dump_cells_map()
+        # return self  TODO ??
 
 
 class InstanceBrickConfigItem(CremeModel):

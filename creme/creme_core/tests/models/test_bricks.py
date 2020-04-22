@@ -423,7 +423,10 @@ class BrickTestCase(CremeTestCase):
         user = get_user_model().objects.create(username='Kirika')
         user.set_password('password')
         user.save()
-        self.get_object_or_fail(BrickMypageLocation, user=user, brick_id=brick_id, order=order)
+        self.get_object_or_fail(
+            BrickMypageLocation,
+            user=user, brick_id=brick_id, order=order,
+        )
 
     # def test_relation_brick_deprecated(self):
     #     rtype = RelationType.create(('test-subject_loves', 'loves'),
@@ -492,11 +495,13 @@ class BrickTestCase(CremeTestCase):
         self.assertIsNone(rbi.get_cells(ct_img))
         self.assertIs(rbi.all_ctypes_configured, False)
 
-        rbi.set_cells(ct_contact,
-                      [EntityCellRegularField.build(FakeContact, 'last_name'),
-                       EntityCellFunctionField.build(FakeContact, 'get_pretty_properties'),
-                      ],
-                     )
+        rbi.set_cells(
+            ct_contact,
+            [
+                EntityCellRegularField.build(FakeContact, 'last_name'),
+                EntityCellFunctionField.build(FakeContact, 'get_pretty_properties'),
+            ],
+        )
         rbi.set_cells(ct_orga, [EntityCellRegularField.build(FakeOrganisation, 'name')])
         rbi.save()
 
@@ -535,7 +540,10 @@ class BrickTestCase(CremeTestCase):
 
         get_ct = ContentType.objects.get_for_model
 
-        rbi.set_cells(get_ct(FakeContact), [EntityCellRegularField.build(FakeContact, 'last_name')])
+        rbi.set_cells(
+            get_ct(FakeContact),
+            [EntityCellRegularField.build(FakeContact, 'last_name')],
+        )
         rbi.save()
         self.assertFalse(self.refresh(rbi).all_ctypes_configured)
 
@@ -547,21 +555,24 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(rbi, RelationBrickItem.objects.create_if_needed(rtype))
 
     def test_relation_brick_errors(self):
-        rtype = RelationType.create(('test-subject_rented', 'is rented by'),
-                                    ('test-object_rented',  'rents'),
-                                   )[0]
+        rtype = RelationType.create(
+            ('test-subject_rented', 'is rented by'),
+            ('test-object_rented',  'rents'),
+        )[0]
         ct_contact = ContentType.objects.get_for_model(FakeContact)
         rbi = RelationBrickItem.objects.create_if_needed(rtype.id)
 
         build = partial(EntityCellRegularField.build, model=FakeContact)
-        rbi.set_cells(ct_contact,
-                      [build(name='last_name'), build(name='description')]
-                     )
+        rbi.set_cells(
+            ct_contact,
+            [build(name='last_name'), build(name='description')],
+        )
         rbi.save()
 
         # Inject error by bypassing checks
-        RelationBrickItem.objects.filter(id=rbi.id) \
-            .update(json_cells_map=rbi.json_cells_map.replace('description', 'invalid'))
+        RelationBrickItem.objects.filter(id=rbi.id).update(
+            json_cells_map=rbi.json_cells_map.replace('description', 'invalid'),
+        )
 
         rbi = self.refresh(rbi)
         cells_contact = rbi.get_cells(ct_contact)
@@ -571,9 +582,10 @@ class BrickTestCase(CremeTestCase):
         with self.assertNoException():
             deserialized = jsonloads(rbi.json_cells_map)
 
-        self.assertEqual({str(ct_contact.id): [{'type': 'regular_field', 'value': 'last_name'}]},
-                         deserialized
-                        )
+        self.assertDictEqual(
+            {str(ct_contact.id): [{'type': 'regular_field', 'value': 'last_name'}]},
+            deserialized
+        )
 
     def test_custom_brick(self):
         cbci = CustomBrickConfigItem.objects.create(
@@ -591,14 +603,16 @@ class BrickTestCase(CremeTestCase):
     def test_custom_brick_errors01(self):
         cbci = CustomBrickConfigItem.objects.create(
             id='tests-organisations01', name='General', content_type=FakeOrganisation,
-            cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
-                   EntityCellRegularField.build(FakeOrganisation, 'description'),
-                  ],
+            cells=[
+                EntityCellRegularField.build(FakeOrganisation, 'name'),
+                EntityCellRegularField.build(FakeOrganisation, 'description'),
+            ],
         )
 
         # Inject error by bypassing checks
-        CustomBrickConfigItem.objects.filter(id=cbci.id) \
-            .update(json_cells=cbci.json_cells.replace('description', 'invalid'))
+        CustomBrickConfigItem.objects.filter(id=cbci.id).update(
+            json_cells=cbci.json_cells.replace('description', 'invalid'),
+        )
 
         cbci = self.refresh(cbci)
         self.assertEqual(1, len(cbci.cells))
@@ -606,16 +620,18 @@ class BrickTestCase(CremeTestCase):
         with self.assertNoException():
             deserialized = jsonloads(cbci.json_cells)
 
-        self.assertEqual([{'type': 'regular_field', 'value': 'name'}],
-                         deserialized
-                        )
+        self.assertListEqual(
+            [{'type': 'regular_field', 'value': 'name'}],
+            deserialized
+        )
 
     def test_custom_brick_errors02(self):
         cbci = CustomBrickConfigItem.objects.create(
             id='tests-organisations01', name='General', content_type=FakeOrganisation,
-            cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
-                   EntityCellRegularField.build(FakeOrganisation, 'invalid'),
-                  ],
+            cells=[
+                EntityCellRegularField.build(FakeOrganisation, 'name'),
+                EntityCellRegularField.build(FakeOrganisation, 'invalid'),
+            ],
         )
 
         cbci = self.refresh(cbci)
