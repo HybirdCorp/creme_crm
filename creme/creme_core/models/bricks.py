@@ -274,15 +274,14 @@ class BrickMypageLocation(CremeModel):
             create = cls.objects.create
 
             with atomic():
-                try:
-                    for loc in cls.objects.filter(user=None):
-                        create(user=instance, brick_id=loc.brick_id, order=loc.order)
-                except Exception:
-                    # TODO: still useful ? (BrickMypageLocation table should exist when the first User is created)
-                    logger.warning('Can not create brick config for this user: %s'
-                                   ' (if it is the first user, do not worry because it is normal)',
-                                   instance
-                                  )
+                # try:
+                for loc in cls.objects.filter(user=None):
+                    create(user=instance, brick_id=loc.brick_id, order=loc.order)
+                # except Exception:
+                #     logger.warning('Can not create brick config for this user: %s'
+                #                    ' (if it is the first user, do not worry because it is normal)',
+                #                    instance
+                #                   )
 
     @property
     def brick_verbose_name(self):
@@ -359,11 +358,11 @@ class RelationBrickItem(CremeModel):
     class Meta:
         app_label = 'creme_core'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.json_cells_map is None:
-            self._cells_map = {}
-            self._dump_cells_map()
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     if self.json_cells_map is None:
+    #         self._cells_map = {}
+    #         self._dump_cells_map()
 
     def __str__(self):  # NB: useful for creme_config titles
         return self.relation_type.predicate
@@ -618,10 +617,10 @@ class CustomBrickConfigItem(CremeModel):
     class Meta:
         app_label = 'creme_core'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.json_cells is None:
-            self.cells = []
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     if self.json_cells is None:
+    #         self.cells = []
 
     def __str__(self):
         return self.name
