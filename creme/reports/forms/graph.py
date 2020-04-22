@@ -23,7 +23,7 @@ from json import dumps as json_dump
 from functools import partial
 from typing import (
     Optional, Type,
-    Set,
+    List, Set,
 )
 
 from django import forms
@@ -85,11 +85,11 @@ from ..report_chart_registry import report_chart_registry
 #         return super().get_context(name=name, value=value, attrs=extra_args)
 
 class AbscissaWidget(ChainedInput):
-    cell_groups = [
-        (EntityCellRegularField, _('Fields')),
-        (EntityCellRelation,     _('Relationships')),
-        (EntityCellCustomField,  _('Custom fields')),
-        # (EntityCellFunctionField, _('Function fields')),
+    cell_groups: List[Type[EntityCell]] = [
+        EntityCellRegularField,
+        EntityCellRelation,
+        EntityCellCustomField,
+        # EntityCellFunctionField,
     ]
 
     cell_data_name = 'entity_cell'
@@ -129,7 +129,7 @@ class AbscissaWidget(ChainedInput):
             cells_by_cls[cell_cls] = cells
 
         cell_choices = []
-        for cell_cls, group_title in self.cell_groups:
+        for cell_cls in self.cell_groups:
             cells = cells_by_cls.get(cell_cls)
 
             if cells:
@@ -137,7 +137,7 @@ class AbscissaWidget(ChainedInput):
                 constraint_dname = self.constraint_data_name
 
                 cell_choices.append(
-                    (group_title,
+                    (cell_cls.verbose_name,
                      [(json_dump({
                          ckey_dname: cell.key,
                          constraint_dname: cell.grouping_category,
@@ -395,12 +395,11 @@ class AbscissaField(JSONField):
 
 # Ordinate ---------------------------------------------------------------------
 class OrdinateWidget(ChainedInput):
-    # TODO: move to in EntityCell classes ?
-    cell_groups = [
-        (EntityCellRegularField, _('Fields')),
-        (EntityCellRelation,     _('Relationships')),
-        (EntityCellCustomField,  _('Custom fields')),
-        # (EntityCellFunctionField, _('Function fields')),
+    cell_groups: List[Type[EntityCell]] = [
+        EntityCellRegularField,
+        EntityCellRelation,
+        EntityCellCustomField,
+        # EntityCellFunctionField,
     ]
 
     cell_data_name = 'entity_cell'
@@ -455,14 +454,14 @@ class OrdinateWidget(ChainedInput):
         ckey_dname = self.cell_key_data_name
         constraint_dname = self.constraint_data_name
         cell_choices = []
-        for cell_cls, group_title in self.cell_groups:
+        for cell_cls in self.cell_groups:
             cells = cells_by_cls.get(cell_cls)
 
             if cells:
                 cells.sort(key=lambda cell: sort_key(str(cell)))
 
                 cell_choices.append(
-                    (group_title,
+                    (cell_cls.verbose_name,
                      [(json_dump({
                          ckey_dname: cell.key,
                          constraint_dname: cell.grouping_category,

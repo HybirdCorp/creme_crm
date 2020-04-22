@@ -94,6 +94,8 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual('get_pretty_properties', cell.value)
 
     def test_build_4_field01(self):
+        self.assertEqual(_('Fields'), EntityCellRegularField.verbose_name)
+
         field_name = 'first_name'
         cell = EntityCellRegularField.build(model=FakeContact, name=field_name)
         self.assertIsInstance(cell, EntityCellRegularField)
@@ -158,11 +160,14 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIsNone(build(name='user__unknownfield'))
 
     def test_build_4_customfield01(self):
-        "INT CustomField"
+        "INT CustomField."
+        self.assertEqual(_('Custom fields'), EntityCellCustomField.verbose_name)
+
         name = 'Size (cm)'
-        customfield = CustomField.objects.create(name=name, field_type=CustomField.INT,
-                                                 content_type=self.contact_ct,
-                                                )
+        customfield = CustomField.objects.create(
+            name=name, field_type=CustomField.INT,
+            content_type=self.contact_ct,
+        )
 
         cell = EntityCellCustomField(customfield)
         self.assertIsInstance(cell, EntityCellCustomField)
@@ -238,9 +243,12 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
     def test_build_4_relation(self):
-        loves = RelationType.create(('test-subject_love', 'Is loving'),
-                                    ('test-object_love',  'Is loved by')
-                                   )[0]
+        self.assertEqual(_('Relationships'), EntityCellRelation.verbose_name)
+
+        loves = RelationType.create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by')
+        )[0]
         cell = EntityCellRelation(model=FakeContact, rtype=loves)
         self.assertIsInstance(cell, EntityCellRelation)
         self.assertEqual(FakeContact,     cell.model)
@@ -253,6 +261,8 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
     def test_build_4_functionfield01(self):
+        self.assertEqual(_('Computed fields'), EntityCellFunctionField.verbose_name)
+
         name = 'get_pretty_properties'
         funfield = function_field_registry.get(FakeContact, name)
         self.assertIsNotNone(funfield)

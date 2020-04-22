@@ -23,7 +23,7 @@ from typing import Type, Iterable, Optional, Dict, List, Tuple  # Callable
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import Model, Field, FieldDoesNotExist, BooleanField, DateField
+from django.db.models import Model, Field, FieldDoesNotExist
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 
@@ -51,7 +51,7 @@ MULTILINE_FIELDS = (
     models.ManyToManyField,
 )
 FIELDS_DATA_TYPES = ClassKeyedMap([
-    (DateField,                   'date'),
+    (models.DateField,            'date'),
     (models.TimeField,            'time'),
     (models.DateTimeField,        'datetime'),
 
@@ -81,6 +81,8 @@ class EntityCell:
     """
     # type_id = None
     type_id: str  # Used for register ; overload in child classes (string type)
+    verbose_name = '??'
+
     value: str
     is_hidden: bool
 
@@ -213,6 +215,7 @@ CELLS_MAP = EntityCellsRegistry()
 # @CELLS_MAP TODO
 class EntityCellActions(EntityCell):
     type_id = 'actions'
+    verbose_name = _('Actions')
 
     def __init__(self, model, actions_registry):
         """Constructor.
@@ -273,6 +276,7 @@ class EntityCellActions(EntityCell):
 @CELLS_MAP
 class EntityCellRegularField(EntityCell):
     type_id = 'regular_field'
+    verbose_name = _('Fields')
 
     def __init__(self, model, name, field_info: FieldInfo, is_hidden=False):
         "Use build() instead of using this constructor directly."
@@ -349,12 +353,13 @@ class EntityCellRegularField(EntityCell):
 @CELLS_MAP
 class EntityCellCustomField(EntityCell):
     type_id = 'custom_field'
+    verbose_name = _('Custom fields')
 
     _CF_CSS = {
         CustomField.DATETIME:   models.DateTimeField,
         CustomField.INT:        models.PositiveIntegerField,
         CustomField.FLOAT:      models.DecimalField,
-        CustomField.BOOL:       BooleanField,
+        CustomField.BOOL:       models.BooleanField,
         CustomField.ENUM:       models.ForeignKey,
         CustomField.MULTI_ENUM: models.ManyToManyField,
     }
@@ -362,11 +367,12 @@ class EntityCellCustomField(EntityCell):
     def __init__(self, customfield: CustomField):
         self._customfield = customfield
 
-        super().__init__(model=customfield.content_type.model_class(),
-                         value=str(customfield.id),
-                         title=customfield.name,
-                         is_hidden=False,
-                        )
+        super().__init__(
+            model=customfield.content_type.model_class(),
+            value=str(customfield.id),
+            title=customfield.name,
+            is_hidden=False,
+        )
 
     @classmethod
     def build(cls, model: Type[Model], customfield_id: str):
@@ -409,6 +415,7 @@ class EntityCellCustomField(EntityCell):
 @CELLS_MAP
 class EntityCellFunctionField(EntityCell):
     type_id = 'function_field'
+    verbose_name = _('Computed fields')
 
     _FUNFIELD_CSS = {  # TODO: ClassKeyedMap ?
         FunctionFieldDecimal: models.DecimalField,
@@ -417,11 +424,12 @@ class EntityCellFunctionField(EntityCell):
     def __init__(self, model, func_field: FunctionField):
         self._functionfield = func_field
 
-        super().__init__(model=model,
-                         value=func_field.name,
-                         title=str(func_field.verbose_name),
-                         is_hidden=func_field.is_hidden,
-                        )
+        super().__init__(
+            model=model,
+            value=func_field.name,
+            title=str(func_field.verbose_name),
+            is_hidden=func_field.is_hidden,
+        )
 
     @classmethod
     def build(cls, model: Type[Model], func_field_name: str):
@@ -429,7 +437,10 @@ class EntityCellFunctionField(EntityCell):
         func_field = function_field_registry.get(model, func_field_name)
 
         if func_field is None:
-            logger.warning('EntityCellFunctionField: function field "%s" does not exist', func_field_name)
+            logger.warning(
+                'EntityCellFunctionField: function field "%s" does not exist',
+                func_field_name,
+            )
             return None
 
         return cls(model=model, func_field=func_field)
@@ -460,21 +471,26 @@ class EntityCellFunctionField(EntityCell):
 @CELLS_MAP
 class EntityCellRelation(EntityCell):
     type_id = 'relation'
+    verbose_name = _('Relationships')
 
     def __init__(self, model: Type[Model], rtype: RelationType, is_hidden: bool = False):
         self._rtype = rtype
-        super().__init__(model=model,
-                         value=str(rtype.id),
-                         title=rtype.predicate,
-                         is_hidden=is_hidden,
-                        )
+        super().__init__(
+            model=model,
+            value=str(rtype.id),
+            title=rtype.predicate,
+            is_hidden=is_hidden,
+        )
 
     @classmethod
     def build(cls, model: Type[Model], rtype_id: str, is_hidden: bool = False):
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
         except RelationType.DoesNotExist:
-            logger.warning('EntityCellRelation: relation type "%s" does not exist', rtype_id)
+            logger.warning(
+                'EntityCellRelation: relation type "%s" does not exist',
+                rtype_id,
+            )
             return None
 
         return cls(model=model, rtype=rtype, is_hidden=is_hidden)
@@ -489,7 +505,10 @@ class EntityCellRelation(EntityCell):
 
     @staticmethod
     def populate_entities(cells, entities, user):
-        CremeEntity.populate_relations(entities, [cell.relation_type.id for cell in cells])
+        CremeEntity.populate_relations(
+            entities,
+            [cell.relation_type.id for cell in cells]
+        )
 
     def render_html(self, entity, user):
         from ..templatetags.creme_widgets import widget_entity_hyperlink
@@ -502,24 +521,27 @@ class EntityCellRelation(EntityCell):
         if len(related_entities) == 1:
             return widget_entity_hyperlink(related_entities[0], user)
 
-        return format_html('<ul>{}</ul>',
-                           format_html_join(
-                               '', '<li>{}</li>',
-                               ([widget_entity_hyperlink(e, user)] for e in related_entities)
-                           )
-                          )
+        return format_html(
+            '<ul>{}</ul>',
+            format_html_join(
+                '', '<li>{}</li>',
+                ([widget_entity_hyperlink(e, user)] for e in related_entities)
+            )
+        )
 
     def render_csv(self, entity, user):
         has_perm = user.has_perm_to_view
-        return '/'.join(str(o)
-                            for o in entity.get_related_entities(self.value, True)
-                                if has_perm(o)
-                       )
+        return '/'.join(
+            str(o)
+            for o in entity.get_related_entities(self.value, True)
+            if has_perm(o)
+        )
 
 
 # @CELLS_MAP TODO ??
 class EntityCellVolatile(EntityCell):
     type_id = 'volatile'
+    # verbose_name = ... TODO ?
 
     def __init__(self,
                  model: Type[Model],
@@ -527,11 +549,12 @@ class EntityCellVolatile(EntityCell):
                  render_func,  # TODO: Callable[[CremeEntity], str] VS abstract render_html() (see "events" app)
                  is_hidden: bool = False):
         self._render_func = render_func
-        super().__init__(model=model,
-                         value=value,
-                         title=title,
-                         is_hidden=is_hidden,
-                        )
+        super().__init__(
+            model=model,
+            value=value,
+            title=title,
+            is_hidden=is_hidden,
+        )
 
     def render_html(self, entity, user):
         return self._render_func(entity)  # TODO: pass user
