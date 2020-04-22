@@ -406,10 +406,11 @@ class EntityBrick(Brick):
 
             return cell
 
-        return [build_cell(field.name)
-                    for field in model._meta.fields
-                        if field.get_tag('viewable') and not is_hidden(field)
-               ]
+        return [
+            build_cell(field.name)
+            for field in model._meta.fields
+            if field.get_tag('viewable') and not is_hidden(field)
+        ]
 
     def _get_title(self, entity: CremeEntity, context) -> str:
         return gettext('Information «{model}»').format(model=type(entity)._meta.verbose_name)
@@ -819,17 +820,17 @@ class _BrickRegistry:
 
         relation_bricks_items = {
             rbi.brick_id: rbi
-                for rbi in RelationBrickItem.objects.filter(brick_id__in=specific_ids)
+            for rbi in RelationBrickItem.objects.filter(brick_id__in=specific_ids)
         } if specific_ids else {}
         instance_bricks_items = {
             # ibi.brick_id: ibi
             ibi.brick_id: ibi
-                # for ibi in InstanceBrickConfigItem.objects.filter(brick_id__in=instance_ids)
-                for ibi in InstanceBrickConfigItem.objects.filter(id__in=instance_ids)
+            # for ibi in InstanceBrickConfigItem.objects.filter(brick_id__in=instance_ids)
+            for ibi in InstanceBrickConfigItem.objects.filter(id__in=instance_ids)
         } if instance_ids else {}
         custom_bricks_items = {
             cbci.generate_id(): cbci
-                for cbci in CustomBrickConfigItem.objects.filter(id__in=custom_ids)
+            for cbci in CustomBrickConfigItem.objects.filter(id__in=custom_ids)
         } if custom_ids else {}
 
         for id_ in brick_ids:

@@ -4,17 +4,25 @@ try:
     from django.contrib.sessions.backends.base import SessionBase
     from django.template import Template, Context, RequestContext
     from django.test.client import RequestFactory
-    from django.utils.translation import gettext
+    from django.utils.translation import gettext as _
 
-    from creme.creme_core.constants import MODELBRICK_ID
-    from creme.creme_core.gui.bricks import brick_registry, Brick
+    from creme.creme_core.bricks import HistoryBrick
+    from creme.creme_core.constants import (
+        MODELBRICK_ID,
+        REL_SUB_HAS,
+    )
+    from creme.creme_core.models import (
+        RelationType,
+        RelationBrickItem,
+        FakeContact,
+    )
+    from creme.creme_core.gui.bricks import brick_registry, Brick, EntityBrick
     from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
     from creme.creme_core.utils.media import get_current_theme
     from creme.creme_core.utils.serializers import json_encode
 
     from ..base import CremeTestCase
     from ..views.base import BrickTestCaseMixin
-    from ..fake_models import FakeContact
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -48,10 +56,11 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         brick_registry.register(FooBrick)
 
         with self.assertNoException():
-            template = Template(f"{{% load creme_bricks %}}"
-                                f"{{% brick_import app='creme_core' name='{name}' as my_brick %}}"
-                                f"{{% brick_display my_brick %}}"
-                               )
+            template = Template(
+                f"{{% load creme_bricks %}}"
+                f"{{% brick_import app='creme_core' name='{name}' as my_brick %}}"
+                f"{{% brick_display my_brick %}}"
+            )
             render = template.render(RequestContext(self._build_request()))
 
         self.assertEqual(brick_str, render.strip())
@@ -59,13 +68,16 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_brick_import_n_display02(self):
         "Object Brick (generic brick)"
         user = self.login()
-        motoko = FakeContact.objects.create(user=user, first_name='Motoko', last_name='Kusanagi', phone='123489')
+        motoko = FakeContact.objects.create(
+            user=user, first_name='Motoko', last_name='Kusanagi', phone='123489',
+        )
 
         with self.assertNoException():
-            template = Template('{% load creme_bricks %}'
-                                '{% brick_import object=object as my_brick %}'
-                                '{% brick_display my_brick %}'
-                               )
+            template = Template(
+                '{% load creme_bricks %}'
+                '{% brick_import object=object as my_brick %}'
+                '{% brick_display my_brick %}'
+            )
             render = template.render(RequestContext(self._build_request(), {'object': motoko}))
 
         document = self.get_html_tree(render)
@@ -77,7 +89,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(motoko.phone, self.get_brick_tile(content_node, 'regular_field-phone').text)
 
     def test_brick_declare_n_display01(self):
-        "Named Brick"
+        "Named Brick."
         self.login()
 
         class _FooBrick(Brick):
@@ -87,24 +99,28 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             def detailview_display(self, context):
                 return self.brick_str
 
+        prefix = 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display01'
+
         class FooBrick1(_FooBrick):
-            id_ = _FooBrick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display01_01')
+            id_ = _FooBrick.generate_id('creme_core', f'{prefix}_01')
             brick_str = '<div>FOOBARBAZ #1</div>'
 
         class FooBrick2(_FooBrick):
-            id_ = _FooBrick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display01_02')
+            id_ = _FooBrick.generate_id('creme_core', f'{prefix}_02')
             brick_str = '<div>FOOBARBAZ #2</div>'
 
         class FooBrick3(_FooBrick):
-            id_ = _FooBrick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display01_03')
+            id_ = _FooBrick.generate_id('creme_core', f'{prefix}_03')
             verbose_name = 'Testing purpose'
             brick_str = '<div>FOOBARBAZ #3</div>'
 
-        context = RequestContext(self._build_request(),
-                                 {'my_brick1': FooBrick1(),
-                                  'my_bricks': [FooBrick2(), FooBrick3()],
-                                 }
-                                )
+        context = RequestContext(
+            self._build_request(),
+            {
+                'my_brick1': FooBrick1(),
+                'my_bricks': [FooBrick2(), FooBrick3()],
+            }
+        )
 
         with self.assertRaises(ValueError):  # No {% brick_declare my_brick %}
             Template('{% load creme_bricks %}'
@@ -112,28 +128,36 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                     ).render(context)
 
         with self.assertNoException():
-            render = Template('{% load creme_bricks %}'
-                              '{% brick_declare my_brick1 my_bricks %}'
-                              '{% brick_display my_brick1 %}{% brick_display my_bricks.0 %}{% brick_display my_bricks.1 %}'
-                             ).render(context)
+            render = Template(
+                '{% load creme_bricks %}'
+                '{% brick_declare my_brick1 my_bricks %}'
+                '{% brick_display my_brick1 %}{% brick_display my_bricks.0 %}{% brick_display my_bricks.1 %}'
+            ).render(context)
 
-        self.assertEqual(FooBrick1.brick_str + FooBrick2.brick_str + FooBrick3.brick_str, render.strip())
+        self.assertEqual(
+            FooBrick1.brick_str + FooBrick2.brick_str + FooBrick3.brick_str,
+            render.strip()
+        )
 
     def test_brick_declare_n_display02(self):
         "Invalid Brick => no crash please"
         self.login()
 
         class InvalidBrick(Brick):
-            id_ = Brick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display02')
+            id_ = Brick.generate_id(
+                'creme_core',
+                'CremeBricksTagsTestCase__brick_test_brick_declare_n_display02',
+            )
             verbose_name = 'Testing purpose'
 
         context = RequestContext(self._build_request(), {'my_brick': InvalidBrick()})
 
         with self.assertNoException():
-            render = Template('{% load creme_bricks %}'
-                              '{% brick_declare my_brick %}'
-                              '{% brick_display my_brick %}'
-                             ).render(context)
+            render = Template(
+                '{% load creme_bricks %}'
+                '{% brick_declare my_brick %}'
+                '{% brick_display my_brick %}'
+            ).render(context)
 
         self.assertFalse(render.strip())
 
@@ -151,22 +175,24 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         context = RequestContext(self._build_request(), {'my_brick': FooBrick()})
 
         with self.assertNoException():
-            render = Template('{% load creme_bricks %}'
-                              '{% brick_declare my_brick %}'
-                              '{% brick_display my_brick %}'
-                              '{% brick_end %}'
-                             ).render(context)
+            render = Template(
+                '{% load creme_bricks %}'
+                '{% brick_declare my_brick %}'
+                '{% brick_display my_brick %}'
+                '{% brick_end %}'
+            ).render(context)
 
         msg = 'BEWARE ! There are some unused imported bricks.'
         self.assertNotIn(msg, render.strip())
 
         # -----------
         with self.assertNoException():
-            render = Template('{% load creme_bricks %}'
-                              '{% brick_declare my_brick %}'
-                              # '{% brick_display my_brick %}'
-                              '{% brick_end %}'
-                             ).render(context)
+            render = Template(
+                '{% load creme_bricks %}'
+                '{% brick_declare my_brick %}'
+                # '{% brick_display my_brick %}'
+                '{% brick_end %}'
+            ).render(context)
 
         self.assertIn(msg, render.strip())
 
@@ -174,11 +200,67 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login()
 
         with self.assertNoException():
-            render = Template('{% load creme_bricks %}'
-                              '{% brick_table_data_status foo bar %}'
-                             ).render(RequestContext(self._build_request()))
+            render = Template(
+                '{% load creme_bricks %}'
+                '{% brick_table_data_status foo bar %}'
+            ).render(RequestContext(self._build_request()))
 
-        self.assertEqual('data-table-foo-column data-table-bar-column', render.strip())
+        self.assertEqual(
+            'data-table-foo-column data-table-bar-column',
+            render.strip()
+        )
+
+    def test_brick_get_by_ids01(self):
+        self.login()
+        rtype = RelationType.objects.get(id=REL_SUB_HAS)
+        rbi = RelationBrickItem.objects.create_if_needed(rtype)
+
+        with self.assertNoException():
+            render = Template(
+                '{% load creme_bricks %}'
+                '{% brick_get_by_ids brick_id1 brick_id2 as bricks %}'
+                '{{bricks.0.verbose_name}}##{{bricks.1.config_item.brick_id}}'
+            ).render(RequestContext(
+                self._build_request(),
+                {
+                    'brick_id1': HistoryBrick.id_,
+                    'brick_id2': rbi.brick_id,
+                }
+            ))
+
+        self.assertEqual(
+            f'{HistoryBrick.verbose_name}##{rbi.brick_id}',
+            render.strip()
+        )
+
+    def test_brick_get_by_ids02(self):
+        "'entity' argument."
+        user = self.login()
+        motoko = FakeContact.objects.create(
+            user=user, first_name='Motoko', last_name='Kusanagi',
+        )
+
+        with self.assertNoException():
+            render = Template(
+                '{% load creme_bricks %}'
+                '{% brick_get_by_ids brick_id1 brick_id2 entity=motoko as bricks %}'
+                '{{bricks.0.verbose_name}}##{{bricks.1.verbose_name}}'
+            ).render(RequestContext(
+                self._build_request(),
+                {
+                    'brick_id1': HistoryBrick.id_,
+                    'brick_id2': MODELBRICK_ID,
+                    'motoko': motoko,
+                }
+            ))
+
+        self.assertEqual(
+            '{}##{}'.format(
+                HistoryBrick.verbose_name,
+                EntityBrick.verbose_name,
+            ),
+            render.strip()
+        )
 
     # TODO: complete
 
@@ -198,7 +280,11 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def _get_icon(self, name, size, label=''):
         theme = get_current_theme()
-        return get_icon_by_name(name, theme, size_px=get_icon_size_px(theme, size), label=label)
+        return get_icon_by_name(
+            name, theme,
+            size_px=get_icon_size_px(theme, size),
+            label=label,
+        )
 
     def assertBrickActionHTML(self, bricktag, expected):
         with self.assertNoException():
@@ -212,10 +298,11 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             "{% brick_action 'add' label='Add something' %}",
             '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
-            </a>'''.format(label='Add something',
-                           icon_url=self._get_icon('add', 'brick-action').url,
-                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
-                          )
+            </a>'''.format(
+                label='Add something',
+                icon_url=self._get_icon('add', 'brick-action').url,
+                icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+            )
         )
 
     def test_brick_action_label_placeholder(self):
@@ -224,55 +311,60 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             "{% brick_action 'add' %}",
             '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
-            </a>'''.format(label=gettext('Information'),
-                           icon_url=self._get_icon('add', 'brick-action').url,
-                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
-                          )
+            </a>'''.format(
+                label=_('Information'),
+                icon_url=self._get_icon('add', 'brick-action').url,
+                icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
             )
+        )
 
         # action_type placeholder
         self.assertBrickActionHTML(
             "{% brick_action 'edit' %}",
             '''<a href="" title="{label}" class="brick-action action-type-edit  " data-action="edit">
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
-            </a>'''.format(label=gettext('Edit'),
-                           icon_url=self._get_icon('edit', 'brick-action').url,
-                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
-                          )
+            </a>'''.format(
+                label=_('Edit'),
+                icon_url=self._get_icon('edit', 'brick-action').url,
+                icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
             )
+        )
 
         # force to empty string
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='' %}",
             '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
-            </a>'''.format(label='',
-                           icon_url=self._get_icon('add', 'brick-action').url,
-                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
-                          )
+            </a>'''.format(
+                label='',
+                icon_url=self._get_icon('add', 'brick-action').url,
+                icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
             )
+        )
 
     def test_brick_action_icon(self):
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' icon='delete' icon_size='small' %}",
             '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
-            </a>'''.format(label='Add something',
-                           icon_url=self._get_icon('delete', 'small').url,
-                           icon_size=get_icon_size_px(get_current_theme(), 'small'),
-                          )
+            </a>'''.format(
+                label='Add something',
+                icon_url=self._get_icon('delete', 'small').url,
+                icon_size=get_icon_size_px(get_current_theme(), 'small'),
+            )
         )
 
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' icon='delete' help_text='This action adds something' icon_size='small' %}",
             '''<a href="" title="{help_text}" class="brick-action action-type-add  " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{help_text}" alt="{help_text}" width="{icon_size}px"/>
-            </a>'''.format( # label='Add something',
-                           help_text='This action adds something',
-                           icon_url=self._get_icon('delete', 'small').url,
-                           icon_size=get_icon_size_px(get_current_theme(), 'small'),
-                          )
+            </a>'''.format(
+                # label='Add something',
+                help_text='This action adds something',
+                icon_url=self._get_icon('delete', 'small').url,
+                icon_size=get_icon_size_px(get_current_theme(), 'small'),
             )
+        )
 
     def test_brick_action_text(self):
         self.assertBrickActionHTML(
@@ -286,10 +378,11 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             "{% brick_action 'add' label='Add something' display='text' help_text='This action adds something' %}",
             '''<a href="" title="{help_text}" class="brick-action action-type-add  " data-action="add">
                 <span class="brick-action-title">{label}</span>
-            </a>'''.format(label='Add something',
-                           help_text='This action adds something',
-                          )
+            </a>'''.format(
+                label='Add something',
+                help_text='This action adds something',
             )
+        )
 
     def test_brick_action_both(self):
         self.assertBrickActionHTML(
@@ -297,10 +390,11 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
                 <span class="brick-action-title">{label}</span>
-            </a>'''.format(label='Add something',
-                           icon_url=self._get_icon('add', 'brick-action').url,
-                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
-                          ),
+            </a>'''.format(
+                label='Add something',
+                icon_url=self._get_icon('add', 'brick-action').url,
+                icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+            ),
         )
 
         self.assertBrickActionHTML(
@@ -308,22 +402,24 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             '''<a href="" title="{help_text}" class="brick-action action-type-add  " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{help_text}" alt="{help_text}" width="{icon_size}px"/>
                 <span class="brick-action-title">{label}</span>
-            </a>'''.format(label='Add something',
-                           help_text='This action adds something',
-                           icon_url=self._get_icon('add', 'brick-action').url,
-                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
-                          )
+            </a>'''.format(
+                label='Add something',
+                help_text='This action adds something',
+                icon_url=self._get_icon('add', 'brick-action').url,
+                icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
             )
+        )
 
     def test_brick_action_disabled(self):
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' enabled=False %}",
             '''<a href="" title="{label}" class="brick-action action-type-add is-disabled " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
-            </a>'''.format(label='Add something',
-                           icon_url=self._get_icon('add', 'brick-action').url,
-                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
-                          ),
+            </a>'''.format(
+                label='Add something',
+                icon_url=self._get_icon('add', 'brick-action').url,
+                icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+            ),
         )
 
     def test_brick_action_loading(self):
@@ -331,11 +427,12 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             "{% brick_action 'add' label='Add something' loading=True %}",
             '''<a href="" title="{label}" class="brick-action action-type-add is-async-action " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
-            </a>'''.format(label='Add something',
-                           icon_url=self._get_icon('add', 'brick-action').url,
-                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
-                          ),
-            )
+            </a>'''.format(
+                label='Add something',
+                icon_url=self._get_icon('add', 'brick-action').url,
+                icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+            ),
+        )
 
     def test_brick_action_confirm(self):
         self.assertBrickActionHTML(
@@ -343,31 +440,31 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
                 <script class="brick-action-data" type="application/json"><!-- {json_data} --></script>
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
-            </a>'''.format(label='Add something',
-                           icon_url=self._get_icon('add', 'brick-action').url,
-                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
-                           json_data=json_encode({
-                                            'options': {'confirm': True},
-                                            'data': {},
-                                        }
-                                     ),
-                          )
+            </a>'''.format(
+                label='Add something',
+                icon_url=self._get_icon('add', 'brick-action').url,
+                icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+                json_data=json_encode({
+                    'options': {'confirm': True},
+                    'data': {},
+                }),
             )
+        )
 
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' confirm='Are you sure ?' %}",
             '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
                 <script class="brick-action-data" type="application/json"><!-- {json_data} --></script>
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
-            </a>'''.format(label='Add something',
-                           icon_url=self._get_icon('add', 'brick-action').url,
-                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
-                           json_data=json_encode({
-                                            'options': {'confirm': 'Are you sure ?'},
-                                            'data': {},
-                                        }
-                                     ),
-                          )
+            </a>'''.format(
+                label='Add something',
+                icon_url=self._get_icon('add', 'brick-action').url,
+                icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+                json_data=json_encode({
+                    'options': {'confirm': 'Are you sure ?'},
+                    'data': {},
+                }),
+            )
         )
 
     def test_brick_action_extra_data(self):
@@ -376,13 +473,13 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
                 <script class="brick-action-data" type="application/json"><!-- {json_data} --></script>
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
-            </a>'''.format(label='Add something',
-                           icon_url=self._get_icon('add', 'brick-action').url,
-                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
-                           json_data=json_encode({
-                                            'options': {'confirm': True},
-                                            'data': {'name1': 'value1', 'name2': 2},
-                                        }
-                                     ),
-                          )
+            </a>'''.format(
+                label='Add something',
+                icon_url=self._get_icon('add', 'brick-action').url,
+                icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+                json_data=json_encode({
+                    'options': {'confirm': True},
+                    'data': {'name1': 'value1', 'name2': 2},
+                }),
+            )
         )

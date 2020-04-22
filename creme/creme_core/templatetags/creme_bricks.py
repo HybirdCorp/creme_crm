@@ -855,6 +855,25 @@ def brick_declare(context, *bricks):
     return ''
 
 
+@register.simple_tag
+def brick_get_by_ids(*brick_ids, **kwargs):
+    """ Get a list of instances of registered Brick, from a list of brick IDs.
+    It's useful to get information on a Brick when we only get it's ID
+    (eg: it's stored in an instance of BrickHomeLocation).
+
+        {% load creme_bricks %}
+
+        {% brick_get_by_ids brick_id1 brick_id2 as bricks %}
+        <span>{{bricks.0.verbose_name}}</span>
+
+    An instance of CremeEntity can be given to retrieve correctly EntityBricks
+    (even if this case is not currently used in Creme...) :
+
+        {% brick_get_by_ids brick_id1 brick_id2 entity=my_instance as bricks %}
+    """
+    return [*brick_registry.get_bricks(brick_ids, entity=kwargs.get('entity'))]
+
+
 _DISPLAY_METHODS = {
     'detail': 'detailview_display',
     'home':   'home_display',

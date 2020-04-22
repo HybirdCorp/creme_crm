@@ -27,7 +27,7 @@ from typing import (
     Dict, List, Tuple,
     TYPE_CHECKING,
 )
-# import warnings
+import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -237,15 +237,20 @@ class BrickHomeLocation(CremeModel):
 
     def __repr__(self):
         return 'BrickHomeLocation(id={id}, role={role}, brick_id={brick_id}, order={order})'.format(
-                id=self.id, brick_id=self.brick_id, order=self.order,
-                role='superuser' if self.superuser else self.role,
-            )
+            id=self.id, brick_id=self.brick_id, order=self.order,
+            role='superuser' if self.superuser else self.role,
+        )
 
     def __str__(self):
         return repr(self)
 
     @property
     def brick_verbose_name(self):
+        warnings.warn(
+            'BrickHomeLocation.brick_verbose_name is deprecated.',
+            DeprecationWarning
+        )
+
         from ..gui.bricks import brick_registry
 
         return next(brick_registry.get_bricks((self.brick_id,))).verbose_name
@@ -279,9 +284,13 @@ class BrickMypageLocation(CremeModel):
                                    instance
                                   )
 
-    # TODO: factorise ?
     @property
     def brick_verbose_name(self):
+        warnings.warn(
+            'BrickMypageLocation.brick_verbose_name is deprecated.',
+            DeprecationWarning
+        )
+
         from creme.creme_core.gui.bricks import brick_registry
 
         return next(brick_registry.get_bricks((self.brick_id,))).verbose_name
@@ -394,11 +403,10 @@ class RelationBrickItem(CremeModel):
     #     return rbi
 
     def _dump_cells_map(self):
-        self.json_cells_map = json_encode(
-                {ct_id: [cell.to_dict() for cell in cells]
-                    for ct_id, cells in self._cells_map.items()
-                }
-            )
+        self.json_cells_map = json_encode({
+            ct_id: [cell.to_dict() for cell in cells]
+            for ct_id, cells in self._cells_map.items()
+        })
 
     def _cells_by_ct(self):
         cells_map = self._cells_map
