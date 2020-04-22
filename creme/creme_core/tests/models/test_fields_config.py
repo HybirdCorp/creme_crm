@@ -9,8 +9,10 @@ try:
     from ..fake_forms import FakeContactForm
 
     from creme.creme_core.global_info import set_global_info
-    from creme.creme_core.models import (FieldsConfig,
-        FakeContact, FakeOrganisation, FakeCivility, FakeSector, FakeAddress)
+    from creme.creme_core.models import (
+        FieldsConfig,
+        FakeContact, FakeOrganisation, FakeCivility, FakeSector, FakeAddress,
+    )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -59,9 +61,10 @@ class FieldsConfigTestCase(CremeTestCase):
         h_field2 = 'mobile'
         fconf = FieldsConfig.objects.create(
             content_type=FakeContact,
-            descriptions=[(h_field1, {FieldsConfig.HIDDEN: True}),
-                          (h_field2, {FieldsConfig.HIDDEN: True}),
-                         ],
+            descriptions=[
+                (h_field1, {FieldsConfig.HIDDEN: True}),
+                (h_field2, {FieldsConfig.HIDDEN: True}),
+            ],
         )
         self.assertIsInstance(fconf, FieldsConfig)
 
@@ -78,9 +81,10 @@ class FieldsConfigTestCase(CremeTestCase):
         h_field = 'phone'
         fconf = FieldsConfig.objects.create(
             content_type=FakeContact,
-            descriptions=[(h_field,   {FieldsConfig.HIDDEN: True}),
-                          ('invalid', {FieldsConfig.HIDDEN: True}),
-                         ],
+            descriptions=[
+                (h_field,   {FieldsConfig.HIDDEN: True}),
+                ('invalid', {FieldsConfig.HIDDEN: True}),
+            ],
         )
 
         self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
@@ -91,9 +95,10 @@ class FieldsConfigTestCase(CremeTestCase):
         h_field = 'phone'
         fconf = FieldsConfig.objects.create(
             content_type=FakeContact,
-            descriptions=[(h_field,     {FieldsConfig.HIDDEN: True}),
-                          ('last_name', {FieldsConfig.HIDDEN: True}),
-                         ],
+            descriptions=[
+                (h_field,     {FieldsConfig.HIDDEN: True}),
+                ('last_name', {FieldsConfig.HIDDEN: True}),
+            ],
         )
 
         self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
@@ -156,9 +161,10 @@ class FieldsConfigTestCase(CremeTestCase):
         h_field2 = 'mobile'
         FieldsConfig.objects.create(
             content_type=model,
-            descriptions=[(h_field1, {FieldsConfig.HIDDEN: True}),
-                          (h_field2, {FieldsConfig.HIDDEN: True}),
-                         ],
+            descriptions=[
+                (h_field1, {FieldsConfig.HIDDEN: True}),
+                (h_field2, {FieldsConfig.HIDDEN: True}),
+            ],
         )
 
         with self.assertNumQueries(1):
@@ -168,6 +174,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertTrue(is_hidden(h_field1))
         self.assertTrue(is_hidden(h_field2))
         self.assertFalse(is_hidden('description'))
+        self.assertTrue(is_hidden('unknown'))
 
         with self.assertNumQueries(0):  # Cache
             FieldsConfig.objects.get_for_model(model)
@@ -301,14 +308,16 @@ class FieldsConfigTestCase(CremeTestCase):
         # last_name = 'Senjōgahara' MySQL does not like this....
         last_name = 'Senjougahara'
         first_name = 'Hitagi'
-        response = self.client.post(url, follow=True,
-                                    data={'user':       user.id,
-                                          'last_name':  last_name,
-                                          'first_name': first_name,
-                                          'phone':      '112233',
-                                          'mobile':     '445566',
-                                         },
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':       user.id,
+                'last_name':  last_name,
+                'first_name': first_name,
+                'phone':      '112233',
+                'mobile':     '445566',
+            },
+        )
         self.assertNoFormError(response)
 
         hitagi = self.get_object_or_fail(FakeContact, last_name=last_name)
@@ -333,13 +342,14 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNotIn('mobile', fields)
 
     def test_descriptions_setter(self):
-        "Auto-repair invalid field"
+        "Auto-repair invalid field."
         h_field = 'phone'
         fconf = FieldsConfig.objects.create(
             content_type=FakeContact,
-            descriptions=[(h_field,   {FieldsConfig.HIDDEN: True}),
-                          ('invalid', {FieldsConfig.HIDDEN: True}),
-                         ],
+            descriptions=[
+                (h_field,   {FieldsConfig.HIDDEN: True}),
+                ('invalid', {FieldsConfig.HIDDEN: True}),
+            ],
          )
 
         fconf = self.refresh(fconf)
@@ -347,14 +357,14 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertEqual(1, len(fconf.descriptions))
 
     def test_descriptions_getter(self):
-        "Auto-repair invalid field"
+        "Auto-repair invalid field."
         h_field = 'phone'
         fconf = FieldsConfig.objects.create(
             content_type=FakeContact,
-            raw_descriptions=json_dump([(h_field, {FieldsConfig.HIDDEN: True}),
-                                        ('invalid', {FieldsConfig.HIDDEN: True}),
-                                       ]
-                                      ),
+            raw_descriptions=json_dump([
+                (h_field,   {FieldsConfig.HIDDEN: True}),
+                ('invalid', {FieldsConfig.HIDDEN: True}),
+            ]),
         )
 
         fconf = self.refresh(fconf)
