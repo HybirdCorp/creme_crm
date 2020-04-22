@@ -431,28 +431,36 @@ class _CremeTestCase:
                 self.fail(errors.as_text())
 
     def assertListContainsSubset(self, expected, actual, msg=None):
-        "Checks whether actual is a superset of expected."
+        "Checks whether 'actual' is a superset of 'expected'."
         old_index = -1
 
         for elt in expected:
             try:
                 index = actual.index(elt)
             except ValueError:
-                self.fail(self._formatMessage(msg, f'Element not found in the superset : "{elt}"'))
+                self.fail(
+                    self._formatMessage(
+                        msg,
+                        f'Element not found in the superset : "{elt}"',
+                    )
+                )
 
             if index <= old_index:
-                self.fail(self._formatMessage(msg,
-                                              f'Order is different in the superset '
-                                              f'(problem with element : "{elt}")'
-                                             )
-                         )
+                self.fail(
+                    self._formatMessage(
+                        msg,
+                        f'Order is different in the superset '
+                        f'(problem with element : "{elt}")'
+                    )
+                )
 
             old_index = index
 
     def assertQuerysetSQLEqual(self, qs1, qs2):
-        self.assertEqual(qs1.query.get_compiler('default').as_sql(),
-                         qs2.query.get_compiler('default').as_sql()
-                        )
+        self.assertEqual(
+            qs1.query.get_compiler('default').as_sql(),
+            qs2.query.get_compiler('default').as_sql()
+        )
 
     def assertQEqual(self, q1, q2):
         self.assertIsInstance(q1, Q)
@@ -460,13 +468,16 @@ class _CremeTestCase:
         self.assertEqual(str(q1), str(q2))
 
     def assertRelationCount(self, count, subject_entity, type_id, object_entity):
-        self.assertEqual(count,
-                         Relation.objects.filter(subject_entity=subject_entity.id,
-                                                 type=type_id,
-                                                 object_entity=object_entity.id,
-                                                )
-                                         .count()
-                        )
+        self.assertEqual(
+            count,
+            Relation.objects
+                    .filter(
+                        subject_entity=subject_entity.id,
+                        type=type_id,
+                        object_entity=object_entity.id,
+                    )
+                    .count()
+        )
 
     def assertSameProperties(self, entity1, entity2):
         properties_desc = lambda entity: [*entity.properties.values_list('type', flat=True)]
@@ -632,12 +643,14 @@ class _CremeTestCase:
 
     @staticmethod
     def build_inneredit_url(entity, fieldname):
-        return reverse('creme_core__inner_edition',
-                       args=(ContentType.objects.get_for_model(entity).pk,
-                             entity.pk,
-                             fieldname,
-                            ),
-                      )
+        return reverse(
+            'creme_core__inner_edition',
+            args=(
+                ContentType.objects.get_for_model(entity).pk,
+                entity.pk,
+                fieldname,
+            ),
+        )
 
     @staticmethod
     def build_bulkupdate_url(model, fieldname=None):
