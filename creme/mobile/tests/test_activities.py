@@ -4,13 +4,9 @@ try:
     from datetime import datetime, timedelta
     from functools import partial
     from itertools import count
-    from random import randint
 
     from dateutil.relativedelta import relativedelta
 
-    from django.conf import settings
-    from django.contrib.auth import get_user_model
-    from django.forms import IntegerField
     from django.urls import reverse
     from django.utils.timezone import now, localtime
     from django.utils.translation import gettext as _
@@ -19,130 +15,46 @@ try:
     from creme.creme_core.models import (
         Relation,
         SetCredentials,
-        CustomField,
     )
-    from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.persons import get_contact_model, get_organisation_model
-    from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.tests.base import (
         skipIfCustomContact,
         skipIfCustomOrganisation,
     )
 
-    from creme.activities import get_activity_model
     from creme.activities.constants import (
-        NARROW, FLOATING_TIME, FLOATING,
+        NARROW, FLOATING_TIME,
         REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
         STATUS_PLANNED, STATUS_IN_PROGRESS, STATUS_DONE, STATUS_CANCELLED,
-        ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_NETWORK,
         ACTIVITYTYPE_PHONECALL,
         ACTIVITYSUBTYPE_PHONECALL_OUTGOING, ACTIVITYSUBTYPE_PHONECALL_FAILED,
     )
     from creme.activities.models import Calendar
     from creme.activities.tests.base import skipIfCustomActivity
 
-    from creme.mobile.models import MobileFavorite
+    from .base import (
+        MobileBaseTestCase,
+        Contact, Organisation,
+        Activity,
+    )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
-Contact = get_contact_model()
-Organisation = get_organisation_model()
-Activity = get_activity_model()
 
-
-class MobileTestCase(CremeTestCase):
-    PORTAL_URL            = reverse('mobile__portal')
-    PERSONS_PORTAL_URL    = reverse('mobile__directory')
-    SEARCH_PERSON_URL     = reverse('mobile__search_person')
+class MobileActivitiesTestCase(MobileBaseTestCase):
     ACTIVITIES_PORTAL_URL = reverse('mobile__activities')
     PCALL_PANEL_URL       = reverse('mobile__pcall_panel')
-
-    CREATE_CONTACT_URL = reverse('mobile__create_contact')
-    CREATE_ORGA_URL = reverse('mobile__create_organisation')
 
     WF_FAILED_URL     = reverse('mobile__pcall_wf_failed')
     WF_POSTPONED_URL  = reverse('mobile__pcall_wf_postponed')
     WF_LASTED5MIN_URL = reverse('mobile__pcall_wf_lasted_5_minutes')
     WF_JUSTDONE_URL   = reverse('mobile__pcall_wf_just_done')
 
-    def login(self, is_superuser=True, is_staff=False,
-              allowed_apps=('activities', 'persons'), *args, **kwargs):
-        return super().login(is_superuser=is_superuser,
-                             is_staff=is_staff,
-                             allowed_apps=allowed_apps,
-                             *args, **kwargs
-                            )
-
     def _build_start_url(self, activity):
         return reverse('mobile__start_activity', args=(activity.id,))
 
     def _build_stop_url(self, activity):
         return reverse('mobile__stop_activity', args=(activity.id,))
-
-    def _create_floating(self, title, participant, status_id=None):
-        activity = Activity.objects.create(
-            user=self.user, title=title,
-            type_id=ACTIVITYTYPE_MEETING,
-            sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
-            status_id=status_id,
-            floating_type=FLOATING,
-        )
-
-        Relation.objects.create(subject_entity=participant, user=self.user,
-                                type_id=REL_SUB_PART_2_ACTIVITY,
-                                object_entity=activity,
-                               )
-
-        return activity
-
-    def _create_meeting(self, title, start=None, end=None, participant=None, status_id=None, **kwargs):
-        if start is None:
-            start = now()
-
-        if end is None:
-            end = start + timedelta(hours=1)
-
-        activity = Activity.objects.create(
-            user=self.user, title=title,
-            type_id=ACTIVITYTYPE_MEETING,
-            sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
-            status_id=status_id,
-            start=start,
-            end=end,
-            **kwargs
-        )
-
-        if participant is not None:
-            Relation.objects.create(subject_entity=participant, user=self.user,
-                                    type_id=REL_SUB_PART_2_ACTIVITY,
-                                    object_entity=activity,
-                                   )
-
-        return activity
-
-    def _create_pcall(self, title, start=None, participant=None, status_id=None, **kwargs):
-        if start is None:
-            start = self.create_datetime(year=2014, month=1, day=6, hour=8) \
-                        .replace(month=randint(1, 12))
-
-        activity = Activity.objects.create(
-            user=self.user, title=title,
-            type_id=ACTIVITYTYPE_PHONECALL,
-            sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-            status_id=status_id,
-            start=start,
-            end=start + timedelta(hours=1),
-            **kwargs
-        )
-
-        if participant is not None:
-            Relation.objects.create(subject_entity=participant, user=self.user,
-                                    type_id=REL_SUB_PART_2_ACTIVITY,
-                                    object_entity=activity,
-                                   )
-
-        return activity
 
     def _existing_pcall_ids(self):
         return [*Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL)
@@ -157,461 +69,6 @@ class MobileTestCase(CremeTestCase):
     def _get_created_pcall(self, existing_pcall_ids):
         with self.assertNoException():
             return self._get_created_pcalls(existing_pcall_ids).get()
-
-    def test_login(self):
-        url = reverse('mobile__login')
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'mobile/login.html')
-        self.assertEqual('next', response.context.get('REDIRECT_FIELD_NAME'))
-
-        username = 'gally'
-        password = 'passwd'
-        get_user_model().objects.create_superuser(username,
-                                                  first_name='Gally',
-                                                  last_name='Alita',
-                                                  email='gally@zalem.org',
-                                                  password=password,
-                                                 )
-
-        response = self.assertPOST200(url, follow=True,
-                                      data={'username': username,
-                                            'password': password,
-                                            'next':     self.PORTAL_URL,
-                                           },
-                                     )
-        self.assertRedirects(response, self.PORTAL_URL)
-
-    def test_logout(self):
-        self.login()
-        response = self.assertGET200(reverse('mobile__logout'), follow=True)
-        self.assertRedirects(response, reverse(settings.LOGIN_URL))
-
-    @skipIfCustomActivity
-    def test_portal(self):
-        user = self.login()
-        contact = user.linked_contact
-        now_val = localtime(now())
-
-        def today(hour=14, minute=0, second=0):
-            return datetime(
-                year=now_val.year, month=now_val.month, day=now_val.day,
-                hour=hour, minute=minute, second=second,
-                tzinfo=now_val.tzinfo,
-            )
-
-        past_midnight = today(0)
-
-        def today_in_the_past(near):
-            return now_val - (now_val - past_midnight) / near
-
-        def today_in_the_future(near):
-            return now_val + (today(23, 59, 59) - now_val) / near
-
-        create_m = self._create_meeting
-        m1 = create_m('Meeting: Manga',      start=today_in_the_past(3),   participant=contact)
-        m2 = create_m('Meeting: Anime',      start=today_in_the_past(2),   participant=contact, status_id=STATUS_PLANNED)
-        m3 = create_m('Meeting: Manga #2',   start=past_midnight,          participant=contact, floating_type=FLOATING_TIME)
-        m4 = create_m('Meeting: Figures',    start=today_in_the_future(3), participant=contact, status_id=STATUS_IN_PROGRESS)
-        m5 = create_m('Meeting: Figures #3', start=today_in_the_future(2), participant=contact)  # Should be after m6
-        m6 = create_m('Meeting: Figures #2', start=today_in_the_future(3), participant=contact)
-
-        oneday = timedelta(days=1)
-        create_m('Meeting: Tezuka manga', start=today(9),         participant=self.other_user.linked_contact)  # I do not participate
-        create_m('Meeting: Comics',       start=today(7),         participant=contact, status_id=STATUS_DONE)  # Done are excluded
-        create_m('Meeting: Manhua',       start=today(10),        participant=contact, status_id=STATUS_CANCELLED)  # Cancelled are excluded
-        create_m('Meeting: Manga again',  start=now_val - oneday, participant=contact)  # Yesterday
-        create_m('Meeting: Manga ter.',   start=now_val + oneday, participant=contact)  # Tomorrow
-
-        response = self.assertGET200(self.PORTAL_URL)
-        self.assertTemplateUsed(response, 'mobile/index.html')
-
-        with self.assertNoException():
-            context = response.context
-            hot_activities   = [*context['hot_activities']]
-            today_activities = [*context['today_activities']]
-
-        self.assertListEqual([m2, m1, m4], hot_activities)
-        self.assertListEqual([m3, m6, m5], today_activities)
-        self.assertContains(response, m1.title)
-        self.assertContains(response, m3.title)
-
-    @skipIfCustomContact
-    @skipIfCustomOrganisation
-    def test_persons(self):
-        user = self.login()
-
-        create_contact = partial(Contact.objects.create, user=user)
-        may = create_contact(first_name='May', last_name='Shiranui')
-        joe = create_contact(first_name='Joe', last_name='Higashi')
-        terry = create_contact(first_name='Terry', last_name='Bogard')
-        create_contact(first_name='Andy', last_name='Bogard')
-
-        create_orga = partial(Organisation.objects.create, user=self.user)
-        kof = create_orga(name='KingOfFighters')
-        create_orga(name='Fatal fury')
-
-        create_fav = partial(MobileFavorite.objects.create, user=self.user)
-        create_fav(entity=may)
-        create_fav(entity=joe)
-        create_fav(entity=kof)
-        create_fav(entity=terry, user=self.other_user)
-
-        response = self.assertGET200(self.PERSONS_PORTAL_URL)
-        self.assertTemplateUsed(response, 'mobile/directory.html')
-
-        with self.assertNoException():
-            contacts = {*response.context['favorite_contacts']}
-            orgas    = [*response.context['favorite_organisations']]
-
-        self.assertSetEqual({may, joe}, contacts)
-        self.assertContains(response, may.last_name)
-        self.assertContains(response, may.first_name)
-
-        self.assertListEqual([kof], orgas)
-        self.assertContains(response, kof)
-
-    @skipIfCustomContact
-    @skipIfCustomOrganisation
-    def test_create_contact01(self):
-        user = self.login()
-
-        url = self.CREATE_CONTACT_URL
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'mobile/add_contact.html')
-
-        kof = Organisation.objects.create(user=user, name='KOF')
-        first_name = 'May'
-        last_name = 'Shiranui'
-        response = self.assertPOST200(
-            url,
-            follow=True,
-            data={
-                'first_name':   first_name,
-                'last_name':    last_name,
-                'organisation': kof.name,
-            },
-        )
-        self.assertNoFormError(response)
-
-        may = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, may, REL_SUB_EMPLOYED_BY, kof)
-        self.assertFalse(user.mobile_favorite.all())
-
-        self.assertRedirects(response, self.PERSONS_PORTAL_URL)
-
-    @skipIfCustomContact
-    @skipIfCustomOrganisation
-    def test_create_contact02(self):
-        self.login()
-        first_name = 'May'
-        last_name = 'Shiranui'
-
-        url = self.CREATE_CONTACT_URL
-        arg = {'last_name': first_name}
-        response = self.assertGET200(url, data=arg)
-        self.assertEqual(arg, response.context['form'].initial)
-
-        orga_name = 'KOF'
-        self.assertFalse(Organisation.objects.filter(name=orga_name))
-
-        phone = '111111'
-        mobile = '222222'
-        email = 'may.shiranui@kof.org'
-        response = self.assertPOST200(
-            url,
-            follow=True,
-            data={
-                'first_name':   first_name,
-                'last_name':    last_name,
-                'organisation': orga_name,
-                'phone':        phone,
-                'mobile':       mobile,
-                'email':        email,
-                'is_favorite':  True,
-            },
-        )
-        self.assertNoFormError(response)
-
-        may = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        self.assertEqual(phone,  may.phone)
-        self.assertEqual(mobile, may.mobile)
-        self.assertEqual(email,  may.email)
-
-        kof = self.get_object_or_fail(Organisation, name=orga_name)
-        self.assertRelationCount(1, may, REL_SUB_EMPLOYED_BY, kof)
-
-        self.assertListEqual(
-            [may],
-            [f.entity.get_real_entity() for f in self.user.mobile_favorite.all()]
-        )
-
-    @skipIfCustomContact
-    @skipIfCustomOrganisation
-    def test_create_contact03(self):
-        self.login()
-
-        name = 'HP'
-        create_cf = partial(CustomField.objects.create, content_type=Contact)
-        cfield1 = create_cf(field_type=CustomField.STR, name='Special attacks')
-        cfield2 = create_cf(field_type=CustomField.INT,  name=name, is_required=True)
-
-        url = self.CREATE_CONTACT_URL
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'mobile/add_contact.html')
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-            cfield_f2 = fields[f'custom_field_{cfield2.id}']
-
-        self.assertNotIn(f'custom_field_{cfield1.id}', fields)
-        self.assertIsInstance(cfield_f2, IntegerField)
-
-        self.assertContains(
-            response,
-            f'id="id_custom_field_{cfield2.id}"'
-        )
-        self.assertContains(
-            response,
-            f"<label class='field-label' for='id_custom_field_{cfield2.id}'>{name}"
-        )
-
-        first_name = 'May'
-        last_name = 'Shiranui'
-        response = self.assertPOST200(
-            url,
-            follow=True,
-            data={
-                'first_name':   first_name,
-                'last_name':    last_name,
-                f'custom_field_{cfield2.id}': 150,
-            },
-        )
-        self.assertNoFormError(response)
-
-        may = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        self.assertEqual(
-            150,
-            cfield2.get_value_class().objects.get(custom_field=cfield2.id, entity=may.id).value
-        )
-
-    def test_create_contact_error01(self):
-        "Not logged."
-        url = self.CREATE_CONTACT_URL
-        response = self.assertGET(302, url)
-        self.assertRedirects(response, '{}?next={}'.format(reverse('mobile__login'), url))
-
-    def test_create_contact_error02(self):
-        "Not allowed."
-        self.login(is_superuser=False, creatable_models=[Organisation])
-
-        response = self.assertGET403(self.CREATE_CONTACT_URL)
-        self.assertTemplateUsed(response, 'mobile/error.html')
-        self.assertEqual(
-            response.context['msg'],
-            _('You do not have access to this page, please contact your administrator.')
-        )
-
-    def test_create_contact_error03(self):
-        "Not super-user."
-        self.login(is_superuser=False, creatable_models=[Contact])
-        self.assertGET200(self.CREATE_CONTACT_URL)
-
-    @skipIfCustomOrganisation
-    def test_create_orga01(self):
-        self.login()
-
-        url = self.CREATE_ORGA_URL
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'mobile/add_orga.html')
-
-        name = 'KOF'
-        phone = '111111'
-        response = self.assertPOST200(url, follow=True,
-                                      data={'name':  name,
-                                            'phone': phone,
-                                           },
-                                     )
-        self.assertNoFormError(response)
-
-        kof = self.get_object_or_fail(Organisation, name=name)
-        self.assertEqual(phone, kof.phone)
-        self.assertFalse(self.user.mobile_favorite.all())
-
-        self.assertRedirects(response, self.PERSONS_PORTAL_URL)
-
-    @skipIfCustomOrganisation
-    def test_create_orga02(self):
-        self.login()
-        name = 'Fatal Fury Inc.'
-
-        url = self.CREATE_ORGA_URL
-        arg = {'name': name}
-        response = self.assertGET200(url, data=arg)
-        self.assertEqual(arg, response.context['form'].initial)
-
-        response = self.assertPOST200(url, follow=True,
-                                      data={'name':         name,
-                                            'is_favorite':  True,
-                                           },
-                                     )
-        self.assertNoFormError(response)
-
-        ff = self.get_object_or_fail(Organisation, name=name)
-        self.assertListEqual(
-            [ff],
-            [f.entity.get_real_entity() for f in self.user.mobile_favorite.all()]
-        )
-
-    @skipIfCustomOrganisation
-    def test_create_orga03(self):
-        self.login()
-
-        cf_name = 'Prize'
-        create_cf = partial(CustomField.objects.create, content_type=Organisation)
-        cfield1 = create_cf(field_type=CustomField.STR, name='Baseline')
-        cfield2 = create_cf(field_type=CustomField.INT,  name=cf_name, is_required=True)
-
-        url = self.CREATE_ORGA_URL
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'mobile/add_orga.html')
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-            cfield_f2 = fields[f'custom_field_{cfield2.id}']
-
-        self.assertNotIn(f'custom_field_{cfield1.id}', fields)
-        self.assertIsInstance(cfield_f2, IntegerField)
-
-        self.assertContains(
-            response,
-            f'id="id_custom_field_{cfield2.id}"'
-        )
-        self.assertContains(
-            response,
-            f"<label class='field-label' for='id_custom_field_{cfield2.id}'>{cfield2.name}"
-        )
-
-        name = 'Fatal Fury Inc.'
-        response = self.assertPOST200(
-            url,
-            follow=True,
-            data={
-                'name': name,
-                f'custom_field_{cfield2.id}': 150,
-            },
-        )
-        self.assertNoFormError(response)
-
-        ffinc = self.get_object_or_fail(Organisation, name=name)
-        self.assertEqual(
-            150,
-            cfield2.get_value_class().objects.get(custom_field=cfield2.id, entity=ffinc.id).value
-        )
-
-    def test_create_orga_error01(self):
-        "Not logged."
-        url = self.CREATE_ORGA_URL
-        response = self.assertGET(302, url)
-        self.assertRedirects(response, '{}?next={}'.format(reverse('mobile__login'), url))
-
-    def test_create_orga_error02(self):
-        self.login(is_superuser=False, creatable_models=[Contact])
-
-        response = self.assertGET403(self.CREATE_ORGA_URL)
-        self.assertTemplateUsed(response, 'mobile/error.html')
-        self.assertEqual(
-            response.context['msg'],
-            _('You do not have access to this page, please contact your administrator.')
-        )
-
-    def test_search_persons01(self):
-        self.login()
-        url = self.SEARCH_PERSON_URL
-
-        self.assertGET404(url)
-        self.assertGET409(url, data={'search': 'Ik'})
-
-        response = self.assertGET200(url, data={'search': 'Ikari'})
-        self.assertTemplateUsed(response, 'mobile/search.html')
-
-        with self.assertNoException():
-            ctxt = response.context
-            contacts = ctxt['contacts']
-            orgas    = ctxt['organisations']
-
-        self.assertEqual(0, len(contacts))
-        self.assertEqual(0, len(orgas))
-
-    @skipIfCustomContact
-    def test_search_persons02(self):
-        user = self.login()
-
-        create_contact = partial(Contact.objects.create, user=user)
-        create_contact(first_name='Rei',   last_name='Ayanami')
-        create_contact(first_name='Asuka', last_name='Langley')
-        shinji = create_contact(first_name='Shinji', last_name='Ikari', mobile='559966')
-        gendo  = create_contact(first_name='Gendo',  last_name='Ikari')
-        ikari  = create_contact(first_name='Ikari',  last_name='Warrior')
-
-        response = self.assertGET200(self.SEARCH_PERSON_URL, data={'search': 'Ikari'})
-
-        with self.assertNoException():
-            contacts = {*response.context['contacts']}
-
-        self.assertSetEqual({shinji, gendo, ikari}, contacts)
-        self.assertContains(response, shinji.first_name)
-        self.assertContains(response, shinji.mobile)
-
-    @skipIfCustomContact
-    @skipIfCustomOrganisation
-    def test_search_persons03(self):
-        "Search in organisations which employ ('employed by')."
-        user = self.login()
-
-        create_orga = partial(Organisation.objects.create, user=user)
-        kof = create_orga(name='KingOfFighters')
-        ff = create_orga(name='Fatal fury')
-
-        create_contact = partial(Contact.objects.create, user=user)
-        may = create_contact(first_name='May', last_name='Shiranui')
-        create_contact(first_name='Asuka', last_name='Langley')
-
-        create_rel = partial(Relation.objects.create, type_id=REL_SUB_EMPLOYED_BY, user=user)
-        create_rel(subject_entity=may, object_entity=kof)
-        create_rel(subject_entity=may, object_entity=ff)  # Can cause duplicates
-
-        url = self.SEARCH_PERSON_URL
-        context = self.assertGET200(url, data={'search': kof.name.lower()[1:6]}).context
-        self.assertListEqual([may], [*context['contacts']])
-        self.assertListEqual([kof], [*context['organisations']])
-
-        response = self.assertGET200(url, data={'search': may.last_name[:4]})
-        self.assertListEqual([may], [*response.context['contacts']])
-
-    @skipIfCustomContact
-    @skipIfCustomOrganisation
-    def test_search_persons04(self):
-        "Search in organisations which employ ('managed by')."
-        user = self.login()
-
-        create_orga = partial(Organisation.objects.create, user=user)
-        kof = create_orga(name='KingOfFighters')
-        create_orga(name='Fatal fury')
-
-        create_contact = partial(Contact.objects.create, user=user)
-        may = create_contact(first_name='May', last_name='Shiranui')
-        create_contact(first_name='Asuka', last_name='Langley')
-
-        Relation.objects.create(subject_entity=may, object_entity=kof,
-                                type_id=REL_SUB_MANAGES, user=user,
-                               )
-
-        response = self.assertGET200(self.SEARCH_PERSON_URL,
-                                     data={'search': kof.name.lower()[1:6]},
-                                    )
-        self.assertListEqual([may], [*response.context['contacts']])
-
-# TODO: smart word splitting ; special chars like " ??
 
     @skipIfCustomActivity
     def test_start_activity01(self):
@@ -1581,34 +1038,3 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual('Will be OK...\nnoooooo !',
                          pcall.minutes
                         )
-
-    @skipIfCustomContact
-    def test_mark_as_favorite(self):
-        user = self.login()
-        may = Contact.objects.create(user=user, first_name='May', last_name='Shiranui')
-
-        url = reverse('mobile__mark_as_favorite', args=(may.id,))
-        # self.assertGET404(url)
-        self.assertGET405(url)
-
-        self.assertPOST200(url)
-        self.get_object_or_fail(MobileFavorite, entity=may, user=user)
-
-        self.assertPOST200(url)
-        self.get_object_or_fail(MobileFavorite, entity=may, user=user)  # Not 2 objects
-
-    @skipIfCustomContact
-    def test_unmark_favorite(self):
-        user = self.login()
-        may = Contact.objects.create(user=user,
-                                     first_name='May',
-                                     last_name='Shiranui',
-                                    )
-        fav = MobileFavorite.objects.create(entity=may, user=user)
-
-        url = reverse('mobile__unmark_favorite', args=(may.id,))
-        # self.assertGET404(url)
-        self.assertGET405(url)
-
-        self.assertPOST200(url)
-        self.assertDoesNotExist(fav)
