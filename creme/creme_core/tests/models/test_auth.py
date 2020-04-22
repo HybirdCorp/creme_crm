@@ -37,7 +37,10 @@ try:
     from creme.creme_config.models import FakeConfigEntity
 
     from creme.documents.models import Document, Folder
-    from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
+    from creme.documents.tests.base import (
+        skipIfCustomDocument,
+        skipIfCustomFolder,
+    )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -86,10 +89,11 @@ class CredentialsTestCase(CremeTestCase):
 
     def _build_contact_qs(self, *extra_contacts):
         return FakeContact.objects.filter(
-            pk__in=[self.contact1.id,
-                    self.contact2.id,
-                    *(c.id for c in extra_contacts),
-                   ],
+            pk__in=[
+                self.contact1.id,
+                self.contact2.id,
+                *(c.id for c in extra_contacts),
+            ],
         )
 
     def test_populate(self):
@@ -159,7 +163,7 @@ class CredentialsTestCase(CremeTestCase):
 
     @override_settings(THEMES=[('this_theme_is_cool', 'Cool one'),
                                ('yet_another_theme',  'I am cool too, bro'),
-                              ]
+                              ],
                       )
     def test_theme_info(self):
         "The first valid theme is used if the registered theme is not valid."
@@ -238,13 +242,16 @@ class CredentialsTestCase(CremeTestCase):
     def test_role_esetall_view(self):
         "VIEW + ESET_ALL."
         user = self.user
-        self._create_role('Coder', ['creme_core'], users=[user],
-                          set_creds=[
-                              SetCredentials(value=EntityCredentials.VIEW,
-                                             set_type=SetCredentials.ESET_ALL,
-                                            ),
-                          ],
-                         )
+        self._create_role(
+            'Coder', ['creme_core'],
+            users=[user],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
+            ],
+        )
 
         has_perm = user.has_perm
         contact1 = self.contact1
@@ -309,13 +316,16 @@ class CredentialsTestCase(CremeTestCase):
     def test_role_esetall_view__noappcreds(self):
         "App is not allowed -> no creds."
         user = self.user
-        self._create_role('Coder', users=[user],
-                          set_creds=[
-                              SetCredentials(value=EntityCredentials.VIEW,
-                                             set_type=SetCredentials.ESET_ALL,
-                                            ),
-                          ],
-                         )
+        self._create_role(
+            'Coder',
+            users=[user],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
+            ],
+        )
 
         has_perm = user.has_perm
         contact1 = self.contact1
@@ -337,13 +347,16 @@ class CredentialsTestCase(CremeTestCase):
     def test_role_esetall_change(self):
         "CHANGE + ESET_ALL."
         user = self.user
-        self._create_role('Coder', ['creme_core'], users=[user],
-                          set_creds=[
-                              SetCredentials(value=EntityCredentials.CHANGE,
-                                             set_type=SetCredentials.ESET_ALL,
-                                            ),
-                          ],
-                         )
+        self._create_role(
+            'Coder', ['creme_core'],
+            users=[user],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.CHANGE,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
+            ],
+        )
 
         has_perm = user.has_perm
         contact1 = self.contact1
@@ -369,13 +382,17 @@ class CredentialsTestCase(CremeTestCase):
     def test_role_esetall_change__admincreds(self):
         "CHANGE + ESET_ALL (no app creds, but app admin creds)."
         user = self.user
-        self._create_role('Coder', admin_4_apps=['creme_core'], users=[user],
-                          set_creds=[
-                              SetCredentials(value=EntityCredentials.CHANGE,
-                                             set_type=SetCredentials.ESET_ALL,
-                                            ),
-                          ],
-                         )
+        self._create_role(
+            'Coder',
+            admin_4_apps=['creme_core'],
+            users=[user],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.CHANGE,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
+            ],
+        )
 
         contact1 = self.contact1
         self.assertFalse(user.has_perm_to_view(contact1))
@@ -387,20 +404,24 @@ class CredentialsTestCase(CremeTestCase):
 
         efilter = partial(EntityCredentials.filter, user, self._build_contact_qs())
         self.assertFalse(efilter(perm=EntityCredentials.VIEW))
-        self.assertListEqual([contact1.id, contact2.id],
-                             self._ids_list(efilter(perm=EntityCredentials.CHANGE))
-                            )
+        self.assertListEqual(
+            [contact1.id, contact2.id],
+            self._ids_list(efilter(perm=EntityCredentials.CHANGE))
+        )
 
     def test_role_esetall_delete(self):
         "DELETE + ESET_ALL."
         user = self.user
-        self._create_role('Coder', ['creme_core'], users=[user],
-                          set_creds=[
-                              SetCredentials(value=EntityCredentials.DELETE,
-                                             set_type=SetCredentials.ESET_ALL,
-                                            ),
-                          ],
-                         )
+        self._create_role(
+            'Coder', ['creme_core'],
+            users=[user],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.DELETE,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
+            ],
+        )
 
         has_perm = user.has_perm
         contact1 = self.contact1
@@ -426,13 +447,16 @@ class CredentialsTestCase(CremeTestCase):
     def test_role_esetall_link(self):
         "LINK + ESET_ALL."
         user = self.user
-        self._create_role('Coder', ['creme_core'], users=[user],
-                          set_creds=[
-                              SetCredentials(value=EntityCredentials.LINK,
-                                             set_type=SetCredentials.ESET_ALL,
-                                            ),
-                          ],
-                         )
+        self._create_role(
+            'Coder', ['creme_core'],
+            users=[user],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.LINK,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
+            ],
+        )
 
         has_perm = user.has_perm
         contact1 = self.contact1
@@ -450,21 +474,25 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(perm=EntityCredentials.VIEW))
         self.assertFalse(efilter(perm=EntityCredentials.CHANGE))
         self.assertFalse(efilter(perm=EntityCredentials.DELETE))
-        self.assertListEqual([contact1.id, contact2.id],
-                             self._ids_list(efilter(perm=EntityCredentials.LINK))
-                            )
+        self.assertListEqual(
+            [contact1.id, contact2.id],
+            self._ids_list(efilter(perm=EntityCredentials.LINK))
+        )
         self.assertFalse(efilter(perm=EntityCredentials.UNLINK))
 
     def test_role_esetall_unlink(self):
         "UNLINK + ESET_ALL."
         user = self.user
-        self._create_role('Coder', ['creme_core'], users=[user],
-                          set_creds=[
-                              SetCredentials(value=EntityCredentials.UNLINK,
-                                             set_type=SetCredentials.ESET_ALL,
-                                            ),
-                          ],
-                         )
+        self._create_role(
+            'Coder', ['creme_core'],
+            users=[user],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.UNLINK,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
+            ],
+        )
 
         has_perm = user.has_perm
         contact1 = self.contact1
@@ -483,20 +511,24 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(perm=EntityCredentials.CHANGE))
         self.assertFalse(efilter(perm=EntityCredentials.DELETE))
         self.assertFalse(efilter(perm=EntityCredentials.LINK))
-        self.assertListEqual([contact1.id, contact2.id],
-                             self._ids_list(efilter(perm=EntityCredentials.UNLINK))
-                            )
+        self.assertListEqual(
+            [contact1.id, contact2.id],
+            self._ids_list(efilter(perm=EntityCredentials.UNLINK))
+        )
 
     def test_role_esetown_view(self):
         "VIEW + ESET_OWN."
         user = self.user
-        self._create_role('Coder', ['creme_core'], users=[user],
-                          set_creds=[
-                              SetCredentials(value=EntityCredentials.VIEW,
-                                             set_type=SetCredentials.ESET_OWN,
-                                            ),
-                          ],
-                         )
+        self._create_role(
+            'Coder', ['creme_core'],
+            users=[user],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_OWN,
+                ),
+            ],
+        )
 
         has_perm = user.has_perm
         contact1 = self.contact1
@@ -526,7 +558,8 @@ class CredentialsTestCase(CremeTestCase):
         "ESET_OWN + VIEW/CHANGE."
         user = self.user
         self._create_role(
-            'Coder', ['creme_core'], users=[user],
+            'Coder', ['creme_core'],
+            users=[user],
             set_creds=[
                 SetCredentials(
                       value=EntityCredentials.CHANGE | EntityCredentials.DELETE,
@@ -558,13 +591,16 @@ class CredentialsTestCase(CremeTestCase):
 
     def test_role_esetown_delete(self):
         user = self.user
-        self._create_role('Coder', ['creme_core'], users=[user],
-                          set_creds=[
-                              SetCredentials(value=EntityCredentials.DELETE,
-                                             set_type=SetCredentials.ESET_OWN,
-                                            ),
-                          ],
-                         )
+        self._create_role(
+            'Coder', ['creme_core'],
+            users=[user],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.DELETE,
+                    set_type=SetCredentials.ESET_OWN,
+                ),
+            ],
+        )
 
         contact1 = self.contact1
 
@@ -590,7 +626,8 @@ class CredentialsTestCase(CremeTestCase):
         "ESET_OWN + LINK/UNLINK."
         user = self.user
         self._create_role(
-            'Coder', ['creme_core'], users=[user],
+            'Coder', ['creme_core'],
+            users=[user],
             set_creds=[
                 SetCredentials(
                     value=EntityCredentials.LINK | EntityCredentials.UNLINK,
@@ -623,14 +660,17 @@ class CredentialsTestCase(CremeTestCase):
         "ESET_ALL + ESET_OWN."
         user = self.user
         self._create_role(
-            'Coder', ['creme_core'], users=[user],
+            'Coder', ['creme_core'],
+            users=[user],
             set_creds=[
-                SetCredentials(value=EntityCredentials.VIEW,
-                               set_type=SetCredentials.ESET_ALL,
-                              ),
-                SetCredentials(value=EntityCredentials.CHANGE | EntityCredentials.DELETE,
-                               set_type=SetCredentials.ESET_OWN,
-                              ),
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
+                SetCredentials(
+                    value=EntityCredentials.CHANGE | EntityCredentials.DELETE,
+                    set_type=SetCredentials.ESET_OWN,
+                ),
             ],
         )
 
@@ -690,14 +730,17 @@ class CredentialsTestCase(CremeTestCase):
 
     def test_ct_credentials01(self):
         user = self.user
-        self._create_role('Coder', ['creme_core'], users=[user],
-                          set_creds=[
-                              SetCredentials(value=EntityCredentials.VIEW,
-                                             set_type=SetCredentials.ESET_ALL,
-                                             ctype=FakeContact,
-                                            ),
-                          ],
-                         )
+        self._create_role(
+            'Coder', ['creme_core'],
+            users=[user],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_ALL,
+                    ctype=FakeContact,
+                ),
+            ],
+        )
 
         contact1 = self.contact1
         self.assertTrue(user.has_perm_to_view(contact1))  # <=====
@@ -720,9 +763,10 @@ class CredentialsTestCase(CremeTestCase):
         # Filtering ------------------------------------------------------------
         efilter = partial(EntityCredentials.filter, user)
         qs = self._build_contact_qs()
-        self.assertEqual([contact1.id, contact2.id],
-                         self._ids_list(efilter(qs, perm=EntityCredentials.VIEW))
-                        )
+        self.assertListEqual(
+            [contact1.id, contact2.id],
+            self._ids_list(efilter(qs, perm=EntityCredentials.VIEW))
+        )
         self.assertFalse(efilter(qs, perm=EntityCredentials.CHANGE))
         self.assertFalse(efilter(FakeOrganisation.objects.filter(pk=orga.id),
                                  perm=EntityCredentials.VIEW,
@@ -732,11 +776,12 @@ class CredentialsTestCase(CremeTestCase):
     def test_ct_credentials02(self):
         "Cannot set CremeEntity."
         role = self._create_role('Coder', ['creme_core'])
-        sc = SetCredentials(role=role,
-                            value=EntityCredentials.VIEW,
-                            set_type=SetCredentials.ESET_ALL,
-                            ctype=CremeEntity,
-                           )
+        sc = SetCredentials(
+            role=role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_ALL,
+            ctype=CremeEntity,
+        )
         with self.assertRaises(ValueError):
             sc.save()
 
@@ -750,12 +795,16 @@ class CredentialsTestCase(CremeTestCase):
         self.assertIs(creds1.forbidden, False)
 
         self._create_role(
-            'Coder', ['creme_core'], users=[user],
+            'Coder', ['creme_core'],
+            users=[user],
             set_creds=[
                 creds1,
-                SetCredentials(value=VIEW, set_type=ESET_ALL,
-                               ctype=FakeOrganisation, forbidden=True,
-                              ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=ESET_ALL,
+                    ctype=FakeOrganisation,
+                    forbidden=True,
+                ),
             ],
         )
 
@@ -804,12 +853,16 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=VIEW, set_type=SetCredentials.ESET_ALL,
-                               ctype=FakeOrganisation,
-                              ),
-                SetCredentials(value=VIEW, set_type=SetCredentials.ESET_OWN,
-                               forbidden=True,
-                              ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_ALL,
+                    ctype=FakeOrganisation,
+                ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_OWN,
+                    forbidden=True,
+                ),
             ],
         )
 
@@ -839,7 +892,6 @@ class CredentialsTestCase(CremeTestCase):
                 perm=VIEW,
             ))
         )
-
         self.assertListEqual(
             [orga1.id],
             self._ids_list(EntityCredentials.filter_entities(
@@ -972,10 +1024,11 @@ class CredentialsTestCase(CremeTestCase):
 
         contact1 = self.contact1
         contact2 = self.contact2
-        contact3 = FakeContact.objects.create(user=self.other_user,
-                                              first_name=contact2.first_name,
-                                              last_name=contact1.last_name,  # <== accepted
-                                             )
+        contact3 = FakeContact.objects.create(
+            user=self.other_user,
+            first_name=contact2.first_name,
+            last_name=contact1.last_name,  # <== accepted
+        )
 
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
@@ -997,9 +1050,12 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=VIEW, set_type=SetCredentials.ESET_FILTER,
-                               ctype=FakeContact, efilter=efilter,
-                              ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    ctype=FakeContact,
+                    efilter=efilter,
+                ),
             ],
         )
 
@@ -1051,35 +1107,40 @@ class CredentialsTestCase(CremeTestCase):
 
         contact1 = self.contact1
         contact2 = self.contact2
-        contact3 = FakeContact.objects.create(user=user,
-                                              first_name=contact2.first_name,
-                                              last_name=contact1.last_name,  # <== rejected
-                                             )
+        contact3 = FakeContact.objects.create(
+            user=user,
+            first_name=contact2.first_name,
+            last_name=contact1.last_name,  # <== rejected
+        )
 
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeContact,
-                operator=operators.IEQUALS,
-                field_name='last_name', values=[contact1.last_name],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.IEQUALS,
+                    field_name='last_name', values=[contact1.last_name],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
         )
 
         self._create_role(
-            'Coder', ['creme_core'], users=[user],
+            'Coder', ['creme_core'],
+            users=[user],
             set_creds=[
-                SetCredentials(set_type=SetCredentials.ESET_FILTER,
-                               value=VIEW, ctype=FakeContact,
-                               efilter=efilter, forbidden=True,
-                              ),
+                SetCredentials(
+                    set_type=SetCredentials.ESET_FILTER,
+                    value=VIEW,
+                    ctype=FakeContact,
+                    efilter=efilter,
+                    forbidden=True,
+                ),
             ],
         )
 
@@ -1102,23 +1163,24 @@ class CredentialsTestCase(CremeTestCase):
 
         contact1 = self.contact1
         contact2 = self.contact2
-        contact3 = FakeContact.objects.create(user=user,
-                                              first_name=contact2.first_name,
-                                              last_name=contact1.last_name,  # <== rejected
-                                             )
+        contact3 = FakeContact.objects.create(
+            user=user,
+            first_name=contact2.first_name,
+            last_name=contact1.last_name,  # <== rejected
+        )
 
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeContact,
-                operator=operators.IEQUALS,
-                field_name='last_name', values=[contact1.last_name],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.IEQUALS,
+                    field_name='last_name', values=[contact1.last_name],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -1126,7 +1188,8 @@ class CredentialsTestCase(CremeTestCase):
 
         build_cred = partial(SetCredentials, value=VIEW, ctype=FakeContact)
         self._create_role(
-            'Coder', ['creme_core'], users=[user],
+            'Coder', ['creme_core'],
+            users=[user],
             set_creds=[
                 build_cred(set_type=SetCredentials.ESET_FILTER, efilter=efilter, forbidden=True),
                 build_cred(set_type=SetCredentials.ESET_ALL),
@@ -1154,23 +1217,24 @@ class CredentialsTestCase(CremeTestCase):
 
         contact1 = self.contact1
         contact2 = self.contact2
-        contact3 = FakeContact.objects.create(user=self.other_user,  # <== not rejected
-                                              first_name=contact2.first_name,
-                                              last_name=contact1.last_name,  # <== accepted
-                                             )
+        contact3 = FakeContact.objects.create(
+            user=self.other_user,  # <== not rejected
+            first_name=contact2.first_name,
+            last_name=contact1.last_name,  # <== accepted
+        )
 
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeContact,
-                operator=operators.IEQUALS,
-                field_name='last_name', values=[contact1.last_name],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.IEQUALS,
+                    field_name='last_name', values=[contact1.last_name],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -1211,13 +1275,13 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeContact,
-                operator=operators.IEQUALS,
-                field_name='last_name', values=[contact1.last_name],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.IEQUALS,
+                    field_name='last_name', values=[contact1.last_name],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -1236,7 +1300,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertCountEqual(
             [contact1, self.contact2],
             EntityCredentials.filter(
-                user=user, perm=VIEW,
+                user=user,
+                perm=VIEW,
                 queryset=self._build_contact_qs(),
             )
         )
@@ -1249,27 +1314,29 @@ class CredentialsTestCase(CremeTestCase):
         contact1 = self.contact1
         contact2 = self.contact2
         create_contact = FakeContact.objects.create
-        contact3 = create_contact(user=user,  # <== accepted
-                                  first_name=contact1.first_name,
-                                  last_name=contact2.last_name,
-                                 )
-        contact4 = create_contact(user=self.other_user,
-                                  first_name=contact2.first_name,
-                                  last_name=contact1.last_name,  # <== accepted
-                                 )
+        contact3 = create_contact(
+            user=user,  # <== accepted
+            first_name=contact1.first_name,
+            last_name=contact2.last_name,
+        )
+        contact4 = create_contact(
+            user=self.other_user,
+            first_name=contact2.first_name,
+            last_name=contact1.last_name,  # <== accepted
+        )
 
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeContact,
-                operator=operators.IEQUALS,
-                field_name='last_name', values=[contact1.last_name],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.IEQUALS,
+                    field_name='last_name', values=[contact1.last_name],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -1301,15 +1368,18 @@ class CredentialsTestCase(CremeTestCase):
         contact1 = self.contact1
         contact2 = self.contact2
         create_contact = partial(FakeContact.objects.create, user=user)
-        contact3 = create_contact(first_name=contact2.first_name,
-                                  last_name=contact1.last_name,  # <== accepted
-                                 )
-        contact4 = create_contact(first_name=contact1.first_name,  # <== accepted
-                                  last_name=contact2.last_name,
-                                 )
-        contact5 = create_contact(first_name=contact2.first_name,
-                                  last_name=contact2.last_name,
-                                 )
+        contact3 = create_contact(
+            first_name=contact2.first_name,
+            last_name=contact1.last_name,  # <== accepted
+        )
+        contact4 = create_contact(
+            first_name=contact1.first_name,  # <== accepted
+            last_name=contact2.last_name,
+        )
+        contact5 = create_contact(
+            first_name=contact2.first_name,
+            last_name=contact2.last_name,
+        )
 
         efilter1 = EntityFilter.objects.create(
             id='creme_core-test_auth1',
@@ -1372,15 +1442,18 @@ class CredentialsTestCase(CremeTestCase):
         contact1 = self.contact1
         contact2 = self.contact2
         create_contact = partial(FakeContact.objects.create, user=user)
-        contact3 = create_contact(first_name=contact2.first_name,
-                                  last_name=contact1.last_name,  # <== rejected
-                                 )
-        contact4 = create_contact(first_name=contact1.first_name,  # <== rejected
-                                  last_name=contact2.last_name,
-                                 )
-        contact5 = create_contact(first_name=contact2.first_name,
-                                  last_name=contact2.last_name,
-                                 )
+        contact3 = create_contact(
+            first_name=contact2.first_name,
+            last_name=contact1.last_name,  # <== rejected
+        )
+        contact4 = create_contact(
+            first_name=contact1.first_name,  # <== rejected
+            last_name=contact2.last_name,
+        )
+        contact5 = create_contact(
+            first_name=contact2.first_name,
+            last_name=contact2.last_name,
+        )
 
         efilter1 = EntityFilter.objects.create(
             id='creme_core-test_auth1',
@@ -1417,16 +1490,23 @@ class CredentialsTestCase(CremeTestCase):
         )
 
         self._create_role(
-            'Coder', ['creme_core'], users=[user],
+            'Coder', ['creme_core'],
+            users=[user],
             set_creds=[
-                SetCredentials(value=VIEW, set_type=SetCredentials.ESET_FILTER,
-                               ctype=FakeContact, efilter=efilter1,
-                               forbidden=True,
-                              ),
-                SetCredentials(value=VIEW, set_type=SetCredentials.ESET_FILTER,
-                               ctype=FakeContact, efilter=efilter2,
-                               forbidden=True,
-                              ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    ctype=FakeContact,
+                    efilter=efilter1,
+                    forbidden=True,
+                ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    ctype=FakeContact,
+                    efilter=efilter2,
+                    forbidden=True,
+                ),
                 SetCredentials(value=VIEW, set_type=SetCredentials.ESET_ALL),
             ],
         )
@@ -1446,15 +1526,18 @@ class CredentialsTestCase(CremeTestCase):
         contact1 = self.contact1
         contact2 = self.contact2
         create_contact = partial(FakeContact.objects.create, user=user)
-        contact3 = create_contact(first_name=contact2.first_name,
-                                  last_name=contact1.last_name,  # <== accepted
-                                 )
-        contact4 = create_contact(first_name=contact1.first_name,  # <== rejected
-                                  last_name=contact2.last_name,
-                                 )
-        contact5 = create_contact(first_name=contact2.first_name,
-                                  last_name=contact2.last_name,
-                                 )
+        contact3 = create_contact(
+            first_name=contact2.first_name,
+            last_name=contact1.last_name,  # <== accepted
+        )
+        contact4 = create_contact(
+            first_name=contact1.first_name,  # <== rejected
+            last_name=contact2.last_name,
+        )
+        contact5 = create_contact(
+            first_name=contact2.first_name,
+            last_name=contact2.last_name,
+        )
 
         efilter1 = EntityFilter.objects.create(
             id='creme_core-test_auth1',
@@ -1493,13 +1576,19 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=VIEW, set_type=SetCredentials.ESET_FILTER,
-                               ctype=FakeContact, efilter=efilter1,
-                              ),
-                SetCredentials(value=VIEW, set_type=SetCredentials.ESET_FILTER,
-                               ctype=FakeContact, efilter=efilter2,
-                               forbidden=True,
-                              ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    ctype=FakeContact,
+                    efilter=efilter1,
+                ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    ctype=FakeContact,
+                    efilter=efilter2,
+                    forbidden=True,
+                ),
             ],
         )
 
@@ -1519,27 +1608,30 @@ class CredentialsTestCase(CremeTestCase):
         contact2 = self.contact2
 
         create_contact = FakeContact.objects.create
-        contact3 = create_contact(user=user,
-                                  first_name=contact2.first_name,
-                                  last_name=contact1.last_name,
-                                 )
-        contact4 = create_contact(user=self.other_user,
-                                  first_name=contact1.first_name,
-                                  last_name=contact2.last_name,
-                                 )
+        contact3 = create_contact(
+            user=user,
+            first_name=contact2.first_name,
+            last_name=contact1.last_name,
+        )
+        contact4 = create_contact(
+            user=self.other_user,
+            first_name=contact1.first_name,
+            last_name=contact2.last_name,
+        )
 
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=CremeEntity,
-                operator=operators.EQUALS,
-                field_name='user', values=[operands.CurrentUserOperand.type_id],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=CremeEntity,
+                    operator=operators.EQUALS,
+                    field_name='user',
+                    values=[operands.CurrentUserOperand.type_id],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -1548,10 +1640,12 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=VIEW, set_type=SetCredentials.ESET_FILTER,
-                               # ctype=CremeEntity,
-                               efilter=efilter,
-                              ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    # ctype=CremeEntity,
+                    efilter=efilter,
+                ),
             ],
         )
 
@@ -1591,27 +1685,30 @@ class CredentialsTestCase(CremeTestCase):
         contact2 = self.contact2
 
         create_contact = FakeContact.objects.create
-        contact3 = create_contact(user=self.other_user,
-                                  first_name=contact2.first_name,
-                                  last_name=contact1.last_name,
-                                )
-        contact4 = create_contact(user=user,
-                                  first_name=contact1.first_name,
-                                  last_name=contact2.last_name,
-                                 )
+        contact3 = create_contact(
+            user=self.other_user,
+            first_name=contact2.first_name,
+            last_name=contact1.last_name,
+        )
+        contact4 = create_contact(
+            user=user,
+            first_name=contact1.first_name,
+            last_name=contact2.last_name,
+        )
 
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeContact,
-                operator=operators.EQUALS_NOT,
-                field_name='user', values=[operands.CurrentUserOperand.type_id],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EQUALS_NOT,
+                    field_name='user',
+                    values=[operands.CurrentUserOperand.type_id],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -1619,11 +1716,14 @@ class CredentialsTestCase(CremeTestCase):
 
         build_cred = partial(SetCredentials, value=VIEW, ctype=FakeContact)
         self._create_role(
-            'Coder', ['creme_core'], users=[user],
+            'Coder', ['creme_core'],
+            users=[user],
             set_creds=[
-                build_cred(set_type=SetCredentials.ESET_FILTER, efilter=efilter,
-                           forbidden=True,
-                          ),
+                build_cred(
+                    set_type=SetCredentials.ESET_FILTER,
+                    efilter=efilter,
+                    forbidden=True,
+                ),
                 build_cred(set_type=SetCredentials.ESET_ALL),
             ],
         )
@@ -1730,9 +1830,10 @@ class CredentialsTestCase(CremeTestCase):
 
         with self.assertRaises(PermissionDenied) as cm:
             user.has_perm_to_access_or_die('creme_core')
-        self.assertEqual(_('You are not allowed to access to the app: {}').format(_('Core')),
-                         str(cm.exception)
-                        )
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(_('Core')),
+            str(cm.exception)
+        )
 
         role.allowed_apps = ['creme_core', 'creme_config']
         role.save()
@@ -1911,17 +2012,22 @@ class CredentialsTestCase(CremeTestCase):
     def test_team_credentials01(self):
         user = self.user
         other = self.other_user
-        self._create_role('Worker', ['creme_core'], users=[user, other],
-                          set_creds=[
-                              SetCredentials(value=EntityCredentials.VIEW,
-                                             set_type=SetCredentials.ESET_OWN,
-                                            ),
-                          ],
-                         )
+        self._create_role(
+            'Worker', ['creme_core'],
+            users=[user, other],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_OWN,
+                ),
+            ],
+        )
 
         team = self._create_team('Teamee', [user])
 
-        entity = self.refresh(FakeContact.objects.create(user=team, first_name='Ito', last_name='Ittosaï'))  # No cache
+        entity = self.refresh(
+            FakeContact.objects.create(user=team, first_name='Ito', last_name='Ittosaï')
+        )  # No cache
         user = self.refresh(user)  # Refresh cache
 
         with self.assertNumQueries(3):  # Role, SetCredentials & teams
@@ -1959,25 +2065,29 @@ class CredentialsTestCase(CremeTestCase):
         "User in several teams."
         user = self.user
         other = self.other_user
-        self._create_role('Worker', ['creme_core'], users=[user, other],
-                          set_creds=[
-                              SetCredentials(value=EntityCredentials.VIEW,
-                                             set_type=SetCredentials.ESET_OWN,
-                                            ),
-                          ],
-                         )
+        self._create_role(
+            'Worker', ['creme_core'],
+            users=[user, other],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_OWN,
+                ),
+            ],
+        )
 
         create_team = self._create_team
         team1 = create_team('Teamee 1', [user])
         team2 = create_team('Teamee 2', [other, user])
         team3 = create_team('Teamee 3', [other])
 
-        entity1 = FakeContact.objects.create(user=team1, first_name='Munisai', last_name='Shinmen')
+        create_user = FakeContact.objects.create
+        entity1 = create_user(user=team1, first_name='Munisai', last_name='Shinmen')
         self.assertTrue(user.has_perm_to_view(entity1))  # Belongs to the team
         self.assertFalse(user.has_perm_to_change(entity1))
         self.assertFalse(other.has_perm_to_view(entity1))
 
-        entity2 = FakeContact.objects.create(user=team2, first_name='Kempo', last_name='Yoshioka')
+        entity2 = create_user(user=team2, first_name='Kempo', last_name='Yoshioka')
         self.assertTrue(user.has_perm_to_view(entity2))  # Belongs to the team
         self.assertFalse(user.has_perm_to_change(entity2))
         self.assertTrue(other.has_perm_to_view(entity2))
@@ -1992,25 +2102,29 @@ class CredentialsTestCase(CremeTestCase):
             __ = user.teams
 
         # Filtering ------------------------------------------------------------
-        entity3 = FakeContact.objects.create(user=team3, first_name='Ryohei', last_name='Ueda')
+        entity3 = create_user(user=team3, first_name='Ryohei', last_name='Ueda')
 
         qs = FakeContact.objects.filter(pk__in=[entity1.id, entity2.id, entity3.id])
         efilter = EntityCredentials.filter
-        self.assertEqual([entity1.id, entity2.id],
-                         self._ids_list(efilter(user, qs, perm=EntityCredentials.VIEW))
-                        )  # Belongs to the teams
+        self.assertListEqual(
+            [entity1.id, entity2.id],
+            self._ids_list(efilter(user, qs, perm=EntityCredentials.VIEW))
+        )  # Belongs to the teams
         self.assertFalse(efilter(user, qs, perm=EntityCredentials.CHANGE))
 
     def test_has_perm_to01(self):
         "Not real entity."
         user = self.user
         self._create_role(
-            'Worker', ['creme_config'], users=[user],
-            set_creds=[SetCredentials(value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_ALL,
-                                      ctype=FakeConfigEntity,
-                                     ),
-                      ],
+            'Worker', ['creme_config'],
+            users=[user],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_ALL,
+                    ctype=FakeConfigEntity,
+                ),
+            ],
         )
 
         ec = FakeConfigEntity.objects.create(user=user, name='Conf #1')
@@ -2111,9 +2225,10 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Worker', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                               set_type=SetCredentials.ESET_ALL,
-                              ),
+                SetCredentials(
+                    value=EntityCredentials.VIEW | EntityCredentials.LINK,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
             ],
         )
 
@@ -2197,25 +2312,31 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=CremeEntity,
-                operator=operators.EQUALS,
-                field_name='user', values=[user.id],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=CremeEntity,
+                    operator=operators.EQUALS,
+                    field_name='user', values=[user.id],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
         )
 
         self._create_role(
-            'Worker', ['creme_core'], users=[user],
+            'Worker', ['creme_core'],
+            users=[user],
             set_creds=[
-                SetCredentials(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL),
-                SetCredentials(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_FILTER,
-                               efilter=efilter,
-                              ),
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
+                SetCredentials(
+                    value=EntityCredentials.LINK,
+                    set_type=SetCredentials.ESET_FILTER,
+                    efilter=efilter,
+                ),
             ],
         )
 
@@ -2226,12 +2347,14 @@ class CredentialsTestCase(CremeTestCase):
     def test_is_deleted(self):
         user = self.user
         self._create_role(
-            'Coder', ['creme_core'], users=[user],
+            'Coder', ['creme_core'],
+            users=[user],
             set_creds=[
-                SetCredentials(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                                     EntityCredentials.LINK | EntityCredentials.UNLINK,
-                               set_type=SetCredentials.ESET_ALL,
-                              ),
+                SetCredentials(
+                    value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                          EntityCredentials.LINK | EntityCredentials.UNLINK,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
             ],
         )
 
@@ -2277,13 +2400,16 @@ class CredentialsTestCase(CremeTestCase):
     def test_filter_entities02(self):
         "ESET_ALL."
         user = self.user
-        self._create_role('Coder', ['creme_core'], users=[user],
-                          set_creds=[
-                              SetCredentials(value=EntityCredentials.VIEW,
-                                             set_type=SetCredentials.ESET_ALL,
-                                            ),
-                          ],
-                         )
+        self._create_role(
+            'Coder', ['creme_core'],
+            users=[user],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
+            ],
+        )
 
         create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user, name='Yoshioka')
@@ -2354,9 +2480,10 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=EntityCredentials.VIEW,
-                               set_type=SetCredentials.ESET_ALL,
-                              ),
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
             ],
         )
 
@@ -2379,10 +2506,11 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=EntityCredentials.VIEW,
-                               set_type=SetCredentials.ESET_OWN,
-                               ctype=FakeContact,
-                              ),
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_OWN,
+                    ctype=FakeContact,
+                ),
             ],
         )
 
@@ -2409,13 +2537,13 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=CremeEntity,
-                operator=operators.EQUALS,
-                field_name='user', values=[user.id],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=CremeEntity,
+                    operator=operators.EQUALS,
+                    field_name='user', values=[user.id],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -2424,11 +2552,12 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=VIEW,
-                               set_type=SetCredentials.ESET_FILTER,
-                               # ctype=CremeEntity,
-                               efilter=efilter,
-                              ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    # ctype=CremeEntity,
+                    efilter=efilter,
+                ),
             ],
         )
 
@@ -2463,13 +2592,13 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=CremeEntity,
-                operator=operators.EQUALS,
-                field_name='user', values=[user.id],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=CremeEntity,
+                    operator=operators.EQUALS,
+                    field_name='user', values=[user.id],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -2478,12 +2607,13 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=VIEW,
-                               set_type=SetCredentials.ESET_FILTER,
-                               # ctype=CremeEntity,
-                               efilter=efilter,
-                               forbidden=True,
-                              ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    # ctype=CremeEntity,
+                    efilter=efilter,
+                    forbidden=True,
+                ),
             ],
         )
 
@@ -2506,13 +2636,13 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=CremeEntity,
-                operator=operators.EQUALS,
-                field_name='user', values=[other.id],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=CremeEntity,
+                    operator=operators.EQUALS,
+                    field_name='user', values=[other.id],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -2521,16 +2651,18 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=VIEW,
-                               set_type=SetCredentials.ESET_FILTER,
-                               # ctype=CremeEntity,
-                               efilter=efilter,
-                               forbidden=True,
-                              ),
-                SetCredentials(value=VIEW | CHANGE,
-                               set_type=SetCredentials.ESET_ALL,
-                               ctype=FakeContact,
-                              ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    # ctype=CremeEntity,
+                    efilter=efilter,
+                    forbidden=True,
+                ),
+                SetCredentials(
+                    value=VIEW | CHANGE,
+                    set_type=SetCredentials.ESET_ALL,
+                    ctype=FakeContact,
+                ),
             ],
         )
 
@@ -2563,32 +2695,33 @@ class CredentialsTestCase(CremeTestCase):
         user = self.user
         VIEW = EntityCredentials.VIEW
 
-        create_efilter = partial(EntityFilter.objects.create,
-                                 entity_type=CremeEntity,
-                                 filter_type=EF_CREDENTIALS,
-                                )
+        create_efilter = partial(
+            EntityFilter.objects.create,
+            entity_type=CremeEntity,
+            filter_type=EF_CREDENTIALS,
+        )
         efilter1 = create_efilter(id='creme_core-test_auth1')
         efilter2 = create_efilter(id='creme_core-test_auth2')
 
         build_condition = condition_handler.RegularFieldConditionHandler.build_condition
-        efilter1.set_conditions(
-            [build_condition(
-                model=CremeEntity,
-                operator=operators.EQUALS,
-                field_name='user', values=[user.id],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter1.set_conditions([
+                build_condition(
+                    model=CremeEntity,
+                    operator=operators.EQUALS,
+                    field_name='user', values=[user.id],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
         )
-        efilter2.set_conditions(
-            [build_condition(
-                model=CremeEntity,
-                operator=operators.ISEMPTY,
-                field_name='description', values=[False],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter2.set_conditions([
+                build_condition(
+                    model=CremeEntity,
+                    operator=operators.ISEMPTY,
+                    field_name='description', values=[False],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -2597,27 +2730,31 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=VIEW,
-                               set_type=SetCredentials.ESET_FILTER,
-                               # ctype=CremeEntity,
-                               efilter=efilter1,
-                              ),
-                SetCredentials(value=VIEW,
-                               set_type=SetCredentials.ESET_FILTER,
-                               # ctype=CremeEntity,
-                               efilter=efilter2,
-                              ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    # ctype=CremeEntity,
+                    efilter=efilter1,
+                ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    # ctype=CremeEntity,
+                    efilter=efilter2,
+                ),
             ],
         )
 
         create_contact = FakeContact.objects.create
-        contact3 = create_contact(user=self.other_user,
-                                  first_name='Sekishusai', last_name='Yagyu',
-                                  description='Great warrior',  # <== OK
-                                 )
-        contact4 = create_contact(user=user,  # <== OK
-                                  first_name='Kempo', last_name='Yoshioka',
-                                 )
+        contact3 = create_contact(
+            user=self.other_user,
+            first_name='Sekishusai', last_name='Yagyu',
+            description='Great warrior',  # <== OK
+        )
+        contact4 = create_contact(
+            user=user,  # <== OK
+            first_name='Kempo', last_name='Yoshioka',
+        )
 
         qs = CremeEntity.objects.filter(
             pk__in=[self.contact1.id, self.contact2.id, contact3.id, contact4.id],
@@ -2632,32 +2769,33 @@ class CredentialsTestCase(CremeTestCase):
         user = self.user
         VIEW = EntityCredentials.VIEW
 
-        create_efilter = partial(EntityFilter.objects.create,
-                                 entity_type=CremeEntity,
-                                 filter_type=EF_CREDENTIALS,
-                                )
+        create_efilter = partial(
+            EntityFilter.objects.create,
+            entity_type=CremeEntity,
+            filter_type=EF_CREDENTIALS,
+        )
         efilter1 = create_efilter(id='creme_core-test_auth1')
         efilter2 = create_efilter(id='creme_core-test_auth2')
 
         build_condition = condition_handler.RegularFieldConditionHandler.build_condition
-        efilter1.set_conditions(
-            [build_condition(
-                model=CremeEntity,
-                operator=operators.EQUALS,
-                field_name='user', values=[self.other_user.id],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter1.set_conditions([
+                build_condition(
+                    model=CremeEntity,
+                    operator=operators.EQUALS,
+                    field_name='user', values=[self.other_user.id],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
         )
-        efilter2.set_conditions(
-            [build_condition(
-                model=CremeEntity,
-                operator=operators.ISEMPTY,
-                field_name='description', values=[False],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter2.set_conditions([
+                build_condition(
+                    model=CremeEntity,
+                    operator=operators.ISEMPTY,
+                    field_name='description', values=[False],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -2666,21 +2804,24 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=VIEW,
-                               set_type=SetCredentials.ESET_ALL,
-                              ),
-                SetCredentials(value=VIEW,
-                               set_type=SetCredentials.ESET_FILTER,
-                               # ctype=CremeEntity,
-                               efilter=efilter1,
-                               forbidden=True,
-                              ),
-                SetCredentials(value=VIEW,
-                               set_type=SetCredentials.ESET_FILTER,
-                               # ctype=CremeEntity,
-                               efilter=efilter2,
-                               forbidden=True,
-                              ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    # ctype=CremeEntity,
+                    efilter=efilter1,
+                    forbidden=True,
+                ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    # ctype=CremeEntity,
+                    efilter=efilter2,
+                    forbidden=True,
+                ),
             ],
         )
 
@@ -2707,14 +2848,16 @@ class CredentialsTestCase(CremeTestCase):
         contact2 = self.contact2
 
         create_contact = FakeContact.objects.create
-        contact3 = create_contact(user=user,
-                                  first_name=contact2.first_name,
-                                  last_name=contact1.last_name,
-                                )
-        contact4 = create_contact(user=self.other_user,
-                                  first_name=contact1.first_name,
-                                  last_name=contact2.last_name,
-                                 )
+        contact3 = create_contact(
+            user=user,
+            first_name=contact2.first_name,
+            last_name=contact1.last_name,
+        )
+        contact4 = create_contact(
+            user=self.other_user,
+            first_name=contact1.first_name,
+            last_name=contact2.last_name,
+        )
 
         create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user,            name='Orga1')
@@ -2725,13 +2868,14 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeContact,
-                operator=operators.EQUALS,
-                field_name='user', values=[operands.CurrentUserOperand.type_id],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EQUALS,
+                    field_name='user',
+                    values=[operands.CurrentUserOperand.type_id],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -2740,10 +2884,12 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=VIEW, set_type=SetCredentials.ESET_FILTER,
-                               ctype=FakeContact,
-                               efilter=efilter,
-                              ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    ctype=FakeContact,
+                    efilter=efilter,
+                ),
             ],
         )
 
@@ -2780,13 +2926,13 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=Document,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=Document,
-                operator=operators.ICONTAINS,
-                field_name='title', values=['Picture'],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Document,
+                    operator=operators.ICONTAINS,
+                    field_name='title', values=['Picture'],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -2822,13 +2968,13 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter_4_contact.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeContact,
-                operator=operators.EQUALS,
-                field_name='user', values=[user.id],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter_4_contact.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EQUALS,
+                    field_name='user', values=[user.id],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -2839,13 +2985,13 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeOrganisation,
             filter_type=EF_CREDENTIALS,
         )
-        efilter_4_orga.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeOrganisation,
-                operator=operators.ICONTAINS,
-                field_name='name', values=['Corp'],
-                filter_type=EF_CREDENTIALS,
-             ),
+        efilter_4_orga.set_conditions([
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator=operators.ICONTAINS,
+                    field_name='name', values=['Corp'],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -2854,16 +3000,18 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=VIEW,
-                               set_type=SetCredentials.ESET_FILTER,
-                               ctype=FakeContact,
-                               efilter=efilter_4_contact,
-                              ),
-                SetCredentials(value=VIEW,
-                               set_type=SetCredentials.ESET_FILTER,
-                               ctype=FakeOrganisation,
-                               efilter=efilter_4_orga,
-                              ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    ctype=FakeContact,
+                    efilter=efilter_4_contact,
+                ),
+                SetCredentials(
+                    value=VIEW,
+                    set_type=SetCredentials.ESET_FILTER,
+                    ctype=FakeOrganisation,
+                    efilter=efilter_4_orga,
+                ),
             ],
         )
 
@@ -2897,17 +3045,19 @@ class CredentialsTestCase(CremeTestCase):
         self._create_role(
             'Coder', ['creme_core'], users=[user],
             set_creds=[
-                SetCredentials(value=EntityCredentials.VIEW,
-                               set_type=SetCredentials.ESET_ALL,
-                              ),
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
             ],
         )
 
         # sandbox = Sandbox.objects.create(superuser=True)
         sandbox = Sandbox.objects.create()
-        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox,
-                                              first_name='Ito', last_name='Ittosaï',
-                                             )
+        contact3 = FakeContact.objects.create(
+            user=user, sandbox=sandbox,
+            first_name='Ito', last_name='Ittosaï',
+        )
 
         contact1 = self.contact1
         self.assertTrue(user.has_perm_to_view(contact1))
@@ -2973,9 +3123,10 @@ class CredentialsTestCase(CremeTestCase):
 
         sandbox = Sandbox.objects.create(role=role1)
 
-        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox,
-                                              first_name='Ito', last_name='Ittosaï',
-                                             )
+        contact3 = FakeContact.objects.create(
+            user=user, sandbox=sandbox,
+            first_name='Ito', last_name='Ittosaï',
+        )
 
         contact1 = self.contact1
         self.assertTrue(user.has_perm_to_view(contact1))
@@ -2989,11 +3140,12 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(other_user.has_perm_to_view(contact3))  # <== not the sandbox's role
 
         # Super user
-        super_user = CremeUser.objects.create_superuser(username='super',
-                                                        first_name='Suppa', last_name='man',
-                                                        email='suppa@penguin.jp',
-                                                        password=self.password,
-                                                       )
+        super_user = CremeUser.objects.create_superuser(
+            username='super',
+            first_name='Suppa', last_name='man',
+            email='suppa@penguin.jp',
+            password=self.password,
+        )
         self.assertTrue(super_user.has_perm_to_view(contact3))  # superusers ignore the Sandbox
 
         # Filtering ------------------------------------------------------------
@@ -3034,16 +3186,19 @@ class CredentialsTestCase(CremeTestCase):
 
         self._create_role(
             'Coder', ['creme_core'], users=[user, other_user],
-            set_creds=[SetCredentials(value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     ),
-                      ],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
+            ],
         )
         sandbox = Sandbox.objects.create(user=user)
 
-        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox,
-                                              first_name='Ito', last_name='Ittosaï',
-                                             )
+        contact3 = FakeContact.objects.create(
+            user=user, sandbox=sandbox,
+            first_name='Ito', last_name='Ittosaï',
+        )
 
         contact1 = self.contact1
         self.assertTrue(user.has_perm_to_view(contact1))
@@ -3093,18 +3248,22 @@ class CredentialsTestCase(CremeTestCase):
         other_user = self.other_user
 
         self._create_role(
-            'Coder', ['creme_core'], users=[user, other_user],
-            set_creds=[SetCredentials(value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     ),
-                      ],
+            'Coder', ['creme_core'],
+            users=[user, other_user],
+            set_creds=[
+                SetCredentials(
+                    value=EntityCredentials.VIEW,
+                    set_type=SetCredentials.ESET_ALL,
+                ),
+            ],
         )
         team = self._create_team('Teamee', [user])
         sandbox = Sandbox.objects.create(user=team)
 
-        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox,
-                                              first_name='Ito', last_name='Ittosaï',
-                                             )
+        contact3 = FakeContact.objects.create(
+            user=user, sandbox=sandbox,
+            first_name='Ito', last_name='Ittosaï',
+         )
 
         contact1 = self.contact1
         self.assertTrue(user.has_perm_to_view(contact1))
@@ -3146,4 +3305,75 @@ class CredentialsTestCase(CremeTestCase):
         self.assertSetEqual(
             {contact1, contact2, orga1},
             {e.get_real_entity() for e in filter_entities(other_user, entities_qs)}
+        )
+
+    def test_credentials_str(self):
+        self.assertEqual(
+            _('For “{set}“ it is allowed to: {perms}').format(
+                set=_('All entities'),
+                perms=_('nothing allowed'),
+            ),
+            str(SetCredentials(
+                # value=...,
+                set_type=SetCredentials.ESET_ALL,
+            ))
+        )
+        self.assertEqual(
+            _('For “{set}“ it is allowed to: {perms}').format(
+                set=_('All entities'),
+                perms=_('view'),
+            ),
+            str(SetCredentials(
+                value=EntityCredentials.VIEW,
+                set_type=SetCredentials.ESET_ALL,
+            ))
+        )
+
+        self.assertEqual(
+            _('For “{set}“ it is forbidden to: {perms}').format(
+                set=_("User's own entities"),
+                perms=_('nothing forbidden'),
+            ),
+            str(SetCredentials(
+                # value=...,
+                set_type=SetCredentials.ESET_OWN,
+                forbidden=True,
+            ))
+        )
+        self.assertEqual(
+            _('For “{set}“ it is forbidden to: {perms}').format(
+                set=_("User's own entities"),
+                perms='{}, {}'.format(_('change'), _('delete')),
+            ),
+            str(SetCredentials(
+                value=EntityCredentials.CHANGE | EntityCredentials.DELETE,
+                set_type=SetCredentials.ESET_OWN,
+                forbidden=True,
+            ))
+        )
+
+        self.assertEqual(
+            _('For “{set}“ of type “{type}” it is allowed to: {perms}').format(
+                set=_('All entities'),
+                type='Test Contact',
+                perms=_('link'),
+            ),
+            str(SetCredentials(
+                value=EntityCredentials.LINK,
+                set_type=SetCredentials.ESET_ALL,
+                ctype=FakeContact,
+            ))
+        )
+        self.assertEqual(
+            _('For “{set}“ of type “{type}” it is forbidden to: {perms}').format(
+                set=_("User's own entities"),
+                type='Test Organisation',
+                perms=_('unlink'),
+            ),
+            str(SetCredentials(
+                value=EntityCredentials.UNLINK,
+                set_type=SetCredentials.ESET_OWN,
+                ctype=FakeOrganisation,
+                forbidden=True,
+            ))
         )
