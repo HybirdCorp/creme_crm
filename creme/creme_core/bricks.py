@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,9 +29,19 @@ from .core.entity_cell import EntityCellCustomField
 from .creme_jobs.base import JobType
 from .gui.bricks import Brick, QuerysetBrick, BricksManager
 from .gui import statistics
-from .models import (CremeEntity, RelationType, Relation, CremeProperty, CustomField, Imprint,
-        Job, JobResult, MassImportJobResult, EntityJobResult)
-from .models.history import HistoryLine, TYPE_SYM_RELATION, TYPE_SYM_REL_DEL
+from .models import (
+    CremeEntity,
+    RelationType, Relation,
+    CremeProperty,
+    CustomField,
+    Imprint,
+    Job, JobResult, MassImportJobResult, EntityJobResult,
+)
+from .models.history import (
+    HistoryLine,
+    TYPE_SYM_RELATION,
+    TYPE_SYM_REL_DEL,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +56,7 @@ class PropertiesBrick(QuerysetBrick):
     def detailview_display(self, context):
         entity = context['object']
         return self._render(self.get_template_context(
-                    context, entity.properties.select_related('type'),
+            context, entity.properties.select_related('type'),
         ))
 
 
@@ -120,9 +130,10 @@ class RelationsBrick(QuerysetBrick):
         if excluded_rtype_ids:
             relations = relations.exclude(type__in=excluded_rtype_ids)
 
-        btc = self.get_template_context(context, relations,
-                                        excluded_rtype_ids=excluded_rtype_ids,
-                                       )
+        btc = self.get_template_context(
+            context, relations,
+            excluded_rtype_ids=excluded_rtype_ids,
+        )
 
         # NB: DB optimisation
         Relation.populate_real_object_entities(btc['page'].object_list)
@@ -144,8 +155,8 @@ class CustomFieldsBrick(Brick):
         CremeEntity.populate_custom_values([entity], cfields)
 
         return self._render(self.get_template_context(
-                    context,
-                    cells=[EntityCellCustomField(cfield) for cfield in cfields],
+            context,
+            cells=[EntityCellCustomField(cfield) for cfield in cfields],
         ))
 
 
@@ -203,10 +214,10 @@ class HistoryBrick(QuerysetBrick):
 
     def home_display(self, context):
         btc = self.get_template_context(
-                    context,
-                    HistoryLine.objects.exclude(type__in=(TYPE_SYM_RELATION, TYPE_SYM_REL_DEL)),
-                    HIDDEN_VALUE=settings.HIDDEN_VALUE,
-                   )
+            context,
+            HistoryLine.objects.exclude(type__in=(TYPE_SYM_RELATION, TYPE_SYM_REL_DEL)),
+            HIDDEN_VALUE=settings.HIDDEN_VALUE,
+        )
         hlines = btc['page'].object_list
         user = context['user']
 
@@ -258,9 +269,9 @@ class TrashBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         btc = self.get_template_context(
-                context,
-                CremeEntity.objects.filter(is_deleted=True),
-         )
+            context,
+            CremeEntity.objects.filter(is_deleted=True),
+        )
         CremeEntity.populate_real_entities(btc['page'].object_list)
 
         return self._render(btc)
@@ -277,11 +288,12 @@ class StatisticsBrick(Brick):
         has_perm = context['user'].has_perm
 
         return self._render(self.get_template_context(
-                    context,
-                    items=[item
-                            for item in self.statistics_registry
-                                if not item.perm or has_perm(item.perm)
-                          ],
+            context,
+            items=[
+                item
+                for item in self.statistics_registry
+                if not item.perm or has_perm(item.perm)
+            ],
         ))
 
 
@@ -317,13 +329,13 @@ class JobBrick(Brick):
             list_url = reloading_info.get('list_url')
 
         return self._render(self.get_template_context(
-                    context, job=job,
-                    JOB_OK=Job.STATUS_OK,
-                    JOB_ERROR=Job.STATUS_ERROR,
-                    JOB_WAIT=Job.STATUS_WAIT,
-                    # PERIODIC=JobType.PERIODIC,
-                    NOT_PERIODIC=JobType.NOT_PERIODIC,
-                    list_url=list_url,
+            context, job=job,
+            JOB_OK=Job.STATUS_OK,
+            JOB_ERROR=Job.STATUS_ERROR,
+            JOB_WAIT=Job.STATUS_WAIT,
+            # PERIODIC=JobType.PERIODIC,
+            NOT_PERIODIC=JobType.NOT_PERIODIC,
+            list_url=list_url,
         ))
 
 
@@ -346,8 +358,8 @@ class JobResultsBrick(QuerysetBrick):
         job = context['job']
 
         return self._render(self.get_template_context(
-                    context, self._build_queryset(job),
-                    **self._extra_context(job)
+            context, self._build_queryset(job),
+            **self._extra_context(job)
         ))
 
 
@@ -392,11 +404,11 @@ class JobsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context, self._jobs_qs(context),
-                    not_finished_user_jobs_count=Job.not_finished_jobs(context['user']).count(),
-                    MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,
-                    NOT_PERIODIC=JobType.NOT_PERIODIC,
-                    PSEUDO_PERIODIC=JobType.PSEUDO_PERIODIC,
+            context, self._jobs_qs(context),
+            not_finished_user_jobs_count=Job.not_finished_jobs(context['user']).count(),
+            MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,
+            NOT_PERIODIC=JobType.NOT_PERIODIC,
+            PSEUDO_PERIODIC=JobType.PSEUDO_PERIODIC,
         ))
 
 
