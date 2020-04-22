@@ -2616,7 +2616,7 @@ class EntityFiltersTestCase(CremeTestCase):
             name='size (cm)', content_type=self.contact_ct, field_type=CustomField.INT,
         )
 
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
         klass(custom_field=custom_field, entity=rei).set_value_n_save(150)
         klass(custom_field=custom_field, entity=self.contacts['misato']).set_value_n_save(170)
         self.assertEqual(2, CustomFieldInteger.objects.count())
@@ -2641,7 +2641,7 @@ class EntityFiltersTestCase(CremeTestCase):
             name='size (cm)', content_type=self.contact_ct, field_type=CustomField.INT,
         )
 
-        klass = custom_field01.get_value_class()
+        klass = custom_field01.value_class
         klass(custom_field=custom_field01, entity=contacts['rei']).set_value_n_save(150)
         klass(custom_field=custom_field01, entity=asuka).set_value_n_save(160)
 
@@ -2649,7 +2649,7 @@ class EntityFiltersTestCase(CremeTestCase):
         custom_field02 = CustomField.objects.create(
             name='weight (pound)', content_type=self.contact_ct, field_type=CustomField.INT,
         )
-        custom_field02.get_value_class()(
+        custom_field02.value_class(
             custom_field=custom_field02, entity=self.contacts['spike'],
         ).set_value_n_save(156)
 
@@ -2674,7 +2674,7 @@ class EntityFiltersTestCase(CremeTestCase):
         )
 
         c = self.contacts
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
         klass(custom_field=custom_field, entity=c['rei']).set_value_n_save('Eva-00')
         klass(custom_field=custom_field, entity=c['shinji']).set_value_n_save('Eva-01')
         klass(custom_field=custom_field, entity=c['misato']).set_value_n_save('Eva-02')
@@ -2704,13 +2704,13 @@ class EntityFiltersTestCase(CremeTestCase):
                             content_type=self.contact_ct, field_type=CustomField.INT,
                            )
         custom_field01 = create_cf(name='size (cm)')
-        klass = custom_field01.get_value_class()
+        klass = custom_field01.value_class
         klass(custom_field=custom_field01, entity=spike).set_value_n_save(180)
         klass(custom_field=custom_field01, entity=contacts['rei']).set_value_n_save(150)
         klass(custom_field=custom_field01, entity=asuka).set_value_n_save(160)
 
         custom_field02 = create_cf(name='weight (pound)')
-        klass = custom_field02.get_value_class()
+        klass = custom_field02.value_class
         klass(custom_field=custom_field02, entity=spike).set_value_n_save(156)
         klass(custom_field=custom_field02, entity=asuka).set_value_n_save(80)
 
@@ -2754,7 +2754,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                   content_type=self.contact_ct,
                                                   field_type=CustomField.FLOAT,
                                                  )
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
         klass(custom_field=custom_field, entity=ed).set_value_n_save('38.20')
         klass(custom_field=custom_field, entity=rei).set_value_n_save('40.00')
         klass(custom_field=custom_field, entity=contacts['asuka']).set_value_n_save('40.5')
@@ -2786,7 +2786,7 @@ class EntityFiltersTestCase(CremeTestCase):
         create_evalue(value='Eva-01')
         eva02 = create_evalue(value='Eva-02')
 
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
         klass(custom_field=custom_field, entity=rei).set_value_n_save(eva00.id)
         klass(custom_field=custom_field, entity=self.contacts['asuka']).set_value_n_save(eva02.id)
 
@@ -2827,7 +2827,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                   content_type=self.contact_ct,
                                                   field_type=CustomField.BOOL,
                                                  )
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
         klass(custom_field=custom_field, entity=ed).set_value_n_save(True)
         klass(custom_field=custom_field, entity=rei).set_value_n_save(True)
         klass(custom_field=custom_field, entity=contacts['asuka']).set_value_n_save(False)
@@ -2869,7 +2869,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                   content_type=self.contact_ct,
                                                   field_type=CustomField.BOOL,
                                                  )
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
         klass(custom_field=custom_field, entity=ed).set_value_n_save(True)
         klass(custom_field=custom_field, entity=rei).set_value_n_save(True)
         klass(custom_field=custom_field, entity=contacts['asuka']).set_value_n_save(False)
@@ -2889,7 +2889,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertExpectedFiltered(efilter, FakeContact, [contacts['asuka'].id])
 
         # Old filter format compatibility
-        cfield_rname = custom_field.get_value_class().get_related_name()
+        cfield_rname = custom_field.value_class.get_related_name()
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01-old', name='is valid', model=FakeContact,
             conditions=[EntityFilterCondition(type=20,
@@ -2926,7 +2926,7 @@ class EntityFiltersTestCase(CremeTestCase):
         eva01 = create_evalue(value='Eva-01')
         eva02 = create_evalue(value='Eva-02')
 
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
         klass(custom_field=custom_field, entity=rei).set_value_n_save(eva00.id)
         klass(custom_field=custom_field, entity=asuka).set_value_n_save(eva02.id)
         klass(custom_field=custom_field, entity=shinji).set_value_n_save(eva01.id)
@@ -2953,7 +2953,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                   content_type=self.contact_ct,
                                                   field_type=CustomField.BOOL,
                                                  )
-        value_class = custom_field.get_value_class()
+        value_class = custom_field.value_class
         value_class(custom_field=custom_field, entity=rei).set_value_n_save(True)
         value_class(custom_field=custom_field, entity=self.contacts['jet']).set_value_n_save(False)
         self.assertEqual(2, CustomFieldBoolean.objects.count())
@@ -3050,7 +3050,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                   content_type=self.contact_ct,
                                                   field_type=CustomField.FLOAT,
                                                  )
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
         klass(custom_field=custom_field, entity=rei).set_value_n_save('40.00')
         klass(custom_field=custom_field, entity=self.contacts['asuka']).set_value_n_save('40.5')
 
@@ -3093,7 +3093,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                  )
         eva00 = CustomFieldEnumValue.objects.create(custom_field=custom_field, value='Eva-00')
 
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
         klass(custom_field=custom_field, entity=rei).set_value_n_save(eva00.id)
         klass(custom_field=custom_field, entity=self.contacts['asuka']).set_value_n_save(eva00.id)
 
@@ -3132,7 +3132,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                   content_type=self.contact_ct,
                                                   field_type=CustomField.STR,
                                                  )
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
         klass(custom_field=custom_field, entity=c['rei']).set_value_n_save('Eva-00')
         klass(custom_field=custom_field, entity=c['shinji']).set_value_n_save('Eva-01')
 
@@ -3174,7 +3174,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                  )
 
         c = self.contacts
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
         klass(custom_field=custom_field, entity=c['rei']).set_value_n_save(True)
         klass(custom_field=custom_field, entity=c['shinji']).set_value_n_save(True)
         klass(custom_field=custom_field, entity=c['asuka']).set_value_n_save(True)
@@ -3219,7 +3219,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                  )
 
         c = self.contacts
-        klass = partial(custom_field.get_value_class(), custom_field=custom_field)
+        klass = partial(custom_field.value_class, custom_field=custom_field)
         create_dt = self.create_datetime
         klass(entity=c['rei']).set_value_n_save(create_dt(year=2015, month=3, day=14))
         klass(entity=c['shinji']).set_value_n_save(create_dt(year=2015, month=4, day=21))
@@ -3287,7 +3287,7 @@ class EntityFiltersTestCase(CremeTestCase):
         jet   = c['jet']
         dt_now = now()
 
-        klass = partial(custom_field.get_value_class(), custom_field=custom_field)
+        klass = partial(custom_field.value_class, custom_field=custom_field)
         klass(entity=c['faye']).set_value_n_save(self.create_datetime(year=2000, month=3, day=14))
         klass(entity=spike).set_value_n_save(dt_now + timedelta(days=3650))
         klass(entity=jet).set_value_n_save(dt_now + timedelta(days=700))
@@ -3313,7 +3313,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                     field_type=CustomField.DATETIME,
                                                    )
 
-        klass = partial(custom_field02.get_value_class(), custom_field=custom_field02)
+        klass = partial(custom_field02.value_class, custom_field=custom_field02)
         create_dt = self.create_datetime
         klass(entity=contacts['rei']).set_value_n_save(create_dt(year=2020, month=3, day=14))
         klass(entity=shinji).set_value_n_save(create_dt(year=2030, month=4, day=21))

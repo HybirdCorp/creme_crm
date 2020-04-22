@@ -1504,7 +1504,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         dragons   = create_orga(name='Red Dragons')
         swordfish = create_orga(name='Swordfish')
 
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
 
         def set_cfvalue(entity, value):
             klass(custom_field=custom_field, entity=entity).set_value_n_save(value)
@@ -1548,7 +1548,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         dragons   = create_orga(name='Red Dragons')
         swordfish = create_orga(name='Swordfish')
 
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
 
         def set_cfvalue(entity, value):
             klass(custom_field=custom_field, entity=entity).set_value_n_save(value)
@@ -1592,7 +1592,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         dragons   = create_orga(name='Red Dragons')
         swordfish = create_orga(name='Swordfish')
 
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
 
         def set_cfvalue(entity, value):
             klass(custom_field=custom_field, entity=entity).set_value_n_save(value)
@@ -1880,7 +1880,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         create_orga(name='Swordfish')
         dragons = create_orga(name='Red Dragons')
 
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
 
         def set_cfvalue(entity, value):
             klass(custom_field=custom_field, entity=entity).set_value_n_save(value)
@@ -2304,7 +2304,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         create_orga(name='Swordfish')
         dragons = create_orga(name='Red Dragons')
 
-        klass = custom_field.get_value_class()
+        klass = custom_field.value_class
 
         def set_cfvalue(entity, value):
             klass(custom_field=custom_field, entity=entity).set_value_n_save(value)

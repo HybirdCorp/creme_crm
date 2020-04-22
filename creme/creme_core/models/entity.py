@@ -342,7 +342,7 @@ class CremeEntity(CremeModel):
 
     def _clone_custom_values(self, source):
         for custom_field in CustomField.objects.filter(content_type=source.entity_type_id):
-            custom_value_klass = custom_field.get_value_class()
+            custom_value_klass = custom_field.value_class
             try:
                 value = custom_value_klass.objects.get(custom_field=custom_field.id, entity=source.id).value
             except custom_value_klass.DoesNotExist:

@@ -625,7 +625,7 @@ class SearchFieldsTestCase(CremeTestCase):
         create_contact(first_name='Blanka',  last_name='??')
 
         def set_cfvalue(cfield, entity, value):
-            cfield.get_value_class()(custom_field=cfield, entity=entity).set_value_n_save(value)
+            cfield.value_class(custom_field=cfield, entity=entity).set_value_n_save(value)
 
         set_cfvalue(cfield, ryu,     'Hadoken')
         set_cfvalue(cfield, ken,     'Shoryuken')
@@ -663,7 +663,7 @@ class SearchFieldsTestCase(CremeTestCase):
         create_contact(first_name='Blanka',  last_name='??')
 
         def set_cfvalue(cfield, entity, value):
-            cfield.get_value_class()(custom_field=cfield, entity=entity).set_value_n_save(value)
+            cfield.value_class(custom_field=cfield, entity=entity).set_value_n_save(value)
 
         set_cfvalue(cfield, ryu,     True)
         set_cfvalue(cfield, ken,     True)
@@ -706,7 +706,7 @@ class SearchFieldsTestCase(CremeTestCase):
         create_contact(first_name='Blanka',  last_name='??')
 
         def set_cfvalue(cfield, entity, value):
-            cfield.get_value_class()(custom_field=cfield, entity=entity).set_value_n_save(value)
+            cfield.value_class(custom_field=cfield, entity=entity).set_value_n_save(value)
 
         set_cfvalue(cfield, ken,     100)
         set_cfvalue(cfield, chunli,  90)
@@ -777,7 +777,7 @@ class SearchFieldsTestCase(CremeTestCase):
         create_contact(first_name='Blanka',  last_name='??')
 
         def set_cfvalue(cfield, entity, value):
-            cfield.get_value_class()(custom_field=cfield, entity=entity).set_value_n_save(value)
+            cfield.value_class(custom_field=cfield, entity=entity).set_value_n_save(value)
 
         set_cfvalue(cfield, ken,     '100')
         set_cfvalue(cfield, chunli,  '90')
@@ -855,7 +855,7 @@ class SearchFieldsTestCase(CremeTestCase):
         create_contact(first_name='Chun Li', last_name='??')
 
         def set_cfvalue(cfield, entity, value):
-            cfield.get_value_class()(custom_field=cfield, entity=entity).set_value_n_save(value)
+            cfield.value_class(custom_field=cfield, entity=entity).set_value_n_save(value)
 
         create_dt = self.create_datetime
         set_cfvalue(cfield, ryu,     create_dt(year=2019, month=2, day=12))
@@ -921,7 +921,7 @@ class SearchFieldsTestCase(CremeTestCase):
         create_contact(first_name='Blanka',  last_name='??')
         create_contact(first_name='Chun Li', last_name='??')
 
-        klass = cfield.get_value_class()
+        klass = cfield.value_class
         def set_cfvalue(entity, evalue):
             klass(custom_field=cfield, entity=entity).set_value_n_save(evalue.id)
 
@@ -993,7 +993,7 @@ class SearchFieldsTestCase(CremeTestCase):
         create_contact(first_name='Blanka',  last_name='??')
         create_contact(first_name='Chun Li', last_name='??')
 
-        klass = cfield.get_value_class()
+        klass = cfield.value_class
         def set_cfvalue(entity, *evalues):
             klass(custom_field=cfield, entity=entity).set_value_n_save(evalues)
 

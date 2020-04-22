@@ -9,14 +9,20 @@ try:
     from django.urls import reverse
     from django.utils.translation import gettext as _
 
-    from .base import ViewsTestCase
-    from ..fake_models import FakeContact, FakeOrganisation, FakeImage
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.merge import merge_form_registry
-    from creme.creme_core.models import (RelationType, Relation, SetCredentials,
-            CremePropertyType, CremeProperty, FieldsConfig,
-            HistoryLine, history,
-            CustomField, CustomFieldEnumValue, Language)
+    from creme.creme_core.models import (
+        CremePropertyType, CremeProperty,
+        RelationType, Relation,
+        SetCredentials,
+        FieldsConfig,
+        HistoryLine, history,
+        CustomField, CustomFieldEnumValue,
+        Language,
+        FakeContact, FakeOrganisation, FakeImage,
+    )
+
+    from .base import ViewsTestCase
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -65,7 +71,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertGET403(self._build_select_url(orga))
 
     def test_select_entity_for_merge03(self):
-        "Edit credentials"
+        "Edit credentials."
         user = self.login(is_superuser=False)
 
         SetCredentials.objects.create(role=self.role,
@@ -78,7 +84,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertGET403(self._build_select_url(orga))
 
     def test_select_entity_for_merge04(self):
-        "Unregistered model"
+        "Unregistered model."
         self.login()
         self.assertIsNone(merge_form_registry.get(FakeImage))
 
@@ -86,19 +92,22 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertGET409(self._build_select_url(image))
 
     def test_merge01(self):
-        "2 (fake) Organisations, some relationships duplicates"
+        "2 (fake) Organisations, some relationships duplicates."
         user = self.login()
 
         create_rtype = RelationType.create
-        rtype01 = create_rtype(('test-subject_member', 'is a member of',  [FakeContact]),
-                               ('test-object_member',  'has as a member', [FakeOrganisation])
-                              )[0]
-        rtype02 = create_rtype(('test-subject_sponsors', 'sponsors',        [FakeOrganisation]),
-                               ('test-object_sponsors',  'is sponsored by', [FakeContact])
-                              )[0]
-        rtype03 = create_rtype(('test-subject_hight_member', 'is a hight member of',  [FakeContact]),
-                               ('test-object_hight_member',  'has as a hight member', [FakeOrganisation])
-                              )[0]
+        rtype01 = create_rtype(
+            ('test-subject_member', 'is a member of',  [FakeContact]),
+            ('test-object_member',  'has as a member', [FakeOrganisation])
+        )[0]
+        rtype02 = create_rtype(
+            ('test-subject_sponsors', 'sponsors',        [FakeOrganisation]),
+            ('test-object_sponsors',  'is sponsored by', [FakeContact])
+        )[0]
+        rtype03 = create_rtype(
+            ('test-subject_hight_member', 'is a hight member of',  [FakeContact]),
+            ('test-object_hight_member',  'has as a hight member', [FakeOrganisation])
+        )[0]
 
         create_ptype = CremePropertyType.create
         ptype01 = create_ptype(str_pk='test-prop_manga', text='Manga related')
@@ -155,24 +164,26 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertFalse(fields['capital'].required)
 
         description = ' '.join([orga01.description, orga02.description])
-        response = self.client.post(url, follow=True,
-                                    data={'user_1':      user.id,
-                                          'user_2':      user.id,
-                                          'user_merged': user.id,
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user_1':      user.id,
+                'user_2':      user.id,
+                'user_merged': user.id,
 
-                                          'name_1':      orga01.name,
-                                          'name_2':      orga02.name,
-                                          'name_merged': orga01.name,  # <======
+                'name_1':      orga01.name,
+                'name_2':      orga02.name,
+                'name_merged': orga01.name,  # <======
 
-                                          'description_1':      orga01.description,
-                                          'description_2':      orga02.description,
-                                          'description_merged': description,  # <======
+                'description_1':      orga01.description,
+                'description_2':      orga02.description,
+                'description_merged': description,  # <======
 
-                                          'email_1':      '',
-                                          'email_2':      orga02.email,
-                                          'email_merged': orga02.email,  # <======
-                                         },
-                                   )
+                'email_1':      '',
+                'email_2':      orga02.email,
+                'email_merged': orga02.email,  # <======
+            },
+        )
         self.assertNoFormError(response)
         self.assertRedirects(response, orga01.get_absolute_url())
 
@@ -325,28 +336,30 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(user, f_image._original_field.user)
         self.assertEqual(FakeImage, f_image._original_field.model)
 
-        response = self.client.post(url, follow=True,
-                                    data={'user_1':      user.id,
-                                          'user_2':      user.id,
-                                          'user_merged': user.id,
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user_1':      user.id,
+                'user_2':      user.id,
+                'user_merged': user.id,
 
-                                          'first_name_1':      contact01.first_name,
-                                          'first_name_2':      contact02.first_name,
-                                          'first_name_merged': contact01.first_name,
+                'first_name_1':      contact01.first_name,
+                'first_name_2':      contact02.first_name,
+                'first_name_merged': contact01.first_name,
 
-                                          'last_name_1':      contact01.last_name,
-                                          'last_name_2':      contact02.last_name,
-                                          'last_name_merged': contact01.last_name,
+                'last_name_1':      contact01.last_name,
+                'last_name_2':      contact02.last_name,
+                'last_name_merged': contact01.last_name,
 
-                                          'languages_1':      [language1.id],
-                                          'languages_2':      [language1.id, language2.id],
-                                          'languages_merged': [language3.id],  # <======
+                'languages_1':      [language1.id],
+                'languages_2':      [language1.id, language2.id],
+                'languages_merged': [language3.id],  # <======
 
-                                          'image_1':      image1.id,
-                                          'image_2':      image2.id,
-                                          'image_merged': image2.id,
-                                         },
-                                   )
+                'image_1':      image1.id,
+                'image_2':      image2.id,
+                'image_merged': image2.id,
+            },
+        )
         self.assertNoFormError(response)
         self.assertRedirects(response, contact01.get_absolute_url())
 
@@ -375,7 +388,10 @@ class MergeViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             f_name = response.context['form'].fields['name']
 
-        self.assertEqual([orga01.name, orga02.name, orga02.name], f_name.initial)
+        self.assertListEqual(
+            [orga01.name, orga02.name, orga02.name],
+            f_name.initial
+        )
 
     def test_merge04(self):
         "Nullable foreign key to CremeEntities"
@@ -410,9 +426,10 @@ class MergeViewsTestCase(ViewsTestCase):
         user = self.login()
 
         create_rtype = RelationType.create
-        rtype = create_rtype(('test-subject_member', 'is a member of',  [FakeContact]),
-                             ('test-object_member',  'has as a member', [FakeOrganisation])
-                            )[0]
+        rtype = create_rtype(
+            ('test-subject_member', 'is a member of',  [FakeContact]),
+            ('test-object_member',  'has as a member', [FakeOrganisation])
+        )[0]
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga01 = create_orga(name='Genshiken',   description='Otaku band.',   phone='8787878')
@@ -426,17 +443,19 @@ class MergeViewsTestCase(ViewsTestCase):
         rel1 = create_rel(subject_entity=contact01, object_entity=orga01)
         rel2 = create_rel(subject_entity=contact02, object_entity=orga02)
 
-        response = self.client.post(self.build_merge_url(orga01, orga02),
-                                    follow=True,
-                                    data={'user_1':      user.id,
-                                          'user_2':      user.id,
-                                          'user_merged': user.id,
+        response = self.client.post(
+            self.build_merge_url(orga01, orga02),
+            follow=True,
+            data={
+                'user_1':      user.id,
+                'user_2':      user.id,
+                'user_merged': user.id,
 
-                                          'name_1':      orga01.name,
-                                          'name_2':      orga02.name,
-                                          'name_merged': orga01.name,
-                                         }
-                                   )
+                'name_1':      orga01.name,
+                'name_2':      orga02.name,
+                'name_merged': orga01.name,
+            },
+        )
         self.assertNoFormError(response)
         self.assertRedirects(response, orga01.get_absolute_url())
 
@@ -462,9 +481,11 @@ class MergeViewsTestCase(ViewsTestCase):
     def test_merge_customfields(self):
         user = self.login()
 
-        create_cf = partial(CustomField.objects.create, field_type=CustomField.INT,
-                            content_type=ContentType.objects.get_for_model(FakeContact),
-                           )
+        create_cf = partial(
+            CustomField.objects.create,
+            field_type=CustomField.INT,
+            content_type=ContentType.objects.get_for_model(FakeContact),
+        )
         cf_01 = create_cf(name='Number of manga')
         cf_02 = create_cf(name='Number of anime')
         cf_03 = create_cf(name='Club', field_type=CustomField.ENUM)
@@ -478,13 +499,13 @@ class MergeViewsTestCase(ViewsTestCase):
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka')
         contact02 = create_contact(first_name='Makoto', last_name='Kousaka')
 
-        create_cfval_01 = partial(cf_01.get_value_class().objects.create, custom_field=cf_01)
+        create_cfval_01 = partial(cf_01.value_class.objects.create, custom_field=cf_01)
         cf_01_value01 = create_cfval_01(entity=contact01, value=500)
         cf_01_value02 = create_cfval_01(entity=contact02, value=510)
 
-        cf_02_value01 = cf_02.get_value_class().objects.create(custom_field=cf_02, entity=contact01, value=100)
+        cf_02_value01 = cf_02.value_class.objects.create(custom_field=cf_02, entity=contact01, value=100)
 
-        cf_03_value02 = cf_03.get_value_class()(custom_field=cf_03, entity=contact02)
+        cf_03_value02 = cf_03.value_class(custom_field=cf_03, entity=contact02)
         cf_03_value02.set_value_n_save(enum_val1_1.id)
 
         url = self.build_merge_url(contact01, contact02)
@@ -505,37 +526,38 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(user, f_cf_02._original_field.user)
         self.assertEqual(user, f_cf_03._original_field.user)
 
-        response = self.client.post(url, follow=True,
-                                    data={'user_1':      user.id,
-                                          'user_2':      user.id,
-                                          'user_merged': user.id,
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user_1':      user.id,
+                'user_2':      user.id,
+                'user_merged': user.id,
 
-                                          'first_name_1':      contact01.first_name,
-                                          'first_name_2':      contact02.first_name,
-                                          'first_name_merged': contact01.first_name,
+                'first_name_1':      contact01.first_name,
+                'first_name_2':      contact02.first_name,
+                'first_name_merged': contact01.first_name,
 
-                                          'last_name_1':      contact01.last_name,
-                                          'last_name_2':      contact02.last_name,
-                                          'last_name_merged': contact01.last_name,
+                'last_name_1':      contact01.last_name,
+                'last_name_2':      contact02.last_name,
+                'last_name_merged': contact01.last_name,
 
-                                          'custom_field_0_1':      500,
-                                          'custom_field_0_2':      510,
-                                          'custom_field_0_merged': 510,
+                'custom_field_0_1':      500,
+                'custom_field_0_2':      510,
+                'custom_field_0_merged': 510,
 
-                                          'custom_field_1_1':      100,
-                                          'custom_field_1_2':      '',
-                                          'custom_field_1_merged': '',
+                'custom_field_1_1':      100,
+                'custom_field_1_2':      '',
+                'custom_field_1_merged': '',
 
-                                          'custom_field_2_1':      '',
-                                          'custom_field_2_2':      enum_val1_1.id,
-                                          'custom_field_2_merged': enum_val1_1.id,
+                'custom_field_2_1':      '',
+                'custom_field_2_2':      enum_val1_1.id,
+                'custom_field_2_merged': enum_val1_1.id,
 
-                                          'custom_field_3_1':      '',
-                                          'custom_field_3_2':      '',
-                                          'custom_field_3_merged': '',
-
-                                         }
-                                   )
+                'custom_field_3_1':      '',
+                'custom_field_3_2':      '',
+                'custom_field_3_merged': '',
+            },
+        )
         self.assertNoFormError(response)
         self.assertRedirects(response, contact01.get_absolute_url())
 
@@ -545,7 +567,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(contact01.first_name, new_contact01.first_name)
         self.assertEqual(contact01.last_name,  new_contact01.last_name)
 
-        cf_01_values = cf_01.get_value_class().objects.filter(id__in=(cf_01_value01.id, cf_01_value02.id))
+        cf_01_values = cf_01.value_class.objects.filter(id__in=(cf_01_value01.id, cf_01_value02.id))
         self.assertEqual(1, len(cf_01_values))
 
         cf_01_value = cf_01_values[0]
@@ -554,17 +576,17 @@ class MergeViewsTestCase(ViewsTestCase):
 
         self.assertDoesNotExist(cf_02_value01)
 
-        cf_03_values = cf_03.get_value_class().objects.filter(custom_field=cf_03)
+        cf_03_values = cf_03.value_class.objects.filter(custom_field=cf_03)
         self.assertEqual(1, len(cf_03_values))
 
         cf_03_value = cf_03_values[0]
         self.assertEqual(contact01.id, cf_03_value.entity_id)
         self.assertEqual(enum_val1_1, cf_03_value.value)
 
-        self.assertFalse(cf_04.get_value_class().objects.all())
+        self.assertFalse(cf_04.value_class.objects.all())
 
     def test_error01(self):
-        "Try to merge 2 entities with different types"
+        "Try to merge 2 entities with different types."
         user = self.login()
 
         orga = FakeOrganisation.objects.create(user=user, name='Genshiken')
@@ -580,19 +602,22 @@ class MergeViewsTestCase(ViewsTestCase):
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Gen-shi-ken')
 
-        response = self.assertPOST200(self.build_merge_url(orga01, orga02),
-                                      follow=True,
-                                      data={'user_1':      user.id,
-                                            'user_2':      user.id,
-                                            # 'user_merged': user.id,  # <======
+        response = self.assertPOST200(
+            self.build_merge_url(orga01, orga02),
+            follow=True,
+            data={
+                'user_1':      user.id,
+                'user_2':      user.id,
+                # 'user_merged': user.id,  # <======
 
-                                            'name_1':      orga01.name,
-                                            'name_2':      orga02.name,
-                                            'name_merged': '',  # <======
-                                           }
-                                     )
-        self.assertFormError(response, 'form', 'user', _('This field is required.'))
-        self.assertFormError(response, 'form', 'name', _('This field is required.'))
+                'name_1':      orga01.name,
+                'name_2':      orga02.name,
+                'name_merged': '',  # <======
+            },
+        )
+        msg = _('This field is required.')
+        self.assertFormError(response, 'form', 'user', msg)
+        self.assertFormError(response, 'form', 'name', msg)
 
     def test_error03(self):
         "Try to merge an entity with itself (by forging the URL)"
@@ -605,10 +630,10 @@ class MergeViewsTestCase(ViewsTestCase):
         user = self.login(is_superuser=False)
 
         SetCredentials.objects.create(
-                role=self.role,
-                value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-                set_type=SetCredentials.ESET_OWN
-            )
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
+            set_type=SetCredentials.ESET_OWN
+        )
 
         create_orga = FakeOrganisation.objects.create
         orga01 = create_orga(user=user,            name='Genshiken')
@@ -643,20 +668,22 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertIn('last_name', fields)
         self.assertNotIn(hidden_fname, fields)
 
-        response = self.client.post(url, follow=True,
-                                    data={'user_1':      user.id,
-                                          'user_2':      user.id,
-                                          'user_merged': user.id,
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user_1':      user.id,
+                'user_2':      user.id,
+                'user_merged': user.id,
 
-                                          'first_name_1':      contact01.first_name,
-                                          'first_name_2':      contact02.first_name,
-                                          'first_name_merged': contact01.first_name,
+                'first_name_1':      contact01.first_name,
+                'first_name_2':      contact02.first_name,
+                'first_name_merged': contact01.first_name,
 
-                                          'last_name_1':      contact01.last_name,
-                                          'last_name_2':      contact02.last_name,
-                                          'last_name_merged': contact01.last_name,
-                                         }
-                                   )
+                'last_name_1':      contact01.last_name,
+                'last_name_2':      contact02.last_name,
+                'last_name_merged': contact01.last_name,
+            },
+        )
         self.assertNoFormError(response)
         self.assertDoesNotExist(contact02)
 

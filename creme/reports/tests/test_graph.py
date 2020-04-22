@@ -1962,7 +1962,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         tullies    = create_orga(name='House Tully')
         arryns     = create_orga(name='House Arryn')
 
-        create_cf_value = partial(cf.get_value_class().objects.create, custom_field=cf)
+        create_cf_value = partial(cf.value_class.objects.create, custom_field=cf)
         create_dt = partial(self.create_datetime, utc=True)
         create_cf_value(entity=targaryens, value=create_dt(year=2013, month=12, day=21))
         create_cf_value(entity=lannisters, value=create_dt(year=2013, month=12, day=26))
@@ -2109,7 +2109,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         baratheons = create_orga(name='House Baratheon', capital=200)
         targaryens = create_orga(name='House Targaryen', capital=130)
 
-        create_cf_value = partial(cf.get_value_class().objects.create, custom_field=cf)
+        create_cf_value = partial(cf.value_class.objects.create, custom_field=cf)
         create_dt = partial(self.create_datetime, utc=True, year=2013)
         create_cf_value(entity=lannisters, value=create_dt(month=6, day=22))
         create_cf_value(entity=baratheons, value=create_dt(month=6, day=22))
@@ -2224,7 +2224,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         baratheons = create_orga(name='House Baratheon')
         targaryens = create_orga(name='House Targaryen')
 
-        create_cf_value = partial(cf.get_value_class().objects.create, custom_field=cf)
+        create_cf_value = partial(cf.value_class.objects.create, custom_field=cf)
         create_dt = partial(self.create_datetime, utc=True, year=2013)
         create_cf_value(entity=lannisters, value=create_dt(month=6, day=22))
         create_cf_value(entity=baratheons, value=create_dt(month=6, day=25))
@@ -2293,7 +2293,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                                         name='Vine', field_type=CustomField.FLOAT,
                                        )
 
-        create_cfval = partial(cf.get_value_class().objects.create, custom_field=cf)
+        create_cfval = partial(cf.value_class.objects.create, custom_field=cf)
         create_cfval(entity=lannisters, value='20.2')
         create_cfval(entity=starks,     value='50.5')
         create_cfval(entity=baratheons, value='100.0')
@@ -2362,7 +2362,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         baratheons = create_orga(name='House Baratheon')
         targaryens = create_orga(name='House Targaryen')
 
-        create_cf_value = partial(cf.get_value_class().objects.create, custom_field=cf)
+        create_cf_value = partial(cf.value_class.objects.create, custom_field=cf)
         create_dt = partial(self.create_datetime, utc=True)
         create_cf_value(entity=lannisters, value=create_dt(year=2013, month=6, day=22))
         create_cf_value(entity=baratheons, value=create_dt(year=2013, month=7, day=25))

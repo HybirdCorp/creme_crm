@@ -199,7 +199,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         may = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(
             150,
-            cfield2.get_value_class().objects.get(custom_field=cfield2.id, entity=may.id).value
+            cfield2.value_class.objects.get(custom_field=cfield2.id, entity=may.id).value
         )
 
     def test_create_contact_error01(self):
@@ -317,7 +317,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         ffinc = self.get_object_or_fail(Organisation, name=name)
         self.assertEqual(
             150,
-            cfield2.get_value_class().objects.get(custom_field=cfield2.id, entity=ffinc.id).value
+            cfield2.value_class.objects.get(custom_field=cfield2.id, entity=ffinc.id).value
         )
 
     def test_create_orga_error01(self):

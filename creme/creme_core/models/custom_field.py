@@ -92,14 +92,23 @@ class CustomField(CremeModel):
     def type_verbose_name(self):
         return _TABLES[self.field_type].verbose_name
 
-    # TODO: property "value_class" ?
     def get_value_class(self):
+        warnings.warn(
+            'CustomField.get_value_class() is deprecated ; '
+            'use the property "value_class" instead.',
+            DeprecationWarning
+        )
+
+        return self.value_class
+
+    @property
+    def value_class(self):
         return _TABLES[self.field_type]
 
     # def get_formfield(self, custom_value):
     def get_formfield(self, custom_value, user=None):
         # return self.get_value_class().get_formfield(self, custom_value)
-        return self.get_value_class().get_formfield(self, custom_value, user=user)
+        return self.value_class.get_formfield(self, custom_value, user=user)
 
     def get_pretty_value(self, entity_id):
         """Return string object containing the human readable value of this
@@ -111,7 +120,7 @@ class CustomField(CremeModel):
             DeprecationWarning,
         )
 
-        cf_values = self.get_value_class().objects.filter(
+        cf_values = self.value_class.objects.filter(
             custom_field=self.id,
             entity=entity_id,
         )
@@ -213,7 +222,7 @@ class CustomFieldValue(CremeModel):
 
     @classmethod
     def save_values_for_entities(cls, custom_field, entities, value):
-        cfv_klass = custom_field.get_value_class()
+        cfv_klass = custom_field.value_class
 
         cf_values_qs = cfv_klass.objects.filter(
             custom_field=custom_field,

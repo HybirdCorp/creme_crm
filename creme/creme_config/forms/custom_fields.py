@@ -369,7 +369,7 @@ class CustomEnumDeletionForm(CremeModelForm):
         super().__init__(*args, **kwargs)
         self.choice_to_delete = choice_to_delete
 
-        if choice_to_delete.custom_field.get_value_class().objects.filter(value=choice_to_delete).exists():
+        if choice_to_delete.custom_field.value_class.objects.filter(value=choice_to_delete).exists():
             self.fields['to_choice'] = forms.ModelChoiceField(
                 label=_('Choose a choice to transfer to'),
                 help_text=_('The selected choice will replace the deleted one in entities which use it.'),
@@ -391,7 +391,7 @@ class CustomEnumDeletionForm(CremeModelForm):
     def save(self, *args, **kwargs):
         instance = self.instance
         instance.instance_to_delete = choice_to_delete = self.choice_to_delete
-        cf_value_model = choice_to_delete.custom_field.get_value_class()
+        cf_value_model = choice_to_delete.custom_field.value_class
 
         replacement = self.cleaned_data.get('to_choice')
         if replacement:
