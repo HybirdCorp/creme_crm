@@ -22,7 +22,12 @@ from itertools import zip_longest
 from json import loads as json_load
 import logging
 from re import compile as compile_re
-from typing import Type, Optional, Union, Iterable, Iterator, List, Set, Tuple, TYPE_CHECKING
+from typing import (
+    Type, Optional,
+    Iterable, Iterator,
+    List, Set, Tuple,
+    TYPE_CHECKING,
+)
 import warnings
 
 from django.contrib.auth import get_user_model
@@ -906,9 +911,9 @@ class EntityFilterCondition(models.Model):
     def _get_subfilter_id(self) -> Optional[str]:
         return self.handler.subfilter_id
 
-    def _get_subfilter(self) -> Union[EntityFilter, bool]:
-        "@return An EntityFilter instance or 'False' is there is no valid sub-filter."
-        return self.handler.subfilter
+    # def _get_subfilter(self):
+    #     "@return An EntityFilter instance or 'False' is there is no valid sub-filter."
+    #     return self.handler.subfilter
 
     @property
     def model(self) -> Type[CremeEntity]:  # TODO: test
