@@ -297,7 +297,7 @@ class SetCredentials(models.Model):
         (ESET_ALL,    _('All entities')),
         (ESET_OWN,    _("User's own entities")),
         (ESET_FILTER, _('Filtered entities')),
-    ])
+    ])  # TODO: inline ?
 
     role     = models.ForeignKey(UserRole, related_name='credentials', on_delete=models.CASCADE, editable=False)
     value    = models.PositiveSmallIntegerField()  # See EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
@@ -352,19 +352,24 @@ class SetCredentials(models.Model):
                   )
 
         args = {
-            'set':   self.ESETS_MAP.get(self.set_type, '??'),  # TODO: get_set_type_display() ?
+            # 'set':   self.ESETS_MAP.get(self.set_type, '??'),
+            'set':   self.get_set_type_display(),
             'perms': ', '.join(perms),
         }
 
         if self.ctype:
             args['type'] = self.ctype
-            format_str = gettext('For “{set}“ of type “{type}” it is forbidden to: {perms}') \
-                         if forbidden else \
-                         gettext('For “{set}“ of type “{type}” it is allowed to: {perms}')
+            format_str = (
+                gettext('For “{set}“ of type “{type}” it is forbidden to: {perms}')
+                if forbidden else
+                gettext('For “{set}“ of type “{type}” it is allowed to: {perms}')
+            )
         else:
-            format_str = gettext('For “{set}“ it is forbidden to: {perms}') \
-                         if forbidden else \
-                         gettext('For “{set}“ it is allowed to: {perms}')
+            format_str = (
+                gettext('For “{set}“ it is forbidden to: {perms}')
+                if forbidden else
+                gettext('For “{set}“ it is allowed to: {perms}')
+            )
 
         return format_str.format(**args)
 
