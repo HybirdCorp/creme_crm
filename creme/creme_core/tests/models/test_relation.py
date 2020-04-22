@@ -51,7 +51,7 @@ class RelationsTestCase(CremeTestCase):
         self.assertEqual(sym.object_entity,  entity1)
 
     def test_relation02(self):
-        "BEWARE: don't do this ! Bad usage of Relations"
+        "BEWARE: don't do this ! Bad usage of Relations."
         rtype1, rtype2 = RelationType.create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
@@ -70,6 +70,19 @@ class RelationsTestCase(CremeTestCase):
 
         self.assertNotEqual(relation.subject_entity_id, relation.symmetric_relation.object_entity_id)
         self.assertNotEqual(relation.object_entity_id,  relation.symmetric_relation.subject_entity_id)
+
+        # --
+        with self.assertLogs(level='WARNING') as logs_manager:
+            with self.assertNumQueries(0):
+                relation.save()
+
+        self.assertEqual(
+            logs_manager.output,
+            [f'WARNING:creme.creme_core.models.relation:'
+             f'Relation.save(): '
+             f'try to update instance pk={relation.id} (should only be created).',
+            ],
+        )
 
     def test_delete_rtype(self):
         rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),

@@ -21,7 +21,7 @@
 from collections import defaultdict
 import logging
 from typing import Type, Union, Iterable, Tuple
-# import warnings
+import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, IntegrityError
@@ -423,9 +423,11 @@ class Relation(CremeModel):
         return f'«{self.subject_entity}» {self.type} «{self.object_entity}»'
 
     def _build_symmetric_relation(self, update: bool):
-        """Overload me in child classes.
-        @param update: Boolean. True->updating object ; False->creating object.
-        """
+        warnings.warn(
+            'Relation._build_symmetric_relation() is deprecated.',
+            DeprecationWarning
+        )
+
         if update:
             sym_relation = self.symmetric_relation
             assert sym_relation
@@ -439,24 +441,55 @@ class Relation(CremeModel):
 
         return sym_relation
 
-    @atomic
+    # @atomic
+    # def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    #     """See django.db.models.Model.save()
+    #
+    #     @param force_update: Not used.
+    #     @param update_fields: Not used.
+    #     """
+    #     update = bool(self.pk)
+    #
+    #     super().save(using=using, force_insert=force_insert)
+    #
+    #     sym_relation = self._build_symmetric_relation(update)
+    #     super(Relation, sym_relation).save(using=using, force_insert=force_insert)
+    #
+    #     if self.symmetric_relation is None:
+    #         self.symmetric_relation = sym_relation
+    #         super().save(using=using, force_insert=False)
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        """See django.db.models.Model.save()
+        """See django.db.models.Model.save().
+        Notice that Relation instances should only be created, not updated.
 
         @param force_update: Not used.
         @param update_fields: Not used.
         """
-        update = bool(self.pk)
+        if self.pk is not None:
+            logger.warning(
+                'Relation.save(): try to update instance pk=%s (should only be created).',
+                self.pk
+            )
+            return
 
-        super().save(using=using, force_insert=force_insert)
+        with atomic():
+            super().save(using=using, force_insert=force_insert)
 
-        sym_relation = self._build_symmetric_relation(update)
-        super(Relation, sym_relation).save(using=using, force_insert=force_insert)
+            cls = type(self)
+            sym_relation = cls(
+                user=self.user,
+                type=self.type.symmetric_type,
+                symmetric_relation=self,
+                subject_entity=self.object_entity,
+                object_entity=self.subject_entity,
+            )
+            super(cls, sym_relation).save(using=using, force_insert=force_insert)
 
-        if self.symmetric_relation is None:
             self.symmetric_relation = sym_relation
-            # TODO: save only field "symmetric_relation" ?
-            super().save(using=using, force_insert=False)
+            super().save(
+                using=using, force_insert=False,
+                update_fields=['symmetric_relation'],
+            )
 
     @staticmethod
     def populate_real_object_entities(relations: Iterable['Relation']) -> None:
