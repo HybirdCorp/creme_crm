@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
 
 {% block brick_extra_class %}{{block.super}} reports-instance-bricks-info-brick{% endblock %}
 
@@ -9,16 +9,26 @@
 
 {% block brick_table_columns %}
     {% brick_table_column title=_('Volatile column') status='primary' %}
+    {% brick_table_column title=_('Compatible with detail-views of') %}
     {% brick_table_column title=_('Error') %}
+{% endblock %}
+
+{% block brick_before_content %}
+    <div class="help">{% url 'creme_config__bricks' as config_url %}
+        {% blocktrans %}These blocks can be placed on Home & on some detail-views in the <a href="{{config_url}}">blocks configuration</a>.{% endblocktrans %}
+    </div>
 {% endblock %}
 
 {% block brick_table_rows %}
     {% for ibci in page.object_list %}
+    {% with fetcher=ibci.brick.fetcher %}
     <tr>
 {#        <td {% brick_table_data_status primary %}>{{ibci.fetcher.verbose_volatile_column}}</td> #}
-        <td {% brick_table_data_status primary %}>{{ibci.fetcher.verbose_name}}</td>
-        <td>{{ibci.fetcher.error|default:'—'}}</td>
+        <td {% brick_table_data_status primary %}>{{fetcher.verbose_name}}</td>
+        <td>{% widget_enumerator fetcher.linked_models|verbose_models|uca_sort threshold=10 empty=_('All types of entity') %}</td>
+        <td>{{fetcher.error|default:'—'}}</td>
     </tr>
+    {% endwith %}
     {% endfor %}
 {% endblock %}
 

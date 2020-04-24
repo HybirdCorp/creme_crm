@@ -23,7 +23,10 @@ from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.reports.core.graph.fetcher import GraphFetcher
 
+from . import get_contact_model
 from .constants import RGF_OWNED
+
+Contact = get_contact_model()
 
 
 class OwnedGraphFetcher(GraphFetcher):
@@ -37,15 +40,15 @@ class OwnedGraphFetcher(GraphFetcher):
             self.error = _('No value is needed.')
 
     def _aux_fetch_4_entity(self, entity, order, user):
-        try:
-            owner = entity.is_user
-        except AttributeError:
+        if not isinstance(entity, Contact):
             raise self.IncompatibleContentType(gettext(
                 "The volatile link «Belows to the Contact/User» is only compatible with Contacts ; "
                 "you should fix your blocks' configuration."
             ))
 
+        owner = entity.is_user
         if owner is None:
+            # NB: should never happen with 'linked_models' checked correctly before...
             raise self.UselessResult(
                 'OwnedGraphFetcher is only useful for Contacts representing users (see field "is_user")'
             )
@@ -57,3 +60,7 @@ class OwnedGraphFetcher(GraphFetcher):
     @classmethod
     def choices(cls, model):
         yield '', _('Belows to the Contact/User')
+
+    @property
+    def linked_models(self):
+        return [Contact]

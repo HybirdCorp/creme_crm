@@ -209,18 +209,23 @@ class Brick:
         else:
             brick_context = self.context_class.from_dict(serialized_context)
 
-        template_context = self._build_template_context(context, brick_id, brick_context,
-                                                        **extra_kwargs
-                                                       )
+        template_context = self._build_template_context(
+            context=context,
+            brick_id=brick_id,
+            brick_context=brick_context,
+            **extra_kwargs
+        )
 
         # NB:  not 'assert' (it causes problems with bricks in inner popups)
         if not BricksManager.get(context).brick_is_registered(self):
             logger.debug('Not registered brick: %s', self.id_)
 
         if brick_context.update(template_context):
-            session.setdefault('brickcontexts_manager', {}) \
-                   .setdefault(base_url, {}) \
-                   [brick_id] = brick_context.as_dict()
+            session.setdefault(
+                'brickcontexts_manager', {},
+            ).setdefault(
+                base_url, {},
+            )[brick_id] = brick_context.as_dict()
 
             request.session.modified = True
 
@@ -228,7 +233,7 @@ class Brick:
 
 
 class SimpleBrick(Brick):
-     detailview_display = Brick._simple_detailview_display
+    detailview_display = Brick._simple_detailview_display
 
 
 class _PaginatedBrickContext(_BrickContext):
@@ -273,9 +278,10 @@ class PaginatedBrick(Brick):
             try:
                 page_index = int(page_index)
             except ValueError:
-                logger.warning('PaginatedBrick: invalid page number for brick %s: %s',
-                               brick_id, page_index,
-                              )
+                logger.warning(
+                    'PaginatedBrick: invalid page number for brick %s: %s',
+                    brick_id, page_index,
+                )
                 page_index = 1
         else:
             page_index = brick_context.page
@@ -288,8 +294,11 @@ class PaginatedBrick(Brick):
             page = paginator.page(paginator.num_pages)
 
         return super()._build_template_context(
-                context=context, brick_id=brick_id, brick_context=brick_context, page=page,
-                **extra_kwargs
+            context=context,
+            brick_id=brick_id,
+            brick_context=brick_context,
+            page=page,
+            **extra_kwargs
         )
 
     def get_template_context(self, context, objects, **extra_kwargs):
@@ -390,7 +399,7 @@ class QuerysetBrick(PaginatedBrick):
 
 class EntityBrick(Brick):
     id_ = MODELBRICK_ID
-    verbose_name  = _('Information on the entity (generic)')
+    verbose_name = _('Information on the entity (generic)')
     template_name = 'creme_core/bricks/generic/entity.html'
 
     BASE_FIELDS = {'created', 'modified', 'user'}
@@ -460,8 +469,9 @@ class SpecificRelationsBrick(QuerysetBrick):
         relation_type = config_item.relation_type
         btc = self.get_template_context(
             context,
-            entity.relations.filter(type=relation_type)
-                            .select_related('type', 'object_entity'),
+            entity.relations
+                  .filter(type=relation_type)
+                  .select_related('type', 'object_entity'),
             config_item=config_item,
             relation_type=relation_type,
         )
@@ -501,7 +511,7 @@ class SpecificRelationsBrick(QuerysetBrick):
     def target_ctypes(self):
         return tuple(
             ct.model_class()
-                for ct in self.config_item.relation_type.subject_ctypes.all()
+            for ct in self.config_item.relation_type.subject_ctypes.all()
         )
 
 
@@ -529,11 +539,13 @@ class CustomBrick(Brick):
 
         rtype_ids = [
             rtype.id
-                for rtype in filter(None,
-                                    (getattr(cell, 'relation_type', None)
-                                         for cell in customblock_conf_item.cells
-                                    )
-                                   )
+            for rtype in filter(
+                None,
+                (
+                    getattr(cell, 'relation_type', None)
+                    for cell in customblock_conf_item.cells
+                ),
+            )
         ]
 
         if rtype_ids:
@@ -643,7 +655,7 @@ class BricksManager:
         if self._used_relationtypes is None:
             self._used_relationtypes = {
                 rt_id for brick in self._build_dependencies_map()[Relation]
-                    for rt_id in brick.relation_type_deps
+                for rt_id in brick.relation_type_deps
             }
 
         return self._used_relationtypes
@@ -658,6 +670,7 @@ class _BrickRegistry:
     """Use to retrieve a Brick by its id.
     Many services (like reloading views) need your Bricks to be registered in.
     """
+
     class RegistrationError(Exception):
         pass
 
@@ -882,14 +895,17 @@ class _BrickRegistry:
             else:
                 yield brick_cls()
 
+    # TODO: python 3.8 => '/' argument ?
     def get_brick_4_object(self, obj_or_ct: Union[Type[CremeEntity], ContentType, CremeEntity]) -> Brick:
         """Return the Brick that displays fields for a CremeEntity instance.
         @param obj_or_ct: Model (class inheriting CremeEntity), or ContentType instance
                           representing this model, or instance of this model.
         """
-        model = obj_or_ct.__class__ if isinstance(obj_or_ct, CremeEntity) else \
-                obj_or_ct.model_class() if isinstance(obj_or_ct, ContentType) else \
-                obj_or_ct
+        model = (
+            obj_or_ct.__class__ if isinstance(obj_or_ct, CremeEntity) else
+            obj_or_ct.model_class() if isinstance(obj_or_ct, ContentType) else
+            obj_or_ct
+        )
         brick_cls = self._object_brick_classes.get(model)
         brick: Brick
 
@@ -936,8 +952,9 @@ class _BrickRegistry:
         for brick_cls in self._brick_classes.values():
             brick = brick_cls()
 
-            if brick.configurable and hasattr(brick, 'detailview_display') \
-               and (not brick.target_ctypes or model in brick.target_ctypes):
+            if (brick.configurable
+                    and hasattr(brick, 'detailview_display')
+                    and (not brick.target_ctypes or model in brick.target_ctypes)):
                 yield brick
 
         for rbi in RelationBrickItem.objects.select_related('relation_type'):
@@ -949,14 +966,16 @@ class _BrickRegistry:
         for ibi in InstanceBrickConfigItem.objects.all():
             brick = self.get_brick_4_instance(ibi)
 
-            if hasattr(brick, 'detailview_display') \
-                    and (not brick.target_ctypes or model in brick.target_ctypes):
+            if (hasattr(brick, 'detailview_display')
+                    and (not brick.target_ctypes or model in brick.target_ctypes)):
                 yield brick
 
         if model:
             yield self.get_brick_4_object(model)
 
-            for cbci in CustomBrickConfigItem.objects.filter(content_type=ContentType.objects.get_for_model(model)):
+            for cbci in CustomBrickConfigItem.objects.filter(
+                    content_type=ContentType.objects.get_for_model(model),
+            ):
                 yield CustomBrick(cbci.generate_id(), cbci)
         else:
             yield EntityBrick()

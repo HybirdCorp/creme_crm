@@ -229,6 +229,11 @@ def range_filter(integer, start=0):
     return range(start, start + integer)
 
 
+@register.filter
+def has_attr(o, attr_name):
+    return hasattr(o, attr_name)
+
+
 # NB: seems not used any more...
 @register.filter
 def is_iterable(iterable):
@@ -257,6 +262,11 @@ def uca_sort(iterable):
     strs.sort(key=collator.sort_key)
 
     return strs
+
+
+@register.filter
+def verbose_models(models):
+    return [m._meta.verbose_name for m in models]
 
 
 # NB: really useful ? {% widget_entity_hyperlink %} seems always used instead...

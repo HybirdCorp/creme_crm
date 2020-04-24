@@ -68,7 +68,11 @@ def detailview_bricks(user, entity, registry=brick_registry):
                                     ):
         target_ctypes = brick.target_ctypes
         if target_ctypes and not model in target_ctypes:
-            logger.warning('This brick cannot be displayed on this content type (you have a config problem): %s', brick.id_)
+            logger.warning(
+                'This brick cannot be displayed on this content type '
+                '(you have a config problem): %s',
+                brick.id_,
+            )
         else:
             bricks[brick.id_] = brick
 

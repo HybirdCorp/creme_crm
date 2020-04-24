@@ -167,7 +167,10 @@ class GraphInstanceBrickForm(CremeModelForm):
         help_text=_(
             'When the graph is displayed on the detail-view of an entity, '
             'only the entities linked to this entity by the following link '
-            'are used to compute the graph.'
+            'are used to compute the graph.\n'
+            'Notice: if you chose «No volatile column», the block will display '
+            'the same data on Home & on detail-views (it could be useful to get '
+            'a recall on general data anyway).',
         ),
     )
 

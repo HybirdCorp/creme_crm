@@ -16,7 +16,7 @@ try:
         CustomField,
         FieldsConfig,
         InstanceBrickConfigItem,
-        FakeOrganisation, FakeContact, FakeInvoice,
+        FakeOrganisation, FakeContact, FakeInvoice, FakeImage,
     )
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_constants import (
@@ -719,6 +719,7 @@ class GraphFetcherTestCase(CremeTestCase):
             '{} - {}'.format(graph.name, _('No volatile column')),
             brick.verbose_name
         )
+        self.assertListEqual([], brick.target_ctypes)
 
         b_fetcher = brick.fetcher
         self.assertIsInstance(b_fetcher, SimpleGraphFetcher)
@@ -787,11 +788,13 @@ class GraphFetcherTestCase(CremeTestCase):
             ),
             brick.verbose_name
         )
+        self.assertListEqual([FakeImage], brick.target_ctypes)
 
         b_fetcher = brick.fetcher
         self.assertIsInstance(b_fetcher, RegularFieldLinkedGraphFetcher)
         self.assertIsNone(b_fetcher.error)
-        self.assertEqual(fname, b_fetcher._field_name)
+        # self.assertEqual(fname, b_fetcher._field_name)
+        self.assertEqual(fname, b_fetcher._field.name)
 
     def test_fk02(self):
         "Hidden field."
@@ -864,6 +867,12 @@ class GraphFetcherTestCase(CremeTestCase):
             value=f'{FAKE_REL_SUB_BILL_ISSUED}',
             choices=choices,
         )
+
+        # ----
+        # TODO: move to test for bricks ?
+        brick = ReportGraphBrick(ibci)
+        self.assertIsNone(brick.errors)
+        self.assertListEqual([FakeOrganisation], brick.target_ctypes)
 
     def test_create_brick_config_item(self):
         "Other brick class."

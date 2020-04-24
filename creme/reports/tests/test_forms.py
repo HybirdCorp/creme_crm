@@ -19,7 +19,7 @@ try:
         CustomField,
         FieldsConfig,
         InstanceBrickConfigItem,
-        FakeOrganisation, FakeContact, FakeInvoiceLine, FakeImage,
+        FakeOrganisation, FakeContact, FakeInvoiceLine,
     )
     from creme.creme_core.tests.fake_constants import (
         FAKE_REL_SUB_EMPLOYED_BY,
@@ -1538,8 +1538,9 @@ class GraphFetcherFieldTestCase(FieldTestCase):
         fetcher2 = field.clean(value=f'{constants.RGF_FK}|image')
         self.assertIsInstance(fetcher2, RegularFieldLinkedGraphFetcher)
         self.assertIsNone(fetcher2.error)
-        self.assertEqual('image', fetcher2._field_name)
-        self.assertEqual(FakeImage, fetcher2._volatile_model)
+        rfield = fetcher2._field
+        self.assertEqual('image',     rfield.name)
+        self.assertEqual(FakeContact, rfield.model)
 
         # RGF_RELATION ---
         fetcher3 = field.clean(
@@ -1639,8 +1640,10 @@ class GraphFetcherFieldTestCase(FieldTestCase):
         fetcher = field.clean(value=value)
         self.assertIsInstance(fetcher, RegularFieldLinkedGraphFetcher)
         self.assertIsNone(fetcher.error)
-        self.assertEqual('image', fetcher._field_name)
-        self.assertEqual(FakeImage, fetcher._volatile_model)
+
+        rfield = fetcher._field
+        self.assertEqual('image',     rfield.name)
+        self.assertEqual(FakeContact, rfield.model)
 
     def test_separator02(self):
         "Set graph then separator"

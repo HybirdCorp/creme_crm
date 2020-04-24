@@ -46,6 +46,8 @@ from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.reports import constants
 
 if TYPE_CHECKING:
+    from django.db.models import Field
+
     from creme.creme_core.gui.bricks import InstanceBrick
     from creme.reports.models import AbstractReportGraph
 
@@ -74,7 +76,9 @@ class GraphFetcher:
         pass
 
     # def __init__(self, graph):
-    def __init__(self, graph: 'AbstractReportGraph', value=None):
+    def __init__(self,
+                 graph: 'AbstractReportGraph',
+                 value: Optional[str] = None):
         self.graph = graph
         self.value = value
         # self.error = None
@@ -144,6 +148,15 @@ class GraphFetcher:
     # def verbose_name(self) -> str:
     #     return f'{self.graph} - {self.verbose_volatile_column}'
 
+    @property
+    def linked_models(self) -> List[Type[CremeEntity]]:
+        """List of models which are compatible for the volatile link.
+        (ie: the argument 'entity' of 'fetch_4_entity()' should be an instance
+        of one of this model).
+        An empty list means <all types of CremeEntity are accepted>.
+        """
+        return []
+
 
 class SimpleGraphFetcher(GraphFetcher):
     type_id = constants.RGF_NOLINK
@@ -190,7 +203,7 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         model = self.graph.model
-        self._field_name: Optional[str] = None
+        self._field: Optional['Field'] = None
         self.verbose_name = '??'
 
         field_name = self.value
@@ -219,8 +232,7 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
                     self.verbose_name = gettext('{field} (Field)').format(
                         field=field.verbose_name,
                     )
-                    self._field_name = field_name
-                    self._volatile_model = field.remote_field.model
+                    self._field = field
 
     @staticmethod
     def _check_field(field, fields_configs: FieldsConfig.LocalCache) -> Optional[str]:
@@ -239,9 +251,14 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         return None
 
     def _aux_fetch_4_entity(self, entity, order, user):
+        field = self._field
+        assert field is not None
+
         return self.graph.fetch(
-            extra_q=Q(**{self._field_name: entity.pk}), order=order, user=user,
-        ) if isinstance(entity, self._volatile_model) else (
+            # extra_q=Q(**{self._field_name: entity.pk}), order=order, user=user,
+            extra_q=Q(**{field.name: entity.pk}), order=order, user=user,
+        # ) if isinstance(entity, self._volatile_model) else (
+        ) if isinstance(entity, field.remote_field.model) else (
             [], []
         )
 
@@ -255,6 +272,13 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         ).filter(
             lambda f, deep: check_field(field=f) is None,
         ).choices()
+
+    @property
+    def linked_models(self):
+        field = self._field
+        assert field is not None
+
+        return [field.remote_field.model]
 
     @staticmethod
     def validate_fieldname(graph, field_name):
@@ -307,6 +331,7 @@ class RelationLinkedGraphFetcher(GraphFetcher):
             self.error = _('No relationship type given.')
         else:
             try:
+                # TODO: selected_relation('symmetric_type') ??
                 rtype = RelationType.objects.get(pk=rtype_id)
             except RelationType.DoesNotExist as e:
                 logger.warning(
@@ -327,9 +352,12 @@ class RelationLinkedGraphFetcher(GraphFetcher):
                     self._rtype = rtype
 
     def _aux_fetch_4_entity(self, entity, order, user):
+        rtype = self._rtype
+        assert rtype is not None
+
         return self.graph.fetch(
             extra_q=Q(
-                relations__type=self._rtype,
+                relations__type=rtype,
                 relations__object_entity=entity.pk,
             ),
             user=user,
@@ -340,3 +368,11 @@ class RelationLinkedGraphFetcher(GraphFetcher):
     def choices(cls, model):
         for rtype in RelationType.objects.compatible(model, include_internals=True):
             yield rtype.id, str(rtype)
+
+    @property
+    def linked_models(self):
+        rtype = self._rtype
+        assert rtype is not None
+
+        # TODO: should we check the properties constraints too (in _aux_fetch_4_entity() ??
+        return [ct.model_class() for ct in rtype.object_ctypes.all()]

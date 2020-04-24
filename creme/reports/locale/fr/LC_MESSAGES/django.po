@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-22 17:52+0200\n"
+"POT-Creation-Date: 2020-04-23 18:07+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -134,65 +134,65 @@ msgstr "ce champ devrait être caché"
 msgid "Number of days"
 msgstr "Nombre de jours"
 
-#: core/graph/fetcher.py:153
+#: core/graph/fetcher.py:166
 msgid "No volatile column"
 msgstr "Pas de colonne volatile"
 
-#: core/graph/fetcher.py:156
+#: core/graph/fetcher.py:169
 msgid "No value is needed."
 msgstr "Aucune valeur n'est nécessaire."
 
-#: core/graph/fetcher.py:160
+#: core/graph/fetcher.py:173
 msgctxt "reports-volatile_choice"
 msgid "None"
 msgstr "Aucune"
 
-#: core/graph/fetcher.py:165
+#: core/graph/fetcher.py:178
 msgid "Fields"
 msgstr "Champs"
 
-#: core/graph/fetcher.py:199
+#: core/graph/fetcher.py:212
 msgid "No field given."
 msgstr "Aucun champ n'est renseigné."
 
-#: core/graph/fetcher.py:208
+#: core/graph/fetcher.py:221
 msgid "The field is invalid."
 msgstr "Le champ est invalide."
 
-#: core/graph/fetcher.py:219
+#: core/graph/fetcher.py:232
 #, python-brace-format
 msgid "{field} (Field)"
 msgstr "{field} (Champ)"
 
-#: core/graph/fetcher.py:228
+#: core/graph/fetcher.py:240
 msgid "The field is invalid (not a foreign key)."
 msgstr "Le champ est invalide (pas une clé étrangère)."
 
-#: core/graph/fetcher.py:231
+#: core/graph/fetcher.py:243
 msgid "The field is invalid (not a foreign key to CremeEntity)."
 msgstr "Le champ est invalide (pas une clé étrangère vers CremeEntity)."
 
-#: core/graph/fetcher.py:237
+#: core/graph/fetcher.py:249
 msgid "The field is hidden."
 msgstr "Le champ est caché."
 
-#: core/graph/fetcher.py:285
+#: core/graph/fetcher.py:309
 msgid "Relationships"
 msgstr "Relations"
 
-#: core/graph/fetcher.py:307
+#: core/graph/fetcher.py:331
 msgid "No relationship type given."
 msgstr "Aucun type de relation n'est renseigné."
 
-#: core/graph/fetcher.py:316
+#: core/graph/fetcher.py:341
 msgid "The relationship type is invalid."
 msgstr "Le type de relation est invalide."
 
-#: core/graph/fetcher.py:321
+#: core/graph/fetcher.py:346
 msgid "The relationship type is not compatible with «{}»."
 msgstr "Le type de relation est incompatible avec «{}»."
 
-#: core/graph/fetcher.py:325
+#: core/graph/fetcher.py:350
 #, python-brace-format
 msgid "{rtype} (Relationship)"
 msgstr "{rtype} (Relation)"
@@ -253,13 +253,19 @@ msgstr "Colonne volatile"
 msgid ""
 "When the graph is displayed on the detail-view of an entity, only the "
 "entities linked to this entity by the following link are used to compute the "
-"graph."
+"graph.\n"
+"Notice: if you chose «No volatile column», the block will display the same "
+"data on Home & on detail-views (it could be useful to get a recall on "
+"general data anyway)."
 msgstr ""
 "Lorsque le graphique est affiché sur la vue détaillée d'une fiche, seules "
 "les fiches reliées à cette fiche par le lien ci-dessous sont utilisées pour "
-"calculer le graphique."
+"calculer le graphique.\n"
+"Remarque : si vous choisissez «Pas de colonne volatile», le bloc affichera "
+"les mêmes données sur l'Accueil & sur les vues détaillées (ça peut cependant "
+"être utile en tant que rappel des données générales)."
 
-#: forms/bricks.py:175 models/graph.py:359
+#: forms/bricks.py:178 models/graph.py:359
 #, python-brace-format
 msgid "The instance block for «{graph}» with these parameters already exists!"
 msgstr "Le bloc d'instance pour «{graph}» avec ces paramètres existe déjà !"
@@ -633,10 +639,28 @@ msgid "Blocks"
 msgstr "Blocs"
 
 #: templates/reports/bricks/instance-bricks-info.html:12
+msgid "Compatible with detail-views of"
+msgstr "Compatible avec les vues détaillées de"
+
+#: templates/reports/bricks/instance-bricks-info.html:13
 msgid "Error"
 msgstr "Erreur"
 
-#: templates/reports/bricks/instance-bricks-info.html:26
+#: templates/reports/bricks/instance-bricks-info.html:18
+#, python-format
+msgid ""
+"These blocks can be placed on Home & on some detail-views in the <a href="
+"\"%(config_url)s\">blocks configuration</a>."
+msgstr ""
+"Ces blocs peuvent être placés sur l'Accueil & sur certaines vues détaillées "
+"dans la <a href=\"%(config_url)s\">configuration des blocs</a>."
+
+# Laready in 'creme_config'
+#: templates/reports/bricks/instance-bricks-info.html:28
+msgid "All types of entity"
+msgstr ""
+
+#: templates/reports/bricks/instance-bricks-info.html:36
 msgid "No brick for this graph"
 msgstr "Pas de bloc pour ce graphique"
 
@@ -747,7 +771,7 @@ msgstr "supprimé"
 msgid "Create an instance block for «{entity}»"
 msgstr "Créer un bloc d'instance pour «{entity}»"
 
-#: views/bricks.py:47
+#: views/bricks.py:42
 msgid ""
 "When you create a block, it becomes available in the blocks configuration. "
 "It can be displayed on Home, on «My Page» & on the detail-views of entities."

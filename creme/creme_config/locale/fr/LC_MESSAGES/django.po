@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-01 18:53+0200\n"
+"POT-Creation-Date: 2020-04-23 17:51+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -69,7 +69,7 @@ msgstr "Configuration des types de relation personnalisés"
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: bricks.py:420 bricks.py:650 forms/bricks.py:220 forms/bricks.py:280
+#: bricks.py:420 bricks.py:651 forms/bricks.py:238 forms/bricks.py:299
 #: forms/search.py:71 forms/user.py:77 forms/user.py:118
 #: templates/creme_config/bricks/bricklocations-home.html:42
 #: templates/creme_config/bricks/search-config.html:31
@@ -248,42 +248,42 @@ msgstr "Il y a un cycle entre les filtres [{}]."
 msgid "The filter with id=\"{id}\" already exists."
 msgstr "Le filtre avec id=\"{id}\" existe déjà."
 
-#: forms/bricks.py:104
+#: forms/bricks.py:119
 msgid "Header block"
 msgstr "Bloc entête"
 
-#: forms/bricks.py:105
+#: forms/bricks.py:120
 msgid "Blocks to display on top"
 msgstr "Blocs à afficher en haut"
 
-#: forms/bricks.py:106
+#: forms/bricks.py:121
 msgid "Blocks to display on left side"
 msgstr "Blocs à afficher à gauche"
 
-#: forms/bricks.py:107
+#: forms/bricks.py:122
 msgid "Blocks to display on right side"
 msgstr "Blocs à afficher à droite"
 
-#: forms/bricks.py:108
+#: forms/bricks.py:123
 msgid "Blocks to display on bottom"
 msgstr "Blocs à afficher en bas"
 
-#: forms/bricks.py:111
+#: forms/bricks.py:126
 #, python-format
 msgid "The following block should be displayed only once: «%(block)s»"
 msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: «%(block)s»"
 
-#: forms/bricks.py:112
+#: forms/bricks.py:127
 msgid "Your configuration is empty !"
 msgstr "Votre configuration est vide !"
 
-#: forms/bricks.py:198 forms/bricks.py:259 forms/search.py:47 forms/user.py:65
+#: forms/bricks.py:214 forms/bricks.py:278 forms/search.py:47 forms/user.py:65
 #: forms/user.py:108 templates/creme_config/bricks/bricklocations-home.html:17
 #: templates/creme_config/bricks/users.html:25
 msgid "Role"
 msgstr "Rôle"
 
-#: forms/bricks.py:203 templates/creme_config/bricks_portal.html:8
+#: forms/bricks.py:220 templates/creme_config/bricks_portal.html:8
 #: templates/creme_config/button_menu_portal.html:8
 #: templates/creme_config/custom_field/enums.html:8
 #: templates/creme_config/custom_field/portal.html:8
@@ -303,32 +303,32 @@ msgstr "Rôle"
 msgid "Configuration"
 msgstr "Configuration"
 
-#: forms/bricks.py:263 forms/bricks.py:296
+#: forms/bricks.py:282 forms/bricks.py:315
 msgid "Blocks to display on the home"
 msgstr "Blocs à afficher sur l'accueil"
 
-#: forms/bricks.py:317
+#: forms/bricks.py:336
 msgid "Blocks to display on the «My Page» of the users"
 msgstr "Blocs à afficher sur le «Ma page» des utilisateurs"
 
-#: forms/bricks.py:359
+#: forms/bricks.py:381
 msgid "Customised resource"
 msgstr "Ressource personnalisée"
 
-#: forms/bricks.py:388
+#: forms/bricks.py:410
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/bricks.py:395
+#: forms/bricks.py:417
 msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
-#: forms/bricks.py:459 forms/button_menu.py:37 forms/custom_fields.py:118
+#: forms/bricks.py:482 forms/button_menu.py:37 forms/custom_fields.py:122
 #: forms/fields_config.py:34 forms/fields_config.py:73
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: forms/bricks.py:483
+#: forms/bricks.py:507
 msgid "Lines"
 msgstr "Lignes"
 
@@ -389,11 +389,11 @@ msgstr ""
 "La liste de choix ne doit pas être vide si vous choisissez un type \"Liste "
 "de choix\""
 
-#: forms/custom_fields.py:67 forms/custom_fields.py:253
+#: forms/custom_fields.py:67 forms/custom_fields.py:280
 msgid "The choice «{}» is duplicated."
 msgstr "le choix «{}» est en double."
 
-#: forms/custom_fields.py:119
+#: forms/custom_fields.py:123
 msgid ""
 "The other custom fields for this type of resource will be chosen by editing "
 "the configuration"
@@ -401,47 +401,47 @@ msgstr ""
 "Les autres champs personnalisés de ce type de ressource seront choisis en "
 "modifiant la configuration"
 
-#: forms/custom_fields.py:136 forms/custom_fields.py:163
-#: forms/custom_fields.py:229
+#: forms/custom_fields.py:152 forms/custom_fields.py:189
+#: forms/custom_fields.py:256
 msgid "There is already a custom field with this name."
 msgstr "Il y a déjà un champ personnalisé avec ce nom."
 
-#: forms/custom_fields.py:184
+#: forms/custom_fields.py:211
 msgid "Existing choices of the list"
 msgstr "Choix existants de la liste"
 
-#: forms/custom_fields.py:185
+#: forms/custom_fields.py:212
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/custom_fields.py:189 forms/custom_fields.py:294
+#: forms/custom_fields.py:216 forms/custom_fields.py:321
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/custom_fields.py:190 forms/custom_fields.py:295
+#: forms/custom_fields.py:217 forms/custom_fields.py:322
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
-#: forms/custom_fields.py:268
+#: forms/custom_fields.py:295
 msgid "New choice"
 msgstr "Nouveau choix"
 
-#: forms/custom_fields.py:347
+#: forms/custom_fields.py:374
 msgid "Choose a choice to transfer to"
 msgstr "Choisissez un choice auquel transférer"
 
-#: forms/custom_fields.py:348
+#: forms/custom_fields.py:375
 msgid ""
 "The selected choice will replace the deleted one in entities which use it."
 msgstr ""
 "Le choix sélectionné remplacera le choix supprimé dans les fiches qui lui "
 "sont associés."
 
-#: forms/custom_fields.py:356 forms/user_role.py:322 forms/user_role.py:355
+#: forms/custom_fields.py:383 forms/user_role.py:322 forms/user_role.py:355
 msgid "Information"
 msgstr "Informations"
 
-#: forms/custom_fields.py:359
+#: forms/custom_fields.py:386
 msgid "This choice is not used by any entity, you can delete it safely."
 msgstr ""
 "Ce choix n'est utilisé par aucune fiche, vous pouvez le supprimer en toute "
@@ -971,13 +971,13 @@ msgstr "Nom"
 #: templates/creme_config/bricks/bricklocations-home.html:19
 #: templates/creme_config/bricks/custom-enums.html:18
 #: templates/creme_config/bricks/history-config.html:23
-#: templates/creme_config/bricks/instancebricks-configs.html:13
+#: templates/creme_config/bricks/instancebricks-configs.html:14
 #: templates/creme_config/bricks/setting-values.html:13
 #: templates/creme_config/bricks/user-setting-values.html:20
 msgid "Action"
 msgstr "Action"
 
-#: templates/creme_config/bricks/base/bricklocations-mypage.html:27
+#: templates/creme_config/bricks/base/bricklocations-mypage.html:28
 #: templates/creme_config/bricks/bricklocations-mypage-default.html:21
 msgid "No block for the moment"
 msgstr "Aucun bloc pour le moment"
@@ -1206,7 +1206,7 @@ msgid "No choice for this custom field"
 msgstr "Aucun choix pour ce champ personnalisé"
 
 #: templates/creme_config/bricks/custom-fields.html:12
-#: views/custom_fields.py:45
+#: views/custom_fields.py:46
 msgid "New custom field configuration"
 msgstr "Nouvelle configuration de champ personnalisé"
 
@@ -1265,7 +1265,7 @@ msgid "Edit this type of block"
 msgstr "Modifier ce type de bloc"
 
 #: templates/creme_config/bricks/custombricks-configs.html:36
-#: templates/creme_config/bricks/instancebricks-configs.html:29
+#: templates/creme_config/bricks/instancebricks-configs.html:38
 #: templates/creme_config/bricks/relationbricks-configs.html:29
 msgid "Delete this type of block"
 msgstr "Supprimer ce type de bloc"
@@ -1333,10 +1333,26 @@ msgid "Instances' blocks"
 msgstr "Bloc d'instance"
 
 #: templates/creme_config/bricks/instancebricks-configs.html:12
+msgid "Can be displayed on"
+msgstr "Peut être affiché sur"
+
+#: templates/creme_config/bricks/instancebricks-configs.html:13
 msgid "Errors"
 msgstr "Erreurs"
 
-#: templates/creme_config/bricks/instancebricks-configs.html:36
+#: templates/creme_config/bricks/instancebricks-configs.html:25
+msgid "Home & «My page»"
+msgstr "Accueil & «Ma page»"
+
+#: templates/creme_config/bricks/instancebricks-configs.html:26
+msgid "Detail views:"
+msgstr "Vue détaillée :"
+
+#: templates/creme_config/bricks/instancebricks-configs.html:26
+msgid "All types of entity"
+msgstr "Tous les types de fiche"
+
+#: templates/creme_config/bricks/instancebricks-configs.html:45
 msgid "No type of instance block created for the moment"
 msgstr "Aucun bloc d'instance créé pour le moment"
 
@@ -2118,29 +2134,29 @@ msgctxt "creme_config-property"
 msgid "Edit the type «{object}»"
 msgstr "Modifier le type «{object}»"
 
-#: views/custom_fields.py:61
+#: views/custom_fields.py:63
 #, python-brace-format
 msgid "New custom field for «{model}»"
 msgstr "Nouveau champ personnalisé pour «{model}»"
 
-#: views/custom_fields.py:125
+#: views/custom_fields.py:127
 msgid "Add this new choice"
 msgstr "Ajouter ce nouveau choix"
 
-#: views/custom_fields.py:135
+#: views/custom_fields.py:137
 msgid "Add these new choices"
 msgstr "Ajouter ces nouveaux choix"
 
-#: views/custom_fields.py:150 views/generics_views.py:219
+#: views/custom_fields.py:152 views/generics_views.py:219
 #, python-brace-format
 msgid "Replace & delete «{object}»"
 msgstr "Remplacer & supprimer «{object}»"
 
-#: views/custom_fields.py:151
+#: views/custom_fields.py:153
 msgid "Delete the choice"
 msgstr "Supprimer le choix"
 
-#: views/custom_fields.py:165
+#: views/custom_fields.py:167
 msgid "A deletion process for a choice already exists."
 msgstr "Il y a déjà un processus de suppression pour un choix."
 
@@ -2346,9 +2362,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 #~ msgid "Buttons"
 #~ msgstr "Boutons"
 
-#~ msgid "Details"
-#~ msgstr "Détails"
-
 #~ msgid "Move up"
 #~ msgstr "Monter"
 
@@ -2549,6 +2562,3 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 
 #~ msgid "Credential type"
 #~ msgstr "Type de droit"
-
-#~ msgid "Type of entity"
-#~ msgstr "Type de fiche"

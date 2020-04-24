@@ -26,7 +26,7 @@
 <p class="required-help">{% trans 'Fields marked with * are required.' %}</p>
 
 <div id="editforms">
-    <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
+    <form action="" method="POST"{% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>{% csrf_token %}
         {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
         {% for hidden in form.hidden_fields %}{{hidden}}{% endfor %}
 
@@ -37,7 +37,7 @@
                         <tr>
                             <th class="th_info {% cycle 'block_header_line_dark' 'block_header_line_light' %}">{{field.label}} {% if field.field.required %}<span class="required-mark">*</span>{% endif %}</th>
                             <td class="td_info {% cycle 'block_line_dark' 'block_line_light' %}">
-                                {% if field.help_text %}<div class="help-text">{{field.help_text}}</div>{% endif %}
+                                {% if field.help_text %}<div class="help-text">{{field.help_text|linebreaksbr}}</div>{% endif %}
                                 {{field.errors}} {{field}}
                             </td>
                         </tr>
