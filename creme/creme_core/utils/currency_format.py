@@ -67,9 +67,8 @@ def currency(val, currency_or_id=None):
     @param val: Amount as a numeric value.
     @param currency_or_id: Instance of creme_core.models.Currency, or an ID of Currency instance.
     """
-    conv = _get_locale_conv(category=locale.LC_MONETARY,
-                            locale_code=standardized_locale_code(settings.LANGUAGE_CODE),
-                           )
+    locale_code = standardized_locale_code(settings.LANGUAGE_CODE)
+    conv = _get_locale_conv(category=locale.LC_MONETARY, locale_code=locale_code)
     is_local_symbol = SettingValue.objects.get_4_key(currency_symbol_key).value
 
     if currency_or_id:
@@ -86,7 +85,13 @@ def currency(val, currency_or_id=None):
     # Check for illegal values
     digits = conv[not is_local_symbol and 'int_frac_digits' or 'frac_digits']
     if digits == 127:
-        raise ValueError("Currency formatting is not possible using the 'C' locale.")
+        # raise ValueError("Currency formatting is not possible using the 'C' locale.")
+        logger.critical(
+            'Currency formatting is not possible using the "C" locale. '
+            'HINT: have you installed the locale "%s" on your system?',
+            locale_code,
+        )
+        return f'{val} {smb}'
 
     s = locale.format(f'%.{digits}f', abs(val), grouping=True, monetary=True)
 
