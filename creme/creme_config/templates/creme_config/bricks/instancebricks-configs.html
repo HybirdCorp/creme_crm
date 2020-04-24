@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_bricks %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-instances-bricks-brick{% endblock %}
 
@@ -9,6 +9,7 @@
 
 {% block brick_table_columns %}
     {% brick_table_column title=_('Name')   status='primary nowrap' class='instancebrick-config-name' %}
+    {% brick_table_column title=_('Can be displayed on') %}
     {% brick_table_column title=_('Errors')                         class='instancebrick-config-errors' %}
     {% brick_table_column title=_('Action') status='action' %}
 {% endblock %}
@@ -18,6 +19,14 @@
     {% for brick_type in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %} class="instancebrick-config-name"><a href="{{brick_type.entity.get_absolute_url}}">{{brick_type}}</a></td>
+        <td>
+            <ul>
+            {% with brick=brick_type.brick %}
+                {% if brick|has_attr:'home_display' %}<li>{% trans 'Home & «My page»' %}</li>{% endif %}
+                {% if brick|has_attr:'detailview_display' %}<li>{% trans 'Detail views:' %}&nbsp;{% widget_enumerator brick.target_ctypes|verbose_models|uca_sort threshold=10 empty=_('All types of entity') %}</li>{% endif %}
+            {% endwith %}
+            </ul>
+        </td>
         <td class="instancebrick-config-errors">
             {% for error in brick_type.errors %}
                 {% if not forloop.first %}, {% endif %}

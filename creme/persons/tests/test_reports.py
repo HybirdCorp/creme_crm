@@ -70,10 +70,12 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(RGF_OWNED, ibci.get_extra_data('type'))
         self.assertIsNone(ibci.get_extra_data('value'))
 
+        brick = ReportGraphBrick(ibci)
         self.assertEqual(
             f'{graph.name} - {vname}',
-            ReportGraphBrick(ibci).verbose_name
+            brick.verbose_name
         )
+        self.assertListEqual([Contact], brick.target_ctypes)
 
         # Display on detail-view
         create_orga = partial(Organisation.objects.create, user=user)
@@ -82,7 +84,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         create_orga(name='Orga#3', creation_date=date(year=2015, month=3, day=3), user=self.other_user)
         create_orga(name='Orga#4', creation_date=date(year=2016, month=4, day=4))
 
-        fetcher = ReportGraphBrick(ibci).fetcher
+        fetcher = brick.fetcher
         self.assertIsInstance(fetcher, OwnedGraphFetcher)
         self.assertIsNone(fetcher.error)
         self.assertEqual(vname, fetcher.verbose_name)
@@ -208,15 +210,23 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
             zone=BrickDetailviewLocation.RIGHT, model=FakeInvoice,
         )
 
-        response1 = self.assertGET200(invoice.get_absolute_url())
-        dom = self.get_html_tree(response1.content)
-        brick_node = self.get_brick_node(dom, brick_id=ibci.brick_id)
-
-        error_div = brick_node.find(
-            './/div[@class="brick-graph-container brick-empty brick-error"]'
+        with self.assertLogs(level='WARNING') as logs_manager:
+            response1 = self.assertGET200(invoice.get_absolute_url())
+        # dom = self.get_html_tree(response1.content)
+        # brick_node = self.get_brick_node(dom, brick_id=ibci.brick_id)
+        #
+        # error_div = brick_node.find(
+        #     './/div[@class="brick-graph-container brick-empty brick-error"]'
+        # )
+        # self.assertIsNotNone(error_div)
+        # self.assertEqual(error_msg, error_div.text)
+        self.assertNoBrick(self.get_html_tree(response1.content), brick_id=ibci.brick_id)
+        self.assertIn(
+            f'WARNING:creme.creme_core.views.generic.detailview:'
+            f'This brick cannot be displayed on this content type '
+            f'(you have a config problem): {ibci.brick_id}',
+            logs_manager.output,
         )
-        self.assertIsNotNone(error_div)
-        self.assertEqual(error_msg, error_div.text)
 
         # --
         response2 = self.assertGET200(

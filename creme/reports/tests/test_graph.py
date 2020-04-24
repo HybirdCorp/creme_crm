@@ -37,7 +37,7 @@ try:
     )
     from .fake_models import FakeReportsFolder, FakeReportsDocument
 
-    from ..bricks import ReportGraphBrick
+    from ..bricks import ReportGraphBrick, InstanceBricksInfoBrick
     from ..constants import (
         RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE,
         RGT_FK, RGT_RELATION,
@@ -2988,7 +2988,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # self.assertEqual(item.id, brick.instance_brick_id)
         self.assertEqual(item,  brick.config_item)
 
-        # ---------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         # response = self.assertPOST200(url)
         response = self.assertPOST200(
             url,
@@ -3002,12 +3002,19 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             )
         )
 
-        # ---------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         response = self.assertGET200(reverse('reports__instance_bricks_info', args=(rgraph.id,)))
         self.assertTemplateUsed(response, 'reports/bricks/instance-bricks-info.html')
         self.assertEqual(rgraph, response.context.get('object'))
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick_id=InstanceBricksInfoBrick.id_,
+        )
+        vname_node = brick_node.find('.//td[@data-table-primary-column]')
+        self.assertIsNotNone(vname_node)
+        self.assertEqual(_('No volatile column'), vname_node.text)
 
-        # ---------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         # Display on home
         BrickHomeLocation.objects.all().delete()
         # BrickHomeLocation.objects.create(brick_id=item.brick_id, order=1)
@@ -3017,7 +3024,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # self.get_brick_node(self.get_html_tree(response.content), item.brick_id)
         self.get_brick_node(self.get_html_tree(response.content), brick_id)
 
-        # ---------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         # Display on detailview
         ct = self.ct_invoice
         BrickDetailviewLocation.objects.filter(content_type=ct).delete()
@@ -3041,7 +3048,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # self.get_brick_node(self.get_html_tree(response.content), item.brick_id)
         self.get_brick_node(self.get_html_tree(response.content), brick_id)
 
-        # ---------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC'))
 
         result = response.json()
@@ -3061,7 +3068,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC'))
         self.assertEqual(result, response.json())
 
-        # ---------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'DESC'))
         result = response.json()
         self.assertEqual([x_fmt(11), x_fmt(10)], result.get('x'))
@@ -3073,7 +3080,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                        Q(issuing_date__month=11, issuing_date__year=2014),
                       )
 
-        # ---------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         self.assertGET404(self._build_fetchfrombrick_url(item, invoice, 'FOOBAR'))
 
     def test_add_graph_instance_brick02(self):

@@ -49,9 +49,9 @@ class ReportFieldsBrick(core_bricks.Brick):
         columns = context['object'].columns
 
         return self._render(self.get_template_context(
-                    context,
-                    columns=columns,
-                    expand=any(field.sub_report_id for field in columns),
+            context,
+            columns=columns,
+            expand=any(field.sub_report_id for field in columns),
         ))
 
 
@@ -91,17 +91,25 @@ class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
     # order_by      = 'verbose'
     configurable  = False
 
+    # def detailview_display(self, context):
+    #     btc = self.get_template_context(
+    #         context,
+    #         InstanceBrickConfigItem.objects.filter(entity=context['object'].id),
+    #     )
+    #     get_fetcher = ReportGraph.get_fetcher_from_instance_brick
+    #
+    #     for ibci in btc['page'].object_list:
+    #         ibci.fetcher = get_fetcher(ibci)
+    #
+    #     return self._render(btc)
     def detailview_display(self, context):
-        btc = self.get_template_context(
+        return self._render(self.get_template_context(
             context,
-            InstanceBrickConfigItem.objects.filter(entity=context['object'].id),
-        )
-        get_fetcher = ReportGraph.get_fetcher_from_instance_brick
-
-        for ibci in btc['page'].object_list:
-            ibci.fetcher = get_fetcher(ibci)
-
-        return self._render(btc)
+            InstanceBrickConfigItem.objects.filter(
+                brick_class_id=ReportGraphBrick.id_,
+                entity=context['object'].id,
+            ),
+        ))
 
 
 # class ReportGraphBrick(Brick):
@@ -163,7 +171,7 @@ class ReportGraphBrick(core_bricks.InstanceBrick):
         except GraphFetcher.IncompatibleContentType as e:
             x = y = None
             kwargs['error'] = str(e)
-        except GraphFetcher.UselessResult as e:
+        except GraphFetcher.UselessResult:
             x = y = None
             kwargs['hide_brick'] = True
 
@@ -173,3 +181,7 @@ class ReportGraphBrick(core_bricks.InstanceBrick):
         x, y = self.fetcher.fetch(user=context['user'])
 
         return self._auxiliary_display(context=context, x=x, y=y)
+
+    @property
+    def target_ctypes(self):
+        return self.fetcher.linked_models
