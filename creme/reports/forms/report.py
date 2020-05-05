@@ -95,13 +95,17 @@ _CUSTOM_AGG_PREFIX  = _EntityCellCustomAggregate.type_id + '-'
 
 
 class ReportCreateForm(CremeEntityForm):
-    hf     = AjaxModelChoiceField(label=_('Existing view'), queryset=HeaderFilter.objects.none(),
-                                  required=False,
-                                  help_text=_('If you select a view of list, '
-                                              'the columns of the report will be copied from it.'
-                                             ),
-                                 )
-    filter = AjaxModelChoiceField(label=_('Filter'), queryset=EntityFilter.objects.none(), required=False)
+    hf = AjaxModelChoiceField(
+        label=_('Existing view'),
+        queryset=HeaderFilter.objects.none(),
+        required=False,
+        help_text=_(
+            'If you select a view of list, the columns of the report will be copied from it.'
+        ),
+    )
+    filter = AjaxModelChoiceField(
+        label=_('Filter'), queryset=EntityFilter.objects.none(), required=False,
+    )
 
     class Meta(CremeEntityForm.Meta):
         model = Report
@@ -115,11 +119,17 @@ class ReportCreateForm(CremeEntityForm):
 
             hf = get_data('hf')
             if hf and not hf.can_view(self.user, ct)[0]:
-                self.add_error('hf', _('Select a valid choice. That choice is not one of the available choices.'))
+                self.add_error(
+                    'hf',
+                    _('Select a valid choice. That choice is not one of the available choices.')
+                )
 
             efilter = get_data('filter')
             if efilter and not efilter.can_view(self.user, ct)[0]:
-                self.add_error('filter', _('Select a valid choice. That choice is not one of the available choices.'))
+                self.add_error(
+                    'filter',
+                    _('Select a valid choice. That choice is not one of the available choices.'),
+                )
 
         return cleaned_data
 
@@ -133,9 +143,10 @@ class ReportCreateForm(CremeEntityForm):
 
             for i, cell in enumerate(self.cleaned_data['hf'].filtered_cells, start=1):
                 # TODO: check in clean() that id is OK
-                build_field(name=cell.value, order=i,
-                            type=_CELL_2_HAND_MAP[cell.type_id],
-                           )
+                build_field(
+                    name=cell.value, order=i,
+                    type=_CELL_2_HAND_MAP[cell.type_id],
+                )
 
         return report
 
@@ -257,11 +268,12 @@ class ReportHandsField(EntityCellsField):
                 pattern = aggregate.pattern
                 title   = aggregate.title
 
-                for f_name, f_vname in ModelFieldEnumerator(model, deep=0) \
-                                            .filter((lambda f, deep: isinstance(f, authorized_fields)),
-                                                    viewable=True,
-                                                   ) \
-                                            .choices():
+                for f_name, f_vname in ModelFieldEnumerator(
+                        model, deep=0,
+                ).filter(
+                    (lambda f, deep: isinstance(f, authorized_fields)),
+                    viewable=True,
+                ).choices():
                     agg_id = _REGULAR_AGG_PREFIX + pattern.format(f_name)
                     reg_agg_choices.append((agg_id, f'{title} - {f_vname}'))
 
@@ -319,11 +331,12 @@ class ReportFieldsForm(CremeForm):
         sub_report_n_selected = self._get_sub_report_n_selected
 
         for i, cell in enumerate(self.cleaned_data['columns'], start=1):
-            rfield = Field(id=old_ids.pop(0) if old_ids else None,
-                           report=report, name=cell.value,
-                           type=_CELL_2_HAND_MAP[cell.type_id],
-                           order=i,
-                          )
+            rfield = Field(
+                id=old_ids.pop(0) if old_ids else None,
+                report=report, name=cell.value,
+                type=_CELL_2_HAND_MAP[cell.type_id],
+                order=i,
+            )
             rfield.sub_report, rfield.selected = sub_report_n_selected(old_rfields, rfield)
 
             rfield.save()  # TODO: only if different from the old one
@@ -374,9 +387,10 @@ class ReportExportPreviewFilterForm(CremeForm):
             date_filter = cleaned_data.get('date_filter')
 
             if not date_filter or not any(date_filter.get_dates(now())):
-                raise ValidationError(self.error_messages['custom_start'],
-                                      code='custom_start',
-                                     )
+                raise ValidationError(
+                    self.error_messages['custom_start'],
+                    code='custom_start',
+                )
 
         return cleaned_data
 
@@ -400,18 +414,20 @@ class ReportExportPreviewFilterForm(CremeForm):
         date_field = cleaned_data['date_field']
         date_filter = cleaned_data['date_filter']
 
-        data = [('doc_type',   cleaned_data['doc_type']),
-                ('date_field', date_field),
-               ]
+        data = [
+            ('doc_type',   cleaned_data['doc_type']),
+            ('date_field', date_field),
+        ]
 
         if date_filter is not None:
             d_range = date_filter.name
             start, end = date_filter.get_dates(now())
 
-            data.extend([('date_filter_0', d_range),
-                         ('date_filter_1', start.strftime('%d-%m-%Y') if start else ''),
-                         ('date_filter_2', end.strftime('%d-%m-%Y') if end else ''),
-                        ])
+            data.extend([
+                ('date_filter_0', d_range),
+                ('date_filter_1', start.strftime('%d-%m-%Y') if start else ''),
+                ('date_filter_2', end.strftime('%d-%m-%Y') if end else ''),
+            ])
 
         return '&'.join(f'{key}={value}' for key, value in data)
 

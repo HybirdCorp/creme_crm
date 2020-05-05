@@ -32,6 +32,7 @@ from django.http import Http404
 from django.utils.translation import gettext_lazy as _, gettext
 
 from ..signals import pre_merge_related
+from ..utils.content_type import as_ctype
 
 from . import fields as creme_fields
 from .base import CremeModel
@@ -45,10 +46,11 @@ class RelationTypeManager(models.Manager):
     def compatible(self,
                    ct_or_model: Union[ContentType, Type[CremeEntity]],
                    include_internals: bool = False):
-        ct = ct_or_model if isinstance(ct_or_model, ContentType) else \
-             ContentType.objects.get_for_model(ct_or_model)
+        types = self.filter(
+            Q(subject_ctypes=as_ctype(ct_or_model)) |
+            Q(subject_ctypes__isnull=True)
+        )
 
-        types = self.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
         if not include_internals:
             types = types.filter(Q(is_internal=False))
 

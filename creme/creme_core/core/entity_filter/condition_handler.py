@@ -766,9 +766,12 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
     def custom_field(self) -> Union[CustomField, bool]:
         cfield = self._custom_field
         if cfield is None:
-            self._custom_field = cfield = CustomField.objects.filter(
-                id=self._custom_field_id,
-            ).first() or False
+            # self._custom_field = cfield = CustomField.objects.filter(
+            #     id=self._custom_field_id,
+            # ).first() or False
+            self._custom_field = cfield = CustomField.objects.get_for_model(
+                self.model
+            ).get(self._custom_field_id, False)
 
         return cfield
 

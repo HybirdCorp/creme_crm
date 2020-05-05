@@ -30,6 +30,9 @@ from django.utils.formats import date_format
 from django.utils.timezone import localtime
 from django.utils.translation import gettext, gettext_lazy as _
 
+from ..global_info import get_per_request_cache
+from ..utils.content_type import as_ctype
+
 from .base import CremeModel
 from .entity import CremeEntity
 from .fields import CTypeForeignKey
@@ -40,6 +43,24 @@ __all__ = (
     'CustomFieldString', 'CustomFieldDateTime',
     'CustomFieldEnumValue', 'CustomFieldEnum', 'CustomFieldMultiEnum',
 )
+
+
+class CustomFieldManager(models.Manager):
+    # TODO: python 3.8 '/' argument ?
+    def compatible(self, ct_or_model):
+        return self.filter(content_type=as_ctype(ct_or_model))
+
+    # TODO: python 3.8 '/' argument ?
+    def get_for_model(self, ct_or_model) -> Dict[int, 'CustomField']:
+        ct = as_ctype(ct_or_model)
+        cache = get_per_request_cache()
+        key = f'creme_core-custom_fields-{ct.id}'
+
+        cached_cfields = cache.get(key)
+        if cached_cfields is None:
+            cached_cfields = cache[key] = [*self.filter(content_type=ct)]
+
+        return OrderedDict((cfield.id, cfield) for cfield in cached_cfields)
 
 
 class CustomField(CremeModel):
@@ -66,6 +87,8 @@ class CustomField(CremeModel):
     # default_value = CharField(_('Default value'), max_length=100, blank=True, null=True)
     # extra_args    = CharField(max_length=500, blank=True, null=True)
 
+    objects = CustomFieldManager()
+
     creation_label = _('Create a custom field')
     save_label     = _('Save the custom field')
 
@@ -89,8 +112,8 @@ class CustomField(CremeModel):
         super().delete(*args, **kwargs)
 
     # TODO: property ?
-    def type_verbose_name(self):
-        return _TABLES[self.field_type].verbose_name
+    def type_verbose_name(self) -> str:
+        return self.value_class.verbose_name
 
     def get_value_class(self):
         warnings.warn(
@@ -102,7 +125,7 @@ class CustomField(CremeModel):
         return self.value_class
 
     @property
-    def value_class(self):
+    def value_class(self) -> Type['CustomFieldValue']:
         return _TABLES[self.field_type]
 
     # def get_formfield(self, custom_value):

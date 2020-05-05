@@ -6,6 +6,7 @@ try:
     from functools import partial
 
     from django import forms
+    from django.db.models import QuerySet
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import gettext as _
 
@@ -17,7 +18,7 @@ try:
         CustomFieldString,
         CustomFieldDateTime,
         CustomFieldEnumValue, CustomFieldEnum, CustomFieldMultiEnum,
-        FakeOrganisation,
+        FakeOrganisation, FakeContact,
     )
 
     from creme.creme_config.forms.fields import (
@@ -26,6 +27,67 @@ try:
     )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
+
+
+class CustomFieldManagerTestCase(CremeTestCase):
+    def test_compatible(self):
+        create_cfield = partial(
+            CustomField.objects.create,
+            content_type=ContentType.objects.get_for_model(FakeOrganisation),
+        )
+        cfield1 = create_cfield(name='Length of ship', field_type=CustomField.INT)
+        cfield2 = create_cfield(name='Width of ship',  field_type=CustomField.STR)
+        __ = create_cfield(
+            name='Weapon', field_type=CustomField.STR, content_type=FakeContact,
+        )
+
+        qs1 = CustomField.objects.compatible(FakeOrganisation)
+        self.assertIsInstance(qs1, QuerySet)
+        self.assertEqual(CustomField, qs1.model)
+        expected = [cfield1, cfield2]
+        self.assertCountEqual(expected, [*qs1])
+
+        # ---
+        self.assertCountEqual(
+            expected,
+            [*CustomField.objects.compatible(
+                ContentType.objects.get_for_model(FakeOrganisation)
+            )]
+        )
+
+    def test_get_for_model(self):
+        create_cfield = partial(
+            CustomField.objects.create,
+            content_type=ContentType.objects.get_for_model(FakeOrganisation),
+        )
+        cfield1 = create_cfield(name='Length of ship', field_type=CustomField.INT)
+        cfield2 = create_cfield(name='Width of ship',  field_type=CustomField.STR)
+        __ = create_cfield(
+            name='Weapon', field_type=CustomField.STR, content_type=FakeContact,
+        )
+
+        with self.assertNumQueries(1):
+            cfields1 = CustomField.objects.get_for_model(FakeOrganisation)
+
+        self.assertDictEqual(
+            {cfield1.id: cfield1, cfield2.id: cfield2},
+            cfields1
+        )
+
+        # Cache ---
+        with self.assertNumQueries(0):
+            cfields2 = CustomField.objects.get_for_model(FakeOrganisation)
+
+        self.assertDictEqual(cfields1, cfields2)
+        self.assertIsNot(cfields2, cfields1)
+
+        # ContentType argument ---
+        with self.assertNumQueries(0):
+            cfields3 = CustomField.objects.get_for_model(
+                ContentType.objects.get_for_model(FakeOrganisation)
+            )
+
+        self.assertDictEqual(cfields1, cfields3)
 
 
 class CustomFieldsTestCase(CremeTestCase):

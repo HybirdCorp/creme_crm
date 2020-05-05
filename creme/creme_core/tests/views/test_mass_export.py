@@ -21,11 +21,6 @@ try:
 
     from .base import ViewsTestCase
     from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT
-    from ..fake_models import (
-        FakeContact, FakeOrganisation, FakeImage,
-        FakeEmailCampaign, FakeMailingList,
-        FakeInvoice, FakeInvoiceLine,
-    )
 
     from creme.creme_core.core.entity_cell import (
         EntityCellRegularField,
@@ -41,8 +36,12 @@ try:
         FileRef,
         HeaderFilter,
         EntityFilter,
+        FakeContact, FakeOrganisation, FakeImage,
+        FakeEmailCampaign, FakeMailingList,
+        FakeInvoice, FakeInvoiceLine,
     )
     from creme.creme_core.models.history import TYPE_EXPORT, HistoryLine
+    from creme.creme_core.utils.content_type import as_ctype
     from creme.creme_core.utils.queries import QSerializer
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
@@ -68,12 +67,13 @@ class MassExportViewsTestCase(ViewsTestCase):
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         self.organisations = organisations = {
             name: create_orga(name=name)
-                for name in ('Bebop', 'Swordfish')
+            for name in ('Bebop', 'Swordfish')
         }
 
-        rtype_pilots = RelationType.create(('test-subject_pilots', 'pilots'),
-                                           ('test-object_pilots',  'is piloted by')
-                                          )[0]
+        rtype_pilots = RelationType.create(
+            ('test-subject_pilots', 'pilots'),
+            ('test-object_pilots',  'is piloted by')
+        )[0]
 
         create_ptype = CremePropertyType.create
         ptype_beautiful = create_ptype(str_pk='test-prop_beautiful', text='is beautiful')
@@ -82,11 +82,12 @@ class MassExportViewsTestCase(ViewsTestCase):
         create_contact = partial(FakeContact.objects.create, user=user)
         self.contacts = contacts = {
             first_name: create_contact(first_name=first_name, last_name=last_name)
-                for first_name, last_name in [('Spike', 'Spiegel'),
-                                              ('Jet', 'Black'),
-                                              ('Faye', 'Valentine'),
-                                              ('Edward', 'Wong'),
-                                             ]
+            for first_name, last_name in [
+                ('Spike', 'Spiegel'),
+                ('Jet', 'Black'),
+                ('Faye', 'Valentine'),
+                ('Edward', 'Wong'),
+            ]
         }
 
         create_rel = partial(Relation.objects.create, user=user, type=rtype_pilots,
@@ -120,9 +121,7 @@ class MassExportViewsTestCase(ViewsTestCase):
     def _build_dl_url(ct_or_model, doc_type='csv', header=False,
                       efilter_id=None, hfilter_id=None, **kwargs):
         parameters = '?ct_id={ctid}&type={doctype}{efilter}{hfilter}{header}'.format(
-            ctid=''             if ct_or_model is None                  else
-                 ct_or_model.id if isinstance(ct_or_model, ContentType) else
-                 ContentType.objects.get_for_model(ct_or_model).id,
+            ctid='' if ct_or_model is None else as_ctype(ct_or_model).id,
             doctype=doc_type,
             header='&header=true' if header else '',
             efilter='' if efilter_id is None else f'&efilter={efilter_id}',

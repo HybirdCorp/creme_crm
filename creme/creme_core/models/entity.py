@@ -295,7 +295,8 @@ class CremeEntity(CremeModel):
         return escape(self.allowed_str(user))
 
     def get_custom_fields_n_values(self, only_required: bool = False) -> List[Tuple['CustomField', Any]]:
-        # TODO: in a staticmethod of CustomField ??
+        # NB: we do not use <CustomField.objects.get_for_model()> because this method
+        #     seems mostly used in forms,  not detail-views (bigger query, cache probably useless).
         cfields = CustomField.objects.filter(content_type=self.entity_type_id)
 
         if only_required:
@@ -341,10 +342,14 @@ class CremeEntity(CremeModel):
         return str(self)
 
     def _clone_custom_values(self, source):
-        for custom_field in CustomField.objects.filter(content_type=source.entity_type_id):
+        # for custom_field in CustomField.objects.filter(content_type=source.entity_type_id):
+        for custom_field in CustomField.objects.get_for_model(source.entity_type).values():
             custom_value_klass = custom_field.value_class
             try:
-                value = custom_value_klass.objects.get(custom_field=custom_field.id, entity=source.id).value
+                value = custom_value_klass.objects.get(
+                    custom_field=custom_field,
+                    entity=source.id,
+                ).value
             except custom_value_klass.DoesNotExist:
                 continue
             else:

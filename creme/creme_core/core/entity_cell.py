@@ -21,7 +21,7 @@
 import logging
 from typing import Type, Iterable, Optional, Dict, List, Tuple  # Callable
 
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Model, Field, FieldDoesNotExist
 from django.utils.html import format_html, format_html_join
@@ -376,14 +376,24 @@ class EntityCellCustomField(EntityCell):
 
     @classmethod
     def build(cls, model: Type[Model], customfield_id: str):
-        ct = ContentType.objects.get_for_model(model)
-
+        # ct = ContentType.objects.get_for_model(model)
+        #
+        # try:
+        #     cfield = CustomField.objects.get(content_type=ct, id=customfield_id)
+        # except CustomField.DoesNotExist:
+        #     logger.warning(
+        #         'EntityCellCustomField: custom field "%s" (on model <%s>) does not exist',
+        #         customfield_id, ct,
+        #     )
+        #     return None
+        # NB: we prefer use the cache with all model's CustomFields because of
+        #     high probability to use several CustomFields in the same request.
         try:
-            cfield = CustomField.objects.get(content_type=ct, id=customfield_id)
-        except CustomField.DoesNotExist:
+            cfield = CustomField.objects.get_for_model(model)[int(customfield_id)]
+        except (KeyError, ValueError):
             logger.warning(
-                'EntityCellCustomField: custom field "%s" (on model <%s>) does not exist',
-                customfield_id, ct,
+                'EntityCellCustomField: custom field id="%s" (on model %s) does not exist',
+                customfield_id, model,
             )
             return None
 

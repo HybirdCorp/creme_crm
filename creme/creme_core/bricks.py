@@ -109,10 +109,12 @@ class RelationsBrick(QuerysetBrick):
             # TODO: when it's the only use of 'used_relationtypes_ids()', inline the call (+ deprecate method) ?
             used_rtype_ids = BricksManager.get(context).used_relationtypes_ids
             excluded_rtype_ids_set = {
-                *RelationType.objects.filter(id__in=used_rtype_ids,
-                                             minimal_display=True,
-                                            )
-                                     .values_list('id', flat=True)
+                *RelationType.objects
+                             .filter(
+                                id__in=used_rtype_ids,
+                                minimal_display=True,
+                             )
+                             .values_list('id', flat=True)
             }
             included_rtype_ids.extend(rtype_id for rtype_id in used_rtype_ids if rtype_id not in excluded_rtype_ids_set)
             excluded_rtype_ids.extend(excluded_rtype_ids_set)
@@ -151,7 +153,8 @@ class CustomFieldsBrick(Brick):
         entity = context['object']
 
         # TODO: factorise with CremeEntity.get_custom_fields_n_values() ?
-        cfields = CustomField.objects.filter(content_type=entity.entity_type)
+        # cfields = CustomField.objects.filter(content_type=entity.entity_type)
+        cfields = CustomField.objects.get_for_model(entity.entity_type).values()
         CremeEntity.populate_custom_values([entity], cfields)
 
         return self._render(self.get_template_context(
