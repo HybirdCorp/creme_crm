@@ -31,6 +31,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from .. import signals
+from ..utils.content_type import as_ctype
 
 from .base import CremeModel
 from .entity import CremeEntity
@@ -40,10 +41,10 @@ logger = logging.getLogger(__name__)
 
 class CremePropertyTypeManager(models.Manager):
     def compatible(self, ct_or_model: Union[ContentType, Type[CremeEntity]]):
-        ct = ct_or_model if isinstance(ct_or_model, ContentType) else \
-             ContentType.objects.get_for_model(ct_or_model)
-
-        return self.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
+        return self.filter(
+            Q(subject_ctypes=as_ctype(ct_or_model)) |
+            Q(subject_ctypes__isnull=True)
+        )
 
 
 # TODO: factorise with RelationManager ?

@@ -150,7 +150,7 @@ class EntityCellsField(Field):
         return EntityCellRelation(model=model, rtype=self._get_rtype(name[len(_RTYPE_PREFIX):]))
 
     def _choices_4_customfields(self, ct, builders):
-        self._custom_fields = CustomField.objects.filter(content_type=ct)  # Cache
+        self._custom_fields = CustomField.objects.compatible(ct)  # Cache
         self.widget.custom_fields = cfields_choices = []  # TODO: sort ?
 
         for cf in self._custom_fields:

@@ -31,8 +31,16 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, Field, ForeignKey, FieldDoesNotExist
 from django.urls import reverse
 
-from ..core.entity_cell import EntityCell, EntityCellRegularField, EntityCellCustomField
-from ..models import CremeModel, CremeEntity, CustomField, FieldsConfig
+from ..core.entity_cell import (
+    EntityCell,
+    EntityCellRegularField,
+    EntityCellCustomField,
+)
+from ..models import (
+    CremeModel, CremeEntity,
+    CustomField,
+    FieldsConfig,
+)
 from ..utils.unicode_collation import collator
 
 if TYPE_CHECKING:
@@ -132,10 +140,11 @@ class _BulkUpdateRegistry:
             model = self._model
             custom_fields = {
                 f'customfield-{field.pk}': field
-                    for field in CustomField.objects.filter(
-                                        content_type=ContentType.objects
-                                                                .get_for_model(model)
-                                    )
+                # for field in CustomField.objects.filter(
+                #                     content_type=ContentType.objects
+                #                                             .get_for_model(model)
+                #                 )
+                for field in CustomField.objects.compatible(model)
             }
 
             for field in custom_fields.values():

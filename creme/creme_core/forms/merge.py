@@ -77,26 +77,32 @@ class MergeWidget(Widget):
         # TODO: is it a good way to do this ? (ex: always wrap widget in <div> for layout, & this layouts use
         #       the extra classes given in attrs).
         get_sub_context = self._original_widget.get_context
-        widget_cxt['first']  = get_sub_context(name=f'{name}_1',
-                                               value=value_1,
-                                               attrs={'id': f'{id_attr}_1',
-                                                      ro_attr: '',
-                                                      'class': 'merge_entity1',
-                                                     },
-                                              )['widget']
-        widget_cxt['merged'] = get_sub_context(name=f'{name}_merged',
-                                               value=value_m,
-                                               attrs={'id': f'{id_attr}_merged',
-                                                      'class': 'merge_result',
-                                                     },
-                                             )['widget']
-        widget_cxt['second'] = get_sub_context(name=f'{name}_2',
-                                               value=value_2,
-                                               attrs={'id': f'{id_attr}_2',
-                                                      ro_attr: '',
-                                                      'class': 'merge_entity2',
-                                                     },
-                                             )['widget']
+        widget_cxt['first'] = get_sub_context(
+            name=f'{name}_1',
+            value=value_1,
+            attrs={
+                'id': f'{id_attr}_1',
+                ro_attr: '',
+                'class': 'merge_entity1',
+            },
+        )['widget']
+        widget_cxt['merged'] = get_sub_context(
+            name=f'{name}_merged',
+            value=value_m,
+            attrs={
+                'id': f'{id_attr}_merged',
+                'class': 'merge_result',
+            },
+        )['widget']
+        widget_cxt['second'] = get_sub_context(
+            name=f'{name}_2',
+            value=value_2,
+            attrs={
+                'id': f'{id_attr}_2',
+                ro_attr: '',
+                'class': 'merge_entity2',
+            },
+        )['widget']
 
         return context
 
@@ -164,13 +170,16 @@ class MergeEntitiesBaseForm(CremeForm):
 
         # Custom fields --------------------------------------------------------
         # TODO: factorise (CremeEntityForm ? get_custom_fields_n_values ? ...)
-        cfields = CustomField.objects.filter(content_type=entity1.entity_type)
+        # cfields = CustomField.objects.filter(content_type=entity1.entity_type)
+        cfields = CustomField.objects.get_for_model(entity1.entity_type).values()
         CremeEntity.populate_custom_values([entity1, entity2], cfields)
-        self._customs = customs = [(cfield,
-                                    entity1.get_custom_value(cfield),
-                                    entity2.get_custom_value(cfield),
-                                   ) for cfield in cfields
-                                  ]
+        self._customs = customs = [
+            (
+                cfield,
+                entity1.get_custom_value(cfield),
+                entity2.get_custom_value(cfield),
+            ) for cfield in cfields
+        ]
 
         for i, (cfield, cvalue1, cvalue2) in enumerate(customs):
             formfield1 = cfield.get_formfield(cvalue1)
@@ -181,9 +190,10 @@ class MergeEntitiesBaseForm(CremeForm):
                 user=user,
             )
 
-            initial = [formfield1.initial,
-                       cfield.get_formfield(cvalue2).initial,
-                      ]
+            initial = [
+                formfield1.initial,
+                cfield.get_formfield(cvalue2).initial,
+            ]
             initial.append(initial[initial_index] or initial[1 - initial_index])
             merge_field.initial = initial
 
@@ -241,9 +251,10 @@ class MergeEntitiesBaseForm(CremeForm):
         try:
             entity2.delete()
         except Exception as e:
-            logger.error('Error when merging 2 entities : the old one "%s"(id=%s) cannot be deleted: %s',
-                         entity2, entity2.id, e
-                        )
+            logger.error(
+                'Error when merging 2 entities : the old one "%s"(id=%s) cannot be deleted: %s',
+                entity2, entity2.id, e
+            )
 
 
 def mergefield_factory(modelfield):
@@ -252,10 +263,11 @@ def mergefield_factory(modelfield):
     if not formfield:  # Happens for cremeentity_ptr (OneToOneField)
         return None
 
-    return MergeField(modelform_field=formfield,
-                      model_field=modelfield,
-                      label=modelfield.verbose_name,
-                     )
+    return MergeField(
+        modelform_field=formfield,
+        model_field=modelfield,
+        label=modelfield.verbose_name,
+    )
 
 
 def form_factory(model, merge_form_registry=merge.merge_form_registry):
@@ -271,9 +283,9 @@ def form_factory(model, merge_form_registry=merge.merge_form_registry):
                 model, formfield_callback=mergefield_factory,
                 exclude=[
                     f.name
-                        for f in FieldsConfig.objects
-                                             .get_for_model(model)
-                                             .hidden_fields
+                    for f in FieldsConfig.objects
+                                         .get_for_model(model)
+                                         .hidden_fields
                 ],
             )
         )

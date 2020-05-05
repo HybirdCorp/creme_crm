@@ -183,6 +183,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(str(customfield.id), cell.value)
 
         self.assertIsNone(EntityCellCustomField.build(FakeContact, 1000))
+        self.assertIsNone(EntityCellCustomField.build(FakeContact, 'notanint'))
 
     def test_build_4_customfield02(self):
         "FLOAT CustomField."

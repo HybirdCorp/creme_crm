@@ -457,8 +457,11 @@ class CustomFieldsConditionsField(_ConditionsField):
         self.widget.fields = CallableChoiceIterator(lambda: [(cf.id, cf) for cf in self._get_cfields()])
 
     def _get_cfields(self):
-        return CustomField.objects.filter(content_type=ContentType.objects.get_for_model(self._model)) \
-                                  .exclude(field_type__in=self._NOT_ACCEPTED_TYPES)
+        return CustomField.objects.compatible(
+            self._model,
+        ).exclude(
+            field_type__in=self._NOT_ACCEPTED_TYPES,
+        )
 
     def _value_to_jsonifiable(self, value):
         dicts = []
@@ -587,8 +590,9 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         )
 
     def _get_cfields(self):
-        return CustomField.objects.filter(
-            content_type=ContentType.objects.get_for_model(self._model),
+        return CustomField.objects.compatible(
+            self._model,
+        ).filter(
             field_type=CustomField.DATETIME,
         )
 
@@ -600,12 +604,14 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
             # get = condition.decoded_value.get
             get = condition.value.get
 
-            dicts.append({'field': int(condition.name),
-                          'range': {'type':  get('name', ''),
-                                    'start': fmt(get('start')),
-                                    'end':   fmt(get('end'))
-                                   },
-                         })
+            dicts.append({
+                'field': int(condition.name),
+                'range': {
+                    'type':  get('name', ''),
+                    'start': fmt(get('start')),
+                    'end':   fmt(get('end'))
+                },
+            })
 
         return dicts
 
@@ -616,9 +622,10 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         try:
             cfield = self._get_cfields().get(id=cfield_id)
         except CustomField.DoesNotExist as e:
-            raise ValidationError(self.error_messages['invalidcustomfield'],
-                                  code='invalidcustomfield',
-                                 ) from e
+            raise ValidationError(
+                self.error_messages['invalidcustomfield'],
+                code='invalidcustomfield',
+            ) from e
 
         return cfield
 
@@ -635,11 +642,10 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         try:
             for entry in data:
                 date_range, start, end = clean_date_range(entry)
-                conditions.append(
-                    build_condition(custom_field=clean_cfield(entry),
-                                    date_range=date_range, start=start, end=end,
-                                   )
-                )
+                conditions.append(build_condition(
+                    custom_field=clean_cfield(entry),
+                    date_range=date_range, start=start, end=end,
+                ))
         except condition_handler.FilterConditionHandler.ValueError as e:
             raise ValidationError(str(e)) from e
 

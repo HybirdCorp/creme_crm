@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+    # -*- coding: utf-8 -*-
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
@@ -25,7 +25,6 @@ from typing import (
 )
 
 from django import forms
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import ForeignKey
 from django.utils.translation import gettext_lazy as _
@@ -163,13 +162,10 @@ class GHCCCustomField(GraphHandCellConstraint):
     customfield_type = 0
 
     def cells(self, not_hiddable_cell_keys=()):
-        # TODO: CustomField manager => compatible() ??
-        # TODO: can we regroup the queries on CustomField ?? cache per request instead ?
-        for cfield in CustomField.objects.filter(
-            content_type=ContentType.objects.get_for_model(self.model),
-            field_type=self.customfield_type,
-        ):
-            yield EntityCellCustomField(cfield)
+        cf_type = self.customfield_type
+        for cfield in CustomField.objects.get_for_model(self.model).values():
+            if cfield.field_type == cf_type:
+                yield EntityCellCustomField(cfield)
 
     def check_cell(self, cell, not_hiddable_cell_keys=()):
         return cell.custom_field.field_type == self.customfield_type
@@ -379,12 +375,10 @@ class ACCFieldAggregation(AggregatorCellConstraint):
     def _cfield_cells(self):
         types = self.custom_field_types
 
-        if types:  # NB: avoid useless query in types is empty
-            for cfield in CustomField.objects.filter(
-                content_type=ContentType.objects.get_for_model(self.model),
-                field_type__in=types,
-            ):
-                yield EntityCellCustomField(cfield)
+        if types:  # NB: avoid useless query if types is empty
+            for cfield in CustomField.objects.get_for_model(self.model).values():
+                if cfield.field_type in types:
+                    yield EntityCellCustomField(cfield)
 
     def _rfield_cells(self, not_hiddable_cell_keys=()):
         model = self.model
