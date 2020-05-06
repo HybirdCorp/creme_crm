@@ -21,17 +21,28 @@
 from collections import defaultdict
 import logging
 
+from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
-from django.forms.fields import EMPTY_VALUES, Field, ValidationError
+from django.forms.fields import EMPTY_VALUES, Field
 from django.forms.widgets import Widget
 from django.utils.translation import gettext_lazy as _
 
-from ..core.entity_cell import (EntityCellRegularField,
-        EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+from ..core.entity_cell import (
+    EntityCellRegularField,
+    EntityCellCustomField,
+    EntityCellFunctionField,
+    EntityCellRelation,
+)
 from ..core import function_field
 from ..gui import listview
-from ..models import (CremeEntity, RelationType, CustomField, EntityCredentials,
-        HeaderFilter, FieldsConfig)
+from ..models import (
+    CremeEntity,
+    RelationType,
+    CustomField,
+    EntityCredentials,
+    HeaderFilter,
+    FieldsConfig,
+)
 from ..utils.id_generator import generate_string_id_and_save
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.unicode_collation import collator
@@ -49,8 +60,12 @@ _RTYPE_PREFIX  = EntityCellRelation.type_id + '-'
 class EntityCellsWidget(Widget):
     template_name = 'creme_core/forms/widgets/entity-cells.html'
 
-    def __init__(self, user=None, model=None, model_fields=(), model_subfields=None, custom_fields=(),
-                 function_fields=(), relation_types=(), *args, **kwargs
+    def __init__(self, user=None, model=None,
+                 model_fields=(), model_subfields=None,
+                 custom_fields=(),
+                 function_fields=(),
+                 relation_types=(),
+                 *args, **kwargs
                 ):
         super().__init__(*args, **kwargs)
         self.user = user
@@ -68,18 +83,22 @@ class EntityCellsWidget(Widget):
         samples = []
 
         PREFIX = len(_RFIELD_PREFIX); build = EntityCellRegularField.build
-        cells = [(field_id, build(model, field_id[PREFIX:]))
-                    for field_id, field_vname in self.model_fields
-                ]
-        cells.extend((field_id, build(model, field_id[PREFIX:]))
-                        for choices in self.model_subfields.values()
-                            for field_id, field_vname in choices
-                    )
+        cells = [
+            (field_id, build(model, field_id[PREFIX:]))
+            for field_id, field_vname in self.model_fields
+        ]
+        cells.extend(
+            (field_id, build(model, field_id[PREFIX:]))
+            for choices in self.model_subfields.values()
+            for field_id, field_vname in choices
+        )
 
-        PREFIX = len(_FFIELD_PREFIX); build = EntityCellFunctionField.build
-        cells.extend((field_id, build(model, field_id[PREFIX:]))
-                        for field_id, field_vname in self.function_fields
-                    )
+        PREFIX = len(_FFIELD_PREFIX)
+        build = EntityCellFunctionField.build
+        cells.extend(
+            (field_id, build(model, field_id[PREFIX:]))
+            for field_id, field_vname in self.function_fields
+        )
 
         # Missing CustomFields and Relationships
 
@@ -130,8 +149,10 @@ class EntityCellsField(Field):
         'invalid': _('Enter a valid value.'),
     }
 
+    # TODO: take model instead of content_type ??
     def __init__(self, *, content_type=None, function_field_registry=None, **kwargs):
         super().__init__(**kwargs)
+        # TODO: function_field_registry in EntityCellFunctionField ?
         self.function_field_registry = function_field_registry or function_field.function_field_registry
         self._non_hiddable_cells = []
         self.content_type = content_type
@@ -196,12 +217,17 @@ class EntityCellsField(Field):
         def field_excluder(field, deep):
             model = field.model
 
-            return get_fconf(model).is_field_hidden(field) and \
-                   field.name not in non_hiddable_fnames[model]
+            return (
+                get_fconf(model).is_field_hidden(field)
+                and
+                field.name not in non_hiddable_fnames[model]
+            )
 
-        return ModelFieldEnumerator(model, deep=1, only_leafs=False) \
-                        .filter(viewable=True) \
-                        .exclude(field_excluder)
+        return ModelFieldEnumerator(
+            model, deep=1, only_leafs=False,
+        ).filter(
+            viewable=True,
+        ).exclude(field_excluder)
 
     def _choices_4_regularfields(self, ct, builders):
         # TODO: make the managing of subfields by the widget ??
@@ -227,8 +253,9 @@ class EntityCellsField(Field):
 
     def _choices_4_relationtypes(self, ct, builders):
         # Cache
-        self._relation_types = RelationType.objects.compatible(ct, include_internals=True) \
-                                           .order_by('predicate')  # TODO: unicode collation
+        self._relation_types = RelationType.objects.compatible(
+            ct, include_internals=True,
+        ).order_by('predicate')  # TODO: unicode collation
         # TODO: sort ? smart categories ('all', 'contacts') ?
         self.widget.relation_types = rtypes_choices = []
 
@@ -278,7 +305,8 @@ class EntityCellsField(Field):
     @non_hiddable_cells.setter
     def non_hiddable_cells(self, cells):
         self._non_hiddable_cells[:] = cells
-        # TODO: reset content_type
+        # NB: we reset content_type to force the computing of choices (UGLY)
+        self.content_type = self._content_type
 
     @property
     def user(self):
@@ -325,9 +353,10 @@ class _HeaderFilterForm(CremeModelForm):
         model = HeaderFilter
         help_texts = {
             'user': _('All users can see the view, but only the owner can edit or delete it'),
-            'is_private': _('A private view of list can only be used by its owner '
-                            '(or the teammates if the owner is a team)'
-                           ),
+            'is_private': _(
+                'A private view of list can only be used by its owner '
+                '(or the teammates if the owner is a team)'
+            ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -344,28 +373,34 @@ class _HeaderFilterForm(CremeModelForm):
                 owner = cdata.get('user')
 
                 if not owner:
-                    self.add_error('user',
-                                   ValidationError(self.error_messages['orphan_private'],
-                                                   code='orphan_private',
-                                                  )
-                                  )
+                    self.add_error(
+                        'user',
+                        ValidationError(
+                            self.error_messages['orphan_private'],
+                            code='orphan_private',
+                        ),
+                    )
                 else:
                     req_user = self.user
 
                     if not req_user.is_staff:
                         if owner.is_team:
                             if req_user.id not in owner.teammates:
-                                self.add_error('user',
-                                               ValidationError(self.error_messages['foreign_private'],
-                                                               code='foreign_private',
-                                                              )
-                                              )
+                                self.add_error(
+                                    'user',
+                                    ValidationError(
+                                        self.error_messages['foreign_private'],
+                                        code='foreign_private',
+                                    )
+                                )
                         elif owner != req_user:
-                            self.add_error('user',
-                                           ValidationError(self.error_messages['foreign_private'],
-                                                           code='foreign_private',
-                                                          )
-                                          )
+                            self.add_error(
+                                'user',
+                                ValidationError(
+                                    self.error_messages['foreign_private'],
+                                    code='foreign_private',
+                                )
+                            )
 
             self.instance.cells = cdata['cells']
 
@@ -389,9 +424,10 @@ class HeaderFilterCreateForm(_HeaderFilterForm):
 
         kwargs['commit'] = False
         super().save(*args, **kwargs)
-        generate_string_id_and_save(HeaderFilter, [instance],
-                                    f'creme_core-userhf_{ct.app_label}-{ct.model}'
-                                   )
+        generate_string_id_and_save(
+            HeaderFilter, [instance],
+            f'creme_core-userhf_{ct.app_label}-{ct.model}',
+        )
 
         return instance
 
