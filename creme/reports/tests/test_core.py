@@ -175,7 +175,7 @@ class GraphHandConstraintsTestCase(CremeTestCase):
         self.assertIsNone(constraint.get_cell(cell_key='regular_field-sector'))
 
         # ---
-        cells = [*constraint.cells(FakeOrganisation)]
+        cells = [*constraint.cells()]
         self.assertEqual(3, len(cells))
         self.assertIsInstance(cells[0], EntityCellRegularField)
 
@@ -185,7 +185,8 @@ class GraphHandConstraintsTestCase(CremeTestCase):
 
     def test_regular_date02(self):
         "Fields config."
-        constraint = GHCCRegularDate(model=FakeOrganisation)
+        model = FakeContact
+        constraint = GHCCRegularDate(model=model)
         hidden_fname = 'birthday'
 
         FieldsConfig.objects.create(
@@ -193,7 +194,7 @@ class GraphHandConstraintsTestCase(CremeTestCase):
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        for cell in constraint.cells(FakeContact):
+        for cell in constraint.cells():
             finfo = cell.field_info
             if len(finfo) == 1 and finfo[0].name == hidden_fname:
                 self.fail(f'{hidden_fname} found in cells (should be hidden).')
@@ -201,7 +202,7 @@ class GraphHandConstraintsTestCase(CremeTestCase):
         # ---
         self.assertFalse(
             constraint.check_cell(
-                EntityCellRegularField.build(FakeContact, hidden_fname)
+                EntityCellRegularField.build(model, hidden_fname)
             )
         )
 
@@ -213,7 +214,16 @@ class GraphHandConstraintsTestCase(CremeTestCase):
         self.assertEqual(1, len(finfo))
         self.assertEqual('created', finfo[0].name)
 
-        self.assertIsNone(constraint.get_cell(cell_key=f'regular_field-{hidden_fname}'))
+        cell_key = f'regular_field-{hidden_fname}'
+        self.assertIsNone(constraint.get_cell(cell_key=cell_key))
+
+        self.assertIsInstance(
+            constraint.get_cell(
+                cell_key=cell_key,
+                not_hiddable_cell_keys=[cell_key],
+            ),
+            EntityCellRegularField,
+        )
 
     def test_relationship(self):
         constraint = GHCCRelation(model=FakeContact)
@@ -244,7 +254,7 @@ class GraphHandConstraintsTestCase(CremeTestCase):
         self.assertIsNone(constraint.get_cell(cell_key=f'relation-{rtype3.id}'))
 
         # ---
-        cells = [*constraint.cells(FakeContact)]
+        cells = [*constraint.cells()]
         self.assertGreaterEqual(len(cells), 2)
         self.assertIsInstance(cells[0], EntityCellRelation)
 
@@ -286,7 +296,7 @@ class GraphHandConstraintsTestCase(CremeTestCase):
         self.assertIsNone(get_cell(cell_key=f'custom_field-{cfield3.id}'))
 
         # ---
-        cells = [*constraint.cells(FakeContact)]
+        cells = [*constraint.cells()]
         self.assertEqual(1, len(cells))
 
         cell2 = cells[0]
@@ -317,7 +327,7 @@ class GraphHandConstraintsTestCase(CremeTestCase):
         self.assertIsNone(get_cell(cell_key=f'custom_field-{cfield3.id}'))
 
         # ---
-        cells = [*constraint.cells(FakeContact)]
+        cells = [*constraint.cells()]
         self.assertEqual(1, len(cells))
 
         cell2 = cells[0]
