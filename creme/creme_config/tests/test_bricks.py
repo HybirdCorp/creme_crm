@@ -177,11 +177,12 @@ class BricksConfigTestCase(CremeTestCase):
         cls._original_brick_registry = gui_bricks.brick_registry
 
         cls.brick_registry = brick_registry = deepcopy(gui_bricks.brick_registry)
-        brick_registry.register(CompleteBrick1, CompleteBrick2, CompleteBrick3, CompleteBrick4,
-                                # HomePortalBrick,
-                                HomeOnlyBrick1,
-                                HomeOnlyBrick2,
-                               )
+        brick_registry.register(
+            CompleteBrick1, CompleteBrick2, CompleteBrick3, CompleteBrick4,
+            # HomePortalBrick,
+            HomeOnlyBrick1,
+            HomeOnlyBrick2,
+        )
 
         brick_registry.register_4_instance(DetailviewInstanceBrick)
         brick_registry.register_4_instance(HomeInstanceBrick)
@@ -269,9 +270,10 @@ class BricksConfigTestCase(CremeTestCase):
 
         url = self._build_adddetail_url(ct)
         context = self.assertGET200(url).context
-        self.assertEqual(_('New block configuration for «{model}»').format(model='Test Contact'),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New block configuration for «{model}»').format(model='Test Contact'),
+            context.get('title')
+        )
         self.assertEqual(_('Save the configuration'), context.get('submit_label'))
 
         with self.assertNoException():
@@ -795,12 +797,14 @@ class BricksConfigTestCase(CremeTestCase):
             label=brick.verbose_name,
             choices=top_choices,
         )
-        response = self.client.post(url,
-                                    data={f'top_check_{index}': 'on',
-                                          f'top_value_{index}': brick_id,
-                                          f'top_order_{index}': 1,
-                                         },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                f'top_check_{index}': 'on',
+                f'top_value_{index}': brick_id,
+                f'top_order_{index}': 1,
+            },
+        )
         self.assertNoFormError(response)
 
         b_locs = BrickDetailviewLocation.objects.filter(content_type=None)
@@ -1020,10 +1024,12 @@ class BricksConfigTestCase(CremeTestCase):
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id})
         self.assertFalse(BrickDetailviewLocation.objects.filter(id__in=[l.id for l in locs]))
-        self.assertEqual(len(locs_2),
-                         BrickDetailviewLocation.objects.filter(id__in=[l.id for l in locs_2])
-                                                        .count()
-                        )
+        self.assertEqual(
+            len(locs_2),
+            BrickDetailviewLocation.objects
+                                   .filter(id__in=[l.id for l in locs_2])
+                                   .count()
+        )
 
     def test_delete_detailview03(self):
         "Role configuration."
@@ -1032,10 +1038,13 @@ class BricksConfigTestCase(CremeTestCase):
         ct = get_ct(FakeContact)
         role = self.role
 
-        create_bdl = partial(BrickDetailviewLocation.objects.create, order=1,
-                             content_type=ct, zone=BrickDetailviewLocation.TOP,
-                             role=role,
-                            )
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create,
+            order=1,
+            content_type=ct,
+            zone=BrickDetailviewLocation.TOP,
+            role=role,
+        )
         locs = [
             create_bdl(brick_id=RelationsBrick.id_),
             create_bdl(zone=BrickDetailviewLocation.LEFT,   brick_id=PropertiesBrick.id_),
@@ -1050,10 +1059,12 @@ class BricksConfigTestCase(CremeTestCase):
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id, 'role': role.id})
         self.assertFalse(BrickDetailviewLocation.objects.filter(id__in=[l.id for l in locs]))
-        self.assertEqual(len(locs_2),
-                         BrickDetailviewLocation.objects.filter(id__in=[l.id for l in locs_2])
-                                                        .count()
-                        )
+        self.assertEqual(
+            len(locs_2),
+            BrickDetailviewLocation.objects
+                                   .filter(id__in=[l.id for l in locs_2])
+                                   .count()
+        )
 
     def test_delete_detailview04(self):
         "Superuser configuration"
@@ -1061,10 +1072,13 @@ class BricksConfigTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         ct = get_ct(FakeOrganisation)
 
-        create_bdl = partial(BrickDetailviewLocation.objects.create, order=1,
-                             content_type=ct, zone=BrickDetailviewLocation.TOP,
-                             superuser=True,
-                            )
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create,
+            order=1,
+            content_type=ct,
+            zone=BrickDetailviewLocation.TOP,
+            superuser=True,
+        )
         locs = [
             create_bdl(brick_id=RelationsBrick.id_),
             create_bdl(zone=BrickDetailviewLocation.LEFT,   brick_id=PropertiesBrick.id_),
@@ -1079,11 +1093,15 @@ class BricksConfigTestCase(CremeTestCase):
         ]
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id, 'role': 'superuser'})
-        self.assertFalse(BrickDetailviewLocation.objects.filter(id__in=[l.id for l in locs]))
-        self.assertEqual(len(locs_2),
-                         BrickDetailviewLocation.objects.filter(id__in=[l.id for l in locs_2])
-                                                        .count()
-                        )
+        self.assertFalse(
+            BrickDetailviewLocation.objects.filter(id__in=[l.id for l in locs])
+        )
+        self.assertEqual(
+            len(locs_2),
+            BrickDetailviewLocation.objects
+                                   .filter(id__in=[l.id for l in locs_2])
+                                   .count()
+        )
 
     def _aux_test_add_home(self, role=None, superuser=False):
         url = reverse('creme_config__create_home_bricks')
@@ -1418,9 +1436,11 @@ class BricksConfigTestCase(CremeTestCase):
         "Role."
         self.login()
         role = self.role
-        bricks = [block for brick_id, block in self.brick_registry
-                            if hasattr(block, 'home_display')
-                 ]
+        bricks = [
+            block
+            for brick_id, block in self.brick_registry
+            if hasattr(block, 'home_display')
+         ]
         self.assertGreaterEqual(len(bricks), 2)
 
         create_bhl = partial(BrickHomeLocation.objects.create, brick_id=bricks[0].id_, order=1)
@@ -1443,9 +1463,11 @@ class BricksConfigTestCase(CremeTestCase):
         "Superuser"
         self.login()
         role = self.role
-        bricks = [block for brick_id, block in self.brick_registry
-                            if hasattr(block, 'home_display')
-                 ]
+        bricks = [
+            block
+            for brick_id, block in self.brick_registry
+            if hasattr(block, 'home_display')
+        ]
         self.assertGreaterEqual(len(bricks), 2)
 
         create_bhl = partial(BrickHomeLocation.objects.create, brick_id=bricks[0].id_, order=1)
@@ -1614,9 +1636,10 @@ class BricksConfigTestCase(CremeTestCase):
 
     def test_add_relationbrick(self):
         self.login()
-        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                 ('test-objfoo', 'object_predicate'),
-                                )[0]
+        rt = RelationType.create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate'),
+        )[0]
         self.assertFalse(RelationBrickItem.objects.filter(relation_type=rt).exists())
 
         url = reverse('creme_config__create_rtype_brick')
@@ -1758,9 +1781,10 @@ class BricksConfigTestCase(CremeTestCase):
 
         response = self.client.post(
             url,
-            data={'relation_c_type_brick_wizard-current_step': '0',
-                  '0-ctype': ct_contact.pk,
-                 },
+            data={
+                'relation_c_type_brick_wizard-current_step': '0',
+                '0-ctype': ct_contact.pk,
+            },
         )
         self.assertFormError(
             response, 'form', 'ctype',
@@ -1784,9 +1808,10 @@ class BricksConfigTestCase(CremeTestCase):
         ct_contact  = ContentType.objects.get_for_model(FakeContact)
         self.assertPOST200(
             url,
-            data={'relation_c_type_brick_wizard-current_step': '0',
-                  '0-ctype': ct_contact.pk,
-                 },
+            data={
+                'relation_c_type_brick_wizard-current_step': '0',
+                '0-ctype': ct_contact.pk,
+            },
         )
 
         # Return to first step
@@ -1806,9 +1831,10 @@ class BricksConfigTestCase(CremeTestCase):
     def test_edit_relationbrick_ctypes01(self):
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
-        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                 ('test-objfoo', 'object_predicate'),
-                                )[0]
+        rt = RelationType.create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate'),
+        )[0]
 
         rb_item = RelationBrickItem(
             brick_id='specificblock_creme_config-test-subfoo',
@@ -1824,9 +1850,10 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        self.assertEqual(_('Edit «{model}» configuration').format(model=ct),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Edit «{model}» configuration').format(model=ct),
+            context.get('title')
+        )
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
         # ---
@@ -1840,8 +1867,7 @@ class BricksConfigTestCase(CremeTestCase):
                          f'regular_field-{field_lname},'
                          f'function_field-{funcfield.name}',
             },
-           )
-        )
+        ))
 
         rb_item = self.refresh(rb_item)
         cells = rb_item.get_cells(ct)
@@ -2047,9 +2073,10 @@ class BricksConfigTestCase(CremeTestCase):
             # verbose='All stuffes',
         )
 
-        create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
-                             zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
-                            )
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
+        )
         brick_id = ibi.brick_id
         # dloc1 = create_bdl(brick=ibi.brick_id,       order=5)
         dloc1 = create_bdl(brick=brick_id,           order=5)
@@ -2088,23 +2115,25 @@ class BricksConfigTestCase(CremeTestCase):
         loves = RelationType.create(('test-subject_love', 'Is loving'),
                                     ('test-object_love',  'Is loved by')
                                    )[0]
-        customfield = CustomField.objects.create(name='Size (cm)',
-                                                 field_type=CustomField.INT,
-                                                 content_type=ct,
-                                                )
+        customfield = CustomField.objects.create(
+            name='Size (cm)',
+            field_type=CustomField.INT,
+            content_type=ct,
+        )
         funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
 
         name = 'info'
-        cbc_item = CustomBrickConfigItem.objects.create(id='tests-contacts1',
-                                                        content_type=ct, name=name,
-                                                       )
+        cbc_item = CustomBrickConfigItem.objects.create(
+            id='tests-contacts1', content_type=ct, name=name,
+        )
 
         url = self._build_custombrick_edit_url(cbc_item)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Edit the block «{object}»').format(object=cbc_item),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Edit the block «{object}»').format(object=cbc_item),
+            response.context.get('title')
+        )
 
         # ---
         name = name.title()
@@ -2172,10 +2201,11 @@ class BricksConfigTestCase(CremeTestCase):
             descriptions=[(hidden_subfname, {FieldsConfig.HIDDEN: True})],
         )
 
-        cbc_item = CustomBrickConfigItem.objects.create(id='tests-contacts1',
-                                                        name='Contact info',
-                                                        content_type=ct,
-                                                       )
+        cbc_item = CustomBrickConfigItem.objects.create(
+            id='tests-contacts1',
+            name='Contact info',
+            content_type=ct,
+        )
 
         url = self._build_custombrick_edit_url(cbc_item)
         response = self.assertGET200(url)
@@ -2200,7 +2230,9 @@ class BricksConfigTestCase(CremeTestCase):
 
         # ---------------------------
         with self.assertNoException():
-            address_choices_keys = {c[0] for c in widget.model_subfields['regular_field-address']}
+            address_choices_keys = {
+                c[0] for c in widget.model_subfields['regular_field-address']
+            }
 
         prefix = 'address__'
         self.assertIn('regular_field-' + prefix + valid_subfname, address_choices_keys)
@@ -2291,11 +2323,12 @@ class BricksConfigTestCase(CremeTestCase):
                 'name':  cbc_item.name,
                 'cells': ','.join(
                     rf_prefix + fname
-                        for fname in (valid_fname,
-                                      hidden_fname1,
-                                      addr_prefix + hidden_subfname1,
-                                      hidden_fkname,
-                                     )
+                    for fname in (
+                        valid_fname,
+                        hidden_fname1,
+                        addr_prefix + hidden_subfname1,
+                        hidden_fkname,
+                    )
                 ),
             },
         )
@@ -2322,10 +2355,11 @@ class BricksConfigTestCase(CremeTestCase):
     def test_custombrick_wizard_model_step(self):
         self.login()
         contact_ct = ContentType.objects.get_for_model(FakeContact)
-        contact_customfield = CustomField.objects.create(name='Size (cm)',
-                                                         field_type=CustomField.INT,
-                                                         content_type=contact_ct,
-                                                        )
+        contact_customfield = CustomField.objects.create(
+            name='Size (cm)',
+            field_type=CustomField.INT,
+            content_type=contact_ct,
+        )
 
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
@@ -2379,10 +2413,11 @@ class BricksConfigTestCase(CremeTestCase):
     def test_custombrick_wizard_config_step(self):
         self.login()
         contact_ct = ContentType.objects.get_for_model(FakeContact)
-        contact_customfield = CustomField.objects.create(name='Size (cm)',
-                                                         field_type=CustomField.INT,
-                                                         content_type=contact_ct,
-                                                        )
+        contact_customfield = CustomField.objects.create(
+            name='Size (cm)',
+            field_type=CustomField.INT,
+            content_type=contact_ct,
+        )
 
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 

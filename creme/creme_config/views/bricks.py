@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,11 @@
 from django.db.transaction import atomic
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
+from django.utils.translation import (
+    gettext_lazy as _,
+    gettext,
+    pgettext_lazy,
+)
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import brick_registry
@@ -170,14 +174,20 @@ class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
 
         if ct is not None:
             if superuser:
-                title = gettext('Edit configuration of super-users for «{model}»').format(model=ct)
+                title = gettext(
+                    'Edit configuration of super-users for «{model}»'
+                ).format(model=ct)
             elif role is not None:
-                title = gettext('Edit configuration of «{role}» for «{model}»').format(
+                title = gettext(
+                    'Edit configuration of «{role}» for «{model}»'
+                ).format(
                     role=role,
                     model=ct,
                 )
             else:
-                title = gettext('Edit default configuration for «{model}»').format(model=ct)
+                title = gettext(
+                    'Edit default configuration for «{model}»'
+                ).format(model=ct)
         else:
             title = _('Edit default configuration')
 
@@ -319,11 +329,14 @@ class BrickDetailviewLocationsDeletion(base.ConfigDeletion):
                 try:
                     role_id = int(role_str)
                 except ValueError:
-                    raise Http404('"role" argument must be "superuser" or an integer')
+                    raise Http404(
+                        '"role" argument must be "superuser" or an integer'
+                    )
 
-        BrickDetailviewLocation.objects.filter(content_type=ct_id,
-                                               role=role_id, superuser=superuser,
-                                              ).delete()
+        BrickDetailviewLocation.objects.filter(
+            content_type=ct_id,
+            role=role_id, superuser=superuser,
+        ).delete()
 
 
 class HomeDeletion(base.ConfigDeletion):
@@ -350,10 +363,11 @@ class DefaultMyPageDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
     def perform_deletion(self, request):
-        get_object_or_404(BrickMypageLocation,
-                          pk=get_from_POST_or_404(request.POST, self.id_arg),
-                          user=None,
-                         ).delete()
+        get_object_or_404(
+            BrickMypageLocation,
+            pk=get_from_POST_or_404(request.POST, self.id_arg),
+            user=None,
+        ).delete()
 
 
 class MyPageDeletion(base.ConfigDeletion):
@@ -361,34 +375,38 @@ class MyPageDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
     def perform_deletion(self, request):
-        get_object_or_404(BrickMypageLocation,
-                          pk=get_from_POST_or_404(request.POST, self.id_arg),
-                          user=request.user,
-                         ).delete()
+        get_object_or_404(
+            BrickMypageLocation,
+            pk=get_from_POST_or_404(request.POST, self.id_arg),
+            user=request.user,
+        ).delete()
 
 
 class RelationTypeBrickDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
     def perform_deletion(self, request):
-        get_object_or_404(RelationBrickItem,
-                          pk=get_from_POST_or_404(request.POST, self.id_arg),
-                         ).delete()
+        get_object_or_404(
+            RelationBrickItem,
+            pk=get_from_POST_or_404(request.POST, self.id_arg),
+        ).delete()
 
 
 class InstanceBrickDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
     def perform_deletion(self, request):
-        get_object_or_404(InstanceBrickConfigItem,
-                          pk=get_from_POST_or_404(request.POST, self.id_arg),
-                         ).delete()
+        get_object_or_404(
+            InstanceBrickConfigItem,
+            pk=get_from_POST_or_404(request.POST, self.id_arg),
+        ).delete()
 
 
 class CustomBrickDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
     def perform_deletion(self, request):
-        get_object_or_404(CustomBrickConfigItem,
-                          pk=get_from_POST_or_404(request.POST, self.id_arg),
-                         ).delete()
+        get_object_or_404(
+            CustomBrickConfigItem,
+            pk=get_from_POST_or_404(request.POST, self.id_arg),
+        ).delete()

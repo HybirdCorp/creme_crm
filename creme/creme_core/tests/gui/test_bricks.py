@@ -266,9 +266,10 @@ class BrickRegistryTestCase(CremeTestCase):
         with self.assertRaises(_BrickRegistry.RegistrationError) as cm:
             brick_registry.register_4_instance(FoobarInstanceBrick)
 
-        self.assertEqual(f"Brick class does not inherit InstanceBrick: {FoobarInstanceBrick}",
-                         str(cm.exception)
-                        )
+        self.assertEqual(
+            f"Brick class does not inherit InstanceBrick: {FoobarInstanceBrick}",
+            str(cm.exception)
+        )
 
     def test_get_brick_4_instance(self):
         "With 'entity' argument."
@@ -483,9 +484,9 @@ class BrickRegistryTestCase(CremeTestCase):
         def extract_rtypes(**kwargs):
             return [
                 brick.config_item.relation_type
-                    for brick in brick_registry.get_compatible_bricks(**kwargs)
-                        if isinstance(brick, SpecificRelationsBrick)
-        ]
+                for brick in brick_registry.get_compatible_bricks(**kwargs)
+                if isinstance(brick, SpecificRelationsBrick)
+            ]
 
         # No model ----
         rtypes = extract_rtypes()
