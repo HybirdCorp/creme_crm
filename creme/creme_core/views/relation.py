@@ -34,6 +34,7 @@ from ..core.exceptions import ConflictError
 from ..forms import relation as rel_forms
 from ..models import Relation, RelationType, CremeEntity
 from ..shortcuts import get_bulk_or_404
+from ..utils.content_type import entity_ctypes
 
 from .decorators import jsonify
 from .generic import base
@@ -147,7 +148,7 @@ def json_rtype_ctypes(request, rtype_id):
     getters, range, sort = _clean_fields_values_args(request.GET, JSON_CONTENT_TYPE_FIELDS)
 
     if not content_types:
-        content_types = [*utils.creme_entity_content_types()]
+        content_types = [*entity_ctypes()]
 
     return _fields_values(content_types, getters, range, sort)
 

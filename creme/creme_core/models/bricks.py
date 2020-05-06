@@ -42,7 +42,7 @@ from ..constants import (
     MODELBRICK_ID,
 )
 from ..core.entity_cell import EntityCell
-from ..utils import creme_entity_content_types
+from ..utils.content_type import entity_ctypes
 from ..utils.serializers import json_encode
 
 from .auth import UserRole
@@ -376,7 +376,7 @@ class RelationBrickItem(CremeModel):
     def all_ctypes_configured(self) -> bool:
         # TODO: cache (object_ctypes) ??
         compat_ctype_ids = {*self.relation_type.object_ctypes.values_list('id', flat=True)} or \
-                           {ct.id for ct in creme_entity_content_types()}
+                           {ct.id for ct in entity_ctypes()}
 
         for ct_id in self._cells_by_ct():
             compat_ctype_ids.discard(ct_id)

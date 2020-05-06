@@ -22,7 +22,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 
 # from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.utils import get_ct_or_404
+from creme.creme_core.utils.content_type import get_ctype_or_404
 from creme.creme_core.views.bricks import BricksReloading  # bricks_render_info, get_brick_ids_or_404
 # from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic import BricksView
@@ -41,8 +41,8 @@ class History(BricksView):
 
         return [
             CrudityHistoryBrick(get_ct(backend.model))
-                for backend in registry.crudity_registry.get_backends()
-                    if backend.model
+            for backend in registry.crudity_registry.get_backends()
+            if backend.model
         ]
 
 
@@ -73,8 +73,8 @@ class HistoryBricksReloading(BricksReloading):
         bricks = []
         models = {
             backend.model
-                for backend in registry.crudity_registry.get_backends()
-                    if backend.model
+            for backend in registry.crudity_registry.get_backends()
+            if backend.model
         }
         prefix = 'block_crudity-'
 
@@ -82,7 +82,7 @@ class HistoryBricksReloading(BricksReloading):
             if not brick_id.startswith(prefix):
                 raise Http404('Invalid brick ID (bad prefix): ' + brick_id)
 
-            ct = get_ct_or_404(brick_id[len(prefix):])
+            ct = get_ctype_or_404(brick_id[len(prefix):])
 
             if ct.model_class() in models:
                 bricks.append(CrudityHistoryBrick(ct))

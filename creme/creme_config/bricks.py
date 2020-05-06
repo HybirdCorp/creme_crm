@@ -42,7 +42,7 @@ from creme.creme_core.models import (
     ButtonMenuItem, SearchConfigItem, HistoryConfigItem,
 )
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.utils import creme_entity_content_types
+from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.unicode_collation import collator
 
 from .constants import BRICK_STATE_HIDE_INACTIVE_USERS
@@ -630,7 +630,7 @@ class SearchConfigBrick(PaginatedBrick):
                 self.ctype = ctype
                 self.sc_items = ()
 
-        ctypes = [_ContentTypeWrapper(ctype) for ctype in creme_entity_content_types()]
+        ctypes = [_ContentTypeWrapper(ctype) for ctype in entity_ctypes()]
         sort_key = collator.sort_key
         ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
 
