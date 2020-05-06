@@ -529,6 +529,12 @@ class InstanceBrickConfigItem(CremeModel):
     @property
     def errors(self) -> Optional[List[str]]:
         # return getattr(self.brick, 'errors', None)
+        warnings.warn(
+            'InstanceBrickConfigItem.errors() is deprecated; '
+            'use InstanceBrickConfigItem.brick.errors instead.',
+            DeprecationWarning
+        )
+
         return self.brick.errors
 
     # TODO ?

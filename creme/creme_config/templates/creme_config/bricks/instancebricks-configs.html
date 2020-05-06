@@ -17,18 +17,17 @@
 {% block brick_table_rows %}
 {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_instance_brick' as delete_url %}
     {% for brick_type in page.object_list %}
+    {% with brick=brick_type.brick %}
     <tr>
         <td {% brick_table_data_status primary %} class="instancebrick-config-name"><a href="{{brick_type.entity.get_absolute_url}}">{{brick_type}}</a></td>
         <td>
             <ul>
-            {% with brick=brick_type.brick %}
                 {% if brick|has_attr:'home_display' %}<li>{% trans 'Home & «My page»' %}</li>{% endif %}
                 {% if brick|has_attr:'detailview_display' %}<li>{% trans 'Detail views:' %}&nbsp;{% widget_enumerator brick.target_ctypes|verbose_models|uca_sort threshold=10 empty=_('All types of entity') %}</li>{% endif %}
-            {% endwith %}
             </ul>
         </td>
         <td class="instancebrick-config-errors">
-            {% for error in brick_type.errors %}
+            {% for error in brick.errors %}
                 {% if not forloop.first %}, {% endif %}
                 <span>{{error}}</span>
             {% empty %}—
@@ -38,6 +37,7 @@
             {% brick_table_action id='delete' url=delete_url __id=brick_type.id label=_('Delete this type of block') enabled=admin_perm %}
         </td>
     </tr>
+    {% endwith %}
     {% endfor %}
 {% endblock %}
 

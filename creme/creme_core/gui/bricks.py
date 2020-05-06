@@ -516,7 +516,7 @@ class SpecificRelationsBrick(QuerysetBrick):
 
 
 class InstanceBrick(Brick):
-    # Used by InstanceBrickConfigItem.errors, to display errors in creme_config
+    # Used by creme_config.bricks.InstanceBricksConfigBrick
     errors: Optional[List[str]] = None
 
     def __init__(self, instance_brick_config_item: InstanceBrickConfigItem):
