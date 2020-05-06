@@ -111,8 +111,12 @@ class CustomField(CremeModel):
 
         super().delete(*args, **kwargs)
 
-    # TODO: property ?
     def type_verbose_name(self) -> str:
+        warnings.warn(
+            'CustomField.type_verbose_name() is deprecated.',
+            DeprecationWarning
+        )
+
         return self.value_class.verbose_name
 
     def get_value_class(self):

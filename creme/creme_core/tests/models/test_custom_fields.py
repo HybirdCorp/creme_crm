@@ -122,6 +122,7 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertEqual(CustomFieldInteger, cfield.get_value_class())
         self.assertEqual(CustomFieldInteger, cfield.value_class)
         self.assertEqual(_('Integer'), cfield.type_verbose_name())
+        self.assertEqual(_('Integer'), CustomFieldInteger.verbose_name)
 
         self.assertEqual(
             'customfieldinteger',
@@ -183,6 +184,7 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertEqual(CustomFieldString, cfield.get_value_class())
         self.assertEqual(CustomFieldString, cfield.value_class)
         self.assertEqual(_('String'), cfield.type_verbose_name())
+        self.assertEqual(_('String'), CustomFieldString.verbose_name)
 
         self.assertEqual(
             'customfieldstring',
@@ -211,6 +213,7 @@ class CustomFieldsTestCase(CremeTestCase):
         )
         self.assertEqual(CustomFieldFloat, cfield.value_class)
         self.assertEqual(_('Decimal'), cfield.type_verbose_name())
+        self.assertEqual(_('Decimal'), CustomFieldFloat.verbose_name)
 
         orga = self._create_orga()
         value1 = '1562.50'
@@ -237,6 +240,7 @@ class CustomFieldsTestCase(CremeTestCase):
         )
         self.assertEqual(CustomFieldDateTime, cfield.value_class)
         self.assertEqual(_('Date and time'), cfield.type_verbose_name())
+        self.assertEqual(_('Date and time'), CustomFieldDateTime.verbose_name)
 
         orga = FakeOrganisation.objects.create(user=user, name='Arcadia')
         value = self.create_datetime(year=2058, month=2, day=15, hour=18, minute=32)
@@ -259,6 +263,7 @@ class CustomFieldsTestCase(CremeTestCase):
         cfield1 = create_cfield(name='Ship is armed?')
         self.assertEqual(CustomFieldBoolean, cfield1.value_class)
         self.assertEqual(_('Boolean (2 values: Yes/No)'), cfield1.type_verbose_name())
+        self.assertEqual(_('Boolean (2 values: Yes/No)'), CustomFieldBoolean.verbose_name)
 
         orga = self._create_orga()
         value = True
@@ -323,6 +328,7 @@ class CustomFieldsTestCase(CremeTestCase):
         )
         self.assertEqual(CustomFieldEnum, cfield.value_class)
         self.assertEqual(_('Choice list'), cfield.type_verbose_name())
+        self.assertEqual(_('Choice list'), CustomFieldEnum.verbose_name)
 
         enum_value = CustomFieldEnumValue.objects.create(
             custom_field=cfield,
@@ -382,6 +388,7 @@ class CustomFieldsTestCase(CremeTestCase):
         )
         self.assertEqual(CustomFieldMultiEnum, cfield.value_class)
         self.assertEqual(_('Multiple choice list'), cfield.type_verbose_name())
+        self.assertEqual(_('Multiple choice list'), CustomFieldMultiEnum.verbose_name)
 
         create_enum_value = partial(
             CustomFieldEnumValue.objects.create,
