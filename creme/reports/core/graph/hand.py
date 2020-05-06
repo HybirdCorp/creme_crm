@@ -29,7 +29,7 @@ from typing import (
 import warnings
 
 from django.db import connection
-from django.db.models import Min, Max, Count, QuerySet  # FieldDoesNotExist
+from django.db.models import Min, Max, QuerySet  # Count FieldDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
@@ -273,10 +273,11 @@ class RGHDay(_RGHRegularField):
 
         return self._get_dates_values(
             entities, abscissa, 'day',
-            qdict_builder=lambda date: {year_key:  date.year,
-                                        month_key: date.month,
-                                        day_key:   date.day,
-                                       },
+            qdict_builder=lambda date: {
+                year_key:  date.year,
+                month_key: date.month,
+                day_key:   date.day,
+            },
             date_format='%d/%m/%Y', order=order,
         )
 
@@ -293,9 +294,10 @@ class RGHMonth(_RGHRegularField):
 
         return self._get_dates_values(
             entities, abscissa, 'month',
-            qdict_builder=lambda date: {year_key:  date.year,
-                                        month_key: date.month,
-                                       },
+            qdict_builder=lambda date: {
+                year_key:  date.year,
+                month_key: date.month,
+            },
             date_format='%m/%Y', order=order,
         )
 
@@ -365,9 +367,11 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
         self._fetch_method = self._fetch_with_group_by
         vendor = connection.vendor
         if vendor not in {'sqlite', 'mysql', 'postgresql'}:
-            logger.warning('Report graph data optimizations not available with DB vendor "%s",'
-                           ' reverting to slower fallback method.', vendor
-                          )
+            logger.warning(
+                'Report graph data optimizations not available with DB vendor "%s",'
+                ' reverting to slower fallback method.',
+                vendor,
+            )
             self._fetch_method = self._fetch_fallback
 
         self._days = self.get_days(graph)
@@ -376,7 +380,7 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
         return self._fetch_method(entities, order)
 
     def _fetch_with_group_by(self, entities, order):
-        graph = self._graph
+        # graph = self._graph
         # abscissa = graph.abscissa
         abscissa = self._field.name
 
@@ -696,9 +700,11 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
         self._fetch_method = self._fetch_with_group_by
         vendor = connection.vendor
         if vendor not in {'sqlite', 'mysql', 'postgresql'}:
-            logger.warning('Report graph data optimizations not available with DB vendor "%s",'
-                           ' reverting to slower fallback method.', vendor
-                          )
+            logger.warning(
+                'Report graph data optimizations not available with DB vendor "%s",'
+                ' reverting to slower fallback method.',
+                vendor,
+            )
             self._fetch_method = self._fetch_fallback
 
         self._days = self.get_days(graph)
@@ -736,7 +742,7 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
             for interval, value in sparsezip(intervals, aggregates, 0):
                 range_label = '{}-{}'.format(
                     interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
-                    interval.end.strftime('%d/%m/%Y')
+                    interval.end.strftime('%d/%m/%Y'),
                 )
                 value_range = [interval.before.strftime('%Y-%m-%d'), interval.after.strftime('%Y-%m-%d')]
                 url = build_url({
@@ -808,4 +814,7 @@ class RGHCustomFK(_RGHCustomField):
         for instance in related_instances:
             kwargs = {'customfieldenum__value': instance.id}
 
-            yield str(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
+            yield (
+                str(instance),
+                [y_value_func(entities_filter(**kwargs)), build_url(kwargs)],
+            )

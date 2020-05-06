@@ -293,11 +293,12 @@ class EntityCellRegularField(EntityCell):
         self._field_info = field_info
         self._printer_html = self._printer_csv = None
 
-        super().__init__(model=model,
-                         value=name,
-                         title=field_info.verbose_name,
-                         is_hidden=is_hidden,
-                        )
+        super().__init__(
+            model=model,
+            value=name,
+            title=field_info.verbose_name,
+            is_hidden=is_hidden,
+        )
 
     @classmethod
     def build(cls, model: Type[Model], name: str, is_hidden: bool = False):
