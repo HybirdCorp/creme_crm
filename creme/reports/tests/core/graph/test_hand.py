@@ -1,0 +1,357 @@
+# -*- coding: utf-8 -*-
+
+try:
+    from django.utils.translation import gettext as _
+
+    from creme.creme_core.core.entity_cell import EntityCellRegularField
+    from creme.creme_core.models import (
+        FieldsConfig,
+        CustomField,
+        FakeOrganisation,
+        FakeContact,
+    )
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.fake_constants import FAKE_REL_OBJ_EMPLOYED_BY
+
+    from creme.reports.constants import (
+        RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE,
+        RGT_FK,
+        RGT_RELATION,
+        RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE,
+        RGT_CUSTOM_FK,
+        RGA_COUNT, RGA_SUM,
+    )
+    from creme.reports.core.graph.aggregator import (
+        RGACount,
+        RGASum,
+    )
+    from creme.reports.core.graph.hand import (
+        RGHDay, RGHMonth, RGHYear, RGHRange,
+        RGHForeignKey,
+        RGHRelation,
+        RGHCustomDay, RGHCustomMonth, RGHCustomYear, RGHCustomRange,
+        RGHCustomFK,
+        ReportGraphHandRegistry,
+    )
+    from creme.reports.tests.base import (
+        Report,
+        ReportGraph,
+    )
+except Exception as e:
+    print(f'Error in <{__name__}>: {e}')
+
+# TODO: complete
+#  - fetch
+#  ...
+
+
+class ReportGraphHandTestCase(CremeTestCase):
+    def test_regular_field_day(self):
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value='created', abscissa_type=RGT_DAY,
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHDay(graph)
+        self.assertEqual(RGT_DAY,      hand.hand_id)
+        self.assertEqual(_('By days'), hand.verbose_name)
+        self.assertIsNone(hand.abscissa_error)
+        self.assertEqual(_('Creation date'), hand.verbose_abscissa)
+
+        ordinate = hand.ordinate
+        self.assertIsInstance(ordinate, RGACount)
+        self.assertIsNone(ordinate.error)
+
+    def test_regular_field_month(self):
+        ordinate_cell = EntityCellRegularField.build(FakeOrganisation, 'capital')
+
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeOrganisation)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value='modified', abscissa_type=RGT_MONTH,
+            ordinate_type=RGA_SUM,
+            ordinate_cell_key=ordinate_cell.key,
+        )
+
+        hand = RGHMonth(graph)
+        self.assertEqual(RGT_MONTH,      hand.hand_id)
+        self.assertEqual(_('By months'), hand.verbose_name)
+        self.assertIsNone(hand.abscissa_error)
+        self.assertEqual(_('Last modification'), hand.verbose_abscissa)
+
+        ordinate = hand.ordinate
+        self.assertIsInstance(ordinate, RGASum)
+        self.assertIsNone(ordinate.error)
+
+    def test_regular_field_year(self):
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value='created', abscissa_type=RGT_YEAR,
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHYear(graph)
+        self.assertEqual(RGT_YEAR,      hand.hand_id)
+        self.assertEqual(_('By years'), hand.verbose_name)
+        self.assertIsNone(hand.abscissa_error)
+
+    def test_regular_field_date_range(self):
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value='created',
+            abscissa_type=RGT_RANGE,
+            abscissa_parameter='90',
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHRange(graph)
+        self.assertEqual(RGT_RANGE,      hand.hand_id)
+        self.assertEqual(_('By X days'), hand.verbose_name)
+        self.assertIsNone(hand.abscissa_error)
+
+    def test_regular_field_fk(self):
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value='sector', abscissa_type=RGT_FK,
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHForeignKey(graph)
+        self.assertEqual(RGT_FK,         hand.hand_id)
+        self.assertEqual(_('By values'), hand.verbose_name)
+        self.assertIsNone(hand.abscissa_error)
+
+    def test_regular_field_error01(self):
+        "Invalid field."
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value='invalid', abscissa_type=RGT_DAY,
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHDay(graph)
+        self.assertEqual(RGT_DAY, hand.hand_id)
+        self.assertEqual(
+            _('the field does not exist any more.'),
+            hand.abscissa_error
+        )
+        self.assertEqual('??', hand.verbose_abscissa)
+
+    def test_regular_field_error02(self):
+        "Hidden field."
+        hidden_fname = 'sector'
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[
+                (hidden_fname, {FieldsConfig.HIDDEN: True}),
+            ],
+        )
+
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value=hidden_fname, abscissa_type=RGT_FK,
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHDay(graph)
+        self.assertEqual(
+            _('this field should be hidden.'),
+            hand.abscissa_error
+        )
+        self.assertEqual(_('Line of business'), hand.verbose_abscissa)
+
+    def test_relation(self):
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value=FAKE_REL_OBJ_EMPLOYED_BY,
+            abscissa_type=RGT_RELATION,
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHRelation(graph)
+        self.assertEqual(RGT_RELATION, hand.hand_id)
+        self.assertEqual(_('By values (of related entities)'), hand.verbose_name)
+        self.assertIsNone(hand.abscissa_error)
+        self.assertEqual('employs', hand.verbose_abscissa)
+
+    def test_relation_error(self):
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value='invalid',
+            abscissa_type=RGT_RELATION,
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHRelation(graph)
+        self.assertEqual(
+            _('the relationship type does not exist any more.'),
+            hand.abscissa_error
+        )
+        self.assertEqual('??', hand.verbose_abscissa)
+
+    def test_custom_field_day(self):
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            field_type=CustomField.DATETIME,
+            name='First fight',
+        )
+
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value=str(cfield.id),
+            abscissa_type=RGT_CUSTOM_DAY,
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHCustomDay(graph)
+        self.assertEqual(RGT_CUSTOM_DAY, hand.hand_id)
+        self.assertEqual(_('By days'),   hand.verbose_name)
+        self.assertIsNone(hand.abscissa_error)
+        self.assertEqual(cfield.name, hand.verbose_abscissa)
+
+    def test_custom_field_month(self):
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            field_type=CustomField.DATETIME,
+            name='First fight',
+        )
+
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value=str(cfield.id),
+            abscissa_type=RGT_CUSTOM_MONTH,
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHCustomMonth(graph)
+        self.assertEqual(RGT_CUSTOM_MONTH, hand.hand_id)
+        self.assertEqual(_('By months'),   hand.verbose_name)
+        self.assertIsNone(hand.abscissa_error)
+        self.assertEqual(cfield.name, hand.verbose_abscissa)
+
+    def test_custom_field_year(self):
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            field_type=CustomField.DATETIME,
+            name='First fight',
+        )
+
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value=str(cfield.id),
+            abscissa_type=RGT_CUSTOM_YEAR,
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHCustomYear(graph)
+        self.assertEqual(RGT_CUSTOM_YEAR, hand.hand_id)
+        self.assertEqual(_('By years'),   hand.verbose_name)
+        self.assertIsNone(hand.abscissa_error)
+        self.assertEqual(cfield.name, hand.verbose_abscissa)
+
+    def test_custom_field_date_range(self):
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            field_type=CustomField.DATETIME,
+            name='First fight',
+        )
+
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value=str(cfield.id),
+            abscissa_type=RGT_CUSTOM_RANGE,
+            abscissa_parameter='90',
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHCustomRange(graph)
+        self.assertEqual(RGT_CUSTOM_RANGE,      hand.hand_id)
+        self.assertEqual(_('By X days'), hand.verbose_name)
+        self.assertIsNone(hand.abscissa_error)
+
+    def test_custom_field_enum(self):
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            field_type=CustomField.ENUM,
+            name='Sport',
+        )
+
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value=str(cfield.id),
+            abscissa_type=RGT_CUSTOM_FK,
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHCustomFK(graph)
+        self.assertEqual(RGT_CUSTOM_FK,         hand.hand_id)
+        self.assertEqual(_('By values (of custom choices)'), hand.verbose_name)
+        self.assertIsNone(hand.abscissa_error)
+
+    def test_custom_field_error(self):
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value='1234',  # < ==
+            abscissa_type=RGT_CUSTOM_DAY,
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHCustomDay(graph)
+        self.assertEqual(RGT_CUSTOM_DAY, hand.hand_id)
+        self.assertEqual(_('By days'),   hand.verbose_name)
+        self.assertEqual(
+            _('the custom field does not exist any more.'),
+            hand.abscissa_error
+        )
+        self.assertEqual('??', hand.verbose_abscissa)
+
+
+class ReportGraphHandRegistryTestCase(CremeTestCase):
+    def test_empty(self):
+        registry = ReportGraphHandRegistry()
+
+        with self.assertRaises(KeyError):
+            __ = registry[RGT_FK]
+
+        self.assertIsNone(registry.get(RGT_FK))
+        self.assertListEqual([], [*registry])
+
+    def test_register(self):
+        registry = ReportGraphHandRegistry()
+        registry(RGT_FK)(RGHForeignKey)
+
+        self.assertEqual(RGHForeignKey, registry[RGT_FK])
+        self.assertEqual(RGHForeignKey, registry.get(RGT_FK))
+        self.assertListEqual([RGT_FK], [*registry])
+
+# TODO: collision exception ??
