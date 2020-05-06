@@ -10,6 +10,7 @@ try:
     from ..base import CremeTestCase
 
     from creme.creme_core.core.entity_cell import (
+        EntityCell,
         CELLS_MAP, EntityCellsRegistry,
         EntityCellRegularField,
         EntityCellCustomField,
@@ -24,7 +25,7 @@ try:
     from creme.creme_core.models import (
         RelationType,
         CustomField, CustomFieldEnumValue,
-        FakeContact, FakeDocument,
+        FakeContact, FakeDocument, FakeFolder,
     )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
@@ -297,3 +298,32 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(funfield.name,         cell.value)
         self.assertEqual(funfield.verbose_name, cell.title)
         self.assertFalse(cell.is_multiline)
+
+    def test_eq(self):
+        cell1 = EntityCellRegularField.build(model=FakeDocument, name='title')
+        self.assertEqual(
+            EntityCellRegularField.build(model=FakeDocument, name='title'),
+            cell1
+        )
+        # Value is different
+        self.assertNotEqual(
+            EntityCellRegularField.build(model=FakeDocument, name='linked_folder'),
+            cell1
+        )
+        # Model is different
+        self.assertNotEqual(
+            EntityCellRegularField.build(model=FakeFolder, name='title'),
+            cell1
+        )
+
+        # Class is different
+        class TestCell(EntityCell):
+            type_id = 'test'
+
+            def __init__(self, model, value):
+                super().__init__(model=model, value=value)
+
+        self.assertNotEqual(
+            TestCell(model=FakeDocument, value='title'),
+            cell1
+        )

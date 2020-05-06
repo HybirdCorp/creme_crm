@@ -1792,7 +1792,7 @@ class BricksConfigTestCase(CremeTestCase):
         )
 
     def test_add_relationbrick_ctypes_wizard03(self):
-        "Go back"
+        "Go back."
         self.login()
         rtype = RelationType.create(
             ('test-subfoo', 'subject_predicate', [FakeOrganisation]),
@@ -1885,7 +1885,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(funcfield.name, cell.value)
 
     def test_edit_relationbrick_ctypes02(self):
-        "Validation errors with URLField & ForeignKey"
+        "Validation errors with URLField & ForeignKey."
         self.login()
         rb_item = RelationBrickItem(
             brick_id='specificblock_creme_config-test-subfoo',
@@ -1948,7 +1948,7 @@ class BricksConfigTestCase(CremeTestCase):
         post('mailing_lists__name')
 
     def test_edit_relationbrick_ctypes04(self):
-        "Validation errors with Relation"
+        "Validation errors with Relation."
         self.login()
         create_rtype = RelationType.create
         rt1 = create_rtype(('test-subfoo', 'subject_predicate1'), ('test-objfoo', 'object_predicate2'))[0]
@@ -1971,7 +1971,7 @@ class BricksConfigTestCase(CremeTestCase):
         )
 
     def test_edit_relationbrick_ctypes05(self):
-        "With FieldsConfig"
+        "With FieldsConfig."
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
         rt = RelationType.create(
@@ -2049,7 +2049,8 @@ class BricksConfigTestCase(CremeTestCase):
         self.login()
         rt = RelationType.create(
             ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'), is_custom=False
+            ('test-objfoo', 'object_predicate'),
+            is_custom=False,
         )[0]
         rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
         loc = BrickDetailviewLocation.objects.create_if_needed(
@@ -2451,16 +2452,11 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         cbci = self.get_object_or_fail(CustomBrickConfigItem, content_type=contact_ct)
-        cells = [(c.__class__, c.key, c.value) for c in cbci.cells]
-
         self.assertListEqual(
-            [(EntityCellRegularField, 'regular_field-first_name', 'first_name'),
-             (EntityCellCustomField,
-              f'custom_field-{contact_customfield.id}',
-              str(contact_customfield.id)
-             ),
+            [EntityCellRegularField.build(FakeContact, 'first_name'),
+             EntityCellCustomField(contact_customfield),
             ],
-            cells
+            cbci.cells
         )
 
     def test_custombrick_wizard_go_back(self):

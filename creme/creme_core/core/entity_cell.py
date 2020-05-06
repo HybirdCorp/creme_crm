@@ -95,6 +95,16 @@ class EntityCell:
         self.title = title
         self.is_hidden = is_hidden
 
+    def __eq__(self, other):
+        return (
+            self.type_id == other.type_id
+            and
+            self.model == other.model
+            and
+            self.value == other.value
+            # TODO: compare other fields
+        )
+
     def __repr__(self):
         return f"<EntityCell(type={self.type_id}, value='{self.value}')>"
 
