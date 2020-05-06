@@ -31,7 +31,8 @@ from creme.creme_config.forms import creme_property_type as ptype_forms
 from ..forms import creme_property as prop_forms
 from ..gui.bricks import QuerysetBrick, Brick
 from ..models import CremeEntity, CremePropertyType, CremeProperty
-from ..utils import creme_entity_content_types, get_from_POST_or_404
+from ..utils import get_from_POST_or_404
+from ..utils.content_type import entity_ctypes
 
 from . import generic, bricks as bricks_views
 # from .decorators import jsonify
@@ -263,7 +264,7 @@ class PropertyTypeDetail(generic.CremeModelDetail):
         bricks = [
             PropertyTypeInfoBrick(ptype, ctypes),
             *(TaggedEntitiesBrick(ptype, ctype)
-                  for ctype in (ctypes or creme_entity_content_types())
+                  for ctype in (ctypes or entity_ctypes())
             ),
         ]
 

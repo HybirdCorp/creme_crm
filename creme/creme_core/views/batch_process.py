@@ -31,7 +31,7 @@ from ..core.exceptions import BadRequestError
 from ..forms.batch_process import BatchProcessForm
 from ..http import CremeJsonResponse
 from ..models import Job
-from ..utils import get_ct_or_404
+from ..utils.content_type import get_ctype_or_404
 
 from . import generic
 # from .decorators import jsonify
@@ -40,7 +40,7 @@ from .utils import build_cancel_path
 
 @login_required
 def batch_process(request, ct_id):
-    ct = get_ct_or_404(ct_id)
+    ct = get_ctype_or_404(ct_id)
     user = request.user
 
     user.has_perm_to_access_or_die(ct.app_label)

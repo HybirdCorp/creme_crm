@@ -23,7 +23,7 @@
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core import enumerable
-from creme.creme_core.utils import build_ct_choices, creme_entity_content_types
+from creme.creme_core.utils.content_type import entity_ctypes, ctype_choices
 from creme.creme_core.utils.unicode_collation import collator
 
 
@@ -81,6 +81,7 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
 
 class EntityCTypeForeignKeyEnumerator(enumerable.Enumerator):
     def choices(self, user):
-        return [{'value': ct_id, 'label': label} for ct_id, label in
-                    build_ct_choices(creme_entity_content_types())
-               ]
+        return [
+            {'value': ct_id, 'label': label}
+            for ct_id, label in ctype_choices(entity_ctypes())
+        ]

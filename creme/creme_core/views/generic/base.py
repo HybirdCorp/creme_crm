@@ -37,7 +37,7 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.gui.bricks import brick_registry, Brick
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.utils import get_ct_or_404
+from creme.creme_core.utils.content_type import get_ctype_or_404
 
 from ..utils import build_cancel_path
 
@@ -256,7 +256,7 @@ class ContentTypeRelatedMixin:
             if self.ct_id_0_accepted and not ct_id:
                 ctype = None
             else:
-                ctype = get_ct_or_404(ct_id)
+                ctype = get_ctype_or_404(ct_id)
 
                 self.check_related_ctype(ctype)
 

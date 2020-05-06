@@ -9,7 +9,7 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeInvoice, FakeInvoiceLine
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    from creme.creme_core.utils import creme_entity_content_types
+    from creme.creme_core.utils.content_type import entity_ctypes
     from creme.creme_core.utils.unicode_collation import collator
 
     from ..bricks import SearchConfigBrick
@@ -40,7 +40,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         return reverse('creme_config__edit_search_config', args=(sci.id,))
 
     def _get_first_entity_ctype(self):
-        ctypes = [*creme_entity_content_types()]
+        ctypes = [*entity_ctypes()]
         ctypes.sort(key=lambda ct: collator.sort_key(str(ct)))
 
         return ctypes[0]

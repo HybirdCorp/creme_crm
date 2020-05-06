@@ -39,7 +39,9 @@ from ..forms.mass_import import (
 )  # get_backend
 from ..gui.mass_import import import_form_registry
 from ..models import Job, MassImportJobResult
-from ..utils import get_ct_or_404, get_from_POST_or_404
+from ..utils import get_from_POST_or_404
+from ..utils.content_type import get_ctype_or_404
+
 from .utils import build_cancel_path
 
 # django wizard doesn't manage to inject its input in the 2nd form
@@ -48,7 +50,7 @@ from .utils import build_cancel_path
 
 @login_required
 def mass_import(request, ct_id):
-    ct = get_ct_or_404(ct_id)
+    ct = get_ctype_or_404(ct_id)
 
     try:
         import_form_registry.get(ct)

@@ -31,7 +31,7 @@ from django.views.decorators.http import require_POST
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.utils import get_ct_or_404
+from creme.creme_core.utils.content_type import get_ctype_or_404
 from creme.creme_core.views import generic
 # from creme.creme_core.views.decorators import POST_only
 
@@ -146,18 +146,23 @@ def multi_save_lines(request, document_id):
 
     # Only modified formsets land here
     for line_ct_id, data in request.POST.items():
-        line_model = get_ct_or_404(line_ct_id).model_class()
+        line_model = get_ctype_or_404(line_ct_id).model_class()
 
         prefix = LINE_FORMSET_PREFIX.get(line_model)
         if prefix is None:
             raise ConflictError('Invalid model (not a line ?!)')
 
-        qs = line_model.objects.filter(relations__object_entity=b_entity.id,
-                                       relations__type=constants.REL_OBJ_HAS_LINE,
-                                      )
+        qs = line_model.objects.filter(
+            relations__object_entity=b_entity.id,
+            relations__type=constants.REL_OBJ_HAS_LINE,
+        )
 
-        lineformset_class = modelformset_factory(line_model, form=_LineForm, extra=0, can_delete=True)
-        lineformset = lineformset_class(jsonloads(data), prefix=prefix, queryset=qs)
+        lineformset_class = modelformset_factory(
+            line_model, form=_LineForm, extra=0, can_delete=True,
+        )
+        lineformset = lineformset_class(
+            jsonloads(data), prefix=prefix, queryset=qs,
+        )
 
         if lineformset.is_valid():
             formset_to_save.append(lineformset)
@@ -174,17 +179,22 @@ def multi_save_lines(request, document_id):
                         # TODO: avoid this query (API for field modifications -- see HistoryLine)
                         item = line_model.objects.get(pk=instance.pk).on_the_fly_item or instance.related_item
 
-                    errors.append({'item':     item,
-                                   'instance': instance,
-                                   'errors':   [(None if field == '__all__' else get_field(field),
-                                                 msg,
-                                                ) for field, msg in form.errors.items()
-                                               ],
-                                  }
-                                 )
+                    errors.append({
+                        'item':     item,
+                        'instance': instance,
+                        'errors':   [
+                            (
+                                None if field == '__all__' else get_field(field),
+                                msg,
+                            ) for field, msg in form.errors.items()
+                        ],
+                    })
 
     if errors:
-        return render(request, 'billing/frags/lines-errors.html', context={'errors': errors}, status=409)
+        return render(
+            request, 'billing/frags/lines-errors.html',
+            context={'errors': errors}, status=409,
+        )
 
     # Save all formset now that we haven't detect any errors
     for formset in formset_to_save:

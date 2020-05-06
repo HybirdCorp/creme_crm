@@ -31,7 +31,7 @@ try:
         SetCredentials,
         FakeContact, FakeOrganisation, FakeImage,
     )
-    from creme.creme_core.utils import creme_entity_content_types
+    from creme.creme_core.utils.content_type import entity_ctypes
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -189,7 +189,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_default_ctypes(self):
         ctypes = GenericEntityField().get_ctypes()
-        self.assertEqual([*creme_entity_content_types()], ctypes)
+        self.assertEqual([*entity_ctypes()], ctypes)
         self.assertTrue(ctypes)
 
     def test_models_property(self):
@@ -203,7 +203,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field = GenericEntityField()
         self.assertListEqual([], field.allowed_models)
-        self.assertListEqual([*creme_entity_content_types()], field.get_ctypes())
+        self.assertListEqual([*entity_ctypes()], field.get_ctypes())
 
         field.allowed_models = [FakeContact, FakeOrganisation]
         ctypes = [*field.get_ctypes()]
@@ -495,7 +495,7 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_default_ctypes(self):
         ctypes = MultiGenericEntityField().get_ctypes()
-        self.assertListEqual([*creme_entity_content_types()], ctypes)
+        self.assertListEqual([*entity_ctypes()], ctypes)
         self.assertTrue(ctypes)
 
     def test_format_object(self):

@@ -31,6 +31,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
 from .. import utils
+from ..utils.content_type import entity_ctypes
 from ..auth.decorators import login_required
 from ..core.entity_filter import entity_filter_registries, EF_USER
 from ..core.exceptions import ConflictError
@@ -214,8 +215,9 @@ class EntityFilterDeletion(generic.CremeModelDeletion):
 @login_required
 @jsonify
 def get_content_types(request, rtype_id):
-    content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all() or \
-                    utils.creme_entity_content_types()
+    content_types = get_object_or_404(
+        RelationType, pk=rtype_id,
+    ).object_ctypes.all() or entity_ctypes()
 
     return [
         (0, gettext('All')),
@@ -236,11 +238,12 @@ class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
         return utils.get_from_GET_or_404(self.request.GET, self.ctype_id_arg, int)
 
     def get_include_all(self):
-        return utils.get_from_GET_or_404(self.request.GET,
-                                         key=self.include_all_arg,
-                                         cast=utils.bool_from_str_extended,
-                                         default='0',
-                                        )
+        return utils.get_from_GET_or_404(
+            self.request.GET,
+            key=self.include_all_arg,
+            cast=utils.bool_from_str_extended,
+            default='0',
+        )
 
     def get_choices(self):
         choices = [('', self.all_label)] if self.get_include_all() else []

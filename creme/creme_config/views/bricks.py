@@ -25,10 +25,13 @@ from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import brick_registry
-from creme.creme_core.models import (UserRole,
-        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
-        RelationBrickItem, InstanceBrickConfigItem, CustomBrickConfigItem)
-from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
+from creme.creme_core.models import (
+    UserRole,
+    BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
+    RelationBrickItem, InstanceBrickConfigItem, CustomBrickConfigItem,
+)
+from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.utils.content_type import get_ctype_or_404
 from creme.creme_core.views.generic import BricksView
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
@@ -273,10 +276,11 @@ class CellsOfRtypeBrickDeletion(base.ConfigDeletion):
 
     @atomic
     def perform_deletion(self, request):
-        ctype = get_ct_or_404(get_from_POST_or_404(request.POST, self.ct_id_arg))
-        rbi = get_object_or_404(RelationBrickItem.objects.select_for_update(),
-                                id=self.kwargs[self.rbi_id_url_kwarg],
-                               )
+        ctype = get_ctype_or_404(get_from_POST_or_404(request.POST, self.ct_id_arg))
+        rbi = get_object_or_404(
+            RelationBrickItem.objects.select_for_update(),
+            id=self.kwargs[self.rbi_id_url_kwarg],
+        )
 
         try:
             rbi.delete_cells(ctype)

@@ -28,13 +28,12 @@ import logging
 import sys
 import traceback
 from typing import (
-    TypeVar, Union,
-    Callable, Iterable, Iterator,
+    TypeVar,
+    Callable, Iterable,
     List, Tuple,
 )
 import warnings
 
-from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -45,39 +44,37 @@ logger = logging.getLogger(__name__)
 T = TypeVar('T')
 
 
-def creme_entity_content_types() -> Iterator[ContentType]:
-    "Generator which yields ContentType instances corresponding to registered entity models."
-    from ..registry import creme_registry
-    return map(ContentType.objects.get_for_model, creme_registry.iter_entity_models())
+def creme_entity_content_types():
+    warnings.warn(
+        'creme_core.utils.creme_entity_content_types() is deprecated ; '
+        'use creme_core.utils.content_type.entity_ctypes() instead.',
+        DeprecationWarning
+    )
+
+    from . import content_type
+    return content_type.entity_ctypes()
 
 
-def get_ct_or_404(ct_id: Union[int, str]) -> ContentType:
-    """Retrieve a ContentType by its ID.
-    @param ct_id: ID of the wanted ContentType instance (int or string).
-    @return: ContentType instance.
-    @raise: Http404 Exception if the ContentType does not exist.
-    """
-    try:
-        ct = ContentType.objects.get_for_id(ct_id)
-    except ContentType.DoesNotExist as e:
-        raise Http404(f'No content type with this id: {ct_id}') from e
+def get_ct_or_404(ct_id):
+    warnings.warn(
+        'creme_core.utils.get_ct_or_404() is deprecated ; '
+        'use creme_core.utils.content_type.get_ctype_or_404() instead.',
+        DeprecationWarning
+    )
 
-    return ct
+    from . import content_type
+    return content_type.get_ctype_or_404(ct_id)
 
 
-def build_ct_choices(ctypes: Iterable[ContentType]) -> List[Tuple[int, str]]:
-    """ Build a choices list (useful for form ChoiceField for example) for ContentTypes.
-    Labels are localized, & choices are sorted by labels.
-    @param ctypes: Iterable of ContentTypes.
-    @return: A list of tuples.
-    """
-    from .unicode_collation import collator
-    choices = [(ct.id, str(ct)) for ct in ctypes]
+def build_ct_choices(ctypes):
+    warnings.warn(
+        'creme_core.utils.build_ct_choices() is deprecated ; '
+        'use creme_core.utils.content_type.ctype_choices() instead.',
+        DeprecationWarning
+    )
 
-    sort_key = collator.sort_key
-    choices.sort(key=lambda k: sort_key(k[1]))
-
-    return choices
+    from . import content_type
+    return content_type.ctype_choices(ctypes)
 
 
 def create_if_needed(model, get_dict, **attrs):
