@@ -16,6 +16,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 
+/* globals Assert */
+
 (function($) {
 "use strict";
 
@@ -23,6 +25,7 @@ var _DIRECTIONS = ['top', 'left', 'right',
                    'bottom', 'bottom-left', 'bottom-right',
                    'center', 'center-window'];
 
+/*
 var _assertDirection = function(direction) {
     if (_DIRECTIONS.indexOf(direction) === -1) {
         throw Error('invalid popover direction ' + direction);
@@ -30,6 +33,7 @@ var _assertDirection = function(direction) {
         return direction;
     }
 };
+*/
 
 creme.dialog = creme.dialog || {};
 
@@ -194,7 +198,7 @@ creme.dialog.Popover = creme.component.Component.sub({
             return this._options.direction;
         }
 
-        _assertDirection(direction);
+        Assert.in(direction, _DIRECTIONS, 'invalid popover direction ${value}');
 
         this._options.direction = direction;
 

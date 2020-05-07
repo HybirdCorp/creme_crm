@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+/* globals Assert */
+
 (function($) {
 "use strict";
 
@@ -23,6 +25,7 @@ creme.utils = creme.utils || {};
 
 var _noop = function() {};
 
+/*
 var _assert = function(test, message) {
     test = Boolean(Object.isFunc(test) ? test() : test);
 
@@ -38,6 +41,7 @@ var _assertNot = function(test, message) {
         throw new Error(message);
     }
 };
+*/
 
 var _getter = function(instance, key) {
     var prop = instance[key];
@@ -65,23 +69,26 @@ creme.utils.newJQueryPlugin = function(options) {
     var constructor = options.create;
     var destructor = options.destroy || _noop;
 
-    _assertNot(Object.isEmpty(name),
-               'Missing JQuery plugin name.');
+    Assert.not(Object.isEmpty(name), 'Missing JQuery plugin name.');
 
-    _assert(Object.isFunc(constructor),
-            'JQuery plugin "${name}" constructor is not a function.'.template({name: name}));
+    Assert.that(Object.isFunc(constructor),
+                'JQuery plugin "${name}" constructor is not a function.',
+                {name: name});
 
-    _assert(Object.isFunc(destructor),
-            'JQuery plugin "${name}" destructor is not a function.'.template({name: name}));
+    Assert.that(Object.isFunc(destructor),
+                'JQuery plugin "${name}" destructor is not a function.',
+                {name: name});
 
-    _assert(Object.isNone($.fn[name]),
-            'JQuery plugin "${name}" already exist.'.template({name: name}));
+    Assert.that(Object.isNone($.fn[name]),
+                'JQuery plugin "${name}" already exist.',
+                {name: name});
 
     ['prop', 'props', 'destroy'].forEach(function(builtin) {
-        _assert(methods.indexOf(builtin) === -1, (
-                'Method "${builtin}" is a builtin of JQuery plugin "${name}".').template({
-                    name: name, builtin: builtin
-                }));
+        Assert.notIn(
+            builtin, methods,
+            'Method "${value}" is a builtin of JQuery plugin "${name}".', {
+                name: name
+            });
     });
 
     $.fn[name] = function(methodname, key, value) {
@@ -95,13 +102,15 @@ creme.utils.newJQueryPlugin = function(options) {
                 if (Object.isNone(instance)) {
                     instance = constructor.apply(element, args);
 
-                    _assertNot(Object.isNone(instance),
-                               'Jquery plugin "${name}" constructor has returned nothing.'.template({name: name}));
+                    Assert.not(Object.isNone(instance),
+                               'Jquery plugin "${name}" constructor has returned nothing.',
+                               {name: name});
 
                     $.data(element, name, instance);
                 } else {
-                    _assertNot(args.length > 0,
-                               'Jquery plugin "${name}" is already initialized.'.template({name: name}));
+                    Assert.not(args.length > 0,
+                               'Jquery plugin "${name}" is already initialized.',
+                               {name: name});
                 }
 
                 return instance;
@@ -114,8 +123,9 @@ creme.utils.newJQueryPlugin = function(options) {
             }
 
             if (methodname === 'prop') {
-                _assert(properties.indexOf(key) !== -1,
-                        'No such property "${key}" in jQuery plugin "${name}"'.template({key: key, name: name}));
+                Assert.in(key, properties,
+                          'No such property "${value}" in jQuery plugin "${name}"',
+                          {name: name});
 
                 if (args.length > 2) {
                     result = _setter(instance, key, value);
@@ -132,12 +142,14 @@ creme.utils.newJQueryPlugin = function(options) {
                 destructor.apply(element, [instance]);
                 $(element).removeData(name);
             } else {
-                _assert(methods.indexOf(methodname) !== -1,
-                        'No such method "${method}" in jQuery plugin "${name}"'.template({method: methodname, name: name}));
+                Assert.in(methodname, methods,
+                          'No such method "${value}" in jQuery plugin "${name}"',
+                          {name: name});
 
                 var method = instance[methodname];
-                _assert(Object.isFunc(method),
-                        'Attribute "${method}" is not a function in jQuery plugin "${name}"'.template({method: methodname, name: name}));
+                Assert.that(Object.isFunc(method),
+                            'Attribute "${method}" is not a function in jQuery plugin "${name}"',
+                            {method: methodname, name: name});
 
                 result = method.apply(instance, args.slice(1));
             }
