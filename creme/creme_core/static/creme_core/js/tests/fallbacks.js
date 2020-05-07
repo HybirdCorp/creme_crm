@@ -691,6 +691,29 @@ QUnit.test('fallbacks.String.template', function() {
     equal('this an empty template.', 'this an empty template.'.template({a: 12}));
 });
 
+QUnit.test('fallbacks.String.template (method)', function() {
+    equal('12', '${a}'.template(function() {
+        return 12;
+    }));
+    equal('12 monkeys are jumping.', '${a} ${b} are jumping.'.template(function(key) {
+        if (key === 'a') {
+            return 12;
+        } else {
+            return 'monkeys';
+        }
+    }));
+    equal('12 ${b} are jumping.', '${a} ${b} are jumping.'.template(function(key) {
+        if (key === 'a') {
+            return 12;
+        }
+    }));
+    equal('${a} monkeys are jumping.', '${a} ${b} are jumping.'.template(function(key) {
+        if (key === 'b') {
+            return 'monkeys';
+        }
+    }));
+});
+
 QUnit.test('fallbacks.String.capitalize', function() {
     equal('', ''.capitalize());
     equal('A', 'A'.capitalize());
