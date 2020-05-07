@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2009-2017  Hybird
+ Copyright (C) 2009-2020  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -70,9 +70,16 @@
         }
 
         pattern = pattern || /\$\{([^\}]+)\}/g;
-        return this.replace(pattern, function(match, key) {
-            var value = data[key]; return value !== undefined ? value : match;
-        });
+
+        if (Object.isFunc(data)) {
+            return this.replace(pattern, function(match, key) {
+                var value = data(key, match); return value !== undefined ? value : match;
+            });
+        } else {
+            return this.replace(pattern, function(match, key) {
+                var value = data[key]; return value !== undefined ? value : match;
+            });
+        }
     });
 
     function __decodeEntity(x) {
@@ -195,7 +202,7 @@
     });
 
     append('removeDiacritics', function() {
-        return this.replace(/[^\u0000-\u007E]/g, function(a) {
+        return this.replace(/[^\u0020-\u007E]/g, function(a) {
             return __diacriticsMap[a] || a;
         });
     });
