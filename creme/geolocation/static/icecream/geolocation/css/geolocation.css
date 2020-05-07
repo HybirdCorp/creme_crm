@@ -15,8 +15,8 @@
     align-self: flex-start;
 }
 
-.brick-geoaddress-item:not(.item-selected) {
-    opacity: 0.5;
+.brick-geoaddress-item:not(.is-mark-visible) {
+    opacity: 0.6;
 }
 
 .brick-geoaddress-item .brick-geoaddress-label {
@@ -68,6 +68,11 @@
     color: #777;
     margin-bottom: 4px;
     cursor: pointer;
+}
+
+.brick-geoaddress-item:not(.is-mark-visible) .brick-geoaddress-reset {
+    cursor: default;
+    text-decoration: none;
 }
 
 .brick-geoaddress-item .brick-geoaddress-iscomplete .brick-geoaddress-reset {

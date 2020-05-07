@@ -6,6 +6,7 @@
 {% block brick_script %}
     <script type="text/javascript">
          $('.brick[id="{{brick_id}}"]').on('brick-ready', function(event, brick) {
+             /*
              var controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
                  apiKey: '{{google_api_key}}',
                  radius: {{radius}},
@@ -15,6 +16,15 @@
 
              $('#{{maps_blockid}}').bind('brick-geoaddress-location', function(event, address, mark) {
                  controller.sourcePosition(address, mark.position);
+             });
+             */
+
+             var controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
+                 mapController: new creme.geolocation.GoogleMapController({
+                     apiKey: '{{google_api_key}}'
+                 }),
+                 radius: {{radius}},
+                 neighboursUrl: '{% url 'geolocation__neighbours' %}',
              });
          });
     </script>
@@ -41,7 +51,7 @@
             {% endfor %}
         </select>
         &nbsp;{% trans 'around' %}&nbsp;
-        <select class="brick-geoaddress-source">
+        <select class="brick-geoaddress-origin">
             {% for address in ref_addresses %}
                 <option value="{{address.id}}">{% if address.title %}{{address.title}}{% else %}{{address.content}}{% endif %}</option>
             {% empty %}

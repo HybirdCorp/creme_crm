@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2014-2018  Hybird
+    Copyright (C) 2014-2020  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -21,81 +21,6 @@
 
 creme.geolocation = creme.geolocation || {};
 
-/* TODO: rename google-geolocation ?? */
-
-var __googleAPILoadStatus = {
-    NONE: 0,
-    RUNNING: 1,
-    LOADED: 2
-};
-
-
-var __googleAPI = {
-    loadStatus: __googleAPILoadStatus.NONE,
-    available: false
-};
-
-var __googleAPIEvents = new creme.component.EventHandler();
-
-window.__googleAPILoaderCb = function() {
-    __googleAPI.loadStatus = __googleAPILoadStatus.LOADED;
-    __googleAPI.available = true;
-    __googleAPIEvents.trigger('google-api-loaded', [$({}, __googleAPI)]);
-};
-
-window.gm_authFailure = function() {
-    __googleAPI.available = false;
-    __googleAPIEvents.trigger('google-api-error', [$({}, __googleAPI)]);
-};
-
-creme.geolocation.googleAPIState = function() {
-    return $.extend({}, __googleAPI);
-};
-
-creme.geolocation.GoogleAPILoader = creme.component.Action.sub({
-    _init_: function(options) {
-        this._super_(creme.component.Action, '_init_', this._loadAPI, options);
-    },
-
-    /* global LANGUAGE_CODE */
-    _loadAPI: function(options) {
-        options = $.extend({
-            language: LANGUAGE_CODE || 'en'
-        }, this.options(), options);
-
-        var self = this;
-
-        if (__googleAPI.loadStatus === __googleAPILoadStatus.LOADED) {
-            return self.done($({}, __googleAPI));
-        }
-
-        __googleAPIEvents.on('google-api-loaded', function(event, status) {
-            self.done(status);
-        });
-
-        if (__googleAPI.status !== __googleAPILoadStatus.RUNNING) {
-            __googleAPI.status = __googleAPILoadStatus.RUNNING;
-
-            if (!options.apiKey) {
-                console.warn('creme.geolocation.googleAPILoader(): empty "apiKey" is deprecated ; configure it in settings.');
-            }
-
-            var script = document.createElement('script');
-            var parameters = {
-                v: '3.exp',
-                callback: '__googleAPILoaderCb',
-                language: options.language,
-                key: options.apiKey || ''
-            };
-
-            script.type = 'text/javascript';
-            script.src = 'https://maps.googleapis.com/maps/api/js?' + $.param(parameters);
-
-            document.head.appendChild(script);
-        }
-    }
-});
-
 creme.geolocation.LocationStatus = {
     UNDEFINED: 0,
     MANUAL:    1,
@@ -103,150 +28,125 @@ creme.geolocation.LocationStatus = {
     COMPLETE:  3
 };
 
-creme.geolocation.GoogleMapController = creme.component.Component.sub({
-    MAPSTYLES: [
-        {
-            id: 'creme',
-            label: gettext('Map'),
-            style: [
-                {
-                    stylers: [
-                         {hue: '#94c6db'},
-                         {weight: 2}
-                    ]
-                },
-                {
-                    featureType: 'road',
-                    elementType: 'geometry',
-                    stylers: [
-                      { visibility: 'simplified' }
-                    ]
-                }
-            ]
-        }
-    ],
+creme.geolocation.locationStatusLabel = function(status) {
+    switch (status) {
+        case creme.geolocation.LocationStatus.UNDEFINED:
+            return gettext("Not localized");
+        case creme.geolocation.LocationStatus.MANUAL:
+            return gettext("Manual location");
+        case creme.geolocation.LocationStatus.PARTIAL:
+            return gettext("Partially matching location");
+        default:
+            return '';
+    }
+};
 
-    /* global google setTimeout */
-    _init_: function (options) {
-        this.defaultZoomValue = 12;
-        this.defaultLat = 48;
-        this.defaultLn = 2;
-        this.defaultLargeZoom = 4;
-
-        this._infoUrl = options.infoUrl;
-        this._events = new creme.component.EventHandler();
-
-        this.marker_manager = new creme.geolocation.GoogleMapMarkerManager(this);
-        this.shape_manager = new creme.geolocation.GoogleMapShapeRegistry(this);
-    },
-
-    /* global google */
-    loadAPI: function(options, listeners) {
+creme.geolocation.Location = creme.component.Component.sub({
+    _init_: function(options) {
         options = options || {};
 
-        var events = this._events;
-        var _APILoadedCb = function() {
-            try {
-                if (Object.isNone(this.geocoder)) {
-                    this.geocoder = new google.maps.Geocoder();
-                }
-            } catch (e) {
-                console.warn('creme.geolocation.GoogleMapController(): unable to build google.maps.Geocoder instance', e);
-                return;
-            }
-
-            if (!Object.isEmpty(options.container)) {
-                this.enableMap(options.container, options.styles);
-            }
-        }.bind(this);
-
-        events.one(listeners || {});
-
-        if (this.isAPILoaded()) {
-            setTimeout(_APILoadedCb, 200);
-            return this;
+        if (options instanceof creme.geolocation.Location) {
+            return this._init_({
+                id: options.id(),
+                content: options.content(),
+                title: options.title(),
+                owner: options.owner(),
+                position: options.position(),
+                visible: options.visible(),
+                status: options.status(),
+                url: options.url()
+            });
         }
 
-        __googleAPIEvents.on('google-api-error', function(event, status) {
-            console.warn('creme.geolocation.GoogleMapController(): google map API is now disabled');
-            events.trigger('api-status', [false]);
-        });
+        this.id(options.id);
+        this.content(options.content || '');
+        this.title(options.title || '');
+        this.owner(options.owner);
 
-        new creme.geolocation.GoogleAPILoader({
-                                  apiKey: options.apiKey
-                              }).on('done', function() {
-                                  setTimeout(_APILoadedCb, 200);
-                              }).on('fail', function() {
-                                  events.trigger('api-status', [false]);
-                              }).start();
-
-        return this;
-    },
-
-    enableMap: function(container, styles) {
-        if (this.isMapEnabled()) {
-            return this;
+        if (options.latitude) {
+            this.position({lat: options.latitude, lng: options.longitude});
+        } else {
+            this.position(options.position || null);
         }
 
-        styles = styles || this.MAPSTYLES.slice();
-        container = (container instanceof jQuery) ? container.get(0) : container;
-
-        var styleIds = styles.map(function(style) {
-                                  return style.id;
-                              })
-                             .concat(google.maps.MapTypeId.SATELLITE);
-
-        var map = this._map = new google.maps.Map(container, {
-            zoom: this.defaultZoomValue,
-            mapTypeControlOptions: {
-                mapTypeIds: styleIds
-            }
-        });
-
-        styles.forEach(function(style) {
-            map.mapTypes.set(style.id, new google.maps.StyledMapType(style.style, { name: style.label }));
-        });
-
-        map.setMapTypeId(styleIds[0]);
-
-        this._mapContainer = container;
-
-        this.resize();
-        this.adjustMap();
-        this._events.trigger('map-status', [true]);
-        return this;
+        this.visible(options.visible || false);
+        this.status(options.status || creme.geolocation.LocationStatus.UNDEFINED);
+        this.url(options.url);
     },
 
-    disableMap: function() {
-        if (!this.isMapEnabled()) {
-            return this;
-        }
-
-        delete this._map;
-
-        this._mapContainer.empty();
-        this._mapContainer = undefined;
-
-        this._events.trigger('map-status', [false]);
-        return this;
+    id: function(id) {
+        return Object.property(this, '_id', id);
     },
 
-    assertAPIAvailable: function() {
-        if (!this.isAPIAvailable()) {
-            throw new Error('The google API is not available');
-        }
+    content: function(content) {
+        return Object.property(this, '_content', content);
     },
 
-    isMapEnabled: function() {
-        return Object.isNone(this._map) === false;
+    title: function(title) {
+        return Object.property(this, '_title', title);
     },
 
-    isAPILoaded: function() {
-        return __googleAPI.loadStatus === __googleAPILoadStatus.LOADED;
+    owner: function(owner) {
+        return Object.property(this, '_owner', owner);
     },
 
-    isAPIAvailable: function() {
-        return __googleAPI.available;
+    position: function(position) {
+        return Object.property(this, '_position', position);
+    },
+
+    visible: function(visible) {
+        return Object.property(this, '_visible', visible);
+    },
+
+    status: function(status) {
+        return Object.property(this, '_status', status);
+    },
+
+    url: function(url) {
+        return Object.property(this, '_url', url);
+    },
+
+    isComplete: function() {
+        return this.status() === creme.geolocation.LocationStatus.COMPLETE;
+    },
+
+    isPartial: function() {
+        return this.status() === creme.geolocation.LocationStatus.PARTIAL;
+    },
+
+    isManual: function() {
+        return this.status() === creme.geolocation.LocationStatus.MANUAL;
+    },
+
+    hasPosition: function() {
+        return Object.isEmpty(this._position) === false;
+    },
+
+    statusLabel: function() {
+        return creme.geolocation.locationStatusLabel(this._status);
+    },
+
+    positionLabel: function() {
+        return this.hasPosition() ? '%3.6f, %3.6f'.format(this._position.lat, this._position.lng) : '';
+    },
+
+    markerLabel: function() {
+        return [
+            this.owner() || '',
+            this.title() || this.content()
+        ].filter(Object.isNotEmpty).join('\n');
+    }
+});
+
+creme.geolocation.GeoMapController = creme.component.Component.sub({
+    _init_: function (options) {
+        options = $.extend({
+            allowGeocoder: true
+        }, options || {});
+
+        this._events = new creme.component.EventHandler();
+        this._enabled = false;
+        this._allowGeocoder = options.allowGeocoder;
     },
 
     on: function(event, listener, decorator) {
@@ -264,289 +164,254 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         return this;
     },
 
-    adjustMap: function() {
-        if (!this.isMapEnabled()) {
-            return this;
+    trigger: function(event, data) {
+        if (this.isBound()) {
+            this._element.trigger('geomap-' + event, [this].concat(data || []));
         }
 
-        var n_markers = this.marker_manager.count(true);
+        this._events.trigger(event, data, this);
+        return this;
+    },
 
-        if (n_markers === 0) {
-            var default_location = new google.maps.LatLng(this.defaultLat, this.defaultLn);
-            this._map.setCenter(default_location);
-            this._map.setZoom(this.defaultLargeZoom);
-        } else {
-            var boundbox = this.marker_manager.getBoundBox();
-            this._map.setCenter(boundbox.getCenter());
-
-            if (n_markers === 1) {
-                this._map.setZoom(this.defaultZoomValue);
-            } else {
-                this._map.fitBounds(boundbox);
-            }
+    bind: function(element) {
+        if (this.isBound()) {
+            throw new Error('GeoMapController is already bound');
         }
+
+        this._element = element;
+        this._bindMap(element);
 
         return this;
     },
 
-    adjustMapToShape: function(shape) {
-        if (!this.isMapEnabled()) {
-            return this;
+    unbind: function() {
+        if (!this.isBound()) {
+            throw new Error('GeoMapController is not bound');
         }
 
-        this._map.setCenter(shape.getCenter());
-        this._map.fitBounds(shape.getBounds());
+        this._unbindMap(this._element);
+        this._element = undefined;
     },
 
-    _isPartialMatch: function(results) {
-        if (results.length > 1) {
-            return true;
-        }
-
-        var match = results[0];
-
-        if (match.partial_match === false) {
-            return false;
-        }
-
-        return match.address_components.length < 7;
+    element: function() {
+        return this._element;
     },
 
-    geocode: function(options) {
-        var marker_manager = this.marker_manager;
-        var saveLocation = this.saveLocation.bind(this);
-        var isPartialMatch = this._isPartialMatch.bind(this);
-
-        this.geocoder.geocode(options.data, function(results, status) {
-            var address = options.address;
-
-            if (status === google.maps.GeocoderStatus.OK) {
-                var marker   = marker_manager.get(address.id);
-                var result   = results[0];
-
-                var position = result.geometry.location;
-                var isPartial = isPartialMatch(results);
-                var location_status = creme.geolocation.LocationStatus.COMPLETE;
-
-                if (isPartial) {
-                    location_status = creme.geolocation.LocationStatus.PARTIAL;
-                }
-
-                if (!marker) {
-                    marker = marker_manager.Marker({
-                        address:   address,
-                        draggable: options.draggable,
-                        position:  position
-                    });
-                } else {
-                    marker.setPosition(position);
-                }
-
-                saveLocation(marker, {
-                                 address: address,
-                                 initial_position: options.initial_position
-                             }, true, location_status);
-
-                if (Object.isFunc(options.callback)) {
-                    options.callback(marker, result, location_status);
-                }
-            } else {
-                if (Object.isFunc(options.fail)) {
-                    options.fail(gettext("No matching location"));
-                }
-            }
-        });
-
-        return this;
+    isBound: function() {
+        return Object.isNone(this._element) === false;
     },
 
-    saveLocation: function(marker, options, geocoded, status) {
+    isGeocoderAllowed: function(allowed) {
+        return Object.property(this, '_allowGeocoder', allowed);
+    },
+
+    isMapEnabled: function() {
+        return false;
+    },
+
+    isGeocoderEnabled: function() {
+        return false;
+    },
+
+    _bindMap: function(element) {
+        throw new Error('Not implemented');
+    },
+
+    _unbindMap: function(element) {
+        throw new Error('Not implemented');
+    },
+
+    markLocation: function(options, listeners) {
+        options = options || {};
+
         var self = this;
+        var location = new creme.geolocation.Location(options.location);
+        var query;
 
-        creme.ajax.query(this._infoUrl, {}, {
-                             id:        options.address.id,
-                             latitude:  marker.position.lat(),
-                             longitude: marker.position.lng(),
-                             geocoded:  geocoded,
-                             status:    status
-                         })
-                  .onFail(function() {
-                              marker.setPosition(options.initial_position);
-                          })
-                  .onDone(function() {
-                              self._events.trigger('save-location', [options.address, marker, status]);
-                          })
-                  .post();
+        if (location.hasPosition() && !options.force) {
+            query = new creme.component.Action(function() {
+                this.done(
+                    location.position(),
+                    location.status(),
+                    {}
+                );
+            });
+        } else {
+            query = this._searchLocationQuery(location.content());
+        }
 
+        query.onDone(function(event, position, status, data) {
+                  self._updateLocationMarker({
+                      id: location.id(),
+                      title: location.markerLabel(),
+                      location: location,
+                      position: position,
+                      status: status,
+                      draggable: options.draggable || false,
+                      searchData: data,
+                      extraData: options.extraData || {}
+                  });
+              })
+             .on(listeners || {});
+
+        return query.start();
+    },
+
+    _updateLocationMarker: function(options) {
+        options = options || {};
+        var marker = this.updateOrAddMarker(options.id, options);
+        this.trigger('marker-move', [
+            marker,
+            $.extend(this.getMarkerProperties(options.id), {
+                status: options.status,
+                searchData: options.searchData
+            })
+        ]);
+    },
+
+    _searchLocationQuery: function(content) {
+        return new creme.component.Action(function() {
+            this.cancel();
+        });
+    },
+
+    isEnabled: function(enabled) {
+        if (enabled === undefined) {
+            return this._enabled || false;
+        }
+
+        this._enabled = enabled;
+        this.trigger('status', enabled);
+        this.trigger('status-${state}'.template({
+            state: enabled ? 'enabled' : 'disabled'
+        }));
+    },
+
+    updateOrAddMarker: function(id, options) {
+        try {
+            this.updateMarker(id, options);
+            return this.getMarker(id);
+        } catch (e) {
+            return this.addMarker(id, options);
+        }
+    },
+
+    replaceMarkers: function(data) {
+        data = (data || []).filter(function(d) { return Object.isNotEmpty(d.id); });
+
+        var dataIds = data.map(function(d) { return d.id; });
+        var markerIds = this.markerIds();
+
+        data.map(function(data) {
+            return this.updateOrAddMarker(data.id, data);
+        }.bind(this));
+
+        var removed = markerIds.filter(function(id) {
+            return dataIds.indexOf(id) === -1;
+        });
+
+        removed.forEach(this.removeMarker.bind(this));
+
+        return this.markers();
+    },
+
+    addMarker: function(id, options) {
+        throw new Error('not implemented');
+    },
+
+    removeMarker: function(id) {
         return this;
     },
 
-    findLocation: function(address, options) {
-        return this.geocode({
-            address:   address,
-            draggable: options.draggable,
-            data:      {address: address.content},
-            fail:      options.fail,
-            callback:  options.done
-        });
+    removeAllMarkers: function() {
+        this.markerIds().forEach(this.removeMarker.bind(this));
+        return this;
+    },
+
+    updateMarker: function(id, options) {
+        return this;
     },
 
     getMarker: function(id) {
-        return this.marker_manager.get(id);
+        throw new Error('not implemented');
     },
 
-    map: function() {
-        return this._map;
+    getMarkerProperties: function(id) {
+        throw new Error('not implemented');
     },
 
-    isAddressLocated: function(address) {
-        return address && !Object.isNone(address.latitude) && !Object.isNone(address.longitude);
+    hasMarker: function(id) {
+        return false;
     },
 
-    resize: function() {
-        google.maps.event.trigger(this._map, 'resize');
+    markers: function(query) {
+        return [];
+    },
+
+    markerIds: function(query) {
+        return [];
+    },
+
+    toggleMarker: function(id, state) {
         return this;
-    }
-});
-
-creme.geolocation.GoogleMapShapeRegistry = creme.component.Component.sub({
-    _init_: function(controller) {
-        this._controller = controller;
-        this._shapes = {};
     },
 
-    register: function(shape_id, shape) {
-        if (shape_id in this._shapes) {
-            throw new Error('Shape "' + shape_id + '" is already registered');
-        }
-        this._shapes[shape_id] = shape;
-    },
-
-    unregister: function(shape_id) {
-        if (shape_id in this._shapes) {
-            this._shapes[shape_id].setMap(null);
-            delete this._shapes[shape_id];
-        } else {
-            throw new Error('Shape "' + shape_id + '" not registered');
-        }
-    },
-
-    get: function(shape_id) {
-        if (shape_id in this._shapes) {
-            return this._shapes[shape_id];
-        } else {
-            return false;
-        }
-    },
-
-    adjustMap: function(shape_id) {
-        this._controller.adjustMapToShape(this.get(shape_id));
+    toggleAllMarkers: function(state) {
         return this;
-    }
-});
-
-creme.geolocation.GoogleMapMarkerManager = creme.component.Component.sub({
-    _init_: function(controller) {
-        this._controller = controller;
-        this._markers = {};
     },
 
-    markers: function(visible) {
-        var markers = Object.values(this._markers);
-
-        if (visible === undefined) {
-            return markers;
-        }
-
-        return markers.filter(function(item) {
-            return item.getVisible() === visible;
-        });
+    addShape: function(id, options) {
+        throw new Error('not implemented');
     },
 
-    count: function(visible) {
-        return this.markers(visible).length;
+    getShape: function(id) {
+        throw new Error('not implemented');
     },
 
-    register: function(marker) {
-        var id = marker.address.id;
-
-        if (id in this._markers) {
-            throw new Error('marker "' + id + '" is already registered');
-        }
-
-        this._markers[id] = marker;
+    hasShape: function(id) {
+        return false;
     },
 
-    Marker: function(options) {
-        options = $.extend({
-            map:       this._controller.map(),
-            draggable: false
-        }, options || {});
-
-        var address = options.address;
-
-        options.position = options.position || new google.maps.LatLng(address.latitude, address.longitude);
-        options.title = '%s\n%s'.format(address.owner, address.title || address.content);
-
-        var marker = new google.maps.Marker(options);
-        this.register(marker);
-
-        if (options.redirect) {
-            google.maps.event.addListener(marker, 'click', function() {
-                                  creme.utils.goTo(options.redirect);
-                              });
-        }
-
-        if (options.draggable) {
-            var saveLocation = this._controller.saveLocation.bind(this._controller);
-
-            google.maps.event.addListener(marker, 'dragstart', function() {
-                                  options.initial_position = this.getPosition();
-                              });
-
-            google.maps.event.addListener(marker, 'dragend', function() {
-                                  saveLocation(marker, options, true, creme.geolocation.LocationStatus.MANUAL);
-                              });
-        }
-
-        return marker;
-    },
-
-    get: function(id) {
-        return this._markers[id];
-    },
-
-    show: function(id) {
-        this.toggle(id, true);
-    },
-
-    hide: function(id) {
-        this.toggle(id, false);
-    },
-
-    toggle: function(id, state) {
-        var marker = this.get(id);
-
-        if (marker) {
-            marker.setVisible(state === undefined ? !marker.getVisible() : state);
-            this._controller.adjustMap();
+    updateOrAddShape: function(id, options) {
+        try {
+            this.updateShape(id, options);
+            return this.getShape(id);
+        } catch (e) {
+            return this.addShape(id, options);
         }
     },
 
-    hideAll: function() {
-        for (var key in this._markers) {
-            this._markers[key].setVisible(false);
-        }
+    updateShape: function(id, options) {
+        return this;
     },
 
-    getBoundBox: function() {
-        var boundbox = new google.maps.LatLngBounds();
+    removeShape: function(id) {
+        return this;
+    },
 
-        this.markers(true).forEach(function(marker) {
-            boundbox.extend(marker.getPosition());
-        });
+    removeAllShapes: function() {
+        this.shapeIds().forEach(this.removeShape.bind(this));
+        return this;
+    },
 
-        return boundbox;
+    shapes: function(query) {
+        return [];
+    },
+
+    shapeIds: function(query) {
+        return [];
+    },
+
+    autoResize: function() {
+        return this;
+    },
+
+    adjustMap: function() {
+        throw new Error('not implemented');
+    },
+
+    adjustMapToShape: function(id) {
+        throw new Error('not implemented');
     }
 });
 

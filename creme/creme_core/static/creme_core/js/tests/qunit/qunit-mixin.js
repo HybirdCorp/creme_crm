@@ -62,22 +62,103 @@
         }
     };
 
+    var listChildrenTags = function() {
+        return $('body').children().map(function() {
+            var attributes = [];
+
+            for (var i = 0; i < this.attributes.length; ++i) {
+                attributes.push('${name}="${value}"'.template({
+                    name: this.attributes[i].name,
+                    value: this.attributes[i].value.replace('"', '\\"')
+                }));
+            }
+
+            return '<${tagName} ${attrs}>'.template({
+                tagName: this.tagName.toLowerCase(),
+                attrs: attributes.join(' ')
+            });
+        }).get();
+    };
+
+    var FunctionFaker = function(options) {
+        options = options || {};
+
+        var origin = (options.instance || {})[options.property];
+        var follow = options.follow || false;
+
+        if (!Object.isFunc(origin)) {
+            throw new Error('"${prop}" is not a function'.template({
+                prop: options.property || ''
+            }));
+        }
+
+        this._calls = [];
+        this._origin = origin;
+        this._instance = options.instance;
+        this._property = options.property;
+        this._follow = follow;
+    };
+
+    FunctionFaker.prototype = {
+        reset: function() {
+            this._calls = [];
+            return this;
+        },
+
+        calls: function() {
+            return this._call.slice();
+        },
+
+        count: function() {
+            return this._calls.length;
+        },
+
+        _wrapper: function() {
+            var faker = this;
+
+            return function() {
+                var args = Array.copy(arguments);
+                faker._calls.push(args);
+
+                if (faker.follow) {
+                    return faker._origin.call(faker._instance, Array.copy(arguments));
+                } else {
+                    return faker.result;
+                }
+            };
+        },
+
+        wrap: function() {
+            this._wrapper = this._instance[this._property] = this._wrapper().bind(this._instance);
+            return this;
+        },
+
+        unwrap: function() {
+            if (this._wrapper) {
+                this.instance[this.property] = this.origin;
+                delete this._wrapper;
+            }
+
+            return this;
+        }
+    };
+
     window.QUnitBaseMixin = {
         beforeEach: function() {
-            this.__qunitBodyElementCount = $('body').children().length;
+            this.__qunitBodyElementTags = listChildrenTags($('body'));
             this.qunitFixture().attr('style', 'position: absolute;top: -10000px;left: -10000px;width: 1000px;height: 1000px;');
         },
 
         afterEach: function(env) {
-            var count = $('body').children().length;
+            var tags =  listChildrenTags($('body'));
 
-            if (this.__qunitBodyElementCount !== count) {
-                throw Error('QUnit incomplete DOM cleanup (expected ${expected}, got ${count}) : ${test}\n${stack}'.template({
-                       test: env.test.testName,
-                       stack: env.test.stack,
-                       expected: this.__qunitBodyElementCount,
-                       count: count
-                   }));
+            if (this.__qunitBodyElementTags.length !== tags.length) {
+                var message = 'QUnit incomplete DOM cleanup (expected ${expected}, got ${count})'.template({
+                    expected: this.__qunitBodyElementTags.length,
+                    count: tags.length
+                });
+
+                deepEqual(tags.sort(), this.__qunitBodyElementTags.sort(), message);
             }
         },
 
@@ -117,6 +198,14 @@
 
         equalOuterHtml: function(expected, element, message) {
             QUnit.assert.equal($('<div>').append(expected).html(), $('<div>').append($(element).clone()).html(), message);
+        },
+
+        fakeMethod: function(instance, property, follow) {
+            return new FunctionFaker({
+                instance: instance,
+                property: property,
+                follow: follow
+            }).wrap();
         }
     };
 
@@ -193,8 +282,6 @@
                 left: target.offset().left + 10,
                 top: target.offset().top + 10
             };
-
-            console.log(dragPosition, dropPosition);
 
             // LEFT mouse button down !
             source.trigger(

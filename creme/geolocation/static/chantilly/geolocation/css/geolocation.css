@@ -15,8 +15,8 @@
     align-self: flex-start;
 }
 
-.brick-geoaddress-item:not(.item-selected) {
-    opacity: 0.5;
+.brick-geoaddress-item:not(.is-mark-visible) {
+    opacity: 0.6;
 }
 
 .brick-geoaddress-item .brick-geoaddress-label {
@@ -39,13 +39,11 @@
 }
 
 .brick-geoaddress-item .brick-geoaddress-content {
-    opacity: 0.6;
     font-size: 11px;
     font-style: italic;
 }
 
 .brick-geoaddress-item .brick-geoaddress-position {
-    opacity: 0.6;
     font-size: 11px;
     font-style: italic;
 }
@@ -55,6 +53,11 @@
     margin-right: 4px;
     align-self: top;
     cursor: pointer;
+}
+
+.brick-geoaddress-item:not(.is-mark-visible) .brick-geoaddress-reset {
+    cursor: default;
+    text-decoration: none;
 }
 
 .brick-geoaddress-canvas {
