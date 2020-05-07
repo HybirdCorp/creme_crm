@@ -380,10 +380,6 @@ def prefixed_truncate(s: str, prefix, length: int) -> str:
 
 
 def safe_unicode(value, encodings=None):
-    warnings.warn('creme_core.utils.safe_unicode() is deprecated.',
-                  DeprecationWarning
-                 )
-
     if isinstance(value, str):
         return value
 

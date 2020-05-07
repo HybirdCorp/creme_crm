@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,8 @@ from typing import Iterable, List, Tuple
 
 from django.conf import settings
 from django.core.files.uploadedfile import UploadedFile, SimpleUploadedFile
+
+from creme.creme_core.utils import safe_unicode
 
 from .base import CrudityFetcher
 
@@ -93,23 +95,23 @@ class PopFetcher(CrudityFetcher):
 
         for msg_info in messages:
             attachments = []
+            message_number, message_size = msg_info.split()
+            r, raw_message_lines, message_size = client.retr(int(message_number))
 
-            message_number, message_size = msg_info.split(' ')
-            r, raw_message_lines, message_size = client.retr(message_number)
+            out_str = b'\n'.join(raw_message_lines)
+            out_str = re.sub(b'\r(?!=\n)', b'\r\n', out_str)
 
-            out_str = '\n'.join(raw_message_lines)
-            out_str = re.sub(r'\r(?!=\n)', '\r\n', out_str)
-
-            email_message = email.message_from_string(out_str)
+            email_message = email.message_from_bytes(out_str)
             get_all = email_message.get_all
 
             to_emails   = [addr for name, addr in getaddresses(get_all('to', []))]
             from_emails = [addr for name, addr in getaddresses(get_all('from', []))]
             cc_emails   = [addr for name, addr in getaddresses(get_all('cc', []))]
 
-            subject = ''.join(s.decode(enc) if enc is not None else s
-                                for s, enc in email.Header.decode_header(email_message.get('subject', []))
-                             )
+            subject = ''.join(
+                s.decode(enc) if enc is not None else safe_unicode(s)
+                for s, enc in email.header.decode_header(email_message.get('subject', []))
+             )
 
             dates = [datetime(*parsedate(d)[:-3]) for d in get_all('date', []) if d is not None]
 
@@ -138,17 +140,17 @@ class PopFetcher(CrudityFetcher):
                     else:
                         content = payload
                         if cst == 'html':
-                            body_html = content
+                            body_html = safe_unicode(content)
                         elif cst == 'plain':
-                            body = content
+                            body = safe_unicode(content)
                         # else:  TODO ??
             else:
                 cst = email_message.get_content_subtype()
                 content = email_message.get_payload(decode=True)
                 if cst == 'plain':
-                    body = content
+                    body = safe_unicode(content)
                 elif cst == 'html':
-                    body_html = body = content
+                    body_html = body = safe_unicode(content)
 
             emails.append(PopEmail(
                 body=body,
