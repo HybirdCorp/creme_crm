@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+/* globals Assert */
 (function($) {
 "use strict";
 
@@ -82,7 +83,7 @@ creme.utils.converter = $.proxy(creme.utils.converters.converter, creme.utils.co
 creme.utils.convert = $.proxy(creme.utils.converters.convert, creme.utils.converters);
 
 creme.utils.converters.register('string', 'number', function(value) {
-    Object.assertIsTypeOf(value, 'string');
+    Assert.is(value, 'string');
 
     var num = parseFloat(value);
 
@@ -96,7 +97,7 @@ creme.utils.converters.register('string', 'number', function(value) {
 creme.utils.converters.register('string', 'float', creme.utils.converter('string', 'number'));
 
 creme.utils.converters.register('string', 'int', function(value) {
-    Object.assertIsTypeOf(value, 'string');
+    Assert.is(value, 'string');
 
     var num = parseInt(value);
 

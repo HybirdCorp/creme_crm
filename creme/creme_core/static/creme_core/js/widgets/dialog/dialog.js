@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+/* globals Assert */
+
 (function($) {
 "use strict";
 
@@ -23,6 +25,7 @@ creme.dialog = creme.dialog || {};
 
 var _DIALOG_SCROLLTYPES = ['frame', 'background'];
 
+/*
 var _assertScrollType = function(scroll) {
     if (_DIALOG_SCROLLTYPES.indexOf(scroll) === -1) {
         throw new Error('scroll type "${scroll}" is invalid'.template({scroll: scroll}));
@@ -30,6 +33,7 @@ var _assertScrollType = function(scroll) {
         return scroll;
     }
 };
+*/
 
 creme.dialog.Dialog = creme.component.Component.sub({
     _init_: function(options) {
@@ -548,7 +552,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         var buttons = $.extend(this._defaultButtons({}, options), options.buttons || {});
         var content = $('<div/>').append(container);
-        var scroll = _assertScrollType(options.scroll);
+        var scroll = Assert.in(options.scroll, _DIALOG_SCROLLTYPES, 'scroll type "${value}" is invalid');
         var is_framescroll = (scroll === 'frame');
         var position = {};
 

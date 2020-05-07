@@ -131,7 +131,7 @@ QUnit.test('creme.utils.converters (string-number)', function(assert) {
 
     this.assertRaises(function() {
         creme.utils.convert('string', 'number', 454);
-    }, Error, 'Error: unable to convert data from \"string\" to \"number\" : "454" is not a string');
+    }, Error, 'Error: unable to convert data from \"string\" to \"number\" : 454 is not a string');
 
     equal(1456, creme.utils.convert('string', 'number', '1456'));
     equal(15, creme.utils.convert('string', 'number', '15ab'));
@@ -150,7 +150,7 @@ QUnit.test('creme.utils.converters (string-float)', function(assert) {
 
     this.assertRaises(function() {
         creme.utils.convert('string', 'float', 454);
-    }, Error, 'Error: unable to convert data from \"string\" to \"float\" : "454" is not a string');
+    }, Error, 'Error: unable to convert data from \"string\" to \"float\" : 454 is not a string');
 
     equal(1456.445, creme.utils.convert('string', 'float', '1456.445'));
     equal(15, creme.utils.convert('string', 'float', '15ab'));
@@ -169,7 +169,7 @@ QUnit.test('creme.utils.converters (string-int)', function(assert) {
 
     this.assertRaises(function() {
         creme.utils.convert('string', 'int', 454);
-    }, Error, 'Error: unable to convert data from \"string\" to \"int\" : "454" is not a string');
+    }, Error, 'Error: unable to convert data from \"string\" to \"int\" : 454 is not a string');
 
     equal(1456, creme.utils.convert('string', 'int', '1456.445'));
     equal(15, creme.utils.convert('string', 'int', '15ab'));

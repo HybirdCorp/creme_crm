@@ -40,6 +40,17 @@
         }
     };
 
+    window.QUnit.parameterize = function(name, scenarios, callable) {
+        (scenarios || []).forEach(function(scenario, index) {
+            QUnit.test('${name}-${index}'.template({name: name, index: index + 1}), function(assert) {
+                callable.apply(this, (Array.isArray(scenario) ? scenario : [scenario]).concat([assert]));
+            });
+        });
+    };
+
+    /* An alias for me */
+    window.QUnit.parametrize = window.QUnit.parameterize;
+
     QUnitMixin.prototype = {
         beforeEach: function() {
             var self = this;
