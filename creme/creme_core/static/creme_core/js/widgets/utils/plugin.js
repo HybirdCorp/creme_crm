@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Creme is a free/open-source Customer Relationship Management software
- * Copyright (C) 2019 Hybird
+ * Copyright (C) 2020 Hybird
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -83,7 +83,7 @@ creme.utils.newJQueryPlugin = function(options) {
                 'JQuery plugin "${name}" already exist.',
                 {name: name});
 
-    ['prop', 'props', 'destroy'].forEach(function(builtin) {
+    ['prop', 'props', 'destroy', 'instance'].forEach(function(builtin) {
         Assert.notIn(
             builtin, methods,
             'Method "${value}" is a builtin of JQuery plugin "${name}".', {
@@ -95,7 +95,8 @@ creme.utils.newJQueryPlugin = function(options) {
         var args = Array.copy(arguments);
 
         var resultList = this.get().map(function(element) {
-            var instance = $.data(element, name);
+            var instanceKey = '-' + name;
+            var instance = $.data(element, instanceKey);
 
             /* new instance of plugin */
             if (Object.isString(methodname) === false) {
@@ -106,7 +107,7 @@ creme.utils.newJQueryPlugin = function(options) {
                                'Jquery plugin "${name}" constructor has returned nothing.',
                                {name: name});
 
-                    $.data(element, name, instance);
+                    $.data(element, instanceKey, instance);
                 } else {
                     Assert.not(args.length > 0,
                                'Jquery plugin "${name}" is already initialized.',
@@ -140,7 +141,9 @@ creme.utils.newJQueryPlugin = function(options) {
                 });
             } else if (methodname === 'destroy') {
                 destructor.apply(element, [instance]);
-                $(element).removeData(name);
+                $(element).removeData(instanceKey);
+            } else if (methodname === 'instance') {
+                return instance;
             } else {
                 Assert.in(methodname, methods,
                           'No such method "${value}" in jQuery plugin "${name}"',

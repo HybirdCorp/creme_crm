@@ -59,7 +59,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (empty selector)', function(
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
     var dialog = this.assertOpenedDialog();
-    var list = dialog.find('.ui-creme-listview').data('list_view');
+    var list = dialog.find('.ui-creme-listview').list_view('instance');
 
     deepEqual([], list.selectedRows());
 
@@ -95,7 +95,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (multiple selections)', func
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
     var dialog = this.assertOpenedDialog();
-    var list = dialog.find('.ui-creme-listview').data('list_view');
+    var list = dialog.find('.ui-creme-listview').list_view('instance');
 
     this.setListviewSelection(list, ['2', '3']);
 
@@ -134,7 +134,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (single selection)', functio
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
     var dialog = this.assertOpenedDialog();
-    var list = dialog.find('.ui-creme-listview').data('list_view');
+    var list = dialog.find('.ui-creme-listview').list_view('instance');
 
     this.setListviewSelection(list, ['2']);
 
