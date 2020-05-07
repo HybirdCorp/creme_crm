@@ -57,13 +57,13 @@ QUnit.test('creme.utils.newJQueryPlugin (constructor, default)', function(assert
 
     equal(elements.find('span').length, 3);
     deepEqual([], elements.find('span').map(function() {
-        return $(this).data('testplugin');
+        return $(this).data('-testplugin');
     }).get());
 
     var instances = elements.find('span').testplugin({a: 12, b: 'test'});
     equal(instances.length, 3);
     deepEqual(instances, elements.find('span').map(function() {
-        return $(this).data('testplugin');
+        return $(this).data('-testplugin');
     }).get());
 
     deepEqual({a: 12, b: 'test', id: 'a'}, instances[0].options);
@@ -96,19 +96,19 @@ QUnit.test('creme.utils.newJQueryPlugin (destroy, default)', function(assert) {
     var instances = elements.find('span').testplugin({a: 12, b: 'test'});
     equal(instances.length, 3);
     deepEqual(instances, elements.find('span').map(function() {
-        return $(this).data('testplugin');
+        return $(this).data('-testplugin');
     }).get());
 
     elements.find('span[data-id="b"]').testplugin('destroy');
 
     deepEqual([instances[0], instances[2]], elements.find('span').map(function() {
-        return $(this).data('testplugin');
+        return $(this).data('-testplugin');
     }).get());
 
     elements.find('span').testplugin('destroy');
 
     deepEqual([], elements.find('span').map(function() {
-        return $(this).data('testplugin');
+        return $(this).data('-testplugin');
     }).get());
 });
 
@@ -156,7 +156,7 @@ QUnit.test('creme.utils.newJQueryPlugin (destroy, fail)', function(assert) {
     equal(instances.length, 3);
 
     deepEqual(instances, elements.find('span').map(function() {
-        return $(this).data('testplugin');
+        return $(this).data('-testplugin');
     }).get());
 
     this.assertRaises(function() {
@@ -164,7 +164,7 @@ QUnit.test('creme.utils.newJQueryPlugin (destroy, fail)', function(assert) {
     }, Error, 'Error: Destroy failure !');
 
     deepEqual(instances, elements.find('span').map(function() {
-        return $(this).data('testplugin');
+        return $(this).data('-testplugin');
     }).get());
 });
 
@@ -192,7 +192,7 @@ QUnit.test('creme.utils.newJQueryPlugin (destroy, custom)', function(assert) {
 
     deepEqual([], this.mockListenerJQueryCalls('destroy'));
     deepEqual(instances, elements.find('span').map(function() {
-        return $(this).data('testplugin');
+        return $(this).data('-testplugin');
     }).get());
 
     elements.find('span').testplugin('destroy');
@@ -204,7 +204,7 @@ QUnit.test('creme.utils.newJQueryPlugin (destroy, custom)', function(assert) {
     ], this.mockListenerJQueryCalls('destroy'));
 
     deepEqual([], elements.find('span').map(function() {
-        return $(this).data('testplugin');
+        return $(this).data('-testplugin');
     }).get());
 });
 
@@ -267,6 +267,26 @@ QUnit.test('creme.utils.newJQueryPlugin (constructor returns nothing)', function
     this.assertRaises(function() {
         element.testplugin();
     }, Error, 'Error: Jquery plugin "testplugin" constructor has returned nothing.');
+});
+
+QUnit.test('creme.utils.test_plugin (instance)', function(assert) {
+    creme.utils.newJQueryPlugin({
+        name: 'testplugin',
+        create: function(options) {
+            return new TestComponent($(this), $.extend({id: $(this).attr('data-id')}, options || {}));
+        }
+    });
+
+    var elements = $('<div>' +
+            '<span data-id="a"></span>' +
+            '<span data-id="b"></span>' +
+            '<span data-id="c"></span>' +
+        '</div>');
+
+    equal(elements.find('span').testplugin('instance').length, 0);
+
+    elements.find('[data-id="a"]').testplugin({a: 12, b: 'test'});
+    equal(elements.find('span').testplugin('instance').length, 1);
 });
 
 QUnit.test('creme.utils.test_plugin (props, no property)', function(assert) {
@@ -478,36 +498,18 @@ QUnit.test('creme.utils.test_plugin (invalid method)', function(assert) {
     }, Error, 'Error: Attribute "nofunc" is not a function in jQuery plugin "testplugin"');
 });
 
-QUnit.test('creme.utils.test_plugin (builtin method)', function(assert) {
+QUnit.parametrize('creme.utils.test_plugin (builtin method)', [
+    ['prop'], ['props'], ['destroy'], ['instance']
+], function(methodname, assert) {
     this.assertRaises(function() {
         creme.utils.newJQueryPlugin({
             name: 'testplugin',
             create: function(options) {
                 return new TestComponent($(this), $.extend({id: $(this).attr('data-id')}, options || {}));
             },
-            methods: ['destroy']
+            methods: [methodname]
         });
-    }, Error, 'Error: Method "destroy" is a builtin of JQuery plugin "testplugin".');
-
-    this.assertRaises(function() {
-        creme.utils.newJQueryPlugin({
-            name: 'testplugin',
-            create: function(options) {
-                return new TestComponent($(this), $.extend({id: $(this).attr('data-id')}, options || {}));
-            },
-            methods: ['prop']
-        });
-    }, Error, 'Error: Method "prop" is a builtin of JQuery plugin "testplugin".');
-
-    this.assertRaises(function() {
-        creme.utils.newJQueryPlugin({
-            name: 'testplugin',
-            create: function(options) {
-                return new TestComponent($(this), $.extend({id: $(this).attr('data-id')}, options || {}));
-            },
-            methods: ['props']
-        });
-    }, Error, 'Error: Method "props" is a builtin of JQuery plugin "testplugin".');
+    }, Error, 'Error: Method "${name}" is a builtin of JQuery plugin "testplugin".'.template({name: methodname}));
 });
 
 }(jQuery));

@@ -87,7 +87,7 @@ QUnit.test('creme.detailview.hatmenubar (addrelationships)', function(assert) {
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var dialog = this.assertOpenedListViewDialog();
-    var list = $(dialog).find('.ui-creme-listview').data('list_view');
+    var list = $(dialog).find('.ui-creme-listview').list_view('instance');
 
     this.setListviewSelection(list, ['2', '3']);
 

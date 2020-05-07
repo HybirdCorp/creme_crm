@@ -373,7 +373,7 @@ QUnit.test('creme.widget.EntitySelector.select (single)', function(assert) {
     $('button', element).click();
 
     var dialog = this.assertOpenedListViewDialog();
-    var list = dialog.find('.ui-creme-listview').data('list_view');
+    var list = dialog.find('.ui-creme-listview').list_view('instance');
 
     deepEqual([
         ['GET', {selection: 'single'}]
@@ -409,7 +409,7 @@ QUnit.test('creme.widget.EntitySelector.select (single, filtered)', function(ass
     $('button', element).click();
 
     var dialog = this.assertOpenedListViewDialog();
-    var list = dialog.find('.ui-creme-listview').data('list_view');
+    var list = dialog.find('.ui-creme-listview').list_view('instance');
 
     deepEqual([
         ['GET', {selection: 'single'}]
@@ -444,7 +444,7 @@ QUnit.test('creme.widget.EntitySelector.select (multiple)', function(assert) {
     $('button', element).click();
 
     var dialog = this.assertOpenedListViewDialog();
-    var list = dialog.find('.ui-creme-listview').data('list_view');
+    var list = dialog.find('.ui-creme-listview').list_view('instance');
 
     deepEqual([
         ['GET', {selection: 'multiple'}]
@@ -480,7 +480,7 @@ QUnit.test('creme.widget.EntitySelector.select (cancel)', function(assert) {
     $('button', element).click();
 
     var dialog = this.assertOpenedListViewDialog();
-    var list = dialog.find('.ui-creme-listview').data('list_view');
+    var list = dialog.find('.ui-creme-listview').list_view('instance');
 
     deepEqual([
         ['GET', {selection: 'single'}]
@@ -518,7 +518,7 @@ QUnit.test('creme.widget.EntitySelector.select (action)', function(assert) {
     element.trigger('action', ['select']);
 
     var dialog = this.assertOpenedListViewDialog();
-    var list = dialog.find('.ui-creme-listview').data('list_view');
+    var list = dialog.find('.ui-creme-listview').list_view('instance');
 
     deepEqual([
         ['GET', {selection: 'single'}]
