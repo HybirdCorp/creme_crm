@@ -6,10 +6,19 @@
 {% block brick_script %}
     <script type="text/javascript">
          $('.brick[id="{{brick_id}}"]').on('brick-ready', function(event, brick) {
+             /*
              new creme.geolocation.PersonsBrick(brick, {
                  apiKey: '{{google_api_key}}',
                  addresses: {{geoaddresses|jsonify|safe}},
                  infoUrl: '{% url 'geolocation__set_address_info' %}'
+             });
+             */
+             new creme.geolocation.PersonsBrick(brick, {
+                 mapController: new creme.geolocation.GoogleMapController({
+                     apiKey: '{{google_api_key}}'
+                 }),
+                 addresses: {{geoaddresses|jsonify|safe}},
+                 locationUrl: '{% url 'geolocation__set_address_info' %}'
              });
          });
     </script>
@@ -25,8 +34,9 @@
     {% else %}
     <div class="geolocation-brick-items">
         {% for address in addresses %}
-        <div class="brick-geoaddress-item{% if address.is_billing %} item-selected{% endif %}" data-addressid="{{address.id}}">
-            <input type="checkbox" value="{{address.id}}"{% if address.is_billing %} checked{% endif %} />
+        {% with is_visible=address.is_billing %}
+        <div class="brick-geoaddress-item{% if is_visible %} is-mark-visible{% endif %}" data-addressid="{{address.id}}">
+            <input type="checkbox" value="{{address.id}}"{% if is_visible %} checked{% endif %} />
             <div class="brick-geoaddress-label">
             {% if address.content and address.title %}
                 <span class="brick-geoaddress-title">{{address.title}}</span>
@@ -45,6 +55,7 @@
                 <span class="brick-geoaddress-status">{{address.status_label}}</span>
             </div>
         </div>
+        {% endwith %}
         {% endfor %}
     </div>
     <div class="brick-geoaddress-error">

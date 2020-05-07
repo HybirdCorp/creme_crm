@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2014-2018  Hybird
+    Copyright (C) 2014-2020  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -22,99 +22,140 @@
 creme.geolocation = creme.geolocation || {};
 
 creme.geolocation.PersonsBrick = creme.component.Component.sub({
-    STATUS_LABELS: {
-        0: gettext("Not localized"),
-        1: gettext("Manual location"),
-        2: gettext("Partially matching location"),
-        3: ''
-    },
-
     _init_: function(brick, options) {
         options = $.extend({
             addresses: []
         }, options || {});
 
-        var self = this;
+        this.addresses(options.addresses);
+        this.locationUrl(options.locationUrl);
 
         this._brick = brick;
-        this._addresses = options.addresses;
 
-        var controller = this._controller = new creme.geolocation.GoogleMapController(options);
-
-        controller.on('save-location', this._onSaveLocation.bind(this))
-                  .on('api-status', this._onAPIStatus.bind(this))
-                  .on('map-status', this._onCanvasStatus.bind(this));
+        this._controller = options.mapController;
+        this._controller.on('marker-dragstop', this._onDropLocation.bind(this))
+                        .on('status', this._onCanvasStatus.bind(this))
+                        .on('status-enabled', this._onCanvasEnabled.bind(this));
 
         brick.on('state-update', this._onBrickStateUpdate.bind(this));
 
-        this.addressItems().each(function() {
-            var checkbox = $('input[type="checkbox"]', this);
-            var resetbutton = $('.brick-geoaddress-reset', this);
+        // reset checkbox states (FF bug)
+        this.addresses().forEach(function(location) {
+            this.addressItem(location.id()).find('input[type="checkbox"]').prop('checked', location.visible());
+        }.bind(this));
 
-            resetbutton.click(self._onRefreshLocation.bind(self));
-            checkbox.change(self._onToggleLocation.bind(self));
-        });
+        brick.element().on('change', '.brick-geoaddress-item input[type="checkbox"]', this._onToggleLocation.bind(this));
+        brick.element().on('click', '.brick-geoaddress-item.is-mark-visible .brick-geoaddress-reset', this._onResetLocation.bind(this));
 
-        controller.loadAPI({
-                       apiKey: options.apiKey,
-                       container: this.canvas()
-                   });
+        this._controller.bind(this.canvas());
     },
 
     _onBrickStateUpdate: function(event, state) {
         if (!state.collapsed) {
-            this._controller.resize();
+            this._controller.autoResize();
             this._controller.adjustMap();
         }
     },
 
-    _onAPIStatus: function(event, status) {
+    _onCanvasStatus: function(event, status) {
         this._brick.element().toggleClass('is-geolocation-disabled', !status);
     },
 
-    _onCanvasStatus: function(event, status) {
-        if (status) {
-            this._addresses.forEach(this._geocodeAddress.bind(this));
-            this._initCanvasMarkers();
-        }
+    _onCanvasEnabled: function() {
+        this.addresses().filter(function(location) { return location.visible(); })
+                        .forEach(function(location) {
+                            this._markLocation({
+                                location: location,
+                                draggable: true
+                            });
+                        }.bind(this));
     },
 
-    _initCanvasMarkers: function() {
-        var _toggleLocation = this._toggleLocation.bind(this);
+    _onDropLocation: function(event, data, marker, mousevent) {
+        var self = this;
 
-        // initialize map with current checkbox state.
-        this.addressItems().find('input[type="checkbox"]').each(function() {
-            _toggleLocation($(this).val(), $(this).is(':checked'));
+        this.saveLocation({
+            id: data.id,
+            position: data.dragStopPosition,
+            status: creme.geolocation.LocationStatus.MANUAL
+        }, {
+            fail: function() {
+                self._controller.updateMarker(data.id, {
+                    position: data.dragStartPosition
+                });
+            },
+            done: function() {
+                var location = self.address(data.id);
+                location.position(data.dragStopPosition);
+                location.status(creme.geolocation.LocationStatus.MANUAL);
+
+                self._renderLocationStatus(location);
+            }
         });
     },
 
-    _onSaveLocation: function(event, address, marker, status) {
-        this._showPosition(address.id, marker);
-        this._showStatus(address.id, status);
-        this._brick.trigger('geoaddress-location', [address, marker]);
+    _markLocation: function(options) {
+        options = options || {};
+
+        var self = this;
+        var location = options.location;
+
+        return this._controller.markLocation(options, {
+            done: function(event, position, status, data) {
+                var hasImproved = status > location.status();
+
+                location.position(position);
+                location.status(status);
+                location.visible(true);
+
+                // when position accuracy has improved, save it !
+                if (hasImproved) {
+                    self.saveLocation(location);
+                }
+
+                self._renderLocationStatus(location);
+                self._controller.adjustMap();
+            },
+            fail: function() {
+                location.status(creme.geolocation.LocationStatus.UNDEFINED);
+
+                self._renderLocationStatus(location);
+                self._controller.adjustMap();
+            }
+        });
     },
 
-    _geocodeAddress: function(address) {
-        var self = this;
-        var controller = this._controller;
+    locationUrl: function(url) {
+        return Object.property(this, '_locationUrl', url);
+    },
 
-        if (controller.isAddressLocated(address)) {
-            controller.marker_manager.Marker({
-                address: address,
-                draggable: true,
-                visible: false
-            });
-        } else {
-            controller.findLocation(address, {
-                draggable: true,
-                done: function(marker) {
-                    controller.marker_manager.hideAll();
-                },
-                fail: function(data) {
-                    self._showStatus(address.id, data);
-                }
-            });
+    address: function(addressId) {
+        return this._addresses[addressId];
+    },
+
+    addresses: function(addresses) {
+        if (addresses === undefined) {
+            return Object.values(this._addresses);
         }
+
+        var data = this._addresses = {};
+
+        for (var index in addresses) {
+            var address = addresses[index];
+
+            if (Object.isEmpty(address.id)) {
+                throw new Error('PersonsBrick : empty address id');
+            } else if (data[address.id] !== undefined) {
+                throw new Error('PersonsBrick : address "${id}" already exists'.template(address));
+            }
+
+            // TODO : create a "visible" attribute on server side
+            data[address.id] = new creme.geolocation.Location($.extend({
+                visible: address.selected || address.is_billing
+            }, address));
+        }
+
+        return this;
     },
 
     addressItem: function(address_id) {
@@ -129,53 +170,75 @@ creme.geolocation.PersonsBrick = creme.component.Component.sub({
         return $('.brick-geoaddress-canvas', this._brick.element());
     },
 
-    _showStatus: function(address_id, status) {
-        var item = this.addressItem(address_id);
-        var is_complete = (status === creme.geolocation.LocationStatus.COMPLETE);
-
-        item.find('.brick-geoaddress-status').html(this.STATUS_LABELS[status]);
-        item.find('.brick-geoaddress-action').toggleClass('brick-geoaddress-iscomplete', is_complete);
+    mapController: function() {
+        return this._controller;
     },
 
-    _showPosition: function(address_id, marker) {
-        var content = '';
+    saveLocation: function(location, listeners) {
+        var self = this;
+        location = new creme.geolocation.Location(location);
 
-        if (!Object.isEmpty(marker)) {
-            content = '%3.6f, %3.6f'.format(marker.position.lat(),
-                                            marker.position.lng());
+        if (Object.isEmpty(this.locationUrl())) {
+            new creme.component.Action(function() {
+                this.cancel();
+            }).on(listeners || {}).start();
+
+            return this;
         }
 
-        // result.formatted_address
-        this.addressItem(address_id).find('.brick-geoaddress-position').html(content);
+        creme.ajax.query(this.locationUrl(), {}, {
+                       id:        location.id(),
+                       latitude:  location.position().lat,
+                       longitude: location.position().lng,
+                       geocoded:  true,
+                       status:    location.status()
+                   })
+                  .onDone(function() {
+                       self._brick.trigger('geoaddress-location-save', [location]);
+                   })
+                  .on(listeners || {})
+                  .post();
+
+        return this;
     },
 
-    _toggleLocation: function(address_id, status) {
-        this._controller.marker_manager.toggle(address_id, status);
-        this.addressItem(address_id).toggleClass('item-selected', status);
+    _renderLocationStatus: function(location) {
+        var item = this.addressItem(location.id());
+
+        item.find('.brick-geoaddress-status').text(location.statusLabel());
+        item.find('.brick-geoaddress-action').toggleClass('brick-geoaddress-iscomplete', location.isComplete());
+        item.find('.brick-geoaddress-position').text(location.positionLabel());
+        item.find('input[type="checkbox"]').prop('checked', location.visible());
+        item.toggleClass('is-mark-visible', location.visible());
     },
 
-    _onRefreshLocation: function(event) {
-        var self       = this;
-        var controller = this._controller;
-
-        var address_id = parseInt($(event.target).attr('data-addressid'));
-        var marker     = controller.getMarker(address_id);
-
-        if (marker) {
-            this._controller.findLocation(marker.address, {
-                                 done: function(marker, result, status) {
-                                     controller.adjustMap();
-                                 },
-                                 fail: function(status) {
-                                     self._showPosition(address_id);
-                                     self._showStatus(address_id, status);
-                                 }
-                             });
+    _toggleLocation: function(location, visible) {
+        if (this._controller.hasMarker(location.id())) {
+            this._controller.toggleMarker(location.id(), visible);
+            location.visible(visible);
+            this._renderLocationStatus(location);
+        } else if (visible) {
+            this._markLocation({
+                location: location,
+                draggable: true
+            });
         }
+    },
+
+    _onResetLocation: function(event) {
+        var id = $(event.target).attr('data-addressid');
+        var location = this.address(id);
+
+        this._markLocation({
+            location: location,
+            draggable: true,
+            force: true
+        });
     },
 
     _onToggleLocation: function(event) {
-        this._toggleLocation($(event.target).val(), $(event.target).is(':checked'));
+        var location = this.address($(event.target).val());
+        this._toggleLocation(location, $(event.target).is(':checked'));
     }
 });
 
@@ -185,105 +248,139 @@ creme.geolocation.AddressesBrick = creme.component.Component.sub({
         options = options || {};
 
         this._brick = brick;
-        this._addressesUrl = options.addressesUrl;
+        this._addresses = [];
 
-        var controller = this._controller = new creme.geolocation.GoogleMapController(options);
-        controller.on('api-status', this._onAPIStatus.bind(this))
-                  .on('map-status', this._onCanvasStatus.bind(this));
+        this.addressesUrl(options.addressesUrl);
+
+        this._controller = options.mapController;
+        this._controller.on('status', this._onCanvasStatus.bind(this))
+                        .on('status-enabled', this._onCanvasEnabled.bind(this))
+                        .on('marker-click', this._onMarkerClick.bind(this));
 
         brick.on('state-update', this._onBrickStateUpdate.bind(this));
+        brick.element().on('change', '.brick-geoaddress-filter', this._onFilterChange.bind(this));
 
-        controller.loadAPI({
-                       apiKey: options.apiKey,
-                       container: this.canvas()
-                   });
-    },
-
-    _onBrickStateUpdate: function(event, state) {
-        if (!state.collapsed) {
-            this._controller.resize();
-            this._controller.adjustMap();
-        }
-    },
-
-    _onAPIStatus: function(event, status) {
-        this._brick.element().toggleClass('is-geolocation-disabled', !status);
-    },
-
-    _onCanvasStatus: function(event, status) {
-        if (status) {
-            var filterSelector = this._filterSelector = $('.brick-geoaddress-filter', this._brick.element());
-            filterSelector.change(this._onFilterChange.bind(this));
-            this._updateFilter(filterSelector.val());
-        }
-    },
-
-    _queryAddresses: function(filter, listeners) {
-        var self = this;
-        var controller = this._controller;
-        var updateAddress = this._updateAddress.bind(this);
-        var url = this._addressesUrl;
-
-        creme.ajax.query(url, {}, {id: filter})
-                  .converter(JSON.parse)
-                  .onDone(function(event, data) {
-                      data.addresses.forEach(updateAddress);
-                      controller.adjustMap();
-                      self._showCount(data.addresses.length);
-                   })
-                  .onFail(function() {
-                      controller.adjustMap();
-                      self._showCount(0);
-                  })
-                  .on(listeners || {}).get();
-    },
-
-    _updateAddress: function(address) {
-        var controller = this._controller;
-        var marker = controller.marker_manager.get(address.id);
-
-        if (!marker) {
-            if (controller.isAddressLocated(address)) {
-                controller.marker_manager.Marker({
-                    address:   address,
-                    draggable: false,
-                    redirect:  address.url
-                });
-            }
-        } else {
-            marker.setVisible(true);
-        }
-    },
-
-    _onFilterChange: function(event) {
-        var controller = this._controller;
-        var filter = $(event.target).val();
-
-        controller.marker_manager.hideAll();
-
-        this._updateFilter(filter, {
-                 fail: function() {
-                     $(event.target).val('');
-                 }
-             });
-    },
-
-    _updateFilter: function(filter, listeners) {
-        if (filter) {
-            this._queryAddresses(filter, listeners);
-        } else {
-            this._controller.adjustMap();
-            this._showCount(0);
-        }
-    },
-
-    _showCount: function(count) {
-        var content = !count ? gettext('No address from') : ngettext('%0$d address from', '%0$d addresses from', count).format(count);
-        $('.brick-geoaddress-counter', this._brick.element()).html(content);
+        this._controller.bind(this.canvas());
     },
 
     canvas: function() {
         return $('.brick-geoaddress-canvas', this._brick.element());
+    },
+
+    filterSelector: function() {
+        return $('.brick-geoaddress-filter', this._brick.element());
+    },
+
+    counterItem: function() {
+        return $('.brick-geoaddress-counter', this._brick.element());
+    },
+
+    addressesUrl: function(url) {
+        return Object.property(this, '_addressesUrl', url);
+    },
+
+    addresses: function() {
+        return this._addresses;
+    },
+
+    address: function(id) {
+        var res = this._addresses.filter(function(n) {
+            return n.id() === id;
+        });
+
+        return res.length > 0 ? res[0] : undefined;
+    },
+
+    mapController: function() {
+        return this._controller;
+    },
+
+    _onBrickStateUpdate: function(event, state) {
+        if (!state.collapsed) {
+            this._controller.autoResize();
+            this._controller.adjustMap();
+        }
+    },
+
+    _onCanvasStatus: function(event, status) {
+        this._brick.element().toggleClass('is-geolocation-disabled', !status);
+    },
+
+    _onCanvasEnabled: function(event) {
+        this._queryAddresses(this._brick.element().find('.brick-geoaddress-filter').val());
+    },
+
+    _queryAddresses: function(filter, listeners) {
+        var self = this;
+        var query;
+
+        if (Object.isEmpty(filter)) {
+            query = new creme.component.Action(function() {
+                this.fail();
+            });
+        } else {
+            query = creme.ajax.query(this.addressesUrl(), {}, {id: filter})
+                              .converter(JSON.parse);
+        }
+
+        query.onDone(function(event, data) {
+                  self._onUpdateAddresses(data.addresses);
+              })
+             .onFail(function() {
+                  self._onUpdateAddresses([]);
+              })
+             .on(listeners || {});
+
+        return query.start();
+    },
+
+    _onUpdateAddresses: function(addresses) {
+        addresses = addresses || [];
+        var controller = this._controller;
+
+        controller.toggleAllMarkers(false);
+
+        this._addresses = addresses.map(function(address) {
+            var location = new creme.geolocation.Location($.extend({
+                position: address.latitude ? {lat: address.latitude, lng: address.longitude} : null
+            }, address));
+
+            if (location.hasPosition()) {
+                controller.updateOrAddMarker(location.id(), {
+                    title: location.markerLabel(),
+                    position: location.position(),
+                    visible: true,
+                    draggable: false
+                });
+            }
+
+            return location;
+        });
+
+        this._renderCount(controller.markers({visible: true}).length);
+    },
+
+    _onMarkerClick: function(event, data) {
+        var location = this.address(data.id);
+
+        if (location && !Object.isEmpty(location.url())) {
+            creme.utils.goTo(location.url());
+        }
+    },
+
+    _onFilterChange: function(event) {
+        var filter = $(event.target);
+
+        this._queryAddresses(filter.val(), {
+             fail: function() {
+                 filter.val('');
+             }
+         });
+    },
+
+    _renderCount: function(count) {
+        var content = count > 0 ? ngettext('%0$d address from', '%0$d addresses from', count).format(count) : gettext('No address from');
+        $('.brick-geoaddress-counter', this._brick.element()).html(content);
     }
 });
 
@@ -292,166 +389,207 @@ creme.geolocation.PersonsNeighborhoodBrick = creme.component.Component.sub({
     _init_: function(brick, options) {
         options = options || {};
 
-        this._radius = options.radius || 1;
         this._brick = brick;
-        this._neighboursUrl = options.neighboursUrl;
+        this._origin = null;
+        this._neighbours = [];
 
-        var controller = this._controller = new creme.geolocation.GoogleMapController(options);
-        controller.on('api-status', this._onAPIStatus.bind(this))
-                  .on('map-status', this._onCanvasStatus.bind(this));
+        this.radius(options.radius || 1);
+        this.neighboursUrl(options.neighboursUrl);
+
+        this._controller = options.mapController;
+        this._controller.on('status', this._onCanvasStatus.bind(this))
+                        .on('status-enabled', this._onUpdateNeighbours.bind(this))
+                        .on('marker-click', this._onMarkerClick.bind(this));
 
         brick.on('state-update', this._onBrickStateUpdate.bind(this));
 
-        controller.loadAPI({
-                       apiKey: options.apiKey,
-                       container: this.canvas()
-                   });
+        this._brick.element().on('change', '.brick-geoaddress-origin', this._onUpdateNeighbours.bind(this));
+        this._brick.element().on('change', '.brick-geoaddress-filter', this._onUpdateNeighbours.bind(this));
+
+        $(document).on('brick-geoaddress-location-save', '.geolocation-brick', this._onMoveLocation.bind(this));
+
+        this._controller.bind(this.canvas());
+    },
+
+    neighboursUrl: function(url) {
+        return Object.property(this, '_neighboursUrl', url);
+    },
+
+    radius: function(radius) {
+        return Object.property(this, '_radius', radius);
+    },
+
+    mapController: function() {
+        return this._controller;
     },
 
     _onBrickStateUpdate: function(event, state) {
         if (!state.collapsed) {
-            this._controller.resize();
-            this._controller.shape_manager.adjustMap('NeighbourhoodCircle');
+            this._controller.autoResize();
+            this._controller.adjustMapToShape('NeighbourhoodCircle');
         }
-    },
-
-    _onAPIStatus: function(event, status) {
-        this._brick.element().toggleClass('is-geolocation-disabled', !status);
     },
 
     _onCanvasStatus: function(event, status) {
-        if (status) {
-            var container = this._brick.element();
-
-            this._sourceSelector = $('.brick-geoaddress-source', container).change(this._onChange.bind(this));
-            this._filterSelector = $('.brick-geoaddress-filter', container).change(this._onChange.bind(this));
-            this._onChange();
-        }
+        this._brick.element().toggleClass('is-geolocation-disabled', !status);
     },
 
-    _queryNeighbours: function(address, filter) {
-        if (!address) {
-            this._controller.adjustMap();
-            return;
-        }
-
-        var updateNeighbours = this._updateNeighbours.bind(this);
-        var parameters = {
-            address_id: address,
-            filter_id: filter
-        };
-
-        var url = this._neighboursUrl + '?' + $.param(parameters);
-
-        creme.ajax.query(url)
-                  .converter(JSON.parse)
-                  .onDone(function(event, data) {
-                       updateNeighbours(data.source_address, data.addresses);
-                   })
-                  .onFail(function() {
-                       updateNeighbours(address, []);
-                   })
-                  .get();
-    },
-
-    _clearNeighbours: function() {
-        var controller = this._controller;
-        controller.marker_manager.hideAll();
-
-        if (controller.shape_manager.get('NeighbourhoodCircle')) {
-            controller.shape_manager.unregister('NeighbourhoodCircle');
-        }
-    },
-
-    /* global google */
-    _updateMarker: function(address, options) {
-        if (Object.isNone(address)) {
-            return;
-        }
-
-        var controller = this._controller;
-        var marker = controller.marker_manager.get(address.id);
-
-        if (controller.isAddressLocated(address)) {
-            if (marker) {
-                marker.setPosition(new google.maps.LatLng(address.latitude, address.longitude));
-            } else {
-                options = $.extend({
-                    address: address,
-                    draggable: false
-                }, options || {});
-
-                marker = controller.marker_manager.Marker(options);
-            }
-
-            marker.setVisible(true);
-        }
-
-        return marker;
-    },
-
-    /* global google */
-    _updateNeighbours: function(source, addresses) {
-        this._clearNeighbours();
-
-        var controller = this._controller;
-        var sourceMarker = this._updateMarker(source, {
-                                                  icon: {
-                                                      path: google.maps.SymbolPath.CIRCLE,
-                                                      scale: 5
-                                                  }
-                                              });
-
-        if (!sourceMarker) {
-            return this;
-        }
-
-        controller.shape_manager.register('NeighbourhoodCircle',
-            new google.maps.Circle({
-                strokeColor: '#dea29b',
-                strokeOpacity: 0.9,
-                strokeWeight: 2,
-                fillColor: '#dea29b',
-                fillOpacity: 0.40,
-                map: controller.map(),
-                center: sourceMarker.position,
-                radius: this._radius
-        }));
-
-        this._showCount(addresses.length);
-
-        var addressMarker = this._updateMarker.bind(this);
-
-        addresses.forEach(function(address) {
-            addressMarker(address, {redirect: address.url});
+    _onUpdateNeighbours: function() {
+        this._queryNeighboursOf({
+            originId: this.originSelector().val(),
+            filterId: this.filterSelector().val()
         });
-
-        controller.shape_manager.adjustMap('NeighbourhoodCircle');
     },
 
-    sourcePosition: function(address, position) {
-        var mark = this._controller.getMarker(address.id);
+    _queryNeighboursOf: function(options, listeners) {
+        options = options || {};
 
-        if (mark) {
-            mark.setPosition(position);
+        var markNeighbours = this.markNeighbours.bind(this);
+        var query;
 
-            if (this._sourceSelector.val() === '' + address.id) {
-                this._queryNeighbours(this._sourceSelector.val(), this._filterSelector.val());
+        if (Object.isEmpty(options.originId)) {
+            query = new creme.component.Action(function() {
+                this.fail();
+            });
+        } else {
+            query = creme.ajax.query(this.neighboursUrl(), {}, {
+                                   address_id: options.originId,
+                                   filter_id: options.filterId
+                               })
+                              .converter(JSON.parse);
+        }
+
+        query.onDone(function(event, data) {
+                  markNeighbours({
+                      originId: options.originId,
+                      origin: new creme.geolocation.Location(data.source_address),
+                      neighbours: data.addresses.map(function(address) {
+                          return new creme.geolocation.Location(address);
+                      })
+                  });
+              })
+             .onFail(function() {
+                  markNeighbours({
+                      originId: options.originId,
+                      origin: null,
+                      neighbours: []
+                  });
+              })
+             .on(listeners || []);
+
+        return query.start();
+    },
+
+    markNeighbours: function(options) {
+        options = options || {};
+
+        var controller = this._controller;
+        var origin = this._origin = options.origin || null;
+        var neighbours = this._neighbours = options.neighbours || [];
+
+        controller.toggleAllMarkers(false);
+
+        if (Object.isNone(origin)) {
+            controller.removeAllMarkers();
+            controller.removeAllShapes();
+        } else {
+            controller.updateOrAddShape('NeighbourhoodCircle', {
+                position: origin.position(),
+                radius: this.radius(),
+                shape: 'circle'
+            });
+
+            controller.replaceMarkers(neighbours.map(function(location) {
+                return {
+                    id: location.id(),
+                    title: location.markerLabel(),
+                    position: location.position(),
+                    draggable: false,
+                    visible: true
+                };
+            }));
+
+            controller.updateOrAddMarker(origin.id(), {
+                title: origin.markerLabel(),
+                position: origin.position(),
+                draggable: false,
+                icon: 'circle'
+            });
+
+            controller.adjustMapToShape('NeighbourhoodCircle');
+        }
+
+        this._renderCount(neighbours.length);
+    },
+
+    _onMoveLocation: function(event, brick, location) {
+        var controller = this._controller;
+        var origin = this._origin;
+
+        if (controller.hasMarker(location.id())) {
+            controller.updateMarker(location.id(), {
+                position: location.position()
+            });
+
+            if (origin && location.id() === origin.id()) {
+                origin.position(location.position());
+                origin.status(location.status());
+
+                controller.updateShape('NeighbourhoodCircle', {
+                    position: location.position()
+                });
+            } else {
+                var neighbour = this.neighbour(location.id());
+
+                neighbour.position(location.position());
+                neighbour.status(location.status());
             }
         }
     },
 
-    _onChange: function(event) {
-        this._queryNeighbours(this._sourceSelector.val(), this._filterSelector.val());
-    },
+    _onMarkerClick: function(event, data) {
+        var location = this.neighbour(data.id);
 
-    _showCount: function(count) {
-        var counter = !count ? gettext('None of') : ngettext('%0$d of', '%0$d of', count).format(count);
-        $('.brick-geoaddress-counter', this._brick.element()).html(counter);
+        if (location && !Object.isEmpty(location.url())) {
+            creme.utils.goTo(location.url());
+        }
     },
 
     canvas: function() {
         return $('.brick-geoaddress-canvas', this._brick.element());
+    },
+
+    originSelector: function() {
+        return $('.brick-geoaddress-origin', this._brick.element());
+    },
+
+    filterSelector: function() {
+        return $('.brick-geoaddress-filter', this._brick.element());
+    },
+
+    neighbours: function() {
+        return this._neighbours;
+    },
+
+    neighbour: function(id) {
+        var res = this._neighbours.filter(function(n) {
+            return n.id() === id;
+        });
+
+        return res.length > 0 ? res[0] : undefined;
+    },
+
+    origin: function() {
+        return this._origin;
+    },
+
+    counterItem: function() {
+        return $('.brick-geoaddress-counter', this._brick.element());
+    },
+
+    _renderCount: function(count) {
+        var content = count > 0 ? ngettext('%0$d of', '%0$d of', count).format(count) : gettext('None of');
+        this.counterItem().text(content);
     }
 });
 

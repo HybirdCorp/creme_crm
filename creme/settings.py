@@ -715,6 +715,7 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.events',        'events/js/events.js'),
 
     ('creme.geolocation',   'geolocation/js/geolocation.js'),
+    ('creme.geolocation',   'geolocation/js/geolocation-google.js'),
     ('creme.geolocation',   'geolocation/js/brick.js'),
 ]
 
@@ -817,6 +818,12 @@ TEST_CREME_OPT_JS = [
     ('creme.emails',        'emails/js/tests/emails-actions.js'),
     ('creme.emails',        'emails/js/tests/emails-listview.js'),
     ('creme.events',        'events/js/tests/events-listview.js'),
+    ('creme.geolocation',   'geolocation/js/tests/qunit-geolocation-mixin.js'),
+    ('creme.geolocation',   'geolocation/js/tests/geolocation.js'),
+    ('creme.geolocation',   'geolocation/js/tests/geolocation-google.js'),
+    ('creme.geolocation',   'geolocation/js/tests/persons-brick.js'),
+    ('creme.geolocation',   'geolocation/js/tests/addresses-brick.js'),
+    ('creme.geolocation',   'geolocation/js/tests/persons-neighborhood-brick.js'),
     ('creme.opportunities', 'opportunities/js/tests/opportunities.js'),
     ('creme.persons',       'persons/js/tests/persons.js'),
     ('creme.persons',       'persons/js/tests/persons-actions.js'),
