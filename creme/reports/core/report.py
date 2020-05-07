@@ -23,14 +23,21 @@ import logging
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import ManyToManyField, ForeignKey, FieldDoesNotExist
+from django.db.models import (
+    ManyToManyField, ForeignKey,
+    FieldDoesNotExist,
+)
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.field_printers import field_printers_registry
-from creme.creme_core.models import CremeEntity, RelationType, CustomField
+from creme.creme_core.models import (
+    CremeEntity,
+    RelationType,
+    CustomField,
+)
 from creme.creme_core.utils.meta import FieldInfo
 
 from ..constants import (
@@ -88,17 +95,22 @@ class ReportHand:
     def _generate_flattened_report(self, entities, user, scope):
         columns = self._report_field.sub_report.columns
 
-        return ', '.join('/'.join(f'{column.title}: {column.get_value(entity, user, scope)}'
-                                      for column in columns
-                                 ) for entity in entities
-                        )
+        return ', '.join(
+            '/'.join(
+                f'{column.title}: {column.get_value(entity, user, scope)}'
+                for column in columns
+            ) for entity in entities
+        )
 
     # TODO: scope ??
     def _get_related_instances(self, entity, user):
         raise NotImplementedError
 
     def _get_filtered_related_entities(self, entity, user):
-        related_entities = EntityCredentials.filter(user, self._get_related_instances(entity, user))
+        related_entities = EntityCredentials.filter(
+            user=user,
+            queryset=self._get_related_instances(entity, user),
+        )
         report = self._report_field.sub_report
 
         if report.filter is not None:
@@ -138,7 +150,9 @@ class ReportHand:
         """Used as _get_value() method by subclasses which manage
         sub-reports (flattened sub-report case).
         """
-        return self._generate_flattened_report(self._get_filtered_related_entities(entity, user), user, scope)
+        return self._generate_flattened_report(
+            self._get_filtered_related_entities(entity, user), user, scope,
+        )
 
     def _get_value_no_subreport(self, entity, user, scope):
         """Used as _get_value() method by subclasses which manage
@@ -164,12 +178,16 @@ class ReportHand:
         return
 
     def _handle_report_values(self, entity, user, scope):
-        "@param entity: CremeEntity instance, or None"
-        return [rfield.get_value(entity, user, scope) for rfield in self._report_field.sub_report.columns]
+        "@param entity: CremeEntity instance, or None."
+        return [
+            rfield.get_value(entity, user, scope)
+            for rfield in self._report_field.sub_report.columns
+        ]
 
     def _related_model_value_extractor(self, instance):
         return instance
 
+    # TODO: property ??
     def get_linkable_ctypes(self):
         """Return the ContentTypes which are compatible, in order to link a sub-report.
         @return A sequence of ContentTypes instances, or None (that means "can not link") ;
@@ -248,16 +266,18 @@ class RHRegularField(ReportHand):
 
     def __init__(self, report_field, support_subreport=False, title=None):
         model = report_field.model
-        super().__init__(report_field,
-                         title=title or self._field_info.verbose_name,
-                         support_subreport=support_subreport,
-                        )
+        super().__init__(
+            report_field,
+            title=title or self._field_info.verbose_name,
+            support_subreport=support_subreport,
+        )
 
         # TODO: FieldInfo is used by build_field_printer do the same work: can we factorise this ??
-        self._printer = field_printers_registry.build_field_printer(model,
-                                                                    report_field.name,
-                                                                    output='csv',
-                                                                   )
+        self._printer = field_printers_registry.build_field_printer(
+            model=model,
+            field_name=report_field.name,
+            output='csv',
+        )
 
     def _get_value_single_on_allowed(self, entity, user, scope):
         return self._printer(entity, user)
@@ -269,9 +289,11 @@ class RHRegularField(ReportHand):
     @cached_property
     def hidden(self):
         rfield = self._report_field
-        return rfield.report._fields_configs.is_fieldinfo_hidden(rfield.model,
-                                                                 self._field_info,
-                                                                )
+
+        return rfield.report._fields_configs.is_fieldinfo_hidden(
+            rfield.model,
+            self._field_info,
+        )
 
 
 class RHForeignKey(RHRegularField):
@@ -292,19 +314,19 @@ class RHForeignKey(RHRegularField):
             # Small optimization: only used by _get_value_no_subreport()
             if len(field_info) > 1:
                 self._value_extractor = field_printers_registry.build_field_printer(
-                                                        # field_info[0].rel.to,
-                                                        field_info[0].remote_field.model,
-                                                        field_info[1].name,
-                                                        output='csv',
-                                                    )
+                    model=field_info[0].remote_field.model,
+                    field_name=field_info[1].name,
+                    output='csv',
+                )
             else:
                 self._value_extractor = lambda fk_instance, user: str(fk_instance)
 
         self._qs = qs
-        super().__init__(report_field,
-                         support_subreport=True,
-                         title=str(fk_field.verbose_name) if sub_report else None,
-                        )
+        super().__init__(
+            report_field,
+            support_subreport=True,
+            title=str(fk_field.verbose_name) if sub_report else None,
+        )
 
     # NB: cannot rename to _get_related_instances() because forbidden entities are filtered instead of outputting '??'
     def _get_fk_instance(self, entity):
@@ -318,7 +340,7 @@ class RHForeignKey(RHRegularField):
     def _get_value_flattened_subreport(self, entity, user, scope):
         fk_entity = self._get_fk_instance(entity)
 
-        if fk_entity is not None: #TODO: test
+        if fk_entity is not None:  # TODO: test
             return self._generate_flattened_report((fk_entity,), user, scope)
 
     def _get_value_extended_subreport(self, entity, user, scope):
@@ -334,8 +356,9 @@ class RHForeignKey(RHRegularField):
             return self._value_extractor(fk_instance, user)
 
     def get_linkable_ctypes(self):
-        return (ContentType.objects.get_for_model(self._qs.model),) \
-               if self._linked2entity else None
+        return (
+            ContentType.objects.get_for_model(self._qs.model),
+        ) if self._linked2entity else None
 
     @property
     def linked2entity(self):
@@ -361,8 +384,9 @@ class RHManyToManyField(RHRegularField):
     def get_linkable_ctypes(self):
         m2m_model = self._field_info[0].remote_field.model
 
-        return (ContentType.objects.get_for_model(m2m_model),) \
-               if issubclass(m2m_model, CremeEntity) else None
+        return (
+            ContentType.objects.get_for_model(m2m_model),
+        ) if issubclass(m2m_model, CremeEntity) else None
 
 
 @REPORT_HANDS_MAP(RFT_CUSTOM)
@@ -401,24 +425,27 @@ class RHRelation(ReportHand):
         if report_field.sub_report:
             self._related_model = report_field.sub_report.ct.model_class()
 
-        super().__init__(report_field,
-                         title=str(rtype.predicate),
-                         support_subreport=True,
-                        )
+        super().__init__(
+            report_field,
+            title=str(rtype.predicate),
+            support_subreport=True,
+        )
 
     def _get_related_instances(self, entity, user):
-        return self._related_model.objects.filter(relations__type=self._rtype.symmetric_type,
-                                                  relations__object_entity=entity.id,
-                                                 )
+        return self._related_model.objects.filter(
+            relations__type=self._rtype.symmetric_type,
+            relations__object_entity=entity.id,
+        )
 
     # TODO: add a feature in base class to retrieved efficiently real entities ??
     # TODO: extract algorithm that retrieve efficiently real entity from CremeEntity.get_related_entities()
     def _get_value_no_subreport(self, entity, user, scope):
         has_perm = user.has_perm_to_view
-        return ', '.join(str(e)
-                            for e in entity.get_related_entities(self._rtype.id, True)
-                                if has_perm(e)
-                        )
+        return ', '.join(
+            str(e)
+            for e in entity.get_related_entities(self._rtype.id, True)
+            if has_perm(e)
+        )
 
     def get_linkable_ctypes(self):
         return self._rtype.object_ctypes.all()
@@ -461,14 +488,16 @@ class RHAggregate(ReportHand):
         if aggregation is None:
             raise ReportHand.ValueError(f'Invalid aggregation: "{aggregation_id}"')
 
-        self._aggregation_q, verbose_name = self._build_query_n_vname(report_field,
-                                                                      field_name,
-                                                                      aggregation,
-                                                                     )
+        self._aggregation_q, verbose_name = self._build_query_n_vname(
+            report_field,
+            field_name,
+            aggregation,
+        )
 
-        super().__init__(report_field,
-                         title=f'{aggregation.title} - {verbose_name}',
-                        )
+        super().__init__(
+            report_field,
+            title=f'{aggregation.title} - {verbose_name}',
+        )
 
     def _build_query_n_vname(self, report_field, field_name, aggregation):
         raise NotImplementedError
@@ -478,8 +507,9 @@ class RHAggregate(ReportHand):
             return self._cache_value
 
         self._cache_key = scope
-        self._cache_value = result = scope.aggregate(rh_calculated_agg=self._aggregation_q) \
-                                          .get('rh_calculated_agg') or 0
+        self._cache_value = result = scope.aggregate(
+            rh_calculated_agg=self._aggregation_q,
+        ).get('rh_calculated_agg') or 0
 
         return result
 
@@ -497,7 +527,7 @@ class RHAggregateRegularField(RHAggregate):
                 f'This type of field can not be aggregated: "{field_name}"'
             )
 
-        return (aggregation.func(field_name), field.verbose_name)
+        return aggregation.func(field_name), field.verbose_name
 
 
 @REPORT_HANDS_MAP(RFT_AGG_CUSTOM)
@@ -508,10 +538,14 @@ class RHAggregateCustomField(RHAggregate):
         try:
             cfield = CustomField.objects.get(id=field_name)
         except (ValueError, CustomField.DoesNotExist) as e:
-            raise ReportHand.ValueError(f'Invalid custom field aggregation: "{field_name}"') from e
+            raise ReportHand.ValueError(
+                f'Invalid custom field aggregation: "{field_name}"'
+            ) from e
 
         if cfield.field_type not in field_aggregation_registry.authorized_customfields:
-            raise ReportHand.ValueError(f'This type of custom field can not be aggregated: "{field_name}"')
+            raise ReportHand.ValueError(
+                f'This type of custom field can not be aggregated: "{field_name}"'
+            )
 
         return (
             aggregation.func(f'{cfield.value_class.get_related_name()}__value'),
@@ -524,18 +558,24 @@ class RHRelated(ReportHand):
     verbose_name = _('Related field')
 
     def __init__(self, report_field):
-        related_field = self._get_related_field(report_field.model, report_field.name)
+        related_field = self._get_related_field(
+            report_field.model,
+            report_field.name,
+        )
 
         if not related_field:
-            raise ReportHand.ValueError(f'Invalid related field: "{report_field.name}"')
+            raise ReportHand.ValueError(
+                f'Invalid related field: "{report_field.name}"'
+            )
 
         self._related_field = related_field
         self._attr_name = related_field.get_accessor_name()
 
-        super().__init__(report_field,
-                         title=str(related_field.related_model._meta.verbose_name),
-                         support_subreport=True,
-                        )
+        super().__init__(
+            report_field,
+            title=str(related_field.related_model._meta.verbose_name),
+            support_subreport=True,
+        )
 
     def _get_related_field(self, model, related_field_name):
         for f in model._meta.get_fields():
@@ -546,7 +586,9 @@ class RHRelated(ReportHand):
         return getattr(entity, self._attr_name).filter(is_deleted=False)
 
     def get_linkable_ctypes(self):
-        return (ContentType.objects.get_for_model(self._related_field.related_model),)
+        return (
+            ContentType.objects.get_for_model(self._related_field.related_model),
+        )
 
 
 class ExpandableLine:
