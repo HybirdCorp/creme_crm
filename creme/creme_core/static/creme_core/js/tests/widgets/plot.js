@@ -23,8 +23,8 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin,
         this.resetMockPlotEvents();
         this.resetMockPlots();
 
-        creme.utils.converters.register('mockPlotData', 'jqplotData', this._mockPlotData_to_jqplotData);
-        creme.utils.converters.register('jqplotData', 'mockRendererData', this._jqplotData_to_mockRendererData);
+        creme.utils.converters().register('mockPlotData', 'jqplotData', this._mockPlotData_to_jqplotData);
+        creme.utils.converters().register('jqplotData', 'mockRendererData', this._jqplotData_to_mockRendererData);
     },
 
     afterEach: function() {
@@ -33,8 +33,8 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin,
 
         this.cleanupMockPlots();
 
-        creme.utils.converters.unregister('mockPlotData', 'jqplotData');
-        creme.utils.converters.unregister('jqplotData', 'mockRendererData');
+        creme.utils.converters().unregister('mockPlotData', 'jqplotData');
+        creme.utils.converters().unregister('jqplotData', 'mockRendererData');
 
         creme.widget.shutdown($('body'));
 

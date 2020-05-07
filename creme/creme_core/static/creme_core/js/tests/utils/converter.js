@@ -1,10 +1,6 @@
 (function($) {
 
-QUnit.module("creme.utils.converters.js", new QUnitMixin({
-    beforeEach: function() {
-        this.converters = new creme.utils.ConverterRegistry();
-    },
-
+QUnit.module("creme.utils.ConverterRegistry", new QUnitMixin({
     str2int: function(data) {
         var res = parseInt(data);
 
@@ -27,152 +23,338 @@ QUnit.module("creme.utils.converters.js", new QUnitMixin({
 }));
 
 QUnit.test('creme.utils.ConverterRegistry.register', function(assert) {
-    equal(this.converters.converter('string', 'int'), undefined);
-    equal(this.converters.converter('string', 'float'), undefined);
+    var converters = new creme.utils.ConverterRegistry();
 
-    this.converters.register('string', 'int', this.str2int);
+    equal(false, converters.available('string', 'int'));
+    equal(false, converters.available('string', 'float'));
 
-    equal(this.converters.converter('string', 'int'), this.str2int);
-    equal(this.converters.converter('string', 'float'), undefined);
+    converters.register('string', 'int', this.str2int);
 
-    this.converters.register('string', 'float', this.str2float);
+    equal(true, converters.available('string', 'int'));
+    equal(false, converters.available('string', 'float'));
 
-    equal(this.converters.converter('string', 'int'), this.str2int);
-    equal(this.converters.converter('string', 'float'), this.str2float);
+    converters.register('string', 'float', this.str2float);
+
+    equal(true, converters.available('string', 'int'));
+    equal(true, converters.available('string', 'float'));
 });
 
-QUnit.test('creme.utils.ConverterRegistry.register (fail)', function(assert) {
-    this.converters.register('string', 'int', this.str2int);
-    equal(this.converters.converter('string', 'int'), this.str2int);
+QUnit.test('creme.utils.ConverterRegistry.register (from array)', function(assert) {
+    var converters = new creme.utils.ConverterRegistry();
+
+    equal(false, converters.available('string', 'int'));
+    equal(false, converters.available('string', 'float'));
+    equal(false, converters.available('text', 'int'));
+    equal(false, converters.available('text', 'float'));
+
+    converters.register(['text', 'string'], 'int', this.str2int);
+
+    equal(true, converters.available('string', 'int'));
+    equal(false, converters.available('string', 'float'));
+    equal(true, converters.available('text', 'int'));
+    equal(false, converters.available('text', 'float'));
+
+    converters.register(['text', 'string'], 'float', this.str2float);
+
+    equal(true, converters.available('string', 'int'));
+    equal(true, converters.available('string', 'float'));
+    equal(true, converters.available('text', 'int'));
+    equal(true, converters.available('text', 'float'));
+});
+
+
+QUnit.test('creme.utils.ConverterRegistry.register (target dict)', function(assert) {
+    var converters = new creme.utils.ConverterRegistry();
+
+    equal(false, converters.available('string', 'int'));
+    equal(false, converters.available('string', 'float'));
+
+    converters.register('string', {
+        int: this.str2int,
+        float: this.str2float
+    });
+
+    equal(converters.converter('string', 'int'), this.str2int);
+    equal(converters.converter('string', 'float'), this.str2float);
+});
+
+QUnit.test('creme.utils.ConverterRegistry.register (from list, target dict)', function(assert) {
+    var converters = new creme.utils.ConverterRegistry();
+
+    equal(false, converters.available('string', 'int'));
+    equal(false, converters.available('string', 'float'));
+    equal(false, converters.available('text', 'int'));
+    equal(false, converters.available('text', 'float'));
+
+    converters.register(['text', 'string'], {
+        int: this.str2int,
+        float: this.str2float
+    });
+
+    equal(converters.converter('string', 'int'), this.str2int);
+    equal(converters.converter('string', 'float'), this.str2float);
+    equal(converters.converter('text', 'int'), this.str2int);
+    equal(converters.converter('text', 'float'), this.str2float);
+});
+
+QUnit.test('creme.utils.ConverterRegistry.register (not a function)', function(assert) {
+    var converters = new creme.utils.ConverterRegistry();
 
     this.assertRaises(function() {
-               this.converters.register('string', 'int', this.str2float);
-           }, Error, 'Error: converter "string-int" is already registered');
+        converters.register('string', 'int', 12);
+    }, Error, 'Error: "string-int" converter must be a function');
+});
+
+QUnit.test('creme.utils.ConverterRegistry.register (already registered)', function(assert) {
+    var converters = new creme.utils.ConverterRegistry();
+
+    converters.register('string', 'int', this.str2int);
+
+    this.assertRaises(function() {
+        converters.register('string', 'int', this.str2float);
+    }, Error, 'Error: "string-int" is already registered');
 });
 
 QUnit.test('creme.utils.ConverterRegistry.unregister', function(assert) {
-    this.converters.register('string', 'int', this.str2int);
-    this.converters.register('string', 'float', this.str2float);
+    var converters = new creme.utils.ConverterRegistry();
 
-    equal(this.converters.converter('string', 'int'), this.str2int);
-    equal(this.converters.converter('string', 'float'), this.str2float);
+    converters.register('string', {
+        int: this.str2int,
+        float: this.str2float
+    });
 
-    this.converters.unregister('string', 'int');
+    equal(converters.converter('string', 'int'), this.str2int);
+    equal(converters.converter('string', 'float'), this.str2float);
 
-    equal(this.converters.converter('string', 'int'), undefined);
-    equal(this.converters.converter('string', 'float'), this.str2float);
+    converters.unregister('string', 'int');
 
-    this.converters.unregister('string', 'float');
+    equal(false, converters.available('string', 'int'));
+    equal(true, converters.available('string', 'float'));
 
-    equal(this.converters.converter('string', 'int'), undefined);
-    equal(this.converters.converter('string', 'float'), undefined);
+    converters.unregister('string', 'float');
+
+    equal(false, converters.available('string', 'int'));
+    equal(false, converters.available('string', 'float'));
 });
 
 QUnit.test('creme.utils.ConverterRegistry.unregister (fail)', function(assert) {
-    equal(this.converters.converter('string', 'int'), undefined);
+    var converters = new creme.utils.ConverterRegistry();
+
+    equal(false, converters.available('string', 'int'));
 
     this.assertRaises(function() {
-               this.converters.unregister('string', 'int');
-           }, Error, 'Error: no such converter "string-int"');
+        converters.unregister('string', 'int');
+    }, Error, 'Error: "string-int" is not registered');
 });
 
 QUnit.test('creme.utils.ConverterRegistry.convert', function(assert) {
-    this.converters.register('string', 'int', this.str2int);
-    this.converters.register('string', 'float', this.str2float);
+    var converters = new creme.utils.ConverterRegistry();
 
-    equal(this.converters.convert('string', 'int', '12'), 12);
-    equal(this.converters.convert('string', 'int', '12.65'), 12);
+    converters.register('string', 'int', this.str2int);
+    converters.register('string', 'float', this.str2float);
 
-    equal(this.converters.convert('string', 'float', '12'), 12.0);
-    equal(this.converters.convert('string', 'float', '12.65'), 12.65);
+    equal(converters.convert('12', {from: 'string', to: 'int'}), 12);
+    equal(converters.convert('12.65', {from: 'string', to: 'int'}), 12);
+
+    equal(converters.convert('12', {from: 'string', to: 'float'}), 12.0);
+    equal(converters.convert('12.65', {from: 'string', to: 'float'}), 12.65);
 });
 
 QUnit.test('creme.utils.ConverterRegistry.convert (not found)', function(assert) {
-    equal(this.converters.converter('string', 'int'), undefined);
+    var converters = new creme.utils.ConverterRegistry();
+
+    equal(false, converters.available('string', 'int'));
 
     this.assertRaises(function() {
-        this.converters.convert('string', 'int', '15446');
-    }, Error, 'Error: no such converter "string-int"');
+        converters.converter('string', 'int');
+    }, Error, 'Error: "string-int" is not registered');
+
+    this.assertRaises(function() {
+        converters.convert('15446', {from: 'string', to: 'int'});
+    }, Error, 'Error: "string-int" is not registered');
 });
 
 QUnit.test('creme.utils.ConverterRegistry.convert (fail)', function(assert) {
-    this.converters.register('string', 'int', this.str2int);
+    var converters = new creme.utils.ConverterRegistry();
+
+    converters.register('string', 'int', this.str2int);
 
     this.assertRaises(function() {
-        this.converters.convert('string', 'int', {});
-    }, Error, 'Error: unable to convert data from "string" to "int" : \"[object Object]\" <object> is not a number');
+        converters.convert({}, {from: 'string', to: 'int'});
+    }, Error, 'Error: \"[object Object]\" <object> is not a number');
 });
 
 QUnit.test('creme.utils.ConverterRegistry.convert (same)', function(assert) {
-    equal(this.converters.converter('int', 'int'), undefined);
-    equal(this.converters.convert('int', 'int', 15446), 15446);
+    var converters = new creme.utils.ConverterRegistry();
+
+    equal(true, converters.available('int', 'int'));
+    equal(converters.convert(15446, {from: 'int', to: 'int'}), 15446);
 });
 
 QUnit.test('creme.utils.ConverterRegistry.convert (default)', function(assert) {
-    equal(this.converters.converter('string', 'int'), undefined);
-    equal(this.converters.convert('string', 'int', '15446', 10), 10);
+    var converters = new creme.utils.ConverterRegistry();
 
-    this.converters.register('string', 'int', this.str2int);
-    equal(this.converters.convert('string', 'int', '15446', 10), 15446);
+    equal(false, converters.available('string', 'int'));
+    equal(converters.convert('15446', {from: 'string', to: 'int', defaults: 10}), 10);
 
-    equal(this.converters.convert('string', 'int', {}, 10), 10);
+    converters.register('string', 'int', this.str2int);
+    equal(converters.convert('15446', {from: 'string', to: 'int', defaults: 10}), 15446);
+    equal(converters.convert({}, {from: 'string', to: 'int', defaults: 10}), 10);
 });
 
-QUnit.test('creme.utils.converters (string-number)', function(assert) {
-    equal(true, Object.isFunc(creme.utils.converter('string', 'number')));
+QUnit.parameterize('creme.utils.converters (string-number)', [
+    [{from: 'string', to: 'number'}, '15', 15.0],
+    [{from: 'string', to: 'int'}, '15', 15],
+    [{from: 'string', to: 'float'}, '15', 15.0],
+    [{from: 'text', to: 'number'}, '15', 15.0],
+    [{from: 'text', to: 'int'}, '15', 15],
+    [{from: 'text', to: 'float'}, '15', 15.0],
+    [{from: 'string', to: 'number'}, '15.52', 15.52],
+    [{from: 'string', to: 'int'}, '15.52', 15],
+    [{from: 'string', to: 'float'}, '15.52', 15.52],
+    [{from: 'text', to: 'number'}, '15.52', 15.52],
+    [{from: 'text', to: 'int'}, '15.52', 15],
+    [{from: 'text', to: 'float'}, '15.52', 15.52]
+], function(options, value, expected, assert) {
+    var converters = creme.utils.converters();
 
-    this.assertRaises(function() {
-        creme.utils.convert('string', 'number', 'nan');
-    }, Error, 'Error: unable to convert data from \"string\" to \"number\" : "nan" is not a number');
-
-    this.assertRaises(function() {
-        creme.utils.convert('string', 'number', '');
-    }, Error, 'Error: unable to convert data from \"string\" to \"number\" : "" is not a number');
-
-    this.assertRaises(function() {
-        creme.utils.convert('string', 'number', 454);
-    }, Error, 'Error: unable to convert data from \"string\" to \"number\" : 454 is not a string');
-
-    equal(1456, creme.utils.convert('string', 'number', '1456'));
-    equal(15, creme.utils.convert('string', 'number', '15ab'));
+    equal(expected, converters.convert(value, options));
 });
 
-QUnit.test('creme.utils.converters (string-float)', function(assert) {
-    equal(true, Object.isFunc(creme.utils.converter('string', 'float')));
+QUnit.parameterize('creme.utils.converters (string-number, fail)', [
+    [{from: 'string', to: 'number'}, '"nan" is not a number'],
+    [{from: 'string', to: 'int'}, '"nan" is not an integer'],
+    [{from: 'string', to: 'float'}, '"nan" is not a number'],
+    [{from: 'string', to: 'number'}, '"nan" is not a number'],
+    [{from: 'string', to: 'int'}, '"nan" is not an integer'],
+    [{from: 'string', to: 'float'}, '"nan" is not a number']
+], function(options, expected, assert) {
+    var converters = creme.utils.converters();
 
     this.assertRaises(function() {
-        creme.utils.convert('string', 'float', 'nan');
-    }, Error, 'Error: unable to convert data from \"string\" to \"float\" : "nan" is not a number');
+        converters.convert('nan', options);
+    }, Error, 'Error: ${expected}'.template({expected: expected}));
 
-    this.assertRaises(function() {
-        creme.utils.convert('string', 'float', '');
-    }, Error, 'Error: unable to convert data from \"string\" to \"float\" : "" is not a number');
-
-    this.assertRaises(function() {
-        creme.utils.convert('string', 'float', 454);
-    }, Error, 'Error: unable to convert data from \"string\" to \"float\" : 454 is not a string');
-
-    equal(1456.445, creme.utils.convert('string', 'float', '1456.445'));
-    equal(15, creme.utils.convert('string', 'float', '15ab'));
+    equal(0, converters.convert('nan', $.extend({}, options, {defaults: 0})));
 });
 
-QUnit.test('creme.utils.converters (string-int)', function(assert) {
-    equal(true, Object.isFunc(creme.utils.converter('string', 'int')));
+QUnit.parameterize('creme.utils.converters (string-datetime)', [
+    [{from: 'string', to: 'date'},
+        '2019-11-28',
+        moment({year: 2019, month: 10, day: 28, hour: 0, minute: 0, second: 0})],
+    [{from: 'string', to: 'date'},
+        '2019-11-28T08:10:30',
+        moment({year: 2019, month: 10, day: 28, hour: 0, minute: 0, second: 0})],
+    [{from: 'string', to: 'datetime'},
+        '2019-11-28T08:10:30',
+        moment({year: 2019, month: 10, day: 28, hour: 8, minute: 10, second: 30})],
+    [{from: 'text', to: 'date'},
+        '2019-11-28',
+        moment({year: 2019, month: 10, day: 28, hour: 0, minute: 0, second: 0})],
+    [{from: 'text', to: 'datetime'},
+        '2019-11-28T08:10:30',
+        moment({year: 2019, month: 10, day: 28, hour: 8, minute: 10, second: 30})]
+], function(options, value, expected, assert) {
+    var converters = creme.utils.converters();
+    var result = converters.convert(value, options);
+
+    ok(result instanceof moment, result);
+    ok(result.isValid());
+    ok(expected.isValid());
+    equal(expected.format(), result.format());
+});
+
+QUnit.parameterize('creme.utils.converters (string-datetime, fail)', [
+    [{from: 'string', to: 'date'}, '2019-13-52', '"2019-13-52" is not an iso8601 date'],
+    [{from: 'string', to: 'date'}, 'nodate', '"nodate" is not an iso8601 date'],
+    [{from: 'string', to: 'datetime'}, '12-12-2019Tnodate', '"12-12-2019Tnodate" is not an iso8601 datetime'],
+    [{from: 'string', to: 'datetime'}, '2019-11-28T23:67:00', '"2019-11-28T23:67:00" is not an iso8601 datetime']
+], function(options, value, expected, assert) {
+    var converters = creme.utils.converters();
 
     this.assertRaises(function() {
-        creme.utils.convert('string', 'int', 'nan');
-    }, Error, 'Error: unable to convert data from \"string\" to \"int\" : "nan" is not a number');
+        converters.convert(value, options);
+    }, Error, 'Error: ${expected}'.template({expected: expected}));
+});
+
+QUnit.parameterize('creme.utils.converters (datetime-string)', [
+    [{from: 'date', to: 'string'},
+        moment({year: 2019, month: 10, day: 28}),
+        '2019-11-28'],
+    [{from: 'date', to: 'string'},
+        new Date(2019, 10, 28),
+        '2019-11-28'],
+    [{from: 'date', to: 'string'},
+        moment({year: 2019, month: 10, day: 28, hour: 8, minute: 10, second: 30}),
+        '2019-11-28'],
+    [{from: 'date', to: 'string'},
+        new Date(2019, 10, 28, 8, 10, 30),
+        '2019-11-28'],
+    [{from: 'datetime', to: 'string'},
+        moment.utc({year: 2019, month: 10, day: 28, hour: 8, minute: 10, second: 30}),
+        '2019-11-28T08:10:30Z'],
+    [{from: 'datetime', to: 'string'},
+        new Date(2019, 10, 28, 8, 10, 30),
+        '2019-11-28T08:10:30' + moment('2019-11-28').format('Z')], // timezone shift at this date
+    [{from: 'date', to: 'text'},
+        moment({year: 2019, month: 10, day: 28}),
+        '2019-11-28'],
+    [{from: 'datetime', to: 'text'},
+        moment({year: 2019, month: 10, day: 28, hour: 8, minute: 10, second: 30}),
+        '2019-11-28T08:10:30' + moment('2019-11-28').format('Z')]
+], function(options, value, expected, assert) {
+    var converters = creme.utils.converters();
+    var result = converters.convert(value, options);
+
+    equal(result, expected);
+});
+
+QUnit.parameterize('creme.utils.converters (string-datetime, fail)', [
+    [{from: 'date', to: 'string'}, '2019-13-52', '"2019-13-52" is not a date nor datetime'],
+    [{from: 'date', to: 'text'}, 12, '12 is not a date nor datetime'],
+    [{from: 'datetime', to: 'string'}, '12-12-2019', '"12-12-2019" is not a date nor datetime'],
+    [{from: 'datetime', to: 'text'}, 12, '12 is not a date nor datetime']
+], function(options, value, expected, assert) {
+    var converters = creme.utils.converters();
 
     this.assertRaises(function() {
-        creme.utils.convert('string', 'int', '');
-    }, Error, 'Error: unable to convert data from \"string\" to \"int\" : "" is not a number');
+        converters.convert(value, options);
+    }, Error, 'Error: ${expected}'.template({expected: expected}));
+});
+
+QUnit.parameterize('creme.utils.converters (string-json)', [
+    [{from: 'string', to: 'json'}, '12', 12],
+    [{from: 'string', to: 'json'}, '"a"', 'a'],
+    [{from: 'string', to: 'json'}, '[1, 3, "a"]', [1, 3, 'a']],
+    [{from: 'text', to: 'json'}, '{"a": 12, "b": [1, 3, 0]}', {a: 12, b: [1, 3, 0]}]
+], function(options, value, expected, assert) {
+    var converters = creme.utils.converters();
+    var result = converters.convert(value, options);
+
+    deepEqual(result, expected);
+});
+
+QUnit.parametrize('creme.utils.converters (string-json, fail)', [
+    [{from: 'string', to: 'json'}, '12-', 'JSON parse error: SyntaxError: Unexpected number in JSON at position 2'],
+    [{from: 'string', to: 'json'}, '{"a"', 'JSON parse error: SyntaxError: Unexpected end of JSON input'],
+    [{from: 'text', to: 'json'}, '[1 "a"]', 'JSON parse error: SyntaxError: Unexpected string in JSON at position 3']
+], function(options, value, expected, assert) {
+    var converters = creme.utils.converters();
 
     this.assertRaises(function() {
-        creme.utils.convert('string', 'int', 454);
-    }, Error, 'Error: unable to convert data from \"string\" to \"int\" : 454 is not a string');
+        converters.convert(value, options);
+    }, Error, 'Error: ${expected}'.template({expected: expected}));
+});
 
-    equal(1456, creme.utils.convert('string', 'int', '1456.445'));
-    equal(15, creme.utils.convert('string', 'int', '15ab'));
+QUnit.parameterize('creme.utils.converters (json-string)', [
+    [{from: 'json', to: 'string'}, 12, '12'],
+    [{from: 'json', to: 'string'}, 'a', '"a"'],
+    [{from: 'json', to: 'text'}, {a: 12, b: [1, 3, 0]}, '{"a":12,"b":[1,3,0]}']
+], function(options, value, expected, assert) {
+    var converters = creme.utils.converters();
+    var result = converters.convert(value, options);
+
+    deepEqual(result, expected);
 });
 
 }(jQuery));

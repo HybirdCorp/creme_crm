@@ -124,7 +124,7 @@ creme.reports.toggleDisableOthers = function(me, others) {
 };
 */
 
-creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', function(data) {
+creme.utils.converters().register('creme.graphael.BargraphData', 'jqplotData', function(data) {
     var ticks = data['x'] || [];
     var values = data['y'] || [];
     var jqplotData = [];
@@ -217,7 +217,7 @@ creme.reports.PreviewController = creme.component.Component.sub({
     }
 });
 
-//creme.reports.toggleDaysField = function(operator, types) {
+// creme.reports.toggleDaysField = function(operator, types) {
 //    var initial_value = operator.attr('data-initial-value');
 //    if (initial_value) {
 //        operator.attr('data-initial-value', '');
@@ -229,7 +229,7 @@ creme.reports.PreviewController = creme.component.Component.sub({
 //    var days_field = operator.parents('.block-form:first').find('[name=\"days\"]');
 //
 //    days_field.parents('tr:first').toggleClass('hidden', !is_visible);
-//};
+// };
 
 creme.reports.ChartController = creme.component.Component.sub({
     _init_: function(properties) {

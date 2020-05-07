@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2011  Hybird
+    Copyright (C) 2009-2020  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,95 +16,193 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-/* globals Assert */
 (function($) {
 "use strict";
 
 creme.utils = creme.utils || {};
 
-creme.utils.ConverterRegistry = function() {
-    this._init_();
+var __key = function(from, to) {
+    return [String(from), String(to)].join('-');
 };
 
-creme.utils.ConverterRegistry.prototype = {
+var __ident = function(value) {
+    return value;
+};
+
+creme.utils.ConverterRegistry = creme.component.Component.sub({
     _init_: function() {
         this._converters = {};
     },
 
-    convert: function(from, to, data, defaults) {
-        if (from === to) {
-            return data;
-        }
+    convert: function(data, options) {
+        options = options || {};
 
-        var converter = this.converter(from, to);
-
-        if (!Object.isFunc(converter)) {
-            if (defaults !== undefined) {
-                return defaults;
+        if (options.defaults !== undefined) {
+            try {
+                this.convert(data, {from: options.from, to: options.to});
+            } catch (e) {
+                return options.defaults;
             }
-
-            throw new Error('no such converter "' + from + '-' + to + '"');
         }
 
-        try {
-            return converter.call(this, data);
-        } catch (e) {
-            if (defaults !== undefined) {
-                return defaults;
-            }
+        return this.converter(options.from, options.to)(data);
+    },
 
-            throw new Error('unable to convert data from "' + from + '" to "' + to + '" : ' + (e.message || e));
-        }
+    available: function(from, to) {
+        return (from === to) || this._converters[__key(from, to)] !== undefined;
     },
 
     converter: function(from, to) {
-        return this._converters[from + '-' + to];
+        if (from === to) {
+            return __ident;
+        }
+
+        var key = __key(from, to);
+        var conv = this._converters[key];
+
+        Assert.that(Object.isFunc(conv),
+                    '"${key}" is not registered', {key: key});
+
+        return conv;
     },
 
     register: function(from, to, converter) {
-        if (Object.isFunc(this.converter(from, to))) {
-            throw new Error('converter "' + from + '-' + to + '" is already registered');
+        if (arguments.length === 2) {
+            for (var k in to) {
+                this.register(from, k, to[k]);
+            }
+
+            return this;
         }
 
-        this._converters[from + '-' + to] = converter;
+        if (Array.isArray(from)) {
+            var args = Array.copy(arguments).slice(1);
+
+            from.forEach(function(f) {
+                this.register.apply(this, [f].concat(args));
+            }.bind(this));
+        }
+
+        var key = __key(from, to);
+
+        Assert.that(Object.isFunc(converter),
+                    '"${key}" converter must be a function', {key: key});
+
+        Assert.not(Object.isFunc(this._converters[key]),
+                   '"${key}" is already registered', {key: key});
+
+        this._converters[key] = converter;
+        return this;
     },
 
     unregister: function(from, to) {
-        if (this.converter(from, to) === undefined) {
-            throw new Error('no such converter "' + from + '-' + to + '"');
-        }
+        var key = __key(from, to);
 
-        delete this._converters[from + '-' + to];
+        Assert.that(Object.isFunc(this._converters[key]),
+                    '"${key}" is not registered', {key: key});
+
+        delete this._converters[key];
+        return this;
     }
+});
+
+var __registry = new creme.utils.ConverterRegistry();
+
+creme.utils.converters = function() {
+    return __registry;
 };
 
-creme.utils.converters = new creme.utils.ConverterRegistry();
-creme.utils.converter = $.proxy(creme.utils.converters.converter, creme.utils.converters);
-creme.utils.convert = $.proxy(creme.utils.converters.convert, creme.utils.converters);
+creme.utils.convert = function(data, options) {
+    return __registry.convert(data, options);
+};
 
-creme.utils.converters.register('string', 'number', function(value) {
-    Assert.is(value, 'string');
+var __toInt = function(value) {
+    var res = Object.isString(value) ? parseInt(value) : value;
+    Assert.not(isNaN(res), '"${value}" is not an integer', {value: value});
+    return res;
+};
 
-    var num = parseFloat(value);
+var __toFloat = function(value) {
+    var res = Object.isString(value) ? parseFloat(value) : value;
+    Assert.not(isNaN(res), '"${value}" is not a number', {value: value});
+    return res;
+};
 
-    if (isNaN(num)) {
-        throw Error('"' + value + '" is not a number');
-    }
+var __fromJSON = function(value) {
+    return creme.utils.JSON.clean(value);
+};
 
-    return num;
+var __toJSON = function(value) {
+    return $.toJSON(value);
+};
+
+var __toString = function(value) {
+    return String(value);
+};
+
+var __toIso8601 = function(value) {
+    Assert.isAnyOf(value, [moment, Date], '${value} is not a date nor datetime', {value: value});
+    return moment(value).format();
+};
+
+var __toIso8601Date = function(value) {
+    Assert.isAnyOf(value, [moment, Date], '${value} is not a date nor datetime', {value: value});
+    return moment(value).format('YYYY-MM-DD');
+};
+
+var __fromIso8601 = function(value) {
+    var res = Assert.notThrown(function() {
+        return value instanceof moment ? value : moment(value);
+    }, '"${value}" is not an iso8601 datetime', {value: value});
+
+    Assert.that(res.isValid(), '"${value}" is not an iso8601 datetime', {value: value});
+    return res;
+};
+
+var __fromIso8601Date = function(value) {
+    var res = Assert.notThrown(function() {
+        return value instanceof moment ? value : moment(value, moment.HTML5_FMT.DATE);
+    }, '"${value}" is not an iso8601 datetime', {value: value});
+
+    Assert.that(res.isValid(), '"${value}" is not an iso8601 date', {value: value});
+    return res;
+};
+
+__registry.register(['string', 'text'], {
+    int: __toInt,
+    integer: __toInt,
+    float: __toFloat,
+    number: __toFloat,
+    json: __fromJSON,
+    date: __fromIso8601Date,
+    datetime: __fromIso8601
 });
 
-creme.utils.converters.register('string', 'float', creme.utils.converter('string', 'number'));
-
-creme.utils.converters.register('string', 'int', function(value) {
-    Assert.is(value, 'string');
-
-    var num = parseInt(value);
-
-    if (isNaN(num)) {
-        throw Error('"' + value + '" is not a number');
-    }
-
-    return num;
+__registry.register(['number', 'int', 'integer', 'float'], {
+    string: __toString,
+    text: __toString,
+    json: __toJSON
 });
+
+__registry.register('date', {
+    string: __toIso8601Date,
+    text: __toIso8601Date,
+    json: function(value) {
+        return __toJSON(__toIso8601Date(value));
+    }
+});
+
+__registry.register('datetime', {
+    string: __toIso8601,
+    text: __toIso8601,
+    json: function(value) {
+        return __toJSON(__toIso8601Date(value));
+    }
+});
+
+__registry.register('json', {
+    string: __toJSON,
+    text: __toJSON
+});
+
 }(jQuery));
