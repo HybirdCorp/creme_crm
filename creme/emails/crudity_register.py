@@ -91,7 +91,7 @@ class EntityEmailBackend(CrudityBackend):
                                   object_entity=mail, user_id=current_user_id,
                                  )
         create_doc = partial(Document.objects.create,
-                             user_id=current_user_id, folder=folder,
+                             user_id=current_user_id, linked_folder=folder,
                              description=_('Received with the mail {}').format(mail),
                             )
 
