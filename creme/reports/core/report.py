@@ -534,6 +534,7 @@ class RHAggregate(ReportHand):
         if aggregation is None:
             raise ReportHand.ValueError(f'Invalid aggregation: "{aggregation_id}"')
 
+        self._field_name = field_name
         self._aggregation_q, verbose_name = self._build_query_n_vname(
             report_field,
             field_name,
@@ -577,6 +578,16 @@ class RHAggregateRegularField(RHAggregate):
             )
 
         return aggregation.func(field_name), field.verbose_name
+
+    @cached_property
+    def hidden(self):
+        rfield = self._report_field
+
+        return rfield.report._fields_configs.get_4_model(
+            rfield.model,
+        ).is_fieldname_hidden(
+            self._field_name,
+        )
 
 
 @REPORT_HANDS_MAP(constants.RFT_AGG_CUSTOM)
