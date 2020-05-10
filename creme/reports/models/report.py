@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,11 @@
 
 from itertools import chain
 import logging
+from typing import (
+    Optional, Type, TYPE_CHECKING, Union,
+    Iterator,
+    List, Set, Tuple,
+)
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -37,21 +42,25 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.models.fields import EntityCTypeForeignKey
 
+if TYPE_CHECKING:
+    from ..core.report import ReportHand
+
 logger = logging.getLogger(__name__)
 
 
 class AbstractReport(CremeEntity):
-    name   = models.CharField(_('Name of the report'), max_length=100)
-    ct     = EntityCTypeForeignKey(verbose_name=_('Entity type'))
-    filter = models.ForeignKey(EntityFilter, verbose_name=_('Filter'),
-                               blank=True, null=True, on_delete=models.PROTECT,
-                               limit_choices_to={'filter_type': EF_USER},
-                              ).set_null_label(_('No filter'))
+    name = models.CharField(_('Name of the report'), max_length=100)
+    ct = EntityCTypeForeignKey(verbose_name=_('Entity type'))
+    filter = models.ForeignKey(
+        EntityFilter, verbose_name=_('Filter'),
+        blank=True, null=True, on_delete=models.PROTECT,
+        limit_choices_to={'filter_type': EF_USER},
+    ).set_null_label(_('No filter'))
 
     creation_label = _('Create a report')
     save_label     = _('Save the report')
 
-    _columns = None
+    _columns: Optional[List['Field']] = None
 
     class Meta:
         abstract = True
@@ -78,7 +87,7 @@ class AbstractReport(CremeEntity):
     def get_lv_absolute_url():
         return reverse('reports__list_reports')
 
-    def _build_columns(self, allow_selected):
+    def _build_columns(self, allow_selected: bool) -> List['Field']:
         """@param allow_selected: Boolean, 'True' allows columns to be 'selected'
                   (ie: expanded sub-report).
         """
@@ -101,28 +110,31 @@ class AbstractReport(CremeEntity):
         return columns
 
     @property
-    def columns(self):
+    def columns(self) -> List['Field']:
         columns = self._columns
 
-        if columns is None: # root report
+        if columns is None:  # root report
             columns = self._build_columns(allow_selected=True)
 
         return columns
 
     @cached_property
-    def _fields_configs(self):
+    def _fields_configs(self) -> FieldsConfig.LocalCache:
         "Protected API. Useful for ReportHands/ReportGraphHand (in order to avoid queries)"
         return FieldsConfig.LocalCache()
 
     @cached_property
-    def filtered_columns(self):
-        return [column for column in self.columns if not column.hand.hidden]
+    def filtered_columns(self) -> List['Field']:
+        # TODO: avoid case of hand which is None (RAII) => remove <if column.hand>
+        return [column for column in self.columns if column.hand and not column.hand.hidden]
 
-    def get_ascendants_reports(self):
+    def get_ascendants_reports(self) -> Set['AbstractReport']:
         asc_reports = [
-            *type(self).objects.filter(pk__in=Field.objects.filter(sub_report=self.id)
-                                                           .values_list('report', flat=True)
-                                      )
+            *type(self).objects.filter(
+                pk__in=Field.objects
+                            .filter(sub_report=self.id)
+                            .values_list('report', flat=True),
+            ),
         ]
 
         for report in asc_reports:
@@ -131,9 +143,15 @@ class AbstractReport(CremeEntity):
         return {*asc_reports}
 
     # TODO: move 'user' as first argument + no default value ?
-    def _fetch(self, limit_to=None, extra_q=None, user=None):
+    def _fetch(self,
+               limit_to: Optional[int] = None,
+               extra_q: Optional[models.Q] = None,
+               user=None) -> Iterator[list]:
         user = user or get_user_model()(is_superuser=True)
-        entities = EntityCredentials.filter(user, self.ct.model_class().objects.filter(is_deleted=False))
+        entities = EntityCredentials.filter(
+            user,
+            self.ct.model_class().objects.filter(is_deleted=False),
+        )
 
         if self.filter is not None:
             entities = self.filter.filter(entities)
@@ -141,15 +159,22 @@ class AbstractReport(CremeEntity):
         if extra_q is not None:
             entities = entities.filter(extra_q)
 
+        if limit_to:
+            entities = entities[:limit_to]
+
         fields = self.filtered_columns
 
-        return ([field.get_value(entity, scope=entities, user=user)
-                    for field in fields
-                ] for entity in entities[:limit_to]
-               )
+        for entity in entities:
+            yield [
+                field.get_value(entity, scope=entities, user=user)
+                for field in fields
+            ]
 
     # TODO: transform into generator (--> StreamResponse)
-    def fetch_all_lines(self, limit_to=None, extra_q=None, user=None):
+    def fetch_all_lines(self,
+                        limit_to: Optional[int] = None,
+                        extra_q: Optional[models.Q] = None,
+                        user=None) -> List[List[str]]:
         from ..core.report import ExpandableLine  # Lazy loading
 
         lines = []
@@ -162,8 +187,11 @@ class AbstractReport(CremeEntity):
 
         return lines
 
-    def get_children_fields_flat(self):
-        return chain.from_iterable(f.get_children_fields_flat() for f in self.filtered_columns)
+    def get_children_fields_flat(self) -> Iterator['Field']:
+        return chain.from_iterable(
+            f.get_children_fields_flat()
+            for f in self.filtered_columns
+        )
 
     def _post_save_clone(self, source):
         for rfield in source.fields.all():
@@ -178,24 +206,29 @@ class AbstractReport(CremeEntity):
 
     # TODO: add a similar EntityCell type in creme_core (& so move this code in core)
     @staticmethod
-    def get_related_fields_choices(model):
+    def get_related_fields_choices(model) -> List[Tuple[str, str]]:
         # TODO: can we just use the regular introspection (+ field tags ?) instead
         allowed_related_fields = model.allowed_related
 
         # TODO: factorise (creme_core.utils.meta ?)
         # NB: https://docs.djangoproject.com/en/1.8/ref/models/meta/#migrating-from-the-old-api
         get_fields = model._meta.get_fields
-        related_fields = (f for f in get_fields()
-                                if (f.one_to_many or f.one_to_one) and f.auto_created
-                         )
-        m2m_fields = (f for f in get_fields(include_hidden=True)
-                            if f.many_to_many and f.auto_created
-                     )
+        related_fields = (
+            f
+            for f in get_fields()
+            if (f.one_to_many or f.one_to_one) and f.auto_created
+        )
+        m2m_fields = (
+            f
+            for f in get_fields(include_hidden=True)
+            if f.many_to_many and f.auto_created
+        )
 
-        return [(f.name, str(f.related_model._meta.verbose_name))
-                    for f in chain(related_fields, m2m_fields)
-                        if f.name in allowed_related_fields
-               ]
+        return [
+            (f.name, str(f.related_model._meta.verbose_name))
+            for f in chain(related_fields, m2m_fields)
+            if f.name in allowed_related_fields
+        ]
 
 
 class Report(AbstractReport):
@@ -204,18 +237,26 @@ class Report(AbstractReport):
 
 
 class Field(CremeModel):
-    report     = models.ForeignKey(settings.REPORTS_REPORT_MODEL,
-                                   related_name='fields',
-                                   on_delete=models.CASCADE,
-                                  ).set_tags(viewable=False)
-    name       = models.CharField(_('Name of the column'), max_length=100).set_tags(viewable=False)
-    order      = models.PositiveIntegerField().set_tags(viewable=False)
-    type       = models.PositiveSmallIntegerField().set_tags(viewable=False)  # ==> see RFT_* in constants #Add in choices ?
+    report = models.ForeignKey(
+        settings.REPORTS_REPORT_MODEL,
+        related_name='fields',
+        on_delete=models.CASCADE,
+    ).set_tags(viewable=False)
+
+    # TODO: choices ?
+    type = models.PositiveSmallIntegerField().set_tags(viewable=False)  # ==> see RFT_* in constants #Add in choices ?
+    # TODO: rename "value" ??
+    # name = models.CharField(_('Name of the column'), max_length=100).set_tags(viewable=False)
+    name = models.CharField(max_length=100).set_tags(viewable=False)
+
+    order = models.PositiveIntegerField().set_tags(viewable=False)
+
     selected   = models.BooleanField(default=False).set_tags(viewable=False)  # Use this field to expand
-    sub_report = models.ForeignKey(settings.REPORTS_REPORT_MODEL,
-                                   blank=True, null=True,
-                                   on_delete=models.CASCADE,
-                                  ).set_tags(viewable=False)
+    sub_report = models.ForeignKey(
+        settings.REPORTS_REPORT_MODEL,
+        blank=True, null=True,
+        on_delete=models.CASCADE,
+    ).set_tags(viewable=False)
 
     _hand = None
 
@@ -228,7 +269,7 @@ class Field(CremeModel):
     def __str__(self):
         return self.title
 
-    def _build_children(self, allow_selected):
+    def _build_children(self, allow_selected: bool) -> None:
         """Force the tree to be built, and fix the 'selected' attributes.
         Only root fields (ie: deep==0), or children a selected root field,
         can be selected.
@@ -240,7 +281,7 @@ class Field(CremeModel):
         if sub_report:
             sub_report._build_columns(self.selected)
 
-    def clone(self, report=None):
+    def clone(self, report: Optional['AbstractReport'] = None) -> 'Field':
         fields_kv = {}
 
         for field in self._meta.fields:
@@ -254,7 +295,7 @@ class Field(CremeModel):
         return Field.objects.create(**fields_kv)
 
     @property
-    def hand(self):
+    def hand(self) -> Optional['ReportHand']:
         from ..core.report import REPORT_HANDS_MAP, ReportHand  # Lazy loading
 
         hand = self._hand
@@ -268,8 +309,8 @@ class Field(CremeModel):
 
         return hand
 
-    def get_children_fields_flat(self):
-        children = []
+    def get_children_fields_flat(self) -> List['Field']:
+        children: List['Field'] = []
 
         if self.selected:
             for child in self.sub_report.columns:
@@ -279,19 +320,24 @@ class Field(CremeModel):
 
         return children
 
-    def get_value(self, entity, user, scope):
+    def get_value(self,
+                  entity: Optional[CremeEntity],
+                  user,
+                  scope: models.QuerySet) -> Union[str, list]:
         """Return the value of the cell for this entity.
-        @param entity CremeEntity instance, or None.
-        @param user User instance, used to check credentials.
-        @scope QuerySet of CremeEntities (used to make correct aggregate).
-        @return An unicode or a list (that correspond to an expanded column).
+        @param entity: CremeEntity instance, or None.
+        @param user: User instance, used to check credentials.
+        @param scope: QuerySet of CremeEntities (used to make correct aggregate).
+        @return A string or a list (that correspond to an expanded column).
         """
-        return self.hand.get_value(entity, user, scope)
+        hand = self.hand
+        return hand.get_value(entity, user, scope) if hand else '??'
 
     @property
-    def model(self):
+    def model(self) -> Type[CremeEntity]:
         return self.report.ct.model_class()
 
     @property
-    def title(self):
-        return self.hand.title
+    def title(self) -> str:
+        hand = self.hand
+        return hand.title if hand else '??'

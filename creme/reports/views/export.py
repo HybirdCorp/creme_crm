@@ -89,12 +89,12 @@ class Preview(generic.EntityDetail):
         return empty_message
 
     def get_lines(self, form):
-        # return self.object.fetch_all_lines(limit_to=_PREVIEW_LIMIT_COUNT,
-        return self.object.fetch_all_lines(limit_to=self.limit_count,
-                                           extra_q=form.get_q(),
-                                           user=self.request.user,
-                                          ) \
-               if form.is_valid() else []
+        return self.object.fetch_all_lines(
+            # limit_to=_PREVIEW_LIMIT_COUNT,
+            limit_to=self.limit_count,
+            extra_q=form.get_q(),
+            user=self.request.user,
+        ) if form.is_valid() else []
 
 
 class ExportFilterURL(generic.EntityEditionPopup):
@@ -188,7 +188,9 @@ class Export(generic.base.EntityRelatedMixin, generic.CheckedView):
         # writer = backend()
         writerow = writer.writerow
 
-        writerow([smart_str(column.title) for column in report.get_children_fields_flat()])
+        writerow([
+            smart_str(column.title) for column in report.get_children_fields_flat()
+        ])
 
         for line in report.fetch_all_lines(extra_q=q_filter, user=user):
             writerow([smart_str(value) for value in line])
