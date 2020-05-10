@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
             name='Field',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=100, verbose_name='Name of the column')),
+                ('name', models.CharField(max_length=100)),  # verbose_name='Name of the column'
                 ('order', models.PositiveIntegerField()),
                 ('type', models.PositiveSmallIntegerField()),
                 ('selected', models.BooleanField(default=False)),

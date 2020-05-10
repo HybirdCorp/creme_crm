@@ -18,13 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Dict, Iterator, Optional, Tuple, Type
+
 from django.db import models
+from django.db.models.aggregates import Aggregate
 
 from creme.creme_core.models import CustomField
 
 
 class FieldAggregation:
-    def __init__(self, name, func, pattern, title):
+    def __init__(self, name: str, func: Type[Aggregate], pattern: str, title: str):
         self.name    = name
         self.func    = func
         self.pattern = pattern
@@ -34,18 +37,21 @@ class FieldAggregation:
 class FieldAggregationRegistry:
     __slots__ = ('_aggregations',)
 
-    authorized_fields = (
+    authorized_fields: Tuple[Type[models.Field], ...] = (
         models.IntegerField,
         models.DecimalField,
         models.FloatField,
         # models.PositiveIntegerField, models.PositiveSmallIntegerField,  models.SmallIntegerField,
     )
-    authorized_customfields = (CustomField.INT, CustomField.FLOAT)
+    authorized_customfields: Tuple[int, ...] = (
+        CustomField.INT,
+        CustomField.FLOAT,
+    )
 
     def __init__(self):
-        self._aggregations = {}
+        self._aggregations: Dict[str, FieldAggregation] = {}
 
-    def register(self, field_aggregation):
+    def register(self, field_aggregation: FieldAggregation) -> 'FieldAggregationRegistry':
         """Register a type of aggregation for reports.
         @param field_aggregation: Instance of FieldAggregation.
         @return A reference to self, to allow fluent chaining of 'register()' calls.
@@ -53,14 +59,14 @@ class FieldAggregationRegistry:
         self._aggregations[field_aggregation.name] = field_aggregation
         return self
 
-    def get(self, name):
+    def get(self, name: str) -> Optional[FieldAggregation]:
         return self._aggregations.get(name)
 
     # def __iter__(self):
     #     return self._aggregations.items()
 
     @property
-    def aggregations(self):
+    def aggregations(self) -> Iterator[FieldAggregation]:
         return iter(self._aggregations.values())
 
 
