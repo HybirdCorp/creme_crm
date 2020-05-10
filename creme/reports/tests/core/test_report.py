@@ -236,7 +236,7 @@ class ReportHandTestCase(CremeTestCase):
             str(cm.exception)
         )
 
-    def test_regular_aggregate(self):
+    def test_regular_aggregate01(self):
         rfield = Field(
             report=Report(ct=FakeOrganisation),
             type=RFT_AGG_FIELD, name='capital__avg',
@@ -249,6 +249,27 @@ class ReportHandTestCase(CremeTestCase):
         )
         self.assertFalse(hand.hidden)
         self.assertIsNone(hand.get_linkable_ctypes())
+
+    def test_regular_aggregate02(self):
+        "Hidden field."
+        fname = 'capital'
+        FieldsConfig.objects.create(
+            content_type=FakeOrganisation,
+            descriptions=[
+                (fname, {FieldsConfig.HIDDEN: True}),
+            ],
+        )
+
+        rfield = Field(
+            report=Report(ct=FakeOrganisation),
+            type=RFT_AGG_FIELD, name=f'{fname}__avg',
+        )
+        hand = RHAggregateRegularField(rfield)
+        self.assertEqual(
+            f"{_('Average')} - {_('Capital')}",
+            hand.title
+        )
+        self.assertTrue(hand.hidden)
 
     def test_regular_aggregate_error01(self):
         fname = 'unknown'
