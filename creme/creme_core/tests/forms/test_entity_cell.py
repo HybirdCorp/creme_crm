@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from copy import deepcopy
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
@@ -383,3 +384,12 @@ class EntityCellsFieldTestCase(FieldTestCase):
         self.assertCellOK(cells[2], EntityCellFunctionField, funcfield.name)
         self.assertCellOK(cells[3], EntityCellCustomField,   str(customfield.id))
         self.assertCellOK(cells[4], EntityCellRegularField, 'first_name')
+
+    def test_copy(self):
+        field1 = EntityCellsField(content_type=self.ct_contact)
+        field2 = deepcopy(field1)
+
+        field1.non_hiddable_cells = [
+            EntityCellRegularField.build(FakeContact, 'first_name'),
+        ]
+        self.assertListEqual([], field2.non_hiddable_cells)
