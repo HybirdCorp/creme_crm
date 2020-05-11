@@ -19,6 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
+from copy import deepcopy
 import logging
 
 from django.core.exceptions import ValidationError
@@ -157,6 +158,11 @@ class EntityCellsField(Field):
         self._non_hiddable_cells = []
         self.content_type = content_type
         self.user = None
+
+    def __deepcopy__(self, memo):
+        result = super().__deepcopy__(memo)
+        result._non_hiddable_cells = deepcopy(self._non_hiddable_cells, memo)
+        return result
 
     def _build_4_regularfield(self, model, name):
         return EntityCellRegularField.build(model=model, name=name[len(_RFIELD_PREFIX):])
