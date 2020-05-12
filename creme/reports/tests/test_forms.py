@@ -52,13 +52,19 @@ try:
         OrdinateField,
     )
     from creme.reports.forms.report import (
-        _EntityCellAggregate, _EntityCellCustomAggregate,
+        _EntityCellAggregate, _EntityCellCustomAggregate, _EntityCellRelated,
         ReportHandsField,
+        ReportFieldsForm,
+    )
+    from creme.reports.models import (
+        Field,
+        FakeReportsFolder,
     )
 
     from .base import (
         AxisFieldsMixin, BaseReportsTestCase,
         Report, ReportGraph,
+        skipIfCustomReport,
     )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
@@ -66,7 +72,6 @@ except Exception as e:
 
 # TODO: complete
 #   - excluded FK to CremeEntity
-#   - widget.related_entities
 #   ...
 class ReportHandsFieldTestCase(FieldTestCase):
     @classmethod
@@ -224,6 +229,136 @@ class ReportHandsFieldTestCase(FieldTestCase):
         self.assertIsInstance(cell, _EntityCellCustomAggregate)
         self.assertEqual(FakeOrganisation, cell.model)
         self.assertEqual(f'{cf1.id}__avg', cell.value)
+
+    def test_related(self):
+        field = ReportHandsField()
+        widget = field.widget
+        self.assertListEqual([], [*widget.related_entities])
+
+        field.content_type = ContentType.objects.get_for_model(FakeReportsFolder)
+        value = 'related-fakereportsdocument'
+        self.assertListEqual(
+            [(value, 'Test (reports) Document')],
+            [*widget.related_entities]
+        )
+
+        cells = field.clean(value)
+        self.assertEqual(1, len(cells))
+
+        cell = cells[0]
+        self.assertIsInstance(cell, _EntityCellRelated)
+        self.assertEqual(FakeReportsFolder,     cell.model)
+        self.assertEqual('fakereportsdocument', cell.value)
+
+
+@skipIfCustomReport
+class ReportFieldsFormTestCase(BaseReportsTestCase):
+    def test_initial01(self):
+        user = self.create_user()
+        report = self._create_simple_contacts_report(user=user)
+
+        rtype = self.get_object_or_fail(RelationType, id=REL_SUB_HAS)
+        func_name = 'get_pretty_properties'
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            name='Hair',
+            field_type=CustomField.ENUM,
+        )
+
+        create_rfield = partial(Field.objects.create, report=report)
+        create_rfield(type=constants.RFT_RELATION, name=rtype.id,       order=3)
+        create_rfield(type=constants.RFT_FUNCTION, name=func_name,      order=3)
+        create_rfield(type=constants.RFT_CUSTOM,   name=str(cfield.id), order=4)
+
+        form = ReportFieldsForm(user=user, instance=report)
+
+        columns_f = form.fields['columns']
+        self.assertIsInstance(columns_f, ReportHandsField)
+        self.assertEqual(self.ct_contact, columns_f.content_type)
+
+        cells = [
+            EntityCellRegularField.build(FakeContact, 'last_name'),
+            EntityCellRelation(model=FakeContact, rtype=rtype),
+            EntityCellFunctionField.build(FakeContact, func_name),
+            EntityCellCustomField(cfield),
+        ]
+        self.assertListEqual(cells, columns_f.initial)
+        self.assertListEqual(cells, columns_f.non_hiddable_cells)
+
+    def test_initial02(self):
+        "Regular aggregate."
+        user = self.create_user()
+        report = Report.objects.create(
+            user=user,
+            name='Organisation report',
+            ct=FakeOrganisation,
+        )
+
+        agg_id = 'capital__max'
+        Field.objects.create(
+            report=report,
+            type=constants.RFT_AGG_FIELD, name=agg_id,
+            order=1,
+        )
+
+        form = ReportFieldsForm(user=user, instance=report)
+
+        columns_f = form.fields['columns']
+        self.assertEqual(self.ct_orga, columns_f.content_type)
+        self.assertEqual(
+            [_EntityCellAggregate(model=FakeOrganisation, agg_id=agg_id)],
+            columns_f.initial
+        )
+
+    def test_initial03(self):
+        "Custom aggregate."
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            name='Hair size',
+            field_type=CustomField.INT,
+        )
+
+        user = self.create_user()
+        report = Report.objects.create(
+            user=user,
+            name='Contact report',
+            ct=self.ct_contact,
+        )
+
+        agg_id = f'{cfield.id}__max'
+        Field.objects.create(
+            report=report,
+            type=constants.RFT_AGG_CUSTOM, name=agg_id,
+            order=1,
+        )
+
+        form = ReportFieldsForm(user=user, instance=report)
+        self.assertEqual(
+            [_EntityCellCustomAggregate(model=FakeContact, agg_id=agg_id)],
+            form.fields['columns'].initial
+        )
+
+    def test_initial04(self):
+        "Related field."
+        user = self.create_user()
+        report = Report.objects.create(
+            user=user,
+            name='Folder report',
+            ct=self.ct_folder,
+        )
+
+        name = 'fakereportsdocument'
+        Field.objects.create(
+            report=report,
+            type=constants.RFT_RELATED, name=name,
+            order=1,
+        )
+
+        form = ReportFieldsForm(user=user, instance=report)
+        self.assertEqual(
+            [_EntityCellRelated(model=FakeReportsFolder, related_name=name)],
+            form.fields['columns'].initial
+        )
 
 
 class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):

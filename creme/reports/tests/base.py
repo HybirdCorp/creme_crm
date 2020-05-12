@@ -136,28 +136,37 @@ class BaseReportsTestCase(CremeTestCase):
             pk='test_hf', name='name', model=FakeContact, cells_desc=cells,
         )
 
-        response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'user':   self.user.pk,
-                                          'name':   name,
-                                          'ct':     self.ct_contact.id,
-                                          'hf':     hf.id,
-                                          'filter': efilter.id if efilter else '',
-                                         },
-                                   )
+        response = self.client.post(
+            self.ADD_URL, follow=True,
+            data={
+                'user':   self.user.pk,
+                'name':   name,
+                'ct':     self.ct_contact.id,
+                'hf':     hf.id,
+                'filter': efilter.id if efilter else '',
+            },
+        )
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(Report, name=name)
 
-    def _create_simple_contacts_report(self, name='Contact report', efilter=None):
-        report = Report.objects.create(user=self.user, name=name, ct=FakeContact, filter=efilter)
+    def _create_simple_contacts_report(self, name='Contact report', efilter=None, user=None):
+        report = Report.objects.create(
+            user=user or self.user,
+            name=name,
+            ct=FakeContact,
+            filter=efilter,
+        )
         Field.objects.create(report=report, name='last_name', type=RFT_FIELD, order=1)
 
         return report
 
     def _create_simple_documents_report(self, user=None):
-        report = Report.objects.create(name="Documents report", user=user or self.user,
-                                       ct=FakeReportsDocument,
-                                      )
+        report = Report.objects.create(
+            name='Documents report',
+            user=user or self.user,
+            ct=FakeReportsDocument,
+        )
 
         create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
         create_field(name='title',       order=1)
@@ -166,7 +175,9 @@ class BaseReportsTestCase(CremeTestCase):
         return report
 
     def _create_simple_organisations_report(self, name='Orga report', efilter=None):
-        report = Report.objects.create(user=self.user, name=name, ct=FakeOrganisation, filter=efilter)
+        report = Report.objects.create(
+            user=self.user, name=name, ct=FakeOrganisation, filter=efilter,
+        )
         Field.objects.create(report=report, name='name', type=RFT_FIELD, order=1)
 
         return report
@@ -179,33 +190,42 @@ class BaseReportsTestCase(CremeTestCase):
 
     def _create_persons(self):
         user = self.user
-        create_contact = partial(FakeContact.objects.create, user=user)
-        create_contact(last_name='Langley', first_name='Asuka',  birthday=datetime(year=1981, month=7, day=25))
-        rei    = create_contact(last_name='Ayanami',   first_name='Rei',    birthday=datetime(year=1981, month=3, day=26))
-        misato = create_contact(last_name='Katsuragi', first_name='Misato', birthday=datetime(year=1976, month=8, day=12))
+
+        create = partial(FakeContact.objects.create, user=user)
+        create(last_name='Langley', first_name='Asuka',  birthday=datetime(year=1981, month=7, day=25))
+        rei    = create(last_name='Ayanami',   first_name='Rei',    birthday=datetime(year=1981, month=3, day=26))
+        misato = create(last_name='Katsuragi', first_name='Misato', birthday=datetime(year=1976, month=8, day=12))
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
         CremeProperty.objects.create(type=ptype, creme_entity=rei)
 
-        Relation.objects.create(user=user, type_id=REL_SUB_HAS,
-                                subject_entity=misato, object_entity=nerv
-                               )
+        Relation.objects.create(
+            user=user,
+            subject_entity=misato,
+            type_id=REL_SUB_HAS,
+            object_entity=nerv,
+        )
 
-    def _create_invoice(self, source, target, name="Invoice#01",
-                        total_vat=Decimal("0"), issuing_date=None,
+    def _create_invoice(self, source, target, name='Invoice#01',
+                        total_vat=Decimal('0'), issuing_date=None,
                        ):
         user = self.user
-        invoice = FakeInvoice.objects.create(user=user,
-                                             issuing_date=issuing_date or now().date(),
-                                             name=name,
-                                             total_vat=total_vat,
-                                            )
+        invoice = FakeInvoice.objects.create(
+            user=user,
+            issuing_date=issuing_date or now().date(),
+            name=name,
+            total_vat=total_vat,
+        )
 
-        FakeInvoiceLine.objects.create(user=user, linked_invoice=invoice, item='Stuff',
-                                       quantity=Decimal("1"), unit_price=total_vat,
-                                      )
+        FakeInvoiceLine.objects.create(
+            user=user,
+            linked_invoice=invoice,
+            item='Stuff',
+            quantity=Decimal('1'),
+            unit_price=total_vat,
+        )
 
         create_rel = partial(Relation.objects.create, subject_entity=invoice, user=user)
         create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source)
