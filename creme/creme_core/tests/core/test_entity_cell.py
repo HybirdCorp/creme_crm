@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from copy import deepcopy
     from functools import partial
 
     from django.conf import settings
@@ -54,6 +55,27 @@ class EntityCellTestCase(CremeTestCase):
 
         registry(EntityCellRegularField)
         self.assertEqual(EntityCellRegularField, registry[EntityCellRegularField.type_id])
+
+    def test_registry03(self):
+        "Deepcopy."
+        registry1 = EntityCellsRegistry()
+        registry1(EntityCellRegularField)
+        registry1(EntityCellCustomField)
+
+        registry2 = deepcopy(registry1)
+        registry2(EntityCellFunctionField)
+
+        with self.assertNoException():
+            __ = registry1[EntityCellRegularField.type_id]
+            __ = registry2[EntityCellRegularField.type_id]
+
+            __ = registry1[EntityCellCustomField.type_id]
+            __ = registry2[EntityCellCustomField.type_id]
+
+            __ = registry2[EntityCellFunctionField.type_id]
+
+        with self.assertRaises(KeyError):
+            __ = registry1[EntityCellFunctionField.type_id]
 
     def test_registry_build_cells_from_dicts01(self):
         "No error."
