@@ -75,7 +75,8 @@ class ReportsConfig(CremeAppConfig):
         )
         register(
             self.ReportGraph,
-            exclude=['days', 'is_count', 'chart'],
+            # exclude=['days', 'is_count', 'chart'],
+            exclude=['chart'],
         )  # TODO: chart -> innerform
 
     def register_icons(self, icon_registry):
