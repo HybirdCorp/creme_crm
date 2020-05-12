@@ -106,7 +106,7 @@ class EntityCell:
         )
 
     def __repr__(self):
-        return f"<EntityCell(type={self.type_id}, value='{self.value}')>"
+        return f"<EntityCell(model=<{self.model.__name__}>, type='{self.type_id}', value='{self.value}')>"
 
     def __str__(self):
         return self.title

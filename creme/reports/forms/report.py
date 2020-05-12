@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from copy import deepcopy
 from functools import partial
 from itertools import chain
 from typing import Type
@@ -37,6 +38,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellFunctionField,
     EntityCellRelation,
+    CELLS_MAP,
 )
 from creme.creme_core.forms import CremeEntityForm, CremeForm
 from creme.creme_core.forms.fields import (
@@ -59,24 +61,45 @@ from ..models import Field
 from ..report_aggregation_registry import field_aggregation_registry
 
 Report = get_report_model()
+reports_cells_registry = deepcopy(CELLS_MAP)
 
 
-# NB: No need to validate (only built by form that does validation for us).
-class _EntityCellRelated(EntityCell):
+class _ReportOnlyEntityCell(EntityCell):
+    @classmethod
+    def build(cls, model, name):
+        # NB: No need to validate (only built by form that does validation for us).
+        return cls(model, name)
+
+    def render_html(self, entity, user):
+        return ''
+
+    def render_csv(self, entity, user):
+        return ''
+
+
+# class _EntityCellRelated(EntityCell):
+@reports_cells_registry
+class _EntityCellRelated(_ReportOnlyEntityCell):
     type_id = 'related'
 
-    def __init__(self, model, agg_id):
-        super().__init__(model=model, value=agg_id, title='Related')
+    # def __init__(self, model, agg_id):
+    def __init__(self, model, related_name):
+        # super().__init__(model=model, value=agg_id, title='Related')
+        super().__init__(model=model, value=related_name, title='Related')
 
 
-class _EntityCellAggregate(EntityCell):
+# class _EntityCellAggregate(EntityCell):
+@reports_cells_registry
+class _EntityCellAggregate(_ReportOnlyEntityCell):
     type_id = 'regular_aggregate'
 
     def __init__(self, model, agg_id):
         super().__init__(model=model, value=agg_id, title='Aggregate')
 
 
-class _EntityCellCustomAggregate(EntityCell):
+# class _EntityCellCustomAggregate(EntityCell):
+@reports_cells_registry
+class _EntityCellCustomAggregate(_ReportOnlyEntityCell):
     type_id = 'custom_aggregate'
 
     def __init__(self, model, agg_id):
@@ -313,20 +336,29 @@ class ReportFieldsForm(CremeForm):
         self.report = instance
         super().__init__(*args, **kwargs)
 
-        cells = []
-        model = self.report.ct.model_class()
-        for column in instance.columns:
-            # TODO: this is a hack : EntityCellWidgets only use value & type_id to check initial data
-            #       it would be better to use a method column.hand.to_entity_cell()
-            if column.hand:  # Check validity
-                if column.type == constants.RFT_FIELD:
-                    # Only the non_hiddable_cells with class EntityCellRegularField are used.
-                    cell = EntityCellRegularField.build(model=model, name=column.name)
-                else:
-                    cell = EntityCell(model=model, value=column.name)
-                    cell.type_id = _HAND_2_CELL_MAP[column.type]
-
-                cells.append(cell)
+        # cells = []
+        # model = self.report.ct.model_class()
+        # for column in instance.columns:
+        #     if column.hand:  # Check validity
+        #         if column.type == constants.RFT_FIELD:
+        #             # Only the non_hiddable_cells with class EntityCellRegularField are used.
+        #             cell = EntityCellRegularField.build(model=model, name=column.name)
+        #         else:
+        #             cell = EntityCell(model=model, value=column.name)
+        #             cell.type_id = _HAND_2_CELL_MAP[column.type]
+        #
+        #         cells.append(cell)
+        cells = reports_cells_registry.build_cells_from_dicts(
+            model=self.report.ct.model_class(),
+            dicts=[
+                {
+                    'type': _HAND_2_CELL_MAP[column.type],
+                    'value': column.name,
+                }
+                for column in instance.columns
+                if column.hand  # Check validity
+            ],
+        )[0]
 
         columns_f = self.fields['columns']
         columns_f.non_hiddable_cells = cells
