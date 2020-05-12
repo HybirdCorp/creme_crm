@@ -48,6 +48,7 @@ try:
         RHAggregateRegularField,
         RHAggregateCustomField,
         RHRelated,
+        ExpandableLine,
     )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
@@ -447,4 +448,38 @@ class ReportHandRegistryTestCase(CremeTestCase):
 
     # TODO: test collision ('true' exception?)
 
-# TODO: test ExpandableLine
+
+class ExpandableLineTestCase(CremeTestCase):
+    def test_empty(self):
+        self.assertListEqual(
+            [[]],
+            ExpandableLine(values=[]).get_lines()
+        )
+
+    def test_flat(self):
+        self.assertListEqual(
+            [['a', 'b']],
+            ExpandableLine(values=['a', 'b']).get_lines()
+        )
+
+    def test_expand(self):
+        self.assertListEqual(
+            [
+                ['a', 'b', 'c', 'e'],
+                ['a', 'b', 'd', 'e'],
+            ],
+            ExpandableLine(values=['a', 'b', ['c', 'd'], 'e']).get_lines()
+        )
+        self.assertListEqual(
+            [
+                ['a', 'b', 'c', 'd', 'e'],
+            ],
+            ExpandableLine(values=['a', 'b', [['c', 'd']], 'e']).get_lines()
+        )
+        self.assertListEqual(
+            [
+                ['a', 'b', 'c', 'd', 'g'],
+                ['a', 'b', 'e', 'f', 'g'],
+            ],
+            ExpandableLine(values=['a', 'b', [['c', 'd'], ['e', 'f']], 'g']).get_lines()
+        )
