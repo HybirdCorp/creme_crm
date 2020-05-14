@@ -18,25 +18,37 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.contrib.contenttypes.models import ContentType
+from django.db import IntegrityError
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import (
+    gettext_lazy as _,
+    gettext,
+    ngettext,
+)
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
     CustomField, CustomFieldEnumValue,
+    BrickState,
     Job, DeletionCommand,
 )
-from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core import utils
 from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import BricksReloading
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 from creme.creme_core.views.utils import json_update_from_widget_response
 
-from ..bricks import CustomEnumsBrick
+from .. import bricks
+from ..constants import BRICK_STATE_HIDE_DELETED_CFIELDS
 from ..forms import custom_fields as cf_forms
 
 from . import base
+
+logger = logging.getLogger(__name__)
 
 
 class FirstCTypeCustomFieldCreation(base.ConfigModelCreation):
@@ -76,25 +88,58 @@ class CustomFieldEdition(base.ConfigModelEdition):
     form_class = cf_forms.CustomFieldEditionForm
     pk_url_kwarg = 'field_id'
 
+    def check_instance_permissions(self, instance, user):
+        if instance.is_deleted:
+            raise ConflictError(gettext('This custom field is deleted.'))
 
-class CTypeCustomFieldsDeletion(base.ConfigDeletion):
-    ct_id_arg = 'id'
 
-    def perform_deletion(self, request):
-        for field in CustomField.objects.filter(
-            content_type=get_from_POST_or_404(request.POST, self.ct_id_arg),
-        ):
-            field.delete()
+# class CTypeCustomFieldsDeletion(base.ConfigDeletion):
+#     ct_id_arg = 'id'
+#
+#     def perform_deletion(self, request):
+#         for field in CustomField.objects.filter(
+#             content_type=get_from_POST_or_404(request.POST, self.ct_id_arg),
+#         ):
+#             field.delete()
 
 
 class CustomFieldDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
     def perform_deletion(self, request):
-        get_object_or_404(
+        # get_object_or_404(
+        #     CustomField,
+        #     id=get_from_POST_or_404(request.POST, self.id_arg),
+        # ).delete()
+        cfield = get_object_or_404(
             CustomField,
-            id=get_from_POST_or_404(request.POST, self.id_arg),
-        ).delete()
+            id=utils.get_from_POST_or_404(request.POST, self.id_arg),
+        )
+        if cfield.is_deleted:
+            times_used = cfield.value_class.objects.filter(custom_field=cfield).count()
+
+            if times_used:
+                raise ConflictError(
+                    ngettext(
+                        'This custom field is still used by {count} entity, so it cannot be deleted.',
+                        'This custom field is still used by {count} entities, so it cannot be deleted.',
+                        times_used
+                    ).format(count=times_used)
+                )
+
+            cfield.delete()
+        else:
+            cfield.is_deleted = True
+            cfield.save()
+
+
+class CustomFieldRestoration(base.ConfigDeletion):
+    id_arg = 'id'
+
+    def perform_deletion(self, request):
+        CustomField.objects.filter(
+            id=utils.get_from_POST_or_404(request.POST, self.id_arg),
+        ).update(is_deleted=False)
 
 
 class EnumMixin:
@@ -121,6 +166,9 @@ class BaseCustomEnumAdding(EnumMixin, base.ConfigModelEdition):
     def check_instance_permissions(self, instance, user):
         self.check_custom_field(instance)
 
+        if instance.is_deleted:
+            raise ConflictError(gettext('This custom field is deleted.'))
+
 
 class FromWidgetCustomEnumAdding(BaseCustomEnumAdding):
     form_class = cf_forms.CustomEnumAddingForm
@@ -142,6 +190,10 @@ class CustomEnumEdition(base.ConfigModelEdition):
     pk_url_kwarg = 'enum_id'
     form_class = cf_forms.CustomEnumEditionForm
 
+    def check_instance_permissions(self, instance, user):
+        if instance.custom_field.is_deleted:
+            raise ConflictError(gettext('This custom field is deleted.'))
+
 
 class CustomEnumDeletion(base.ConfigModelEdition):
     model = CustomFieldEnumValue
@@ -154,6 +206,9 @@ class CustomEnumDeletion(base.ConfigModelEdition):
 
     # TODO: factorise with .generics_views.GenericDeletion
     def check_instance_permissions(self, instance, user):
+        if instance.custom_field.is_deleted:
+            raise ConflictError(gettext('This custom field is deleted.'))
+
         dcom = DeletionCommand.objects.filter(
             content_type=ContentType.objects.get_for_model(type(instance)),
         ).first()
@@ -200,4 +255,38 @@ class CustomEnumBrickReloading(BricksReloading):
         return context
 
     def get_brick_ids(self):
-        return [CustomEnumsBrick.id_]
+        return [bricks.CustomEnumsBrick.id_]
+
+
+# TODO: factorise with user.HideInactiveUsers
+class HideDeletedCustomFields(generic.CheckedView):
+    value_arg = 'value'
+    brick_cls = bricks.CustomFieldsBrick
+
+    def post(self, request, **kwargs):
+        value = utils.get_from_POST_or_404(
+            request.POST, key=self.value_arg,
+            cast=utils.bool_from_str_extended,
+        )
+
+        # NB: we can still have a race condition because we do not use select_for_update ;
+        #     but it's a state related one user & one brick, so it would not be a real world problem.
+        for _i in range(10):
+            state = BrickState.objects.get_for_brick_id(
+                brick_id=self.brick_cls.id_,
+                user=request.user,
+            )
+
+            try:
+                if state.set_extra_data(
+                    key=BRICK_STATE_HIDE_DELETED_CFIELDS,
+                    value=value,
+                ):
+                    state.save()
+            except IntegrityError:
+                logger.exception('Avoid a duplicate.')
+                continue
+            else:
+                break
+
+        return HttpResponse()

@@ -150,7 +150,7 @@ class ReportHandTestCase(CremeTestCase):
             [*hand.get_linkable_ctypes()]
         )
 
-    def test_custom_field(self):
+    def test_custom_field01(self):
         cfield = CustomField.objects.create(
             name='Size (cm)',
             field_type=CustomField.INT,
@@ -165,6 +165,23 @@ class ReportHandTestCase(CremeTestCase):
         self.assertEqual(_('Custom field'), hand.verbose_name)
         self.assertEqual(cfield.name,  hand.title)
         self.assertIs(hand.hidden, False)
+
+    def test_custom_field02(self):
+        "Deleted custom-field."
+        cfield = CustomField.objects.create(
+            name='Size (cm)',
+            field_type=CustomField.INT,
+            content_type=FakeContact,
+            is_deleted=True,
+        )
+
+        rfield = Field(
+            report=Report(ct=FakeContact),
+            type=RFT_CUSTOM, name=str(cfield.id),
+        )
+        hand = RHCustomField(rfield)
+        self.assertEqual(cfield.name,  hand.title)
+        self.assertIs(hand.hidden, True)
 
     def test_custom_field_error(self):
         cf_id = '1024'
@@ -317,7 +334,7 @@ class ReportHandTestCase(CremeTestCase):
             str(cm.exception)
         )
 
-    def test_custom_aggregate(self):
+    def test_custom_aggregate01(self):
         cfield = CustomField.objects.create(
             name='Size (cm)',
             field_type=CustomField.INT,
@@ -335,6 +352,26 @@ class ReportHandTestCase(CremeTestCase):
             hand.title
         )
         self.assertIs(hand.hidden, False)
+
+    def test_custom_aggregate02(self):
+        "Deleted custom-field."
+        cfield = CustomField.objects.create(
+            name='Size (cm)',
+            field_type=CustomField.INT,
+            content_type=FakeContact,
+            is_deleted=True,
+        )
+
+        rfield = Field(
+            report=Report(ct=FakeContact),
+            type=RFT_AGG_CUSTOM, name=f'{cfield.id}__avg',
+        )
+        hand = RHAggregateCustomField(rfield)
+        self.assertEqual(
+            f"{_('Average')} - {cfield.name}",
+            hand.title
+        )
+        self.assertTrue(hand.hidden)
 
     def test_custom_aggregate_error01(self):
         cf_id = 'unknown'

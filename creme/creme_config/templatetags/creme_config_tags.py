@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -55,5 +55,19 @@ def config_brick_menu_hide_inactive_users_action(context, url, hidden):
         current_state=not hidden,
         in_label=_('Hide inactive users'),
         out_label=_('Show inactive users'),
+        __value='false' if hidden else 'true',
+    )
+
+
+# TODO: factorise
+@register.inclusion_tag('creme_core/templatetags/bricks/menu-action.html', takes_context=True)
+def config_brick_menu_hide_deleted_cfields_action(context, url, hidden):
+    return _brick_menu_state_action(
+        context,
+        url=url,
+        action_id='update',
+        current_state=not hidden,
+        in_label=_('Hide deleted custom fields'),
+        out_label=_('Show deleted custom fields'),
         __value='false' if hidden else 'true',
     )

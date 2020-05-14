@@ -40,6 +40,7 @@ class CustomFieldManagerTestCase(CremeTestCase):
         __ = create_cfield(
             name='Weapon', field_type=CustomField.STR, content_type=FakeContact,
         )
+        # __ = create_cfield(name='Flag', field_type=CustomField.STR, is_deleted=True) ??
 
         qs1 = CustomField.objects.compatible(FakeOrganisation)
         self.assertIsInstance(qs1, QuerySet)
@@ -118,6 +119,7 @@ class CustomFieldsTestCase(CremeTestCase):
         )
         self.assertTrue(cfield.uuid)
         self.assertIs(cfield.is_required, False)
+        self.assertIs(cfield.is_deleted, False)
         self.assertEqual(name, str(cfield))
         self.assertEqual(CustomFieldInteger, cfield.get_value_class())
         self.assertEqual(CustomFieldInteger, cfield.value_class)

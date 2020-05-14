@@ -45,7 +45,7 @@ from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.unicode_collation import collator
 
-from .constants import BRICK_STATE_HIDE_INACTIVE_USERS
+from . import constants
 
 _PAGE_SIZE = 20
 User = get_user_model()
@@ -171,9 +171,10 @@ class RelationTypesBrick(_ConfigAdminBrick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
             context,
-            RelationType.objects.filter(is_custom=False,
-                                        pk__contains='-subject_',
-                                       ),
+            RelationType.objects.filter(
+                is_custom=False,
+                pk__contains='-subject_',
+            ),
             custom=False,
         ))
 
@@ -187,9 +188,10 @@ class CustomRelationTypesBrick(_ConfigAdminBrick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
             context,
-            RelationType.objects.filter(is_custom=True,
-                                        pk__contains='-subject_',
-                                       ),
+            RelationType.objects.filter(
+                is_custom=True,
+                pk__contains='-subject_',
+            ),
             custom=True,
         ))
 
@@ -269,6 +271,13 @@ class CustomFieldsBrick(Brick):
                              .order_by('id')\
                              .annotate(enum_count=Count('customfieldenumvalue_set'))
 
+        hide_deleted = BricksManager.get(context).get_state(
+            brick_id=self.id_,
+            user=context['user'],
+        ).get_extra_data(constants.BRICK_STATE_HIDE_DELETED_CFIELDS)
+        if hide_deleted:
+            cfields = cfields.exclude(is_deleted=True)
+
         # # Retrieve & cache Enum values (in order to display them of course)
         # enums_types = {CustomField.ENUM, CustomField.MULTI_ENUM}
         # enums_cfields = [
@@ -299,7 +308,9 @@ class CustomFieldsBrick(Brick):
         ]
 
         return self._render(self.get_template_context(
-            context, ctypes=ctypes,
+            context,
+            ctypes=ctypes,
+            hide_deleted=hide_deleted,
         ))
 
 
@@ -330,8 +341,10 @@ class UsersBrick(_ConfigAdminBrick):
         if not context['user'].is_staff:
             users = users.exclude(is_staff=True)
 
-        hide_inactive = BricksManager.get(context).get_state(self.id_, context['user']) \
-                        .get_extra_data(BRICK_STATE_HIDE_INACTIVE_USERS)
+        hide_inactive = BricksManager.get(context).get_state(
+            brick_id=self.id_,
+            user=context['user'],
+        ).get_extra_data(constants.BRICK_STATE_HIDE_INACTIVE_USERS)
         if hide_inactive:
             users = users.exclude(is_active=False)
 

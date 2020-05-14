@@ -1,7 +1,13 @@
 {% extends 'creme_core/bricks/base/list.html' %}
-{% load i18n creme_core_tags creme_widgets creme_bricks %}
+{% load i18n creme_core_tags creme_widgets creme_bricks creme_config_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-customfields-brick{% endblock %}
+
+{% block brick_menu_actions %}
+    {{block.super}}
+    <hr/>{% url 'creme_config__custom_fields_brick_hide_deleted' as hide_url %}
+    {% config_brick_menu_hide_deleted_cfields_action url=hide_url hidden=hide_deleted %}
+{% endblock %}
 
 {% block brick_header_title %}
     {% brick_header_title title=_('{count} Configured type of resource') plural=_('{count} Configured types of resource') empty=_('Configured types of resource') icon='config' count=ctypes|length %}
@@ -27,27 +33,39 @@
             <table class="brick-table-content">
                 <tbody>
                     {% for cfield in ctw.cfields %}
-                    <tr>
+                    <tr {% if cfield.is_deleted %}class="cfields-config-deleted"{% endif %}>
                         <td class="cfields-config-name">{{cfield.name}}</td>
                         <td class="cfields-config-type">
-{#                            {{cfield.type_verbose_name}}{% if cfield.is_required %}&nbsp;<span class="cfields-config-required">{% trans '(required)' %}</span>{% endif %} #}
+{#                            {{cfield.type_verbose_name}} #}
                             {{cfield.value_class.verbose_name}}{% if cfield.is_required %}&nbsp;<span class="cfields-config-required">{% trans '(required)' %}</span>{% endif %}
 {% comment %}
                             {% with values=cfield.enum_values %}
                                 {% if values %}({{values|join:' / '}}){% endif %}
                             {% endwith %}
 {% endcomment %}
-                            {% if cfield.is_enum %}
-                                {% url 'creme_config__custom_enums' cfield.id as enums_url %}
-                                {% blocktrans with count=cfield.enum_count asvar enums_label %}See & manage the choices (currently {{count}}){% endblocktrans %}
-                                {% brick_table_action id='redirect' url=enums_url label=enums_label type='view' display='both' %}
+                          {% if cfield.is_enum %}
+                            {% url 'creme_config__custom_enums' cfield.id as enums_url %}
+                            {% if cfield.is_deleted %}
+                            {% blocktrans with count=cfield.enum_count asvar enums_label %}See the choices (currently {{count}}){% endblocktrans %}
+                            {% else %}
+                            {% blocktrans with count=cfield.enum_count asvar enums_label %}See & manage the choices (currently {{count}}){% endblocktrans %}
                             {% endif %}
-                        </td>
-                        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_custom_field' cfield.id as edit_url %}
-                            {% brick_table_action id='edit' url=edit_url label=_('Edit this custom field') enabled=admin_perm %}
+                            {% brick_table_action id='redirect' url=enums_url label=enums_label type='view' display='both' %}
+                          {% endif %}
                         </td>
                         <td {% brick_table_data_status action %}>
+                          {% if cfield.is_deleted %}{% url 'creme_config__restore_custom_field' as restore_url %}
+                            {% brick_table_action id='update' url=restore_url __id=cfield.id icon='restore' label=_('Restore this custom field') enabled=admin_perm %}
+                          {% else %}{% url 'creme_config__edit_custom_field' cfield.id as edit_url %}
+                            {% brick_table_action id='edit' url=edit_url label=_('Edit this custom field') enabled=admin_perm %}
+                          {% endif %}
+                        </td>
+                        <td {% brick_table_data_status action %}>
+                            {% if cfield.is_deleted %}
+                            {% brick_table_action id='delete' url=delete_url __id=cfield.id label=_('Delete this custom field definitely') enabled=admin_perm %}
+                            {% else %}
                             {% brick_table_action id='delete' url=delete_url __id=cfield.id label=_('Delete this custom field') enabled=admin_perm %}
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

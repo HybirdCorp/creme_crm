@@ -23,6 +23,7 @@ from copy import deepcopy
 import logging
 
 from django.core.exceptions import ValidationError
+from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.forms.fields import EMPTY_VALUES, Field
 from django.forms.widgets import Widget
@@ -177,7 +178,16 @@ class EntityCellsField(Field):
         return EntityCellRelation(model=model, rtype=self._get_rtype(name[len(_RTYPE_PREFIX):]))
 
     def _choices_4_customfields(self, ct, builders):
-        self._custom_fields = CustomField.objects.compatible(ct)  # Cache
+        non_hiddable_cfield_ids = [
+            cell.custom_field.id
+            for cell in self._non_hiddable_cells
+            if isinstance(cell, EntityCellCustomField)
+        ]
+
+        self._custom_fields = CustomField.objects.compatible(ct).filter(
+            Q(is_deleted=False) |
+            Q(id__in=non_hiddable_cfield_ids)
+        )  # Cache
         self.widget.custom_fields = cfields_choices = []  # TODO: sort ?
 
         for cf in self._custom_fields:

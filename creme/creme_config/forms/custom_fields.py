@@ -120,16 +120,21 @@ CustomFieldsBaseForm = CustomFieldBaseForm  # DEPRECATED
 class FirstCustomFieldCreationForm(CustomFieldBaseForm):
     content_type = EntityCTypeChoiceField(
         label=_('Related resource'),
-        help_text=_('The other custom fields for this type of resource '
-                    'will be chosen by editing the configuration'
-                   ),
+        help_text=_(
+            'The other custom fields for this type of resource will be chosen '
+            'by editing the configuration'
+        ),
         widget=DynamicSelect({'autocomplete': True}),
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        used_ct_ids = {*CustomField.objects.values_list('content_type_id', flat=True)}
+        used_ct_ids = {
+            *CustomField.objects
+                        .exclude(is_deleted=True)
+                        .values_list('content_type_id', flat=True)
+        }
         ct_field = self.fields['content_type']
         ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
 

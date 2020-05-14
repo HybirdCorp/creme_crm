@@ -195,7 +195,7 @@ class ReportHandsFieldTestCase(FieldTestCase):
         self.assertEqual(FakeOrganisation, cell.model)
         self.assertEqual('capital__avg',   cell.value)
 
-    def test_custom_aggregates(self):
+    def test_custom_aggregates01(self):
         create_cf = partial(
             CustomField.objects.create,
             content_type=self.ct_orga,
@@ -229,6 +229,48 @@ class ReportHandsFieldTestCase(FieldTestCase):
         self.assertIsInstance(cell, _EntityCellCustomAggregate)
         self.assertEqual(FakeOrganisation, cell.model)
         self.assertEqual(f'{cf1.id}__avg', cell.value)
+
+    def test_custom_aggregates02(self):
+        "Field is deleted."
+        cfield = CustomField.objects.create(
+            content_type=self.ct_orga,
+            field_type=CustomField.INT, name='Rank',
+            is_deleted=True,
+        )
+
+        field = ReportHandsField(content_type=self.ct_orga)
+        self.assertListEqual([], [*field.widget.custom_aggregates])
+        self.assertFieldValidationError(
+            ReportHandsField, 'invalid', field.clean,
+            f'custom_aggregate-{cfield.id}__avg',
+        )
+
+    def test_custom_aggregates03(self):
+        "Field is deleted but already used => it is still proposed."
+        cfield = CustomField.objects.create(
+            content_type=self.ct_orga,
+            field_type=CustomField.INT, name='Rank',
+            is_deleted=True,
+        )
+
+        field = ReportHandsField(content_type=self.ct_orga)
+        field.non_hiddable_cells = [
+            _EntityCellCustomAggregate(FakeOrganisation, f'{cfield.id}__avg'),
+        ]
+
+        agg_id = f'custom_aggregate-{cfield.id}__avg'
+        self.assertListEqual(
+            [(agg_id, f"{_('Average')} - {cfield.name}")],
+            [*field.widget.custom_aggregates]
+        )
+
+        cells = field.clean(agg_id)
+        self.assertEqual(1, len(cells))
+
+        cell = cells[0]
+        self.assertIsInstance(cell, _EntityCellCustomAggregate)
+        self.assertEqual(FakeOrganisation,    cell.model)
+        self.assertEqual(f'{cfield.id}__avg', cell.value)
 
     def test_related(self):
         field = ReportHandsField()
@@ -369,10 +411,11 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertIsNone(cleaned)
 
     def test_clean_invalid_json(self):
-        self.assertFieldValidationError(AbscissaField, 'invalidformat',
-                                        AbscissaField(required=False).clean,
-                                        '{"entity_cell":{"cell_key":'
-                                       )
+        self.assertFieldValidationError(
+            AbscissaField, 'invalidformat',
+            AbscissaField(required=False).clean,
+            '{"entity_cell":{"cell_key":'
+        )
 
     def test_clean_invalid_data_type(self):
         clean = AbscissaField(required=False).clean
@@ -393,9 +436,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         field_name = 'sector'
         graph_type = constants.RGT_FK
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
         widget = field.widget
         self.assertEqual(model, field.model)
         self.assertEqual(model, widget.model)
@@ -421,9 +465,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         field_name = 'birthday'
         graph_type = constants.RGT_YEAR
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
 
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=FakeContact._meta.get_field(field_name),
@@ -489,9 +534,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
     def test_clean_rfield_error01(self):
         "Error on cell."
         model = FakeOrganisation
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
 
         self.assertFieldValidationError(
             AbscissaField, 'ecellrequired', field.clean,
@@ -607,9 +653,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
     def test_clean_rfield_error03(self):
         "Error on extra parameter."
         model = FakeContact
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
 
         abscissa = model._meta.get_field('created')
         graph_type = constants.RGT_RANGE
@@ -653,9 +700,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             descriptions=[(field_name, {FieldsConfig.HIDDEN: True})],
         )
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
         self.assertIsNone(field.initial)
         self.assertSetEqual(set(), field.not_hiddable_cell_keys)
         self.assertSetEqual(set(), field.widget.not_hiddable_cell_keys)
@@ -688,9 +736,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         graph_type = constants.RGT_RELATION
         rtype = RelationType.objects.compatible(model)[0]
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
 
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=rtype,
@@ -713,9 +762,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             ('test-object_foobar',  'is loved by', [FakeContact])
         )[0]
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
         self.assertFieldValidationError(
             AbscissaField, 'ecellnotallowed', field.clean,
             self.formfield_value_abscissa(
@@ -724,7 +774,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             ),
         )
 
-    def test_clean_cfield_enum(self):
+    def test_clean_cfield_enum01(self):
         model = FakeContact
         graph_type = constants.RGT_CUSTOM_FK
         cfield = CustomField.objects.create(
@@ -733,9 +783,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             field_type=CustomField.ENUM,
         )
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
 
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=cfield,
@@ -751,6 +802,42 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertEqual(graph_type, abs_info.graph_type)
         self.assertIsNone(abs_info.parameter)
 
+    def test_clean_cfield_enum02(self):
+        "Field is deleted."
+        model = FakeContact
+        graph_type = constants.RGT_CUSTOM_FK
+        cfield = CustomField.objects.create(
+            content_type=model,
+            name='Hair',
+            field_type=CustomField.ENUM,
+            is_deleted=True,
+        )
+
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
+
+        self.assertFieldValidationError(
+            AbscissaField, 'ecellnotallowed', field.clean,
+            self.formfield_value_abscissa(
+                abscissa=cfield,
+                graph_type=graph_type,
+            ),
+        )
+
+        # ---
+        cell = EntityCellCustomField(cfield)
+        init_abs_info = AbscissaInfo(cell=cell, graph_type=graph_type)
+        field.initial = init_abs_info
+        self.assertSetEqual({cell.key}, field.not_hiddable_cell_keys)
+
+        abs_info = field.clean(self.formfield_value_abscissa(
+            abscissa=cfield,
+            graph_type=graph_type,
+        ))
+        self.assertIsInstance(abs_info, AbscissaInfo)
+
     def test_clean_cfield_date_year(self):
         model = FakeContact
         graph_type = constants.RGT_CUSTOM_YEAR
@@ -760,9 +847,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             field_type=CustomField.DATETIME,
         )
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
 
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=cfield,
@@ -787,9 +875,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             field_type=CustomField.DATETIME,
         )
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
 
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=cfield,
@@ -814,9 +903,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             field_type=CustomField.DATETIME,
         )
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
 
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=cfield,
@@ -842,9 +932,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             field_type=CustomField.DATETIME,
         )
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
 
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=cfield,
@@ -868,9 +959,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             field_type=CustomField.INT,
         )
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
 
         self.assertFieldValidationError(
             AbscissaField, 'ecellnotallowed', field.clean,
@@ -897,9 +989,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
     def test_clean_cfield_error02(self):
         "Error on graph type."
         model = FakeOrganisation
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
 
         cfield_enum = CustomField.objects.create(
             content_type=model,
@@ -952,9 +1045,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
     def test_clean_cfield_error03(self):
         "Error on extra parameter."
         model = FakeContact
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
         graph_type = constants.RGT_CUSTOM_RANGE
 
         cfield = CustomField.objects.create(
@@ -995,9 +1089,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
     def test_clean_error01(self):
         "Error on cell."
         model = FakeOrganisation
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
         cell = EntityCellFunctionField.build(FakeContact, 'get_pretty_properties')
         self.assertFieldValidationError(
             AbscissaField, 'ecellnotallowed', field.clean,
@@ -1051,9 +1146,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
     def test_clean_error02(self):
         "Error on graph type."
         model = FakeContact
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
         cell = EntityCellRegularField.build(FakeContact, 'position')
         self.assertFieldValidationError(
             AbscissaField, 'graphtypenotallowed', field.clean,
@@ -1074,9 +1170,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         field_name = 'birthday'
         graph_type = constants.RGT_YEAR
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
 
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=FakeContact._meta.get_field(field_name),
@@ -1093,20 +1190,19 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
 
     def test_clean_not_required(self):
         model = FakeOrganisation
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                              required=False,
-                             )
-        self.assertIsNone(field.clean(self.formfield_value_abscissa(
-                                abscissa=None,
-                                graph_type='',
-                          ))
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+            required=False,
         )
         self.assertIsNone(field.clean(self.formfield_value_abscissa(
-                                abscissa=model._meta.get_field('sector'),
-                                graph_type='',
-                          ))
-        )
+            abscissa=None,
+            graph_type='',
+        )))
+        self.assertIsNone(field.clean(self.formfield_value_abscissa(
+            abscissa=model._meta.get_field('sector'),
+            graph_type='',
+        )))
 
     def test_clean_no_model01(self):
         "Regular field."
@@ -1175,9 +1271,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         )
 
     def test_from_python_rfield_date(self):
-        from_python = AbscissaField(model=FakeOrganisation,
-                                    abscissa_constraints=abscissa_constraints,
-                                   ).from_python
+        from_python = AbscissaField(
+            model=FakeOrganisation,
+            abscissa_constraints=abscissa_constraints,
+        ).from_python
         cell = EntityCellRegularField.build(FakeOrganisation, 'creation_date')
 
         graph_type1 = constants.RGT_YEAR
@@ -1214,9 +1311,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         )
 
     def test_from_python_relation(self):
-        field = AbscissaField(model=FakeOrganisation,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=FakeOrganisation,
+            abscissa_constraints=abscissa_constraints,
+        )
         rtype = RelationType.objects.get(id=REL_SUB_HAS)
         cell = EntityCellRelation(model=FakeOrganisation, rtype=rtype)
         graph_type = constants.RGT_RELATION
@@ -1243,9 +1341,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             field_type=CustomField.ENUM,
         )
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
         cell = EntityCellCustomField(cfield)
         graph_type = constants.RGT_CUSTOM_FK
         self.assertEqual(
@@ -1271,9 +1370,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             field_type=CustomField.DATETIME,
         )
 
-        field = AbscissaField(model=model,
-                              abscissa_constraints=abscissa_constraints,
-                             )
+        field = AbscissaField(
+            model=model,
+            abscissa_constraints=abscissa_constraints,
+        )
         cell = EntityCellCustomField(cfield)
         graph_type = constants.RGT_CUSTOM_DAY
         self.assertEqual(
@@ -1300,10 +1400,11 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertIsNone(cleaned)
 
     def test_clean_invalid_json(self):
-        self.assertFieldValidationError(OrdinateField, 'invalidformat',
-                                        OrdinateField(required=False).clean,
-                                        '{"entity_cell":{"cell_key":'
-                                       )
+        self.assertFieldValidationError(
+            OrdinateField, 'invalidformat',
+            OrdinateField(required=False).clean,
+            '{"entity_cell":{"cell_key":'
+        )
 
     def test_clean_invalid_data_type(self):
         clean = OrdinateField(required=False).clean
@@ -1323,9 +1424,10 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
         model = FakeOrganisation
         aggr_id =  constants.RGA_COUNT
 
-        field = OrdinateField(model=model,
-                              ordinate_constraints=ordinate_constraints,
-                             )
+        field = OrdinateField(
+            model=model,
+            ordinate_constraints=ordinate_constraints,
+        )
         widget = field.widget
         self.assertEqual(model, field.model)
         self.assertEqual(model, widget.model)
@@ -1342,9 +1444,10 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
         field_name = 'capital'
         aggr_id = constants.RGA_SUM
 
-        field = OrdinateField(model=model,
-                              ordinate_constraints=ordinate_constraints,
-                             )
+        field = OrdinateField(
+            model=model,
+            ordinate_constraints=ordinate_constraints,
+        )
         ord_info = field.clean(self.formfield_value_ordinate(
             aggr_id=aggr_id,
             cell=EntityCellRegularField.build(model, field_name),
@@ -1424,9 +1527,10 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
     def test_clean_rfield_error02(self):
         "Error on cell."
         model = FakeInvoiceLine
-        field = OrdinateField(model=model,
-                              ordinate_constraints=ordinate_constraints,
-                             )
+        field = OrdinateField(
+            model=model,
+            ordinate_constraints=ordinate_constraints,
+        )
 
         self.assertFieldValidationError(
             OrdinateField, 'ecellrequired', field.clean,
@@ -1485,9 +1589,10 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
             descriptions=[(field_name, {FieldsConfig.HIDDEN: True})],
         )
 
-        field = OrdinateField(model=model,
-                              ordinate_constraints=ordinate_constraints,
-                             )
+        field = OrdinateField(
+            model=model,
+            ordinate_constraints=ordinate_constraints,
+        )
 
         self.assertIsNone(field.initial)
         self.assertSetEqual(set(), field.not_hiddable_cell_keys)
@@ -1552,9 +1657,10 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
     def test_clean_cfield_error01(self):
         "Error on aggregation."
         model = FakeOrganisation
-        field = OrdinateField(model=model,
-                              ordinate_constraints=ordinate_constraints,
-                             )
+        field = OrdinateField(
+            model=model,
+            ordinate_constraints=ordinate_constraints,
+        )
 
         cfield_str = CustomField.objects.create(
             content_type=model,
@@ -1571,14 +1677,44 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
 
     def test_clean_cfield_error02(self):
         "Error on cell."
-        field = OrdinateField(model=FakeOrganisation,
-                              ordinate_constraints=ordinate_constraints,
-                             )
+        field = OrdinateField(
+            model=FakeOrganisation,
+            ordinate_constraints=ordinate_constraints,
+        )
 
         cfield = CustomField.objects.create(
             content_type=FakeContact,  # <== wrong model
             name='Size',
-            field_type=CustomField.ENUM,
+            field_type=CustomField.INT,
+        )
+        self.assertFieldValidationError(
+            OrdinateField, 'ecellnotallowed', field.clean,
+            self.formfield_value_ordinate(
+                aggr_id=constants.RGA_SUM,
+                cell=EntityCellCustomField(cfield),
+            ),
+        )
+
+        self.assertFieldValidationError(
+            OrdinateField, 'ecellnotallowed', field.clean,
+            self.formfield_value_ordinate(
+                aggr_id=constants.RGA_COUNT,
+                cell=EntityCellRegularField.build(FakeOrganisation, 'capital'),
+            ),
+        )
+
+    def test_clean_cfield_error03(self):
+        "Field is deleted."
+        field = OrdinateField(
+            model=FakeOrganisation,
+            ordinate_constraints=ordinate_constraints,
+        )
+
+        cfield = CustomField.objects.create(
+            content_type=FakeOrganisation,
+            name='Size',
+            field_type=CustomField.INT,
+            is_deleted=True,
         )
         self.assertFieldValidationError(
             OrdinateField, 'ecellnotallowed', field.clean,
@@ -1599,9 +1735,10 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
     def test_clean_error(self):
         "Error on cell."
         model = FakeOrganisation
-        field = OrdinateField(model=model,
-                              ordinate_constraints=ordinate_constraints,
-                             )
+        field = OrdinateField(
+            model=model,
+            ordinate_constraints=ordinate_constraints,
+        )
         self.assertFieldValidationError(
             OrdinateField, 'ecellnotallowed', field.clean,
             self.formfield_value_ordinate(
@@ -1652,10 +1789,11 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
 
     def test_clean_not_required(self):
         model = FakeOrganisation
-        field = OrdinateField(model=model,
-                              ordinate_constraints=ordinate_constraints,
-                              required=False,
-                             )
+        field = OrdinateField(
+            model=model,
+            ordinate_constraints=ordinate_constraints,
+            required=False,
+        )
         self.assertIsNone(field.clean(self.formfield_value_ordinate(aggr_id='')))
 
     def test_clean_no_model(self):
@@ -1666,11 +1804,12 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
         # TODO: test empty choices ??
 
     def test_from_python_count(self):
-        field = OrdinateField(model=FakeOrganisation,
-                              ordinate_constraints=ordinate_constraints,
-                             )
+        field = OrdinateField(
+            model=FakeOrganisation,
+            ordinate_constraints=ordinate_constraints,
+        )
         aggr_id = constants.RGA_COUNT
-        self.assertEqual(
+        self.assertDictEqual(
             {
                 'aggregator': {
                     'aggr_id': aggr_id,
@@ -1682,13 +1821,14 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
         )
 
     def test_from_python_rfield_int(self):
-        field = OrdinateField(model=FakeOrganisation,
-                              ordinate_constraints=ordinate_constraints,
-                             )
+        field = OrdinateField(
+            model=FakeOrganisation,
+            ordinate_constraints=ordinate_constraints,
+        )
         cell = EntityCellRegularField.build(FakeOrganisation, 'capital')
         aggr_id = constants.RGA_AVG
         category = ACCFieldAggregation.type_id
-        self.assertEqual(
+        self.assertDictEqual(
             {
                 'aggregator': {
                     'aggr_id': aggr_id,
@@ -1710,13 +1850,14 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
             field_type=CustomField.INT,
         )
 
-        field = OrdinateField(model=model,
-                              ordinate_constraints=ordinate_constraints,
-                             )
+        field = OrdinateField(
+            model=model,
+            ordinate_constraints=ordinate_constraints,
+        )
         cell = EntityCellCustomField(cfield)
         aggr_id = constants.RGA_SUM
         category = ACCFieldAggregation.type_id
-        self.assertEqual(
+        self.assertDictEqual(
             {
                 'aggregator': {
                     'aggr_id': aggr_id,

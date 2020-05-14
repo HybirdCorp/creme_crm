@@ -268,8 +268,8 @@ class HeaderFilter(models.Model):  # CremeModel ???
 
     @property
     def filtered_cells(self) -> List[EntityCell]:
-        """List of EntityCell instances, but it excluded the ones which are
-        related to fields hidden with FieldsConfig.
+        """List of not excluded EntityCell instances.
+        (eg: fields not hidden with FieldsConfig, CustomFields not deleted).
         """
         # return [*FieldsConfig.filter_cells(self.entity_type.model_class(), self.cells)]
         return [cell for cell in self.cells if not cell.is_excluded]
@@ -297,6 +297,7 @@ class HeaderFilter(models.Model):  # CremeModel ???
                         )
 
     # TODO: dispatch this job in Cells classes
+    #       => get the cells as argument, so we can pass filtered cells
     # TODO: way to mean QuerySet[CremeEntity] ??
     def populate_entities(self, entities: QuerySet, user) -> None:
         """Fill caches of CremeEntity objects, related to the columns that will

@@ -273,6 +273,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         cfield2 = create_cf(name='Cursed', field_type=CustomField.BOOL)
         cfield3 = create_cf(name='Animal', field_type=CustomField.ENUM)
         cfield4 = create_cf(name='Sports', field_type=CustomField.MULTI_ENUM)
+        deleted = create_cf(name='Deleted', field_type=CustomField.INT, is_deleted=True)
 
         create_evalue = CustomFieldEnumValue.objects.create
         eval1_01 = create_evalue(value='Crab',        custom_field=cfield3)
@@ -318,6 +319,8 @@ class CremeEntityFormTestCase(CremeTestCase):
             ],
             cf_f4.choices
         )
+
+        self.assertNotIn(f'custom_field_{deleted.id}', fields)
 
         # ---
         first_name = 'Karen'

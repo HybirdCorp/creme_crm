@@ -316,7 +316,8 @@ class ReportGraphHandTestCase(CremeTestCase):
         self.assertEqual(_('By values (of custom choices)'), hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
 
-    def test_custom_field_error(self):
+    def test_custom_field_error01(self):
+        "Field does not exist."
         user = self.create_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
@@ -334,6 +335,31 @@ class ReportGraphHandTestCase(CremeTestCase):
             hand.abscissa_error
         )
         self.assertEqual('??', hand.verbose_abscissa)
+
+    def test_custom_field_error02(self):
+        "Field is marked as deleted."
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            field_type=CustomField.ENUM,
+            name='Sport',
+            is_deleted=True,
+        )
+
+        user = self.create_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value=str(cfield.id),
+            abscissa_type=RGT_CUSTOM_FK,
+            ordinate_type=RGA_COUNT,
+        )
+
+        hand = RGHCustomFK(graph)
+        self.assertEqual(
+            _('the custom field is deleted.'),
+            hand.abscissa_error
+        )
+        self.assertEqual(cfield.name, hand.verbose_abscissa)
 
 
 class ReportGraphHandRegistryTestCase(CremeTestCase):

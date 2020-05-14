@@ -162,13 +162,20 @@ class GHCCCustomField(GraphHandCellConstraint):
     customfield_type = 0
 
     def cells(self, not_hiddable_cell_keys=()):
-        cf_type = self.customfield_type
         for cfield in CustomField.objects.get_for_model(self.model).values():
-            if cfield.field_type == cf_type:
-                yield EntityCellCustomField(cfield)
+            cell = EntityCellCustomField(cfield)
+
+            if self.check_cell(cell=cell, not_hiddable_cell_keys=not_hiddable_cell_keys):
+                yield cell
 
     def check_cell(self, cell, not_hiddable_cell_keys=()):
-        return cell.custom_field.field_type == self.customfield_type
+        cfield = cell.custom_field
+
+        return (
+            (not cfield.is_deleted or cell.key in not_hiddable_cell_keys)
+            and
+            cfield.field_type == self.customfield_type
+        )
 
 
 class GHCCCustomEnum(GHCCCustomField):
@@ -357,7 +364,17 @@ class ACCFieldAggregation(AggregatorCellConstraint):
         super().__init__(model=model)
         self.fields_configs = FieldsConfig.LocalCache()
 
-    def _accept_field(self, field, not_hiddable_cell_keys):
+    def _accept_cfield(self, cfield, not_hiddable_cell_keys):
+        if not cfield.field_type in self.custom_field_types:
+            return False
+
+        if cfield.is_deleted:
+            cell = EntityCellCustomField(cfield)
+            return cell.key in not_hiddable_cell_keys
+
+        return True
+
+    def _accept_rfield(self, field, not_hiddable_cell_keys):
         model = field.model
 
         if not isinstance(field, self.model_field_classes):
@@ -372,12 +389,14 @@ class ACCFieldAggregation(AggregatorCellConstraint):
 
         return True
 
-    def _cfield_cells(self):
+    def _cfield_cells(self, not_hiddable_cell_keys=()):
         types = self.custom_field_types
 
         if types:  # NB: avoid useless query if types is empty
+            accept = self._accept_cfield
+
             for cfield in CustomField.objects.get_for_model(self.model).values():
-                if cfield.field_type in types:
+                if accept(cfield, not_hiddable_cell_keys=not_hiddable_cell_keys):
                     yield EntityCellCustomField(cfield)
 
     def _rfield_cells(self, not_hiddable_cell_keys=()):
@@ -386,7 +405,7 @@ class ACCFieldAggregation(AggregatorCellConstraint):
         for field_chain in ModelFieldEnumerator(
             self.model, deep=0,
         ).filter(
-            lambda field, depth: self._accept_field(field, not_hiddable_cell_keys)
+            lambda field, depth: self._accept_rfield(field, not_hiddable_cell_keys)
         ):
             yield EntityCellRegularField.build(
                 model=model,
@@ -395,15 +414,20 @@ class ACCFieldAggregation(AggregatorCellConstraint):
 
     def cells(self, not_hiddable_cell_keys=()):
         yield from self._rfield_cells(not_hiddable_cell_keys)
-        yield from self._cfield_cells()
+        yield from self._cfield_cells(not_hiddable_cell_keys)
 
     def check_cell(self, cell, not_hiddable_cell_keys=()):
         if isinstance(cell, EntityCellRegularField):
             field_info = cell.field_info
-            return len(field_info) == 1 and self._accept_field(field_info[0], not_hiddable_cell_keys)
+
+            return (
+                len(field_info) == 1
+                and
+                self._accept_rfield(field_info[0], not_hiddable_cell_keys)
+            )
 
         if isinstance(cell, EntityCellCustomField):
-            return cell.custom_field.field_type in self.custom_field_types
+            return self._accept_cfield(cell.custom_field, not_hiddable_cell_keys)
 
 
 class AggregatorConstraintsRegistry:

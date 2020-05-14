@@ -5,11 +5,13 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import gettext as _
+    from django.utils.html import escape
+    from django.utils.translation import gettext as _, ngettext
 
     from creme.creme_core.creme_jobs import deletor_type
     from creme.creme_core.models import (
         CremeEntity,
+        BrickState,
         CustomField, CustomFieldEnum, CustomFieldMultiEnum, CustomFieldEnumValue,
         Job, DeletionCommand,
         FakeContact, FakeOrganisation,
@@ -18,6 +20,7 @@ try:
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from creme.creme_config import bricks
+    from creme.creme_config.constants import BRICK_STATE_HIDE_DELETED_CFIELDS
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -28,20 +31,40 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(reverse('creme_config__custom_fields'))
         # self.assertTemplateUsed(response, 'creme_config/custom_fields_portal.html')
         self.assertTemplateUsed(response, 'creme_config/custom_field/portal.html')
-        self.assertEqual(reverse('creme_core__reload_bricks'),
-                         response.context.get('bricks_reload_url')
-                        )
+        self.assertEqual(
+            reverse('creme_core__reload_bricks'),
+            response.context.get('bricks_reload_url')
+        )
 
     def test_add_ct01(self):
         self.login(is_superuser=False, admin_4_apps=('creme_core',))
         self.assertFalse(CustomField.objects.all())
 
+        get_ct = ContentType.objects.get_for_model
+        ct = get_ct(FakeContact)
+        ct_orga = get_ct(FakeOrganisation)
+
+        # Should be ignored when hiding used ContentTypes (deleted)
+        CustomField.objects.create(
+            content_type=ct_orga,
+            name='Programming languages',
+            field_type=CustomField.ENUM,
+            is_deleted=True,
+        )
+
         url = reverse('creme_config__create_first_ctype_custom_field')
-        context = self.assertGET200(url).context
+        response = self.assertGET200(url)
+        context = response.context
+
+        with self.assertNoException():
+            ctypes1 = context['form'].fields['content_type'].ctypes
+
         self.assertEqual(_('New custom field configuration'), context.get('title'))
         self.assertEqual(_('Save the custom field'),          context.get('submit_label'))
 
-        ct = ContentType.objects.get_for_model(FakeContact)
+        self.assertIn(ct, ctypes1)
+        self.assertIn(ct_orga, ctypes1)
+
         name = 'Size'
         field_type = CustomField.INT
         self.assertNoFormError(self.client.post(
@@ -53,22 +76,23 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         ))
 
-        cfields = CustomField.objects.all()
+        cfields = CustomField.objects.filter(content_type=ct)
         self.assertEqual(1, len(cfields))
 
         cfield = cfields[0]
-        self.assertEqual(ct,         cfield.content_type)
         self.assertEqual(name,       cfield.name)
         self.assertEqual(field_type, cfield.field_type)
         self.assertIs(cfield.is_required, False)
+        self.assertIs(cfield.is_deleted, False)
 
+        # ---
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            ctypes = response.context['form'].fields['content_type'].ctypes
+            ctypes2 = response.context['form'].fields['content_type'].ctypes
 
-        self.assertNotIn(ct, ctypes)
-        self.assertIn(ContentType.objects.get_for_model(FakeOrganisation), ctypes)
+        self.assertNotIn(ct, ctypes2)
+        self.assertIn(ct_orga, ctypes2)
 
     def test_add_ct02(self):
         self.login()
@@ -131,34 +155,34 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login(is_superuser=False)  # admin_4_apps=('creme_core',)
         self.assertGET403(reverse('creme_config__create_first_ctype_custom_field'))
 
-    def test_delete_ct01(self):
-        self.login(is_superuser=False, admin_4_apps=('creme_core',))
-
-        get_ct = ContentType.objects.get_for_model
-        ct_contact = get_ct(FakeContact)
-        ct_orga    = get_ct(FakeOrganisation)
-
-        create_cf = CustomField.objects.create
-        cfield1 = create_cf(content_type=ct_contact, name='CF#1', field_type=CustomField.INT)
-        cfield2 = create_cf(content_type=ct_contact, name='CF#2', field_type=CustomField.FLOAT)
-        cfield3 = create_cf(content_type=ct_orga,    name='CF#3', field_type=CustomField.BOOL)
-        self.assertPOST200(reverse('creme_config__delete_ctype_custom_fields'), data={'id': ct_contact.id})
-        self.assertFalse(CustomField.objects.filter(pk__in=[cfield1.pk, cfield2.pk]))
-        self.assertStillExists(cfield3)
-
-    def test_delete_ct02(self):
-        self.login(is_superuser=False)
-
-        ct_contact = ContentType.objects.get_for_model(FakeContact)
-        CustomField.objects.create(
-            content_type=ct_contact,
-            name='Size',
-            field_type=CustomField.INT,
-        )
-        self.assertPOST403(
-            reverse('creme_config__delete_ctype_custom_fields'),
-            data={'id': ct_contact.id},
-        )
+    # def test_delete_ct01(self):
+    #     self.login(is_superuser=False, admin_4_apps=('creme_core',))
+    #
+    #     get_ct = ContentType.objects.get_for_model
+    #     ct_contact = get_ct(FakeContact)
+    #     ct_orga    = get_ct(FakeOrganisation)
+    #
+    #     create_cf = CustomField.objects.create
+    #     cfield1 = create_cf(content_type=ct_contact, name='CF#1', field_type=CustomField.INT)
+    #     cfield2 = create_cf(content_type=ct_contact, name='CF#2', field_type=CustomField.FLOAT)
+    #     cfield3 = create_cf(content_type=ct_orga,    name='CF#3', field_type=CustomField.BOOL)
+    #     self.assertPOST200(reverse('creme_config__delete_ctype_custom_fields'), data={'id': ct_contact.id})
+    #     self.assertFalse(CustomField.objects.filter(pk__in=[cfield1.pk, cfield2.pk]))
+    #     self.assertStillExists(cfield3)
+    #
+    # def test_delete_ct02(self):
+    #     self.login(is_superuser=False)
+    #
+    #     ct_contact = ContentType.objects.get_for_model(FakeContact)
+    #     CustomField.objects.create(
+    #         content_type=ct_contact,
+    #         name='Size',
+    #         field_type=CustomField.INT,
+    #     )
+    #     self.assertPOST403(
+    #         reverse('creme_config__delete_ctype_custom_fields'),
+    #         data={'id': ct_contact.id},
+    #     )
 
     def test_add01(self):
         self.login(is_superuser=False, admin_4_apps=('creme_core',))
@@ -199,9 +223,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(
             ['Eva01', 'Eva02', 'Eva03'],
             [cfev.value
-                for cfev in CustomFieldEnumValue.objects
-                                                .filter(custom_field=cfield2)
-                                                .order_by('id')
+             for cfev in CustomFieldEnumValue.objects
+                                             .filter(custom_field=cfield2)
+                                             .order_by('id')
             ]
         )
 
@@ -369,8 +393,27 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             _('There is already a custom field with this name.')
         )
 
+    def test_edit03(self):
+        "is_deleted == True  => error."
+        self.login()
+
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            field_type=CustomField.STR,
+            name='Nickname',
+            is_deleted=True,
+        )
+
+        response = self.assertGET409(
+            reverse('creme_config__edit_custom_field', args=(cfield.id,)),
+        )
+        self.assertIn(
+            escape(_('This custom field is deleted.')),
+            response.content.decode()
+        )
+
     def test_delete01(self):
-        self.login(is_superuser=False, admin_4_apps=('creme_core',))
+        user = self.login(is_superuser=False, admin_4_apps=('creme_core',))
 
         create_cf = partial(CustomField.objects.create, content_type=FakeContact)
         cfield1 = create_cf(name='Day',       field_type=CustomField.DATETIME)
@@ -378,23 +421,80 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         cfield3 = create_cf(name='Hobbies',   field_type=CustomField.MULTI_ENUM)
 
         create_evalue = CustomFieldEnumValue.objects.create
-        eval1 = create_evalue(custom_field=cfield2, value='C')
-        eval2 = create_evalue(custom_field=cfield2, value='Python')
-        eval3 = create_evalue(custom_field=cfield3, value='Programming')
-        eval4 = create_evalue(custom_field=cfield3, value='Reading')
+        eval21 = create_evalue(custom_field=cfield2, value='C')
+        eval22 = create_evalue(custom_field=cfield2, value='Python')
+        eval31 = create_evalue(custom_field=cfield3, value='Programming')
+        eval32 = create_evalue(custom_field=cfield3, value='Diving')
 
-        self.assertPOST200(reverse('creme_config__delete_custom_field'), data={'id': cfield2.id})
+        # An entity exists, but it uses another CustomField
+        linus = FakeContact.objects.create(user=user, first_name='Linus', last_name='Torvalds')
+        enum3 = CustomFieldEnum.objects.create(
+            entity=linus,
+            custom_field=cfield3,
+            value=eval32,
+        )
 
+        url = reverse('creme_config__delete_custom_field')
+        data = {'id': cfield2.id}
+        self.assertPOST200(url, data=data)
+
+        cfield2 = self.assertStillExists(cfield2)
+        self.assertTrue(cfield2.is_deleted)
+
+        # Delete definitely ---------
+        self.assertPOST200(url, data=data)
         self.assertStillExists(cfield1)
         self.assertStillExists(cfield3)
+
         self.assertDoesNotExist(cfield2)
 
-        self.assertStillExists(eval3)
-        self.assertStillExists(eval4)
-        self.assertDoesNotExist(eval1)
-        self.assertDoesNotExist(eval2)
+        self.assertStillExists(eval31)
+        self.assertStillExists(eval32)
+        self.assertDoesNotExist(eval21)
+        self.assertDoesNotExist(eval22)
+
+        self.assertStillExists(enum3)
 
     def test_delete02(self):
+        "Try to delete definitely, but related value."
+        user = self.login(is_superuser=False, admin_4_apps=('creme_core',))
+
+        create_cf = partial(CustomField.objects.create, content_type=FakeContact)
+        cfield1 = create_cf(name='Languages', field_type=CustomField.ENUM, is_deleted=True)
+        cfield2 = create_cf(name='Hobbies',   field_type=CustomField.MULTI_ENUM)
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        eval11 = create_evalue(custom_field=cfield1, value='C')
+        create_evalue(custom_field=cfield1, value='Python')
+        create_evalue(custom_field=cfield2, value='Programming')
+        create_evalue(custom_field=cfield2, value='Reading')
+
+        linus = FakeContact.objects.create(user=user, first_name='Linus', last_name='Torvalds')
+        enum1 = CustomFieldEnum.objects.create(
+            entity=linus,
+            custom_field=cfield1,
+            value=eval11,
+        )
+
+        response = self.assertPOST409(
+            reverse('creme_config__delete_custom_field'),
+            data={'id': cfield1.id},
+        )
+        self.assertIn(
+            escape(ngettext(
+                'This custom field is still used by {count} entity, so it cannot be deleted.',
+                'This custom field is still used by {count} entities, so it cannot be deleted.',
+                1
+            ).format(count=1)),
+            response.content.decode()
+        )
+
+        self.assertStillExists(cfield1)
+        self.assertStillExists(eval11)
+        self.assertStillExists(enum1)
+
+    def test_delete03(self):
+        "Not allowed."
         self.login(is_superuser=False)  # admin_4_apps=('creme_core',)
 
         cfield = CustomField.objects.create(
@@ -405,6 +505,39 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertPOST403(
             reverse('creme_config__delete_custom_field'),
+            data={'id': cfield.id},
+        )
+
+    def test_restore01(self):
+        self.login()
+
+        cfield = CustomField.objects.create(
+            name='Day',
+            content_type=FakeContact,
+            field_type=CustomField.DATETIME,
+            is_deleted=True,
+        )
+        self.assertPOST200(
+            reverse('creme_config__restore_custom_field'),
+            data={'id': cfield.id},
+        )
+
+        cfield = self.assertStillExists(cfield)
+        self.assertFalse(cfield.is_deleted)
+
+    def test_restore02(self):
+        "Not allowed."
+        self.login(is_superuser=False)  # admin_4_apps=('creme_core',)
+
+        cfield = CustomField.objects.create(
+            name='Day',
+            content_type=FakeContact,
+            field_type=CustomField.DATETIME,
+            is_deleted=True,
+        )
+
+        self.assertPOST403(
+            reverse('creme_config__restore_custom_field'),
             data={'id': cfield.id},
         )
 
@@ -479,9 +612,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(
             ['C', 'ABC', 'Java', 'C++', 'Haskell'],
             [cfev.value
-                for cfev in CustomFieldEnumValue.objects
-                                                .filter(custom_field=cfield1)
-                                                .order_by('id')
+             for cfev in CustomFieldEnumValue.objects
+                                             .filter(custom_field=cfield1)
+                                             .order_by('id')
             ]
         )
 
@@ -549,14 +682,29 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_config__add_custom_enums', args=(cfield.id,))
         )
 
+    def test_add_enum_values05(self):
+        "Field is deleted."
+        self.login()
+
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            name='Programming languages',
+            field_type=CustomField.MULTI_ENUM,
+            is_deleted=True,
+        )
+        self.assertGET409(
+            reverse('creme_config__add_custom_enums', args=(cfield.id,))
+        )
+
     def test_add_enum_value01(self):
         self.login(is_superuser=False, admin_4_apps=('creme_core',))
 
         ct = ContentType.objects.get_for_model(FakeContact)
-        create_cfield = partial(CustomField.objects.create,
-                                content_type=ct,
-                                field_type=CustomField.ENUM,
-                               )
+        create_cfield = partial(
+            CustomField.objects.create,
+            content_type=ct,
+            field_type=CustomField.ENUM,
+        )
         cfield1 = create_cfield(name='Programming languages')
         cfield2 = create_cfield(name='Countries')
 
@@ -642,9 +790,27 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             name='Programming languages',
             field_type=CustomField.MULTI_ENUM,
         )
-
         self.assertGET403(
             reverse('creme_config__add_custom_enum', args=(cfield.id,))
+        )
+
+    def test_add_enum_value05(self):
+        "The field is deleted."
+        self.login()
+
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            name='Programming languages',
+            field_type=CustomField.MULTI_ENUM,
+            is_deleted=True,
+        )
+
+        response = self.assertGET409(
+            reverse('creme_config__add_custom_enum', args=(cfield.id,))
+        )
+        self.assertIn(
+            escape(_('This custom field is deleted.')),
+            response.content.decode()
         )
 
     def test_edit_enum_value01(self):
@@ -676,9 +842,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual(
             [eval01.value, value, eval03.value],
             [cfev.value
-                for cfev in CustomFieldEnumValue.objects
-                                                .filter(custom_field=cfield)
-                                                .order_by('id')
+             for cfev in CustomFieldEnumValue.objects
+                                             .filter(custom_field=cfield)
+                                             .order_by('id')
             ]
         )
 
@@ -696,16 +862,36 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_config__edit_custom_enum', args=(evalue.id,))
         )
 
+    def test_edit_enum_value03(self):
+        "Field is deleted."
+        self.login()
+
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            field_type=CustomField.MULTI_ENUM,
+            name='Programming languages',
+            is_deleted=True,
+        )
+        evalue = CustomFieldEnumValue.objects.create(custom_field=cfield, value='A')
+        response = self.assertGET409(
+            reverse('creme_config__edit_custom_enum', args=(evalue.id,))
+        )
+        self.assertIn(
+            escape(_('This custom field is deleted.')),
+            response.content.decode()
+        )
+
     def test_delete_enum_value01(self):
         "ENUM not used."
         user = self.login(is_superuser=False, admin_4_apps=('creme_core',))
 
         self.assertIsNone(DeletionCommand.objects.first())
 
-        cfield = CustomField.objects.create(content_type=FakeContact,
-                                            name='Programming languages',
-                                            field_type=CustomField.ENUM,
-                                           )
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            name='Programming languages',
+            field_type=CustomField.ENUM,
+        )
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
         __     = create_evalue(value='C')
@@ -802,7 +988,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual(
             [('fixed_value', CustomFieldEnum, 'value', eval1_01)],
             [(r.type_id, r.model_field.model, r.model_field.name, r.get_value())
-                for r in dcom.replacers
+             for r in dcom.replacers
             ]
         )
         self.assertEqual(1, dcom.total_count)
@@ -852,10 +1038,11 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         "Not allowed."
         self.login(is_superuser=False)  # admin_4_apps=('creme_core',)
 
-        cfield = CustomField.objects.create(content_type=FakeContact,
-                                            name='Programming languages',
-                                            field_type=CustomField.ENUM,
-                                           )
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            name='Programming languages',
+            field_type=CustomField.ENUM,
+        )
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
         __     = create_evalue(value='C')
@@ -871,10 +1058,11 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertFalse(DeletionCommand.objects.first())
 
-        cfield = CustomField.objects.create(content_type=FakeContact,
-                                            name='Programming languages',
-                                            field_type=CustomField.ENUM,
-                                           )
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            name='Programming languages',
+            field_type=CustomField.ENUM,
+        )
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
         eval01 = create_evalue(value='C')
@@ -917,14 +1105,30 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(dcom2)
         self.assertStillExists(dcom1)
 
+    def test_delete_enum_value06(self):
+        "Field is deleted."
+        self.login()
+
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            name='Programming languages',
+            field_type=CustomField.ENUM,
+            is_deleted=True,
+        )
+        evalue = CustomFieldEnumValue.objects.create(custom_field=cfield, value='bash')
+        self.assertGET409(
+            reverse('creme_config__delete_custom_enum', args=(evalue.id,))
+        )
+
     def test_delete_multi_enum01(self):
         "MULTI_ENUM not used."
         user = self.login(is_superuser=False, admin_4_apps=('creme_core',))
 
-        cfield = CustomField.objects.create(content_type=FakeContact,
-                                            name='Programming languages',
-                                            field_type=CustomField.MULTI_ENUM,
-                                           )
+        cfield = CustomField.objects.create(
+            content_type=FakeContact,
+            name='Programming languages',
+            field_type=CustomField.MULTI_ENUM,
+        )
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
         __     = create_evalue(value='C')
@@ -947,9 +1151,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         dcom = self.get_deletion_command_or_fail(CustomFieldEnumValue)
         self.assertEqual(eval02,       dcom.instance_to_delete)
         self.assertEqual(eval02.value, dcom.deleted_repr)
-        self.assertFalse(
-            dcom.replacers
-        )
+        self.assertFalse(dcom.replacers)
         self.assertEqual(0, dcom.total_count)
 
         deletor_type.execute(dcom.job)
@@ -1006,7 +1208,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual(
             [('fixed_value', CustomFieldMultiEnum, 'value', eval1_01)],
             [(r.type_id, r.model_field.model, r.model_field.name, r.get_value())
-                for r in dcom.replacers
+             for r in dcom.replacers
             ]
         )
         self.assertEqual(2, dcom.total_count)
@@ -1042,9 +1244,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         eval03 = create_evalue(value='Java')
 
         response = self.assertGET200(
-            reverse('creme_config__reload_custom_enum_brick',
-                    args=(cfield.id,),
-                   )
+            reverse('creme_config__reload_custom_enum_brick', args=(cfield.id,))
         )
 
         results = response.json()
@@ -1074,7 +1274,35 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             name='Programming languages',
         )
         self.assertGET403(
-            reverse('creme_config__reload_custom_enum_brick',
-                    args=(cfield.id,),
-                   )
+            reverse('creme_config__reload_custom_enum_brick', args=(cfield.id,))
+        )
+
+    def test_brick_hide_deleted_cfields(self):
+        user = self.login()
+
+        def get_state():
+            return BrickState.objects.get_for_brick_id(
+                user=user,
+                brick_id=bricks.CustomFieldsBrick.id_,
+            )
+
+        self.assertIsNone(get_state().pk)
+
+        url = reverse('creme_config__custom_fields_brick_hide_deleted')
+        self.assertGET405(url)
+
+        # ---
+        self.assertPOST200(url, data={'value': 'true'})
+        state1 = get_state()
+        self.assertIsNotNone(state1.pk)
+        self.assertIs(
+            state1.get_extra_data(BRICK_STATE_HIDE_DELETED_CFIELDS),
+            True
+        )
+
+        # ---
+        self.assertPOST200(url, data={'value': '0'})
+        self.assertIs(
+            get_state().get_extra_data(BRICK_STATE_HIDE_DELETED_CFIELDS),
+            False
         )

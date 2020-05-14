@@ -146,14 +146,19 @@ class _RGAFieldAggregation(ReportGraphAggregator):
             raise ValueError(_('the field does not exist any more.'))
 
         if isinstance(cell, EntityCellRegularField):
-            if FieldsConfig.objects.get_for_model(cell.model)\
-                                   .is_field_hidden(cell.field_info[-1]):
+            finfo = cell.field_info
+
+            if FieldsConfig.objects.get_for_model(cell.model).is_field_hidden(finfo[-1]):
                 self._error = _('this field should be hidden.')
 
-            self._aggregate = self.aggregate_cls(cell.field_info[0].name)
+            self._aggregate = self.aggregate_cls(finfo[0].name)
         elif isinstance(cell, EntityCellCustomField):
+            cfield = cell.custom_field
+            if cfield.is_deleted:
+                self._error = _('this custom field is deleted.')
+
             self._aggregate = self.aggregate_cls(
-                f'{cell.custom_field.value_class.get_related_name()}__value'
+                f'{cfield.value_class.get_related_name()}__value'
             )
         else:  # Should not happen (cell constraint used before to retrieve the cell)
             raise ValueError(f'RGARegularField: invalid type of cell <{type(cell)}>')

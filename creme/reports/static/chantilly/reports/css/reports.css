@@ -1,3 +1,16 @@
+/* Columns brick */
+
+.brick.reports-fields-brick .hidden-report-field {
+    color: #777;
+}
+
+.brick.reports-fields-brick .hidden-report-field td[data-table-primary-column] {
+    text-decoration: line-through;
+    font-weight: 500;
+}
+
+/* Columns brick - end */
+
 /* block types - graph type */
 
 .brick svg.brick-header-icon {

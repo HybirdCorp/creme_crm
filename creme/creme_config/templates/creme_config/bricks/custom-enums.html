@@ -8,9 +8,10 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}
-    {% url 'creme_config__add_custom_enums' object.id as create_url %}
+    {% if not custom_field.is_deleted %}
+    {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__add_custom_enums' object.id as create_url %}
     {% brick_header_action id='add' url=create_url label=_('New choices') enabled=admin_perm %}
+    {% endif%}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -21,15 +22,21 @@
 {% block brick_table_rows %}
 {% has_perm_to admin 'creme_core' as admin_perm %}
     {% for enum_value in page.object_list %}
+    {% with deleted=custom_field.is_deleted %}
     <tr>
         <td>{{enum_value.value}}</td>
-        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_custom_enum' enum_value.id as edit_url %}
-            {% brick_table_action id='edit' url=edit_url label=_('Edit this choice') enabled=admin_perm %}
+        <td {% brick_table_data_status action %}>
+            {% if not deleted %}
+            {% url 'creme_config__edit_custom_enum' enum_value.id as edit_url %}{% brick_table_action id='edit' url=edit_url label=_('Edit this choice') enabled=admin_perm %}
+            {% endif%}
         </td>
-        <td {% brick_table_data_status action %}>{% url 'creme_config__delete_custom_enum' enum_value.id as delete_url %}
-            {% brick_table_action id='edit' url=delete_url label=_('Delete this choice') icon='delete' enabled=admin_perm %}
+        <td {% brick_table_data_status action %}>
+            {% if not deleted %}
+            {% url 'creme_config__delete_custom_enum' enum_value.id as delete_url %}{% brick_table_action id='edit' url=delete_url label=_('Delete this choice') icon='delete' enabled=admin_perm %}
+            {% endif%}
         </td>
     </tr>
+    {% endwith %}
     {% endfor %}
 {% endblock %}
 

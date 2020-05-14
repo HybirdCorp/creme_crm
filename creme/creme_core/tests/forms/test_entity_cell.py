@@ -262,7 +262,7 @@ class EntityCellsFieldTestCase(FieldTestCase):
             choices=addr_choices,
         )
 
-    def test_choices_customfields(self):
+    def test_choices_customfields01(self):
         create_cf = partial(
             CustomField.objects.create,
             content_type=self.ct_contact,
@@ -298,6 +298,44 @@ class EntityCellsFieldTestCase(FieldTestCase):
         field2 = EntityCellsField()
         field2.content_type = self.ct_contact
         self.assertSetEqual(custom_fields, {*field2._custom_fields})
+
+    def test_choices_customfields02(self):
+        "Deleted fields."
+        create_cf = partial(
+            CustomField.objects.create,
+            content_type=self.ct_contact,
+            field_type=CustomField.STR,
+        )
+        cf1 = create_cf(name='Dog tag')
+        cf2 = create_cf(name='Old dog tag', is_deleted=True)
+
+        field = EntityCellsField(content_type=self.ct_contact)
+        self.assertListEqual([cf1], [*field._custom_fields])
+
+        choices = field.widget.custom_fields
+        self.assertInChoices(
+            value=f'custom_field-{cf1.id}',
+            label=cf1.name,
+            choices=choices,
+        )
+        self.assertNotInChoices(
+            value=f'custom_field-{cf2.id}',
+            choices=choices,
+        )
+
+    def test_choices_customfields03(self):
+        "Deleted fields  + selected cells."
+        create_cf = partial(
+            CustomField.objects.create,
+            content_type=self.ct_contact,
+            field_type=CustomField.STR,
+        )
+        cf1 = create_cf(name='Dog tag')
+        cf2 = create_cf(name='Old dog tag', is_deleted=True)
+
+        field = EntityCellsField(content_type=self.ct_contact)
+        field.non_hiddable_cells = [EntityCellCustomField(cf2)]
+        self.assertSetEqual({cf1, cf2}, {*field._custom_fields})
 
     def test_choices_functionfields(self):
         field = EntityCellsField(content_type=self.ct_contact)
