@@ -49,7 +49,7 @@ from .auth import UserRole
 from .base import CremeModel
 from .entity import CremeEntity
 from .fields import CTypeForeignKey
-from .fields_config import FieldsConfig
+# from .fields_config import FieldsConfig
 from .relation import RelationType
 from .setting_value import SettingValue
 
@@ -687,7 +687,10 @@ class CustomBrickConfigItem(CremeModel):
         """Generators which yields EntityCell instances, but it excluded the
         ones which are related to fields hidden with FieldsConfig.
         """
-        return FieldsConfig.filter_cells(self.content_type.model_class(), self.cells)
+        # return FieldsConfig.filter_cells(self.content_type.model_class(), self.cells)
+        for cell in self.cells:
+            if not cell.is_excluded:
+                yield cell
 
 
 class BrickStateManager(models.Manager):

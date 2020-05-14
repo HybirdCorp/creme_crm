@@ -38,7 +38,7 @@ from ..core.entity_cell import EntityCell
 from ..utils.serializers import json_encode
 
 from . import fields as core_fields, CremeEntity
-from .fields_config import FieldsConfig
+# from .fields_config import FieldsConfig
 
 logger = logging.getLogger(__name__)
 
@@ -271,7 +271,8 @@ class HeaderFilter(models.Model):  # CremeModel ???
         """List of EntityCell instances, but it excluded the ones which are
         related to fields hidden with FieldsConfig.
         """
-        return [*FieldsConfig.filter_cells(self.entity_type.model_class(), self.cells)]
+        # return [*FieldsConfig.filter_cells(self.entity_type.model_class(), self.cells)]
+        return [cell for cell in self.cells if not cell.is_excluded]
 
     def get_edit_absolute_url(self):
         return reverse('creme_core__edit_hfilter', args=(self.id,))

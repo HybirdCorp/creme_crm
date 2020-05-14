@@ -25,9 +25,14 @@ from typing import Type, Iterable, Optional, Dict, List, Tuple  # Callable
 from django.db import models
 from django.db.models import Model, Field, FieldDoesNotExist
 from django.utils.html import format_html, format_html_join
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 
-from ..models import CremeEntity, RelationType, CustomField
+from ..models import (
+    CremeEntity,
+    RelationType,
+    CustomField,
+    FieldsConfig,
+)
 from ..models import fields as core_fields
 from ..utils.collections import ClassKeyedMap
 from ..utils.db import populate_related
@@ -71,7 +76,7 @@ FIELDS_DATA_TYPES = ClassKeyedMap([
 
 class EntityCell:
     """Represents a value accessor ; it's a kind of super field. It can
-    retrieve a value store in entities (of the same type).
+    retrieve a value stored in entities (of the same type).
     This values can be (see child classes) :
      - regular fields (in the django model way).
      - custom field (see models.CustomField).
@@ -83,17 +88,34 @@ class EntityCell:
     type_id: str  # Used for register ; overload in child classes (string type)
     verbose_name = '??'
 
-    value: str
-    is_hidden: bool
-
     _listview_css_class = None
     _header_listview_css_class = None
 
-    def __init__(self, model: Type[Model], value: str = '', title='Title', is_hidden: bool = False):
+    def __init__(self,
+                 model: Type[Model],
+                 value: str = '',
+                 title: str = 'Title',
+                 is_hidden: bool = False,
+                 is_excluded: bool = False):
+        """Constructor.
+
+        @param model: Related model.
+        @param value: How to access to the instance's data (eg: field's name, custom field's ID...).
+        @param title: Name for humans (eg: field's verbose name, custom field's name...).
+        @param is_hidden: Should the cell be visible ? Notice that a hidden cell
+               will be present in the list-views with a style <display: none;>.
+        @param is_excluded: Should the cell be totally ignored.
+               (eg: field hidden by configuration).
+               Contrarily to 'is_hidden', the cell won't be present in the
+               list-views for example.
+
+        @return: True means <ignore me>.
+        """
         self._model = model
         self.value = value
         self.title = title
         self.is_hidden = is_hidden
+        self.is_excluded = is_excluded
 
     def __eq__(self, other):
         return (
@@ -127,7 +149,7 @@ class EntityCell:
         return listview_css_class
 
     @classmethod
-    def build(cls, model: Type[Model], name: str):
+    def build(cls, model: Type[Model], name: str) -> Optional['EntityCell']:
         raise NotImplementedError
 
     @property
@@ -253,10 +275,9 @@ class EntityCellActions(EntityCell):
         """
         # TODO: filter by is_visible in actions_registry.bulk_actions() ??
         return self._sort_actions([
-            action for action in self.registry.bulk_actions(user=user,
-                                                            model=self.model,
-                                                           )
-                if action.is_visible
+            action
+            for action in self.registry.bulk_actions(user=user, model=self.model)
+            if action.is_visible
         ])
 
     def instance_actions(self, instance: Model, user):
@@ -270,10 +291,9 @@ class EntityCellActions(EntityCell):
         """
         # TODO: filter by is_visible in actions_registry.instance_actions() ??
         return self._sort_actions([
-            action for action in self.registry.instance_actions(user=user,
-                                                                instance=instance,
-                                                               )
-                if action.is_visible
+            action
+            for action in self.registry.instance_actions(user=user, instance=instance)
+            if action.is_visible
         ])
 
     def render_html(self, entity: CremeEntity, user) -> str:
@@ -292,19 +312,27 @@ class EntityCellRegularField(EntityCell):
         "Use build() instead of using this constructor directly."
         self._field_info = field_info
         self._printer_html = self._printer_csv = None
+        is_excluded = FieldsConfig.LocalCache().is_fieldinfo_hidden(field_info)
 
         super().__init__(
             model=model,
             value=name,
-            title=field_info.verbose_name,
+            # title=field_info.verbose_name,
+            title=field_info.verbose_name
+                  if not is_excluded else
+                  gettext('{} [hidden]').format(field_info.verbose_name),
             is_hidden=is_hidden,
+            is_excluded=is_excluded,
         )
 
     @classmethod
-    def build(cls, model: Type[Model], name: str, is_hidden: bool = False):
+    def build(cls,
+              model: Type[Model],
+              name: str,
+              is_hidden: bool = False):
         """ Helper function to build EntityCellRegularField instances.
 
-        @param model: Class inheriting django.db.models.Model.
+        @param model: Class inheriting <django.db.models.Model>.
         @param name: String representing a 'chain' of fields; eg: 'book__author__name'.
         @param is_hidden: Boolean. See EntityCell.is_hidden.
         @return: An instance of EntityCellRegularField, or None (if an error occurred).
@@ -312,7 +340,10 @@ class EntityCellRegularField(EntityCell):
         try:
             field_info = FieldInfo(model, name)
         except FieldDoesNotExist as e:
-            logger.warning('EntityCellRegularField(): problem with field "%s" ("%s")', name, e)
+            logger.warning(
+                'EntityCellRegularField(): problem with field "%s" ("%s")',
+                name, e,
+            )
             return None
 
         return cls(model, name, field_info, is_hidden)
@@ -344,8 +375,11 @@ class EntityCellRegularField(EntityCell):
             #       (see EntityCellFunctionField too)
             from ..gui.field_printers import field_printers_registry
 
-            self._printer_html = printer = \
-                 field_printers_registry.build_field_printer(entity.__class__, self.value, output='html')
+            self._printer_html = printer = field_printers_registry.build_field_printer(
+                model=entity.__class__,
+                field_name=self.value,
+                output='html',
+            )
 
         return printer(entity, user)
 
@@ -355,8 +389,11 @@ class EntityCellRegularField(EntityCell):
         if printer is None:
             from ..gui.field_printers import field_printers_registry
 
-            self._printer_csv = printer = \
-                field_printers_registry.build_field_printer(entity.__class__, self.value, output='csv')
+            self._printer_csv = printer = field_printers_registry.build_field_printer(
+                model=entity.__class__,
+                field_name=self.value,
+                output='csv',
+            )
 
         return printer(entity, user)
 
@@ -386,7 +423,9 @@ class EntityCellCustomField(EntityCell):
         )
 
     @classmethod
-    def build(cls, model: Type[Model], customfield_id: str):
+    def build(cls,
+              model: Type[Model],
+              customfield_id: str) -> Optional['EntityCellCustomField']:
         # ct = ContentType.objects.get_for_model(model)
         #
         # try:
@@ -453,7 +492,9 @@ class EntityCellFunctionField(EntityCell):
         )
 
     @classmethod
-    def build(cls, model: Type[Model], func_field_name: str):
+    def build(cls,
+              model: Type[Model],
+              func_field_name: str) -> Optional['EntityCellFunctionField']:
         # TODO: pass the 'function_field_registry' in a context
         func_field = function_field_registry.get(model, func_field_name)
 
@@ -504,7 +545,10 @@ class EntityCellRelation(EntityCell):
         )
 
     @classmethod
-    def build(cls, model: Type[Model], rtype_id: str, is_hidden: bool = False):
+    def build(cls,
+              model: Type[Model],
+              rtype_id: str,
+              is_hidden: bool = False) -> Optional['EntityCellRelation']:
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
         except RelationType.DoesNotExist:
