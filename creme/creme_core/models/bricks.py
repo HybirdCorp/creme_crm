@@ -684,8 +684,8 @@ class CustomBrickConfigItem(CremeModel):
 
     @property
     def filtered_cells(self) -> Iterator[EntityCell]:
-        """Generators which yields EntityCell instances, but it excluded the
-        ones which are related to fields hidden with FieldsConfig.
+        """Generators which yields non excluded EntityCell instances.
+        (eg: fields not hidden with FieldsConfig, CustomFields not deleted).
         """
         # return FieldsConfig.filter_cells(self.content_type.model_class(), self.cells)
         for cell in self.cells:

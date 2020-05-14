@@ -229,7 +229,7 @@ class ReportHand:
 
     @property
     def hidden(self) -> bool:
-        "See FieldsConfig."
+        "Is the hand hidden ? (see FieldsConfig or deleted CustomFields)."
         return False
 
     @property
@@ -453,6 +453,10 @@ class RHCustomField(ReportHand):
         cvalue = entity.get_custom_value(self._cfield)
         return str(cvalue.value) if cvalue else ''
 
+    @property
+    def hidden(self):
+        return self._cfield.is_deleted
+
 
 @REPORT_HANDS_MAP(constants.RFT_RELATION)
 class RHRelation(ReportHand):
@@ -607,10 +611,16 @@ class RHAggregateCustomField(RHAggregate):
                 f'This type of custom field can not be aggregated: "{field_name}"'
             )
 
+        self._cfield = cfield  # TODO: ugly to set out of __init__ ...
+
         return (
             aggregation.func(f'{cfield.value_class.get_related_name()}__value'),
             cfield.name,
         )
+
+    @property
+    def hidden(self):
+        return self._cfield.is_deleted
 
 
 @REPORT_HANDS_MAP(constants.RFT_RELATED)

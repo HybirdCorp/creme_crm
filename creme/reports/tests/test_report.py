@@ -123,13 +123,15 @@ class ReportTestCase(BaseReportsTestCase):
         return img_report
 
     def _build_orga_report(self):
-        orga_report = Report.objects.create(user=self.user, name='Report on organisations',
-                                            ct=self.ct_orga,
-                                           )
+        orga_report = Report.objects.create(
+            user=self.user, name='Report on organisations',
+            ct=self.ct_orga,
+        )
 
-        create_field = partial(Field.objects.create, report=orga_report,
-                               selected=False, sub_report=None, type=RFT_FIELD,
-                              )
+        create_field = partial(
+            Field.objects.create, report=orga_report,
+            selected=False, sub_report=None, type=RFT_FIELD,
+        )
         create_field(name='name',              order=1)
         create_field(name='legal_form__title', order=2)
 
@@ -145,31 +147,37 @@ class ReportTestCase(BaseReportsTestCase):
         return reverse('reports__export_report_preview', args=(report.id,))
 
     def _create_cf_int(self):
-        return CustomField.objects.create(content_type=self.ct_contact,
-                                          name='Size (cm)', field_type=CustomField.INT,
-                                         )
+        return CustomField.objects.create(
+            content_type=self.ct_contact,
+            name='Size (cm)',
+            field_type=CustomField.INT,
+        )
 
     def create_from_view(self, name, model, hf):
-        self.assertNoFormError(self.client.post(self.ADD_URL, follow=True,
-                                                data={'user': self.user.pk,
-                                                      'name': name,
-                                                      'ct':   ContentType.objects.get_for_model(model).id,
-                                                      'hf':   hf.id,
-                                                     }
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            self.ADD_URL,
+            follow=True,
+            data={
+                'user': self.user.pk,
+                'name': name,
+                'ct':   ContentType.objects.get_for_model(model).id,
+                'hf':   hf.id,
+            }
+        ))
 
         return self.get_object_or_fail(Report, name=name)
 
     def login_as_basic_user(self, **kwargs):
-        user = self.login(is_superuser=False,
-                          allowed_apps=('creme_core', 'reports'),
-                          **kwargs
-                         )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=('creme_core', 'reports'),
+            **kwargs
+        )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         return user
 
@@ -253,7 +261,8 @@ class ReportTestCase(BaseReportsTestCase):
         "With EntityFilter."
         self.login()
         efilter = EntityFilter.objects.smart_update_or_create(
-            'test-filter', 'Mihana family', FakeContact, is_custom=True,
+            'test-filter', 'Mihana family', FakeContact,
+            is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -267,18 +276,21 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(efilter, report.filter)
 
     def test_createview03(self):
-        "Validation errors"
+        "Validation errors."
         user = self.login()
 
         def post(hf_id, filter_id):
-            return self.assertPOST200(self.ADD_URL, follow=True,
-                                      data={'user':   user.pk,
-                                            'name':   'Report #1',
-                                            'ct':     self.ct_contact.id,
-                                            'hf':     hf_id,
-                                            'filter': filter_id,
-                                           }
-                                     )
+            return self.assertPOST200(
+                self.ADD_URL,
+                follow=True,
+                data={
+                    'user':   user.pk,
+                    'name':   'Report #1',
+                    'ct':     self.ct_contact.id,
+                    'hf':     hf_id,
+                    'filter': filter_id,
+                },
+            )
 
         response = post('unknown', 'unknown')
         msg = _('Select a valid choice. That choice is not one of the available choices.')
@@ -295,18 +307,20 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFormError(response, 'form', 'filter', msg)
 
         # ------
-        hf_priv = create_hf(pk='test_hf-private', name='name', model=FakeContact,
-                            is_private=True, user=self.other_user,
-                            is_custom=True,
-                           )
+        hf_priv = create_hf(
+            pk='test_hf-private', name='name', model=FakeContact,
+            is_private=True, user=self.other_user,
+            is_custom=True,
+        )
         response = post(hf_priv.id, '')
         self.assertFormError(response, 'form', 'hf', msg)
 
         # ------
-        ef_priv = create_efilter('test-private_filter', 'Private filter',
-                                 FakeContact, is_custom=True,
-                                 user=self.other_user, is_private=True,
-                                )
+        ef_priv = create_efilter(
+            'test-private_filter', 'Private filter',
+            FakeContact, is_custom=True,
+            user=self.other_user, is_private=True,
+        )
         response = post('', ef_priv.id)
         self.assertFormError(response, 'form', 'filter', msg)
 
@@ -315,13 +329,16 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login()
 
         name = 'Report #1'
-        response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'user': user.pk,
-                                          'name': name,
-                                          'ct':   self.ct_contact.id,
-                                          'hf':   '',
-                                         }
-                                   )
+        response = self.client.post(
+            self.ADD_URL,
+            follow=True,
+            data={
+                'user': user.pk,
+                'name': name,
+                'ct':   self.ct_contact.id,
+                'hf':   '',
+            },
+        )
         self.assertNoFormError(response)
 
         report = self.get_object_or_fail(Report, name=name)
@@ -344,18 +361,20 @@ class ReportTestCase(BaseReportsTestCase):
 
         FieldsConfig.objects.create(
             content_type=FakeContact,
-            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})]
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
         name = 'Report #1'
-        response = self.client.post(self.ADD_URL, follow=True,
-                                    data={
-                                        'user': user.pk,
-                                        'name': name,
-                                        'ct':   self.ct_contact.id,
-                                        'hf':   hf.id,
-                                    },
-                                   )
+        response = self.client.post(
+            self.ADD_URL,
+            follow=True,
+            data={
+                'user': user.pk,
+                'name': name,
+                'ct':   self.ct_contact.id,
+                'hf':   hf.id,
+            },
+        )
         self.assertNoFormError(response)
 
         report = self.get_object_or_fail(Report, name=name)
@@ -396,12 +415,14 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertNotInChoices(value=system_efilter.id, choices=filter_choices)
 
         # POST ---
-        response = self.client.post(url, follow=True, 
-                                    data={'user': user.pk,
-                                          'name': name,
-                                          'filter': efilter.id,
-                                         },
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user': user.pk,
+                'name': name,
+                'filter': efilter.id,
+            },
+        )
         self.assertNoFormError(response)
 
         report = self.refresh(report)
@@ -413,23 +434,27 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login()
 
         create_efilter = EntityFilter.objects.smart_update_or_create
-        ef_priv = create_efilter('test-private_filter', 'Private filter',
-                                 FakeContact, is_custom=True,
-                                 user=self.other_user, is_private=True,
-                                )
-        report = Report.objects.create(name='Report', user=user, filter=ef_priv,
-                                       ct=self.ct_contact,
-                                      )
+        ef_priv = create_efilter(
+            'test-private_filter', 'Private filter',
+            FakeContact, is_custom=True,
+            user=self.other_user, is_private=True,
+        )
+        report = Report.objects.create(
+            name='Report', user=user, filter=ef_priv, ct=self.ct_contact,
+        )
 
-        ef_pub = create_efilter('test-public_filter', 'Public filter',
-                                FakeContact, is_custom=True,
-                               )
-        response = self.client.post(report.get_edit_absolute_url(), follow=True, 
-                                    data={'user': user.pk,
-                                          'name': 'Report edited',
-                                          'filter': ef_pub.id,  # Should not be used
-                                         }
-                                   )
+        ef_pub = create_efilter(
+            'test-public_filter', 'Public filter', FakeContact, is_custom=True,
+        )
+        response = self.client.post(
+            report.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user': user.pk,
+                'name': 'Report edited',
+                'filter': ef_pub.id,  # Should not be used
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(ef_priv, self.refresh(report).filter)
 
@@ -453,16 +478,17 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertNotContains(response, private_filter.name)
 
         response = self.assertPOST200(url, data={'field_value': orga_filter.pk})
-        self.assertFormError(response, 'form', 'field_value',
-                             _('Select a valid choice. That choice is not one of the available choices.')
-                            )
+        self.assertFormError(
+            response, 'form', 'field_value',
+            _('Select a valid choice. That choice is not one of the available choices.')
+        )
 
         response = self.client.post(url, data={'field_value': contact_filter.pk})
         self.assertNoFormError(response)
         self.assertEqual(contact_filter, self.refresh(report).filter)
 
     def test_report_inneredit_filter02(self):
-        "Private filter to another user -> cannot edit"
+        "Private filter to another user -> cannot edit."
         self.login()
         other_user = self.other_user
 
@@ -470,24 +496,27 @@ class ReportTestCase(BaseReportsTestCase):
             'test-filter', 'Mihana family', FakeContact,
             is_custom=True, is_private=True, user=other_user,
         )
-        report = Report.objects.create(user=other_user, name="Other's report",
-                                       ct=efilter.entity_type, filter=efilter,
-                                      )
+        report = Report.objects.create(
+            user=other_user, name="Other's report",
+            ct=efilter.entity_type, filter=efilter,
+        )
 
         url = self.build_inneredit_url(report, 'filter')
         response = self.assertGET200(url)
-        self.assertContains(response,
-                            escape(ngettext('The filter cannot be changed because it is private.',
-                                            'The filters cannot be changed because they are private.',
-                                            1
-                                           )
-                                  )
-                           )
+        self.assertContains(
+            response,
+            escape(ngettext(
+                'The filter cannot be changed because it is private.',
+                'The filters cannot be changed because they are private.',
+                1
+            ))
+        )
 
         response = self.assertPOST200(url, data={'field_value': ''})
-        self.assertFormError(response, 'form', None,
-                             _('The filter cannot be changed because it is private.')
-                            )
+        self.assertFormError(
+            response, 'form', None,
+            _('The filter cannot be changed because it is private.')
+        )
         self.assertEqual(efilter, self.refresh(report).filter)
 
     def test_report_bulkedit_filter01(self):
@@ -504,20 +533,25 @@ class ReportTestCase(BaseReportsTestCase):
         url = self.build_bulkupdate_url(Report, 'filter')
         self.assertGET200(url)
 
-        response = self.assertPOST200(url,
-                                      data={'field_value': orga_filter.id,
-                                            'entities': [report_1.id, report_2.id],
-                                           }
-                                     )
-        self.assertFormError(response, 'form', 'field_value',
-                             _('Select a valid choice. That choice is not one of the available choices.')
-                            )
+        response = self.assertPOST200(
+            url,
+            data={
+                'field_value': orga_filter.id,
+                'entities': [report_1.id, report_2.id],
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'field_value',
+            _('Select a valid choice. That choice is not one of the available choices.')
+        )
 
-        response = self.client.post(url,
-                                    data={'field_value': contact_filter.id,
-                                          'entities': [report_1.id, report_2.id],
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'field_value': contact_filter.id,
+                'entities': [report_1.id, report_2.id],
+            },
+        )
         self.assertNoFormError(response)
 
         self.assertEqual(self.refresh(report_1).filter, contact_filter)
@@ -537,39 +571,48 @@ class ReportTestCase(BaseReportsTestCase):
         url = self.build_bulkupdate_url(Report, 'filter')
         self.assertGET200(url)
 
-        response = self.assertPOST200(url,
-                                      data={'field_value': contact_filter.id,
-                                            'entities': [report_1.id, report_2.id],
-                                           })
-        self.assertFormError(response, 'form', None,
-                             _('Filter field can only be updated when reports '
-                               'target the same type of entities (e.g: only contacts).'
-                              )
-                            )
+        response = self.assertPOST200(
+            url,
+            data={
+                'field_value': contact_filter.id,
+                'entities': [report_1.id, report_2.id],
+            },
+        )
+        self.assertFormError(
+            response, 'form', None,
+            _(
+                'Filter field can only be updated when reports '
+                'target the same type of entities (e.g: only contacts).'
+            )
+        )
 
     def test_report_bulkedit_filter03(self):
         "Some filters are not visible (private) -> errors"
         user = self.login()
         other_user = self.other_user
 
-        create_ef = partial(EntityFilter.objects.smart_update_or_create,
-                            is_custom=True, model=FakeContact,
-                           )
+        create_ef = partial(
+            EntityFilter.objects.smart_update_or_create,
+            is_custom=True, model=FakeContact,
+        )
         efilter1 = create_ef('test-filter1', name='Filter #1')
         efilter2 = create_ef('test-filter2', name='Filter #2', is_private=True, user=other_user)
         efilter3 = create_ef('test-filter3', name='Filter #3', is_private=True, user=user)
 
         report_1 = self._create_report('Filter #1', efilter=efilter1)
         report_2 = self._create_report('Filter #2')
-        report_3 = Report.objects.create(user=other_user, name="Other's report",
-                                         ct=efilter2.entity_type, filter=efilter2,
-                                        )
+        report_3 = Report.objects.create(
+            user=other_user, name="Other's report",
+            ct=efilter2.entity_type, filter=efilter2,
+        )
 
-        response = self.client.post(self.build_bulkupdate_url(Report, 'filter'),
-                                    data={'field_value': efilter3.id,
-                                          'entities': [report_1.id, report_2.id, report_3.id],
-                                         }
-                                   )
+        response = self.client.post(
+            self.build_bulkupdate_url(Report, 'filter'),
+            data={
+                'field_value': efilter3.id,
+                'entities': [report_1.id, report_2.id, report_3.id],
+            },
+        )
         self.assertNoFormError(response)
 
         self.assertEqual(efilter3, self.refresh(report_1).filter)
@@ -579,9 +622,10 @@ class ReportTestCase(BaseReportsTestCase):
     def test_listview(self):
         self.login()
 
-        reports = [self._create_report('Report#1'),
-                   self._create_report('Report#2'),
-                  ]
+        reports = [
+            self._create_report('Report#1'),
+            self._create_report('Report#2'),
+        ]
 
         response = self.assertGET200(Report.get_lv_absolute_url())
 
@@ -599,19 +643,21 @@ class ReportTestCase(BaseReportsTestCase):
         export_actions = [
             action for action in actions.actions_registry
                                         .instance_actions(user=user, instance=report)
-                if isinstance(action, ExportReportAction)
+            if isinstance(action, ExportReportAction)
         ]
         self.assertEqual(1, len(export_actions))
 
         export_action = export_actions[0]
         self.assertEqual('reports-export', export_action.id)
         self.assertEqual('reports-export', export_action.type)
-        self.assertEqual(reverse('reports__export_report_filter', args=(report.id,)),
-                         export_action.url
-                        )
-        self.assertEqual(pgettext('reports-report', 'Export «{object}»').format(object=report),
-                         export_action.help_text
-                        )
+        self.assertEqual(
+            reverse('reports__export_report_filter', args=(report.id,)),
+            export_action.url
+        )
+        self.assertEqual(
+            pgettext('reports-report', 'Export «{object}»').format(object=report),
+            export_action.help_text
+        )
         self.assertTrue(export_action.is_enabled)
         self.assertTrue(export_action.is_visible)
 
@@ -620,7 +666,9 @@ class ReportTestCase(BaseReportsTestCase):
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Mihana family', FakeContact, is_custom=True,
         )
-        report = Report.objects.create(user=user, name='Contact report', ct=FakeContact, filter=efilter)
+        report = Report.objects.create(
+            user=user, name='Contact report', ct=FakeContact, filter=efilter,
+        )
 
         create_field = partial(Field.objects.create, report=report)
         rfield1 = create_field(name='last_name',             order=1, type=RFT_FIELD)
@@ -690,48 +738,55 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertIsInstance(columns, list)
         self.assertEqual(4, len(columns))
         self.assertIsInstance(columns[0], Field)
-        self.assertEqual(['last_name', 'user', 'creme_core-subject_has', 'get_pretty_properties'],
-                         [f.name for f in columns]
-                        )
+        self.assertListEqual(
+            ['last_name', 'user', 'creme_core-subject_has', 'get_pretty_properties'],
+            [f.name for f in columns]
+        )
 
         self.assertContains(response, chiyo.last_name)
         self.assertContains(response, osaka.last_name)
 
-        response = self.assertGET200(url,
-                                     data={'doc_type': 'csv',
-                                           'date_filter_0': '',
-                                           'date_filter_1': '1990-01-01',
-                                           'date_filter_2': '1990-12-31',
-                                           'date_field':    'birthday',
-                                          }
-                                    )
+        response = self.assertGET200(
+            url,
+            data={
+                'doc_type': 'csv',
+                'date_filter_0': '',
+                'date_filter_1': '1990-01-01',
+                'date_filter_2': '1990-12-31',
+                'date_field':    'birthday',
+            },
+        )
         self.assertTemplateUsed(response, 'reports/preview_report.html')
         self.assertNoFormError(response)
         self.assertContains(response, osaka.last_name)
         self.assertNotContains(response, chiyo.last_name)
 
     def test_preview02(self):
-        "Empty: no contact"
+        "Empty: no contact."
         self.login()
         report = self._create_report('My report')
 
         response = self.assertGET200(self._build_preview_url(report))
         self.assertTemplateUsed(response, 'reports/preview_report.html')
-        self.assertContains(response,
-                            _('You can see no «{model}»').format(model='Test Contact')
-                           )
+        self.assertContains(
+            response,
+            _('You can see no «{model}»').format(model='Test Contact')
+        )
 
     def test_preview03(self):
-        "Empty: no allowed contact"
+        "Empty: no allowed contact."
         self.login_as_basic_user(creatable_models=[Report])
 
-        FakeContact.objects.create(user=self.other_user, first_name='Chiyo', last_name='Mihana')
+        FakeContact.objects.create(
+            user=self.other_user, first_name='Chiyo', last_name='Mihana',
+        )
 
         report = self._create_report('My report')
         response = self.assertGET200(self._build_preview_url(report))
-        self.assertContains(response,
-                            _('You can see no «{model}»').format(model='Test Contact')
-                           )
+        self.assertContains(
+            response,
+            _('You can see no «{model}»').format(model='Test Contact')
+        )
 
     def test_preview04(self):
         "Empty: no contact after date filtering"
@@ -752,30 +807,34 @@ class ReportTestCase(BaseReportsTestCase):
 
         response = self.assertGET200(self._build_preview_url(report))
         self.assertNotContains(response, tomo.last_name)
-        self.assertContains(response,
-                            _('No «{model}» matches the filter «{filter}»').format(
-                                    model='Test Contact',
-                                    filter=report.filter,
-                                )
-                           )
+        self.assertContains(
+            response,
+            _('No «{model}» matches the filter «{filter}»').format(
+                model='Test Contact',
+                filter=report.filter,
+            )
+        )
 
     def test_preview05(self):
         "Empty: no contact after date filtering"
         user = self.login()
         report = self._create_report('My report')
 
-        FakeContact.objects.create(user=user, first_name='Chiyo', last_name='Mihana',
-                                   birthday=date(year=1995, month=3, day=26),
-                                  )
+        FakeContact.objects.create(
+            user=user, first_name='Chiyo', last_name='Mihana',
+            birthday=date(year=1995, month=3, day=26),
+        )
 
-        response = self.assertGET200(self._build_preview_url(report),
-                                     data={'doc_type': 'csv',
-                                           'date_filter_0': '',
-                                           'date_filter_1': '1990-01-01',
-                                           'date_filter_2': '1990-12-31',
-                                           'date_field':    'birthday',
-                                          }
-                                    )
+        response = self.assertGET200(
+            self._build_preview_url(report),
+            data={
+                'doc_type':      'csv',
+                'date_filter_0': '',
+                'date_filter_1': '1990-01-01',
+                'date_filter_2': '1990-12-31',
+                'date_field':    'birthday',
+            }
+        )
         msg = _('No «{model}» matches your date filter').format(model='Test Contact')
         self.assertEqual(msg, response.context.get('empty_message'))
         self.assertContains(response, msg)
@@ -790,21 +849,23 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertGET405(url, data={'target': 1})
 
         self.client.post(url, data={'target': 1})
-        self.assertEqual(['user', 'last_name', REL_SUB_HAS, 'get_pretty_properties'],
-                         [f.name for f in report.fields.order_by('order')]
-                        )
+        self.assertListEqual(
+            ['user', 'last_name', REL_SUB_HAS, 'get_pretty_properties'],
+            [f.name for f in report.fields.order_by('order')]
+        )
 
     def test_report_reorder_field02(self):
-        "Report & Field do not match"
+        "Report & Field do not match."
         self.login()
 
         report1 = self._create_report('Hill')
         report2 = self._create_report('Spencer')
 
         rfield = self.get_field_or_fail(report1, 'user')
-        self.assertPOST404(reverse('reports__reorder_field', args=(report2.id, rfield.id,)),
-                           data={'target': 1}
-                          )
+        self.assertPOST404(
+            reverse('reports__reorder_field', args=(report2.id, rfield.id,)),
+            data={'target': 1},
+        )
 
     def test_export_filter_form_customrange(self):
         self.login()
@@ -815,45 +876,53 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertTemplateUsed(response, 'reports/forms/report-export-filter.html')
 
         context = response.context
-        self.assertEqual(pgettext('reports-report', 'Export «{object}»').format(object=report),
-                         context.get('title')
-                        )
-        self.assertEqual(pgettext('reports-report', 'Export'), context.get('submit_label'))
+        self.assertEqual(
+            pgettext('reports-report', 'Export «{object}»').format(object=report),
+            context.get('title')
+        )
+        self.assertEqual(
+            pgettext('reports-report', 'Export'),
+            context.get('submit_label')
+        )
 
         # ---
         date_field = 'birthday'
-        response = self.assertPOST200(url,
-                                      data={'doc_type': 'csv',
-                                            'date_filter_0': '',
-                                            'date_filter_1': '01-01-1990',
-                                            'date_filter_2': '31-12-1990',
-                                            'date_field':    date_field,
-                                           }
-                                     )
+        response = self.assertPOST200(
+            url,
+            data={
+                'doc_type':      'csv',
+                'date_filter_0': '',
+                'date_filter_1': '01-01-1990',
+                'date_filter_2': '31-12-1990',
+                'date_field':    date_field,
+            },
+        )
         self.assertNoFormError(response)
-        self.assertEqual('{url}?doc_type=csv'
-                         '&date_field={date}'
-                         '&date_filter_0='
-                         '&date_filter_1=01-01-1990'
-                         '&date_filter_2=31-12-1990'.format(
-                                url=reverse('reports__export_report', args=(report.id,)),
-                                date=date_field,
-                            ),
-                         response.content.decode()
-                        )
+        self.assertEqual(
+            '{url}?doc_type=csv'
+            '&date_field={date}'
+            '&date_filter_0='
+            '&date_filter_1=01-01-1990'
+            '&date_filter_2=31-12-1990'.format(
+                url=reverse('reports__export_report', args=(report.id,)),
+                date=date_field,
+            ),
+            response.content.decode()
+        )
 
     def test_export_filter_not_superuser01(self):
         user = self.login(is_superuser=False, allowed_apps=['reports'])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         report = Report.objects.create(name='Report', user=user, ct=self.ct_orga)
         self.assertGET200(reverse('reports__export_report_filter', args=(report.id,)))
 
     def test_export_filter_not_superuser02(self):
-        "VIEW permission"
+        "VIEW permission."
         user = self.login(is_superuser=False, allowed_apps=['reports'])
         # SetCredentials.objects.create(role=self.role,
         #                               value=EntityCredentials.VIEW,
@@ -873,9 +942,10 @@ class ReportTestCase(BaseReportsTestCase):
         date_field = 'birthday'
         response = self.assertPOST200(url, data={'date_field': date_field,})
 
-        self.assertFormError(response, 'form', 'doc_type',
-                             _('This field is required.')
-                            )
+        self.assertFormError(
+            response, 'form', 'doc_type',
+            _('This field is required.')
+        )
 
     def test_export_filter_form_missing_customrange(self):
         self.login()
@@ -885,19 +955,24 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertGET200(url)
 
         date_field = 'birthday'
-        response = self.assertPOST200(url, data={'doc_type': 'csv',
-                                                 'date_filter_0': '',
-                                                 'date_filter_1': '',
-                                                 'date_filter_2': '',
-                                                 'date_field': date_field,
-                                                }
-                                     )
+        response = self.assertPOST200(
+            url,
+            data={
+                'doc_type': 'csv',
+                'date_filter_0': '',
+                'date_filter_1': '',
+                'date_filter_2': '',
+                'date_field': date_field,
+            }
+        )
 
-        self.assertFormError(response, 'form', '',
-                             _('If you chose a Date field, and select «customized» '
-                               'you have to specify a start date and/or an end date.'
-                              )
-                            )
+        self.assertFormError(
+            response, 'form', '',
+            _(
+                'If you chose a Date field, and select «customized» '
+                'you have to specify a start date and/or an end date.'
+            )
+        )
 
     def test_export_filter_form_invalid_filter(self):
         self.login()
@@ -907,16 +982,20 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertGET200(url)
 
         date_field = 'birthday'
-        response = self.assertPOST200(url, data={'date_field': date_field,
-                                                 'date_filter_0': 'unknown',
-                                                }
-                                     )
+        response = self.assertPOST200(
+            url,
+            data={
+                'date_field': date_field,
+                'date_filter_0': 'unknown',
+            },
+        )
 
-        self.assertFormError(response, 'form', 'date_filter',
-                             _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                                    'value': 'unknown',
-                                }
-                            )
+        self.assertFormError(
+            response, 'form', 'date_filter',
+            _('Select a valid choice. %(value)s is not one of the available choices.') % {
+                'value': 'unknown',
+            },
+        )
 
     def test_export_filter_form_no_datefield(self):
         self.login()
@@ -927,18 +1006,22 @@ class ReportTestCase(BaseReportsTestCase):
 
         date_field = ''
         doc_type = 'csv'
-        response = self.client.post(url, data={'doc_type':      doc_type,
-                                               'date_filter_0': '',
-                                               'date_field':    date_field,
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'doc_type':      doc_type,
+                'date_filter_0': '',
+                'date_field':    date_field,
+            },
+        )
         self.assertNoFormError(response)
-        self.assertEqual('{url}?doc_type={type}&date_field='.format(
-                                url=reverse('reports__export_report', args=(report.id,)),
-                                type=doc_type,
-                            ),
-                         response.content.decode()
-                        )
+        self.assertEqual(
+            '{url}?doc_type={type}&date_field='.format(
+                url=reverse('reports__export_report', args=(report.id,)),
+                type=doc_type,
+            ),
+            response.content.decode()
+        )
 
     def test_report_csv01(self):
         "Empty report."
@@ -961,11 +1044,12 @@ class ReportTestCase(BaseReportsTestCase):
 
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
         self.assertEqual('doc_type=csv', response.request['QUERY_STRING'])
-        self.assertEqual('"{}","{}","{}","{}"\r\n'.format(
-                              _('Name'), _('Owner user'), rt.predicate, _('Properties')
-                            ),
-                         response.content.decode()
-                        )
+        self.assertEqual(
+            '"{}","{}","{}","{}"\r\n'.format(
+                _('Name'), _('Owner user'), rt.predicate, _('Properties')
+            ),
+            response.content.decode()
+        )
 
     def test_report_csv02(self):
         self.login()
@@ -1157,19 +1241,21 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertGET200(url)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Edit columns of «{object}»').format(object=report),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Edit columns of «{object}»').format(object=report),
+            response.context.get('title')
+        )
 
         # ---
         old_rfield = report.columns[0]
 
-        self.assertNoFormError(
-            self.client.post(url, data={'columns': 'regular_field-last_name,'
-                                                   'regular_field-first_name',
-                                       },
-                            )
-        )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'columns': 'regular_field-last_name,'
+                'regular_field-first_name',
+            },
+        ))
 
         columns = self.refresh(report).columns
         self.assertEqual(2, len(columns))
@@ -1205,13 +1291,15 @@ class ReportTestCase(BaseReportsTestCase):
         fk_name = 'image'
         cf_id = str(cf.id)
         aggr_id = f'{cf_id}__max'
-        response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': f'regular_field-{f_name},'
-                                                     f'custom_field-{cf_id},'
-                                                     f'custom_aggregate-{aggr_id},'
-                                                     f'regular_field-{fk_name}',
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_editfields_url(report),
+            data={
+                'columns': f'regular_field-{f_name},'
+                           f'custom_field-{cf_id},'
+                           f'custom_aggregate-{aggr_id},'
+                           f'regular_field-{fk_name}',
+            },
+        )
         self.assertNoFormError(response)
 
         columns = [*report.fields.all()]
@@ -1254,12 +1342,14 @@ class ReportTestCase(BaseReportsTestCase):
         funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
         self.assertIsNotNone(funcfield)
 
-        response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': f'relation-{rtype_id},'
-                                                     f'regular_field-{f_name},'
-                                                     f'function_field-{funcfield.name}',
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_editfields_url(report),
+            data={
+                'columns': f'relation-{rtype_id},'
+                           f'regular_field-{f_name},'
+                           f'function_field-{funcfield.name}',
+            },
+        )
         self.assertNoFormError(response)
 
         columns = report.columns
@@ -1287,17 +1377,19 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertIsNone(column3.sub_report)
 
     def test_edit_fields04(self):
-        "Aggregate on regular fields"
+        "Aggregate on regular fields."
         user = self.login()
 
         report = Report.objects.create(name='Secret report', user=user, ct=self.ct_orga)
         f_name = 'name'
         aggr_id = 'capital__min'
-        response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': f'regular_field-{f_name},'
-                                                     f'regular_aggregate-{aggr_id}',
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_editfields_url(report),
+            data={
+                'columns': f'regular_field-{f_name},'
+                           f'regular_aggregate-{aggr_id}',
+            },
+        )
         self.assertNoFormError(response)
 
         columns = report.columns
@@ -1317,15 +1409,19 @@ class ReportTestCase(BaseReportsTestCase):
         "Related entity"
         user = self.login()
 
-        report = Report.objects.create(name='Folder report', user=user, ct=self.ct_folder)
+        report = Report.objects.create(
+            name='Folder report', user=user, ct=self.ct_folder,
+        )
 
         f_name = 'title'
         rel_name = 'fakereportsdocument'
-        response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': f'regular_field-{f_name},'
-                                                     f'related-{rel_name}',
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_editfields_url(report),
+            data={
+                'columns': f'regular_field-{f_name},'
+                f'related-{rel_name}',
+            },
+        )
         self.assertNoFormError(response)
 
         columns = report.columns
@@ -1356,13 +1452,15 @@ class ReportTestCase(BaseReportsTestCase):
         create_field(name='name',                   type=RFT_FIELD,    order=2)
         create_field(name='image',                  type=RFT_FIELD,    order=3, selected=False, sub_report=report_img)
 
-        response = self.client.post(self._build_editfields_url(report_orga),
-                                    data={'columns': f'regular_field-name,'
-                                                     f'relation-{FAKE_REL_OBJ_EMPLOYED_BY},'
-                                                     f'regular_field-description,'
-                                                     f'regular_field-image', # TODO: and with image__name ???
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_editfields_url(report_orga),
+            data={
+                'columns': f'regular_field-name,'
+                           f'relation-{FAKE_REL_OBJ_EMPLOYED_BY},'
+                           f'regular_field-description,'
+                           f'regular_field-image',  # TODO: and with image__name ???
+            },
+        )
         self.assertNoFormError(response)
 
         columns = report_orga.columns
@@ -1418,9 +1516,10 @@ class ReportTestCase(BaseReportsTestCase):
 
         response = self.client.post(
             url,
-            data={'columns': f'regular_field-{valid_fname},'
-                             f'regular_field-{hidden_fname2}',
-                 },
+            data={
+                'columns': f'regular_field-{valid_fname},'
+                           f'regular_field-{hidden_fname2}',
+            },
         )
         self.assertNoFormError(response)
 
@@ -1438,9 +1537,10 @@ class ReportTestCase(BaseReportsTestCase):
         fname = 'linked_folder__category'
         response = self.client.post(
             self._build_editfields_url(report),
-            data={'columns': f'regular_field-title,'
-                             f'regular_field-{fname}',
-                 },
+            data={
+                'columns': f'regular_field-title,'
+                           f'regular_field-{fname}',
+            },
         )
         self.assertNoFormError(response)
 
@@ -1455,16 +1555,18 @@ class ReportTestCase(BaseReportsTestCase):
         "M2M with <depth=2>."
         user = self.login()
 
-        report = Report.objects.create(name='Contact report', user=user,
-                                       ct=self.ct_contact,
-                                      )
+        report = Report.objects.create(
+            name='Contact report', user=user, ct=self.ct_contact,
+        )
 
         fname = 'image__categories'
-        response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': f'regular_field-last_name,'
-                                                     f'regular_field-{fname}',
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_editfields_url(report),
+            data={
+                'columns': f'regular_field-last_name,'
+                           f'regular_field-{fname}',
+            },
+        )
         self.assertNoFormError(response)
 
         columns = report.columns
@@ -1488,10 +1590,11 @@ class ReportTestCase(BaseReportsTestCase):
     def test_edit_fields_not_super_user02(self):
         "Edition permission on Report are needed."
         user = self.login(is_superuser=False, allowed_apps=['reports'])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,  # EntityCredentials.CHANGE
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,  # EntityCredentials.CHANGE
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         report = Report.objects.create(name='Contact report', user=user, ct=self.ct_contact)
         self.assertGET403(self._build_editfields_url(report))
@@ -1528,8 +1631,9 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_invalid_hands02(self):
         user = self.login()
-
-        report = Report.objects.create(user=user, name='Report on docs', ct=FakeReportsDocument)
+        report = Report.objects.create(
+            user=user, name='Report on docs', ct=FakeReportsDocument,
+        )
 
         rfield = Field.objects.create(
             name='linked_folder__parent',
@@ -1542,9 +1646,9 @@ class ReportTestCase(BaseReportsTestCase):
         "RFT_FIELD (FK) field."
         user = self.login()
 
-        contact_report = Report.objects.create(user=user, name='Report on contacts',
-                                               ct=self.ct_contact,
-                                              )
+        contact_report = Report.objects.create(
+            user=user, name='Report on contacts', ct=self.ct_contact,
+        )
 
         create_field = partial(
             Field.objects.create,
@@ -1574,9 +1678,10 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('Link of the column «{object}»').format(object=fk_img_field),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Link of the column «{object}»').format(object=fk_img_field),
+            context.get('title')
+        )
         self.assertEqual(_('Link'), context.get('submit_label'))
 
         # ---
@@ -1615,12 +1720,13 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertGET200(self._build_linkreport_url(fk_img_field))
 
     def test_link_report_not_superuser02(self):
-        "LINK permission"
+        "LINK permission."
         user = self.login(is_superuser=False, allowed_apps=['reports'])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,  # EntityCredentials.LINK
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,  # EntityCredentials.LINK
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         report = Report.objects.create(user=user, name='Report', ct=self.ct_contact)
 
@@ -1633,9 +1739,9 @@ class ReportTestCase(BaseReportsTestCase):
         "RelationType has got constraints on CT"
         user = self.login()
 
-        contact_report = Report.objects.create(user=user, name='Report on contacts',
-                                               ct=self.ct_contact,
-                                              )
+        contact_report = Report.objects.create(
+            user=user, name='Report on contacts', ct=self.ct_contact,
+        )
 
         create_field = partial(
             Field.objects.create,
@@ -1659,15 +1765,16 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(orga_report, self.refresh(rel_rfield).sub_report)
 
     def test_link_report_relation02(self):
-        "RelationType hasn't any constraint on CT"
+        "RelationType hasn't any constraint on CT."
         user = self.login()
 
-        contact_report = Report.objects.create(user=user, ct=self.ct_contact,
-                                               name='Report on contacts',
-                                              )
-        rtype = RelationType.create(('reports-subject_obeys',   'obeys to'),
-                                    ('reports-object_commands', 'commands'),
-                                   )[0]
+        contact_report = Report.objects.create(
+            user=user, ct=self.ct_contact, name='Report on contacts',
+        )
+        rtype = RelationType.create(
+            ('reports-subject_obeys',   'obeys to'),
+            ('reports-object_commands', 'commands'),
+        )[0]
 
         create_field = partial(
             Field.objects.create,
@@ -1683,16 +1790,17 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(img_report, self.refresh(rel_rfield).sub_report)
 
     def test_link_report_related(self):
-        "RFT_RELATED field"
+        "RFT_RELATED field."
         user = self.login()
 
-        self.assertEqual([('fakereportsdocument', 'Test (reports) Document')],
-                         Report.get_related_fields_choices(FakeReportsFolder)
-                        )
+        self.assertListEqual(
+            [('fakereportsdocument', 'Test (reports) Document')],
+            Report.get_related_fields_choices(FakeReportsFolder)
+        )
 
-        folder_report = Report.objects.create(name='Report on folders', user=user,
-                                              ct=self.ct_folder,
-                                             )
+        folder_report = Report.objects.create(
+            name='Report on folders', user=user, ct=self.ct_folder,
+        )
 
         create_field = partial(Field.objects.create, report=folder_report)
         rfield1 = create_field(name='title',    type=RFT_FIELD,   order=1)
@@ -1710,18 +1818,23 @@ class ReportTestCase(BaseReportsTestCase):
         "Cycle error"
         user = self.login()
 
-        contact_report = Report.objects.create(user=user, ct=self.ct_contact,
-                                               name='Report on contacts',
-                                              )
+        contact_report = Report.objects.create(
+            user=user, ct=self.ct_contact, name='Report on contacts',
+        )
 
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_RELATION)
-        create_field(report=contact_report, name='last_name', type=RFT_FIELD, order=1)
-        rel_rfield = create_field(report=contact_report, name=FAKE_REL_SUB_EMPLOYED_BY, order=2)
+        create_field = partial(
+            Field.objects.create,
+            report=contact_report,
+            selected=False, sub_report=None, type=RFT_RELATION,
+        )
+        create_field(name='last_name', type=RFT_FIELD, order=1)
+        rel_rfield = create_field(name=FAKE_REL_SUB_EMPLOYED_BY, order=2)
 
         orga_report = self._build_orga_report()
-        create_field(report=orga_report, name=FAKE_REL_OBJ_EMPLOYED_BY, order=3,
-                     sub_report=contact_report,
-                    )
+        create_field(
+            report=orga_report, name=FAKE_REL_OBJ_EMPLOYED_BY, order=3,
+            sub_report=contact_report,
+        )
 
         url = self._build_linkreport_url(rel_rfield)
         self.assertGET200(url)
@@ -1730,7 +1843,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFormError(response, 'form', 'report', _('This entity does not exist.'))
 
         # Invalid field -> no 500 error
-        rfield = create_field(report=contact_report, name='invalid', type=RFT_FIELD, order=3)
+        rfield = create_field(name='invalid', type=RFT_FIELD, order=3)
         self.assertGET409(self._build_linkreport_url(rfield))
 
     def test_link_report_selected(self):
@@ -1738,9 +1851,9 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login()
 
         img_report = self._build_image_report()
-        contact_report = Report.objects.create(user=user, name='Report on contacts',
-                                               ct=self.ct_contact,
-                                              )
+        contact_report = Report.objects.create(
+            user=user, name='Report on contacts', ct=self.ct_contact,
+        )
 
         create_field = partial(Field.objects.create, report=contact_report, type=RFT_FIELD)
         create_field(name='last_name',   order=1)
@@ -1748,10 +1861,10 @@ class ReportTestCase(BaseReportsTestCase):
         rel_rfield = create_field(name=FAKE_REL_SUB_EMPLOYED_BY, order=3, type=RFT_RELATION)
 
         orga_report = self._build_orga_report()
-        self.assertNoFormError(self.client.post(self._build_linkreport_url(rel_rfield),
-                                                data={'report': orga_report.id},
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            self._build_linkreport_url(rel_rfield),
+            data={'report': orga_report.id},
+        ))
 
         rel_rfield = self.refresh(rel_rfield)
         self.assertEqual(orga_report, rel_rfield.sub_report)
@@ -1760,7 +1873,10 @@ class ReportTestCase(BaseReportsTestCase):
         # 'columns' property avoid several selected sub-reports
         img_field.selected  = True; img_field.save()
         rel_rfield.selected = True; rel_rfield.save()
-        self.assertEqual(1, len([f for f in self.refresh(contact_report).columns if f.selected]))
+        self.assertEqual(
+            1,
+            sum(1 for f in self.refresh(contact_report).columns if f.selected)
+        )
 
     def test_set_selected01(self):
         user = self.login()
@@ -1768,26 +1884,30 @@ class ReportTestCase(BaseReportsTestCase):
         img_report = self._build_image_report()
         orga_report = self._build_orga_report()
 
-        contact_report = Report.objects.create(user=user, name='Report on contacts',
-                                               ct=self.ct_contact,
-                                              )
+        contact_report = Report.objects.create(
+            user=user, name='Report on contacts', ct=self.ct_contact,
+        )
 
-        create_field = partial(Field.objects.create, report=contact_report,
-                               selected=False, sub_report=None, type=RFT_FIELD,
-                              )
-        reg_rfield = create_field(name='last_name',         order=1)
-        fk_rfield  = create_field(name='image__name',       order=2, sub_report=img_report)
-        rel_rfield = create_field(name=FAKE_REL_SUB_EMPLOYED_BY, order=3,
-                                  sub_report=orga_report, type=RFT_RELATION, selected=True,
-                                 )
+        create_field = partial(
+            Field.objects.create,
+            report=contact_report,
+            selected=False, sub_report=None, type=RFT_FIELD,
+        )
+        reg_rfield = create_field(name='last_name',   order=1)
+        fk_rfield  = create_field(name='image__name', order=2, sub_report=img_report)
+        rel_rfield = create_field(
+            name=FAKE_REL_SUB_EMPLOYED_BY, order=3,
+            sub_report=orga_report, type=RFT_RELATION, selected=True,
+        )
 
         url = reverse('reports__set_selected_field')
         # self.assertGET404(url)
         self.assertGET405(url)
 
-        data = {'field_id':  reg_rfield.id,
-                'checked':   1,
-               }
+        data = {
+            'field_id':  reg_rfield.id,
+            'checked':   1,
+        }
         self.assertPOST404(url, data=data)
 
         data['report_id'] = contact_report.id
@@ -1810,9 +1930,9 @@ class ReportTestCase(BaseReportsTestCase):
         "Missing Field ID"
         user = self.login()
 
-        contact_report = Report.objects.create(user=user, name='Report on contacts',
-                                               ct=self.ct_contact,
-                                              )
+        contact_report = Report.objects.create(
+            user=user, name='Report on contacts', ct=self.ct_contact,
+        )
         self.assertPOST404(
             reverse('reports__set_selected_field'),
             data={
@@ -1823,17 +1943,18 @@ class ReportTestCase(BaseReportsTestCase):
         )
 
     def test_set_selected03(self):
-        "Field & report do not match"
+        "Field & report do not match."
         user = self.login()
 
         img_report = self._build_image_report()
         orga_report = self._build_orga_report()
-        contact_report = Report.objects.create(user=user, name='Report on contacts',
-                                               ct=self.ct_contact,
-                                              )
-        fk_rfield = Field.objects.create(report=contact_report, name='image__name',
-                                         order=1, type=RFT_FIELD, sub_report=img_report,
-                                        )
+        contact_report = Report.objects.create(
+            user=user, name='Report on contacts', ct=self.ct_contact,
+        )
+        fk_rfield = Field.objects.create(
+            report=contact_report, name='image__name',
+            order=1, type=RFT_FIELD, sub_report=img_report,
+        )
 
         self.assertPOST409(
             reverse('reports__set_selected_field'),
@@ -1875,16 +1996,21 @@ class ReportTestCase(BaseReportsTestCase):
         )
 
         create_report = partial(Report.objects.create, user=self.user, filter=None)
-
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
+        create_field = partial(
+            Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD,
+        )
 
         if report_4_contact:
-            self.report_contact = report = create_report(name='Report on Contacts', ct=self.ct_contact)
+            self.report_contact = report = create_report(
+                name='Report on Contacts', ct=self.ct_contact,
+            )
 
             create_field(report=report, name='last_name',  order=1)
             create_field(report=report, name='first_name', order=2)
 
-        self.report_orga = create_report(name='Report on Organisations', ct=self.ct_orga, filter=efilter)
+        self.report_orga = create_report(
+            name='Report on Organisations', ct=self.ct_orga, filter=efilter,
+        )
         create_field(report=self.report_orga, name='name', order=1)
 
     def test_fetch_field_01(self):
@@ -1897,12 +2023,13 @@ class ReportTestCase(BaseReportsTestCase):
         create_contact(last_name='Mister X', is_deleted=True)
 
         report = self._create_simple_contacts_report('Contacts report')
-        self.assertEqual([[ln] for ln in FakeContact.objects
-                                                    .filter(is_deleted=False)
-                                                    .values_list('last_name', flat=True)
-                         ],
-                         report.fetch_all_lines()
-                        )
+        self.assertListEqual(
+            [[ln] for ln in FakeContact.objects
+                                       .filter(is_deleted=False)
+                                       .values_list('last_name', flat=True)
+            ],
+            report.fetch_all_lines()
+        )
 
     def test_fetch_field_02(self):
         "FK, date, filter, invalid one"
@@ -1911,9 +2038,10 @@ class ReportTestCase(BaseReportsTestCase):
         self._aux_test_fetch_persons(report_4_contact=False, create_contacts=False, create_relations=False)
 
         report = self.report_orga
-        create_field = partial(Field.objects.create, report=report,
-                               selected=False, sub_report=None, type=RFT_FIELD,
-                              )
+        create_field = partial(
+            Field.objects.create,
+            report=report, selected=False, sub_report=None, type=RFT_FIELD,
+        )
         create_field(name='user__username',    order=2)
         create_field(name='legal_form__title', order=3)
         create_field(name='creation_date',     order=4)
@@ -1929,7 +2057,7 @@ class ReportTestCase(BaseReportsTestCase):
         starks.save()
 
         username = self.user.username
-        self.assertEqual(
+        self.assertListEqual(
             [[self.lannisters.name, username, '',          ''],
              [starks.name,          username, lform.title, date_format(starks.creation_date, 'DATE_FORMAT')],
             ],
@@ -1940,11 +2068,14 @@ class ReportTestCase(BaseReportsTestCase):
         "View credentials"
         user = self.login_as_basic_user()
 
-        self._aux_test_fetch_persons(report_4_contact=False, create_contacts=False, create_relations=False)
+        self._aux_test_fetch_persons(
+            report_4_contact=False, create_contacts=False, create_relations=False,
+        )
 
-        Field.objects.create(report=self.report_orga, name='image__name',
-                             order=2, selected=False, sub_report=None, type=RFT_FIELD,
-                            )
+        Field.objects.create(
+            report=self.report_orga, name='image__name',
+            order=2, selected=False, sub_report=None, type=RFT_FIELD,
+        )
 
         baratheons = FakeOrganisation.objects.create(user=self.other_user, name='House Baratheon')
         self.assertFalse(user.has_perm_to_view(baratheons))
@@ -1977,23 +2108,26 @@ class ReportTestCase(BaseReportsTestCase):
     def _aux_test_fetch_documents(self, efilter=None, selected=True):
         create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
 
-        self.folder_report = Report.objects.create(name='Folders report', user=self.user,
-                                                   ct=self.ct_folder, filter=efilter,
-                                                  )
+        self.folder_report = Report.objects.create(
+            name='Folders report', user=self.user,
+            ct=self.ct_folder,
+            filter=efilter,
+        )
         create_field(report=self.folder_report, name='title',       order=1)
         create_field(report=self.folder_report, name='description', order=2)
 
         self.doc_report = self._create_simple_documents_report()
-        create_field(report=self.doc_report, name='linked_folder__title', order=3,
-                     sub_report=self.folder_report, selected=selected,
-                    )
+        create_field(
+            report=self.doc_report, name='linked_folder__title', order=3,
+            sub_report=self.folder_report, selected=selected,
+        )
 
         create_folder = partial(FakeReportsFolder.objects.create, user=self.user)
         self.folder1 = create_folder(title='Internal')
         self.folder2 = create_folder(title='External', description='Boring description')
 
         create_doc = partial(FakeReportsDocument.objects.create, user=self.user)
-        self.doc1 = create_doc(title='Doc#1', linked_folder=self.folder1, description='Blbalabla')
+        self.doc1 = create_doc(title='Doc#1', linked_folder=self.folder1, description='Blablabla')
         self.doc2 = create_doc(title='Doc#2', linked_folder=self.folder2)
 
     def test_fetch_fk_01(self):
@@ -2043,7 +2177,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         doc1 = self.doc1; folder2 = self.folder2
         fmt = '%s: %%s/%s: %%s' % (_('Title'), _('Description'))
-        self.assertEqual(
+        self.assertListEqual(
             [[doc1.title,      doc1.description, fmt % (self.folder1.title, '')],
              [self.doc2.title, '',               fmt % (folder2.title,      folder2.description)],
             ],
@@ -2070,11 +2204,12 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(_('Owner user'), user_field.title)
 
         user_str = str(user)
-        self.assertEqual([[self.lannisters.name, '',          user_str],
-                          [starks.name,          lform.title, user_str],
-                         ],
-                         report.fetch_all_lines()
-                        )
+        self.assertEqual(
+            [[self.lannisters.name, '',          user_str],
+             [starks.name,          lform.title, user_str],
+            ],
+            report.fetch_all_lines()
+        )
 
     def test_fetch_fk_05(self):
         "FK with depth=2"
@@ -2090,19 +2225,24 @@ class ReportTestCase(BaseReportsTestCase):
         doc1 = create_doc(title='Japan map',   linked_folder=folder1)
         doc2 = create_doc(title='Mars city 1', linked_folder=folder2)
 
-        report = Report.objects.create(name='Docs report', user=user, ct=FakeCoreDocument)
+        report = Report.objects.create(
+            name='Docs report', user=user, ct=FakeCoreDocument,
+        )
 
-        create_field = partial(Field.objects.create, report=report,
-                               selected=False, sub_report=None, type=RFT_FIELD,
-                              )
+        create_field = partial(
+            Field.objects.create, report=report,
+            selected=False, sub_report=None, type=RFT_FIELD,
+        )
         create_field(name='title',                   order=1)
         create_field(name='linked_folder__category', order=2)
 
-        self.assertEqual([[doc1.title, cat.name],
-                          [doc2.title, ''],
-                         ],
-                         report.fetch_all_lines()
-                        )
+        self.assertListEqual(
+            [
+                [doc1.title, cat.name],
+                [doc2.title, ''],
+            ],
+            report.fetch_all_lines()
+        )
 
     def test_fetch_fk_06(self):
         "M2M at depth=2"
@@ -2121,7 +2261,10 @@ class ReportTestCase(BaseReportsTestCase):
         img2.categories.set([cat1])
 
         description = 'Bebop member'
-        create_contact = partial(FakeContact.objects.create, user=user, description=description)
+        create_contact = partial(
+            FakeContact.objects.create,
+            user=user, description=description,
+        )
         faye  = create_contact(last_name='Valentine', image=img1)
         spike = create_contact(last_name='Spiegel',   image=img2)
         jet   = create_contact(last_name='Black',     image=img3)
@@ -2143,22 +2286,25 @@ class ReportTestCase(BaseReportsTestCase):
             name='Contact report', user=user, filter=efilter, ct=self.ct_contact,
         )
 
-        create_field = partial(Field.objects.create, report=report,
-                               selected=False, sub_report=None, type=RFT_FIELD,
-                              )
+        create_field = partial(
+            Field.objects.create, report=report,
+            selected=False, sub_report=None, type=RFT_FIELD,
+        )
         create_field(name='last_name',         order=1)
         create_field(name='image__categories', order=2)
 
-        self.assertEqual([[jet.last_name,   ''],
-                          [spike.last_name, cat1.name],
-                          [faye.last_name,  cat2.name + '/' + cat1.name],
-                          [ed.last_name,    ''],
-                         ],
-                         report.fetch_all_lines()
-                        )
+        self.assertListEqual(
+            [
+                [jet.last_name,   ''],
+                [spike.last_name, cat1.name],
+                [faye.last_name,  f'{cat2.name}/{cat1.name}'],
+                [ed.last_name,    ''],
+            ],
+            report.fetch_all_lines()
+        )
 
     def test_fetch_cf_01(self):
-        "Custom fields"
+        "Custom fields."
         user = self.login()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -2171,7 +2317,7 @@ class ReportTestCase(BaseReportsTestCase):
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact, field_name='last_name',
-                    operator=operators.IEQUALS, values=[ned.last_name]
+                    operator=operators.IEQUALS, values=[ned.last_name],
                 ),
             ],
         )
@@ -2184,7 +2330,7 @@ class ReportTestCase(BaseReportsTestCase):
         report = self._create_report('Contacts with CField', efilter=efilter)
         report.fields.all().delete()
 
-        create_field = partial(Field.objects.create, report=report, selected=False, sub_report=None)
+        create_field = partial(Field.objects.create, report=report)
         create_field(name='first_name', type=RFT_FIELD,  order=1)
         create_field(name=cf.id,        type=RFT_CUSTOM, order=2)
         create_field(name=1024,         type=RFT_CUSTOM, order=3)  # Simulates deleted CustomField
@@ -2192,24 +2338,26 @@ class ReportTestCase(BaseReportsTestCase):
         report = self.refresh(report)
         self.assertEqual(2, len(report.columns))
         self.assertEqual(2, report.fields.count())
-
-        self.assertEqual([[aria.first_name, '150'],
-                          [ned.first_name,  '190'],
-                          [robb.first_name, ''],
-                         ],
-                         report.fetch_all_lines()
-                        )
+        self.assertListEqual(
+            [
+                [aria.first_name, '150'],
+                [ned.first_name,  '190'],
+                [robb.first_name, ''],
+            ],
+            report.fetch_all_lines()
+        )
 
     def test_fetch_cf_02(self):
-        "In FK, credentials"
+        "In FK, credentials."
         user = self.login_as_basic_user()
 
         self._build_contacts_n_images()
         ned_face = self.ned_face; aria_face = self.aria_face
 
-        cf = CustomField.objects.create(content_type=self.ct_image,
-                                        name='Popularity', field_type=CustomField.INT,
-                                       )
+        cf = CustomField.objects.create(
+            content_type=self.ct_image,
+            name='Popularity', field_type=CustomField.INT,
+        )
 
         create_cfval = partial(CustomFieldInteger.objects.create, custom_field=cf)
         create_cfval(entity=ned_face,  value=190)
@@ -2222,16 +2370,19 @@ class ReportTestCase(BaseReportsTestCase):
         create_field(report=report_img, name='name', order=1)
         create_field(report=report_img, name=cf.id,  order=2, type=RFT_CUSTOM)
 
-        report_contact = create_report(name='Report on Contacts', ct=self.ct_contact, filter=self.efilter)
+        report_contact = create_report(
+            name='Report on Contacts', ct=self.ct_contact, filter=self.efilter,
+        )
         create_field(report=report_contact, name='first_name',  order=1)
         create_field(report=report_contact, name='image__name', order=2,
                      sub_report=report_img, selected=True,
                     )
 
-        lines = [[self.aria.first_name, aria_face.name, '150'],
-                 [self.ned.first_name,  ned_face.name,  '190'],
-                 [self.robb.first_name, '',             ''],
-                ]
+        lines = [
+            [self.aria.first_name, aria_face.name, '150'],
+            [self.ned.first_name,  ned_face.name,  '190'],
+            [self.robb.first_name, '',             ''],
+        ]
         self.assertEqual(lines, report_contact.fetch_all_lines())
 
         lines.pop()  # 'robb' is not visible
@@ -2240,7 +2391,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(lines, report_contact.fetch_all_lines(user=user))
 
     def test_fetch_m2m_01(self):
-        "No sub report"
+        "No sub report."
         user = self.login()
 
         hf = HeaderFilter.objects.create_if_needed(
@@ -2262,11 +2413,13 @@ class ReportTestCase(BaseReportsTestCase):
         camp2.mailing_lists.set([create_ml(name='ML#3')])
 
         self.assertHeaders(['name', 'mailing_lists__name'], report)
-        self.assertEqual([[name1, 'ML#1, ML#2'],
-                          [name2, 'ML#3'],
-                         ],
-                         report.fetch_all_lines()
-                        )
+        self.assertListEqual(
+            [
+                [name1, 'ML#1, ML#2'],
+                [name2, 'ML#3'],
+            ],
+            report.fetch_all_lines()
+        )
 
     def _aux_test_fetch_m2m(self):
         user = self.login()
@@ -2313,7 +2466,7 @@ class ReportTestCase(BaseReportsTestCase):
         create_prop(type=self.ptype2, creme_entity=ml2)
 
     def test_fetch_m2m_02(self):
-        "Sub report (expanded)"
+        "Sub report (expanded)."
         self._aux_test_fetch_m2m()
 
         report_camp = self.report_camp; report_ml= self.report_ml
@@ -2322,15 +2475,16 @@ class ReportTestCase(BaseReportsTestCase):
         ptype1 = self.ptype1; ptype2 = self.ptype2
 
         self.assertHeaders(['name', 'mailing_lists__name'], report_camp)
-        self.assertEqual(
-            [[name1, ml1.name + ', ' + ml2.name],
-             [name2, ml3.name],
-             [name3, ''],
+        self.assertListEqual(
+            [
+                [name1, f'{ml1.name}, {ml2.name}'],
+                [name2, ml3.name],
+                [name3, ''],
             ],
             report_camp.fetch_all_lines()
         )
 
-        self.assertEqual(
+        self.assertListEqual(
             [[ml1.name, ptype1.text], [ml2.name, ptype2.text], [ml3.name, '']],
             report_ml.fetch_all_lines()
         )
@@ -2348,16 +2502,18 @@ class ReportTestCase(BaseReportsTestCase):
 
         report_camp = self.refresh(report_camp)
         self.assertHeaders(['name', 'name', 'get_pretty_properties'], report_camp)
-        self.assertEqual([[name1, ml1.name, ptype1.text],
-                          [name1, ml2.name, ptype2.text],
-                          [name2, ml3.name, ''],
-                          [name3, '',       ''],
-                         ],
-                         report_camp.fetch_all_lines()
-                        )
+        self.assertListEqual(
+            [
+                [name1, ml1.name, ptype1.text],
+                [name1, ml2.name, ptype2.text],
+                [name2, ml3.name, ''],
+                [name3, '',       ''],
+            ],
+            report_camp.fetch_all_lines()
+        )
 
     def test_fetch_m2m_03(self):
-        "Sub report (not expanded)"
+        "Sub report (not expanded)."
         self._aux_test_fetch_m2m()
 
         report_camp = self.report_camp
@@ -2372,12 +2528,16 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertHeaders(['name', 'mailing_lists__name'], report_camp)
 
         fmt = '%s: %%s/%s: %%s' % (_('Name of the mailing list'), _('Properties'))
-        self.assertEqual(
-            [[self.camp1.name, fmt % (self.ml1.name, self.ptype1.text) + ', ' +
-                               fmt % (self.ml2.name, self.ptype2.text),
-             ],
-             [self.camp2.name, fmt % (self.ml3.name, '')],
-             [self.camp3.name, ''],
+        self.assertListEqual(
+            [
+                [
+                    self.camp1.name,
+                    fmt % (self.ml1.name, self.ptype1.text) +
+                    ', ' +
+                    fmt % (self.ml2.name, self.ptype2.text),
+                ],
+                [self.camp2.name, fmt % (self.ml3.name, '')],
+                [self.camp3.name, ''],
             ],
             report_camp.fetch_all_lines()
         )
@@ -2409,15 +2569,16 @@ class ReportTestCase(BaseReportsTestCase):
         img1.categories.set([cat1, cat2])
 
         cats_str = f'{cat1.name}, {cat2.name}'
-        self.assertEqual(
-            [[img1.name, img1.description, cats_str, cats_str],
-             [img2.name, '',               '',       ''],
+        self.assertListEqual(
+            [
+                [img1.name, img1.description, cats_str, cats_str],
+                [img2.name, '',               '',       ''],
             ],
             report.fetch_all_lines()
         )
 
     def test_fetch_m2m_05(self):
-        "FK at depth=2"
+        "FK at depth=2."
         user = self.login()
 
         create_positon = FakePosition.objects.create
@@ -2446,29 +2607,36 @@ class ReportTestCase(BaseReportsTestCase):
         create_field(name='name',              order=1)
         create_field(name='members__position', order=2)
 
-        self.assertEqual(
-            [[guild2.name, leader.title],
-             [guild3.name, ''],
-             [guild1.name, f'{leader.title}, {side_kick.title}, '],
+        self.assertListEqual(
+            [
+                [guild2.name, leader.title],
+                [guild3.name, ''],
+                [guild1.name, f'{leader.title}, {side_kick.title}, '],
             ],
             report.fetch_all_lines()
         )
 
     def _aux_test_fetch_related(self, select_doc_report=None, invalid_one=False):
         user = self.user
+
         create_report = partial(Report.objects.create, user=user, filter=None)
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
-
         self.doc_report = self._create_simple_documents_report() if select_doc_report is not None else None
-
         self.folder_report = create_report(name='Report on folders', ct=self.ct_folder)
-        create_field(report=self.folder_report, name='title',    order=1)
-        create_field(report=self.folder_report, name='fakereportsdocument', order=2,
-                     type=RFT_RELATED, sub_report=self.doc_report, selected=select_doc_report or False,
-                    )
+
+        create_field = partial(
+            Field.objects.create,
+            report=self.folder_report,
+            type=RFT_FIELD,
+        )
+        create_field(name='title',    order=1)
+        create_field(
+            name='fakereportsdocument', order=2,
+            type=RFT_RELATED,
+            sub_report=self.doc_report, selected=select_doc_report or False,
+        )
 
         if invalid_one:
-            create_field(report=self.folder_report, name='invalid', order=3, type=RFT_RELATED)
+            create_field(name='invalid', order=3, type=RFT_RELATED)
 
         create_folder = partial(FakeReportsFolder.objects.create, user=user)
         self.folder1 = create_folder(title='External')
@@ -2489,9 +2657,10 @@ class ReportTestCase(BaseReportsTestCase):
 
         doc11 = self.doc11; doc12 = self.doc12
         fetch = report.fetch_all_lines
-        lines = [[self.folder1.title, f'{doc11}, {doc12}'],
-                 [self.folder2.title, str(self.doc21)],
-                ]
+        lines = [
+            [self.folder1.title, f'{doc11}, {doc12}'],
+            [self.folder2.title, str(self.doc21)],
+        ]
         self.assertEqual(lines, fetch())
 
         lines[0][1] = str(doc11)
@@ -2506,11 +2675,12 @@ class ReportTestCase(BaseReportsTestCase):
 
         folder1 = self.folder1; doc11 = self.doc11
         # Beware: folders are ordered by title
-        lines = [[folder3.title,      '',               ''],
-                 [folder1.title,      doc11.title,      doc11.description],
-                 [folder1.title,      self.doc12.title, ''],
-                 [self.folder2.title, self.doc21.title, ''],
-                ]
+        lines = [
+            [folder3.title,      '',               ''],
+            [folder1.title,      doc11.title,      doc11.description],
+            [folder1.title,      self.doc12.title, ''],
+            [self.folder2.title, self.doc21.title, ''],
+        ]
         fetch = self.folder_report.fetch_all_lines
         self.assertEqual(lines, fetch())
 
@@ -2518,7 +2688,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(lines, fetch(user=user))
 
     def test_fetch_related_03(self):
-        "Sub-report (not expanded)"
+        "Sub-report (not expanded)."
         user = self.login_as_basic_user()
 
         self._aux_test_fetch_related(select_doc_report=False)
@@ -2527,10 +2697,11 @@ class ReportTestCase(BaseReportsTestCase):
         folder1 = self.folder1; doc11 = self.doc11
         fmt = '%s: %%s/%s: %%s' % (_('Title'), _('Description'))
         doc11_str = fmt % (doc11.title, doc11.description)
-        lines = [[folder3.title,      ''],
-                 [folder1.title,      doc11_str + ', ' + fmt % (self.doc12.title, '')],
-                 [self.folder2.title, fmt % (self.doc21.title, '')],
-                ]
+        lines = [
+            [folder3.title,      ''],
+            [folder1.title,      doc11_str + ', ' + fmt % (self.doc12.title, '')],
+            [self.folder2.title, fmt % (self.doc21.title, '')],
+        ]
         fetch = self.folder_report.fetch_all_lines
         self.assertEqual(lines, fetch())
 
@@ -2540,27 +2711,34 @@ class ReportTestCase(BaseReportsTestCase):
     def test_fetch_funcfield_01(self):
         self.login()
 
-        self._aux_test_fetch_persons(report_4_contact=False, create_contacts=False, create_relations=False)
+        self._aux_test_fetch_persons(
+            report_4_contact=False, create_contacts=False, create_relations=False,
+        )
 
-        ptype = CremePropertyType.objects.create(pk='reports-test_fetch_funcfield_01', text='I am not dead !')
+        ptype = CremePropertyType.objects.create(
+            pk='reports-test_fetch_funcfield_01', text='I am not dead !',
+        )
         CremeProperty.objects.create(type=ptype, creme_entity=self.starks)
 
         report = self.report_orga
-        create_field = partial(Field.objects.create, report=report,
-                               selected=False, sub_report=None, type=RFT_FUNCTION,
-                              )
+        create_field = partial(
+            Field.objects.create,
+            report=report,
+            selected=False, sub_report=None, type=RFT_FUNCTION,
+        )
         create_field(name='get_pretty_properties', order=2)
         create_field(name='invalid_funfield',      order=3)
 
         report = self.refresh(report)
         self.assertEqual(2, len(report.columns))  # Invalid column is deleted
         self.assertEqual(2, report.fields.count())
-
-        self.assertEqual([[self.lannisters.name, ''],
-                          [self.starks.name,     ptype.text],
-                         ],
-                         report.fetch_all_lines()
-                        )
+        self.assertListEqual(
+            [
+                [self.lannisters.name, ''],
+                [self.starks.name,     ptype.text],
+            ],
+            report.fetch_all_lines()
+        )
 
     def test_fetch_funcfield_02(self):
         user = self.login_as_basic_user()
@@ -2574,28 +2752,30 @@ class ReportTestCase(BaseReportsTestCase):
         create_report = partial(Report.objects.create, user=user, filter=None)
         report_img = create_report(name='Report on Images', ct=self.ct_image)
 
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
+        create_field = partial(Field.objects.create, type=RFT_FIELD)
         create_field(report=report_img, name='name',                  order=1)
         create_field(report=report_img, name='get_pretty_properties', order=2, type=RFT_FUNCTION)
 
         report_contact = create_report(name='Report on Contacts', ct=self.ct_contact, filter=self.efilter)
         create_field(report=report_contact, name='first_name',  order=1)
-        create_field(report=report_contact, name='image__name', order=2,
-                     sub_report=report_img, selected=True,
-                    )
+        create_field(
+            report=report_contact, name='image__name', order=2,
+            sub_report=report_img, selected=True,
+        )
 
-        ptype = CremePropertyType.objects.create(pk='reports-test_fetch_funcfield_02',
-                                                 text='I am waiting the winter',
-                                                )
+        ptype = CremePropertyType.objects.create(
+            pk='reports-test_fetch_funcfield_02', text='I am waiting the winter',
+        )
 
         create_prop = partial(CremeProperty.objects.create, type=ptype)
         create_prop(creme_entity=aria_face)
         create_prop(creme_entity=ned_face)
 
-        lines = [[self.aria.first_name, aria_face.name, ptype.text],
-                 [self.ned.first_name,  ned_face.name,  ptype.text],
-                 [self.robb.first_name, '',             ''],
-                ]
+        lines = [
+            [self.aria.first_name, aria_face.name, ptype.text],
+            [self.ned.first_name,  ned_face.name,  ptype.text],
+            [self.robb.first_name, '',             ''],
+        ]
         self.assertEqual(lines, report_contact.fetch_all_lines())
 
         lines.pop()  # 'robb' is not visible
@@ -2614,20 +2794,22 @@ class ReportTestCase(BaseReportsTestCase):
         ned.user = self.other_user
         ned.save()
 
-        create_field = partial(Field.objects.create, report=report,
-                               type=RFT_RELATION, selected=False, sub_report=None,
-                              )
+        create_field = partial(
+            Field.objects.create, report=report,
+            type=RFT_RELATION, selected=False, sub_report=None,
+        )
         create_field(name=FAKE_REL_OBJ_EMPLOYED_BY, order=2)
-        create_field(name='invalid',           order=3)
+        create_field(name='invalid',                order=3)
 
         report = self.refresh(report)
         self.assertEqual(2, len(report.columns))
         self.assertEqual(2, report.fields.count())
 
         fetch = self.report_orga.fetch_all_lines
-        lines = [[self.lannisters.name, str(self.tyrion)],
-                 [self.starks.name,     f'{ned}, {self.robb}'],
-                ]
+        lines = [
+            [self.lannisters.name, str(self.tyrion)],
+            [self.starks.name,     f'{ned}, {self.robb}'],
+        ]
         self.assertEqual(lines, fetch())
 
         lines[1][1] = str(self.robb)
@@ -2651,10 +2833,11 @@ class ReportTestCase(BaseReportsTestCase):
         robb.user = self.other_user
         robb.save()
 
-        lines = [[self.lannisters.name, tyrion.last_name, tyrion.first_name],
-                 [starks.name,          ned.last_name,    ned.first_name],
-                 [starks.name,          robb.last_name,   robb.first_name],
-                ]
+        lines = [
+            [self.lannisters.name, tyrion.last_name, tyrion.first_name],
+            [starks.name,          ned.last_name,    ned.first_name],
+            [starks.name,          robb.last_name,   robb.first_name],
+        ]
         self.assertEqual(lines, report.fetch_all_lines())
 
         lines.pop()  # 'robb' line removed
@@ -2662,7 +2845,7 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_fetch_relation_03(self):
         "Sub-report (not expanded)."
-        self.login_as_basic_user()
+        user = self.login_as_basic_user()
         self._aux_test_fetch_persons()
 
         ptype = CremePropertyType.create(str_pk='test-prop_dwarf', text='Dwarf')
@@ -2670,19 +2853,18 @@ class ReportTestCase(BaseReportsTestCase):
 
         report_contact = self.report_contact
 
-        create_field = Field.objects.create
-        create_field(report=report_contact, name='get_pretty_properties',
-                     type=RFT_FUNCTION, order=3,
-                    )
-        create_field(report=report_contact, name='image__name',
-                     type=RFT_FIELD, order=4,
-                     sub_report=self._build_image_report(), selected=True,
-                    )
+        create_field = partial(Field.objects.create, report=report_contact)
+        create_field(name='get_pretty_properties', type=RFT_FUNCTION, order=3)
+        create_field(
+            name='image__name', type=RFT_FIELD, order=4,
+            sub_report=self._build_image_report(), selected=True,
+        )
 
         report_orga = self.report_orga
-        create_field(report=report_orga, name=FAKE_REL_OBJ_EMPLOYED_BY, order=2,
-                     type=RFT_RELATION, selected=False, sub_report=report_contact,
-                     )
+        create_field(
+            report=report_orga, name=FAKE_REL_OBJ_EMPLOYED_BY, order=2,
+            type=RFT_RELATION, selected=False, sub_report=report_contact,
+        )
         self.assertHeaders(['name', FAKE_REL_OBJ_EMPLOYED_BY], report_orga)
 
         ned = self.ned; robb = self.robb; tyrion = self.tyrion
@@ -2690,22 +2872,22 @@ class ReportTestCase(BaseReportsTestCase):
         robb.user = self.other_user
         robb.save()
 
-        ned.image = img = FakeImage.objects.create(name='Ned pic', user=self.user,
-                                                   description='Ned Stark selfie',
-                                                  )
+        ned.image = img = FakeImage.objects.create(
+            name='Ned pic', user=user, description='Ned Stark selfie',
+        )
         ned.save()
 
         fmt = '%s: %%s/%s: %%s/%s: %%s/%s: %%s' % (
-                    _('Last name'), _('First name'), _('Properties'), _('Photograph'),
-                )
-        ned_str = fmt % (ned.last_name,  ned.first_name, '',
-                         '%s: %s/%s: %s' % (_('Name'), img.name, _('Description'), img.description)
-                        )
-        lines = [[self.lannisters.name, fmt % (tyrion.last_name, tyrion.first_name, ptype.text, '')],
-                 [self.starks.name,     ned_str + ', ' +
-                                        fmt % (robb.last_name, robb.first_name, '', '')
-                 ],
-                ]
+            _('Last name'), _('First name'), _('Properties'), _('Photograph'),
+        )
+        ned_str = fmt % (
+            ned.last_name,  ned.first_name, '',
+            f"{_('Name')}: {img.name}/{_('Description')}: {img.description}",
+        )
+        lines = [
+            [self.lannisters.name, fmt % (tyrion.last_name, tyrion.first_name, ptype.text, '')],
+            [self.starks.name,     ned_str + ', ' + fmt % (robb.last_name, robb.first_name, '', '')],
+        ]
         self.assertEqual(lines, report_orga.fetch_all_lines())
 
         lines[1][1] = ned_str
@@ -2739,61 +2921,71 @@ class ReportTestCase(BaseReportsTestCase):
 
         img_report = self._build_image_report()
 
-        Field.objects.create(report=report_contact, name='image__name', order=3,
-                             type=RFT_FIELD, selected=True, sub_report=img_report,
-                            )
+        create_field = Field.objects.create
+        create_field(
+            report=report_contact, name='image__name', order=3,
+            type=RFT_FIELD,
+            sub_report=img_report, selected=True,
+        )
 
         report = self.report_orga
-        Field.objects.create(report=report, name=FAKE_REL_OBJ_EMPLOYED_BY, order=2,
-                             type=RFT_RELATION, selected=True, sub_report=self.report_contact,
-                             )
+        create_field(
+            report=report, name=FAKE_REL_OBJ_EMPLOYED_BY, order=2,
+            type=RFT_RELATION,
+            sub_report=self.report_contact, selected=True,
+        )
 
-        self.assertEqual(
-            [[self.lannisters.name, tyrion.last_name, tyrion.first_name, tyrion_face.name, ''],
-             [self.starks.name,     '',               '',                '',               ''],
+        self.assertListEqual(
+            [
+                [self.lannisters.name, tyrion.last_name, tyrion.first_name, tyrion_face.name, ''],
+                [self.starks.name,     '',               '',                '',               ''],
             ],
             report.fetch_all_lines()
         )
 
     def test_fetch_relation_05(self):
-        "Several expanded sub-reports"
+        "Several expanded sub-reports."
         user = self.login()
         self._aux_test_fetch_persons()
         tyrion = self.tyrion; ned = self.ned; robb = self.robb; starks = self.starks
 
         report_orga = self.report_orga
         create_field = partial(Field.objects.create, type=RFT_RELATION)
-        create_field(report=report_orga, name=FAKE_REL_OBJ_EMPLOYED_BY, order=2,
-                     selected=True, sub_report=self.report_contact,
-                    )
+        create_field(
+            report=report_orga, name=FAKE_REL_OBJ_EMPLOYED_BY, order=2,
+            sub_report=self.report_contact, selected=True,
+        )
 
         folder = FakeReportsFolder.objects.create(user=user, title='Ned folder')
 
         create_doc = partial(FakeReportsDocument.objects.create, user=user)
-        doc1 = create_doc(title='Sword',  linked_folder=folder, description='Blbalabla')
+        doc1 = create_doc(title='Sword',  linked_folder=folder, description='Blablabla')
         doc2 = create_doc(title='Helmet', linked_folder=folder)
 
         rtype = RelationType.objects.get(pk=REL_SUB_HAS)
         doc_report = self._create_simple_documents_report()
-        create_field(report=self.report_contact, name=rtype.id, order=3,
-                     selected=True, sub_report=doc_report,
-                    )
+        create_field(
+            report=self.report_contact, name=rtype.id, order=3,
+            sub_report=doc_report, selected=True,
+        )
 
         create_rel = partial(Relation.objects.create, type=rtype, user=user, subject_entity=ned)
         create_rel(object_entity=doc1)
         create_rel(object_entity=doc2)
 
-        self.assertEqual([_('Name'), _('Last name'), _('First name'), _('Title'), _('Description')],
-                         [column.title for column in report_orga.get_children_fields_flat()]
-                        )
-        self.assertEqual(
-            [[self.lannisters.name, tyrion.last_name, tyrion.first_name, '',         ''],
+        self.assertListEqual(
+            [_('Name'), _('Last name'), _('First name'), _('Title'), _('Description')],
+            [column.title for column in report_orga.get_children_fields_flat()]
+        )
+        self.assertListEqual(
+            [
+                [self.lannisters.name, tyrion.last_name, tyrion.first_name, '',         ''],
 
-             # Beware Documents are ordered by title
-             [starks.name,          ned.last_name,    ned.first_name,    doc2.title, ''],
-             [starks.name,          ned.last_name,    ned.first_name,    doc1.title, doc1.description],
+                # Beware Documents are ordered by title
+                [starks.name,          ned.last_name,    ned.first_name,    doc2.title, ''],
+                [starks.name,          ned.last_name,    ned.first_name,    doc1.title, doc1.description],
 
-             [starks.name,          robb.last_name,   robb.first_name,   '',         '']
+                [starks.name,          robb.last_name,   robb.first_name,   '',         '']
             ],
             report_orga.fetch_all_lines()
         )
@@ -2803,16 +2995,16 @@ class ReportTestCase(BaseReportsTestCase):
         self._aux_test_fetch_persons(create_contacts=False, report_4_contact=False)
 
         # Should not be used in aggregate
-        self.guild = FakeOrganisation.objects.create(name='Guild of merchants', user=user, capital=700)
+        self.guild = FakeOrganisation.objects.create(
+            name='Guild of merchants', user=user, capital=700,
+        )
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct_orga)
         self.cf = cf = create_cf(name='Gold', field_type=CustomField.INT)
         str_cf = create_cf(name='Motto', field_type=CustomField.STR)
 
         fmt = '{}__max'.format
-        create_field = partial(Field.objects.create, report=self.report_orga,
-                               selected=False, sub_report=None,
-                              )
+        create_field = partial(Field.objects.create, report=self.report_orga)
         create_field(name='capital__sum', order=2, type=RFT_AGG_FIELD)
         create_field(name=fmt(cf.id),     order=3, type=RFT_AGG_CUSTOM)
 
@@ -2827,7 +3019,7 @@ class ReportTestCase(BaseReportsTestCase):
                         )  # Invalid string
 
     def test_fetch_aggregate_01(self):
-        "Regular field, Custom field (valid & invalid ones)"
+        "Regular field, Custom field (valid & invalid ones)."
         self._aux_test_fetch_aggregate(invalid_ones=True)
         starks = self.starks; lannisters = self.lannisters
         starks.capital = 500;      starks.save()
@@ -2841,36 +3033,43 @@ class ReportTestCase(BaseReportsTestCase):
         report = self.refresh(self.report_orga)
         self.assertEqual(3, len(report.columns))
 
-        self.assertEqual([[lannisters.name, 1500, 500],
-                          [starks.name,     1500, 500],
-                         ],
-                         report.fetch_all_lines()
-                        )
+        self.assertListEqual(
+            [
+                [lannisters.name, 1500, 500],
+                [starks.name,     1500, 500],
+            ],
+            report.fetch_all_lines()
+        )
 
     def test_fetch_aggregate_02(self):
-        "Regular field, Custom field (valid & invalid ones): None replaced by 0"
+        "Regular field, Custom field (valid & invalid ones): None replaced by 0."
         self._aux_test_fetch_aggregate()
-        self.assertEqual([[self.lannisters.name, 0, 0],
-                          [self.starks.name,     0, 0],
-                         ],
-                         self.report_orga.fetch_all_lines()
-                        )
+        self.assertListEqual(
+            [
+                [self.lannisters.name, 0, 0],
+                [self.starks.name,     0, 0],
+            ],
+            self.report_orga.fetch_all_lines()
+        )
 
     def test_fetch_aggregate_03(self):
-        "Aggregate in sub-lines (expanded sub-report)"
+        "Aggregate in sub-lines (expanded sub-report)."
         user = self.login()
         self._aux_test_fetch_persons(create_contacts=False, report_4_contact=False)
 
-        report_invoice = Report.objects.create(user=user, name='Report on invoices', ct=FakeInvoice)
+        report_invoice = Report.objects.create(
+            user=user, name='Report on invoices', ct=FakeInvoice,
+        )
 
         create_field = partial(Field.objects.create, selected=False, sub_report=None)
         create_field(report=report_invoice, name='name',           type=RFT_FIELD,     order=1)
         create_field(report=report_invoice, name='total_vat__sum', type=RFT_AGG_FIELD, order=2)
 
         report = self.report_orga
-        create_field(report=report, name=FAKE_REL_OBJ_BILL_ISSUED, order=2,
-                     selected=True, sub_report=report_invoice, type=RFT_RELATION,
-                    )
+        create_field(
+            report=report, name=FAKE_REL_OBJ_BILL_ISSUED, order=2,
+            selected=True, sub_report=report_invoice, type=RFT_RELATION,
+        )
 
         starks = self.starks; lannisters = self.lannisters
 
@@ -2886,9 +3085,11 @@ class ReportTestCase(BaseReportsTestCase):
 
         total_lannisters = invoice2.total_vat + invoice3.total_vat
         total_starks     = invoice1.total_vat
-        self.assertEqual([[lannisters.name, invoice2.name, total_lannisters],
-                          [lannisters.name, invoice3.name, total_lannisters],
-                          [starks.name,     invoice1.name, total_starks],
-                         ],
-                         report.fetch_all_lines()
-                        )
+        self.assertListEqual(
+            [
+                [lannisters.name, invoice2.name, total_lannisters],
+                [lannisters.name, invoice3.name, total_lannisters],
+                [starks.name,     invoice1.name, total_starks],
+            ],
+            report.fetch_all_lines()
+        )

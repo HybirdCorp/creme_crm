@@ -118,15 +118,22 @@ custom_fields_patterns = [
         custom_fields.FirstCTypeCustomFieldCreation.as_view(),
         name='creme_config__create_first_ctype_custom_field',
     ),
-    re_path(
-        r'^ct/delete[/]?$',
-        custom_fields.CTypeCustomFieldsDeletion.as_view(),
-        name='creme_config__delete_ctype_custom_fields',
-    ),
+    # re_path(
+    #     r'^ct/delete[/]?$',
+    #     custom_fields.CTypeCustomFieldsDeletion.as_view(),
+    #     name='creme_config__delete_ctype_custom_fields',
+    # ),
 
-    re_path(r'^add/(?P<ct_id>\d+)[/]?$',     custom_fields.CustomFieldCreation.as_view(), name='creme_config__create_custom_field'),
-    re_path(r'^edit/(?P<field_id>\d+)[/]?$', custom_fields.CustomFieldEdition.as_view(),  name='creme_config__edit_custom_field'),
-    re_path(r'^delete[/]?$',                 custom_fields.CustomFieldDeletion.as_view(), name='creme_config__delete_custom_field'),
+    re_path(r'^add/(?P<ct_id>\d+)[/]?$',     custom_fields.CustomFieldCreation.as_view(),    name='creme_config__create_custom_field'),
+    re_path(r'^edit/(?P<field_id>\d+)[/]?$', custom_fields.CustomFieldEdition.as_view(),     name='creme_config__edit_custom_field'),
+    re_path(r'^delete[/]?$',                 custom_fields.CustomFieldDeletion.as_view(),    name='creme_config__delete_custom_field'),
+    re_path(r'^restore[/]?$',                custom_fields.CustomFieldRestoration.as_view(), name='creme_config__restore_custom_field'),
+
+    re_path(
+        r'^bricks/hide_deleted[/]?$',
+        custom_fields.HideDeletedCustomFields.as_view(),
+        name='creme_config__custom_fields_brick_hide_deleted',
+    ),
 
     # Enums
     re_path(

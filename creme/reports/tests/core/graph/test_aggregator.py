@@ -8,6 +8,7 @@ try:
     from creme.creme_core.core.entity_cell import (
         EntityCellRegularField,
         EntityCellCustomField,
+        EntityCellFunctionField,
     )
     from creme.creme_core.models import (
         CustomField,
@@ -22,7 +23,7 @@ try:
     from creme.reports.core.graph.aggregator import (
         ReportGraphAggregatorRegistry,
         ReportGraphAggregator,
-        RGACount, RGASum,
+        RGACount, RGASum, RGAAverage,
     )
     from creme.reports.core.graph.cell_constraint import (
         AggregatorCellConstraint,
@@ -37,6 +38,8 @@ except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
 
+# TODO: test annotate() + sum, max, min
+# TODO: test aggregate() + sum, max, min
 @skipIfCustomReport
 @skipIfCustomRGraph
 class AggregatorTestCase(CremeTestCase):
@@ -101,6 +104,66 @@ class AggregatorTestCase(CremeTestCase):
         self.assertIsInstance(aggregator, RGASum)
         self.assertEqual(_('this field should be hidden.'), aggregator.error)
 
+    def test_count(self):
+        agg1 = RGACount()
+        self.assertIsNone(agg1.error)
+
+        # ---
+        with self.assertRaises(ValueError) as cm:
+            __ = RGACount(cell=EntityCellRegularField.build(FakeOrganisation, 'capital'))
+
+        self.assertEqual(
+            'RGACount does not work with a cell.',
+            str(cm.exception)
+        )
+
+    def test_average01(self):
+        "Regular field."
+        agg = RGAAverage(cell=EntityCellRegularField.build(FakeOrganisation, 'capital'))
+        self.assertIsNone(agg.error)
+
+        # ---
+        with self.assertRaises(ValueError) as cm1:
+            __ = RGAAverage(cell=None)
+
+        self.assertEqual(
+            _('the field does not exist any more.'),
+            str(cm1.exception)
+        )
+
+        # ---
+        with self.assertRaises(ValueError) as cm2:
+            __ = RGAAverage(cell=EntityCellFunctionField.build(FakeOrganisation, 'get_pretty_properties'))
+
+        self.assertIn('invalid type of cell', str(cm2.exception))
+
+    def test_average02(self):
+        "Hidden regular field."
+        hidden_fname = 'capital'
+        FieldsConfig.objects.create(
+            content_type=FakeOrganisation,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+        )
+
+        agg = RGAAverage(cell=EntityCellRegularField.build(FakeOrganisation, hidden_fname))
+        self.assertEqual(_('this field should be hidden.'), agg.error)
+
+    def test_average03(self):
+        "Custom field."
+        create_cfield = partial(
+            CustomField.objects.create,
+            content_type=FakeContact,
+            field_type=CustomField.INT,
+        )
+        cfield1 = create_cfield(name='Hair size')
+        cfield2 = create_cfield(name='Hair brightness', is_deleted=True)
+
+        agg1 = RGAAverage(cell=EntityCellCustomField(cfield1))
+        self.assertIsNone(agg1.error)
+
+        agg2 = RGAAverage(cell=EntityCellCustomField(cfield2))
+        self.assertEqual(_('this custom field is deleted.'), agg2.error)
+
 
 class AggregatorCellConstraintsTestCase(CremeTestCase):
     def test_count(self):
@@ -150,17 +213,36 @@ class AggregatorCellConstraintsTestCase(CremeTestCase):
             name='Hair color',
             field_type=CustomField.STR,
         )
+        cfield3 = create_cfield(
+            name='Hair brightness',
+            field_type=CustomField.INT,
+            is_deleted=True,
+        )
 
         constraint = ACCFieldAggregation(model=FakeContact)
-        self.assertIs(constraint.check_cell(EntityCellCustomField(cfield1)), True)
-        self.assertIs(constraint.check_cell(EntityCellCustomField(cfield2)), False)
+        ok_cell = EntityCellCustomField(cfield1)
+        self.assertIs(constraint.check_cell(ok_cell), True)
+
+        not_aggregable_cell = EntityCellCustomField(cfield2)
+        self.assertIs(constraint.check_cell(not_aggregable_cell), False)
+        self.assertFalse(constraint.check_cell(
+            not_aggregable_cell,
+            not_hiddable_cell_keys={ok_cell.key, not_aggregable_cell.key},
+        ))
+
+        deleted_cell = EntityCellCustomField(cfield3)
+        self.assertFalse(constraint.check_cell(deleted_cell))
+        self.assertTrue(constraint.check_cell(
+            deleted_cell,
+            not_hiddable_cell_keys={ok_cell.key, deleted_cell.key},
+        ))
 
         # ---
-        cell1 = constraint.get_cell(cell_key=f'custom_field-{cfield1.id}')
+        cell1 = constraint.get_cell(cell_key=ok_cell.key)
         self.assertIsInstance(cell1, EntityCellCustomField)
         self.assertEqual(cfield1, cell1.custom_field)
 
-        self.assertIsNone(constraint.get_cell(cell_key=f'custom_field-{cfield2.id}'))
+        self.assertIsNone(constraint.get_cell(cell_key=not_aggregable_cell.key))
 
         # ---
         cells = [*constraint.cells()]
@@ -169,6 +251,20 @@ class AggregatorCellConstraintsTestCase(CremeTestCase):
         cell2 = cells[0]
         self.assertIsInstance(cell2, EntityCellCustomField)
         self.assertEqual(cfield1, cell2.custom_field)
+
+        # ---
+        self.assertSetEqual(
+            {ok_cell.key, deleted_cell.key},
+            {
+                c.key
+                for c in constraint.cells(
+                    not_hiddable_cell_keys={
+                        not_aggregable_cell.key,
+                        deleted_cell.key,
+                    },
+                )
+            }
+        )
 
     def test_field_aggregation03(self):
         "Fields config."

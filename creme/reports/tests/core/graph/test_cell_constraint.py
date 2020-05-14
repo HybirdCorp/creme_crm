@@ -255,18 +255,27 @@ class GraphHandConstraintsTestCase(CremeTestCase):
         cfield1 = create_cfield(name='Hair')
         cfield2 = create_cfield(name='First fight', field_type=CustomField.DATETIME)
         cfield3 = create_cfield(name='Main sector', content_type=FakeOrganisation)
+        cfield4 = create_cfield(name='Eyes', is_deleted=True)
 
         self.assertTrue(constraint.check_cell(EntityCellCustomField(cfield1)))
         self.assertFalse(constraint.check_cell(EntityCellCustomField(cfield2)))
 
         # ---
         get_cell = constraint.get_cell
-        cell1 = get_cell(cell_key=f'custom_field-{cfield1.id}')
+        key1 = f'custom_field-{cfield1.id}'
+        cell1 = get_cell(cell_key=key1)
         self.assertIsInstance(cell1, EntityCellCustomField)
         self.assertEqual(cfield1, cell1.custom_field)
 
         self.assertIsNone(get_cell(cell_key=f'custom_field-{cfield2.id}'))
         self.assertIsNone(get_cell(cell_key=f'custom_field-{cfield3.id}'))
+
+        key4 = f'custom_field-{cfield4.id}'
+        self.assertIsNone(get_cell(cell_key=key4))
+        self.assertIsInstance(
+            get_cell(cell_key=key4, not_hiddable_cell_keys=[key4]),
+            EntityCellCustomField
+        )
 
         # ---
         cells = [*constraint.cells()]
@@ -275,6 +284,11 @@ class GraphHandConstraintsTestCase(CremeTestCase):
         cell2 = cells[0]
         self.assertIsInstance(cell2, EntityCellCustomField)
         self.assertEqual(cfield1, cell2.custom_field)
+
+        self.assertListEqual(
+            [key1, key4],
+            [c.key for c in constraint.cells(not_hiddable_cell_keys=[key4])]
+        )
 
     def test_custom_date(self):
         constraint = GHCCCustomDate(model=FakeContact)

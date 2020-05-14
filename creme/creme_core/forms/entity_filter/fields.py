@@ -25,12 +25,14 @@ from functools import partial
 from typing import Type
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db.models import (
     ForeignKey as ModelForeignKey,
     BooleanField as ModelBooleanField,
     FileField as ModelFileField,
 )
-from django.forms import ModelMultipleChoiceField, DateField, ValidationError
+from django.db.models.query_utils import Q
+from django.forms import ModelMultipleChoiceField, DateField
 from django.forms.fields import CallableChoiceIterator
 from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
@@ -202,12 +204,14 @@ class RegularFieldsConditionsField(_ConditionsField):
             if field_entry['type'] in operators.FIELDTYPES_RELATED:
                 field_entry['ctype'] = ContentType.objects.get_for_model(field.remote_field.model).id
 
-            dicts.append({'field':    field_entry,
-                          'operator': {'id':    operator_id,
-                                       'types': ' '.join(operator.allowed_fieldtypes),
-                                      },
-                          'value':    values,
-                         })
+            dicts.append({
+                'field': field_entry,
+                'operator': {
+                    'id': operator_id,
+                    'types': ' '.join(operator.allowed_fieldtypes),
+                },
+                'value': values,
+            })
 
         return dicts
 
@@ -219,7 +223,10 @@ class RegularFieldsConditionsField(_ConditionsField):
         )
 
         if fname not in self._fields:
-            raise ValidationError(self.error_messages['invalidfield'], code='invalidfield')
+            raise ValidationError(
+                self.error_messages['invalidfield'],
+                code='invalidfield',
+            )
 
         return fname
 
@@ -233,18 +240,35 @@ class RegularFieldsConditionsField(_ConditionsField):
         operator_class = self.efilter_registry.get_operator(operator_id)
 
         if not operator_class:
-            raise ValidationError(self.error_messages['invalidoperator'], code='invalidoperator')
+            raise ValidationError(
+                self.error_messages['invalidoperator'],
+                code='invalidoperator',
+            )
 
         if isinstance(operator_class, operators.BooleanOperatorBase):
-            values = [clean_value(entry, 'value', bool, required_error_key='invalidvalue')]
+            values = [
+                clean_value(entry, 'value', bool, required_error_key='invalidvalue'),
+            ]
         elif entry is None:
             values = self._return_none_or_raise(self.required, 'invalidvalue')
         elif isinstance(entry.get('value'), list):
-            values = [v for v in clean_value(entry, 'value', list, required_error_key='invalidvalue') if v]
+            values = [
+                v
+                for v in clean_value(
+                    entry, 'value', list, required_error_key='invalidvalue',
+                )
+                if v
+            ]
         elif isinstance(entry.get('value'), bool):
             values = [entry.get('value')]
         else:
-            values = [v for v in clean_value(entry, 'value', str, required_error_key='invalidvalue').split(',') if v]
+            values = [
+                v
+                for v in clean_value(
+                    entry, 'value', str, required_error_key='invalidvalue',
+                ).split(',')
+                if v
+            ]
 
         return operator_id, values
 
@@ -314,7 +338,9 @@ class DateFieldsConditionsField(_ConditionsField):
             self._model = model
             self._fields = None  # Clear cache
 
-            self.widget.fields = CallableChoiceIterator(lambda: self._get_fields().items())
+            self.widget.fields = CallableChoiceIterator(
+                lambda: self._get_fields().items()
+            )
 
     def _get_fields(self):
         if self._fields is None:
@@ -354,13 +380,15 @@ class DateFieldsConditionsField(_ConditionsField):
             field = fields[condition.name][-1]
 
             dicts.append({
-                'field': {'name': condition.name,
-                          'type': 'daterange__null' if field.null else 'daterange',
-                         },
-                'range': {'type':  get('name', ''),
-                          'start': fmt(get('start')),
-                          'end':   fmt(get('end')),
-                         },
+                'field': {
+                    'name': condition.name,
+                    'type': 'daterange__null' if field.null else 'daterange',
+                },
+                'range': {
+                    'type':  get('name', ''),
+                    'start': fmt(get('start')),
+                    'end':   fmt(get('end')),
+                },
             })
 
         return dicts
@@ -369,9 +397,9 @@ class DateFieldsConditionsField(_ConditionsField):
         range_info = entry.get('range')
 
         if not isinstance(range_info, dict):
-            raise ValidationError(self.error_messages['invalidformat'],
-                                  code='invalidformat',
-                                 )
+            raise ValidationError(
+                self.error_messages['invalidformat'], code='invalidformat',
+            )
 
         range_type = range_info.get('type') or None
         start = None
@@ -382,9 +410,9 @@ class DateFieldsConditionsField(_ConditionsField):
             end_str   = range_info.get('end')
 
             if not start_str and not end_str:
-                raise ValidationError(self.error_messages['emptydates'],
-                                      code='emptydates',
-                                     )
+                raise ValidationError(
+                    self.error_messages['emptydates'], code='emptydates',
+                )
 
             clean_date = DateField().clean
 
@@ -394,9 +422,9 @@ class DateFieldsConditionsField(_ConditionsField):
             if end_str:
                 end = clean_date(end_str)
         elif not date_range_registry.get_range(name=range_type):
-            raise ValidationError(self.error_messages['invaliddaterange'],
-                                  code='invaliddaterange',
-                                 )
+            raise ValidationError(
+                self.error_messages['invaliddaterange'], code='invaliddaterange',
+            )
 
         return (range_type, start, end)
 
@@ -408,7 +436,9 @@ class DateFieldsConditionsField(_ConditionsField):
         )
 
         if not fname in self._get_fields():
-            raise ValidationError(self.error_messages['invalidfield'], code='invalidfield')
+            raise ValidationError(
+                self.error_messages['invalidfield'], code='invalidfield',
+            )
 
         return fname
 
@@ -450,17 +480,22 @@ class CustomFieldsConditionsField(_ConditionsField):
     }
 
     _NOT_ACCEPTED_TYPES = frozenset((CustomField.DATETIME,))  # TODO: "!= DATE" instead
+    _non_hiddable_cfield_ids = ()
 
     @_ConditionsField.model.setter
     def model(self, model):
         self._model = model
-        self.widget.fields = CallableChoiceIterator(lambda: [(cf.id, cf) for cf in self._get_cfields()])
+        self.widget.fields = CallableChoiceIterator(
+            lambda: [(cf.id, cf) for cf in self._get_cfields()]
+        )
 
     def _get_cfields(self):
         return CustomField.objects.compatible(
             self._model,
         ).exclude(
             field_type__in=self._NOT_ACCEPTED_TYPES,
+        ).filter(
+            Q(is_deleted=False) | Q(id__in=self._non_hiddable_cfield_ids)
         )
 
     def _value_to_jsonifiable(self, value):
@@ -483,65 +518,78 @@ class CustomFieldsConditionsField(_ConditionsField):
             if search_info['rname'] == CustomFieldBoolean.get_related_name():
                 value = value.lower()
 
-            dicts.append({'field':    field_entry,
-                          'operator': {'id': operator_id, 'types': ' '.join(operator.allowed_fieldtypes)},
-                          'value':    value,
-                         })
+            dicts.append({
+                'field':    field_entry,
+                'operator': {
+                    'id': operator_id,
+                    'types': ' '.join(operator.allowed_fieldtypes),
+                },
+                'value':    value,
+            })
 
         return dicts
 
     def _clean_custom_field(self, entry):
-        clean_value =  self.clean_value
-        cfield_id = clean_value(clean_value(entry, 'field', dict,
-                                            required_error_key='invalidcustomfield',
-                                           ),
-                                'id', int, required_error_key='invalidcustomfield',
-                               )
+        clean_value = self.clean_value
+        cfield_id = clean_value(
+            clean_value(
+                entry, 'field', dict,
+                required_error_key='invalidcustomfield',
+            ),
+            'id', int, required_error_key='invalidcustomfield',
+        )
 
         # TODO: regroup queries
         try:
             cfield = self._get_cfields().get(id=cfield_id)
         except CustomField.DoesNotExist as e:
-            raise ValidationError(self.error_messages['invalidcustomfield'],
-                                  code='invalidcustomfield',
-                                 ) from e
+            raise ValidationError(
+                self.error_messages['invalidcustomfield'],
+                code='invalidcustomfield',
+            ) from e
 
         return cfield
 
     def _clean_operator_n_values(self, entry):
         clean_value = self.clean_value
         operator_id = clean_value(
-            clean_value(entry, 'operator', dict,
-                        required_error_key='invalidoperator',
-                       ),
+            clean_value(
+                entry, 'operator', dict,
+                required_error_key='invalidoperator',
+            ),
             'id', int, required_error_key='invalidoperator',
         )
 
         operator_class = self.efilter_registry.get_operator(operator_id)
 
         if not operator_class:
-            raise ValidationError(self.error_messages['invalidoperator'],
-                                  code='invalidoperator',
-                                 )
+            raise ValidationError(
+                self.error_messages['invalidoperator'],
+                code='invalidoperator',
+            )
 
         if isinstance(operator_class, operators.BooleanOperatorBase):
             values = [clean_value(entry, 'value', bool, required_error_key='invalidvalue')]
         elif entry is None:
             values = self._return_none_or_raise(self.required, 'invalidvalue')
         elif isinstance(entry.get('value'), list):
-            values = [v for v in clean_value(entry, 'value', list,
-                                             required_error_key='invalidvalue',
-                                            )
-                            if v
-                    ]
+            values = [
+                v
+                for v in clean_value(
+                    entry, 'value', list, required_error_key='invalidvalue',
+                )
+                if v
+            ]
         elif isinstance(entry.get('value'), bool):
             values = [entry.get('value')]
         else:
-            values = [v for v in clean_value(entry, 'value', str,
-                                             required_error_key='invalidvalue',
-                                            ).split(',')
-                            if v
-                     ]
+            values = [
+                v
+                for v in clean_value(
+                    entry, 'value', str, required_error_key='invalidvalue',
+                ).split(',')
+                if v
+            ]
 
         return operator_id, values
 
@@ -559,11 +607,11 @@ class CustomFieldsConditionsField(_ConditionsField):
         try:
             for entry in data:
                 operator, values = clean_operator_n_values(entry)
-                conditions.append(build_condition(custom_field=clean_cfield(entry),
-                                                  operator=operator,
-                                                  values=values,
-                                                 )
-                                 )
+                conditions.append(build_condition(
+                    custom_field=clean_cfield(entry),
+                    operator=operator,
+                    values=values,
+                ))
         except condition_handler.FilterConditionHandler.ValueError as e:
             raise ValidationError(str(e)) from e
 
@@ -574,6 +622,7 @@ class CustomFieldsConditionsField(_ConditionsField):
         filtered_conds = [c for c in conditions if c.type == type_id]
         if filtered_conds:
             self.initial = filtered_conds
+            self._non_hiddable_cfield_ids = {int(c.name) for c in filtered_conds}
 
 
 class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsConditionsField):
@@ -589,11 +638,14 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
             lambda: [(cf.id, cf) for cf in self._get_cfields()]
         )
 
+    # TODO: factorise
     def _get_cfields(self):
         return CustomField.objects.compatible(
             self._model,
         ).filter(
             field_type=CustomField.DATETIME,
+        ).filter(
+            Q(is_deleted=False) | Q(id__in=self._non_hiddable_cfield_ids)
         )
 
     def _value_to_jsonifiable(self, value):
@@ -609,7 +661,7 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
                 'range': {
                     'type':  get('name', ''),
                     'start': fmt(get('start')),
-                    'end':   fmt(get('end'))
+                    'end':   fmt(get('end')),
                 },
             })
 
@@ -651,11 +703,13 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
 
         return conditions
 
+    # TODO: factorise
     def _set_initial_conditions(self, conditions):
         type_id = condition_handler.DateCustomFieldConditionHandler.type_id
         filtered_conds = [c for c in conditions if c.type == type_id]
         if filtered_conds:
             self.initial = filtered_conds
+            self._non_hiddable_cfield_ids = {int(c.name) for c in filtered_conds}
 
 
 class RelationsConditionsField(_ConditionsField):
@@ -691,11 +745,12 @@ class RelationsConditionsField(_ConditionsField):
             else:
                 ctype_id = entity.entity_type_id
 
-        return {'rtype':  condition.name,
-                'has':    boolean_str(value['has']),
-                'ctype':  ctype_id,
-                'entity': entity_id,
-               }
+        return {
+            'rtype':  condition.name,
+            'has':    boolean_str(value['has']),
+            'ctype':  ctype_id,
+            'entity': entity_id,
+        }
 
     # TODO: test with deleted entity ??
     def _value_to_jsonifiable(self, value):
@@ -708,7 +763,10 @@ class RelationsConditionsField(_ConditionsField):
             try:
                 ct = ContentType.objects.get_for_id(ct_id)
             except ContentType.DoesNotExist as e:
-                raise ValidationError(self.error_messages['invalidct'], code='invalidct') from e
+                raise ValidationError(
+                    self.error_messages['invalidct'],
+                    code='invalidct',
+                ) from e
 
             return ct
 
@@ -719,7 +777,10 @@ class RelationsConditionsField(_ConditionsField):
             try:
                 return int(entity_id)
             except ValueError as e:
-                raise ValidationError(self.error_messages['invalidformat'], code='invalidformat') from e
+                raise ValidationError(
+                    self.error_messages['invalidformat'],
+                    code='invalidformat',
+                ) from e
 
     def _clean_rtype(self, entry):
         rtype_id = self.clean_value(entry, 'rtype', str)
@@ -754,9 +815,10 @@ class RelationsConditionsField(_ConditionsField):
             entities = CremeEntity.objects.filter(pk__in=entity_ids).in_bulk()
 
             if len(entities) != len(entity_ids):
-                raise ValidationError(self.error_messages['invalidentity'],
-                                      code='invalidentity',
-                                     )
+                raise ValidationError(
+                    self.error_messages['invalidentity'],
+                    code='invalidentity',
+                )
 
             for kwargs in all_kwargs:
                 entity_id = kwargs.get('entity')
@@ -820,11 +882,15 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
 
         if filter_ids:
             # filters = EntityFilter.get_for_user(self.user).filter(pk__in=filter_ids).in_bulk()
-            filters = EntityFilter.objects.filter_by_user(self.user)\
-                                          .filter(pk__in=filter_ids).in_bulk()
+            filters = EntityFilter.objects.filter_by_user(self.user).filter(
+                pk__in=filter_ids,
+            ).in_bulk()
 
             if len(filters) != len(filter_ids):
-                raise ValidationError(self.error_messages['invalidfilter'], code='invalidfilter')
+                raise ValidationError(
+                    self.error_messages['invalidfilter'],
+                    code='invalidfilter',
+                )
 
             for kwargs in all_kwargs:
                 kwargs['subfilter'] = filters.get(kwargs['subfilter'])
@@ -865,11 +931,13 @@ class PropertiesConditionsField(_ConditionsField):
         return CremePropertyType.objects.compatible(self._model)
 
     def _value_to_jsonifiable(self, value):
-        return [{'ptype': condition.name,
+        return [
+            {
+                'ptype': condition.name,
                  # 'has':   boolean_str(condition.decoded_value),
-                 'has':   boolean_str(condition.value),
-                } for condition in value
-               ]
+                'has':   boolean_str(condition.value),
+            } for condition in value
+        ]
 
     def _clean_ptype(self, entry):
         ptype_pk = self.clean_value(entry, 'ptype', str)
@@ -878,9 +946,10 @@ class PropertiesConditionsField(_ConditionsField):
         try:
             ptype = self._get_ptypes().get(id=ptype_pk)
         except CremePropertyType.DoesNotExist as e:
-            raise ValidationError(self.error_messages['invalidptype'],
-                                  code='invalidptype',
-                                 ) from e
+            raise ValidationError(
+                self.error_messages['invalidptype'],
+                code='invalidptype',
+            ) from e
 
         return ptype
 

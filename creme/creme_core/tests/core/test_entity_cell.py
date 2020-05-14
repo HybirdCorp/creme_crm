@@ -117,7 +117,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(FakeDocument,            cell.model)
         self.assertEqual('get_pretty_properties', cell.value)
 
-    def test_build_4_field01(self):
+    def test_regular_field01(self):
         self.assertEqual(_('Fields'), EntityCellRegularField.verbose_name)
 
         field_name = 'first_name'
@@ -125,7 +125,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIsInstance(cell, EntityCellRegularField)
         self.assertEqual(field_name,      cell.value)
         self.assertEqual(_('First name'), cell.title)
-        self.assertEqual('regular_field-first_name', cell.key)
+        self.assertEqual(f'regular_field-{field_name}', cell.key)
         # self.assertIs(cell.has_a_filter, True)
         # self.assertIs(cell.editable, True)
         # self.assertIs(cell.sortable, True)
@@ -133,18 +133,18 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIs(cell.is_multiline, False)
         # self.assertEqual('first_name__icontains', cell.filter_string)
 
-    def test_build_4_field02(self):
+    def test_regular_field02(self):
         "Date field."
         cell = EntityCellRegularField.build(model=FakeContact, name='birthday')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,     cell.listview_css_class)
         self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_build_4_field03(self):
+    def test_regular_field03(self):
         "Boolean field."
         cell = EntityCellRegularField.build(model=FakeContact, name='is_a_nerd')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
 
-    def test_build_4_field04(self):
+    def test_regular_field04(self):
         "ForeignKey."
         cell = EntityCellRegularField.build(model=FakeContact, name='position')
         self.assertEqual('regular_field-position', cell.key)
@@ -153,7 +153,7 @@ class EntityCellTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='image')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
 
-    def test_build_4_field05(self):
+    def test_regular_field05(self):
         "Basic ForeignKey subfield."
         cell = EntityCellRegularField.build(model=FakeContact, name='position__title')
         self.assertEqual('regular_field-position__title', cell.key)
@@ -161,17 +161,17 @@ class EntityCellTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='image__name')
         self.assertEqual('regular_field-image__name', cell.key)
 
-    def test_build_4_field06(self):
+    def test_regular_field06(self):
         "Date ForeignKey subfield."
         cell = EntityCellRegularField.build(model=FakeContact, name='image__created')
         self.assertEqual('{} - {}'.format(_('Photograph'), _('Creation date')), cell.title)
 
-    def test_build_4_field07(self):
+    def test_regular_field07(self):
         "ForeignKey subfield is a FK."
         cell = EntityCellRegularField.build(model=FakeDocument, name='linked_folder__category')
         self.assertEqual('regular_field-linked_folder__category', cell.key)
 
-    def test_build_4_field08(self):
+    def test_regular_field08(self):
         "ManyToMany."
         cell = EntityCellRegularField.build(model=FakeContact, name='languages')
         self.assertTrue(cell.is_multiline)
@@ -179,7 +179,7 @@ class EntityCellTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='languages__name')
         self.assertTrue(cell.is_multiline)
 
-    def test_build_4_field09(self):
+    def test_regular_field09(self):
         "Hidden field."
         hidden = 'first_name'
 
@@ -194,18 +194,19 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(_('{} [hidden]').format(_('First name')), cell.title)
         self.assertIs(cell.is_excluded, True)
 
-    def test_build_4_field_errors(self):
+    def test_regular_field_errors(self):
         build = partial(EntityCellRegularField.build, model=FakeContact)
         self.assertIsNone(build(name='unknown_field'))
         self.assertIsNone(build(name='user__unknownfield'))
 
-    def test_build_4_customfield01(self):
+    def test_customfield01(self):
         "INT CustomField."
         self.assertEqual(_('Custom fields'), EntityCellCustomField.verbose_name)
 
         name = 'Size (cm)'
         customfield = CustomField.objects.create(
-            name=name, field_type=CustomField.INT,
+            name=name,
+            field_type=CustomField.INT,
             content_type=self.contact_ct,
         )
 
@@ -225,43 +226,54 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIsNone(EntityCellCustomField.build(FakeContact, 1000))
         self.assertIsNone(EntityCellCustomField.build(FakeContact, 'notanint'))
 
-    def test_build_4_customfield02(self):
+    def test_customfield02(self):
         "FLOAT CustomField."
-        customfield = CustomField.objects.create(name='Weight', field_type=CustomField.FLOAT,
-                                                 content_type=self.contact_ct,
-                                                )
+        customfield = CustomField.objects.create(
+            name='Weight', 
+            field_type=CustomField.FLOAT,
+            content_type=self.contact_ct,
+        )
 
         cell = EntityCellCustomField(customfield)
         self.assertEqual(settings.CSS_NUMBER_LISTVIEW,         cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_build_4_customfield03(self):
+    def test_customfield03(self):
         "DATE CustomField."
-        customfield = CustomField.objects.create(name='Day', field_type=CustomField.DATETIME,
-                                                 content_type=self.contact_ct,
-                                                )
+        customfield = CustomField.objects.create(
+            name='Day',
+            field_type=CustomField.DATETIME,
+            content_type=self.contact_ct,
+        )
 
         cell = EntityCellCustomField(customfield)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,     cell.listview_css_class)
         self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_build_4_customfield04(self):
+    def test_customfield04(self):
         "BOOL CustomField."
-        customfield = CustomField.objects.create(name='Is fun ?', field_type=CustomField.BOOL,
-                                                 content_type=self.contact_ct,
-                                                )
+        customfield = CustomField.objects.create(
+            name='Is fun ?',
+            field_type=CustomField.BOOL,
+            content_type=self.contact_ct,
+        )
 
         cell = EntityCellCustomField(customfield)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_build_4_customfield05(self):
+    def test_customfield05(self):
         "ENUM CustomField."
-        customfield = CustomField.objects.create(name='Eva', field_type=CustomField.ENUM,
-                                                 content_type=self.contact_ct,
-                                                )
+        customfield = CustomField.objects.create(
+            name='Eva',
+            field_type=CustomField.ENUM,
+            content_type=self.contact_ct,
+        )
 
-        create_enumvalue = partial(CustomFieldEnumValue.objects.create, custom_field=customfield)
+        create_enumvalue = partial(
+            CustomFieldEnumValue.objects.create,
+            custom_field=customfield,
+        )
         create_enumvalue(value='Eva-00')
         create_enumvalue(value='Eva-01')
 
@@ -269,13 +281,18 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_build_4_customfield06(self):
+    def test_customfield06(self):
         "MULTI_ENUM CustomField."
-        customfield = CustomField.objects.create(name='Eva', field_type=CustomField.MULTI_ENUM,
-                                                 content_type=self.contact_ct,
-                                                )
+        customfield = CustomField.objects.create(
+            name='Eva',
+            field_type=CustomField.MULTI_ENUM,
+            content_type=self.contact_ct,
+        )
 
-        create_enumvalue = partial(CustomFieldEnumValue.objects.create, custom_field=customfield)
+        create_enumvalue = partial(
+            CustomFieldEnumValue.objects.create,
+            custom_field=customfield,
+        )
         create_enumvalue(value='Eva-00')
         create_enumvalue(value='Eva-01')
 
@@ -283,7 +300,22 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_build_4_relation(self):
+    def test_customfield07(self):
+        "Deleted CustomField."
+        name = 'Size (cm)'
+        customfield = CustomField.objects.create(
+            name=name,
+            field_type=CustomField.INT,
+            content_type=self.contact_ct,
+            is_deleted=True,
+        )
+
+        cell = EntityCellCustomField(customfield)
+        self.assertEqual(_('{} [deleted]').format(name), cell.title)
+        self.assertIs(cell.is_hidden, False)
+        self.assertIs(cell.is_excluded, True)
+
+    def test_relation(self):
         self.assertEqual(_('Relationships'), EntityCellRelation.verbose_name)
 
         loves = RelationType.create(
@@ -301,7 +333,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_build_4_functionfield01(self):
+    def test_functionfield01(self):
         self.assertEqual(_('Computed fields'), EntityCellFunctionField.verbose_name)
 
         name = 'get_pretty_properties'
@@ -324,7 +356,7 @@ class EntityCellTestCase(CremeTestCase):
 
         self.assertIsNone(EntityCellFunctionField.build(FakeContact, func_field_name='invalid'))
 
-    def test_build_4_functionfield02(self):
+    def test_functionfield02(self):
         class PhoneFunctionField(FunctionField):
             name         = 'phone_or_mobile'
             verbose_name = 'Phone or mobile'

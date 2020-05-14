@@ -293,13 +293,17 @@ class AbscissaField(JSONField):
         clean_value = self.clean_value
         required = self.required
 
-        cell_info = clean_value(data, self.cell_data_name, dict, required, 'ecellrequired')
+        cell_info = clean_value(
+            data, self.cell_data_name, dict, required, 'ecellrequired',
+        )
         if not cell_info:
-            raise ValidationError(self.error_messages['ecellrequired'],
-                                  code='ecellrequired',
-                                 )
+            raise ValidationError(
+                self.error_messages['ecellrequired'], code='ecellrequired',
+            )
 
-        cell_key = clean_value(cell_info, self.cell_key_data_name, str, required, 'ecellrequired')
+        cell_key = clean_value(
+            cell_info, self.cell_key_data_name, str, required, 'ecellrequired',
+        )
 
         if not cell_key:
             return None
@@ -309,9 +313,9 @@ class AbscissaField(JSONField):
             not_hiddable_cell_keys=self.not_hiddable_cell_keys,
         )
         if cell is None:
-            raise ValidationError(self.error_messages['ecellnotallowed'],
-                                  code='ecellnotallowed',
-                                 )
+            raise ValidationError(
+                self.error_messages['ecellnotallowed'], code='ecellnotallowed',
+            )
 
         return cell
 
@@ -592,26 +596,29 @@ class OrdinateField(JSONField):
         cell_info = clean_value(data, self.cell_data_name, dict, False, 'ecellrequired')
         if not cell_info:
             if constraint.cell_classes:
-                raise ValidationError(self.error_messages['ecellrequired'],
-                                      code='ecellrequired',
-                                     )
+                raise ValidationError(
+                    self.error_messages['ecellrequired'],
+                    code='ecellrequired',
+                )
 
             return None
 
         cell_key = clean_value(cell_info, self.cell_key_data_name, str, True, 'ecellrequired')
         if not cell_key:
-            raise ValidationError(self.error_messages['ecellrequired'],
-                                  code='ecellrequired',
-                                 )
+            raise ValidationError(
+                self.error_messages['ecellrequired'],
+                code='ecellrequired',
+            )
 
         cell = constraint.get_cell(
             cell_key=cell_key,
             not_hiddable_cell_keys=self.not_hiddable_cell_keys,
         )
         if cell is None:
-            raise ValidationError(self.error_messages['ecellnotallowed'],
-                                  code='ecellnotallowed',
-                                 )
+            raise ValidationError(
+                self.error_messages['ecellnotallowed'],
+                code='ecellnotallowed',
+            )
 
         return cell
 
@@ -645,7 +652,6 @@ class OrdinateField(JSONField):
             aggr_id=value.aggr_id,
         )
         category = constraint.type_id if constraint else '??'
-
         constraint_dname = self.constraint_data_name
 
         return {

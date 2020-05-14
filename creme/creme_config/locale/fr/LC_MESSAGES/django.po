@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-23 17:51+0200\n"
+"POT-Creation-Date: 2020-04-29 14:42+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -61,15 +61,15 @@ msgstr "Configuration des types de propriété"
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: bricks.py:184
+#: bricks.py:185
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: bricks.py:200
+#: bricks.py:202
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: bricks.py:420 bricks.py:651 forms/bricks.py:238 forms/bricks.py:299
+#: bricks.py:433 bricks.py:664 forms/bricks.py:238 forms/bricks.py:299
 #: forms/search.py:71 forms/user.py:77 forms/user.py:118
 #: templates/creme_config/bricks/bricklocations-home.html:42
 #: templates/creme_config/bricks/search-config.html:31
@@ -389,11 +389,11 @@ msgstr ""
 "La liste de choix ne doit pas être vide si vous choisissez un type \"Liste "
 "de choix\""
 
-#: forms/custom_fields.py:67 forms/custom_fields.py:280
+#: forms/custom_fields.py:67 forms/custom_fields.py:285
 msgid "The choice «{}» is duplicated."
 msgstr "le choix «{}» est en double."
 
-#: forms/custom_fields.py:123
+#: forms/custom_fields.py:124
 msgid ""
 "The other custom fields for this type of resource will be chosen by editing "
 "the configuration"
@@ -401,47 +401,47 @@ msgstr ""
 "Les autres champs personnalisés de ce type de ressource seront choisis en "
 "modifiant la configuration"
 
-#: forms/custom_fields.py:152 forms/custom_fields.py:189
-#: forms/custom_fields.py:256
+#: forms/custom_fields.py:157 forms/custom_fields.py:194
+#: forms/custom_fields.py:261
 msgid "There is already a custom field with this name."
 msgstr "Il y a déjà un champ personnalisé avec ce nom."
 
-#: forms/custom_fields.py:211
+#: forms/custom_fields.py:216
 msgid "Existing choices of the list"
 msgstr "Choix existants de la liste"
 
-#: forms/custom_fields.py:212
+#: forms/custom_fields.py:217
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/custom_fields.py:216 forms/custom_fields.py:321
+#: forms/custom_fields.py:221 forms/custom_fields.py:326
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/custom_fields.py:217 forms/custom_fields.py:322
+#: forms/custom_fields.py:222 forms/custom_fields.py:327
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
-#: forms/custom_fields.py:295
+#: forms/custom_fields.py:300
 msgid "New choice"
 msgstr "Nouveau choix"
 
-#: forms/custom_fields.py:374
+#: forms/custom_fields.py:379
 msgid "Choose a choice to transfer to"
 msgstr "Choisissez un choice auquel transférer"
 
-#: forms/custom_fields.py:375
+#: forms/custom_fields.py:380
 msgid ""
 "The selected choice will replace the deleted one in entities which use it."
 msgstr ""
 "Le choix sélectionné remplacera le choix supprimé dans les fiches qui lui "
 "sont associés."
 
-#: forms/custom_fields.py:383 forms/user_role.py:322 forms/user_role.py:355
+#: forms/custom_fields.py:388 forms/user_role.py:322 forms/user_role.py:355
 msgid "Information"
 msgstr "Informations"
 
-#: forms/custom_fields.py:386
+#: forms/custom_fields.py:391
 msgid "This choice is not used by any entity, you can delete it safely."
 msgstr ""
 "Ce choix n'est utilisé par aucune fiche, vous pouvez le supprimer en toute "
@@ -699,7 +699,7 @@ msgid "Concerned fields"
 msgstr "Champs concernés"
 
 #: forms/setting.py:41 forms/setting.py:55 forms/setting.py:71
-#: forms/setting.py:80 templates/creme_config/bricks/custom-enums.html:17
+#: forms/setting.py:80 templates/creme_config/bricks/custom-enums.html:18
 #: templates/creme_config/bricks/setting-values.html:12
 #: templates/creme_config/bricks/user-setting-values.html:19
 msgid "Value"
@@ -969,7 +969,7 @@ msgstr "Nom"
 
 #: templates/creme_config/bricks/base/bricklocations-mypage.html:12
 #: templates/creme_config/bricks/bricklocations-home.html:19
-#: templates/creme_config/bricks/custom-enums.html:18
+#: templates/creme_config/bricks/custom-enums.html:19
 #: templates/creme_config/bricks/history-config.html:23
 #: templates/creme_config/bricks/instancebricks-configs.html:14
 #: templates/creme_config/bricks/setting-values.html:13
@@ -984,7 +984,7 @@ msgstr "Aucun bloc pour le moment"
 
 #: templates/creme_config/bricks/bricklocations-detailviews.html:7
 #: templates/creme_config/bricks/button-menu.html:7
-#: templates/creme_config/bricks/custom-fields.html:7
+#: templates/creme_config/bricks/custom-fields.html:13
 #: templates/creme_config/bricks/fields-configs.html:7
 #: templates/creme_config/bricks/search-config.html:7
 #, python-brace-format
@@ -993,7 +993,7 @@ msgstr "{count} Type de ressource configuré"
 
 #: templates/creme_config/bricks/bricklocations-detailviews.html:7
 #: templates/creme_config/bricks/button-menu.html:7
-#: templates/creme_config/bricks/custom-fields.html:7
+#: templates/creme_config/bricks/custom-fields.html:13
 #: templates/creme_config/bricks/fields-configs.html:7
 #: templates/creme_config/bricks/search-config.html:7
 #, python-brace-format
@@ -1130,7 +1130,7 @@ msgid "Delete the configuration"
 msgstr "Supprimer la configuration"
 
 #: templates/creme_config/bricks/button-menu.html:7
-#: templates/creme_config/bricks/custom-fields.html:7
+#: templates/creme_config/bricks/custom-fields.html:13
 #: templates/creme_config/bricks/fields-configs.html:7
 msgid "Configured types of resource"
 msgstr "Types de ressource configurés"
@@ -1193,45 +1193,58 @@ msgstr "Choix"
 msgid "New choices"
 msgstr "Nouveaux choix"
 
-#: templates/creme_config/bricks/custom-enums.html:27
+#: templates/creme_config/bricks/custom-enums.html:30
 msgid "Edit this choice"
 msgstr "Modifier ce choix"
 
-#: templates/creme_config/bricks/custom-enums.html:30
+#: templates/creme_config/bricks/custom-enums.html:35
 msgid "Delete this choice"
 msgstr "Supprimer ce choix"
 
-#: templates/creme_config/bricks/custom-enums.html:37
+#: templates/creme_config/bricks/custom-enums.html:44
 msgid "No choice for this custom field"
 msgstr "Aucun choix pour ce champ personnalisé"
 
-#: templates/creme_config/bricks/custom-fields.html:12
-#: views/custom_fields.py:46
+#: templates/creme_config/bricks/custom-fields.html:18
+#: views/custom_fields.py:58
 msgid "New custom field configuration"
 msgstr "Nouvelle configuration de champ personnalisé"
 
-#: templates/creme_config/bricks/custom-fields.html:23
+#: templates/creme_config/bricks/custom-fields.html:29
 msgid "Create a custom field"
 msgstr "Créer un champ personnalisé"
 
-#: templates/creme_config/bricks/custom-fields.html:33
+#: templates/creme_config/bricks/custom-fields.html:40
 msgid "(required)"
 msgstr "(obligatoire)"
 
-#: templates/creme_config/bricks/custom-fields.html:41
+#: templates/creme_config/bricks/custom-fields.html:49
+#, python-format
+msgid "See the choices (currently %(count)s)"
+msgstr "Voir les choix (actuellement %(count)s)"
+
+#: templates/creme_config/bricks/custom-fields.html:51
 #, python-format
 msgid "See & manage the choices (currently %(count)s)"
 msgstr "Voir & gérer les choix (actuellement %(count)s)"
 
-#: templates/creme_config/bricks/custom-fields.html:46
+#: templates/creme_config/bricks/custom-fields.html:58
+msgid "Restore this custom field"
+msgstr "Restaurer ce champ personnalisé"
+
+#: templates/creme_config/bricks/custom-fields.html:60
 msgid "Edit this custom field"
 msgstr "Modifier ce champ personnalisé"
 
-#: templates/creme_config/bricks/custom-fields.html:49
+#: templates/creme_config/bricks/custom-fields.html:65
+msgid "Delete this custom field definitely"
+msgstr "Supprimer ce champ personnalisé définitivement"
+
+#: templates/creme_config/bricks/custom-fields.html:67
 msgid "Delete this custom field"
 msgstr "Supprimer ce champ personnalisé"
 
-#: templates/creme_config/bricks/custom-fields.html:59
+#: templates/creme_config/bricks/custom-fields.html:78
 msgid "No type of entity has custom field for the moment"
 msgstr "Aucun type de fiche n'a de champ personnalisé pour le moment"
 
@@ -1250,7 +1263,7 @@ msgid "Custom blocks"
 msgstr "Blocs personnalisés"
 
 #: templates/creme_config/bricks/custombricks-configs.html:12
-#: views/bricks.py:88
+#: views/bricks.py:95
 msgid "New custom block"
 msgstr "Nouveau bloc personnalisé"
 
@@ -1265,7 +1278,7 @@ msgid "Edit this type of block"
 msgstr "Modifier ce type de bloc"
 
 #: templates/creme_config/bricks/custombricks-configs.html:36
-#: templates/creme_config/bricks/instancebricks-configs.html:38
+#: templates/creme_config/bricks/instancebricks-configs.html:37
 #: templates/creme_config/bricks/relationbricks-configs.html:29
 msgid "Delete this type of block"
 msgstr "Supprimer ce type de bloc"
@@ -2053,72 +2066,80 @@ msgstr "Cacher les utilisateurs désactivés"
 msgid "Show inactive users"
 msgstr "Montrer les utilisateurs désactivés"
 
-#: views/base.py:33 views/bricks.py:142 views/bricks.py:234
+#: templatetags/creme_config_tags.py:70
+msgid "Hide deleted custom fields"
+msgstr "Cacher les champ personnalisés supprimés"
+
+#: templatetags/creme_config_tags.py:71
+msgid "Show deleted custom fields"
+msgstr "Montrer les champ personnalisés supprimés"
+
+#: views/base.py:33 views/bricks.py:149 views/bricks.py:247
 #: views/button_menu.py:50
 msgid "Save the configuration"
 msgstr "Enregistrer la configuration"
 
-#: views/bricks.py:63
+#: views/bricks.py:70
 #, python-brace-format
 msgid "New block configuration for «{model}»"
 msgstr "Nouvelle configuration de bloc pour «{model}»"
 
-#: views/bricks.py:75 views/bricks.py:227 views/button_menu.py:40
+#: views/bricks.py:82 views/bricks.py:240 views/button_menu.py:40
 #: views/fields_config.py:56
 msgctxt "creme_config-verb"
 msgid "Select"
 msgstr "Sélectionner"
 
-#: views/bricks.py:89
+#: views/bricks.py:96
 msgid "Save the block"
 msgstr "Enregistrer le bloc"
 
-#: views/bricks.py:170
+#: views/bricks.py:178
 #, python-brace-format
 msgid "Edit configuration of super-users for «{model}»"
 msgstr "Modifier la configuration des super-utilisateurs pour «{model}»"
 
-#: views/bricks.py:172
+#: views/bricks.py:182
 #, python-brace-format
 msgid "Edit configuration of «{role}» for «{model}»"
 msgstr "Modifier la configuration de «{role}» pour «{model}»"
 
-#: views/bricks.py:177
+#: views/bricks.py:189
 #, python-brace-format
 msgid "Edit default configuration for «{model}»"
 msgstr "Modifier la configuration par défaut pour «{model}»"
 
-#: views/bricks.py:179 views/button_menu.py:100
+#: views/bricks.py:192 views/button_menu.py:100
 msgid "Edit default configuration"
 msgstr "Modifier la configuration par défaut"
 
-#: views/bricks.py:187
+#: views/bricks.py:200
 msgid "Create home configuration for a role"
 msgstr "Créer la configuration de l'accueil d'un rôle"
 
-#: views/bricks.py:193
+#: views/bricks.py:206
 msgid "Edit home configuration"
 msgstr "Modifier la configuration de l'accueil"
 
-#: views/bricks.py:208
+#: views/bricks.py:221
 msgid "Edit default \"My page\""
 msgstr "Modifier le \"Ma page\" par défaut"
 
-#: views/bricks.py:213
+#: views/bricks.py:226
 msgid "Edit \"My page\""
 msgstr "Modifier \"Ma page\""
 
-#: views/bricks.py:233
+#: views/bricks.py:246
 #, python-brace-format
 msgid "New customised type for «{object}»"
 msgstr "Nouveau type personnalisé pour «{object}»"
 
-#: views/bricks.py:249
+#: views/bricks.py:262
 #, python-brace-format
 msgid "Edit «{model}» configuration"
 msgstr "Modifier la configuration de «{model}»"
 
-#: views/bricks.py:293
+#: views/bricks.py:307
 #, python-brace-format
 msgid "Edit the block «{object}»"
 msgstr "Modifier le bloc «{object}»"
@@ -2134,29 +2155,47 @@ msgctxt "creme_config-property"
 msgid "Edit the type «{object}»"
 msgstr "Modifier le type «{object}»"
 
-#: views/custom_fields.py:63
+#: views/custom_fields.py:75
 #, python-brace-format
 msgid "New custom field for «{model}»"
 msgstr "Nouveau champ personnalisé pour «{model}»"
 
-#: views/custom_fields.py:127
+#: views/custom_fields.py:93 views/custom_fields.py:170
+#: views/custom_fields.py:195 views/custom_fields.py:210
+msgid "This custom field is deleted."
+msgstr "Ce champ personnalisé est supprimé."
+
+#: views/custom_fields.py:124
+#, python-brace-format
+msgid ""
+"This custom field is still used by {count} entity, so it cannot be deleted."
+msgid_plural ""
+"This custom field is still used by {count} entities, so it cannot be deleted."
+msgstr[0] ""
+"Ce champ personnalisé est encore utilisé par {count} fiche, donc il ne peut "
+"pas être supprimé."
+msgstr[1] ""
+"Ce champ personnalisé est encore utilisé par {count} fiches, donc il ne peut "
+"pas être supprimé."
+
+#: views/custom_fields.py:175
 msgid "Add this new choice"
 msgstr "Ajouter ce nouveau choix"
 
-#: views/custom_fields.py:137
+#: views/custom_fields.py:185
 msgid "Add these new choices"
 msgstr "Ajouter ces nouveaux choix"
 
-#: views/custom_fields.py:152 views/generics_views.py:219
+#: views/custom_fields.py:204 views/generics_views.py:219
 #, python-brace-format
 msgid "Replace & delete «{object}»"
 msgstr "Remplacer & supprimer «{object}»"
 
-#: views/custom_fields.py:153
+#: views/custom_fields.py:205
 msgid "Delete the choice"
 msgstr "Supprimer le choix"
 
-#: views/custom_fields.py:167
+#: views/custom_fields.py:222
 msgid "A deletion process for a choice already exists."
 msgstr "Il y a déjà un processus de suppression pour un choix."
 

@@ -173,7 +173,7 @@ class JSONField(fields.CharField):
 
         return None
 
-    def _return_none_or_raise(self, required, error_key='required') -> None:
+    def _return_none_or_raise(self, required, error_key='required'):
         if required:
             raise ValidationError(self.error_messages[error_key])
 

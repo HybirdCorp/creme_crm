@@ -581,6 +581,15 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     color: hsla(216, 2%, 45%, 1);
 }
 
+.creme_config-customfields-brick .cfields-config-deleted {
+    color: #777;
+}
+
+.creme_config-customfields-brick .cfields-config-deleted .cfields-config-name,
+.creme_config-custom-enum.creme_config-custom-enum-deleted {
+    text-decoration: line-through;
+}
+
 /* UserSettingValues brick */
 
 .creme_config-user-settings-brick .brick-content {

@@ -53,6 +53,7 @@ from creme.creme_core.models import (
     HeaderFilter,
     EntityFilter,
     FieldsConfig,
+    CustomField,
 )
 from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field
 
@@ -302,6 +303,16 @@ class ReportHandsField(EntityCellsField):
                 if cell.type_id == _EntityCellAggregate.type_id
             }
 
+            non_hiddable_custom_aggnames = {
+                cell.value
+                for cell in self._non_hiddable_cells
+                if isinstance(cell, _EntityCellCustomAggregate)
+            }
+            # TODO: best use of cache with self._custom_fields would be cool...
+            agg_custom_fields = CustomField.objects.compatible(ct).filter(
+                field_type__in=authorized_customfields,
+            )
+
             for aggregate in field_aggregation_registry.aggregations:
                 pattern = aggregate.pattern
                 title   = aggregate.title
@@ -322,11 +333,20 @@ class ReportHandsField(EntityCellsField):
 
                     builders[agg_id] = ReportHandsField._build_4_regular_aggregate
 
-                for cf in self._custom_fields:
-                    if cf.field_type in authorized_customfields:
-                        agg_id = _CUSTOM_AGG_PREFIX + pattern.format(cf.id)
-                        cust_agg_choices.append((agg_id, f'{title} - {cf.name}'))
-                        builders[agg_id] = ReportHandsField._build_4_custom_aggregate
+                # for cf in self._custom_fields:
+                #     if cf.field_type in authorized_customfields:
+                #         agg_id = _CUSTOM_AGG_PREFIX + pattern.format(cf.id)
+                #         cust_agg_choices.append((agg_id, f'{title} - {cf.name}'))
+                #         builders[agg_id] = ReportHandsField._build_4_custom_aggregate
+                for cf in agg_custom_fields:
+                    agg_name = pattern.format(cf.id)
+
+                    if cf.is_deleted and agg_name not in non_hiddable_custom_aggnames:
+                        continue
+
+                    agg_id = _CUSTOM_AGG_PREFIX + agg_name
+                    cust_agg_choices.append((agg_id, f'{title} - {cf.name}'))
+                    builders[agg_id] = ReportHandsField._build_4_custom_aggregate
 
 
 class ReportFieldsForm(CremeForm):
@@ -420,16 +440,17 @@ class ReportExportPreviewFilterForm(CremeForm):
     def _date_field_choices(self, report):
         return [
             ('', pgettext_lazy('reports-date_filter', 'None')),
-            *((field.name, field.verbose_name)
-                  for field in report.ct.model_class()._meta.fields
-                      if is_date_field(field)
+            *(
+                (field.name, field.verbose_name)
+                for field in report.ct.model_class()._meta.fields
+                if is_date_field(field)
             ),
         ]
 
     def _backend_choices(self):
         return [
             (backend.id, backend.verbose_name)
-                for backend in export_backend_registry.backend_classes
+            for backend in export_backend_registry.backend_classes
         ]
 
     def clean(self):

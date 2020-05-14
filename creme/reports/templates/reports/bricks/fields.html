@@ -52,12 +52,13 @@
     <tbody class="brick-reorderable-items ui-sortable">{% widget_icon name='reorder' size='brick-table-action' class='icon brick-reorderable-handle-icon' as reorder_icon %}
     {% for column in columns %}
     {% with sub_report=column.sub_report %}
-        <tr data-reorderable-item-order="{{column.order}}" data-reorderable-item-url="{% url 'reports__reorder_field' object.id column.id %}">
+        <tr {% if column.hand.hidden %}class="hidden-report-field"{% endif %} data-reorderable-item-order="{{column.order}}" data-reorderable-item-url="{% url 'reports__reorder_field' object.id column.id %}">
             <td data-reorderable-handle-column class="ui-sortable-handle" title="{% trans 'Drag and drop to re-order this column of report' %}">
                 {{reorder_icon.render}}
             </td>
             <td {% brick_table_data_status primary %}>
-                {{column}}{% if column.hand.hidden %}<span class="hidden-report-field">{% trans '[hidden]' %}</span>{% endif %}
+{#                {{column}}{% if column.hand.hidden %}<span class="hidden-report-field">{% trans '[hidden]' %}</span>{% endif %} #}
+                {{column}}
             </td>
             <td>
             {% if sub_report %}

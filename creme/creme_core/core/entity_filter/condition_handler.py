@@ -847,9 +847,11 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
 
         accept = partial(operator.accept, values=values)
 
-        return any(accept(field_value=i) for i in field_value) \
-               if isinstance(field_value, list) else \
-               accept(field_value=field_value)
+        return (
+            any(accept(field_value=i) for i in field_value)
+            if isinstance(field_value, list) else
+            accept(field_value=field_value)
+        )
 
     @classmethod
     def build(cls, *, model, name, data):
@@ -1007,11 +1009,12 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         if operator.exclude:
             query.negate()  # TODO: move this in operator ??
 
-        return Q(pk__in=self._model
-                            ._default_manager
-                            .filter(query)
-                            .values_list('id', flat=True)
-                )
+        return Q(
+            pk__in=self._model
+                       ._default_manager
+                       .filter(query)
+                       .values_list('id', flat=True)
+        )
 
 
 class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
@@ -1107,11 +1110,12 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
         q_dict = self._get_date_range().get_q_dict(field=fname, now=now())
         q_dict[f'{related_name}__custom_field'] = self._custom_field_id
 
-        return Q(pk__in=self._model
-                            ._default_manager
-                            .filter(**q_dict)
-                            .values_list('id', flat=True)
-                )
+        return Q(
+            pk__in=self._model
+                       ._default_manager
+                       .filter(**q_dict)
+                       .values_list('id', flat=True)
+        )
 
 
 class BaseRelationConditionHandler(FilterConditionHandler):

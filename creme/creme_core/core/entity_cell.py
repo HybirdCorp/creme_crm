@@ -414,12 +414,17 @@ class EntityCellCustomField(EntityCell):
 
     def __init__(self, customfield: CustomField):
         self._customfield = customfield
+        deleted = customfield.is_deleted
 
         super().__init__(
             model=customfield.content_type.model_class(),
             value=str(customfield.id),
-            title=customfield.name,
+            # title=customfield.name,
+            title=gettext('{} [deleted]').format(customfield.name)
+                  if deleted else
+                  customfield.name,
             is_hidden=False,
+            is_excluded=deleted,
         )
 
     @classmethod

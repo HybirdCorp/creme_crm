@@ -73,17 +73,18 @@ class CustomField(CremeModel):
     ENUM        = 100
     MULTI_ENUM  = 101
 
-    uuid          = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
-    name          = models.CharField(_('Field name'), max_length=100)
-    content_type  = CTypeForeignKey(verbose_name=_('Related type'))
-    field_type    = models.PositiveSmallIntegerField(_('Field type'))  # See INT, FLOAT etc...
-    is_required   = models.BooleanField(
+    uuid         = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
+    name         = models.CharField(_('Field name'), max_length=100)
+    content_type = CTypeForeignKey(verbose_name=_('Related type'))
+    field_type   = models.PositiveSmallIntegerField(_('Field type'))  # See INT, FLOAT etc...
+    is_required  = models.BooleanField(
         _('Is required?'), default=False,
         help_text=_(
             'A required custom-field must be filled when a new entity is created ; '
             'existing entities are not immediately impacted.'
         ),
     )
+    is_deleted = models.BooleanField(_('Is deleted?'), default=False, editable=False)
     # default_value = CharField(_('Default value'), max_length=100, blank=True, null=True)
     # extra_args    = CharField(max_length=500, blank=True, null=True)
 

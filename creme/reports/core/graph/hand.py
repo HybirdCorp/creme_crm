@@ -577,6 +577,9 @@ class _RGHCustomField(ReportGraphHand):
         else:
             cfield = cell.custom_field
 
+            if cfield.is_deleted:
+                self.abscissa_error = _('the custom field is deleted.')
+
         self._cfield = cfield
 
 #    Commented on Nov 21, 2014 when refactoring this method doing a manual 'group by' to the _get_custom_dates_values() below using a real sql 'group by'

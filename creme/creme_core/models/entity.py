@@ -297,7 +297,10 @@ class CremeEntity(CremeModel):
     def get_custom_fields_n_values(self, only_required: bool = False) -> List[Tuple['CustomField', Any]]:
         # NB: we do not use <CustomField.objects.get_for_model()> because this method
         #     seems mostly used in forms,  not detail-views (bigger query, cache probably useless).
-        cfields = CustomField.objects.filter(content_type=self.entity_type_id)
+        cfields = CustomField.objects.filter(
+            content_type=self.entity_type_id,
+            is_deleted=False,
+        )
 
         if only_required:
             cfields = cfields.filter(is_required=True)
