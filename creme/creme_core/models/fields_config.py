@@ -34,7 +34,6 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.utils.translation import gettext_lazy as _, gettext
 
-from ..core.entity_cell import EntityCell, EntityCellRegularField
 from ..global_info import get_per_request_cache
 from ..utils.meta import FieldInfo
 from ..utils.serializers import json_encode
@@ -281,7 +280,8 @@ class FieldsConfig(CremeModel):
         if excluded is None:
             HIDDEN = self.HIDDEN
             self._excluded_fnames = excluded = {
-                fname for fname, attrs in self.descriptions if attrs.get(HIDDEN, False)
+                fname
+                for fname, attrs in self.descriptions if attrs.get(HIDDEN, False)
             }
 
         return excluded
@@ -300,12 +300,20 @@ class FieldsConfig(CremeModel):
     @classmethod
     def filter_cells(cls,
                      model: Type['Model'],
-                     cells: Iterable[EntityCell]) -> Iterator[EntityCell]:
+                     cells):
         """Yields not hidden cells.
         @param model: Class inheriting django.db.models.Model.
         @param cells: Iterable of EntityCell instances.
         @yield EntityCell instances.
         """
+        warnings.warn(
+            'FieldsConfig.filter_cells() is deprecated ; '
+            'use EntityCell.is_excluded instead.',
+            DeprecationWarning
+        )
+
+        from ..core.entity_cell import EntityCellRegularField
+
         fconfigs = cls.LocalCache()
 
         for cell in cells:

@@ -60,13 +60,15 @@ class RFieldCellNode(TemplateNode):
         return cell
 
 
+# TODO: merge with InstanceRFieldCellNode ? add some assertions ?
 class ModelRFieldCellNode(RFieldCellNode):
     def __init__(self, model_var, **kwargs):
         super().__init__(**kwargs)
         self.model_var = model_var
 
     def _build_model(self, context):
-        return self.model_var.resolve(context)
+        # return self.model_var.resolve(context)
+        return self.model_var.resolve(context).__class__
 
 
 class CTypeRFieldCellNode(RFieldCellNode):

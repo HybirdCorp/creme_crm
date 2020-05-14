@@ -25,6 +25,7 @@ try:
     )
     from creme.creme_core.models import (
         RelationType,
+        FieldsConfig,
         CustomField, CustomFieldEnumValue,
         FakeContact, FakeDocument, FakeFolder,
     )
@@ -128,6 +129,7 @@ class EntityCellTestCase(CremeTestCase):
         # self.assertIs(cell.has_a_filter, True)
         # self.assertIs(cell.editable, True)
         # self.assertIs(cell.sortable, True)
+        self.assertIs(cell.is_excluded, False)
         self.assertIs(cell.is_multiline, False)
         # self.assertEqual('first_name__icontains', cell.filter_string)
 
@@ -176,6 +178,21 @@ class EntityCellTestCase(CremeTestCase):
 
         cell = EntityCellRegularField.build(model=FakeContact, name='languages__name')
         self.assertTrue(cell.is_multiline)
+
+    def test_build_4_field09(self):
+        "Hidden field."
+        hidden = 'first_name'
+
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[
+                (hidden,  {FieldsConfig.HIDDEN: True}),
+            ],
+        )
+
+        cell = EntityCellRegularField.build(model=FakeContact, name=hidden)
+        self.assertEqual(_('{} [hidden]').format(_('First name')), cell.title)
+        self.assertIs(cell.is_excluded, True)
 
     def test_build_4_field_errors(self):
         build = partial(EntityCellRegularField.build, model=FakeContact)

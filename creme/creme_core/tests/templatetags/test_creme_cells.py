@@ -27,13 +27,15 @@ class CremeCellsTagsTestCase(CremeTestCase):
                 r"{% cell_4_regularfield model=model2 field='first_name' as contact_cell %}"
                 r'{{curr_cell.key}}#{{contact_cell.key}}'
             )
-            render = template.render(Context({'model1': Currency,
-                                              'model2': FakeContact,
-                                             }))
+            render = template.render(Context({
+                'model1': Currency,
+                'model2': FakeContact,
+            }))
 
-        self.assertEqual('regular_field-name#regular_field-first_name',
-                         render.strip()
-                        )
+        self.assertEqual(
+            'regular_field-name#regular_field-first_name',
+            render.strip()
+        )
 
     def test_cell_4_regularfield02(self):
         "By ContentType."
@@ -46,13 +48,15 @@ class CremeCellsTagsTestCase(CremeTestCase):
                 r"{% cell_4_regularfield ctype=ct2 field='first_name' as contact_cell %}"
                 r'{{curr_cell.key}}#{{contact_cell.key}}'
             )
-            render = template.render(Context({'ct1': get_ct(Currency),
-                                              'ct2': get_ct(FakeContact),
-                                             }))
+            render = template.render(Context({
+                'ct1': get_ct(Currency),
+                'ct2': get_ct(FakeContact),
+            }))
 
-        self.assertEqual('regular_field-name#regular_field-first_name',
-                         render.strip()
-                        )
+        self.assertEqual(
+            'regular_field-name#regular_field-first_name',
+            render.strip()
+        )
 
     def test_cell_4_regularfield03(self):
         "By instance."
@@ -69,9 +73,10 @@ class CremeCellsTagsTestCase(CremeTestCase):
             )
             render = template.render(Context({'helen': ripley}))
 
-        self.assertEqual('regular_field-first_name#regular_field-last_name',
-                         render.strip()
-                        )
+        self.assertEqual(
+            'regular_field-first_name#regular_field-last_name',
+            render.strip()
+        )
 
     def test_cell_4_regularfield04(self):
         "No assignment."
@@ -117,7 +122,9 @@ class CremeCellsTagsTestCase(CremeTestCase):
                 r'{% load creme_cells %}'
                 r'{% cell_render cell=cell instance=helen user=user %}'
             )
-            render = template.render(Context({'cell': cell, 'helen': ripley, 'user': user}))
+            render = template.render(Context({
+                'cell': cell, 'helen': ripley, 'user': user,
+            }))
 
         self.assertEqual(ripley.last_name, render.strip())
 
@@ -134,7 +141,9 @@ class CremeCellsTagsTestCase(CremeTestCase):
                 r'{% load creme_cells %}'
                 r'{% cell_render cell=cell instance=helen user=user output="html" %}'
             )
-            render = template.render(Context({'cell': cell, 'helen': ripley, 'user': user}))
+            render = template.render(Context({
+                'cell': cell, 'helen': ripley, 'user': user,
+            }))
 
         self.assertEqual(
             '<a href="mailto:hripley@nostromo.corp">hripley@nostromo.corp</a>',
@@ -144,9 +153,10 @@ class CremeCellsTagsTestCase(CremeTestCase):
     def test_cell_render03(self):
         "Direct render ; CSV output."
         user = self.create_user()
-        ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley',
-                             email='hripley@nostromo.corp',
-                            )
+        ripley = FakeContact(
+            user=user, first_name='Helen', last_name='Ripley',
+            email='hripley@nostromo.corp',
+        )
         cell = EntityCellRegularField.build(model=FakeContact, name='email')
 
         with self.assertNoException():
@@ -154,16 +164,19 @@ class CremeCellsTagsTestCase(CremeTestCase):
                 r'{% load creme_cells %}'
                 r'{% cell_render cell=cell instance=helen user=user output="csv" %}'
             )
-            render = template.render(Context({'cell': cell, 'helen': ripley, 'user': user}))
+            render = template.render(Context({
+                'cell': cell, 'helen': ripley, 'user': user,
+            }))
 
         self.assertEqual(ripley.email, render.strip())
 
     def test_cell_render04(self):
         "Assignment."
         user = self.create_user()
-        ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley',
-                             email='hripley@nostromo.corp',
-                            )
+        ripley = FakeContact(
+            user=user, first_name='Helen', last_name='Ripley',
+            email='hripley@nostromo.corp',
+        )
         cell = EntityCellRegularField.build(model=FakeContact, name='email')
 
         with self.assertNoException():
