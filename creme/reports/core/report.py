@@ -337,7 +337,7 @@ class RHRegularField(ReportHand):
         rfield = self._report_field
 
         return rfield.report._fields_configs.is_fieldinfo_hidden(
-            rfield.model,
+            # rfield.model,
             self._field_info,
         )
 

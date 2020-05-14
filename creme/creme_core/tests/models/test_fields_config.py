@@ -8,10 +8,12 @@ try:
     from ..base import CremeTestCase
     from ..fake_forms import FakeContactForm
 
+    from creme.creme_core.utils.meta import FieldInfo
     from creme.creme_core.global_info import set_global_info
     from creme.creme_core.models import (
         FieldsConfig,
         FakeContact, FakeOrganisation, FakeCivility, FakeSector, FakeAddress,
+        FakeImage, FakeFolder, FakeDocument,
     )
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
@@ -440,3 +442,87 @@ class FieldsConfigTestCase(CremeTestCase):
 
         with self.assertNumQueries(0):
             lc.get_4_model(model1)
+
+    def test_localcache_is_fieldinfo_hidden01(self):
+        "No field configured."
+        is_hidden = FieldsConfig.LocalCache().is_fieldinfo_hidden
+        self.assertFalse(is_hidden(FieldInfo(FakeContact, 'first_name')))
+        self.assertFalse(is_hidden(FieldInfo(FakeContact, 'image')))
+        self.assertFalse(is_hidden(FieldInfo(FakeContact, 'image__exif_date')))
+
+    def test_localcache_is_fieldinfo_hidden02(self):
+        "Simple field hidden."
+        hidden = 'first_name'
+
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[
+                (hidden,  {FieldsConfig.HIDDEN: True}),
+            ],
+        )
+
+        is_hidden = FieldsConfig.LocalCache().is_fieldinfo_hidden
+        self.assertTrue(is_hidden(FieldInfo(FakeContact, hidden)))
+        self.assertFalse(is_hidden(FieldInfo(FakeContact, 'image')))
+        self.assertFalse(is_hidden(FieldInfo(FakeContact, 'image__exif_date')))
+
+    def test_localcache_is_fieldinfo_hidden03(self):
+        "FK hidden."
+        hidden = 'image'
+
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[
+                (hidden,  {FieldsConfig.HIDDEN: True}),
+            ],
+        )
+
+        is_hidden = FieldsConfig.LocalCache().is_fieldinfo_hidden
+        self.assertFalse(is_hidden(FieldInfo(FakeContact, 'first_name')))
+        self.assertTrue(is_hidden(FieldInfo(FakeContact, hidden)))
+        self.assertTrue(is_hidden(FieldInfo(FakeContact, f'{hidden}__exif_date')))
+
+    def test_localcache_is_fieldinfo_hidden04(self):
+        "Sub-field hidden."
+        hidden = 'exif_date'
+
+        FieldsConfig.objects.create(
+            content_type=FakeImage,
+            descriptions=[
+                (hidden,  {FieldsConfig.HIDDEN: True}),
+            ],
+        )
+
+        is_hidden = FieldsConfig.LocalCache().is_fieldinfo_hidden
+        self.assertFalse(is_hidden(FieldInfo(FakeContact, 'first_name')))
+        self.assertFalse(is_hidden(FieldInfo(FakeContact, 'image')))
+        self.assertTrue(is_hidden(FieldInfo(FakeContact, f'image__{hidden}')))
+
+    def test_localcache_is_fieldinfo_hidden05(self):
+        "Field in CremeEntity."
+        hidden = 'description'
+        FieldsConfig.objects.create(
+            content_type=FakeImage,
+            descriptions=[(hidden, {FieldsConfig.HIDDEN: True})],
+        )
+
+        is_hidden = FieldsConfig.LocalCache().is_fieldinfo_hidden
+        self.assertTrue(is_hidden(FieldInfo(FakeImage, hidden)))
+        self.assertFalse(is_hidden(FieldInfo(FakeContact, 'image')))
+        self.assertTrue(is_hidden(FieldInfo(FakeContact, f'image__{hidden}')))
+
+    def test_localcache_is_fieldinfo_hidden06(self):
+        "Sub-field with depth > 1."
+        hidden = 'description'
+        FieldsConfig.objects.create(
+            content_type=FakeFolder,
+            descriptions=[(hidden, {FieldsConfig.HIDDEN: True})],
+        )
+
+        is_hidden = FieldsConfig.LocalCache().is_fieldinfo_hidden
+        self.assertTrue(is_hidden(FieldInfo(FakeFolder, hidden)))
+        self.assertFalse(is_hidden(FieldInfo(FakeDocument, hidden)))
+        self.assertFalse(is_hidden(FieldInfo(FakeDocument, 'linked_folder')))
+        self.assertTrue(is_hidden(FieldInfo(FakeDocument, f'linked_folder__{hidden}')))
+        self.assertFalse(is_hidden(FieldInfo(FakeDocument, f'linked_folder__parent')))
+        self.assertTrue(is_hidden(FieldInfo(FakeDocument, f'linked_folder__parent__{hidden}')))
