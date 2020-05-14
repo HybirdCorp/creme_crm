@@ -150,21 +150,38 @@ class FieldsConfig(CremeModel):
 
             return result
 
-        def is_fieldinfo_hidden(self, model: Type['Model'], field_info: FieldInfo) -> bool:
-            """
-            @param model: Class inheriting django.db.models.Model.
+        # def is_fieldinfo_hidden(self, model, field_info):
+        def is_fieldinfo_hidden(self, field_info: FieldInfo) -> bool:
+            """Is one of the fields in the chain hidden?
             @param field_info: creme_core.utils.meta.FieldInfo instance.
             """
-            if self.get_4_model(model).is_field_hidden(field_info[0]):
-                return True
+            # if self.get_4_model(model).is_field_hidden(field_info[0]):
+            #     return True
+            #
+            # if len(field_info) > 1:
+            #     assert len(field_info) == 2
+            #
+            #     if self.get_4_model(field_info[0].remote_field.model).is_field_hidden(field_info[1]):
+            #         return True
+            #
+            # return False
+            fields_n_models = []
+            related_model = field_info.model
+            for field in field_info:
+                if field.get_tag('optional'):
+                    fields_n_models.append((field, related_model))
 
-            if len(field_info) > 1:
-                assert len(field_info) == 2  # TODO: manage deeper fields + unit tests
+                if field.is_relation:
+                    related_model = field.remote_field.model
 
-                if self.get_4_model(field_info[0].remote_field.model).is_field_hidden(field_info[1]):
-                    return True
+            fconfigs = self.get_4_models(
+                {field_n_model[1] for field_n_model in fields_n_models}
+            )
 
-            return False
+            return any(
+                fconfigs[model].is_field_hidden(field)
+                for field, model in fields_n_models
+            )
 
     def __str__(self):
         return gettext('Configuration of {model}').format(model=self.content_type)
@@ -220,9 +237,10 @@ class FieldsConfig(CremeModel):
                      ('birthday', {FieldsConfig.HIDDEN: True}),
                     ]
         """
-        errors, desc = self._check_descriptions(self.content_type.model_class(),
-                                                json_load(self.raw_descriptions),
-                                               )
+        errors, desc = self._check_descriptions(
+            self.content_type.model_class(),
+            json_load(self.raw_descriptions),
+        )
 
         if errors:
             logger.warning('FieldsConfig: we save the corrected descriptions.')
@@ -251,10 +269,11 @@ class FieldsConfig(CremeModel):
         # TODO: cached_lazy_gettext
         fmt = gettext('Warning: the app «{app}» need the field «{field}».').format
 
-        return [fmt(app=app.verbose_name, field=field.verbose_name)
-                    for field in self.hidden_fields
-                        for app in get_apps(field_name=field.name)
-               ]
+        return [
+            fmt(app=app.verbose_name, field=field.verbose_name)
+            for field in self.hidden_fields
+            for app in get_apps(field_name=field.name)
+        ]
 
     def _get_hidden_field_names(self) -> Set[str]:
         excluded = self._excluded_fnames
@@ -290,8 +309,12 @@ class FieldsConfig(CremeModel):
         fconfigs = cls.LocalCache()
 
         for cell in cells:
-            if not isinstance(cell, EntityCellRegularField) or \
-               not fconfigs.is_fieldinfo_hidden(model, cell.field_info):
+            if (
+                not isinstance(cell, EntityCellRegularField)
+                or
+                # not fconfigs.is_fieldinfo_hidden(model, cell.field_info)
+                not fconfigs.is_fieldinfo_hidden(cell.field_info)
+            ):
                 yield cell
 
     @classmethod
