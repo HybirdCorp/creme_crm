@@ -42,7 +42,12 @@ jobs:
       - run: python manage.py migrate
       - run: python manage.py creme_populate
       - run: python manage.py generatemedia
-      - run: python manage.py test
+      - run: coverage run manage.py test
+      - run: coverage report
+      - run: coverage report html
+
+      - store_artifacts:
+          path: htmlcov
 
 workflows:
   version: 2
