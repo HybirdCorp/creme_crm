@@ -15,7 +15,11 @@ jobs:
           name: Wait for db
           command: dockerize -wait tcp://localhost:3306 -timeout 1m
 
-      - run: sudo apt update && sudo apt install -y python-dev graphviz libgraphviz-dev pkg-config
+      - run:
+          name: Install system dependencies
+          command: |
+            sudo apt update
+            sudo apt install -y python-dev graphviz libgraphviz-dev pkg-config mariadb-client
 
       # Download and cache dependencies
       - restore_cache:
@@ -42,9 +46,10 @@ jobs:
       - run: python manage.py migrate
       - run: python manage.py creme_populate
       - run: python manage.py generatemedia
-      - run: coverage run manage.py test
+      - run: COVERAGE_PROCESS_START=.coveragerc coverage run --source creme/ manage.py test --noinput --parallel=8
+      - run: coverage combine
       - run: coverage report
-      - run: coverage report html
+      - run: coverage html
 
       - store_artifacts:
           path: htmlcov

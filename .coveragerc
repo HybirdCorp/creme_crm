@@ -1,0 +1,5 @@
+[run]
+branch = True
+source = creme
+parallel = true
+concurrency=multiprocessing,threading
