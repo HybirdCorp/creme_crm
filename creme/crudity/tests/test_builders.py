@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    import errno
     from itertools import chain
     import os
     import re
@@ -32,7 +33,7 @@ lcabMissing = False
 try:
     subprocess.call(['lcab'])
 except OSError as e:
-    if e.errno == os.errno.ENOENT:
+    if e.errno == errno.ENOENT:
         lcabMissing = True
         print('It seems that "lcab" is not installed -> skip some tests')
 

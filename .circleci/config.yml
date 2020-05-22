@@ -1,0 +1,61 @@
+version: 2
+
+jobs:
+  tests:
+    docker:
+      - image: circleci/python:3.7-browsers
+      - image: circleci/mysql:5.7
+        environment:
+          MYSQL_ROOT_PASSWORD: creme
+          MYSQL_DATABASE: cremecrm
+    steps:
+      - checkout
+
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:3306 -timeout 1m
+
+      - run:
+          name: Install system dependencies
+          command: |
+            sudo apt update
+            sudo apt install -y python-dev graphviz libgraphviz-dev pkg-config mariadb-client
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}
+            - creme_crm
+
+      - run:
+          name: Install Python dependencies
+          command: |
+            python3 -m venv ~/venv
+            . ~/venv/bin/activate
+            pip install -r creme/requirements-dev.txt
+            pip install -r creme/requirements-mysql.txt
+            echo "source ~/venv/bin/activate" >> $BASH_ENV
+
+      - save_cache:
+          key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}
+          paths: "~/venv"
+
+      - run: pip list --outdated
+
+      - run: cp ~/project/.circleci/local_settings.py creme/
+      - run: python manage.py migrate
+      - run: python manage.py creme_populate
+      - run: python manage.py generatemedia
+      - run: COVERAGE_PROCESS_START=.coveragerc coverage run --source creme/ manage.py test --noinput --parallel=8
+      - run: coverage combine
+      - run: coverage report
+      - run: coverage html
+
+      - store_artifacts:
+          path: htmlcov
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - tests

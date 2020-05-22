@@ -4,6 +4,8 @@ try:
     from decimal import Decimal
     from functools import partial
     from os.path import basename, dirname, exists, join
+    from shutil import which
+    from unittest import skipIf
 
     from django.conf import settings
     from django.urls import reverse
@@ -28,6 +30,7 @@ class ExportTestCase(_BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
+    @skipIf(which("pdflatex") is None, "pdflatex is not installed.")
     def test_invoice(self):
         user = self.login()
         invoice = self.create_invoice_n_orgas('My Invoice', discount=0)[0]
@@ -62,6 +65,7 @@ class ExportTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     @skipIfCustomServiceLine
+    @skipIf(which("pdflatex") is None, "pdflatex is not installed.")
     def test_quote(self):
         user = self.login()
         quote = self.create_quote_n_orgas('My Quote')[0]
