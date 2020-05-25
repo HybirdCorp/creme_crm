@@ -59,9 +59,42 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install eslint dependencies
+          name: Install dependencies
           command: |
-            npm install
+            sudo apt update
+            sudo apt install -y python-dev graphviz libgraphviz-dev pkg-config
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
+            - creme_crm
+
+      - run:
+          name: Install Python dependencies
+          command: |
+            python3 -m venv ~/venv
+            . ~/venv/bin/activate
+            pip install -r creme/requirements-dev.txt
+            echo "source ~/venv/bin/activate" >> $BASH_ENV
+
+      - save_cache:
+          key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
+          paths: "~/venv"
+
+      - restore_cache:
+          key: node-dependencies-{{ checksum "package-lock.json" }}
+
+      - run:
+         name: Install nodejs dependencies
+         command: |
+           npm install
+
+      - save_cache:
+          key: node-dependencies-{{ checksum "package-lock.json" }}
+          paths:
+           - node_modules
+
       - run:
           name: Run javascript tests
           command: |
@@ -69,7 +102,7 @@ jobs:
             node_modules/.bin/karma start .karma.conf.js --browsers=FirefoxHeadless
   lint:
     docker:
-     - image: circleci/python:3.7-node
+     - image: circleci/python:3.7-node-browsers
     steps:
       - checkout
       - run:

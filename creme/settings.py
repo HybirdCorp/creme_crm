@@ -446,6 +446,20 @@ warnings.simplefilter('once')
 
 TEST_RUNNER = 'creme.creme_core.utils.test.CremeDiscoverRunner'
 
+KARMA = {
+    'browsers': ['FirefoxHeadless'],
+    'debug': '9333',
+    'lang': 'en',
+    'config': '.karma.conf.js',
+    'coverage': '.coverage-karma',
+}
+
+ESLINT = {
+    'config': '.eslintrc',
+    'ignore': '.eslintignore',
+    'output': '.eslint.output.html'
+}
+
 # GUI ##########################################################################
 
 BLOCK_SIZE = 10  # Lines number in common blocks
