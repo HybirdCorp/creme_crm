@@ -53,9 +53,25 @@ jobs:
 
       - store_artifacts:
           path: htmlcov
+  lint:
+    docker:
+     - image: circleci/python:3.7-node-browsers
+    steps:
+      - checkout
+      - run:
+          name: Install eslint dependencies
+          command: |
+            npm install
+      - run:
+          name: Run linter
+          command: |
+            node_modules/.bin/eslint --config .eslintrc --ignore-path .eslintignore --format stylish --quiet creme/
 
 workflows:
   version: 2
   build:
     jobs:
-      - tests
+      - lint
+      - tests:
+          requires:
+           - lint

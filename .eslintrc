@@ -20,8 +20,14 @@
     "Event": true,
     "HTMLDocument": true,
     "CSSStyleDeclaration": true,
+    "setTimeout": true,
+    "clearTimeout": true,
 
+    /* External libraries */
     "jQuery": true,
+    "moment": true,
+    "FullCalendar": true,
+    "google": true,
 
     /* Django i18n */
     "gettext": true,
@@ -29,8 +35,11 @@
     "pluralidx": true,
 
     /* Creme */
+    "GeneratorTools": true,
     "ArrayTools": true,
     "Generator": true,
+    "Assert": true,
+    "RGBColor": true,
     "creme": true,
 
     /* QUNIT TESTS */
@@ -38,6 +47,8 @@
     "QUnit": true,
     "equal": true,
     "deepEqual": true,
+    "notEqual": true,
+    "notDeepEqual": true,
     "ok": true,
     "fail": true,
     "stop": true,
@@ -50,7 +61,8 @@
     "QUnitAjaxMixin": true,
     "QUnitBrickMixin": true,
     "QUnitDialogMixin": true,
-    "QUnitListViewMixin": true
+    "QUnitListViewMixin": true,
+    "QUnitMouseMixin": true
   },
 
   "rules": {
@@ -166,7 +178,7 @@
     "no-unused-expressions": ["error", { "allowShortCircuit": true, "allowTernary": true, "allowTaggedTemplates": true }],
     "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": true }],
     "no-use-before-define": ["error", { "functions": false, "classes": false, "variables": false }],
-    "no-useless-call": "error",
+    "no-useless-call": "off",
     "no-useless-computed-key": "error",
     "no-useless-constructor": "error",
     "no-useless-escape": "warn",
@@ -204,7 +216,6 @@
 
     "standard/array-bracket-even-spacing": ["error", "either"],
     "standard/computed-property-even-spacing": ["error", "even"],
-    "standard/no-callback-literal": "error",
     "standard/object-curly-even-spacing": ["error", "either"]
   }
 }

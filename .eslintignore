@@ -1,3 +1,6 @@
 **/js/jquery/*
+**/js/lib/momentjs/*
+**/js/tests/qunit/qunit-*.js
 **/creme_core/js/datejs/*
-
+**/creme_core/js/d3/*
+**/tiny_mce/**
