@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+/* globals creme_media_url */
 (function($) {
 "use strict";
 
@@ -45,7 +46,7 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
                                   buttonText:      gettext("Calendar"),
                                   buttonImage:     creme_media_url("images/icon_calendar.gif"),
                                   buttonImageOnly: true
-                                 }
+                                 };
 
         self._get_type(element).bind('change', function() {
                 if ($(this).val()) {
@@ -62,7 +63,7 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
         self._clean_daterpickers($datespan);
 
         // TODO : use different buttonText value for begin and end datepickers
-        $('.daterange-input', $datespan).bind('change', function() {self._update(element);})
+        $('.daterange-input', $datespan).bind('change', function() { self._update(element); })
                                         .datepicker(datepicker_options);
 
         if (!value) {
@@ -75,10 +76,10 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
     },
 
     _clean_daterpickers: function(datespan) {
-    	$('.daterange-input', datespan).removeAttr('id')
-    								   .removeClass('hasDatepicker');
+        $('.daterange-input', datespan).removeAttr('id')
+                                       .removeClass('hasDatepicker');
 
-    	$('img.ui-datepicker-trigger', datespan).remove();
+        $('img.ui-datepicker-trigger', datespan).remove();
     },
 
     dependencies: function(element) {
@@ -101,14 +102,15 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
     },
 
     _update_inputs: function(element, data) {
-        var values = creme.widget.cleanval(data, {'type': '', 'start': null, 'end': null});
+        var values = creme.widget.cleanval(data, {type: '', start: null, end: null});
 
-        if (Object.isEmpty(values))
-            values = {'type': '', 'start': null, 'end': null};
+        if (Object.isEmpty(values)) {
+            values = {type: '', start: null, end: null};
+        }
 
         // TODO : use this method instead. parse json if value is a string and
         // a default value if undefined or invalid json.
-        //var values = creme.widget.cleanval(value, {'type':'', 'start':null, 'end':null});
+        // var values = creme.widget.cleanval(value, {'type':'', 'start':null, 'end':null});
 
         if (values.type !== undefined) {
             this._get_type(element).val(values.type).change();

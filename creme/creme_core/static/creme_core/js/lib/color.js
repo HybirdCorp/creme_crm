@@ -44,7 +44,6 @@ window.RGBColor = function(value) {
     }
 };
 
-/* global RGBColor */
 RGBColor.prototype = {
     clone: function() {
         return new RGBColor(this);

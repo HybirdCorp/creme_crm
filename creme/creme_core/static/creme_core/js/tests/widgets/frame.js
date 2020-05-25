@@ -1,4 +1,3 @@
-/* globals setTimeout */
 (function($) {
 
 function mock_frame_create(url, noauto) {

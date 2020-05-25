@@ -567,7 +567,6 @@
             });
         },
 
-        /* global creme_media_url */
         _bindColumnFilters: function(element) {
             var self = this;
 

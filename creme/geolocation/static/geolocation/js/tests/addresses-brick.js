@@ -1,4 +1,4 @@
-/* globals google setTimeout QUnitGeolocationMixin */
+/* globals QUnitGeolocationMixin */
 (function($, QUnit) {
 "use strict";
 

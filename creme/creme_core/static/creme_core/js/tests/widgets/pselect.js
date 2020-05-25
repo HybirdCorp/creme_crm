@@ -5,30 +5,27 @@ QUnit.module("creme.widget.pselect.js", new QUnitMixin({
     afterEach: function() {}
 }));
 
-function mock_pselect_create(key, noauto)
-{
-    var select = creme.widget.buildTag($('<span/>'), 'ui-creme-polymorphicselect', {key:key}, !noauto)
+function mock_pselect_create(key, noauto) {
+    var select = creme.widget.buildTag($('<span/>'), 'ui-creme-polymorphicselect', {key: key}, !noauto)
                       .append('<input type="hidden" class="ui-creme-input ui-creme-polymorphicselect"/>');
 
     return select;
 }
 
-function mock_pselect_add_selector(element, type, selector, widget, options)
-{
-    var selector = creme.widget.buildTag(selector, widget, options, false);
+function mock_pselect_add_selector(element, type, selector, widget, options) {
+    selector = creme.widget.buildTag(selector, widget, options, false);
     var item = $('<script type="text/template">').attr('selector-key', type).text(selector.prop('outerHTML'));
 
     element.append(item);
     return selector;
 }
 
-function assertSelector(widget, type, value, query)
-{
+function assertSelector(widget, type, value, query) {
     equal(widget.selectorKey(), type, 'selector type');
     equal(widget.val(), value, 'value');
 
     if (query !== undefined) {
-        //console.log(widget.selector().element[0]);
+        // console.log(widget.selector().element[0]);
         ok(widget.selector().element.is(query), 'selector');
         equal(widget.selector().val(), value, 'selector value');
     } else {
@@ -53,7 +50,7 @@ QUnit.test('creme.widgets.pselect.create (empty, no selector)', function(assert)
 
 QUnit.test('creme.widgets.pselect.create (empty, single selector)', function(assert) {
     var element = mock_pselect_create();
-    var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {}, true);
+    mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {}, true);
 
     var widget = creme.widget.create(element);
 
@@ -71,7 +68,7 @@ QUnit.test('creme.widgets.pselect.create (empty, single selector)', function(ass
 
 QUnit.test('creme.widgets.pselect.create (empty, default single selector)', function(assert) {
     var element = mock_pselect_create();
-    var text = mock_pselect_add_selector(element, '*', $('<input type="text"/>'), 'ui-creme-dinput', {}, true);
+    mock_pselect_add_selector(element, '*', $('<input type="text"/>'), 'ui-creme-dinput', {}, true);
 
     var widget = creme.widget.create(element);
 
@@ -90,9 +87,9 @@ QUnit.test('creme.widgets.pselect.create (empty, default single selector)', func
 
 QUnit.test('creme.widgets.pselect.create (empty, multiple selector)', function(assert) {
     var element = mock_pselect_create();
-    var text = mock_pselect_add_selector(element, '*', $('<input type="text"/>'), 'ui-creme-dinput', {});
-    var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
-    var bool = mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
+    mock_pselect_add_selector(element, '*', $('<input type="text"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
 
     var widget = creme.widget.create(element);
 
@@ -117,9 +114,9 @@ QUnit.test('creme.widgets.pselect.create (empty, multiple selector)', function(a
 
 QUnit.test('creme.widgets.pselect.create (empty, multiple selector, no default)', function(assert) {
     var element = mock_pselect_create();
-    var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
-    var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
-    var bool = mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
+    mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
 
     var widget = creme.widget.create(element);
 
@@ -142,7 +139,7 @@ QUnit.test('creme.widgets.pselect.create (empty, multiple selector, no default)'
 
 QUnit.test('creme.widgets.pselect.val (unknown key, default selector)', function(assert) {
     var element = mock_pselect_create('unknown');
-    var text = mock_pselect_add_selector(element, '*', $('<input type="text"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, '*', $('<input type="text"/>'), 'ui-creme-dinput', {});
 
     var widget = creme.widget.create(element);
 
@@ -164,7 +161,7 @@ QUnit.test('creme.widgets.pselect.val (key, no selector)', function(assert) {
 
 QUnit.test('creme.widgets.pselect.val (selector)', function(assert) {
     var element = mock_pselect_create('text');
-    var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
 
     var widget = creme.widget.create(element);
     assertSelector(widget, 'text', '', '.ui-creme-dinput[type="text"]');
@@ -175,9 +172,9 @@ QUnit.test('creme.widgets.pselect.val (selector)', function(assert) {
 
 QUnit.test('creme.widgets.pselect.val (multiple selector)', function(assert) {
     var element = mock_pselect_create('password');
-    var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
-    var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
-    var bool = mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
+    mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
 
     var widget = creme.widget.create(element);
     widget.val('toor');
@@ -186,57 +183,57 @@ QUnit.test('creme.widgets.pselect.val (multiple selector)', function(assert) {
 
 QUnit.test('creme.widgets.pselect.reload (unknown type, default selector)', function(assert) {
     var element = mock_pselect_create('${operator}');
-    var text = mock_pselect_add_selector(element, '*', $('<input type="text"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, '*', $('<input type="text"/>'), 'ui-creme-dinput', {});
 
     var widget = creme.widget.create(element);
-    deepEqual(['operator'], widget.dependencies())
+    deepEqual(['operator'], widget.dependencies());
     assertSelector(widget, '', '', '.ui-creme-dinput[type="text"]');
 
-    widget.reload({operator:'text'});
+    widget.reload({operator: 'text'});
     widget.val(12.5);
     assertSelector(widget, 'text', 12.5, '.ui-creme-dinput[type="text"]');
 
-    widget.reload({operator:'boolean'});
+    widget.reload({operator: 'boolean'});
     assertSelector(widget, 'boolean', 12.5, '.ui-creme-dinput[type="text"]');
 });
 
 QUnit.test('creme.widgets.pselect.reload (any type, default selector, template)', function(assert) {
     var element = mock_pselect_create('${operator}');
-    var text = mock_pselect_add_selector(element, '*', $('<input type="${operator}"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, '*', $('<input type="${operator}"/>'), 'ui-creme-dinput', {});
 
     var widget = creme.widget.create(element);
     deepEqual(['operator'], widget.dependencies());
     assertSelector(widget, '', '', '.ui-creme-dinput[type]');
 
-    widget.reload({operator:'text'});
+    widget.reload({operator: 'text'});
     widget.val(12.5);
     assertSelector(widget, 'text', 12.5, '.ui-creme-dinput[type="text"]');
 
-    widget.reload({operator:'boolean'});
+    widget.reload({operator: 'boolean'});
     assertSelector(widget, 'boolean', '', '.ui-creme-dinput[type="boolean"]');
 });
 
 QUnit.test('creme.widgets.pselect.reload (unknown type, single selector, no default)', function(assert) {
     var element = mock_pselect_create('${operator}');
-    var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
 
     var widget = creme.widget.create(element);
-    deepEqual(['operator'], widget.dependencies())
+    deepEqual(['operator'], widget.dependencies());
     assertSelector(widget, '', null);
 
-    widget.reload({operator:'text'});
+    widget.reload({operator: 'text'});
     widget.val(12.5);
     assertSelector(widget, 'text', 12.5, '.ui-creme-dinput[type="text"]');
 
-    widget.reload({operator:'boolean'});
+    widget.reload({operator: 'boolean'});
     assertSelector(widget, 'boolean', null);
 });
 
 QUnit.test('creme.widgets.pselect.reload (type, value, multiple selector)', function(assert) {
     var element = mock_pselect_create('${operator}');
-    var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
-    var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
-    var bool = mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
+    mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
 
     var widget = creme.widget.create(element);
     assertSelector(widget, '', null);
@@ -246,15 +243,15 @@ QUnit.test('creme.widgets.pselect.reload (type, value, multiple selector)', func
 
     assertSelector(widget, 'password', 'toor', '.ui-creme-dinput[type="password"]');
 
-    widget.reload({operator:'boolean'});
+    widget.reload({operator: 'boolean'});
     assertSelector(widget, 'boolean', 'true', '.ui-creme-dselect');
 });
 
 QUnit.test('creme.widgets.pselect.reload (type, value, multiple selector, template)', function(assert) {
     var element = mock_pselect_create('${operator}.${type}');
-    var text = mock_pselect_add_selector(element, 'text.*', $('<input type="text"/>'), 'ui-creme-dinput', {});
-    var password = mock_pselect_add_selector(element, 'input.*', $('<input type="${type}"/>'), 'ui-creme-dinput', {});
-    var bool = mock_pselect_add_selector(element, 'boolean.*', $('<select><option value="true" selected>True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
+    mock_pselect_add_selector(element, 'text.*', $('<input type="text"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'input.*', $('<input type="${type}"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'boolean.*', $('<select><option value="true" selected>True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
 
     var widget = creme.widget.create(element);
     assertSelector(widget, '', null);
@@ -264,21 +261,21 @@ QUnit.test('creme.widgets.pselect.reload (type, value, multiple selector, templa
 
     assertSelector(widget, 'input.password', 'toor', '.ui-creme-dinput[type="password"]');
 
-    widget.reload({operator:'input', type: 'boolean'});
+    widget.reload({operator: 'input', type: 'boolean'});
     assertSelector(widget, 'input.boolean', '', '.ui-creme-dinput[type="boolean"]');
 
-    widget.reload({operator:'text', type: 'boolean'});
+    widget.reload({operator: 'text', type: 'boolean'});
     assertSelector(widget, 'text.boolean', '', '.ui-creme-dinput[type="text"]');
 
-    widget.reload({operator:'boolean'});
+    widget.reload({operator: 'boolean'});
     assertSelector(widget, 'boolean.boolean', 'true', '.ui-creme-dselect');
 });
 
 QUnit.test('creme.widgets.pselect.reset (type, value, multiple selector)', function(assert) {
     var element = mock_pselect_create('${operator}');
-    var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
-    var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
-    var bool = mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
+    mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
+    mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
 
     var widget = creme.widget.create(element);
 

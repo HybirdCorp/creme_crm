@@ -20,7 +20,8 @@
  * Requires : jQuery lib, creme.utils
  */
 
-(function($) {"use strict";
+(function($) {
+ "use strict";
 
 creme.merge = creme.merge || {};
 
@@ -33,7 +34,7 @@ creme.merge.initializeMergeForm = function(form) {
         } else if (input.is('.ui-creme-widget')) {
             return input.creme().widget().val();
         }
-    }
+    };
 
     var setter = function(input, value) {
         if (input.is('.ui-creme-widget')) {
@@ -45,11 +46,11 @@ creme.merge.initializeMergeForm = function(form) {
         } else if (input.is('input, select, textarea')) {
             input.val(value).change();
         }
-    }
+    };
 
     var copyTo = function(source, dest) {
         setter(dest, getter(source));
-    }
+    };
 
     form.each(function() {
         var button_html = '<input type="button" />';
@@ -63,7 +64,7 @@ creme.merge.initializeMergeForm = function(form) {
             var $source_A = $('[name="' + name + '_1"]', this);
             var $source_B = $('[name="' + name + '_2"]', this);
 
-            // jquery 1.9x migration : avoid attr('value') for inputs. 
+            // jquery 1.9x migration : avoid attr('value') for inputs.
             $result_li.before($(li_html).append($(button_html).val('>').click(function() {
                 copyTo($source_A, $merged);
             })));

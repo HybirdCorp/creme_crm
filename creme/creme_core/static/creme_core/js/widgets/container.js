@@ -21,11 +21,11 @@
 
 creme.widget.CONTAINER_LAYOUTS = {
     'column': function(options) {
-        var options = options || {};
+        options = options || {};
         var count = options['column-count'] || 1;
         var size = options['column-size'];
         var orderby = Object.isEmpty(options['sort-by']) ? undefined : options['sort-by'];
-        var comparator = orderby ? function(a, b) {return $(a).attr(orderby).localeCompare($(b).attr(orderby));} : undefined;
+        var comparator = orderby ? function(a, b) { return $(a).attr(orderby).localeCompare($(b).attr(orderby)); } : undefined;
 
         return new creme.layout.ColumnSortLayout({
             columns: Object.isEmpty(size) ? count : size,
@@ -35,13 +35,12 @@ creme.widget.CONTAINER_LAYOUTS = {
     },
 
     'sort': function(options) {
-        var options = options || {}
+        options = options || {};
         var orderby = Object.isEmpty(options['sort-by']) ? undefined : options['sort-by'];
 
-        if (orderby === undefined)
-            return null;
+        if (orderby === undefined) { return null; }
 
-        var comparator = function(a, b) {return $(a).attr(orderby).localeCompare($(b).attr(orderby));};
+        var comparator = function(a, b) { return $(a).attr(orderby).localeCompare($(b).attr(orderby)); };
 
         return new creme.layout.SortLayout({
             comparator: comparator,
@@ -78,8 +77,7 @@ creme.widget.Container = creme.widget.declare('ui-creme-container', {
     },
 
     layout: function(element, layout) {
-        if (layout === undefined)
-            return this._layout;
+        if (layout === undefined) { return this._layout; }
 
         if (this._layout !== undefined) {
             this._layout.unbind(element);

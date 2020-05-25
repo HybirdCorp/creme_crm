@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-/* globals creme_media_url setTimeout clearTimeout */
+/* globals creme_media_url */
 (function($) {
 "use strict";
 

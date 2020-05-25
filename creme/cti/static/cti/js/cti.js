@@ -31,11 +31,11 @@ creme.cti.phoneCall = function(external_url, creme_url, number, entity_id) {
                     data:  {n_tel: number},
                     error: function() {}
                    });
-    creme.ajax.post({ //TODO: creme.ajax.json.post ???
+    creme.ajax.post({ // TODO: creme.ajax.json.post ???
                         url:      creme_url,
                         data:     {entity_id: entity_id},
                         dataType: 'json',
-                        error:    function() { //TODO: better error message (wait for jsonify improvement)
+                        error:    function() { // TODO: better error message (wait for jsonify improvement)
                                       creme.dialogs.warning(gettext("Failed to create the phone call entity !")).open();
                                   },
                         success:  function(returnedData, status) {

@@ -1,4 +1,4 @@
-/* globals RGBColor QUnitConsoleMixin */
+/* globals QUnitConsoleMixin */
 
 (function($) {
 

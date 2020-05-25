@@ -33,7 +33,6 @@ creme.jobs.BaseJobsMonitor = creme.component.Component.sub({
 
     decorate: function(element, job_id, status, ack_errors, progress) {
         var must_reload = false;
-        var ack_errors_label = '';
 
         if (ack_errors) {
             must_reload = true;
@@ -52,7 +51,7 @@ creme.jobs.BaseJobsMonitor = creme.component.Component.sub({
             element.find('[data-job-ack-errors][data-job-id=' + job_id + '] .ack-errors').remove();
         }
 
-        switch(status) {
+        switch (status) {
           case 1: // STATUS_WAIT
             must_reload = true;
 
@@ -182,7 +181,7 @@ creme.jobs.JobsMonitor = creme.jobs.BaseJobsMonitor.sub({
 
     get_element: function() {
         return this._element;
-    },
+    }
 });
 
 creme.jobs.BrickJobsMonitor = creme.jobs.BaseJobsMonitor.sub({
@@ -194,7 +193,7 @@ creme.jobs.BrickJobsMonitor = creme.jobs.BaseJobsMonitor.sub({
     get_element: function() {
         // We retrieve the brick by its ID at each call, because the brick can be reloaded (& so, replaced)
         return $('#' + this._brick_id);
-    },
+    }
 });
 
 

@@ -32,8 +32,8 @@ creme.commercial.setScore = function(select_input, url, scored_instance_id, segm
         };
 
     creme.utils.ajaxQuery(url, {action: 'post', warnOnFail: true}, data)
-               .onDone(function() {brick.refresh();})
+               .onDone(function() { brick.refresh(); })
                .start();
-}
+};
 
 }(jQuery));

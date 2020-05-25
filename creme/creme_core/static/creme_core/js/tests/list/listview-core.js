@@ -1,5 +1,3 @@
-/* global setTimeout */
-
 (function($) {
 QUnit.module("creme.listview.core", new QUnitMixin(QUnitEventMixin,
                                                    QUnitAjaxMixin,

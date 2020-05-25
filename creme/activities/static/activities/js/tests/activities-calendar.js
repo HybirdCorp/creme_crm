@@ -1,5 +1,3 @@
-/* globals moment QUnitMouseMixin FullCalendar */
-
 (function($) {
 
 var todayAt = function(options) {

@@ -2,15 +2,15 @@
 * Array prototype extensions.
 * Extends array prototype with the following methods:
 * contains, every, exfiltrate, filter, forEach, getRange, inArray, indexOf, insertAt, map, randomize, removeAt, some, unique
-* 
+*
 * This extensions doesn't depend on any other code or overwrite existing methods.
-* 
+*
 *
 * Copyright (c) 2007 Harald Hanek (http://js-methods.googlecode.com)
 *
 * Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
 * and GPL (http://www.gnu.org/licenses/gpl.html) licenses.
-* 
+*
 * @author Harald Hanek
 * @version 0.9
 * @lastchangeddate 10. October 2007 15:46:06
@@ -87,7 +87,7 @@
     *
     * Natively supported in Gecko since version 1.8.
     * http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Objects:Array:map
-    * 
+    *
     * @example ["my", "Name", "is", "HARRY"].map(function(element, index, array) {
     *   return element.toUpperCase();
     * });
@@ -117,7 +117,7 @@
     *
     * Natively supported in Gecko since version 1.8.
     * http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Objects:Array:forEach
-    * 
+    *
     * @example var stuff = "";
     * ["Java", "Script"].forEach(function(element, index, array) {
     *   stuff += element;
@@ -142,7 +142,7 @@
 
     /**
     * Returns the array without the elements in 'elements'.
-    * 
+    *
     * @example [1, 2, 1, 4, 5, 4].contains([1, 2, 4]);
     * @result true
     *
@@ -174,7 +174,7 @@
 
     /**
     * Tests whether all elements in the array pass the test implemented by the provided function.
-    * 
+    *
     * @example [22, 72, 16, 99, 254].every(function(element, index, array) {
     *   return element >= 15;
     * });
@@ -330,7 +330,7 @@
     *
     * Natively supported in Gecko since version 1.8.
     * http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Objects:Array:some
-    * 
+    *
     * @example [101, 199, 250, 200].some(function(element, index, array) {
     *   return element >= 100;
     * });

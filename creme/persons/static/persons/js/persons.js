@@ -29,7 +29,7 @@ creme.persons = creme.persons || {};
 creme.persons.copyTo = function (source, target) {
     source = Object.isString(source) ? $('#' + source) : $(source);
     target = Object.isString(target) ? $('#' + target) : $(target);
-    
+
     source.find('input, textarea, select').each(function() {
         target.find('[name="' + $(this).attr('name') + '"]').val($(this).val());
     });

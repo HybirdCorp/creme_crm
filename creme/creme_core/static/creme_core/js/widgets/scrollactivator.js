@@ -47,11 +47,11 @@ creme.widget.ScrollActivator = creme.widget.declare('ui-creme-scrollactivator', 
         var bottom = top + item.height();
         var right = left + item.width();
 
-        var result = !(box.bottom < top || box.top > bottom) && 
+        var result = !(box.bottom < top || box.top > bottom) &&
                      !(box.left > right || box.right < left);
 
 //        console.log('box [top:', box.top, ', left:', box.left, ', bottom:', box.bottom, ', right:', box.right, '],',
-//                    'item [top:', top, ', left:', left, ', bottom:', bottom, ', right:', right, '],', 
+//                    'item [top:', top, ', left:', left, ', bottom:', bottom, ', right:', right, '],',
 //                    'collide:', result);
 
         return result;
@@ -60,8 +60,9 @@ creme.widget.ScrollActivator = creme.widget.declare('ui-creme-scrollactivator', 
     _activables: function(element, container) {
         var self = this;
 
-        if ((element.is(':visible') && self._collide(self._scrollBox($(document)), element)) == false)
+        if ((element.is(':visible') && self._collide(self._scrollBox($(document)), element)) === false) {
             return;
+        }
 
         var box = self._scrollBox(container);
 
@@ -83,7 +84,7 @@ creme.widget.ScrollActivator = creme.widget.declare('ui-creme-scrollactivator', 
             var activables = self._activables(element, self._container);
 
             if (activables) {
-                activables.each(function(index) {self._activateItem($(this))});
+                activables.each(function(index) { self._activateItem($(this)); });
             }
         }, self._delay);
     },
@@ -91,10 +92,12 @@ creme.widget.ScrollActivator = creme.widget.declare('ui-creme-scrollactivator', 
     _create: function(element, options, cb, sync, attributes) {
         var self = this;
         self._delay = options['delay'];
-        self._isrelative = options['scroll'] == 'relative';
+        self._isrelative = options['scroll'] === 'relative';
         self._container = self._isrelative ? $(element) : $(document);
 
-        self._container.scroll(function() {self._activate(element);});
+        self._container.scroll(function() {
+            self._activate(element);
+        });
         self._activate(element);
 
         element.addClass('widget-ready');

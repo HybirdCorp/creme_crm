@@ -1,4 +1,4 @@
-/* globals google QUnitGeolocationMixin */
+/* globals QUnitGeolocationMixin */
 (function($, QUnit) {
 "use strict";
 

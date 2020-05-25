@@ -1,4 +1,3 @@
-/* globals setTimeout */
 (function($) {
 
 QUnit.module("creme.bricks", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitBrickMixin));

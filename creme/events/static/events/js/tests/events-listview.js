@@ -25,7 +25,7 @@ QUnit.test('creme.events.saveContactStatus', function(assert) {
 
     deepEqual([], this.mockBackendUrlCalls('mock/events/12/status'));
 
-    equal('1', element.val())
+    equal('1', element.val());
     creme.events.saveContactStatus('mock/events/12/status', element);
 
     deepEqual([['POST', {status: '1'}]], this.mockBackendUrlCalls('mock/events/12/status'));

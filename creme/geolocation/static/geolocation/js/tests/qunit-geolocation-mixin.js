@@ -1,4 +1,3 @@
-/* globals google */
 (function($) {
 "use strict";
 

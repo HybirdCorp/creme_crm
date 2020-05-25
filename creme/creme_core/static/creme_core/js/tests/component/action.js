@@ -1,5 +1,3 @@
-/* globals setTimeout */
-
 (function($) {
 QUnit.module("creme.component.action.js", new QUnitMixin(QUnitEventMixin, {
     mockBindActionListeners: function(action) {

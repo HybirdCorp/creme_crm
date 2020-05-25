@@ -1,4 +1,3 @@
-/* globals setTimeout */
 (function($) {
 
 QUnit.module("creme.cacheajax.js", new QUnitMixin(QUnitAjaxMixin, {

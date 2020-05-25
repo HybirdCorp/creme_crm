@@ -30,7 +30,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
 
         this._context = {};
         this._dependencies = Array.isArray(options.dependencies) ? options.dependencies : (options.dependencies ? options.dependencies.split(' ') : []);
-        this._selectorKey = creme.utils.templatize(options.key, function(key) {return self._context[key];});
+        this._selectorKey = creme.utils.templatize(options.key, function(key) { return self._context[key]; });
         this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
 
         this._selector_onchange_cb = function() {
@@ -54,14 +54,12 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
             var pattern = new RegExp($(this).attr('selector-key').replace('.', '\.').replace('*', '.*'));
             var content = new creme.utils.Template($(this).html());
 
-            //console.log('pattern:', pattern, 'content:', content);
-            models.push({pattern:pattern, content:content});
+            // console.log('pattern:', pattern, 'content:', content);
+            models.push({pattern: pattern, content: content});
         });
     },
 
     _updateSelector: function(element, selector, value, cb, sync) {
-        var self = this;
-
         if (Object.isNone(selector)) {
             creme.object.invoke(cb, element);
             return this;
@@ -73,9 +71,9 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
     _removeSelector: function(element) {
         if (this._selector !== undefined) {
             var selector = this._selector;
-            var element = selector.element;
+            var selectorElement = selector.element;
 
-            element.unbind('change paste', this._selector_onchange_cb);
+            selectorElement.unbind('change paste', this._selector_onchange_cb);
             selector.destroy();
             element.remove();
 
@@ -95,8 +93,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         this._target = $('<span>').addClass('delegate').html(model).appendTo(element);
         var selector = $('> .delegate > .ui-creme-widget:first', element);
 
-        if (selector.length !== 1)
-            return;
+        if (selector.length !== 1) { return; }
 
         creme.widget.create(selector, {}, function(delegate) {
             creme.object.invoke(cb, element);
@@ -151,10 +148,10 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
     selectorModel: function(element, key) {
         var models = this.selectorModels(element);
 
-        for(var i in models) {
+        for (var i in models) {
             var model = models[i];
 
-            //console.log('model:', model.pattern, 'key:', key, 'match:', key.match(model.pattern), 'content:', model.content.pattern);
+            // console.log('model:', model.pattern, 'key:', key, 'match:', key.match(model.pattern), 'content:', model.content.pattern);
 
             if (typeof key === 'string' && key.match(model.pattern) !== null) {
                 return model.content.render(this._context);
@@ -185,8 +182,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
     },
 
     val: function(element, value) {
-        if (value === undefined)
-            return this._selector ? this._selector.val() : null;
+        if (value === undefined) { return this._selector ? this._selector.val() : null; }
 
         if (this._selector) {
             this._selector.val(value);
