@@ -1,4 +1,4 @@
-/* globals setTimeout QUnitPlotMixin QUnitWidgetMixin QUnitConsoleMixin */
+/* globals QUnitPlotMixin QUnitWidgetMixin QUnitConsoleMixin */
 
 (function($) {
 

@@ -1,4 +1,4 @@
-/* globals setTimeout, QUnitConsoleMixin */
+/* globals QUnitConsoleMixin */
 
 (function($) {
 var PLOTSELECTOR_PIEGRAPH_SCRIPT = {
@@ -64,9 +64,7 @@ var PLOTSELECTOR_BARGRAPH = {
 var PLOTSELECTOR_PLOT_01_DATA = [[[1, 2],   [3, 4],   [5, 12]]];
 var PLOTSELECTOR_PLOT_02_DATA = [[[1, 2.58], [3, 40.5], [5, 121.78]]];
 
-
-/* globals stop, start, equal, deepEqual, */
-/* globals QUnit QUnitMixin, QUnitAjaxMixin, QUnitPlotMixin, QUnitWidgetMixin */
+/* globals QUnitPlotMixin, QUnitWidgetMixin */
 QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin,
                                                              QUnitConsoleMixin,
                                                              QUnitPlotMixin,

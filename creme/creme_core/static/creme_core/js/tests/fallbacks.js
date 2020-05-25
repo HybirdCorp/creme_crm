@@ -1,5 +1,3 @@
-/* globals notEqual, notDeepEqual */
-
 (function($) {
 
 var MockObjectA = function(b) {

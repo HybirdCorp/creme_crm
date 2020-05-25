@@ -1,5 +1,3 @@
-/* globals Assert */
-
 (function($) {
 
 QUnit.module("assert.Assert", new QUnitMixin());

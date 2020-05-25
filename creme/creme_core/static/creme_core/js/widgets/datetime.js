@@ -16,12 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+/* globals creme_media_url */
 (function($) {
 "use strict";
 
 creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
     options: {
-        format:'dd-mm-yy',
+        format: 'dd-mm-yy',
         readonly: false,
         disabled: false
     },
@@ -30,7 +31,6 @@ creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
         this._disabled = creme.object.isTrue(options.disabled) && element.is('[disabled]');
         this._readonly = creme.object.isTrue(options.readonly) && element.is('[readonly]');
 
-        var self = this;
         var parent = element.parent();
 
         var list = $('<ul/>').addClass('ui-layout hbox').append($('<li/>').append(element));
@@ -44,7 +44,7 @@ creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
                                                buttonImageOnly: true });
 
         list.append($('<li/>').append($('<span/>').addClass('ui-creme-datepicker-trigger')
-                                                  .append($('img.ui-datepicker-trigger', parent))))
+                                                  .append($('img.ui-datepicker-trigger', parent))));
 
         this._buttons = this._initHelperButtons();
         this._buttons.forEach(function(button) {
@@ -81,7 +81,7 @@ creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
 
     _initHelperButtons: function() {
         var buttons = [];
-        this._appendHelperButton(buttons, 'today', 'Today', function(current) {return new Date();});
+        this._appendHelperButton(buttons, 'today', 'Today', function(current) { return new Date(); });
         return buttons;
     },
 
@@ -93,7 +93,7 @@ creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
 
 creme.widget.DateTimePicker = creme.widget.declare('ui-creme-datetimepicker', {
     options: {
-        format:'dd-mm-yy',
+        format: 'dd-mm-yy',
         readonly: false,
         disabled: false
     },

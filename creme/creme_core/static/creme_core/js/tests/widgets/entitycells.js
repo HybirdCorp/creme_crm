@@ -1,4 +1,4 @@
-/* globals QUnitWidgetMixin, setTimeout */
+/* globals QUnitWidgetMixin */
 (function($) {
 QUnit.module("creme.widget.entity_cell.js", new QUnitMixin(QUnitEventMixin,
                                                            QUnitAjaxMixin,

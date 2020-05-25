@@ -3,7 +3,9 @@
 function mock_toggle_create(options, noauto) {
     var select =  creme.widget.writeAttr($('<div widget="ui-creme-toggle" class="ui-creme-toggle ui-creme-widget"/>'), options || {});
 
-    if (!noauto) { select.addClass('widget-auto'); }
+    if (!noauto) {
+        select.addClass('widget-auto');
+    }
 
     return select;
 }

@@ -1,4 +1,4 @@
-/* globals notEqual, QUnitWidgetMixin */
+/* globals QUnitWidgetMixin */
 
 (function($) {
 

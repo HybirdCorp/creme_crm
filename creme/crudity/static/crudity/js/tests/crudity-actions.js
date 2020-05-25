@@ -1,5 +1,3 @@
-/* global setTimeout */
-
 (function($) {
 
 QUnit.module("creme.crudity.brick.actions", new QUnitMixin(QUnitEventMixin,

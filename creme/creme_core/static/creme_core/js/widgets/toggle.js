@@ -29,8 +29,8 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
 
         this.trigger(element).each(function() {
             var trigger_options = creme.widget.parseopt($(this), {
-                'open-event': null, 
-                'close-event': null, 
+                'open-event': null,
+                'close-event': null,
                 'toggle-event': 'click',
                 'recursive': false
             }, {});
@@ -50,19 +50,16 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
         var open_event   = options['open-event'];
         var close_event  = options['close-event'];
 
-        if (toggle_event != null)
-            trigger.bind(toggle_event, function() {self.toggle(element, undefined, options)});
+        if (toggle_event != null) { trigger.bind(toggle_event, function() { self.toggle(element, undefined, options); }); }
 
-        if (open_event != null)
-            trigger.bind(open_event, function() {self.expand(element, options)});
+        if (open_event != null) { trigger.bind(open_event, function() { self.expand(element, options); }); }
 
-        if (close_event != null)
-            trigger.bind(close_event, function() {self.collapse(element, options)});
+        if (close_event != null) { trigger.bind(close_event, function() { self.collapse(element, options); }); }
     },
 
     trigger: function(element) {
         var triggers =  $('.toggle-trigger', element).filter(function() {
-            return $(this).parents('.ui-creme-toggle:first').is(element); 
+            return $(this).parents('.ui-creme-toggle:first').is(element);
         });
 
         return element.is('.toggle-trigger') ? triggers.add(element) : triggers;
@@ -70,7 +67,7 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
 
     targets: function(element) {
         var targets = $('.toggle-target', element).filter(function() {
-            return $(this).parents('.ui-creme-toggle:first').is(element); 
+            return $(this).parents('.ui-creme-toggle:first').is(element);
         });
 
         return element.is('.toggle-target') ? targets.add(element) : targets;
@@ -81,8 +78,9 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
     },
 
     toggle: function(element, open, options) {
+        options = options || {};
+
         var self = this;
-        var options = options || {};
         var collapsed = (open === undefined) ? !this.is_closed(element) : !open;
 
         element.toggleClass('toggle-collapsed', collapsed);
@@ -106,7 +104,7 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
                 if (element.is('.widget-ready')) {
                     this._on_toggle.apply(this, [collapsed, options]);
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
             }
         }
@@ -144,7 +142,7 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
     },
 
     _toggle_attributes: function(target, collapsed) {
-        for(var index = 0; index < target[0].attributes.length; ++index) {
+        for (var index = 0; index < target[0].attributes.length; ++index) {
             var attr = target[0].attributes[index];
 
             if (/^toggle\-(close|open)\-[\w\d]+$/.test(attr.name)) {

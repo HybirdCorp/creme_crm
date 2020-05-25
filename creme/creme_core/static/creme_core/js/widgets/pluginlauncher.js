@@ -30,7 +30,7 @@ creme.widget.PluginLauncher = creme.widget.declare('ui-creme-jqueryplugin', {
         var plugin_options = this._pluginOptions = creme.utils.JSON.clean(options.plugin_options, {});
         var plugin = this._plugin = plugin_name !== '' ? element[plugin_name] : undefined;
 
-        //console.log('plugin-name:', plugin_name, 'options:', options, 'plugin-options:', plugin_options, 'is_valid:', (typeof plugin === 'function'));
+        // console.log('plugin-name:', plugin_name, 'options:', options, 'plugin-options:', plugin_options, 'is_valid:', (typeof plugin === 'function'));
 
         if (Object.isFunc(plugin)) {
             plugin.apply(element, [plugin_options]);

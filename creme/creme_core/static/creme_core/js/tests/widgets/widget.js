@@ -1,4 +1,3 @@
-/* global notEqual */
 (function($) {
 
 var MockWidget = function() {

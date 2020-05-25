@@ -797,12 +797,14 @@ QUnit.test('creme.bricks.Brick.action (add relationships, q_filter)', function(a
         rtype_id: rtype_id,
         ctype_id: '5',
         selector_url: sel_url,
-        q_filter: q_filter,
+        q_filter: q_filter
     }).on(this.brickActionListeners).start();
 
     deepEqual([
         ['GET',
-         {subject_id: '74', rtype_id: rtype_id, objects_ct_id: '5',
+         {subject_id: '74',
+          rtype_id: rtype_id,
+          objects_ct_id: '5',
           selection: 'single',
           q_filter: q_filter
          }

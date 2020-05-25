@@ -1,4 +1,4 @@
-/* globals QUnitListViewMixin QUnitWidgetMixin QUnitDetailViewMixin */
+/* globals QUnitWidgetMixin QUnitDetailViewMixin */
 
 (function($) {
 

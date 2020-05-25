@@ -1,5 +1,3 @@
-/* globals setTimeout */
-
 (function($) {
 
 var MOCK_AJAX_FORM_CONTENT = '<form action="mock/add"><input id="name" type="text"/></form>';

@@ -96,7 +96,7 @@ creme.relations.AddRelationToAction = creme.component.Action.sub({
                                                url: options.selector_url || '',
                                                selectionMode: options.multiple ? 'multiple' : 'single',
                                                data: lv_data,
-                                               title: options.list_title,
+                                               title: options.list_title
                                            });
 
         selector.onValidate(function(event, selection) {

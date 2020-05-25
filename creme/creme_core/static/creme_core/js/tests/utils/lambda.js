@@ -1,5 +1,3 @@
-/* globals notEqual */
-
 (function($) {
 
 QUnit.module("creme.utils.lambda.js", new QUnitMixin());

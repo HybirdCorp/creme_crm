@@ -20,8 +20,6 @@
  * Requires : creme, jQuery, creme.bricks
  */
 
-/* globals setTimeout, clearTimeout */
-
 (function($) {
 "use strict";
 

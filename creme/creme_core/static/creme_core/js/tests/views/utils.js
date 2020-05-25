@@ -1,5 +1,3 @@
-/* globals setTimeout */
-
 (function($) {
 
 /**

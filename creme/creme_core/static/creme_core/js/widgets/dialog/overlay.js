@@ -85,7 +85,7 @@ creme.dialog.Overlay = creme.component.Component.sub({
         return this;
     },
 
-    visible: function(visible) { 
+    visible: function(visible) {
         if (visible === undefined) {
             return this._overlay.hasClass('overlay-active');
         }

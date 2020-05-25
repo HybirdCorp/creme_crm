@@ -1,6 +1,5 @@
-/* globals setTimeout, QUnitListViewMixin */
-
 (function($) {
+
 var MOCK_SINGLE_RESPONSE = {
         results: [{
             id: 'ctype.contact',

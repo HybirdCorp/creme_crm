@@ -1,4 +1,4 @@
-/* globals QUnitWidgetMixin, QUnitListViewMixin */
+/* globals QUnitWidgetMixin */
 (function($) {
 
 QUnit.module("creme.widget.entityselector.js", new QUnitMixin(QUnitAjaxMixin,
@@ -160,7 +160,7 @@ QUnit.test('creme.widget.EntitySelector.create (not empty, empty label data, aut
     var element = this.createEntitySelectorTag({labelURL: 'mock/label/empty'});
     creme.widget.input(element).val('1');
 
-    var widget = creme.widget.create(element);
+    creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -171,7 +171,7 @@ QUnit.test('creme.widget.EntitySelector.create (not empty, missing label data, a
     var element = this.createEntitySelectorTag({labelURL: 'mock/label/missing'});
     creme.widget.input(element).val('1');
 
-    var widget = creme.widget.create(element);
+    creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 

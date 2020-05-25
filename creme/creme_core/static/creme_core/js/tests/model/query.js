@@ -1,4 +1,3 @@
-/* global setTimeout */
 (function($) {
 
 QUnit.module("creme.model.query.js", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, {

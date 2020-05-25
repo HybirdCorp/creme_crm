@@ -1,5 +1,3 @@
-/* globals setTimeout */
-
 (function($) {
 QUnit.module("creme.ajax.query.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMixin, {
     buildMockBackend: function() {

@@ -405,7 +405,6 @@ creme.geolocation.GoogleMapController = creme.geolocation.GeoMapController.sub({
         }
     ],
 
-    /* global google setTimeout */
     _init_: function (options) {
         options = $.extend({
             defaultZoomValue: 12,
@@ -427,7 +426,6 @@ creme.geolocation.GoogleMapController = creme.geolocation.GeoMapController.sub({
         this.disableMap();
     },
 
-    /* global google */
     _bindMap: function() {
         var self = this;
 
