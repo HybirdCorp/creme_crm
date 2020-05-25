@@ -53,9 +53,23 @@ jobs:
 
       - store_artifacts:
           path: htmlcov
-  lint:
+  tests_js:
     docker:
      - image: circleci/python:3.7-node-browsers
+    steps:
+      - checkout
+      - run:
+          name: Install eslint dependencies
+          command: |
+            npm install
+      - run:
+          name: Run javascript tests
+          command: |
+            python manage.py generatemedia
+            node_modules/.bin/karma start .karma.conf.js --browsers=FirefoxHeadless
+  lint:
+    docker:
+     - image: circleci/python:3.7-node
     steps:
       - checkout
       - run:
@@ -72,6 +86,9 @@ workflows:
   build:
     jobs:
       - lint
+      - tests_js:
+          requires:
+           - lint
       - tests:
           requires:
            - lint

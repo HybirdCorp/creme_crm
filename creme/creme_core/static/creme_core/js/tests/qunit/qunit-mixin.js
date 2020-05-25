@@ -156,12 +156,18 @@
 
     window.QUnitBaseMixin = {
         beforeEach: function() {
+            this.__qunitDOMCleanupCheckError = 'ignore';
             this.__qunitBodyElementTags = listChildrenTags($('body'));
             this.qunitFixture().attr('style', 'position: absolute;top: -10000px;left: -10000px;width: 1000px;height: 1000px;');
         },
 
         afterEach: function(env) {
             var tags =  listChildrenTags($('body'));
+            var checkStatus = this.qunitDOMCleanupCheck();
+
+            if (checkStatus === 'ignore') {
+                return;
+            }
 
             if (this.__qunitBodyElementTags.length !== tags.length) {
                 var message = 'QUnit incomplete DOM cleanup (expected ${expected}, got ${count})'.template({
@@ -169,8 +175,21 @@
                     count: tags.length
                 });
 
-                deepEqual(tags.sort(), this.__qunitBodyElementTags.sort(), message);
+                if (this.qunitDOMCleanupCheck() === 'error') {
+                    deepEqual(tags.sort(), this.__qunitBodyElementTags.sort(), message);
+                } else {
+                    console.warn(message);
+                }
             }
+        },
+
+        qunitDOMCleanupCheck: function(status) {
+            if (status === undefined) {
+                return this.__qunitSkipDOMCleanupCheck;
+            }
+
+            this.__qunitSkipDOMCleanupCheck = status;
+            return this;
         },
 
         qunitFixture: function(name) {

@@ -1,0 +1,1 @@
+(function() { window["THEME_NAME"] = "icecream"}());
