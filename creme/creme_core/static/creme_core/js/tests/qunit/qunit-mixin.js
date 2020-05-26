@@ -214,12 +214,23 @@
         },
 
         assertRaises: function(block, expected, message) {
-            QUnit.assert.raises(block,
-                   function(error) {
-                        ok(error instanceof expected, 'error is ' + expected);
+            expected = expected || Error;
+
+            QUnit.assert.raises(
+                block,
+                function(error) {
+                    ok(error instanceof expected, 'error is ' + expected);
+
+                    if (message !== undefined) {
                         equal(message, '' + error);
-                        return true;
-                   });
+                    }
+
+                    block.__raised = error;
+                    return true;
+                }
+            );
+
+            return block.__raised;
         },
 
         equalHtml: function(expected, element, message) {
