@@ -6,8 +6,6 @@ var MOCK_PLOT_CONTENT_JSON_INVALID = '{"options": {, "data":[]}';
 var MOCK_PLOT_CONTENT_JSON_EMPTY_DATA = '{"options": {}, "data":[]}';
 var MOCK_PLOT_CONTENT_JSON_DEFAULT = '{"options": {}, "data":[[[1, 2],[3, 4],[5, 12]]]}';
 
-var IS_CHROMIUM_NOT_HEADLESS = QUnit.browsers.isChrome() && !QUnit.browsers.isHeadless();
-
 
 QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin,
                                                     QUnitEventMixin,
@@ -245,7 +243,7 @@ QUnit.test('creme.widget.Plot.draw (valid)', function(assert) {
     }, this.mockListenerCalls());
 });
 
-QUnit.skipIf(IS_CHROMIUM_NOT_HEADLESS, 'creme.widget.Plot.draw (valid, raster)', function(assert) {
+QUnit.test('creme.widget.Plot.draw (valid, raster)', function(assert) {
     var self = this;
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element, {plotmode: 'raster'});
@@ -260,12 +258,11 @@ QUnit.skipIf(IS_CHROMIUM_NOT_HEADLESS, 'creme.widget.Plot.draw (valid, raster)',
     });
 
     element.on('plotError', function(e) {
-        start();
         fail('plot has failed', e);
+        start();
     });
 
     widget.draw(MOCK_PLOT_CONTENT_JSON_DEFAULT);
-
     stop(1);
 });
 
@@ -374,7 +371,7 @@ QUnit.test('creme.widget.Plot.redraw (valid, options)', function(assert) {
     }, this.mockListenerCalls());
 });
 
-QUnit.skipIf(IS_CHROMIUM_NOT_HEADLESS, 'creme.widget.Plot.capture (svg)', function(assert) {
+QUnit.test('creme.widget.Plot.capture (svg)', function(assert) {
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
     var widget = creme.widget.create(element, {});
 
@@ -384,7 +381,7 @@ QUnit.skipIf(IS_CHROMIUM_NOT_HEADLESS, 'creme.widget.Plot.capture (svg)', functi
     equal(1, widget.capture().length);
 });
 
-QUnit.skipIf(IS_CHROMIUM_NOT_HEADLESS, 'creme.widget.Plot.capture (raster)', function(assert) {
+QUnit.test('creme.widget.Plot.capture (raster)', function(assert) {
     var self = this;
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
 
@@ -406,7 +403,7 @@ QUnit.skipIf(IS_CHROMIUM_NOT_HEADLESS, 'creme.widget.Plot.capture (raster)', fun
     });
 });
 
-QUnit.skipIf(IS_CHROMIUM_NOT_HEADLESS, 'creme.widget.Plot.capture (raster image in popup)', function(assert) {
+QUnit.test('creme.widget.Plot.capture (raster image in popup)', function(assert) {
     var self = this;
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
     creme.widget.create(element, {savable: true});
