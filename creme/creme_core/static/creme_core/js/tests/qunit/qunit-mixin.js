@@ -52,12 +52,12 @@
     window.QUnit.parametrize = window.QUnit.parameterize;
 
     QUnitMixin.prototype = {
-        beforeEach: function() {
+        beforeEach: function(env) {
             var self = this;
 
             this.__mixins.forEach(function(mixin) {
                 if (Object.isFunc(mixin.beforeEach)) {
-                    mixin.beforeEach.call(self);
+                    mixin.beforeEach.call(self, env);
                 }
             });
         },
@@ -155,7 +155,8 @@
     };
 
     window.QUnitBaseMixin = {
-        beforeEach: function() {
+        beforeEach: function(env) {
+            // console.log(env.test.testName);
             this.__qunitDOMCleanupCheckError = 'ignore';
             this.__qunitBodyElementTags = listChildrenTags($('body'));
             this.qunitFixture().attr('style', 'position: absolute;top: -10000px;left: -10000px;width: 1000px;height: 1000px;');

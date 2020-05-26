@@ -145,6 +145,11 @@ module.exports = function(config) {
                 type: 'text-summary'
             }]
         },
-        singleRun: true
+        singleRun: true,
+        client: {
+            qunit: {
+                testTimeout: 6000
+            }
+        }
     });
 };

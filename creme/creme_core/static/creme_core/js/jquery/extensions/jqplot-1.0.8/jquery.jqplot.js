@@ -9152,11 +9152,12 @@
 
             for (var i=0; i<wl; i++) {
                 w += words[i];
-                if (context.measureText(w).width > tagwidth) {
+                /* BACKPORT FIX : https://bitbucket.org/ef4/jqplot/commits/a59e7e7a5e97ea721a7b8571612b334e8c025b36 */
+                if (context.measureText(w).width > tagwidth && w.length > words[i].length) {
                     breaks.push(i);
                     w = '';
                     i--;
-                }   
+                }
             }
             if (breaks.length === 0) {
                 // center text if necessary
