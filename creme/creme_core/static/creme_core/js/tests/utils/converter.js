@@ -335,15 +335,17 @@ QUnit.parameterize('creme.utils.converters (string-json)', [
 });
 
 QUnit.parametrize('creme.utils.converters (string-json, fail)', [
-    [{from: 'string', to: 'json'}, '12-', 'JSON parse error: SyntaxError: Unexpected number in JSON at position 2'],
-    [{from: 'string', to: 'json'}, '{"a"', 'JSON parse error: SyntaxError: Unexpected end of JSON input'],
-    [{from: 'text', to: 'json'}, '[1 "a"]', 'JSON parse error: SyntaxError: Unexpected string in JSON at position 3']
+    [{from: 'string', to: 'json'}, '12-'],
+    [{from: 'string', to: 'json'}, '{"a"'],
+    [{from: 'text', to: 'json'}, '[1 "a"]']
 ], function(options, value, expected, assert) {
     var converters = creme.utils.converters();
 
-    this.assertRaises(function() {
+    var error = this.assertRaises(function() {
         converters.convert(value, options);
-    }, Error, 'Error: ${expected}'.template({expected: expected}));
+    }, Error);
+
+    ok(error.message.indexOf('SyntaxError') !== -1);
 });
 
 QUnit.parameterize('creme.utils.converters (json-string)', [
