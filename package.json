@@ -9,7 +9,7 @@
         "has-flag": "4.0.0",
         "istanbul": "0.4.5",
         "jquery": "1.11.2",
-        "js-yaml": "3.12.0",
+        "js-yaml": "3.13.1",
         "jsdom": "11.0.0",
         "karma": "2.0.5",
         "karma-chrome-launcher": "2.2.0",
