@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # Django settings for creme project.
 
+import warnings
+from os.path import abspath, dirname, exists, join
 from sys import argv
 
 from django.utils.translation import gettext_lazy as _
@@ -24,7 +26,6 @@ NO_SQL_COMMANDS = ('help', 'version', '--help', '--version', '-h',
 #     ('Your Name', 'your_email@domain.com'),
 # ]
 
-from os.path import dirname, join, abspath, exists
 BASE_DIR = dirname(dirname(__file__))
 CREME_ROOT = dirname(abspath(__file__))  # BASE_DIR + '/creme'
 
@@ -433,8 +434,6 @@ LOGGING = {
         },
     },
 }
-
-import warnings
 
 # Warnings behavior choices (see Python doc):
 # "error" "ignore" "always" "default" "module" "once"

@@ -40,10 +40,56 @@
         }
     };
 
+    function __scenarioLabel(scenario, index) {
+        if (typeof scenario === 'number') {
+            return String(scenario);
+        } else if (Object.isString(scenario)) {
+            return scenario;
+        } else {
+            return String(index + 1);
+        }
+    };
+
+    function __iterScenarios(scenarios, callable) {
+        if (Array.isArray(scenarios)) {
+            scenarios.forEach(function(scenario, index) {
+                callable(scenario, __scenarioLabel(scenario, index));
+            });
+        } else {
+            Object.entries(scenarios).forEach(function(entry) {
+                callable(entry[1], entry[0]);
+            });
+        }
+    };
+
     window.QUnit.parameterize = function(name, scenarios, callable) {
-        (scenarios || []).forEach(function(scenario, index) {
-            QUnit.test('${name}-${index}'.template({name: name, index: index + 1}), function(assert) {
-                callable.apply(this, (Array.isArray(scenario) ? scenario : [scenario]).concat([assert]));
+        if (arguments.length < 3) {
+            throw new Error('QUnit.parametrize requires at least 3 arguments');
+        }
+
+        if (arguments.length > 3) {
+            var args = Array.copy(arguments);
+            callable = args[arguments.length - 1];
+            scenarios = args[1];
+            var subScenarios = args.slice(2, arguments.length - 1);
+
+            return __iterScenarios(scenarios, function(scenario, label) {
+                QUnit.parameterize.apply(null, [
+                        '${name}-${label}'.template({name: name, label: label})
+                    ].concat(
+                        subScenarios
+                    ).concat([
+                        function() {
+                            callable.apply(this, (Array.isArray(scenario) ? scenario : [scenario]).concat(Array.copy(arguments)));
+                        }
+                    ])
+                );
+            });
+        }
+
+        __iterScenarios(scenarios || {}, function(scenario, label) {
+            QUnit.test('${name}-${label}'.template({name: name, label: label}), function() {
+                callable.apply(this, (Array.isArray(scenario) ? scenario : [scenario]).concat(Array.copy(arguments)));
             });
         });
     };
