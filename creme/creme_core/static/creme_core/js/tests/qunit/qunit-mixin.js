@@ -91,69 +91,6 @@
         }).get();
     };
 
-    var FunctionFaker = function(options) {
-        options = options || {};
-
-        var origin = (options.instance || {})[options.property];
-        var follow = options.follow || false;
-
-        if (!Object.isFunc(origin)) {
-            throw new Error('"${prop}" is not a function'.template({
-                prop: options.property || ''
-            }));
-        }
-
-        this._calls = [];
-        this._origin = origin;
-        this._instance = options.instance;
-        this._property = options.property;
-        this._follow = follow;
-    };
-
-    FunctionFaker.prototype = {
-        reset: function() {
-            this._calls = [];
-            return this;
-        },
-
-        calls: function() {
-            return this._call.slice();
-        },
-
-        count: function() {
-            return this._calls.length;
-        },
-
-        _wrapper: function() {
-            var faker = this;
-
-            return function() {
-                var args = Array.copy(arguments);
-                faker._calls.push(args);
-
-                if (faker.follow) {
-                    return faker._origin.call(faker._instance, Array.copy(arguments));
-                } else {
-                    return faker.result;
-                }
-            };
-        },
-
-        wrap: function() {
-            this._wrapper = this._instance[this._property] = this._wrapper().bind(this._instance);
-            return this;
-        },
-
-        unwrap: function() {
-            if (this._wrapper) {
-                this.instance[this.property] = this.origin;
-                delete this._wrapper;
-            }
-
-            return this;
-        }
-    };
-
     window.QUnitBaseMixin = {
         beforeEach: function(env) {
             // console.log(env.test.testName);
@@ -223,7 +160,7 @@
                     ok(error instanceof expected, 'error is ' + expected);
 
                     if (message !== undefined) {
-                        equal(message, '' + error);
+                        equal(message, '' + error, 'expected message');
                     }
 
                     block.__raised = error;
@@ -242,12 +179,23 @@
             QUnit.assert.equal($('<div>').append(expected).html(), $('<div>').append($(element).clone()).html(), message);
         },
 
-        fakeMethod: function(instance, property, follow) {
+        fakeMethod: function(instance, method, follow) {
+            var faker = new FunctionFaker({
+                instance: instance,
+                method: method,
+                follow: follow
+            });
+
+            faker.wrap();
+            return faker;
+        },
+
+        withFakeMethod: function(instance, property, follow, block) {
             return new FunctionFaker({
                 instance: instance,
-                property: property,
+                method: method,
                 follow: follow
-            }).wrap();
+            }).with(block.bind(this));
         }
     };
 
