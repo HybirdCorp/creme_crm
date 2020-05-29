@@ -38,6 +38,9 @@ htmlcov/*
 \.rej$
 \.conflict\~$
 
+# nodejs
+node_modules/
+.coverage-karma/
 
 #syntax: regexp
 #^creme/billing/templates/billing/templates/hyinvoice\.tex$
