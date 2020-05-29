@@ -1,58 +1,6 @@
 version: 2
 
 jobs:
-  tests:
-    docker:
-      - image: circleci/python:3.7-browsers
-      - image: circleci/mysql:5.7
-        environment:
-          MYSQL_ROOT_PASSWORD: creme
-          MYSQL_DATABASE: cremecrm
-    steps:
-      - checkout
-
-      - run:
-          name: Wait for db
-          command: dockerize -wait tcp://localhost:3306 -timeout 1m
-
-      - run:
-          name: Install system dependencies
-          command: |
-            sudo apt update
-            sudo apt install -y python-dev graphviz libgraphviz-dev pkg-config mariadb-client
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}
-            - creme_crm
-
-      - run:
-          name: Install Python dependencies
-          command: |
-            python3 -m venv ~/venv
-            . ~/venv/bin/activate
-            pip install -r creme/requirements-dev.txt
-            pip install -r creme/requirements-mysql.txt
-            echo "source ~/venv/bin/activate" >> $BASH_ENV
-
-      - save_cache:
-          key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}
-          paths: "~/venv"
-
-      - run: pip list --outdated
-
-      - run: cp ~/project/.circleci/local_settings.py creme/
-      - run: python manage.py migrate
-      - run: python manage.py creme_populate
-      - run: python manage.py generatemedia
-      - run: COVERAGE_PROCESS_START=.coveragerc coverage run --source creme/ manage.py test --noinput --parallel=8
-      - run: coverage combine
-      - run: coverage report
-      - run: coverage html
-
-      - store_artifacts:
-          path: htmlcov
 
   lint-isort:
     docker:
@@ -64,7 +12,6 @@ jobs:
       - restore_cache:
           keys:
             - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
-            - creme_crm
 
       - run:
           name: Install Python dependencies
@@ -80,6 +27,7 @@ jobs:
 
       - run: git diff --name-only origin/master creme/ | { grep '.py$' || true; } | xargs --no-run-if-empty isort --check --diff --atomic --verbose
 
+
   lint-flake8:
     docker:
       - image: circleci/python:3.7
@@ -90,7 +38,6 @@ jobs:
       - restore_cache:
           keys:
             - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
-            - creme_crm
 
       - run:
           name: Install Python dependencies
@@ -105,6 +52,126 @@ jobs:
           paths: "~/venv"
 
       - run: flake8 creme/
+
+
+  tests-mysql:
+    docker:
+      - image: circleci/python:3.7-browsers
+      - image: circleci/mysql:5.7-ram
+        environment:
+          MYSQL_ROOT_PASSWORD: creme
+          MYSQL_DATABASE: cremecrm
+    steps:
+      - checkout
+
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:3306 -timeout 1m
+
+      - run:
+          name: Install system dependencies
+          command: |
+            sudo apt update
+            sudo apt install -y python-dev graphviz libgraphviz-dev pkg-config lcab
+            sudo apt install -y mariadb-client
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}
+            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
+
+      - run:
+          name: Install Python dependencies
+          command: |
+            python3 -m venv ~/venv
+            . ~/venv/bin/activate
+            pip install -r creme/requirements-dev.txt
+            pip install -r creme/requirements-mysql.txt
+            echo "source ~/venv/bin/activate" >> $BASH_ENV
+
+      - save_cache:
+          key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}
+          paths: "~/venv"
+
+      - run: pip list --outdated
+      - run: cp ~/project/.circleci/mysql_settings.py creme/local_settings.py
+      - run: python manage.py migrate
+      - run: python manage.py creme_populate
+      - run: python manage.py generatemedia
+      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ manage.py test --noinput --parallel=6
+      - run: coverage combine
+      - run: coverage html
+      - store_artifacts:
+          path: artifacts/coverage_html
+
+
+  tests-pgsql:
+    docker:
+      - image: circleci/python:3.7-browsers
+      - image: circleci/postgres:12-ram
+        environment:
+          POSTGRES_USER: creme
+          POSTGRES_PASSWORD: creme
+          POSTGRES_DB: cremecrm
+    steps:
+      - checkout
+
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - run:
+          name: Install system dependencies
+          command: |
+            sudo apt update
+            sudo apt install -y python-dev graphviz libgraphviz-dev pkg-config lcab
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-pgsql.txt" }}
+            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
+
+      - run:
+          name: Install Python dependencies
+          command: |
+            python3 -m venv ~/venv
+            . ~/venv/bin/activate
+            pip install -r creme/requirements-dev.txt
+            pip install -r creme/requirements-pgsql.txt
+            echo "source ~/venv/bin/activate" >> $BASH_ENV
+
+      - save_cache:
+          key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-pgsql.txt" }}
+          paths: "~/venv"
+
+      - run: pip list --outdated
+      - run: cp ~/project/.circleci/pgsql_settings.py creme/local_settings.py
+      - run: python manage.py migrate
+      - run: python manage.py creme_populate
+      - run: python manage.py generatemedia
+      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ manage.py test --noinput --parallel=8
+      - run: coverage combine
+      - run: coverage html
+      - store_artifacts:
+          path: artifacts/coverage_html
+
+
+  lint-js:
+    docker:
+     - image: circleci/python:3.7-node-browsers
+    steps:
+      - checkout
+      - run:
+          name: Install eslint dependencies
+          command: |
+            npm install
+      - run:
+          name: Run linter
+          command: |
+            node_modules/.bin/eslint --config .eslintrc --ignore-path .eslintignore --format stylish --quiet creme/
+
 
   tests-js:
     docker:
@@ -121,7 +188,6 @@ jobs:
       - restore_cache:
           keys:
             - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
-            - creme_crm
 
       - run:
           name: Install Python dependencies
@@ -153,19 +219,6 @@ jobs:
           command: |
             make karma-ci
 
-  lint-js:
-    docker:
-     - image: circleci/python:3.7-node-browsers
-    steps:
-      - checkout
-      - run:
-          name: Install eslint dependencies
-          command: |
-            npm install
-      - run:
-          name: Run linter
-          command: |
-            node_modules/.bin/eslint --config .eslintrc --ignore-path .eslintignore --format stylish --quiet creme/
 
 workflows:
   version: 2
@@ -177,7 +230,11 @@ workflows:
       - tests-js:
           requires:
            - lint-js
-      - tests:
+      - tests-mysql:
+          requires:
+            - lint-isort
+            - lint-flake8
+      - tests-pgsql:
           requires:
             - lint-isort
             - lint-flake8
