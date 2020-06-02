@@ -168,3 +168,16 @@ UNINSTALL APPS:
 
 When you have a working installation, & want to remove an (optional) app, use the command 'creme_uninstall' which will
 clean the DB. When it's done, you can comment the app in local_settings.py
+
+
+CONTRIBUTING:
+
+The repository is using CircleCI and launch some linting tests. To check them locally before any commit or push you can
+use the hooks in '.githooks'. There is two way to configure them:
+
+Simply change git configuration (works with git 2.9+)
+    >> git config core.hooksPath .githooks
+
+Or create symlink in '.git/hooks/'. Make sure the old one are moved or removed.
+    >> ln -s ../../.githooks/pre-commit .git/hooks/pre-commit
+    >> ln -s ../../.githooks/pre-push .git/hooks/pre-push

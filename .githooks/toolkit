@@ -1,0 +1,34 @@
+#!/bin/bash
+
+RED='\033[1;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+hook_assert() {
+    if [ $1 != 0 ]; then
+        echo -e "[${RED}FAIL${NC}] $2"
+        exit 1
+    else
+        echo -e "[${GREEN} OK ${NC}] $2"
+    fi
+}
+
+hook_run_checks() {
+    echo "run checks : $*"
+
+    for check in $*; do
+        if [ "${GIT_COMMIT_CHECK_IGNORE/$check/}" != "${GIT_COMMIT_CHECK_IGNORE}" ]; then
+            echo "[SKIP] $check";
+        else
+            hook_check_$check;
+            hook_assert $? "$check"
+        fi
+    done
+
+    # Force failure for debug purpose only
+    case "$GIT_HOOK_CHECK_DRY" in
+        yes|1|Y|y)
+            hook_assert 1 "Dry run mode"
+    esac
+}
+
