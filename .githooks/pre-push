@@ -1,0 +1,28 @@
+#!/bin/bash
+
+. .githooks/toolkit
+
+PRE_PUSH_CHECKS=${PRE_PUSH_CHECKS-"isort eslint signature"}
+GIT_PARENT_BRANCH="${GIT_PARENT_BRANCH:-master}"
+
+hook_check_isort() {
+    git diff $GIT_PARENT_BRANCH --name-only --diff-filter=MARC | { grep '.py$' || true; } | xargs --no-run-if-empty isort --check --diff --atomic
+}
+
+hook_check_eslint() {
+    if [ -x node_modules/.bin/eslint ]; then
+        local _files=$(git diff $GIT_PARENT_BRANCH --name-only --diff-filter=MARC | grep '.js$')
+        node_modules/.bin/eslint --config .eslintrc --ignore-path .eslintignore --format stylish --quiet $_files
+    fi
+}
+
+hook_check_signature() {
+    local _matches=$(git log $GIT_PARENT_BRANCH..HEAD --format="%G?:%H %s%"|grep -v '^G:')
+
+    if [ "$_matches" ]; then
+        return 1;
+    fi
+}
+
+hook_run_checks $PRE_PUSH_CHECKS
+

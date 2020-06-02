@@ -1,0 +1,48 @@
+#!/bin/bash
+
+. .githooks/toolkit
+
+PRE_COMMIT_CHECKS=${PRE_COMMIT_CHECKS-"isort eslint headers"}
+
+hook_check_isort() {
+    git diff HEAD~1 --name-only --diff-filter=MARC | { grep '.py$' || true; } | xargs --no-run-if-empty isort --check --diff --atomic
+}
+
+hook_check_eslint() {
+    if [ -x node_modules/.bin/eslint ]; then
+        local _files=$(git diff HEAD~1 --name-only --diff-filter=MARC | grep '.js$')
+        node_modules/.bin/eslint --config .eslintrc --ignore-path .eslintignore --format stylish --quiet $_files
+    fi
+}
+
+hook_check_print() {
+    local _files=$(git diff HEAD~1 --name-only --diff-filter=MARC | grep '.py$' | grep -vE '^.+/(commands|tests)/.+$')
+    local _result=0
+
+    for f in $_files; do
+        _matches=$(git diff HEAD~1 "$f" | grep '^\+[[:blank:]]*print(.*$')
+
+        if [ -n "$_matches" ]; then
+			echo "$f:$_matches"
+			_result=1
+		fi
+    done
+
+    return $_result
+}
+
+hook_check_headers() {
+    local _files=$(git diff HEAD~1 --name-only --diff-filter=MAR | grep '.py$')
+    local _matches=$(egrep -e '#.+Copyright.+Hybird' $_files|grep -v "$(date +%Y)")
+    local _result=0
+
+    if [ -n "$_matches" ]; then
+        echo "$_matches"
+        _result=1
+    fi
+
+    return $_result
+}
+
+hook_run_checks $PRE_COMMIT_CHECKS
+
