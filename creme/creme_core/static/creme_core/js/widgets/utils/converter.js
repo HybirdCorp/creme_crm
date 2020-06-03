@@ -152,7 +152,7 @@ var __toIso8601Date = function(value) {
 
 var __fromIso8601 = function(value) {
     var res = Assert.notThrown(function() {
-        return value instanceof moment ? value : moment(value);
+        return value instanceof moment ? value : moment(value, moment.HTML5_FMT.DATETIME_LOCAL_SECONDS, true);
     }, '"${value}" is not an iso8601 datetime', {value: value});
 
     Assert.that(res.isValid(), '"${value}" is not an iso8601 datetime', {value: value});
@@ -175,10 +175,11 @@ __registry.register(['string', 'text'], {
     number: __toFloat,
     json: __fromJSON,
     date: __fromIso8601Date,
-    datetime: __fromIso8601
+    datetime: __fromIso8601,
+    'datetime-local': __fromIso8601
 });
 
-__registry.register(['number', 'int', 'integer', 'float'], {
+__registry.register(['number', 'int', 'integer', 'float', 'decimal'], {
     string: __toString,
     text: __toString,
     json: __toJSON
@@ -192,7 +193,7 @@ __registry.register('date', {
     }
 });
 
-__registry.register('datetime', {
+__registry.register(['datetime', 'datetime-local'], {
     string: __toIso8601,
     text: __toIso8601,
     json: function(value) {
