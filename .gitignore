@@ -29,6 +29,7 @@ nbproject/*
 
 # coverage.py
 .coverage
+.coverage.*
 htmlcov/*
 
 # mypy
@@ -44,6 +45,7 @@ htmlcov/*
 # nodejs
 node_modules/
 .coverage-karma/
+.eslint.*
 
 #syntax: regexp
 #^creme/billing/templates/billing/templates/hyinvoice\.tex$
