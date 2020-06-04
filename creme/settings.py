@@ -708,6 +708,9 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/model/controller.js',
     'creme_core/js/widgets/model/choice.js',
 
+    'creme_core/js/widgets/form/field.js',
+    'creme_core/js/widgets/form/form.js',
+
     'creme_core/js/widgets/dialog/dialog.js',
     'creme_core/js/widgets/dialog/overlay.js',
     'creme_core/js/widgets/dialog/frame.js',
@@ -808,6 +811,7 @@ TEST_CREME_LIB_JS = [
     'creme_core/js/tests/qunit/qunit-mixin.js',
     'creme_core/js/tests/component/qunit-event-mixin.js',
     'creme_core/js/tests/ajax/qunit-ajax-mixin.js',
+    'creme_core/js/tests/form/qunit-form-mixin.js',
     'creme_core/js/tests/dialog/qunit-dialog-mixin.js',
     'creme_core/js/tests/widgets/qunit-widget-mixin.js',
     'creme_core/js/tests/widgets/qunit-plot-mixin.js',
@@ -878,7 +882,9 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/widgets/entitycells.js',
     'creme_core/js/tests/widgets/editor.js',
 
-    'creme_core/js/tests/form/forms.js',
+    'creme_core/js/tests/form/form-legacy.js',
+    'creme_core/js/tests/form/form.js',
+    'creme_core/js/tests/form/field.js',
 
     'creme_core/js/tests/list/list-pager.js',
     'creme_core/js/tests/list/listview-actions.js',

@@ -1,29 +1,15 @@
+/* global QUnitFormMixin */
 (function($) {
 
-QUnit.module("creme.forms.js", new QUnitMixin(QUnitEventMixin, {
+QUnit.module("creme.forms.js", new QUnitMixin(QUnitEventMixin,
+                                              QUnitFormMixin, {
     beforeEach: function() {
-        var self = this;
-
-        this.resetMockFormSubmitCalls();
         this.form = $('<form action="mock/submit">' +
                           '<input type="text" name="firstname"></input>' +
                           '<input type="text" name="lastname" required></input>' +
                           '<input type="email" name="email"></input>' +
                           '<input type="submit" class="ui-creme-dialog-action"></input>' +
                       '</form>').appendTo(this.qunitFixture());
-
-        this.form.on('submit', function(e) {
-            e.preventDefault();
-            self._mockFormSubmitCalls.push($(e.target).attr('action'));
-        });
-    },
-
-    resetMockFormSubmitCalls: function() {
-        this._mockFormSubmitCalls = [];
-    },
-
-    mockFormSubmitCalls: function() {
-        return this._mockFormSubmitCalls;
     }
 }));
 
