@@ -2247,7 +2247,7 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_unknown_ctype(self):
         self.assertFieldValidationError(FilteredEntityTypeField, 'ctypenotallowed',
                                         FilteredEntityTypeField().clean,
-                                        self.build_value(1024, '')
+                                        self.build_value(self.UNUSED_PK, '')
                                        )
 
     def test_clean_forbidden_ctype01(self):

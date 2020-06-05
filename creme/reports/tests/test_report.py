@@ -2331,9 +2331,9 @@ class ReportTestCase(BaseReportsTestCase):
         report.fields.all().delete()
 
         create_field = partial(Field.objects.create, report=report)
-        create_field(name='first_name', type=RFT_FIELD,  order=1)
-        create_field(name=cf.id,        type=RFT_CUSTOM, order=2)
-        create_field(name=1024,         type=RFT_CUSTOM, order=3)  # Simulates deleted CustomField
+        create_field(name='first_name',   type=RFT_FIELD,  order=1)
+        create_field(name=cf.id,          type=RFT_CUSTOM, order=2)
+        create_field(name=self.UNUSED_PK, type=RFT_CUSTOM, order=3)  # Simulates deleted CustomField
 
         report = self.refresh(report)
         self.assertEqual(2, len(report.columns))

@@ -550,7 +550,7 @@ class ContactTestCase(_BaseTestCase):
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Acme')
 
-        self.assertGET404(self._build_addrelated_url(1024,  # Doesn't exist
+        self.assertGET404(self._build_addrelated_url(self.UNUSED_PK,
                                                      REL_OBJ_EMPLOYED_BY,
                                                     )
                          )

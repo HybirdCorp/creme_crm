@@ -555,4 +555,4 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
 
     def test_get_neighbours_missing_address(self):
         self.login()
-        self.assertGET404(self.GET_NEIGHBOURS_URL, data={'address_id': 1024})
+        self.assertGET404(self.GET_NEIGHBOURS_URL, data={'address_id': self.UNUSED_PK})

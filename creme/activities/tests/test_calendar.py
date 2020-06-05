@@ -507,7 +507,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_delete_calendar01(self):
         "Not custom -> error."
         user = self.login()
-        self.assertGET404(reverse('activities__delete_calendar', args=(1024,)))
+        self.assertGET404(reverse('activities__delete_calendar', args=(self.UNUSED_PK,)))
 
         Calendar.objects.get_default_calendar(user)
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=False)

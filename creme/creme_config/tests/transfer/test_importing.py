@@ -1301,8 +1301,9 @@ class ImportingTestCase(CremeTestCase):
         "Invalid type."
         self.login(is_staff=True)
 
+        unknown_cfield_type = 1024
         cfields_data = [
-            {'uuid': str(uuid4()), 'ctype': 'creme_core.fakecontact', 'name': 'Rating', 'type': 1024},
+            {'uuid': str(uuid4()), 'ctype': 'creme_core.fakecontact', 'name': 'Rating', 'type': unknown_cfield_type},
         ]
 
         json_file = StringIO(json_dump({'version': '1.0', 'custom_fields': cfields_data}))
@@ -1311,7 +1312,7 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('This custom-field type is invalid: {}.').format(1024)
+            _('This custom-field type is invalid: {}.').format(unknown_cfield_type)
         )
 
     def test_customfields03(self):
@@ -2263,14 +2264,14 @@ class ImportingTestCase(CremeTestCase):
         "Invalid condition type."
         self.login(is_staff=True)
 
-        cond_type = 1024
+        unknown_cond_type = 1024
         efilter_id = 'creme_config-test_import_entityfilters_error01'
         efilters_data = [{
                 'id':         efilter_id,
                 'name':       'Spikes',
                 'ctype':      'creme_core.fakecontact',
                 'conditions': [{
-                        'type':  cond_type,  # <=
+                        'type':  unknown_cond_type,  # <=
                         'name':  'dontcare',
                         'value': {"operator": 1, "values": ["Spike"]},
                     },
@@ -2285,7 +2286,7 @@ class ImportingTestCase(CremeTestCase):
         self.assertFormError(
             response, 'form', 'config',
             _('The condition with type="{type}" is invalid in the filter id="{id}".').format(
-                type=cond_type, id=efilter_id,
+                type=unknown_cond_type, id=efilter_id,
             )
         )
 

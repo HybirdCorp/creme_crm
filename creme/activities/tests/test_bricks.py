@@ -470,8 +470,8 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         self.assertPOST404(url, data={'id': activity.id})
         self.assertPOST404(url, data={'object_id': contact.id})
         self.assertPOST404(url)
-        self.assertPOST404(url, data={'id': 1024,        'object_id': contact.id})
-        self.assertPOST404(url, data={'id': activity.id, 'object_id': 1024})
+        self.assertPOST404(url, data={'id': self.UNUSED_PK, 'object_id': contact.id})
+        self.assertPOST404(url, data={'id': activity.id,    'object_id': self.UNUSED_PK})
 
     @skipIfCustomContact
     def test_unlink02(self):

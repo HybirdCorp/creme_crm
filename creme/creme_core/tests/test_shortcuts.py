@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 try:
     from django.http import Http404
 
@@ -20,9 +21,9 @@ class ShortcutsTestCase(CremeTestCase):
         self.assertDictEqual({s1.id: s1, s2.id: s2}, bulk)
 
         with self.assertRaises(Http404) as cm:
-            get_bulk_or_404(FakeSector, [s1.id, 1024])
+            get_bulk_or_404(FakeSector, [s1.id, self.UNUSED_PK])
 
-        self.assertEqual('These IDs cannot be found: 1024',
+        self.assertEqual(f'These IDs cannot be found: {self.UNUSED_PK}',
                          cm.exception.args[0]
                         )
 
@@ -72,9 +73,9 @@ class ShortcutsTestCase(CremeTestCase):
         self.assertDictEqual({s1.id: s1, s2.id: s2}, bulk)
 
         with self.assertRaises(Http404) as cm:
-            get_bulk_or_404(FakeSector, [str(s1.id), '1024'])
+            get_bulk_or_404(FakeSector, [str(s1.id), f'{self.UNUSED_PK}'])
 
-        self.assertEqual('These IDs cannot be found: 1024',
+        self.assertEqual(f'These IDs cannot be found: {self.UNUSED_PK}',
                          cm.exception.args[0]
                         )
 

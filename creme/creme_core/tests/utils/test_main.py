@@ -104,7 +104,7 @@ class MiscTestCase(CremeTestCase):
 
     def test_create_if_needed(self):
         title = 'Mister'
-        pk = 1024
+        pk = 999999  # We need a DB-valid primary key
         self.assertFalse(FakeCivility.objects.filter(pk=pk).exists())
 
         civ = create_if_needed(FakeCivility, {'pk': pk}, title=title)

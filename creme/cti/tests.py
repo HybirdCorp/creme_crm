@@ -114,7 +114,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         "No contact."
         self.login()
 
-        self.assertPOST404(self.ADD_PCALL_URL, data={'entity_id': '1024'})
+        self.assertPOST404(self.ADD_PCALL_URL, data={'entity_id': str(self.UNUSED_PK)})
         self.assertFalse(Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL).exists())
 
     @skipIfCustomOrganisation
