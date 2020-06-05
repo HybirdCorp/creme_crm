@@ -508,7 +508,7 @@ AirsyncDTD_Forward = {
 
         },
     }, 'namespaces' : {
-    	0 : 'AirSync:',
+        0 : 'AirSync:',
         1 : 'Contacts:',
         2 : 'Email:',
         3 : 'AirNotify:',#Seems deprecated
