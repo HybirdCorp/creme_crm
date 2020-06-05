@@ -22,10 +22,14 @@ from collections import defaultdict
 
 from django.forms import Field, ValidationError
 from django.forms.widgets import Select
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms.fields import ChoiceModelIterator
-from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, BaseExtractorWidget
+from creme.creme_core.forms.mass_import import (
+    BaseExtractorWidget,
+    ImportForm4CremeEntity,
+)
 
 from ..models import Category, SubCategory
 
@@ -257,7 +261,7 @@ class CategoriesExtractorField(Field):
 
         create = value['create']
         if create and not self._can_create:
-             raise ValidationError('You cannot create Category or SubCategory')
+            raise ValidationError('You cannot create Category or SubCategory')
 
         return CategoriesExtractor(cat_index=cat_index,
                                    subcat_index=subcat_index,

@@ -23,13 +23,13 @@
 # SOFTWARE.
 ################################################################################
 
-from datetime import date, datetime
 import io
 import logging
 import os
-from os.path import join, splitext, exists
-from random import randint
 import sys
+from datetime import date, datetime
+from os.path import exists, join, splitext
+from random import randint
 from typing import Iterable, List, Optional, Type
 
 from ..utils.secure_filename import secure_filename
@@ -161,7 +161,7 @@ class FileCreator:
                 try:
                     f = io.open(final_path, 'x')
                 except FileExistsError as e:
-                     if trials >= max_trials:
+                    if trials >= max_trials:
                         raise self.Error('No unique filename has been found with the '
                                          'current rules (max trials reached).'
                                         ) from e

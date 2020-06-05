@@ -566,7 +566,7 @@ class MenuTestCase(CremeTestCase):
         group = CreationFormsItem('any_forms', label='Other types').get_or_create_group('persons', 'Directory')
 
         with self.assertRaises(TypeError):
-           group.add_link('add_contact', label=label, url=url)  # No model + missing perm
+            group.add_link('add_contact', label=label, url=url)  # No model + missing perm
 
     def test_creation_forms_item03(self):
         "Link priority."

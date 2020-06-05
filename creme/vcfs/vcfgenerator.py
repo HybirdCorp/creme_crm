@@ -19,11 +19,11 @@
 ################################################################################
 
 from creme.creme_core.models import FieldsConfig
-
 from creme.persons import get_address_model
 
 from .vcf_lib import vCard
-from .vcf_lib.vcard import Address as VcfAddress, Name as VcfName
+from .vcf_lib.vcard import Address as VcfAddress
+from .vcf_lib.vcard import Name as VcfName
 
 Address = get_address_model()
 
@@ -34,7 +34,7 @@ class VcfGenerator:
         is_hidden = FieldsConfig.objects.get_for_model(contact.__class__).is_fieldname_hidden
 
         def get_field_value(fname, default=None):
-             return default if is_hidden(fname) else getattr(contact, fname, default)
+            return default if is_hidden(fname) else getattr(contact, fname, default)
 
         self.first_name = get_field_value('first_name', None) or ''
         self.last_name  = get_field_value('last_name', '')

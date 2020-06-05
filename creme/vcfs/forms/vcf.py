@@ -19,8 +19,8 @@
 ################################################################################
 
 import base64
-from itertools import chain
 import logging
+from itertools import chain
 from os import path
 from urllib.request import urlopen, urlretrieve
 
@@ -30,25 +30,30 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db.transaction import atomic
 from django.forms import (
-    IntegerField,FileField, ModelChoiceField, CharField,
-    EmailField, URLField, BooleanField, HiddenInput,
+    BooleanField,
+    CharField,
+    EmailField,
+    FileField,
+    HiddenInput,
+    IntegerField,
+    ModelChoiceField,
+    URLField,
 )
-from django.utils.translation import gettext_lazy as _, gettext
-
-from creme.creme_core.forms import (
-    CremeForm, CremeModelForm,
-    CreatorEntityField,
-)
-from creme.creme_core.forms.widgets import DynamicSelect
-from creme.creme_core.models import RelationType, Relation, FieldsConfig
-from creme.creme_core.utils.secure_filename import secure_filename
-from creme.creme_core.views.file_handling import handle_uploaded_file
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme import documents, persons
-
+from creme.creme_core.forms import (
+    CreatorEntityField,
+    CremeForm,
+    CremeModelForm,
+)
+from creme.creme_core.forms.widgets import DynamicSelect
+from creme.creme_core.models import FieldsConfig, Relation, RelationType
+from creme.creme_core.utils.secure_filename import secure_filename
+from creme.creme_core.views.file_handling import handle_uploaded_file
 from creme.documents.constants import UUID_FOLDER_IMAGES
 from creme.documents.utils import get_image_format
-
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 from creme.persons.models import Civility, Position
 
@@ -516,7 +521,7 @@ class VcfImportForm(CremeModelForm):
 
                 for fname in self.orga_fields:
                     if get_data('update_work_' + fname):
-                         setattr(organisation, fname, get_data('work_' + fname))
+                        setattr(organisation, fname, get_data('work_' + fname))
 
                 if get_data('update_work_address'):
                     billing_address = organisation.billing_address

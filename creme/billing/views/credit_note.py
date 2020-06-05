@@ -25,10 +25,8 @@ from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import _check_required_model_fields
 
 from ... import billing
-
 from .. import constants
 from ..forms import credit_note as cnote_forms
-
 from . import base
 
 CreditNote = billing.get_credit_note_model()
@@ -83,9 +81,9 @@ class CreditNoteRemoving(generic.CremeModelDeletion):
     permissions = 'billing'
 
     def check_instance_permissions(self, instance, user):
-         has_perm = user.has_perm_to_unlink_or_die
-         has_perm(instance.subject_entity)
-         has_perm(instance.object_entity)
+        has_perm = user.has_perm_to_unlink_or_die
+        has_perm(instance.subject_entity)
+        has_perm(instance.object_entity)
 
     def get_query_kwargs(self):
         return {

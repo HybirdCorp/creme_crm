@@ -20,10 +20,12 @@
 
 from django.utils.translation import gettext as _
 
-from creme.creme_core.forms.merge import MergeEntitiesBaseForm, mergefield_factory
-from creme.creme_core.models import FieldsConfig
-
 from creme import persons
+from creme.creme_core.forms.merge import (
+    MergeEntitiesBaseForm,
+    mergefield_factory,
+)
+from creme.creme_core.models import FieldsConfig
 
 Contact = persons.get_contact_model()
 Address = persons.get_address_model()
@@ -116,7 +118,7 @@ def get_merge_form_builder(model, base_form_class=_PersonMergeForm):
     try:
         address_field_names.remove('name')
     except ValueError:
-       pass
+        pass
 
     attrs = {'_address_field_names': address_field_names}
 

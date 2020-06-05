@@ -300,7 +300,7 @@ class DBTestCase(CremeTestCase):
             populate_related([rel], ['subject_entity', 'object_entity'])
 
         with self.assertNumQueries(0):
-             e1 = rel.subject_entity
+            e1 = rel.subject_entity
 
         self.assertEqual(marge, e1.get_real_entity())
 
@@ -399,15 +399,15 @@ class DBTestCase(CremeTestCase):
 
         # Users
         with self.assertNumQueries(0):
-             u1 = docs[0].user
+            u1 = docs[0].user
         self.assertEqual(user, u1)
 
         with self.assertNumQueries(0):
-             u2 = docs[2].user
+            u2 = docs[2].user
         self.assertEqual(user2, u2)
 
         with self.assertNumQueries(0):
-             role = u2.role
+            role = u2.role
         self.assertEqual(self.role, role)
 
     def test_populate_related09(self):

@@ -19,13 +19,14 @@
 ################################################################################
 
 from django.http import Http404
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import Relation, CremeEntity
+from creme.creme_core.models import CremeEntity, Relation
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
-from .. import get_activity_model, constants
+from .. import constants, get_activity_model
 from ..forms import bricks as bricks_forms
 
 Activity = get_activity_model()
@@ -48,9 +49,9 @@ class ParticipantRemoving(generic.CremeModelDeletion):
     permissions = 'activities'
 
     def check_instance_permissions(self, instance, user):
-         has_perm = user.has_perm_to_unlink_or_die
-         has_perm(instance.subject_entity)
-         has_perm(instance.object_entity)
+        has_perm = user.has_perm_to_unlink_or_die
+        has_perm(instance.subject_entity)
+        has_perm(instance.object_entity)
 
     def get_query_kwargs(self):
         kwargs = super().get_query_kwargs()

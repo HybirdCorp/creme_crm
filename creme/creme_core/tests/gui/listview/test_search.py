@@ -872,7 +872,7 @@ class ListViewSearchTestCase(CremeTestCase):
 
         class Registry:
             def get_field(this, *, cell, user):
-                 return MyField(cell=cell, user=user)
+                return MyField(cell=cell, user=user)
 
         registry.register(cell_id=EntityCellRelation.type_id, registry_class=Registry)
         field = registry.get_field(cell=cell, user=self.user)
