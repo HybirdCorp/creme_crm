@@ -600,7 +600,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertFormError(response, 'form', 'categories', msg)
 
         response = self.assertPOST200(
-            url, follow=True, data={**data, 'categories_subcat_defval': 1024},
+            url, follow=True, data={**data, 'categories_subcat_defval': self.UNUSED_PK},
         )
         self.assertFormError(response, 'form', 'categories', msg)
 

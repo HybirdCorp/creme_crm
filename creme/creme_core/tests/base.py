@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import sys
+import warnings
 from datetime import datetime, timedelta
 from json import dumps as json_dump
 from os.path import basename
 from tempfile import NamedTemporaryFile
-from typing import Union, List
+from typing import List, Union
 from unittest import skipIf
 from unittest.util import safe_repr
-import warnings
 
 from django.apps import apps
 from django.conf import settings
@@ -17,22 +18,20 @@ from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
 from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
-from django.utils.timezone import (
-    utc,
-    get_current_timezone,
-    make_aware,
-)
+from django.utils.timezone import get_current_timezone, make_aware, utc
 
 from ..global_info import clear_global_info
 from ..management.commands.creme_populate import Command as PopulateCommand
 from ..models import (
-    CremeUser, UserRole,
-    RelationType, Relation,
     CremePropertyType,
+    CremeUser,
     DeletionCommand,
+    Relation,
+    RelationType,
+    UserRole
 )
 from ..utils import print_traceback
-from ..utils.xml_utils import xml_diff, XMLDiffError
+from ..utils.xml_utils import XMLDiffError, xml_diff
 
 
 def skipIfCustomUser(test_func):
@@ -69,6 +68,8 @@ class _AssertNoExceptionContext:
 
 
 class _CremeTestCase:
+    UNUSED_PK = sys.maxsize
+
     @classmethod
     def setUpClass(cls):
         warnings.filterwarnings(

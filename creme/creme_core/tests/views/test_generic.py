@@ -78,7 +78,7 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Object does not exist"
         self.login()
 
-        response = self.assertGET404(reverse('creme_core__view_fake_contact', args=(1024,)))
+        response = self.assertGET404(reverse('creme_core__view_fake_contact', args=(self.UNUSED_PK,)))
         self.assertTemplateUsed(response, '404.html')
 
     def test_detail03(self):
@@ -115,7 +115,7 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         # NB: not need to create an instance, the "app" permission must be checked before the SQL query.
         self.login(is_superuser=False, allowed_apps=('creme_config',))  # Not "creme_core"
 
-        response = self.assertGET403(reverse('creme_core__view_fake_contact', args=(1024,)))
+        response = self.assertGET403(reverse('creme_core__view_fake_contact', args=(self.UNUSED_PK,)))
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
         self.assertIn(escape(_('You are not allowed to access to the app: {}').format(_('Core'))),
                       response.content.decode()
@@ -409,7 +409,7 @@ class EditionTestCase(ViewsTestCase):
     def test_entity_edition02(self):
         "Invalid ID"
         self.login()
-        self.assertGET404(reverse('creme_core__edit_fake_contact', args=(1024,)))
+        self.assertGET404(reverse('creme_core__edit_fake_contact', args=(self.UNUSED_PK,)))
 
     def test_entity_edition03(self):
         "ValidationError + cancel_url"
@@ -438,7 +438,7 @@ class EditionTestCase(ViewsTestCase):
         "Not app credentials"
         self.login(is_superuser=False, allowed_apps=['creme_config'])
 
-        response = self.assertGET403(reverse('creme_core__edit_fake_contact', args=(1024,)))
+        response = self.assertGET403(reverse('creme_core__edit_fake_contact', args=(self.UNUSED_PK,)))
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
         self.assertIn(
             escape(_('You are not allowed to access to the app: {}').format(_('Core'))),
@@ -467,7 +467,7 @@ class EditionTestCase(ViewsTestCase):
 
     def test_entity_edition06(self):
         "Not logged."
-        url = reverse('creme_core__edit_fake_contact', args=(1024,))
+        url = reverse('creme_core__edit_fake_contact', args=(self.UNUSED_PK,))
         response = self.assertGET(302, url)
         self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
 

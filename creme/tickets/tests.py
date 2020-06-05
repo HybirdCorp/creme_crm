@@ -110,7 +110,7 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
 
     def test_detailview02(self):
         self.login()
-        self.assertGET404(reverse('tickets__view_ticket', args=(1024,)))
+        self.assertGET404(reverse('tickets__view_ticket', args=(self.UNUSED_PK,)))
 
     def test_createview01(self):
         user = self.login()

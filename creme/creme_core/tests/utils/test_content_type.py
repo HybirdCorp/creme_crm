@@ -61,7 +61,7 @@ class ContentTypeTestCase(CremeTestCase):
 
         # Errors ----
         with self.assertRaises(Http404):
-            __ = get_ctype_or_404(1024)
+            __ = get_ctype_or_404(self.UNUSED_PK)
 
         with self.assertRaises(Http404):
             __ = get_ctype_or_404('invalid')

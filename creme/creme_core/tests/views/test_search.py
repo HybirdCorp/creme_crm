@@ -162,7 +162,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(_('Please enter at least {count} characters').format(count=3),
                          self._search('ox').context['error_message']
                         )
-        self.assertEqual(404, self._search('linus', 1024).status_code)  # ct_id=1024 DOES NOT EXIST
+        self.assertEqual(404, self._search('linus', self.UNUSED_PK).status_code)
 
     def test_search05(self):
         "No config for Contact"

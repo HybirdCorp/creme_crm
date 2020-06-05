@@ -1043,7 +1043,7 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         field_builder = partial(EnhancedModelMultipleChoiceField, queryset=FakeSector.objects.all())
         field = field_builder()
 
-        invalid_pk = 1024
+        invalid_pk = self.UNUSED_PK
         self.assertFalse(FakeSector.objects.filter(pk=invalid_pk))
 
         self.assertFieldValidationError(field_builder, 'invalid_choice',

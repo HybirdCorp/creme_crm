@@ -496,7 +496,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(sector__isnull=True), to_python(value=lv_form.NULL))
 
         # Invalid id
-        self.assertEqual(Q(), to_python(value=1024))
+        self.assertEqual(Q(), to_python(value=self.UNUSED_PK))
 
     def test_regular_relatedfield02(self):
         "Not nullable FK."

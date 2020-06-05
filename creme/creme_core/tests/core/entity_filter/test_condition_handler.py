@@ -839,7 +839,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             model=FakeContact,
             field_name='position',
             operator_id=operators.EQUALS,
-            values=[position1.id, position2.id, 1024],
+            values=[position1.id, position2.id, self.UNUSED_PK],
         )
 
         with self.assertNumQueries(1):
@@ -914,7 +914,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             model=FakeImage,
             field_name='categories',
             operator_id=operators.EQUALS,
-            values=[cat1.id, cat2.id, 1024],
+            values=[cat1.id, cat2.id, self.UNUSED_PK],
         )
 
         with self.assertNumQueries(1):
@@ -1992,7 +1992,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             model=FakeContact,
             custom_field=custom_field,
             operator_id=operators.EQUALS,
-            values=[enum_A.id, enum_B.id, 1024],
+            values=[enum_A.id, enum_B.id, self.UNUSED_PK],
         )
 
         with self.assertNumQueries(1):
@@ -2047,7 +2047,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             model=FakeContact,
             custom_field=custom_field,
             operator_id=operators.EQUALS,
-            values=[enum_1.id, enum_2.id, 1024],
+            values=[enum_1.id, enum_2.id, self.UNUSED_PK],
         )
 
         fmt = _('«{enum_value}»').format
@@ -2400,7 +2400,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         handler = DateCustomFieldConditionHandler(
             model=FakeOrganisation,
             related_name='customfielddatetime',
-            custom_field=1024,
+            custom_field=self.UNUSED_PK,
             date_range='previous_year',
         )
         self.assertEqual('???', handler.description(user=user))
@@ -2997,7 +2997,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         handler2 = RelationConditionHandler(
             model=FakeContact,
             rtype=rtype,
-            entity=1024,
+            entity=self.UNUSED_PK,
         )
         self.assertEqual(
             _('The entities have relationships «{predicate}» to «{entity}»').format(
@@ -3011,7 +3011,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         handler3 = RelationConditionHandler(
             model=FakeOrganisation,
             rtype=rtype,
-            ctype=1024,
+            ctype=self.UNUSED_PK,
             exclude=True,
         )
         self.assertEqual(

@@ -184,7 +184,7 @@ class ReportHandTestCase(CremeTestCase):
         self.assertIs(hand.hidden, True)
 
     def test_custom_field_error(self):
-        cf_id = '1024'
+        cf_id = str(self.UNUSED_PK)
         rfield = Field(
             report=Report(ct=FakeContact),
             type=RFT_CUSTOM, name=cf_id,

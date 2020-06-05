@@ -1094,7 +1094,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                       'entities':      [self.object01.id],
                                      },
                           )
-        self.assertPOST404(url, data={'subject_id':   1024,
+        self.assertPOST404(url, data={'subject_id':   self.UNUSED_PK,
                                       'predicate_id': self.rtype.id,
                                       'entities':     [self.object01.id],
                                      },
@@ -1145,7 +1145,7 @@ class RelationViewsTestCase(ViewsTestCase):
             data={
                 'subject_id':   allowed01.id,
                 'predicate_id': rtype.id,
-                'entities':     [forbidden.id, allowed02.id, 1024],
+                'entities':     [forbidden.id, allowed02.id, self.UNUSED_PK],
             },
         )
         relations = Relation.objects.filter(type=rtype)
@@ -1379,8 +1379,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self.assertEqual(8, Relation.objects.count())
 
-        self.assertDeleteSimilar(status=404, subject=1024,             rtype=rtype01, object=object_entity01)
-        self.assertDeleteSimilar(status=404, subject=subject_entity01, rtype=rtype01, object=1024)
+        self.assertDeleteSimilar(status=404, subject=self.UNUSED_PK,   rtype=rtype01, object=object_entity01)
+        self.assertDeleteSimilar(status=404, subject=subject_entity01, rtype=rtype01, object=self.UNUSED_PK)
 
         self.assertDeleteSimilar(status=200, subject=subject_entity01, rtype=rtype01, object=object_entity01)
         self.assertDoesNotExist(relation01)

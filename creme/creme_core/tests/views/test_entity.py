@@ -80,7 +80,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                     )
         self.assertEqual([[nerv.id, str(nerv)]], response.json())
 
-        self.assertGET(400, reverse('creme_core__entity_as_json', args=(1024,)))
+        self.assertGET(400, reverse('creme_core__entity_as_json', args=(self.UNUSED_PK,)))
         self.assertGET403(url, data={'fields': ['id', 'unknown']})
 
     def test_json_entity_get02(self):
@@ -136,7 +136,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertTrue(user.has_perm_to_view(rei))
         self.assertFalse(user.has_perm_to_view(mari))
 
-        unknown_id = 1024
+        unknown_id = self.UNUSED_PK
         self.assertFalse(CremeEntity.objects.filter(id=unknown_id))
 
         response = self.assertGET200(
@@ -2139,7 +2139,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         image = self.create_image('image', user, categories)
         self.assertSetEqual({*image.categories.all()}, {*categories})
 
-        invalid_pk = 1024
+        invalid_pk = self.UNUSED_PK
         self.assertFalse(FakeImageCategory.objects.filter(id=invalid_pk))
 
         url = self.build_inneredit_url(image, 'categories')

@@ -912,7 +912,7 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         url = reverse('emails__resend_emails')
         self.assertPOST409(url, data={'ids': 'notanint'})
-        self.assertPOST404(url, data={'ids': '1024'})
+        self.assertPOST404(url, data={'ids': str(self.UNUSED_PK)})
 
     def test_job01(self):
         self.login()
