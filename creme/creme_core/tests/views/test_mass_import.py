@@ -1503,7 +1503,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         }
 
         if header:
-           data['has_header'] = 'on'
+            data['has_header'] = 'on'
 
         response = self.client.post(self._build_import_url(FakeContact),
                                     follow=True, data=data,

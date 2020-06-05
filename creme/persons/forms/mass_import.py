@@ -20,7 +20,10 @@
 
 from django.utils.translation import gettext as _
 
-from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, extractorfield_factory
+from creme.creme_core.forms.mass_import import (
+    ImportForm4CremeEntity,
+    extractorfield_factory,
+)
 from creme.creme_core.models import FieldsConfig
 
 from .. import get_address_model
@@ -87,7 +90,7 @@ def get_massimport_form_builder(header_dict, choices, model, base_form=_PersonMa
     try:
         address_field_names.remove('name')
     except ValueError:
-       pass
+        pass
 
     attrs = {'_address_field_names': address_field_names}
 

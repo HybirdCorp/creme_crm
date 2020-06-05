@@ -344,7 +344,7 @@ class EntityFiltersTestCase(CremeTestCase):
         base_pk = 'creme_core-testfilter'
 
         with self.assertRaises(EntityFilter.DoesNotExist):
-             EntityFilter.get_latest_version(base_pk)
+            EntityFilter.get_latest_version(base_pk)
 
         create_ef = partial(EntityFilter.objects.create,
                             entity_type=ContentType.objects.get_for_model(FakeContact),
@@ -390,7 +390,7 @@ class EntityFiltersTestCase(CremeTestCase):
         get_latest_version = EntityFilter.objects.get_latest_version
 
         with self.assertRaises(EntityFilter.DoesNotExist):
-             get_latest_version(base_pk)
+            get_latest_version(base_pk)
 
         create_ef = partial(EntityFilter.objects.create,
                             entity_type=ContentType.objects.get_for_model(FakeContact),
@@ -2008,10 +2008,10 @@ class EntityFiltersTestCase(CremeTestCase):
         create_prop = CremeProperty.objects.create
 
         for fn in pretty_ones:
-             create_prop(type=ptype1, creme_entity=self.contacts[fn])
+            create_prop(type=ptype1, creme_entity=self.contacts[fn])
 
         for fn in beautiful_ones:
-             create_prop(type=ptype2, creme_entity=self.contacts[fn])
+            create_prop(type=ptype2, creme_entity=self.contacts[fn])
 
         build_cond = partial(PropertyConditionHandler.build_condition, model=FakeContact)
         efilter = EntityFilter.objects.smart_update_or_create(

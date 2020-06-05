@@ -18,54 +18,42 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from copy import deepcopy  # copy
 from datetime import datetime, time, timedelta
 from functools import partial, wraps
-import logging
 from typing import Optional
 
 from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
-from django.http import (
-    Http404,
-    HttpResponse,
-    HttpResponseRedirect,
-)
-from django.shortcuts import render, get_object_or_404
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_text
-from django.utils.timezone import now, localtime
+from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
+from creme import persons
+from creme.activities import constants as act_constants
+from creme.activities import get_activity_model
+from creme.activities.models import Calendar
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import (
-    CremeEntity,
-    Relation,
-    EntityCredentials,
-)
+from creme.creme_core.models import CremeEntity, EntityCredentials, Relation
 from creme.creme_core.utils import (
-    get_from_GET_or_404, get_from_POST_or_404,
+    get_from_GET_or_404,
+    get_from_POST_or_404,
     split_filter,
 )
-from creme.creme_core.utils.dates import (
-    make_aware_dt,
-    dt_from_ISO8601,
-)
+from creme.creme_core.utils.dates import dt_from_ISO8601, make_aware_dt
 from creme.creme_core.views.decorators import jsonify  # POST_only
 from creme.creme_core.views.utils import build_cancel_path
-
-from creme import persons
 from creme.persons import constants as persons_constants
 from creme.persons.views.contact import ContactCreation
 from creme.persons.views.organisation import OrganisationCreation
-
-from creme.activities import get_activity_model
-from creme.activities import constants as act_constants
-from creme.activities.models import Calendar
 
 from . import forms as mobile_forms
 from .models import MobileFavorite
@@ -456,12 +444,12 @@ def phonecall_panel(request):
         context['called_contact'] = person
 
         if not pcall:
-          context['participant_contacts'] = [person]
+            context['participant_contacts'] = [person]
     elif isinstance(person, Organisation):
         context['called_orga'] = person
 
         if not pcall:
-          context['participant_organisations'] = [person]
+            context['participant_organisations'] = [person]
     else:
         raise Http404('"person_id" must be the ID of a Contact/Organisation')
 

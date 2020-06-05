@@ -56,7 +56,7 @@ def _deconstruct_limit_choices_to(limit_choices_to):
         children = deconstructed.children
 
         while children and children[0] == ('mime_type__name__startswith', 'image/'):
-           del children[0]
+            del children[0]
 
     return deconstructed or None
 
