@@ -79,7 +79,7 @@ jobs:
           paths: "~/venv"
 
       - run: pip install isort
-      - run: git diff --name-only origin/master creme/ | { grep '.py$' || true; } | xargs --no-run-if-empty isort --check --diff --atomic
+      - run: git diff --name-only origin/master creme/ | { grep '.py$' || true; } | xargs --no-run-if-empty isort --check --diff --atomic --verbose
 
   tests-js:
     docker:
