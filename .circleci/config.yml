@@ -78,8 +78,33 @@ jobs:
           key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
           paths: "~/venv"
 
-      - run: pip install isort
       - run: git diff --name-only origin/master creme/ | { grep '.py$' || true; } | xargs --no-run-if-empty isort --check --diff --atomic --verbose
+
+  lint-flake8:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
+            - creme_crm
+
+      - run:
+          name: Install Python dependencies
+          command: |
+            python3 -m venv ~/venv
+            . ~/venv/bin/activate
+            pip install -r creme/requirements-dev.txt
+            echo "source ~/venv/bin/activate" >> $BASH_ENV
+
+      - save_cache:
+          key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
+          paths: "~/venv"
+
+      - run: flake8 creme/
 
   tests-js:
     docker:
@@ -148,10 +173,12 @@ workflows:
   build:
     jobs:
       - lint-isort
+      - lint-flake8
       - lint-js
       - tests-js:
           requires:
            - lint-js
       - tests:
           requires:
-           - lint-isort
+            - lint-isort
+            - lint-flake8
