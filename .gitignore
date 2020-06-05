@@ -17,6 +17,9 @@ _generated_media_names.py
 # creme/activesync/SyncEngine/*
 # creme/activesync/backup/*
 
+# Python package
+*.egg-info
+
 # NetBeans
 nbproject/*
 .idea/*
