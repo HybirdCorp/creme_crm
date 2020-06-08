@@ -10,7 +10,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
     from django.utils.encoding import smart_str
-    from django.utils.formats import date_format
+    from django.utils.formats import date_format, number_format
     from django.utils.html import escape
     from django.utils.timezone import now
     from django.utils.translation import gettext as _, ngettext, pgettext
@@ -3035,8 +3035,8 @@ class ReportTestCase(BaseReportsTestCase):
 
         self.assertListEqual(
             [
-                [lannisters.name, 1500, 500],
-                [starks.name,     1500, 500],
+                [lannisters.name, '1500', '500'],
+                [starks.name,     '1500', '500'],
             ],
             report.fetch_all_lines()
         )
@@ -3046,8 +3046,8 @@ class ReportTestCase(BaseReportsTestCase):
         self._aux_test_fetch_aggregate()
         self.assertListEqual(
             [
-                [self.lannisters.name, 0, 0],
-                [self.starks.name,     0, 0],
+                [self.lannisters.name, '0', '0'],
+                [self.starks.name,     '0', '0'],
             ],
             self.report_orga.fetch_all_lines()
         )
@@ -3083,13 +3083,46 @@ class ReportTestCase(BaseReportsTestCase):
         invoice3 = create_invoice(lannisters, name='Invoice#3', total_vat=Decimal('50.1'))
         create_invoice(hord, name='Invoice#4', total_vat=Decimal('1000'))  # Should not be used
 
-        total_lannisters = invoice2.total_vat + invoice3.total_vat
-        total_starks     = invoice1.total_vat
+        def fmt_number(n):
+            return number_format(n, use_l10n=True, decimal_pos=2)
+
+        # total_lannisters = invoice2.total_vat + invoice3.total_vat
+        total_lannisters = fmt_number(invoice2.total_vat + invoice3.total_vat)
+        # total_starks     = invoice1.total_vat
+        total_starks     = fmt_number(invoice1.total_vat)
         self.assertListEqual(
             [
                 [lannisters.name, invoice2.name, total_lannisters],
                 [lannisters.name, invoice3.name, total_lannisters],
                 [starks.name,     invoice1.name, total_starks],
+            ],
+            report.fetch_all_lines()
+        )
+
+    def test_fetch_aggregate_04(self):
+        "Decimal Custom field."
+        self.login()
+        self._aux_test_fetch_persons(create_contacts=False, report_4_contact=False)
+        starks = self.starks; lannisters = self.lannisters
+
+        cfield = CustomField.objects.create(
+            content_type=self.ct_orga,
+            name='Gold',
+            field_type=CustomField.FLOAT,
+        )
+
+        create_cfval = partial(cfield.value_class.objects.create, custom_field=cfield)
+        starks_gold     = Decimal('100.5'); create_cfval(entity=starks,     value=starks_gold)
+        lannisters_gold = Decimal('500.3'); create_cfval(entity=lannisters, value=lannisters_gold)
+
+        report = self.report_orga
+        Field.objects.create(report=report, name=f'{cfield.id}__sum', type=RFT_AGG_CUSTOM, order=2)
+
+        agg_value = number_format(starks_gold + lannisters_gold, use_l10n=True, decimal_pos=2)
+        self.assertListEqual(
+            [
+                [lannisters.name, agg_value],
+                [starks.name,     agg_value],
             ],
             report.fetch_all_lines()
         )

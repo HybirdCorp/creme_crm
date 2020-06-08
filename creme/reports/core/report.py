@@ -20,33 +20,36 @@
 
 import logging
 from typing import (
-    Optional, Type, TYPE_CHECKING, Union,
-    Iterable, Iterator,
-    Dict, List, Tuple,
+    TYPE_CHECKING,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
 )
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import (
-    ManyToManyField, ForeignKey,
-    FieldDoesNotExist,
-)
+from django.db.models import FieldDoesNotExist, ForeignKey, ManyToManyField
+from django.utils.formats import number_format
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.field_printers import field_printers_registry
-from creme.creme_core.models import (
-    CremeEntity,
-    RelationType,
-    CustomField,
-)
+from creme.creme_core.models import CremeEntity, CustomField, RelationType
 from creme.creme_core.utils.meta import FieldInfo
 
 from .. import constants
-from ..report_aggregation_registry import field_aggregation_registry, FieldAggregation
+from ..report_aggregation_registry import (
+    FieldAggregation,
+    field_aggregation_registry,
+)
 
 if TYPE_CHECKING:
     from django.db.models import (
@@ -451,7 +454,8 @@ class RHCustomField(ReportHand):
 
     def _get_value_single_on_allowed(self, entity, user, scope):
         cvalue = entity.get_custom_value(self._cfield)
-        return str(cvalue.value) if cvalue else ''
+        # return str(cvalue.value) if cvalue else ''
+        return str(cvalue) if cvalue else ''
 
     @property
     def hidden(self):
@@ -532,6 +536,7 @@ class RHAggregate(ReportHand):
     def __init__(self, report_field):
         self._cache_key   = None
         self._cache_value = None
+        self._decimal_pos = None
         field_name, aggregation_id = report_field.name.split('__', 1)
         aggregation = field_aggregation_registry.get(aggregation_id)
 
@@ -561,9 +566,16 @@ class RHAggregate(ReportHand):
             return self._cache_value
 
         self._cache_key = scope
-        self._cache_value = result = scope.aggregate(
+
+        agg_result = scope.aggregate(
             rh_calculated_agg=self._aggregation_q,
         ).get('rh_calculated_agg') or 0
+        self._cache_value = result = number_format(
+            agg_result,
+            use_l10n=True,
+            # NB: if we do not set this, computed Decimals have trailing '0's
+            decimal_pos=self._decimal_pos,
+        )
 
         return result
 
@@ -580,6 +592,9 @@ class RHAggregateRegularField(RHAggregate):
             raise ReportHand.ValueError(
                 f'This type of field can not be aggregated: "{field_name}"'
             )
+
+        # TODO: ugly (use a side effect instead of returning data)
+        self._decimal_pos = getattr(field, 'decimal_places', None)
 
         return aggregation.func(field_name), field.verbose_name
 
@@ -611,10 +626,14 @@ class RHAggregateCustomField(RHAggregate):
                 f'This type of custom field can not be aggregated: "{field_name}"'
             )
 
+        value_class = cfield.value_class
+
         self._cfield = cfield  # TODO: ugly to set out of __init__ ...
+        # TODO: ugly (use a side effect instead of returning data)
+        self._decimal_pos = getattr(value_class._meta.get_field('value'), 'decimal_places', None)
 
         return (
-            aggregation.func(f'{cfield.value_class.get_related_name()}__value'),
+            aggregation.func(f'{value_class.get_related_name()}__value'),
             cfield.name,
         )
 
