@@ -18,15 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from importlib import import_module
 import sys
+from importlib import import_module
 from traceback import format_exception
 from typing import List, Optional
 
 from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
-from django.db import connections, DEFAULT_DB_ALIAS
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models.signals import pre_save
 
 from creme.creme_core.apps import creme_app_configs
@@ -192,7 +192,7 @@ class Command(BaseCommand):
             if verbosity >= 1:
                 self.stdout.write(self.style.SUCCESS(' OK'))
         elif verbosity >= 1:
-                self.stdout.write('No sequence to update.')
+            self.stdout.write('No sequence to update.')
 
         if verbosity >= 1:
             self.stdout.write(self.style.SUCCESS('Populate is OK.'))
