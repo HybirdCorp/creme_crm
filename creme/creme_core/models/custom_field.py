@@ -18,21 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict, OrderedDict
-from typing import Any, DefaultDict, Dict, Iterable, Type
 import uuid
 import warnings
+from collections import OrderedDict, defaultdict
+from typing import Any, DefaultDict, Dict, Iterable, Type
 
 from django import forms
 from django.core.validators import EMPTY_VALUES
 from django.db import models
-from django.utils.formats import date_format
+from django.utils.formats import date_format, number_format
 from django.utils.timezone import localtime
-from django.utils.translation import gettext, gettext_lazy as _
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from ..global_info import get_per_request_cache
 from ..utils.content_type import as_ctype
-
 from .base import CremeModel
 from .entity import CremeEntity
 from .fields import CTypeForeignKey
@@ -323,6 +323,11 @@ class CustomFieldFloat(CustomFieldValue):
 
     class Meta:
         app_label = 'creme_core'
+
+    # TODO: factorise with gui.field_printers
+    def __str__(self):
+        value = self.value
+        return number_format(value, use_l10n=True) if value else ''
 
     @staticmethod
     def _get_formfield(**kwargs):

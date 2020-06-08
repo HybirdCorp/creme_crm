@@ -917,7 +917,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(gtype,         rgraph.abscissa_type)
         # self.assertEqual(days,          rgraph.days)
         self.assertEqual(days,          rgraph.abscissa_parameter)
-        self.assertEqual(RGA_COUNT,       rgraph.ordinate_type)
+        self.assertEqual(RGA_COUNT,     rgraph.ordinate_type)
         self.assertEqual('',            rgraph.ordinate_cell_key)
 
         self.assertEqual(cf_dt.name, rgraph.hand.verbose_abscissa)

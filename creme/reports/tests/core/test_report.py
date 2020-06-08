@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from decimal import Decimal
+    from functools import partial
+
     from parameterized import parameterized
 
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.formats import date_format, number_format
+    from django.utils.timezone import localtime
     from django.utils.translation import gettext as _
 
     from creme.creme_core.models import (
-        RelationType,
-        CustomField,
+        CremePropertyType, CremeProperty,
+        RelationType, Relation,
+        CustomField, CustomFieldEnumValue,
         FieldsConfig,
-        FakeContact, FakeOrganisation,
+        Language,
+        FakeContact, FakeOrganisation, FakeSector,
         FakeImage,
         FakeEmailCampaign, FakeMailingList,
     )
@@ -55,12 +62,16 @@ except Exception as e:
 
 
 # TODO: complete:
-#   - get_value()
+#   - get_value() + sub-report
 @skipIfCustomReport
 class ReportHandTestCase(CremeTestCase):
     def test_regular_field01(self):
+        user = self.create_user()
+
         fname = 'first_name'
-        rfield = Field(report=Report(ct=FakeContact), type=RFT_FIELD, name=fname)
+        rfield = Field(
+            report=Report(user=user, ct=FakeContact), type=RFT_FIELD, name=fname,
+        )
         hand = RHRegularField(rfield)
         self.assertIsInstance(hand, RHRegularField)
         self.assertEqual(_('Regular field'), hand.verbose_name)
@@ -73,6 +84,12 @@ class ReportHandTestCase(CremeTestCase):
         self.assertEqual(FakeContact, finfo.model)
         self.assertEqual(1, len(finfo))
         self.assertEqual(fname, finfo[0].name)
+
+        aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
+        self.assertEqual(
+            aria.first_name,
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+        )
 
     def test_regular_field02(self):
         "Hidden field."
@@ -115,12 +132,53 @@ class ReportHandTestCase(CremeTestCase):
             str(cm.exception)
         )
 
+    def test_regular_field_bool(self):
+        user = self.create_user()
+
+        rfield = Field(
+            report=Report(user=user, ct=FakeContact), type=RFT_FIELD, name='is_a_nerd',
+        )
+        hand = RHRegularField(rfield)
+
+        aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
+        self.assertEqual(
+            _('No'),
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+        )
+
+    def test_regular_field_datetime(self):
+        user = self.create_user()
+
+        rfield = Field(
+            report=Report(user=user, ct=FakeContact), type=RFT_FIELD, name='modified',
+        )
+        hand = RHRegularField(rfield)
+
+        aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
+        self.assertEqual(
+            date_format(localtime(aria.modified), 'DATETIME_FORMAT'),
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+        )
+
     def test_regular_field_fk01(self):
-        rfield = Field(report=Report(ct=FakeContact), type=RFT_FIELD, name='sector')
+        user = self.create_user()
+
+        rfield = Field(
+            report=Report(user=user, ct=FakeContact), type=RFT_FIELD, name='sector',
+        )
         hand = RHRegularField(rfield)
         self.assertIsInstance(hand, RHForeignKey)
         self.assertIsNone(hand.get_linkable_ctypes())
         self.assertIs(hand.linked2entity, False)
+
+        sector = FakeSector.objects.all()[0]
+        aria = FakeContact.objects.create(
+            user=user, first_name='Aria', last_name='Stark', sector=sector,
+        )
+        self.assertEqual(
+            str(sector),
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+        )
 
     def test_regular_field_fk02(self):
         "Related to entity."
@@ -133,12 +191,25 @@ class ReportHandTestCase(CremeTestCase):
         self.assertIs(hand.linked2entity, True)
 
     def test_regular_field_m2m01(self):
-        rfield = Field(report=Report(ct=FakeContact), type=RFT_FIELD, name='languages')
+        user = self.create_user()
+
+        rfield = Field(
+            report=Report(user=user, ct=FakeContact),
+            type=RFT_FIELD, name='languages',
+        )
         hand = RHRegularField(rfield)
         self.assertIsInstance(hand, RHManyToManyField)
         self.assertIsNone(hand.get_linkable_ctypes())
 
-    def test_regular_field_m2m05(self):
+        languages = [*Language.objects.all()[:2]]
+        aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
+        aria.languages.set(languages)
+        self.assertEqual(
+            f'{languages[0]}, {languages[1]}',
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+        )
+
+    def test_regular_field_m2m02(self):
         "Related to entity."
         rfield = Field(
             report=Report(ct=FakeEmailCampaign),
@@ -151,6 +222,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_custom_field01(self):
+        user = self.create_user()
         cfield = CustomField.objects.create(
             name='Size (cm)',
             field_type=CustomField.INT,
@@ -158,13 +230,22 @@ class ReportHandTestCase(CremeTestCase):
         )
 
         rfield = Field(
-            report=Report(ct=FakeContact),
+            report=Report(user=user, ct=FakeContact),
             type=RFT_CUSTOM, name=str(cfield.id),
         )
         hand = RHCustomField(rfield)
         self.assertEqual(_('Custom field'), hand.verbose_name)
         self.assertEqual(cfield.name,  hand.title)
         self.assertIs(hand.hidden, False)
+
+        aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
+        value = 162
+        cfield.value_class.objects.create(custom_field=cfield, entity=aria, value=value)
+
+        self.assertEqual(
+            str(value),
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+        )
 
     def test_custom_field02(self):
         "Deleted custom-field."
@@ -183,6 +264,99 @@ class ReportHandTestCase(CremeTestCase):
         self.assertEqual(cfield.name,  hand.title)
         self.assertIs(hand.hidden, True)
 
+    def test_custom_field_bool(self):
+        user = self.create_user()
+        cfield = CustomField.objects.create(
+            name='Uses sword',
+            field_type=CustomField.BOOL,
+            content_type=FakeContact,
+        )
+
+        rfield = Field(
+            report=Report(user=user, ct=FakeContact),
+            type=RFT_CUSTOM, name=str(cfield.id),
+        )
+        hand = RHCustomField(rfield)
+
+        aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
+        cfield.value_class.objects.create(custom_field=cfield, entity=aria, value=True)
+        self.assertEqual(
+            _('Yes'),
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+        )
+
+    def test_custom_field_datetime(self):
+        user = self.create_user()
+        cfield = CustomField.objects.create(
+            name='Knighting',
+            field_type=CustomField.DATETIME,
+            content_type=FakeContact,
+        )
+
+        rfield = Field(
+            report=Report(user=user, ct=FakeContact),
+            type=RFT_CUSTOM, name=str(cfield.id),
+        )
+        hand = RHCustomField(rfield)
+
+        aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
+        dt = self.create_datetime(year=2020, month=5, day=18, hour=15, minute=47)
+        cfield.value_class.objects.create(custom_field=cfield, entity=aria, value=dt)
+        self.assertEqual(
+            date_format(localtime(dt), 'DATETIME_FORMAT'),
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+        )
+
+    def test_custom_field_decimal(self):
+        user = self.create_user()
+        cfield = CustomField.objects.create(
+            name="Sword's price",
+            field_type=CustomField.FLOAT,
+            content_type=FakeContact,
+        )
+
+        rfield = Field(
+            report=Report(user=user, ct=FakeContact),
+            type=RFT_CUSTOM, name=str(cfield.id),
+        )
+        hand = RHCustomField(rfield)
+
+        aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
+        value = Decimal('235.50')
+        cfield.value_class.objects.create(custom_field=cfield, entity=aria, value=value)
+        self.assertEqual(
+            number_format(value, use_l10n=True),
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+        )
+
+    def test_custom_field_multienum(self):
+        user = self.create_user()
+        cfield = CustomField.objects.create(
+            name='Weapons',
+            field_type=CustomField.MULTI_ENUM,
+            content_type=FakeContact,
+        )
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
+        evalue1 = create_evalue(value='Sword')
+        __      = create_evalue(value='Axe')
+        evalue3 = create_evalue(value='Bow')
+
+        aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
+        cfield.value_class(
+            entity=aria, custom_field=cfield,
+        ).set_value_n_save([evalue1, evalue3])
+
+        rfield = Field(
+            report=Report(user=user, ct=FakeContact),
+            type=RFT_CUSTOM, name=str(cfield.id),
+        )
+        hand = RHCustomField(rfield)
+        self.assertEqual(
+            f'{evalue1.value} / {evalue3.value}',
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+        )
+
     def test_custom_field_error(self):
         cf_id = str(self.UNUSED_PK)
         rfield = Field(
@@ -198,10 +372,11 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_relation(self):
+        user = self.create_user()
         rtype = RelationType.objects.get(id=FAKE_REL_SUB_EMPLOYED_BY)
 
         rfield = Field(
-            report=Report(ct=FakeContact),
+            report=Report(user=user, ct=FakeContact),
             type=RFT_RELATION, name=rtype.id,
         )
         hand = RHRelation(rfield)
@@ -212,6 +387,25 @@ class ReportHandTestCase(CremeTestCase):
         self.assertListEqual(
             [ContentType.objects.get_for_model(FakeOrganisation)],
             [*hand.get_linkable_ctypes()]
+        )
+
+        aria = FakeContact.objects.create(
+            user=user, first_name='Aria', last_name='Stark',
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        starks    = create_orga(name='Starks')
+        assassins = create_orga(name='Assassins')
+
+        create_relation = partial(
+            Relation.objects.create, user=user, type=rtype, subject_entity=aria,
+        )
+        create_relation(object_entity=starks)
+        create_relation(object_entity=assassins)
+
+        self.assertEqual(
+            f'{starks}, {assassins}',
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
     def test_relation_error(self):
@@ -229,6 +423,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_function_field(self):
+        user = self.create_user()
         rfield = Field(
             report=Report(ct=FakeContact),
             type=RFT_FUNCTION, name='get_pretty_properties',
@@ -238,6 +433,24 @@ class ReportHandTestCase(CremeTestCase):
         self.assertEqual(_('Properties'),     hand.title)
         self.assertFalse(hand.hidden)
         self.assertIsNone(hand.get_linkable_ctypes())
+
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(id='creme_core-sword',   text='Knows sword')
+        ptype2 = create_ptype(id='creme_core-costume', text='Knows costume')
+
+        aria = FakeContact.objects.create(
+            user=user, first_name='Aria', last_name='Stark',
+        )
+
+        create_prop = partial(CremeProperty.objects.create, creme_entity=aria)
+        create_prop(type=ptype1)
+        create_prop(type=ptype2)
+
+        self.assertCountEqual(
+            # f'{ptype1.text}/{ptype2.text}',
+            [ptype1.text, ptype2.text],  # TODO: sort alphabetically ??
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all()).split('/')
+        )
 
     def test_function_field_error(self):
         name = 'unknown'
@@ -255,6 +468,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_regular_aggregate01(self):
+        user = self.create_user()
         rfield = Field(
             report=Report(ct=FakeOrganisation),
             type=RFT_AGG_FIELD, name='capital__avg',
@@ -267,6 +481,15 @@ class ReportHandTestCase(CremeTestCase):
         )
         self.assertFalse(hand.hidden)
         self.assertIsNone(hand.get_linkable_ctypes())
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        starks = create_orga(name='Starks', capital=500)
+        create_orga(name='Lannisters', capital=1000)
+
+        self.assertEqual(
+            number_format(Decimal('750.0'), use_l10n=True),
+            hand.get_value(entity=starks, user=user, scope=FakeOrganisation.objects.all())
+        )
 
     def test_regular_aggregate02(self):
         "Hidden field."
@@ -335,6 +558,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_custom_aggregate01(self):
+        user = self.create_user()
         cfield = CustomField.objects.create(
             name='Size (cm)',
             field_type=CustomField.INT,
@@ -352,6 +576,19 @@ class ReportHandTestCase(CremeTestCase):
             hand.title
         )
         self.assertIs(hand.hidden, False)
+
+        create_contact = partial(FakeContact.objects.create, user=user, last_name='Stark')
+        aria  = create_contact(first_name='Aria')
+        sansa = create_contact(first_name='Sansa')
+
+        create_cf_value = partial(cfield.value_class.objects.create, custom_field=cfield)
+        create_cf_value(entity=aria,  value=Decimal('154.40'))
+        create_cf_value(entity=sansa, value=Decimal('175.60'))
+
+        self.assertEqual(
+            number_format(Decimal('164.5'), use_l10n=True),
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+        )
 
     def test_custom_aggregate02(self):
         "Deleted custom-field."
@@ -430,8 +667,9 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_related(self):
+        user = self.create_user()
         rfield = Field(
-            report=Report(ct=FakeReportsFolder),
+            report=Report(user=user, ct=FakeReportsFolder),
             type=RFT_RELATED, name='fakereportsdocument',
         )
         hand = RHRelated(rfield)
@@ -444,6 +682,17 @@ class ReportHandTestCase(CremeTestCase):
         self.assertListEqual(
             [ContentType.objects.get_for_model(FakeReportsDocument)],
             [*hand.get_linkable_ctypes()]
+        )
+
+        folder = FakeReportsFolder.objects.create(user=user, title='Archives')
+
+        create_doc = partial(FakeReportsDocument.objects.create, user=user, linked_folder=folder)
+        doc1 = create_doc(title='Map of Essos')
+        doc2 = create_doc(title='Map of Westeros')
+
+        self.assertEqual(
+            f'{doc1}, {doc2}',
+            hand.get_value(entity=folder, user=user, scope=FakeContact.objects.all())
         )
 
     @parameterized.expand([
