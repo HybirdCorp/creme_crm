@@ -113,6 +113,9 @@ class EntityCell:
         self.is_excluded = is_excluded
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return False
+
         return (
             self.type_id == other.type_id
             and
