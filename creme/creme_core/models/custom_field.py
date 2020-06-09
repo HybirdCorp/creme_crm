@@ -40,7 +40,8 @@ from .fields import CTypeForeignKey
 __all__ = (
     'CustomField', 'CustomFieldValue',
     'CustomFieldInteger', 'CustomFieldFloat', 'CustomFieldBoolean',
-    'CustomFieldString', 'CustomFieldDateTime',
+    'CustomFieldString', 'CustomFieldText', 'CustomFieldURL',
+    'CustomFieldDateTime', 'CustomFieldDate',
     'CustomFieldEnumValue', 'CustomFieldEnum', 'CustomFieldMultiEnum',
 )
 
@@ -69,7 +70,10 @@ class CustomField(CremeModel):
     FLOAT       = 2
     BOOL        = 3
     STR         = 10
+    TEXT        = 11
+    URL         = 12
     DATETIME    = 20
+    DATE        = 21
     ENUM        = 100
     MULTI_ENUM  = 101
 
@@ -286,7 +290,7 @@ class CustomFieldValue(CremeModel):
 class CustomFieldString(CustomFieldValue):
     value = models.CharField(max_length=100)
 
-    verbose_name = _('String')
+    verbose_name = _('Short string')
 
     class Meta:
         app_label = 'creme_core'
@@ -297,6 +301,35 @@ class CustomFieldString(CustomFieldValue):
     @staticmethod
     def _get_formfield(**kwargs):
         return forms.CharField(**kwargs)
+
+
+class CustomFieldText(CustomFieldValue):
+    value = models.TextField()
+
+    verbose_name = _('Long text')
+
+    class Meta:
+        app_label = 'creme_core'
+
+    @staticmethod
+    def _get_formfield(**kwargs):
+        return forms.CharField(
+            widget=forms.Textarea,
+            **kwargs
+        )
+
+
+class CustomFieldURL(CustomFieldValue):
+    value = models.URLField()
+
+    verbose_name = _('URL (link)')
+
+    class Meta:
+        app_label = 'creme_core'
+
+    @staticmethod
+    def _get_formfield(**kwargs):
+        return forms.URLField(**kwargs)
 
 
 class CustomFieldInteger(CustomFieldValue):
@@ -353,6 +386,23 @@ class CustomFieldDateTime(CustomFieldValue):
     @staticmethod
     def _get_formfield(**kwargs):
         return forms.DateTimeField(**kwargs)
+
+
+class CustomFieldDate(CustomFieldValue):
+    value = models.DateField()
+
+    verbose_name = _('Date')
+
+    class Meta:
+        app_label = 'creme_core'
+
+    @staticmethod
+    def _get_formfield(**kwargs):
+        return forms.DateField(**kwargs)
+
+    def __str__(self):
+        value = self.value
+        return date_format(value, 'DATE_FORMAT') if value else ''
 
 
 class CustomFieldBoolean(CustomFieldValue):
@@ -494,6 +544,9 @@ _TABLES: Dict[int, Type[CustomFieldValue]] = OrderedDict([
     (CustomField.FLOAT,      CustomFieldFloat),
     (CustomField.BOOL,       CustomFieldBoolean),
     (CustomField.STR,        CustomFieldString),
+    (CustomField.TEXT,       CustomFieldText),
+    (CustomField.URL,        CustomFieldURL),
+    (CustomField.DATE,       CustomFieldDate),
     (CustomField.DATETIME,   CustomFieldDateTime),
     (CustomField.ENUM,       CustomFieldEnum),
     (CustomField.MULTI_ENUM, CustomFieldMultiEnum),

@@ -276,6 +276,28 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(dt_str, cell.render_html(entity=yoko, user=user))
         self.assertEqual(dt_str, cell.render_csv(entity=yoko, user=user))
 
+    def test_customfield_date(self):
+        customfield = CustomField.objects.create(
+            name='Day',
+            field_type=CustomField.DATE,
+            content_type=self.contact_ct,
+        )
+
+        cell = EntityCellCustomField(customfield)
+        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,     cell.listview_css_class)
+        self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, cell.header_listview_css_class)
+
+        # Render ---
+        user = self.create_user()
+        yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
+        date_obj = date(year=2058, month=3, day=26)
+        date_str = date_format(date_obj, 'DATE_FORMAT')
+        customfield.value_class.objects.create(
+            entity=yoko, custom_field=customfield, value=date_obj,
+        )
+        self.assertEqual(date_str, cell.render_html(entity=yoko, user=user))
+        self.assertEqual(date_str, cell.render_csv(entity=yoko, user=user))
+
     def test_customfield_bool(self):
         customfield = CustomField.objects.create(
             name='Is fun ?',
@@ -318,6 +340,57 @@ class EntityCellTestCase(CremeTestCase):
         )
         self.assertEqual(
             '&lt;i&gt;Sniper&lt;/i&gt;',
+            cell.render_html(entity=yoko, user=user)
+        )
+        self.assertEqual(value, cell.render_csv(entity=yoko, user=user))
+
+    def test_customfield_text(self):
+        customfield = CustomField.objects.create(
+            name='Plot',
+            field_type=CustomField.TEXT,
+            content_type=self.contact_ct,
+        )
+
+        cell = EntityCellCustomField(customfield)
+
+        # Render ---
+        user = self.create_user()
+        yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
+
+        value = 'Yoko is a young woman from <i>Littner</i>, a village neighboring Giha.\n' \
+                'She helps introduce Simon and Kamina to the surface world.'
+        customfield.value_class.objects.create(
+            entity=yoko, custom_field=customfield, value=value,
+        )
+        self.assertHTMLEqual(
+            '<p>'
+            'Yoko is a young woman from &lt;i&gt;Littner&lt;/i&gt;, a village neighboring Giha.'
+            '<br>'
+            'She helps introduce Simon and Kamina to the surface world.'
+            '</p>',
+            cell.render_html(entity=yoko, user=user)
+        )
+        self.assertEqual(value, cell.render_csv(entity=yoko, user=user))
+
+    def test_customfield_url(self):
+        customfield = CustomField.objects.create(
+            name='Village URL',
+            field_type=CustomField.URL,
+            content_type=self.contact_ct,
+        )
+
+        cell = EntityCellCustomField(customfield)
+
+        # Render ---
+        user = self.create_user()
+        yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
+
+        value = 'www.littner.org'
+        customfield.value_class.objects.create(
+            entity=yoko, custom_field=customfield, value=value,
+        )
+        self.assertHTMLEqual(
+            f'<a href="{value}" target="_blank">{value}</a>',
             cell.render_html(entity=yoko, user=user)
         )
         self.assertEqual(value, cell.render_csv(entity=yoko, user=user))
