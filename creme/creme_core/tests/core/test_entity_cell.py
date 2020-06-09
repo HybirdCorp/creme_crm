@@ -534,6 +534,11 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_eq(self):
         cell1 = EntityCellRegularField.build(model=FakeDocument, name='title')
+
+        # Other is not an EntityCell
+        self.assertNotEqual(None,       cell1)
+        self.assertNotEqual('whatever', cell1)
+
         self.assertEqual(
             EntityCellRegularField.build(model=FakeDocument, name='title'),
             cell1
