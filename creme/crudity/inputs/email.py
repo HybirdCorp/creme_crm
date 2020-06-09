@@ -33,8 +33,7 @@ from ..backends.models import CrudityBackend
 from ..constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
 from ..fetchers.pop import PopEmail
 from ..models import WaitingAction
-from ..utils import strip_html, decode_b64binary
-
+from ..utils import decode_b64binary, is_sandbox_by_user, strip_html
 from .base import CrudityInput
 
 Document = get_document_model()
@@ -131,7 +130,8 @@ class CreateEmailInput(EmailInput):
 
     def _create(self, backend, data, sender):
         data.pop('password', None)
-        owner = self.get_owner(backend.is_sandbox_by_user, sender)
+        # owner = self.get_owner(backend.is_sandbox_by_user, sender)
+        owner = self.get_owner(is_sandbox_by_user(), sender)
 
         self._pre_process_data(backend, data)
 

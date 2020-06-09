@@ -15,9 +15,14 @@ try:
     from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
     from creme.crudity.fetchers.pop import PopEmail
     from creme.crudity.models import History
+    from creme.crudity.utils import is_sandbox_by_user
 
-    from ..constants import (MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED_WAITING,
-             MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED)
+    from ..constants import (
+        MAIL_STATUS_SENT,
+        MAIL_STATUS_SYNCHRONIZED,
+        MAIL_STATUS_SYNCHRONIZED_SPAM,
+        MAIL_STATUS_SYNCHRONIZED_WAITING,
+    )
     from .base import _EmailsTestCase, skipIfCustomEntityEmail, EntityEmail
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
@@ -47,20 +52,20 @@ class EmailsCrudityTestCase(_EmailsTestCase):
             cat.save()
 
     cfg = {
-            # "fetcher": "email",
-            # "input": "raw",
-            # "method": "create",
-            # "model": "emails.entityemail",
-            'password': '',
-            'limit_froms': (),
-            'in_sandbox': True,
-            'body_map': {},
-            'subject': '*',
+        # "fetcher": "email",
+        # "input": "raw",
+        # "method": "create",
+        # "model": "emails.entityemail",
+        'password': '',
+        'limit_froms': (),
+        'in_sandbox': True,
+        'body_map': {},
+        'subject': '*',
 
-            'source':         'emails - raw',
-            'verbose_source': 'Email - Raw',
-            'verbose_method': 'Create',
-          }
+        'source':         'emails - raw',
+        'verbose_source': 'Email - Raw',
+        'verbose_method': 'Create',
+    }
 
     def test_spam(self):  # DEPRECATED
         emails = self._create_emails()
@@ -72,29 +77,38 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         self.assertPOST200(url, data={'ids': [e.id for e in emails]})
 
         refresh = self.refresh
-        self.assertEqual([MAIL_STATUS_SYNCHRONIZED_SPAM] * 4,
-                         [refresh(e).status for e in emails]
-                        )
+        self.assertListEqual(
+            [MAIL_STATUS_SYNCHRONIZED_SPAM] * 4,
+            [refresh(e).status for e in emails]
+        )
 
     def test_validated(self):  # DEPRECATED
         emails = self._create_emails()
 
-        self.assertPOST200(reverse('emails__crudity_validated'), data={'ids': [e.id for e in emails]})
+        self.assertPOST200(
+            reverse('emails__crudity_validated'),
+            data={'ids': [e.id for e in emails]},
+        )
 
         refresh = self.refresh
-        self.assertEqual([MAIL_STATUS_SYNCHRONIZED] * 4,
-                         [refresh(e).status for e in emails]
-                        )
+        self.assertListEqual(
+            [MAIL_STATUS_SYNCHRONIZED] * 4,
+            [refresh(e).status for e in emails]
+        )
 
     def test_waiting(self):  # DEPRECATED
         emails = self._create_emails()
 
-        self.assertPOST200(reverse('emails__crudity_waiting'), data={'ids': [e.id for e in emails]})
+        self.assertPOST200(
+            reverse('emails__crudity_waiting'),
+            data={'ids': [e.id for e in emails]},
+        )
 
         refresh = self.refresh
-        self.assertEqual([MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,
-                         [refresh(e).status for e in emails]
-                        )
+        self.assertListEqual(
+            [MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,
+            [refresh(e).status for e in emails]
+        )
 
     def test_set_status01(self):
         "Validated."
@@ -108,14 +122,15 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         data = {'ids': [e.id for e in emails]}
         self.assertPOST404(
             reverse('emails__crudity_set_email_status', args=('invalid',)),
-            data=data
+            data=data,
         )
 
         self.assertPOST200(url, data=data)
         refresh = self.refresh
-        self.assertEqual([MAIL_STATUS_SYNCHRONIZED] * 4,
-                         [refresh(e).status for e in emails]
-                        )
+        self.assertListEqual(
+            [MAIL_STATUS_SYNCHRONIZED] * 4,
+            [refresh(e).status for e in emails]
+        )
 
     def test_set_status02(self):
         "Spam."
@@ -127,9 +142,10 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         )
 
         refresh = self.refresh
-        self.assertEqual([MAIL_STATUS_SYNCHRONIZED_SPAM] * 4,
-                         [refresh(e).status for e in emails]
-                        )
+        self.assertListEqual(
+            [MAIL_STATUS_SYNCHRONIZED_SPAM] * 4,
+            [refresh(e).status for e in emails]
+        )
 
     def test_set_status03(self):
         "Waiting."
@@ -141,18 +157,20 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         )
 
         refresh = self.refresh
-        self.assertEqual([MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,
-                         [refresh(e).status for e in emails]
-                        )
+        self.assertListEqual(
+            [MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,
+            [refresh(e).status for e in emails]
+        )
 
     def test_synchronisation(self):
         response = self.assertGET200(reverse('emails__crudity_sync'))
         self.assertTemplateUsed(response, 'emails/synchronize.html')
 
         get = response.context.get
-        self.assertEqual(reverse('crudity__reload_actions_bricks'),
-                         get('bricks_reload_url')
-                        )
+        self.assertEqual(
+            reverse('crudity__reload_actions_bricks'),
+            get('bricks_reload_url')
+        )
 
         bricks = get('bricks')
         self.assertIsInstance(bricks, list)
@@ -164,16 +182,21 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         user = self.user
         other_user = self.other_user
 
-        sv = self.get_object_or_fail(SettingValue, key_id=SETTING_CRUDITY_SANDBOX_BY_USER)
+        sv = self.get_object_or_fail(
+            SettingValue,
+            key_id=SETTING_CRUDITY_SANDBOX_BY_USER,
+        )
         self.assertEqual(False, sv.value)
 
         backend = self.EntityEmailBackend(self.cfg)
-        self.assertFalse(backend.is_sandbox_by_user)
+        # self.assertFalse(backend.is_sandbox_by_user)
+        self.assertFalse(is_sandbox_by_user())
 
-        email = PopEmail(body='Hi', body_html='<i>Hi</i>', subject='Test email crudity',
-                         senders=[other_user.email], ccs=[user.email],
-                         tos=['natsuki.hagiwara@ichigo.jp', 'kota.ochiai@ichigo.jp'],
-                        )
+        email = PopEmail(
+            body='Hi', body_html='<i>Hi</i>', subject='Test email crudity',
+            senders=[other_user.email], ccs=[user.email],
+            tos=['natsuki.hagiwara@ichigo.jp', 'kota.ochiai@ichigo.jp'],
+        )
         backend.fetcher_fallback(email, user)
 
         e_email = self.get_object_or_fail(EntityEmail, subject=email.subject)
@@ -193,28 +216,34 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         self.assertEqual('create',      history.action)
         self.assertEqual('email - raw', history.source)
         self.assertEqual(user,          history.user)
-        self.assertEqual(_('Creation of {entity}').format(entity=e_email),
-                         history.description
-                        )
+        self.assertEqual(
+            _('Creation of {entity}').format(entity=e_email),
+            history.description
+        )
 
     def test_create02(self):
-        "Sandbox by user + dates"
+        "Sandbox by user + dates."
         user = self.user
         other_user = self.other_user
 
-        sv = self.get_object_or_fail(SettingValue, key_id=SETTING_CRUDITY_SANDBOX_BY_USER)
+        sv = self.get_object_or_fail(
+            SettingValue,
+            key_id=SETTING_CRUDITY_SANDBOX_BY_USER,
+        )
         sv.value = True
         sv.save()
 
         backend = self.EntityEmailBackend(self.cfg)
-        self.assertTrue(backend.is_sandbox_by_user)
+        # self.assertTrue(backend.is_sandbox_by_user)
+        self.assertTrue(is_sandbox_by_user())
 
-        email = PopEmail(body='Hi', body_html='<i>Hi</i>', subject='Test email crudity',
-                         senders=[other_user.email], ccs=[user.email],
-                         tos=['natsuki.hagiwara@ichigo.jp', 'kota.ochiai@ichigo.jp'],
-                         # replace(microsecond=0)  -> MySQL does not like microseconds...
-                         dates=[now().replace(microsecond=0) - timedelta(hours=1)],
-                        )
+        email = PopEmail(
+            body='Hi', body_html='<i>Hi</i>', subject='Test email crudity',
+            senders=[other_user.email], ccs=[user.email],
+            tos=['natsuki.hagiwara@ichigo.jp', 'kota.ochiai@ichigo.jp'],
+            # replace(microsecond=0)  -> MySQL does not like microseconds...
+            dates=[now().replace(microsecond=0) - timedelta(hours=1)],
+       )
         backend.fetcher_fallback(email, user)
 
         e_email = self.get_object_or_fail(EntityEmail, subject=email.subject)

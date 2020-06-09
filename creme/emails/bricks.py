@@ -22,13 +22,17 @@ from django.apps import apps
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick
+from creme import documents, emails, persons
+from creme.creme_core.gui.bricks import Brick, QuerysetBrick, SimpleBrick
 from creme.creme_core.models import CremeEntity, Relation
 
-from creme import documents, persons, emails
-
 from . import constants
-from .models import EmailSignature, EmailRecipient, EmailSending, LightWeightEmail
+from .models import (
+    EmailRecipient,
+    EmailSending,
+    EmailSignature,
+    LightWeightEmail,
+)
 
 Document      = documents.get_document_model()
 Contact       = persons.get_contact_model()
@@ -331,8 +335,9 @@ class MySignaturesBrick(QuerysetBrick):
 
 
 if apps.is_installed('creme.crudity'):
-    from creme.crudity.bricks import CrudityQuerysetBrick
+    # from creme.crudity.bricks import CrudityQuerysetBrick
     from creme.crudity.bricks import BaseWaitingActionsBrick
+    from creme.crudity.utils import is_sandbox_by_user
 
     # class _SynchronizationMailsBrick(CrudityQuerysetBrick):
     class _SynchronizationMailsBrick(BaseWaitingActionsBrick):
@@ -362,7 +367,8 @@ if apps.is_installed('creme.crudity'):
                 status=constants.MAIL_STATUS_SYNCHRONIZED_WAITING,
             )
 
-            if self.is_sandbox_by_user:
+            # if self.is_sandbox_by_user:
+            if is_sandbox_by_user():
                 waiting_mails = waiting_mails.filter(user=context['user'])
 
             return self._render(self.get_template_context(
@@ -384,7 +390,8 @@ if apps.is_installed('creme.crudity'):
                 is_deleted=False,
                 status=constants.MAIL_STATUS_SYNCHRONIZED_SPAM,
             )
-            if self.is_sandbox_by_user:
+            # if self.is_sandbox_by_user:
+            if is_sandbox_by_user():
                 waiting_mails = waiting_mails.filter(user=context['user'])
 
             return self._render(self.get_template_context(

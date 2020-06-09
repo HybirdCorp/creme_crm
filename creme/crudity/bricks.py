@@ -20,14 +20,16 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.bricks import QuerysetBrick
-from creme.creme_core.models import SettingValue
 
-from .models import WaitingAction, History
-from .setting_keys import sandbox_key
+from .models import History, WaitingAction
+# from .setting_keys import sandbox_key
+from .utils import is_sandbox_by_user
 
+# from creme.creme_core.models import SettingValue
 
 class CrudityQuerysetBrick(QuerysetBrick):
     def __init__(self, *args, **kwargs):
@@ -39,11 +41,10 @@ class CrudityQuerysetBrick(QuerysetBrick):
                 gettext('Error: you are not allowed to view this block: {}'.format(self.id_))
             )
 
-    # TODO: staticmethod
-    @property
-    def is_sandbox_by_user(self) -> bool:
-        # No cache: we need to create sub-blocks on the fly
-        return SettingValue.objects.get_4_key(sandbox_key, default=False).value
+    # @property
+    # def is_sandbox_by_user(self) -> bool:
+    #     # No cache: we need to create sub-blocks on the fly
+    #     return SettingValue.objects.get_4_key(sandbox_key, default=False).value
 
 
 class BaseWaitingActionsBrick(CrudityQuerysetBrick):
@@ -80,9 +81,12 @@ class WaitingActionsBrick(BaseWaitingActionsBrick):
         backend = self.backend
         ct = ContentType.objects.get_for_model(backend.model)
 
-        waiting_actions = WaitingAction.objects.filter(ct=ct, source=backend.source, subject=backend.subject)
+        waiting_actions = WaitingAction.objects.filter(
+            ct=ct, source=backend.source, subject=backend.subject,
+        )
 
-        if self.is_sandbox_by_user:
+        # if self.is_sandbox_by_user:
+        if is_sandbox_by_user:
             waiting_actions = waiting_actions.filter(user=context['user'])
 
         crud_input = backend.crud_input
@@ -92,9 +96,9 @@ class WaitingActionsBrick(BaseWaitingActionsBrick):
             waiting_actions,
             waiting_ct=ct,
             backend=backend,
-            extra_header_actions=(action.render(backend=backend) for action in crud_input.brickheader_actions)
-                                 if crud_input else
-                                 (),
+            extra_header_actions=(
+                action.render(backend=backend) for action in crud_input.brickheader_actions
+            ) if crud_input else (),
         ))
 
 
@@ -119,7 +123,8 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
         ct = self.ct
 
         histories = History.objects.filter(entity__entity_type=ct)
-        if self.is_sandbox_by_user:
+        # if self.is_sandbox_by_user:
+        if is_sandbox_by_user:
             histories = histories.filter(user=context['user'])
 
         return self._render(self.get_template_context(context, histories, ct=ct))

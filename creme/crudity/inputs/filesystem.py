@@ -27,7 +27,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ..backends.models import CrudityBackend
 from ..models import WaitingAction
-
+from ..utils import is_sandbox_by_user
 from .base import CrudityInput
 
 logger = logging.getLogger(__name__)
@@ -72,7 +72,8 @@ class IniFileInput(CrudityInput):
                         # Get owner
                         owner = None
                         CremeUser = get_user_model()
-                        if backend.is_sandbox_by_user:
+                        # if backend.is_sandbox_by_user:
+                        if is_sandbox_by_user():
                             try:
                                 username = config.get('head', 'username')
                             except configparser.NoOptionError as e:
