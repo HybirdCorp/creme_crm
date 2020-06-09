@@ -19,13 +19,21 @@
 ################################################################################
 
 import base64
-from html.entities import entitydefs as htmlentitydefs
 import re
 import struct
-from typing import Type, Tuple
 import uuid
+from html.entities import entitydefs as htmlentitydefs
+from typing import Tuple, Type
 
 from django.db.models import Model
+
+from creme.creme_core.models import SettingValue
+
+from .setting_keys import sandbox_key
+
+
+def is_sandbox_by_user() -> bool:
+    return SettingValue.objects.get_4_key(sandbox_key, default=False).value
 
 
 def strip_html(text: str) -> str:

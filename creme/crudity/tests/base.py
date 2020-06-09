@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from creme.creme_core.tests.base import CremeTestCase
+from creme.activities import get_activity_model
 from creme.creme_core.models import SettingValue
-
+from creme.creme_core.tests.base import CremeTestCase
 from creme.documents import get_document_model, get_folder_model
-
 from creme.persons import get_contact_model, get_organisation_model
 
-from creme.activities import get_activity_model
-
-from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from ..backends.models import CrudityBackend
+from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from ..fetchers.base import CrudityFetcher
 from ..inputs.base import CrudityInput
-from .fake_crudity_register import FakeContactBackend, SwallowInput, SwallowFetcher
-
+from ..utils import is_sandbox_by_user
+from .fake_crudity_register import (
+    FakeContactBackend,
+    SwallowFetcher,
+    SwallowInput,
+)
 
 Document = get_document_model()
 Folder = get_folder_model()
@@ -71,3 +72,5 @@ class CrudityTestCase(CremeTestCase):
         sv = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER)
         sv.value = True
         sv.save()
+
+        self.assertTrue(is_sandbox_by_user())

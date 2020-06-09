@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from creme.creme_core.models import SettingValue
     from creme.creme_core.tests.base import CremeTestCase
 
-    from ..utils import decode_b64binary, strip_html
+    from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
+    from ..utils import decode_b64binary, is_sandbox_by_user, strip_html
 except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
@@ -52,6 +54,25 @@ JBTi5OHuzb/iXXkgWZlnk1qTVaC+9tzy9ZsV8ojCTLGGKvj/4nvaMlx38jF2lz5AeijU5LdeKkiQiO3x
 7LzY6XwDj2HfXPP0DUgAAAAASUVORK5CYII="
         filename, blob = decode_b64binary(encoded_utf8_name)
         self.assertEqual(img_blob, blob)
+
+    def test_is_sandbox_by_user01(self):
+        sv = self.get_object_or_fail(
+            SettingValue,
+            key_id=SETTING_CRUDITY_SANDBOX_BY_USER,
+        )
+        self.assertIs(sv.value, False)
+
+        self.assertFalse(is_sandbox_by_user())
+
+    def test_is_sandbox_by_user02(self):
+        sv = self.get_object_or_fail(
+            SettingValue,
+            key_id=SETTING_CRUDITY_SANDBOX_BY_USER,
+        )
+        sv.value = True
+        sv.save()
+
+        self.assertTrue(is_sandbox_by_user())
 
     def test_strip_html(self):
         self.assertEqual('foobar',  strip_html('foobar'))

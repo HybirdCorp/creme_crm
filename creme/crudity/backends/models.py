@@ -20,34 +20,45 @@
 
 import logging
 import re
-from typing import Any, Collection, Dict, Optional, Sequence, Tuple, Type, TYPE_CHECKING
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Collection,
+    Dict,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+)
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.db import IntegrityError
 from django.db.models import (
-    FieldDoesNotExist,
-    TextField,
     BooleanField,
-    DateField, DateTimeField,
+    DateField,
+    DateTimeField,
+    FieldDoesNotExist,
     FileField,
-    ForeignKey, ManyToManyField,
+    ForeignKey,
+    ManyToManyField,
+    TextField,
 )
 from django.db.transaction import atomic
 from django.utils.translation import gettext as _
 
-from creme.creme_core.models import CremeEntity, SettingValue
+from creme.creme_core.models import CremeEntity  # SettingValue
 from creme.creme_core.models.utils import assign_2_charfield
-from creme.creme_core.utils.dates import dt_from_str, date_from_str
+from creme.creme_core.utils.dates import date_from_str, dt_from_str
 from creme.creme_core.views.file_handling import handle_uploaded_file
-
 # TODO: improve the crudity_registry in order to manage FK to other entity types => use test-models
 from creme.documents import get_document_model, get_folder_model
 
 from ..bricks import BaseWaitingActionsBrick, WaitingActionsBrick
 from ..exceptions import ImproperlyConfiguredBackend
 from ..models import History, WaitingAction
-from ..setting_keys import sandbox_key
+
+# from ..setting_keys import sandbox_key
 
 if TYPE_CHECKING:
     from ..inputs.base import CrudityInput
@@ -99,7 +110,7 @@ class CrudityBackend:
         self.verbose_source = config_get('verbose_source')
         self.verbose_method = config_get('verbose_method')
 
-        self._sandbox_by_user: Optional[bool] = None
+        # self._sandbox_by_user: Optional[bool] = None
         self._check_configuration()
 
     @property
@@ -122,21 +133,20 @@ class CrudityBackend:
                     else:
                         raise ImproperlyConfiguredBackend(e) from e
 
-    # TODO: factorise with CrudityQuerysetBrick.is_sandbox_by_user ?
-    @property
-    def is_sandbox_by_user(self) -> bool:
-        if self._sandbox_by_user is None:
-            self._sandbox_by_user = SettingValue.objects.get_4_key(sandbox_key, default=False).value
-
-        return self._sandbox_by_user
-
-    @is_sandbox_by_user.setter
-    def is_sandbox_by_user(self, value: bool):
-        self._sandbox_by_user = value
+    # @property
+    # def is_sandbox_by_user(self) -> bool:
+    #     if self._sandbox_by_user is None:
+    #         self._sandbox_by_user = SettingValue.objects.get_4_key(sandbox_key, default=False).value
+    #
+    #     return self._sandbox_by_user
+    #
+    # @is_sandbox_by_user.setter
+    # def is_sandbox_by_user(self, value: bool):
+    #     self._sandbox_by_user = value
 
     @staticmethod
     def normalize_subject(subject: str) -> str:
-        """Normalize the subject for an easier retrieve by the input"""
+        """Normalize the subject for an easier retrieve by the input."""
         return re.sub(r'\s', '', subject or '').upper()
 
     def create(self, action: WaitingAction) -> Tuple[bool, CremeEntity]:
@@ -260,7 +270,7 @@ class CrudityBackend:
                 if need_new_save:
                     instance.save()
 
-                history = History()  # TODO: History.objects.create(entity=intance [...])
+                history = History()  # TODO: History.objects.create(entity=instance [...])
                 history.entity = instance
                 history.action = 'create'
                 history.source = source

@@ -24,19 +24,21 @@ from os.path import basename
 from django.db.transaction import atomic
 from django.utils.translation import gettext as _
 
+from creme import documents
 from creme.creme_core.models import Relation
 from creme.creme_core.views.file_handling import handle_uploaded_file
-
-from creme import documents
-from creme.documents.constants import REL_OBJ_RELATED_2_DOC, DOCUMENTS_FROM_EMAILS
-from creme.documents.models import FolderCategory
-
 from creme.crudity.backends.models import CrudityBackend
 from creme.crudity.inputs.base import CrudityInput
 from creme.crudity.inputs.email import CreateEmailInput
 from creme.crudity.models import History
+from creme.crudity.utils import is_sandbox_by_user
+from creme.documents.constants import (
+    DOCUMENTS_FROM_EMAILS,
+    REL_OBJ_RELATED_2_DOC,
+)
+from creme.documents.models import FolderCategory
 
-from . import get_entityemail_model, bricks
+from . import bricks, get_entityemail_model
 from .constants import MAIL_STATUS_SYNCHRONIZED_WAITING
 
 Folder   = documents.get_folder_model()
@@ -58,7 +60,8 @@ class EntityEmailBackend(CrudityBackend):
         if not CrudityInput().authorize_senders(self, email.senders):
             return
 
-        if self.is_sandbox_by_user:
+        # if self.is_sandbox_by_user:
+        if is_sandbox_by_user():
             current_user = CreateEmailInput.get_owner(True, sender=email.senders[0])
 
         current_user_id = current_user.id
@@ -73,43 +76,48 @@ class EntityEmailBackend(CrudityBackend):
             defaults={'user': current_user},
         )[0]
 
-        mail = EntityEmail(status=MAIL_STATUS_SYNCHRONIZED_WAITING,
-                           body=email.body,
-                           body_html=email.body_html,
-                           sender=', '.join({*email.senders}),
-                           recipient=', '.join({*email.tos, *email.ccs}),
-                           subject=email.subject,
-                           user_id=current_user_id,
-                          )
+        mail = EntityEmail(
+            status=MAIL_STATUS_SYNCHRONIZED_WAITING,
+            body=email.body,
+            body_html=email.body_html,
+            sender=', '.join({*email.senders}),
+            recipient=', '.join({*email.tos, *email.ccs}),
+            subject=email.subject,
+            user_id=current_user_id,
+        )
         if email.dates:
             mail.reception_date = email.dates[0]
         mail.genid_n_save()
 
         attachment_path = self.attachment_path
         # TODO: only if at least one attachment
-        create_relation = partial(Relation.objects.create, type_id=REL_OBJ_RELATED_2_DOC,
-                                  object_entity=mail, user_id=current_user_id,
-                                 )
-        create_doc = partial(Document.objects.create,
-                             user_id=current_user_id, linked_folder=folder,
-                             description=_('Received with the mail {}').format(mail),
-                            )
+        create_relation = partial(
+            Relation.objects.create, type_id=REL_OBJ_RELATED_2_DOC,
+            object_entity=mail, user_id=current_user_id,
+        )
+        create_doc = partial(
+            Document.objects.create,
+            user_id=current_user_id, linked_folder=folder,
+            description=_('Received with the mail {}').format(mail),
+        )
 
         for attachment in email.attachments:
             filename, file_ = attachment
             path = handle_uploaded_file(file_, path=attachment_path, name=filename)
-            doc = create_doc(title=f'{basename(path)} (mail {mail.id})',
-                             filedata=path,
-                            )
+            doc = create_doc(
+                title=f'{basename(path)} (mail {mail.id})',
+                filedata=path,
+            )
 
             create_relation(subject_entity=doc)
 
-        History.objects.create(entity=mail,
-                               action='create',
-                               source='email - raw',
-                               description=_('Creation of {entity}').format(entity=mail),
-                               user=current_user,
-                              )
+        History.objects.create(
+            entity=mail,
+            action='create',
+            source='email - raw',
+            description=_('Creation of {entity}').format(entity=mail),
+            user=current_user,
+        )
 
 
 backends = [EntityEmailBackend]

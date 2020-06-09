@@ -411,7 +411,10 @@
             * Polls :
                 - The function-view 'views.poll_reply.clean()' has been replaced by the class 'PollReplyCleaning'.
             * Crudity :
-                - These function-views of 'crudity.views' have by replaced by classes :
+                - These properties have been remove (use 'utils.is_sandbox_by_user()' instead) :
+                    - backends.models.CrudityBackend.is_sandbox_by_user
+                    - bricks.CrudityQuerysetBrick.is_sandbox_by_user
+                - These function-views of 'views' have by replaced by classes :
                     - 'actions.delete()' by 'ActionsDeletion'.
                     - 'actions.refresh()' by 'ActionsRefreshing'.
                     - 'actions.validate()' by 'ActionsValidation'.
