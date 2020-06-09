@@ -14,7 +14,10 @@ try:
     from django.utils.translation import gettext as _, ngettext
 
     from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
-    from creme.creme_core.models import Job, JobResult, FakeContact, FakeImage
+    from creme.creme_core.models import (
+        Job, JobResult,
+        FakeContact, FakeImage,
+    )
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from .. import registry
@@ -30,27 +33,30 @@ except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
 
-FAKE_CRUDITY_BACKENDS = [{'fetcher':     'swallow',
-                          'input':       'swallow',
-                          'method':      'create',
-                          'model':       'creme_core.fakecontact',
-                          'password':    '',
-                          'limit_froms': (),
-                          'in_sandbox':  True,
-                          'body_map':    {},
-                          'subject':     'CREATECONTACT',
-                         },
-                         {'fetcher':     'swallow',
-                          'input':       'swallow',
-                          'method':      'create',
-                          'model':       'creme_core.fakecontact',
-                          'password':    '',
-                          'limit_froms': (),
-                          'in_sandbox':  True,
-                          'body_map':    {},
-                          'subject':     '*',
-                         },
-                        ]
+FAKE_CRUDITY_BACKENDS = [
+    {
+        'fetcher':     'swallow',
+        'input':       'swallow',
+        'method':      'create',
+        'model':       'creme_core.fakecontact',
+        'password':    '',
+        'limit_froms': (),
+        'in_sandbox':  True,
+        'body_map':    {},
+        'subject':     'CREATECONTACT',
+    },
+    {
+        'fetcher':     'swallow',
+        'input':       'swallow',
+        'method':      'create',
+        'model':       'creme_core.fakecontact',
+        'password':    '',
+        'limit_froms': (),
+        'in_sandbox':  True,
+        'body_map':    {},
+        'subject':     '*',
+    },
+]
 
 
 class FakePOP3:
@@ -160,10 +166,11 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         subject = CrudityBackend.normalize_subject('test_create_contact')
         wa = WaitingAction()
         wa.ct = ContentType.objects.get_for_model(FakeContact)
-        wa.data = {'first_name': first_name,
-                   'last_name':  last_name,
-                   'user_id':    user.id,
-                  }
+        wa.data = {
+            'first_name': first_name,
+            'last_name':  last_name,
+            'user_id':    user.id,
+        }
         wa.subject = subject
         wa.source = 'test_f - test_i'
         wa.save()
@@ -234,9 +241,10 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.assertDoesNotExist(wa3)
         self.assertStillExists(wa2)
 
-        self.assertEqual(_('Operation successfully completed'),
-                         response.content.decode()
-                        )
+        self.assertEqual(
+            _('Operation successfully completed'),
+            response.content.decode()
+        )
 
     def test_delete02(self):
         "Not allowed."
@@ -305,9 +313,10 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         crudity_registry.register_backends([backend])
 
         response = self.assertGET200(url)
-        self.assertEqual('attachment; filename=CREATE_CONTACT.eml',
-                         response['Content-Disposition']
-                        )
+        self.assertEqual(
+            'attachment; filename=CREATE_CONTACT.eml',
+            response['Content-Disposition']
+        )
         self.assertEqual('application/vnd.sealed.eml', response['Content-Type'])
         self.assertContains(response, 'Subject: CREATE_CONTACT')
         self.assertTemplateUsed(response, 'crudity/create_email_template.html')
@@ -325,28 +334,28 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         last_name = 'Suzumiya'
         description = 'The best waifu\nis here'
 
-        self._build_test_registry([{'fetcher':     'filesystem',
-                                    'input':       'ini',
-                                    'method':      'create',
-                                    'model':       'creme_core.fakecontact',
-                                    'password':    '',
-                                    'limit_froms': (),
-                                    'in_sandbox':  True,
-                                    'body_map':    {
-                                        'user_id':     1,
-                                        'first_name':  '',
-                                        'last_name':   last_name,
-                                        'description': description,
-                                    },
-                                    'subject':     subject,
-                                   },
-                                  ]
-                                 )
+        self._build_test_registry([{
+            'fetcher':     'filesystem',
+            'input':       'ini',
+            'method':      'create',
+            'model':       'creme_core.fakecontact',
+            'password':    '',
+            'limit_froms': (),
+            'in_sandbox':  True,
+            'body_map':    {
+                'user_id':     1,
+                'first_name':  '',
+                'last_name':   last_name,
+                'description': description,
+            },
+            'subject':     subject,
+        }])
 
         response = self.assertGET200(reverse('crudity__dl_fs_ini_template', args=(subject,)))
-        self.assertEqual(f'attachment; filename={subject}.ini',
-                         response['Content-Disposition']
-                        )
+        self.assertEqual(
+            f'attachment; filename={subject}.ini',
+            response['Content-Disposition']
+        )
         self.assertEqual('text/plain', response['Content-Type'])
 
         config = configparser.RawConfigParser()
@@ -378,28 +387,29 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.assertEqual(description, read_desc)
 
     def test_download_ini_template03(self):
-        "Sandbox per user"
+        "Sandbox per user."
         user = self.login()
         self._set_sandbox_by_user()
 
         subject = 'CREATE_CONTACT'
-        self._build_test_registry([{'fetcher':     'filesystem',
-                                    'input':       'ini',
-                                    'method':      'create',
-                                    'model':       'creme_core.fakecontact',
-                                    'password':    '',
-                                    'limit_froms': (),
-                                    'in_sandbox':  True,
-                                    'body_map':    {
-                                        'user_id':     1,
-                                        'last_name':   '',
-                                    },
-                                    'subject':     subject,
-                                   },
-                                  ]
-                                 )
+        self._build_test_registry([{
+            'fetcher':     'filesystem',
+            'input':       'ini',
+            'method':      'create',
+            'model':       'creme_core.fakecontact',
+            'password':    '',
+            'limit_froms': (),
+            'in_sandbox':  True,
+            'body_map':    {
+                'user_id':     1,
+                'last_name':   '',
+            },
+            'subject':     subject,
+        }])
 
-        response = self.assertGET200(reverse('crudity__dl_fs_ini_template', args=(subject,)))
+        response = self.assertGET200(
+            reverse('crudity__dl_fs_ini_template', args=(subject,)),
+        )
         config = configparser.RawConfigParser()
 
         with self.assertNoException():
@@ -416,9 +426,10 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.assertTemplateUsed(response, 'crudity/history.html')
 
         context = response.context
-        self.assertEqual(reverse('crudity__reload_history_bricks'),
-                         context.get('bricks_reload_url')
-                        )
+        self.assertEqual(
+            reverse('crudity__reload_history_bricks'),
+            context.get('bricks_reload_url')
+        )
 
         with self.assertNoException():
             bricks = [*context['bricks']]
@@ -438,9 +449,10 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         ct = ContentType.objects.get_for_model(FakeContact)
         brick_id = f'block_crudity-{ct.id}'
-        response = self.assertGET200(reverse('crudity__reload_history_bricks'),
-                                     data={'brick_id': brick_id},
-                                    )
+        response = self.assertGET200(
+            reverse('crudity__reload_history_bricks'),
+            data={'brick_id': brick_id},
+        )
 
         reload_data = response.json()
 
@@ -454,30 +466,32 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.login()
 
         ct = ContentType.objects.get_for_model(FakeImage)
-        self.assertGET200(reverse('crudity__reload_history_bricks'),
-                          data={'brick_id': f'block_crudity-{ct.id}'},
-                         )
+        self.assertGET200(
+            reverse('crudity__reload_history_bricks'),
+            data={'brick_id': f'block_crudity-{ct.id}'},
+        )
 
-    @override_settings(CRUDITY_BACKENDS=[{'fetcher': 'email',
-                                          # 'input': 'raw',
-                                          'input': '',
-                                          'method': 'create',
-                                          'model': 'emails.entityemail',
-                                          'password': '',
-                                          'limit_froms': (),
-                                          'in_sandbox': True,
-                                          'body_map': {},
-                                          'subject': '*',
-                                         },
-                                        ],
-                       CREME_GET_EMAIL_SSL=True,
-                       CREME_GET_EMAIL_SERVER='pop.test.org',
-                       CREME_GET_EMAIL_PORT=123,
-                       CREME_GET_EMAIL_SSL_KEYFILE='key.pem',
-                       CREME_GET_EMAIL_SSL_CERTFILE='cert.pem',
-                       CREME_GET_EMAIL_USERNAME='William',
-                       CREME_GET_EMAIL_PASSWORD='p4$$w0rD',
-                      )
+    @override_settings(
+        CRUDITY_BACKENDS=[{
+            'fetcher': 'email',
+            # 'input': 'raw',
+            'input': '',
+            'method': 'create',
+            'model': 'emails.entityemail',
+            'password': '',
+            'limit_froms': (),
+            'in_sandbox': True,
+            'body_map': {},
+            'subject': '*',
+        }],
+        CREME_GET_EMAIL_SSL=True,
+        CREME_GET_EMAIL_SERVER='pop.test.org',
+        CREME_GET_EMAIL_PORT=123,
+        CREME_GET_EMAIL_SSL_KEYFILE='key.pem',
+        CREME_GET_EMAIL_SSL_CERTFILE='cert.pem',
+        CREME_GET_EMAIL_USERNAME='William',
+        CREME_GET_EMAIL_PASSWORD='p4$$w0rD',
+    )
     def test_actions_portal01(self):
         self.login()
         self._build_test_registry()
@@ -508,9 +522,10 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         self._build_test_registry(FAKE_CRUDITY_BACKENDS)
         brick_id = 'block_crudity-waiting_actions-swallow|swallow|CREATECONTACT'
-        response = self.assertGET200(reverse('crudity__reload_actions_bricks'),
-                                     data={'brick_id': brick_id},
-                                    )
+        response = self.assertGET200(
+            reverse('crudity__reload_actions_bricks'),
+            data={'brick_id': brick_id},
+        )
 
         reload_data = response.json()
 
@@ -520,26 +535,27 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.get_brick_node(l_document, brick_id)
         # TODO: complete
 
-    @override_settings(CRUDITY_BACKENDS=[{'fetcher':     'email',
-                                          # 'input': 'raw',
-                                          'input':       '',
-                                          'method':      'create',
-                                          'model':       'emails.entityemail',
-                                          'password':    '',
-                                          'limit_froms': (),
-                                          'in_sandbox':  True,
-                                          'body_map':    {},
-                                          'subject':     '*',
-                                         },
-                                        ],
-                       CREME_GET_EMAIL_SSL=True,
-                       CREME_GET_EMAIL_SERVER='pop.test.org',
-                       CREME_GET_EMAIL_PORT=123,
-                       CREME_GET_EMAIL_SSL_KEYFILE='key.pem',
-                       CREME_GET_EMAIL_SSL_CERTFILE='cert.pem',
-                       CREME_GET_EMAIL_USERNAME='William',
-                       CREME_GET_EMAIL_PASSWORD='p4$$w0rD',
-                      )
+    @override_settings(
+        CRUDITY_BACKENDS=[{
+            'fetcher':     'email',
+            # 'input': 'raw',
+            'input':       '',
+            'method':      'create',
+            'model':       'emails.entityemail',
+            'password':    '',
+            'limit_froms': (),
+            'in_sandbox':  True,
+            'body_map':    {},
+            'subject':     '*',
+        }],
+        CREME_GET_EMAIL_SSL=True,
+        CREME_GET_EMAIL_SERVER='pop.test.org',
+        CREME_GET_EMAIL_PORT=123,
+        CREME_GET_EMAIL_SSL_KEYFILE='key.pem',
+        CREME_GET_EMAIL_SSL_CERTFILE='cert.pem',
+        CREME_GET_EMAIL_USERNAME='William',
+        CREME_GET_EMAIL_PASSWORD='p4$$w0rD',
+    )
     def test_actions_fetch01(self):
         self.login()
 
@@ -610,21 +626,24 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         jresults = JobResult.objects.filter(job=job)
         self.assertEqual(1, len(jresults))
-        self.assertEqual([ngettext('There is {count} change',
-                                   'There are {count} changes',
-                                   1
-                                  ).format(count=1),
-                         ],
-                         jresults[0].messages
-                        )
+        self.assertListEqual(
+            [
+                ngettext(
+                    'There is {count} change',
+                    'There are {count} changes',
+                    1
+                ).format(count=1),
+            ],
+            jresults[0].messages
+        )
 
-        self.assertEqual([], queue.started_jobs)
-        self.assertEqual([], queue.refreshed_jobs)
+        self.assertListEqual([], queue.started_jobs)
+        self.assertListEqual([], queue.refreshed_jobs)
 
         self.get_object_or_fail(FakeContact, last_name=last_name)
 
     def test_job02(self):
-        "Default backend + job configuration"
+        "Default backend + job configuration."
         self.login()
         other_user = self.other_user
 
@@ -650,35 +669,41 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.assertGET200(url)
 
         pdict = {'type': 'hours', 'value': 12}
-        response = self.client.post(url,
-                                    data={'reference_run': '26-06-2016 14:00:00',
-                                          'periodicity_0': pdict['type'],
-                                          'periodicity_1': str(pdict['value']),
+        response = self.client.post(
+            url,
+            data={
+                'reference_run': '26-06-2016 14:00:00',
+                'periodicity_0': pdict['type'],
+                'periodicity_1': str(pdict['value']),
 
-                                          'user': other_user.id,
-                                         },
-                                   )
+                'user': other_user.id,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self.refresh(job)
         self.assertEqual(pdict, job.periodicity.as_dict())
-        self.assertEqual(self.create_datetime(year=2016, month=6, day=26, hour=14),
-                         job.reference_run
-                        )
-        self.assertEqual({'user': other_user.id}, job.data)
+        self.assertEqual(
+            self.create_datetime(year=2016, month=6, day=26, hour=14),
+            job.reference_run
+        )
+        self.assertDictEqual({'user': other_user.id}, job.data)
 
         # -----------------------------
         crudity_synchronize_type.execute(job)
 
         jresults = JobResult.objects.filter(job=job)
         self.assertEqual(1, len(jresults))
-        self.assertEqual([ngettext('There is {count} change',
-                                   'There are {count} changes',
-                                   1
-                                  ).format(count=1),
-                         ],
-                         jresults[0].messages
-                        )
+        self.assertListEqual(
+            [
+                ngettext(
+                    'There is {count} change',
+                    'There are {count} changes',
+                    1
+                ).format(count=1),
+            ],
+            jresults[0].messages
+        )
 
         calls_args = self.FakeContactBackend.calls_args
         self.assertEqual(1, len(calls_args))

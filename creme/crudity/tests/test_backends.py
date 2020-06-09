@@ -35,13 +35,13 @@ class BackendsTestCase(CrudityTestCase):
         class SubCrudityBackend(CrudityBackend):
             model = model_klass
 
-        return SubCrudityBackend({'password':    password,
-                                  'in_sandbox':  in_sandbox,
-                                  'subject':     subject,
-                                  'limit_froms': limit_froms,
-                                  'body_map':    body_map or {},
-                                 }
-                                )
+        return SubCrudityBackend({
+            'password':    password,
+            'in_sandbox':  in_sandbox,
+            'subject':     subject,
+            'limit_froms': limit_froms,
+            'body_map':    body_map or {},
+        })
 
     def test_is_configured01(self):
         backend = self._get_backend(FakeContact)
@@ -51,10 +51,12 @@ class BackendsTestCase(CrudityTestCase):
         self.assertTrue(backend2.is_configured)
 
     def test_check_configuration01(self):
-        self.assertRaises(ImproperlyConfiguredBackend, self._get_backend,
-                          FakeContact, subject='contact',
-                          body_map={'user_id': 1, 'di_resu': 1},
-                         )
+        self.assertRaises(
+            ImproperlyConfiguredBackend,
+            self._get_backend,
+            FakeContact, subject='contact',
+            body_map={'user_id': 1, 'di_resu': 1},
+        )
 
     def test_is_sandbox_by_user_property01(self):
         self._set_sandbox_by_user()
