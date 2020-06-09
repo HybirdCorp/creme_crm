@@ -209,6 +209,7 @@ class BricksConfigTestCase(CremeTestCase):
         gui_bricks.brick_registry = cls._original_brick_registry
 
     def setUp(self):
+        super().setUp()
         gui_bricks.brick_registry = self.brick_registry = deepcopy(self.brick_registry)
 
     def _build_adddetail_url(self, ct):

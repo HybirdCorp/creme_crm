@@ -238,6 +238,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
     INVALID  = ["36810","976","acoua","ACOUA","acoua","Acoua","A200","AK",None,"601","97601","0","01",None,"4714","4714","4714","373","12.62","45.0645","-12.7239",None,None,None,None,None,None]
 
     def setUp(self):
+        super().setUp()
         self.command = GeolocationCommand()
 
     def assertTown(self, town, **kwargs):

@@ -47,6 +47,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         cls.original_send_messages = EmailBackend.send_messages
 
     def setUp(self):
+        super().setUp()
         self.login()
 
     def tearDown(self):

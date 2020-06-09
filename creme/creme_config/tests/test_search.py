@@ -31,6 +31,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         cls.ct_orga    = get_ct(FakeOrganisation)
 
     def setUp(self):
+        super().setUp()
         self.login()
 
     def _build_add_url(self, ctype):

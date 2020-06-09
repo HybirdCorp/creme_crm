@@ -52,6 +52,7 @@ class EntityFiltersTestCase(CremeTestCase):
         cls._excluded_ids = frozenset(CremeEntity.objects.values_list('id', flat=True))
 
     def setUp(self):
+        super().setUp()
         user = self.login()
 
         create = partial(FakeContact.objects.create, user=user)

@@ -11,6 +11,7 @@ except Exception as e:
 @skipIfCustomEmailCampaign
 class CampaignTestCase(_EmailsTestCase):
     def setUp(self):
+        super().setUp()
         self.login()
 
     def test_create(self):

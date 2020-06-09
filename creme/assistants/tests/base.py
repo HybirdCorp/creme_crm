@@ -14,6 +14,7 @@ except Exception as e:
 
 class AssistantsTestCase(CremeTestCase):
     def setUp(self):
+        super().setUp()
         self.login()
         self.entity = FakeContact.objects.create(user=self.user, first_name='Ranma', last_name='Saotome')
 

@@ -49,6 +49,8 @@ class CredentialsTestCase(CremeTestCase):
     password = 'password'
 
     def setUp(self):
+        super().setUp()
+
         create_user = CremeUser.objects.create_user
         self.user = user = create_user(
             username='Kenji', email='kenji@century.jp',

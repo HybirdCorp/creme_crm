@@ -22,6 +22,7 @@ class RelationsTestCase(CremeTestCase):
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
 
     def setUp(self):
+        super().setUp()
         self.user = get_user_model().objects.create(username='name')
 
     def test_relation01(self):

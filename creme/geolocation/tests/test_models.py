@@ -18,6 +18,7 @@ except Exception as e:
 @skipIfCustomAddress
 class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
     def setUp(self):
+        super().setUp()
         user = self.login()
 
         create_town = partial(Town.objects.create, name='Marseille', country='FRANCE')

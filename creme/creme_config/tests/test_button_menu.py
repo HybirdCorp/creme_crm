@@ -35,6 +35,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         ButtonMenuItem.objects.bulk_create(cls._buttonconf_backup)
 
     def setUp(self):
+        super().setUp()
         self.login()
 
     def test_portal(self):

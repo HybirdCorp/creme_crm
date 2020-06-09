@@ -29,6 +29,7 @@ except Exception as e:
 # TODO: test register(..., expandables=[..])
 class BulkUpdateRegistryTestCase(CremeTestCase):
     def setUp(self):
+        super().setUp()
         self.bulk_update_registry = _BulkUpdateRegistry()
         self.maxDiff = None
 

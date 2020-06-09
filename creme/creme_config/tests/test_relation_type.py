@@ -20,6 +20,7 @@ class RelationTypeTestCase(CremeTestCase):
     DEL_URL = reverse('creme_config__delete_rtype')
 
     def setUp(self):  # In CremeConfigTestCase ??
+        super().setUp()
         self.login()
 
     def _build_edit_url(self, rtype):
@@ -214,13 +215,17 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
     ADD_URL = reverse('creme_config__create_semifixed_rtype')
 
     def setUp(self):
+        super().setUp()
         self.login()
 
-        self.loves = RelationType.create(('test-subject_foobar', 'is loving'),
-                                         ('test-object_foobar',  'is loved by')
-                                        )[0]
+        self.loves = RelationType.create(
+            ('test-subject_foobar', 'is loving'),
+            ('test-object_foobar',  'is loved by')
+        )[0]
 
-        self.iori = FakeContact.objects.create(user=self.user, first_name='Iori', last_name='Yoshizuki')
+        self.iori = FakeContact.objects.create(
+            user=self.user, first_name='Iori', last_name='Yoshizuki',
+        )
 
     def test_create01(self):
         url = self.ADD_URL

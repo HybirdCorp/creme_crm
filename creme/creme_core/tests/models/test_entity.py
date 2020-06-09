@@ -34,6 +34,7 @@ except Exception as e:
 
 class EntityTestCase(CremeTestCase):
     def setUp(self):
+        super().setUp()
         self.login()
 
     def test_entity01(self):

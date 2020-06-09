@@ -20,6 +20,7 @@ except Exception as e:
 @skipIfCustomOrganisation
 class PaymentInformationTestCase(_BillingTestCase):
     def setUp(self):
+        super().setUp()
         self.login()
 
     def _build_add_url(self, orga):

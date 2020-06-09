@@ -114,6 +114,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
 
 class CremePropertyTestCase(CremeTestCase):
     def setUp(self):
+        super().setUp()
         self.login()
 
     def test_create(self):
