@@ -2,10 +2,14 @@
 
 try:
     from copy import deepcopy
+    from datetime import date
+    from decimal import Decimal
     from functools import partial
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.formats import date_format, number_format
+    from django.utils.timezone import localtime
     from django.utils.translation import gettext as _
 
     from ..base import CremeTestCase
@@ -133,19 +137,16 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIs(cell.is_multiline, False)
         # self.assertEqual('first_name__icontains', cell.filter_string)
 
-    def test_regular_field02(self):
-        "Date field."
+    def test_regular_field_date(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='birthday')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,     cell.listview_css_class)
         self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_regular_field03(self):
-        "Boolean field."
+    def test_regular_field_bool(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='is_a_nerd')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
 
-    def test_regular_field04(self):
-        "ForeignKey."
+    def test_regular_field_fk(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='position')
         self.assertEqual('regular_field-position', cell.key)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
@@ -153,33 +154,31 @@ class EntityCellTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='image')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
 
-    def test_regular_field05(self):
-        "Basic ForeignKey subfield."
+    def test_regular_field_fk_subfield01(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='position__title')
         self.assertEqual('regular_field-position__title', cell.key)
 
         cell = EntityCellRegularField.build(model=FakeContact, name='image__name')
         self.assertEqual('regular_field-image__name', cell.key)
 
-    def test_regular_field06(self):
+    def test_regular_field_fk_subfield02(self):
         "Date ForeignKey subfield."
         cell = EntityCellRegularField.build(model=FakeContact, name='image__created')
         self.assertEqual('{} - {}'.format(_('Photograph'), _('Creation date')), cell.title)
 
-    def test_regular_field07(self):
+    def test_regular_field_fk_subfield03(self):
         "ForeignKey subfield is a FK."
         cell = EntityCellRegularField.build(model=FakeDocument, name='linked_folder__category')
         self.assertEqual('regular_field-linked_folder__category', cell.key)
 
-    def test_regular_field08(self):
-        "ManyToMany."
+    def test_regular_field_m2m(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='languages')
         self.assertTrue(cell.is_multiline)
 
         cell = EntityCellRegularField.build(model=FakeContact, name='languages__name')
         self.assertTrue(cell.is_multiline)
 
-    def test_regular_field09(self):
+    def test_regular_field_hidden(self):
         "Hidden field."
         hidden = 'first_name'
 
@@ -199,8 +198,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIsNone(build(name='unknown_field'))
         self.assertIsNone(build(name='user__unknownfield'))
 
-    def test_customfield01(self):
-        "INT CustomField."
+    def test_customfield_int(self):
         self.assertEqual(_('Custom fields'), EntityCellCustomField.verbose_name)
 
         name = 'Size (cm)'
@@ -226,8 +224,17 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIsNone(EntityCellCustomField.build(FakeContact, 1000))
         self.assertIsNone(EntityCellCustomField.build(FakeContact, 'notanint'))
 
-    def test_customfield02(self):
-        "FLOAT CustomField."
+        # Render ---
+        user = self.create_user()
+        yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
+        self.assertEqual('', cell.render_html(entity=yoko, user=user))
+
+        customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=152)
+        yoko = self.refresh(yoko)  # Reset caches
+        self.assertEqual('152', cell.render_html(entity=yoko, user=user))
+        self.assertEqual('152', cell.render_csv(entity=yoko, user=user))
+
+    def test_customfield_decimal(self):
         customfield = CustomField.objects.create(
             name='Weight', 
             field_type=CustomField.FLOAT,
@@ -238,10 +245,18 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_NUMBER_LISTVIEW,         cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_customfield03(self):
-        "DATE CustomField."
+        # Render ---
+        user = self.create_user()
+        yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
+        value = Decimal('1.52')
+        value_str = number_format(value, use_l10n=True)
+        customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=value)
+        self.assertEqual(value_str, cell.render_html(entity=yoko, user=user))
+        self.assertEqual(value_str, cell.render_csv(entity=yoko, user=user))
+
+    def test_customfield_datetime(self):
         customfield = CustomField.objects.create(
-            name='Day',
+            name='Day & hour',
             field_type=CustomField.DATETIME,
             content_type=self.contact_ct,
         )
@@ -250,8 +265,18 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,     cell.listview_css_class)
         self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_customfield04(self):
-        "BOOL CustomField."
+        # Render ---
+        user = self.create_user()
+        yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
+        dt = self.create_datetime(year=2058, month=3, day=26, hour=12)
+        dt_str = date_format(localtime(dt), 'DATETIME_FORMAT')
+        customfield.value_class.objects.create(
+            entity=yoko, custom_field=customfield, value=dt,
+        )
+        self.assertEqual(dt_str, cell.render_html(entity=yoko, user=user))
+        self.assertEqual(dt_str, cell.render_csv(entity=yoko, user=user))
+
+    def test_customfield_bool(self):
         customfield = CustomField.objects.create(
             name='Is fun ?',
             field_type=CustomField.BOOL,
@@ -262,8 +287,42 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_customfield05(self):
-        "ENUM CustomField."
+        # Render ---
+        user = self.create_user()
+        yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
+        customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=True)
+        self.assertEqual(
+            f'<input type="checkbox" checked disabled/>{_("Yes")}',
+            cell.render_html(entity=yoko, user=user)
+        )
+        self.assertEqual(_('Yes'), cell.render_csv(entity=yoko, user=user))
+
+    def test_customfield_str(self):
+        customfield = CustomField.objects.create(
+            name='Nickname',
+            field_type=CustomField.STR,
+            content_type=self.contact_ct,
+        )
+
+        cell = EntityCellCustomField(customfield)
+        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
+        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
+
+        # Render ---
+        user = self.create_user()
+        yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
+
+        value = '<i>Sniper</i>'
+        customfield.value_class.objects.create(
+            entity=yoko, custom_field=customfield, value=value,
+        )
+        self.assertEqual(
+            '&lt;i&gt;Sniper&lt;/i&gt;',
+            cell.render_html(entity=yoko, user=user)
+        )
+        self.assertEqual(value, cell.render_csv(entity=yoko, user=user))
+
+    def test_customfield_enum(self):
         customfield = CustomField.objects.create(
             name='Eva',
             field_type=CustomField.ENUM,
@@ -274,15 +333,27 @@ class EntityCellTestCase(CremeTestCase):
             CustomFieldEnumValue.objects.create,
             custom_field=customfield,
         )
-        create_enumvalue(value='Eva-00')
+        enum_value1 = create_enumvalue(value='Eva-00<script>')
         create_enumvalue(value='Eva-01')
 
         cell = EntityCellCustomField(customfield)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_customfield06(self):
-        "MULTI_ENUM CustomField."
+        # Render ---
+        user = self.create_user()
+        yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
+        self.assertEqual('', cell.render_html(entity=yoko, user=user))
+        self.assertEqual('', cell.render_csv(entity=yoko, user=user))
+
+        customfield.value_class.objects.create(
+            entity=yoko, custom_field=customfield, value=enum_value1,
+        )
+        yoko = self.refresh(yoko)  # Avoid cache
+        self.assertEqual('Eva-00&lt;script&gt;', cell.render_html(entity=yoko, user=user))
+        self.assertEqual(enum_value1.value, cell.render_csv(entity=yoko, user=user))
+
+    def test_customfield_mulitenum(self):
         customfield = CustomField.objects.create(
             name='Eva',
             field_type=CustomField.MULTI_ENUM,
@@ -293,15 +364,33 @@ class EntityCellTestCase(CremeTestCase):
             CustomFieldEnumValue.objects.create,
             custom_field=customfield,
         )
-        create_enumvalue(value='Eva-00')
+        enum_value1 = create_enumvalue(value='Eva-00')
         create_enumvalue(value='Eva-01')
+        enum_value3 = create_enumvalue(value='Eva-02<script>')
 
         cell = EntityCellCustomField(customfield)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_customfield07(self):
-        "Deleted CustomField."
+        # Render ---
+        user = self.create_user()
+        yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
+        self.assertEqual('', cell.render_html(entity=yoko, user=user))
+        self.assertEqual('', cell.render_csv(entity=yoko, user=user))
+
+        cf_value = customfield.value_class(entity=yoko, custom_field=customfield)
+        cf_value.set_value_n_save([enum_value1.id, enum_value3.id])
+        yoko = self.refresh(yoko)  # Avoid cache
+        self.assertHTMLEqual(
+            f'<ul><li>{enum_value1.value}</li><li>Eva-02&lt;script&gt;</li></ul>',
+            cell.render_html(entity=yoko, user=user)
+        )
+        self.assertEqual(
+            f'{enum_value1.value} / {enum_value3.value}',
+            cell.render_csv(entity=yoko, user=user)
+        )
+
+    def test_customfield_deleted(self):
         name = 'Size (cm)'
         customfield = CustomField.objects.create(
             name=name,

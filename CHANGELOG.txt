@@ -239,6 +239,7 @@
         # The root URL 'site_media/*' has been removed.
         # The URL named "creme_core__dl_file" has been removed ; use the URL named "creme_core__download" instead (beware: the arguments are different).
         # In 'creme_core.core' :
+            - The attribute 'entity_cell.EntityCellCustomField._CF_CSS' has been removed.
             - In 'job' several classes have been renamed in order to add a custom manager class to Job in the future :
                 - The class 'JobManager' has been renamed 'JobScheduler'.
                 - The class '_BaseJobManagerQueue' has been renamed '_BaseJobSchedulerQueue'.

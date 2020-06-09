@@ -19,26 +19,21 @@
 ################################################################################
 
 import logging
-from typing import Type, Iterable, Optional, Dict, List, Tuple  # Callable
+from typing import Dict, Iterable, List, Optional, Tuple, Type  # Callable
 
 # from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import Model, Field, FieldDoesNotExist
-from django.utils.html import format_html, format_html_join
-from django.utils.translation import gettext_lazy as _, gettext
+from django.db.models import Field, FieldDoesNotExist, Model
+from django.utils.html import escape, format_html, format_html_join
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
-from ..models import (
-    CremeEntity,
-    RelationType,
-    CustomField,
-    FieldsConfig,
-)
+from ..models import CremeEntity, CustomField, FieldsConfig, RelationType
 from ..models import fields as core_fields
 from ..utils.collections import ClassKeyedMap
 from ..utils.db import populate_related
 from ..utils.meta import FieldInfo
 from ..utils.unicode_collation import collator
-
 from .function_field import (
     FunctionField,
     FunctionFieldDecimal,
@@ -182,10 +177,10 @@ class EntityCell:
         pass
 
     # TODO: factorise render_* => like FunctionField, result that can be html, csv...
-    def render_html(self, entity: CremeEntity, user):
+    def render_html(self, entity: CremeEntity, user) -> str:
         raise NotImplementedError
 
-    def render_csv(self, entity: CremeEntity, user):
+    def render_csv(self, entity: CremeEntity, user) -> str:
         raise NotImplementedError
 
     def to_dict(self):
@@ -296,10 +291,10 @@ class EntityCellActions(EntityCell):
             if action.is_visible
         ])
 
-    def render_html(self, entity: CremeEntity, user) -> str:
+    def render_html(self, entity, user):
         return ''
 
-    def render_csv(self, entity: CremeEntity, user) -> str:
+    def render_csv(self, entity, user):
         return ''
 
 
@@ -403,13 +398,44 @@ class EntityCellCustomField(EntityCell):
     type_id = 'custom_field'
     verbose_name = _('Custom fields')
 
-    _CF_CSS = {
-        CustomField.DATETIME:   models.DateTimeField,
-        CustomField.INT:        models.PositiveIntegerField,
-        CustomField.FLOAT:      models.DecimalField,
-        CustomField.BOOL:       models.BooleanField,
-        CustomField.ENUM:       models.ForeignKey,
-        CustomField.MULTI_ENUM: models.ManyToManyField,
+    # _CF_CSS = {
+    #     CustomField.DATETIME:   models.DateTimeField,
+    #     CustomField.INT:        models.PositiveIntegerField,
+    #     CustomField.FLOAT:      models.DecimalField,
+    #     CustomField.BOOL:       models.BooleanField,
+    #     CustomField.ENUM:       models.ForeignKey,
+    #     CustomField.MULTI_ENUM: models.ManyToManyField,
+    # }
+
+    @staticmethod
+    def _multi_enum_html(entity, cf_value, user, cfield):
+        if cf_value is None:
+            return ''
+
+        li_tags = format_html_join(
+            '', '<li>{}</li>',
+            ((str(val),) for val in cf_value.get_enumvalues())
+        )
+
+        return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
+
+    _EXTRA_RENDERERS = {
+        'html': {
+            CustomField.ENUM:
+                lambda entity, cf_value, user, cfield:
+                    escape(cf_value) if cf_value is not None else '',
+            CustomField.MULTI_ENUM:
+                _multi_enum_html.__func__,
+        },
+        'csv': {
+            CustomField.ENUM:
+                lambda entity, cf_value, user, cfield:
+                    str(cf_value) if cf_value is not None else '',
+            CustomField.MULTI_ENUM:
+                lambda entity, cf_value, user, cfield:
+                    ' / '.join(str(val) for val in cf_value.get_enumvalues())
+                    if cf_value is not None else '',
+        },
     }
 
     def __init__(self, customfield: CustomField):
@@ -426,6 +452,11 @@ class EntityCellCustomField(EntityCell):
             is_hidden=False,
             is_excluded=deleted,
         )
+
+        # NB: We set these methods in instance's scope to avoid the building of
+        #     their internal renderer at each call.
+        self.render_html = self._get_renderer('html')
+        self.render_csv  = self._get_renderer('csv')
 
     @classmethod
     def build(cls,
@@ -459,7 +490,37 @@ class EntityCellCustomField(EntityCell):
         return self._customfield
 
     def _get_field_class(self):
-        return self._CF_CSS.get(self._customfield.field_type, Field)
+        # return self._CF_CSS.get(self._customfield.field_type, Field)
+        return type(self._customfield.value_class._meta.get_field('value'))
+
+    def _get_renderer(self, output: str):
+        cfield = self.custom_field
+
+        renderer = self._EXTRA_RENDERERS[output].get(cfield.field_type)
+        if renderer is not None:
+            def _aux(entity, user):
+                cf_value = entity.get_custom_value(cfield)
+                return renderer(entity, cf_value, user, cfield)
+        else:
+            # TODO: see EntityCellRegularField for remark on registry
+            from ..gui.field_printers import field_printers_registry
+
+            field_cls = self._get_field_class()
+            # HACK: need an API for that
+            printer = field_printers_registry._printers_maps[output][field_cls]
+            regular_field = field_cls()
+
+            def _aux(entity, user):
+                cf_value = entity.get_custom_value(cfield)
+
+                return printer(
+                    entity,
+                    cf_value.value,
+                    user,
+                    regular_field,  # <== HACK
+                ) if cf_value is not None else ''
+
+        return _aux
 
     @staticmethod
     def populate_entities(cells, entities, user):
@@ -468,13 +529,13 @@ class EntityCellCustomField(EntityCell):
             [cell.custom_field for cell in cells],
         )  # NB: not itervalues()
 
-    def render_html(self, entity, user):
-        from django.utils.html import escape
-        return escape(self.render_csv(entity, user))
+    # def render_html(self, entity, user):
+    #     from django.utils.html import escape
+    #     return escape(self.render_csv(entity, user))
 
-    def render_csv(self, entity, user):
-        value = entity.get_custom_value(self.custom_field)
-        return value if value is not None else ''
+    # def render_csv(self, entity, user):
+    #     value = entity.get_custom_value(self.custom_field)
+    #     return value if value is not None else ''
 
 
 @CELLS_MAP
