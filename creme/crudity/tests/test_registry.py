@@ -37,9 +37,10 @@ class CrudityRegistryTestCase(CrudityTestCase):
         self.assertIsInstance(ifetcher2, registry.FetcherInterface)
         self.assertEqual([f21, f22], ifetcher2.fetchers)
 
-        self.assertSetEqual({ifetcher1, ifetcher2},
-                            {*crudity_registry.get_fetchers()}
-                           )
+        self.assertSetEqual(
+            {ifetcher1, ifetcher2},
+            {*crudity_registry.get_fetchers()}
+        )
 
     def test_register_fetchers02(self):
         crudity_registry = self.crudity_registry
@@ -58,9 +59,10 @@ class CrudityRegistryTestCase(CrudityTestCase):
         crudity_registry = self.crudity_registry
         crudity_registry.register_backends([FakeContactBackend, FakeOrganisationBackend])
         crudity_registry.register_backends([FakeDocumentBackend])
-        self.assertSetEqual({FakeContact, FakeOrganisation, FakeDocument},
-                            {*crudity_registry._backends}
-                           )
+        self.assertSetEqual(
+            {FakeContact, FakeOrganisation, FakeDocument},
+            {*crudity_registry._backends}
+        )
 
     def test_register_input01(self):
         crudity_registry = self.crudity_registry
@@ -94,29 +96,29 @@ class CrudityRegistryTestCase(CrudityTestCase):
 
         subject1 = 'CREATECONTACT'
         subject2 = 'CREATE_ORGA'
-        crudity_registry.dispatch(
-            [{'fetcher':     'swallow',
-              'input':       'raw_swallow',
-              'method':      'create',
-              'model':       'creme_core.fakecontact',
-              'password':    '',
-              'limit_froms': (),
-              'in_sandbox':  True,
-              'body_map':    {},
-              'subject':     subject1,
-             },
-             {'fetcher':     'swallow',
-              'input':       'raw_swallow',
-              'method':      'create',
-              'model':       'creme_core.fakeorganisation',
-              'password':    '',
-              'limit_froms': (),
-              'in_sandbox':  True,
-              'body_map':    {},
-              'subject':     subject2,
-              },
-            ],
-        )
+        crudity_registry.dispatch([
+            {
+                'fetcher':     'swallow',
+                'input':       'raw_swallow',
+                'method':      'create',
+                'model':       'creme_core.fakecontact',
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                'subject':     subject1,
+            }, {
+                'fetcher':     'swallow',
+                'input':       'raw_swallow',
+                'method':      'create',
+                'model':       'creme_core.fakeorganisation',
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                'subject':     subject2,
+            },
+        ])
 
         ifetcher = crudity_registry.get_fetcher('swallow')
         self.assertIsNotNone(ifetcher)
@@ -135,7 +137,7 @@ class CrudityRegistryTestCase(CrudityTestCase):
         self.assertEqual(subject2, backend2.subject)
 
     def test_dispatch02(self):
-        "Errors: missing/erroneous information"
+        "Errors: missing/erroneous information."
         crudity_registry = self.crudity_registry
         crudity_registry.register_fetchers('swallow', [self.SwallowFetcher()])
 
@@ -147,142 +149,124 @@ class CrudityRegistryTestCase(CrudityTestCase):
         crudity_registry.register_backends([FakeContactBackend, FakeOrganisationBackend])
 
         with self.assertRaises(ImproperlyConfigured):
-            crudity_registry.dispatch(
-                [{# 'fetcher':     'swallow',
-                  'input':       'raw_swallow',
-                  'method':      'create',
-                  'model':       'creme_core.fakecontact',
-                  'password':    '',
-                  'limit_froms': (),
-                  'in_sandbox':  True,
-                  'body_map':    {},
-                  'subject':     'CREATECONTACT',
-                 },
-                ],
-            )
+            crudity_registry.dispatch([{
+                # 'fetcher':     'swallow',
+                'input':       'raw_swallow',
+                'method':      'create',
+                'model':       'creme_core.fakecontact',
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                'subject':     'CREATECONTACT',
+            }])
 
         with self.assertRaises(ImproperlyConfigured):
-            crudity_registry.dispatch(
-                [{'fetcher':     'swallow',
-                  'input':       'raw_swallow',
-                  'method':      'create',
-                  # 'model':       'creme_core.fakecontact',
-                  'password':    '',
-                  'limit_froms': (),
-                  'in_sandbox':  True,
-                  'body_map':    {},
-                  'subject':     'CREATECONTACT',
-                 },
-                ],
-            )
+            crudity_registry.dispatch([{
+                'fetcher':     'swallow',
+                'input':       'raw_swallow',
+                'method':      'create',
+                # 'model':       'creme_core.fakecontact',
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                'subject':     'CREATECONTACT',
+            }])
 
         with self.assertRaises(ImproperlyConfigured):
-            crudity_registry.dispatch(
-                [{'fetcher':     'swallow',
-                  'input':       'raw_swallow',
-                  'method':      'create',
-                  'model':       'creme_core.fakecontact',
-                  'password':    '',
-                  'limit_froms': (),
-                  'in_sandbox':  True,
-                  'body_map':    {},
-                  # 'subject':     'CREATECONTACT',
-                 },
-                ],
-            )
+            crudity_registry.dispatch([{
+                'fetcher':     'swallow',
+                'input':       'raw_swallow',
+                'method':      'create',
+                'model':       'creme_core.fakecontact',
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                # 'subject':     'CREATECONTACT',
+            }])
 
         with self.assertRaises(ImproperlyConfigured):
-            crudity_registry.dispatch(
-                [{'fetcher':     'swallow',
-                  'input':       'raw_swallow',
-                  'method':      'create',
-                  'model':       'creme_core.fakedocument',  # <= no backend
-                  'password':    '',
-                  'limit_froms': (),
-                  'in_sandbox':  True,
-                  'body_map':    {},
-                  'subject':     'CREATECONTACT',
-                 },
-                ],
-            )
+            crudity_registry.dispatch([{
+                'fetcher':     'swallow',
+                'input':       'raw_swallow',
+                'method':      'create',
+                'model':       'creme_core.fakedocument',  # <= no backend
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                'subject':     'CREATECONTACT',
+            }])
 
         with self.assertRaises(ImproperlyConfigured):
-            crudity_registry.dispatch(
-                [{'fetcher':     'swallow',
-                  # 'input':       'raw_swallow',
-                  'method':      'create',
-                  'model':       'creme_core.fakecontact',
-                  'password':    '',
-                  'limit_froms': (),
-                  'in_sandbox':  True,
-                  'body_map':    {},
-                  'subject':     'CREATECONTACT',
-                 },
-                ],
-            )
+            crudity_registry.dispatch([{
+                'fetcher':     'swallow',
+                # 'input':       'raw_swallow',
+                'method':      'create',
+                'model':       'creme_core.fakecontact',
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                'subject':     'CREATECONTACT',
+            }])
 
         with self.assertRaises(ImproperlyConfigured):
-            crudity_registry.dispatch(
-                [{'fetcher':     'swallow',
-                  'input':       'raw_swallow',
-                  'method':      'delete',  # <==
-                  'model':       'creme_core.fakecontact',
-                  'password':    '',
-                  'limit_froms': (),
-                  'in_sandbox':  True,
-                  'body_map':    {},
-                  'subject':     'CREATECONTACT',
-                 },
-                ],
-            )
+            crudity_registry.dispatch([{
+                'fetcher':     'swallow',
+                'input':       'raw_swallow',
+                'method':      'delete',  # <==
+                'model':       'creme_core.fakecontact',
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                'subject':     'CREATECONTACT',
+            }])
 
         with self.assertRaises(ImproperlyConfigured):
-            crudity_registry.dispatch(
-                [{'fetcher':     'swallow',
-                  'input':       'raw_swallow',
-                  'method':      'create',
-                  'model':       'creme_core.invalidmodel',  # <==
-                  'password':    '',
-                  'limit_froms': (),
-                  'in_sandbox':  True,
-                  'body_map':    {},
-                  'subject':     'CREATECONTACT',
-                 },
-                ],
-            )
+            crudity_registry.dispatch([{
+                'fetcher':     'swallow',
+                'input':       'raw_swallow',
+                'method':      'create',
+                'model':       'creme_core.invalidmodel',  # <==
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                'subject':     'CREATECONTACT',
+            }])
 
         with self.assertRaises(ImproperlyConfigured):
-            crudity_registry.dispatch(
-                [{'fetcher':     'invalid_fectcher',  # <==
-                  'input':       'raw_swallow',
-                  'method':      'create',
-                  'model':       'creme_core.fakecontact',
-                  'password':    '',
-                  'limit_froms': (),
-                  'in_sandbox':  True,
-                  'body_map':    {},
-                  'subject':     'CREATECONTACT',
-                 },
-                ],
-            )
+            crudity_registry.dispatch([{
+                'fetcher':     'invalid_fetcher',  # <==
+                'input':       'raw_swallow',
+                'method':      'create',
+                'model':       'creme_core.fakecontact',
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                'subject':     'CREATECONTACT',
+            }])
 
         with self.assertRaises(ImproperlyConfigured):
-            crudity_registry.dispatch(
-                [{'fetcher':     'swallow',
-                  'input':       'invalid_input',  # <===
-                  'method':      'create',
-                  'model':       'creme_core.fakecontact',
-                  'password':    '',
-                  'limit_froms': (),
-                  'in_sandbox':  True,
-                  'body_map':    {},
-                  'subject':     'CREATECONTACT',
-                 },
-                ],
-            )
+            crudity_registry.dispatch([{
+                'fetcher':     'swallow',
+                'input':       'invalid_input',  # <===
+                'method':      'create',
+                'model':       'creme_core.fakecontact',
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                'subject':     'CREATECONTACT',
+            }])
 
     def test_dispatch03(self):
-        "Errors: duplicated subject"
+        "Errors: duplicated subject."
         crudity_registry = self.crudity_registry
         crudity_registry.register_fetchers('swallow', [self.SwallowFetcher()])
 
@@ -296,29 +280,27 @@ class CrudityRegistryTestCase(CrudityTestCase):
         subject = 'CREATECONTACT'
 
         with self.assertRaises(ImproperlyConfigured):
-            crudity_registry.dispatch(
-                [{'fetcher':     'swallow',
-                  'input':       'raw_swallow',
-                  'method':      'create',
-                  'model':       'creme_core.fakecontact',
-                  'password':    '',
-                  'limit_froms': (),
-                  'in_sandbox':  True,
-                  'body_map':    {},
-                  'subject':     subject,
-                 },
-                 {'fetcher':     'swallow',
-                  'input':       'raw_swallow',
-                  'method':      'create',
-                  'model':       'creme_core.fakeorganisation',
-                  'password':    '',
-                  'limit_froms': (),
-                  'in_sandbox':  True,
-                  'body_map':    {},
-                  'subject':     subject,
-                 },
-                ],
-            )
+            crudity_registry.dispatch([{
+                'fetcher':     'swallow',
+                'input':       'raw_swallow',
+                'method':      'create',
+                'model':       'creme_core.fakecontact',
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                'subject':     subject,
+            }, {
+                'fetcher':     'swallow',
+                'input':       'raw_swallow',
+                'method':      'create',
+                'model':       'creme_core.fakeorganisation',
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                'subject':     subject,
+            }])
 
     def test_dispatch04(self):
         "Default backend"
@@ -327,19 +309,17 @@ class CrudityRegistryTestCase(CrudityTestCase):
 
         crudity_registry.register_backends([FakeContactBackend, FakeOrganisationBackend])
 
-        crudity_registry.dispatch(
-                [{'fetcher':     'swallow',
-                  'input':       '',
-                  'method':      '',
-                  'model':       'creme_core.fakecontact',
-                  'password':    '',
-                  'limit_froms': (),
-                  'in_sandbox':  True,
-                  'body_map':    {},
-                  'subject':     '*',
-                 },
-                ],
-        )
+        crudity_registry.dispatch([{
+            'fetcher':     'swallow',
+            'input':       '',
+            'method':      '',
+            'model':       'creme_core.fakecontact',
+            'password':    '',
+            'limit_froms': (),
+            'in_sandbox':  True,
+            'body_map':    {},
+            'subject':     '*',
+        }])
 
         ifetcher = crudity_registry.get_fetcher('swallow')
         self.assertIsNotNone(ifetcher)
@@ -356,16 +336,14 @@ class CrudityRegistryTestCase(CrudityTestCase):
         crudity_registry.register_backends([FakeContactBackend, FakeOrganisationBackend])
 
         with self.assertRaises(ImproperlyConfigured):
-            crudity_registry.dispatch(
-                [{'fetcher':     'swallow',
-                  'input':       '',
-                  'method':      '',
-                  'model':       'creme_core.fakeorganisation',
-                  'password':    '',
-                  'limit_froms': (),
-                  'in_sandbox':  True,
-                  'body_map':    {},
-                  'subject':     '*',
-                 },
-                ],
-            )
+            crudity_registry.dispatch([{
+                'fetcher':     'swallow',
+                'input':       '',
+                'method':      '',
+                'model':       'creme_core.fakeorganisation',
+                'password':    '',
+                'limit_froms': (),
+                'in_sandbox':  True,
+                'body_map':    {},
+                'subject':     '*',
+            }])

@@ -26,9 +26,9 @@ class WaitingActionTestCase(CrudityTestCase):
         cls.ct_contact = get_ct(FakeContact)
 
         cls.User = get_user_model()
-        cls._staff_user_ids_backup = [*cls.User.objects.filter(is_staff=True)
-                                                       .values_list('id')
-                                     ]
+        cls._staff_user_ids_backup = [
+            *cls.User.objects.filter(is_staff=True).values_list('id')
+        ]
 
     @classmethod
     def tearDownClass(cls):
@@ -38,10 +38,11 @@ class WaitingActionTestCase(CrudityTestCase):
     def test_can_validate_or_delete01(self):
         "Sandbox for everyone."
         user = self.login()
-        action = WaitingAction.objects.create(user=None, source='unknown',
-                                              action='create', subject='',
-                                              ct=self.ct_entity,
-                                             )
+        action = WaitingAction.objects.create(
+            user=None, source='unknown',
+            action='create', subject='',
+            ct=self.ct_entity,
+        )
         self.assertTrue(action.can_validate_or_delete(user)[0])
         self.assertTrue(action.can_validate_or_delete(self.other_user)[0])
 
@@ -52,10 +53,11 @@ class WaitingActionTestCase(CrudityTestCase):
 
         self._set_sandbox_by_user()
 
-        create_waction = partial(WaitingAction.objects.create, source='unknown',
-                                 action='create', subject='', ct=self.ct_entity,
-                                )
-        action = create_waction(user=self.user)
+        create_waction = partial(
+            WaitingAction.objects.create,
+            source='unknown', action='create', subject='', ct=self.ct_entity,
+        )
+        action = create_waction(user=user)
         self.assertTrue(action.can_validate_or_delete(user)[0])
         self.assertFalse(action.can_validate_or_delete(other_user)[0])
 
@@ -67,9 +69,9 @@ class WaitingActionTestCase(CrudityTestCase):
         """If the sandbox was not by user, but now it is all WaitingAction has
         to be assigned to someone.
         """
-        action = WaitingAction.objects.create(source='unknown', action='create',
-                                              subject='', ct=self.ct_entity,
-                                             )
+        action = WaitingAction.objects.create(
+            source='unknown', action='create', subject='', ct=self.ct_entity,
+        )
         self.assertIsNone(action.user)
 
         self.assertTrue(self.User.objects.filter(is_superuser=True, is_staff=False))
@@ -83,9 +85,9 @@ class WaitingActionTestCase(CrudityTestCase):
         self.assertFalse(action.user.is_staff)
 
     def test_auto_assignation02(self):
-        action = WaitingAction.objects.create(source='unknown', action='create',
-                                              subject='', ct=self.ct_entity,
-                                             )
+        action = WaitingAction.objects.create(
+            source='unknown', action='create', subject='', ct=self.ct_entity,
+        )
         self.assertIsNone(action.user)
 
         self.User.objects.filter(is_superuser=True).update(is_staff=True)
@@ -99,18 +101,19 @@ class WaitingActionTestCase(CrudityTestCase):
     def test_data_property01(self):
         expected_data = {'first_name': 'Mario', 'last_name': 'Bros'}
         action = WaitingAction.objects.create(ct=self.ct_contact, data=expected_data)
-        self.assertEqual(expected_data, self.refresh(action).data)
+        self.assertDictEqual(expected_data, self.refresh(action).data)
 
     def test_data_property02(self):
         action = WaitingAction(ct=self.ct_contact)
-        expected_data = {'first_name': 'Mario',
-                         'last_name': 'Bros',
-                         'friends': ['Yoshi', 'Toad'],
-                         'lives': 99,
-                         'enemies': {'Bowser': 1, 'Koopa': 50},
-                         'epoch': now(),
-                        }
+        expected_data = {
+            'first_name': 'Mario',
+            'last_name': 'Bros',
+            'friends': ['Yoshi', 'Toad'],
+            'lives': 99,
+            'enemies': {'Bowser': 1, 'Koopa': 50},
+            'epoch': now(),
+        }
         action.data = expected_data
         action.save()
 
-        self.assertEqual(expected_data, self.refresh(action).data)
+        self.assertDictEqual(expected_data, self.refresh(action).data)
