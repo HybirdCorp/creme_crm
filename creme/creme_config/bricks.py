@@ -18,28 +18,45 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
 import logging
+from collections import defaultdict
 
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core import setting_key
 from creme.creme_core.gui.bricks import (
-    Brick, PaginatedBrick, QuerysetBrick,
-    brick_registry, BricksManager,
+    Brick,
+    BricksManager,
+    PaginatedBrick,
+    QuerysetBrick,
+    brick_registry,
 )
 from creme.creme_core.models import (
-    CremeModel, CremeEntity, UserRole, SettingValue,
-    CremePropertyType, RelationType, SemiFixedRelationType, FieldsConfig,
-    CustomField, CustomFieldEnumValue,
-    BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
-    RelationBrickItem, InstanceBrickConfigItem, CustomBrickConfigItem,
-    ButtonMenuItem, SearchConfigItem, HistoryConfigItem,
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    BrickMypageLocation,
+    ButtonMenuItem,
+    CremeEntity,
+    CremeModel,
+    CremePropertyType,
+    CustomBrickConfigItem,
+    CustomField,
+    CustomFieldEnumValue,
+    FieldsConfig,
+    HistoryConfigItem,
+    InstanceBrickConfigItem,
+    RelationBrickItem,
+    RelationType,
+    SearchConfigItem,
+    SemiFixedRelationType,
+    SettingValue,
+    UserRole,
 )
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.content_type import entity_ctypes
@@ -131,8 +148,8 @@ class SettingsBrick(QuerysetBrick):
         app_name = context['app_name']
         skeys_ids = [
             skey.id
-                for skey in self.setting_key_registry
-                    if skey.app_label == app_name and not skey.hidden
+            for skey in self.setting_key_registry
+            if skey.app_label == app_name and not skey.hidden
         ]
 
         return self._render(self.get_template_context(
@@ -234,7 +251,7 @@ class FieldsConfigsBrick(PaginatedBrick):
             context, fconfigs,
             display_add_button=any(
                 model not in used_models
-                    for model in filter(FieldsConfig.objects.is_model_valid, apps.get_models())
+                for model in filter(FieldsConfig.objects.is_model_valid, apps.get_models())
             ),
         )
 
@@ -304,7 +321,7 @@ class CustomFieldsBrick(Brick):
         get_ct = ContentType.objects.get_for_id
         ctypes = [
             _ContentTypeWrapper(get_ct(ct_id), ct_cfields)
-                for ct_id, ct_cfields in cfields_per_ct_id.items()
+            for ct_id, ct_cfields in cfields_per_ct_id.items()
         ]
 
         return self._render(self.get_template_context(
@@ -396,17 +413,18 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
             def __init__(self, ctype):
                 self.ctype = ctype
                 self.default_count = 0
-                self.locations_info = ()  # List of tuples (role_arg, role_label, block_count)
+                self.locations_info = ()  # List of tuples (role_arg, role_label, brick_count)
                                           # with role_arg == role.id or 'superuser'
 
         # TODO: factorise with SearchConfigBlock ?
-        # TODO: factorise with CustomBlockConfigItemCreateForm , add a method in block_registry ?
+        # TODO: factorise with CustomBrickConfigItemCreateForm , add a method in brick_registry ?
         get_ct = ContentType.objects.get_for_model
         is_invalid = self.brick_registry.is_model_invalid
-        ctypes = [_ContentTypeWrapper(get_ct(model))
-                      for model in creme_registry.iter_entity_models()
-                          if not is_invalid(model)
-                 ]
+        ctypes = [
+            _ContentTypeWrapper(get_ct(model))
+            for model in creme_registry.iter_entity_models()
+            if not is_invalid(model)
+        ]
 
         sort_key = collator.sort_key
         ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
@@ -474,16 +492,16 @@ class BrickHomeLocationsBrick(_ConfigAdminBrick):
             superuser_count=superuser_count,
             empty_configs={
                 'superuser' if superuser else (role or 'default')
-                    for role, superuser in BrickHomeLocation.objects
-                                                            .filter(brick_id='')
-                                                            .values_list('role', 'superuser')
+                for role, superuser in BrickHomeLocation.objects
+                                                        .filter(brick_id='')
+                                                        .values_list('role', 'superuser')
             },
         )
 
         # NB: lambda => lazy
         btc['get_default_count'] = lambda: BrickHomeLocation.objects.filter(
-                                                role=None, superuser=False,
-                                           ).count()
+            role=None, superuser=False,
+        ).count()
 
         paginator = btc['page'].paginator
         btc['show_add_button'] = (
@@ -531,8 +549,9 @@ class RelationBricksConfigBrick(_ConfigAdminBrick):
     order_by = 'relation_type__predicate'
 
     def detailview_display(self, context):
+        # TODO: prefetch symmetric types
         return self._render(self.get_template_context(
-            context, RelationBrickItem.objects.all(),
+            context, RelationBrickItem.objects.prefetch_related('relation_type'),
         ))
 
 
@@ -547,10 +566,16 @@ class InstanceBricksConfigBrick(_ConfigAdminBrick):
     template_name = 'creme_config/bricks/instancebricks-configs.html'
 
     def detailview_display(self, context):
-        # TODO: populate 'entity' ?
-        return self._render(self.get_template_context(
-            context, InstanceBrickConfigItem.objects.all(),
-        ))
+        btc = self.get_template_context(
+            context,
+            InstanceBrickConfigItem.objects.prefetch_related('entity'),
+        )
+
+        CremeEntity.populate_real_entities(
+            [ibci.entity for ibci in btc['page'].object_list]
+        )
+
+        return self._render(btc)
 
 
 class CustomBricksConfigBrick(PaginatedBrick):
@@ -579,14 +604,22 @@ class CustomBricksConfigBrick(PaginatedBrick):
             cbi_per_ctid[cb_item.content_type_id].append(cb_item)
 
         get_ct = ContentType.objects.get_for_id
-        ctypes = [_ContentTypeWrapper(get_ct(ct_id), cb_items)
-                      for ct_id, cb_items in cbi_per_ctid.items()
-                 ]
+        ctypes = [
+            _ContentTypeWrapper(get_ct(ct_id), cb_items)
+            for ct_id, cb_items in cbi_per_ctid.items()
+        ]
 
         sort_key = collator.sort_key
         ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
 
-        return self._render(self.get_template_context(context, ctypes))
+        btc = self.get_template_context(context, ctypes)
+        # TODO: better way to pre-populate FieldsConfig, CustomFields, RelationTypes...
+        #       when we get several groups un de-serialized EntityCells
+        FieldsConfig.objects.get_for_models(
+            [ctype_wrapper.ctype.model_class() for ctype_wrapper in btc['page'].object_list],
+        )  # NB: regroup/prefetch queries on FieldsConfig (we bet that regular fields will be used)
+
+        return self._render(btc)
 
 
 class ButtonMenuBrick(Brick):
@@ -609,7 +642,7 @@ class ButtonMenuBrick(Brick):
         get_ct = ContentType.objects.get_for_id
         buttons = [
             (get_ct(ct_id), build_verbose_names(bm_items))
-                for ct_id, bm_items in buttons_map.items()
+            for ct_id, bm_items in buttons_map.items()
         ]
         sort_key = collator.sort_key
         buttons.sort(key=lambda t: sort_key(str(t[0])))
@@ -627,7 +660,6 @@ class SearchConfigBrick(PaginatedBrick):
     verbose_name  = 'Search configuration'
     template_name = 'creme_config/bricks/search-config.html'
     order_by      = 'content_type'
-    # TODO _ConfigAdminBlock => Mixin
     page_size    = _PAGE_SIZE * 2  # Only one brick
     permission   = None  # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable = False
@@ -656,9 +688,9 @@ class SearchConfigBrick(PaginatedBrick):
         ctypes_wrappers = btc['page'].object_list
 
         sci_map = defaultdict(list)
-        for sci in SearchConfigItem.objects \
-                                   .filter(content_type__in=[ctw.ctype for ctw in ctypes_wrappers])\
-                                   .select_related('role'):
+        for sci in SearchConfigItem.objects.filter(
+            content_type__in=[ctw.ctype for ctw in ctypes_wrappers],
+        ).select_related('role'):
             sci_map[sci.content_type_id].append(sci)
 
         superusers_label = gettext('Superuser')
@@ -667,10 +699,11 @@ class SearchConfigBrick(PaginatedBrick):
             ctype = ctw.ctype
             ctw.sc_items = sc_items = sci_map.get(ctype.id) or []
             sc_items.sort(
-                key=lambda sci: sort_key(str(sci.role) if sci.role
-                                         else superusers_label if sci.superuser
-                                         else ''
-                                        )
+                key=lambda sci: sort_key(
+                    str(sci.role) if sci.role
+                    else superusers_label if sci.superuser
+                    else ''
+                ),
             )
 
             if not sc_items or not sc_items[0].is_default:  # No default config -> we build it
@@ -705,9 +738,9 @@ class UserSettingValuesBrick(Brick):
     id_           = QuerysetBrick.generate_id('creme_config', 'user_setting_values')
     # dependencies  = (User,) ??
     verbose_name  = 'My setting values'
-    template_name = 'creme_config//bricks/user-setting-values.html'
+    template_name = 'creme_config/bricks/user-setting-values.html'
     configurable  = False
-    permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic ;
+    permission    = None  # NB: used by the view creme_core.views.bricks.BricksReloading ;
                           #     None means 'No special permission required'
 
     user_setting_key_registry = setting_key.user_setting_key_registry
@@ -740,7 +773,7 @@ class UserSettingValuesBrick(Brick):
             context,
             values_per_app=[
                 (get_app_config(app_label).verbose_name, svalues)
-                    for app_label, svalues in sv_info_per_app.items()
+                for app_label, svalues in sv_info_per_app.items()
             ],
             count=count,
         ))

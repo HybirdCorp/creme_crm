@@ -18,30 +18,41 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
 import logging
+from collections import defaultdict
 from typing import (
-    Optional, Type, Union,
-    Iterable, Iterator, Sequence,
-    DefaultDict, Dict, List, Tuple, Set,
+    DefaultDict,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    Union,
 )
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.paginator import Paginator, EmptyPage, InvalidPage
+from django.core.paginator import EmptyPage, InvalidPage, Paginator
 from django.db.models import Model
 from django.template.loader import get_template
 from django.utils.functional import cached_property
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from ..constants import MODELBRICK_ID
 from ..core.entity_cell import EntityCell, EntityCellRegularField
 from ..core.sorter import cell_sorter_registry
 from ..models import (
-    CremeEntity,
-    Relation,
-    RelationBrickItem, InstanceBrickConfigItem, CustomBrickConfigItem,
     BrickState,
+    CremeEntity,
+    CustomBrickConfigItem,
+    InstanceBrickConfigItem,
+    Relation,
+    RelationBrickItem,
 )
 from ..utils.meta import OrderedField
 
@@ -809,7 +820,8 @@ class _BrickRegistry:
                 # When an InstanceBrick is on a detail-view of a entity, the content
                 # of this brick depends (generally) of this entity, so we have to
                 # complete the dependencies.
-                model = entity.__class__
+                # model = entity.__class__
+                model = entity.entity_type.model_class()
                 if model not in brick.dependencies:
                     assert not isinstance(brick.dependencies, str)  # NB: '*'
 
@@ -833,13 +845,18 @@ class _BrickRegistry:
 
         relation_bricks_items = {
             rbi.brick_id: rbi
-            for rbi in RelationBrickItem.objects.filter(brick_id__in=specific_ids)
+            for rbi in RelationBrickItem.objects
+                                        .filter(brick_id__in=specific_ids)
+                                        .prefetch_related('relation_type')
         } if specific_ids else {}
         instance_bricks_items = {
             # ibi.brick_id: ibi
             ibi.brick_id: ibi
             # for ibi in InstanceBrickConfigItem.objects.filter(brick_id__in=instance_ids)
-            for ibi in InstanceBrickConfigItem.objects.filter(id__in=instance_ids)
+            # TODO: CremeEntity.populate_real_entities
+            for ibi in InstanceBrickConfigItem.objects
+                                              .filter(id__in=instance_ids)
+                                              .prefetch_related('entity')
         } if instance_ids else {}
         custom_bricks_items = {
             cbci.generate_id(): cbci
