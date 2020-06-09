@@ -2,12 +2,13 @@
 
 try:
     from collections import defaultdict
+    from datetime import date
     from decimal import Decimal
     from functools import partial
 
     from django import forms
-    from django.db.models import QuerySet
     from django.contrib.contenttypes.models import ContentType
+    from django.db.models import QuerySet
     from django.utils.translation import gettext as _
 
     from ..base import CremeTestCase
@@ -15,8 +16,8 @@ try:
     from creme.creme_core.models import (
         CustomField,
         CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean,
-        CustomFieldString,
-        CustomFieldDateTime,
+        CustomFieldString, CustomFieldText, CustomFieldURL,
+        CustomFieldDateTime, CustomFieldDate,
         CustomFieldEnumValue, CustomFieldEnum, CustomFieldMultiEnum,
         FakeOrganisation, FakeContact,
     )
@@ -185,8 +186,8 @@ class CustomFieldsTestCase(CremeTestCase):
         )
         self.assertEqual(CustomFieldString, cfield.get_value_class())
         self.assertEqual(CustomFieldString, cfield.value_class)
-        self.assertEqual(_('String'), cfield.type_verbose_name())
-        self.assertEqual(_('String'), CustomFieldString.verbose_name)
+        self.assertEqual(_('Short string'), cfield.type_verbose_name())
+        self.assertEqual(_('Short string'), CustomFieldString.verbose_name)
 
         self.assertEqual(
             'customfieldstring',
@@ -206,6 +207,51 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertIsInstance(formfield, forms.CharField)
         self.assertTrue(formfield.required)
         self.assertEqual(value, formfield.initial)
+
+    def test_text(self):
+        cfield = CustomField.objects.create(
+            name='History',
+            field_type=CustomField.TEXT,
+            content_type=FakeOrganisation,
+        )
+        self.assertEqual(CustomFieldText, cfield.value_class)
+        self.assertEqual(_('Long text'), CustomFieldText.verbose_name)
+
+        orga = self._create_orga()
+        value = '''This ship was build a long time ago
+by a man named Tochiro.
+'''
+        cf_value = CustomFieldText.objects.create(
+            custom_field=cfield,
+            entity=orga,
+            value=value,
+        )
+        self.assertValueEqual(cfield=cfield, entity=orga, value=value)
+
+        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        self.assertIsInstance(formfield,        forms.CharField)
+        self.assertIsInstance(formfield.widget, forms.Textarea)
+
+    def test_url(self):
+        cfield = CustomField.objects.create(
+            name='History',
+            field_type=CustomField.URL,
+            content_type=FakeOrganisation,
+        )
+        self.assertEqual(CustomFieldURL, cfield.value_class)
+        self.assertEqual(_('URL (link)'), CustomFieldURL.verbose_name)
+
+        orga = self._create_orga()
+        value = 'www.hybird.org'
+        cf_value = CustomFieldURL.objects.create(
+            custom_field=cfield,
+            entity=orga,
+            value=value,
+        )
+        self.assertValueEqual(cfield=cfield, entity=orga, value=value)
+
+        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        self.assertIsInstance(formfield, forms.URLField)
 
     def test_decimal(self):
         cfield = CustomField.objects.create(
@@ -232,6 +278,28 @@ class CustomFieldsTestCase(CremeTestCase):
 
         formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
         self.assertIsInstance(formfield, forms.DecimalField)
+
+    def test_date(self):
+        user = self.create_user()
+        cfield = CustomField.objects.create(
+            name='Last battle',
+            field_type=CustomField.DATE,
+            content_type=FakeOrganisation,
+        )
+        self.assertEqual(CustomFieldDate, cfield.value_class)
+        self.assertEqual(_('Date'), CustomFieldDate.verbose_name)
+
+        orga = FakeOrganisation.objects.create(user=user, name='Arcadia')
+        value = date(year=2058, month=2, day=15)
+        cf_value = CustomFieldDate.objects.create(
+            custom_field=cfield,
+            entity=orga,
+            value=value,
+        )
+        self.assertValueEqual(cfield=cfield, entity=orga, value=value)
+
+        formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
+        self.assertIsInstance(formfield, forms.DateField)
 
     def test_datetime(self):
         user = self.create_user()

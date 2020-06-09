@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-13 18:34+0200\n"
+"POT-Creation-Date: 2020-05-19 14:24+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -182,7 +182,7 @@ msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 msgid "Properties"
 msgstr "Propriétés"
 
-#: bricks.py:69 core/entity_cell.py:539 forms/base.py:428 forms/relation.py:37
+#: bricks.py:69 core/entity_cell.py:607 forms/base.py:428 forms/relation.py:37
 #: gui/bricks.py:440 models/relation.py:421
 #: templates/creme_core/bricks/relations.html:7
 #: templates/creme_core/forms/widgets/entity-cells.html:83
@@ -190,7 +190,7 @@ msgid "Relationships"
 msgstr "Relations"
 
 #: bricks.py:149 core/entity_cell.py:404 forms/bulk.py:141
-#: models/custom_field.py:99 templates/creme_core/bricks/custom-fields.html:12
+#: models/custom_field.py:103 templates/creme_core/bricks/custom-fields.html:12
 #: templates/creme_core/forms/widgets/entity-cells.html:58
 msgid "Custom fields"
 msgstr "Champs personnalisés"
@@ -339,11 +339,11 @@ msgstr "Champs"
 msgid "{} [hidden]"
 msgstr "{} [caché]"
 
-#: core/entity_cell.py:424
+#: core/entity_cell.py:454
 msgid "{} [deleted]"
 msgstr "{} [supprimé]"
 
-#: core/entity_cell.py:481
+#: core/entity_cell.py:549
 #: templates/creme_core/forms/widgets/entity-cells.html:71
 msgid "Computed fields"
 msgstr "Champs calculés"
@@ -1674,13 +1674,13 @@ msgstr "Barre de titre"
 msgid "Download «{file}»"
 msgstr "Télécharger «{file}»"
 
-#: gui/field_printers.py:210 models/custom_field.py:363 models/history.py:161
+#: gui/field_printers.py:210 models/custom_field.py:417 models/history.py:161
 #: templates/creme_core/listview/search-widgets/boolean.html:5
 #: utils/__init__.py:261
 msgid "Yes"
 msgstr "Oui"
 
-#: gui/field_printers.py:210 models/custom_field.py:363 models/history.py:162
+#: gui/field_printers.py:210 models/custom_field.py:417 models/history.py:162
 #: templates/creme_core/listview/search-widgets/boolean.html:6
 #: utils/__init__.py:264
 msgid "No"
@@ -2023,7 +2023,7 @@ msgid "Save"
 msgstr "Enregistrer"
 
 #: models/bricks.py:123 models/bricks.py:615 models/button_menu.py:71
-#: models/custom_field.py:78
+#: models/custom_field.py:82
 msgid "Related type"
 msgstr "Type associé"
 
@@ -2123,19 +2123,19 @@ msgstr "Créer une devise"
 msgid "Currencies"
 msgstr "Devises"
 
-#: models/custom_field.py:77
+#: models/custom_field.py:81
 msgid "Field name"
 msgstr "Nom du champ"
 
-#: models/custom_field.py:79
+#: models/custom_field.py:83
 msgid "Field type"
 msgstr "Type du champ"
 
-#: models/custom_field.py:81
+#: models/custom_field.py:85
 msgid "Is required?"
 msgstr "Est obligatoire ?"
 
-#: models/custom_field.py:83
+#: models/custom_field.py:87
 msgid ""
 "A required custom-field must be filled when a new entity is created ; "
 "existing entities are not immediately impacted."
@@ -2143,47 +2143,61 @@ msgstr ""
 "Un champ personnalisé obligatoire doit être rempli quand une nouvelle fiche "
 "est créée ; les fiches existantes ne sont pas immédiatement concernées."
 
-#: models/custom_field.py:87
+#: models/custom_field.py:91
 msgid "Is deleted?"
 msgstr "Est supprimé ?"
 
-#: models/custom_field.py:93
+#: models/custom_field.py:97
 msgid "Create a custom field"
 msgstr "Créer un champ personnalisé"
 
-#: models/custom_field.py:94
+#: models/custom_field.py:98
 msgid "Save the custom field"
 msgstr "Enregistrer le champ personnalisé"
 
-#: models/custom_field.py:98
+#: models/custom_field.py:102
 msgid "Custom field"
 msgstr "Champ personnalisé"
 
-#: models/custom_field.py:289
-msgid "String"
-msgstr "Chaîne de caractères"
+#: models/custom_field.py:293
+msgid "Short string"
+msgstr "Chaîne de caractères courte"
 
-#: models/custom_field.py:305
+#: models/custom_field.py:309
+msgid "Long text"
+msgstr "Texte long"
+
+#: models/custom_field.py:325
+msgid "URL (link)"
+msgstr "URL (lien)"
+
+#: models/custom_field.py:338
 msgid "Integer"
 msgstr "Nombre entier"
 
-#: models/custom_field.py:322
+#: models/custom_field.py:355
 msgid "Decimal"
 msgstr "Nombre à virgule"
 
-#: models/custom_field.py:339
+#: models/custom_field.py:377
 msgid "Date and time"
 msgstr "Date et heure"
 
-#: models/custom_field.py:357
+#: models/custom_field.py:394 models/history.py:629
+#: templates/creme_core/bricks/history.html:13
+#: templates/creme_core/bricks/imprints.html:11
+msgid "Date"
+msgstr "Date"
+
+#: models/custom_field.py:411
 msgid "Boolean (2 values: Yes/No)"
 msgstr "Booléen (2 valeurs: Oui/Non)"
 
-#: models/custom_field.py:400
+#: models/custom_field.py:454
 msgid "Choice list"
 msgstr "Liste de choix"
 
-#: models/custom_field.py:441
+#: models/custom_field.py:495
 msgid "Multiple choice list"
 msgstr "Liste de choix multiples"
 
@@ -2393,20 +2407,20 @@ msgstr ""
 msgid "HTML Color"
 msgstr "Couleur HTML"
 
-#: models/fields_config.py:118
+#: models/fields_config.py:108
 msgid "Create a fields configuration"
 msgstr "Créer une configuration de champs"
 
-#: models/fields_config.py:119 models/search.py:150
+#: models/fields_config.py:109 models/search.py:150
 msgid "Save the configuration"
 msgstr "Enregistrer la configuration"
 
-#: models/fields_config.py:179
+#: models/fields_config.py:186
 #, python-brace-format
 msgid "Configuration of {model}"
 msgstr "Configuration de {model}"
 
-#: models/fields_config.py:261
+#: models/fields_config.py:269
 #, python-brace-format
 msgid "Warning: the app «{app}» need the field «{field}»."
 msgstr "Attention: l'app «{app}» a besoin du champ «{field}»."
@@ -2539,11 +2553,6 @@ msgstr "Export en masse"
 #, python-brace-format
 msgid "Export of {count} «{model}» (view «{view}» & filter «{filter}»)"
 msgstr "Export de {count} «{model}» (vue «{view}» & filtre «{filter}»)"
-
-#: models/history.py:629 templates/creme_core/bricks/history.html:13
-#: templates/creme_core/bricks/imprints.html:11
-msgid "Date"
-msgstr "Date"
 
 #: models/history.py:630 templates/creme_core/bricks/job.html:50
 #: templates/creme_core/bricks/jobs-all.html:22

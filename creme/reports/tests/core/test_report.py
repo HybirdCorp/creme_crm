@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from datetime import date
     from decimal import Decimal
     from functools import partial
 
@@ -304,6 +305,28 @@ class ReportHandTestCase(CremeTestCase):
         cfield.value_class.objects.create(custom_field=cfield, entity=aria, value=dt)
         self.assertEqual(
             date_format(localtime(dt), 'DATETIME_FORMAT'),
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+        )
+
+    def test_custom_field_date(self):
+        user = self.create_user()
+        cfield = CustomField.objects.create(
+            name='Knighting',
+            field_type=CustomField.DATE,
+            content_type=FakeContact,
+        )
+
+        rfield = Field(
+            report=Report(user=user, ct=FakeContact),
+            type=RFT_CUSTOM, name=str(cfield.id),
+        )
+        hand = RHCustomField(rfield)
+
+        aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
+        date_obj = date(year=2020, month=5, day=18)
+        cfield.value_class.objects.create(custom_field=cfield, entity=aria, value=date_obj)
+        self.assertEqual(
+            date_format(date_obj, 'DATE_FORMAT'),
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
