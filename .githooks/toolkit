@@ -17,7 +17,7 @@ hook_run_checks() {
     echo "run checks : $*"
 
     for check in $*; do
-        if [ "${GIT_COMMIT_CHECK_IGNORE/$check/}" != "${GIT_COMMIT_CHECK_IGNORE}" ]; then
+        if [ "${GIT_HOOK_CHECK_IGNORE/$check/}" != "${GIT_HOOK_CHECK_IGNORE}" ]; then
             echo "[SKIP] $check";
         else
             hook_check_$check;
