@@ -58,8 +58,12 @@ class EntityCellTestCase(CremeTestCase):
         with self.assertRaises(KeyError):
             __ = registry[EntityCellRegularField.type_id]
 
+        self.assertNotIn(EntityCellRegularField.type_id, registry)
+
         registry(EntityCellRegularField)
         self.assertEqual(EntityCellRegularField, registry[EntityCellRegularField.type_id])
+
+        self.assertIn(EntityCellRegularField.type_id, registry)
 
     def test_registry03(self):
         "Deepcopy."

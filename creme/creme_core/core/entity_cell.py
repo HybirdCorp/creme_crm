@@ -205,6 +205,9 @@ class EntityCellsRegistry:
 
         return cls
 
+    def __contains__(self, type_id: str):
+        return type_id in self._cell_classes
+
     def __getitem__(self, type_id: str):
         return self._cell_classes[type_id]
 
