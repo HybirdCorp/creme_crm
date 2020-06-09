@@ -19,6 +19,7 @@ except Exception as e:
 @skipIfCustomPattern
 class ActObjectivePatternTestCase(CommercialBaseTestCase):
     def setUp(self):
+        super().setUp()
         self.login()
 
     def _build_addcomp_url(self, pattern):

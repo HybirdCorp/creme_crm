@@ -28,19 +28,22 @@ except Exception as e:
 @skipIfCustomOrganisation
 class FunctionFieldTestCase(_BillingTestCase):
     def setUp(self):
+        super().setUp()
         self.won_status = QuoteStatus.objects.create(name='won_status', won=True)
-        self.pending_payment_status = InvoiceStatus.objects.create(name='pending_payment',
-                                                                   pending_payment=True,
-                                                                  )
+        self.pending_payment_status = InvoiceStatus.objects.create(
+            name='pending_payment',
+            pending_payment=True,
+        )
         self.today_date = date.today()
 
     def create_line(self, related_document, unit_price, quantity):
-        return ProductLine.objects.create(user=self.user,
-                                          on_the_fly_item='on_the_fly_item',
-                                          related_document=related_document,
-                                          unit_price=unit_price,
-                                          quantity=quantity,
-                                         )
+        return ProductLine.objects.create(
+            user=self.user,
+            on_the_fly_item='on_the_fly_item',
+            related_document=related_document,
+            unit_price=unit_price,
+            quantity=quantity,
+        )
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine

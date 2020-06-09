@@ -16,6 +16,7 @@ except Exception as e:
 
 class OriginTestCase(CremeTestCase):
     def setUp(self):
+        super().setUp()
         self.login()
 
     @skipIfCustomOpportunity

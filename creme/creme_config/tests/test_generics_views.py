@@ -37,6 +37,7 @@ except Exception as e:
 
 class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     def setUp(self):
+        super().setUp()
         self.login()
 
     def assertReplacersEqual(self, expected, dcom):

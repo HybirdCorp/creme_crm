@@ -474,6 +474,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
 # class ActionButtonListTestCase(FieldTestCase):
 class ActionButtonListTestCase(CremeTestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None
 
     def test_render_empty_action_list(self):
@@ -510,6 +511,7 @@ class ActionButtonListTestCase(CremeTestCase):
 # class EntitySelectorTestCase(FieldTestCase):
 class EntitySelectorTestCase(CremeTestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None
 
     def test_listview_url(self):

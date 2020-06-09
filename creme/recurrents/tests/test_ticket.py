@@ -39,6 +39,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
             cls.ct = ContentType.objects.get_for_model(Ticket)
 
     def setUp(self):
+        super().setUp()
         self.login()
 
     def _get_job(self):

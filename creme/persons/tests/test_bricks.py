@@ -54,6 +54,7 @@ except Exception as e:
 @skipIfCustomOrganisation
 class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
     def setUp(self):
+        super().setUp()
         self.login()
 
     def _get_address_brick_node(self, entity):
@@ -332,6 +333,7 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
 @skipIfCustomOrganisation
 class NeglectedOrganisationsBrickTestCase(CremeTestCase):
     def setUp(self):
+        super().setUp()
         self.login()
 
     def _build_customer_orga(self, mng_orga, name, **kwargs):

@@ -271,6 +271,7 @@ class MiscViewsTestCase(ViewsTestCase):
 
 class LanguageTestCase(ViewsTestCase):
     def setUp(self):
+        super().setUp()
         self.login()
 
     def test_portal(self):
@@ -320,6 +321,7 @@ class LanguageTestCase(ViewsTestCase):
 
 class CurrencyTestCase(ViewsTestCase):
     def setUp(self):
+        super().setUp()
         self.login()
 
     def test_portal(self):

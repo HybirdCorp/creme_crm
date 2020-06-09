@@ -74,12 +74,13 @@ class ActionsTestCase(CremeTestCase):
     def setUpClass(cls):
         super(ActionsTestCase, cls).setUpClass()
 
-        cls.user = CremeUser(username='yui', email='kawa.yui@kimengumi.jp',
-                             first_name='Yui', last_name='Kawa',
-                            )
+        cls.user = CremeUser(
+            username='yui', email='kawa.yui@kimengumi.jp',
+            first_name='Yui', last_name='Kawa',
+        )
 
     def setUp(self):
-        super(ActionsTestCase, self).setUp()
+        super().setUp()
         self.registry = ActionsRegistry()
 
     def assertSortedActions(self, expected_classes, actions):

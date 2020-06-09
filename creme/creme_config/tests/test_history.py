@@ -14,6 +14,7 @@ class HistoryConfigTestCase(CremeTestCase):
     ADD_URL = reverse('creme_config__create_history_configs')
 
     def setUp(self):
+        super().setUp()
         self.login()
 
     def test_portal(self):

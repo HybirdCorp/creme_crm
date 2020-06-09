@@ -28,7 +28,7 @@ from ..models import (
     DeletionCommand,
     Relation,
     RelationType,
-    UserRole
+    UserRole,
 )
 from ..utils import print_traceback
 from ..utils.xml_utils import XMLDiffError, xml_diff
@@ -77,7 +77,8 @@ class _CremeTestCase:
             RuntimeWarning, r'django\.db\.models\.fields',
         )
 
-    def tearDown(self):
+    # def tearDown(self):
+    def setUp(self):
         clear_global_info()
 
     USER_PASSWORD = 'test'
@@ -716,9 +717,13 @@ class CremeTestCase(TestCase, _CremeTestCase):
         super().setUpClass()
         _CremeTestCase.setUpClass()
 
-    def tearDown(self):
-        super().tearDown()
-        _CremeTestCase.tearDown(self)
+    def setUp(self):
+        super().setUp()
+        _CremeTestCase.setUp(self)
+
+    # def tearDown(self):
+    #     super().tearDown()
+    #     _CremeTestCase.tearDown(self)
 
 
 class CremeTransactionTestCase(TransactionTestCase, _CremeTestCase):
@@ -727,9 +732,13 @@ class CremeTransactionTestCase(TransactionTestCase, _CremeTestCase):
         super().setUpClass()
         _CremeTestCase.setUpClass()
 
-    def tearDown(self):
-        super().tearDown()
-        _CremeTestCase.tearDown(self)
+    def setUp(self):
+        super().setUp()
+        _CremeTestCase.setUp(self)
+
+    # def tearDown(self):
+    #     super().tearDown()
+    #     _CremeTestCase.tearDown(self)
 
     @classmethod
     def populate(cls, *args):

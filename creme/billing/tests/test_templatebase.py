@@ -32,6 +32,7 @@ except Exception as e:
 @skipIfCustomTemplateBase
 class TemplateBaseTestCase(_BillingTestCase):
     def setUp(self):
+        super().setUp()
         self.login()
 
         create_orga = partial(Organisation.objects.create, user=self.user)

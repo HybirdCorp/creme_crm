@@ -936,6 +936,7 @@ class InvoiceTestCase(_BillingTestCase):
 @skipIfCustomServiceLine
 class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
     def setUp(self):  # setUpClass does not work here
+        super().setUp()
         self.populate('creme_core', 'creme_config', 'billing')
         self.login()
 

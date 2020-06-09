@@ -1245,6 +1245,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
     def setUp(self):
+        super().setUp()
+
         ct = ContentType.objects.get_for_model(FakeContact)
         create_cfield = partial(CustomField.objects.create, content_type=ct)
         self.cfield_int       = create_cfield(name='Size',      field_type=CustomField.INT)
@@ -1811,6 +1813,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
 class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
+        super().setUp()
+
         create_cfield = partial(
             CustomField.objects.create,
             field_type=CustomField.DATETIME,
@@ -1998,6 +2002,8 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
 
 class PropertiesConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
+        super().setUp()
+
         create_ptype = CremePropertyType.create
         self.ptype01 = create_ptype('test-prop_active', 'Is active')
         self.ptype02 = create_ptype('test-prop_cute',   'Is cute', (FakeContact,))
@@ -2075,6 +2081,8 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
 
 class RelationsConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
+        super().setUp()
+
         create = RelationType.create
         self.rtype01, self.rtype02 = create(
             ('test-subject_love', 'Is loving', (FakeContact,)),
@@ -2317,6 +2325,8 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
 class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
+        super().setUp()
+
         create = RelationType.create
         self.rtype01, self.rtype02 = create(
             ('test-subject_love', 'Is loving', (FakeContact,)),

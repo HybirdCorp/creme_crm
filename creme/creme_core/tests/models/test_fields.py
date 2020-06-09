@@ -60,6 +60,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         get_ct(CremeEntity)
 
     def setUp(self):
+        super().setUp()
         self.login()
         self.entity = FakeContact.objects.create(
             user=self.user, first_name='Ranma', last_name='Saotome',
