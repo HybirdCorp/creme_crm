@@ -369,11 +369,10 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             label = response.context['form'].fields['bad_entities_lbl']
 
         msg_fmt = _('Entity #{id} (not viewable)').format
-        self.assertEqual('{}, {}'.format(msg_fmt(id=entity01.id),
-                                         msg_fmt(id=entity02.id),
-                                        ),
-                         label.initial
-                        )
+        self.assertCountEqual(
+            [msg_fmt(id=entity01.id), msg_fmt(id=entity02.id)],
+            label.initial.split(', ')
+        )
 
         response = self.client.post(
             self._build_bulk_url(self.centity_ct),

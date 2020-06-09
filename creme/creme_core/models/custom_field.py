@@ -346,7 +346,6 @@ class CustomFieldDateTime(CustomFieldValue):
     class Meta:
         app_label = 'creme_core'
 
-    # TODO: factorise with gui.field_printers
     def __str__(self):
         value = self.value
         return date_format(localtime(value), 'DATETIME_FORMAT') if value else ''

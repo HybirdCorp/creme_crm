@@ -455,6 +455,7 @@ class RHCustomField(ReportHand):
     def _get_value_single_on_allowed(self, entity, user, scope):
         cvalue = entity.get_custom_value(self._cfield)
         # return str(cvalue.value) if cvalue else ''
+        # TODO: use a EntityCellCustomField & remove __str__ methods of CustomFieldValue models ?
         return str(cvalue) if cvalue else ''
 
     @property
