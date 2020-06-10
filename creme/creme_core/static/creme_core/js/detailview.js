@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2017-2022  Hybird
+    Copyright (C) 2017-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -60,6 +60,12 @@
     creme.views = creme.views || {};
 
     var menuBarActions = {
+        'creme_core-hatmenubar-delete': function(url, options, data) {
+            return this._postQueryAction(url, options).onDone(function() {
+                creme.utils.goTo(data.redirect);
+            });
+        },
+
         'creme_core-hatmenubar-view': function(url, options, data) {
             options = $.extend(creme.bricks.defaultDialogOptions(url, data.title), options || {});
             return new creme.bricks.DialogAction(options);
@@ -93,7 +99,7 @@
     creme.views.HatMenuBar = creme.widget.declare('ui-creme-hatmenubar', {
         _create: function(element, options, cb, sync, args) {
             var builder = this._builder = new creme.action.DefaultActionBuilderRegistry();
-            var buttons = $('.menu_button[data-action]', element);
+            var buttons = $('[data-action]', element);
 
             builder.registerAll(menuBarActions);
 
