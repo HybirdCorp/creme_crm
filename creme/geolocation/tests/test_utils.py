@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
+from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
 from creme.creme_core.global_info import clear_global_info
 from creme.creme_core.models import SettingValue
+from creme.geolocation.utils import get_openstreetmap_settings
 from creme.persons.tests.base import (
     skipIfCustomAddress,
     skipIfCustomContact,
@@ -260,6 +263,26 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         clear_global_info()
 
         self.assertEqual(get_google_api_key(), new_value)
+
+    def test_get_openstreetmap_settings(self):
+        self.assertEqual(get_openstreetmap_settings(), {
+            'nominatim_url': settings.GEOLOCATION_OSM_NOMINATIM_URL,
+            'tilemap_url': settings.GEOLOCATION_OSM_TILEMAP_URL,
+            'tilemap_copyright': settings.GEOLOCATION_OSM_TILEMAP_COPYRIGHT,
+        })
+
+        tilemap_url = '{s}othermap.com/{x}/{y}/{z}.jpeg'
+        copyright_url = '{s}othermap.com/copyright'
+
+        with override_settings(
+                GEOLOCATION_OSM_NOMINATIM_URL='',
+                GEOLOCATION_OSM_TILEMAP_URL=tilemap_url,
+                GEOLOCATION_OSM_TILEMAP_COPYRIGHT=copyright_url):
+            self.assertEqual(get_openstreetmap_settings(), {
+                'nominatim_url': '',
+                'tilemap_url': tilemap_url,
+                'tilemap_copyright': copyright_url,
+            })
 
     def test_location_bounding_box(self):
         # 10 km ~ 0.09046499004885108 lat, 0.12704038469036066 long (for 45° lat)

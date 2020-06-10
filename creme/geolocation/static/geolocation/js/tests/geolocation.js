@@ -5,35 +5,6 @@
 QUnit.module("creme.geolocation", new QUnitMixin(QUnitEventMixin,
                                                  QUnitAjaxMixin,
                                                  QUnitGeolocationMixin, {
-    beforeEach: function() {
-        var self = this;
-        var backend = this.backend;
-        backend.options.enableUriSearch = true;
-
-        this.mockAddressInfo = {};
-
-        this.setMockBackendGET({
-            'mock/addressinfo': this.backend.response(200, $.toJSON(this.mockAddressInfo))
-        });
-
-        this.setMockBackendPOST({
-            'mock/addressinfo': function(url, data, options) {
-                self.mockAddressInfo = data || {};
-                return backend.response(200, $.toJSON(self.mockAddressInfo));
-            }
-        });
-
-        this.mockGeocoder = this.createMockGoogleGeocoder();
-    },
-
-    runTestOnGeomapReady: function(controller, element, callback) {
-        this.bindTestOn(controller, 'status-enabled', callback, [controller]);
-
-        controller.bind(element);
-        equal(true, controller.isBound());
-
-        stop(1);
-    }
 }));
 
 QUnit.test('creme.geolocation.Location (defaults)', function() {
@@ -159,6 +130,41 @@ QUnit.test('creme.geolocation.Location (status)', function() {
     equal(false, location.isPartial());
     equal(true, location.isManual());
     equal(gettext("Manual location"), location.statusLabel());
+});
+
+QUnit.parametrize('creme.geolocation.GeoMapController.enableGeocoder (not allowed)', [
+    [new creme.geolocation.GoogleMapController({
+        allowGeocoder: false
+    })],
+    [new creme.geolocation.LeafletMapController({
+        allowGeocoder: false
+    })]
+], function(controller, assert) {
+    var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
+
+    this.runTestOnGeomapReady(controller, element, function() {
+        equal(false, controller.isGeocoderAllowed());
+        equal(false, controller.isGeocoderEnabled());
+
+        controller.enableGeocoder();
+
+        equal(false, controller.isGeocoderEnabled());
+    });
+});
+
+QUnit.parametrize('creme.geolocation.GeoMapController.enableGeocoder (already enabled)', [
+    [new creme.geolocation.GoogleMapController()],
+    [new creme.geolocation.LeafletMapController()]
+], function(controller, assert) {
+    var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
+
+    this.runTestOnGeomapReady(controller, element, function() {
+        equal(true, controller.isGeocoderAllowed());
+        equal(true, controller.isGeocoderEnabled());
+
+        // do nothing
+        controller.enableGeocoder();
+    });
 });
 
 }(jQuery, QUnit));

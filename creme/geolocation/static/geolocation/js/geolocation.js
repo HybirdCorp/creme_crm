@@ -288,10 +288,10 @@ creme.geolocation.GeoMapController = creme.component.Component.sub({
     },
 
     updateOrAddMarker: function(id, options) {
-        try {
+        if (this.hasMarker(id)) {
             this.updateMarker(id, options);
             return this.getMarker(id);
-        } catch (e) {
+        } else {
             return this.addMarker(id, options);
         }
     },
@@ -373,10 +373,10 @@ creme.geolocation.GeoMapController = creme.component.Component.sub({
     },
 
     updateOrAddShape: function(id, options) {
-        try {
+        if (this.hasShape(id)) {
             this.updateShape(id, options);
             return this.getShape(id);
-        } catch (e) {
+        } else {
             return this.addShape(id, options);
         }
     },

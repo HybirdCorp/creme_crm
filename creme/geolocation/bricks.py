@@ -29,7 +29,12 @@ from creme.creme_core.gui.bricks import Brick, BrickDependencies
 from creme.creme_core.models import EntityFilter
 
 from .models import GeoAddress
-from .utils import address_as_dict, get_google_api_key, get_radius
+from .utils import (
+    address_as_dict,
+    get_google_api_key,
+    get_openstreetmap_settings,
+    get_radius,
+)
 
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
@@ -72,11 +77,22 @@ class _MapBrick(Brick):
                                     .select_related('geoaddress')
         ]
 
+    def get_template_context(self, context: dict, **extra_kwargs) -> dict:
+        return super().get_template_context(
+            context,
+            map_api_key=self.get_api_key(),
+            **self.get_map_settings(),
+            **extra_kwargs
+        )
 
-class GoogleDetailMapBrick(_MapBrick):
-    id_           = Brick.generate_id('geolocation', 'detail_google_maps')
-    verbose_name  = _('Addresses on Google Maps ®')
-    template_name = 'geolocation/bricks/google/detail-map.html'
+    def get_api_key(self):
+        return ''
+
+    def get_map_settings(self):
+        return {}
+
+
+class _DetailMapBrick(_MapBrick):
     target_ctypes = (Contact, Organisation)
 
     def detailview_display(self, context):
@@ -91,30 +107,57 @@ class GoogleDetailMapBrick(_MapBrick):
             context,
             addresses=addresses,
             geoaddresses=addresses,
-            google_api_key=get_google_api_key(),  # TODO: factorise
         ))
 
 
-class GoogleFilteredMapBrick(_MapBrick):
-    id_           = Brick.generate_id('geolocation', 'filtered_google_maps')
-    verbose_name  = _('Filtered addresses on Google Maps ®')
-    template_name = 'geolocation/bricks/google/filtered-map.html'
+class GoogleDetailMapBrick(_DetailMapBrick):
+    id_           = Brick.generate_id('geolocation', 'detail_google_maps')
+    verbose_name  = _('Addresses on Google Maps ®')
+    template_name = 'geolocation/bricks/google/detail-map.html'
 
+    def get_api_key(self):
+        return get_google_api_key()
+
+
+class OpenStreetMapDetailMapBrick(_DetailMapBrick):
+    id_           = Brick.generate_id('geolocation', 'detail_openstreetmap')
+    verbose_name  = _('Addresses on OpenStreetMap ®')
+    template_name = 'geolocation/bricks/osm/detail-map.html'
+
+    def get_map_settings(self):
+        return get_openstreetmap_settings()
+
+
+class _FilteredMapBrick(_MapBrick):
     def home_display(self, context):
         return self._render(self.get_template_context(
             context,
             address_filters=self.get_filter_choices(context['user'],
                                                     Contact, Organisation,
                                                    ),
-            google_api_key=get_google_api_key(),  # TODO: factorise
         ))
 
 
-class GoogleNeighboursMapBrick(_MapBrick):
-    id_           = Brick.generate_id('geolocation', 'google_whoisaround')
+class GoogleFilteredMapBrick(_FilteredMapBrick):
+    id_           = Brick.generate_id('geolocation', 'filtered_google_maps')
+    verbose_name  = _('Filtered addresses on Google Maps ®')
+    template_name = 'geolocation/bricks/google/filtered-map.html'
+
+    def get_api_key(self):
+        return get_google_api_key()
+
+
+class OpenStreetMapFilteredMapBrick(_FilteredMapBrick):
+    id_           = Brick.generate_id('geolocation', 'filtered_openstreetmap')
+    verbose_name  = _('Filtered addresses on OpenStreetMap ®')
+    template_name = 'geolocation/bricks/osm/filtered-map.html'
+
+    def get_map_settings(self):
+        return get_openstreetmap_settings()
+
+
+class _NeighboursMapBrick(_MapBrick):
     dependencies  = (Address, GeoAddress,)
-    verbose_name  = _('Neighbours on Google Maps ®')
-    template_name = 'geolocation/bricks/google/neighbours-map.html'
     target_ctypes = (Contact, Organisation)
 
     # Specific use case
@@ -135,6 +178,25 @@ class GoogleNeighboursMapBrick(_MapBrick):
                                                     Contact, Organisation,
                                                    ),
             radius=get_radius(),
-            maps_blockid=GoogleDetailMapBrick.id_,
-            google_api_key=get_google_api_key(),  # TODO: factorise
+            maps_blockid=self.detail_map.id_,
         ))
+
+
+class GoogleNeighboursMapBrick(_NeighboursMapBrick):
+    id_           = Brick.generate_id('geolocation', 'google_whoisaround')
+    verbose_name  = _('Neighbours on Google Maps ®')
+    template_name = 'geolocation/bricks/google/neighbours-map.html'
+    detail_map    = GoogleDetailMapBrick
+
+    def get_api_key(self):
+        return get_google_api_key()
+
+
+class OpenStreetMapNeighboursMapBrick(_NeighboursMapBrick):
+    id_           = Brick.generate_id('geolocation', 'openstreetmap_whoisaround')
+    verbose_name  = _('Neighbours on OpenStreetMap ©')
+    template_name = 'geolocation/bricks/osm/neighbours-map.html'
+    detail_map    = OpenStreetMapDetailMapBrick
+
+    def get_map_settings(self):
+        return get_openstreetmap_settings()

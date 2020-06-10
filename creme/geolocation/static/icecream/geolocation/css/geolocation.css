@@ -135,3 +135,7 @@
 .geolocation-brick.is-geolocation-disabled .brick-geoaddress-error {
     display: block;
 }
+
+.leaflet-container .leaflet-hidden {
+    display: none;
+}

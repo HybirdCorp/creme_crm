@@ -2,37 +2,11 @@
 (function($, QUnit) {
 "use strict";
 
-QUnit.module("creme.geolocation", new QUnitMixin(QUnitEventMixin,
-                                                 QUnitAjaxMixin,
-                                                 QUnitGeolocationMixin, {
+QUnit.module("creme.geolocation.google", new QUnitMixin(QUnitEventMixin,
+                                                        QUnitAjaxMixin,
+                                                        QUnitGeolocationMixin, {
     beforeEach: function() {
-        var self = this;
-        var backend = this.backend;
-        backend.options.enableUriSearch = true;
-
-        this.mockAddressInfo = {};
-
-        this.setMockBackendGET({
-            'mock/addressinfo': this.backend.response(200, $.toJSON(this.mockAddressInfo))
-        });
-
-        this.setMockBackendPOST({
-            'mock/addressinfo': function(url, data, options) {
-                self.mockAddressInfo = data || {};
-                return backend.response(200, $.toJSON(self.mockAddressInfo));
-            }
-        });
-
         this.mockGeocoder = this.createMockGoogleGeocoder();
-    },
-
-    runTestOnGeomapReady: function(controller, element, callback) {
-        this.bindTestOn(controller, 'status-enabled', callback, [controller]);
-
-        controller.bind(element);
-        equal(true, controller.isBound());
-
-        stop(1);
     }
 }));
 
@@ -174,154 +148,6 @@ QUnit.test('creme.geolocation.GoogleMapController.enableMap (already enabled)', 
         this.assertRaises(function() {
             controller.enableMap();
         }, Error, 'Error: Map canvas is already enabled');
-    });
-});
-
-QUnit.test('creme.geolocation.GoogleMapController.enableGeocoder (not allowed)', function(assert) {
-    var controller = new creme.geolocation.GoogleMapController({
-        allowGeocoder: false
-    });
-    var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
-
-    this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, controller.isGeocoderAllowed());
-        equal(false, controller.isGeocoderEnabled());
-
-        controller.enableGeocoder();
-
-        equal(false, controller.isGeocoderEnabled());
-    });
-});
-
-QUnit.test('creme.geolocation.GoogleMapController.enableGeocoder (already enabled)', function(assert) {
-    var controller = new creme.geolocation.GoogleMapController();
-    var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
-
-    this.runTestOnGeomapReady(controller, element, function() {
-        equal(true, controller.isGeocoderAllowed());
-        equal(true, controller.isGeocoderEnabled());
-
-        // do nothing
-        controller.enableGeocoder();
-    });
-});
-
-QUnit.test('creme.geolocation.GoogleMapController (unbound mode)', function(assert) {
-    var controller = new creme.geolocation.GoogleMapController();
-
-    equal(false, controller.isMapEnabled());
-
-    this.assertRaises(function() {
-        controller.addMarker('A', {});
-    }, Error, 'Error: Map canvas is disabled');
-    this.assertRaises(function() {
-        controller.updateMarker('A', {});
-    }, Error, 'Error: Map canvas is disabled');
-    this.assertRaises(function() {
-        controller.toggleMarker('A');
-    }, Error, 'Error: Map canvas is disabled');
-    equal(undefined, controller.getMarker('A'));
-    equal(false, controller.hasMarker('A'));
-
-    this.assertRaises(function() {
-        controller.toggleAllMarkers();
-    }, Error, 'Error: Map canvas is disabled');
-
-    this.assertRaises(function() {
-        controller.addShape('A', {});
-    }, Error, 'Error: Map canvas is disabled');
-    this.assertRaises(function() {
-        controller.removeShape('A');
-    }, Error, 'Error: Map canvas is disabled');
-    equal(undefined, controller.getShape('A'));
-    equal(false, controller.hasShape('A'));
-
-    controller.adjustMap(); // do nothing
-    controller.adjustMapToShape('A'); // do nothing
-    controller.autoResize(); // do nothing
-});
-
-QUnit.test('creme.geolocation.GoogleMapController.search (no geocoder)', function(assert) {
-    var self = this;
-    var controller = new creme.geolocation.GoogleMapController({
-        allowGeocoder: false
-    });
-    var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
-    var listeners = {
-        cancel: this.mockListener('search-cancel'),
-        done: this.mockListener('search-done'),
-        fail: this.mockListener('search-fail')
-    };
-
-    this.runTestOnGeomapReady(controller, element, function() {
-        equal(undefined, controller.geocoder());
-
-        var query = controller._searchLocationQuery('marseille');
-        query.on(listeners).start();
-
-        deepEqual([
-            ['cancel']
-        ], self.mockListenerCalls('search-cancel'));
-    });
-});
-
-QUnit.test('creme.geolocation.GoogleMapController.searchQuery (no api key)', function(assert) {
-    var self = this;
-    var controller = new creme.geolocation.GoogleMapController();
-    var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
-    var listeners = {
-        cancel: this.mockListener('search-cancel'),
-        done: this.mockListener('search-done'),
-        fail: this.mockListener('search-fail')
-    };
-
-    this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, Object.isNone(controller.geocoder()));
-
-        var query = controller._searchLocationQuery('marseille');
-        query.on(listeners)
-             .onComplete(function() {
-                 deepEqual([
-                     ['fail', gettext("No matching location")]
-                 ], self.mockListenerCalls('search-fail'));
-
-                 start();
-             });
-
-        query.start();
-        stop(1);
-    });
-});
-
-QUnit.test('creme.geolocation.GoogleMapController.searchQuery (invalid geocode)', function(assert) {
-    var self = this;
-    var controller = new creme.geolocation.GoogleMapController();
-    var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
-    var listeners = {
-        cancel: this.mockListener('search-cancel'),
-        done: this.mockListener('search-done'),
-        fail: this.mockListener('search-fail')
-    };
-
-    this.runTestOnGeomapReady(controller, element, function() {
-        controller._geocoder = {
-            geocode: function() {
-                throw new Error('Invalid geocode call !');
-            }
-        };
-
-        var query = controller._searchLocationQuery('marseille');
-        query.on(listeners)
-             .onComplete(function() {
-                 deepEqual([
-                     ['fail', gettext("No matching location"), new Error('Invalid geocode call !')]
-                 ], self.mockListenerCalls('search-fail'));
-
-                 start();
-             });
-
-        query.start();
-        stop(1);
     });
 });
 
@@ -1574,6 +1400,9 @@ QUnit.test('creme.geolocation.GoogleMapController.adjustMap (no marker)', functi
     });
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
+    // not bound, no changes
+    controller.adjustMap();
+
     this.runTestOnGeomapReady(controller, element, function() {
         controller.adjustMap();
 
@@ -1661,6 +1490,9 @@ QUnit.test('creme.geolocation.GoogleMapController.adjustMapToShape', function(as
     });
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
+    // not bound, no changes
+    controller.adjustMapToShape('A');
+
     this.runTestOnGeomapReady(controller, element, function() {
         var shape = controller.addShape('A', {
             position: {lat: 43, lng: 5},
@@ -1682,9 +1514,13 @@ QUnit.test('creme.geolocation.GoogleMapController.adjustMapToShape (not exists)'
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        this.assertRaises(function() {
-            controller.adjustMapToShape('A');
-        }, Error, 'Error: Shape "A" is not registered');
+        controller.adjustMapToShape('A');
+
+        // no shape, remains on map defaults
+        deepEqual(
+            new google.maps.LatLng(controller.options().defaultLat, controller.options().defaultLng),
+            controller.map().getCenter()
+        );
     });
 });
 

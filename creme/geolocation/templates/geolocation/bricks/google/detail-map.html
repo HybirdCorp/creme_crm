@@ -1,21 +1,14 @@
-{% extends 'creme_core/bricks/base/base.html' %}
+{% extends 'geolocation/bricks/base/detail-map.html' %}
 {% load i18n creme_core_tags creme_bricks %}
 
-{% block brick_extra_class %}geolocation-brick geolocation-google-detail-brick{% endblock %}
+{% block brick_extra_class %}{{block.super}} geolocation-google{% endblock %}
 
-{% block brick_script %}
+{% block brick_geolocation_script %}
     <script type="text/javascript">
          $('.brick[id="{{brick_id}}"]').on('brick-ready', function(event, brick) {
-             /*
-             new creme.geolocation.PersonsBrick(brick, {
-                 apiKey: '{{google_api_key}}',
-                 addresses: {{geoaddresses|jsonify|safe}},
-                 infoUrl: '{% url 'geolocation__set_address_info' %}'
-             });
-             */
              new creme.geolocation.PersonsBrick(brick, {
                  mapController: new creme.geolocation.GoogleMapController({
-                     apiKey: '{{google_api_key}}'
+                     apiKey: '{{map_api_key}}'
                  }),
                  addresses: {{geoaddresses|jsonify|safe}},
                  locationUrl: '{% url 'geolocation__set_address_info' %}'
@@ -24,44 +17,7 @@
     </script>
 {% endblock %}
 
-{% block brick_header_title %}
-    {% brick_header_title title=_('Map') %}
-{% endblock %}
-
-{% block brick_content %}
-    {% if not addresses %}
-    <div class="geolocation-empty-brick">{% trans 'No address defined for now' %}</div>
-    {% else %}
-    <div class="geolocation-brick-items">
-        {% for address in addresses %}
-        {% with is_visible=address.is_billing %}
-        <div class="brick-geoaddress-item{% if is_visible %} is-mark-visible{% endif %}" data-addressid="{{address.id}}">
-            <input type="checkbox" value="{{address.id}}"{% if is_visible %} checked{% endif %} />
-            <div class="brick-geoaddress-label">
-            {% if address.content and address.title %}
-                <span class="brick-geoaddress-title">{{address.title}}</span>
-                <span class="brick-geoaddress-content">{{address.content}}</span>
-            {% else %}
-                <span class="brick-geoaddress-title">{% if address.title %}{{address.title}}{% else %}{{address.content}}{% endif %}</span>
-            {% endif %}
-            </div>
-            <div class="brick-geoaddress-action{% if address.is_complete %} brick-geoaddress-iscomplete{% endif %}">
-                <a class="brick-geoaddress-reset" data-addressid="{{address.id}}">{% trans 'Retrieve location' %}</a>
-                <span class="brick-geoaddress-position">
-                {% if address.latitude %}
-                    {{address.latitude|format:'%3.6f'}}, {{address.longitude|format:'%3.6f'}}
-                {% endif %}
-                </span>
-                <span class="brick-geoaddress-status">{{address.status_label}}</span>
-            </div>
-        </div>
-        {% endwith %}
-        {% endfor %}
-    </div>
-    <div class="brick-geoaddress-error">
-        {% has_perm_to admin 'geolocation' as admin_perm %}{% url 'creme_config__app_portal' 'geolocation' as config_url %}
-        {% brick_action id='redirect' display='text' url=config_url label=_('Google API key may be missing or invalid. Please try to configure it or contact your administrator.') enabled=admin_perm %}
-    </div>
-    <div class="brick-geoaddress-canvas"></div>
-    {% endif %}
+{% block brick_geomap_error %}
+    {% has_perm_to admin 'geolocation' as admin_perm %}{% url 'creme_config__app_portal' 'geolocation' as config_url %}
+    {% brick_action id='redirect' display='text' url=config_url label=_('Google API key may be missing or invalid. Please try to configure it or contact your administrator.') enabled=admin_perm %}
 {% endblock %}

@@ -41,6 +41,9 @@ class GeolocationConfig(CremeAppConfig):
             bricks.GoogleDetailMapBrick,
             bricks.GoogleFilteredMapBrick,
             bricks.GoogleNeighboursMapBrick,
+            bricks.OpenStreetMapDetailMapBrick,
+            bricks.OpenStreetMapFilteredMapBrick,
+            bricks.OpenStreetMapNeighboursMapBrick,
         )
 
     def register_creme_config(self, config_registry):

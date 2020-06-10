@@ -1,21 +1,14 @@
-{% extends 'creme_core/bricks/base/base.html' %}
-{% load i18n creme_bricks creme_core_tags %}
+{% extends 'geolocation/bricks/base/filtered-map.html' %}
+{% load i18n creme_core_tags creme_bricks %}
 
-{% block brick_extra_class %}geolocation-brick geolocation-google-filtered-brick{% endblock %}
+{% block brick_extra_class %}{{block.super}} geolocation-google{% endblock %}
 
-{% block brick_script %}
+{% block brick_geolocation_script %}
     <script type="text/javascript">
          $('.brick[id="{{brick_id}}"]').on('brick-ready', function(event, brick) {
-             /*
-             new creme.geolocation.AddressesBrick(brick, {
-                 apiKey: '{{google_api_key}}',
-                 addressesUrl: '{% url 'geolocation__addresses' %}',
-                 infoUrl: '{% url 'geolocation__set_address_info' %}'
-             });
-             */
              new creme.geolocation.AddressesBrick(brick, {
                  mapController: new creme.geolocation.GoogleMapController({
-                     apiKey: '{{google_api_key}}'
+                     apiKey: '{{map_api_key}}'
                  }),
                  addressesUrl: '{% url 'geolocation__addresses' %}'
              });
@@ -23,26 +16,7 @@
     </script>
 {% endblock %}
 
-{% block brick_header_title %}
-    {% brick_header_title title=_('Maps By Filter') %}
-{% endblock %}
-
-{% block brick_content %}
-    <div class="geolocation-brick-header">
-        <span class="brick-geoaddress-counter">{% trans 'No address from' %}</span>&nbsp;
-        <select class="brick-geoaddress-filter">
-        {% for groupname, choices in address_filters %}
-            <optgroup label="{{groupname}}">
-            {% for value, label in choices %}
-                <option value="{{value}}">{{label}}</option>
-            {% endfor %}
-            </optgroup>
-        {% endfor %}
-        </select>
-    </div>
-    <div class="brick-geoaddress-error">
-        {% has_perm_to admin 'geolocation' as admin_perm %}{% url 'creme_config__app_portal' 'geolocation' as config_url %}
-        {% brick_action id='redirect' display='text' url=config_url label=_('Google API key may be missing or invalid. Please try to configure it or contact your administrator.') enabled=admin_perm %}
-    </div>
-    <div class="brick-geoaddress-canvas"></div>
+{% block brick_geomap_error %}
+    {% has_perm_to admin 'geolocation' as admin_perm %}{% url 'creme_config__app_portal' 'geolocation' as config_url %}
+    {% brick_action id='redirect' display='text' url=config_url label=_('Google API key may be missing or invalid. Please try to configure it or contact your administrator.') enabled=admin_perm %}
 {% endblock %}

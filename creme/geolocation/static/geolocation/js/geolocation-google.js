@@ -53,6 +53,7 @@ creme.geolocation.isGoogleAPIReady = function() {
     return __googleAPI.apiStatus === __googleAPIStatus.READY;
 };
 
+/*
 var __assertNot = function(cond, message) {
     var res = Boolean(Object.isFunc(cond) ? cond() : cond);
     __assert(res === false, message);
@@ -63,6 +64,7 @@ var __assert = function(cond, message) {
         throw new Error((message || 'Assertion failed'));
     }
 };
+*/
 
 var GoogleAPILoader = creme.component.Action.sub({
     _init_: function(options) {
@@ -129,8 +131,8 @@ var GoogleMapShapeRegistry = creme.component.Component.sub({
     },
 
     register: function(id, shape) {
-        __assertNot(Object.isEmpty(id), 'Shape id cannot be empty');
-        __assertNot(id in this._shapes, 'Shape "' + id + '" is already registered');
+        Assert.not(Object.isEmpty(id), 'Shape id cannot be empty');
+        Assert.not(id in this._shapes, 'Shape "${id}" is already registered', {id: id});
 
         this._shapes[id] = shape;
 
@@ -143,8 +145,8 @@ var GoogleMapShapeRegistry = creme.component.Component.sub({
     },
 
     unregister: function(id) {
-        __assertNot(Object.isEmpty(id), 'Shape id cannot be empty');
-        __assert(id in this._shapes, 'Shape "' + id + '" is not registered');
+        Assert.not(Object.isEmpty(id), 'Shape id cannot be empty');
+        Assert.that(id in this._shapes, 'Shape "${id}" is not registered', {id: id});
 
         var shape = this._shapes[id];
 
@@ -156,16 +158,14 @@ var GoogleMapShapeRegistry = creme.component.Component.sub({
     },
 
     get: function(id) {
-        if (id in this._shapes) {
-            return this._shapes[id];
-        }
+        return this._shapes[id];
     },
 
     update: function(id, options) {
         options = options || {};
 
-        __assertNot(Object.isEmpty(id), 'Shape id cannot be empty');
-        __assert(id in this._shapes, 'Shape "' + id + '" is not registered');
+        Assert.not(Object.isEmpty(id), 'Shape id cannot be empty');
+        Assert.that(id in this._shapes, 'Shape "${id}" is not registered', {id: id});
 
         if (options.position) {
             var position = options.position;
@@ -209,8 +209,14 @@ var __googleMarkerIcons = {
             path: google.maps.SymbolPath.CIRCLE,
             scale: 5
         };
-     },
-     "default": null
+    },
+    "target": function() {
+        return {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 5
+        };
+    },
+    "default": null
 };
 
 var __getGoogleMarkerIcon = function(name) {
@@ -247,8 +253,8 @@ var GoogleMapMarkerManager = creme.component.Component.sub({
     },
 
     register: function(id, marker) {
-        __assertNot(Object.isEmpty(id), 'Marker id cannot be empty');
-        __assertNot(id in this._markers, 'Marker "' + id + '" is already registered');
+        Assert.not(Object.isEmpty(id), 'Marker id cannot be empty');
+        Assert.not(id in this._markers, 'Marker "${id}" is already registered', {id: id});
 
         this._markers[id] = marker;
 
@@ -260,16 +266,16 @@ var GoogleMapMarkerManager = creme.component.Component.sub({
     },
 
     unregister: function(id) {
-        __assertNot(Object.isEmpty(id), 'Marker id cannot be empty');
-        __assert(id in this._markers, 'Marker "' + id + '" is not registered');
+        Assert.not(Object.isEmpty(id), 'Marker id cannot be empty');
+        Assert.that(id in this._markers, 'Marker "${id}" is not registered', {id: id});
 
-         var marker = this._markers[id];
-         delete marker.__extra.id;
-         delete this._markers[id];
+        var marker = this._markers[id];
+        delete marker.__extra.id;
+        delete this._markers[id];
 
-         marker.setMap(null);
+        marker.setMap(null);
 
-         return marker;
+        return marker;
     },
 
     Marker: function(options) {
@@ -321,10 +327,10 @@ var GoogleMapMarkerManager = creme.component.Component.sub({
     update: function(id, options) {
         options = options || {};
 
-        __assertNot(Object.isEmpty(id), 'Marker id cannot be empty');
+        Assert.not(Object.isEmpty(id), 'Marker id cannot be empty');
+        Assert.that(id in this._markers, 'Marker "${id}" is not registered', {id: id});
 
         var marker = this.get(id);
-        __assertNot(Object.isNone(marker), 'Marker "' + id + '" is not registered');
 
         if (options.icon !== undefined) {
             options.icon = __getGoogleMarkerIcon(options.icon);
@@ -344,17 +350,19 @@ var GoogleMapMarkerManager = creme.component.Component.sub({
     getProperties: function(id) {
         var marker = this.get(id);
 
-        return {
-            id: id,
-            title: marker.getTitle(),
-            draggable: marker.getDraggable(),
-            visible: marker.getVisible(),
-            position: {
-                lat: marker.getPosition().lat(),
-                lng: marker.getPosition().lng()
-            },
-            extraData: (marker.__extra || {}).extraData || {}
-        };
+        if (marker) {
+            return {
+                id: id,
+                title: marker.getTitle(),
+                draggable: marker.getDraggable(),
+                visible: marker.getVisible(),
+                position: {
+                    lat: marker.getPosition().lat(),
+                    lng: marker.getPosition().lng()
+                },
+                extraData: (marker.__extra || {}).extraData || {}
+            };
+        }
     },
 
     toggle: function(id, state) {
@@ -461,13 +469,8 @@ creme.geolocation.GoogleMapController = creme.geolocation.GeoMapController.sub({
     },
 
     enableMap: function() {
-        if (this.isMapEnabled()) {
-            throw new Error('Map canvas is already enabled');
-        }
-
-        if (!this.isBound()) {
-            throw new Error('Cannot enable map of an unbound controller');
-        }
+        Assert.not(this.isMapEnabled(), 'Map canvas is already enabled');
+        Assert.that(this.isBound(), 'Cannot enable map of an unbound controller');
 
         this._assertAPIAvailable();
 
@@ -521,15 +524,11 @@ creme.geolocation.GoogleMapController = creme.geolocation.GeoMapController.sub({
     },
 
     _assertMapEnabled: function() {
-        if (this.isMapEnabled() === false) {
-            throw new Error('Map canvas is disabled');
-        }
+        Assert.that(this.isMapEnabled(), 'Map canvas is disabled');
     },
 
     _assertAPIAvailable: function() {
-        if (!this.isAPIReady()) {
-            throw new Error('The google API is not available');
-        }
+        Assert.that(this.isAPIReady(), 'The google API is not available');
     },
 
     isMapEnabled: function() {
@@ -574,14 +573,16 @@ creme.geolocation.GoogleMapController = creme.geolocation.GeoMapController.sub({
             return this;
         }
 
+        var options = this.options();
         var shape = this._shapes.get(id);
 
-        if (Object.isNone(shape)) {
-            throw new Error('Shape "' + id + '" is not registered');
+        if (shape) {
+            this._map.setCenter(shape.getCenter());
+            this._map.fitBounds(shape.getBounds());
+        } else {
+            this._map.setCenter(new google.maps.LatLng(options.defaultLat, options.defaultLn));
+            this._map.setZoom(options.defaultLargeZoom);
         }
-
-        this._map.setCenter(shape.getCenter());
-        this._map.fitBounds(shape.getBounds());
 
         return this;
     },
@@ -664,7 +665,7 @@ creme.geolocation.GoogleMapController = creme.geolocation.GeoMapController.sub({
     },
 
     getMarkerProperties: function(id) {
-        return this.isMapEnabled() ? this._markers.getProperties(id) : {};
+        return this.isMapEnabled() ? this._markers.getProperties(id) : undefined;
     },
 
     markers: function(query) {
