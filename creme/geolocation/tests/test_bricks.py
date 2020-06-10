@@ -1,13 +1,21 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
+
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.models.entity_filter import EntityFilter
+from creme.creme_core.models.setting_value import SettingValue
+from creme.geolocation.bricks import (
+    GoogleDetailMapBrick,
+    OpenStreetMapDetailMapBrick,
+)
 from creme.persons.constants import FILTER_CONTACT_ME, FILTER_MANAGED_ORGA
 from creme.persons.tests.base import (
     skipIfCustomContact,
     skipIfCustomOrganisation,
 )
 
+from .. import setting_keys
 from ..bricks import _MapBrick
 from .base import Contact, GeoLocationBaseTestCase, Organisation
 
@@ -36,6 +44,27 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
                 ),
             ],
         )
+
+    def test_api_key(self):
+        setting = SettingValue.objects.get_or_create(
+            key_id=setting_keys.GOOGLE_API_KEY.id,
+        )[0]
+
+        setting.value = 'thegoldenticket'
+        setting.save()
+
+        self.assertEqual(_MapBrick().get_api_key(), '')
+        self.assertEqual(OpenStreetMapDetailMapBrick().get_api_key(), '')
+        self.assertEqual(GoogleDetailMapBrick().get_api_key(), 'thegoldenticket')
+
+    def test_map_settings(self):
+        self.assertEqual(_MapBrick().get_map_settings(), {})
+        self.assertEqual(OpenStreetMapDetailMapBrick().get_map_settings(), {
+            'nominatim_url': settings.GEOLOCATION_OSM_NOMINATIM_URL,
+            'tilemap_url': settings.GEOLOCATION_OSM_TILEMAP_URL,
+            'tilemap_copyright': settings.GEOLOCATION_OSM_TILEMAP_COPYRIGHT,
+        })
+        self.assertEqual(GoogleDetailMapBrick().get_map_settings(), {})
 
     def test_filter_choices01(self):
         user = self.user

@@ -578,7 +578,10 @@ CREME_OPT_CSS = [  # APPS
     ('creme.commercial',       'commercial/css/commercial.css'),
     ('creme.crudity',          'crudity/css/crudity.css'),
     ('creme.emails',           'emails/css/emails.css'),
+
+    ('creme.geolocation',      'geolocation/css/leaflet-1.6.0.css'),
     ('creme.geolocation',      'geolocation/css/geolocation.css'),
+
     ('creme.polls',            'polls/css/polls.css'),
     ('creme.products',         'products/css/products.css'),
     ('creme.projects',         'projects/css/projects.css'),
@@ -750,6 +753,7 @@ CREME_CORE_JS = [
 
 CREME_OPTLIB_JS = [
     ('creme.activities', 'activities/js/jquery/extensions/fullcalendar-3.10.0.js'),
+    ('creme.geolocation', 'geolocation/js/lib/leaflet-1.6.0.js'),
 ]
 
 CREME_OPT_JS = [  # OPTIONAL APPS
@@ -780,6 +784,7 @@ CREME_OPT_JS = [  # OPTIONAL APPS
 
     ('creme.geolocation',   'geolocation/js/geolocation.js'),
     ('creme.geolocation',   'geolocation/js/geolocation-google.js'),
+    ('creme.geolocation',   'geolocation/js/geolocation-leaflet.js'),
     ('creme.geolocation',   'geolocation/js/brick.js'),
 ]
 
@@ -1259,6 +1264,10 @@ NON_MOBILE_SITE_DOMAIN = ''
 GEOLOCATION_TOWNS = [
     (join(CREME_ROOT, 'geolocation/data/towns.france.csv.zip'), {'country': 'France'}),
 ]
+
+GEOLOCATION_OSM_NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'
+GEOLOCATION_OSM_TILEMAP_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+GEOLOCATION_OSM_TILEMAP_COPYRIGHT = 'https://www.openstreetmap.org/copyright'
 
 
 # APPS CONFIGURATION [END]######################################################

@@ -1,4 +1,3 @@
-
 (function($) {
     "use strict";
 
@@ -55,15 +54,19 @@
 
             source.on(event, function() {
                 var success = false;
-                try {
-                    callback.apply(self, args);
-                    success = true;
-                } finally {
-                    ok(success, 'async test on event "${event}" as failed. See logs for stacktrace.'.template({
-                        event: event
-                    }));
-                    start();
-                }
+
+                /* move call in another "thread" to prevent initialization issues */
+                setTimeout(function() {
+                    try {
+                        callback.apply(self, args);
+                        success = true;
+                    } finally {
+                        ok(success, 'async test on event "${event}" as failed. See logs for stacktrace.'.template({
+                            event: event
+                        }));
+                        start();
+                    }
+                }, 0);
             });
         }
     };

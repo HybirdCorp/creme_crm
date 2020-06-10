@@ -1,0 +1,33 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_bricks creme_core_tags %}
+
+{% block brick_extra_class %}geolocation-brick geolocation-filtered-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Maps By Filter') %}
+{% endblock %}
+
+{% block brick_script %}
+    {% if address_filters %}
+        {% block brick_geolocation_script %}{% endblock %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_content %}
+    <div class="geolocation-brick-header">
+        <span class="brick-geoaddress-counter">{% trans 'No address from' %}</span>&nbsp;
+        <select class="brick-geoaddress-filter">
+        {% for groupname, choices in address_filters %}
+            <optgroup label="{{groupname}}">
+            {% for value, label in choices %}
+                <option value="{{value}}">{{label}}</option>
+            {% endfor %}
+            </optgroup>
+        {% endfor %}
+        </select>
+    </div>
+    <div class="brick-geoaddress-error">
+        {% block brick_geomap_error %}{% endblock %}
+    </div>
+    <div class="brick-geoaddress-canvas"></div>
+{% endblock %}

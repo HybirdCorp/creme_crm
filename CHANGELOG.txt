@@ -67,6 +67,11 @@
         * Projects :
             - The fields "start" & "end" of Tasks cannot be emptied with the inner-edition any more.
               BEWARE: if you have empty values, they are replaced at migration (<0> for duration, <01-01-1970> for start/end).
+        * Geolocation :
+            - Add an OpenStreetMap backend and new bricks that can be used (or not) with google ones :
+                 - OpenStreetMapDetailMapBrick
+                 - OpenStreetMapFilteredMapBrick
+                 - OpenStreetMapNeighboursMapBrick
 
   Developers side :
   -----------------

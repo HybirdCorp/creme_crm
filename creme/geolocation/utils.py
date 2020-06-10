@@ -20,6 +20,7 @@
 
 from math import cos, radians
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext as _
@@ -28,8 +29,7 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import SettingValue
 from creme.persons import get_address_model
 
-from . import setting_keys
-from .constants import DEFAULT_SEPARATING_NEIGHBOURS
+from . import constants, setting_keys
 
 
 def address_as_dict(address):
@@ -115,12 +115,20 @@ def addresses_from_persons(queryset, user):
 def get_radius():
     return SettingValue.objects.get_4_key(
         setting_keys.NEIGHBOURHOOD_DISTANCE,
-        default=DEFAULT_SEPARATING_NEIGHBOURS,
+        default=constants.DEFAULT_SEPARATING_NEIGHBOURS,
     ).value
 
 
 def get_google_api_key():
     return SettingValue.objects.get_4_key(setting_keys.GOOGLE_API_KEY, default='').value or ''
+
+
+def get_openstreetmap_settings():
+    return {
+        'nominatim_url': settings.GEOLOCATION_OSM_NOMINATIM_URL,
+        'tilemap_url': settings.GEOLOCATION_OSM_TILEMAP_URL,
+        'tilemap_copyright': settings.GEOLOCATION_OSM_TILEMAP_COPYRIGHT
+    }
 
 
 def location_bounding_box(latitude, longitude, distance):

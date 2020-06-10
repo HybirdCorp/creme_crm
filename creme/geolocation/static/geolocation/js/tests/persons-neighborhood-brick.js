@@ -11,9 +11,11 @@ QUnit.module("creme.geolocation.neighborhood-brick", new QUnitMixin(QUnitEventMi
         var backend = this.backend;
         backend.options.enableUriSearch = true;
 
+        this._mockNeighbourAddresses = self.defaultAddressesAsDict();
+
         this.setMockBackendGET({
             'mock/neighbours': function(url, data, options) {
-                var addresses = self.defaultAddressesAsDict();
+                var addresses = self._mockNeighbourAddresses;
 
                 if (Object.isEmpty(data.address_id)) {
                     return backend.response(400, 'Invalid address id');
@@ -28,13 +30,17 @@ QUnit.module("creme.geolocation.neighborhood-brick", new QUnitMixin(QUnitEventMi
 
                 return backend.responseJSON(200, {
                     source_address: addresses[data.address_id],
-                    addresses: self.defaultAddresses().filter(function(a) {
+                    addresses: Object.values(addresses).filter(function(a) {
                         return (a.neighbours || '').indexOf(data.address_id) !== -1;
                     })
                 });
             },
             'mock/neighbours/fail': backend.response(400, 'Invalid addresses')
         });
+    },
+
+    mockNeighbourAddresses: function() {
+        return this._mockNeighbourAddresses;
     },
 
     defaultAddressesAsDict: function() {
@@ -154,10 +160,17 @@ QUnit.module("creme.geolocation.neighborhood-brick", new QUnitMixin(QUnitEventMi
         equal(false, brick.isLoading());
 
         return widget;
+    },
+
+    fakeBrickLocationSave: function(controller, address) {
+        controller._onMoveLocation($.Event(), {}, address);
     }
 }));
 
-QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, defaults)', function(assert) {
+QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (defaults)', [
+    [new creme.geolocation.GoogleMapController()],
+    [new creme.geolocation.LeafletMapController()]
+], function(mapController, assert) {
     var self = this;
     var brick = this.createNeighboursBrick({}).brick();
     var canvas = brick.element().find('.brick-geoaddress-canvas');
@@ -182,8 +195,12 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, defaults)', funct
         equal(true, controller.mapController().isEnabled());
         equal(true, controller.mapController().isMapEnabled());
         equal(true, controller.mapController().isGeocoderEnabled());
-        equal(true, controller.mapController().isAPIReady());
-        equal(undefined, controller.mapController().options().apiKey);
+
+        // google maps specific
+        if (mapController instanceof creme.geolocation.GoogleMapController) {
+            equal(true, controller.mapController().isAPIReady());
+            equal(undefined, controller.mapController().options().apiKey);
+        }
 
         setTimeout(function() {
             equal(null, brick.element().find('.brick-geoaddress-filter').val());
@@ -198,13 +215,16 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, defaults)', funct
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
-        mapController: new creme.geolocation.GoogleMapController()
+        mapController: mapController
     });
 
     stop(1);
 });
 
-QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, no origin, no filter)', function(assert) {
+QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (no origin, no filter)', [
+    [new creme.geolocation.GoogleMapController()],
+    [new creme.geolocation.LeafletMapController()]
+], function(mapController, assert) {
     var brick = this.createNeighboursBrick({}).brick();
     var canvas = brick.element().find('.brick-geoaddress-canvas');
 
@@ -233,14 +253,17 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, no origin, no fil
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
-        mapController: new creme.geolocation.GoogleMapController(),
+        mapController: mapController,
         neighboursUrl: 'mock/neighbours'
     });
 
     stop(1);
 });
 
-QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, no filter)', function(assert) {
+QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (no filter)', [
+    [new creme.geolocation.GoogleMapController()],
+    [new creme.geolocation.LeafletMapController()]
+], function(mapController, assert) {
     var brick = this.createNeighboursBrick({
         origins: [
             {value: 'Address_A', label: 'Address A'},
@@ -284,14 +307,17 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, no filter)', func
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
-        mapController: new creme.geolocation.GoogleMapController(),
+        mapController: mapController,
         neighboursUrl: 'mock/neighbours'
     });
 
     stop(1);
 });
 
-QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, filter)', function(assert) {
+QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (filter)', [
+    [new creme.geolocation.GoogleMapController()],
+    [new creme.geolocation.LeafletMapController()]
+], function(mapController, assert) {
     var brick = this.createNeighboursBrick({
         origins: [
             {value: 'Address_A', label: 'Address A'},
@@ -364,14 +390,17 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, filter)', functio
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
-        mapController: new creme.geolocation.GoogleMapController(),
+        mapController: mapController,
         neighboursUrl: 'mock/neighbours'
     });
 
     stop(1);
 });
 
-QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, origin change)', function(assert) {
+QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (origin change)', [
+    [new creme.geolocation.GoogleMapController()],
+    [new creme.geolocation.LeafletMapController()]
+], function(mapController, assert) {
     var brick = this.createNeighboursBrick({
         origins: [
             {value: 'Address_A', label: 'Address A'},
@@ -401,7 +430,7 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, origin change)', 
                 }]
             ], this.mockBackendUrlCalls());
 
-            this.assertGoogleShape(controller.mapController().shapes()[0], {
+            this.assertCircleShape(controller.mapController().shapes()[0], {
                 visible: true,
                 radius: 1,
                 position: {lat: 43.291628, lng: 5.403022},
@@ -435,7 +464,7 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, origin change)', 
                 equal(2, controller.mapController().markers().length);
                 equal(1, controller.mapController().shapes().length);
 
-                this.assertGoogleShape(controller.mapController().shapes()[0], {
+                this.assertCircleShape(controller.mapController().shapes()[0], {
                     visible: true,
                     radius: 1,
                     position: {lat: 43.0, lng: 5.5},
@@ -450,14 +479,17 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, origin change)', 
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
-        mapController: new creme.geolocation.GoogleMapController(),
+        mapController: mapController,
         neighboursUrl: 'mock/neighbours'
     });
 
     stop(1);
 });
 
-QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, origin move)', function(assert) {
+QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (origin move)', [
+    [new creme.geolocation.GoogleMapController()],
+    [new creme.geolocation.LeafletMapController()]
+], function(mapController, assert) {
     var brick = this.createNeighboursBrick({
         origins: [
             {value: 'Address_A', label: 'Address A'}
@@ -471,7 +503,7 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, origin move)', fu
         }
     }).brick();
     var canvas = brick.element().find('.brick-geoaddress-canvas');
-    var addresses = this.defaultAddressesAsDict();
+    var addresses = this.mockNeighbourAddresses();
 
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
@@ -500,17 +532,25 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, origin move)', fu
             equal(3, controller.mapController().markers().length);
             equal(1, controller.mapController().shapes().length);
 
-            var newAddress_A = new creme.geolocation.Location($.extend({}, addresses['Address_A'], {
+            equal(true, brick.element().is('.geolocation-brick'));
+
+            // Update the origin Address_A & trigger the save event
+            $.extend(addresses['Address_A'], {
                 latitude: 47.887799,
                 longitude: 6.077844,
-                status: creme.geolocation.LocationStatus.PARTIAL
-            }));
+                status: creme.geolocation.LocationStatus.COMPLETE
+            });
+            var newAddress_A = new creme.geolocation.Location(addresses['Address_A']);
 
-            equal(true, brick.element().is('.geolocation-brick'));
-            brick.element().trigger('brick-geoaddress-location-save', [brick, newAddress_A]);
+            this.fakeBrickLocationSave(controller, newAddress_A);
 
             setTimeout(function() {
                 deepEqual([
+                    ['mock/neighbours', 'GET', {
+                        address_id: 'Address_A',
+                        filter_id: 'A1'
+                    }],
+                    // Address A has moved and implies a NEW neighbour request
                     ['mock/neighbours', 'GET', {
                         address_id: 'Address_A',
                         filter_id: 'A1'
@@ -539,14 +579,17 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, origin move)', fu
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
-        mapController: new creme.geolocation.GoogleMapController(),
+        mapController: mapController,
         neighboursUrl: 'mock/neighbours'
     });
 
     stop(1);
 });
 
-QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, neighbour move)', function(assert) {
+QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (neighbour move)', [
+    [new creme.geolocation.GoogleMapController()],
+    [new creme.geolocation.LeafletMapController()]
+], function(mapController, assert) {
     var brick = this.createNeighboursBrick({
         origins: [
             {value: 'Address_A', label: 'Address A'}
@@ -560,7 +603,7 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, neighbour move)',
         }
     }).brick();
     var canvas = brick.element().find('.brick-geoaddress-canvas');
-    var addresses = this.defaultAddressesAsDict();
+    var addresses = this.mockNeighbourAddresses();
 
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
@@ -568,13 +611,6 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, neighbour move)',
         equal('mock/neighbours', controller.neighboursUrl());
 
         setTimeout(function() {
-            deepEqual([
-                ['mock/neighbours', 'GET', {
-                    address_id: 'Address_A',
-                    filter_id: 'A1'
-                }]
-            ], this.mockBackendUrlCalls());
-
             equal('A1', controller.filterSelector().val());
             equal('Address_A', controller.originSelector().val());
 
@@ -589,17 +625,32 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, neighbour move)',
             equal(3, controller.mapController().markers().length);
             equal(1, controller.mapController().shapes().length);
 
-            var newAddress_C = new creme.geolocation.Location($.extend({}, addresses['Address_C'], {
+            equal(true, brick.element().is('.geolocation-brick'));
+
+            deepEqual([
+                ['mock/neighbours', 'GET', {
+                    address_id: 'Address_A',
+                    filter_id: 'A1'
+                }]
+            ], this.mockBackendUrlCalls());
+
+            // Update Address_C in mock neighbours list & trigger the save event
+            $.extend(addresses['Address_C'], {
                 latitude: 47.887799,
                 longitude: 6.077844,
                 status: creme.geolocation.LocationStatus.COMPLETE
-            }));
+            });
+            var newAddress_C = new creme.geolocation.Location(addresses['Address_C']);
 
-            equal(true, brick.element().is('.geolocation-brick'));
-            brick.element().trigger('brick-geoaddress-location-save', [brick, newAddress_C]);
+            this.fakeBrickLocationSave(controller, newAddress_C);
 
             setTimeout(function() {
                 deepEqual([
+                    ['mock/neighbours', 'GET', {
+                        address_id: 'Address_A',
+                        filter_id: 'A1'
+                    }],
+                    // Address C has moved and implies a NEW neighbour request
                     ['mock/neighbours', 'GET', {
                         address_id: 'Address_A',
                         filter_id: 'A1'
@@ -628,14 +679,17 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, neighbour move)',
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
-        mapController: new creme.geolocation.GoogleMapController(),
+        mapController: mapController,
         neighboursUrl: 'mock/neighbours'
     });
 
     stop(1);
 });
 
-QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, click neighbour, redirect)', function(assert) {
+QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (click neighbour, redirect)', [
+    [new creme.geolocation.GoogleMapController()],
+    [new creme.geolocation.LeafletMapController()]
+], function(mapController, assert) {
     var brick = this.createNeighboursBrick({
         origins: [
             {value: 'Address_A', label: 'Address A'}
@@ -677,7 +731,7 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, click neighbour, 
                 new creme.geolocation.Location(addresses['Address_D'])
             ], controller.neighbours());
 
-            google.maps.event.trigger(controller.mapController().getMarker('Address_C'), 'click');
+            this.triggerMarkerClick(controller.mapController().getMarker('Address_C'));
 
             setTimeout(function() {
                 deepEqual([
@@ -700,14 +754,17 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, click neighbour, 
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
-        mapController: new creme.geolocation.GoogleMapController(),
+        mapController: mapController,
         neighboursUrl: 'mock/neighbours'
     });
 
     stop(1);
 });
 
-QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, click origin)', function(assert) {
+QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (google, click origin)', [
+    [new creme.geolocation.GoogleMapController()],
+    [new creme.geolocation.LeafletMapController()]
+], function(mapController, assert) {
     var brick = this.createNeighboursBrick({
         origins: [
             {value: 'Address_A', label: 'Address A'}
@@ -749,7 +806,7 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, click origin)', f
                 new creme.geolocation.Location(addresses['Address_D'])
             ], controller.neighbours());
 
-            google.maps.event.trigger(controller.mapController().getMarker('Address_A'), 'click');
+            this.triggerMarkerClick(controller.mapController().getMarker('Address_A'));
 
             setTimeout(function() {
                 deepEqual([], this.mockRedirectCalls());
@@ -770,14 +827,17 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, click origin)', f
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
-        mapController: new creme.geolocation.GoogleMapController(),
+        mapController: mapController,
         neighboursUrl: 'mock/neighbours'
     });
 
     stop(1);
 });
 
-QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, collapse state)', function(assert) {
+QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (google, collapse state)', [
+    [new creme.geolocation.GoogleMapController()],
+    [new creme.geolocation.LeafletMapController()]
+], function(mapController, assert) {
     var brick = this.createNeighboursBrick({}).brick();
     var canvas = brick.element().find('.brick-geoaddress-canvas');
 
@@ -810,7 +870,7 @@ QUnit.test('creme.geolocation.brick.NeighborhoodBrick (google, collapse state)',
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
-        mapController: new creme.geolocation.GoogleMapController(),
+        mapController: mapController,
         neighboursUrl: 'mock/neighbours'
     });
 

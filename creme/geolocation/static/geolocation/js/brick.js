@@ -32,6 +32,8 @@ creme.geolocation.PersonsBrick = creme.component.Component.sub({
 
         this._brick = brick;
 
+        Assert.is(options.mapController, creme.geolocation.GeoMapController, '${value} is not a GeoMapController');
+
         this._controller = options.mapController;
         this._controller.on('marker-dragstop', this._onDropLocation.bind(this))
                         .on('status', this._onCanvasStatus.bind(this))
@@ -79,7 +81,7 @@ creme.geolocation.PersonsBrick = creme.component.Component.sub({
             position: data.dragStopPosition,
             status: creme.geolocation.LocationStatus.MANUAL
         }, {
-            fail: function() {
+            'cancel fail': function() {
                 self._controller.updateMarker(data.id, {
                     position: data.dragStartPosition
                 });
@@ -215,6 +217,7 @@ creme.geolocation.PersonsBrick = creme.component.Component.sub({
     _toggleLocation: function(location, visible) {
         if (this._controller.hasMarker(location.id())) {
             this._controller.toggleMarker(location.id(), visible);
+            this._controller.adjustMap();
             location.visible(visible);
             this._renderLocationStatus(location);
         } else if (visible) {
@@ -251,6 +254,8 @@ creme.geolocation.AddressesBrick = creme.component.Component.sub({
         this._addresses = [];
 
         this.addressesUrl(options.addressesUrl);
+
+        Assert.is(options.mapController, creme.geolocation.GeoMapController, '${value} is not a GeoMapController');
 
         this._controller = options.mapController;
         this._controller.on('status', this._onCanvasStatus.bind(this))
@@ -357,6 +362,7 @@ creme.geolocation.AddressesBrick = creme.component.Component.sub({
             return location;
         });
 
+        controller.adjustMap();
         this._renderCount(controller.markers({visible: true}).length);
     },
 
@@ -396,6 +402,8 @@ creme.geolocation.PersonsNeighborhoodBrick = creme.component.Component.sub({
         this.radius(options.radius || 1);
         this.neighboursUrl(options.neighboursUrl);
 
+        Assert.is(options.mapController, creme.geolocation.GeoMapController, '${value} is not a GeoMapController');
+
         this._controller = options.mapController;
         this._controller.on('status', this._onCanvasStatus.bind(this))
                         .on('status-enabled', this._onUpdateNeighbours.bind(this))
@@ -405,8 +413,7 @@ creme.geolocation.PersonsNeighborhoodBrick = creme.component.Component.sub({
 
         this._brick.element().on('change', '.brick-geoaddress-origin', this._onUpdateNeighbours.bind(this));
         this._brick.element().on('change', '.brick-geoaddress-filter', this._onUpdateNeighbours.bind(this));
-
-        $(document).on('brick-geoaddress-location-save', '.geolocation-brick', this._onMoveLocation.bind(this));
+        $(document).on('brick-geoaddress-location-save', '.geolocation-detail-brick', this._onMoveLocation.bind(this));
 
         this._controller.bind(this.canvas());
     },
@@ -513,7 +520,7 @@ creme.geolocation.PersonsNeighborhoodBrick = creme.component.Component.sub({
                 title: origin.markerLabel(),
                 position: origin.position(),
                 draggable: false,
-                icon: 'circle'
+                icon: 'target'
             });
 
             controller.adjustMapToShape('NeighbourhoodCircle');
@@ -523,6 +530,8 @@ creme.geolocation.PersonsNeighborhoodBrick = creme.component.Component.sub({
     },
 
     _onMoveLocation: function(event, brick, location) {
+        this._onUpdateNeighbours();
+        /*
         var controller = this._controller;
         var origin = this._origin;
 
@@ -545,6 +554,7 @@ creme.geolocation.PersonsNeighborhoodBrick = creme.component.Component.sub({
                 neighbour.status(location.status());
             }
         }
+        */
     },
 
     _onMarkerClick: function(event, data) {
