@@ -103,6 +103,18 @@ module.exports = function(config) {
         browsers: browsers,
 
         customLaunchers: {
+            ChromeHeadless: {
+                base: 'Chrome',
+                flags: [
+                    '--no-gpu',
+                    '--disable-software-rasterizer',
+                    '--headless',
+                    '--disable-web-security',
+                    '--mute-audio',
+                    '--hide-scrollbars',
+                    '--remote-debugging-port=' + debug_port
+                ]
+            },
             // Works on debian stable (strech) with chromium 69
             ChromiumHeadless: {
                 base: 'Chromium',
@@ -145,6 +157,7 @@ module.exports = function(config) {
                 type: 'text-summary'
             }]
         },
+        failOnEmptyTestSuite: true,
         singleRun: true,
         client: {
             qunit: {
