@@ -192,8 +192,8 @@ creme.bricks.BrickActionBuilders = creme.action.DefaultActionBuilderRegistry.sub
     },
 
     _build_update_redirect: function(url, options, data) {
-        return this._postQueryAction(url, options, data).onDone(function(event, data, xhr) {
-            creme.utils.goTo(data);
+        return this._postQueryAction(url, options, data).onDone(function(event, responseData, xhr) {
+            creme.utils.goTo(responseData);
         });
     },
 

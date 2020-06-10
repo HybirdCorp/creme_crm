@@ -26,6 +26,7 @@ QUnit.module("creme.detailview.hatmenubar", new QUnitMixin(QUnitEventMixin,
 
         this.setMockBackendPOST({
             'mock/relation/add': backend.response(200, ''),
+            'mock/delete': backend.response(200, ''),
             'mock/update': backend.response(200, ''),
             'mock/form': backend.response(200, '/mock/redirected')
         });

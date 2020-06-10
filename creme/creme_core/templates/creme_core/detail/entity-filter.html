@@ -1,5 +1,6 @@
 {% extends 'creme_core/detailview.html' %}
 {% load i18n creme_bricks creme_widgets %}
+{% load url from creme_core_tags %}
 
 {# {% block page_title %}«{{object}}» - {% endblock %} #}
 
@@ -24,9 +25,10 @@
    {% endif %}
    {% if deletion_url %}
     <div class='bar-action'>
-{# NO A BRICK  {% brick_bar_button action='creme_core-detailview-delete' label=_('Delete') url='creme_core__delete_efilter'|url icon='delete' confirm=_('Do you really want to delete this filter?') enabled=deletion_perm %} #}
+      {% brick_bar_button action='creme_core-hatmenubar-delete' label=_('Delete') url=deletion_url icon='delete' confirm=_('Do you really want to delete this filter?') enabled=deletion_perm __callback_url='creme_config__efilters'|url %}
+      {% comment %}
       {% if deletion_perm %}{% translate 'Do you really want to delete this filter?' as confirm_msg %}
-        <a onclick="creme.utils.confirmSubmit(this, '{{confirm_msg|escapejs}}');" class="bar-button">
+        <a onclick="creme.utils.confirmSubmit(this, '{{}}');" class="bar-button">
             {% widget_icon name='delete' size='brick-hat-bar-button' %}
             <form method="POST" action="{{deletion_url}}" style="display:none;">{% csrf_token %}</form>
         </a>
@@ -35,6 +37,7 @@
             {% widget_icon name='delete' size='brick-hat-bar-button' %}
         </span>
       {% endif %}
+      {% endcomment %}
     </div>
    {% endif %}
   {% endwith %}

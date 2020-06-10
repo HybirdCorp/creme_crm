@@ -32,7 +32,7 @@
                 <div class="bar-title">
                     <h1>{% block title %}{{object|get_meta_value:'verbose_name'|capfirst}} : {{object|capfirst}}{% endblock %}</h1>
                 </div>
-                <div class="bar-actions">{% block title_buttons %}{% endblock %}</div>
+                <div class="bar-actions ui-creme-hatmenubar ui-creme-widget widget-auto" widget="ui-creme-hatmenubar">{% block title_buttons %}{% endblock %}</div>
             </div>
         </div>
     {% endblock %}

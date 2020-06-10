@@ -65,6 +65,15 @@
          The hat bar should be a true Brick too?
  */
     var menuBarActions = {
+        'creme_core-hatmenubar-delete': function(url, options, data) {
+            options = $.extend({}, options || {});
+            options.confirm = options.confirm || true;
+
+            return this._postQueryAction(url, options, data).onDone(function(event, responseData, xhr) {
+                creme.utils.goTo(responseData);
+            });
+        },
+
         'creme_core-hatmenubar-view': function(url, options, data) {
             options = $.extend(creme.bricks.defaultDialogOptions(url, data.title), options || {});
             return new creme.bricks.DialogAction(options);
@@ -97,7 +106,7 @@
     creme.views.HatMenuBar = creme.widget.declare('ui-creme-hatmenubar', {
         _create: function(element, options, cb, sync, args) {
             var builder = this._builder = new creme.action.DefaultActionBuilderRegistry();
-            var buttons = $('.menu_button[data-action]', element);
+            var buttons = $('[data-action]', element);
 
             builder.registerAll(menuBarActions);
 

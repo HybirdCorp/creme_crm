@@ -48,6 +48,8 @@
     {% endif %}
 
     <div class='bar-action'>
+      {% brick_bar_button action='creme_core-hatmenubar-update' label=_('Delete') url=object.get_delete_absolute_url icon='delete' confirm=_('Do you really want to delete this property type?') enabled=admin_perm __callback_url=object.get_lv_absolute_url %}
+      {% comment %}
       {% if admin_perm %}{% translate 'Do you really want to delete this property type?' as confirm_msg %}
         <a onclick="creme.utils.confirmSubmit(this, '{{confirm_msg|escapejs}}');" class="bar-button">
             {% widget_icon name='delete' size='brick-hat-bar-button' %}
@@ -58,6 +60,7 @@
             {% widget_icon name='delete' size='brick-hat-bar-button' %}
         </span>
       {% endif %}
+      {% endcomment %}
     </div>
   {% endwith %}
  {% endif %}
