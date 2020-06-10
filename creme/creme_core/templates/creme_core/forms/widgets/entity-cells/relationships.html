@@ -1,0 +1,67 @@
+{% load i18n %}
+<div class="relationship_selectors">
+    <h3 class="selector_title">{% trans 'Relationships' %}</h3>
+
+    <div class="selector_filter">
+        <span class="filter_result"></span>
+{# filter : accounts & contacts | <a href="" class="relationship_filter_all">all relationship types</a> #}
+        <input type="search" class="field_selector_filter" name="{{widget.name}}_relationships_selector_filter" placeholder="{% trans 'FILTER'%}" data-type="relationships">
+    </div>
+
+    <ul class="selector_list">
+{% comment %}
+        <li class="selector" data-column="billing-subject_bill_received" data-selection="2">
+            <input type="checkbox"><a href="" class="sub_selector_toggle">received by</a>
+            <div class="underlay-container">
+                <div class="underlay_wrapper">
+                    <div class="arrow"><div class="inside-arrow"></div></div>
+                    <div class="underlay-content">
+                        <span class="selector_title">
+                            <span class="field_count">24</span> fields of
+                            <select class="content_type_toggle">
+                                <option value="contacts">contacts</option>
+                                <option value="organisations" selected="">organisations</option>
+                            </select>
+                            <em>qui ont reçu</em> la facture
+                        </span>
+                        <ul class="underlay_selector_list">
+                            <li class="selector organisations" data-column="organisations__billing_address" style="display: block;"><input type="checkbox">Billing address</li>
+                            <li class="selector organisations" data-column="organisations__shipping_address" style="display: block;"><input type="checkbox">Shipping address/li>
+                            <li class="selector organisations" data-column="organisations__email" style="display: block;"><input type="checkbox">E-mail</li>
+                            [...]
+
+                            <li class="selector organisations" data-column="organisations__created" style="display: block;"><input type="checkbox">Creation date</li>
+                            <li class="selector organisations" data-column="organisations__modified" style="display: block;"><input type="checkbox">Last modification</li>
+                            <li class="selector organisations" data-column="organisations__user" style="display: block;"><input type="checkbox">Owner user</li>
+
+                            <li class="selector contacts" data-column="contacts__billing_address" style="display: none;"><input type="checkbox">Adresse de facturation</li>
+                            <li class="selector contacts" data-column="contacts__shipping_address" style="display: none;"><input type="checkbox">Adresse de livraison</li>
+                            <li class="selector contacts" data-column="contacts__email" style="display: none;"><input type="checkbox">E-mai</li>
+                            [...]
+
+                            <li class="selector contacts" data-column="contacts__created" style="display: none;"><input type="checkbox">Creation date</li>
+                            <li class="selector contacts" data-column="contacts__modified" style="display: none;"><input type="checkbox">Last modification</li>
+                            <li class="selector contacts" data-column="contacts__user" style="display: none;"><input type="checkbox">Owner user</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="underlay_mask"></div>
+            </div>
+        </li>
+{% endcomment %}
+
+{% comment %}
+        <li class="selector" data-column="persons-object_inactive_customer"><input type="checkbox">has inactive customer</li>
+        <li class="selector" data-column="persons-object_partner"><input type="checkbox">has as partner</li>
+        [...]
+
+        <li class="selector secondary_relationship" data-column="events-subject_is_invited_to"><input type="checkbox">is invited to the event</li>
+        <li class="selector secondary_relationship" data-column="events-subject_not_came_event"><input type="checkbox">did not come to the event</li>
+        <li class="selector secondary_relationship" data-column="events-subject_came_event"><input type="checkbox">has come to the event</li>
+        [...]
+{% endcomment %}
+        {% for choice_id, predicate in widget.choices %}
+            <li class="selector" data-column="{{choice_id}}"><input type="checkbox" /><label>{{predicate}}</label></li>
+        {% endfor %}
+    </ul>
+</div>

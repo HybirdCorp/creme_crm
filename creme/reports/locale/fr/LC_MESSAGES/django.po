@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-13 18:54+0200\n"
+"POT-Creation-Date: 2020-06-03 11:12+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -26,7 +26,7 @@ msgctxt "reports-report"
 msgid "Export «{object}»"
 msgstr "Exporter «{object}»"
 
-#: apps.py:28 models/report.py:70
+#: apps.py:28 models/report.py:71
 msgid "Reports"
 msgstr "Rapports"
 
@@ -217,31 +217,31 @@ msgstr "le champ personnalisé n'existe plus."
 msgid "the custom field is deleted."
 msgstr "le champ personnalisé est supprimé."
 
-#: core/report.py:275
+#: core/report.py:276
 msgid "Regular field"
 msgstr "Champ normal"
 
-#: core/report.py:440
+#: core/report.py:441
 msgid "Custom field"
 msgstr "Champ personnalisé"
 
-#: core/report.py:463
+#: core/report.py:466
 msgid "Relationship"
 msgstr "Relation"
 
-#: core/report.py:510
+#: core/report.py:513
 msgid "Computed field"
 msgstr "Champ calculé"
 
-#: core/report.py:530
+#: core/report.py:533
 msgid "Aggregated value"
 msgstr "Valeur agrégée"
 
-#: core/report.py:599
+#: core/report.py:613
 msgid "Aggregated value (custom field)"
 msgstr "Valeur agrégée (champ personnalisé)"
 
-#: core/report.py:628
+#: core/report.py:646
 msgid "Related field"
 msgstr "Champ relatif"
 
@@ -278,11 +278,11 @@ msgstr ""
 msgid "The instance block for «{graph}» with these parameters already exists!"
 msgstr "Le bloc d'instance pour «{graph}» avec ces paramètres existe déjà !"
 
-#: forms/bulk.py:35 forms/report.py:192
+#: forms/bulk.py:35 forms/report.py:343
 msgid "All"
 msgstr "Tout"
 
-#: forms/bulk.py:61 forms/bulk.py:96 forms/report.py:201
+#: forms/bulk.py:61 forms/bulk.py:96 forms/report.py:352
 msgid "The filter cannot be changed because it is private."
 msgid_plural "The filters cannot be changed because they are private."
 msgstr[0] "Le filtre ne peut pas être changé car il est privé."
@@ -336,11 +336,15 @@ msgstr ""
 "utiliser la même monnaie, ou alors le résultat sera faux.  Les champs "
 "concernés sont : {}"
 
-#: forms/report.py:128
+#: forms/report.py:101
+msgid "(preview not available)"
+msgstr "(aperçu non disponible)"
+
+#: forms/report.py:279
 msgid "Existing view"
 msgstr "Vue existante"
 
-#: forms/report.py:132
+#: forms/report.py:283
 msgid ""
 "If you select a view of list, the columns of the report will be copied from "
 "it."
@@ -348,36 +352,36 @@ msgstr ""
 "Si vous sélectionnez une vue de liste, les colonnes du rapport seront "
 "copiées depuis celle-ci."
 
-#: forms/report.py:136 models/report.py:55
+#: forms/report.py:287 models/report.py:56
 msgid "Filter"
 msgstr "Filtre"
 
 # Already in creme_core
-#: forms/report.py:153 forms/report.py:160
+#: forms/report.py:304 forms/report.py:311
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 
-#: forms/report.py:207
+#: forms/report.py:358
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
 
-#: forms/report.py:353
+#: forms/report.py:654
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/report.py:420
+#: forms/report.py:725
 msgid "Extension"
 msgstr "Extension"
 
-#: forms/report.py:421
+#: forms/report.py:726
 msgid "Date field"
 msgstr "Champ date"
 
-#: forms/report.py:422
+#: forms/report.py:727
 msgid "Date filter"
 msgstr "Filtre temporel"
 
-#: forms/report.py:425
+#: forms/report.py:730
 msgid ""
 "If you chose a Date field, and select «customized» you have to specify a "
 "start date and/or an end date."
@@ -385,7 +389,7 @@ msgstr ""
 "Si vous choisisser un Champ date et sélectionnez «Personnalisé» vous devez "
 "spécifier une date de début et/ou une date de fin."
 
-#: forms/report.py:442
+#: forms/report.py:747
 msgctxt "reports-date_filter"
 msgid "None"
 msgstr "Aucun"
@@ -436,35 +440,35 @@ msgstr "Graphique de rapport"
 msgid "Reports' graphs"
 msgstr "Graphiques de rapport"
 
-#: models/report.py:52
+#: models/report.py:53
 msgid "Name of the report"
 msgstr "Nom du rapport"
 
-#: models/report.py:53
+#: models/report.py:54
 msgid "Entity type"
 msgstr "Type de fiche"
 
-#: models/report.py:58
+#: models/report.py:59
 msgid "No filter"
 msgstr "Aucun filtre"
 
-#: models/report.py:60
+#: models/report.py:61
 msgid "Create a report"
 msgstr "Créer un rapport"
 
-#: models/report.py:61
+#: models/report.py:62
 msgid "Save the report"
 msgstr "Enregistrer le rapport"
 
-#: models/report.py:69
+#: models/report.py:70
 msgid "Report"
 msgstr "Rapport"
 
-#: models/report.py:265
+#: models/report.py:270
 msgid "Column of report"
 msgstr "Colonne de rapport"
 
-#: models/report.py:266
+#: models/report.py:271
 msgid "Columns of report"
 msgstr "Colonnes de rapport"
 
@@ -691,29 +695,33 @@ msgstr "Aperçu des {count} premières lignes"
 msgid "Download CSV"
 msgstr "Télécharger CSV"
 
-#: templates/reports/forms/widgets/report-hands.html:7
-msgid "Related entities"
-msgstr "Fiches associées"
-
-#: templates/reports/forms/widgets/report-hands.html:21
-msgid "Aggregated values"
-msgstr "Valeurs agrégées"
-
-#: templates/reports/forms/widgets/report-hands.html:24
-msgid "Regular fields"
-msgstr "Champs normaux"
-
-#: templates/reports/forms/widgets/report-hands.html:32
-msgid "No field is usable for aggregation."
-msgstr "Aucun champ n'est utilisable pour une agrégation."
-
-#: templates/reports/forms/widgets/report-hands.html:37
+#: templates/reports/forms/widgets/report-hands/custom-aggregates.html:3
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
-#: templates/reports/forms/widgets/report-hands.html:45
+#: templates/reports/forms/widgets/report-hands/custom-aggregates.html:11
 msgid "No custom field is usable for aggregation."
 msgstr "Aucun champ personnalisé n'est utilisable pour une agrégation."
+
+#: templates/reports/forms/widgets/report-hands/regular-aggregates.html:3
+msgid "Regular fields"
+msgstr "Champs normaux"
+
+#: templates/reports/forms/widgets/report-hands/regular-aggregates.html:11
+msgid "No field is usable for aggregation."
+msgstr "Aucun champ n'est utilisable pour une agrégation."
+
+#: templates/reports/forms/widgets/report-hands/related.html:3
+msgid "Related entities"
+msgstr "Fiches associées"
+
+#: templates/reports/forms/widgets/report-hands/related.html:11
+msgid "No other entity type references this entity type."
+msgstr "Aucun autre type de fiche ne référence ce type de fiche."
+
+#: templates/reports/forms/widgets/report-hands/widget.html:17
+msgid "Aggregated values"
+msgstr "Valeurs agrégées"
 
 #: templates/reports/frags/graph_errors.html:5
 #, python-format

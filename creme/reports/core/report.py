@@ -667,14 +667,38 @@ class RHRelated(ReportHand):
             support_subreport=True,
         )
 
-    def _get_related_field(self,
-                           model: Type[CremeEntity],
+    # def _get_related_field(self, model, related_field_name):
+    @staticmethod
+    def _get_related_field(model: Type[CremeEntity],
                            related_field_name: str) -> Optional['Field']:
-        for f in model._meta.get_fields():
-            if (f.one_to_many or f.one_to_one) and f.name == related_field_name:
-                return f
+        # for f in model._meta.get_fields():
+        #     if (f.one_to_many or f.one_to_one) and f.name == related_field_name:
+        #         return f
 
-        return None
+        try:
+            field = model._meta.get_field(related_field_name)
+        except FieldDoesNotExist as e:
+            logger.warning(
+                'RHRelated._get_related_field(): problem with field "%s" ("%s")',
+                related_field_name, e,
+            )
+            return None
+
+        if not field.is_relation:
+            logger.warning(
+                'RHRelated._get_related_field(): the field "%s" is not a FK/M2M',
+                related_field_name,
+            )
+            return None
+
+        if related_field_name not in model.allowed_related:
+            logger.warning(
+                'RHRelated._get_related_field(): the field "%s" is not allowed',
+                related_field_name,
+            )
+            return None
+
+        return field
 
     def _get_related_instances(self, entity, user):
         return getattr(entity, self._attr_name).filter(is_deleted=False)

@@ -130,10 +130,12 @@
                     - In 'core.graph' :
                         - In the class 'ReportGraphHand', the property 'verbose_ordinate' is deprecated ; you can use the templatetag "{% reports_graph_ordinate %}" instead.
                         - The method 'fetcher.RegularFieldLinkedGraphFetcher.validate_fieldname()' is deprecated.
-                    - In 'models.AbstractReportGraph' :
-                        - The method 'create_instance_brick_config_item() is deprecated ; use 'GraphFetcher.create_brick_config_item()' instead.
-                        - The method 'get_fetcher_from_instance_brick()' is deprecated ; use "ReportGraphBrick(...).fetcher" instead.
-                        - The inner-class 'InstanceBrickConfigItemError' is deprecated.
+                    - In 'models' :
+                        - The method 'AbstractReport.get_related_fields_choices()' is deprecated.
+                        - In 'AbstractReportGraph' :
+                            - The method 'create_instance_brick_config_item() is deprecated ; use 'GraphFetcher.create_brick_config_item()' instead.
+                            - The method 'get_fetcher_from_instance_brick()' is deprecated ; use "ReportGraphBrick(...).fetcher" instead.
+                            - The inner-class 'InstanceBrickConfigItemError' is deprecated.
                     - In 'views.graph':
                         - The function-view 'get_available_report_graph_types()' is deprecated.
                         - The function '_get_available_report_graph_types()' is deprecated.
@@ -288,6 +290,13 @@
             - The constructor of 'entity_filter.EntityFilterList' does not work with <None> or list of ContentTypes for the attribute "content_type" any more.
             - The constructor of 'header_filter.HeaderFilterList' does not accept <None> for content_type's value any more.
         # In 'creme_core.forms' :
+            - In 'header_filter':
+                - In the form field 'EntityCellsField' :
+                    - The argument "content_type" (ContentType instance) of '__init__()' has been replaced by "model" (model class).
+                    - The property 'content_type' is deprecated ; use the property 'models' instead.
+                      Beware: the default value is 'CremeEntity', <None> cannot be used anymore.
+                    - Many protected methods have been removed.
+               - These constants have been removed: _RFIELD_PREFIX, _CFIELD_PREFIX, _FFIELD_PREFIX, _RTYPE_PREFIX.
             - The function 'mass_import.get_backend()' has been renamed 'get_import_backend_class()'.
         # In 'creme_core.views', more views are now class-based (notably the reloading views for Bricks) :
             - The function-view 'batch_process.get_ops()' has been replaced by the class 'OperatorChoices'.
@@ -313,9 +322,11 @@
             - The method 'mass_export.MassExport.get_backend()' has been renamed 'get_backend_class()'.
             - The function-view 'search.reload_brick()' has been replaced by the class 'SearchBricksReloading'.
         # The URL named "creme_core__quick_form" has changed : the sub-string "from_widget/" has been removed (no problem if you use 'urls.reverse()' of course).
-        # The structure of the base template has been cleaned :
-            - In the template "creme_core/base.html", these "{% block %}" have been removed: before_content_1, before_content_2, before_content_3, after_content_1, after_content_2, after_content_3.
-            - In the template "creme_core/detailview.html", "{% block before_content_1 %}" has been replaced by "{% block global_buttons_container %}".
+        # In "creme_core/templates/" :
+            - The structure of the base template has been cleaned :
+                - In the template "creme_core/base.html", these "{% block %}" have been removed: before_content_1, before_content_2, before_content_3, after_content_1, after_content_2, after_content_3.
+                - In the template "creme_core/detailview.html", "{% block before_content_1 %}" has been replaced by "{% block global_buttons_container %}".
+            - The template "creme_core/forms/widgets/entity-cells.html" has been replaced by "creme_core/forms/widgets/entity-cells/widget.html"
         # In JavaScript :
             - The name "instance" cannot be used for plugin method any more (because it's already used).
             - <element.data("list_view")> will not work any more ; use <element.list_view("instance")> instead.
@@ -376,7 +387,13 @@
                             - The fields "abscissa_field" & "abscissa_group_by" have been replaced by "abscissa".
                             - These methods have been removed: _filter_abcissa_field(), clean_abscissa_group_by(), _clean_field(), _clean_customfield()
                         - The widget 'AbscissaGroupBySelect' has been removed.
-                    - The method 'report.ReportExportPreviewFilterForm.get_backend()' now returns a backend instance, not a class anymore.
+                    - In 'report':
+                        - These 'EntityCell' classes have been replaced :
+                            - '_EntityCellRelated'  by 'ReportEntityCellRelated'.
+                            - '_EntityCellAggregate' by 'ReportEntityCellRegularAggregate'.
+                            - '_EntityCellCustomAggregate' by 'ReportEntityCellCustomAggregate'.
+                        - These constants have been removed: _RELATED_PREFIX, _REGULAR_AGG_PREFIX, _CUSTOM_AGG_PREFIX.
+                        - The method 'ReportExportPreviewFilterForm.get_backend()' now returns a backend instance, not a class anymore.
                 - In the model 'AbstractReportGraph', these fields have changed :
                     - "type" has been renamed "abscissa_type".
                     - "abscissa" has been renamed "abscissa_cell_value".
@@ -389,6 +406,7 @@
                     - 'report.set_selected()' by 'FieldSelection'.
                     - The constant 'export._PREVIEW_LIMIT_COUNT' has been removed.
                 - The method 'report_aggregation_registry.FieldAggregationRegistry.iter()' has been removed.
+                - The template "reports/forms/widgets/report-hands.html" has been replaced by "reports/forms/widgets/report-hands/widget.html".
                 - In JavaScript, these functions have been removed :
                     - creme.reports.toggleDaysField()
                     - creme.reports.toggleDisableOthers()
@@ -464,7 +482,6 @@
                 - Some imports of "core.graph.XXX" may have been broken since the splitting of this module.
                 - The method 'core.report.ReportHand._get_value_single_on_allowed()' raises a 'NotImplementedError' now.
                 - The attribute 'core.graph.ReportGraphHand._y_calculator' is now an instance of 'ReportGraphYCalculator'.
-                - In 'forms.report._EntityCellRelated.__init__()', the argument "agg_id" has been renamed "related_name".
             * Crudity :
                 - These functions of 'views' have been removed : _build_portal_bricks(), _retrieve_actions_ids()
 

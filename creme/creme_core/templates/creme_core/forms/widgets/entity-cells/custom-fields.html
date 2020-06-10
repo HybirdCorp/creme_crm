@@ -1,0 +1,13 @@
+{% load i18n %}
+<div class="custom_field_selectors inline_selectors">
+    <h4 class="selector_title">{% trans 'Custom fields'%}</h4>
+    {% if widget.choices %}
+        <ul class="selector_list">
+            {% for choice_id, cfield_name in widget.choices %}
+            <li class="selector" data-column="{{choice_id}}"><input type="checkbox" /><label>{{cfield_name}}</label></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        {% trans 'No custom field at the moment.' %}
+    {% endif %}
+</div>

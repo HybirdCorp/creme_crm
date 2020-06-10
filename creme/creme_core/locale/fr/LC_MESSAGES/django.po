@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-19 14:24+0200\n"
+"POT-Creation-Date: 2020-06-03 11:15+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -182,16 +182,16 @@ msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 msgid "Properties"
 msgstr "Propriétés"
 
-#: bricks.py:69 core/entity_cell.py:607 forms/base.py:428 forms/relation.py:37
+#: bricks.py:69 core/entity_cell.py:614 forms/base.py:428 forms/relation.py:37
 #: gui/bricks.py:440 models/relation.py:421
 #: templates/creme_core/bricks/relations.html:7
-#: templates/creme_core/forms/widgets/entity-cells.html:83
+#: templates/creme_core/forms/widgets/entity-cells/relationships.html:3
 msgid "Relationships"
 msgstr "Relations"
 
-#: bricks.py:149 core/entity_cell.py:404 forms/bulk.py:141
+#: bricks.py:149 core/entity_cell.py:410 forms/bulk.py:141
 #: models/custom_field.py:103 templates/creme_core/bricks/custom-fields.html:12
-#: templates/creme_core/forms/widgets/entity-cells.html:58
+#: templates/creme_core/forms/widgets/entity-cells/custom-fields.html:3
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
@@ -321,7 +321,7 @@ msgstr "Vider «{model}» - «{field}»"
 msgid "In «{model} - {field}», replace by a fallback value"
 msgstr "Dans «{model} - {field}», remplacer par une valeur de secours"
 
-#: core/entity_cell.py:250 core/entity_cell.py:259 forms/batch_process.py:191
+#: core/entity_cell.py:256 core/entity_cell.py:265 forms/batch_process.py:191
 #: templates/creme_core/bricks/jobs-all.html:27
 #: templates/creme_core/bricks/jobs-mine.html:14
 #: templates/creme_core/bricks/trash.html:19
@@ -330,21 +330,21 @@ msgstr "Dans «{model} - {field}», remplacer par une valeur de secours"
 msgid "Actions"
 msgstr "Actions"
 
-#: core/entity_cell.py:309 templates/creme_core/bricks/base/hat-card.html:58
-#: templates/creme_core/forms/widgets/entity-cells.html:6
+#: core/entity_cell.py:315 templates/creme_core/bricks/base/hat-card.html:58
+#: templates/creme_core/forms/widgets/entity-cells/widget.html:7
 msgid "Fields"
 msgstr "Champs"
 
-#: core/entity_cell.py:323
+#: core/entity_cell.py:329
 msgid "{} [hidden]"
 msgstr "{} [caché]"
 
-#: core/entity_cell.py:454
+#: core/entity_cell.py:460
 msgid "{} [deleted]"
 msgstr "{} [supprimé]"
 
-#: core/entity_cell.py:549
-#: templates/creme_core/forms/widgets/entity-cells.html:71
+#: core/entity_cell.py:555
+#: templates/creme_core/forms/widgets/entity-cells/function-fields.html:3
 msgid "Computed fields"
 msgstr "Champs calculés"
 
@@ -1078,7 +1078,7 @@ msgstr "Un filtre privé doit vous être attribué (ou à une des vos équipes).
 msgid "Conditions"
 msgstr "Conditions"
 
-#: forms/entity_filter/forms.py:55 forms/header_filter.py:380
+#: forms/entity_filter/forms.py:55 forms/header_filter.py:777
 msgid "All users"
 msgstr "Tous les utilisateurs"
 
@@ -1222,31 +1222,36 @@ msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 "Sélectionnez un choix valide. Ce choix n'est pas un des choix disponibles."
 
-#: forms/header_filter.py:151 forms/mass_import.py:325 forms/mass_import.py:608
-#: forms/mass_import.py:994
-msgid "Enter a valid value."
-msgstr "Saisissez une valeur valide."
+#: forms/header_filter.py:268
+#, python-format
+msgid "This value is invalid: %(value)s"
+msgstr "Cette valeur est invalide : %(value)s"
 
-#: forms/header_filter.py:360
+#: forms/header_filter.py:439
+#, python-format
+msgid "This type of relationship is not compatible with «%(model)s»."
+msgstr "Ce type de relation n'est pas compatible avec «%(model)s»."
+
+#: forms/header_filter.py:757
 msgid "A private view of list must be assigned to a user/team."
 msgstr "Une vue de liste privée doit être attribuée à un utilisateur/équipe."
 
-#: forms/header_filter.py:361
+#: forms/header_filter.py:758
 msgid "A private view of list must belong to you (or one of your teams)."
 msgstr ""
 "Une vue de liste privée doit vous être attribuée (ou à une des vos équipe)."
 
-#: forms/header_filter.py:364 forms/header_filter.py:366
+#: forms/header_filter.py:761 forms/header_filter.py:773
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/header_filter.py:371
+#: forms/header_filter.py:766
 msgid "All users can see the view, but only the owner can edit or delete it"
 msgstr ""
 "Cette vue sera visible par tous les utilisateurs, mais seul le propriétaire "
 "pourra la modifier ou la supprimer"
 
-#: forms/header_filter.py:373
+#: forms/header_filter.py:768
 msgid ""
 "A private view of list can only be used by its owner (or the teammates if "
 "the owner is a team)"
@@ -1359,6 +1364,10 @@ msgid ""
 msgstr ""
 "Erreur lors de l'extraction de valeur: a essayé de retrouver "
 "«{value}» (colonne {column}) sur {model}. Erreur brute: [{raw_error}]"
+
+#: forms/mass_import.py:325 forms/mass_import.py:608 forms/mass_import.py:994
+msgid "Enter a valid value."
+msgstr "Saisissez une valeur valide."
 
 #: forms/mass_import.py:326
 #, python-brace-format
@@ -1661,11 +1670,11 @@ msgstr "Bloc de relation: «{predicate}»"
 msgid "Unknown type of block (bad uninstall ?)"
 msgstr "Type de bloc inconnu (mauvaise désinstallation ?)"
 
-#: gui/bricks.py:924
+#: gui/bricks.py:930
 msgid "Information on the entity"
 msgstr "Informations sur la fiche"
 
-#: gui/bricks.py:943
+#: gui/bricks.py:949
 msgid "Title bar"
 msgstr "Barre de titre"
 
@@ -3334,38 +3343,38 @@ msgstr "Minute(s)"
 msgid "Second(s)"
 msgstr "Seconde(s)"
 
-#: templates/creme_core/forms/widgets/entity-cells.html:9
-msgid "SEARCH"
-msgstr "RECHERCHE"
+#: templates/creme_core/forms/widgets/entity-cells/custom-fields.html:11
+msgid "No custom field at the moment."
+msgstr "Aucun champ personnalisé pour le moment."
 
-#: templates/creme_core/forms/widgets/entity-cells.html:13
+#: templates/creme_core/forms/widgets/entity-cells/regular-fields.html:3
 msgid "Regular fields"
 msgstr "Champs normaux"
 
-#: templates/creme_core/forms/widgets/entity-cells.html:19
+#: templates/creme_core/forms/widgets/entity-cells/regular-fields.html:8
 msgid "Click to select the sub-fields"
 msgstr "Cliquez pour sélectionner les sous-champs"
 
-#: templates/creme_core/forms/widgets/entity-cells.html:27
+#: templates/creme_core/forms/widgets/entity-cells/regular-fields.html:16
 #, python-format
 msgid "%(field)s: %(subfields_count)s sub-field"
 msgid_plural "%(field)s: %(subfields_count)s sub-fields"
 msgstr[0] "%(field)s: %(subfields_count)s sous-champ"
 msgstr[1] "%(field)s: %(subfields_count)s sous-champs"
 
-#: templates/creme_core/forms/widgets/entity-cells.html:29
+#: templates/creme_core/forms/widgets/entity-cells/regular-fields.html:18
 msgid "Close"
 msgstr "Fermer"
 
-#: templates/creme_core/forms/widgets/entity-cells.html:66
-msgid "No custom field at the moment."
-msgstr "Aucun champ personnalisé pour le moment."
-
-#: templates/creme_core/forms/widgets/entity-cells.html:88
+#: templates/creme_core/forms/widgets/entity-cells/relationships.html:8
 msgid "FILTER"
 msgstr "FILTRER"
 
-#: templates/creme_core/forms/widgets/entity-cells.html:157
+#: templates/creme_core/forms/widgets/entity-cells/widget.html:10
+msgid "SEARCH"
+msgstr "RECHERCHE"
+
+#: templates/creme_core/forms/widgets/entity-cells/widget.html:43
 msgid "Remove all columns"
 msgstr "Enlever toutes les colonnes"
 

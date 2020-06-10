@@ -23,26 +23,28 @@ from itertools import chain
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db.models import URLField, EmailField, ManyToManyField, ForeignKey
-from django.utils.translation import gettext_lazy as _, gettext
+from django.db.models import EmailField, ForeignKey, ManyToManyField, URLField
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
     EntityCellRelation,
 )
-from creme.creme_core.forms import (
-    base,
-    widgets as core_widgets,
-)
+from creme.creme_core.forms import base
+from creme.creme_core.forms import widgets as core_widgets
 from creme.creme_core.forms.fields import EntityCTypeChoiceField
 from creme.creme_core.forms.header_filter import EntityCellsField
 from creme.creme_core.gui import bricks as gui_bricks
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    BrickMypageLocation,
     CremeEntity,
+    CustomBrickConfigItem,
+    RelationBrickItem,
     RelationType,
     UserRole,
-    BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
-    RelationBrickItem, CustomBrickConfigItem,
 )
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
@@ -61,9 +63,10 @@ class BrickLocationsField(forms.MultipleChoiceField):
     def __init__(self, *, required=False, choices=(),
                  widget=core_widgets.OrderedMultipleChoiceWidget,
                  **kwargs):
-        super().__init__(required=required, choices=choices,
-                         widget=widget, **kwargs
-                        )
+        super().__init__(
+            required=required, choices=choices,
+            widget=widget, **kwargs
+        )
 
 
 class _BrickLocationsForm(base.CremeForm):
@@ -71,7 +74,7 @@ class _BrickLocationsForm(base.CremeForm):
         bricks = self.fields[field_name]
         choices = [
             (brick.id_, str(brick.verbose_name))
-                for brick in gui_bricks.brick_registry.get_compatible_home_bricks()
+            for brick in gui_bricks.brick_registry.get_compatible_home_bricks()
         ]
         sort_key = collator.sort_key
         choices.sort(key=lambda c: sort_key(c[1]))
@@ -127,11 +130,12 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
         'empty_config':     _('Your configuration is empty !'),
     }
 
-    _ZONES = (('top',    BrickDetailviewLocation.TOP),
-              ('left',   BrickDetailviewLocation.LEFT),
-              ('right',  BrickDetailviewLocation.RIGHT),
-              ('bottom', BrickDetailviewLocation.BOTTOM),
-             )
+    _ZONES = (
+        ('top',    BrickDetailviewLocation.TOP),
+        ('left',   BrickDetailviewLocation.LEFT),
+        ('right',  BrickDetailviewLocation.RIGHT),
+        ('bottom', BrickDetailviewLocation.BOTTOM),
+    )
 
     def __init__(self, ctype=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -144,7 +148,7 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
 
         self.choices = choices = [
             (brick.id_, str(brick.verbose_name))
-               for brick in gui_bricks.brick_registry.get_compatible_bricks(model=model)
+            for brick in gui_bricks.brick_registry.get_compatible_bricks(model=model)
         ]
 
         sort_key = collator.sort_key
@@ -177,17 +181,19 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
                         verbose_name = b_vname
                         break
 
-                raise ValidationError(self.error_messages['duplicated_block'],
-                                      params={'block': verbose_name},
-                                      code='duplicated_block',
-                                     )
+                raise ValidationError(
+                    self.error_messages['duplicated_block'],
+                    params={'block': verbose_name},
+                    code='duplicated_block',
+                )
 
             all_brick_ids.add(brick_id)
 
         if not all_brick_ids:
-            raise ValidationError(self.error_messages['empty_config'],
-                                  code='empty_config',
-                                 )
+            raise ValidationError(
+                self.error_messages['empty_config'],
+                code='empty_config',
+            )
 
         return cdata
 
@@ -195,18 +201,19 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
         cdata = self.cleaned_data
         hat_brick_id = cdata.get('hat')
 
-        self._save_locations(BrickDetailviewLocation,
-                             lambda: BrickDetailviewLocation(content_type=self.ct),
-                             bricks_partitions={
-                                 BrickDetailviewLocation.HAT:    [hat_brick_id] if hat_brick_id else [],
-                                 BrickDetailviewLocation.TOP:    cdata['top'],
-                                 BrickDetailviewLocation.LEFT:   cdata['left'],
-                                 BrickDetailviewLocation.RIGHT:  cdata['right'],
-                                 BrickDetailviewLocation.BOTTOM: cdata['bottom'],
-                             },
-                             old_locations=self.locations,
-                             role=self.role, superuser=self.superuser,
-                            )
+        self._save_locations(
+            BrickDetailviewLocation,
+            lambda: BrickDetailviewLocation(content_type=self.ct),
+            bricks_partitions={
+                BrickDetailviewLocation.HAT:    [hat_brick_id] if hat_brick_id else [],
+                BrickDetailviewLocation.TOP:    cdata['top'],
+                BrickDetailviewLocation.LEFT:   cdata['left'],
+                BrickDetailviewLocation.RIGHT:  cdata['right'],
+                BrickDetailviewLocation.BOTTOM: cdata['bottom'],
+            },
+            old_locations=self.locations,
+            role=self.role, superuser=self.superuser,
+        )
 
 
 class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
@@ -255,11 +262,10 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
         self.role      = role
         self.superuser = superuser
 
-        self.locations = locations = \
-            BrickDetailviewLocation.objects.filter(content_type=self.ct,
-                                                   role=role, superuser=superuser,
-                                                  ) \
-                                           .order_by('order')
+        self.locations = locations = BrickDetailviewLocation.objects.filter(
+            content_type=self.ct,
+            role=role, superuser=superuser,
+        ).order_by('order')
 
         fields = self.fields
 
@@ -303,12 +309,13 @@ class BrickHomeLocationsAddingForm(_BrickLocationsForm):
     def save(self, *args, **kwargs):
         role = self.cleaned_data['role']
 
-        self._save_locations(location_model=BrickHomeLocation,
-                             location_builder=lambda: BrickHomeLocation(),
-                             bricks_partitions={1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
-                             role=role,
-                             superuser=(role is None),
-                            )
+        self._save_locations(
+            location_model=BrickHomeLocation,
+            location_builder=lambda: BrickHomeLocation(),
+            bricks_partitions={1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
+            role=role,
+            superuser=(role is None),
+        )
 
 
 class BrickHomeLocationsEditionForm(_BrickLocationsForm):
@@ -319,17 +326,20 @@ class BrickHomeLocationsEditionForm(_BrickLocationsForm):
         self.role      = role
         self.superuser = superuser
 
-        self.locations = locations = BrickHomeLocation.objects.filter(role=role, superuser=superuser)
+        self.locations = locations = BrickHomeLocation.objects.filter(
+            role=role, superuser=superuser,
+        )
 
         self._build_home_locations_field(field_name='bricks', brick_locations=locations)
 
     def save(self, *args, **kwargs):
-        self._save_locations(location_model=BrickHomeLocation,
-                             location_builder=lambda: BrickHomeLocation(),
-                             bricks_partitions={1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
-                             old_locations=self.locations,
-                             role=self.role, superuser=self.superuser,
-                            )
+        self._save_locations(
+            location_model=BrickHomeLocation,
+            location_builder=lambda: BrickHomeLocation(),
+            bricks_partitions={1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
+            old_locations=self.locations,
+            role=self.role, superuser=self.superuser,
+        )
 
 
 class BrickMypageLocationsForm(_BrickLocationsForm):
@@ -343,11 +353,12 @@ class BrickMypageLocationsForm(_BrickLocationsForm):
         self._build_home_locations_field(field_name='bricks', brick_locations=locations)
 
     def save(self, *args, **kwargs):
-        self._save_locations(BrickMypageLocation,
-                             lambda: BrickMypageLocation(user=self.owner),
-                             {1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
-                             self.locations,
-                            )
+        self._save_locations(
+            BrickMypageLocation,
+            lambda: BrickMypageLocation(user=self.owner),
+            {1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
+            self.locations,
+        )
 
 
 class RTypeBrickAddForm(base.CremeModelForm):
@@ -424,7 +435,8 @@ class RTypeBrickItemEditCtypeForm(base.CremeModelForm):
         cells_f = self.fields['cells']
         cells = self.instance.get_cells(ctype)
         cells_f.non_hiddable_cells = cells or ()
-        cells_f.content_type = ctype
+        # cells_f.content_type = ctype
+        cells_f.model = ctype.model_class()
         cells_f.initial = cells
 
     def _is_valid_first_column(self, cell):
@@ -433,8 +445,11 @@ class RTypeBrickItemEditCtypeForm(base.CremeModelForm):
 
             # These fields are already rendered with <a> tag ; it would be better to
             # have a higher semantic (ask to the fields printer how it renders theme ???)
-            if isinstance(field, (URLField, EmailField, ManyToManyField)) or \
-               (isinstance(field, ForeignKey) and issubclass(field.remote_field.model, CremeEntity)):
+            if isinstance(field, (URLField, EmailField, ManyToManyField)) or (
+               isinstance(field, ForeignKey)
+               and
+               issubclass(field.remote_field.model, CremeEntity)
+            ):
                 return False
         elif isinstance(cell, EntityCellRelation):
             return False
@@ -445,7 +460,10 @@ class RTypeBrickItemEditCtypeForm(base.CremeModelForm):
         cells = self.cleaned_data['cells']
 
         if not self._errors and not self._is_valid_first_column(cells[0]):
-            raise ValidationError(self.error_messages['invalid_first'], code='invalid_first')
+            raise ValidationError(
+                self.error_messages['invalid_first'],
+                code='invalid_first',
+            )
 
         return cells
 
@@ -490,8 +508,8 @@ class CustomBrickConfigItemCreateForm(_CustomBrickConfigItemBaseForm):
         is_invalid = gui_bricks.brick_registry.is_model_invalid
         self.fields['ctype'].ctypes = (
             get_for_model(model)
-                for model in creme_registry.iter_entity_models()
-                    if not is_invalid(model)
+            for model in creme_registry.iter_entity_models()
+            if not is_invalid(model)
         )
 
     def clean(self, *args, **kwargs):
@@ -517,7 +535,8 @@ class CustomBrickConfigItemEditForm(_CustomBrickConfigItemBaseForm):
         cells_f = self.fields['cells']
         cells = instance.cells
         cells_f.non_hiddable_cells = cells
-        cells_f.content_type = instance.content_type
+        # cells_f.content_type = instance.content_type
+        cells_f.model = instance.content_type.model_class()
         cells_f.initial = cells
 
     def clean(self, *args, **kwargs):

@@ -1,0 +1,13 @@
+{% load i18n %}
+<div class="custom_aggregate_selectors inline_selectors">
+    <h4 class="selector_title">{% trans 'Custom fields'%}</h4>
+    {% if widget.choices %}
+        <ul class="selector_list">
+            {% for choice_id, agg_vname in widget.choices %}
+            <li class="selector" data-column="{{choice_id}}"><input type="checkbox">{{agg_vname}}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        {% trans 'No custom field is usable for aggregation.' %}
+    {% endif %}
+</div>

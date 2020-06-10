@@ -1438,7 +1438,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertIsNone(column.sub_report)
 
     def test_edit_fields06(self):
-        "Edit field with sub-report"
+        "Edit field with sub-report."
         user = self.login()
 
         create_report = partial(Report.objects.create, user=user)
@@ -1486,7 +1486,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFalse(column4.selected)
 
     def test_edit_fields07(self):
-        "With FieldsConfig"
+        "With FieldsConfig."
         self.login()
 
         valid_fname = 'last_name'
@@ -1504,24 +1504,34 @@ class ReportTestCase(BaseReportsTestCase):
         Field.objects.create(report=report, name=hidden_fname2, type=RFT_FIELD, order=2)
 
         url = self._build_editfields_url(report)
-        response = self.assertGET200(url)
+        # response = self.assertGET200(url)
+        #
+        # with self.assertNoException():
+        #     widget = response.context['form'].fields['columns'].widget
+        #     choices_keys = {c[0] for c in widget.model_fields}
+        #
+        # self.assertIn('regular_field-' + valid_fname,     choices_keys)
+        # self.assertNotIn('regular_field-' + hidden_fname1, choices_keys)
+        # self.assertIn('regular_field-' + hidden_fname2, choices_keys)  # <== already in report: still proposed
+        response1 = self.assertPOST200(
+            url,
+            data={
+                'columns': f'regular_field-{hidden_fname1}',
+            },
+        )
+        self.assertFormError(
+            response1, 'form', 'columns',
+            _('This value is invalid: %(value)s') % {'value': hidden_fname1},
+        )
 
-        with self.assertNoException():
-            widget = response.context['form'].fields['columns'].widget
-            choices_keys = {c[0] for c in widget.model_fields}
-
-        self.assertIn('regular_field-' + valid_fname,     choices_keys)
-        self.assertNotIn('regular_field-' + hidden_fname1, choices_keys)
-        self.assertIn('regular_field-' + hidden_fname2, choices_keys)  # <== already in report: still proposed
-
-        response = self.client.post(
+        response2 = self.client.post(
             url,
             data={
                 'columns': f'regular_field-{valid_fname},'
                            f'regular_field-{hidden_fname2}',
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         columns = self.refresh(report).columns
         self.assertEqual(2, len(columns))
@@ -1603,20 +1613,31 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         report = self._create_simple_contacts_report()
+        fname = 'image__categories__name'
         response = self.assertPOST200(
             self._build_editfields_url(report),
-            data={'columns': 'regular_field-image__categories__name'},
+            data={'columns': f'regular_field-{fname}'},
         )
-        self.assertFormError(response, 'form', 'columns', _('Enter a valid value.'))
+        self.assertFormError(
+            response, 'form', 'columns',
+            # _('Enter a valid value.')
+            _('This value is invalid: %(value)s') % {'value': fname},
+        )
 
     def test_edit_fields_errors02(self):
         user = self.login()
         report = Report.objects.create(user=user, name='Report on docs', ct=FakeReportsDocument)
+
+        fname = 'linked_folder__parent'
         response = self.assertPOST200(
             self._build_editfields_url(report),
-            data={'columns': 'regular_field-linked_folder__parent'},
+            data={'columns': f'regular_field-{fname}'},
         )
-        self.assertFormError(response, 'form', 'columns', _('Enter a valid value.'))
+        self.assertFormError(
+            response, 'form', 'columns',
+            # _('Enter a valid value.')
+            _('This value is invalid: %(value)s') % {'value': fname},
+        )
 
     def test_invalid_hands01(self):
         self.login()
@@ -1803,7 +1824,7 @@ class ReportTestCase(BaseReportsTestCase):
         )
 
         create_field = partial(Field.objects.create, report=folder_report)
-        rfield1 = create_field(name='title',    type=RFT_FIELD,   order=1)
+        rfield1 = create_field(name='title',               type=RFT_FIELD,   order=1)
         rfield2 = create_field(name='fakereportsdocument', type=RFT_RELATED, order=2)
 
         self.assertGET409(self._build_linkreport_url(rfield1))  # Not a RFT_RELATION Field
