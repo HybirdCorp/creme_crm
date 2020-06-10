@@ -1993,9 +1993,9 @@ class BricksConfigTestCase(CremeTestCase):
         )
 
         rb_item = RelationBrickItem(
-                        brick_id='specificblock_creme_config-test-subfoo',
-                        relation_type=rt,
-                    )
+            brick_id='specificblock_creme_config-test-subfoo',
+            relation_type=rt,
+        )
         build_cell = EntityCellRegularField.build
         rb_item.set_cells(ct, [build_cell(FakeContact, hidden_fname1)])
         rb_item.save()
@@ -2009,7 +2009,11 @@ class BricksConfigTestCase(CremeTestCase):
                          f'regular_field-{hidden_fname2}',
             },
         )
-        self.assertFormError(response, 'form', 'cells', _('Enter a valid value.'))
+        self.assertFormError(
+            response, 'form', 'cells',
+            # _('Enter a valid value.')
+            _('This value is invalid: %(value)s') % {'value': hidden_fname2},
+        )
 
         self.assertNoFormError(self.client.post(
             url,
@@ -2180,12 +2184,12 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(str(customfield.id), cell.value)
 
     def test_edit_custombrick02(self):
-        "With FieldsConfig"
+        "With FieldsConfig."
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
 
         valid_fname = 'last_name'
-        valid_subfname = 'city'
+        # valid_subfname = 'city'
         hidden_fname = 'phone'
         hidden_fkname = 'image'
         hidden_subfname = 'zipcode'
@@ -2194,7 +2198,7 @@ class BricksConfigTestCase(CremeTestCase):
         create_fconf(
             content_type=FakeContact,
             descriptions=[
-                (hidden_fname, {FieldsConfig.HIDDEN: True}),
+                (hidden_fname,  {FieldsConfig.HIDDEN: True}),
                 (hidden_fkname, {FieldsConfig.HIDDEN: True}),
             ],
         )
@@ -2210,17 +2214,17 @@ class BricksConfigTestCase(CremeTestCase):
         )
 
         url = self._build_custombrick_edit_url(cbc_item)
-        response = self.assertGET200(url)
+        # response = self.assertGET200(url)
+        #
+        # with self.assertNoException():
+        #     widget = response.context['form'].fields['cells'].widget
+        #     choices_keys = {c[0] for c in widget.model_fields}
+        #
+        # self.assertIn('regular_field-' + valid_fname,     choices_keys)
+        # self.assertIn('regular_field-address',            choices_keys)
+        # self.assertNotIn('regular_field-' + hidden_fname, choices_keys)
 
-        with self.assertNoException():
-            widget = response.context['form'].fields['cells'].widget
-            choices_keys = {c[0] for c in widget.model_fields}
-
-        self.assertIn('regular_field-' + valid_fname,     choices_keys)
-        self.assertIn('regular_field-address',            choices_keys)
-        self.assertNotIn('regular_field-' + hidden_fname, choices_keys)
-
-        response = self.assertPOST200(
+        response1 = self.assertPOST200(
             url, follow=True,
             data={
                 'name':  cbc_item.name,
@@ -2228,19 +2232,23 @@ class BricksConfigTestCase(CremeTestCase):
                          f'regular_field-{hidden_fname}',
             },
         )
-        self.assertFormError(response, 'form', 'cells', _('Enter a valid value.'))
+        self.assertFormError(
+            response1, 'form', 'cells',
+            # _('Enter a valid value.')
+            _('This value is invalid: %(value)s') % {'value': hidden_fname},
+        )
 
         # ---------------------------
-        with self.assertNoException():
-            address_choices_keys = {
-                c[0] for c in widget.model_subfields['regular_field-address']
-            }
-
+        # with self.assertNoException():
+        #     address_choices_keys = {
+        #         c[0] for c in widget.model_subfields['regular_field-address']
+        #     }
+        #
         prefix = 'address__'
-        self.assertIn('regular_field-' + prefix + valid_subfname, address_choices_keys)
-        self.assertNotIn('regular_field-' + prefix + hidden_subfname, address_choices_keys)
+        # self.assertIn('regular_field-' + prefix + valid_subfname, address_choices_keys)
+        # self.assertNotIn('regular_field-' + prefix + hidden_subfname, address_choices_keys)
 
-        response = self.assertPOST200(
+        response2 = self.assertPOST200(
             url, follow=True,
             data={
                 'name':  cbc_item.name,
@@ -2248,14 +2256,31 @@ class BricksConfigTestCase(CremeTestCase):
                          f'regular_field-{prefix}{hidden_subfname}',
             },
         )
-        self.assertFormError(response, 'form', 'cells', _('Enter a valid value.'))
+        self.assertFormError(
+            response2, 'form', 'cells',
+            # _('Enter a valid value.')
+            _('This value is invalid: %(value)s') % {'value': prefix + hidden_subfname},
+        )
 
         # ----------------------------
-        self.assertNotIn('regular_field-' + hidden_fkname, choices_keys)
-        self.assertFalse(widget.model_subfields['regular_field-image'])
+        # self.assertNotIn('regular_field-' + hidden_fkname, choices_keys)
+        # self.assertFalse(widget.model_subfields['regular_field-image'])
+
+        response3 = self.assertPOST200(
+            url, follow=True,
+            data={
+                'name':  cbc_item.name,
+                'cells': f'regular_field-{valid_fname},'
+                         f'regular_field-{hidden_fkname}',
+            },
+        )
+        self.assertFormError(
+            response3, 'form', 'cells',
+            _('This value is invalid: %(value)s') % {'value': hidden_fkname},
+        )
 
     def test_edit_custombrick03(self):
-        "With FieldsConfig + field in the blocks becomes hidden => still proposed in the form"
+        "With FieldsConfig + field in the blocks becomes hidden => still proposed in the form."
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
 
@@ -2298,26 +2323,26 @@ class BricksConfigTestCase(CremeTestCase):
         )
 
         url = self._build_custombrick_edit_url(cbc_item)
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            widget = response.context['form'].fields['cells'].widget
-            choices_keys = {c[0] for c in widget.model_fields}
-
-            subfields = widget.model_subfields
-            address_choices_keys = {c[0] for c in subfields['regular_field-address']}
-            image_choices_keys   = {c[0] for c in subfields['regular_field-image']}
-
+        # response = self.assertGET200(url)
+        #
+        # with self.assertNoException():
+        #     widget = response.context['form'].fields['cells'].widget
+        #     choices_keys = {c[0] for c in widget.model_fields}
+        #
+        #     subfields = widget.model_subfields
+        #     address_choices_keys = {c[0] for c in subfields['regular_field-address']}
+        #     image_choices_keys   = {c[0] for c in subfields['regular_field-image']}
+        #
         rf_prefix = 'regular_field-'
-        self.assertIn(rf_prefix + valid_fname,   choices_keys)
-        self.assertIn(rf_prefix + hidden_fname1, choices_keys) # was already in the block => still proposed
-        self.assertNotIn(rf_prefix + hidden_fname2, choices_keys)
-
-        self.assertIn(rf_prefix + addr_prefix + hidden_subfname1, address_choices_keys) # idem
-        self.assertNotIn(rf_prefix + addr_prefix + hidden_subfname2, address_choices_keys)
-
-        self.assertIn(rf_prefix + hidden_fkname, image_choices_keys) # idem
-        self.assertIn(rf_prefix + 'image',       choices_keys) # we need it because we have a subfield
+        # self.assertIn(rf_prefix + valid_fname,   choices_keys)
+        # self.assertIn(rf_prefix + hidden_fname1, choices_keys) # was already in the block => still proposed
+        # self.assertNotIn(rf_prefix + hidden_fname2, choices_keys)
+        #
+        # self.assertIn(rf_prefix + addr_prefix + hidden_subfname1, address_choices_keys) # idem
+        # self.assertNotIn(rf_prefix + addr_prefix + hidden_subfname2, address_choices_keys)
+        #
+        # self.assertIn(rf_prefix + hidden_fkname, image_choices_keys) # idem
+        # self.assertIn(rf_prefix + 'image',       choices_keys) # we need it because we have a subfield
 
         response = self.client.post(
             url, follow=True,
@@ -2327,15 +2352,24 @@ class BricksConfigTestCase(CremeTestCase):
                     rf_prefix + fname
                     for fname in (
                         valid_fname,
-                        hidden_fname1,
-                        addr_prefix + hidden_subfname1,
+                        hidden_fname1,  # was already in the block => still proposed
+                        addr_prefix + hidden_subfname1,  # idem
                         hidden_fkname,
                     )
                 ),
             },
         )
         self.assertNoFormError(response)
-        self.assertEqual(4, len(self.refresh(cbc_item).cells))
+        # self.assertEqual(4, len(self.refresh(cbc_item).cells))
+        self.assertListEqual(
+            [
+                build_cell(FakeContact, valid_fname),
+                build_cell(FakeContact, hidden_fname1),
+                build_cell(FakeContact, addr_prefix + hidden_subfname1),
+                build_cell(FakeContact, hidden_fkname),
+            ],
+            self.refresh(cbc_item).cells
+        )
 
     def test_delete_custombrick(self):
         self.login()
@@ -2357,11 +2391,11 @@ class BricksConfigTestCase(CremeTestCase):
     def test_custombrick_wizard_model_step(self):
         self.login()
         contact_ct = ContentType.objects.get_for_model(FakeContact)
-        contact_customfield = CustomField.objects.create(
-            name='Size (cm)',
-            field_type=CustomField.INT,
-            content_type=contact_ct,
-        )
+        # contact_customfield = CustomField.objects.create(
+        #     name='Size (cm)',
+        #     field_type=CustomField.INT,
+        #     content_type=contact_ct,
+        # )
 
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
@@ -2377,13 +2411,14 @@ class BricksConfigTestCase(CremeTestCase):
             },
         )
 
-        cells_widget = response.context['form'].fields['cells'].widget
-        customfield_ids = [e[0] for e in cells_widget.custom_fields]
-        regularfield_ids = [e[0] for e in cells_widget.model_fields]
-
-        self.assertIn(f'custom_field-{contact_customfield.id}', customfield_ids)
-        self.assertIn('regular_field-first_name', regularfield_ids)
-        self.assertIn('regular_field-birthday', regularfield_ids)
+        # cells_widget = ].widget
+        self.assertIn('cells', response.context['form'].fields)
+        # customfield_ids = [e[0] for e in cells_widget.custom_fields]
+        # regularfield_ids = [e[0] for e in cells_widget.model_fields]
+        #
+        # self.assertIn(f'custom_field-{contact_customfield.id}', customfield_ids)
+        # self.assertIn('regular_field-first_name', regularfield_ids)
+        # self.assertIn('regular_field-birthday', regularfield_ids)
 
         # last step is not submitted so nothing yet in database
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
@@ -2426,7 +2461,8 @@ class BricksConfigTestCase(CremeTestCase):
         response = self.assertGET200(self.CUSTOM_WIZARD_URL)
         self.assertIn(contact_ct, response.context['form'].fields['ctype'].ctypes)
 
-        response = self.assertPOST200(
+        # response = self.assertPOST200(
+        self.assertPOST200(
             self.CUSTOM_WIZARD_URL,
             data={
                 'custom_brick_wizard-current_step': '0',
@@ -2434,13 +2470,18 @@ class BricksConfigTestCase(CremeTestCase):
                 '0-name': 'foobar',
             },
         )
-        cells_widget = response.context['form'].fields['cells'].widget
-        customfield_ids = [e[0] for e in cells_widget.custom_fields]
-        regularfield_ids = [e[0] for e in cells_widget.model_fields]
-
-        self.assertIn(f'custom_field-{contact_customfield.id}', customfield_ids)
-        self.assertIn('regular_field-first_name', regularfield_ids)
-        self.assertIn('regular_field-birthday', regularfield_ids)
+        # cells_widget = response.context['form'].fields['cells'].widget
+        # customfield_ids = [e[0] for e in cells_widget.custom_fields]
+        # regularfield_ids = [e[0] for e in cells_widget.model_fields]
+        #
+        # # self.assertIn(f'custom_field-{contact_customfield.id}', customfield_ids)
+        # self.assertInChoices(
+        #     f'custom_field-{contact_customfield.id}',
+        #     label=contact_customfield.name,
+        #     choices=customfield_choices,
+        # )
+        # self.assertIn('regular_field-first_name', regularfield_ids)
+        # self.assertIn('regular_field-birthday', regularfield_ids)
 
         response = self.assertPOST200(
             self.CUSTOM_WIZARD_URL,
@@ -2454,8 +2495,9 @@ class BricksConfigTestCase(CremeTestCase):
 
         cbci = self.get_object_or_fail(CustomBrickConfigItem, content_type=contact_ct)
         self.assertListEqual(
-            [EntityCellRegularField.build(FakeContact, 'first_name'),
-             EntityCellCustomField(contact_customfield),
+            [
+                EntityCellRegularField.build(FakeContact, 'first_name'),
+                EntityCellCustomField(contact_customfield),
             ],
             cbci.cells
         )
@@ -2463,11 +2505,11 @@ class BricksConfigTestCase(CremeTestCase):
     def test_custombrick_wizard_go_back(self):
         self.login()
         contact_ct = ContentType.objects.get_for_model(FakeContact)
-        contact_customfield = CustomField.objects.create(
-            name='Size (cm)',
-            field_type=CustomField.INT,
-            content_type=contact_ct,
-        )
+        # contact_customfield = CustomField.objects.create(
+        #     name='Size (cm)',
+        #     field_type=CustomField.INT,
+        #     content_type=contact_ct,
+        # )
 
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
@@ -2482,13 +2524,14 @@ class BricksConfigTestCase(CremeTestCase):
                 '0-name': 'foobar',
             },
         )
-        cells_widget = response.context['form'].fields['cells'].widget
-        customfield_ids = [e[0] for e in cells_widget.custom_fields]
-        regularfield_ids = [e[0] for e in cells_widget.model_fields]
-
-        self.assertIn(f'custom_field-{contact_customfield.id}', customfield_ids)
-        self.assertIn('regular_field-first_name',               regularfield_ids)
-        self.assertIn('regular_field-birthday',                 regularfield_ids)
+        # cells_widget = response.context['form'].fields['cells'].widget
+        self.assertIn('cells', response.context['form'].fields)
+        # customfield_ids = [e[0] for e in cells_widget.custom_fields]
+        # regularfield_ids = [e[0] for e in cells_widget.model_fields]
+        #
+        # self.assertIn(f'custom_field-{contact_customfield.id}', customfield_ids)
+        # self.assertIn('regular_field-first_name',               regularfield_ids)
+        # self.assertIn('regular_field-birthday',                 regularfield_ids)
 
         # Return to first step
         response = self.assertPOST200(

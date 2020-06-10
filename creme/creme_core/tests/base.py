@@ -300,7 +300,7 @@ class _CremeTestCase:
                 if choice_label != label:
                     self.fail(
                         f'The choice "{value}" has been found, but with the '
-                        f'label "{choice_label}".'
+                        f'label "{choice_label}", not "{label}".'
                     )
 
                 return i

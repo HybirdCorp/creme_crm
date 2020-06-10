@@ -18,12 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import chain
 import logging
+import warnings
+from itertools import chain
 from typing import (
-    Optional, Type, TYPE_CHECKING, Union,
+    TYPE_CHECKING,
     Iterator,
-    List, Set, Tuple,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    Union,
 )
 
 from django.conf import settings
@@ -36,7 +42,8 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.models import (
-    CremeModel, CremeEntity,
+    CremeEntity,
+    CremeModel,
     EntityFilter,
     FieldsConfig,
 )
@@ -204,9 +211,13 @@ class AbstractReport(CremeEntity):
             new_graph.linked_report = self
             new_graph.save()
 
-    # TODO: add a similar EntityCell type in creme_core (& so move this code in core)
     @staticmethod
     def get_related_fields_choices(model) -> List[Tuple[str, str]]:
+        warnings.warn(
+            'The method AbstractReport.get_related_fields_choices() is deprecated.',
+            DeprecationWarning
+        )
+
         # TODO: can we just use the regular introspection (+ field tags ?) instead
         allowed_related_fields = model.allowed_related
 

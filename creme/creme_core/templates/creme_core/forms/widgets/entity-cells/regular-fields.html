@@ -1,0 +1,44 @@
+{% load i18n %}
+<div class="basic_field_selectors">
+    <h4 class="selector_title">{% trans 'Regular fields'%}</h4>
+    <ul class="selector_list">
+        {% for choice_id, field_vname, sub_choices in widget.choices %}
+            <li class="selector" data-column="{{choice_id}}">
+                {% if sub_choices and sub_choices|length > 1 %}
+                    <input type="checkbox"><a href="" class="sub_selector_toggle" title="{% trans 'Click to select the sub-fields' %}">{{field_vname}}</a>
+                    <div class="underlay-container">
+                        <div class="underlay_wrapper">
+                            <div class="arrow">
+                                <div class="inside-arrow"></div>
+                            </div>
+                            <div class="underlay-content">
+                                <span class="selector_title">
+                                    {% blocktrans count subfields_count=sub_choices|length with field=field_vname %}{{field}}: {{subfields_count}} sub-field{% plural %}{{field}}: {{subfields_count}} sub-fields{% endblocktrans %}
+                                </span>
+                                <span class="selector_close">×&nbsp;{% trans 'Close' %}</span>
+                                <ul class="underlay_selector_list">
+                                    {% for sub_choice_id, sub_field_vname in sub_choices %}
+                                        <li class="selector" data-column="{{sub_choice_id}}"><input type="checkbox" /><label>{{sub_field_vname}}</label></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="underlay_mask"></div>
+                    </div>
+                {% else %}
+                    <input type="checkbox" /><label>{{field_vname}}</label>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% comment %}
+<div class="creme_field_selectors inline_selectors">
+    <h4 class="selector_title">Creme fields</h4>
+    <ul class="selector_list">
+        <li class="selector" data-column="created"><input type="checkbox">Created</li>
+        <li class="selector" data-column="modified"><input type="checkbox">Modified</li>
+        <li class="selector" data-column="user"><input type="checkbox">User</li>
+    </ul>
+</div>
+{% endcomment %}

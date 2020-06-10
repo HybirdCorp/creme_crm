@@ -552,6 +552,7 @@ class EntityCellFunctionField(EntityCell):
     _FUNFIELD_CSS = {  # TODO: ClassKeyedMap ?
         FunctionFieldDecimal: models.DecimalField,
     }
+    field_registry = function_field_registry
 
     def __init__(self, model, func_field: FunctionField):
         self._functionfield = func_field
@@ -567,8 +568,8 @@ class EntityCellFunctionField(EntityCell):
     def build(cls,
               model: Type[Model],
               func_field_name: str) -> Optional['EntityCellFunctionField']:
-        # TODO: pass the 'function_field_registry' in a context
-        func_field = function_field_registry.get(model, func_field_name)
+        # func_field = function_field_registry.get(model, func_field_name)
+        func_field = cls.field_registry.get(model, func_field_name)
 
         if func_field is None:
             logger.warning(

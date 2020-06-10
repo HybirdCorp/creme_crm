@@ -1,0 +1,70 @@
+{% load i18n creme_core_tags %}
+<div class="hfilter_widget" {% include 'django/forms/widgets/attrs.html' %}>
+    <input class="inner_value" type="hidden" name="{{widget.name}}" value="{{widget.value}}">
+    <div class="selectors">
+    {% block selectors %}
+        <div class="field_selectors">
+            <h3 class="selector_title">{% trans 'Fields'%}</h3>
+
+            <div class="selector_filter">{# highlight : main fields | <a href="">popular</a> | <a href="">recent</a> #}
+                <input type="search" class="field_selector_filter" name="{{widget.name}}_field_selector_filter" placeholder="{% trans 'SEARCH'%}" data-type="fields">
+            </div>
+
+            {% block field_selectors %}
+                {% with rfields_widget=widget.regular_field %}
+                {% if rfields_widget %}{% include rfields_widget.template_name with widget=rfields_widget %}{% endif %}
+                {% endwith %}
+
+                {% with cfields_widget=widget.custom_field %}
+                {% if cfields_widget %}{% include cfields_widget.template_name with widget=cfields_widget %}{% endif %}
+                {% endwith %}
+
+                {% with ffields_widget=widget.function_field %}
+                {% if ffields_widget %}{% include ffields_widget.template_name with widget=ffields_widget %}{% endif %}
+                {% endwith %}
+            {% endblock %}
+
+{#            {% block extra_field_selectors %}{% endblock %} #}
+        </div>
+
+        {% with rtypes_widget=widget.relation %}
+        {% if rtypes_widget %}{% include rtypes_widget.template_name with widget=rtypes_widget %}{% endif %}
+        {% endwith %}
+
+{#        {% block extra_selectors %}{% endblock %} #}
+    {% endblock %}
+    </div> <!-- /.selectors -->
+
+    <div class="preview">
+    {% block preview %}
+        <h3 class="preview_title"></h3>
+
+        <div class="selector_filter">
+            <a href="" class="remove_all_columns">{% trans 'Remove all columns'%}</a>
+        </div>
+
+        <div class="help_instructions"></div>
+
+        <table class="preview_table">
+            <thead class="preview_table_header">
+                <tr class="sortable_header"></tr>
+{#              <tr class="filterable_header"></tr> #}
+            </thead>
+            <tbody>
+                <tr class="preview_row"></tr>
+                <tr class="preview_row"></tr>
+            </tbody>
+        </table>
+    {% endblock %}
+    </div>
+
+    <script type="text/javascript">
+    {% block script %}
+        $(document).ready(function() {
+            new creme.entity_cell.EntityCellsWidget({
+                samples: {{widget.samples|jsonify|safe}}
+            }).bind($('#{{widget.attrs.id}}'));
+        });
+    {% endblock %}
+    </script>
+</div>

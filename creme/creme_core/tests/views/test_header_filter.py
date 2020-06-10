@@ -301,22 +301,31 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         "FieldsConfig."
         self.login()
 
-        valid_fname = 'last_name'
+        # valid_fname = 'last_name'
         hidden_fname = 'phone'
         FieldsConfig.objects.create(
             content_type=FakeContact,
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        response = self.assertGET200(self._build_add_url(self.contact_ct))
-
-        with self.assertNoException():
-            widget = response.context['form'].fields['cells'].widget
-            choices_keys = {c[0] for c in widget.model_fields}
-
-        rf_prefix = 'regular_field-'
-        self.assertIn(rf_prefix + valid_fname,     choices_keys)
-        self.assertNotIn(rf_prefix + hidden_fname, choices_keys)
+        # response = self.assertGET200(self._build_add_url(self.contact_ct))
+        #
+        # with self.assertNoException():
+        #     widget = response.context['form'].fields['cells'].widget
+        #     choices_keys = {c[0] for c in widget.model_fields}
+        #
+        # rf_prefix = 'regular_field-'
+        # self.assertIn(rf_prefix + valid_fname,     choices_keys)
+        # self.assertNotIn(rf_prefix + hidden_fname, choices_keys)
+        response = self.assertPOST200(
+            self._build_add_url(self.contact_ct),
+            data={'cells': f'regular_field-{hidden_fname}'},
+        )
+        self.assertFormError(
+            response, 'form', 'cells',
+            # _('Enter a valid value.')
+            _('This value is invalid: %(value)s') % {'value': hidden_fname},
+        )
 
     @override_settings(FILTERS_INITIAL_PRIVATE=True)
     def test_create09(self):
@@ -577,16 +586,37 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             ],
         )
 
-        response = self.assertGET200(hf.get_edit_absolute_url())
+        # response = self.assertGET200(hf.get_edit_absolute_url())
+        #
+        # with self.assertNoException():
+        #     widget = response.context['form'].fields['cells'].widget
+        #     choices_keys = {c[0] for c in widget.model_fields}
+        #
+        # rf_prefix = 'regular_field-'
+        # self.assertIn(rf_prefix + valid_fname,   choices_keys)
+        # self.assertIn(rf_prefix + hidden_fname1, choices_keys)  # Was already in the HeaderFilter => still proposed
+        # self.assertNotIn(rf_prefix + hidden_fname2, choices_keys)
+        url = hf.get_edit_absolute_url()
+        response1 = self.assertPOST200(
+            url,
+            data={'cells': f'regular_field-{hidden_fname2}'},
+        )
+        self.assertFormError(
+            response1, 'form', 'cells',
+            # _('Enter a valid value.')
+            _('This value is invalid: %(value)s') % {'value': hidden_fname2},
+        )
 
-        with self.assertNoException():
-            widget = response.context['form'].fields['cells'].widget
-            choices_keys = {c[0] for c in widget.model_fields}
-
-        rf_prefix = 'regular_field-'
-        self.assertIn(rf_prefix + valid_fname,   choices_keys)
-        self.assertIn(rf_prefix + hidden_fname1, choices_keys)  # Was already in the HeaderFilter => still proposed
-        self.assertNotIn(rf_prefix + hidden_fname2, choices_keys)
+        # Was already in the HeaderFilter => still proposed
+        response2 = self.client.post(
+            url,
+            follow=True,
+            data={
+                'name': hf.name,
+                'cells': f'regular_field-{hidden_fname1}'
+            },
+        )
+        self.assertNoFormError(response2)
 
     def test_delete01(self):
         self.login()
