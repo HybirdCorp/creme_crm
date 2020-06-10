@@ -151,8 +151,7 @@ jobs:
       - run:
           name: Run javascript tests
           command: |
-            python manage.py generatemedia
-            node_modules/.bin/karma start .karma.conf.js --browsers=FirefoxHeadless
+            make karma-ci
 
   lint-js:
     docker:

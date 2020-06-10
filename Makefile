@@ -45,6 +45,12 @@ karma: media
 	node_modules/.bin/karma start .karma.conf.js --browsers=FirefoxHeadless --targets=$(filter-out $@,$(MAKECMDGOALS))
 
 
+## Run the Javascript test suite in CI
+.PHONY: karma-ci
+karma-ci: media
+	node_modules/.bin/karma start .circleci/.karma.conf.js --targets=$(filter-out $@,$(MAKECMDGOALS))
+
+
 ## Run the application
 .PHONY: serve
 serve: media
