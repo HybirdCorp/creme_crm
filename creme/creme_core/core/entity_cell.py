@@ -24,6 +24,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, Type  # Callable
 # from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Field, FieldDoesNotExist, Model
+from django.utils.functional import cached_property
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -89,7 +90,7 @@ class EntityCell:
     def __init__(self,
                  model: Type[Model],
                  value: str = '',
-                 title: str = 'Title',
+                 # title: str = 'Title',
                  is_hidden: bool = False,
                  is_excluded: bool = False):
         """Constructor.
@@ -108,7 +109,7 @@ class EntityCell:
         """
         self._model = model
         self.value = value
-        self.title = title
+        # self.title = title
         self.is_hidden = is_hidden
         self.is_excluded = is_excluded
 
@@ -186,6 +187,10 @@ class EntityCell:
     def render_csv(self, entity: CremeEntity, user) -> str:
         raise NotImplementedError
 
+    @property
+    def title(self) -> str:
+        raise NotImplementedError
+
     def to_dict(self):
         return {'type': self.type_id, 'value': self.value}
 
@@ -257,7 +262,8 @@ class EntityCellActions(EntityCell):
         @param actions_registry: Instance of 'creme.creme_core.gui.actions.ActionsRegistry'.
                Used to get the actions related to the model.
         """
-        super().__init__(model=model, value='entity_actions', title=_('Actions'))
+        # super().__init__(model=model, value='entity_actions', title=_('Actions'))
+        super().__init__(model=model, value='entity_actions')
         self.registry = actions_registry
 
     def _sort_actions(self, actions):
@@ -303,6 +309,10 @@ class EntityCellActions(EntityCell):
     def render_csv(self, entity, user):
         return ''
 
+    @cached_property
+    def title(self):
+        return gettext('Actions')
+
 
 @CELLS_MAP
 class EntityCellRegularField(EntityCell):
@@ -319,9 +329,6 @@ class EntityCellRegularField(EntityCell):
             model=model,
             value=name,
             # title=field_info.verbose_name,
-            title=field_info.verbose_name
-                  if not is_excluded else
-                  gettext('{} [hidden]').format(field_info.verbose_name),
             is_hidden=is_hidden,
             is_excluded=is_excluded,
         )
@@ -398,6 +405,11 @@ class EntityCellRegularField(EntityCell):
 
         return printer(entity, user)
 
+    @cached_property
+    def title(self) -> str:
+        return str(self._field_info.verbose_name) if not self.is_excluded else \
+               gettext('{} [hidden]').format(self._field_info.verbose_name)
+
 
 @CELLS_MAP
 class EntityCellCustomField(EntityCell):
@@ -446,17 +458,13 @@ class EntityCellCustomField(EntityCell):
 
     def __init__(self, customfield: CustomField):
         self._customfield = customfield
-        deleted = customfield.is_deleted
 
         super().__init__(
             model=customfield.content_type.model_class(),
             value=str(customfield.id),
             # title=customfield.name,
-            title=gettext('{} [deleted]').format(customfield.name)
-                  if deleted else
-                  customfield.name,
             is_hidden=False,
-            is_excluded=deleted,
+            is_excluded=customfield.is_deleted,
         )
 
         # NB: We set these methods in instance's scope to avoid the building of
@@ -543,6 +551,11 @@ class EntityCellCustomField(EntityCell):
     #     value = entity.get_custom_value(self.custom_field)
     #     return value if value is not None else ''
 
+    @cached_property
+    def title(self):
+        return gettext('{} [deleted]').format(self._customfield.name) if self.is_excluded else \
+               self._customfield.name
+
 
 @CELLS_MAP
 class EntityCellFunctionField(EntityCell):
@@ -560,7 +573,7 @@ class EntityCellFunctionField(EntityCell):
         super().__init__(
             model=model,
             value=func_field.name,
-            title=str(func_field.verbose_name),
+            # title=str(func_field.verbose_name),
             is_hidden=func_field.is_hidden,
         )
 
@@ -602,6 +615,10 @@ class EntityCellFunctionField(EntityCell):
     def render_csv(self, entity, user):
         return self.function_field(entity, user).for_csv()
 
+    @cached_property
+    def title(self):
+        return str(self._functionfield.verbose_name)
+
 
 @CELLS_MAP
 class EntityCellRelation(EntityCell):
@@ -613,7 +630,7 @@ class EntityCellRelation(EntityCell):
         super().__init__(
             model=model,
             value=str(rtype.id),
-            title=rtype.predicate,
+            # title=rtype.predicate,
             is_hidden=is_hidden,
         )
 
@@ -675,24 +692,30 @@ class EntityCellRelation(EntityCell):
             if has_perm(o)
         )
 
+    @property
+    def title(self):
+        return self._rtype.predicate
 
-# @CELLS_MAP TODO ??
+
 class EntityCellVolatile(EntityCell):
+    """Base class for cells added on-the-go, which are not configured & do not
+    correspond to any previous type.
+    """
     type_id = 'volatile'
-    # verbose_name = ... TODO ?
 
-    def __init__(self,
-                 model: Type[Model],
-                 value, title,
-                 render_func,  # TODO: Callable[[CremeEntity], str] VS abstract render_html() (see "events" app)
-                 is_hidden: bool = False):
-        self._render_func = render_func
-        super().__init__(
-            model=model,
-            value=value,
-            title=title,
-            is_hidden=is_hidden,
-        )
+    # def __init__(self,
+    #              model: Type[Model],
+    #              value: str,
+    #              title,
+    #              render_func,
+    #              is_hidden: bool = False):
+    #     self._render_func = render_func
+    #     super().__init__(
+    #         model=model,
+    #         value=value,
+    #         title=title,
+    #         is_hidden=is_hidden,
+    #     )
 
-    def render_html(self, entity, user):
-        return self._render_func(entity)  # TODO: pass user
+    # def render_html(self, entity, user):
+    #     return self._render_func(entity)

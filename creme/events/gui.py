@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019  Hybird
+#    Copyright (C) 2019-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,12 +21,11 @@
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _  # gettext_lazy as _
 
 from creme.creme_core.core.entity_cell import EntityCellVolatile
 from creme.creme_core.gui.actions import ActionsRegistry
 from creme.creme_core.gui.listview import ListViewButton
-
 from creme.persons import get_contact_model
 
 from . import constants
@@ -58,7 +57,8 @@ class _BaseEventEntityCellVolatile(EntityCellVolatile):
     html = """<select onchange="creme.events.saveContactStatus('{url}', this);"{attrs}>{options}</select>"""
 
     def __init__(self, event, **kwargs):
-        super().__init__(model=Contact, render_func=None, **kwargs)
+        # super().__init__(model=Contact, render_func=None, **kwargs)
+        super().__init__(model=Contact, **kwargs)
         self.event = event
 
     def has_relation(self, entity, rtype_id):
@@ -74,16 +74,22 @@ class _BaseEventEntityCellVolatile(EntityCellVolatile):
             attrs='' if has_perm(self.event) and has_perm(entity) else mark_safe(' disabled="True"'),
             options=format_html_join(
                 '', '<option value="{}"{}>{}</option>',
-                ((status, ' selected' if status == current_status else '', status_name)
-                     for status, status_name in status_map.items()
+                (
+                    (status, ' selected' if status == current_status else '', status_name)
+                    for status, status_name in status_map.items()
                 )
             ),
         )
 
+    def render_csv(self, entity, user):
+        return 'Unused'
+
 
 class EntityCellVolatileInvitation(_BaseEventEntityCellVolatile):
-    def __init__(self, event, value='invitation_management', title=_('Invitation'), **kwargs):
-        super().__init__(event=event, value=value, title=title, **kwargs)
+    # def __init__(self, event, value='invitation_management', title=_('Invitation'), **kwargs):
+    def __init__(self, event, value='invitation_management', **kwargs):
+        # super().__init__(event=event, value=value, title=title, **kwargs)
+        super().__init__(event=event, value=value, **kwargs)
 
     def render_html(self, entity, user):
         has_relation = self.has_relation
@@ -104,10 +110,16 @@ class EntityCellVolatileInvitation(_BaseEventEntityCellVolatile):
             current_status=current_status,
         )
 
+    @property
+    def title(self):
+        return _('Invitation')
+
 
 class EntityCellVolatilePresence(_BaseEventEntityCellVolatile):
-    def __init__(self, event, value='presence_management', title=_('Presence'), **kwargs):
-        super().__init__(event=event, value=value, title=title, **kwargs)
+    # def __init__(self, event, value='presence_management', title=_('Presence'), **kwargs):
+    def __init__(self, event, value='presence_management', **kwargs):
+        # super().__init__(event=event, value=value, title=title, **kwargs)
+        super().__init__(event=event, value=value, **kwargs)
 
     def render_html(self, entity, user):
         has_relation = self.has_relation
@@ -125,3 +137,7 @@ class EntityCellVolatilePresence(_BaseEventEntityCellVolatile):
             status_map=constants.PRES_STATUS_MAP,
             current_status=current_status,
         )
+
+    @property
+    def title(self):
+        return _('Presence')

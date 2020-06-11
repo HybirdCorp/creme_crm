@@ -101,11 +101,8 @@ class ReportEntityCellRelated(_ReportOnlyEntityCell):
     type_id = 'related'
 
     def __init__(self, model, related_name, related_field):
-        super().__init__(
-            model=model,
-            value=related_name,
-            title=str(related_field.related_model._meta.verbose_name),
-        )
+        super().__init__(model=model, value=related_name)
+        self.related_field = related_field
 
     @classmethod
     def build(cls,
@@ -122,6 +119,10 @@ class ReportEntityCellRelated(_ReportOnlyEntityCell):
             related_field=rel_field,
         )
 
+    @property
+    def title(self):
+        return str(self.related_field.related_model._meta.verbose_name)
+
 
 # TODO: factorise with RHAggregate & RHAggregateRegularField
 @reports_cells_registry
@@ -129,11 +130,7 @@ class ReportEntityCellRegularAggregate(_ReportOnlyEntityCell):
     type_id = 'regular_aggregate'
 
     def __init__(self, model, agg_id, field, aggregation):
-        super().__init__(
-            model=model,
-            value=agg_id,
-            title='{} - {}'.format(aggregation.title, field.verbose_name),
-        )
+        super().__init__(model=model, value=agg_id)
         self.field = field
         self.aggregation = aggregation
 
@@ -184,18 +181,18 @@ class ReportEntityCellRegularAggregate(_ReportOnlyEntityCell):
             aggregation=aggregation,
         )
 
+    @property
+    def title(self):
+        return f'{self.aggregation.title} - {self.field.verbose_name}'
 
-# TODO: factorise (_EntityCellRegularAggregate, EntityCellCustomField)
+
+# TODO: factorise (ReportEntityCellCustomAggregate, EntityCellCustomField)
 @reports_cells_registry
 class ReportEntityCellCustomAggregate(_ReportOnlyEntityCell):
     type_id = 'custom_aggregate'
 
     def __init__(self, model, agg_id, custom_field, aggregation):
-        super().__init__(
-            model=model,
-            value=agg_id,
-            title='{} - {}'.format(aggregation.title, custom_field.name),
-        )
+        super().__init__(model=model, value=agg_id)
         self.custom_field = custom_field
         self.aggregation = aggregation
 
@@ -245,6 +242,10 @@ class ReportEntityCellCustomAggregate(_ReportOnlyEntityCell):
             custom_field=cfield,
             aggregation=aggregation,
         )
+
+    @property
+    def title(self):
+        return f'{self.aggregation.title} - {self.custom_field.name}'
 
 
 _CELL_2_HAND_MAP = {
