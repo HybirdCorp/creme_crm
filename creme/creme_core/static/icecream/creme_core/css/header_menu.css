@@ -432,6 +432,7 @@ span.create-group-entry {
 
     color: #666;
     text-decoration: none;
+    word-break: break-all;
 }
 
 .search-result-reason {opacity: 0.8; font-weight: 400;}
