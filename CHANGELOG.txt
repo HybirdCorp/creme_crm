@@ -450,6 +450,8 @@
                         - '_build_related_phonecall()' & '_create_phonecall()'
             * SMS :
                 - The function-view 'views.sending.reload_messages_brick()' has been replaced by the class 'MessageBrickReloading'.
+            * Activesync :
+                - Its support was dropped with Creme2.0, and is now removed from the codebase.
 
     Internal breaking changes :
     ---------------------------
