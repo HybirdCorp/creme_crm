@@ -18,7 +18,6 @@ DATABASES = {
 INSTALLED_CREME_APPS.extend([
     # 'creme.sms',  # Work In Progress
     'creme.cti',
-    # 'creme.activesync',  # NOT AVAILABLE ANY MORE
     'creme.polls',  # Need 'commercial'
     'creme.mobile',
 ])

@@ -486,7 +486,6 @@ class VcfImportForm(CremeModelForm):
                     img_path = tmp_img_path
             else:  # TODO: manage urls encoded in base64 ??
                 try:
-                    # TODO: factorise with activesync ??
                     img_data = base64.decodebytes(image_encoded.encode())
                     img_path = handle_uploaded_file(
                         ContentFile(img_data),
