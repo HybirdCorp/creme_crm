@@ -173,7 +173,7 @@ class ReportEntityCellRegularAggregate(_ReportEntityCellAggregate):
             )
             return None
 
-        if not isinstance(field, cls.aggregation_registry.authorized_fields):
+        if not cls.aggregation_registry.is_regular_field_allowed(field):
             logging.warning(
                 'ReportEntityCellRegularAggregate.build(): '
                 'this type of field can not be aggregated: %s.',
@@ -234,7 +234,7 @@ class ReportEntityCellCustomAggregate(_ReportEntityCellAggregate):
             )
             return None
 
-        if cfield.field_type not in cls.aggregation_registry.authorized_customfields:
+        if not cls.aggregation_registry.is_custom_field_allowed(cfield):
             logging.warning(
                 'ReportEntityCellCustomAggregate.build(): '
                 'this type of custom field can not be aggregated: %s.',
@@ -508,16 +508,14 @@ class ReportEntityCellCustomAggregatesField(hf_form.UniformEntityCellsField):
     def _get_options(self):
         model = self.model
         cell_class = self.cell_class
-        # TODO: registry in cell/hand/attribute ?
-        aggregation_registry = cell_class.aggregation_registry
-        authorized_customfields = aggregation_registry.authorized_customfields
+        cfield_allowed = cell_class.aggregation_registry.is_custom_field_allowed
         non_hiddable_cells = self._non_hiddable_cells
 
         # NB: we use the cache of CustomField as EntityCellCustomFieldsField
         agg_custom_fields = [
             cfield
             for cfield in CustomField.objects.get_for_model(self.model).values()
-            if cfield.field_type in authorized_customfields
+            if cfield_allowed(cfield)
         ]
 
         for aggregate in cell_class.aggregation_registry.aggregations:

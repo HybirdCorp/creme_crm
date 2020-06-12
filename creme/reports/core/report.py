@@ -589,7 +589,8 @@ class RHAggregateRegularField(RHAggregate):
         except FieldDoesNotExist as e:
             raise ReportHand.ValueError(f'Unknown field: "{field_name}"') from e
 
-        if not isinstance(field, field_aggregation_registry.authorized_fields):
+        # if not isinstance(field, field_aggregation_registry.authorized_fields):
+        if not field_aggregation_registry.is_regular_field_allowed(field):
             raise ReportHand.ValueError(
                 f'This type of field can not be aggregated: "{field_name}"'
             )
@@ -622,7 +623,8 @@ class RHAggregateCustomField(RHAggregate):
                 f'Invalid custom field aggregation: "{field_name}"'
             ) from e
 
-        if cfield.field_type not in field_aggregation_registry.authorized_customfields:
+        # if cfield.field_type not in field_aggregation_registry.authorized_customfields:
+        if not field_aggregation_registry.is_custom_field_allowed(cfield):
             raise ReportHand.ValueError(
                 f'This type of custom field can not be aggregated: "{field_name}"'
             )
