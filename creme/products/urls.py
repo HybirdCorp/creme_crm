@@ -2,11 +2,10 @@
 
 from django.urls import re_path
 
+from creme import products
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
-from creme import products
 from .views import product, service
-
 
 urlpatterns = [
     re_path(r'^product/(?P<product_id>\d+)/add_images[/]?$', product.ImagesAdding.as_view(),  name='products__add_images_to_product'),
