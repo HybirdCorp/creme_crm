@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
-from django.db import models, migrations
+from django.db import migrations, models
 from django.db.models.deletion import CASCADE
 from django.utils.timezone import now
 

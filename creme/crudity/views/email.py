@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,10 @@ from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.template.loader import render_to_string
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.auth.decorators import (
+    login_required,
+    permission_required,
+)
 from creme.creme_core.utils.secure_filename import secure_filename
 
 from .. import registry
@@ -42,15 +45,18 @@ def download_email_template(request, subject):
     if backend is None:
         raise Http404('This backend is not registered')
 
-    response = HttpResponse(render_to_string('crudity/create_email_template.html',  # TODO: rename crudity/create_email_template.eml ??
-                                             {'backend': backend,
-                                              'contact': request.user.linked_contact,
-                                              'to':      settings.CREME_GET_EMAIL,
-                                             },
-                                             request=request,
-                                            ),
-                            content_type='application/vnd.sealed.eml',
-                           )
+    response = HttpResponse(
+        render_to_string(
+            'crudity/create_email_template.html',  # TODO: rename crudity/create_email_template.eml ??
+            {
+                'backend': backend,
+                'contact': request.user.linked_contact,
+                'to':      settings.CREME_GET_EMAIL,
+            },
+            request=request,
+        ),
+        content_type='application/vnd.sealed.eml',
+    )
 
     response['Content-Disposition'] = 'attachment; filename={}.eml'.format(
         secure_filename(subject)

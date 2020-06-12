@@ -23,7 +23,8 @@ from django.http import Http404
 
 # from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils.content_type import get_ctype_or_404
-from creme.creme_core.views.bricks import BricksReloading  # bricks_render_info, get_brick_ids_or_404
+# from creme.creme_core.views.bricks import bricks_render_info, get_brick_ids_or_404
+from creme.creme_core.views.bricks import BricksReloading
 # from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic import BricksView
 

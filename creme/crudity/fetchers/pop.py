@@ -18,15 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 import email
-import poplib
 import logging
+import poplib
 import re
+from datetime import datetime
 from typing import Iterable, List, Tuple
 
 from django.conf import settings
-from django.core.files.uploadedfile import UploadedFile, SimpleUploadedFile
+from django.core.files.uploadedfile import SimpleUploadedFile, UploadedFile
 
 from creme.creme_core.utils import safe_unicode
 
