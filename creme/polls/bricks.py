@@ -18,20 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import gettext_lazy as _, gettext, ngettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
+from creme import persons, polls
 from creme.creme_core.gui.bricks import (
-    BrickDependencies,
     Brick,
-    SimpleBrick,
+    BrickDependencies,
     QuerysetBrick,
+    SimpleBrick,
 )
 
-from creme import persons
-
-from creme import polls
 from .models import PollFormLine, PollReplyLine
-from .utils import SectionTree, ReplySectionTree, NodeStyle
+from .utils import NodeStyle, ReplySectionTree, SectionTree
 
 PollCampaign = polls.get_pollcampaign_model()
 PollForm     = polls.get_pollform_model()

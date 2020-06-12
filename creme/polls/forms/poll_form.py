@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2019  Hybird
+#    Copyright (C) 2012-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,18 +21,19 @@
 from itertools import chain, zip_longest
 
 from django.core.exceptions import ValidationError
-from django.forms.fields import IntegerField, CharField, TypedChoiceField
+from django.forms.fields import CharField, IntegerField, TypedChoiceField
 from django.forms.widgets import Textarea
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm
+from creme.creme_core.forms import CremeEntityForm, CremeForm, CremeModelForm
 from creme.creme_core.forms.fields import ListEditionField
 from creme.creme_core.forms.widgets import CremeRadioSelect
 from creme.creme_core.utils import find_first, update_model_instance
 
 from .. import get_pollform_model
 from ..core import PollLineType
-from ..models import PollFormSection, PollFormLine, PollFormLineCondition
+from ..models import PollFormLine, PollFormLineCondition, PollFormSection
 from ..utils import SectionTree
 from .fields import PollFormLineConditionsField
 

@@ -21,29 +21,34 @@
 import logging
 
 from django.db.transaction import atomic
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import render, get_object_or_404, redirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _, gettext, pgettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext
 
+from creme import persons, polls
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.templatetags.creme_widgets import get_icon_by_name, get_icon_size_px
+from creme.creme_core.auth.decorators import (
+    login_required,
+    permission_required,
+)
+from creme.creme_core.templatetags.creme_widgets import (
+    get_icon_by_name,
+    get_icon_size_px,
+)
 from creme.creme_core.utils import get_from_POST_or_404, update_model_instance
 from creme.creme_core.utils.media import get_current_theme
 from creme.creme_core.views import generic
-
-from creme import persons
-
-from creme import polls
 
 from ..constants import DEFAULT_HFILTER_PREPLY
 from ..core import MultiEnumPollLineType
 from ..forms import poll_reply as preply_forms
 from ..models import PollReplyLine
-from ..utils import ReplySectionTree, NodeStyle
+from ..utils import NodeStyle, ReplySectionTree
 
 logger = logging.getLogger(__name__)
 Contact      = persons.get_contact_model()

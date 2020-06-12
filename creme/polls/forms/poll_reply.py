@@ -22,20 +22,29 @@ from itertools import repeat
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.forms import CharField, IntegerField, ModelChoiceField, BooleanField
+from django.forms import (
+    BooleanField,
+    CharField,
+    IntegerField,
+    ModelChoiceField,
+)
 from django.http import Http404
-from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
+from creme import persons, polls
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms import (
-    CremeForm, CremeEntityForm,
-    CreatorEntityField, MultiCreatorEntityField,
-    GenericEntityField, MultiGenericEntityField,
+    CreatorEntityField,
+    CremeEntityForm,
+    CremeForm,
+    GenericEntityField,
+    MultiCreatorEntityField,
+    MultiGenericEntityField,
 )
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.widgets import Label
-
-from creme import persons, polls
 
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()

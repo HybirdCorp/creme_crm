@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2019  Hybird
+#    Copyright (C) 2012-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,11 +20,14 @@
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import ProtectedError
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.auth.decorators import (
+    login_required,
+    permission_required,
+)
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic import base
@@ -32,8 +35,8 @@ from creme.creme_core.views.generic import base
 from .. import get_pollform_model
 from ..constants import DEFAULT_HFILTER_PFORM
 from ..forms import poll_form as pf_forms
-from ..models import PollFormSection, PollFormLine
-from ..utils import StatsTree, NodeStyle  # TODO: templatetag instead ?
+from ..models import PollFormLine, PollFormSection
+from ..utils import NodeStyle, StatsTree  # TODO: templatetag instead ?
 
 PollForm = get_pollform_model()
 

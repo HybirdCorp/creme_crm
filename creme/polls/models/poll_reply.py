@@ -20,18 +20,27 @@
 
 from django.conf import settings
 from django.db.models import (
-    CharField, TextField, BooleanField, NullBooleanField,
-    PositiveIntegerField, PositiveSmallIntegerField, ForeignKey,
-    PROTECT, SET_NULL, CASCADE,
+    CASCADE,
+    PROTECT,
+    SET_NULL,
+    BooleanField,
+    CharField,
+    ForeignKey,
+    NullBooleanField,
+    PositiveIntegerField,
+    PositiveSmallIntegerField,
+    TextField,
 )
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.models import CremeEntity, CremeModel
 
 from .base import _PollLine
-from .poll_type import PollType
 from .poll_form import PollFormLine
+from .poll_type import PollType
 
 
 class AbstractPollReply(CremeEntity):

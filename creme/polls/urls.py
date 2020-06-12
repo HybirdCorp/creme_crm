@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from django.urls import re_path, include
-
-from creme.creme_core.conf.urls import Swappable, swap_manager
+from django.urls import include, re_path
 
 from creme import polls
-from .views import campaign, poll_form, poll_reply
+from creme.creme_core.conf.urls import Swappable, swap_manager
 
+from .views import campaign, poll_form, poll_reply
 
 urlpatterns = [
     re_path(r'^poll_form/stats/(?P<pform_id>\d+)[/]?$', poll_form.Statistics.as_view(), name='polls__form_stats'),
@@ -98,4 +97,3 @@ urlpatterns = [
         app_name='polls',
     ).kept_patterns(),
 ]
-

@@ -23,15 +23,17 @@ import logging
 from django.apps import apps
 from django.utils.translation import gettext as _
 
+from creme import persons, polls
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import HeaderFilter, BrickDetailviewLocation, SearchConfigItem
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    HeaderFilter,
+    SearchConfigItem,
+)
 from creme.creme_core.utils import create_if_needed
 
-from creme import persons
-
-from creme import polls
 from . import bricks, constants
 from .models import PollType
 
