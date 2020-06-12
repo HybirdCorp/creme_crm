@@ -25,7 +25,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from creme.creme_core.utils.serializers import json_encode
-
 from creme.polls.core import PollLineType
 
 logger = logging.getLogger(__name__)

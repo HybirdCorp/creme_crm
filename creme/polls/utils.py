@@ -18,17 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict, Counter
+from collections import Counter, defaultdict
 from itertools import count
 
 from creme.creme_core.utils import int_2_roman
 
 from . import get_pollform_model, get_pollreply_model
 from .models import (
-    PollFormSection,
     PollFormLine,
-    PollReplySection,
+    PollFormSection,
     PollReplyLine,
+    PollReplySection,
 )
 
 # TODO move to core.section_tree.py ??
