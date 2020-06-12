@@ -24,12 +24,14 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 
-from creme.creme_core import (
-    bricks as core_bricks,
-    constants as core_constants,
-    models as core_models,
+from creme import persons
+from creme.creme_core import bricks as core_bricks
+from creme.creme_core import constants as core_constants
+from creme.creme_core import models as core_models
+from creme.creme_core.core.entity_cell import (
+    EntityCellRegularField,
+    EntityCellRelation,
 )
-from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.core.entity_filter import (
     condition_handler,
     operands,
@@ -39,10 +41,8 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import EntityFilter
 from creme.creme_core.utils import create_if_needed
 
-from creme import persons
-
 from . import bricks, buttons, constants
-from .models import Civility, Sector, Position, StaffSize, LegalForm
+from .models import Civility, LegalForm, Position, Sector, StaffSize
 
 logger = logging.getLogger(__name__)
 

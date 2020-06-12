@@ -18,12 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models.query_utils import Q
 # from django.utils.translation import gettext_lazy as _
+from django.db.models.query_utils import Q
 
 # from creme.creme_core.forms.listview import BaseChoiceField
 from creme.creme_core.forms import listview
-
 from creme.persons import get_address_model
 
 

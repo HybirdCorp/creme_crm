@@ -25,7 +25,6 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import FieldsConfig
-
 from creme.persons import get_organisation_model
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 

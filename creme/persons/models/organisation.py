@@ -22,19 +22,17 @@
 
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.global_info import cached_per_request
-from creme.creme_core.models import CremeEntity, CREME_REPLACE_NULL
+from creme.creme_core.models import CREME_REPLACE_NULL, CremeEntity
 from creme.creme_core.models.fields import PhoneField
 from creme.creme_core.models.manager import CremeEntityManager
-
 from creme.documents.models.fields import ImageEntityForeignKey
 
-from .. import constants
-from .. import get_contact_model
-
+from .. import constants, get_contact_model
 from . import base, other_models
 
 

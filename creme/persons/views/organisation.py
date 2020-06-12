@@ -26,7 +26,8 @@ from django.forms.forms import BaseForm
 from django.http import HttpResponse
 # from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
@@ -34,7 +35,7 @@ from creme.creme_core.gui.listview import CreationButton
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic  # decorators
 
-from .. import get_organisation_model, constants
+from .. import constants, get_organisation_model
 from ..forms import organisation as orga_forms
 
 Organisation = get_organisation_model()

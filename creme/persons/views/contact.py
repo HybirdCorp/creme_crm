@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Type, Optional
+from typing import Optional, Type
 
 from django.forms.forms import BaseForm
 from django.shortcuts import get_object_or_404
@@ -76,9 +76,10 @@ class RelatedContactCreation(_ContactBaseCreation):
         return kwargs
 
     def get_linked_orga(self) -> AbstractOrganisation:
-        orga = get_object_or_404(get_organisation_model(),
-                                 id=self.kwargs[self.orga_id_url_kwarg],
-                                )
+        orga = get_object_or_404(
+            get_organisation_model(),
+            id=self.kwargs[self.orga_id_url_kwarg],
+        )
 
         user = self.request.user
         user.has_perm_to_view_or_die(orga)  # Displayed in the form....
@@ -93,13 +94,19 @@ class RelatedContactCreation(_ContactBaseCreation):
             rtype = get_object_or_404(RelationType, id=rtype_id)
 
             if rtype.is_internal:
-                raise ConflictError('This RelationType cannot be used because it is internal.')
+                raise ConflictError(
+                    'This RelationType cannot be used because it is internal.'
+                )
 
             if not rtype.is_compatible(self.linked_orga):
-                raise ConflictError('This RelationType is not compatible with Organisation as subject')
+                raise ConflictError(
+                    'This RelationType is not compatible with Organisation as subject'
+                )
 
             if not rtype.symmetric_type.is_compatible(Contact):
-                raise ConflictError('This RelationType is not compatible with Contact as relationship-object')
+                raise ConflictError(
+                    'This RelationType is not compatible with Contact as relationship-object'
+                )
 
             return rtype.symmetric_type
 
