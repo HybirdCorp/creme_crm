@@ -18,22 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import re
 # import warnings
+import re
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.template import Library
 
-from creme.persons import get_organisation_model
-# from creme.persons import constants as persons_constants
-
 from creme.activities.constants import (
-    STATUS_IN_PROGRESS,
-    NARROW,
     ACTIVITYTYPE_PHONECALL,
+    NARROW,
     REL_SUB_ACTIVITY_SUBJECT,
+    STATUS_IN_PROGRESS,
 )
+# from creme.persons import constants as persons_constants
+from creme.persons import get_organisation_model
 
 register = Library()
 Organisation = get_organisation_model()
@@ -90,9 +89,10 @@ def document_class(request):
 # TODO: remove when Organisations can participate
 @register.filter
 def orga_subjects(activity):
-    return Organisation.objects.filter(relations__type=REL_SUB_ACTIVITY_SUBJECT,
-                                       relations__object_entity=activity.id,
-                                      )
+    return Organisation.objects.filter(
+        relations__type=REL_SUB_ACTIVITY_SUBJECT,
+        relations__object_entity=activity.id,
+    )
 
 
 START_STOP_BUTTONS  = 'start-stop'
@@ -120,22 +120,24 @@ def activity_card(context, activity, button_panel=START_STOP_BUTTONS, show_date=
 
     user = context['user']
 
-    return {'user':               user,
-            'user_contact_id':    user.linked_contact.id,
-            'activity':           activity,
-            'STATUS_IN_PROGRESS': STATUS_IN_PROGRESS,
-            'is_floating':        activity.floating_type != NARROW,
-            'buttons_template':   _BUTTONS[button_panel],
-            'show_date':          show_date,
-            'shortcut':           shortcut,
-            'extra_classes':      extra_classes,
-            'fields_configs':     context['fields_configs'],
-           }
+    return {
+        'user':               user,
+        'user_contact_id':    user.linked_contact.id,
+        'activity':           activity,
+        'STATUS_IN_PROGRESS': STATUS_IN_PROGRESS,
+        'is_floating':        activity.floating_type != NARROW,
+        'buttons_template':   _BUTTONS[button_panel],
+        'show_date':          show_date,
+        'shortcut':           shortcut,
+        'extra_classes':      extra_classes,
+        'fields_configs':     context['fields_configs'],
+    }
 
 
 @register.inclusion_tag('mobile/templatetags/footer.html')
 def get_footer(show_delog=True):
-    return {'REDIRECT_FIELD_NAME':    REDIRECT_FIELD_NAME,
-            'NON_MOBILE_SITE_DOMAIN': settings.NON_MOBILE_SITE_DOMAIN or '/',
-            'show_delog':             show_delog,
-           }
+    return {
+        'REDIRECT_FIELD_NAME':    REDIRECT_FIELD_NAME,
+        'NON_MOBILE_SITE_DOMAIN': settings.NON_MOBILE_SITE_DOMAIN or '/',
+        'show_delog':             show_delog,
+    }

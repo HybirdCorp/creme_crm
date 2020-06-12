@@ -21,9 +21,8 @@
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.gui.bricks import QuerysetBrick
-
 from creme import persons
+from creme.creme_core.gui.bricks import QuerysetBrick
 
 from .models import MobileFavorite
 
