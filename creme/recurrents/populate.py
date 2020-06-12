@@ -23,9 +23,9 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import SearchConfigItem, HeaderFilter, Job
+from creme.creme_core.models import HeaderFilter, Job, SearchConfigItem
 
-from . import get_rgenerator_model, constants
+from . import constants, get_rgenerator_model
 from .creme_jobs import recurrents_gendocs_type
 
 
