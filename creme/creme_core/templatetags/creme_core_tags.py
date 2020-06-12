@@ -20,18 +20,19 @@
 
 import logging
 import warnings
-
 from itertools import zip_longest
 from re import compile as compile_re
 from urllib.parse import urlencode, urlsplit
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
+from django.template import Library
+from django.template import Node as TemplateNode
+from django.template import Template, TemplateSyntaxError
 from django.template.defaulttags import TemplateLiteral
 from django.template.library import token_kwargs
 from django.utils.encoding import force_text
-from django.utils.html import format_html_join, escape
+from django.utils.html import escape, format_html_join
 from django.utils.safestring import mark_safe
 
 from mediagenerator.generators.bundles.utils import _render_include_media
@@ -40,7 +41,7 @@ from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, Relation
 from ..utils import bool_as_html
 from ..utils.currency_format import currency
-from ..utils.html import escapejson 
+from ..utils.html import escapejson
 from ..utils.media import get_creme_media_url
 from ..utils.serializers import json_encode
 from ..utils.translation import plural

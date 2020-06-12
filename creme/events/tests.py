@@ -776,7 +776,7 @@ class EventsTestCase(CremeTestCase):
                }
 
         response = self.assertPOST200(url, follow=True, data=data)
-        self.assertFormError(response, 'form', 'target', 
+        self.assertFormError(response, 'form', 'target',
                              _('Select a valid choice. That choice is not one of the available choices.')
                             )
 

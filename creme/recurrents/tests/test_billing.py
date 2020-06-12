@@ -201,7 +201,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
         #TODO: in CremeTestCase ??
         self.assertEqual(200, response.status_code)
 
-        with self.assertNoException(): 
+        with self.assertNoException():
             errors = response.context['wizard']['form'].errors
 
         self.assertEqual(

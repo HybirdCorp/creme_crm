@@ -19,17 +19,29 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import ForeignKey, CharField, DateField, TextField, CASCADE
+from django.db.models import (
+    CASCADE,
+    CharField,
+    DateField,
+    ForeignKey,
+    TextField,
+)
 from django.utils.formats import date_format
-from django.utils.translation import gettext_lazy as _, gettext, pgettext, pgettext_lazy
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 from creme.creme_core.utils import chunktools
 
-from ..webservice.samoussa import (SamoussaBackEnd, SAMOUSSA_STATUS_ACCEPT,
-        SAMOUSSA_STATUS_WAITING, SAMOUSSA_STATUS_SENT,
-        SAMOUSSA_STATUS_ERROR)
 from ..webservice.backend import WSException
+from ..webservice.samoussa import (
+    SAMOUSSA_STATUS_ACCEPT,
+    SAMOUSSA_STATUS_ERROR,
+    SAMOUSSA_STATUS_SENT,
+    SAMOUSSA_STATUS_WAITING,
+    SamoussaBackEnd,
+)
 
 MESSAGE_STATUS_NOTSENT = 'notsent'
 MESSAGE_STATUS_WAITING = SAMOUSSA_STATUS_WAITING
@@ -212,7 +224,7 @@ class Message(CremeModel):
 # TODO : enable this method when samoussa will be updated
 #    @staticmethod
 #    def syncs(request):
-#        messages = {str(message.pk) + '-' + str(message.sending_id): message 
+#        messages = {str(message.pk) + '-' + str(message.sending_id): message
 #                        for message in request
 #                   }
 #        samoussa = SamoussaBackEnd().connect()

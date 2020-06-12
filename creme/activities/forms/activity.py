@@ -18,36 +18,39 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from datetime import datetime, time, timedelta
 from functools import partial
-import logging
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.forms import (
-    ModelChoiceField, ModelMultipleChoiceField,
-    DateTimeField, TimeField,
+    DateTimeField,
+    ModelChoiceField,
+    ModelMultipleChoiceField,
+    TimeField,
     ValidationError,
 )
 from django.utils.timezone import localtime
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import (
-    validators, CremeEntityForm,
-    MultiCreatorEntityField, MultiGenericEntityField,
+    CremeEntityForm,
     DatePeriodField,
+    MultiCreatorEntityField,
+    MultiGenericEntityField,
+    validators,
 )
 from creme.creme_core.forms.widgets import CalendarWidget
-from creme.creme_core.models import RelationType, Relation, SettingValue
+from creme.creme_core.models import Relation, RelationType, SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
-
 from creme.persons import get_contact_model
 
-from .. import get_activity_model, constants
-from ..models import ActivityType, Calendar, ActivitySubType
+from .. import constants, get_activity_model
+from ..models import ActivitySubType, ActivityType, Calendar
 from ..setting_keys import form_user_messages_key
 from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
-
 from .activity_type import ActivityTypeField
 from .fields import UserParticipationField
 
@@ -297,7 +300,7 @@ class ActivityCreateForm(_ActivityCreateForm):
         fields['my_participation'].initial = (True, Calendar.objects.get_default_calendar(user).id)
 
         subjects_field = fields['subjects']
-        subjects_field.allowed_models = [ct.model_class() 
+        subjects_field.allowed_models = [ct.model_class()
                                             for ct in RelationType.objects
                                                                   .get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
                                                                   .subject_ctypes.all()

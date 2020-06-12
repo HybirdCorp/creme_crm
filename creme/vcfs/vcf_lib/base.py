@@ -22,7 +22,7 @@ SPACEORTAB = SPACE + TAB
 # -------------------------------- Main classes --------------------------------
 class VBase:
     """Base class for ContentLine and Component.
-    
+
     @ivar behavior:
         The Behavior class associated with this object, which controls
         validation, transformations, and encoding.
@@ -31,7 +31,7 @@ class VBase:
     @ivar isNative:
         Boolean describing whether this component is a Native instance.
     @ivar group:
-        An optional group prefix, should be used only to indicate sort order in 
+        An optional group prefix, should be used only to indicate sort order in
         vCards, according to RFC2426
     """
     def __init__(self, group=None, *args, **kwds):
@@ -58,10 +58,10 @@ class VBase:
 
     def autoBehavior(self, cascade=False):
         """Set behavior if name is in self.parentBehavior.knownChildren.
-        
+
         If cascade is True, unset behavior and parentBehavior for all
         descendants, then recalculate behavior and parentBehavior.
-        
+
         """
         parentBehavior = self.parentBehavior
         if parentBehavior is not None:
@@ -75,7 +75,7 @@ class VBase:
                     if isinstance(self, ContentLine) and self.encoded:
                         self.behavior.decode(self)
             elif isinstance(self, ContentLine):
-                self.behavior = parentBehavior.defaultBehavior   
+                self.behavior = parentBehavior.defaultBehavior
 
                 if self.encoded and self.behavior:
                     self.behavior.decode(self)
@@ -178,7 +178,7 @@ class VBase:
 
 def toVName(name, stripNum = 0, upper = False):
     """
-    Turn a Python name into an iCalendar style name, optionally uppercase and 
+    Turn a Python name into an iCalendar style name, optionally uppercase and
     with characters stripped off.
     """
     if upper:
@@ -215,7 +215,7 @@ class ContentLine(VBase):
     @ivar lineNumber:
         An optional line number associated with the contentline.
     """
-    def __init__(self, name, params, value, group=None, 
+    def __init__(self, name, params, value, group=None,
                  encoded=False, isNative=False,
                  lineNumber = None, *args, **kwds):
         """Take output from parseLine, convert params list to dictionary."""
@@ -347,7 +347,7 @@ class Component(VBase):
         # if the object is being re-created by pickle, self.contents may not
         # be set, don't get into an infinite loop over the issue
         if name == 'contents':
-            return object.__getattribute__(self, name) 
+            return object.__getattribute__(self, name)
         try:
             if name.endswith('_list'):
                 return self.contents[toVName(name, 5)]
@@ -543,7 +543,7 @@ patterns['param_value_grouped'] = """
 patterns['param'] = r"""
 ; (?: %(name)s )                     # parameter name
 (?:
-    (?: = (?: %(param_value)s ) )?   # 0 or more parameter values, multiple 
+    (?: = (?: %(param_value)s ) )?   # 0 or more parameter values, multiple
     (?: , (?: %(param_value)s ) )*   # parameters are comma separated
 )*
 """ % patterns
@@ -554,7 +554,7 @@ patterns['params_grouped'] = r"""
 
 (?: =
     (
-        (?:   (?: %(param_value)s ) )?   # 0 or more parameter values, multiple 
+        (?:   (?: %(param_value)s ) )?   # 0 or more parameter values, multiple
         (?: , (?: %(param_value)s ) )*   # parameters are comma separated
     )
 )?
@@ -943,7 +943,7 @@ END:VCALENDAR''')
             elif vline.name == "BEGIN":
                 stack.push(Component(vline.value, group=vline.group))
             elif vline.name == "PROFILE":
-                if not stack.top(): 
+                if not stack.top():
                     stack.push(Component())
 
                 stack.top().setProfile(vline.value)
@@ -965,17 +965,17 @@ END:VCALENDAR''')
                             if behavior:
                                 component.setBehavior(behavior)
 
-                        if validate: 
+                        if validate:
                             component.validate(raiseException=True)
 
-                        if transform: 
+                        if transform:
                             component.transformChildrenToNative()
 
                         yield component  # EXIT POINT
                     else: stack.modifyTop(stack.pop())
                 else:
                     raise ParseError(f"{stack.topName()} component wasn't closed", n)
-            else: 
+            else:
                 stack.modifyTop(vline)  # not a START or END line
 
         if stack.top():

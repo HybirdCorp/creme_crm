@@ -60,7 +60,7 @@ class ToDoForm(CremeModelForm):
             deadline = get_data('deadline')
 
             if deadline:
-                deadline_hour = get_data('deadline_hour') 
+                deadline_hour = get_data('deadline_hour')
 
                 if deadline_hour is None:
                     self.add_error('deadline_hour', _('The hour is required if you set a date.'))

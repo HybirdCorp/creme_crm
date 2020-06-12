@@ -1845,7 +1845,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         role.allowed_apps = ['persons']
         role.save()
 
-        create_creds = partial(SetCredentials.objects.create, role=role, 
+        create_creds = partial(SetCredentials.objects.create, role=role,
                                set_type=SetCredentials.ESET_ALL,
                               )
         sc1 = create_creds(value=EntityCredentials.VIEW)
@@ -1862,7 +1862,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_delete_credentials02(self):
         self.login_not_as_superuser()
 
-        sc = SetCredentials.objects.create(role=self.role, 
+        sc = SetCredentials.objects.create(role=self.role,
                                            set_type=SetCredentials.ESET_ALL,
                                            value=EntityCredentials.VIEW,
                                           )

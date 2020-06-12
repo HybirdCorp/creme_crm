@@ -240,7 +240,7 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_customfield_decimal(self):
         customfield = CustomField.objects.create(
-            name='Weight', 
+            name='Weight',
             field_type=CustomField.FLOAT,
             content_type=self.contact_ct,
         )

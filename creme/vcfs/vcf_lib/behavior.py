@@ -2,7 +2,14 @@
 
 """Behavior (validation, encoding, and transformations) for vobjects."""
 
-from .base import ContentLine, Component, defaultSerialize, VObjectError, ValidateError, NativeError
+from .base import (
+    Component,
+    ContentLine,
+    NativeError,
+    ValidateError,
+    VObjectError,
+    defaultSerialize,
+)
 
 
 class Behavior:
@@ -88,7 +95,7 @@ class Behavior:
                 count[name] = count.get(name, 0) + 1
 
             for key, val in cls.knownChildren.items():
-                if count.get(key, 0) < val[0]: 
+                if count.get(key, 0) < val[0]:
                     if raiseException:
                         raise ValidateError(
                             f'{cls.name} components must contain at least {val[0]} {key}'

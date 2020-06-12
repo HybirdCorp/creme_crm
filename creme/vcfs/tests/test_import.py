@@ -333,7 +333,7 @@ END:VCARD""".format(first_name=first_name,
                          vobj.adr.value.street
                         )
 
-    @skipIfCustomContact    
+    @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_add_contact_vcf00(self):

@@ -62,7 +62,7 @@ class XLSUtilsTestCase(CremeTestCase):
     def test_sheet(self):
         rd = XlrdReader(filedata=self.get_file_path(self.files[0]))
         self.assertIsNotNone(rd.book)
-        self.assertIsNotNone(rd.sheet) 
+        self.assertIsNotNone(rd.sheet)
         self.assertEqual(rd.sheet.nrows, len(self.data))
 
     @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")

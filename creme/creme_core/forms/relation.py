@@ -19,15 +19,14 @@
 ################################################################################
 
 from collections import OrderedDict
-# import warnings
 
 from django.db.models import Q
 from django.forms import CharField, ModelMultipleChoiceField, ValidationError
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from ..models import CremeEntity, Relation, RelationType, SemiFixedRelationType
 from ..utils import entities_to_str
-
 from .base import CremeForm, FieldBlockManager
 from .fields import MultiRelationEntityField
 from .widgets import Label
@@ -66,7 +65,7 @@ class _RelationsCreateForm(CremeForm):
         fields = self.fields
         # TODO: improve queries ??
         user = self.user
-        entities = [sfrt.object_entity 
+        entities = [sfrt.object_entity
                         for sfrt in SemiFixedRelationType.objects
                                                          .exclude(object_entity__in=subjects_ids)
                                                          .select_related('object_entity')
@@ -102,7 +101,7 @@ class _RelationsCreateForm(CremeForm):
 
         if duplicates:
             raise ValidationError(self.error_messages['duplicates'],
-                                  params={'duplicates': 
+                                  params={'duplicates':
                                               ', '.join(f'({rtype}, {e.allowed_str(user)})'
                                                             for rtype, e in duplicates
                                                        ),

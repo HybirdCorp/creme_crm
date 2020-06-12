@@ -302,7 +302,7 @@ class EntityTestCase(CremeTestCase):
             ce1.delete()
 
         self.assertDoesNotExist(ce1)
-        self.assertStillExists(ce2) 
+        self.assertStillExists(ce2)
 
     def test_delete03(self):
         "Can't delete entities linked by an internal relation"

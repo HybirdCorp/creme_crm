@@ -18,24 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from collections import OrderedDict
 from datetime import datetime, time
 from functools import partial
-import logging
 
 from django.contrib.auth import get_user_model
 from django.db.models.query_utils import Q
 from django.forms import Field, ModelMultipleChoiceField, ValidationError
 from django.forms.widgets import Select
-from django.utils.translation import gettext as _, gettext_lazy
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
+from creme import persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, BaseExtractorWidget
+from creme.creme_core.forms.mass_import import (
+    BaseExtractorWidget,
+    ImportForm4CremeEntity,
+)
 from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.dates import make_aware_dt
-
-from creme import persons
 from creme.persons.models import Civility
 
 from .. import constants
@@ -324,7 +327,7 @@ class ParticipantsExtractorField(Field):
     @user.setter
     def user(self, user):
         self._user = user
-        self.widget.propose_creation = self._can_create = user.has_perm_to_create(Contact) 
+        self.widget.propose_creation = self._can_create = user.has_perm_to_create(Contact)
 
     def _clean_index(self, value, key):
         try:

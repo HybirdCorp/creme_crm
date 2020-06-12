@@ -82,4 +82,4 @@ class VatTestCase(CremeTestCase):
 
         vat02.delete()
 
-        self.assertTrue(self.refresh(vat01).is_default) 
+        self.assertTrue(self.refresh(vat01).is_default)

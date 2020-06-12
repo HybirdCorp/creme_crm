@@ -834,7 +834,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
     def test_create01(self):
         "Unauthorized user."
-        infopath_input = self._get_infopath_input(ContactFakeBackend, 
+        infopath_input = self._get_infopath_input(ContactFakeBackend,
                                                   limit_froms=('creme@cremecrm.com',)
                                                  )
 
@@ -1029,8 +1029,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self._set_sandbox_by_user()
 
         xml_content = r"""<?xml version="1.0" encoding="UTF-8"?>
-<?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" 
-                       href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" 
+<?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0"
+                       href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn"
                        name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?>
 <?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?>
 <my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">

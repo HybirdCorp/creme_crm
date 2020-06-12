@@ -72,7 +72,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             tpl = Template(r'{% load creme_widgets %}{% widget_entity_hyperlink my_entity user %}')
             render = tpl.render(Context({'user': user, 'my_entity': orga}))
 
-        self.assertEqual(render, 
+        self.assertEqual(render,
                          f'<a href="/tests/organisation/{orga.id}" class="is_deleted">{orga}</a>'
                         )
 

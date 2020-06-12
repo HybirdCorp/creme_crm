@@ -139,7 +139,7 @@ class QueriesTestCase(CremeTestCase):
         str_q = QSerializer().dumps(q)
         self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
-    def test_q_serializer_07(self): 
+    def test_q_serializer_07(self):
         "Datetimes"
         user = self.create_user()
 
@@ -156,7 +156,7 @@ class QueriesTestCase(CremeTestCase):
         str_q = QSerializer().dumps(q)
         self._assertQEqual(FakeActivity, q, QSerializer().loads(str_q))
 
-    def test_q_serializer_08(self): 
+    def test_q_serializer_08(self):
         "Range."
         user = self.create_user()
 
@@ -171,7 +171,7 @@ class QueriesTestCase(CremeTestCase):
         str_q = QSerializer().dumps(q)
         self._assertQEqual(FakeOrganisation, q, QSerializer().loads(str_q))
 
-    def test_q_serializer_09(self): 
+    def test_q_serializer_09(self):
         "Datetime range."
         user = self.create_user()
 
@@ -193,7 +193,7 @@ class QueriesTestCase(CremeTestCase):
         # print(str_q)
         self._assertQEqual(FakeActivity, q, QSerializer().loads(str_q))
 
-    def test_q_serializer_10(self): 
+    def test_q_serializer_10(self):
         "Value is a model instance"
         self.login()
         self._create_contacts()
