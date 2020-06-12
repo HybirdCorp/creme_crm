@@ -2,12 +2,9 @@
 
 from django.urls import re_path
 
+from creme import activities, persons
 from creme.creme_core.conf.urls import Swappable, swap_manager
-
-from creme import persons, activities
-
 from creme.cti import views
-
 
 urlpatterns = [
     re_path(r'^respond_to_a_call[/]?$',                     views.AnswerToACall.as_view(),         name='cti__respond_to_a_call'),

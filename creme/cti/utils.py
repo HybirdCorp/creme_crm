@@ -24,7 +24,10 @@ from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
 from creme.creme_core.gui.field_printers import simple_print_html
-from creme.creme_core.templatetags.creme_widgets import get_icon_size_px, get_icon_by_name
+from creme.creme_core.templatetags.creme_widgets import (
+    get_icon_by_name,
+    get_icon_size_px,
+)
 from creme.creme_core.utils.media import get_current_theme
 
 

@@ -29,23 +29,21 @@ from django.utils.html import format_html
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
+from creme import activities, persons
+from creme.activities import constants as act_constants
+from creme.activities.models import Calendar
 from creme.creme_core.auth import build_creation_perm as cperm
 # from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.http import CremeJsonResponse
-from creme.creme_core.models import RelationType, Relation  # CremeEntity
+from creme.creme_core.models import Relation, RelationType  # CremeEntity
 from creme.creme_core.shortcuts import get_bulk_or_404
-from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404
+from creme.creme_core.utils import get_from_GET_or_404, get_from_POST_or_404
 from creme.creme_core.views import generic
-from creme.creme_core.views.bricks import BricksReloading  # build_context, bricks_render_info
+# from creme.creme_core.views.bricks import build_context, bricks_render_info
+from creme.creme_core.views.bricks import BricksReloading
 # from creme.creme_core.views.decorators import jsonify
-
-from creme import persons
 from creme.persons.views.contact import ContactCreation
 from creme.persons.views.organisation import OrganisationCreation
-
-from creme import activities
-from creme.activities import constants as act_constants
-from creme.activities.models import Calendar
 
 from .bricks import CallersBrick
 
