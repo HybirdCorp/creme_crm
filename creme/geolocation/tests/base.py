@@ -39,16 +39,17 @@ class GeoLocationBaseTestCase(CremeTestCase):
         self.assertListEqual(sorted(addresses, key=key), sorted(expected, key=key))
 
     def create_address(self, owner, address='13 rue du yahourt', zipcode='13008', town='Marseille', geoloc=None):
-        address = Address.objects.create(name=address,
-                                         address=address,
-                                         po_box='',
-                                         zipcode=zipcode,
-                                         city=town,
-                                         department=zipcode[:2],
-                                         state='',
-                                         country='',
-                                         owner=owner,
-                                        )
+        address = Address.objects.create(
+            name=address,
+            address=address,
+            po_box='',
+            zipcode=zipcode,
+            city=town,
+            department=zipcode[:2],
+            state='',
+            country='',
+            owner=owner,
+        )
 
         if geoloc is not None:
             latitude, longitude = geoloc
@@ -62,10 +63,11 @@ class GeoLocationBaseTestCase(CremeTestCase):
     def create_billing_address(self, owner, address='13 rue du yahourt', zipcode='13008', town='Marseille', geoloc=None):
         owner.billing_address = self.create_address(owner, address, zipcode, town, geoloc)
         owner.save()
-        return Address.objects.get(pk=owner.billing_address.pk) # TODO: WTF ?!!
+
+        return Address.objects.get(pk=owner.billing_address.pk)  # TODO: WTF ?!!
 
     def create_shipping_address(self, owner, address='13 rue du yahourt', zipcode='13008', town='Marseille', geoloc=None):
         owner.shipping_address = self.create_address(owner, address, zipcode, town, geoloc)
         owner.save()
-        return Address.objects.get(pk=owner.shipping_address.pk)
 
+        return Address.objects.get(pk=owner.shipping_address.pk)

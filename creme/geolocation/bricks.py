@@ -24,13 +24,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 
+from creme import persons
 from creme.creme_core.gui.bricks import Brick, BrickDependencies
 from creme.creme_core.models import EntityFilter
 
-from creme import persons
-
 from .models import GeoAddress
-from .utils import address_as_dict, get_radius, get_google_api_key
+from .utils import address_as_dict, get_google_api_key, get_radius
 
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()

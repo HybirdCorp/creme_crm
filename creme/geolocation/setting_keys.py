@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.setting_key import SettingKey
 
-
 NEIGHBOURHOOD_DISTANCE = SettingKey(
     id='geolocation-neighbourhood_distance',
     description=_('Maximum distance to find neighbours in meters'),

@@ -22,10 +22,13 @@ import logging
 
 from django.contrib.auth import get_user_model
 
-from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import BrickDetailviewLocation, BrickMypageLocation, SettingValue
-
 from creme import persons
+from creme.creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickMypageLocation,
+    SettingValue,
+)
 
 from . import bricks, constants, setting_keys
 from .management.commands.geolocation import Command as GeolocationCommand
