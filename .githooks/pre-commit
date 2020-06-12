@@ -2,10 +2,14 @@
 
 . .githooks/toolkit
 
-PRE_COMMIT_CHECKS=${PRE_COMMIT_CHECKS-"isort eslint headers"}
+PRE_COMMIT_CHECKS=${PRE_COMMIT_CHECKS-"flake8 isort eslint headers"}
 
 hook_check_isort() {
     git diff HEAD~1 --name-only --diff-filter=MARC | { grep '.py$' || true; } | xargs --no-run-if-empty isort --check --diff --atomic
+}
+
+hook_check_flake8() {
+    git diff HEAD~1 --name-only --diff-filter=MARC | { grep '.py$' || true; } | xargs --no-run-if-empty flake8
 }
 
 hook_check_eslint() {
