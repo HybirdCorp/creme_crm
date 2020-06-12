@@ -124,15 +124,22 @@ class ReportEntityCellRelated(_ReportOnlyEntityCell):
         return str(self.related_field.related_model._meta.verbose_name)
 
 
+class _ReportEntityCellAggregate(_ReportOnlyEntityCell):
+    aggregation_registry = field_aggregation_registry
+
+    def __init__(self, model, agg_id, aggregation):
+        super().__init__(model=model, value=agg_id)
+        self.aggregation = aggregation
+
+
 # TODO: factorise with RHAggregate & RHAggregateRegularField
 @reports_cells_registry
-class ReportEntityCellRegularAggregate(_ReportOnlyEntityCell):
+class ReportEntityCellRegularAggregate(_ReportEntityCellAggregate):
     type_id = 'regular_aggregate'
 
     def __init__(self, model, agg_id, field, aggregation):
-        super().__init__(model=model, value=agg_id)
+        super().__init__(model=model, agg_id=agg_id, aggregation=aggregation)
         self.field = field
-        self.aggregation = aggregation
 
     @classmethod
     def build(cls, model, aggregated_field_name):
@@ -146,7 +153,7 @@ class ReportEntityCellRegularAggregate(_ReportOnlyEntityCell):
             )
             return None
 
-        aggregation = field_aggregation_registry.get(aggregation_id)
+        aggregation = cls.aggregation_registry.get(aggregation_id)
 
         if aggregation is None:
             logging.warning(
@@ -166,7 +173,7 @@ class ReportEntityCellRegularAggregate(_ReportOnlyEntityCell):
             )
             return None
 
-        if not isinstance(field, field_aggregation_registry.authorized_fields):
+        if not isinstance(field, cls.aggregation_registry.authorized_fields):
             logging.warning(
                 'ReportEntityCellRegularAggregate.build(): '
                 'this type of field can not be aggregated: %s.',
@@ -188,13 +195,12 @@ class ReportEntityCellRegularAggregate(_ReportOnlyEntityCell):
 
 # TODO: factorise (ReportEntityCellCustomAggregate, EntityCellCustomField)
 @reports_cells_registry
-class ReportEntityCellCustomAggregate(_ReportOnlyEntityCell):
+class ReportEntityCellCustomAggregate(_ReportEntityCellAggregate):
     type_id = 'custom_aggregate'
 
     def __init__(self, model, agg_id, custom_field, aggregation):
-        super().__init__(model=model, value=agg_id)
+        super().__init__(model=model, agg_id=agg_id, aggregation=aggregation)
         self.custom_field = custom_field
-        self.aggregation = aggregation
 
     @classmethod
     def build(cls, model, aggregated_field_name):
@@ -208,7 +214,7 @@ class ReportEntityCellCustomAggregate(_ReportOnlyEntityCell):
             )
             return None
 
-        aggregation = field_aggregation_registry.get(aggregation_id)
+        aggregation = cls.aggregation_registry.get(aggregation_id)
 
         if aggregation is None:
             logging.warning(
@@ -228,7 +234,7 @@ class ReportEntityCellCustomAggregate(_ReportOnlyEntityCell):
             )
             return None
 
-        if cfield.field_type not in field_aggregation_registry.authorized_customfields:
+        if cfield.field_type not in cls.aggregation_registry.authorized_customfields:
             logging.warning(
                 'ReportEntityCellCustomAggregate.build(): '
                 'this type of custom field can not be aggregated: %s.',
@@ -471,14 +477,15 @@ class ReportEntityCellRegularAggregatesField(hf_form.UniformEntityCellsField):
         cell_class = self.cell_class
         is_field_hidden = FieldsConfig.objects.get_for_model(model).is_field_hidden
         non_hiddable_cells = self._non_hiddable_cells
+        aggregation_registry = cell_class.aggregation_registry
         enumerator = ModelFieldEnumerator(
             model, deep=0,
         ).filter(
-            (lambda f, deep: isinstance(f, field_aggregation_registry.authorized_fields)),
+            (lambda f, deep: isinstance(f, aggregation_registry.authorized_fields)),
             viewable=True,   # TODO: test
         )
 
-        for aggregate in field_aggregation_registry.aggregations:
+        for aggregate in aggregation_registry.aggregations:
             pattern_fmt = aggregate.pattern.format
 
             for fields_chain in enumerator:
@@ -502,7 +509,8 @@ class ReportEntityCellCustomAggregatesField(hf_form.UniformEntityCellsField):
         model = self.model
         cell_class = self.cell_class
         # TODO: registry in cell/hand/attribute ?
-        authorized_customfields = field_aggregation_registry.authorized_customfields
+        aggregation_registry = cell_class.aggregation_registry
+        authorized_customfields = aggregation_registry.authorized_customfields
         non_hiddable_cells = self._non_hiddable_cells
 
         # NB: we use the cache of CustomField as EntityCellCustomFieldsField
@@ -512,7 +520,7 @@ class ReportEntityCellCustomAggregatesField(hf_form.UniformEntityCellsField):
             if cfield.field_type in authorized_customfields
         ]
 
-        for aggregate in field_aggregation_registry.aggregations:
+        for aggregate in cell_class.aggregation_registry.aggregations:
             pattern_fmt = aggregate.pattern.format
 
             for cf in agg_custom_fields:
