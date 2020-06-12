@@ -18,15 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Union, Sequence
-
-from creme.creme_core.utils import bool_from_str_extended
-from creme.creme_core.views import generic
-
-from creme.billing.models import Base
-# from creme.billing.forms import base as base_forms
+from typing import Sequence, Union
 
 from creme import persons
+# from creme.billing.forms import base as base_forms
+from creme.billing.models import Base
+from creme.creme_core.utils import bool_from_str_extended
+from creme.creme_core.views import generic
 
 
 class BaseCreation(generic.EntityCreation):

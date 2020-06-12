@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.setting_key import SettingKey
 
-
 payment_info_key = SettingKey(
     id='billing-display_payment_info_only_creme_orga',
     description=_('Display payment information block only on the '

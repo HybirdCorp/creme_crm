@@ -18,20 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
 import datetime
 import logging
+from collections import defaultdict
 
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
+from creme import billing, persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.core.function_field import FunctionField, FunctionFieldDecimal
-from creme.creme_core.models import Relation, FieldsConfig
+from creme.creme_core.core.function_field import (
+    FunctionField,
+    FunctionFieldDecimal,
+)
+from creme.creme_core.models import FieldsConfig, Relation
 
-from creme import persons
-
-from creme import billing
-from .constants import REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_ISSUED
+from .constants import REL_OBJ_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 logger = logging.getLogger(__name__)
 

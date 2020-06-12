@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from django.urls import re_path, include
+from django.urls import include, re_path
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
 from .. import billing
 from .views import (
-    convert, credit_note, invoice, export, line,
-    payment_information, quote, sales_order, templatebase,
+    convert,
+    credit_note,
+    export,
+    invoice,
+    line,
+    payment_information,
+    quote,
+    sales_order,
+    templatebase,
 )
-
 
 urlpatterns = [
     re_path(r'^generate_pdf/(?P<base_id>\d+)[/]?$', export.export_as_pdf, name='billing__export'),

@@ -26,7 +26,8 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
-from ..core import CLASS_MAP as _CLASS_MAP, CONVERT_MATRIX
+from ..core import CLASS_MAP as _CLASS_MAP
+from ..core import CONVERT_MATRIX
 
 
 class Conversion(generic.base.EntityRelatedMixin, generic.CheckedView):

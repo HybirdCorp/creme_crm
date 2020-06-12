@@ -20,11 +20,10 @@
 
 from django.utils.translation import gettext_lazy as _
 
+from creme import persons
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import SettingValue
-
-from creme import persons
 
 from .. import billing
 from .constants import REL_OBJ_BILL_RECEIVED

@@ -19,7 +19,13 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import Model, CharField, ForeignKey, IntegerField, CASCADE
+from django.db.models import (
+    CASCADE,
+    CharField,
+    ForeignKey,
+    IntegerField,
+    Model,
+)
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeModel

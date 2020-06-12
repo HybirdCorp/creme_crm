@@ -18,13 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
 import logging
+from functools import partial
 
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.transaction import atomic
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation, Vat
 

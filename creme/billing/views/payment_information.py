@@ -26,11 +26,9 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.views import generic
-
 from creme.persons import get_organisation_model
 
 from ... import billing
-
 from ..forms import payment_information as pi_forms
 from ..models import PaymentInformation
 

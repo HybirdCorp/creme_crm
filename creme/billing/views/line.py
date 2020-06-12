@@ -23,19 +23,21 @@ from json import loads as jsonloads
 from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import atomic
 from django.forms.models import modelformset_factory
-from django.http import HttpResponse, Http404
-from django.shortcuts import render, get_object_or_404
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+from creme import billing
+from creme.creme_core.auth.decorators import (
+    login_required,
+    permission_required,
+)
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.content_type import get_ctype_or_404
-from creme.creme_core.views import generic
 # from creme.creme_core.views.decorators import POST_only
-
-from creme import billing
+from creme.creme_core.views import generic
 
 from .. import constants
 from ..core import BILLING_MODELS

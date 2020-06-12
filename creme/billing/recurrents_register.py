@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from creme import billing
-from .forms.templatebase import TemplateBaseCreateForm
 
+from .forms.templatebase import TemplateBaseCreateForm
 
 TemplateBase = billing.get_template_base_model()
 to_register = ((billing.get_invoice_model(),     TemplateBase, TemplateBaseCreateForm),
