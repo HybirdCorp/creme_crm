@@ -19,9 +19,15 @@
 ################################################################################
 
 from typing import (
-    Optional, Type,
-    Collection, Container, Iterable, Iterator,
-    Dict, List, Tuple,
+    Collection,
+    Container,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Type,
 )
 
 from django import forms
@@ -31,21 +37,17 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_cell import (
     EntityCell,
-    EntityCellRegularField,
     EntityCellCustomField,
+    EntityCellRegularField,
     EntityCellRelation,
 )
 from creme.creme_core.models import (
     CremeEntity,
-    RelationType,
     CustomField,
     FieldsConfig,
+    RelationType,
 )
-from creme.creme_core.utils.meta import (
-    ModelFieldEnumerator,
-    is_date_field,
-)
-
+from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field
 from creme.reports import constants
 
 

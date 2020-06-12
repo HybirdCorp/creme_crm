@@ -6,8 +6,7 @@ from django.urls import re_path
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
 from . import report_model_is_custom, rgraph_model_is_custom
-from .views import export, report, graph, bricks
-
+from .views import bricks, export, graph, report
 
 urlpatterns = [
     re_path(r'^export/preview/(?P<report_id>\d+)[/]?$', export.Preview.as_view(),         name='reports__export_report_preview'),

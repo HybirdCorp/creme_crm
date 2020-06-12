@@ -18,31 +18,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
 import logging
-from typing import (
-    Optional, Type, Union,
-    Iterator,
-    List, Tuple,
-    TYPE_CHECKING,
-)
 import warnings
+from functools import partial
+from typing import TYPE_CHECKING, Iterator, List, Optional, Tuple, Type, Union
 
-from django.utils.translation import (
-    gettext_lazy as _,
-    gettext,
-    pgettext,
-)
 from django.db.models import FieldDoesNotExist, ForeignKey, Q
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext
 
 from creme.creme_core.models import (
     CremeEntity,
-    RelationType,
     FieldsConfig,
     InstanceBrickConfigItem,
+    RelationType,
 )
 from creme.creme_core.utils.meta import ModelFieldEnumerator
-
 from creme.reports import constants
 
 if TYPE_CHECKING:

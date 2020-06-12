@@ -18,32 +18,33 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import timedelta, datetime
 import logging
-from typing import (
-    Any, Optional, Type,
-    Iterator,
-    Dict, List, Tuple,
-    TYPE_CHECKING,
-)
 import warnings
+from datetime import datetime, timedelta
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+)
 
 from django.db import connection
-from django.db.models import Min, Max, QuerySet  # Count FieldDoesNotExist
+from django.db.models import Max, Min, QuerySet  # Count FieldDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
-from creme.creme_core.models import (
-    CremeEntity,
-    Relation,  # RelationType
-    CustomFieldEnumValue,  # CustomField
-)
-
+# from creme.creme_core.models import CustomField, RelationType
+from creme.creme_core.models import CremeEntity, CustomFieldEnumValue, Relation
 from creme.reports import constants
 from creme.reports.utils import sparsezip
 
 from .aggregator import AGGREGATORS_MAP, ReportGraphAggregator
 from .lv_url import ListViewURLBuilder
+
 # from .y_calculator import ReportGraphYCalculator, RGYCAggregation
 
 if TYPE_CHECKING:

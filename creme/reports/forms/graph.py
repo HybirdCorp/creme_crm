@@ -19,57 +19,50 @@
 ################################################################################
 
 from collections import defaultdict
-from json import dumps as json_dump
 from functools import partial
-from typing import (
-    Optional, Type,
-    List, Set,
-)
+from json import dumps as json_dump
+from typing import List, Optional, Set, Type
 
 from django import forms
 # from django.db.models import ForeignKey, FieldDoesNotExist, DateTimeField, DateField
 # from django.db.models.fields.related import RelatedField
 from django.forms.utils import ValidationError
 # from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_cell import (
     EntityCell,
-    EntityCellRegularField,
     EntityCellCustomField,
+    EntityCellRegularField,
     EntityCellRelation,
 )
 from creme.creme_core.forms.base import CremeModelForm
 from creme.creme_core.forms.fields import JSONField  # AjaxChoiceField
-from creme.creme_core.forms.widgets import (
-    # DependentSelect,
+from creme.creme_core.forms.widgets import (  # DependentSelect,
     ChainedInput,
-    PolymorphicInput,
     DynamicInput,
+    PolymorphicInput,
 )
-from creme.creme_core.models import CremeEntity  # CustomField, FieldsConfig RelationType
+# from creme.creme_core.models import CustomField, FieldsConfig, RelationType
+from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.fields import MoneyField
 # from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.utils.unicode_collation import collator
 
 from .. import get_rgraph_model
-from ..constants import (
-    GROUP_TYPES,
-    # RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE,
-    # RGT_FK, RGT_RELATION,
-    # RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE,
-    # RGT_CUSTOM_FK,
-    AGGREGATOR_TYPES,
-)
+# from ..constants import RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, ...
+from ..constants import AGGREGATOR_TYPES, GROUP_TYPES
 # from ..core.graph import RGRAPH_HANDS_MAP
 from ..core.graph import AbscissaInfo, OrdinateInfo
 from ..core.graph.cell_constraint import (
-    GraphHandCellConstraint,  GraphHandConstraintsRegistry,
-    AggregatorCellConstraint, AggregatorConstraintsRegistry,
+    AggregatorCellConstraint,
+    AggregatorConstraintsRegistry,
+    GraphHandCellConstraint,
+    GraphHandConstraintsRegistry,
 )
 # from ..report_aggregation_registry import field_aggregation_registry
 from ..report_chart_registry import report_chart_registry
-
 
 # Abscissa ---------------------------------------------------------------------
 # class AbscissaGroupBySelect(forms.Select):

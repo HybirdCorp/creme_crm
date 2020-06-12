@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-from typing import Dict, Iterator, Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Iterator, Type
 
 from django.utils.translation import gettext_lazy as _
 

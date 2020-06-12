@@ -19,32 +19,32 @@
 ################################################################################
 
 import logging
-from typing import List, Optional, Tuple, Type, TYPE_CHECKING
 import warnings
+from typing import TYPE_CHECKING, List, Optional, Tuple, Type
 
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import (
-    gettext_lazy as _,
-    pgettext_lazy,
-    gettext,
-)
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import (
     CremeEntity,
-    RelationType,
     InstanceBrickConfigItem,
+    RelationType,
 )
 
-from ..constants import (
-    # RFT_RELATION, RFT_FIELD,
-    GROUP_TYPES, AGGREGATOR_TYPES,
+from ..constants import (  # RFT_RELATION, RFT_FIELD,
+    AGGREGATOR_TYPES,
+    GROUP_TYPES,
 )
 from ..core.graph import (
-    AbscissaInfo, OrdinateInfo,
-    abscissa_constraints, ordinate_constraints,
+    AbscissaInfo,
+    OrdinateInfo,
+    abscissa_constraints,
+    ordinate_constraints,
 )
 from ..graph_fetcher_registry import graph_fetcher_registry
 

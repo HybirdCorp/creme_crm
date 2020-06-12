@@ -22,9 +22,9 @@ from typing import Optional, Type
 
 from django.db.models.query_utils import Q
 
+from creme.creme_core.models import CremeEntity, EntityFilter
 from creme.creme_core.utils.queries import QSerializer
 from creme.creme_core.views.generic import EntitiesList
-from creme.creme_core.models import CremeEntity, EntityFilter
 
 
 # TODO: move to creme_core ?

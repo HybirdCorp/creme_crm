@@ -2,7 +2,6 @@
 
 from django.utils.translation import gettext_lazy as _
 
-
 DEFAULT_HFILTER_REPORT = 'reports-hf'
 
 DATETIME_FILTER_FORMAT = '%d|%m|%Y|%H|%M|%S'
