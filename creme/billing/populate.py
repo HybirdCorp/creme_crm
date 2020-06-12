@@ -21,34 +21,41 @@
 import logging
 
 from django.apps import apps
-from django.utils.translation import gettext as _, pgettext
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
+from creme import billing, persons, products
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import (
+    EntityCellFunctionField,
     EntityCellRegularField,
     EntityCellRelation,
-    EntityCellFunctionField,
 )
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
-    RelationType,
-    SettingValue,
-    SearchConfigItem,
+    BrickDetailviewLocation,
+    BrickHomeLocation,
     ButtonMenuItem,
-    HeaderFilter,
+    CustomBrickConfigItem,
     EntityFilter,
-    BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem,
+    HeaderFilter,
+    RelationType,
+    SearchConfigItem,
+    SettingValue,
 )
 from creme.creme_core.utils import create_if_needed
-
-from creme import persons, products, billing
 
 from . import bricks, buttons, constants, setting_keys
 from .core import BILLING_MODELS
 from .models import (
-    InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
-    SettlementTerms, AdditionalInformation, PaymentTerms,
+    AdditionalInformation,
+    CreditNoteStatus,
+    InvoiceStatus,
+    PaymentTerms,
+    QuoteStatus,
+    SalesOrderStatus,
+    SettlementTerms,
 )
 from .registry import lines_registry
 

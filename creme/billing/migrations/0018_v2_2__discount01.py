@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import migrations
 
-
 DISCOUNT_PERCENT     = 1
 DISCOUNT_LINE_AMOUNT = 2
 DISCOUNT_ITEM_AMOUNT = 3

@@ -2,15 +2,12 @@
 from decimal import Decimal
 
 from django.conf import settings
-from django.db import models, migrations
-from django.db.models.deletion import SET_NULL, PROTECT, CASCADE
-
-from creme.creme_core.models import (
-    fields as creme_fields,
-    CREME_REPLACE_NULL, CREME_REPLACE,
-)
+from django.db import migrations, models
+from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
 
 from creme.billing.models.fields import BillingDiscountField
+from creme.creme_core.models import CREME_REPLACE, CREME_REPLACE_NULL
+from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):

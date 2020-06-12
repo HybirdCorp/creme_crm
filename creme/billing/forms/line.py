@@ -24,16 +24,15 @@ from functools import partial
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
+from creme import billing, products
 from creme.creme_core import forms as core_forms
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.models import Relation, Vat
-
-from creme import products
 from creme.products.forms.fields import CategoryField
 
-from creme import billing
 from .. import constants
 
 ProductLine = billing.get_product_line_model()

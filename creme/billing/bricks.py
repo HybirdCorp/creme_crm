@@ -23,13 +23,15 @@ from django.contrib.contenttypes.models import ContentType
 from django.forms.models import modelformset_factory
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.gui.bricks import Brick, SimpleBrick, PaginatedBrick, QuerysetBrick
-from creme.creme_core.models import SettingValue, Relation
-
-from creme import persons
+from creme import billing, persons
+from creme.creme_core.gui.bricks import (
+    Brick,
+    PaginatedBrick,
+    QuerysetBrick,
+    SimpleBrick,
+)
+from creme.creme_core.models import Relation, SettingValue
 from creme.persons import bricks as persons_bricks
-
-from creme import billing
 
 from . import constants, function_fields
 from .models import PaymentInformation

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,27 +18,45 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import date
 import logging
+from datetime import date
 
 from django.conf import settings
-from django.db.models import (CharField, TextField, ForeignKey, DateField,
-        SET_NULL, PROTECT)
+from django.db.models import (
+    PROTECT,
+    SET_NULL,
+    CharField,
+    DateField,
+    ForeignKey,
+    TextField,
+)
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-from creme.creme_core.models import CremeEntity, Relation, Currency, CREME_REPLACE_NULL
+from creme.creme_core.models import (
+    CREME_REPLACE_NULL,
+    CremeEntity,
+    Currency,
+    Relation,
+)
 from creme.creme_core.models.fields import MoneyField
 
 from ..constants import (
-    REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
-    REL_SUB_HAS_LINE, REL_OBJ_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
-    REL_OBJ_CREDIT_NOTE_APPLIED, DEFAULT_DECIMAL,
+    DEFAULT_DECIMAL,
+    REL_OBJ_CREDIT_NOTE_APPLIED,
+    REL_OBJ_HAS_LINE,
+    REL_OBJ_LINE_RELATED_ITEM,
+    REL_SUB_BILL_ISSUED,
+    REL_SUB_BILL_RECEIVED,
+    REL_SUB_HAS_LINE,
 )
-
 from .algo import ConfigBillingAlgo
 from .fields import BillingDiscountField
-from .other_models import AdditionalInformation, PaymentTerms, PaymentInformation
+from .other_models import (
+    AdditionalInformation,
+    PaymentInformation,
+    PaymentTerms,
+)
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,11 +21,9 @@
 from creme.creme_core.views import generic
 
 from ... import billing
-
 from .. import gui
 from ..constants import DEFAULT_HFILTER_TEMPLATE
 from ..forms.templatebase import TemplateBaseEditForm
-
 from . import base
 
 TemplateBase = billing.get_template_base_model()
@@ -48,5 +46,6 @@ class TemplateBasesList(generic.EntitiesList):
     default_headerfilter_id = DEFAULT_HFILTER_TEMPLATE
 
     def get_buttons(self):
-        return super().get_buttons()\
-                      .replace(old=gui.CreationButton, new=gui.GeneratorCreationButton)
+        return super().get_buttons().replace(
+            old=gui.CreationButton, new=gui.GeneratorCreationButton,
+        )
