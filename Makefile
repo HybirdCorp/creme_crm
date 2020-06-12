@@ -38,14 +38,19 @@ test-cov:
 	coverage report
 	coverage html
 
+## Cleanup karma coverage html output
+.PHONY: karma
+karma-clean:
+	rm -f artifacts/karma_coverage/html/static/*.html
 
 ## Run the Javascript test suite
 .PHONY: karma
-karma: media
+karma: media karma-clean
 	node_modules/.bin/karma start .karma.conf.js --browsers=FirefoxHeadless --targets=$(filter-out $@,$(MAKECMDGOALS))
+	@echo "file://$(shell pwd)/artifacts/karma_coverage/html/index.html"
 
 
-## Run the Javascript test suite in CI
+## Run the Javascript test suite in CI (generatemedia is supposed to be already done)
 .PHONY: karma-ci
 karma-ci:
 	node_modules/.bin/karma start .circleci/.karma.conf.js --targets=$(filter-out $@,$(MAKECMDGOALS))
