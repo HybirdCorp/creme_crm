@@ -75,9 +75,11 @@ class MemoTestCase(AssistantsTestCase):
                         )
 
         # ---
-        content += """:
-I add a long text in order to obtain a content that
-will be truncate by str() method"""
+        content += (
+            ': \n'
+            'I add a long text in order to obtain a content that \n'
+            'will be truncate by str() method'
+        )
         homepage = not homepage
         response = self.client.post(url, data={'user':        self.user.pk,
                                                'content':     content,
