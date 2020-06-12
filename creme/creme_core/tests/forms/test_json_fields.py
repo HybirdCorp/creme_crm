@@ -1462,7 +1462,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
 
-        field = MultiRelationEntityField(required=True, allowed_rtypes=[rtype1.id,rtype2.id])
+        field = MultiRelationEntityField(required=True, allowed_rtypes=[rtype1.id, rtype2.id])
         field.user = user
         self.assertEqual([(rtype1, contact), (rtype2, orga)],
                          field.clean(self.build_data((rtype1.pk, contact),
@@ -1480,7 +1480,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
 
-        field = MultiRelationEntityField(required=True, allowed_rtypes=[rtype1.id,rtype2.id])
+        field = MultiRelationEntityField(required=True, allowed_rtypes=[rtype1.id, rtype2.id])
         field.user = user
 
         with self.assertRaises(ValidationError) as cm:

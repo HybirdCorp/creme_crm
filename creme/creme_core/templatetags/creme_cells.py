@@ -19,9 +19,11 @@
 ################################################################################
 
 import logging
-from typing import Dict, Tuple,Type
+from typing import Dict, Tuple, Type
 
-from django.template import Library, TemplateSyntaxError, Node as TemplateNode
+from django.template import Library
+from django.template import Node as TemplateNode
+from django.template import TemplateSyntaxError
 from django.utils.safestring import mark_safe
 
 from ..core.entity_cell import EntityCellRegularField

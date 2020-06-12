@@ -1048,7 +1048,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(type_id,    condition.type)
         self.assertEqual('birthday', condition.name)
         # self.assertDictEqual({'name': 'empty'},condition.decoded_value)
-        self.assertDictEqual({'name': 'empty'},condition.value)
+        self.assertDictEqual({'name': 'empty'}, condition.value)
 
         condition = conditions[1]
         self.assertEqual(type_id,    condition.type)

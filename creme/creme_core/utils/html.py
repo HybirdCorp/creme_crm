@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import bleach
 from typing import Callable, Dict, Sequence, Union
 
+import bleach
 from django.conf import settings
 from django.utils.encoding import force_text
 from django.utils.html import mark_safe
@@ -86,9 +86,9 @@ def filter_img_src(tag, attr, value):
 
 
 def sanitize_html(html: str, allow_external_img: bool = False) -> str:
-    attributes:_AllowedAttributesDict = ALLOWED_ATTRIBUTES \
-                                        if allow_external_img else \
-                                        {**ALLOWED_ATTRIBUTES, 'img': filter_img_src}
+    attributes: _AllowedAttributesDict = ALLOWED_ATTRIBUTES \
+                                         if allow_external_img else \
+                                         {**ALLOWED_ATTRIBUTES, 'img': filter_img_src}
 
     return bleach.clean(html, tags=ALLOWED_TAGS, attributes=attributes,
                         styles=ALLOWED_STYLES, strip=True,

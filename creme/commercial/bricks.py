@@ -24,21 +24,22 @@ from itertools import chain
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
+from creme import commercial
 from creme.creme_core.gui.bricks import Brick, PaginatedBrick, QuerysetBrick
 from creme.creme_core.models import Relation, SettingValue
-
-from creme.persons import get_organisation_model
-
 from creme.opportunities import get_opportunity_model
 from creme.opportunities.constants import REL_SUB_TARGETS
+from creme.persons import get_organisation_model
 
-from creme import commercial
 from .constants import REL_OBJ_COMPLETE_GOAL
 from .models import (
+    ActObjective,
+    ActObjectivePatternComponent,
     CommercialApproach,
-    MarketSegment, MarketSegmentDescription,
-    CommercialAsset, MarketSegmentCharm,
-    ActObjective, ActObjectivePatternComponent,
+    CommercialAsset,
+    MarketSegment,
+    MarketSegmentCharm,
+    MarketSegmentDescription,
 )
 from .setting_keys import orga_approaches_key
 
@@ -85,7 +86,7 @@ class ApproachesBrick(QuerysetBrick):
             opportunities_ids = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS,
                                                            relations__object_entity=entity,
                                                           ) \
-                                                   .values_list('id',flat=True)
+                                                   .values_list('id', flat=True)
 
             approaches = CommercialApproach.objects.filter(
                 entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids),

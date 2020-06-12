@@ -609,7 +609,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(result))
         doc = self.get_html_tree(result[0][1])
         brick_node = self.get_brick_node(doc, brick_id)
-        self.assertBrickHasClass(brick_node,'is-empty')
+        self.assertBrickHasClass(brick_node, 'is-empty')
 
     def test_inneredit(self):
         user = self.login()

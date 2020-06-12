@@ -1,11 +1,11 @@
 """vobject module for reading vCard and vCalendar files."""
 
 import codecs
-from collections import defaultdict
 import logging
 import re
-from io import StringIO
 import sys
+from collections import defaultdict
+from io import StringIO
 
 # ----------------------------------- Logging ----------------------------------
 logger = logging.getLogger(__name__)
@@ -629,7 +629,7 @@ def parseLine(line, lineNumber=None):
     #         parseParams(match.group('params')),
     #         match.group('value'), match.group('group'),
     #        )
-    return (match['name'].replace('_','-'),
+    return (match['name'].replace('_', '-'),
             parseParams(match['params']),
             match['value'], match['group'],
            )

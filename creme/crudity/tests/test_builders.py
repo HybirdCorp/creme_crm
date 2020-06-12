@@ -560,7 +560,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                 '{xd}CtrlId':  'url_site',
                 '{xd}xctname': 'PlainText',
                 '{xd}binding': 'my:url_site',
-            },'span'),
+            }, 'span'),
             'description': ({
                 'class':           'xdRichTextBox',
                 '{xd}CtrlId':      'description',

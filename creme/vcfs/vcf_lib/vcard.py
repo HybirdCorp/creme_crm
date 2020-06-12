@@ -1,9 +1,8 @@
 """Definitions and behavior for vCard 3.0"""
 
-from .base import behavior_registry, backslashEscape, ContentLine
+from .base import ContentLine, backslashEscape, behavior_registry
 from .behavior import Behavior
 from .utils import stringToTextValues
-
 
 # ------------------------ vCard structs ---------------------------------------
 
@@ -99,16 +98,16 @@ class VCard3_0(VCardBehavior):
     versionString = '3.0'
     isComponent = True
     sortFirst = ('version', 'prodid', 'uid')
-    knownChildren = {'N':         (1, 1, None),  # min, max, behaviorRegistry id
-                     'FN':        (1, 1, None),
-                     'VERSION':   (1, 1, None),  # required, auto-generated
-                     'PRODID':    (0, 1, None),
-                     'LABEL':     (0, None, None),
-                     'UID':       (0, None, None),
-                     'ADR':       (0, None, None),
-                     'ORG':       (0, None, None),
-                     'PHOTO':     (0, None, None),
-                     'CATEGORIES':(0, None, None)
+    knownChildren = {'N':          (1, 1, None),  # min, max, behaviorRegistry id
+                     'FN':         (1, 1, None),
+                     'VERSION':    (1, 1, None),  # required, auto-generated
+                     'PRODID':     (0, 1, None),
+                     'LABEL':      (0, None, None),
+                     'UID':        (0, None, None),
+                     'ADR':        (0, None, None),
+                     'ORG':        (0, None, None),
+                     'PHOTO':      (0, None, None),
+                     'CATEGORIES': (0, None, None)
                     }
 
     @classmethod

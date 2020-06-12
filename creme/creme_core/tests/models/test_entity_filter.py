@@ -2038,7 +2038,7 @@ class EntityFiltersTestCase(CremeTestCase):
             entity_type=FakeContact,
         )
 
-        build = partial(PropertyConditionHandler.build_condition,model=FakeContact)
+        build = partial(PropertyConditionHandler.build_condition, model=FakeContact)
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', name='Propertieeesss', model=FakeContact, is_custom=True,
             conditions=[
