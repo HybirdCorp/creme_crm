@@ -19,7 +19,8 @@
 ################################################################################
 
 from django.db import models
-from django.utils.translation import gettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import BasicAutoField
