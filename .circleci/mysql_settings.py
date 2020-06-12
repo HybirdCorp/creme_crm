@@ -2,6 +2,8 @@ from .settings import INSTALLED_CREME_APPS
 
 SECRET_KEY = "CircleCi-Secret-Key"
 
+LANGUAGE_CODE = 'fr'
+
 DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.mysql', # 'postgresql', 'mysql', 'sqlite3' ('oracle' backend is not working with creme for now).

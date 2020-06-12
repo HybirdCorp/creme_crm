@@ -2,6 +2,8 @@ from .settings import INSTALLED_CREME_APPS
 
 SECRET_KEY = "CircleCi-Secret-Key"
 
+LANGUAGE_CODE = 'en'
+
 DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.postgresql', # 'postgresql', 'mysql', 'sqlite3' ('oracle' backend is not working with creme for now).
@@ -18,7 +20,6 @@ DATABASES = {
 INSTALLED_CREME_APPS.extend([
     # 'creme.sms',  # Work In Progress
     'creme.cti',
-    # 'creme.activesync',  # NOT AVAILABLE ANY MORE
     'creme.polls',  # Need 'commercial'
     'creme.mobile',
 ])
