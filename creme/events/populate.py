@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
 import logging
+from functools import partial
 
 from django.apps import apps
 from django.utils.translation import gettext as _
@@ -28,18 +28,16 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
-    RelationType,
-    HeaderFilter,
-    SearchConfigItem,
     BrickDetailviewLocation,
+    HeaderFilter,
+    RelationType,
+    SearchConfigItem,
 )
 from creme.creme_core.utils import create_if_needed
-
+from creme.opportunities import get_opportunity_model
 from creme.persons import get_contact_model
 
-from creme.opportunities import get_opportunity_model
-
-from . import get_event_model, constants, bricks
+from . import bricks, constants, get_event_model
 from .models import EventType
 
 logger = logging.getLogger(__name__)

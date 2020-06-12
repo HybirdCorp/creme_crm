@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from django.urls import re_path, include
+from django.urls import include, re_path
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
-
 from creme.opportunities import opportunity_model_is_custom
 
 from . import event_model_is_custom
 from .views import event
-
 
 urlpatterns = [
     re_path(r'^event/(?P<event_id>\d+)/contacts[/]?$',
