@@ -23,30 +23,31 @@ from functools import partial
 from typing import Type
 
 from dateutil.parser import isoparse
-
 from django.db.models import Q
 from django.forms.forms import BaseForm
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.utils.timezone import get_current_timezone, make_naive, is_naive
+from django.utils.timezone import get_current_timezone, is_naive, make_naive
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.auth.decorators import (
+    login_required,
+    permission_required,
+)
 from creme.creme_core.gui.listview import CreationButton
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import CremeEntity, RelationType
-from creme.creme_core.utils import get_from_GET_or_404, bool_from_str_extended
+from creme.creme_core.utils import bool_from_str_extended, get_from_GET_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic import base
-
 from creme.persons import get_contact_model
 
-from .. import get_activity_model, constants
+from .. import constants, get_activity_model
 from ..forms import activity as act_forms
-from ..models import ActivityType, ActivitySubType
+from ..models import ActivitySubType, ActivityType
 from ..utils import get_ical
 
 Activity = get_activity_model()

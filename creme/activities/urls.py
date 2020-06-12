@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from django.urls import re_path, include
+from django.urls import include, re_path
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
 from . import activity_model_is_custom
 from .views import activity, bricks, calendar
-
 
 calendar_patterns = [
     re_path(r'^user[/]?$',                        calendar.CalendarView.as_view(),         name='activities__calendar'),

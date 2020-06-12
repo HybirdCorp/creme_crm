@@ -23,28 +23,32 @@ import logging
 from django.apps import apps
 # from django.conf import settings
 # from django.contrib.auth import get_user_model
-from django.utils.translation import gettext as _, pgettext
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
+from creme import persons
 from creme.creme_core import bricks as core_bricks
-from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
+from creme.creme_core.core.entity_cell import (
+    EntityCellRegularField,
+    EntityCellRelation,
+)
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
-    RelationType,
+    BrickDetailviewLocation,
+    BrickHomeLocation,
     ButtonMenuItem,
-    SearchConfigItem,
-    BrickDetailviewLocation, BrickHomeLocation,
-    SettingValue,
-    HeaderFilter,
     EntityFilter,
+    HeaderFilter,
+    RelationType,
+    SearchConfigItem,
+    SettingValue,
 )
 from creme.creme_core.utils import create_if_needed
-
-from creme import persons
 from creme.persons.constants import FILTER_CONTACT_ME
 
-from . import get_activity_model, bricks, buttons, constants, setting_keys
-from .models import ActivityType, ActivitySubType, Status, Calendar
+from . import bricks, buttons, constants, get_activity_model, setting_keys
+from .models import ActivitySubType, ActivityType, Calendar, Status
 
 logger = logging.getLogger(__name__)
 
