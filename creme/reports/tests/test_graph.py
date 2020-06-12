@@ -1683,9 +1683,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             [0, '/tests/organisations?q_filter={}'.format(self._serialize_qfilter(sector=sectors[0].id))],
             y_asc[0]
         )
-        self.assertEqual(_('the custom field does not exist any more.'),
-                         rgraph.hand.ordinate_error
-                        )
+        # self.assertEqual(_('the custom field does not exist any more.'),
+        #                  rgraph.hand.ordinate_error
+        #                 )
+        self.assertEqual(
+            _('the field does not exist any more.'),
+            rgraph.hand.ordinate_error
+        )
 
     def test_fetch_with_fk_07(self):
         "Abscissa field on Users has a limit_choices_to which excludes staff users."
