@@ -25,9 +25,16 @@ from django.conf import settings
 from django.db import models
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models import CremeModel, CremeEntity, RelationType, Relation, FileRef
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeModel,
+    FileRef,
+    Relation,
+    RelationType,
+)
 from creme.creme_core.utils.file_handling import FileCreator
 
 
