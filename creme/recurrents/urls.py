@@ -7,7 +7,6 @@ from creme.creme_core.conf.urls import Swappable, swap_manager
 from . import rgenerator_model_is_custom
 from .views import recurrentgenerator
 
-
 urlpatterns = [
     *swap_manager.add_group(
         rgenerator_model_is_custom,
