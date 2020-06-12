@@ -47,7 +47,7 @@ karma: media
 
 ## Run the Javascript test suite in CI
 .PHONY: karma-ci
-karma-ci: media
+karma-ci:
 	node_modules/.bin/karma start .circleci/.karma.conf.js --targets=$(filter-out $@,$(MAKECMDGOALS))
 
 

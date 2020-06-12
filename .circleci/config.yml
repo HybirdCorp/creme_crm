@@ -1,30 +1,59 @@
-version: 2
+version: 2.1
 
-jobs:
 
-  lint-isort:
-    docker:
-      - image: circleci/python:3.7
+commands:
+  wait-database:
+    description: "Wait for the database"
+    parameters:
+      port:
+        type: integer
     steps:
-      - checkout
+      - run: dockerize -wait tcp://localhost:<< parameters.port >> -timeout 1m
 
-      # Download and cache dependencies
+  create-virtualenv:
+    description: "Create python virtualenv"
+    steps:
+      - run: python3 -m venv ~/venv
+      - run: echo "source ~/venv/bin/activate" >> $BASH_ENV
+
+  install-creme-system-packages:
+    description: "Install creme dependencies"
+    steps:
+      - run: sudo apt update
+      - run: sudo apt install -y python-dev graphviz libgraphviz-dev pkg-config lcab
+
+  install-py-dev-env:
+    steps:
       - restore_cache:
           keys:
             - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
 
-      - run:
-          name: Install Python dependencies
-          command: |
-            python3 -m venv ~/venv
-            . ~/venv/bin/activate
-            pip install -r creme/requirements-dev.txt
-            echo "source ~/venv/bin/activate" >> $BASH_ENV
+      - create-virtualenv
+      - run: pip install -r creme/requirements-dev.txt
 
       - save_cache:
           key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
           paths: "~/venv"
 
+  install-node-env:
+    steps:
+      - restore_cache:
+          key: node-dependencies-{{ checksum "package-lock.json" }}
+
+      - run: npm install
+
+      - save_cache:
+          key: node-dependencies-{{ checksum "package-lock.json" }}
+          paths:
+           - node_modules
+
+jobs:
+  lint-isort:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+      - install-py-dev-env
       - run: git diff --name-only origin/master creme/ | { grep '.py$' || true; } | xargs --no-run-if-empty isort --check --diff --atomic --verbose
 
 
@@ -33,24 +62,7 @@ jobs:
       - image: circleci/python:3.7
     steps:
       - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
-
-      - run:
-          name: Install Python dependencies
-          command: |
-            python3 -m venv ~/venv
-            . ~/venv/bin/activate
-            pip install -r creme/requirements-dev.txt
-            echo "source ~/venv/bin/activate" >> $BASH_ENV
-
-      - save_cache:
-          key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
-          paths: "~/venv"
-
+      - install-py-dev-env
       - run: flake8 creme/
 
 
@@ -64,31 +76,20 @@ jobs:
     steps:
       - checkout
 
-      - run:
-          name: Wait for db
-          command: dockerize -wait tcp://localhost:3306 -timeout 1m
+      - wait-database:
+          port: 3306
 
-      - run:
-          name: Install system dependencies
-          command: |
-            sudo apt update
-            sudo apt install -y python-dev graphviz libgraphviz-dev pkg-config lcab
-            sudo apt install -y mariadb-client
+      - install-creme-system-packages
+      - run: sudo apt install -y mariadb-client
 
-      # Download and cache dependencies
       - restore_cache:
           keys:
             - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}
             - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
 
-      - run:
-          name: Install Python dependencies
-          command: |
-            python3 -m venv ~/venv
-            . ~/venv/bin/activate
-            pip install -r creme/requirements-dev.txt
-            pip install -r creme/requirements-mysql.txt
-            echo "source ~/venv/bin/activate" >> $BASH_ENV
+      - create-virtualenv
+      - run: pip install -r creme/requirements-dev.txt
+      - run: pip install -r creme/requirements-mysql.txt
 
       - save_cache:
           key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}
@@ -117,15 +118,10 @@ jobs:
     steps:
       - checkout
 
-      - run:
-          name: Wait for db
-          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - wait-database:
+          port: 5432
 
-      - run:
-          name: Install system dependencies
-          command: |
-            sudo apt update
-            sudo apt install -y python-dev graphviz libgraphviz-dev pkg-config lcab
+      - install-creme-system-packages
 
       # Download and cache dependencies
       - restore_cache:
@@ -133,14 +129,9 @@ jobs:
             - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-pgsql.txt" }}
             - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
 
-      - run:
-          name: Install Python dependencies
-          command: |
-            python3 -m venv ~/venv
-            . ~/venv/bin/activate
-            pip install -r creme/requirements-dev.txt
-            pip install -r creme/requirements-pgsql.txt
-            echo "source ~/venv/bin/activate" >> $BASH_ENV
+      - create-virtualenv
+      - run: pip install -r creme/requirements-dev.txt
+      - run: pip install -r creme/requirements-pgsql.txt
 
       - save_cache:
           key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-pgsql.txt" }}
@@ -163,10 +154,7 @@ jobs:
      - image: circleci/python:3.7-node-browsers
     steps:
       - checkout
-      - run:
-          name: Install eslint dependencies
-          command: |
-            npm install
+      - install-node-env
       - run:
           name: Run linter
           command: |
@@ -178,42 +166,10 @@ jobs:
      - image: circleci/python:3.7-node-browsers
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt update
-            sudo apt install -y python-dev graphviz libgraphviz-dev pkg-config
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
-
-      - run:
-          name: Install Python dependencies
-          command: |
-            python3 -m venv ~/venv
-            . ~/venv/bin/activate
-            pip install -r creme/requirements-dev.txt
-            echo "source ~/venv/bin/activate" >> $BASH_ENV
-
-      - save_cache:
-          key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
-          paths: "~/venv"
-
-      - restore_cache:
-          key: node-dependencies-{{ checksum "package-lock.json" }}
-
-      - run:
-         name: Install nodejs dependencies
-         command: |
-           npm install
-
-      - save_cache:
-          key: node-dependencies-{{ checksum "package-lock.json" }}
-          paths:
-           - node_modules
-
+      - install-creme-system-packages
+      - install-py-dev-env
+      - run: python manage.py generatemedia
+      - install-node-env
       - run:
           name: Run javascript tests
           command: |
