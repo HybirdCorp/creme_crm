@@ -21,13 +21,21 @@
 from itertools import chain, groupby
 
 from django.conf import settings
-from django.db.models import (Model, FloatField, BooleanField,
-    OneToOneField, CharField, SlugField, SmallIntegerField, CASCADE)
-from django.db.transaction import atomic
-
+from django.db.models import (
+    CASCADE,
+    BooleanField,
+    CharField,
+    FloatField,
+    Model,
+    OneToOneField,
+    SlugField,
+    SmallIntegerField,
+)
 from django.db.models.query_utils import Q
+from django.db.transaction import atomic
 from django.template.defaultfilters import slugify
-from django.utils.translation import gettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.utils import update_model_instance
 from creme.creme_core.utils.chunktools import iter_as_slices

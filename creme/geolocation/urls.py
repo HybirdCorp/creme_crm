@@ -4,7 +4,6 @@ from django.urls import re_path
 
 from creme.geolocation import views
 
-
 urlpatterns = [
     re_path(r'^set_address_info[/]?$',
             # views.set_address_info,

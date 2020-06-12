@@ -19,9 +19,9 @@
 ################################################################################
 
 import csv
-from functools import partial
 import io
 import logging
+from functools import partial
 from urllib.parse import urlparse
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -33,10 +33,9 @@ from django.template.defaultfilters import slugify
 
 from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.creme_core.utils.collections import OrderedSet
-
 from creme.persons import get_address_model
 
-from ...models import Town, GeoAddress
+from ...models import GeoAddress, Town
 
 logger = logging.getLogger(__name__)
 
