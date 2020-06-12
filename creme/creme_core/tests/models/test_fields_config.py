@@ -524,5 +524,5 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertFalse(is_hidden(FieldInfo(FakeDocument, hidden)))
         self.assertFalse(is_hidden(FieldInfo(FakeDocument, 'linked_folder')))
         self.assertTrue(is_hidden(FieldInfo(FakeDocument, f'linked_folder__{hidden}')))
-        self.assertFalse(is_hidden(FieldInfo(FakeDocument, f'linked_folder__parent')))
+        self.assertFalse(is_hidden(FieldInfo(FakeDocument, 'linked_folder__parent')))
         self.assertTrue(is_hidden(FieldInfo(FakeDocument, f'linked_folder__parent__{hidden}')))

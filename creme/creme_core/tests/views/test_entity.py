@@ -481,7 +481,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertPOST403(
             self.DEL_ENTITIES_URL,
-            data={f'ids': f'{forbidden.id},{allowed.id},'},
+            data={'ids': f'{forbidden.id},{allowed.id},'},
         )
 
         self.assertDictEqual(

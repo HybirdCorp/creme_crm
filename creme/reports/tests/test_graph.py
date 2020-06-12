@@ -2848,7 +2848,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         ibci = rgraph.create_instance_brick_config_item()
         # self.assertEqual(f'instanceblock_reports-graph|{rgraph.id}-', ibci.brick_id)
-        self.assertEqual(f'instanceblock_reports-graph', ibci.brick_class_id)
+        self.assertEqual('instanceblock_reports-graph', ibci.brick_class_id)
         # self.assertEqual('', ibci.data)
         self.assertEqual(RGF_NOLINK, ibci.get_extra_data('type'))
         self.assertIsNone(ibci.get_extra_data('value'))
@@ -2974,7 +2974,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         item = items[0]
         # self.assertEqual(f'instanceblock_reports-graph|{rgraph.id}-', item.brick_id)
-        self.assertEqual(f'instanceblock_reports-graph', item.brick_class_id)
+        self.assertEqual('instanceblock_reports-graph', item.brick_class_id)
         # self.assertEqual('', item.data)
         self.assertEqual(RGF_NOLINK, item.get_extra_data('type'))
         self.assertIsNone(item.get_extra_data('value'))
@@ -3133,9 +3133,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         #     f'instanceblock_reports-graph|{rgraph.id}-{fk_name}|{RFT_FIELD}',
         #     item.brick_id
         # )
-        self.assertEqual(f'instanceblock_reports-graph',
-                         item.brick_class_id
-                        )
+        self.assertEqual('instanceblock_reports-graph', item.brick_class_id)
         # self.assertEqual(f'{fk_name}|{RFT_FIELD}', item.data)
         self.assertEqual(RGF_FK, item.get_extra_data('type'))
         self.assertEqual(fk_name, item.get_extra_data('value'))
@@ -3322,7 +3320,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         #     f'instanceblock_reports-graph|{rgraph.id}-{rtype.id}|{RFT_RELATION}',
         #     item.brick_id
         # )
-        self.assertEqual(f'instanceblock_reports-graph',
+        self.assertEqual('instanceblock_reports-graph',
                          item.brick_class_id
                         )
         # self.assertEqual(f'{rtype.id}|{RFT_RELATION}', item.data)

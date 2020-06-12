@@ -133,7 +133,7 @@ class EntityCellsFieldTestCase(FieldTestCase):
 
         self.assertFieldValidationError(
             EntityCellRegularFieldsField, 'invalid_value', field.clean,
-            f'regular_field-entity_type',
+            'regular_field-entity_type',
             message_args={'value': 'entity_type'},
         )
 
@@ -238,17 +238,17 @@ class EntityCellsFieldTestCase(FieldTestCase):
 
         self.assertFieldValidationError(
             EntityCellRegularFieldsField, 'invalid_value', field.clean,
-            f'regular_field-sector__is_custom',
+            'regular_field-sector__is_custom',
             message_args={'value': 'sector__is_custom'},
         )
         self.assertFieldValidationError(
             EntityCellRegularFieldsField, 'invalid_value', field.clean,
-            f'regular_field-image__user__username',
+            'regular_field-image__user__username',
             message_args={'value': 'image__user__username'},
         )
         self.assertFieldValidationError(
             EntityCellRegularFieldsField, 'invalid_value', field.clean,
-            f'regular_field-image__categories__name',
+            'regular_field-image__categories__name',
             message_args={'value': 'image__categories__name'},
         )
 
@@ -422,7 +422,7 @@ class EntityCellsFieldTestCase(FieldTestCase):
                 EntityCellRegularField.build(FakeContact, f'address__{hidden_fname2}'),
             ],
             field.clean(
-                f'regular_field-last_name,'
+                'regular_field-last_name,'
                 f'regular_field-{hidden_fname1},'
                 f'regular_field-address__{hidden_fname2}'
             )
@@ -811,7 +811,7 @@ class EntityCellsFieldTestCase(FieldTestCase):
 
         self.assertFieldValidationError(
             EntityCellsField, 'invalid_type', field.clean,
-            f'function_field-get_pretty_properties',
+            'function_field-get_pretty_properties',
         )
 
     def test_cell_registry02(self):
