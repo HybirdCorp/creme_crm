@@ -19,9 +19,9 @@
 ################################################################################
 
 import logging
+import subprocess
 from os import path
 from shutil import copy, rmtree
-import subprocess
 from tempfile import mkdtemp
 
 from django.conf import settings
@@ -32,13 +32,12 @@ from django.template import loader
 from django.utils.encoding import smart_str
 from django.utils.translation import gettext as _
 
+from creme import billing
 from creme.creme_core.auth import decorators as auth_dec
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, FileRef
 from creme.creme_core.utils.file_handling import FileCreator
 from creme.creme_core.utils.secure_filename import secure_filename
-
-from creme import billing
 
 logger = logging.getLogger(__name__)
 TEMPLATE_PATHS = {

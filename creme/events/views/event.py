@@ -22,7 +22,7 @@ from typing import Type
 
 from django.db.models import Q
 from django.forms.forms import BaseForm
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -30,17 +30,15 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.actions import ViewAction
 # from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.entity_cell import EntityCellRelation
-from creme.creme_core.gui.actions import EntityAction
 from creme.creme_core.gui import listview as lv_gui
+from creme.creme_core.gui.actions import EntityAction
 from creme.creme_core.models import RelationType
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import EntityRelatedMixin
-
+from creme.opportunities import get_opportunity_model
 from creme.persons import get_contact_model
 from creme.persons.views.contact import ContactsList
-
-from creme.opportunities import get_opportunity_model
 
 from .. import constants, get_event_model, gui
 from ..forms import event as event_forms
