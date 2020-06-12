@@ -1,10 +1,11 @@
 {% extends '403.html' %}
-{% load i18n creme_core_tags creme_widgets %}
+{% load i18n %}{# creme_core_tags creme_widgets #}
 
 {% block error_message %}
     {% if error_message %}
         {{error_message}}
-        {% if protected_objects %}{# TODO: use list_instances widget #}
+{% comment %}
+        {% if protected_objects %}
             <ul>
             {% for object in protected_objects %}
                 <li>{{object|get_meta_value:'verbose_name'}} :
@@ -21,6 +22,7 @@
             {% endfor %}
             </ul>
         {% endif %}
+{% endcomment %}
     {% else %}
         {% trans 'You do not have access to this page, please contact your administrator.' %}
     {% endif %}

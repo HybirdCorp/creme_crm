@@ -301,29 +301,32 @@
                     - Many protected methods have been removed.
                - These constants have been removed: _RFIELD_PREFIX, _CFIELD_PREFIX, _FFIELD_PREFIX, _RTYPE_PREFIX.
             - The function 'mass_import.get_backend()' has been renamed 'get_import_backend_class()'.
-        # In 'creme_core.views', more views are now class-based (notably the reloading views for Bricks) :
-            - The function-view 'batch_process.get_ops()' has been replaced by the class 'OperatorChoices'.
-            - These function-views of 'bricks' have been replaced by classes :
-                - 'reload_basic()' by 'BricksReloading'.
-                - 'reload_detailview()' by 'DetailviewBricksReloading'.
-                - 'reload_home()' by 'HomeBricksReloading'.
-            - The function-view 'creme_property.reload_bricks()' has been replaced by the class 'PropertyTypeBricksReloading'.
-            - In 'entity' :
-                - These function-views have been replaced by classes :
-                    - 'delete_entity()' by 'EntityDeletion'.
-                    - 'delete_entities()' by 'EntitiesDeletion'.
-                    - 'empty_trash()' by 'TrashCleaning'.
-                    - 'get_info_fields()' by 'FieldsInformation'.
-                    - 'get_sanitized_html_field()' by 'HTMLFieldSanitizing'.
-                    - 'restore_entity()' by 'EntityRestoration'.
-                    - 'restrict_to_superusers()' by 'SuperusersRestriction'.
-                - The function 'entity.delete_entity()' has been removed.
-            - These function-views of 'job' have been replaced by classes :
-                - 'enable()' by 'JobEnabling'.
-                - 'get_info' by 'JobsInformation'.
-                - 'reload_bricks()' by 'JobBricksReloading'.
-            - The method 'mass_export.MassExport.get_backend()' has been renamed 'get_backend_class()'.
-            - The function-view 'search.reload_brick()' has been replaced by the class 'SearchBricksReloading'.
+        # In 'creme_core.views' :
+            - The function-view 'exceptions.permission_denied()' does not inject a context variable "protected_objects" any more ;
+              the related template "creme_core/forbidden.html" has been updated.
+            - More views are now class-based (notably the reloading views for Bricks) :
+                - The function-view 'batch_process.get_ops()' has been replaced by the class 'OperatorChoices'.
+                - These function-views of 'bricks' have been replaced by classes :
+                    - 'reload_basic()' by 'BricksReloading'.
+                    - 'reload_detailview()' by 'DetailviewBricksReloading'.
+                    - 'reload_home()' by 'HomeBricksReloading'.
+                - The function-view 'creme_property.reload_bricks()' has been replaced by the class 'PropertyTypeBricksReloading'.
+                - In 'entity' :
+                    - These function-views have been replaced by classes :
+                        - 'delete_entity()' by 'EntityDeletion'.
+                        - 'delete_entities()' by 'EntitiesDeletion'.
+                        - 'empty_trash()' by 'TrashCleaning'.
+                        - 'get_info_fields()' by 'FieldsInformation'.
+                        - 'get_sanitized_html_field()' by 'HTMLFieldSanitizing'.
+                        - 'restore_entity()' by 'EntityRestoration'.
+                        - 'restrict_to_superusers()' by 'SuperusersRestriction'.
+                    - The function 'entity._delete_entity()' has been removed.
+                - These function-views of 'job' have been replaced by classes :
+                    - 'enable()' by 'JobEnabling'.
+                    - 'get_info' by 'JobsInformation'.
+                    - 'reload_bricks()' by 'JobBricksReloading'.
+                - The method 'mass_export.MassExport.get_backend()' has been renamed 'get_backend_class()'.
+                - The function-view 'search.reload_brick()' has been replaced by the class 'SearchBricksReloading'.
         # The URL named "creme_core__quick_form" has changed : the sub-string "from_widget/" has been removed (no problem if you use 'urls.reverse()' of course).
         # In "creme_core/templates/" :
             - The structure of the base template has been cleaned :
