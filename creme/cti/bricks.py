@@ -25,12 +25,15 @@ from typing import Sequence, Type
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext as _
 
+from creme import activities, persons
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import PaginatedBrick
-from creme.creme_core.models import CremeEntity, EntityCredentials, FieldsConfig
+from creme.creme_core.models import (
+    CremeEntity,
+    EntityCredentials,
+    FieldsConfig,
+)
 from creme.creme_core.models.fields import PhoneField
-
-from creme import persons, activities
 
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
