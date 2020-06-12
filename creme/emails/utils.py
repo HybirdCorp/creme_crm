@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from email.mime.image import MIMEImage
 import logging
+from email.mime.image import MIMEImage
 from os.path import basename, join
 from random import choice
 from re import compile as re_compile
@@ -29,7 +29,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.utils.timezone import now
 
-from .constants import MAIL_STATUS_SENT, MAIL_STATUS_SENDINGERROR
+from .constants import MAIL_STATUS_SENDINGERROR, MAIL_STATUS_SENT
 
 logger = logging.getLogger(__name__)
 ALLOWED_CHARS = ascii_letters + digits

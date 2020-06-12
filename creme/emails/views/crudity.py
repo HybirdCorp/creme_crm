@@ -22,12 +22,11 @@ import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth import decorators
 from creme.creme_core.views import generic
-
 from creme.crudity import registry
 
 from .. import bricks, constants, get_entityemail_model

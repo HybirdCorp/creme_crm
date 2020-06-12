@@ -24,19 +24,23 @@ from django.apps import apps
 from django.conf import settings
 from django.utils.translation import gettext as _
 
+from creme import emails, persons
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
-    RelationType, SearchConfigItem, SettingValue,
-    BrickDetailviewLocation, CustomBrickConfigItem,
-    ButtonMenuItem, HeaderFilter, Job,
+    BrickDetailviewLocation,
+    ButtonMenuItem,
+    CustomBrickConfigItem,
+    HeaderFilter,
+    Job,
+    RelationType,
+    SearchConfigItem,
+    SettingValue,
 )
 
-from creme import persons, emails
-
-from . import buttons, bricks, constants
-from .creme_jobs import entity_emails_send_type, campaign_emails_send_type
+from . import bricks, buttons, constants
+from .creme_jobs import campaign_emails_send_type, entity_emails_send_type
 from .setting_keys import emailcampaign_sender
 
 logger = logging.getLogger(__name__)

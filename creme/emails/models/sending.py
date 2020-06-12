@@ -18,29 +18,39 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import loads as json_load
 import logging
-from time import sleep
 import warnings
+from json import loads as json_load
+from time import sleep
 
 from django.conf import settings
-from django.core.mail import send_mail, get_connection
+from django.core.mail import get_connection, send_mail
 from django.db import IntegrityError
-from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
-        EmailField, CharField, TextField, ManyToManyField, SET_NULL, CASCADE)
+from django.db.models import (
+    CASCADE,
+    SET_NULL,
+    CharField,
+    DateTimeField,
+    EmailField,
+    ForeignKey,
+    ManyToManyField,
+    PositiveSmallIntegerField,
+    TextField,
+)
 from django.db.transaction import atomic
-from django.template import Template, Context
+from django.template import Context, Template
 from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
-from django.utils.translation import gettext_lazy as _, gettext, pgettext, pgettext_lazy
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext, pgettext_lazy
 
-from creme.creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.models import CremeEntity, CremeModel
 
 from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
-from ..utils import generate_id, EMailSender, ImageFromHTMLError
-
-from .mail import _Email, ID_LENGTH
+from ..utils import EMailSender, ImageFromHTMLError, generate_id
+from .mail import ID_LENGTH, _Email
 from .signature import EmailSignature
 
 logger = logging.getLogger(__name__)

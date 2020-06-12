@@ -18,16 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils.html import sanitize_html
-from creme.creme_core.views import generic, bricks as bricks_views
 # from creme.creme_core.views.decorators import jsonify
+from creme.creme_core.views import bricks as bricks_views
+from creme.creme_core.views import generic
 
-from .. import get_emailcampaign_model, bricks
+from .. import bricks, get_emailcampaign_model
 # from ..bricks import MailsBrick, SendingBrick, SendingHTMLBodyBrick
 from ..forms.sending import SendingCreateForm
 from ..models import EmailSending

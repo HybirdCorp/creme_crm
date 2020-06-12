@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,9 +21,13 @@
 from django.db.models.query import Q
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager, MultiCreatorEntityField
-
 from creme import emails
+from creme.creme_core.forms import (
+    CremeEntityForm,
+    CremeForm,
+    FieldBlockManager,
+    MultiCreatorEntityField,
+)
 
 EmailCampaign = emails.get_emailcampaign_model()
 
@@ -49,8 +53,9 @@ class CampaignAddMLForm(CremeForm):
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.campaign = entity
-        self.fields['mailing_lists'].q_filter = \
-            ~Q(id__in=[*entity.mailing_lists.values_list('id', flat=True)])
+        self.fields['mailing_lists'].q_filter = ~Q(
+            id__in=[*entity.mailing_lists.values_list('id', flat=True)],
+        )
 
     def save(self):
         add_ml = self.campaign.mailing_lists.add

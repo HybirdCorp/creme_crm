@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,8 +26,10 @@ from creme.creme_core.creme_jobs.base import JobType
 
 from ..models import EmailSending
 from ..models.sending import (
-    SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
-    SENDING_STATE_DONE, SENDING_STATE_INPROGRESS,
+    SENDING_STATE_DONE,
+    SENDING_STATE_INPROGRESS,
+    SENDING_TYPE_DEFERRED,
+    SENDING_TYPE_IMMEDIATE,
 )
 
 

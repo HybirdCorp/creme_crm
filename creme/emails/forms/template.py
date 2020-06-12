@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,11 +23,16 @@ from django.forms.fields import CharField
 from django.forms.widgets import Textarea
 from django.template.base import Template, VariableNode
 from django.utils.functional import lazy
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager, MultiCreatorEntityField
+from creme.creme_core.forms import (
+    CremeEntityForm,
+    CremeForm,
+    FieldBlockManager,
+    MultiCreatorEntityField,
+)
 from creme.creme_core.forms.widgets import TinyMCEEditor
-
 from creme.documents import get_document_model
 
 from .. import get_emailtemplate_model
@@ -60,10 +65,11 @@ class EmailTemplateForm(CremeEntityForm):
                 invalid_vars.append(varname)
 
         if invalid_vars:
-            raise ValidationError(self.error_messages['invalid_vars'],
-                                  params={'vars': invalid_vars},
-                                  code='invalid_vars',
-                                 )
+            raise ValidationError(
+                self.error_messages['invalid_vars'],
+                params={'vars': invalid_vars},
+                code='invalid_vars',
+            )
 
         # TODO: return body
 
@@ -82,7 +88,9 @@ class EmailTemplateForm(CremeEntityForm):
 
 
 class EmailTemplateAddAttachment(CremeForm):
-    attachments = MultiCreatorEntityField(label=_('Attachments'), required=False, model=Document)
+    attachments = MultiCreatorEntityField(
+        label=_('Attachments'), required=False, model=Document,
+    )
 
     blocks = FieldBlockManager(('general', _('Attachments'), '*'))
 
