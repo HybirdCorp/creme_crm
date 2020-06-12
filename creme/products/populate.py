@@ -25,12 +25,12 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
     HeaderFilter,
     SearchConfigItem,
-    BrickDetailviewLocation,
 )
-from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from . import bricks, constants, get_product_model, get_service_model
 from .models import Category, SubCategory
