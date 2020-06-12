@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
-from django.db import models, migrations
-from django.db.models.deletion import SET_NULL, CASCADE
+from django.db import migrations, models
+from django.db.models.deletion import CASCADE, SET_NULL
 
 import creme.creme_core.models.fields
-
-from creme.documents.models.fields import ImageEntityManyToManyField
-
 import creme.emails.utils
+from creme.documents.models.fields import ImageEntityManyToManyField
 
 
 class Migration(migrations.Migration):

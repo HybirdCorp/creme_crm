@@ -18,37 +18,33 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from functools import partial
 from itertools import chain
-import logging
 
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.transaction import atomic
-from django.forms.fields import EmailField, BooleanField, CharField
-from django.utils.translation import (
-    gettext_lazy as _,
-    gettext,
-    pgettext_lazy,
-)
+from django.forms.fields import BooleanField, CharField, EmailField
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
+from creme import emails, persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import base as base_forms
 from creme.creme_core.forms.fields import (
-    MultiCreatorEntityField,
     CreatorEntityField,
+    MultiCreatorEntityField,
 )
 from creme.creme_core.forms.widgets import Label
-from creme.creme_core.models import Relation, FieldsConfig
-
+from creme.creme_core.models import FieldsConfig, Relation
 from creme.documents import get_document_model
 
-from creme import persons, emails
-
 from ..constants import (
+    MAIL_STATUS_SENDINGERROR,
     REL_SUB_MAIL_RECEIVED,
     REL_SUB_MAIL_SENDED,
-    MAIL_STATUS_SENDINGERROR,
 )
 from ..creme_jobs import entity_emails_send_type
 

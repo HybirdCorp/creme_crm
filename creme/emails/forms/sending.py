@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,19 +21,28 @@
 from datetime import datetime, time
 from json import dumps as json_dump
 
-from django.forms import IntegerField, EmailField, DateTimeField, ValidationError
+from django.forms import (
+    DateTimeField,
+    EmailField,
+    IntegerField,
+    ValidationError,
+)
 from django.template.base import Template, VariableNode
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import EntityCredentials
-from creme.creme_core.forms import CremeModelForm, CreatorEntityField
+from creme.creme_core.forms import CreatorEntityField, CremeModelForm
 from creme.creme_core.forms.widgets import CalendarWidget
 from creme.creme_core.models import HistoryLine, SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
 
 from .. import get_emailtemplate_model
-from ..models.sending import EmailSending, LightWeightEmail, SENDING_TYPE_DEFERRED
+from ..models.sending import (
+    SENDING_TYPE_DEFERRED,
+    EmailSending,
+    LightWeightEmail,
+)
 from ..setting_keys import emailcampaign_sender
 
 
@@ -97,18 +106,25 @@ class SendingCreateForm(CremeModelForm):
             sending_date = cleaned_data['sending_date']
 
             if sending_date is None:
-                self.add_error('sending_date', _('Sending date required for a deferred sending'))
+                self.add_error(
+                    'sending_date',
+                    _('Sending date required for a deferred sending'),
+                )
             else:
                 get_data = cleaned_data.get
-                sending_date = make_aware_dt(datetime.combine(sending_date,
-                                                              time(hour=int(get_data('hour') or 0),
-                                                                   minute=int(get_data('minute') or 0),
-                                                                  ),
-                                                             )
-                                            )
+                sending_date = make_aware_dt(datetime.combine(
+                    sending_date,
+                    time(
+                        hour=int(get_data('hour') or 0),
+                        minute=int(get_data('minute') or 0),
+                    ),
+                ))
 
                 if sending_date < now():
-                    self.add_error('sending_date', _('Sending date must be is the future'))
+                    self.add_error(
+                        'sending_date',
+                        _('Sending date must be is the future'),
+                    )
                 else:
                     cleaned_data['sending_date'] = sending_date
         else:
@@ -117,9 +133,10 @@ class SendingCreateForm(CremeModelForm):
         return cleaned_data
 
     def _get_variables(self, body):  # TODO: move in Emailtemplate ??
-        return (varnode.filter_expression.var.var
-                    for varnode in Template(body).nodelist.get_nodes_by_type(VariableNode)
-               )
+        return (
+            varnode.filter_expression.var.var
+            for varnode in Template(body).nodelist.get_nodes_by_type(VariableNode)
+        )
 
     def save(self):
         instance = self.instance
@@ -154,12 +171,13 @@ class SendingCreateForm(CremeModelForm):
         disable_history = HistoryLine.disable
 
         for address, recipient_entity in instance.campaign.all_recipients():
-            mail = LightWeightEmail(sending=instance,
-                                    sender=instance.sender,
-                                    recipient=address,
-                                    sending_date=instance.sending_date,
-                                    recipient_entity=recipient_entity,
-                                   )
+            mail = LightWeightEmail(
+                sending=instance,
+                sender=instance.sender,
+                recipient=address,
+                sending_date=instance.sending_date,
+                recipient_entity=recipient_entity,
+            )
 
             if recipient_entity:
                 context = {}

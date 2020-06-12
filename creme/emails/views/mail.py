@@ -23,8 +23,9 @@ from typing import List, Type
 from django.forms.forms import BaseForm
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.template import Template, Context
-from django.utils.translation import gettext_lazy as _, gettext
+from django.template import Context, Template
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 # from creme.creme_core.auth.decorators import login_required, permission_required
@@ -38,7 +39,7 @@ from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import EntityRelatedMixin
 from creme.creme_core.views.relation import RelationsAdding
 
-from .. import get_entityemail_model, bricks, constants
+from .. import bricks, constants, get_entityemail_model
 from ..forms import mail as mail_forms
 from ..forms.template import TEMPLATES_VARS
 from ..models import LightWeightEmail

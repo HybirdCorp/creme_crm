@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.core.validators import validate_email
-from django.forms import ValidationError, FileField
+from django.forms import FileField, ValidationError
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext_lazy as _
 
@@ -56,7 +56,10 @@ def _detect_end_line(uploaded_file):
 
 
 class MailingListAddRecipientsForm(CremeForm):
-    recipients = MultiEmailField(label=_('Recipients'), help_text=_('Write a valid e-mail address per line.'))
+    recipients = MultiEmailField(
+        label=_('Recipients'),
+        help_text=_('Write a valid e-mail address per line.'),
+    )
 
     blocks = FieldBlockManager(('general', _('Recipients'), '*'))
 
@@ -80,11 +83,13 @@ class MailingListAddRecipientsForm(CremeForm):
 
 
 class MailingListAddCSVForm(CremeForm):
-    recipients = FileField(label=_('Recipients'),
-                           help_text=_('A file containing one e-mail address per line '
-                                       '(eg:creme@crm.com without quotation marks).'
-                                      )
-                          )
+    recipients = FileField(
+        label=_('Recipients'),
+        help_text=_(
+            'A file containing one e-mail address per line '
+            '(eg:creme@crm.com without quotation marks).'
+        )
+    )
 
     blocks = FieldBlockManager(('general', _('CSV file'), '*'))
 
@@ -119,7 +124,9 @@ class MailingListAddCSVForm(CremeForm):
 
         for recipients in chunktools.iter_as_chunk(addresses(), 256):
             recipients = frozenset(recipients)
-            existing   = frozenset(filter_(ml=ml, address__in=recipients).values_list('address', flat=True))
+            existing   = frozenset(
+                filter_(ml=ml, address__in=recipients).values_list('address', flat=True)
+            )
 
             for address in recipients:
                 if not address in existing:

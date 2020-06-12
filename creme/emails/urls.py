@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from django.apps import apps
-from django.urls import re_path, include
-
-from creme.creme_core.conf.urls import Swappable, swap_manager
+from django.urls import include, re_path
 
 from creme import emails
-from .views import campaign, sending, recipient, mailing_list, template, mail, signature
+from creme.creme_core.conf.urls import Swappable, swap_manager
 
+from .views import (
+    campaign,
+    mail,
+    mailing_list,
+    recipient,
+    sending,
+    signature,
+    template,
+)
 
 urlpatterns = [
     # Campaign: mailing_list brick

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import gettext_lazy as _, pgettext_lazy
-
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 REL_SUB_MAIL_RECEIVED = 'email-subject_mail_received'
 REL_OBJ_MAIL_RECEIVED = 'email-object_mail_received'

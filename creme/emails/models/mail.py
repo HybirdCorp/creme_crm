@@ -25,17 +25,14 @@ from django.db import models
 from django.db.transaction import atomic
 from django.db.utils import IntegrityError
 from django.urls import reverse
-from django.utils.translation import (
-    gettext_lazy as _,
-    gettext,
-    pgettext_lazy,
-)
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.models import CremeEntity, CremeModel
 from creme.creme_core.models.fields import UnsafeHTMLField
 
 from .. import constants, utils
-
 from .signature import EmailSignature
 
 logger = logging.getLogger(__name__)
@@ -189,4 +186,3 @@ class EntityEmail(AbstractEntityEmail):
 class EntityEmailSender(utils.EMailSender):
     def get_subject(self, mail):
         return mail.subject
-
