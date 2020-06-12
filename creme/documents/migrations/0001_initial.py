@@ -3,8 +3,8 @@
 import uuid
 
 from django.conf import settings
-from django.db import models, migrations
-from django.db.models.deletion import PROTECT, CASCADE
+from django.db import migrations, models
+from django.db.models.deletion import CASCADE, PROTECT
 
 from creme.creme_core.models import CREME_REPLACE_NULL
 

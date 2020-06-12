@@ -2,11 +2,10 @@
 
 from django.urls import re_path
 
+from creme import documents
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
-from creme import documents
-from .views import folder, document, quick_forms
-
+from .views import document, folder, quick_forms
 
 urlpatterns = [
     *swap_manager.add_group(

@@ -18,21 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
 import logging
+from functools import partial
 from os.path import basename
 
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
 
+from creme import documents
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.models import Relation
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.utils import ellipsis
 from creme.creme_core.views.file_handling import handle_uploaded_file
-
-from creme import documents
 
 from .. import constants
 from ..models import FolderCategory
