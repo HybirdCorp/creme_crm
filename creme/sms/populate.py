@@ -23,12 +23,16 @@ import logging
 from django.apps import apps
 from django.utils.translation import gettext as _
 
+from creme import sms
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import SearchConfigItem, HeaderFilter, BrickDetailviewLocation
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    HeaderFilter,
+    SearchConfigItem,
+)
 
-from creme import sms
 from . import bricks, constants
 
 logger = logging.getLogger(__name__)

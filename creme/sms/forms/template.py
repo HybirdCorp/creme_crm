@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import CharField, ValidationError, Textarea
+from django.forms import CharField, Textarea, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm
 
 from .. import get_messagetemplate_model
-from ..encoding import gsm_encoded_content, SMS_MAX_LENGTH
+from ..encoding import SMS_MAX_LENGTH, gsm_encoded_content
 
 _FORBIDDEN = "^ { } \\ [ ~ ] | €"  # TODO: given by the backend ??
 _HELP = _("""Message with a maximum of 160 characters.

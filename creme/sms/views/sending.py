@@ -22,16 +22,20 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.auth.decorators import (
+    login_required,
+    permission_required,
+)
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.bricks import BricksReloading  # build_context, bricks_render_info
 from creme.creme_core.views import generic
+# from creme.creme_core.views.bricks import build_context, bricks_render_info,
 # from creme.creme_core.views.decorators import jsonify
+from creme.creme_core.views.bricks import BricksReloading
 
 from .. import get_smscampaign_model
 from ..bricks import MessagesBrick
 from ..forms.message import SendingCreateForm
-from ..models import Sending, Message
+from ..models import Message, Sending
 
 
 class SendingCreation(generic.AddingInstanceToEntityPopup):

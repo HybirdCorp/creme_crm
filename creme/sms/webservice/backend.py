@@ -20,10 +20,13 @@
 
 from urllib.parse import urlencode
 from urllib.request import (
+    HTTPBasicAuthHandler,
+    HTTPError,
     HTTPPasswordMgrWithDefaultRealm,
-    HTTPBasicAuthHandler, HTTPRedirectHandler,
-    build_opener, Request,
-    URLError, HTTPError,
+    HTTPRedirectHandler,
+    Request,
+    URLError,
+    build_opener,
 )
 
 
