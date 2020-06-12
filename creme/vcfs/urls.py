@@ -2,11 +2,10 @@
 
 from django.urls import re_path
 
+from creme import persons
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
-from creme import persons
 from .views import vcf  # TODO: merge in a views.py ??
-
 
 urlpatterns = [
     re_path(r'^(?P<contact_id>\d+)/generate_vcf[/]?$', vcf.vcf_export, name='vcfs__export'),

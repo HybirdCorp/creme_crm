@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,16 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse, Http404
-from django.shortcuts import render, get_object_or_404, redirect
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.encoding import smart_str
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import permission_required, login_required
+from creme.creme_core.auth.decorators import (
+    login_required,
+    permission_required,
+)
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.utils import build_cancel_path
-
 from creme.persons import get_contact_model
 
 from ..forms.vcf import VcfForm, VcfImportForm
@@ -51,10 +53,10 @@ def abstract_vcf_import(request, file_form=VcfForm, import_form=VcfImportForm,
         if step == 0:
             if form_instance.is_valid():
                 form_instance = import_form(
-                        user=user,
-                        vcf_data=form_instance.cleaned_data['vcf_file'],
-                        initial={'vcf_step': 1},
-                    )
+                    user=user,
+                    vcf_data=form_instance.cleaned_data['vcf_file'],
+                    initial={'vcf_step': 1},
+                )
             else:
                 submit_label = _('Import this VCF file')
         else:
@@ -73,13 +75,15 @@ def abstract_vcf_import(request, file_form=VcfForm, import_form=VcfImportForm,
         submit_label = _('Import this VCF file')
         cancel_url = build_cancel_path(request)
 
-    return render(request, template,
-                  {'form':         form_instance,
-                   'title':        title,
-                   'submit_label': submit_label,
-                   'cancel_url':   cancel_url,
-                  }
-                 )
+    return render(
+        request, template,
+        {
+            'form':         form_instance,
+            'title':        title,
+            'submit_label': submit_label,
+            'cancel_url':   cancel_url,
+        },
+    )
 
 
 @login_required
@@ -97,6 +101,8 @@ def vcf_export(request, contact_id):
     vc = VcfGenerator(person).serialize()
 
     response = HttpResponse(vc, content_type='text/vcard')
-    response['Content-Disposition'] = 'attachment; filename="{}.vcf"'.format(smart_str(person.last_name))
+    response['Content-Disposition'] = 'attachment; filename="{}.vcf"'.format(
+        smart_str(person.last_name),
+    )
 
     return response
