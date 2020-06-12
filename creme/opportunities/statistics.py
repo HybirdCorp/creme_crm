@@ -20,8 +20,9 @@
 
 from datetime import date
 
-from django.db.models import Q, FilteredRelation, Count
-from django.utils.translation import gettext_lazy as _, ngettext
+from django.db.models import Count, FilteredRelation, Q
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from creme.creme_core.models import FieldsConfig
 

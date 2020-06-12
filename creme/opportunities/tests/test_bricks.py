@@ -208,4 +208,3 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
             brick_cls=bricks.BusinessManagersBrick,
             rtype_id=constants.REL_OBJ_RESPONSIBLE,
         )
-
