@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,11 +25,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.mail import get_connection
 from django.core.mail.message import EmailMessage
 from django.utils.timezone import now
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.creme_jobs.base import JobType
 from creme.creme_core.models import JobResult
-
 from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
 
@@ -101,15 +101,16 @@ class _ComApproachesEmailsSendType(JobType):
                                   ).exists():
                     continue
 
-                emails.append(
-                    EmailMessage(
-                        gettext('[CremeCRM] The organisation «{}» seems neglected').format(orga),
-                        gettext("It seems you haven't created a commercial approach for "
-                                "the organisation «{orga}» since {delay} days.").format(
-                                   orga=orga,
-                                   delay=delay,
-                        ),
-                        EMAIL_SENDER, [orga.user.email],
+                emails.append(EmailMessage(
+                    gettext('[CremeCRM] The organisation «{}» seems neglected').format(orga),
+                    gettext(
+                        "It seems you haven't created a commercial approach for "
+                        "the organisation «{orga}» since {delay} days."
+                    ).format(
+                        orga=orga,
+                        delay=delay,
+                    ),
+                    EMAIL_SENDER, [orga.user.email],
                 ))
 
         # TODO: factorise jobs which send emails
@@ -127,12 +128,14 @@ class _ComApproachesEmailsSendType(JobType):
                 )
 
     def get_description(self, job):
-        return [gettext("For each customer organisation, an email is sent to its owner (ie: a Creme user), "
-                        "if there is no commercial approach since {} days linked to: "
-                        "the organisation, one of its managers/employees, "
-                        "or an Opportunity which targets this organisation."
-                       ).format(self.list_target_orga[0][1]),
-               ]
+        return [
+            gettext(
+                "For each customer organisation, an email is sent to its owner (ie: a Creme user), "
+                "if there is no commercial approach since {} days linked to: "
+                "the organisation, one of its managers/employees, "
+                "or an Opportunity which targets this organisation."
+            ).format(self.list_target_orga[0][1]),
+        ]
 
 
 com_approaches_emails_send_type = _ComApproachesEmailsSendType()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,11 +22,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save  # pre_delete
 from django.dispatch import receiver
 
-from creme.creme_core.models import Relation
-
 from creme.activities import get_activity_model
 from creme.activities.constants import REL_OBJ_ACTIVITY_SUBJECT
-
+from creme.creme_core.models import Relation
 from creme.opportunities import get_opportunity_model
 
 from . import get_act_model
@@ -51,11 +49,12 @@ def post_save_relation_opp_subject_activity(sender, instance, **kwargs):
                     type_id=REL_SUB_COMPLETE_GOAL,
                     object_entity=relation.object_entity,
                     user=user,
-                 ) for relation in Relation.objects
-                                           .filter(subject_entity_id=object_entity.id,
-                                                   type=REL_SUB_COMPLETE_GOAL,
-                                                   object_entity__entity_type=get_ct(get_act_model()),
-                                                  )
+                ) for relation in Relation.objects
+                                          .filter(
+                                              subject_entity_id=object_entity.id,
+                                              type=REL_SUB_COMPLETE_GOAL,
+                                              object_entity__entity_type=get_ct(get_act_model()),
+                                          )
             )
 
 
@@ -64,4 +63,3 @@ def sync_with_activity(sender, instance, created, **kwargs):
     # TODO: optimise (only if title has changed - factorise with HistoryLine ??)
     if not created:
         CommercialApproach.objects.filter(related_activity=instance).update(title=instance.title)
-

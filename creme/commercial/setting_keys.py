@@ -6,7 +6,6 @@ from creme.creme_core.core.setting_key import SettingKey
 
 from . import constants
 
-
 orga_approaches_key = SettingKey(
     id=constants.DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW,
     description=_("Display only organisations' commercial approaches on organisations' file."

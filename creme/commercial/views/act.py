@@ -19,24 +19,31 @@
 ################################################################################
 
 from django.db.transaction import atomic
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.auth.decorators import (
+    login_required,
+    permission_required,
+)
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.quick_forms import quickforms_registry
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
-
 from creme.opportunities import get_opportunity_model
 from creme.opportunities.forms.opportunity import OpportunityCreationForm
 
-from .. import get_act_model, get_pattern_model, constants
+from .. import constants, get_act_model, get_pattern_model
 from ..forms import act as forms
-from ..models import ActType, ActObjective, MarketSegment, ActObjectivePatternComponent
+from ..models import (
+    ActObjective,
+    ActObjectivePatternComponent,
+    ActType,
+    MarketSegment,
+)
 
 Opportunity = get_opportunity_model()
 Act = get_act_model()

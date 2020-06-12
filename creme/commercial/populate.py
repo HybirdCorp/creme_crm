@@ -24,22 +24,26 @@ from django.apps import apps
 from django.conf import settings
 from django.utils.translation import gettext as _
 
+from creme import commercial, persons, products
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
-    RelationType, CremePropertyType, SettingValue, Job,
-    BrickDetailviewLocation, SearchConfigItem, ButtonMenuItem, HeaderFilter,
+    BrickDetailviewLocation,
+    ButtonMenuItem,
+    CremePropertyType,
+    HeaderFilter,
+    Job,
+    RelationType,
+    SearchConfigItem,
+    SettingValue,
 )
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.utils.date_period import date_period_registry
 
-from creme import persons, products
-
-from creme import commercial
 from . import bricks, buttons, constants, creme_jobs, setting_keys
-from .models import MarketSegment, ActType
+from .models import ActType, MarketSegment
 
 logger = logging.getLogger(__name__)
 

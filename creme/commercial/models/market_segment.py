@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, ForeignKey, CASCADE
+from django.db.models import CASCADE, CharField, ForeignKey
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeModel, CremePropertyType
 
@@ -60,6 +61,8 @@ class MarketSegment(CremeModel):
                 qs = qs.exclude(pk=self.pk)
 
             if qs.exists():
-                raise ValueError('Only one MarketSegment with property_type=NULL is allowed.')
+                raise ValueError(
+                    'Only one MarketSegment with property_type=NULL is allowed.'
+                )
 
         super().save(*args, **kwargs)

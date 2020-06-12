@@ -20,10 +20,11 @@
 
 from math import ceil
 
-from django.forms import ModelChoiceField, IntegerField, CharField
-from django.utils.translation import gettext_lazy as _, gettext
+from django.forms import CharField, IntegerField, ModelChoiceField
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeForm, CremeEntityForm, CremeModelForm
+from creme.creme_core.forms import CremeEntityForm, CremeForm, CremeModelForm
 from creme.creme_core.forms.fields import FilteredEntityTypeField
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import EntityFilter
