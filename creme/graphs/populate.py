@@ -18,18 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
 import logging
+from functools import partial
 
 from django.apps import apps
 from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.models import SearchConfigItem, HeaderFilter, BrickDetailviewLocation
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    HeaderFilter,
+    SearchConfigItem,
+)
 
-from . import get_graph_model, bricks
+from . import bricks, get_graph_model
 from .constants import DEFAULT_HFILTER_GRAPH
 
 logger = logging.getLogger(__name__)
