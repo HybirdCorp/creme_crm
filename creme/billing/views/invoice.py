@@ -30,10 +30,9 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.views import generic  # decorators
 
-from .. import get_invoice_model, constants
+from .. import constants, get_invoice_model
 from ..forms import invoice as invoice_forms
 from ..models import InvoiceStatus
-
 from . import base
 
 Invoice = get_invoice_model()
