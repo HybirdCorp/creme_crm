@@ -52,5 +52,3 @@ class ImageFieldsTestCase(_DocumentsTestCase):
         deconstructed = _deconstruct_limit_choices_to(limit)
         self.assertEqual(d2, deconstructed)
         self.assertIsNot(deconstructed, limit)
-
-

@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
 import logging
+from functools import partial
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
@@ -30,21 +30,22 @@ from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
-    RelationType,
     BrickDetailviewLocation,
-    SearchConfigItem,
-    HeaderFilter,
     EntityFilter,
+    HeaderFilter,
+    RelationType,
+    SearchConfigItem,
 )
 from creme.creme_core.utils import create_if_needed
 
 from . import (
-    get_document_model, get_folder_model,
-    folder_model_is_custom,
-    constants,
     bricks,
+    constants,
+    folder_model_is_custom,
+    get_document_model,
+    get_folder_model,
 )
-from .models import FolderCategory, DocumentCategory
+from .models import DocumentCategory, FolderCategory
 
 logger = logging.getLogger(__name__)
 

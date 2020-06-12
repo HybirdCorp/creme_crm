@@ -29,7 +29,6 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.models import CremeEntity, Relation
 
 from ..constants import REL_SUB_RELATED_2_DOC
-
 from . import other_models
 
 
