@@ -43,10 +43,10 @@ class FieldAggregationRegistry:
         models.FloatField,
         # models.PositiveIntegerField, models.PositiveSmallIntegerField,  models.SmallIntegerField,
     )
-    authorized_customfields: Tuple[int, ...] = (
-        CustomField.INT,
-        CustomField.FLOAT,
-    )
+    # authorized_customfields: Tuple[int, ...] = (
+    #     CustomField.INT,
+    #     CustomField.FLOAT,
+    # )
 
     def __init__(self):
         self._aggregations: Dict[str, FieldAggregation] = {}
@@ -68,6 +68,15 @@ class FieldAggregationRegistry:
     @property
     def aggregations(self) -> Iterator[FieldAggregation]:
         return iter(self._aggregations.values())
+
+    def is_custom_field_allowed(self, custom_field: CustomField):
+        return isinstance(
+            custom_field.value_class._meta.get_field('value'),
+            self.authorized_fields,
+        )
+
+    def is_regular_field_allowed(self, field: models.Field):
+        return isinstance(field, self.authorized_fields)
 
 
 field_aggregation_registry = FieldAggregationRegistry()

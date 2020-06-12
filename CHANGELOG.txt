@@ -408,7 +408,9 @@
                     - 'report.unlink_report()' by 'ReportUnlinking'.
                     - 'report.set_selected()' by 'FieldSelection'.
                     - The constant 'export._PREVIEW_LIMIT_COUNT' has been removed.
-                - The method 'report_aggregation_registry.FieldAggregationRegistry.iter()' has been removed.
+                - In the class 'report_aggregation_registry.FieldAggregationRegistry' :
+                    - The method 'iter()' has been removed.
+                    - The class attribute 'authorized_customfields' has been removed ; use the new method 'is_custom_field_allowed()' instead.
                 - The template "reports/forms/widgets/report-hands.html" has been replaced by "reports/forms/widgets/report-hands/widget.html".
                 - In JavaScript, these functions have been removed :
                     - creme.reports.toggleDaysField()
