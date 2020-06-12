@@ -18,25 +18,26 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import deque
-from datetime import timedelta, datetime, MAXYEAR
-from heapq import heappush, heappop, heapify
 import logging
+from collections import deque
+from datetime import MAXYEAR, datetime, timedelta
+from heapq import heapify, heappop, heappush
 from typing import Optional, Set
 from uuid import uuid1
 
 from django.conf import settings
 from django.db.models import Q
 from django.utils.formats import date_format
-from django.utils.timezone import now, localtime
-from django.utils.translation import gettext_lazy as _, gettext, activate
+from django.utils.timezone import localtime, now
+from django.utils.translation import activate, gettext
+from django.utils.translation import gettext_lazy as _
 
 from ..creme_jobs.base import JobType
 from ..global_info import set_global_info
 from ..models import Job
 from ..utils.dates import make_aware_dt
 from ..utils.imports import import_apps_sub_modules
-from ..utils.system import python_subprocess, enable_exit_handler
+from ..utils.system import enable_exit_handler, python_subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -235,7 +236,6 @@ else:
             return False
 
         return _aux
-
 
     def _build_start_command(data):
         return Command(cmd_type=CMD_START, data_id=int(data))

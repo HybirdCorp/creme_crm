@@ -172,7 +172,6 @@ class PagerContextTestCase(CremeTestCase):
             PagerLink(9, label=_('Next page'), group='next')
         ], pager.links)
 
-
     def test_middle_page(self):
         page = Paginator([*range(5 * 10)], 5).page(5)
         pager = PagerContext(page)
@@ -224,4 +223,3 @@ class PagerContextTestCase(CremeTestCase):
             PagerLink(100, help=_('To last page')),
             PagerLink(51, label=_('Next page'), group='next')
         ], pager.links)
-

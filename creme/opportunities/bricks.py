@@ -23,23 +23,22 @@ from typing import Tuple, Type
 
 from django.apps import apps
 from django.core.paginator import Paginator
-from django.db.models.query_utils import Q, FilteredRelation
+from django.db.models.query_utils import FilteredRelation, Q
 from django.utils.translation import gettext_lazy as _
 
+from creme import persons, products
 from creme.creme_core.gui.bricks import (
-    BrickDependencies,
     Brick,
-    SimpleBrick,
-    QuerysetBrick,
+    BrickDependencies,
     EntityBrick,
+    QuerysetBrick,
+    SimpleBrick,
 )
 from creme.creme_core.models import Relation
-
-from creme import persons, products
 from creme.persons.bricks import Activities4Card, CommercialActs4Card
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
-from . import get_opportunity_model, constants
+from . import constants, get_opportunity_model
 
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
@@ -306,7 +305,6 @@ if apps.is_installed('creme.billing'):
                 relations__type=constants.REL_SUB_LINKED_QUOTE,
             )
 
-
     class SalesOrdersBrick(_LinkedStuffBrick):
         id_                = QuerysetBrick.generate_id('opportunities', 'sales_orders')
         dependencies       = (Relation, SalesOrder)
@@ -323,7 +321,6 @@ if apps.is_installed('creme.billing'):
                 relations__type=constants.REL_SUB_LINKED_SALESORDER,
             )
 
-
     class InvoicesBrick(_LinkedStuffBrick):
         id_                = QuerysetBrick.generate_id('opportunities', 'invoices')
         dependencies       = (Relation, Invoice)
@@ -339,7 +336,6 @@ if apps.is_installed('creme.billing'):
                 relations__object_entity=entity.id,
                 relations__type=constants.REL_SUB_LINKED_INVOICE,
             )
-
 
     bricks_list += (
         QuotesBrick,

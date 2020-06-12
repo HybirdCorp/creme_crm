@@ -58,10 +58,8 @@ else:  # 'os2', 'ce', 'java', 'riscos', other ?
     def enable_exit_handler(on_exit=lambda *args: exit()):
         pass
 
-
     def disable_exit_handler():
         pass
-
 
     def is_exit_handler_enabled():
         return False

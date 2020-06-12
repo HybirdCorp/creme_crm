@@ -328,7 +328,6 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         self.assertIsNone(err_msg)
         # self.assertEqual((eval1.id, None), extractor.extract_value(line1))
 
-
     def test_extract_menum01(self):
         cfield = CustomField.objects.create(
             name='Hobby',

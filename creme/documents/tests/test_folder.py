@@ -253,7 +253,6 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         orga = FakeOrganisation.objects.create(user=user, name='I am not a folder')
         self.assertGET404(reverse('documents__create_child_folder', args=(orga.id,)))
 
-
     def test_editview01(self):
         user = self.login()
         title = 'Test folder'
