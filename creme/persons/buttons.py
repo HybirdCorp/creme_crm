@@ -21,11 +21,11 @@
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from creme import persons
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import Relation
 
-from creme import persons
 from . import constants
 
 Contact = persons.get_contact_model()

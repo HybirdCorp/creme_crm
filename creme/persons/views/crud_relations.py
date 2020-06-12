@@ -27,7 +27,7 @@ from creme.creme_core import models
 from creme.creme_core.auth import decorators
 from creme.creme_core.utils import get_from_POST_or_404
 
-from .. import get_organisation_model, constants
+from .. import constants, get_organisation_model
 
 
 @decorators.login_required

@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from django.urls import re_path, include
-
-from creme.creme_core.conf.urls import Swappable, swap_manager
+from django.urls import include, re_path
 
 from creme import persons
-from .views import address, contact, crud_relations, organisation
+from creme.creme_core.conf.urls import Swappable, swap_manager
 
+from .views import address, contact, crud_relations, organisation
 
 urlpatterns = [
     re_path(
@@ -61,4 +60,3 @@ urlpatterns = [
         app_name='persons',
     ).kept_patterns(),
 ]
-

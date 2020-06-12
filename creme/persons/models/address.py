@@ -24,7 +24,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import CremeModel, CremeEntity, FieldsConfig
+from creme.creme_core.models import CremeEntity, CremeModel, FieldsConfig
 from creme.creme_core.models import fields as creme_fields
 
 

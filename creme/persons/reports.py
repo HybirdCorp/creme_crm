@@ -19,7 +19,8 @@
 ################################################################################
 
 from django.db.models import Q
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.reports.core.graph.fetcher import GraphFetcher
 

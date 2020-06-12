@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,8 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.models import CremeEntity
 
-from .address import UnnamedAddressForm as AddressForm, _AuxiliaryAddressForm
+from .address import UnnamedAddressForm as AddressForm
+from .address import _AuxiliaryAddressForm
 
 logger = logging.getLogger(__name__)
 
@@ -66,9 +67,12 @@ class _BasePersonForm(CremeEntityForm):
 
         fields = self.fields
         instance = self.instance
-        address_form = AddressForm(entity=instance, user=self.user, prefix=addr_fieldname,
-                                   instance=getattr(instance, addr_fieldname),
-                                  )  # TODO factorise ??
+        address_form = AddressForm(
+            entity=instance,
+            user=self.user,
+            prefix=addr_fieldname,
+            instance=getattr(instance, addr_fieldname),
+        )  # TODO factorise ??
         initial = {}
 
         for name, field in address_form.fields.items():
@@ -82,9 +86,13 @@ class _BasePersonForm(CremeEntityForm):
         instance = self.instance
         save_instance = False
         address = getattr(instance, addr_fieldname)
-        addr_form = AddressForm(entity=instance, user=self.user, instance=address,
-                                prefix=addr_fieldname, data=self.data,
-                               )
+        addr_form = AddressForm(
+            entity=instance,
+            user=self.user,
+            instance=address,
+            prefix=addr_fieldname,
+            data=self.data,
+        )
 
         if addr_form.is_valid():
             if address is not None:

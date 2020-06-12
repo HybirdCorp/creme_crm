@@ -20,13 +20,14 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelChoiceField
-from django.utils.translation import gettext_lazy as _, gettext
-
-from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.validators import validate_linkable_model
-from creme.creme_core.models import RelationType, Relation
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme import persons
+from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.forms.validators import validate_linkable_model
+from creme.creme_core.models import Relation, RelationType
+
 from .base import _BasePersonForm
 
 Contact = persons.get_contact_model()
