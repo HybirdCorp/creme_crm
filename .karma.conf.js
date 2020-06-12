@@ -149,7 +149,7 @@ module.exports = function(config) {
 
         reporters: ['progress', 'coverage'],
         coverageReporter: {
-            dir: process.env.DJANGO_KARMA_OUTPUT || '.coverage-karma',
+            dir: process.env.DJANGO_KARMA_OUTPUT || 'artifacts/karma_coverage',
             reporters: [{
                 type: 'html',
                 subdir: 'html'
