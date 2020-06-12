@@ -26,7 +26,8 @@ from django.forms.forms import BaseForm
 # from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.encoding import smart_str
-from django.utils.translation import gettext as _, pgettext_lazy
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext_lazy
 
 # from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.auth.entity_credentials import EntityCredentials

@@ -22,10 +22,10 @@ from collections import Counter
 
 from django.utils.translation import gettext_lazy as _
 
+from creme import reports
 from creme.creme_core.gui import bricks as core_bricks
 from creme.creme_core.models import InstanceBrickConfigItem
 
-from creme import reports
 from .core.graph import GraphFetcher
 from .models import Field
 from .report_chart_registry import report_chart_registry

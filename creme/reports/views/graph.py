@@ -23,21 +23,20 @@ import warnings
 
 from django.core.exceptions import FieldDoesNotExist
 from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
+from creme import reports
 from creme.creme_core import utils
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import InstanceBrickConfigItem
-
 from creme.creme_core.utils.meta import Order
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic import base
-
-from creme import reports
 
 from .. import constants
 from ..core.graph import RGRAPH_HANDS_MAP, GraphFetcher

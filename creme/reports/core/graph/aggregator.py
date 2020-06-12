@@ -19,18 +19,17 @@
 ################################################################################
 
 import logging
-from typing import Dict, Optional, Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Optional, Type
 
 from django.db.models import QuerySet, aggregates
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_cell import (
     EntityCell,
-    EntityCellRegularField,
     EntityCellCustomField,
+    EntityCellRegularField,
 )
 from creme.creme_core.models import FieldsConfig
-
 from creme.reports import constants
 
 if TYPE_CHECKING:

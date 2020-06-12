@@ -19,7 +19,7 @@
 ################################################################################
 
 from functools import partial
-from typing import Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 # from django.db.models import ForeignKey
 from django.forms import Field, ValidationError  # ChoiceField
@@ -27,11 +27,12 @@ from django.utils.translation import gettext_lazy as _  # pgettext_lazy
 
 from creme.creme_core.forms.base import CremeModelForm  # CremeForm
 from creme.creme_core.forms.widgets import DynamicSelect
-from creme.creme_core.models import InstanceBrickConfigItem  # CremeEntity RelationType
+# from creme.creme_core.models import CremeEntity RelationType,
+from creme.creme_core.models import InstanceBrickConfigItem
 # from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.utils.unicode_collation import collator
 
-from .. import get_rgraph_model
+# from .. import get_rgraph_model
 from ..bricks import ReportGraphBrick
 from ..core.graph.fetcher import GraphFetcher
 

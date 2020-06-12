@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2019  Hybird
+#    Copyright (C) 2014-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,8 @@
 
 from django.core.exceptions import ValidationError
 from django.forms.fields import CharField
-from django.utils.translation import gettext as _, ngettext
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.widgets import Label
@@ -46,8 +47,8 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
 
             self._uneditable_ids = uneditable_ids = {
                 e.id
-                    for e in entities
-                        if e.filter and not e.filter.can_view(user)[0]
+                for e in entities
+                if e.filter and not e.filter.can_view(user)[0]
             }
 
             if uneditable_ids:
@@ -74,27 +75,31 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
                         ).format(count=length),
                     )
         else:
-            filter_field.help_text = _('Filter field can only be updated when '
-                                       'reports target the same type of entities (e.g: only contacts).'
-                                      )
+            filter_field.help_text = _(
+                'Filter field can only be updated when '
+                'reports target the same type of entities (e.g: only contacts).'
+            )
             filter_field.widget = Label(empty_label='')
             filter_field.value = None
 
     def clean(self):
         if not self._has_same_report_ct:
             # TODO: error_messages
-            raise ValidationError(_('Filter field can only be updated when reports '
-                                    'target the same type of entities (e.g: only contacts).'
-                                   ),
-                                  code='different_ctypes',
-                                 )
+            raise ValidationError(
+                _(
+                    'Filter field can only be updated when reports '
+                    'target the same type of entities (e.g: only contacts).'
+                ),
+                code='different_ctypes',
+            )
 
         return super().clean()
 
     def _bulk_clean_entity(self, entity, values):
         if entity.id in self._uneditable_ids:
-            raise ValidationError(_('The filter cannot be changed because it is private.'),
-                                  code='private',
-                                 )
+            raise ValidationError(
+                _('The filter cannot be changed because it is private.'),
+                code='private',
+            )
 
         return super()._bulk_clean_entity(entity, values)
