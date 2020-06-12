@@ -40,7 +40,7 @@ class MiscViewsTestCase(ViewsTestCase):
 
     def test_static_media(self):
         response = self.assertGET200(
-            get_creme_media_url('chantilly', f'images/add_16.png')
+            get_creme_media_url('chantilly', 'images/add_16.png')
         )
 
         f = BytesIO(b''.join(response.streaming_content))

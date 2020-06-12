@@ -128,7 +128,7 @@ class GraphFetcherTestCase(CremeTestCase):
         )
 
         self.assertListEqual(
-            [(f'image', _('Photograph'))],
+            [('image', _('Photograph'))],
             [*RegularFieldLinkedGraphFetcher.choices(FakeContact)]
         )
 
