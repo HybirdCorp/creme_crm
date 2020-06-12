@@ -22,7 +22,7 @@ from typing import Iterator, List
 
 from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 # from django.shortcuts import get_list_or_404
 from django.utils.translation import gettext as _
 
@@ -31,14 +31,14 @@ from creme.creme_core.core.exceptions import BadRequestError
 from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.shortcuts import get_bulk_or_404
-from creme.creme_core.views import generic
-from creme.creme_core.views.bricks import BricksReloading  # bricks_render_info, get_brick_ids_or_404
 # from creme.creme_core.views.decorators import jsonify, POST_only
+from creme.creme_core.views import generic
+# from creme.creme_core.views.bricks import bricks_render_info, get_brick_ids_or_404,
+from creme.creme_core.views.bricks import BricksReloading
 
 from .. import registry
-from ..models import WaitingAction
 from ..backends.models import CrudityBackend
-
+from ..models import WaitingAction
 
 # def _retrieve_actions_ids(request):
 #     return request.POST.getlist('ids')

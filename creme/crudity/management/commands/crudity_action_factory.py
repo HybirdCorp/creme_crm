@@ -22,7 +22,6 @@ from django.core.management.base import BaseCommand
 
 from creme.creme_core import get_concrete_model
 from creme.creme_core.management.commands import entity_factory
-
 from creme.crudity.models import WaitingAction
 
 

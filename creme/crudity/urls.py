@@ -2,8 +2,7 @@
 
 from django.urls import re_path
 
-from .views import actions, history, infopath, email, filesystem
-
+from .views import actions, email, filesystem, history, infopath
 
 urlpatterns = [
     re_path(r'^waiting_actions[/]?$',          actions.Portal.as_view(),                 name='crudity__actions'),

@@ -20,9 +20,10 @@
 
 from django.conf import settings
 
-from .fetchers import filesystem as fs_fetchers, pop
-from .inputs import email as email_inputs, filesystem as fs_inputs
-
+from .fetchers import filesystem as fs_fetchers
+from .fetchers import pop
+from .inputs import email as email_inputs
+from .inputs import filesystem as fs_inputs
 
 fetchers = {
     'email':      [pop.PopFetcher],

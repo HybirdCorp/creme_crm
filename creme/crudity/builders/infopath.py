@@ -18,19 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
-from itertools import chain
 import logging
 import os
-import sys
 import shutil
 import subprocess
+import sys
+from functools import partial
+from itertools import chain
 from tempfile import mkdtemp
 from typing import List, Optional, Tuple, Type
 
 from django.conf import settings
 from django.db import models
-from django.db.models.fields import Field, FieldDoesNotExist, EmailField
+from django.db.models.fields import EmailField, Field, FieldDoesNotExist
 from django.http import HttpResponse
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
@@ -40,7 +40,6 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.models import fields
 from creme.creme_core.utils.meta import is_date_field
 from creme.creme_core.utils.secure_filename import secure_filename
-
 from creme.documents import get_document_model
 from creme.documents.models import fields as doc_fields
 

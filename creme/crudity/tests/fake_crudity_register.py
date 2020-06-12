@@ -2,7 +2,11 @@
 
 from typing import Any, List, Tuple
 
-from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeDocument
+from creme.creme_core.tests.fake_models import (
+    FakeContact,
+    FakeDocument,
+    FakeOrganisation,
+)
 
 from ..backends.models import CrudityBackend
 from ..fetchers.base import CrudityFetcher

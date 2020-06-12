@@ -18,13 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from pickle import loads, dumps
+from pickle import dumps, loads
 from typing import Tuple
 
 from django.db.models import BinaryField, CharField
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import CremeModel, fields as creme_fields
+from creme.creme_core.models import CremeModel
+from creme.creme_core.models import fields as creme_fields
 
 
 class WaitingAction(CremeModel):

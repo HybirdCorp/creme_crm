@@ -18,13 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from collections import defaultdict
 from copy import deepcopy
-import logging
 from typing import (
-    Any, Optional, Type,
+    Any,
+    DefaultDict,
+    Dict,
     Iterable,
-    Iterator, DefaultDict, Dict, List,
+    Iterator,
+    List,
+    Optional,
+    Type,
 )
 
 from django.conf import settings
