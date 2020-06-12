@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import OrderedDict  # defaultdict
 import decimal
-from functools import partial
 import logging
+import unicodedata
+from collections import OrderedDict  # defaultdict
+from functools import partial
 from re import compile as compile_re
 from typing import Type
-import unicodedata
 
 from django.conf import settings
 from django.db.models.query_utils import Q
@@ -64,7 +64,7 @@ class IntegerLVSWidget(TextLVSWidget):
 Eg: < 100
 
 You can combine several expressions with the separator «;»
-Eg: > -100 ; <= 2000 
+Eg: > -100 ; <= 2000
 ''')
 
     def __init__(self, **kwargs):
@@ -77,7 +77,7 @@ class PositiveIntegerLVSWidget(IntegerLVSWidget):
 Eg: < 100
 
 You can combine several expressions with the separator «;»
-Eg: > 100 ; <= 2000 
+Eg: > 100 ; <= 2000
 ''')
 
 
@@ -86,7 +86,7 @@ class DecimalLVSWidget(IntegerLVSWidget):
 Eg: < 100
 
 You can combine several expressions with the separator «;»
-Eg: > 10 ; <= 10.5 
+Eg: > 10 ; <= 10.5
 ''')
 
 
@@ -95,7 +95,7 @@ class FloatLVSWidget(IntegerLVSWidget):
 Eg: < 100
 
 You can combine several expressions with the separator «;»
-Eg: > 10 ; <= 10.5 
+Eg: > 10 ; <= 10.5
 ''')
 
 

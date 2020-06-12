@@ -71,7 +71,7 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
         line1, line2 = self._create_lines()
         line3 = PollFormLine.objects.create(pform=self.pform,
                                             question='What is your favorite meal ?',
-                                            type=PollLineType.STRING, order=3 
+                                            type=PollLineType.STRING, order=3
                                            )
         self.assertFieldValidationError(PollFormLineConditionsField, 'invalidsource',
                                         PollFormLineConditionsField(sources=[line1, line2, line3]).clean,

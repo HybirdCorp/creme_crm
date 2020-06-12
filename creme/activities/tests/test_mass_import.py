@@ -506,7 +506,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     def test_import07(self):
         "Search on first_name/last_name + not creation credentials"
-        self.login(is_superuser=False, allowed_apps=('activities', 'persons', 'documents'), 
+        self.login(is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
                    creatable_models=[Activity, Document],  # Not Contact
                   )
         SetCredentials.objects.create(role=self.role,

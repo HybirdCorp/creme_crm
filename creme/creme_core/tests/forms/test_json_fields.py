@@ -682,7 +682,7 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual([], clean(json_dump([{'ctype': {'id': ct_id}}])))
         self.assertEqual([], clean(json_dump([{'ctype': {'id': ct_id}, 'entity': None}])))
 
-        self.assertEqual([contact, orga], 
+        self.assertEqual([contact, orga],
                          clean(json_dump([
                                     {'ctype': {'id': ct_id}},
                                     {'ctype': {'id': ct_id}, 'entity': None},

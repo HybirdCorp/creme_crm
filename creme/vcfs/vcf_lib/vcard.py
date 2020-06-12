@@ -255,7 +255,7 @@ class OrgBehavior(VCardBehavior):
     @staticmethod
     def transformToNative(obj):
         "Turn obj.value into a list."
-        if obj.isNative: 
+        if obj.isNative:
             return obj
 
         obj.isNative = True

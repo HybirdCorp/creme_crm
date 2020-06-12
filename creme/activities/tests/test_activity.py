@@ -1572,7 +1572,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             c1 = create_contact(first_name='first_name1', last_name='last_name1')
             c2 = create_contact(first_name='first_name2', last_name='last_name2')
 
-            create_rel = partial(Relation.objects.create, subject_entity=c1, 
+            create_rel = partial(Relation.objects.create, subject_entity=c1,
                                  type_id=constants.REL_SUB_PART_2_ACTIVITY, user=user,
                                 )
             create_rel(object_entity=act01)

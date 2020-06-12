@@ -114,7 +114,7 @@ class ActivityTypeFieldTestCase(FieldTestCase):
         field.types = ActivityType.objects.filter(pk=atype.id)
         self.assertEqual((atype, subtype),
                          field.clean(self._build_value(atype.id, subtype.id))
-                        ) 
+                        )
 
     def test_clean03(self):
         "Not required"

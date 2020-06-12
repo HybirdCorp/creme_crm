@@ -595,7 +595,7 @@ class CalendarTestCase(_ActivitiesTestCase):
             content_type=ContentType.objects.get_for_model(Calendar),
         )
 
-    def test_delete_calendar04(self): 
+    def test_delete_calendar04(self):
         "Other user's calendar."
         self.login(is_superuser=False)
         other_user = self.other_user
@@ -820,7 +820,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         act1 = create(title='Act#1', start=start + timedelta(days=1), end=start + timedelta(days=2))
         __   = create(title='Act#2', start=start + timedelta(days=1), end=start + timedelta(days=2))  # Not in calendar
         act3 = create(title='Act#3', start=start + timedelta(days=2), end=end   + timedelta(days=1),  # Start OK
-                      is_all_day=True, type_id=ACTIVITYTYPE_MEETING, 
+                      is_all_day=True, type_id=ACTIVITYTYPE_MEETING,
                       sub_type_id=ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                      )
         act4 = create(title='Act#4', start=start - timedelta(days=1), end=start + timedelta(days=3))  # End OK
@@ -1169,7 +1169,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertTrue(cal.is_custom)
         self.assertFalse(cal.is_public)
 
-    def test_config02(self): 
+    def test_config02(self):
         "Only one default."
         user = self.login()
         cal1 = Calendar.objects.get_default_calendar(user)
@@ -1192,7 +1192,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         self.assertFalse(self.refresh(cal1).is_default)
 
-    def test_config03(self): 
+    def test_config03(self):
         "Edition"
         user = self.login()
         cal1 = Calendar.objects.get_default_calendar(user)

@@ -19,10 +19,17 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import (CharField, TextField, PositiveSmallIntegerField,
-        ForeignKey, ManyToManyField, CASCADE)
+from django.db.models import (
+    CASCADE,
+    CharField,
+    ForeignKey,
+    ManyToManyField,
+    PositiveSmallIntegerField,
+    TextField,
+)
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, CremeModel
 
@@ -130,7 +137,7 @@ class AbstractStrategy(CremeEntity):
 
             # Build a 'matrix' with default score(=1) everywhere
             scores = {segment_desc.id: {charm.id: MarketSegmentCharmScore(score=1, organisation=orga,
-                                                                          charm=charm, 
+                                                                          charm=charm,
                                                                           segment_desc=segment_desc,
                                                                          )
                                             for charm in charms

@@ -1105,7 +1105,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                           # 'old_choices_check_0': '', #deleted
                                           'old_choices_value_0': 'White',
 
-                                          'old_choices_check_1': 'on', 
+                                          'old_choices_check_1': 'on',
                                           'old_choices_value_1': 'Yellow', #changed
 
                                           # 'old_choices_check_2': '', #deleted too
@@ -1276,7 +1276,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                             # 'old_choices_check_0': '', #we delete 'A little bit'
                                             'old_choices_value_0': 'A little bit',
 
-                                            'old_choices_check_1': 'on', 
+                                            'old_choices_check_1': 'on',
                                             'old_choices_value_1': 'A lot',
                                            }
                                      )

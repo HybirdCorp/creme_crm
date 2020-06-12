@@ -376,7 +376,7 @@ class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
         def key(self):
             return self.name
 
-        def deps(self): 
+        def deps(self):
             return self.dependencies
 
     def test_dependence_sort01(self):
@@ -385,7 +385,7 @@ class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
     def test_dependence_sort02(self):
         A = self.DepSortable('A')
         B = self.DepSortable('B')
-        self.assertEqual([A, B], 
+        self.assertEqual([A, B],
                          dependence_sort([A, B], lambda ds: ds.name, lambda ds: ds.dependencies)
                         )
 

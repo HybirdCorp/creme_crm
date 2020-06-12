@@ -18,17 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+import warnings
 from itertools import zip_longest
 from json import loads as json_load
-import logging
 from re import compile as compile_re
 from typing import (
-    Type, Optional,
-    Iterable, Iterator,
-    List, Set, Tuple,
     TYPE_CHECKING,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Type,
 )
-import warnings
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -37,23 +41,20 @@ from django.db.models import Q, QuerySet
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.urls import reverse
-from django.utils.translation import (
-    gettext_lazy as _,
-    gettext,
-    pgettext_lazy,
-    ngettext,
-)
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext, pgettext_lazy
 
 from ..core.entity_filter import (
+    EF_USER,
     _EntityFilterRegistry,
     entity_filter_registries,
-    EF_USER,
 )
 from ..global_info import get_global_info
 from ..utils import update_model_instance
 from ..utils.serializers import json_encode
-
-from . import fields as core_fields, CremeEntity
+from . import CremeEntity
+from . import fields as core_fields
 
 if TYPE_CHECKING:
     from creme.creme_core.core.entity_filter.condition_handler import FilterConditionHandler
@@ -624,7 +625,7 @@ class EntityFilter(models.Model):  # CremeModel ???
         return sfc
 
     def _iter_parent_conditions(self) -> Iterator['EntityFilterCondition']:
-        pk = self.id 
+        pk = self.id
 
         for cond in self._get_subfilter_conditions():
             if cond._get_subfilter_id() == pk:
@@ -851,7 +852,7 @@ class EntityFilterCondition(models.Model):
         # key = lambda cond: (cond.type, cond.name, cond.decoded_value)
         key = lambda cond: (cond.type, cond.name, cond.value)
 
-        return all(cond1 and cond2 and 
+        return all(cond1 and cond2 and
                    cond1.type == cond2.type and
                    cond1.name == cond2.name and
                    # cond1.decoded_value == cond2.decoded_value

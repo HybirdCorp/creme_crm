@@ -79,8 +79,8 @@ class AbstractSMSCampaign(CremeEntity):
                      ]
 
         # Contacts recipients
-        recipients.extend(contact.mobile 
-                            for mlist in mlists 
+        recipients.extend(contact.mobile
+                            for mlist in mlists
                                 for contact in mlist.contacts.filter(is_deleted=False)
                                     if contact.mobile
                          )

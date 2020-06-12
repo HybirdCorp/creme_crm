@@ -11,7 +11,7 @@ try:
 
     from creme.creme_core.core.download import FileFieldDownLoadRegistry
     from creme.creme_core.models import (
-        FieldsConfig, 
+        FieldsConfig,
         FileRef,
         FakeImage, FakeDocument, FakeFolder, FakeFileComponent,
     )

@@ -827,7 +827,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                              'You can not create choices',
                             )
 
-        role = self.role 
+        role = self.role
         role.admin_4_apps = ['creme_config']
         role.save()
 

@@ -539,7 +539,7 @@ class ActTestCase(CommercialBaseTestCase):
                                                     ]
                                             )[0]
 
-        self.assertTrue(all(o.counter == 0 
+        self.assertTrue(all(o.counter == 0
                                 for o in [objective00, objective01, objective02,
                                           objective11, objective12,
                                          ]
@@ -960,7 +960,7 @@ class ActTestCase(CommercialBaseTestCase):
             'test-filter01', 'Acme', Organisation, is_custom=True,
         )
 
-        create_obj = partial(ActObjective.objects.create, act=act) 
+        create_obj = partial(ActObjective.objects.create, act=act)
         obj1 = create_obj(name='Hello counter')
         obj2 = create_obj(name='Orga counter', counter_goal=2, filter=efilter, ctype=Organisation)
 

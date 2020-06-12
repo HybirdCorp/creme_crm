@@ -234,7 +234,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                              ct=self.ct, template=tpl,
                             )
         gen1 = create_gen(name='Gen1')
-        gen2 = create_gen(name='Gen2') 
+        gen2 = create_gen(name='Gen2')
 
         response = self.assertGET200(RecurrentGenerator.get_lv_absolute_url())
 

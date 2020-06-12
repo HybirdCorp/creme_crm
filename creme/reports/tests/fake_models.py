@@ -56,7 +56,7 @@ else:
 
 #        def get_absolute_url(self):
 #            return "/documents/document/%s" % self.id
-#    
+#
 #        def get_edit_absolute_url(self):
 #            return "/documents/document/edit/%s" % self.id
 

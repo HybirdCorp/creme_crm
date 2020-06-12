@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import timedelta
 import logging
+from datetime import timedelta
 
 from django.db.models import PositiveIntegerField
 from django.urls import reverse
@@ -59,7 +59,7 @@ class AbstractTemplateBase(Base):
     def get_delete_absolute_url(self):
         # Means that TemplateBase can not be deleted directly
         # (because it is closely linked to its RecurrentGenerator)
-        return '' 
+        return ''
 
     @staticmethod
     def get_lv_absolute_url():
