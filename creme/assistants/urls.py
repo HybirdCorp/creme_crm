@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from django.urls import re_path, include
+from django.urls import include, re_path
 
-from .views import memo, alert, todo, action, user_message
-
+from .views import action, alert, memo, todo, user_message
 
 urlpatterns = [
     re_path(r'^memo/', include([

@@ -23,11 +23,11 @@ from django.db.transaction import atomic
 # from django.http import Http404
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
+# from creme.creme_core.views.decorators import POST_only
 from django.views.decorators.http import require_POST
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.views import generic
-# from creme.creme_core.views.decorators import POST_only
 
 from ..forms.action import ActionForm
 from ..models import Action
