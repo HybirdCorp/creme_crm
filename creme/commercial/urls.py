@@ -3,14 +3,15 @@
 from django.urls import re_path
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
-
+from creme.opportunities import opportunity_model_is_custom
 from creme.persons import contact_model_is_custom
 
-from creme.opportunities import opportunity_model_is_custom
-
-from . import act_model_is_custom, pattern_model_is_custom, strategy_model_is_custom
-from .views import commercial_approach, market_segment, act, salesman, strategy
-
+from . import (
+    act_model_is_custom,
+    pattern_model_is_custom,
+    strategy_model_is_custom,
+)
+from .views import act, commercial_approach, market_segment, salesman, strategy
 
 urlpatterns = [
     re_path(r'^approach/add/(?P<entity_id>\d+)[/]?$',

@@ -19,26 +19,31 @@
 ################################################################################
 
 from django.db.transaction import atomic
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404  # get_from_GET_or_404
-from creme.creme_core.views import generic, bricks as bricks_views
 # from creme.creme_core.views.decorators import POST_only, jsonify
-
+from creme.creme_core.views import bricks as bricks_views
+from creme.creme_core.views import generic
 from creme.persons import get_organisation_model
 
-from .. import get_strategy_model, bricks as com_bricks
+from .. import bricks as com_bricks
+from .. import get_strategy_model
 # from ..bricks import AssetsMatrixBrick, CharmsMatrixBrick, AssetsCharmsMatrixBrick
 from ..constants import DEFAULT_HFILTER_STRATEGY
 from ..forms import strategy as forms
 from ..models import (
-    MarketSegment, MarketSegmentDescription,
-    CommercialAsset, CommercialAssetScore,
-    MarketSegmentCharm, MarketSegmentCharmScore,
+    CommercialAsset,
+    CommercialAssetScore,
+    MarketSegment,
+    MarketSegmentCharm,
+    MarketSegmentCharmScore,
+    MarketSegmentDescription,
 )
 
 Strategy = get_strategy_model()
