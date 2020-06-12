@@ -363,7 +363,7 @@ class CustomFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         return self._builders.get(type)
 
     def get_field(self, *, cell, user, **kwargs):
-        assert isinstance(cell,entity_cell.EntityCellCustomField)
+        assert isinstance(cell, entity_cell.EntityCellCustomField)
 
         return self._build_field(
             builder=self._builders.get(cell.custom_field.field_type),

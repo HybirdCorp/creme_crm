@@ -940,7 +940,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertGET200(url)
 
         date_field = 'birthday'
-        response = self.assertPOST200(url, data={'date_field': date_field,})
+        response = self.assertPOST200(url, data={'date_field': date_field})
 
         self.assertFormError(
             response, 'form', 'doc_type',

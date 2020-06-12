@@ -1077,7 +1077,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
             old_choices = fields['old_choices'].content
             fields['new_choices']
 
-        self.assertEqual(['White','black'], old_choices)
+        self.assertEqual(['White', 'black'], old_choices)
 
         response = self.client.post(url, data={'question':     line.question,
                                                'new_choices': '\r\n'.join(['Green', 'Purple']),

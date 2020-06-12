@@ -363,7 +363,7 @@ class InheritedDataChainTestCase(CremeTestCase):
 class OrderedSetTestCase(CremeTestCase):
     def test_main(self):
         s1 = OrderedSet('Futurama')
-        self.assertListEqual(['F','u', 't', 'r', 'a', 'm'], [*s1])
+        self.assertListEqual(['F', 'u', 't', 'r', 'a', 'm'], [*s1])
 
         s2 = OrderedSet([2, 1, 6, 5, 4, 6, 5, 4, 2, 1])
         self.assertListEqual([2, 1, 6, 5, 4], [*s2])
@@ -400,7 +400,7 @@ class OrderedSetTestCase(CremeTestCase):
     def test_eq(self):
         "__eq__ with a list"
         s = OrderedSet('Futurama')
-        self.assertEqual(s, ['F','u', 't', 'r', 'a', 'm'])
+        self.assertEqual(s, ['F', 'u', 't', 'r', 'a', 'm'])
         self.assertEqual(s, ['u', 't', 'r', 'a', 'm', 'F'])
         self.assertNotEqual(s, ['u', 't', 'r', 'a', 'm'])
 
@@ -411,7 +411,7 @@ class OrderedSetTestCase(CremeTestCase):
             s.discard('z')
 
         s.discard('a')
-        self.assertListEqual(['F','u', 't', 'r', 'm'], [*s])
+        self.assertListEqual(['F', 'u', 't', 'r', 'm'], [*s])
 
     def test_reversed(self):
         s = OrderedSet('Futurama')
@@ -424,7 +424,7 @@ class OrderedSetTestCase(CremeTestCase):
     def test_pop02(self):
         s = OrderedSet('Futurama')
         self.assertEqual('m', s.pop())
-        self.assertListEqual(['F','u', 't', 'r', 'a'], [*s])
+        self.assertListEqual(['F', 'u', 't', 'r', 'a'], [*s])
 
         self.assertEqual('F', s.pop(last=False))
         self.assertListEqual(['u', 't', 'r', 'a'], [*s])

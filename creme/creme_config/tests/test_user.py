@@ -242,7 +242,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                             )
 
     @skipIfNotCremeUser
-    @override_settings(AUTH_PASSWORD_VALIDATORS=[{'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},])
+    @override_settings(AUTH_PASSWORD_VALIDATORS=[{'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'}])
     # def test_create07(self):
     def test_create06(self):
         "Password errors"
@@ -543,7 +543,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFormError(response, 'form', 'password_2', _("The two password fields didn't match."))
 
     @skipIfNotCremeUser
-    @override_settings(AUTH_PASSWORD_VALIDATORS=[{'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},])
+    @override_settings(AUTH_PASSWORD_VALIDATORS=[{'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'}])
     def test_change_password04(self):
         self.login()
 
