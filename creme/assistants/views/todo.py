@@ -18,15 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.transaction import atomic
 # from django.http import Http404
 from django import shortcuts
+from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from creme.creme_core.auth.decorators import login_required
-from creme.creme_core.views import generic
 # from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.views import generic
 
 from ..forms.todo import ToDoForm
 from ..models import ToDo

@@ -25,8 +25,8 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from creme.creme_core.auth.decorators import login_required
-from creme.creme_core.views import generic
 # from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.views import generic
 
 from ..forms.alert import AlertForm
 from ..models import Alert

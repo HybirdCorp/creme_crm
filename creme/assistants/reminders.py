@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.db.models import Q
-from django.utils.timezone import now, localtime
+from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.reminder import Reminder
@@ -38,7 +38,10 @@ class AssistantReminder(Reminder):
     def get_emails(self, object):
         user = object.user
 
-        return [teammate.email for teammate in user.teammates.values()] if user.is_team else [user.email]
+        return [
+            teammate.email
+            for teammate in user.teammates.values()
+        ] if user.is_team else [user.email]
 
 
 class ReminderAlert(AssistantReminder):
@@ -49,7 +52,9 @@ class ReminderAlert(AssistantReminder):
         return timedelta(minutes=getattr(settings, 'DEFAULT_TIME_ALERT_REMIND', 30))
 
     def generate_email_subject(self, object):
-        return _('Reminder concerning a Creme CRM alert related to {entity}').format(entity=object.creme_entity)
+        return _('Reminder concerning a Creme CRM alert related to {entity}').format(
+            entity=object.creme_entity,
+        )
 
     def generate_email_body(self, object):
         return _("""This mail is automatically sent by Crème CRM to remind you that an alert concerning {entity} will expire.
@@ -84,7 +89,9 @@ class ReminderTodo(AssistantReminder):
         return SettingValue.objects.get_4_key(key=todo_reminder_key, default=9).value
 
     def generate_email_subject(self, object):
-        return _('Reminder concerning a Creme CRM todo related to {entity}').format(entity=object.creme_entity)
+        return _('Reminder concerning a Creme CRM todo related to {entity}').format(
+            entity=object.creme_entity,
+        )
 
     def generate_email_body(self, object):
         return _("""This mail is automatically sent by Crème CRM to remind you that a todo concerning {entity} will expire.

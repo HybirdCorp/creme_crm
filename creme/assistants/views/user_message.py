@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,14 +21,14 @@
 from django.core.exceptions import PermissionDenied
 # from django.http import HttpResponse, HttpResponseRedirect
 # from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy as _, gettext
-
-# from creme.creme_core.auth.decorators import login_required
-# from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views import generic
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.assistants.forms.user_message import UserMessageForm
 from creme.assistants.models import UserMessage
+# from creme.creme_core.auth.decorators import login_required
+# from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views import generic
 
 
 class UserMessageCreation(generic.CremeModelCreationPopup):
