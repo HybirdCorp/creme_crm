@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth import views as auth_views
 from django.urls import re_path
-from django.contrib.auth import REDIRECT_FIELD_NAME, views as auth_views
 
+from creme import activities, persons
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
-from creme import persons, activities
-
-from . import views, forms
-
+from . import forms, views
 
 urlpatterns = [
     re_path(r'^$', views.portal, name='mobile__portal'),

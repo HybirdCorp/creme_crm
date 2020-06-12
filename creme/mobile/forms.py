@@ -24,7 +24,6 @@ from django.forms.widgets import Input
 from django.utils.translation import pgettext_lazy
 
 # from creme.creme_core.forms import CremeModelForm
-
 # from creme.persons import get_organisation_model
 from creme.persons.forms import quick
 
