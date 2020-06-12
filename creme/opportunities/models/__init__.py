@@ -1,3 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .opportunity import AbstractOpportunity, Opportunity, SalesPhase, Origin  # NOQA
+from .opportunity import (  # NOQA
+    AbstractOpportunity,
+    Opportunity,
+    Origin,
+    SalesPhase,
+)

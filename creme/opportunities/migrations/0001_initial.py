@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from django.db import models, migrations
+from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
 
-from creme.creme_core.models import fields as creme_fields, CREME_REPLACE_NULL
+from creme.creme_core.models import CREME_REPLACE_NULL
+from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):

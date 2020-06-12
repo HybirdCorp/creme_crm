@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.setting_key import SettingKey
 
-
 quote_key = SettingKey(
     id='opportunities-use_current_quote',
     description=_("Use current associated quote to "

@@ -18,14 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms.fields import BooleanField
 from django.db.transaction import atomic
+from django.forms.fields import BooleanField
 from django.utils.translation import gettext as _
 
-from creme.creme_core.forms.base import CremeEntityQuickForm   # CremeModelForm
-from creme.creme_core.models import Relation
-
 from creme import persons
+from creme.creme_core.forms.base import CremeEntityQuickForm  # CremeModelForm
+from creme.creme_core.models import Relation
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
 Contact = persons.get_contact_model()

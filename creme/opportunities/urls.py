@@ -4,12 +4,10 @@ from django.apps import apps
 from django.urls import re_path
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
-
 from creme.persons import contact_model_is_custom
 
 from . import opportunity_model_is_custom
-from .views import opportunity, contact
-
+from .views import contact, opportunity
 
 urlpatterns = [
     *swap_manager.add_group(

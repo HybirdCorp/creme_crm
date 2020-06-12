@@ -18,33 +18,36 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
 import logging
+from functools import partial
 
 from django.apps import apps
-from django.utils.translation import gettext as _, pgettext
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
+from creme import persons, products
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
     EntityCellRelation,
 )
-from creme.creme_core.core.entity_filter import operators, condition_handler
+from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    ButtonMenuItem,
+    CustomBrickConfigItem,
+    EntityFilter,
+    HeaderFilter,
     RelationType,
     SearchConfigItem,
     SettingValue,
-    BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem,
-    ButtonMenuItem,
-    HeaderFilter, EntityFilter,
 )
 
-from creme import persons, products
-
-from . import get_opportunity_model, bricks, constants, setting_keys
+from . import bricks, constants, get_opportunity_model, setting_keys
 from .buttons import LinkedOpportunityButton
-from .models import SalesPhase, Origin
+from .models import Origin, SalesPhase
 
 logger = logging.getLogger(__name__)
 Opportunity = get_opportunity_model()

@@ -18,28 +18,35 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
 # import warnings
+from functools import partial
 
 from django.apps import apps
 from django.core.exceptions import ValidationError
-from django.db.transaction import atomic
 from django.db.models import (
-    CharField, ForeignKey, PositiveIntegerField,
-    DateField, PROTECT, BooleanField,
+    PROTECT,
+    BooleanField,
+    CharField,
+    DateField,
+    ForeignKey,
+    PositiveIntegerField,
 )
+from django.db.transaction import atomic
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import (
-    CremeEntity, CremeModel,
-    Relation,
-    Currency, Vat,
     CREME_REPLACE_NULL,
+    CremeEntity,
+    CremeModel,
+    Currency,
+    Relation,
+    Vat,
 )
 from creme.creme_core.models.fields import BasicAutoField
-
 from creme.persons import get_organisation_model
 from creme.persons.workflow import transform_target_into_prospect
 
