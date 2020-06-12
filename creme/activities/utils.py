@@ -25,7 +25,7 @@ from django.utils.translation import gettext as _
 from creme.creme_core.models import Relation, SettingValue
 
 from . import get_activity_model
-from .constants import REL_SUB_PART_2_ACTIVITY, NARROW, FLOATING_TIME
+from .constants import FLOATING_TIME, NARROW, REL_SUB_PART_2_ACTIVITY
 from .setting_keys import auto_subjects_key
 
 

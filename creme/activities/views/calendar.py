@@ -18,35 +18,36 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from collections import defaultdict
 from copy import copy
 from datetime import datetime, timedelta
 from functools import partial
-import logging
 
-from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q, Prefetch
+from django.db.models import Prefetch, Q
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
-from django.utils.timezone import now, make_naive, get_current_timezone
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.timezone import get_current_timezone, make_naive, now
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.http import CremeJsonResponse
-from creme.creme_core.models import EntityCredentials, Job, DeletionCommand
-from creme.creme_core.utils import get_from_POST_or_404, bool_from_str_extended
+from creme.creme_core.models import DeletionCommand, EntityCredentials, Job
+from creme.creme_core.utils import bool_from_str_extended, get_from_POST_or_404
 from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views import generic
 
-from .. import get_activity_model, constants
+from .. import constants, get_activity_model
 from ..forms import calendar as calendar_forms
 from ..models import Calendar
-from ..utils import get_last_day_of_a_month, check_activity_collisions
+from ..utils import check_activity_collisions, get_last_day_of_a_month
 
 logger = logging.getLogger(__name__)
 Activity = get_activity_model()

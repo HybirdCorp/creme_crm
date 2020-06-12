@@ -25,14 +25,16 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import CremeEntity, CREME_REPLACE_NULL
+from creme.creme_core.models import CREME_REPLACE_NULL, CremeEntity
 from creme.creme_core.models.manager import CremeEntityManager
 
 from ..constants import (
-    NARROW, CREATION_LABELS,
-    REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY,
+    CREATION_LABELS,
+    NARROW,
+    REL_OBJ_ACTIVITY_SUBJECT,
+    REL_OBJ_LINKED_2_ACTIVITY,
+    REL_OBJ_PART_2_ACTIVITY,
 )
-
 from . import other_models
 from .calendar import Calendar
 

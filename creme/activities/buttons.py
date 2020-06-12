@@ -27,7 +27,7 @@ from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
 from creme.creme_core.utils.media import get_current_theme_from_context
 
-from . import get_activity_model, constants
+from . import constants, get_activity_model
 
 Activity = get_activity_model()
 

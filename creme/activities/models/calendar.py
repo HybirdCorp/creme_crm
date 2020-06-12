@@ -21,9 +21,11 @@
 # import warnings
 
 from django.db import models
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import CremeModel, fields as core_fields
+from creme.creme_core.models import CremeModel
+from creme.creme_core.models import fields as core_fields
 
 from ..constants import COLOR_POOL, DEFAULT_CALENDAR_COLOR
 

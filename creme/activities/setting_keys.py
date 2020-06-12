@@ -6,7 +6,6 @@ from creme.creme_core.core.setting_key import SettingKey
 
 from . import constants
 
-
 review_key = SettingKey(
     id=constants.SETTING_DISPLAY_REVIEW,
     description=_('Display minutes information in activities blocks'),
