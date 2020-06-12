@@ -2,11 +2,10 @@
 
 from django.urls import re_path
 
+from creme import sms
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
-from creme import sms
-from .views import campaign, sending, recipient, messaging_list, template
-
+from .views import campaign, messaging_list, recipient, sending, template
 
 urlpatterns = [
     # Campaign: messaging_lists brick
