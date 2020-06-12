@@ -22,11 +22,12 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.formats import date_format
-from django.utils.timezone import now, localtime
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.timezone import localtime, now
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-from creme.creme_core.models import CremeEntity, Currency, CREME_REPLACE
+from creme.creme_core.models import CREME_REPLACE, CremeEntity, Currency
 
 from .projectstatus import ProjectStatus
 

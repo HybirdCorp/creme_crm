@@ -23,23 +23,21 @@ import logging
 from django.apps import apps
 from django.utils.translation import gettext as _
 
+from creme.activities import get_activity_model
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
-    RelationType,
-    HeaderFilter,
-    SearchConfigItem,
     BrickDetailviewLocation,
+    HeaderFilter,
+    RelationType,
+    SearchConfigItem,
 )
 from creme.creme_core.utils import create_if_needed
-
 from creme.persons import get_contact_model
 
-from creme.activities import get_activity_model
-
 from . import bricks, constants, get_project_model, get_task_model
-from .models import ProjectStatus, TaskStatus, Resource
+from .models import ProjectStatus, Resource, TaskStatus
 
 logger = logging.getLogger(__name__)
 

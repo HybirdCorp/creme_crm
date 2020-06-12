@@ -2,13 +2,11 @@
 
 from django.urls import re_path
 
+from creme.activities import activity_model_is_custom
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
-from creme.activities import activity_model_is_custom
-
 from . import project_model_is_custom, task_model_is_custom
-from .views import project, task, resource
-
+from .views import project, resource, task
 
 urlpatterns = [
     # TODO: Define what user could do or not if project is 'close'
