@@ -35,7 +35,6 @@ class JobViewsTestCase(CremeTestCase):
                          queue.refreshed_jobs
                         )
 
-
     def test_refresh02(self):
         "Enabled is changed"
         queue = JobSchedulerQueue.get_main_queue()

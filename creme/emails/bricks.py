@@ -349,7 +349,6 @@ if apps.is_installed('creme.crudity'):
         #     super().__init__()
         #     self.backend = backend
 
-
     class WaitingSynchronizationMailsBrick(_SynchronizationMailsBrick):
         id_           = _SynchronizationMailsBrick.generate_id('emails', 'waiting_synchronisation')
         verbose_name  = 'Incoming Emails to sync'

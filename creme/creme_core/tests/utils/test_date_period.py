@@ -172,7 +172,6 @@ class DatePeriodTestCase(CremeTestCase):
                         )
         self.assertRRuleEqual(rrule_every_3years, every_3years.as_rrule())
 
-
     def test_months(self):
         get = self.registry.get_period
         every_month = get('months', 1)

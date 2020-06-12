@@ -107,7 +107,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             id_          = Button.generate_id('creme_config', 'test_edit02')
             verbose_name = 'Testing purpose'
 
-
         button_registry.register(TestButton)
 
         url = reverse('creme_config__edit_ctype_buttons', args=(0,))
@@ -150,14 +149,12 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             id_          = Button.generate_id('creme_config', 'test_edit03_1')
             verbose_name = 'Test button #1'
 
-
         class TestButton02(Button):
             id_          = Button.generate_id('creme_config', 'test_edit03_2')
             verbose_name = 'Test button #2'
 
             def get_ctypes(self):
                 return [FakeContact, FakeOrganisation]
-
 
         class TestButton03(Button):
             id_          = Button.generate_id('creme_config', 'test_edit03_3')

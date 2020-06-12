@@ -1980,7 +1980,6 @@ class BricksConfigTestCase(CremeTestCase):
             ('test-objfoo', 'object_predicate'),
         )[0]
 
-
         valid_fname = 'last_name'
         hidden_fname1 = 'phone'
         hidden_fname2 = 'birthday'

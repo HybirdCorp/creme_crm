@@ -18,7 +18,6 @@ else:
 
     __all__ = ('FakeReportsFolder', 'FakeReportsDocument', 'Guild')
 
-
     class FakeReportsFolder(CremeEntity):
         title       = CharField(_('Title'), max_length=100, unique=True)
         parent      = ForeignKey('self', verbose_name=_('Parent folder'),
@@ -39,7 +38,6 @@ else:
 
         def get_absolute_url(self):
             return reverse('reports__view_fake_folder', args=(self.id,))
-
 
     class FakeReportsDocument(CremeEntity):
         title       = CharField(_('Title'), max_length=100)
@@ -65,7 +63,6 @@ else:
         @staticmethod
         def get_lv_absolute_url():
             return reverse('reports__list_fake_documents')
-
 
     class Guild(CremeEntity):
         name    = CharField(_('Name'), max_length=100)

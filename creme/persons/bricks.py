@@ -20,19 +20,24 @@
 
 from collections import OrderedDict
 from functools import partial
-from typing import List, Sequence, Type, Tuple
+from typing import List, Sequence, Tuple, Type
 
 from django.apps import apps
-from django.db.models.query_utils import Q, FilteredRelation
+from django.db.models.query_utils import FilteredRelation, Q
 from django.utils.translation import gettext_lazy as _
 
+from creme import persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.gui.bricks import Brick, SimpleBrick, PaginatedBrick, QuerysetBrick
-from creme.creme_core.models import Relation, CremeEntity
+from creme.creme_core.gui.bricks import (
+    Brick,
+    PaginatedBrick,
+    QuerysetBrick,
+    SimpleBrick,
+)
+from creme.creme_core.models import CremeEntity, Relation
 from creme.creme_core.utils.db import populate_related
 
-from creme import persons
 from . import constants
 
 Address = persons.get_address_model()
@@ -46,7 +51,6 @@ if apps.is_installed('creme.activities'):
     from creme.activities import get_activity_model, constants as activities_constants
 
     Activity = get_activity_model()
-
 
     class Activities4Card:
         dependencies = [Activity]
@@ -72,7 +76,6 @@ if apps.is_installed('creme.activities'):
                 'last': EntityCredentials.filter(user, past(entity, now)).first(),
                 'next': EntityCredentials.filter(user, future(entity, now)).first(),
             }
-
 
     class NeglectedContactIndicator:
         delta = timedelta(days=15)
@@ -103,7 +106,6 @@ else:
         def label(self):
             return ''
 
-
     class Activities4Card:
         dependencies: List[Type[CremeEntity]] = []
         relation_type_deps: List[str] = []
@@ -111,7 +113,6 @@ else:
         @staticmethod
         def get(context, entity):
             return {}
-
 
 if apps.is_installed('creme.opportunities'):
     from creme.opportunities import get_opportunity_model
@@ -374,7 +375,6 @@ class _AddressesBrick(Brick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(context))
-
 
 
 class DetailedAddressesBrick(_AddressesBrick):

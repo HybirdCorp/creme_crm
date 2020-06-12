@@ -45,7 +45,6 @@ else:
         'FakeTodo',
     )
 
-
     class FakeFolderCategory(CremeModel):
         name = models.CharField(_('Category name'), max_length=100, unique=True)
 #        is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
@@ -58,7 +57,6 @@ else:
             verbose_name = 'Test Folder category'
             verbose_name_plural = 'Test Folder categories'
             ordering = ('name',)
-
 
     class FakeFolder(CremeEntity):
         title     = models.CharField(_('Title'), max_length=100)
@@ -97,7 +95,6 @@ else:
             verbose_name_plural = 'Test Document categories'
             ordering = ('name',)
 
-
     class FakeDocument(CremeEntity):
         title         = models.CharField(_('Title'), max_length=100)
         filedata      = models.FileField(_('File'), max_length=100,
@@ -132,7 +129,6 @@ else:
         def get_lv_absolute_url():
             return reverse('creme_core__list_fake_documents')
 
-
     class FakeFileComponent(CremeModel):
         filedata = models.FileField(_('File'), max_length=100,
                                     upload_to='upload/creme_core-tests',
@@ -143,7 +139,6 @@ else:
             app_label = 'creme_core'
             verbose_name = 'Test File component'
             verbose_name_plural = 'Test File components'
-
 
     class FakeFileBag(CremeEntity):
         name = models.CharField(_('Name'), max_length=100)
@@ -171,7 +166,6 @@ else:
             verbose_name = 'Test Image category'
             verbose_name_plural = 'Test Image categories'
             ordering = ('name',)
-
 
     class FakeImage(CremeEntity):
         name        = models.CharField(_('Name'), max_length=100, blank=True, null=True)
@@ -213,7 +207,6 @@ else:
 
         # def get_edit_absolute_url(self):
 
-
     class FakeCivility(CremeModel):
         title    = models.CharField(_('Title'), max_length=100)
         shortcut = models.CharField(_('Shortcut'), max_length=100)
@@ -231,7 +224,6 @@ else:
             verbose_name_plural = 'Test civilities'
             ordering = ('title',)
 
-
     class FakePosition(CremeModel):
         title = models.CharField(_('Title'), max_length=100)
 
@@ -243,7 +235,6 @@ else:
             verbose_name = 'Test People position'
             verbose_name_plural = 'Test People positions'
             ordering = ('title',)
-
 
     class FakeSector(CremeModel):
         title     = models.CharField(_('Title'), max_length=100)
@@ -261,7 +252,6 @@ else:
             verbose_name = 'Test sector'
             verbose_name_plural = 'Test sectors'
             ordering = ('order',)
-
 
     class FakeAddress(CremeModel):
         value      = models.TextField(_('Address'), blank=True, null=True)
@@ -294,7 +284,6 @@ else:
 
         def get_related_entity(self):  # For generic views
             return self.entity
-
 
     class FakeContact(CremeEntity):
         civility    = models.ForeignKey(FakeCivility, verbose_name=_('Civility'),
@@ -377,7 +366,6 @@ else:
         def get_lv_absolute_url():
             return reverse('creme_core__list_fake_contacts')
 
-
     class FakeLegalForm(CremeModel):
         title = models.CharField(_('Title'), max_length=100)
 
@@ -389,7 +377,6 @@ else:
             verbose_name = 'Test Legal form'
             verbose_name_plural = 'Test Legal forms'
             ordering = ('title',)
-
 
     class FakeOrganisation(CremeEntity):
         name            = models.CharField(_('Name'), max_length=200)
@@ -458,7 +445,6 @@ else:
         def get_lv_absolute_url():
             return reverse('creme_core__list_fake_organisations')
 
-
     class FakeActivityType(CremeModel):
         name  = models.CharField(_('Name'), max_length=100, unique=True)
         order = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
@@ -471,7 +457,6 @@ else:
             verbose_name = 'Test Type of activity'
             verbose_name_plural = 'Test Types of activity'
             ordering = ('name',)
-
 
     class FakeActivity(CremeEntity):
         title = models.CharField(_('Title'), max_length=100, unique=True)
@@ -501,7 +486,6 @@ else:
         def get_lv_absolute_url():
             return reverse('creme_core__list_fake_activities')
 
-
     class FakeMailingList(CremeEntity):
         name = models.CharField(_('Name of the mailing list'), max_length=80)
 
@@ -521,7 +505,6 @@ else:
         @staticmethod
         def get_lv_absolute_url():
             return reverse('creme_core__list_fake_mlists')
-
 
     class FakeEmailCampaign(CremeEntity):
         name          = models.CharField(_('Name of the campaign'), max_length=100, blank=False, null=False)
@@ -543,7 +526,6 @@ else:
         @staticmethod
         def get_lv_absolute_url():
             return reverse('creme_core__list_fake_ecampaigns')
-
 
     class FakeInvoice(CremeEntity):
         name            = models.CharField(_('Name'), max_length=100)
@@ -581,7 +563,6 @@ else:
         def get_lv_absolute_url():
             return reverse('creme_core__list_fake_invoices')
 
-
     class FakeInvoiceLine(CremeEntity):
         linked_invoice = models.ForeignKey(FakeInvoice, on_delete=models.CASCADE)
         item           = models.CharField('Item', max_length=100, blank=True, null=True)
@@ -615,7 +596,6 @@ else:
         def get_related_entity(self):  # For generic views & delete
             return self.linked_invoice
 
-
     class FakeProductType(CremeModel):
         name = models.CharField(_('Name'), max_length=100)
 
@@ -627,7 +607,6 @@ else:
             verbose_name = 'Test Product type'
             verbose_name_plural = 'Test Product types'
             ordering = ('name',)
-
 
     class FakeProduct(CremeEntity):
         name   = models.CharField(_('Name'), max_length=100)
@@ -656,7 +635,6 @@ else:
 
         # NB: no get_lv_absolute_url(()  (see views.test_header_filter)
 
-
     class FakeReport(CremeEntity):
         name    = models.CharField(_('Name'), max_length=100)
         ctype   = core_fields.EntityCTypeForeignKey(verbose_name=_('Entity type'))
@@ -679,7 +657,6 @@ else:
         def __str__(self):
             return self.name
 
-
     class FakeTicketStatus(CremeModel):
         name = models.CharField(_('Name'), max_length=100)
         # NB: used by creme_config
@@ -693,7 +670,6 @@ else:
 
         def __str__(self):
             return self.name
-
 
     class FakeTicketPriority(CremeModel):
         name = models.CharField(_('Name'), max_length=100)
@@ -709,10 +685,8 @@ else:
         def __str__(self):
             return self.name
 
-
     def get_sentinel_priority():
         return FakeTicketPriority.objects.get_or_create(name='Deleted')[0]
-
 
     class FakeTicket(CremeEntity):
         title  = models.CharField(_('Title'), max_length=100)
@@ -732,7 +706,6 @@ else:
             verbose_name_plural = 'Test Tickets'
             ordering = ('title',)
 
-
     class FakeIngredient(CremeModel):
         name = models.CharField(_('Name'), max_length=100)
 
@@ -744,7 +717,6 @@ else:
             verbose_name = 'Test Ingredient'
             verbose_name_plural = 'Test Ingredients'
             ordering = ('name',)
-
 
     class FakeRecipe(CremeEntity):
         name        = models.CharField(_('Name'), max_length=100)

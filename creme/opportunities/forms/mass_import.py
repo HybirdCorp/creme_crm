@@ -21,9 +21,11 @@
 from django.forms import ModelChoiceField
 from django.utils.translation import gettext as _
 
-from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, EntityExtractorField
-
 from creme import persons
+from creme.creme_core.forms.mass_import import (
+    EntityExtractorField,
+    ImportForm4CremeEntity,
+)
 
 Organisation = persons.get_organisation_model()
 Contact = persons.get_contact_model()
@@ -50,6 +52,5 @@ def get_mass_form_builder(header_dict, choices):
             target, err_msg = cdata['target'].extract_value(line, self.user)
             instance.target = target
             self.append_error(err_msg)  # Error is really appended if 'err_msg' is not empty
-
 
     return OpportunityMassImportForm
