@@ -1,0 +1,7 @@
+.circleci
+.docker
+artifacts
+doc
+**/*.pyc
+**/*~
+creme/local_settings.py

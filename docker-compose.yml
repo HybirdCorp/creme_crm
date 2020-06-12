@@ -1,0 +1,14 @@
+version: '3.4'
+services:
+  creme:
+    build: .docker
+    command: sleep infinity
+    volumes:
+      - ".:/home/creme/src"
+    environment: &askenv
+      # Default DB connection
+      PGHOST: localhost
+      PGUSER: creme
+      PGPASSWORD: creme
+
+    ports: ["8000:8000"]

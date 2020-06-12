@@ -1,0 +1,11 @@
+alias pip="pip3"
+alias python="python3"
+
+function workon() {
+	. /home/creme/.virtualenvs/$1/bin/activate
+}
+
+export PATH=$PATH:/home/creme/.local/bin:/home/creme/src/node_modules/.bin/
+
+cd ~/src/
+workon creme-docker
