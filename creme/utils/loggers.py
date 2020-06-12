@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,12 +21,22 @@
 import bz2
 import re
 import time
-
 from collections import defaultdict
-from logging import Formatter, Filter, getLevelName, CRITICAL, ERROR, WARNING, INFO, DEBUG
+from logging import (
+    CRITICAL,
+    DEBUG,
+    ERROR,
+    INFO,
+    WARNING,
+    Filter,
+    Formatter,
+    getLevelName,
+)
 from logging.handlers import TimedRotatingFileHandler
-from os import rename as rename_file, remove as delete_file, makedirs
-from os.path import splitext, join, dirname, exists, expanduser
+from os import makedirs
+from os import remove as delete_file
+from os import rename as rename_file
+from os.path import dirname, exists, expanduser, join, splitext
 from sys import path as syspath  # getfilesystemencoding
 from threading import Thread
 
