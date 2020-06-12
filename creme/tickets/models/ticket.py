@@ -28,11 +28,11 @@ from django.utils.formats import date_format
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import CremeEntity, CREME_REPLACE
+from creme.creme_core.models import CREME_REPLACE, CremeEntity
 
 from .criticity import Criticity
 from .priority import Priority
-from .status import Status, OPEN_PK  # CLOSED_PK
+from .status import OPEN_PK, Status  # CLOSED_PK
 
 
 class TicketNumber(models.Model):

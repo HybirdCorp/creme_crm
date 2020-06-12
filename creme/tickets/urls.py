@@ -2,11 +2,10 @@
 
 from django.urls import re_path
 
+from creme import tickets
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
-from creme import tickets
-from .views import ticket, template
-
+from .views import template, ticket
 
 urlpatterns = [
     *swap_manager.add_group(
