@@ -1,13 +1,24 @@
 # -*- coding: utf-8 -*-
 
-from django.urls import re_path, include
+from django.urls import include, re_path
 
 from .views import (
-    bricks, button_menu, creme_property_type, custom_fields,
-    fields_config, generics_views, history, portal,
-    relation_type, search, setting, transfer, user, user_role, user_settings,
+    bricks,
+    button_menu,
+    creme_property_type,
+    custom_fields,
+    fields_config,
+    generics_views,
+    history,
+    portal,
+    relation_type,
+    search,
+    setting,
+    transfer,
+    user,
+    user_role,
+    user_settings,
 )
-
 
 user_patterns = [
     re_path(r'^portal[/]?$',                         user.Portal.as_view(),           name='creme_config__users'),

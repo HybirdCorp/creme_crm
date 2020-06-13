@@ -22,7 +22,8 @@
 
 # from django.http import HttpResponse, Http404
 # from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 # from creme.creme_core.auth import decorators
 from creme.creme_core.models import CremePropertyType
@@ -30,7 +31,6 @@ from creme.creme_core.models import CremePropertyType
 from creme.creme_core.views.generic import BricksView
 
 from ..forms import creme_property_type as ptype_forms
-
 from . import base
 
 

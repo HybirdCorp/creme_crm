@@ -24,19 +24,19 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
-from django.utils.translation import (
-    gettext_lazy as _,
-    gettext,
-    ngettext,
-)
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
+from creme.creme_core import utils
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
-    CustomField, CustomFieldEnumValue,
     BrickState,
-    Job, DeletionCommand,
+    CustomField,
+    CustomFieldEnumValue,
+    DeletionCommand,
+    Job,
 )
-from creme.creme_core import utils
 from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import BricksReloading
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
@@ -45,7 +45,6 @@ from creme.creme_core.views.utils import json_update_from_widget_response
 from .. import bricks
 from ..constants import BRICK_STATE_HIDE_DELETED_CFIELDS
 from ..forms import custom_fields as cf_forms
-
 from . import base
 
 logger = logging.getLogger(__name__)

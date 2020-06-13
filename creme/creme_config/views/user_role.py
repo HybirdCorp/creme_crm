@@ -25,14 +25,18 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import SUPERUSER_PERM
 from creme.creme_core.core.exceptions import ConflictError
+# from creme.creme_core.models import lock
 from creme.creme_core.models import (
-    UserRole, SetCredentials,
-    Job, DeletionCommand,
-)  # lock
+    DeletionCommand,
+    Job,
+    SetCredentials,
+    UserRole,
+)
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 

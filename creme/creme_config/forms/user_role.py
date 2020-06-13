@@ -18,37 +18,45 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from collections import OrderedDict
 from typing import Tuple
-import warnings
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _, gettext, pgettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext
 
 from creme.creme_core.apps import (
+    CremeAppConfig,
     creme_app_configs,
     extended_app_configs,
-    CremeAppConfig,
 )
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core import deletion
 from creme.creme_core.core.entity_filter import (
-    entity_filter_registries, EF_CREDENTIALS,
+    EF_CREDENTIALS,
     condition_handler,
+    entity_filter_registries,
 )
 from creme.creme_core.creme_jobs import deletor_type
-from creme.creme_core.core import deletion
 from creme.creme_core.forms import (
-    CremeForm, CremeModelForm, FieldBlockManager,
+    CremeForm,
+    CremeModelForm,
+    FieldBlockManager,
     MultiEntityCTypeChoiceField,
 )
 from creme.creme_core.forms import widgets as creme_widgets
 from creme.creme_core.models import (
     CremeEntity,
-    CremeUser, UserRole, SetCredentials,
+    CremeUser,
+    DeletionCommand,
     EntityFilter,
-    Job, DeletionCommand,
+    Job,
+    SetCredentials,
+    UserRole,
 )
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import update_model_instance

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,10 +21,9 @@
 from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import HistoryConfigItem, RelationType
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-
+from creme.creme_core.models import HistoryConfigItem, RelationType
 
 _HELP_TEXT = _("""If an entity is linked to other entities by a relationship of this type,
  the history lines that are about the edition of this entity will appear in the history of the others entities.""")

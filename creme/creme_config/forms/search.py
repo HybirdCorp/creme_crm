@@ -21,11 +21,12 @@
 from typing import Tuple
 
 from django.forms import ModelChoiceField, MultipleChoiceField
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
-from creme.creme_core.models import SearchConfigItem, UserRole, FieldsConfig
+from creme.creme_core.models import FieldsConfig, SearchConfigItem, UserRole
 from creme.creme_core.utils.collections import OrderedSet
 
 

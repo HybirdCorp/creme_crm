@@ -21,7 +21,8 @@
 from django.template import Library
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.templatetags.creme_bricks import _brick_menu_state_action  # TODO: public ?
+# TODO: make public ?
+from creme.creme_core.templatetags.creme_bricks import _brick_menu_state_action
 
 register = Library()
 
