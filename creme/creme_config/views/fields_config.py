@@ -19,7 +19,8 @@
 ################################################################################
 
 from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext as _, pgettext_lazy
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import FieldsConfig
@@ -27,7 +28,6 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import BricksView
 
 from ..forms import fields_config as fconf_forms
-
 from . import base
 
 

@@ -20,15 +20,19 @@
 
 import re
 from typing import (
-    Optional, Type,
-    Iterable, Iterator,
-    Dict, List, Tuple,
     TYPE_CHECKING,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Type,
 )
 
 from django.apps import apps
-from django.db.models import Model, FieldDoesNotExist
-from django.forms.models import modelform_factory, ModelForm
+from django.db.models import FieldDoesNotExist, Model
+from django.forms.models import ModelForm, modelform_factory
 from django.urls import reverse
 
 from creme.creme_core.core.setting_key import setting_key_registry

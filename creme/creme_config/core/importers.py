@@ -18,17 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from collections import OrderedDict
 from datetime import date
-import logging
-from typing import (
-    Any, Union,
-    Iterable, Optional,
-    Dict, List, Set, Tuple, Type,
-)
+from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
 
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist, Model
 from django.forms import ValidationError
 from django.utils.safestring import mark_safe
@@ -37,30 +33,38 @@ from django.utils.translation import gettext as _
 from creme.creme_core.core import entity_cell
 from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter.condition_handler import (
+    CustomFieldConditionHandler,
+    DateCustomFieldConditionHandler,
+    DateRegularFieldConditionHandler,
     FilterConditionHandler,
-    SubFilterConditionHandler,
-    RegularFieldConditionHandler, DateRegularFieldConditionHandler,
-    CustomFieldConditionHandler, DateCustomFieldConditionHandler,
-    RelationConditionHandler, RelationSubFilterConditionHandler,
     PropertyConditionHandler,
+    RegularFieldConditionHandler,
+    RelationConditionHandler,
+    RelationSubFilterConditionHandler,
+    SubFilterConditionHandler,
 )
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.models import (
-    CremeEntity,
-    UserRole, SetCredentials,
-    CremePropertyType,
-    RelationType,
-    BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    BrickMypageLocation,
     ButtonMenuItem,
-    SearchConfigItem,
-    CustomField, CustomFieldEnumValue,
+    CremeEntity,
+    CremePropertyType,
+    CustomField,
+    CustomFieldEnumValue,
+    EntityFilter,
+    EntityFilterCondition,
     HeaderFilter,
-    EntityFilter, EntityFilterCondition,
+    RelationType,
+    SearchConfigItem,
+    SetCredentials,
+    UserRole,
 )
 from creme.creme_core.models.custom_field import _TABLES as CF_TABLES
 from creme.creme_core.utils.dependence_sort import (
-    dependence_sort,
     DependenciesLoopError,
+    dependence_sort,
 )
 from creme.creme_core.utils.meta import FieldInfo
 

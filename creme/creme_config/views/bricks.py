@@ -21,18 +21,20 @@
 from django.db.transaction import atomic
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import (
-    gettext_lazy as _,
-    gettext,
-    pgettext_lazy,
-)
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    BrickMypageLocation,
+    CustomBrickConfigItem,
+    InstanceBrickConfigItem,
+    RelationBrickItem,
     UserRole,
-    BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
-    RelationBrickItem, InstanceBrickConfigItem, CustomBrickConfigItem,
 )
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.content_type import get_ctype_or_404
@@ -40,7 +42,6 @@ from creme.creme_core.views.generic import BricksView
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
 from ..forms import bricks as bricks_forms
-
 from . import base
 
 

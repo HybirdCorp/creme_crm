@@ -18,16 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import OrderedDict
 import logging
-from typing import (
-    Type,
-    Callable, Iterator,
-    Dict, List, Set, Tuple,
-)
+from collections import OrderedDict
+from typing import Callable, Dict, Iterator, List, Set, Tuple, Type
 
-from django.db.models import Model, QuerySet
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Model, QuerySet
 
 from creme.creme_core import models
 from creme.creme_core.core import entity_cell

@@ -23,17 +23,19 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.db.models import FieldDoesNotExist, IntegerField
-from django.http import HttpResponse, Http404
-from django.shortcuts import render, get_object_or_404
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.creme_jobs.deletor import _DeletorType
 from creme.creme_core.models import DeletionCommand, Job, JobResult
 from creme.creme_core.utils.unicode_collation import collator
-from creme.creme_core.views import bricks as bricks_views, generic
+from creme.creme_core.views import bricks as bricks_views
+from creme.creme_core.views import generic
 # from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic.order import ReorderInstances
 from creme.creme_core.views.utils import json_update_from_widget_response

@@ -21,14 +21,22 @@
 from functools import partial
 
 from django.core.exceptions import ValidationError
-from django.forms import CharField, ModelMultipleChoiceField, BooleanField
+from django.forms import BooleanField, CharField, ModelMultipleChoiceField
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import EntityCredentials
-from creme.creme_core.forms import (CremeForm, CremeModelForm,
-        FieldBlockManager, RelationEntityField, MultiEntityCTypeChoiceField)
-from creme.creme_core.models import CremePropertyType, RelationType, SemiFixedRelationType
-
+from creme.creme_core.forms import (
+    CremeForm,
+    CremeModelForm,
+    FieldBlockManager,
+    MultiEntityCTypeChoiceField,
+    RelationEntityField,
+)
+from creme.creme_core.models import (
+    CremePropertyType,
+    RelationType,
+    SemiFixedRelationType,
+)
 
 _CTypesField = partial(MultiEntityCTypeChoiceField, required=False,
                        label=_('Type constraint'),

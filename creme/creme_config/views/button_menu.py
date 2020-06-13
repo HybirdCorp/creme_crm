@@ -19,7 +19,9 @@
 ################################################################################
 
 from django.http import Http404
-from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.models import ButtonMenuItem
 from creme.creme_core.utils import get_from_POST_or_404
@@ -27,7 +29,6 @@ from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
 from ..forms import button_menu as button_forms
-
 from . import base
 
 

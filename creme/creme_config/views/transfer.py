@@ -24,7 +24,7 @@ from typing import Any, Dict
 
 from django.http import HttpResponse
 from django.utils.formats import date_format
-from django.utils.timezone import now, localtime
+from django.utils.timezone import localtime, now
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import STAFF_PERM

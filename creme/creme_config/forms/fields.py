@@ -20,15 +20,15 @@
 
 from typing import Tuple
 
-from django.forms import fields, models as modelforms
+from django.forms import fields
+from django.forms import models as modelforms
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
-from .widgets import CreatorModelChoiceWidget
-
 from ..registry import config_registry
+from .widgets import CreatorModelChoiceWidget
 
 
 class CreatorChoiceMixin:

@@ -18,14 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from collections import Counter
 from functools import partial
-import warnings
 
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.widgets import Textarea
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.deletion import FixedValueReplacer
 from creme.creme_core.creme_jobs import deletor_type
@@ -37,9 +38,9 @@ from creme.creme_core.forms.fields import (
 from creme.creme_core.forms.widgets import DynamicSelect, Label
 from creme.creme_core.models import DeletionCommand, Job
 from creme.creme_core.models.custom_field import (
+    _TABLES,
     CustomField,
     CustomFieldEnumValue,
-    _TABLES,
 )
 
 # TODO: User friendly order in choices fields

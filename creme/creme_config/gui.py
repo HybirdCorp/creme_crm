@@ -5,7 +5,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from creme.creme_core.gui.menu import ViewableItem, ContainerItem
+from creme.creme_core.gui.menu import ContainerItem, ViewableItem
 
 
 # TODO: js widget instead of URL
