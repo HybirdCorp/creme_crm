@@ -409,8 +409,11 @@ class SubjectsExtractor(RelatedExtractor):
             if not search:
                 continue
 
-            # TODO: it seems this line does not work ; but it would be cool to make less queries...
-            #... EntityCredentials.filter(user, CremeEntity.objects.filter(header_filter_search_field__icontains=search))
+            # TODO: it seems this code does not work ; but it would be cool to make less queries...
+            #     EntityCredentials.filter(
+            #         user,
+            #         CremeEntity.objects.filter(header_filter_search_field__icontains=search),
+            #     )
 
             has_perm = user.has_perm_to_link
             unlinkable_found = False

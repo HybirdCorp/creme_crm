@@ -198,7 +198,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
         response = post(Invoice)
 
-        #TODO: in CremeTestCase ??
+        # TODO: in CremeTestCase ??
         self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
