@@ -458,7 +458,7 @@ class URLItem(ViewableItem):
                   model: Type[CremeEntity],
                   url: Optional[_URL] = None,
                   label: Optional[str] = None,
-                  perm: Optional[str]= None,
+                  perm: Optional[str] = None,
                   **kwargs) -> 'URLItem':
         """Helper method which create an URLItem linking a list-view.
 
