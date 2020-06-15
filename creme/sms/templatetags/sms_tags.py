@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,6 +39,8 @@ def formatphone(value):
         return value
 
     if length % 2 > 0:
-        return value[:3] + ' ' + ''.join(c if not i%2 else c + ' ' for i, c in enumerate(value[3:]))
+        return value[:3] + ' ' + ''.join(
+            c if not i % 2 else c + ' ' for i, c in enumerate(value[3:])
+        )
 
-    return ''.join(c if not i%2 else c + ' ' for i, c in enumerate(value)) if value else ''
+    return ''.join(c if not i % 2 else c + ' ' for i, c in enumerate(value)) if value else ''
