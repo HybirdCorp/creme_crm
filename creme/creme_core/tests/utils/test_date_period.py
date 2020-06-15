@@ -245,7 +245,7 @@ class DatePeriodTestCase(CremeTestCase):
         self.assertNotEqual(MinutesPeriod(value=60), None)
 
         with self.assertNoException():
-            r = bool(MinutesPeriod(value=60) == None)
+            r = bool(MinutesPeriod(value=60) == 'whatever')
         self.assertFalse(r)
 
         with self.assertNoException():
@@ -253,5 +253,5 @@ class DatePeriodTestCase(CremeTestCase):
         self.assertFalse(r)
 
         with self.assertNoException():
-            r = bool(None == MinutesPeriod(value=1))
+            r = bool('foo' == MinutesPeriod(value=1))
         self.assertFalse(r)
