@@ -632,7 +632,7 @@ class EntityExtractorField(Field):
             for cmd in value:
                 index = cmd.build_column_index()
 
-                if not index in allowed_indexes:
+                if index not in allowed_indexes:
                     raise ValidationError(self.error_messages['invalid'], code='invalid')
 
                 if cmd.create and not can_create(cmd.model):

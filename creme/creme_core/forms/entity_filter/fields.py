@@ -436,7 +436,7 @@ class DateFieldsConditionsField(_ConditionsField):
             'name', str, required_error_key='invalidfield',
         )
 
-        if not fname in self._get_fields():
+        if fname not in self._get_fields():
             raise ValidationError(
                 self.error_messages['invalidfield'], code='invalidfield',
             )
