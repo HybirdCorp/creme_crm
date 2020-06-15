@@ -4,7 +4,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls.base import reverse
     from django.utils.translation import gettext_lazy as _, gettext
-    
+
     from creme.creme_core import actions
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.actions import (UIAction, BulkAction,
