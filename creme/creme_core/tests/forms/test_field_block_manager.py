@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django import forms
-    from django.forms.boundfield import BoundField
-    from django.utils.translation import gettext as _
+from django import forms
+from django.forms.boundfield import BoundField
 
-    from creme.creme_core.forms import FieldBlockManager
+from creme.creme_core.forms import FieldBlockManager
 
-    from ..base import CremeTestCase
-    from ..fake_forms import FakeContactForm
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
+from ..fake_forms import FakeContactForm
 
 
 class FieldBlockManagerTestCase(CremeTestCase):

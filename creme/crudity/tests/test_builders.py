@@ -1,36 +1,32 @@
 # -*- coding: utf-8 -*-
 
-try:
-    import errno
-    from itertools import chain
-    import os
-    import re
-    import subprocess
-    from unittest import skipIf
-    from xml.etree.ElementTree import XML, tostring
+import errno
+import re
+import subprocess
+from itertools import chain
+from unittest import skipIf
+from xml.etree.ElementTree import XML, tostring
 
-    from django.contrib.auth import get_user_model
-    from django.db.models.fields import FieldDoesNotExist
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
-    from django.test.client import RequestFactory
+from django.contrib.auth import get_user_model
+from django.db.models.fields import FieldDoesNotExist
+from django.test.client import RequestFactory
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import CremeEntity, Language
+from creme.creme_core.models import CremeEntity, Language
+from creme.documents.tests.base import skipIfCustomDocument
+from creme.persons.tests.base import skipIfCustomContact
 
-    from creme.documents.tests.base import skipIfCustomDocument
-
-    from creme.persons.tests.base import skipIfCustomContact
-
-    from .. import registry
-    from ..backends.models import CrudityBackend
-    from ..builders.infopath import InfopathFormBuilder, InfopathFormField
-    from .base import (
-        CrudityTestCase,
-        ContactFakeBackend, DocumentFakeBackend,
-        Contact, Document,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import registry
+from ..backends.models import CrudityBackend
+from ..builders.infopath import InfopathFormBuilder, InfopathFormField
+from .base import (
+    Contact,
+    ContactFakeBackend,
+    CrudityTestCase,
+    Document,
+    DocumentFakeBackend,
+)
 
 lcabMissing = False
 try:

@@ -1,40 +1,39 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from copy import deepcopy
-    from functools import partial
+from copy import deepcopy
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
 
-    from .base import FieldTestCase
-    from creme.creme_core.core.entity_cell import (
-        EntityCellsRegistry,
-        EntityCellRegularField,
-        EntityCellCustomField,
-        EntityCellFunctionField,
-        EntityCellRelation,
-    )
-    from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.forms.header_filter import (
-        EntityCellsField,
-        UniformEntityCellsField,
-        EntityCellRegularFieldsField, EntityCellRegularFieldsWidget,
-        EntityCellCustomFieldsField, EntityCellCustomFieldsWidget,
-        EntityCellFunctionFieldsWidget,
-        EntityCellRelationsField, EntityCellRelationsWidget,
-    )
-    from creme.creme_core.models import (
-        CremeEntity,
-        RelationType,
-        CustomField,
-        FieldsConfig,
-        FakeContact, FakeOrganisation, FakeAddress,
-    )
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellFunctionField,
+    EntityCellRegularField,
+    EntityCellRelation,
+    EntityCellsRegistry,
+)
+from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.forms.header_filter import (
+    EntityCellCustomFieldsField,
+    EntityCellCustomFieldsWidget,
+    EntityCellFunctionFieldsWidget,
+    EntityCellRegularFieldsField,
+    EntityCellRelationsField,
+    EntityCellsField,
+    UniformEntityCellsField,
+)
+from creme.creme_core.models import (
+    CremeEntity,
+    CustomField,
+    FakeAddress,
+    FakeContact,
+    FakeOrganisation,
+    FieldsConfig,
+    RelationType,
+)
 
-    from .. import fake_constants
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import fake_constants
+from .base import FieldTestCase
 
 
 class EntityCellsFieldTestCase(FieldTestCase):

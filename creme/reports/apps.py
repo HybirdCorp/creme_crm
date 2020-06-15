@@ -33,7 +33,7 @@ class ReportsConfig(CremeAppConfig):
         self.register_reports_charts()
         self.register_reports_graph_fetchers()
 
-        from . import signals
+        from . import signals  # NOQA
 
     def all_apps_ready(self):
         from . import get_report_model, get_rgraph_model

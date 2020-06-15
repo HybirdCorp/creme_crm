@@ -1,63 +1,82 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from decimal import Decimal
-    from functools import partial
-    from json import loads as json_load
-    from urllib.parse import urlparse, parse_qs
+from decimal import Decimal
+from functools import partial
+from json import loads as json_load
+from urllib.parse import parse_qs, urlparse
 
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models.query_utils import Q
-    from django.urls import reverse
-    from django.utils.translation import gettext as _, pgettext
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.query_utils import Q
+from django.urls import reverse
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellCustomField,
-    )
-    from creme.creme_core.core.entity_filter import condition_handler, operators
-    from creme.creme_core.models import (
-        RelationType, Relation,
-        InstanceBrickConfigItem, BrickDetailviewLocation, BrickHomeLocation,
-        EntityFilter, FieldsConfig, SetCredentials,
-        CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger,
-        FakeContact, FakeOrganisation,
-        FakeInvoice, FakePosition, FakeSector,
-    )
-    from creme.creme_core.tests import fake_constants
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    from creme.creme_core.utils.queries import QSerializer
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellRegularField,
+)
+from creme.creme_core.core.entity_filter import condition_handler, operators
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    CustomField,
+    CustomFieldEnum,
+    CustomFieldEnumValue,
+    CustomFieldInteger,
+    EntityFilter,
+    FakeContact,
+    FakeInvoice,
+    FakeOrganisation,
+    FakePosition,
+    FakeSector,
+    FieldsConfig,
+    InstanceBrickConfigItem,
+    Relation,
+    RelationType,
+    SetCredentials,
+)
+from creme.creme_core.tests import fake_constants
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.utils.queries import QSerializer
 
-    from .base import (
-        BaseReportsTestCase, AxisFieldsMixin,
-        skipIfCustomReport, skipIfCustomRGraph,
-        Report, ReportGraph,
-    )
-    from .fake_models import FakeReportsFolder, FakeReportsDocument
-
-    from ..bricks import ReportGraphBrick, InstanceBricksInfoBrick
-    from ..constants import (
-        RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE,
-        RGT_FK, RGT_RELATION,
-        RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE,
-        RGT_CUSTOM_FK,
-        RFT_FIELD, RFT_RELATION,
-        RGA_COUNT, RGA_AVG, RGA_MAX, RGA_MIN, RGA_SUM,
-        RGF_FK, RGF_RELATION, RGF_NOLINK,
-    )
-    from ..core.graph import (
-        AbscissaInfo, OrdinateInfo,
-        ListViewURLBuilder,
-    )
-    from ..core.graph.fetcher import (
-        SimpleGraphFetcher,
-        RegularFieldLinkedGraphFetcher,
-        RelationLinkedGraphFetcher,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import InstanceBricksInfoBrick, ReportGraphBrick
+from ..constants import (
+    RGA_AVG,
+    RGA_COUNT,
+    RGA_MAX,
+    RGA_MIN,
+    RGA_SUM,
+    RGF_FK,
+    RGF_NOLINK,
+    RGF_RELATION,
+    RGT_CUSTOM_DAY,
+    RGT_CUSTOM_FK,
+    RGT_CUSTOM_MONTH,
+    RGT_CUSTOM_RANGE,
+    RGT_CUSTOM_YEAR,
+    RGT_DAY,
+    RGT_FK,
+    RGT_MONTH,
+    RGT_RANGE,
+    RGT_RELATION,
+    RGT_YEAR,
+)
+from ..core.graph import AbscissaInfo, ListViewURLBuilder, OrdinateInfo
+from ..core.graph.fetcher import (
+    RegularFieldLinkedGraphFetcher,
+    SimpleGraphFetcher,
+)
+from .base import (
+    AxisFieldsMixin,
+    BaseReportsTestCase,
+    Report,
+    ReportGraph,
+    skipIfCustomReport,
+    skipIfCustomRGraph,
+)
+from .fake_models import FakeReportsDocument, FakeReportsFolder
 
 
 @skipIfCustomReport

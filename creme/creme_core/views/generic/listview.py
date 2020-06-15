@@ -40,7 +40,10 @@ from creme.creme_core.core.entity_cell import EntityCell, EntityCellActions
 from creme.creme_core.core.paginator import FlowPaginator
 from creme.creme_core.forms.listview import ListViewSearchForm
 from creme.creme_core.gui import listview as lv_gui
-from creme.creme_core.gui.actions import ActionsRegistry, actions_registry
+from creme.creme_core.gui.actions import ActionsRegistry
+from creme.creme_core.gui.actions import (
+    actions_registry as global_actions_registry,
+)
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.entity_filter import (
     EntityFilter,
@@ -111,7 +114,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     transient_arg: str = 'transient'
 
     is_popup_view: bool = False
-    actions_registry: ActionsRegistry = actions_registry
+    actions_registry: ActionsRegistry = global_actions_registry
 
     state_class: Type[lv_gui.ListViewState] = lv_gui.ListViewState
 

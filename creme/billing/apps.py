@@ -44,7 +44,7 @@ class BillingConfig(CremeAppConfig):
         self.register_billing_algorithm()
         self.register_billing_lines()
 
-        from . import signals
+        from . import signals  # NOQA
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(

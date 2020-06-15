@@ -1,26 +1,23 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import datetime, timezone
-    from decimal import Decimal
-    from functools import partial
-    from json import loads as json_load
+from datetime import datetime, timezone
+from decimal import Decimal
+from functools import partial
+from json import loads as json_load
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.template import Template, Context
-    from django.urls import reverse
-    from django.utils.translation import gettext_lazy, gettext
+from django.contrib.contenttypes.models import ContentType
+from django.template import Context, Template
+from django.utils.translation import gettext, gettext_lazy
 
-    from ..base import CremeTestCase
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import (
+    FakeContact,
+    FakeOrganisation,
+    SetCredentials,
+)
+from creme.creme_core.utils.html import escapejson
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (
-        SetCredentials,
-        FakeOrganisation, FakeContact,
-    )
-    from creme.creme_core.utils.html import escapejson
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class CremeCoreTagsTestCase(CremeTestCase):

@@ -1,50 +1,53 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from collections import defaultdict
-    from datetime import date
-    from functools import partial
+from collections import defaultdict
+from datetime import date
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
 
-    from creme.creme_core import bricks, constants
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellCustomField,
-    )
-    from creme.creme_core.core.entity_filter import (
-        operators,
-        EF_CREDENTIALS, EF_USER,
-    )
-    from creme.creme_core.core.entity_filter.condition_handler import (
-        SubFilterConditionHandler, RelationSubFilterConditionHandler,
-        RegularFieldConditionHandler, DateRegularFieldConditionHandler,
-        CustomFieldConditionHandler, DateCustomFieldConditionHandler,
-        PropertyConditionHandler, RelationConditionHandler,
-    )
-    from creme.creme_core.gui.button_menu import Button
-    from creme.creme_core.models import (
-        SetCredentials,
-        CremePropertyType,
-        RelationType,
-        HeaderFilter,
-        EntityFilter, EntityFilterCondition,
-        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
-        ButtonMenuItem,
-        SearchConfigItem,
-        CustomField, CustomFieldEnumValue,
-        FakeContact, FakeOrganisation, FakeDocument,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.creme_config.core.exporters import (
-        Exporter,
-        ExportersRegistry,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_config.core.exporters import Exporter, ExportersRegistry
+from creme.creme_core import bricks, constants
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellRegularField,
+)
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    EF_USER,
+    operators,
+)
+from creme.creme_core.core.entity_filter.condition_handler import (
+    CustomFieldConditionHandler,
+    DateCustomFieldConditionHandler,
+    DateRegularFieldConditionHandler,
+    PropertyConditionHandler,
+    RegularFieldConditionHandler,
+    RelationConditionHandler,
+    RelationSubFilterConditionHandler,
+    SubFilterConditionHandler,
+)
+from creme.creme_core.gui.button_menu import Button
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    BrickMypageLocation,
+    ButtonMenuItem,
+    CremePropertyType,
+    CustomField,
+    CustomFieldEnumValue,
+    EntityFilter,
+    FakeContact,
+    FakeDocument,
+    FakeOrganisation,
+    HeaderFilter,
+    RelationType,
+    SearchConfigItem,
+    SetCredentials,
+)
+from creme.creme_core.tests.base import CremeTestCase
 
 
 class ExportingTestCase(CremeTestCase):

@@ -26,7 +26,7 @@ except Exception as e:
     print(f'Error in <{__name__}>: {e}')
 
 try:
-    import pygraphviz
+    import pygraphviz  # NOQA
 except ImportError:
     skip_graphviz_tests = True
 

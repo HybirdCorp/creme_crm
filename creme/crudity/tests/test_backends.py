@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from creme.creme_core.models import SettingValue
+# from creme.creme_core.models import SettingValue
+from creme.creme_core.tests.fake_models import FakeContact
 
-    from creme.creme_core.tests.fake_models import FakeContact
-
-    from .. import registry
-    from ..backends.models import CrudityBackend
-    from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
-    from ..exceptions import ImproperlyConfiguredBackend
-    from .base import CrudityTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import registry
+from ..backends.models import CrudityBackend
+# from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
+from ..exceptions import ImproperlyConfiguredBackend
+from .base import CrudityTestCase
 
 
 # TODO: factorise with CrudityViewsTestCase
