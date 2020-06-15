@@ -848,7 +848,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
     def test_create02(self):
         "Bad password."
-        infopath_input = self._get_infopath_input(ContactFakeBackend, password = 'creme')
+        infopath_input = self._get_infopath_input(ContactFakeBackend, password='creme')
 
         self.assertFalse(WaitingAction.objects.all())
         infopath_input.create(self._get_pop_email(
@@ -995,13 +995,16 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
             </my:description> </my:CremeCRMCrudity>""".format(other_user.id)
 
-        infopath_input = self._get_infopath_input(ContactFakeBackend, password = 'creme',
-                                                  subject='create_ce_infopath',
-                                                  body_map={'user_id': user.id,
-                                                            'created': '',
-                                                            'description': '',
-                                                           }
-                                                 )
+        infopath_input = self._get_infopath_input(
+            ContactFakeBackend,
+            password='creme',
+            subject='create_ce_infopath',
+            body_map={
+                'user_id': user.id,
+                'created': '',
+                'description': '',
+            },
+        )
 
         self.assertEqual(0, WaitingAction.objects.count())
         infopath_input.create(self._get_pop_email(
@@ -1023,7 +1026,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         )
 
     def test_create08(self):
-        "Allowed with valid xml with sandbox by user (no user found by its email address)"
+        "Allowed with valid xml with sandbox by user (no user found by its email address)."
         user = self.user
         other_user = self.other_user
         self._set_sandbox_by_user()

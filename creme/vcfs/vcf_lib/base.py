@@ -176,7 +176,7 @@ class VBase:
             return defaultSerialize(self, buf, lineLength)
 
 
-def toVName(name, stripNum = 0, upper = False):
+def toVName(name, stripNum=0, upper=False):
     """
     Turn a Python name into an iCalendar style name, optionally uppercase and
     with characters stripped off.
@@ -194,7 +194,7 @@ class ContentLine(VBase):
     """Holds one content line for formats like vCard and vCalendar.
 
     For example::
-      <SUMMARY{u'param1' : [u'val1'], u'param2' : [u'val2']}Bastille Day Party>
+      <SUMMARY{'param1' : ['val1'], 'param2' : ['val2']}Bastille Day Party>
 
     @ivar name:
         The uppercased name of the contentline.
@@ -217,7 +217,7 @@ class ContentLine(VBase):
     """
     def __init__(self, name, params, value, group=None,
                  encoded=False, isNative=False,
-                 lineNumber = None, *args, **kwds):
+                 lineNumber=None, *args, **kwds):
         """Take output from parseLine, convert params list to dictionary."""
         # group is used as a positional argument to match parseLine's return
         # super(ContentLine, self).__init__(group, *args, **kwds)
@@ -386,7 +386,7 @@ class Component(VBase):
         return default if child is None else \
                child[childNumber].value
 
-    def add(self, objOrName, group = None):
+    def add(self, objOrName, group=None):
         """Add objOrName to contents, set behavior if it can be inferred.
 
         If objOrName is a string, create an empty component or line based on
