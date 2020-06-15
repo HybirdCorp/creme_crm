@@ -352,16 +352,26 @@ class SetCredentials(models.Model):
         append = perms.append
 
         if value is not None:
-            if value & EntityCredentials.VIEW:   append(gettext('view'))
-            if value & EntityCredentials.CHANGE: append(gettext('change'))
-            if value & EntityCredentials.DELETE: append(gettext('delete'))
-            if value & EntityCredentials.LINK:   append(gettext('link'))
-            if value & EntityCredentials.UNLINK: append(gettext('unlink'))
+            if value & EntityCredentials.VIEW:
+                append(gettext('view'))
+
+            if value & EntityCredentials.CHANGE:
+                append(gettext('change'))
+
+            if value & EntityCredentials.DELETE:
+                append(gettext('delete'))
+
+            if value & EntityCredentials.LINK:
+                append(gettext('link'))
+
+            if value & EntityCredentials.UNLINK:
+                append(gettext('unlink'))
 
         if not perms:
-            append(gettext('nothing forbidden') if forbidden else
-                   gettext('nothing allowed')
-                  )
+            append(
+                gettext('nothing forbidden') if forbidden else
+                gettext('nothing allowed')
+            )
 
         args = {
             # 'set':   self.ESETS_MAP.get(self.set_type, '??'),
@@ -731,11 +741,20 @@ class SetCredentials(models.Model):
         """Set the 'value' attribute from 5 booleans."""
         value = EntityCredentials.NONE
 
-        if can_view:   value |= EntityCredentials.VIEW
-        if can_change: value |= EntityCredentials.CHANGE
-        if can_delete: value |= EntityCredentials.DELETE
-        if can_link:   value |= EntityCredentials.LINK
-        if can_unlink: value |= EntityCredentials.UNLINK
+        if can_view:
+            value |= EntityCredentials.VIEW
+
+        if can_change:
+            value |= EntityCredentials.CHANGE
+
+        if can_delete:
+            value |= EntityCredentials.DELETE
+
+        if can_link:
+            value |= EntityCredentials.LINK
+
+        if can_unlink:
+            value |= EntityCredentials.UNLINK
 
         self.value = value
 

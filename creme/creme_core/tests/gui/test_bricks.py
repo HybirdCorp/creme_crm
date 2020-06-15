@@ -597,7 +597,8 @@ class BrickRegistryTestCase(CremeTestCase):
             template_name = 'creme_core/bricks/fake_contact_hat.html'  # (does not exists)
 
         # id_ is None -----------
-        class FakeContactHatBrick01(BaseFakeContactHatBrick): pass
+        class FakeContactHatBrick01(BaseFakeContactHatBrick):
+            pass
 
         brick_registry = _BrickRegistry()
 
@@ -922,8 +923,11 @@ class BrickRegistryTestCase(CremeTestCase):
                 # return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'  # Useless :)
                 return f'<table id="{self.id_}"><thead><tr>{self.config_item.entity}</tr></thead></table>'  # Useless :)
 
-        class ContactBrick(BaseBrick): pass
-        class OrgaBrick(BaseBrick): pass
+        class ContactBrick(BaseBrick):
+            pass
+
+        class OrgaBrick(BaseBrick):
+            pass
 
         brick_registry = _BrickRegistry()
         brick_registry.register_4_instance(ContactBrick)

@@ -121,9 +121,14 @@ class FluentListTestCase(CremeTestCase):
 
 class ClassKeyedMapTestCase(CremeTestCase):
     def test_main(self):
-        class Klass1: pass
-        class Klass2: pass
-        class Klass3: pass
+        class Klass1:
+            pass
+
+        class Klass2:
+            pass
+
+        class Klass3:
+            pass
 
         ckm = ClassKeyedMap([(Klass1, 1), (Klass2, 2)])
         self.assertEqual(1, ckm[Klass1])
@@ -158,9 +163,14 @@ class ClassKeyedMapTestCase(CremeTestCase):
 
     def test_setitem(self):
         "Other default value + __setitem__"
-        class Klass1: pass
-        class Klass2: pass
-        class Klass3: pass
+        class Klass1:
+            pass
+
+        class Klass2:
+            pass
+
+        class Klass3:
+            pass
 
         ckm = ClassKeyedMap(default=0)
 
@@ -177,10 +187,17 @@ class ClassKeyedMapTestCase(CremeTestCase):
 
     def test_inheritage01(self):
         "Inheriting values"
-        class Klass1: pass
-        class Klass2: pass
-        class Klass3(Klass2): pass
-        class Klass4(Klass3): pass
+        class Klass1:
+            pass
+
+        class Klass2:
+            pass
+
+        class Klass3(Klass2):
+            pass
+
+        class Klass4(Klass3):
+            pass
 
         ckm = ClassKeyedMap([(Klass1, 1), (Klass2, 2)])
 
@@ -194,39 +211,63 @@ class ClassKeyedMapTestCase(CremeTestCase):
 
     def test_inheritage02(self):
         "Inheriting values: more complex case (the nearest parent should be found)"
-        class Klass1: pass
-        class Klass2(Klass1): pass
-        class Klass3(Klass2): pass
-        class Klass4(Klass3): pass
+        class Klass1:
+            pass
 
-        ckm = ClassKeyedMap([(Klass1, 1), (Klass2, 2), (Klass3, 3), (Klass4, 4)],
-                            default=0
-                           )
+        class Klass2(Klass1):
+            pass
 
-        class Klass5(Klass4): pass
+        class Klass3(Klass2):
+            pass
+
+        class Klass4(Klass3):
+            pass
+
+        ckm = ClassKeyedMap(
+            [(Klass1, 1), (Klass2, 2), (Klass3, 3), (Klass4, 4)],
+            default=0,
+        )
+
+        class Klass5(Klass4):
+            pass
 
         self.assertEqual(4, ckm[Klass5])
 
     def test_inheritage03(self):
         "Inheritance order must be kept when cache is filled too"
-        class Klass1: pass
-        class Klass2(Klass1): pass
-        class Klass3(Klass2): pass
-        class Klass4(Klass3): pass
+        class Klass1:
+            pass
 
-        ckm = ClassKeyedMap([(Klass1, 1), (Klass3, 3)],  # Not 2 & 4
-                             default=0
-                            )
+        class Klass2(Klass1):
+            pass
+
+        class Klass3(Klass2):
+            pass
+
+        class Klass4(Klass3):
+            pass
+
+        ckm = ClassKeyedMap(
+            [(Klass1, 1), (Klass3, 3)],  # Not 2 & 4
+            default=0,
+        )
 
         self.assertEqual(1, ckm[Klass2])
         self.assertEqual(3, ckm[Klass4])
 
     def test_nearest_parent_class(self):
         "Inheritance order must be kept when new value are added explicitly"
-        class Klass1: pass
-        class Klass2(Klass1): pass
-        class Klass3(Klass2): pass
-        class Klass4(Klass3): pass
+        class Klass1:
+            pass
+
+        class Klass2(Klass1):
+            pass
+
+        class Klass3(Klass2):
+            pass
+
+        class Klass4(Klass3):
+            pass
 
         nearest = ClassKeyedMap._nearest_parent_class
         self.assertIs(Klass3, nearest(Klass4, [Klass3]))
@@ -235,17 +276,24 @@ class ClassKeyedMapTestCase(CremeTestCase):
         self.assertIs(Klass2, nearest(Klass4, [Klass2, Klass1]))
         self.assertIs(Klass1, nearest(Klass4, [Klass1]))
 
-        class Klass5(Klass4): pass
+        class Klass5(Klass4):
+            pass
+
         self.assertIs(Klass3, nearest(Klass4, [Klass2, Klass5, Klass3, Klass1]))
 
-        class Klass6: pass
+        class Klass6:
+            pass
+
         self.assertIs(Klass3, nearest(Klass4, [Klass2, Klass5, Klass3, Klass6, Klass1]))
 
 
 class InheritedDataChainTestCase(CremeTestCase):
     def test_get_item(self):
-        class Klass1: pass
-        class Klass2: pass
+        class Klass1:
+            pass
+
+        class Klass2:
+            pass
 
         class InnerClass:
             pass
@@ -267,8 +315,11 @@ class InheritedDataChainTestCase(CremeTestCase):
             __ = idc[1]
 
     def test_chain01(self):
-        class Klass1: pass
-        class Klass2: pass
+        class Klass1:
+            pass
+
+        class Klass2:
+            pass
 
         class InnerClass:
             pass
@@ -291,9 +342,14 @@ class InheritedDataChainTestCase(CremeTestCase):
 
     def test_chain02(self):
         "Inheritance."
-        class Klass1: pass
-        class Klass2(Klass1): pass
-        class Klass3(Klass2): pass
+        class Klass1:
+            pass
+
+        class Klass2(Klass1):
+            pass
+
+        class Klass3(Klass2):
+            pass
 
         class InnerClass:
             data = None
@@ -319,7 +375,8 @@ class InheritedDataChainTestCase(CremeTestCase):
                             )
 
     def test_get(self):
-        class Klass1: pass
+        class Klass1:
+            pass
 
         class InnerClass:
             pass
@@ -332,7 +389,8 @@ class InheritedDataChainTestCase(CremeTestCase):
         self.assertEqual(instance1, idc.get(Klass1))
 
     def test_del(self):
-        class Klass1: pass
+        class Klass1:
+            pass
 
         class InnerClass:
             pass
@@ -344,8 +402,11 @@ class InheritedDataChainTestCase(CremeTestCase):
         self.assertIsNone(idc.get(Klass1))
 
     def test_contains(self):
-        class Klass1: pass
-        class Klass2: pass
+        class Klass1:
+            pass
+
+        class Klass2:
+            pass
 
         class InnerClass:
             pass

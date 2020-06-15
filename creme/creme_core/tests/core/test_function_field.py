@@ -10,8 +10,11 @@ except Exception as e:
 
 class FunctionFieldsTestCase(CremeTestCase):
     def test_registry01(self):
-        class Klass1: pass
-        class Klass2(Klass1): pass
+        class Klass1:
+            pass
+
+        class Klass2(Klass1):
+            pass
 
         registry = _FunctionFieldRegistry()
 
@@ -71,7 +74,8 @@ class FunctionFieldsTestCase(CremeTestCase):
 
     def test_registry02(self):
         "Duplicates error."
-        class Klass: pass
+        class Klass:
+            pass
 
         registry = _FunctionFieldRegistry()
 
@@ -90,8 +94,11 @@ class FunctionFieldsTestCase(CremeTestCase):
 
     def test_registry03(self):
         "Overridden field."
-        class Klass1: pass
-        class Klass2(Klass1): pass
+        class Klass1:
+            pass
+
+        class Klass2(Klass1):
+            pass
 
         registry = _FunctionFieldRegistry()
 
@@ -125,7 +132,8 @@ class FunctionFieldsTestCase(CremeTestCase):
 
     def test_registry04(self):
         "Unregister() error."
-        class Klass: pass
+        class Klass:
+            pass
 
         registry = _FunctionFieldRegistry()
 

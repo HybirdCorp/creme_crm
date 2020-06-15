@@ -122,11 +122,13 @@ class Behavior:
 
     @classmethod
     def decode(cls, line):
-        if line.encoded: line.encoded = 0
+        if line.encoded:
+            line.encoded = 0
 
     @classmethod
     def encode(cls, line):
-        if not line.encoded: line.encoded = 1
+        if not line.encoded:
+            line.encoded = 1
 
     @classmethod
     def transformToNative(cls, obj):
@@ -158,7 +160,8 @@ class Behavior:
         """
         cls.generateImplicitParameters(obj)
 
-        if validate: cls.validate(obj, raiseException=True)
+        if validate:
+            cls.validate(obj, raiseException=True)
 
         if obj.isNative:
             transformed = obj.transformFromNative()

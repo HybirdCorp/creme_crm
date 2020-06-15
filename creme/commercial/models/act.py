@@ -313,7 +313,8 @@ class ActObjectivePatternComponent(CremeModel):
 
                 found = find_node(node.get_children(), pk)
 
-                if found: return found
+                if found:
+                    return found
 
         def flatten_node_ids(node, node_list):
             node_list.append(node.id)

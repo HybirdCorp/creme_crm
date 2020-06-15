@@ -567,8 +567,11 @@ class DateFieldHandlerMixin:
 
             range_dict['name'] = date_range
         else:
-            if start: range_dict['start'] = date_2_dict(start)
-            if end:   range_dict['end']   = date_2_dict(end)
+            if start:
+                range_dict['start'] = date_2_dict(start)
+
+            if end:
+                range_dict['end'] = date_2_dict(end)
 
         if not range_dict:
             raise cls.ValueError('date_range or start/end must be given.')

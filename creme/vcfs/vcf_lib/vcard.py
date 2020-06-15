@@ -206,7 +206,9 @@ class NameBehavior(VCardBehavior):
     @classmethod
     def transformToNative(cls, obj):
         "Turn obj.value into a Name."
-        if obj.isNative: return obj
+        if obj.isNative:
+            return obj
+
         obj.isNative = True
         obj.value = Name(**dict(zip(cls._ORDER, splitFields(obj.value))))
 

@@ -940,15 +940,19 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                 '[{"field": {"name": "created", "type": "date"}, '
                   '"range": {"type": "", "start": "not a date"}}]'
             )
-        except ValidationError: pass
-        else:  self.fail('No ValidationError')
+        except ValidationError:
+            pass
+        else:
+            self.fail('No ValidationError')
 
         try:
             clean('[{"field": {"name": "created", "type": "date"}, '
                     '"range": {"type": "", "end": "2011-2-30"}}]'
                  )  # 30 february !!
-        except ValidationError: pass
-        else:  self.fail('No ValidationError')
+        except ValidationError:
+            pass
+        else:
+            self.fail('No ValidationError')
 
     def test_ok01(self):
         with self.assertNumQueries(0):

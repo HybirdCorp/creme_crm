@@ -125,7 +125,8 @@ class Command(BaseCommand):
                     total_deps.update(populator.dependencies)
                     changed = True
 
-            if not changed: break
+            if not changed:
+                break
 
             apps_2_populate = total_deps - populators_names
             total_missing_deps |= apps_2_populate

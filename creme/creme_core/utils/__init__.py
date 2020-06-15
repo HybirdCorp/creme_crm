@@ -242,8 +242,11 @@ def bool_from_str(string: str) -> bool:
 
 def bool_from_str_extended(value: str) -> bool:
     value = value.lower()
-    if value in {'1', 'true'}: return True
-    if value in {'0', 'false'}: return False
+    if value in {'1', 'true'}:
+        return True
+
+    if value in {'0', 'false'}:
+        return False
 
     raise ValueError(
         f'Can not be coerced to a boolean value: {value}; must be in 0/1/false/true'
