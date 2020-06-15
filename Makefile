@@ -33,10 +33,11 @@ test:
 ## Run the Django test suite and generate coverage reports
 .PHONY: test-cov
 test-cov:
-	COVERAGE_PROCESS_START=.coveragerc coverage run --source creme/ manage.py test --noinput --parallel=${MAKE_NPROCS} $(filter-out $@,$(MAKECMDGOALS))
+	COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ manage.py test --noinput --keep-db --parallel=${MAKE_NPROCS} $(filter-out $@,$(MAKECMDGOALS))
 	coverage combine
 	coverage report
 	coverage html
+	@echo "file://$(shell pwd)/artifacts/coverage_html/index.html"
 
 ## Cleanup karma coverage html output
 .PHONY: karma
