@@ -367,7 +367,7 @@ class ACCFieldAggregation(AggregatorCellConstraint):
         self.fields_configs = FieldsConfig.LocalCache()
 
     def _accept_cfield(self, cfield, not_hiddable_cell_keys):
-        if not cfield.field_type in self.custom_field_types:
+        if cfield.field_type not in self.custom_field_types:
             return False
 
         if cfield.is_deleted:

@@ -129,5 +129,5 @@ class MailingListAddCSVForm(CremeForm):
             )
 
             for address in recipients:
-                if not address in existing:
+                if address not in existing:
                     create(ml=ml, address=address)
