@@ -162,7 +162,7 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
 
         self.assertFalse(TicketNumber.objects.all())
 
-        create_ticket= partial(
+        create_ticket = partial(
             Ticket.objects.create,
             user=user,
             priority=Priority.objects.all()[0],
@@ -641,7 +641,7 @@ class TicketTemplateTestCase(CremeTestCase):
         user = self.login()
 
         title = 'Title'
-        description='Description ...'
+        description = 'Description ...'
         template = self.create_template(title, description)
         url = template.get_edit_absolute_url()
 

@@ -53,7 +53,7 @@ class VBase:
 
     def clearBehavior(self, cascade=True):
         """Set behavior to None. Do for all descendants if cascading."""
-        self.behavior=None
+        self.behavior = None
         if cascade: self.transformChildrenFromNative()
 
     def autoBehavior(self, cascade=False):
@@ -328,9 +328,9 @@ class Component(VBase):
     """
     def __init__(self, name=None, *args, **kwds):
         super().__init__(*args, **kwds)
-        self.contents  = {}
+        self.contents = {}
         if name:
-            self.name=name.upper()
+            self.name = name.upper()
             self.useBegin = True
         else:
             self.name = ''
@@ -475,7 +475,7 @@ class Component(VBase):
         """Recursively transform native children to vanilla representations."""
         for childArray in self.contents.values():
             for i in range(len(childArray)):
-                childArray[i]=childArray[i].transformFromNative()
+                childArray[i] = childArray[i].transformFromNative()
                 childArray[i].transformChildrenFromNative(clearBehavior)
 
                 if clearBehavior:
@@ -651,7 +651,7 @@ patterns['wraporend'] = r'(%(wrap)s | %(lineend)s )' % patterns
 wrap_re          = re.compile(patterns['wraporend'],    re.VERBOSE)
 logical_lines_re = re.compile(patterns['logicallines'], re.VERBOSE)
 
-testLines="""
+testLines = """
 Line 0 text
  , Line 0 continued.
 Line 1;encoding=quoted-printable:this is an evil=

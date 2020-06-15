@@ -193,7 +193,7 @@ class _EntityFilterSuperRegistry:
         return iter(self._registries.values())
 
     def register(self, *registries: _EntityFilterRegistry) -> '_EntityFilterSuperRegistry':
-        set_default= self._registries.setdefault
+        set_default = self._registries.setdefault
 
         for registry in registries:
             if set_default(registry.id, registry) is not registry:

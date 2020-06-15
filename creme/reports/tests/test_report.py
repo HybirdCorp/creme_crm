@@ -2490,7 +2490,7 @@ class ReportTestCase(BaseReportsTestCase):
         "Sub report (expanded)."
         self._aux_test_fetch_m2m()
 
-        report_camp = self.report_camp; report_ml= self.report_ml
+        report_camp = self.report_camp; report_ml = self.report_ml
         name1 = self.camp1.name; name2 = self.camp2.name; name3 = self.camp3.name
         ml1 = self.ml1; ml2 = self.ml2; ml3 = self.ml3
         ptype1 = self.ptype1; ptype2 = self.ptype2

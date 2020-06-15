@@ -684,12 +684,14 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         # ---
         content = 'Content (DocumentQuickWidgetTestCase.test_add_csv_doc)'
-        file_obj= self.build_filedata(content)
-        response = self.client.post(url, follow=True,
-                                    data={'user':     user.pk,
-                                          'filedata': file_obj,
-                                         },
-                                   )
+        file_obj = self.build_filedata(content)
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':     user.pk,
+                'filedata': file_obj,
+            },
+        )
         self.assertNoFormError(response)
 
         docs = Document.objects.all()
@@ -701,11 +703,13 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.linked_folder)
 
-        self.assertEqual({'added': [[doc.id, str(doc)]],
-                          'value': doc.id,
-                         },
-                         response.json()
-                        )
+        self.assertDictEqual(
+            {
+                'added': [[doc.id, str(doc)]],
+                'value': doc.id,
+            },
+            response.json()
+        )
 
         with doc.filedata.open('r') as f:
             self.assertEqual([content], f.readlines())
