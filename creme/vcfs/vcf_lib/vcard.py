@@ -64,7 +64,7 @@ class VCardTextBehavior(Behavior):
             encoding = getattr(line, 'encoding_param', None)
 
             # Original code of vobject 0.8.1c fixed by Yann PRIME :
-            #if encoding:
+            # if encoding:
             if encoding == cls.base64string:
                 line.value = line.value.decode('base64')
             else:

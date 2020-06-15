@@ -82,7 +82,7 @@ class WSBackEnd:
             self.opener.open(url)
 
             # remove this. (urllib2 ugly code !)
-            #install_opener(self.opener)
+            # install_opener(self.opener)
 
             self.connected = True
             self.url = url

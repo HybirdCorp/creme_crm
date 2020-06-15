@@ -1058,33 +1058,33 @@ CRUDITY_FILESYS_FETCHER_DIR = ''
 
 # CRUDITY_BACKENDS configures the backends (it's a list of dict)
 # Here a template of a crudity backend configuration:
-#CRUDITY_BACKENDS = [
-#    {
-#        "fetcher": "email",                # The name of the fetcher (which is registered with).
-#                                           #  Available choices:
-#                                           #   - 'email' (need the settings CREME_GET_EMAIL* to be filled).
-#                                           #   - 'filesystem' (see CRUDITY_FILESYS_FETCHER_DIR).
-#        "input": "infopath",               # The name of the input (which is registered with).
-#                                           #  Available choices:
-#                                           #   - for the fetcher 'email': 'raw', 'infopath' (that needs "lcab" program).
-#                                           #   - for the fetcher 'filesystem': 'ini'.
-#                                           # Can be omitted if 'subject' is '*' (see below).
-#        "method": "create",                # The method of the input to call. Available choices: 'create'
-#                                           #  Can be omitted if 'subject' is '*' (see below).
-#        "model": "activities.activity",    # The targeted model
-#        "password": "meeting",             # Password to be authorized in the input
-#        "limit_froms": (),                 # A white list of sender (Example with an email:
-#                                           #  If a recipient email's address not in this drop email, let empty to allow all email addresses)
-#        "in_sandbox": True,                # True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
-#        "body_map"   : {                   # Allowed keys format : "key": "default value".
-#            "title": "",                   #  Keys have to be real field names of the model
-#            "user_id": 1,
-#        },
-#        "subject": u"CREATEACTIVITYIP"     # Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase.
-#                                           #  You can specify * as a fallback (no previous backend handle the data returned by the fetcher,
-#                                           #  but be careful your backend has to have the method: 'fetcher_fallback').
-#    },
-#]
+# CRUDITY_BACKENDS = [
+#     {
+#         "fetcher": "email",                # The name of the fetcher (which is registered with).
+#                                            #  Available choices:
+#                                            #   - 'email' (need the settings CREME_GET_EMAIL* to be filled).
+#                                            #   - 'filesystem' (see CRUDITY_FILESYS_FETCHER_DIR).
+#         "input": "infopath",               # The name of the input (which is registered with).
+#                                            #  Available choices:
+#                                            #   - for the fetcher 'email': 'raw', 'infopath' (that needs "lcab" program).
+#                                            #   - for the fetcher 'filesystem': 'ini'.
+#                                            # Can be omitted if 'subject' is '*' (see below).
+#         "method": "create",                # The method of the input to call. Available choices: 'create'
+#                                            #  Can be omitted if 'subject' is '*' (see below).
+#         "model": "activities.activity",    # The targeted model
+#         "password": "meeting",             # Password to be authorized in the input
+#         "limit_froms": (),                 # A white list of sender (Example with an email:
+#                                            #  If a recipient email's address not in this drop email, let empty to allow all email addresses)
+#         "in_sandbox": True,                # True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
+#         "body_map"   : {                   # Allowed keys format : "key": "default value".
+#             "title": "",                   #  Keys have to be real field names of the model
+#             "user_id": 1,
+#         },
+#         "subject": u"CREATEACTIVITYIP"     # Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase.
+#                                            #  You can specify * as a fallback (no previous backend handle the data returned by the fetcher,
+#                                            #  but be careful your backend has to have the method: 'fetcher_fallback').
+#     },
+# ]
 CRUDITY_BACKENDS = [
     {
         'fetcher': 'email',

@@ -273,13 +273,13 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
                                               )
 
         if exists(self.baseFilename):
-            # Backup current log file
+            # Backup current log file
             rename_file(self.baseFilename, rollover_filename + '.bak')
 
-            # gzip backup log file
+            # gzip backup log file
             self._deferred_save_archive(rollover_filename)
 
-        # print "%s -> %s" % (self.baseFilename, dfn)
+        # print("%s -> %s" % (self.baseFilename, dfn))
         self.mode = 'w'
         self.stream = self._open()
         self._compute_next_rollover()
