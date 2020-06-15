@@ -84,6 +84,7 @@ def __get_extending_app_configs(self):
 
     return ext_app_configs
 
+
 AppConfig.get_extending_app_configs = __get_extending_app_configs
 
 

@@ -634,6 +634,7 @@ def parseLine(line, lineNumber=None):
             match['value'], match['group'],
            )
 
+
 # logical line regular expressions
 
 patterns['lineend'] = r'(?:\r\n|\r|\n|$)'
