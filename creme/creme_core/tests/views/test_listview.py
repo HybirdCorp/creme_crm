@@ -2052,6 +2052,7 @@ class ListViewTestCase(ViewsTestCase):
         type2 = create_evalue(custom_field=cfield, value='Heavy')
 
         klass = cfield.value_class
+
         def set_cfvalue(entity, value):
             klass(custom_field=cfield, entity=entity).set_value_n_save(value)
 
@@ -2120,6 +2121,7 @@ class ListViewTestCase(ViewsTestCase):
         can_fly  = create_evalue(custom_field=cfield, value='Fly')
 
         klass = cfield.value_class
+
         def set_cfvalue(entity, value):
             klass(custom_field=cfield, entity=entity).set_value_n_save(value)
 

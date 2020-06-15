@@ -922,6 +922,7 @@ class SearchFieldsTestCase(CremeTestCase):
         create_contact(first_name='Chun Li', last_name='??')
 
         klass = cfield.value_class
+
         def set_cfvalue(entity, evalue):
             klass(custom_field=cfield, entity=entity).set_value_n_save(evalue.id)
 
@@ -994,6 +995,7 @@ class SearchFieldsTestCase(CremeTestCase):
         create_contact(first_name='Chun Li', last_name='??')
 
         klass = cfield.value_class
+
         def set_cfvalue(entity, *evalues):
             klass(custom_field=cfield, entity=entity).set_value_n_save(evalues)
 
