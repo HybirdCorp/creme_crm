@@ -66,7 +66,7 @@ class CreateEmailInput(EmailInput):
     brickheader_action_templates = ('crudity/bricks/header-actions/email-creation-template.html',)
 
     def create(self, email: PopEmail):
-        backend = self.get_backend(CrudityBackend.normalize_subject(email.subject)) # or self.get_backend("*")
+        backend = self.get_backend(CrudityBackend.normalize_subject(email.subject))  # or self.get_backend("*")
 
         if backend is not None and self.authorize_senders(backend, email.senders):
             data = backend.body_map.copy()

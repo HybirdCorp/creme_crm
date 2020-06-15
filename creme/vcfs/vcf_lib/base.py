@@ -588,7 +588,7 @@ def parseParams(string):
     allParameters = []
 
     for tup in all:
-        paramList = [tup[0]] # tup looks like (name, valuesString)
+        paramList = [tup[0]]  # tup looks like (name, valuesString)
         for pair in param_values_re.findall(tup[1]):
             # pair looks like ('', value) or (value, '')
             if pair[0] != '':

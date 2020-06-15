@@ -114,7 +114,7 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
 
         lines_count = len(lines) - 1  # '-1' for header
         jresults = self._get_job_results(job)
-        self.assertEqual(lines_count, len(jresults)) # '-1' for header
+        self.assertEqual(lines_count, len(jresults))  # '-1' for header
         self.assertEqual(contact_count + lines_count, Contact.objects.count())
 
         rei = self.get_object_or_fail(Contact, last_name=lines[1][1], first_name=lines[1][0])

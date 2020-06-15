@@ -80,11 +80,13 @@ class Populator(BasePopulator):
 
         # ---------------------------
 
-        Sandbox.objects.get_or_create(uuid=constants.UUID_SANDBOX_SUPERUSERS,
-                                      defaults={# 'superuser': True,
-                                                'type_id':   sandboxes.OnlySuperusersType.id,
-                                               },
-                                     )
+        Sandbox.objects.get_or_create(
+            uuid=constants.UUID_SANDBOX_SUPERUSERS,
+            defaults={
+                # 'superuser': True,
+                'type_id':   sandboxes.OnlySuperusersType.id,
+            },
+        )
 
         # ---------------------------
 

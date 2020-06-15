@@ -209,7 +209,8 @@ class PollFormSection(CremeModel):
 
 class PollFormLine(CremeModel, _PollLine):
     pform        = ForeignKey(settings.POLLS_FORM_MODEL, editable=False, related_name='lines', on_delete=CASCADE)
-    section      = ForeignKey(PollFormSection, editable=False, null=True, on_delete=CASCADE) #, related_name='lines'
+    # TODO: related_name='lines' ?
+    section      = ForeignKey(PollFormSection, editable=False, null=True, on_delete=CASCADE)
     order        = PositiveIntegerField(editable=False, default=1)
     disabled     = BooleanField(default=False, editable=False)
 

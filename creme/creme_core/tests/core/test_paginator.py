@@ -1212,7 +1212,7 @@ class FlowPaginatorTestCase(CremeTestCase):
     def test_none_value03(self):
         "None values + ASC + previous (info==None -> retrieve only NULL values)."
         self._build_contacts()
-        self._add_birthdays(count=3) ####
+        self._add_birthdays(count=3)
 
         key = 'birthday'
         qs = FakeContact.objects.order_by(key, 'id')

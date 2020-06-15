@@ -1095,37 +1095,42 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                         )
 
     def test_edit_line_choices02(self):
-        "Delete some choices"
+        "Delete some choices."
         self.login()
         line = self.create_enum_line([[1, 'White'], [2, 'Black'], [3, 'Red']])
-        response = self.client.post(line.get_edit_absolute_url(),
-                                    data={'question':    line.question,
-                                          'new_choices': 'Cyan',
+        response = self.client.post(
+            line.get_edit_absolute_url(),
+            data={
+                'question':    line.question,
+                'new_choices': 'Cyan',
 
-                                          # 'old_choices_check_0': '', #deleted
-                                          'old_choices_value_0': 'White',
+                # 'old_choices_check_0': '',  # deleted
+                'old_choices_value_0': 'White',
 
-                                          'old_choices_check_1': 'on',
-                                          'old_choices_value_1': 'Yellow', #changed
+                'old_choices_check_1': 'on',
+                'old_choices_value_1': 'Yellow',  # changed
 
-                                          # 'old_choices_check_2': '', #deleted too
-                                          'old_choices_value_2': 'Red',
-                                         }
-                                   )
+                # 'old_choices_check_2': '',  # deleted too
+                'old_choices_value_2': 'Red',
+            },
+        )
         self.assertNoFormError(response)
 
         plt = self.refresh(line).poll_line_type
-        self.assertEqual({'choices':     [[2, 'Yellow'], [4, 'Cyan']],
-                          'del_choices': [[1, 'White'], [3, 'Red']],
-                         },
-                         plt._args
-                        )
-        self.assertEqual(_('Choice list ({choices}) (deleted: {del_choices})').format(
-                                choices='Yellow / Cyan',
-                                del_choices='White / Red',
-                            ),
-                         plt.description
-                        )
+        self.assertDictEqual(
+            {
+                'choices':     [[2, 'Yellow'], [4, 'Cyan']],
+                'del_choices': [[1, 'White'], [3, 'Red']],
+            },
+            plt._args
+        )
+        self.assertEqual(
+            _('Choice list ({choices}) (deleted: {del_choices})').format(
+                choices='Yellow / Cyan',
+                del_choices='White / Red',
+            ),
+            plt.description
+        )
 
     def test_edit_line_choices03(self):
         "With removed choices at beginning"
@@ -1443,19 +1448,19 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         # ttype = 1  #TODO: 'display if' 'display except if'
-        response = self.client.post(url, data={# 'type':      ttype,  #TODO
-                                               'use_or':     1,
-                                               'conditions': self.conds_formfield_value(
-                                                                    source=line1.id,
-                                                                    choice=1,
-                                                                ),
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                # 'type':      ttype,  # TODO
+                'use_or':     1,
+                'conditions': self.conds_formfield_value(source=line1.id, choice=1),
+            },
+        )
         self.assertNoFormError(response)
 
         line2 = self.refresh(line2)
         self.assertIs(line2.conds_use_or, True)
-        # self.assertEqual(ttype, line2.conds_type) #TODO
+        # self.assertEqual(ttype, line2.conds_type)  # TODO
 
         conditions = line2.conditions.all()
         self.assertEqual(1, len(conditions))

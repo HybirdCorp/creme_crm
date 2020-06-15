@@ -286,7 +286,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
                               latitude=town1.latitude, longitude=town1.longitude,
                               draggable=True, geocoded=False,
                               status=GeoAddress.PARTIAL,
-                             ) # 13001 first
+                             )  # 13001 first
 
         address = addresses[4]
         self.assertGeoAddress(address.geoaddress, address=address,
@@ -311,7 +311,9 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
                      create_address(),
                     ]
 
-        GeoAddress.objects.filter(latitude=self.marseille1.latitude).update(latitude=None, longitude=None) # 4th address
+        # 4th address
+        GeoAddress.objects.filter(latitude=self.marseille1.latitude).update(latitude=None, longitude=None)
+
         addresses = [self.refresh(address) for address in addresses]
 
         self.assertEqual(GeoAddress.objects.count(), 5)

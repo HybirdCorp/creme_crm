@@ -43,7 +43,8 @@ class MessagingListForm(CremeEntityForm):
 
 
 class AddContactsForm(CremeForm):
-    recipients = MultiCreatorEntityField(label=_('Contacts'), required=False, model=Contact) # other filter (name + email)??
+    # TODO: other filter (name + email) ?
+    recipients = MultiCreatorEntityField(label=_('Contacts'), required=False, model=Contact)
 
     blocks = FieldBlockManager(('general', _('Contacts recipients'), '*'))
 

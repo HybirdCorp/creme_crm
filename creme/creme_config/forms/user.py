@@ -69,7 +69,7 @@ class UserAddForm(CremeModelForm):
 
     class Meta:
         model = CremeUser
-        fields = ('username', 'last_name', 'first_name', 'email', 'role') # 'is_superuser'
+        fields = ('username', 'last_name', 'first_name', 'email', 'role')  # 'is_superuser'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

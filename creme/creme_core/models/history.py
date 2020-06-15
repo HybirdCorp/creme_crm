@@ -485,7 +485,8 @@ class _HLTRelation(_HistoryLineType):
         rtype_id = modifications[0]
 
         try:
-            predicate = RelationType.objects.get(pk=rtype_id).predicate # TODO: use cache ?
+            # TODO: use a cache ?
+            predicate = RelationType.objects.get(pk=rtype_id).predicate
         except RelationType.DoesNotExist:
             predicate = rtype_id
 

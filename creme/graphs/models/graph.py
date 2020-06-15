@@ -99,14 +99,15 @@ class AbstractGraph(CremeEntity):
 
         # TODO: entity cache ? regroups relations by type ? ...
 
-        CremeEntity.populate_real_entities([root.entity for root in roots]) #small optimisation
+        # Small optimisation
+        CremeEntity.populate_real_entities([root.entity for root in roots])
 
         for root in roots:
             add_node(str(root.entity), shape='box')
             # add_node('filled box',    shape='box', style='filled', color='#FF00FF')
             # add_node('filled box v2', shape='box', style='filled', fillcolor='#FF0000', color='#0000FF', penwidth='2.0') #default pensize="1.0"
 
-        orbital_nodes = {} #cache
+        orbital_nodes = {}  # Cache
 
         for root in roots:
             subject = root.entity
