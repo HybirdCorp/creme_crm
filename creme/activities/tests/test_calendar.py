@@ -55,8 +55,12 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def _get_cal_activities(self, calendars, start=None, end=None, status=200):
         data = {'calendar_id': [str(c.id) for c in calendars]}
-        if start: data['start'] = start
-        if end:   data['end'] = end
+
+        if start:
+            data['start'] = start
+
+        if end:
+            data['end'] = end
 
         return self.assertGET(status,
                               reverse('activities__calendars_activities'),

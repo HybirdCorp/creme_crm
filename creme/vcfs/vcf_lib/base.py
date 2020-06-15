@@ -45,7 +45,8 @@ class VBase:
         """Call the behavior's validate method, or return True."""
         if self.behavior:
             return self.behavior.validate(self, *args, **kwds)
-        else: return True
+        else:
+            return True
 
     def getChildren(self):
         """Return an iterable containing the contents of the object."""
@@ -54,7 +55,8 @@ class VBase:
     def clearBehavior(self, cascade=True):
         """Set behavior to None. Do for all descendants if cascading."""
         self.behavior = None
-        if cascade: self.transformChildrenFromNative()
+        if cascade:
+            self.transformChildrenFromNative()
 
     def autoBehavior(self, cascade=False):
         """Set behavior if name is in self.parentBehavior.knownChildren.
@@ -436,7 +438,8 @@ class Component(VBase):
     def getChildren(self):
         """Return an iterable of all children."""
         for objList in self.contents.values():
-            for obj in objList: yield obj
+            for obj in objList:
+                yield obj
 
     def components(self):
         """Return an iterable of all Component children."""
@@ -902,8 +905,8 @@ def readComponents(streamOrString, validate=False, transform=True,
                    allowQP=False):
     """Generate one Component at a time from a stream.
 
-    >>> import StringIO
-    >>> f = StringIO.StringIO('''
+    >>> from io import StringIO
+    >>> f = StringIO('''
 BEGIN:VCALENDAR
 BEGIN:VEVENT
 SUMMARY;blah=hi!:Bastille Day Party
@@ -973,7 +976,8 @@ END:VCALENDAR''')
                             component.transformChildrenToNative()
 
                         yield component  # EXIT POINT
-                    else: stack.modifyTop(stack.pop())
+                    else:
+                        stack.modifyTop(stack.pop())
                 else:
                     raise ParseError(f"{stack.topName()} component wasn't closed", n)
             else:

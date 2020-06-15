@@ -838,15 +838,20 @@ class HistoryLine(Model):
         @param modifs: List of tuples containing JSONifiable values.
         @param related_line_id: HistoryLine.id.
         """
-        kwargs = {'entity': instance,
-                  'entity_ctype': instance.entity_type,
-                  'entity_owner': instance.user,
-                  'type': ltype,
-                  'value': cls._encode_attrs(instance, modifs=modifs,
-                                             related_line_id=related_line_id,
-                                            ),
-                 }
-        if date: kwargs['date'] = date
+        kwargs = {
+            'entity': instance,
+            'entity_ctype': instance.entity_type,
+            'entity_owner': instance.user,
+            'type': ltype,
+            'value': cls._encode_attrs(
+                instance,
+                modifs=modifs,
+                related_line_id=related_line_id,
+            ),
+        }
+
+        if date:
+            kwargs['date'] = date
 
         return cls.objects.create(**kwargs)
 

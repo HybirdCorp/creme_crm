@@ -192,7 +192,9 @@ class PollFormSection(CremeModel):
 
         for node in SectionTree(self.pform):
             if node.is_section and node.id == section_id:
-                if not node.has_line: break
+                if not node.has_line:
+                    break
+
                 raise ProtectedError(
                     gettext('There is at least one question in this section.'),
                     [self],

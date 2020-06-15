@@ -194,8 +194,11 @@ class AbstractStrategy(CremeEntity):
         min_score = min(scores)
 
         def _compute_category(score):
-            if score == max_score: return 3
-            if score == min_score: return 1
+            if score == max_score:
+                return 3
+
+            if score == min_score:
+                return 1
 
             return 2
 
@@ -248,8 +251,12 @@ class AbstractStrategy(CremeEntity):
                         return cat
 
                     cat_key = 0
-                    if charm_score > charm_threshold: cat_key += 1
-                    if asset_score > asset_threshold: cat_key += 10
+
+                    if charm_score > charm_threshold:
+                        cat_key += 1
+
+                    if asset_score > asset_threshold:
+                        cat_key += 10
 
                     return _CATEGORY_MAP[cat_key]
 

@@ -60,9 +60,14 @@ def _physical_field_name(table_name, field_name) -> str:
 
 def _db_grouping_format() -> str:
     vendor = connection.vendor
-    if vendor == 'sqlite': return "cast((julianday(%s) - julianday(%s)) / %s as int)"
-    if vendor == 'mysql': return "floor((to_days(%s) - to_days(%s)) / %s)"
-    if vendor == 'postgresql': return "((%s::date - %s::date) / %s)"
+    if vendor == 'sqlite':
+        return "cast((julianday(%s) - julianday(%s)) / %s as int)"
+
+    if vendor == 'mysql':
+        return "floor((to_days(%s) - to_days(%s)) / %s)"
+
+    if vendor == 'postgresql':
+        return "((%s::date - %s::date) / %s)"
 
     raise RuntimeError(f'Unsupported vendor: {vendor}')
 
