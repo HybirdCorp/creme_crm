@@ -62,7 +62,8 @@ except Exception as e:
 class MiscTestCase(CremeTestCase):
     def test_find_first(self):
         class Info:
-            def __init__(self, data): self.data = data
+            def __init__(self, data):
+                self.data = data
 
         i1, i2, i3, i4 = Info(1), Info(2), Info(2), Info(5)
         list_ = [i1, i2, i3, i4]
