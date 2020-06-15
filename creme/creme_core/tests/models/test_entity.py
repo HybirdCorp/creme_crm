@@ -1,35 +1,44 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from decimal import Decimal
-    from functools import partial
+from decimal import Decimal
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models.deletion import ProtectedError
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.deletion import ProtectedError
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from ..base import CremeTestCase
+from creme.creme_core.core.field_tags import InvalidFieldTag
+from creme.creme_core.core.function_field import (
+    FunctionField,
+    FunctionFieldResultsList,
+    function_field_registry,
+)
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeProperty,
+    CremePropertyType,
+    CustomField,
+    CustomFieldBoolean,
+    CustomFieldDateTime,
+    CustomFieldEnum,
+    CustomFieldEnumValue,
+    CustomFieldFloat,
+    CustomFieldInteger,
+    CustomFieldMultiEnum,
+    CustomFieldString,
+    FakeCivility,
+    FakeContact,
+    FakeImage,
+    FakeImageCategory,
+    FakeOrganisation,
+    FakeSector,
+    Language,
+    Relation,
+    RelationType,
+)
 
-    from creme.creme_core.core.field_tags import InvalidFieldTag
-    from creme.creme_core.core.function_field import (
-        FunctionField,
-        FunctionFieldResult, FunctionFieldResultsList,
-        function_field_registry,
-    )
-    from creme.creme_core.models import (
-        CremeEntity,
-        CremePropertyType, CremeProperty,
-        RelationType, Relation,
-        Language,
-        CustomField, CustomFieldEnumValue,
-        CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean, CustomFieldString,
-        CustomFieldDateTime, CustomFieldEnum, CustomFieldMultiEnum,
-        FakeContact, FakeOrganisation, FakeCivility, FakeSector,
-        FakeImage, FakeImageCategory,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class EntityTestCase(CremeTestCase):

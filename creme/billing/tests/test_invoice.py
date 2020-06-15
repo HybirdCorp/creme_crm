@@ -28,7 +28,7 @@ try:
         REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED,
         REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED,
         # AMOUNT_PK, PERCENT_PK,
-        DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT, DISCOUNT_ITEM_AMOUNT
+        DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT,
     )
     from ..models import InvoiceStatus, AdditionalInformation, PaymentTerms
 

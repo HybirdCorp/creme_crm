@@ -1,50 +1,50 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import datetime, date, time, timedelta
-    from functools import partial
+from datetime import timedelta
+from functools import partial
 
-    from django.apps import apps
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
-    from django.forms.utils import ValidationError
-    from django.urls import reverse
-    from django.utils.encoding import force_text
-    from django.utils.formats import date_format
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.apps import apps
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.forms.utils import ValidationError
+from django.urls import reverse
+from django.utils.encoding import force_text
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.creme_jobs import trash_cleaner_type
-    from creme.creme_core.gui import actions
-    from creme.creme_core.models import (
-        RelationType, Relation,
-        SetCredentials,
-        EntityFilter,
-        SettingValue,
-        Job,
-    )
-    from creme.creme_core.tests.base import skipIfNotInstalled
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.creme_jobs import trash_cleaner_type
+from creme.creme_core.gui import actions
+from creme.creme_core.models import (
+    EntityFilter,
+    Job,
+    Relation,
+    RelationType,
+    SetCredentials,
+    SettingValue,
+)
+from creme.creme_core.tests.base import skipIfNotInstalled
+from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
+from .. import constants
+from ..actions import BulkExportICalAction
+from ..models import ActivitySubType, ActivityType, Calendar, Status
+from ..utils import check_activity_collisions
+from .base import (
+    Activity,
+    Contact,
+    Organisation,
+    _ActivitiesTestCase,
+    skipIfCustomActivity,
+)
 
-    from .base import (
-        _ActivitiesTestCase,
-        skipIfCustomActivity,
-        Activity,
-        Contact, Organisation
-    )
-    from .. import constants
-    from ..actions import BulkExportICalAction
-    from ..models import ActivityType, ActivitySubType, Calendar, Status
-    from ..utils import check_activity_collisions
-
-    if apps.is_installed('creme.assistants'):
-        from creme.assistants.models import Alert, UserMessage
-        from creme.assistants.constants import PRIO_NOT_IMP_PK
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+if apps.is_installed('creme.assistants'):
+    from creme.assistants.models import Alert, UserMessage
+    from creme.assistants.constants import PRIO_NOT_IMP_PK
 
 
 @skipIfCustomActivity

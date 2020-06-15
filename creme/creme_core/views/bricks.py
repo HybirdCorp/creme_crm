@@ -32,7 +32,8 @@ from django.template.engine import Engine
 
 from .. import utils
 # from ..auth.decorators import login_required
-from ..gui.bricks import Brick, BricksManager, _BrickRegistry, brick_registry
+from ..gui.bricks import Brick, BricksManager, _BrickRegistry
+from ..gui.bricks import brick_registry as global_brick_registry
 from ..http import CremeJsonResponse
 from ..models import BrickState  # CremeEntity
 # from .decorators import jsonify
@@ -198,7 +199,7 @@ class BricksReloading(generic.CheckedView):
     'permission = None' means 'no permission required' ; use with caution :)
     """
     response_class: Type[HttpResponseBase] = CremeJsonResponse
-    brick_registry: _BrickRegistry = brick_registry
+    brick_registry: _BrickRegistry = global_brick_registry
     # Name of the Brick's render method to use ;
     # classically: "detailview_display" or "home_display".
     brick_render_method: str = 'detailview_display'

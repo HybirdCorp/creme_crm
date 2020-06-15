@@ -48,7 +48,8 @@ from creme.creme_core.utils import create_if_needed
 from creme.persons.constants import FILTER_CONTACT_ME
 
 from . import bricks, buttons, constants, get_activity_model, setting_keys
-from .models import ActivitySubType, ActivityType, Calendar, Status
+# from .models import Calendar
+from .models import ActivitySubType, ActivityType, Status
 
 logger = logging.getLogger(__name__)
 

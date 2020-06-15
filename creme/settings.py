@@ -1158,12 +1158,12 @@ GEOLOCATION_TOWNS = [
 # APPS CONFIGURATION [END]######################################################
 
 try:
-    from .project_settings import *
+    from .project_settings import *  # NOQA
 except ImportError:
     pass
 
 try:
-    from .local_settings import *
+    from .local_settings import *  # NOQA
 except ImportError:
     pass
 

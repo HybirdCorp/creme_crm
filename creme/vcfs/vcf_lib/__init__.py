@@ -76,7 +76,7 @@ VObject Overview
 
 """
 
-from .base import behavior_registry, readComponents, readOne
+from .base import behavior_registry, readComponents, readOne  # NOQA
 
 
 def vCard():

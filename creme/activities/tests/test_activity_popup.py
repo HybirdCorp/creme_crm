@@ -1,28 +1,20 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import datetime, date, time, timedelta
-    from functools import partial
+from datetime import datetime, time
+from functools import partial
 
-    from parameterized import parameterized
+from django.urls import reverse
+from django.utils.formats import date_format
+from django.utils.translation import gettext as _
+from parameterized import parameterized
 
-    from django.urls import reverse
-    from django.utils.encoding import force_text
-    from django.utils.formats import date_format
-    from django.utils.translation import gettext as _
+from creme.creme_core.models.setting_value import SettingValue
+from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 
-    from creme.creme_core.models.setting_value import SettingValue
-    from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
+from .. import constants
+from ..models import ActivityType, Calendar
+from .base import Activity, _ActivitiesTestCase, skipIfCustomActivity
 
-    from .. import constants
-    from ..models import ActivityType, Calendar
-    from .base import (
-        _ActivitiesTestCase,
-        skipIfCustomActivity,
-        Activity,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
 
 @skipIfCustomActivity
 class ActivityCreatePopupTestCase(_ActivitiesTestCase):

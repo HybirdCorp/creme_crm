@@ -5,7 +5,7 @@
 ################################################################################
 #
 # Copyright (c) 2012 Daniel Miller
-# Copyright (c) 2016-2018 Hybird
+# Copyright (c) 2016-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -43,9 +43,9 @@ def python_subprocess(script, python=PYTHON_BIN, start_new_session=False, **kwar
 # - is_exit_handler_enabled
 
 if os_name == 'nt':
-    from .nt import *
+    from .nt import *  # NOQA
 elif os_name == 'posix':
-    from .posix import *
+    from .posix import *  # NOQA
 else:  # 'os2', 'ce', 'java', 'riscos', other ?
     import logging
     from sys import exit

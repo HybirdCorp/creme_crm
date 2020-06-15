@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from .add import (
+from .add import (  # NOQA
     AddingInstanceToEntityPopup,
     CremeModelCreation,
     CremeModelCreationPopup,
     EntityCreation,
     EntityCreationPopup,
 )
-from .base import (
+from .base import (  # NOQA
     BricksView,
     CheckedTemplateView,
     CheckedView,
@@ -15,8 +15,8 @@ from .base import (
     CremeFormView,
     RelatedToEntityFormPopup,
 )
-from .delete import CremeDeletion, CremeModelDeletion
-from .detailview import (
+from .delete import CremeDeletion, CremeModelDeletion  # NOQA
+from .detailview import (  # NOQA
     CremeModelDetail,
     CremeModelDetailPopup,
     EntityDetail,
@@ -24,7 +24,7 @@ from .detailview import (
     RelatedToEntityDetail,
     RelatedToEntityDetailPopup,
 )
-from .edit import (
+from .edit import (  # NOQA
     CremeEdition,
     CremeEditionPopup,
     CremeModelEdition,
@@ -33,8 +33,8 @@ from .edit import (
     EntityEditionPopup,
     RelatedToEntityEditionPopup,
 )
-from .listview import EntitiesList
-from .wizard import (
+from .listview import EntitiesList  # NOQA
+from .wizard import (  # NOQA
     CremeModelCreationWizard,
     CremeModelCreationWizardPopup,
     CremeModelEditionWizard,

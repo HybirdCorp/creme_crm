@@ -44,7 +44,7 @@ class PersonsConfig(CremeAppConfig):
         self.hook_user()
         self.hook_user_form()
 
-        from . import signals
+        from . import signals  # NOQA
 
         if apps.is_installed('creme.reports'):
             self.register_reports_graph_fetchers()
