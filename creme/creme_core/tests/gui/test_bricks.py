@@ -40,7 +40,8 @@ class BrickRegistryTestCase(CremeTestCase):
         class FoobarBrick(Brick):
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context): return self._render(self.get_template_context(context))
+            def detailview_display(self, context):
+                return self._render(self.get_template_context(context))
 
         class FoobarBrick1(FoobarBrick):
             id_ = Brick.generate_id('creme_core', 'foobar_brick_1')
@@ -75,7 +76,8 @@ class BrickRegistryTestCase(CremeTestCase):
         class FoobarBrick(Brick):
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context): return self._render(self.get_template_context(context))
+            def detailview_display(self, context):
+                return self._render(self.get_template_context(context))
 
         class FoobarBrick1(FoobarBrick):
             id_ = Brick.generate_id('creme_core', 'foobar_brick_1')
@@ -94,7 +96,8 @@ class BrickRegistryTestCase(CremeTestCase):
             id_ = Brick.generate_id('creme_core', 'foobar_brick_1')
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context): return self._render(self.get_template_context(context))
+            def detailview_display(self, context):
+                return self._render(self.get_template_context(context))
 
         class FoobarBrick2(FoobarBrick1):
             pass
@@ -114,7 +117,8 @@ class BrickRegistryTestCase(CremeTestCase):
             # id_ = Brick.generate_id('creme_core', 'foobar_brick')  # NOPE
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context): return self._render(self.get_template_context(context))
+            def detailview_display(self, context):
+                return self._render(self.get_template_context(context))
 
         brick_registry = _BrickRegistry()
 
@@ -313,7 +317,8 @@ class BrickRegistryTestCase(CremeTestCase):
             id_ = Brick.generate_id('creme_core', 'foobar_brick_1')
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context): return self._render(self.get_template_context(context))
+            def detailview_display(self, context):
+                return self._render(self.get_template_context(context))
 
         class FoobarBrick2(SimpleBrick):
             id_ = Brick.generate_id('creme_core', 'foobar_brick_2')
@@ -334,7 +339,8 @@ class BrickRegistryTestCase(CremeTestCase):
             id_ = Brick.generate_id('creme_core', 'foobar_brick_5')
             verbose_name = 'Testing purpose'
 
-            def home_display(self, context): return f'<table id="{self.id_}"></table>'
+            def home_display(self, context):
+                return f'<table id="{self.id_}"></table>'
 
         class FakeContactBrick(EntityBrick):
             verbose_name = 'Fake Contact block'
@@ -625,20 +631,23 @@ class BrickRegistryTestCase(CremeTestCase):
 
             # NB: only home_display() method
             # def detailview_display(self, context): [...]
-            def home_display(self, context): return f'<table id="{self.id_}"></table>'
+            def home_display(self, context):
+                return f'<table id="{self.id_}"></table>'
 
         class FoobarBrick2(Brick):
             id_  = Brick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_compatible_home_bricks_2')
             verbose_name = 'Testing purpose'
             configurable = False  # <----
 
-            def home_display(self, context): return f'<table id="{self.id_}"></table>'
+            def home_display(self, context):
+                return f'<table id="{self.id_}"></table>'
 
         class FoobarBrick3(Brick):
             id_ = Brick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_compatible_home_bricks_3')
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context): return f'<table id="{self.id_}"></table>'
+            def detailview_display(self, context):
+                return f'<table id="{self.id_}"></table>'
             # def home_display(self, context): [...]
 
         brick_registry = _BrickRegistry()
