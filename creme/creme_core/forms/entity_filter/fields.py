@@ -361,7 +361,7 @@ class DateFieldsConditionsField(_ConditionsField):
                         fields[field.name] = [field]
 
             for field in model._meta.many_to_many:
-                self._build_related_fields(field, fields, fconfigs) # TODO: test
+                self._build_related_fields(field, fields, fconfigs)  # TODO: test
 
         return self._fields
 

@@ -174,15 +174,16 @@ class SendingsTestCase(_EmailsTestCase):
         mlist01.children.add(mlist02, mlist03, mlist04)
         camp.mailing_lists.add(mlist01, mlist05, mlist06)
 
-        addresses = ['spike.spiegel@bebop.com',  # 0
-                     'jet.black@bebop.com',      # 1
-                     'faye.valentine@bebop.com', # 2
-                     'ed.wong@bebop.com',        # 3
-                     'ein@bebop.com',            # 4
-                     'contact@nerv.jp',          # 5
-                     'contact@seele.jp',         # 6
-                     'shin@reddragons.mrs',      # 7
-                    ]
+        addresses = [
+            'spike.spiegel@bebop.com',   # 0
+            'jet.black@bebop.com',       # 1
+            'faye.valentine@bebop.com',  # 2
+            'ed.wong@bebop.com',         # 3
+            'ein@bebop.com',             # 4
+            'contact@nerv.jp',           # 5
+            'contact@seele.jp',          # 6
+            'shin@reddragons.mrs',       # 7
+        ]
 
         create_recipient = EmailRecipient.objects.create
         create_recipient(ml=mlist01, address=addresses[0])
@@ -504,13 +505,14 @@ class SendingsTestCase(_EmailsTestCase):
                }
 
         post = partial(self.client.post, self._build_add_url(camp))
-        self.assertNoFormError(post(data={**data,
-                                          'sending_date': naive_sending_date.strftime('%Y-%m-%d'), # Future: OK
-                                          'hour':         naive_sending_date.hour,
-                                          'minute':       naive_sending_date.minute,
-                                         },
-                                   )
-                              )
+        self.assertNoFormError(post(
+            data={
+                **data,
+                'sending_date': naive_sending_date.strftime('%Y-%m-%d'),  # Future: OK
+                'hour':         naive_sending_date.hour,
+                'minute':       naive_sending_date.minute,
+            },
+        ))
 
         with self.assertNoException():
             sending = self.refresh(camp).sendings_set.all()[0]

@@ -80,7 +80,7 @@ class FunctionFieldsTestCase(CremeTestCase):
             verbose_name = 'Verbose name 1'
 
         class TestFunctionField2(FunctionField):
-            name         = TestFunctionField1.name # <==
+            name         = TestFunctionField1.name  # <==
             verbose_name = 'Verbose name 2'
 
         registry.register(Klass, TestFunctionField1)

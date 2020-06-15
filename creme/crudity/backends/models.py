@@ -214,7 +214,8 @@ class CrudityBackend:
                         data[field_name] = field_value = date_from_str(field_value.strip())
 
                     elif isinstance(field, BooleanField) and isinstance(field_value, str):
-                        data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower()) #Trick to obtain 't'/'f' or '1'/'0'
+                        # NB: trick to obtain 't'/'f' or '1'/'0'
+                        data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower())
 
                     elif isinstance(field, ForeignKey) and issubclass(field.remote_field.model, Document):
                         filename, blob = field_value  # Should be pre-processed by the input

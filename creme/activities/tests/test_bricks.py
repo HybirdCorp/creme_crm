@@ -250,9 +250,12 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
                  },
         )
 
-        self.assertRelationCount(1, phone_call, constants.REL_OBJ_PART_2_ACTIVITY, logged)   # logged user, push in his calendar
-        self.assertRelationCount(1, phone_call, constants.REL_OBJ_PART_2_ACTIVITY, other)    # other contact user, push in his calendar too
-        self.assertRelationCount(1, phone_call, constants.REL_OBJ_PART_2_ACTIVITY, contact3) # classic contact, has no calendar
+        # Logged user, set in his calendar
+        self.assertRelationCount(1, phone_call, constants.REL_OBJ_PART_2_ACTIVITY, logged)
+        # Other contact user, set in his calendar too
+        self.assertRelationCount(1, phone_call, constants.REL_OBJ_PART_2_ACTIVITY, other)
+        # Regular contact, has no calendar
+        self.assertRelationCount(1, phone_call, constants.REL_OBJ_PART_2_ACTIVITY, contact3)
         self.assertEqual(2, phone_call.calendars.count())
 
         sym_rel = Relation.objects.get(subject_entity=logged, type=constants.REL_SUB_PART_2_ACTIVITY, object_entity=phone_call)

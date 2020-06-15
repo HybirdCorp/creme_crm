@@ -71,7 +71,8 @@ class SettingTestCase(CremeTestCase):
         sv.value = True
         sv.save()
 
-        self.assertNoFormError(self.client.post(self._build_edit_url(sv), data={})) #False -> empty POST
+        # False -> empty POST
+        self.assertNoFormError(self.client.post(self._build_edit_url(sv), data={}))
         self.assertFalse(self.refresh(sv).value)
 
     def test_edit_hour(self):

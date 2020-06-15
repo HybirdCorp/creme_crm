@@ -37,13 +37,28 @@ CREME_ROOT = dirname(abspath(__file__))  # BASE_DIR + '/creme'
 #   - configure your database to use utf8 (eg: with MySQL, 'utf8_general_ci' is OK).
 DATABASES = {
     'default': {
-        'ENGINE':   'django.db.backends.mysql', # 'postgresql', 'mysql', 'sqlite3' ('oracle' backend is not working with creme for now).
-        'NAME':     'cremecrm',                 # Or path to database file if using sqlite3.
-        'USER':     'creme',                    # Not used with sqlite3.
-        'PASSWORD': 'creme',                    # Not used with sqlite3.
-        'HOST':     '',                         # Set to empty string for localhost. Not used with sqlite3.
-        'PORT':     '',                         # Set to empty string for default. Not used with sqlite3.
-        'OPTIONS':  {},                         # Extra parameters for database connection. Consult backend module's document for available keywords.
+        # Possible backends: 'postgresql', 'mysql', 'sqlite3'.
+        # NB: 'oracle' backend is not working with creme for now.
+        'ENGINE':   'django.db.backends.mysql',
+
+        # Name of the database, or path to the database file if using 'sqlite3'.
+        'NAME': 'cremecrm',
+
+        # Not used with sqlite3.
+        'USER': 'creme',
+
+        # Not used with sqlite3.
+        'PASSWORD': 'creme',
+
+        # Set to empty string for localhost. Not used with 'sqlite3'.
+        'HOST': '',
+
+        # Set to empty string for default. Not used with 'sqlite3'.
+        'PORT': '',
+
+        # Extra parameters for database connection.
+        # Consult backend module's document for available keywords.
+        'OPTIONS':  {},
     },
 }
 

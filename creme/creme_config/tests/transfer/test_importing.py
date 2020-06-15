@@ -854,8 +854,8 @@ class ImportingTestCase(CremeTestCase):
     def test_buttons(self):
         self.login(is_staff=True)
 
-        get_ct = ContentType.objects.get_for_model ####
-        contact_ct = get_ct(FakeContact)
+        # get_ct = ContentType.objects.get_for_model
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(ButtonMenuItem.objects.filter(content_type=contact_ct))
 
         def gen_bid(i):

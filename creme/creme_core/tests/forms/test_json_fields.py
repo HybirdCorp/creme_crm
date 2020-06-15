@@ -895,7 +895,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         #                     )
         self.assertFalse(field._get_allowed_rtypes_objects())
 
-        field.allowed_rtypes = [rtype1.id, rtype2.id] # <===
+        field.allowed_rtypes = [rtype1.id, rtype2.id]  # <===
         rtypes = [*field._get_allowed_rtypes_objects()]
         self.assertEqual(2, len(rtypes))
         self.assertIn(rtype1, rtypes)
@@ -916,7 +916,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         #                      [*field._get_allowed_rtypes_objects()]
         #                     )
 
-        field.allowed_rtypes = RelationType.objects.filter(pk__in=[rtype1.id, rtype2.id]) # <===
+        field.allowed_rtypes = RelationType.objects.filter(pk__in=[rtype1.id, rtype2.id])  # <===
         rtypes = [*field._get_allowed_rtypes_objects()]
         self.assertEqual(2, len(rtypes))
         self.assertIn(rtype1, rtypes)

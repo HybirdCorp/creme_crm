@@ -98,7 +98,7 @@ class GraphFetcherField(Field):
 
     _graph: 'AbstractReportGraph'
     choice_iterator_class = FetcherChoiceIterator
-    _choice_separator: str # Separate the type & the value of each fetcher choice
+    _choice_separator: str  # Separate the type & the value of each fetcher choice
 
     def __init__(self, *, graph=None, choice_separator='|', **kwargs):
         super().__init__(**kwargs)

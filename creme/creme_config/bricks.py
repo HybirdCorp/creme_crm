@@ -668,7 +668,7 @@ class SearchConfigBrick(PaginatedBrick):
         # NB: we wrap the ContentType instances instead of store extra data in
         #     them because teh instances are stored in a global cache, so we do
         #     not want to mutate them.
-        class _ContentTypeWrapper: # TODO: move from here ?
+        class _ContentTypeWrapper:  # TODO: move from here ?
             __slots__ = ('ctype', 'sc_items')
 
             def __init__(self, ctype):

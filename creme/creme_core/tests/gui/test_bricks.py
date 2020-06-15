@@ -888,7 +888,7 @@ class BrickRegistryTestCase(CremeTestCase):
             # brick_id=bad_brick_id,
             brick_class_id=InstanceBrickConfigItem.generate_base_id(
                 'creme_core',
-                'does_not_exist', # <==
+                'does_not_exist',  # <==
             ),
             # verbose='I am bad',
             # data='',

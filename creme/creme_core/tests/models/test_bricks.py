@@ -891,7 +891,7 @@ class BrickTestCase(CremeTestCase):
             show_empty_fields=False,
         )
 
-        with self.assertNumQueries(2): # try to retrieve state + SettingValues
+        with self.assertNumQueries(2):  # try to retrieve state + SettingValues
             state = BrickState.objects.get_for_brick_id(user=user1, brick_id=TestBrick.id_)
 
         self.assertIsInstance(state, BrickState)
