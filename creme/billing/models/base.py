@@ -220,16 +220,22 @@ class Base(CremeEntity):
             yield from self.get_lines(line_cls)
 
     def _get_lines_total_n_creditnotes_total(self):
-        creditnotes_total = sum(credit_note.total_no_vat
-                                    for credit_note in self.get_credit_notes()
-                               )
-        lines_total = sum(l.get_price_exclusive_of_tax(self) for l in self.iter_all_lines())
+        creditnotes_total = sum(
+            credit_note.total_no_vat for credit_note in self.get_credit_notes()
+        )
+        lines_total = sum(
+            line.get_price_exclusive_of_tax(self) for line in self.iter_all_lines()
+        )
 
         return lines_total, creditnotes_total
 
     def _get_lines_total_n_creditnotes_total_with_tax(self):
-        creditnotes_total = sum(credit_note.total_vat for credit_note in self.get_credit_notes())
-        lines_total_with_tax = sum(l.get_price_inclusive_of_tax(self) for l in self.iter_all_lines())
+        creditnotes_total = sum(
+            credit_note.total_vat for credit_note in self.get_credit_notes()
+        )
+        lines_total_with_tax = sum(
+            line.get_price_inclusive_of_tax(self) for line in self.iter_all_lines()
+        )
 
         return lines_total_with_tax, creditnotes_total
 

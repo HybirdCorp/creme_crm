@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2018  Hybird
+#    Copyright (C) 2012-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,7 +61,9 @@ class _PollLine:
         conditions_map = defaultdict(list)
         rev_conditions_map = defaultdict(list)
 
-        for condition in cls._get_condition_class().objects.filter(line__in=[l.id for l in lines]):
+        for condition in cls._get_condition_class().objects.filter(
+                line__in=[line.id for line in lines],
+        ):
             conditions_map[condition.line_id].append(condition)
             rev_conditions_map[condition.source_id].append(condition)
 

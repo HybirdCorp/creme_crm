@@ -441,7 +441,7 @@ class InvoiceTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     def test_editview03(self):
-        "User changes => lines user changes"
+        "User changes => lines user changes."
         user = self.login()
 
         # Simpler to test with 2 super users (do not have to create SetCredentials etc...)
@@ -482,15 +482,16 @@ class InvoiceTestCase(_BillingTestCase):
         invoice = self.refresh(invoice)
         self.assertEqual(other_user, invoice.user)
 
-        self.assertListEqual([other_user.id] * 4,
-                             [*CremeEntity.objects
-                                          .filter(pk__in=[l.pk for l in lines])
-                                          .values_list('user', flat=True)
-                             ]  # Refresh
-                            )
+        self.assertListEqual(
+            [other_user.id] * 4,
+            [*CremeEntity.objects
+                          .filter(pk__in=[line.pk for line in lines])
+                          .values_list('user', flat=True)
+            ]  # Refresh
+        )
 
     def test_editview04(self):
-        "Error on discount"
+        "Error on discount."
         user = self.login()
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')
         url = invoice.get_edit_absolute_url()
@@ -742,10 +743,10 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(target, cloned.get_target().get_real_entity())
 
         # Lines are cloned
-        src_line_ids = [l.id for l in invoice.iter_all_lines()]
+        src_line_ids = [line.id for line in invoice.iter_all_lines()]
         self.assertEqual(4, len(src_line_ids))
 
-        cloned_line_ids = [l.id for l in cloned.iter_all_lines()]
+        cloned_line_ids = [line.id for line in cloned.iter_all_lines()]
         self.assertEqual(4, len(cloned_line_ids))
 
         self.assertFalse({*src_line_ids} & {*cloned_line_ids})

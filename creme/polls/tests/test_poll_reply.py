@@ -339,7 +339,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         lines = preply.lines.all()
         self.assertEqual(4, len(lines))
 
-        line_ids = [l.id for l in lines]
+        line_ids = [line.id for line in lines]
         self.assertEqual(sorted(line_ids), line_ids)
 
         self.assertRedirects(response, preply.get_absolute_url())

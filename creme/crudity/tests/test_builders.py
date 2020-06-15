@@ -729,11 +729,11 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             {input_node.get('title') for input_node in input_nodes}
         )
         self.assertSetEqual(
-            {f'my:language/my:language_value[.="{l.id}"][1]' for l in languages},
+            {f'my:language/my:language_value[.="{lang.id}"][1]' for lang in languages},
             {input_node.get(f'{xd}binding') for input_node in input_nodes}
         )
         self.assertEqual(
-            {f'my:language/my:language_value[.="{l.id}"][1]' for l in languages},
+            {f'my:language/my:language_value[.="{lang.id}"][1]' for lang in languages},
             {
                 input_node.get('select')
                 for input_node in target_node.findall(
@@ -743,7 +743,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         )
 
         self.assertSetEqual(
-            {f'my:language/my:language_value="{l.id}"' for l in languages},
+            {f'my:language/my:language_value="{lang.id}"' for lang in languages},
              {
                  input_node.get('test')
                  for input_node in target_node.findall(f'{xsl}choose/{xsl}when/span/span/input/{xsl}if')
@@ -753,7 +753,9 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         for_each_node = target_node.find(f'{xsl}choose/{xsl}when/span/{xsl}for-each')
         self.assertIsNotNone(for_each_node)
         self.assertEqual(
-            'my:language/my:language_value[{}]'.format(' and '.join(f'.!="{l.id}"' for l in languages)),
+            'my:language/my:language_value[{}]'.format(
+                ' and '.join(f'.!="{lang.id}"' for lang in languages)
+            ),
             for_each_node.get('select')
         )
 

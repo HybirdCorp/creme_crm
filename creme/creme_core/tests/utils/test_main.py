@@ -65,14 +65,14 @@ class MiscTestCase(CremeTestCase):
             def __init__(self, data): self.data = data
 
         i1, i2, i3, i4 = Info(1), Info(2), Info(2), Info(5)
-        l = [i1, i2, i3, i4]
+        list_ = [i1, i2, i3, i4]
 
-        self.assertIs(find_first(l, lambda i: i.data == 1), i1)
-        self.assertIs(find_first(l, lambda i: i.data == 2), i2)
-        self.assertIs(find_first(l, lambda i: i.data == 5), i4)
+        self.assertIs(find_first(list_, lambda i: i.data == 1), i1)
+        self.assertIs(find_first(list_, lambda i: i.data == 2), i2)
+        self.assertIs(find_first(list_, lambda i: i.data == 5), i4)
 
-        self.assertIsNone(find_first(l, lambda i: i.data == 12, None))
-        self.assertRaises(IndexError, find_first, l, lambda i: i.data == 12)
+        self.assertIsNone(find_first(list_, lambda i: i.data == 12, None))
+        self.assertRaises(IndexError, find_first, list_, lambda i: i.data == 12)
 
     def test_split_filter(self):
         ok, ko = split_filter((lambda x: x % 2), range(5))

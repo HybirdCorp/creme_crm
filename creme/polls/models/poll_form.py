@@ -142,7 +142,9 @@ class AbstractPollForm(CremeEntity):
                                                 **extra_args
                                                )
 
-        for fcond in PollFormLineCondition.objects.filter(line__in=[l.id for l in pform_lines]):
+        for fcond in PollFormLineCondition.objects.filter(
+            line__in=[line.id for line in pform_lines],
+        ):
             create_cond(line=line_matches[fcond.line_id],
                         source=line_matches[fcond.source_id],
                         operator=fcond.operator,

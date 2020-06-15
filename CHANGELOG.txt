@@ -301,6 +301,8 @@
                     - Many protected methods have been removed.
                - These constants have been removed: _RFIELD_PREFIX, _CFIELD_PREFIX, _FFIELD_PREFIX, _RTYPE_PREFIX.
             - The function 'mass_import.get_backend()' has been renamed 'get_import_backend_class()'.
+        # In 'creme_core.utils' :
+            - The first argument of 'dependence_sort.dependence_sort()' has been renamed from "l" to "iterable".
         # In 'creme_core.views' :
             - The function-view 'exceptions.permission_denied()' does not inject a context variable "protected_objects" any more ;
               the related template "creme_core/forbidden.html" has been updated.
