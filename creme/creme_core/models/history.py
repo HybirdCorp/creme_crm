@@ -18,52 +18,64 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import date, time, datetime
+import logging
+from datetime import date, datetime, time
 from decimal import Decimal
 from functools import partial
-from json import loads as json_load, JSONEncoder
-import logging
+from json import JSONEncoder
+from json import loads as json_load
 from typing import (
-    Any, Union, Optional, Type,
-    Callable, Container, Iterator, Sequence,
-    Dict, List,
+    Any,
+    Callable,
+    Container,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Type,
+    Union,
 )
 
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import (
-    Model, Field,
-    PositiveSmallIntegerField,
-    CharField, TextField,
-    ForeignKey, OneToOneField,
-    SET_NULL, CASCADE,
+    CASCADE,
+    SET_NULL,
+    CharField,
+    Field,
     FieldDoesNotExist,
+    ForeignKey,
+    Model,
+    OneToOneField,
+    PositiveSmallIntegerField,
+    TextField,
 )
 from django.db.models.base import ModelState
-from django.db.models.signals import post_save, post_init, pre_delete
+from django.db.models.signals import post_init, post_save, pre_delete
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.utils.formats import date_format, number_format
 from django.utils.timezone import localtime
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from ..global_info import get_global_info, set_global_info
 from ..signals import pre_merge_related
 from ..utils.dates import (
-    dt_to_ISO8601,
-    dt_from_ISO8601,
     date_from_ISO8601,
     date_to_ISO8601,
+    dt_from_ISO8601,
+    dt_to_ISO8601,
 )
 from ..utils.translation import get_model_verbose_name
-
+from .creme_property import CremeProperty, CremePropertyType
 from .entity import CremeEntity
 from .entity_filter import EntityFilter
-from .header_filter import HeaderFilter
-from .relation import RelationType, Relation
-from .creme_property import CremePropertyType, CremeProperty
 from .fields import CreationDateTimeField, CremeUserForeignKey, CTypeForeignKey
+from .header_filter import HeaderFilter
+from .relation import Relation, RelationType
 
 logger = logging.getLogger(__name__)
 _get_ct = ContentType.objects.get_for_model

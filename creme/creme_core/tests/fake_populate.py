@@ -2,9 +2,7 @@
 
 from ..core.entity_cell import EntityCellRegularField
 from ..models import HeaderFilter, RelationType
-
-from . import fake_constants
-from . import fake_models
+from . import fake_constants, fake_models
 
 
 # TODO: use fixture instead ?

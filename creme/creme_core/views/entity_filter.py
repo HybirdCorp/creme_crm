@@ -28,23 +28,21 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from .. import utils
-from ..utils.content_type import entity_ctypes
 from ..auth.decorators import login_required
-from ..core.entity_filter import entity_filter_registries, EF_USER
+from ..core.entity_filter import EF_USER, entity_filter_registries
 from ..core.exceptions import ConflictError
 from ..forms.entity_filter import forms as efilter_forms
 from ..gui.listview import ListViewState
 from ..http import CremeJsonResponse
 from ..models import EntityFilter, RelationType
-from ..utils import (
-    get_from_GET_or_404,
-    db as db_utils,
-)
+from ..utils import db as db_utils
+from ..utils import get_from_GET_or_404
+from ..utils.content_type import entity_ctypes
 from ..utils.unicode_collation import collator
-
 from . import generic
 from .decorators import jsonify
 from .generic import base

@@ -3,8 +3,13 @@
 from .. import forms
 from ..forms.mass_import import ImportForm4CremeEntity, extractorfield_factory
 from ..forms.merge import MergeEntitiesBaseForm
-
-from .fake_models import FakeContact, FakeOrganisation, FakeAddress, FakeEmailCampaign, FakeProduct
+from .fake_models import (
+    FakeAddress,
+    FakeContact,
+    FakeEmailCampaign,
+    FakeOrganisation,
+    FakeProduct,
+)
 
 
 class FakeContactQuickForm(forms.CremeEntityQuickForm):

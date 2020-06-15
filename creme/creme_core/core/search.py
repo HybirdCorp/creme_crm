@@ -20,12 +20,12 @@
 
 from functools import reduce
 from operator import or_
-from typing import Type, Iterable, Optional, Dict, List
+from typing import Dict, Iterable, List, Optional, Type
 
 from django.db.models import Model
 from django.db.models.query import Q, QuerySet
 
-from ..models import SearchConfigItem, FieldsConfig
+from ..models import FieldsConfig, SearchConfigItem
 from ..models.search import SearchField
 from ..utils.string import smart_split
 

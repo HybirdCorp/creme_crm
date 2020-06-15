@@ -18,7 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Type, Union, Iterable, Iterator, Optional, List, TYPE_CHECKING
+from typing import (
+    TYPE_CHECKING,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Type,
+    Union,
+)
 
 from django.db.models import Model
 from django.utils.formats import number_format

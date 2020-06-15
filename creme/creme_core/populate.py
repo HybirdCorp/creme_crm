@@ -27,12 +27,18 @@ from django.utils.translation import gettext as _
 from . import bricks, constants, creme_jobs, sandboxes, setting_keys
 from .management.commands.creme_populate import BasePopulator
 from .models import (
-    CaseSensitivity,
-    Job, Sandbox,
-    RelationType, SettingValue,
-    Currency, Language, Vat,
-    BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    BrickMypageLocation,
     ButtonMenuItem,
+    CaseSensitivity,
+    Currency,
+    Job,
+    Language,
+    RelationType,
+    Sandbox,
+    SettingValue,
+    Vat,
 )
 from .utils import create_if_needed
 from .utils.date_period import date_period_registry

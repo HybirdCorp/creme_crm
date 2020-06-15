@@ -18,18 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from enum import Enum
 from functools import partial
-from json import loads as json_load, JSONDecodeError
-import logging
-from typing import Optional, Type, List, Tuple
+from json import JSONDecodeError
+from json import loads as json_load
+from typing import List, Optional, Tuple, Type
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 from django.db.models import Q, QuerySet
 from django.http import HttpResponse
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 from django.views.generic.list import ListView
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -38,11 +40,17 @@ from creme.creme_core.core.entity_cell import EntityCell, EntityCellActions
 from creme.creme_core.core.paginator import FlowPaginator
 from creme.creme_core.forms.listview import ListViewSearchForm
 from creme.creme_core.gui import listview as lv_gui
-from creme.creme_core.gui.actions import actions_registry, ActionsRegistry
+from creme.creme_core.gui.actions import ActionsRegistry, actions_registry
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.models.entity_filter import EntityFilter, EntityFilterList
-from creme.creme_core.models.header_filter import HeaderFilter, HeaderFilterList
-from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404
+from creme.creme_core.models.entity_filter import (
+    EntityFilter,
+    EntityFilterList,
+)
+from creme.creme_core.models.header_filter import (
+    HeaderFilter,
+    HeaderFilterList,
+)
+from creme.creme_core.utils import get_from_GET_or_404, get_from_POST_or_404
 from creme.creme_core.utils.meta import Order
 from creme.creme_core.utils.queries import QSerializer
 from creme.creme_core.utils.serializers import json_encode

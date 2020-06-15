@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-from typing import Optional, Dict, Type
+from typing import Dict, Optional, Type
 
 from creme.creme_core.models import Sandbox
 

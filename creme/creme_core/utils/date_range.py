@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from calendar import monthrange
 from collections import OrderedDict
 from datetime import date, datetime, timedelta
-import logging
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 from django.utils.translation import gettext_lazy as _
 

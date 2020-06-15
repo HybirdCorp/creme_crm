@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from decimal import Decimal
 import re
 import uuid
+from decimal import Decimal
 
 import pytz
-
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import migrations, models
 from django.utils.timezone import now
 
-from creme.creme_core.models import fields as creme_fields, deletion as creme_deletion
+from creme.creme_core.models import deletion as creme_deletion
+from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):

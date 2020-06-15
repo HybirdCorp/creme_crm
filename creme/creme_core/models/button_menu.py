@@ -19,10 +19,11 @@
 ################################################################################
 
 import warnings
-from typing import Type, Optional, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Type, Union
 
 from django.db import models
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from .base import CremeModel
 from .entity import CremeEntity

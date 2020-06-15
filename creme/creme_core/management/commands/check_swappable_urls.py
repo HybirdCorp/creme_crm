@@ -24,7 +24,7 @@
 ################################################################################
 
 from django.core.management.base import BaseCommand
-from django.urls import reverse, NoReverseMatch
+from django.urls import NoReverseMatch, reverse
 
 from creme.creme_core.conf.urls import swap_manager
 

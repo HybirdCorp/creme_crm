@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Type, Optional, Callable, Dict, KeysView, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Dict, KeysView, Optional, Type
 
 from creme.creme_core.models import CremeEntity
 

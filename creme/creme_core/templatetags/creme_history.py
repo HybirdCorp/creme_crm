@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2019  Hybird
+#    Copyright (C) 2017-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from datetime import timedelta
 
 from django import template
 
-from ..models.history import HistoryLine, TYPE_CREATION, TYPE_EDITION
+from ..models.history import TYPE_CREATION, TYPE_EDITION, HistoryLine
 
 register = template.Library()
 

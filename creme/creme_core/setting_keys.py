@@ -5,7 +5,6 @@ from django.utils.translation import gettext_lazy as _
 from . import constants
 from .core.setting_key import SettingKey
 
-
 block_opening_key = SettingKey(
     id=constants.SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
     description=_('By default, are blocks open ?'),

@@ -25,9 +25,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.forms import ModelChoiceField
 from django.forms.fields import CallableChoiceIterator
-from django.utils.translation import gettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
-from ..core.batch_process import batch_operator_manager, BatchAction
+from ..core.batch_process import BatchAction, batch_operator_manager
 from ..creme_jobs.batch_process import batch_process_type
 from ..gui import bulk_update
 from ..models import CremeEntity, EntityFilter, Job
@@ -35,7 +36,7 @@ from ..utils.unicode_collation import collator
 from ..utils.url import TemplateURLBuilder
 from .base import CremeModelForm
 from .fields import JSONField
-from .widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
+from .widgets import ChainedInput, DynamicInput, PolymorphicInput, SelectorList
 
 
 class BatchActionsWidget(SelectorList):

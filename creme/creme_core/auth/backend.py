@@ -20,7 +20,7 @@
 
 from django.contrib.auth.backends import ModelBackend
 
-from . import SUPERUSER_PERM, STAFF_PERM
+from . import STAFF_PERM, SUPERUSER_PERM
 from .entity_credentials import EntityCredentials
 
 _ADD_PREFIX = 'add_'

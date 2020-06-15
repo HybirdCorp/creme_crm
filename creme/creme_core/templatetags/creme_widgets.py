@@ -22,14 +22,16 @@ import logging
 from typing import Dict, Tuple, Type
 
 from django.conf import settings
-from django.template import Library, TemplateSyntaxError, Node as TemplateNode
-from django.utils.html import escape, format_html, urlize as django_urlize
+from django.template import Library
+from django.template import Node as TemplateNode
+from django.template import TemplateSyntaxError
+from django.utils.html import escape, format_html
+from django.utils.html import urlize as django_urlize
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from ..gui.icons import icon_registry, get_icon_size_px, get_icon_by_name
+from ..gui.icons import get_icon_by_name, get_icon_size_px, icon_registry
 from ..utils.media import get_current_theme_from_context
-
 from . import KWARG_RE
 
 register = Library()

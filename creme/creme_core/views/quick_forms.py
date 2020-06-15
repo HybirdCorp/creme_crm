@@ -22,7 +22,6 @@ from django.http import Http404
 from django.utils.functional import cached_property
 
 from ..gui.quick_forms import quickforms_registry
-
 from . import generic
 from .generic.base import EntityCTypeRelatedMixin
 from .utils import json_update_from_widget_response

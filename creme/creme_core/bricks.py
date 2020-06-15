@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
 import logging
+from collections import defaultdict
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -27,21 +27,21 @@ from django.utils.translation import gettext_lazy as _
 
 from .core.entity_cell import EntityCellCustomField
 from .creme_jobs.base import JobType
-from .gui.bricks import Brick, QuerysetBrick, BricksManager
 from .gui import statistics
+from .gui.bricks import Brick, BricksManager, QuerysetBrick
 from .models import (
     CremeEntity,
-    RelationType, Relation,
     CremeProperty,
     CustomField,
+    EntityJobResult,
     Imprint,
-    Job, JobResult, MassImportJobResult, EntityJobResult,
+    Job,
+    JobResult,
+    MassImportJobResult,
+    Relation,
+    RelationType,
 )
-from .models.history import (
-    HistoryLine,
-    TYPE_SYM_RELATION,
-    TYPE_SYM_REL_DEL,
-)
+from .models.history import TYPE_SYM_REL_DEL, TYPE_SYM_RELATION, HistoryLine
 
 logger = logging.getLogger(__name__)
 

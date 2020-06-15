@@ -24,11 +24,7 @@
 #
 ################################################################################
 
-from typing import (
-    Union,
-    Iterable, Iterator,
-    List, Tuple,
-)
+from typing import Iterable, Iterator, List, Tuple, Union
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404

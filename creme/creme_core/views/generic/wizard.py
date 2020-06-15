@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# import warnings
 import logging
 from typing import List, Type
-# import warnings
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db.transaction import atomic
@@ -29,11 +29,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 # from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.detail import SingleObjectMixin
-
 from formtools.wizard.views import SessionWizardView
 
-from creme.creme_core import models
 # from creme.creme_core.auth.decorators import login_required
+from creme.creme_core import models
 
 from . import base
 

@@ -18,21 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from os.path import splitext
-from typing import Any, Type, Callable, Iterator
 import warnings
+from os.path import splitext
+from typing import Any, Callable, Iterator, Type
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import Manager, Model, Field
+from django.db.models import Field, Manager, Model
 from django.template.defaultfilters import linebreaks
 from django.urls import reverse
 from django.utils.formats import date_format, number_format
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
-from django.utils.translation import ngettext, gettext as _
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
 from ..core.download import (
     DownLoadableFileField,

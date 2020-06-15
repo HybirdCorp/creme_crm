@@ -20,10 +20,10 @@
 
 import logging
 # import warnings
-from typing import Union, Type, Iterable
+from typing import Iterable, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
-from django.db import models, IntegrityError
+from django.db import IntegrityError, models
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.dispatch import receiver
@@ -32,7 +32,6 @@ from django.utils.translation import gettext_lazy as _
 
 from .. import signals
 from ..utils.content_type import as_ctype
-
 from .base import CremeModel
 from .entity import CremeEntity
 

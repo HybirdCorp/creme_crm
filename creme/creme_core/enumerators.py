@@ -23,7 +23,7 @@
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core import enumerable
-from creme.creme_core.utils.content_type import entity_ctypes, ctype_choices
+from creme.creme_core.utils.content_type import ctype_choices, entity_ctypes
 from creme.creme_core.utils.unicode_collation import collator
 
 

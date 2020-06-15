@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import dumps as jsondumps, loads as jsonloads
 import logging
+from json import dumps as jsondumps
+from json import loads as jsonloads
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -28,12 +29,14 @@ from django.db.models.expressions import F
 from django.db.transaction import atomic
 from django.urls import reverse
 from django.utils.timezone import now
-from django.utils.translation import get_language, gettext_lazy as _
+from django.utils.translation import get_language
+from django.utils.translation import gettext_lazy as _
 
 from ..utils.date_period import HoursPeriod, date_period_registry
-from ..utils.dates import round_hour, dt_to_ISO8601, dt_from_ISO8601
+from ..utils.dates import dt_from_ISO8601, dt_to_ISO8601, round_hour
 from .entity import CremeEntity
-from .fields import CremeUserForeignKey, DatePeriodField  # CreationDateTimeField
+# from .fields import CreationDateTimeField
+from .fields import CremeUserForeignKey, DatePeriodField
 
 logger = logging.getLogger(__name__)
 

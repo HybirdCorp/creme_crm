@@ -18,10 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import unittest
 from os.path import dirname
 from shutil import rmtree
 from tempfile import mkdtemp
-import unittest
 
 from django.apps import apps
 from django.conf import settings

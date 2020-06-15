@@ -26,7 +26,7 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import AppCommand, CommandError
-from django.db import connections, DEFAULT_DB_ALIAS
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.migrations.recorder import MigrationRecorder
 from django.dispatch import receiver
 from django.utils.encoding import force_text
@@ -35,16 +35,25 @@ from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import (
-    CremeEntity, RelationType, CremePropertyType,
-    EntityFilter, HistoryLine, SettingValue, Job,
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    BrickMypageLocation,
+    BrickState,
     ButtonMenuItem,
-    BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
-    RelationBrickItem, InstanceBrickConfigItem, BrickState
+    CremeEntity,
+    CremePropertyType,
+    EntityFilter,
+    HistoryLine,
+    InstanceBrickConfigItem,
+    Job,
+    RelationBrickItem,
+    RelationType,
+    SettingValue,
 )
+from creme.creme_core.signals import post_uninstall_flush, pre_uninstall_flush
 from creme.creme_core.utils import split_filter
 from creme.creme_core.utils.collections import LimitedList
 from creme.creme_core.utils.serializers import json_encode
-from creme.creme_core.signals import pre_uninstall_flush, post_uninstall_flush
 
 MAX_ERRORS = 15  # Number of errors which are displayed when flushing instances #TODO: as argument ?
 
@@ -487,7 +496,7 @@ class Command(AppCommand):
 
 ################################################################################
 # Copyright (c) Django Software Foundation and individual contributors.
-# Copyright (c) Hybird - 2018
+# Copyright (c) Hybird - 2018-2020
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,

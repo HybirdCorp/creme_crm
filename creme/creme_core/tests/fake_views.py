@@ -2,7 +2,7 @@
 
 from creme.creme_core.views import generic
 
-from ..tests import fake_models, fake_forms
+from ..tests import fake_forms, fake_models
 
 
 class FakeDocumentsList(generic.EntitiesList):

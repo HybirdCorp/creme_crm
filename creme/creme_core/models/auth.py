@@ -18,37 +18,49 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+import uuid
 from collections import OrderedDict, defaultdict
 from functools import reduce
-import logging
 from operator import or_ as or_op
 from re import compile as re_compile
 from typing import (
-    Optional, Union, Type,
-    Sequence, Iterable,
-    DefaultDict, Dict, FrozenSet, List, Set, Tuple,
     TYPE_CHECKING,
+    DefaultDict,
+    Dict,
+    FrozenSet,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    Union,
 )
-import uuid
 
 import pytz
-
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, _user_has_perm
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    _user_has_perm,
+)
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q, QuerySet
 from django.utils.timezone import now
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from ..auth import EntityCredentials
 from ..core.setting_key import UserSettingValueManager
 from ..utils import split_filter
 from ..utils.unicode_collation import collator
-
+from .entity import CremeEntity
 from .fields import EntityCTypeForeignKey  # CTypeForeignKey
 
 if TYPE_CHECKING:
@@ -1165,6 +1177,3 @@ class Sandbox(models.Model):
         from ..core.sandbox import sandbox_type_registry
 
         return sandbox_type_registry.get(self)
-
-
-from .entity import CremeEntity

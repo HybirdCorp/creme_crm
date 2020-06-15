@@ -18,23 +18,29 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from collections import defaultdict
 from itertools import islice
-import logging
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.conf import settings
 from django.db import IntegrityError
-from django.db.models import Q, FieldDoesNotExist, ProtectedError
+from django.db.models import FieldDoesNotExist, ProtectedError, Q
 from django.db.transaction import atomic
 # from django.db.utils import NotSupportedError
 from django.forms.models import modelform_factory
-from django.http import HttpResponse, Http404, HttpResponseBadRequest  # HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render, redirect
+from django.http import (  # HttpResponseRedirect
+    Http404,
+    HttpResponse,
+    HttpResponseBadRequest,
+)
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import format_html  # format_html_join
-from django.utils.translation import gettext_lazy as _, gettext, ngettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from .. import constants
 from ..auth import SUPERUSER_PERM
@@ -49,30 +55,32 @@ from ..core.exceptions import (
 from ..creme_jobs import trash_cleaner_type
 from ..forms import CremeEntityForm
 from ..forms.bulk import BulkDefaultEditForm
-from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
-from ..gui import bulk_update  # NB: do no import <bulk_update_registry> to facilitate unit testing
+from ..forms.merge import MergeEntitiesBaseForm
+from ..forms.merge import form_factory as merge_form_factory
+# NB: do no import <bulk_update_registry> to facilitate unit testing
+from ..gui import bulk_update
 from ..gui.merge import merge_form_registry
 from ..http import CremeJsonResponse
 from ..models import (
     CremeEntity,
-    Relation,
+    EntityJobResult,
     FieldsConfig,
+    Job,
+    Relation,
     Sandbox,
-    Job, EntityJobResult,
     TrashCleaningCommand,
 )
 from ..models.fields import UnsafeHTMLField
-from ..utils import (
-    # get_ct_or_404,
-    get_from_POST_or_404, get_from_GET_or_404,
+from ..utils import (  # get_ct_or_404,
     bool_from_str_extended,
+    get_from_GET_or_404,
+    get_from_POST_or_404,
 )
 # from ..utils.collections import LimitedList
 from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.serializers import json_encode
 from ..utils.translation import get_model_verbose_name
-
 from . import generic
 from .decorators import jsonify  # POST_only
 from .generic import base, listview

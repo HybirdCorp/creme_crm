@@ -19,26 +19,22 @@
 ################################################################################
 
 import os
+import warnings
 from os.path import basename, join
 from random import randint
-import warnings
 
 from django.conf import settings
-from django.http import (
-    FileResponse,
-    HttpResponse,
-    Http404,
-)
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
 from ..auth.decorators import login_required
 from ..core.download import (
     DownLoadableFileField,
-    FileFieldDownLoadRegistry, filefield_download_registry,
+    FileFieldDownLoadRegistry,
+    filefield_download_registry,
 )
 from ..utils.file_handling import FileCreator
-
 from .generic import base
 
 MAXINT = 100000

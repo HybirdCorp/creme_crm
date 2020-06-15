@@ -24,24 +24,21 @@ except ImportError:
     print('Please install the package "factory_boy".')
     exit()
 
+import re
+from contextlib import contextmanager
 from functools import partial
 from random import choice, random
-import re
-
-from faker.config import AVAILABLE_LOCALES
-
-from factory.django import DjangoModelFactory
+from time import time
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
 
+from factory.django import DjangoModelFactory
+from faker.config import AVAILABLE_LOCALES
 
 # Move to creme_core.utils ? ---------------------------------------------------
-from contextlib import contextmanager
-from time import time
-
 
 @contextmanager
 def print_time(name='TIME', mute=False):

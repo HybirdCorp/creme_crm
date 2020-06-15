@@ -18,32 +18,46 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# import warnings
+import logging
 from collections import OrderedDict
 from functools import partial
-import logging
 from typing import (
-    Any, Optional, Union, Type,
-    Callable, Collection, Iterable, Iterator, Sequence,
-    Dict, List, Set, Tuple,
+    Any,
+    Callable,
+    Collection,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    Union,
 )
-# import warnings
 
 from django import forms
 from django.conf import settings
 from django.db.models import Q
 from django.forms.boundfield import BoundField
 from django.utils.html import format_html, format_html_join
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from ..models import (
     CremeEntity,
-    CremePropertyType, CremeProperty,
-    RelationType, Relation, SemiFixedRelationType,
-    CustomField, CustomFieldValue,
+    CremeProperty,
+    CremePropertyType,
+    CustomField,
+    CustomFieldValue,
     FieldsConfig,
+    Relation,
+    RelationType,
+    SemiFixedRelationType,
 )
 from ..utils.collections import FluentList
-
 from . import fields, widgets
 
 __all__ = (

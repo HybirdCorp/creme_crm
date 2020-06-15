@@ -18,25 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
 import re
+from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db.models import (
-    ManyToManyField,
-    FileField,
-    FieldDoesNotExist,
-)
+from django.db.models import FieldDoesNotExist, FileField, ManyToManyField
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.widgets import Select
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from ..gui import bulk_update
 from ..models import custom_field
-
 from .base import CremeForm
 
 _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')

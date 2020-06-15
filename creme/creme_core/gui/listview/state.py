@@ -21,8 +21,14 @@
 import logging
 from typing import Optional
 
-from creme.creme_core.models.entity_filter import EntityFilterList, EntityFilter
-from creme.creme_core.models.header_filter import HeaderFilterList, HeaderFilter
+from creme.creme_core.models.entity_filter import (
+    EntityFilter,
+    EntityFilterList,
+)
+from creme.creme_core.models.header_filter import (
+    HeaderFilter,
+    HeaderFilterList,
+)
 from creme.creme_core.utils.queries import QSerializer
 
 logger = logging.getLogger(__name__)

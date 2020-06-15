@@ -18,22 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
 import logging
-from typing import Type, Union, Iterable, Tuple
 import warnings
+from collections import defaultdict
+from typing import Iterable, Tuple, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
-from django.db import models, IntegrityError
+from django.db import IntegrityError, models
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.http import Http404
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from ..signals import pre_merge_related
 from ..utils.content_type import as_ctype
-
 from . import fields as creme_fields
 from .base import CremeModel
 from .creme_property import CremePropertyType

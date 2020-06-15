@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from os.path import join, basename
+from os.path import basename, join
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
@@ -29,7 +29,6 @@ from django.utils.translation import gettext_lazy as _
 from ..models import FileRef
 from ..utils.file_handling import FileCreator
 from ..utils.xlwt_utils import XlwtWriter
-
 from .base import ExportBackend
 
 

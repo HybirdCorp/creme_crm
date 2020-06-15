@@ -21,16 +21,17 @@
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import ProtectedError, F
+from django.db.models import F, ProtectedError
 from django.db.transaction import atomic
 from django.db.utils import NotSupportedError
-from django.utils.translation import gettext as _, gettext_lazy, ngettext
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy, ngettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+
 from ..core.paginator import FlowPaginator
 from ..models import CremeEntity, EntityJobResult, TrashCleaningCommand
-
-from .base import JobType, JobProgress
+from .base import JobProgress, JobType
 
 logger = logging.getLogger(__name__)
 

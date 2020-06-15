@@ -20,7 +20,8 @@
 
 from django.core.exceptions import PermissionDenied
 from django.forms.utils import ValidationError
-from django.utils.translation import gettext as _, gettext_lazy
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
 from ..utils import entities_to_str
 

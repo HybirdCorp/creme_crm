@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import ModelMultipleChoiceField, CharField
-from django.utils.translation import gettext_lazy as _, gettext
+from django.forms import CharField, ModelMultipleChoiceField
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
-from ..models import CremePropertyType, CremeProperty
+from ..models import CremeProperty, CremePropertyType
 from ..utils import entities_to_str
-
 from .base import CremeForm
 from .widgets import Label
 

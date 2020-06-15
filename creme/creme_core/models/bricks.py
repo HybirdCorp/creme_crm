@@ -18,33 +18,38 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+import warnings
 from functools import partial
 from json import loads as json_load
-import logging
 from typing import (
-    Any, Optional, Union, Type,
-    Iterable, Iterator, Sequence,
-    Dict, List, Tuple,
     TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
 )
-import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db import models, IntegrityError
+from django.db import IntegrityError, models
 from django.db.models.signals import post_save
 from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 
 from ..constants import (
+    MODELBRICK_ID,
     SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
     SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
-    MODELBRICK_ID,
 )
-from ..core.entity_cell import EntityCell
 from ..utils.content_type import entity_ctypes
 from ..utils.serializers import json_encode
-
 from .auth import UserRole
 from .base import CremeModel
 from .entity import CremeEntity
@@ -54,7 +59,8 @@ from .relation import RelationType
 from .setting_value import SettingValue
 
 if TYPE_CHECKING:
-    from creme.creme_core.gui.bricks import Brick, InstanceBrick
+    from ..core.entity_cell import EntityCell
+    from ..gui.bricks import Brick, InstanceBrick
 
 __all__ = (
     'BrickDetailviewLocation', 'BrickHomeLocation', 'BrickMypageLocation',
@@ -438,17 +444,17 @@ class RelationBrickItem(CremeModel):
         del self._cells_by_ct()[ctype.id]
         self._dump_cells_map()
 
-    def get_cells(self, ctype: ContentType) -> List[EntityCell]:
+    def get_cells(self, ctype: ContentType) -> List['EntityCell']:
         return self._cells_by_ct().get(ctype.id)
 
-    def iter_cells(self) -> Iterator[Tuple[ContentType, List[EntityCell]]]:
+    def iter_cells(self) -> Iterator[Tuple[ContentType, List['EntityCell']]]:
         "Beware: do not modify the returned objects."
         get_ct = ContentType.objects.get_for_id
 
         for ct_id, cells in self._cells_by_ct().items():
             yield get_ct(ct_id), cells  # TODO: copy dicts ?? (if 'yes' -> iter_ctypes() too)
 
-    def set_cells(self, ctype: ContentType, cells: List[EntityCell]) -> None:
+    def set_cells(self, ctype: ContentType, cells: List['EntityCell']) -> None:
         self._cells_by_ct()[ctype.id] = cells
         self._dump_cells_map()
         # return self  TODO ??
@@ -652,12 +658,12 @@ class CustomBrickConfigItem(CremeModel):
 
         return None if prefix != 'customblock' else cbci_id
 
-    def _dump_cells(self, cells: Iterable[EntityCell]) -> None:
+    def _dump_cells(self, cells: Iterable['EntityCell']) -> None:
         self.json_cells = json_encode([cell.to_dict() for cell in cells])
 
     # TODO: factorise with HeaderFilter.cells
     @property
-    def cells(self) -> List[EntityCell]:
+    def cells(self) -> List['EntityCell']:
         cells = self._cells
 
         if cells is None:
@@ -678,12 +684,12 @@ class CustomBrickConfigItem(CremeModel):
         return cells
 
     @cells.setter
-    def cells(self, cells: Iterable[EntityCell]) -> None:
+    def cells(self, cells: Iterable['EntityCell']) -> None:
         self._cells = cells = [cell for cell in cells if cell]
         self._dump_cells(cells)
 
     @property
-    def filtered_cells(self) -> Iterator[EntityCell]:
+    def filtered_cells(self) -> Iterator['EntityCell']:
         """Generators which yields non excluded EntityCell instances.
         (eg: fields not hidden with FieldsConfig, CustomFields not deleted).
         """

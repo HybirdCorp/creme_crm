@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2019  Hybird
+#    Copyright (C) 2013-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,18 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import BooleanField, DecimalField
+from django.db import models
 from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 
-from .base import CremeModel
 from ..constants import DEFAULT_VAT
+from .base import CremeModel
 
 
 class Vat(CremeModel):
-    value      = DecimalField(_('VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
-    is_default = BooleanField(_('Is default?'), default=False)
-    is_custom  = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+    value      = models.DecimalField(_('VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
+    is_default = models.BooleanField(_('Is default?'), default=False)
+    is_custom  = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
     creation_label = _('Create a VAT value')
 

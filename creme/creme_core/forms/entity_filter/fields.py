@@ -26,13 +26,11 @@ from typing import Type
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db.models import (
-    ForeignKey as ModelForeignKey,
-    BooleanField as ModelBooleanField,
-    FileField as ModelFileField,
-)
+from django.db.models import BooleanField as ModelBooleanField
+from django.db.models import FileField as ModelFileField
+from django.db.models import ForeignKey as ModelForeignKey
 from django.db.models.query_utils import Q
-from django.forms import ModelMultipleChoiceField, DateField
+from django.forms import DateField, ModelMultipleChoiceField
 from django.forms.fields import CallableChoiceIterator
 from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
@@ -44,16 +42,19 @@ from creme.creme_core.core.entity_filter import (
     operators,
 )
 from creme.creme_core.models import (
-    CremeEntity, EntityFilter, EntityFilterCondition,
-    RelationType, CremePropertyType,
-    CustomField, CustomFieldBoolean,
+    CremeEntity,
+    CremePropertyType,
+    CustomField,
+    CustomFieldBoolean,
+    EntityFilter,
+    EntityFilterCondition,
     FieldsConfig,
+    RelationType,
 )
 from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.utils.meta import is_date_field
 
 from ..fields import JSONField
-
 from . import widgets
 
 

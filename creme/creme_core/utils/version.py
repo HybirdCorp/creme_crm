@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2017-2018 Hybird
+# Copyright (c) 2017-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,10 +24,10 @@
 #
 ################################################################################
 
-from functools import lru_cache
 import logging
 import os
 import subprocess
+from functools import lru_cache
 
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import localtime

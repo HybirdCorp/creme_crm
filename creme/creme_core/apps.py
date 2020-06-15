@@ -20,16 +20,21 @@
 
 import logging
 from sys import argv
-from typing import Sequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 from django.apps import AppConfig, apps
-from django.contrib.contenttypes.apps import ContentTypesConfig as VanillaContentTypesConfig
 from django.conf import settings
+from django.contrib.contenttypes.apps import (
+    ContentTypesConfig as VanillaContentTypesConfig,
+)
 from django.core import checks
 from django.utils.translation import gettext_lazy as _
 
-from .checks import Tags, check_uninstalled_apps  # NB: it registers other checks too
-from .registry import creme_registry, CremeRegistry
+from .checks import (  # NB: it registers other checks too
+    Tags,
+    check_uninstalled_apps,
+)
+from .registry import CremeRegistry, creme_registry
 
 if TYPE_CHECKING:
     from .core.download import FileFieldDownLoadRegistry

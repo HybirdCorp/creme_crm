@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime, date
+# import warnings
 import json
 import logging
-# import warnings
+from datetime import date, datetime
 
 from django.core.serializers.base import SerializationError
-from django.db.models import Q, Model
+from django.db.models import Model, Q
 from django.db.models.query import QuerySet
 
 from .dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT

@@ -18,14 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
 from time import strptime as time_strptime
 from typing import Optional
 
 from django.utils import formats
 from django.utils.dateparse import parse_datetime
-from django.utils.timezone import make_aware, make_naive, is_naive, is_aware, utc
-
+from django.utils.timezone import (
+    is_aware,
+    is_naive,
+    make_aware,
+    make_naive,
+    utc,
+)
 
 DATE_ISO8601_FMT     = '%Y-%m-%d'
 DATETIME_ISO8601_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'

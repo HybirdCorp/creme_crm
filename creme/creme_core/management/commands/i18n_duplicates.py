@@ -24,9 +24,9 @@
 #
 ################################################################################
 
-from collections import defaultdict, Counter
+from collections import Counter, defaultdict
 from os import listdir
-from os.path import join, exists
+from os.path import exists, join
 
 from django.apps import apps
 from django.core.management.base import BaseCommand

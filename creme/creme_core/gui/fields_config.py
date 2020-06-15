@@ -21,7 +21,7 @@
 from collections import defaultdict
 from typing import DefaultDict, Iterator, Set, Type
 
-from django.apps import apps, AppConfig
+from django.apps import AppConfig, apps
 from django.db.models import Model
 
 

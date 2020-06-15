@@ -26,13 +26,23 @@
 from collections import defaultdict
 from fnmatch import fnmatch
 from functools import lru_cache
-from typing import Any, Type, Optional, Iterable, Iterator, Sequence, List, Tuple, Dict, DefaultDict
+from typing import (
+    Any,
+    DefaultDict,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+)
 
-from django.db import connections, DEFAULT_DB_ALIAS
-from django.db.models import Model, ForeignKey
+from django.db import DEFAULT_DB_ALIAS, connections
+from django.db.models import ForeignKey, Model
 
 from ..models import CaseSensitivity
-
 from .meta import FieldInfo
 
 

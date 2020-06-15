@@ -18,40 +18,40 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from collections import defaultdict
 from copy import deepcopy
 from functools import partial
 from json import loads as json_load
-from typing import Type, Optional
-import warnings
+from typing import Optional, Type
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
-from django.db.models.query import QuerySet, Q
-from django.forms import fields, widgets, ValidationError, models as mforms
+from django.db.models.query import Q, QuerySet
+from django.forms import ValidationError, fields
+from django.forms import models as mforms
+from django.forms import widgets
 from django.urls import reverse
 from django.utils.encoding import smart_text
-from django.utils.translation import gettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from ..auth.entity_credentials import EntityCredentials
 # from ..constants import REL_SUB_HAS
 from ..core import validators
 from ..gui import quick_forms
-from ..models import RelationType, CremeEntity, EntityFilter
+from ..models import CremeEntity, EntityFilter, RelationType
 from ..utils import find_first
-from ..utils.content_type import entity_ctypes, ctype_choices
 from ..utils.collections import OrderedSet
+from ..utils.content_type import ctype_choices, entity_ctypes
 from ..utils.date_period import date_period_registry
 from ..utils.date_range import date_range_registry
 from ..utils.serializers import json_encode
 from ..utils.unicode_collation import collator
-
-from . import (
-    validators as f_validators,
-    widgets as core_widgets,
-)
+from . import validators as f_validators
+from . import widgets as core_widgets
 
 __all__ = (
     'CremeUserChoiceField',

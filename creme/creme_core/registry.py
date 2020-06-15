@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-from typing import Type, Iterator, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator, Type
 
 from django.utils.datastructures import OrderedSet
 

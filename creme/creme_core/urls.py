@@ -1,14 +1,26 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
-from django.urls import re_path, include
+from django.urls import include, re_path
 
 from .views import (
-    batch_process, bricks, creme_property, enumerable, entity,
-    entity_filter, file_handling, header_filter, index, job, mass_export,
-    mass_import, quick_forms, relation, search, testjs,
+    batch_process,
+    bricks,
+    creme_property,
+    entity,
+    entity_filter,
+    enumerable,
+    file_handling,
+    header_filter,
+    index,
+    job,
+    mass_export,
+    mass_import,
+    quick_forms,
+    relation,
+    search,
+    testjs,
 )
-
 
 entity_patterns = [
     # re_path(r'^delete/multi[/]?$',                  entity.delete_entities,                   name='creme_core__delete_entities'),

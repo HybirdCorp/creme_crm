@@ -18,10 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
 import logging
 import uuid
-from typing import Any, Sequence, DefaultDict, Dict, List, Tuple
+from collections import defaultdict
+from typing import TYPE_CHECKING, Any, DefaultDict, Dict, List, Sequence, Tuple
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -29,15 +29,21 @@ from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.urls import reverse
 from django.utils.html import escape
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
-from .auth import Sandbox
 from .base import CremeModel
 from .fields import (
-    CreationDateTimeField, ModificationDateTimeField,
-    CremeUserForeignKey, CTypeForeignKey,
+    CreationDateTimeField,
+    CremeUserForeignKey,
+    CTypeForeignKey,
+    ModificationDateTimeField,
 )
 from .manager import CremeEntityManager  # LowNullsQuerySet
+
+if TYPE_CHECKING:
+    from . import CremeProperty, CustomField, Relation
+
 
 logger = logging.getLogger(__name__)
 _SEARCH_FIELD_MAX_LENGTH = 200
@@ -58,10 +64,14 @@ class CremeEntity(CremeModel):
 
     description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
 
-    uuid    = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)\
-                    .set_tags(viewable=False)
-    sandbox = models.ForeignKey(Sandbox, null=True, editable=False, on_delete=models.PROTECT)\
-                    .set_tags(viewable=False)
+    uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)\
+                 .set_tags(viewable=False)
+
+    sandbox = models.ForeignKey(
+        'creme_core.Sandbox',
+        null=True, on_delete=models.PROTECT,
+        editable=False,
+    ).set_tags(viewable=False)
 
     # objects = LowNullsQuerySet.as_manager()
     objects = CremeEntityManager()
@@ -206,6 +216,8 @@ class CremeEntity(CremeModel):
     def get_relations(self,
                       relation_type_id: str,
                       real_obj_entities: bool = False) -> List['Relation']:
+        from . import Relation
+
         relations = self._relations_map.get(relation_type_id)
 
         if relations is None:
@@ -250,6 +262,8 @@ class CremeEntity(CremeModel):
     @staticmethod
     def populate_relations(entities: Sequence['CremeEntity'],
                            relation_type_ids: Sequence[str]) -> None:
+        from . import Relation
+
         relations = Relation.objects.filter(subject_entity__in=[e.id for e in entities],
                                             type__in=relation_type_ids,
                                            )\
@@ -282,6 +296,8 @@ class CremeEntity(CremeModel):
     @staticmethod
     def populate_custom_values(entities: Sequence['CremeEntity'],
                                custom_fields: Sequence['CustomField']) -> None:
+        from . import CustomField
+
         cvalues_map = CustomField.get_custom_values_map(entities, custom_fields)
 
         for entity in entities:
@@ -295,6 +311,8 @@ class CremeEntity(CremeModel):
         return escape(self.allowed_str(user))
 
     def get_custom_fields_n_values(self, only_required: bool = False) -> List[Tuple['CustomField', Any]]:
+        from . import CustomField
+
         # NB: we do not use <CustomField.objects.get_for_model()> because this method
         #     seems mostly used in forms,  not detail-views (bigger query, cache probably useless).
         cfields = CustomField.objects.filter(
@@ -320,6 +338,8 @@ class CremeEntity(CremeModel):
 
     @staticmethod
     def populate_properties(entities: Sequence['CremeEntity']) -> None:
+        from . import CremeProperty
+
         properties_map: DefaultDict[int, list] = defaultdict(list)
 
         # NB1: listify entities in order to avoid subquery (that is not supported by some DB backends)
@@ -345,6 +365,8 @@ class CremeEntity(CremeModel):
         return str(self)
 
     def _clone_custom_values(self, source):
+        from . import CustomField, CustomFieldValue
+
         # for custom_field in CustomField.objects.filter(content_type=source.entity_type_id):
         for custom_field in CustomField.objects.get_for_model(source.entity_type).values():
             custom_value_klass = custom_field.value_class
@@ -409,6 +431,8 @@ class CremeEntity(CremeModel):
         return new_entity
 
     def _copy_properties(self, source: 'CremeEntity') -> None:
+        from . import CremeProperty
+
         creme_property_create = CremeProperty.objects.safe_create
 
         for type_id in source.properties.filter(type__is_copiable=True).values_list('type', flat=True):
@@ -420,8 +444,9 @@ class CremeEntity(CremeModel):
         """@param allowed_internal: Sequence of RelationTypes PK with <is_internal=True>.
                   Relationships with these types will be cloned anyway.
         """
-        relation_create = Relation.objects.safe_create
+        from . import Relation, RelationType
 
+        relation_create = Relation.objects.safe_create
         query = Q(type__in=RelationType.objects.compatible(self.entity_type).filter(Q(is_copiable=True)))
 
         if allowed_internal:
@@ -456,8 +481,3 @@ class CremeEntity(CremeModel):
     def trash(self) -> None:
         self.is_deleted = True
         self.save()
-
-
-from .relation import Relation, RelationType
-from .creme_property import CremeProperty
-from .custom_field import CustomField, CustomFieldValue

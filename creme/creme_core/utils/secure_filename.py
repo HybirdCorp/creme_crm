@@ -19,7 +19,6 @@ import os
 import re
 from unicodedata import normalize
 
-
 _windows_device_files = ('CON', 'AUX', 'COM1', 'COM2', 'COM3', 'COM4', 'LPT1',
                          'LPT2', 'LPT3', 'PRN', 'NUL')
 _filename_ascii_strip_re = re.compile(r'[^A-Za-z0-9_.-]')

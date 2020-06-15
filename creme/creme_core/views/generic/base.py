@@ -18,24 +18,30 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Iterable, List, Optional, Sequence, Type, Union
 from urllib.parse import urlencode
-from typing import Optional, Type, Union, Iterable, Sequence, List
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.contenttypes.models import ContentType
-from django.db.transaction import atomic
-from django.db.models.query import QuerySet
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpRequest
+from django.db.models.query import QuerySet
+from django.db.transaction import atomic
+from django.http import (
+    Http404,
+    HttpRequest,
+    HttpResponse,
+    HttpResponseRedirect,
+)
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 from django.views import generic as django_generic
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeForm
-from creme.creme_core.gui.bricks import brick_registry, Brick
+from creme.creme_core.gui.bricks import Brick, brick_registry
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.content_type import get_ctype_or_404
 

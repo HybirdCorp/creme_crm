@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Dict, Iterator, Optional, Type, TYPE_CHECKING
 import warnings
+from typing import TYPE_CHECKING, Dict, Iterator, Optional, Type
 
 from creme.creme_core.models import CremeEntity
 

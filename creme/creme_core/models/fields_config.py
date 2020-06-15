@@ -18,26 +18,31 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+import warnings
 from functools import partial
 from json import loads as json_load
-import logging
 from typing import (
-    Type,
-    Iterable, Iterator, Sequence,
-    Dict, List, Set, Tuple,
     TYPE_CHECKING,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
 )
-import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from ..global_info import get_per_request_cache
 from ..utils.meta import FieldInfo
 from ..utils.serializers import json_encode
-
 from .base import CremeModel
 from .fields import CTypeOneToOneField
 
