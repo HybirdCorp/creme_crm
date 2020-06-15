@@ -521,52 +521,65 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                    }
 
         field = MultiGenericEntityField(models=[FakeOrganisation, FakeContact, FakeImage])
-        self.assertEqual([build_entry_v1(contact_ct_id, 1, contact_label),
-                          build_entry_v1(orga_ct_id, 5,    orga_label),
-                         ],
-                         json_load(field.from_python([
-                             {'ctype': {'id': contact_ct_id,
-                                        'create': build_url(contact_ct_id) ,
-                                        'create_label': str(contact_label)},
-                                        'entity': 1,
-                                       },
-                             {'ctype': {'id': orga_ct_id,
-                                        'create': build_url(orga_ct_id),
-                                        'create_label': str(orga_label)},
-                                        'entity': 5,
-                                       },
-                         ]))
-                        )
+        self.assertListEqual(
+            [
+                build_entry_v1(contact_ct_id, 1, contact_label),
+                build_entry_v1(orga_ct_id, 5,    orga_label),
+            ],
+            json_load(field.from_python([{
+                'ctype': {
+                    'id': contact_ct_id,
+                    'create': build_url(contact_ct_id),
+                    'create_label': str(contact_label)
+                },
+                'entity': 1,
+                }, {
+                'ctype': {
+                    'id': orga_ct_id,
+                    'create': build_url(orga_ct_id),
+                    'create_label': str(orga_label)
+                },
+                'entity': 5,
+            }]))
+        )
 
         # No user
         def build_entry_v2(ctype_id, entity_id, label):
-            return {'ctype': {'create': '',
-                              'id': ctype_id,
-                              'create_label': label,
-                             },
-                    'entity': entity_id,
-                   }
-        self.assertEqual([build_entry_v2(contact_ct_id, contact.id, contact_label),
-                          build_entry_v2(orga_ct_id,    orga.id,    orga_label),
-                         ],
-                         json_load(field.from_python([contact, orga]))
-                        )
+            return {
+                'ctype': {
+                    'create': '',
+                    'id': ctype_id,
+                    'create_label': label,
+                },
+                'entity': entity_id,
+            }
+        self.assertListEqual(
+            [
+                build_entry_v2(contact_ct_id, contact.id, contact_label),
+                build_entry_v2(orga_ct_id,    orga.id,    orga_label),
+            ],
+            json_load(field.from_python([contact, orga]))
+        )
 
         # With user
         def build_entry_v3(ctype_id, entity_id, label):
-            return {'ctype': {'create': reverse('creme_core__quick_form', args=(ctype_id,)),
-                              'id': ctype_id,
-                              'create_label': label,
-                             },
-                    'entity': entity_id,
-                   }
+            return {
+                'ctype': {
+                    'create': reverse('creme_core__quick_form', args=(ctype_id,)),
+                    'id': ctype_id,
+                    'create_label': label,
+                },
+                'entity': entity_id,
+            }
 
         field.user = user
-        self.assertEqual([build_entry_v3(contact_ct_id, contact.id, contact_label),
-                          build_entry_v3(orga_ct_id,    orga.id,    orga_label),
-                         ],
-                         json_load(field.from_python([contact, orga]))
-                        )
+        self.assertListEqual(
+            [
+                build_entry_v3(contact_ct_id, contact.id, contact_label),
+                build_entry_v3(orga_ct_id,    orga.id,    orga_label),
+            ],
+            json_load(field.from_python([contact, orga]))
+        )
 
     def test_clean_empty_required(self):
         clean = MultiGenericEntityField(required=True).clean

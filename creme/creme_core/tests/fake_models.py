@@ -496,7 +496,7 @@ else:
             verbose_name_plural = 'Test Mailing lists'
             ordering = ('name',)
 
-        def __str__(self) :
+        def __str__(self):
             return self.name
 
         # def get_absolute_url(self):

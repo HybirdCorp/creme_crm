@@ -1497,7 +1497,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         condition = conditions[0]
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_int.id),             condition.name)
-        self.assertEqual(EF_CREDENTIALS             ,         condition.filter_type)
+        self.assertEqual(EF_CREDENTIALS,                      condition.filter_type)
         self.assertDictEqual({
                 'operator': operator,
                 'rname': 'customfieldinteger',
