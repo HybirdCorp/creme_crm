@@ -37,7 +37,7 @@ class LastViewedItem:
 
         self.__add(request)
 
-    def __repr__ (self):
+    def __repr__(self):
         return self.name
 
     def __eq__(self, other):
