@@ -1423,7 +1423,7 @@ class ProjectsTestCase(CremeTestCase):
                   )
         creds = SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE| EntityCredentials.LINK,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
         )
 

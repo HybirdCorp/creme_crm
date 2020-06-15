@@ -169,7 +169,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_manifest_xsf_02(self):
         "Test Image fk field."
-        body_map= {'user_id': 1, 'image': ''}
+        body_map = {'user_id': 1, 'image': ''}
         backend = self._get_backend(
             ContactFakeBackend,
             subject='create_contact', body_map=body_map, model=Contact,

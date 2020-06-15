@@ -47,7 +47,7 @@ class VcfImportTestCase(CremeTestCase):
                                 )
 
     def _post_step1(self, data, errors=False):
-        data['vcf_step']= 1
+        data['vcf_step'] = 1
         response = self.client.post(self.IMPORT_URL, follow=True, data=data)
 
         if not errors:

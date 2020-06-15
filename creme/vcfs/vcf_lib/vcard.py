@@ -70,7 +70,7 @@ class VCardTextBehavior(Behavior):
             else:
                 line.value = stringToTextValues(line.value)[0]
 
-            line.encoded=False
+            line.encoded = False
 
     @classmethod
     def encode(cls, line):

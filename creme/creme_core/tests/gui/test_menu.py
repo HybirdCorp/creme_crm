@@ -813,14 +813,13 @@ class MenuTestCase(CremeTestCase):
 
     def test_render_label_item(self):
         item_id = 'tools-title'
-        label= 'Important title'
+        label = 'Important title'
         item = LabelItem(item_id, label=label)
 
-        self.assertHTMLEqual(f'<span class="ui-creme-navigation-text-entry">'
-                                f'{label}'
-                             f'</span>',
-                             item.render(self.build_context())
-                            )
+        self.assertHTMLEqual(
+            f'<span class="ui-creme-navigation-text-entry">{label}</span>',
+            item.render(self.build_context())
+        )
 
 #     def test_render_onclick_item01(self):
 #         "No icon"

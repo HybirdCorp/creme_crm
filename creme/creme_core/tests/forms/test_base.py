@@ -955,7 +955,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.login(is_superuser=False, creatable_models=[FakeContact])
 
         create_creds = partial(SetCredentials.objects.create, role=self.role)
-        create_creds(value=EntityCredentials.VIEW| EntityCredentials.LINK,
+        create_creds(value=EntityCredentials.VIEW | EntityCredentials.LINK,
                      set_type=SetCredentials.ESET_OWN,
                     )
         create_creds(value=EntityCredentials.VIEW,
@@ -997,7 +997,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.login(is_superuser=False, creatable_models=[FakeContact])
 
         create_creds = partial(SetCredentials.objects.create, role=self.role)
-        create_creds(value=EntityCredentials.VIEW| EntityCredentials.LINK,
+        create_creds(value=EntityCredentials.VIEW | EntityCredentials.LINK,
                      set_type=SetCredentials.ESET_OWN,
                     )
         create_creds(value=EntityCredentials.VIEW,

@@ -38,7 +38,7 @@ class GraphInstanceBrickCreation(generic.AddingInstanceToEntityPopup):
     entity_form_kwarg = 'graph'
 
     # TODO: method get_help_message() in base class ?
-    help_message =_(
+    help_message = _(
         'When you create a block, it becomes available in the blocks configuration. '
         'It can be displayed on Home, on «My Page» & on the detail-views of entities.'
     )

@@ -198,15 +198,18 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         """FieldsConfig: all fields are hidden."""
         self.login()
 
-        fc_create= FieldsConfig.objects.create
-        fc_create(content_type=Contact,
-                  descriptions=[('phone',  {FieldsConfig.HIDDEN: True}),
-                                ('mobile', {FieldsConfig.HIDDEN: True}),
-                               ]
-                 )
-        fc_create(content_type=Organisation,
-                  descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
-                 )
+        fc_create = FieldsConfig.objects.create
+        fc_create(
+            content_type=Contact,
+            descriptions=[
+                ('phone',  {FieldsConfig.HIDDEN: True}),
+                ('mobile', {FieldsConfig.HIDDEN: True}),
+            ],
+        )
+        fc_create(
+            content_type=Organisation,
+            descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
+        )
 
         self.assertGET409(self.RESPOND_URL, data={'number': '558899'})
 
