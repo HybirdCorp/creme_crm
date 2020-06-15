@@ -437,11 +437,14 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
     def test_clean_with_permission05(self):
-        "Perm checking: perm combo"
+        "Perm checking: perm combo."
         user = self.login_as_basic_user()
 
         get_ct = ContentType.objects.get_for_model
-        create_sc = partial(SetCredentials.objects.create, role=self.role, set_type=SetCredentials.ESET_ALL)
+        create_sc = partial(
+            SetCredentials.objects.create,
+            role=self.role, set_type=SetCredentials.ESET_ALL,
+        )
         create_sc(value=EntityCredentials.VIEW, ctype=get_ct(FakeContact))
         create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
 
@@ -449,9 +452,11 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         orga1 = self.create_orga(user=self.other_user)
         orga2 = self.create_orga()
 
-        field = GenericEntityField(models=[FakeOrganisation, FakeContact], user=user,
-                                   credentials=EntityCredentials.VIEW|EntityCredentials.LINK,
-                                  )
+        field = GenericEntityField(
+            models=[FakeOrganisation, FakeContact],
+            user=user,
+            credentials=EntityCredentials.VIEW | EntityCredentials.LINK,
+        )
         self.assertEqual(orga2, field.clean(self.build_field_data(orga2.entity_type_id, orga2.pk)))
 
         with self.assertRaises(ValidationError) as cm:
@@ -758,11 +763,14 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
     def test_clean_with_permission03(self):
-        "Perm checking: perm combo"
+        "Perm checking: perm combo."
         user = self.login_as_basic_user()
 
         get_ct = ContentType.objects.get_for_model
-        create_sc = partial(SetCredentials.objects.create, role=self.role, set_type=SetCredentials.ESET_ALL)
+        create_sc = partial(
+            SetCredentials.objects.create,
+            role=self.role, set_type=SetCredentials.ESET_ALL,
+        )
         create_sc(value=EntityCredentials.VIEW, ctype=get_ct(FakeContact))
         create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
 
@@ -770,9 +778,11 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         orga1 = self.create_orga(user=self.other_user)
         orga2 = self.create_orga()
 
-        field = MultiGenericEntityField(models=[FakeOrganisation, FakeContact], user=user,
-                                        credentials=EntityCredentials.VIEW|EntityCredentials.LINK,
-                                       )
+        field = MultiGenericEntityField(
+            models=[FakeOrganisation, FakeContact],
+            user=user,
+            credentials=EntityCredentials.VIEW | EntityCredentials.LINK,
+        )
 
         self.assertEqual([orga2], field.clean(self.build_data(orga2)))
 

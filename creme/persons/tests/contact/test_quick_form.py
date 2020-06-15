@@ -407,7 +407,7 @@ class ContactNamesEditionTestCase(_BaseTestCase):
         user = self.login(is_superuser=False)
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW|EntityCredentials.CHANGE,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
             set_type=SetCredentials.ESET_OWN,
         )
 

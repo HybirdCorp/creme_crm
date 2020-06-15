@@ -159,7 +159,7 @@ class CremeAppConfig(AppConfig):
     CRED_NONE    = 0b00
     CRED_REGULAR = 0b01
     CRED_ADMIN   = 0b10
-    credentials = CRED_REGULAR|CRED_ADMIN
+    credentials = CRED_REGULAR | CRED_ADMIN
 
     # Lots of problems with ContentType table which can be not created yet.
     MIGRATION_MODE = any(cmd in argv for cmd in settings.NO_SQL_COMMANDS)  # TODO: rename
