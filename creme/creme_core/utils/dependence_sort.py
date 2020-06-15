@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2013-2018 Hybird
+# Copyright (c) 2013-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,10 +30,11 @@ class DependenciesLoopError(Exception):
 
 
 # TODO: can we recycle the temporary lists or do an 'in-place' implementation ?
-def dependence_sort(l, get_key, get_dependencies):
+# def dependence_sort(l, get_key, get_dependencies):
+def dependence_sort(iterable, get_key, get_dependencies):
     """Sort a sequence of objects that have dependencies between them
     eg: if A depends on B, B will be before A.
-    @param l: Sequence
+    @param iterable: Sequence
     @param get_key: Callable that takes one element from 'l', and returns a
            unique key (in 'l') that identifies this element.
     @param get_dependencies: Callable that take one element from 'l', and
@@ -41,33 +42,35 @@ def dependence_sort(l, get_key, get_dependencies):
     @return A sorted list which contains all elements from l.
     @throws DependenciesLoopError.
     """
-    sortedl = []  # Sorted elements
+    ordered_list = []  # Sorted elements
     resolved = set()  # Dependencies that have been resolved (ie: sorted)
 
     while True:
-        nosortedl = []  # Elements that are not sorted yet
+        unordered_list = []  # Elements that are not sorted yet
         changed = False
 
-        for e in l:
+        for e in iterable:
             if all(dep in resolved for dep in get_dependencies(e)):  # TODO: cache the dependencies ?
-                sortedl.append(e)
+                ordered_list.append(e)
                 resolved.add(get_key(e))
                 changed = True
             else:
-                nosortedl.append(e)
+                unordered_list.append(e)
 
         if not changed:
-            if nosortedl:
-                raise DependenciesLoopError('Loop dependencies between:\n'
-                                            ' - {}\n'
-                                            'No problem with:\n'
-                                            ' - {}\n'.format('\n - '.join(map(str, nosortedl)),
-                                                             '\n - '.join(map(str, sortedl)),
-                                                            )
-                                           )
+            if unordered_list:
+                raise DependenciesLoopError(
+                    'Loop dependencies between:\n'
+                    ' - {}\n'
+                    'No problem with:\n'
+                    ' - {}\n'.format(
+                        '\n - '.join(map(str, unordered_list)),
+                        '\n - '.join(map(str, ordered_list)),
+                    )
+                )
 
             break
 
-        l = nosortedl
+        iterable = unordered_list
 
-    return sortedl
+    return ordered_list

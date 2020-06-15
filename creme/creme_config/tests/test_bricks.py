@@ -1024,11 +1024,13 @@ class BricksConfigTestCase(CremeTestCase):
         ]
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id})
-        self.assertFalse(BrickDetailviewLocation.objects.filter(id__in=[l.id for l in locs]))
+        self.assertFalse(
+            BrickDetailviewLocation.objects.filter(id__in=[loc.id for loc in locs])
+        )
         self.assertEqual(
             len(locs_2),
             BrickDetailviewLocation.objects
-                                   .filter(id__in=[l.id for l in locs_2])
+                                   .filter(id__in=[loc.id for loc in locs_2])
                                    .count()
         )
 
@@ -1059,16 +1061,18 @@ class BricksConfigTestCase(CremeTestCase):
         ]
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id, 'role': role.id})
-        self.assertFalse(BrickDetailviewLocation.objects.filter(id__in=[l.id for l in locs]))
+        self.assertFalse(
+            BrickDetailviewLocation.objects.filter(id__in=[loc.id for loc in locs])
+        )
         self.assertEqual(
             len(locs_2),
             BrickDetailviewLocation.objects
-                                   .filter(id__in=[l.id for l in locs_2])
+                                   .filter(id__in=[loc.id for loc in locs_2])
                                    .count()
         )
 
     def test_delete_detailview04(self):
-        "Superuser configuration"
+        "Superuser configuration."
         self.login()
         get_ct = ContentType.objects.get_for_model
         ct = get_ct(FakeOrganisation)
@@ -1095,12 +1099,12 @@ class BricksConfigTestCase(CremeTestCase):
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id, 'role': 'superuser'})
         self.assertFalse(
-            BrickDetailviewLocation.objects.filter(id__in=[l.id for l in locs])
+            BrickDetailviewLocation.objects.filter(id__in=[loc.id for loc in locs])
         )
         self.assertEqual(
             len(locs_2),
             BrickDetailviewLocation.objects
-                                   .filter(id__in=[l.id for l in locs_2])
+                                   .filter(id__in=[loc.id for loc in locs_2])
                                    .count()
         )
 

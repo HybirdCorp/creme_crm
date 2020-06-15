@@ -12,9 +12,10 @@ except Exception as e:
 
 class PagerContextTestCase(CremeTestCase):
     def assertPagerLinks(self, links, expected):
-        self.assertListEqual([l.__dict__ for l in links],
-                             [e.__dict__ for e in expected],
-                            )
+        self.assertListEqual(
+            [link.__dict__ for link in links],
+            [element.__dict__ for element in expected],
+        )
 
     def test_empty_page(self):
         page = Paginator([], 10).page(1)

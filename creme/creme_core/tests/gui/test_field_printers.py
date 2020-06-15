@@ -101,15 +101,18 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_print_decimal(self):
-        l = FakeInvoiceLine()
+        line = FakeInvoiceLine()
         user = CremeUser()
-        field = l._meta.get_field('discount')
-        self.assertEqual('', field_printers.print_decimal(l, fval=None, user=user, field=field))
+        field = line._meta.get_field('discount')
+        self.assertEqual(
+            '',
+            field_printers.print_decimal(line, fval=None, user=user, field=field)
+        )
 
         value = Decimal('12.34')
         self.assertEqual(
             number_format(value, use_l10n=True),
-            field_printers.print_decimal(l, fval=value, user=user, field=field)
+            field_printers.print_decimal(line, fval=value, user=user, field=field)
         )
 
     def test_print_boolean_html(self):
