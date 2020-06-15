@@ -179,7 +179,7 @@ class LineTestCase(_BillingTestCase):
                         )
 
         with self.assertNoException():
-            ProductLine(on_the_fly_item = 'Flyyy product', **kwargs).clean()
+            ProductLine(on_the_fly_item='Flyyy product', **kwargs).clean()
 
     @skipIfCustomProduct
     def test_add_product_lines(self):
