@@ -7,7 +7,6 @@ __version__ = '2.2 alpha'
 from django.apps.config import AppConfig
 from django.apps.registry import Apps
 
-
 AppConfig.all_apps_ready = lambda self: None
 
 _original_populate = Apps.populate
@@ -30,5 +29,6 @@ def _hooked_populate(self, installed_apps=None):
             app_config.all_apps_ready()
 
         self._all_apps_ready = True
+
 
 Apps.populate = _hooked_populate
