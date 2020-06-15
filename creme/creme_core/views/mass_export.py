@@ -29,12 +29,11 @@ from ..core import sorter
 from ..core.paginator import FlowPaginator
 from ..forms.listview import ListViewSearchForm
 from ..gui.listview import search_field_registry
-from ..models import EntityFilter, EntityCredentials, HeaderFilter
+from ..models import EntityCredentials, EntityFilter, HeaderFilter
 from ..models.history import _HLTEntityExport
-from ..utils import get_from_GET_or_404, bool_from_str_extended
+from ..utils import bool_from_str_extended, get_from_GET_or_404
 from ..utils.meta import Order
 from ..utils.queries import QSerializer
-
 from .generic import base
 
 logger = logging.getLogger(__name__)

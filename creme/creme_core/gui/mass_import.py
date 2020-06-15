@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Type, Optional, Callable, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Dict, Optional, Type
 
 from django.contrib.contenttypes.models import ContentType
 

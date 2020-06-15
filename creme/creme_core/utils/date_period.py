@@ -19,12 +19,20 @@
 ################################################################################
 
 from collections import OrderedDict
-from typing import Type, Optional, Dict
+from typing import Dict, Optional, Type
 
 from dateutil.relativedelta import relativedelta
-from dateutil.rrule import rrule, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY
-
-from django.utils.translation import gettext_lazy as _, ngettext
+from dateutil.rrule import (
+    DAILY,
+    HOURLY,
+    MINUTELY,
+    MONTHLY,
+    WEEKLY,
+    YEARLY,
+    rrule,
+)
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 
 class DatePeriod:

@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import loads as json_load
 import logging
+from json import loads as json_load
 from typing import Any, Callable, Dict, Iterator, Type
 
 from django.db.models import Model, TextField
 from django.utils.translation import gettext as _
 
-from ..utils import bool_from_str, bool_as_html
+from ..utils import bool_as_html, bool_from_str
 from ..utils.serializers import json_encode
 
 logger = logging.getLogger(__name__)

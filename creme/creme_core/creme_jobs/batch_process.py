@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2019  Hybird
+#    Copyright (C) 2016-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,19 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
 import logging
+from functools import partial
 
 # TODO: move in function to do lazy loading ?
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.db.transaction import atomic
-from django.utils.translation import gettext_lazy as _, ngettext, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from ..core.batch_process import BatchAction
 from ..core.paginator import FlowPaginator
-from ..models import EntityFilter, EntityCredentials, EntityJobResult
-from .base import JobType, JobProgress
+from ..models import EntityCredentials, EntityFilter, EntityJobResult
+from .base import JobProgress, JobType
 
 logger = logging.getLogger(__name__)
 

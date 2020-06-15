@@ -21,22 +21,29 @@
 import logging
 import math
 from typing import (
-    Optional, Type, Union,
-    Callable, Iterator, Mapping,
-    Dict, List, Set,
+    Callable,
+    Dict,
+    Iterator,
+    List,
+    Mapping,
+    Optional,
+    Set,
+    Type,
+    Union,
 )
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse_lazy as reverse
 from django.utils.html import format_html, format_html_join, mark_safe
-from django.utils.translation import gettext as _, ngettext, gettext_lazy
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy, ngettext
 
 from ..auth import build_creation_perm as cperm
 from ..models import CremeEntity
-from ..templatetags.creme_widgets import get_icon_size_px, get_icon_by_name
+from ..templatetags.creme_widgets import get_icon_by_name, get_icon_size_px
 from ..utils.media import get_current_theme_from_context
-from ..utils.unicode_collation import collator
 from ..utils.serializers import json_encode
+from ..utils.unicode_collation import collator
 
 logger = logging.getLogger(__name__)
 

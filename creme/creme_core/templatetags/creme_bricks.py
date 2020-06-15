@@ -22,19 +22,19 @@ import logging
 
 from django.template import Library, TemplateSyntaxError
 from django.template.base import TextNode
-from django.utils.safestring import mark_safe, SafeData
-from django.utils.translation import gettext as _, gettext_lazy
+from django.utils.safestring import SafeData, mark_safe
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
 from ..core.entity_cell import EntityCellRegularField
 from ..core.sorter import cell_sorter_registry
-from ..gui.bricks import Brick, brick_registry, BricksManager
+from ..gui.bricks import Brick, BricksManager, brick_registry
 from ..gui.bulk_update import bulk_update_registry
 from ..gui.pager import PagerContext
 from ..utils.media import get_current_theme_from_context
 from ..utils.translation import plural as is_plural
 from ..views.entity import _bulk_has_perm
-
-from .creme_widgets import get_icon_size_px, get_icon_by_name
+from .creme_widgets import get_icon_by_name, get_icon_size_px
 
 register = Library()
 logger = logging.getLogger(__name__)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019 Hybird
+#    Copyright (C) 2019-2020 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,15 +20,16 @@
 
 from collections import Counter
 
-from django.db.models import ProtectedError, F
+from django.db.models import F, ProtectedError
 from django.db.transaction import atomic
-from django.utils.translation import gettext_lazy as _, gettext, ngettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
-from ..models import DeletionCommand, JobResult, FieldsConfig
+from ..models import DeletionCommand, FieldsConfig, JobResult
 from ..signals import pre_replace_and_delete
 from ..utils.translation import get_model_verbose_name
-
-from .base import JobType, JobProgress
+from .base import JobProgress, JobType
 
 
 # TODO: possibility to resume the job if it failed ?

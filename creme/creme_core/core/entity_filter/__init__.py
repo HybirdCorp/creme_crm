@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import OrderedDict
 import logging
-from typing import Type, Optional, Iterator, Dict, TYPE_CHECKING
+from collections import OrderedDict
+from typing import TYPE_CHECKING, Dict, Iterator, Optional, Type
 
 if TYPE_CHECKING:
     from .condition_handler import FilterConditionHandler

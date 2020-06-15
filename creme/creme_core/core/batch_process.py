@@ -20,10 +20,11 @@
 
 from collections import OrderedDict
 from itertools import chain
-from typing import Any, Type, Optional, Callable
+from typing import Any, Callable, Optional, Type
 
 from django.db import models
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 

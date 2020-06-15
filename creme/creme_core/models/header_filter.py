@@ -18,27 +18,36 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+import warnings
 from collections import defaultdict
 from json import loads as json_load
-import logging
-from typing import Optional, Union, Type, Iterable, List, Tuple, DefaultDict
-import warnings
+from typing import (
+    TYPE_CHECKING,
+    DefaultDict,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q, QuerySet
 from django.urls import reverse
-from django.utils.translation import (
-    gettext_lazy as _,
-    gettext,
-    pgettext_lazy,
-)
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
-from ..core.entity_cell import EntityCell
 from ..utils.serializers import json_encode
-
-from . import fields as core_fields, CremeEntity
 # from .fields_config import FieldsConfig
+from . import CremeEntity
+from . import fields as core_fields
+
+if TYPE_CHECKING:
+    from ..core.entity_cell import EntityCell
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +107,7 @@ class HeaderFilterManager(models.Manager):
                          is_custom: bool = False,
                          user=None,
                          is_private: bool = False,
-                         cells_desc: Iterable[Union[EntityCell, Tuple[Type[EntityCell], dict]]] = ()) -> 'HeaderFilter':
+                         cells_desc: Iterable[Union['EntityCell', Tuple[Type['EntityCell'], dict]]] = ()) -> 'HeaderFilter':
         """Creation helper ; useful for populate.py scripts.
         @param cells_desc: List of objects where each one can other:
             - an instance of EntityCell (one of its child class of course).
@@ -106,6 +115,8 @@ class HeaderFilterManager(models.Manager):
               where 'class' is child class of EntityCell, & 'args' is a dict
               containing parameters for the build() method of the previous class.
         """
+        from ..core.entity_cell import EntityCell
+
         if user and user.is_staff:
             # Staff users cannot be owner in order to stay 'invisible'.
             raise ValueError('HeaderFilter.create(): the owner cannot be a staff user.')
@@ -237,11 +248,11 @@ class HeaderFilter(models.Model):  # CremeModel ???
             is_private=is_private, cells_desc=cells_desc,
         )
 
-    def _dump_cells(self, cells: Iterable[EntityCell]):
+    def _dump_cells(self, cells: Iterable['EntityCell']):
         self.json_cells = json_encode([cell.to_dict() for cell in cells])
 
     @property
-    def cells(self) -> List[EntityCell]:
+    def cells(self) -> List['EntityCell']:
         cells = self._cells
 
         if cells is None:
@@ -262,12 +273,12 @@ class HeaderFilter(models.Model):  # CremeModel ???
         return cells
 
     @cells.setter
-    def cells(self, cells: Iterable[EntityCell]) -> None:
+    def cells(self, cells: Iterable['EntityCell']) -> None:
         self._cells = cells = [cell for cell in cells if cell]
         self._dump_cells(cells)
 
     @property
-    def filtered_cells(self) -> List[EntityCell]:
+    def filtered_cells(self) -> List['EntityCell']:
         """List of not excluded EntityCell instances.
         (eg: fields not hidden with FieldsConfig, CustomFields not deleted).
         """
@@ -305,7 +316,7 @@ class HeaderFilter(models.Model):  # CremeModel ???
         @param entities: QuerySet on CremeEntity (or subclass).
         @param user: Instance of get_user_model().
         """
-        cell_groups: DefaultDict[Type[EntityCell], List[EntityCell]] = defaultdict(list)
+        cell_groups: DefaultDict[Type['EntityCell'], List['EntityCell']] = defaultdict(list)
 
         for cell in self.cells:
             cell_groups[cell.__class__].append(cell)

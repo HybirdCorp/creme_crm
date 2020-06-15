@@ -25,10 +25,10 @@
 
 from functools import partial
 from itertools import chain
-from typing import Optional, Union, Type, List, Tuple, Callable
+from typing import Callable, List, Optional, Tuple, Type, Union
 
 from django.core.validators import EMPTY_VALUES
-from django.db.models import Model, Field, FieldDoesNotExist, DateField
+from django.db.models import DateField, Field, FieldDoesNotExist, Model
 
 from .unicode_collation import collator
 

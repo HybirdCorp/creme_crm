@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import wraps
 import logging
 import warnings
+from functools import wraps
 
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.utils.translation import gettext as _
 
 from ..core.exceptions import ConflictError

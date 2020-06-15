@@ -26,9 +26,9 @@
 
 # See  middleware.global_info.GlobalInfoMiddleware
 
-from functools import wraps
 from collections import defaultdict
-from typing import Hashable, DefaultDict
+from functools import wraps
+from typing import DefaultDict, Hashable
 
 try:
     from threading import currentThread

@@ -28,8 +28,7 @@ from ..forms import header_filter as hf_forms
 from ..http import CremeJsonResponse
 from ..models import HeaderFilter
 from ..utils import get_from_GET_or_404
-
-from . import generic, entity_filter
+from . import entity_filter, generic
 from .generic import base
 
 logger = logging.getLogger(__name__)

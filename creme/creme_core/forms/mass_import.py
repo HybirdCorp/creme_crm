@@ -18,60 +18,60 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from functools import partial
 from itertools import zip_longest
-import logging
 from os.path import splitext
-from typing import (
-    Any,  Optional, Type,
-    Callable, Sequence,
-    Dict, List, Tuple,
-)
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import validators
-from django.db.models import (
-    ManyToManyField,
-    BooleanField as ModelBooleanField,
-)
+from django.db.models import BooleanField as ModelBooleanField
+from django.db.models import ManyToManyField
 from django.db.models.fields import FieldDoesNotExist
 from django.db.transaction import atomic
-from django.forms.models import modelform_factory
 from django.forms import (
-    ValidationError,
+    BooleanField,
     Field,
-    BooleanField, IntegerField,
+    IntegerField,
+    ModelChoiceField,
+    ModelMultipleChoiceField,
     MultipleChoiceField,
-    ModelChoiceField, ModelMultipleChoiceField,
+    ValidationError,
 )
-from django.forms.widgets import Widget, Select, HiddenInput
+from django.forms.models import modelform_factory
+from django.forms.widgets import HiddenInput, Select, Widget
 from django.template.defaultfilters import slugify
 from django.urls import reverse_lazy as reverse
 from django.utils.html import format_html, format_html_join
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.registry import NotRegisteredInConfig, config_registry
 from creme.documents import get_document_model
-
-from creme.creme_config.registry import config_registry, NotRegisteredInConfig
 
 from ..backends import import_backend_registry
 from ..gui.mass_import import import_form_registry
 from ..models import (
     CremeEntity,
-    CremePropertyType, CremeProperty,
-    RelationType, Relation,
+    CremeProperty,
+    CremePropertyType,
+    CustomField,
+    CustomFieldEnumValue,
+    CustomFieldValue,
     EntityCredentials,
     FieldsConfig,
-    CustomField, CustomFieldValue, CustomFieldEnumValue,
-    Job, MassImportJobResult,
+    Job,
+    MassImportJobResult,
+    Relation,
+    RelationType,
 )
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.url import TemplateURLBuilder
-
-from .base import CremeForm, CremeModelForm, FieldBlockManager, _CUSTOM_NAME
-from .fields import MultiRelationEntityField, CreatorEntityField
-from .widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
+from .base import _CUSTOM_NAME, CremeForm, CremeModelForm, FieldBlockManager
+from .fields import CreatorEntityField, MultiRelationEntityField
+from .widgets import ChainedInput, SelectorList, UnorderedMultipleChoiceWidget
 
 logger = logging.getLogger(__name__)
 Document = get_document_model()

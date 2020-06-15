@@ -18,17 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from datetime import datetime
 from decimal import Decimal
 from functools import partial
-import logging
 from typing import Optional, Tuple, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (
-    Model,
     BooleanField,
-    ForeignKey, ManyToManyField,
+    ForeignKey,
+    ManyToManyField,
+    Model,
     Q,
 )
 from django.db.models.fields import FieldDoesNotExist
@@ -36,25 +37,29 @@ from django.utils.formats import date_format
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.forms.entity_filter import fields as ef_fields
 from creme.creme_core.models import (
     CremeEntity,
-    CremePropertyType, CremeProperty,
-    CustomField, CustomFieldEnumValue,
-    EntityFilter, EntityFilterCondition,
-    RelationType, Relation,
+    CremeProperty,
+    CremePropertyType,
+    CustomField,
+    CustomFieldEnumValue,
+    EntityFilter,
+    EntityFilterCondition,
+    Relation,
+    RelationType,
 )
 from creme.creme_core.models.custom_field import _TABLES
-from creme.creme_core.forms.entity_filter import fields as ef_fields
 from creme.creme_core.utils.date_range import date_range_registry
-from creme.creme_core.utils.dates import make_aware_dt, date_2_dict
-from creme.creme_core.utils.meta import is_date_field, FieldInfo
+from creme.creme_core.utils.dates import date_2_dict, make_aware_dt
+from creme.creme_core.utils.meta import FieldInfo, is_date_field
 
 from . import (
-    operators,
-    operands,
-    entity_filter_registries,
     EF_USER,
     _EntityFilterRegistry,
+    entity_filter_registries,
+    operands,
+    operators,
 )
 
 logger = logging.getLogger(__name__)

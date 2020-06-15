@@ -1,10 +1,9 @@
-from .temp_files_cleaner import temp_files_cleaner_type
-from .deletor import deletor_type
-from .trash_cleaner import trash_cleaner_type
 from .batch_process import batch_process_type
+from .deletor import deletor_type
 from .mass_import import mass_import_type
 from .reminder import reminder_type
-
+from .temp_files_cleaner import temp_files_cleaner_type
+from .trash_cleaner import trash_cleaner_type
 
 jobs = (
     temp_files_cleaner_type,

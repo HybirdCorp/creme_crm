@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 import logging
-from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING
+from datetime import datetime
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type
 
 from django.apps import apps
 from django.template.loader import get_template

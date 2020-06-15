@@ -24,7 +24,7 @@
 #
 ################################################################################
 
-from typing import TypeVar, Callable, Iterable, Iterator, List, Optional
+from typing import Callable, Iterable, Iterator, List, Optional, TypeVar
 
 T = TypeVar('T')
 

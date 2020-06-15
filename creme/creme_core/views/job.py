@@ -19,11 +19,12 @@
 ################################################################################
 
 from django.db.transaction import atomic
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.http import is_safe_url
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from ..auth import SUPERUSER_PERM
 # from ..auth.decorators import login_required, superuser_required
@@ -32,9 +33,9 @@ from ..core.exceptions import ConflictError
 from ..core.job import JobSchedulerQueue
 from ..http import CremeJsonResponse
 from ..models import Job
-
-from . import generic, bricks as bricks_views
 # from .decorators import jsonify, POST_only
+from . import bricks as bricks_views
+from . import generic
 
 
 class Jobs(generic.BricksView):

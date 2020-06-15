@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2017-2018 Hybird
+# Copyright (c) 2017-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,8 +24,9 @@
 #
 ################################################################################
 
+import sys
+import traceback
 from functools import wraps
-import sys, traceback
 from typing import Callable
 
 

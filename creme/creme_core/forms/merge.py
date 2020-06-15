@@ -22,7 +22,7 @@ import logging
 
 from django.db.models.fields import FieldDoesNotExist
 from django.db.transaction import atomic
-from django.forms import Field, Widget, Select, CheckboxInput
+from django.forms import CheckboxInput, Field, Select, Widget
 from django.forms.models import fields_for_model, model_to_dict
 from django.utils.translation import gettext as _
 
@@ -30,7 +30,7 @@ from ..gui import merge
 from ..models import CremeEntity, CustomField, CustomFieldValue, FieldsConfig
 from ..signals import pre_merge_related
 from ..utils import replace_related_object
-from .base import CremeForm, _CUSTOM_NAME
+from .base import _CUSTOM_NAME, CremeForm
 
 logger = logging.getLogger(__name__)
 

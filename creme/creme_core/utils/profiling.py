@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2016-2019 Hybird
+# Copyright (c) 2016-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,9 @@
 from contextlib import ContextDecorator
 
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.test.utils import CaptureQueriesContext as DjangoCaptureQueriesContext
+from django.test.utils import (
+    CaptureQueriesContext as DjangoCaptureQueriesContext,
+)
 
 
 class CaptureQueriesContext(DjangoCaptureQueriesContext):

@@ -19,11 +19,7 @@
 ################################################################################
 
 import logging
-from typing import (
-    Optional, Type,
-    Iterable, Iterator, Sequence,
-    Dict, Tuple,
-)
+from typing import Dict, Iterable, Iterator, Optional, Sequence, Tuple, Type
 
 from django.template.loader import get_template
 

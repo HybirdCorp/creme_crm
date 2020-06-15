@@ -18,26 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import loads as json_load
 import logging
 import warnings
+from json import loads as json_load
 from typing import Dict, List, Tuple, Type
 
 from django.core.exceptions import PermissionDenied
-from django.http.response import HttpResponseBase, HttpResponse, Http404
 from django.db import IntegrityError
+from django.http.response import Http404, HttpResponse, HttpResponseBase
 # from django.shortcuts import get_object_or_404
 from django.template.context import make_context
 from django.template.engine import Engine
 
 from .. import utils
 # from ..auth.decorators import login_required
-from ..gui.bricks import Brick, _BrickRegistry, brick_registry, BricksManager
+from ..gui.bricks import Brick, BricksManager, _BrickRegistry, brick_registry
 from ..http import CremeJsonResponse
 from ..models import BrickState  # CremeEntity
-
-from . import generic
 # from .decorators import jsonify
+from . import generic
 
 logger = logging.getLogger(__name__)
 

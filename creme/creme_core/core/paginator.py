@@ -18,17 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import sys
 from collections.abc import Sequence
 from datetime import date, datetime
 from decimal import Decimal
 from functools import lru_cache
 from math import ceil
-import sys
-from typing import Optional, Iterator, Iterable, List
+from typing import Iterable, Iterator, List, Optional
 
 from django.core.exceptions import ValidationError
 from django.core.paginator import InvalidPage
-from django.db.models import Q, QuerySet, Model
+from django.db.models import Model, Q, QuerySet
 
 from creme.creme_core.utils.dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
 from creme.creme_core.utils.db import populate_related

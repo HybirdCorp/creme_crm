@@ -18,14 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
 import operator
-from typing import Type, Collection
+from functools import partial
+from typing import Collection, Type
 
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.query_utils import Q
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.utils.db import (
     is_db_equal_case_sensitive,
@@ -33,7 +34,7 @@ from creme.creme_core.utils.db import (
 )
 from creme.creme_core.utils.meta import FieldInfo
 
-from . import entity_filter_registries, EF_USER
+from . import EF_USER, entity_filter_registries
 
 # IDs
 EQUALS          =  1

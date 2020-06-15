@@ -25,8 +25,7 @@ from django.shortcuts import get_object_or_404
 from ..core.enumerable import enumerable_registry
 from ..core.exceptions import ConflictError
 from ..http import CremeJsonResponse
-from ..models import CustomFieldEnumValue, CustomField
-
+from ..models import CustomField, CustomFieldEnumValue
 from .generic import base
 
 

@@ -23,7 +23,7 @@
 # SOFTWARE.
 ################################################################################
 
-from typing import Callable, List, Iterator
+from typing import Callable, Iterator, List
 
 
 class Swappable:

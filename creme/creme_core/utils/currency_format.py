@@ -12,16 +12,15 @@
 #    (http://www.opensource.org/licenses/Python-2.0)
 ################################################################################
 
-import os
 import locale
 import logging
+import os
 
 from django.conf import settings
 from django.utils import translation
 
 from ..models import Currency, SettingValue
 from ..setting_keys import currency_symbol_key
-
 
 logger = logging.getLogger(__name__)
 WINDOWS = 'nt'

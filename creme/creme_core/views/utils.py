@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from urllib.parse import urlparse
 from typing import Optional
+from urllib.parse import urlparse
 
 from django.db.models.base import Model
 

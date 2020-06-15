@@ -21,26 +21,29 @@
 from functools import partial
 from itertools import chain
 from typing import (
-    Union, Optional, Type,
-    Iterable, Mapping, Sequence,
-    Dict, List, Set, Tuple,
     TYPE_CHECKING,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    Union,
 )
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Model, Field, ForeignKey, FieldDoesNotExist
+from django.db.models import Field, FieldDoesNotExist, ForeignKey, Model
 from django.urls import reverse
 
 from ..core.entity_cell import (
     EntityCell,
-    EntityCellRegularField,
     EntityCellCustomField,
+    EntityCellRegularField,
 )
-from ..models import (
-    CremeModel, CremeEntity,
-    CustomField,
-    FieldsConfig,
-)
+from ..models import CremeEntity, CremeModel, CustomField, FieldsConfig
 from ..utils.unicode_collation import collator
 
 if TYPE_CHECKING:
@@ -395,4 +398,3 @@ class _BulkUpdateRegistry:
 
 
 bulk_update_registry = _BulkUpdateRegistry()
-

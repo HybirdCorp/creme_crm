@@ -18,17 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import loads as json_load
 import logging
+from json import loads as json_load
 from typing import List, Optional
 
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext as _
 
-from ..core.deletion import Replacer, ReplacersRegistry, REPLACERS_MAP
+from ..core.deletion import REPLACERS_MAP, Replacer, ReplacersRegistry
 from ..utils.serializers import json_encode
-
 from .base import CremeModel
 from .fields import CTypeOneToOneField
 from .job import Job

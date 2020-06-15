@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Type, List
+from typing import List, Type
 
 from django.db.models import Field
 

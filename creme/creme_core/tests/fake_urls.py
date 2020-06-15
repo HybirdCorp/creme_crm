@@ -3,9 +3,7 @@
 from django.urls import re_path
 
 from ..views.generic.placeholder import ErrorView
-
 from . import fake_views
-
 
 urlpatterns = [
     re_path(r'^tests/documents[/]?$', fake_views.FakeDocumentsList.as_view(), name='creme_core__list_fake_documents'),

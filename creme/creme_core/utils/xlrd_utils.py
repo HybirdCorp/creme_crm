@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,12 +20,14 @@
 
 from datetime import datetime
 
-from xlrd import (open_workbook, xldate_as_tuple,
-                  # XL_CELL_EMPTY, XL_CELL_TEXT,
-                  XL_CELL_NUMBER, XL_CELL_DATE,
-                  XL_CELL_BOOLEAN,
-                  # XL_CELL_ERROR, XL_CELL_BLANK,
-                 )
+# from xlrd import XL_CELL_EMPTY, XL_CELL_TEXT, XL_CELL_ERROR, XL_CELL_BLANK
+from xlrd import (
+    XL_CELL_BOOLEAN,
+    XL_CELL_DATE,
+    XL_CELL_NUMBER,
+    open_workbook,
+    xldate_as_tuple,
+)
 
 
 class XlCTypeHandler:

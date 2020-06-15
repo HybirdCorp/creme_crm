@@ -18,18 +18,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
 import logging
+from collections import defaultdict
 from os.path import basename
 from typing import (
-    Any, Optional, Type,
-    Callable, Iterable,
-    DefaultDict, Dict, Tuple,
+    Any,
+    Callable,
+    DefaultDict,
+    Dict,
+    Iterable,
+    Optional,
+    Tuple,
+    Type,
 )
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Model
-from django.db.models.fields.files import FileField, FieldFile
+from django.db.models.fields.files import FieldFile, FileField
 
 from ..models import CremeEntity, FieldsConfig, FileRef
 from ..utils.collections import ClassKeyedMap

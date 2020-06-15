@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
 import logging
+from collections import defaultdict
 from typing import DefaultDict, List, Tuple, Type, Union
 
 from creme.creme_core.core.entity_cell import (
     EntityCell,
-    EntityCellRegularField,
     EntityCellFunctionField,
+    EntityCellRegularField,
     EntityCellRelation,
 )
 from creme.creme_core.models import CremeEntity, RelationType

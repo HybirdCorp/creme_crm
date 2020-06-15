@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Dict, List, Type, Optional
+from typing import Dict, List, Optional, Type
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.base import Model

@@ -20,7 +20,9 @@
 
 from django.apps import apps
 from django.conf import settings
-from django.core.checks import register, Error, Warning, Tags as CoreTags
+from django.core.checks import Error
+from django.core.checks import Tags as CoreTags
+from django.core.checks import Warning, register
 from django.db.utils import DatabaseError
 
 

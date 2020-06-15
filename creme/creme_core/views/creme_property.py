@@ -29,12 +29,12 @@ from creme.creme_config.forms import creme_property_type as ptype_forms
 
 # from ..auth.decorators import login_required
 from ..forms import creme_property as prop_forms
-from ..gui.bricks import QuerysetBrick, Brick
-from ..models import CremeEntity, CremePropertyType, CremeProperty
+from ..gui.bricks import Brick, QuerysetBrick
+from ..models import CremeEntity, CremeProperty, CremePropertyType
 from ..utils import get_from_POST_or_404
 from ..utils.content_type import entity_ctypes
-
-from . import generic, bricks as bricks_views
+from . import bricks as bricks_views
+from . import generic
 # from .decorators import jsonify
 from .generic.base import EntityCTypeRelatedMixin
 

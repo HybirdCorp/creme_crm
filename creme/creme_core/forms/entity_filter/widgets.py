@@ -18,25 +18,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 from json import dumps as json_dump
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import (
-    DateField as ModelDateField,
-    IntegerField as ModelIntegerField,
-    FloatField as ModelFloatField,
-    DecimalField as ModelDecimalField,
-    BooleanField as ModelBooleanField,
-)
+from django.db.models import BooleanField as ModelBooleanField
+from django.db.models import DateField as ModelDateField
+from django.db.models import DecimalField as ModelDecimalField
+from django.db.models import FloatField as ModelFloatField
+from django.db.models import IntegerField as ModelIntegerField
 from django.db.models.fields.related import RelatedField as ModelRelatedField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_filter import (
-    _EntityFilterRegistry,
     EF_USER,
+    _EntityFilterRegistry,
     operators,
 )
 from creme.creme_core.models import CremeEntity, CustomField
@@ -44,10 +42,16 @@ from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.utils.url import TemplateURLBuilder
 
 from ..widgets import (
-    DynamicInput, SelectorList, ChainedInput, Label,
-    EntitySelector, DateRangeSelect,
-    DynamicSelect, DynamicSelectMultiple, PolymorphicInput,
+    ChainedInput,
+    DateRangeSelect,
+    DynamicInput,
+    DynamicSelect,
+    DynamicSelectMultiple,
+    EntitySelector,
+    Label,
     NullableDateRangeSelect,
+    PolymorphicInput,
+    SelectorList,
 )
 
 TRUE = 'true'

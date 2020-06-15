@@ -19,11 +19,15 @@
 ################################################################################
 
 import logging
-from typing import Union, Dict
+from typing import Dict, Union
 
 from django.db import models
 
-from ..core.setting_key import SettingKey, setting_key_registry, _SettingKeyRegistry
+from ..core.setting_key import (
+    SettingKey,
+    _SettingKeyRegistry,
+    setting_key_registry,
+)
 from ..global_info import get_per_request_cache
 
 logger = logging.getLogger(__name__)

@@ -21,7 +21,7 @@
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -32,7 +32,6 @@ from ..forms.batch_process import BatchProcessForm
 from ..http import CremeJsonResponse
 from ..models import Job
 from ..utils.content_type import get_ctype_or_404
-
 from . import generic
 # from .decorators import jsonify
 from .utils import build_cancel_path

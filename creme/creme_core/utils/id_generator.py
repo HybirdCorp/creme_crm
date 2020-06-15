@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-from typing import Type, Sequence
+from typing import Sequence, Type
 
 from django.db import IntegrityError
 from django.db.models import Model

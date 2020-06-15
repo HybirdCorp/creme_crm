@@ -18,24 +18,34 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
 import logging
-from typing import Type, Union, Optional, Iterable, Iterator, List, Tuple, DefaultDict
 import warnings
+from collections import defaultdict
+from typing import (
+    DefaultDict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.db.models.query_utils import Q
-from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from ..utils import find_first
 from ..utils.meta import FieldInfo, ModelFieldEnumerator
-
 from .auth import UserRole
 from .base import CremeModel
 from .entity import CremeEntity
-from .fields import EntityCTypeForeignKey, DatePeriodField
+from .fields import DatePeriodField, EntityCTypeForeignKey
 
 logger = logging.getLogger(__name__)
 

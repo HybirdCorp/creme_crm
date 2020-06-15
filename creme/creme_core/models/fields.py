@@ -25,14 +25,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import checks
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
-from django.db.models.deletion import SET, CASCADE
 from django.db.models.aggregates import Max
+from django.db.models.deletion import CASCADE, SET
 from django.db.models.fields.mixins import FieldCacheMixin
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from ..core import validators
-from ..utils.date_period import date_period_registry, DatePeriod
+from ..utils.date_period import DatePeriod, date_period_registry
 from ..utils.serializers import json_encode
 
 

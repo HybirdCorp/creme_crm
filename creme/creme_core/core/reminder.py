@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 import logging
-from typing import Dict, List, Type, Optional, Iterator
+from datetime import datetime
+from typing import Dict, Iterator, List, Optional, Type
 
 from django.conf import settings
 from django.core.mail import EmailMessage, get_connection

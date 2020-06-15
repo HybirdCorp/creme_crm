@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-from typing import Optional, Callable, List
+from typing import Callable, List, Optional
 
 StatisticsFunc = Callable[[], list]
 logger = logging.getLogger(__name__)

@@ -29,7 +29,6 @@ from re import compile as compile_re
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 
-
 color_validator = RegexValidator(compile_re(r'^([0-9a-fA-F]){6}$'),
                                  message=_('Enter a valid HTML color.'),
                                  code='invalid',

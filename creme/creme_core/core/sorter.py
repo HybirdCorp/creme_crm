@@ -18,25 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from collections import OrderedDict
 from functools import partial
-import logging
-from typing import Dict, List, Tuple, Optional, Type, Iterable
+from typing import Dict, Iterable, List, Optional, Tuple, Type
 
 from django.db import models
-from django.db.models import Model, Field
+from django.db.models import Field, Model
 
 from creme.creme_core.core.entity_cell import (
-    EntityCell,
-    EntityCellRegularField,
-    EntityCellFunctionField,
     CELLS_MAP,
+    EntityCell,
+    EntityCellFunctionField,
+    EntityCellRegularField,
 )
 from creme.creme_core.core.function_field import FunctionField
 from creme.creme_core.models import CremeEntity, fields
 from creme.creme_core.utils.collections import ClassKeyedMap
 from creme.creme_core.utils.db import get_indexed_ordering
-from creme.creme_core.utils.meta import OrderedField, Order
+from creme.creme_core.utils.meta import Order, OrderedField
 
 logger = logging.getLogger(__name__)
 

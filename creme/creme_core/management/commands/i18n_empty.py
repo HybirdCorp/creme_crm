@@ -24,10 +24,10 @@
 #
 ################################################################################
 
-from collections import defaultdict
 import importlib
+from collections import defaultdict
 from os import listdir
-from os.path import join, exists, dirname
+from os.path import dirname, exists, join
 
 from django.apps import apps
 from django.conf import settings

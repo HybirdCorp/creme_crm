@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Dict, Optional, Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Optional, Type
 
 from django.db.models import Q, QuerySet
 

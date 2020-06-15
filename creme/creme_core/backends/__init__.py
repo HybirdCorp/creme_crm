@@ -20,12 +20,17 @@
 
 # TODO: move to 'core/' ??
 
-from typing import (
-    Generic, Optional, TypeVar, Type,
-    Iterable, Iterator,
-    Dict, List,
-)
 import warnings
+from typing import (
+    Dict,
+    Generic,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Type,
+    TypeVar,
+)
 
 from django.conf import settings
 

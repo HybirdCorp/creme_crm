@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
+from ..core.function_field import (
+    FunctionField,
+    FunctionFieldResult,
+    FunctionFieldResultsList,
+)
 from ..models import FakeTodo
 
 

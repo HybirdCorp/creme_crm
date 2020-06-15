@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from importlib import import_module
 import logging
+from importlib import import_module
 
 from django.apps import apps
 

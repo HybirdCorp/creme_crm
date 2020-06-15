@@ -24,7 +24,8 @@ from urllib.parse import urlencode
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 # from .. import utils
 # from ..auth.decorators import login_required
@@ -35,7 +36,6 @@ from ..http import CremeJsonResponse
 from ..models import CremeEntity, EntityCredentials
 from ..registry import creme_registry
 from ..utils.unicode_collation import collator
-
 from .bricks import BricksReloading  # bricks_render_info
 # from .decorators import jsonify
 from .generic import base

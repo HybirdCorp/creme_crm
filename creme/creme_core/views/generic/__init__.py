@@ -1,31 +1,46 @@
 # -*- coding: utf-8 -*-
 
+from .add import (
+    AddingInstanceToEntityPopup,
+    CremeModelCreation,
+    CremeModelCreationPopup,
+    EntityCreation,
+    EntityCreationPopup,
+)
 from .base import (
-    CheckedView, CheckedTemplateView, BricksView,
-    CremeFormView, CremeFormPopup,
+    BricksView,
+    CheckedTemplateView,
+    CheckedView,
+    CremeFormPopup,
+    CremeFormView,
     RelatedToEntityFormPopup,
 )
-from .add import (
-    CremeModelCreation, EntityCreation,
-    CremeModelCreationPopup, EntityCreationPopup,
-    AddingInstanceToEntityPopup,
-)
+from .delete import CremeDeletion, CremeModelDeletion
 from .detailview import (
-    CremeModelDetail, EntityDetail,
-    CremeModelDetailPopup, EntityDetailPopup,
-    RelatedToEntityDetail, RelatedToEntityDetailPopup,
+    CremeModelDetail,
+    CremeModelDetailPopup,
+    EntityDetail,
+    EntityDetailPopup,
+    RelatedToEntityDetail,
+    RelatedToEntityDetailPopup,
 )
 from .edit import (
-    CremeEdition, CremeEditionPopup,
-    CremeModelEdition, EntityEdition,
-    CremeModelEditionPopup, EntityEditionPopup,
+    CremeEdition,
+    CremeEditionPopup,
+    CremeModelEdition,
+    CremeModelEditionPopup,
+    EntityEdition,
+    EntityEditionPopup,
     RelatedToEntityEditionPopup,
 )
-from .delete import CremeDeletion, CremeModelDeletion
 from .listview import EntitiesList
 from .wizard import (
-    CremeModelCreationWizard, EntityCreationWizard,
-    CremeModelCreationWizardPopup, EntityCreationWizardPopup,
-    CremeModelEditionWizard, EntityEditionWizard,
-    CremeModelEditionWizardPopup, EntityEditionWizardPopup,
+    CremeModelCreationWizard,
+    CremeModelCreationWizardPopup,
+    CremeModelEditionWizard,
+    CremeModelEditionWizardPopup,
+    EntityCreationWizard,
+    EntityCreationWizardPopup,
+    EntityEditionWizard,
+    EntityEditionWizardPopup,
 )

@@ -22,7 +22,7 @@ import logging
 from typing import Optional, Type
 
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.encoding import smart_text

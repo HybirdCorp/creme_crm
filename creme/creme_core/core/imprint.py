@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Optional, Type, Dict
 from datetime import timedelta
+from typing import Dict, Optional, Type
 
 # from django.db.models.functions import Now
 from django.utils.timezone import now

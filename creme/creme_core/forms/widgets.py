@@ -19,18 +19,19 @@
 ################################################################################
 
 import copy
+import logging
+import warnings
 from functools import partial
 from json import dumps as json_dump
-import logging
 from types import GeneratorType
-import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.forms import widgets
 from django.urls import reverse
-from django.utils.translation import gettext as _, gettext_lazy, pgettext_lazy, pgettext
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy, pgettext, pgettext_lazy
 
 from ..utils.date_range import date_range_registry
 from ..utils.queries import QSerializer

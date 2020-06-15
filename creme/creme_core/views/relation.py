@@ -18,24 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# import warnings
 from collections import defaultdict
 from functools import partial
-# import warnings
 
 from django.core.exceptions import PermissionDenied
-from django.db.models.query_utils import Q, FilteredRelation
+from django.db.models.query_utils import FilteredRelation, Q
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, get_list_or_404
-from django.utils.translation import gettext_lazy as _, gettext, ngettext
+from django.shortcuts import get_list_or_404, get_object_or_404
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from .. import utils
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..forms import relation as rel_forms
-from ..models import Relation, RelationType, CremeEntity
+from ..models import CremeEntity, Relation, RelationType
 from ..shortcuts import get_bulk_or_404
 from ..utils.content_type import entity_ctypes
-
 from .decorators import jsonify
 from .generic import base
 from .generic.delete import CremeModelDeletion

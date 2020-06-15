@@ -23,9 +23,9 @@ from typing import Any, Dict, Iterator, Optional, Type
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core import backends
-from creme.creme_core.utils.collections import FluentList
-from creme.creme_core.models import CremeEntity
 from creme.creme_core.gui.mass_import import import_form_registry
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.utils.collections import FluentList
 
 
 class ListViewButton:

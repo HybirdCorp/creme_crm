@@ -27,12 +27,8 @@
 import logging
 import sys
 import traceback
-from typing import (
-    TypeVar,
-    Callable, Iterable,
-    List, Tuple,
-)
 import warnings
+from typing import Callable, Iterable, List, Tuple, TypeVar
 
 from django.http import Http404
 from django.utils.safestring import mark_safe

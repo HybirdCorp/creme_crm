@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2019 Hybird
+# Copyright (c) 2009-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@
 
 from django.utils.deprecation import MiddlewareMixin
 
-from ..global_info import set_global_info, clear_global_info
+from ..global_info import clear_global_info, set_global_info
 
 
 class GlobalInfoMiddleware(MiddlewareMixin):

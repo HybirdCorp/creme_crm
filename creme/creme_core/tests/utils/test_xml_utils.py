@@ -286,4 +286,3 @@ class XMLUtilsTestCase(CremeTestCase):
                           '<commands attr2="bar" attr1="foo" >',  # Syntax error
                           '<commands attr2="bar" attr1="foo" />',
                          )
-

@@ -22,7 +22,7 @@ from os.path import splitext
 
 from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.utils.translation import gettext as _
@@ -31,17 +31,16 @@ from ..auth.decorators import login_required
 from ..backends import export_backend_registry
 from ..core.exceptions import ConflictError
 from ..creme_jobs import mass_import_type
-from ..forms.mass_import import (
+from ..forms.mass_import import (  # get_backend
     UploadForm,
     form_factory,
     get_header,
     get_import_backend_class,
-)  # get_backend
+)
 from ..gui.mass_import import import_form_registry
 from ..models import Job, MassImportJobResult
 from ..utils import get_from_POST_or_404
 from ..utils.content_type import get_ctype_or_404
-
 from .utils import build_cancel_path
 
 # django wizard doesn't manage to inject its input in the 2nd form
