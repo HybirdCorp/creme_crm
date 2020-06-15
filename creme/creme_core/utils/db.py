@@ -153,7 +153,7 @@ def get_indexed_ordering(model: Type[Model],
 
         asc_fnames.append(field_name)
 
-    if reversed_count and reversed_count != len(asc_fnames) - wildcard_count :
+    if reversed_count and reversed_count != len(asc_fnames) - wildcard_count:
         # Columns of the indexes are only ASC, so all field names must have the same order.
         return None
 

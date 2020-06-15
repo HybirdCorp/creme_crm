@@ -67,7 +67,7 @@ class AbstractProject(CremeEntity):
         verbose_name_plural = _('Projects')
         ordering = ('name',)
 
-    def __str__(self) :
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
