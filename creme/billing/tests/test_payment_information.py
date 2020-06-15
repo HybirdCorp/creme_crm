@@ -168,10 +168,10 @@ class PaymentInformationTestCase(_BillingTestCase):
         pi_sega     = create_pi(organisation=sega,            name='RIB sega')
 
         def assertPostStatus(code, pi):
-            self.assertEqual(code,
-                             self.client.post(self._build_setdefault_url(pi, invoice)) \
-                                        .status_code
-                            )
+            self.assertEqual(
+                code,
+                self.client.post(self._build_setdefault_url(pi, invoice)).status_code
+            )
 
         assertPostStatus(409, pi_nintendo)
         assertPostStatus(409, pi_sega)
