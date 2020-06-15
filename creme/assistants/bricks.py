@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -117,8 +117,8 @@ class AlertsBrick(_AssistantsBrick):
     template_name = 'assistants/bricks/alerts.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        return  Alert.objects.filter(is_validated=False, entity_id=entity.id)\
-                             .select_related('user')
+        return Alert.objects.filter(is_validated=False, entity_id=entity.id)\
+                            .select_related('user')
 
     def _get_queryset_for_home(self, context):
         return Alert.objects.filter_by_user(context['user']) \

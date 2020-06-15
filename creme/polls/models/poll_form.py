@@ -183,7 +183,7 @@ class PollFormSection(CremeModel):
         #                         self.id, self.name, self.parent_id,
         #                     )
         #                 )
-        return  f'PollFormSection(id={self.id}, name={self.name}, parent={self.parent_id})'
+        return f'PollFormSection(id={self.id}, name={self.name}, parent={self.parent_id})'
 
     def delete(self, *args, **kwargs):
         from ..utils import SectionTree
