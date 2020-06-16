@@ -264,17 +264,17 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         name = 'testnoaction'
 
         self.assertHTMLEqual(
-'''<select name="{name}" disabled>
-    <option value="1" selected>A</option>
-    <option value="2">B</option>
-</select>'''.format(name=name),
+            '<select name="{name}" disabled>'
+            '  <option value="1" selected>A</option>'
+            '  <option value="2">B</option>'
+            '</select>'.format(name=name),
             widget.render(name, 1, attrs={'disabled': True})
         )
         self.assertHTMLEqual(
-'''<select name="{name}" disabled readonly>
-    <option value="1" selected>A</option>
-    <option value="2">B</option>
-</select>'''.format(name=name),
+            '<select name="{name}" disabled readonly>'
+            '  <option value="1" selected>A</option>'
+            '  <option value="2">B</option>'
+            '</select>'.format(name=name),
             widget.render(name, 1, attrs={'readonly': True})
         )
 

@@ -84,7 +84,7 @@ class _MassImportType(JobType):
                     model=self._get_ctype(job_data).model_class()._meta.verbose_name,
                     doc=self._get_document(self._build_POST(job_data)),
                 ),
-           ]
+            ]
         except Exception:  # TODO: unit test
             logger.exception('Error in _MassImportType.get_description')
             desc = ['?']

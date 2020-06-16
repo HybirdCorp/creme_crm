@@ -331,7 +331,7 @@ class MySignaturesBrick(QuerysetBrick):
             context,
             EmailSignature.objects.filter(user=user),
             has_app_perm=user.has_perm('emails'),
-       ))
+        ))
 
 
 if apps.is_installed('creme.crudity'):

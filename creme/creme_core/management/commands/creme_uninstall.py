@@ -288,7 +288,8 @@ class Command(AppCommand):
                             model=model.__name__,
                             count=count,
                             adj='' if first_trial else ' remaining',
-                    ))
+                        )
+                    )
 
                 if issubclass(model, CremeEntity):
                     def pre_delete(i):
@@ -357,7 +358,8 @@ class Command(AppCommand):
                             ctype=ctype,
                             id=ctype.id,
                             again='' if error is None else ' again',
-                    ))
+                        )
+                    )
 
                 try:
                     ctype.delete()
@@ -384,7 +386,8 @@ class Command(AppCommand):
                               '(original error: {})'.format(*ci)
                                   for ci in ctypes_info
                              ),
-            ))
+                )
+            )
 
         if verbosity > 1:
             self.stdout.write(' [OK] All related ContentTypes have been deleted.',
@@ -445,7 +448,8 @@ class Command(AppCommand):
                     '{models}\n'.format(
                         error=force_text(e),  # PostGreSQL returns localized errors...
                         models='\n'.join(model._meta.db_table for model in models),
-                ))
+                    )
+                )
 
                 raise CommandError(
                     f'Sadly you have to DELETE the remaining tables MANUALLY, '

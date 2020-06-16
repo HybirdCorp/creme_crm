@@ -54,8 +54,7 @@ class QuerySorterTestCase(CremeTestCase):
         registry = CellSorterRegistry()
         ps = registry.pretty()
         self.assertIsInstance(ps, str)
-        self.assertIn(
-"""CellSorterRegistry:
+        self.assertIn("""CellSorterRegistry:
   [EntityCellRegularField.type_id="regular_field"]:
     RegularFieldSorterRegistry:
       Field types:

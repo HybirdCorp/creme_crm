@@ -227,7 +227,7 @@ class GraphFetchingBase(base.CheckedView):
             key=self.save_settings_arg,
             cast=utils.bool_from_str_extended,
             default='0',
-    )
+        )
 
     def save_settings(self, *, rgraph, chart, asc, save_settings):
         update_kw = {'asc': asc}

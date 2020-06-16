@@ -78,14 +78,18 @@ class ReplacingHandler:
         self.count = self._count_related_instances()
 
     def __repr__(self):
-        return '{cls}(field={field}, field_is_hidden={hidden}, ' \
-               'instance_to_delete={instance}, blocking={blocking}, key="{key}")'.format(
-            cls=type(self).__name__,
-            field=repr(self.field),
-            hidden=self.field_is_hidden,
-            instance=repr(self.instance_to_delete),
-            blocking=self.blocking,
-            key=self.key,
+        return (
+            '{cls}('
+            'field={field}, field_is_hidden={hidden}, '
+            'instance_to_delete={instance}, blocking={blocking}, key="{key}"'
+            ')'.format(
+                cls=type(self).__name__,
+                field=repr(self.field),
+                hidden=self.field_is_hidden,
+                instance=repr(self.instance_to_delete),
+                blocking=self.blocking,
+                key=self.key,
+            )
         )
 
     def _build_formfield_label(self):

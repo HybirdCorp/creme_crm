@@ -60,7 +60,7 @@ class Conversion(generic.base.EntityRelatedMixin, generic.CheckedView):
             raise ConflictError(
                 f'Invalid destination type '
                 f'[allowed destinations for this type: {allowed_dests}]'
-           )
+            )
 
         dest_class = _CLASS_MAP[dest_class_id]
 

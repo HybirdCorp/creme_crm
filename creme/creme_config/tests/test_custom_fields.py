@@ -128,7 +128,8 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'name':         'Eva',
                 'field_type':   CustomField.ENUM,
                 # 'enum_values': ...  #  NOPE
-        })
+            },
+        )
         self.assertFormError(
             response, 'form', None,
             _('The choices list must not be empty if you choose the type "Choice list".')

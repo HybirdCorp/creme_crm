@@ -245,7 +245,8 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
                 raise ConflictError(
                     gettext('A deletion process for an instance of «{model}» already exists.').format(
                         model=type(instance)._meta.verbose_name,
-                ))
+                    )
+                )
 
     def get_form_class(self):
         deletor = self.get_model_conf().deletor

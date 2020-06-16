@@ -212,7 +212,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
                 'target_persons_organisation_create': True,
                 'target_persons_contact_colselect': 6,
                 'target_persons_contact_create': True,
-         },
+            },
         )
         self.assertNoFormError(response)
 

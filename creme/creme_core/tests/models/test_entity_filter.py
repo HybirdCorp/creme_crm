@@ -1285,7 +1285,7 @@ class EntityFiltersTestCase(CremeTestCase):
                     operator=operators.IENDSWITH,
                     field_name='first_name', values=['SATO'],
                 ),
-           ],
+            ],
         )
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('misato', 'risato'))
 
@@ -1380,7 +1380,7 @@ class EntityFiltersTestCase(CremeTestCase):
                     operator=operators.ISEMPTY,
                     field_name='civility__title', values=[True],
                 ),
-           ],
+            ],
         )
         self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(

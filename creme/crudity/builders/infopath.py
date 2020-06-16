@@ -52,8 +52,7 @@ logger = logging.getLogger(__name__)
 Document = get_document_model()
 
 INFOPATH_LANGUAGES_CODES = {
-# http://support.microsoft.com/kb/12739/fr
-    'fr':    '1036',
+    'fr':    '1036',  # http://support.microsoft.com/kb/12739/fr
     'en-gb': '2057',
     'en':    '1033',
 }

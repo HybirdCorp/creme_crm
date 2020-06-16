@@ -335,7 +335,8 @@ class _CremeTestCase:
                     '(fields: {fields})'.format(
                         field=field_name,
                         fields=[*form_errors.keys()],
-                ))
+                    )
+                )
 
             field_errors = form_errors[field_name]
             if message not in field_errors:

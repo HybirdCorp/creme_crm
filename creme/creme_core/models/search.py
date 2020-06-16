@@ -238,8 +238,8 @@ class SearchConfigItem(CremeModel):
         if not sfields:  # field_names is empty => use all compatible fields
             sfields.extend(
                 SearchField(field_name=field_name, field_verbose_name=verbose_name)
-                    for field_name, verbose_name in self._get_modelfields_choices(model)
-          )
+                for field_name, verbose_name in self._get_modelfields_choices(model)
+            )
             self._all_fields = True
         else:
             self._all_fields = False
