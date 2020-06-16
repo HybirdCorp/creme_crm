@@ -117,10 +117,16 @@ class PollFormLineCreateForm(_PollFormLineForm):
     def __init__(self, section=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.section = section
-        self.section_lines = section_lines = []  # Lines which are in the section where we create our line
-        self.next_lines = next_lines = []  # The lines after the one we create (but not in the same section):
-                                           # their order have to be incremented
-        self.empty_section_order = 1  # Order of the last line before our section (used if our section is empty)
+
+        # Lines which are in the section where we create our line.
+        self.section_lines = section_lines = []
+
+        # The lines after the one we create (but not in the same section):
+        # their order have to be incremented
+        self.next_lines = next_lines = []
+
+        # Order of the last line before our section (used if our section is empty).
+        self.empty_section_order = 1
 
         nodes = [*SectionTree(self.pform)]
         section_id = section.id if section else None

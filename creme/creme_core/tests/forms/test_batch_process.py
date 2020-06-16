@@ -43,7 +43,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
         # No operator
         self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"name": "first_name"}]')
 
-         # Value has no 'value' key
+        # Value has no 'value' key
         self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"operator": "upper", "name": "first_name"}]')
 
     def test_clean_invalid_field(self):

@@ -34,10 +34,12 @@ from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
 
 class _ComApproachesEmailsSendType(JobType):
-    id           = JobType.generate_id('commercial', 'com_approaches_emails_send')
+    id = JobType.generate_id('commercial', 'com_approaches_emails_send')
     verbose_name = _('Send emails for commercials approaches')
-    periodic     = JobType.PERIODIC  # It would be too difficult/inefficient to
-                                     # compute the next wake up, so it is not PSEUDO_PERIODIC.
+
+    # It would be too difficult/inefficient to compute the next wake up,
+    # so it is not PSEUDO_PERIODIC.
+    periodic = JobType.PERIODIC
 
     # TODO: add a config form which stores the rules in job.data
     list_target_orga = [(REL_SUB_CUSTOMER_SUPPLIER, 30)]

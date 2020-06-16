@@ -190,8 +190,10 @@ class UserCalendarsBrick(QuerysetBrick):
     template_name = 'activities/bricks/user-calendars.html'
     configurable  = False
     order_by      = 'name'
-    permission    = None  # NB: used by the view creme_core.views.bricks.reload_basic() ;
-                          #     None means "No special permission required".
+
+    # NB: used by the view creme_core.views.bricks.reload_basic() ;
+    # None <means> "No special permission required".
+    permission = None
 
     def detailview_display(self, context):
         # NB: credentials are OK, because we retrieve only Calendars related of the user.

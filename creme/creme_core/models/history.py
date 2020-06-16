@@ -633,15 +633,22 @@ class _HLTEntityExport(_HistoryLineType):
 
 
 class HistoryLine(Model):
-    entity       = ForeignKey(CremeEntity, null=True, on_delete=SET_NULL)
-    entity_ctype = CTypeForeignKey()  # We do not use entity.entity_type because
-                                      # we keep history of the deleted entities.
-    entity_owner = CremeUserForeignKey()  # We do not use entity.user because we keep history of the deleted entities
-    username     = CharField(max_length=30)  # Not a Fk to a User object because we want to
-                                             # keep the same line after the deletion of a User.
-    date         = CreationDateTimeField(_('Date'))
-    type         = PositiveSmallIntegerField(_('Type'))  # See TYPE_*
-    value        = TextField(null=True)  # TODO: use a JSONField ? (see EntityFilter)
+    entity = ForeignKey(CremeEntity, null=True, on_delete=SET_NULL)
+
+    # We do not use entity.entity_type because we keep history of the deleted entities.
+    entity_ctype = CTypeForeignKey()
+
+    # We do not use entity.user because we keep history of the deleted entities
+    entity_owner = CremeUserForeignKey()
+
+    # Not a FK to a User object because we want to keep the same line after the
+    # deletion of a User.
+    username = CharField(max_length=30)
+
+    date = CreationDateTimeField(_('Date'))
+
+    type  = PositiveSmallIntegerField(_('Type'))  # See TYPE_*
+    value = TextField(null=True)  # TODO: use a JSONField ? (see EntityFilter)
 
     ENABLED: bool = True  # False means that no new HistoryLines are created.
 
