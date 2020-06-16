@@ -241,15 +241,17 @@ class CSVTownPopulator(CSVPopulator):
                ]
 
     def save(self, entries, context):
-        existings = dict(Town.objects.filter(zipcode__in=(t.zipcode for t in entries),
-                                             slug__in=(t.slug for t in entries),
-                                            )
-                                     .values_list('zipcode', 'pk')
-                        )
+        get_existing_pk_by_zipcode = dict(
+            Town.objects.filter(
+                zipcode__in=(t.zipcode for t in entries),
+                slug__in=(t.slug for t in entries),
+            ).values_list('zipcode', 'pk')
+        ).get
 
-        find_pk = lambda town: existings.get(town.zipcode)
-
-        self.sync(Town, entries, find_pk)
+        self.sync(
+            Town, entries,
+            lambda town: get_existing_pk_by_zipcode(town.zipcode),
+        )
 
 
 class Command(BaseCommand):

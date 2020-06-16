@@ -1150,11 +1150,15 @@ class ProjectsTestCase(CremeTestCase):
     def _create_resource(self, contact, task):
         return Resource.objects.create(linked_contact=contact, user=self.user, task=task)
 
-    def _titles_collections(self, tasks_qs, constructor):
+    @staticmethod
+    def _titles_collections(tasks_qs, constructor):
         return constructor(tasks_qs.values_list('title', flat=True))
 
-    _titles_list = lambda self, tasks_qs: self._titles_collections(tasks_qs, list)
-    _titles_set  = lambda self, tasks_qs: self._titles_collections(tasks_qs, set)
+    def _titles_list(self, tasks_qs):
+        return self._titles_collections(tasks_qs, list)
+
+    def _titles_set(self, tasks_qs):
+        return self._titles_collections(tasks_qs, set)
 
     def _tasks_pk_set(self, project):
         return {*project.get_tasks().values_list('pk', flat=True)}
@@ -1228,10 +1232,12 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual({'1', '2', '3', '4'}, self._titles_set(cloned_project.get_tasks()))
         self.assertFalse(self._tasks_pk_set(project) & self._tasks_pk_set(cloned_project))
 
-        self.assertEqual({'1', '2'}, self._titles_set(get_task(title='3').get_parents()))
-        self.assertEqual(['3'],           self._titles_list(get_task(title='4').get_parents()))
+        self.assertSetEqual({'1', '2'}, self._titles_set(get_task(title='3').get_parents()))
+        self.assertListEqual(['3'], self._titles_list(get_task(title='4').get_parents()))
 
-        linked_contacts_set = lambda task: {*task.get_resources().values_list('linked_contact', flat=True)}
+        def linked_contacts_set(task):
+            return {*task.get_resources().values_list('linked_contact', flat=True)}
+
         self.assertSetEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task1))
         self.assertSetEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task2))
 

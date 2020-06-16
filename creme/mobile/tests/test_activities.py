@@ -275,7 +275,9 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         # Phone calls ----------------------------------------------------------
         i = count(1)
-        create_pc = lambda **kwargs: self._create_pcall(title='Pcall#{}'.format(next(i)), **kwargs)
+
+        def create_pc(**kwargs):
+            return self._create_pcall(title='Pcall#{}'.format(next(i)), **kwargs)
 
         pc1 = create_pc(start=yesterday,             status_id=STATUS_PLANNED,   participant=contact)
         pc2 = create_pc(start=now_val - timedelta(hours=25),                     participant=contact)  # Older than pc1 -> before

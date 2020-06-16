@@ -1040,7 +1040,7 @@ class RelationViewsTestCase(ViewsTestCase):
         )
 
     def _aux_add_relations_with_same_type(self):
-        create_entity = lambda: CremeEntity.objects.create(user=self.user)
+        create_entity = partial(CremeEntity.objects.create, user=self.user)
         self.subject  = create_entity()
         self.object01 = create_entity()
         self.object02 = create_entity()
@@ -1191,14 +1191,14 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(orga01.id, relations[0].object_entity_id)
 
     def test_add_relations_with_same_type06(self):
-        "Property constraint errors"
+        "Property constraint errors."
         user = self.login()
 
         create_ptype = CremePropertyType.create
         subject_ptype = create_ptype(str_pk='test-prop_foobar01', text='Subject property')
         object_ptype  = create_ptype(str_pk='test-prop_foobar02', text='Contact property')
 
-        create_entity = lambda: CremeEntity.objects.create(user=user)
+        create_entity = partial(CremeEntity.objects.create, user=user)
         bad_subject  = create_entity()
         good_subject = create_entity()
         bad_object   = create_entity()
@@ -1238,7 +1238,7 @@ class RelationViewsTestCase(ViewsTestCase):
         "Is internal"
         user = self.login()
 
-        create_entity = lambda: CremeEntity.objects.create(user=user)
+        create_entity = partial(CremeEntity.objects.create, user=user)
         subject  = create_entity()
         object01 = create_entity()
         object02 = create_entity()
@@ -1266,7 +1266,7 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_delete01(self):
         user = self.login()
 
-        create_entity = lambda: CremeEntity.objects.create(user=user)
+        create_entity = partial(CremeEntity.objects.create, user=user)
         subject_entity = create_entity()
         object_entity  = create_entity()
 

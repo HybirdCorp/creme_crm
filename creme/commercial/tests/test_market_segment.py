@@ -292,11 +292,12 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
         expected = [ptype2]
 
-        ptypes = lambda orga: [p.type for p in orga.properties.all()]
+        def ptypes(orga):
+            return [p.type for p in orga.properties.all()]
 
-        self.assertEqual(expected, ptypes(orga1))  # Only one property, not 2 (with the same type)
-        self.assertEqual(expected, ptypes(orga2))
-        self.assertEqual(expected, ptypes(orga3))
+        self.assertListEqual(expected, ptypes(orga1))  # Only one property, not 2 (with the same type)
+        self.assertListEqual(expected, ptypes(orga2))
+        self.assertListEqual(expected, ptypes(orga3))
 
     def test_delete06(self):
         "Cannot delete the segment with property_type=NULL"

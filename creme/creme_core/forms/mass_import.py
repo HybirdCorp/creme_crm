@@ -1203,7 +1203,9 @@ class ImportForm(CremeModelForm):
 
             append_error = self.append_error
             key_fields = frozenset(get_cleaned('key_fields'))
-            is_empty_value = lambda s: s is None or isinstance(s, str) and not s.strip()
+
+            def is_empty_value(s):
+                return s is None or isinstance(s, str) and not s.strip()
 
             for i, line in enumerate(filter(None, lines), start=1):
                 job_result = MassImportJobResult(job=job, line=line)

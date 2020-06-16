@@ -631,9 +631,11 @@ class MailingListsTestCase(_EmailsTestCase):
         mlist01.children.add(mlist02)
         mlist02.children.add(mlist03)
 
-        post = lambda parent, child: self.client.post(reverse('emails__add_child_mlists', args=(parent.id,)),
-                                                      data={'child': child.id},
-                                                     )
+        def post(parent, child):
+            return self.client.post(
+                reverse('emails__add_child_mlists', args=(parent.id,)),
+                data={'child': child.id},
+            )
 
         children_error = _('List already in the children')
         self.assertFormError(post(mlist01, mlist02), 'form', 'child', children_error)

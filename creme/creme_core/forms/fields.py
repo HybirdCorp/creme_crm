@@ -1101,7 +1101,9 @@ class FilteredEntityTypeField(JSONField):
         "See constructor."
         if not callable(ctypes):
             ctypes_list = [*ctypes]  # We copy the sequence to avoid external modifications
-            ctypes = lambda: ctypes_list
+
+            def ctypes():
+                return ctypes_list
 
         self._ctypes = ctypes
         self.widget.content_types = fields.CallableChoiceIterator(self._get_choices)
@@ -1616,7 +1618,9 @@ class CTypeChoiceField(fields.Field):
     def ctypes(self, ctypes):
         if not callable(ctypes):
             ctypes_list = [*ctypes]
-            ctypes = lambda: ctypes_list
+
+            def ctypes():
+                return ctypes_list
 
         self._ctypes = ctypes
         self.widget.choices = fields.CallableChoiceIterator(

@@ -365,7 +365,9 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         b_locs = BrickDetailviewLocation.objects.filter(content_type=ct, role=role, superuser=superuser)
-        filter_locs = lambda zone: [bl for bl in b_locs if bl.zone == zone]
+
+        def filter_locs(zone):
+            return [bl for bl in b_locs if bl.zone == zone]
 
         locations = filter_locs(BrickDetailviewLocation.TOP)
         self.assertEqual(2, len(locations))
@@ -511,7 +513,9 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         b_locs = BrickDetailviewLocation.objects.filter(content_type=ct, role=None, superuser=True)
-        filter_locs = lambda zone: [bl for bl in b_locs if bl.zone == zone]
+
+        def filter_locs(zone):
+            return [bl for bl in b_locs if bl.zone == zone]
 
         top_locations = filter_locs(BrickDetailviewLocation.TOP)
         self.assertEqual(1, len(top_locations))
@@ -631,7 +635,9 @@ class BricksConfigTestCase(CremeTestCase):
         b_locs = BrickDetailviewLocation.objects.filter(content_type=ct, role=role,
                                                         superuser=superuser,
                                                        )
-        filter_locs = lambda zone: [bl for bl in b_locs if bl.zone == zone]
+
+        def filter_locs(zone):
+            return [bl for bl in b_locs if bl.zone == zone]
 
         locations = filter_locs(BrickDetailviewLocation.TOP)
         self.assertEqual(2, len(locations))
@@ -765,11 +771,12 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(1, self._find_location(brick_top_id1, locations).order)
         self.assertEqual(2, self._find_location(brick_top_id2, locations).order)
 
-        bricks_info = lambda zone: [(bl.brick_id, bl.order) for bl in b_locs if bl.zone == zone]
+        def bricks_info(zone):
+            return [(bl.brick_id, bl.order) for bl in b_locs if bl.zone == zone]
 
-        self.assertEqual([('', 1)], bricks_info(BrickDetailviewLocation.LEFT))
-        self.assertEqual([('', 1)], bricks_info(BrickDetailviewLocation.RIGHT))
-        self.assertEqual([('', 1)], bricks_info(BrickDetailviewLocation.BOTTOM))
+        self.assertListEqual([('', 1)], bricks_info(BrickDetailviewLocation.LEFT))
+        self.assertListEqual([('', 1)], bricks_info(BrickDetailviewLocation.RIGHT))
+        self.assertListEqual([('', 1)], bricks_info(BrickDetailviewLocation.BOTTOM))
 
     def test_edit_detailview05(self):
         "Default conf + no empty configuration."
@@ -809,12 +816,14 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         b_locs = BrickDetailviewLocation.objects.filter(content_type=None)
-        bricks_info = lambda zone: [(bl.brick_id, bl.order) for bl in b_locs if bl.zone == zone]
 
-        self.assertEqual([(brick_id, 1)], bricks_info(BrickDetailviewLocation.TOP))
-        self.assertEqual([('', 1)], bricks_info(BrickDetailviewLocation.LEFT))
-        self.assertEqual([('', 1)], bricks_info(BrickDetailviewLocation.RIGHT))
-        self.assertEqual([('', 1)], bricks_info(BrickDetailviewLocation.BOTTOM))
+        def bricks_info(zone):
+            return [(bl.brick_id, bl.order) for bl in b_locs if bl.zone == zone]
+
+        self.assertListEqual([(brick_id, 1)], bricks_info(BrickDetailviewLocation.TOP))
+        self.assertListEqual([('', 1)], bricks_info(BrickDetailviewLocation.LEFT))
+        self.assertListEqual([('', 1)], bricks_info(BrickDetailviewLocation.RIGHT))
+        self.assertListEqual([('', 1)], bricks_info(BrickDetailviewLocation.BOTTOM))
 
     def test_edit_detailview06(self):
         "Post one block several times -> validation error."
@@ -975,7 +984,9 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         b_locs = BrickDetailviewLocation.objects.filter(content_type=ct)
-        filter_locs = lambda zone: [bl for bl in b_locs if bl.zone == zone]
+
+        def filter_locs(zone):
+            return [bl for bl in b_locs if bl.zone == zone]
 
         top_locations = filter_locs(BrickDetailviewLocation.TOP)
         self.assertEqual(1, len(top_locations))

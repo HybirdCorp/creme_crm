@@ -1512,9 +1512,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertIsInstance(y_asc, list)
         self.assertEqual(len(x_asc), len(y_asc))
 
-        fmt = lambda pk: '/tests/contacts?q_filter={}&filter=test-filter'.format(
-            self._serialize_qfilter(position=pk),
-        )
+        def fmt(pk):
+            return '/tests/contacts?q_filter={}&filter=test-filter'.format(
+                self._serialize_qfilter(position=pk),
+            )
+
         self.assertEqual([1, fmt(hand.id)], y_asc[x_asc.index(hand.title)])
         self.assertEqual([2, fmt(lord.id)], y_asc[x_asc.index(lord.title)])
 
@@ -1565,9 +1567,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         self.assertListEqual([*FakeSector.objects.values_list('title', flat=True)], x_asc)
 
-        fmt = lambda pk: '/tests/organisations?q_filter={}&filter=test-filter'.format(
-            self._serialize_qfilter(sector=pk),
-        )
+        def fmt(pk):
+            return '/tests/organisations?q_filter={}&filter=test-filter'.format(
+                self._serialize_qfilter(sector=pk),
+            )
+
         index = x_asc.index
         self.assertEqual([100,  fmt(war.id)],   y_asc[index(war.title)])
         self.assertEqual([1000, fmt(trade.id)], y_asc[index(trade.title)])
@@ -1618,9 +1622,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListEqual([*FakeSector.objects.values_list('title', flat=True)], x_asc)
 
         index = x_asc.index
-        fmt = lambda pk: '/tests/organisations?q_filter={}'.format(
-            self._serialize_qfilter(sector=pk),
-        )
+
+        def fmt(pk):
+            return '/tests/organisations?q_filter={}'.format(
+                self._serialize_qfilter(sector=pk),
+            )
+
         self.assertEqual([400, fmt(war.id)],   y_asc[index(war.title)])
         self.assertEqual([500, fmt(trade.id)], y_asc[index(trade.title)])
         self.assertEqual([0,   fmt(peace.id)], y_asc[index(peace.title)])
@@ -1828,9 +1835,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                         )
 
         self.assertEqual(len(y_asc), 2)
-        fmt = lambda *dates: '/tests/organisations?q_filter={}'.format(
+
+        def fmt(*dates):
+            return '/tests/organisations?q_filter={}'.format(
                 self._serialize_qfilter(creation_date__range=dates),
-        )
+            )
+
         self.assertEqual([4, fmt('2013-06-01', '2013-06-15')], y_asc[0])
         self.assertEqual([2, fmt('2013-06-16', '2013-06-30')], y_asc[1])
 
@@ -1884,9 +1894,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(['22/06/2013-01/07/2013', '02/07/2013-11/07/2013'],
                          x_asc
                         )
-        fmt = lambda *dates: '/tests/organisations?q_filter={}'.format(
+
+        def fmt(*dates):
+            return '/tests/organisations?q_filter={}'.format(
                 self._serialize_qfilter(creation_date__range=dates),
-        )
+            )
+
         self.assertEqual([300, fmt('2013-06-22', '2013-07-01')], y_asc[0])
         self.assertEqual([150, fmt('2013-07-02', '2013-07-11')], y_asc[1])
 
@@ -1930,9 +1943,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                         )
 
         self.assertEqual(len(y_asc), 2)
-        fmt = lambda *dates: '/tests/organisations?q_filter={}'.format(
+
+        def fmt(*dates):
+            return '/tests/organisations?q_filter={}'.format(
                 self._serialize_qfilter(creation_date__range=[*dates]),
-        )
+            )
+
         self.assertEqual([4, fmt('2013-12-21', '2014-01-04')], y_asc[0])
         self.assertEqual([2, fmt('2014-01-05', '2014-01-19')], y_asc[1])
 
@@ -2293,9 +2309,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # ASC -----------------------------------------------------------------
         x_asc, y_asc = rgraph.fetch(user)
         self.assertEqual(['2013', '2014'], x_asc)
-        fmt = lambda year: '/tests/organisations?q_filter={}'.format(
-                                self._serialize_qfilter(creation_date__year=year),
-        )
+
+        def fmt(year):
+            return '/tests/organisations?q_filter={}'.format(
+                self._serialize_qfilter(creation_date__year=year),
+            )
+
         self.assertEqual([2, fmt(2013)], y_asc[0])
         self.assertEqual([1, fmt(2014)], y_asc[1])
 
@@ -2342,9 +2361,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         x_asc, y_asc = rgraph.fetch(user)
         self.assertEqual(['2013', '2014', '2015', '2016'], x_asc)
 
-        fmt = lambda year: '/tests/organisations?q_filter={}'.format(
+        def fmt(year):
+            return '/tests/organisations?q_filter={}'.format(
                 self._serialize_qfilter(creation_date__year=year),
-        )
+            )
+
         self.assertEqual([Decimal('70.70'), fmt(2013)], y_asc[0])
         self.assertEqual([Decimal('100'),   fmt(2014)], y_asc[1])
         self.assertEqual([0,                fmt(2015)], y_asc[2])
@@ -2689,9 +2710,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         self.assertEqual([hand.value, lord.value], x_asc)
 
-        fmt = lambda val: '/tests/contacts?q_filter={}'.format(
-            self._serialize_qfilter(customfieldenum__value=val),
-        )
+        def fmt(val):
+            return '/tests/contacts?q_filter={}'.format(
+                self._serialize_qfilter(customfieldenum__value=val),
+            )
+
         self.assertEqual([1, fmt(hand.id)], y_asc[0])
         self.assertEqual([2, fmt(lord.id)], y_asc[1])
 
@@ -2739,9 +2762,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         self.assertEqual([fight.value, smartness.value], x_asc)
 
-        fmt = lambda val: '/tests/organisations?q_filter={}'.format(
-            self._serialize_qfilter(customfieldenum__value=val),
-        )
+        def fmt(val):
+            return '/tests/organisations?q_filter={}'.format(
+                self._serialize_qfilter(customfieldenum__value=val),
+            )
+
         self.assertEqual([90,  fmt(fight.id)],     y_asc[0])
         self.assertEqual([100, fmt(smartness.id)], y_asc[1])
 

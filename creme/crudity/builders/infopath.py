@@ -58,7 +58,9 @@ INFOPATH_LANGUAGES_CODES = {
     'en':    '1033',
 }
 
-get_none = lambda x: None
+
+def get_none(x):
+    return None
 
 
 def get_element_template(element_type, template_name):
