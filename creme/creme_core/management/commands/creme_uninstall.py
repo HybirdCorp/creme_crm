@@ -223,13 +223,13 @@ def _uninstall_user_setting_values(sender, **kwargs):
 
 
 class Command(AppCommand):
-# TODO ??
-#    option_list = AppCommand.option_list + (
-#        make_option('--database', action='store', dest='database',
-#                    default=DEFAULT_DB_ALIAS,
-#                    help='Nominates a database to reset. Defaults to the "default" database.',
-#                   ),
-#    )
+    # TODO ??
+    #    option_list = AppCommand.option_list + (
+    #        make_option('--database', action='store', dest='database',
+    #                    default=DEFAULT_DB_ALIAS,
+    #                    help='Nominates a database to reset. Defaults to the "default" database.',
+    #                   ),
+    #    )
     help = 'Uninstall Creme apps correctly, by removing remaining data in DB.'  # TODO: and tables ????
     args = '[appname ...]'
     requires_migrations_checks = True

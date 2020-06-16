@@ -376,8 +376,8 @@ by a man named Tochiro.
         self.assertIs(self.refresh(cf_value).value, True)
 
         # ---
-        with self.assertNumQueries(1):
         # with self.assertNumQueries(0):  # TODO: beware to False case
+        with self.assertNumQueries(1):
             cf_value.set_value_n_save(True)
 
         # ---
