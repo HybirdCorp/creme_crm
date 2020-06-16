@@ -933,7 +933,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             'last_name': 'Suruga',
             'relation_types': self.formfield_value_multi_relation_entity(
                (rtype.id, orga),
-           ),
+            ),
         }
 
         # KO ---

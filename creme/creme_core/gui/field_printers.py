@@ -152,9 +152,9 @@ class FileFieldPrinterForHTML:
 
         if ext in settings.ALLOWED_IMAGES_EXTENSIONS:
             return format_html(
-"""<a onclick="creme.dialogs.image('{url}').open();">
-    <img src="{url}" {size} alt="{label}"/>
-</a>""",
+                """<a onclick="creme.dialogs.image('{url}').open();">"""
+                """<img src="{url}" {size} alt="{label}"/>"""
+                """</a>""",
                 url=url,
                 label=_('Download «{file}»').format(file=file_name),
                 size=image_size(dl_filefield.file),   # TODO: fix to use the file

@@ -375,7 +375,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             'description': {'name': 'description'},
             'linked_folder': {'name': 'linked_folder', 'type': 'xsd:integer'},
             'filedata':    {'name': 'filedata', 'type': 'my:requiredBase64Binary'},
-       }
+        }
 
         for element_node in xml.findall(f'{xsd}element'):
             # xsd_element_attrs = xsd_elements.get(element_node.get('name'))

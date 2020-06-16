@@ -243,7 +243,7 @@ class EmailsCrudityTestCase(_EmailsTestCase):
             tos=['natsuki.hagiwara@ichigo.jp', 'kota.ochiai@ichigo.jp'],
             # replace(microsecond=0)  -> MySQL does not like microseconds...
             dates=[now().replace(microsecond=0) - timedelta(hours=1)],
-       )
+        )
         backend.fetcher_fallback(email, user)
 
         e_email = self.get_object_or_fail(EntityEmail, subject=email.subject)

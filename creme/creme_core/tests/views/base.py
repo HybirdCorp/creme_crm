@@ -131,7 +131,8 @@ class BrickTestCaseMixin:
                         '"{}"'.format(a.attrib.get('href'))
                         for a in buttons_node.findall('.//a')
                     ),
-            ))
+                )
+            )
 
         button_label = button_node.attrib.get('title')  # TODO: get the inner-span instead ?
         if label != button_label:

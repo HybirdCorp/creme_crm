@@ -192,23 +192,21 @@ class CremeAppConfig(AppConfig):
 
             if app_name is not None:
                 if not apps.is_installed(app_name):
-                    errors.append(
-                        checks.Error(
-                            f"extends the app '{app_name}' which is not installed.",
-                            hint='Check the INSTALLED_CREME_APPS setting in your'
-                                 ' local_settings.py/project_settings.py',
-                            obj=self.name,
-                            id='creme.E006',
+                    errors.append(checks.Error(
+                        f"extends the app '{app_name}' which is not installed.",
+                        hint='Check the INSTALLED_CREME_APPS setting in your'
+                             ' local_settings.py/project_settings.py',
+                        obj=self.name,
+                        id='creme.E006',
                     ))
 
                 if self.credentials != self.CRED_NONE:
-                    errors.append(
-                        checks.Error(
-                            f"The app '{self.name}' is an extending app & "
-                            f"so it cannot have its own credentials.",
-                            hint='Set "credentials = CremeAppConfig.CRED_NONE" in the AppConfig.',
-                            obj=self.name,
-                            id='creme.E007',
+                    errors.append(checks.Error(
+                        f"The app '{self.name}' is an extending app & "
+                        f"so it cannot have its own credentials.",
+                        hint='Set "credentials = CremeAppConfig.CRED_NONE" in the AppConfig.',
+                        obj=self.name,
+                        id='creme.E007',
                     ))
 
             return errors
@@ -424,7 +422,7 @@ class CremeCoreConfig(CremeAppConfig):
             actions.BulkAddPropertyAction,
             actions.BulkAddRelationAction,
             actions.MergeAction,
-       )
+        )
 
     def register_bricks(self, brick_registry):
         from . import bricks

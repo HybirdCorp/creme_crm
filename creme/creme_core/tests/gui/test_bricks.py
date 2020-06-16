@@ -519,7 +519,7 @@ class BrickRegistryTestCase(CremeTestCase):
                 brick
                     for brick in brick_registry.get_compatible_bricks(**kwargs)
                         if isinstance(brick, EntityBrick)
-        ]
+            ]
 
         # No model ----
         bricks1 = extract_model_brick()

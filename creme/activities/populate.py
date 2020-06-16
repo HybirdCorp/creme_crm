@@ -92,22 +92,33 @@ class Populator(BasePopulator):
         create_if_needed(Status, {'pk': constants.STATUS_CANCELLED},   name=pgettext('activities-status', 'Cancelled'),   description=pgettext('activities-status', 'Cancelled'),   is_custom=False)
 
         # ---------------------------
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_TASK},      name=_('Task'),           default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
-        meeting_type = \
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_MEETING},   name=_('Meeting'),        default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
-        phone_call_type = \
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_PHONECALL}, name=_('Phone call'),     default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_GATHERING}, name=_('Gathering'),      default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_SHOW},      name=_('Show'),           default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_DEMO},      name=_('Demonstration'),  default_day_duration=0, default_hour_duration="01:00:00", is_custom=False)
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_INDISPO},   name=_('Unavailability'), default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
+        act_types_info = {
+            constants.ACTIVITYTYPE_TASK:      {'name': _('Task'),           'day': 0, 'hour': '00:15:00'},
+            constants.ACTIVITYTYPE_MEETING:   {'name': _('Meeting'),        'day': 0, 'hour': '00:15:00'},
+            constants.ACTIVITYTYPE_PHONECALL: {'name': _('Phone call'),     'day': 0, 'hour': '00:15:00'},
+            constants.ACTIVITYTYPE_GATHERING: {'name': _('Gathering'),      'day': 0, 'hour': '00:15:00'},
+            constants.ACTIVITYTYPE_SHOW:      {'name': _('Show'),           'day': 1, 'hour': '00:00:00'},
+            constants.ACTIVITYTYPE_DEMO:      {'name': _('Demonstration'),  'day': 0, 'hour': '01:00:00'},
+            constants.ACTIVITYTYPE_INDISPO:   {'name': _('Unavailability'), 'day': 1, 'hour': '00:00:00'},
+        }
+        act_types = {
+            pk: create_if_needed(
+                ActivityType,
+                {'pk': pk},
+                name=info['name'],
+                default_day_duration=info['day'], default_hour_duration=info['hour'],
+                is_custom=False,
+            ) for pk, info in act_types_info.items()
+        }
 
+        meeting_type = act_types[constants.ACTIVITYTYPE_MEETING]
         create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_MEETING},       name=_('Meeting'),                            type=meeting_type, is_custom=False)
         create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION}, name=_('Qualification'),                      type=meeting_type, is_custom=False)
         create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_REVIVAL},       name=_('Revival'),                            type=meeting_type, is_custom=False)
         create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_NETWORK},       name=_('Network'),                            type=meeting_type, is_custom=False)
         create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_OTHER},         name=pgettext('activities-meeting', 'Other'), type=meeting_type, is_custom=False)
 
+        phone_call_type = act_types[constants.ACTIVITYTYPE_PHONECALL]
         create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING},   name=_('Incoming'),          type=phone_call_type, is_custom=False)
         create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING},   name=_('Outgoing'),          type=phone_call_type, is_custom=False)
         create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE}, name=_('Conference'),        type=phone_call_type, is_custom=False)

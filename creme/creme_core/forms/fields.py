@@ -457,7 +457,7 @@ class GenericEntityField(EntityCredsJSONField):
                 'create_label': str(ctype.model_class().creation_label),
             },
             'entity': pk
-       }
+        }
 
     def _value_from_unjsonfied(self, data):
         clean_value = self.clean_value
@@ -1838,7 +1838,7 @@ class EnhancedModelChoiceIterator(mforms.ModelChoiceIterator):
                 help=self.help(obj),
             ),
             label,
-       )
+        )
 
 
 class EnhancedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):

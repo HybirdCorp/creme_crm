@@ -69,7 +69,7 @@ class ResourceDeletion(generic.CremeModelDeletion):
             subject_entity=instance.linked_contact_id,
             type=REL_SUB_PART_AS_RESOURCE,
             object_entity__in=[a.id for a in instance.task.related_activities],
-       ).exists():
+        ).exists():
             raise ConflictError(
                 gettext('This resource cannot be deleted, because it is linked to activities.')
             )

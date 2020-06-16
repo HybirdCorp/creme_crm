@@ -928,7 +928,7 @@ class CustomFieldExtractor:
                         return (
                             self._manage_enum(enum_value.id),
                             err_msg
-                       )
+                        )
                     elif self._create_if_unfound:
                         # TODO: improve self._value_castor avoid the direct 'return' ?
                         return (

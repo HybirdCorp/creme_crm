@@ -2005,7 +2005,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 values=_('{first} or {last}').format(
                     first=fmt(enum_value=enum_A),
                     last=fmt(enum_value=enum_B),
-               ),
+                ),
             ),
             description
         )
@@ -2057,7 +2057,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 values=_('{first} or {last}').format(
                     first=fmt(enum_value=enum_1),
                     last=fmt(enum_value=enum_2),
-               ),
+                ),
             ),
             handler.description(user)
         )

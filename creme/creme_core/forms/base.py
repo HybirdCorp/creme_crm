@@ -110,7 +110,8 @@ class FieldBlocksGroup:
                 Tuple[
                     BoundField,
                     bool  # Is field required ?
-            ]]
+                ]
+            ]
         ]
     ]
 

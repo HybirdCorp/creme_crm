@@ -122,7 +122,7 @@ class EntityFilterCreateForm(_EntityFilterForm):
         generate_string_id_and_save(
             EntityFilter, [instance],
             f'creme_core-userfilter_{ct.app_label}-{ct.model}',
-       )
+        )
 
         instance.set_conditions(
             self.get_cleaned_conditions(),

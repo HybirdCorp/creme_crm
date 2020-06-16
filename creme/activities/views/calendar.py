@@ -445,7 +445,8 @@ class CalendarDeletion(generic.CremeModelEditionPopup):
                 raise ConflictError(
                     gettext('A deletion process for an instance of «{model}» already exists.').format(
                         model=ctype,
-                ))
+                    )
+                )
 
     def form_valid(self, form):
         self.object = form.save()

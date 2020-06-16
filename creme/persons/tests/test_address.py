@@ -380,7 +380,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
                 ('department', {FieldsConfig.HIDDEN: True}),
                 ('state',      {FieldsConfig.HIDDEN: True}),
             ],
-       )
+        )
 
         address_value = '21 jump street'
         po_box = 'Popop'

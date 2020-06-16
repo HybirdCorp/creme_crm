@@ -105,4 +105,4 @@ class ButtonMenuItem(CremeModel):
                 'button_id':    button.id_,
                 'order':        order,
             },
-       )[0]
+        )[0]

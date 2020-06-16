@@ -115,7 +115,7 @@ def brick_header_title(context, title, plural=None, empty=None, icon='info', cou
             icon, theme,
             size_px=get_icon_size_px(theme, size='brick-header'),
             label=_('Information') if icon == 'info' else rendered_title,
-       )
+        )
 
     return {
         'title': rendered_title,
@@ -213,7 +213,7 @@ def brick_action(context, id, url='', label=None, icon=None, icon_size='brick-ac
         icon = get_icon_by_name(
             icon, theme,
             size_px=get_icon_size_px(theme, icon_size), label=help_text,
-       )
+        )
 
     def _clean_extra_data(data, prefix='__'):
         prefix_length = len(prefix)
@@ -301,7 +301,7 @@ def brick_card_button(context, action, url, label, icon=None, enabled=True, conf
         label=label, icon=icon, icon_size='brick-hat-card-button',
         enabled=enabled, confirm=confirm,
         **kwargs
-   )
+    )
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/bar-button.html', takes_context=True)
@@ -316,7 +316,7 @@ def brick_bar_button(context, action, url, label, icon, enabled=True, confirm=No
         label=label, icon=icon, icon_size='brick-hat-bar-button',
         enabled=enabled, confirm=confirm,
         **kwargs
-   )
+    )
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/menu-action.html', takes_context=True)
@@ -369,7 +369,7 @@ def brick_menu_reduce_action(context, state):
         action_id='reduce-content',
         current_state=state.show_empty_fields,
         in_label=_('Hide empty fields'), out_label=_('Show empty fields'),
-   )
+    )
 
 
 # TODO: attrs => only 'class' ?
@@ -934,7 +934,7 @@ def brick_display(context, *bricks, **kwargs):
         logger.warning(
             'Brick without %s(): %s (id=%s)',
             brick_render_method, brick.__class__, brick.id_,
-       )
+        )
 
     bricks_to_render = []
 

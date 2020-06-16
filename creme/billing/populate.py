@@ -84,31 +84,36 @@ class Populator(BasePopulator):
 
         # ---------------------------
         line_entities = [*lines_registry]
-        RelationType.create((constants.REL_SUB_BILL_ISSUED, _('issued by'),  BILLING_MODELS),
-                            (constants.REL_OBJ_BILL_ISSUED, _('has issued'), [Organisation]),
-                            is_internal=True,
-                            minimal_display=(False, True),
-                           )
-        rt_sub_bill_received = \
-        RelationType.create((constants.REL_SUB_BILL_RECEIVED, _('received by'),  BILLING_MODELS),
-                            (constants.REL_OBJ_BILL_RECEIVED, _('has received'), [Organisation, Contact]),
-                            is_internal=True,
-                            minimal_display=(False, True),
-                           )[0]
-        RelationType.create((constants.REL_SUB_HAS_LINE, _('had the line'),   BILLING_MODELS),
-                            (constants.REL_OBJ_HAS_LINE, _('is the line of'), line_entities),
-                            is_internal=True,
-                            minimal_display=(True, True),
-                           )
-        RelationType.create((constants.REL_SUB_LINE_RELATED_ITEM, _('has the related item'),   line_entities),
-                            (constants.REL_OBJ_LINE_RELATED_ITEM, _('is the related item of'), [Product, Service]),
-                            is_internal=True,
-                           )
-        RelationType.create((constants.REL_SUB_CREDIT_NOTE_APPLIED, _('is used in the billing document'), [CreditNote]),
-                            (constants.REL_OBJ_CREDIT_NOTE_APPLIED, _('used the credit note'),            [Quote, SalesOrder, Invoice]),
-                            is_internal=True,
-                            minimal_display=(True, True),
-                           )
+        create_rtype = RelationType.create
+        create_rtype(
+            (constants.REL_SUB_BILL_ISSUED, _('issued by'),  BILLING_MODELS),
+            (constants.REL_OBJ_BILL_ISSUED, _('has issued'), [Organisation]),
+            is_internal=True,
+            minimal_display=(False, True),
+        )
+        rt_sub_bill_received = create_rtype(
+            (constants.REL_SUB_BILL_RECEIVED, _('received by'),  BILLING_MODELS),
+            (constants.REL_OBJ_BILL_RECEIVED, _('has received'), [Organisation, Contact]),
+            is_internal=True,
+            minimal_display=(False, True),
+        )[0]
+        create_rtype(
+            (constants.REL_SUB_HAS_LINE, _('had the line'),   BILLING_MODELS),
+            (constants.REL_OBJ_HAS_LINE, _('is the line of'), line_entities),
+            is_internal=True,
+            minimal_display=(True, True),
+        )
+        create_rtype(
+            (constants.REL_SUB_LINE_RELATED_ITEM, _('has the related item'),   line_entities),
+            (constants.REL_OBJ_LINE_RELATED_ITEM, _('is the related item of'), [Product, Service]),
+            is_internal=True,
+        )
+        create_rtype(
+            (constants.REL_SUB_CREDIT_NOTE_APPLIED, _('is used in the billing document'), [CreditNote]),
+            (constants.REL_OBJ_CREDIT_NOTE_APPLIED, _('used the credit note'),            [Quote, SalesOrder, Invoice]),
+            is_internal=True,
+            minimal_display=(True, True),
+        )
 
         if apps.is_installed('creme.activities'):
             logger.info('Activities app is installed => an Invoice/Quote/SalesOrder can be the subject of an Activity')

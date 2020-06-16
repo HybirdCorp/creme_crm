@@ -961,7 +961,7 @@ class EntityDeletionMixin:
                 gettext('«{entity}» does not use the generic deletion view.').format(
                     entity=entity.allowed_str(user),
                 )
-           )
+            )
 
         if hasattr(entity, 'get_related_entity'):
             related = entity.get_related_entity()

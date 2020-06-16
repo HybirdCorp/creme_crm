@@ -246,10 +246,13 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         field = self._field
         assert field is not None
 
-        return self.graph.fetch(
-            # extra_q=Q(**{self._field_name: entity.pk}), order=order, user=user,
-            extra_q=Q(**{field.name: entity.pk}), order=order, user=user,
+        # return self.graph.fetch(
+        #     extra_q=Q(**{self._field_name: entity.pk}), order=order, user=user,
         # ) if isinstance(entity, self._volatile_model) else (
+        #     [], []
+        # )
+        return self.graph.fetch(
+            extra_q=Q(**{field.name: entity.pk}), order=order, user=user,
         ) if isinstance(entity, field.remote_field.model) else (
             [], []
         )

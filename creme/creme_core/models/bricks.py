@@ -157,14 +157,18 @@ class BrickDetailviewLocation(CremeModel):
         ordering = ('order',)
 
     def __repr__(self):
-        return 'BrickDetailviewLocation(id={id}, content_type_id={ct_id}, role={role}, ' \
-                                       'brick_id="{brick_id}", order={order}, zone={zone})'.format(
-            id=self.id,
-            ct_id=self.content_type_id,
-            role='superuser' if self.superuser else self.role,
-            brick_id=self.brick_id,
-            order=self.order,
-            zone=self.zone,
+        return (
+            'BrickDetailviewLocation('
+            'id={id}, content_type_id={ct_id}, role={role}, '
+            'brick_id="{brick_id}", order={order}, zone={zone}'
+            ')'.format(
+                id=self.id,
+                ct_id=self.content_type_id,
+                role='superuser' if self.superuser else self.role,
+                brick_id=self.brick_id,
+                order=self.order,
+                zone=self.zone,
+            )
         )
 
     # @staticmethod

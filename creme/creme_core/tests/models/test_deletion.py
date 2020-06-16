@@ -337,13 +337,15 @@ class DeletionCommandTestCase(CremeTestCase):
         self.assertEqual(sector, self.refresh(orga).sector)
 
         jresult = self.get_object_or_fail(JobResult, job=job)
-        self.assertEqual(
-            [_('«{instance}» can not be deleted because of its dependencies: {dependencies}').format(
-                instance=sector,
-                dependencies=_('{count} {model}').format(
-                    count=1,
-                    model=get_model_verbose_name(FakeOrganisation, 1),
-             )),
+        self.assertListEqual(
+            [
+                _('«{instance}» can not be deleted because of its dependencies: {dependencies}').format(
+                    instance=sector,
+                    dependencies=_('{count} {model}').format(
+                        count=1,
+                        model=get_model_verbose_name(FakeOrganisation, 1),
+                    ),
+                ),
             ],
             jresult.messages
         )
