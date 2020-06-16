@@ -97,13 +97,11 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
             bricks = ctxt['bricks']
             reload_url = ctxt['bricks_reload_url']
 
-        self.assertEqual(['Test Contact'], models)
-        self.assertEqual('{}?search={}'.format(
-                            reverse('creme_core__reload_search_brick'),
-                            term,
-                         ),
-                         reload_url
-                        )
+        self.assertListEqual(['Test Contact'], models)
+        self.assertEqual(
+            f"{reverse('creme_core__reload_search_brick')}?search={term}",
+            reload_url
+        )
 
         self.assertIsInstance(bricks, list)
         self.assertEqual(1, len(bricks))

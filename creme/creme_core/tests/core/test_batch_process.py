@@ -132,40 +132,44 @@ class BatchActionTestCase(CremeTestCase):
         with self.assertRaises(BatchAction.ValueError) as cm:
             BatchAction(FakeContact, 'last_name', 'rm_start', value='three')  # Not int
 
-        self.assertEqual(_('{operator} : {message}.').format(
-                                operator=_('Remove the start (N characters)'),
-                                message=_('enter a whole number'),
-                            ),
-                         str(cm.exception)
-                        )
+        self.assertEqual(
+            _('{operator} : {message}.').format(
+                operator=_('Remove the start (N characters)'),
+                message=_('enter a whole number'),
+            ),
+            str(cm.exception)
+        )
 
         with self.assertRaises(BatchAction.ValueError) as cm:
             BatchAction(FakeContact, 'last_name', 'rm_end', value='-3')  # Not positive
 
-        self.assertEqual(_('{operator} : {message}.').format(
-                                operator=_('Remove the end (N characters)'),
-                                message=_('enter a positive number'),
-                            ),
-                         str(cm.exception)
-                        )
+        self.assertEqual(
+            _('{operator} : {message}.').format(
+                operator=_('Remove the end (N characters)'),
+                message=_('enter a positive number'),
+            ),
+            str(cm.exception)
+        )
 
     def test_unicode01(self):
         baction = BatchAction(FakeContact, 'first_name', 'upper', value='')
-        self.assertEqual(_('{field} ➔ {operator}').format(
-                                field=_('First name'),
-                                operator=_('To upper case'),
-                            ),
-                         str(baction)
-                        )
+        self.assertEqual(
+            _('{field} ➔ {operator}').format(
+                field=_('First name'),
+                operator=_('To upper case'),
+            ),
+            str(baction)
+        )
 
     def test_unicode02(self):
         "With argument"
         value = 'Foobarbaz'
         baction = BatchAction(FakeContact, 'last_name', 'rm_substr', value=value)
-        self.assertEqual(_('{field} ➔ {operator}: «{value}»').format(
-                                field=_('Last name'),
-                                operator=_('Remove a sub-string'),
-                                value=value,
-                            ),
-                         str(baction)
-                        )
+        self.assertEqual(
+            _('{field} ➔ {operator}: «{value}»').format(
+                field=_('Last name'),
+                operator=_('Remove a sub-string'),
+                value=value,
+            ),
+            str(baction)
+        )

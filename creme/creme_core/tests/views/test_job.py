@@ -552,37 +552,43 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job = self._create_batchprocess_job()
         response = self.assertGET200(url, data={'id': [job.id]})
         self.assertEqual('application/json', response['Content-Type'])
-        self.assertEqual({str(job.id): {
-                            'status': Job.STATUS_WAIT,
-                            'ack_errors': 0,
-                            'progress': {
-                                'label': ngettext('{count} entity has been processed.',
-                                                  '{count} entities have been processed.',
-                                                  0
-                                                 ).format(count=0),
-                                'percentage': None,
-                            },
-                          }
-                         },
-                         response.json()
-                        )
+        self.assertDictEqual(
+            {
+                str(job.id): {
+                    'status': Job.STATUS_WAIT,
+                    'ack_errors': 0,
+                    'progress': {
+                        'label': ngettext(
+                            '{count} entity has been processed.',
+                            '{count} entities have been processed.',
+                            0
+                        ).format(count=0),
+                        'percentage': None,
+                    },
+                }
+            },
+            response.json()
+        )
 
         job = self._create_batchprocess_job(status=Job.STATUS_OK)
         response = self.assertGET200(url, data={'id': [job.id]})
-        self.assertEqual({str(job.id): {
-                            'status': Job.STATUS_OK,
-                            'ack_errors': 0,
-                            'progress': {
-                                'label': ngettext('{count} entity has been processed.',
-                                                  '{count} entities have been processed.',
-                                                  0
-                                                 ).format(count=0),
-                                'percentage': None,
-                            },
-                          }
-                         },
-                         response.json()
-                        )
+        self.assertDictEqual(
+            {
+                str(job.id): {
+                    'status': Job.STATUS_OK,
+                    'ack_errors': 0,
+                    'progress': {
+                        'label': ngettext(
+                            '{count} entity has been processed.',
+                            '{count} entities have been processed.',
+                            0
+                        ).format(count=0),
+                        'percentage': None,
+                    },
+                }
+            },
+            response.json()
+        )
 
         job = self._create_batchprocess_job(user=self.other_user)
         response = self.assertGET200(url, data={'id': [job.id]})
@@ -650,20 +656,23 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, self.refresh(job).ack_errors)
 
         response = self.assertGET200(self.INFO_URL, data={'id': [job.id]})
-        self.assertEqual({str(job.id): {
-                            'status': Job.STATUS_WAIT,
-                            'ack_errors': 1,
-                            'progress': {
-                                'label': ngettext('{count} entity has been processed.',
-                                                  '{count} entities have been processed.',
-                                                  0
-                                                 ).format(count=0),
-                                'percentage': None,
-                            },
-                          },
-                         },
-                         response.json()
-                        )
+        self.assertDictEqual(
+            {
+                str(job.id): {
+                    'status': Job.STATUS_WAIT,
+                    'ack_errors': 1,
+                    'progress': {
+                        'label': ngettext(
+                            '{count} entity has been processed.',
+                            '{count} entities have been processed.',
+                            0
+                        ).format(count=0),
+                        'percentage': None,
+                    },
+                },
+            },
+            response.json()
+        )
 
     def _aux_test_reload(self, job, brick_id):
         response = self.assertGET200(reverse('creme_core__reload_job_bricks', args=(job.id,)),

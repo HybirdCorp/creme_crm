@@ -176,10 +176,10 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
     <div class="checklist-body"><ul class="checklist-content"></ul></div>
     <div class="checklist-footer"><a class="checklist-toggle-less">{viewless_lbl}</a></div>
 </div>'''.format(
-                name=name,
-                check_all=_('Check all'),
-                check_none=_('Check none'),
-                viewless_lbl=_('More'),
+            name=name,
+            check_all=_('Check all'),
+            check_none=_('Check none'),
+            viewless_lbl=_('More'),
         )
         self.assertHTMLEqual(html, select.render(name, (2,)))
 
@@ -202,10 +202,10 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
     <div class="checklist-body"><ul class="checklist-content"></ul></div>
     <div class="checklist-footer"><a class="checklist-toggle-less">{viewless_lbl}</a></div>
 </div>'''.format(
-                name=name,
-                check_all=_('Check all'),
-                check_none=_('Check none'),
-                viewless_lbl=_('More'),
+            name=name,
+            check_all=_('Check all'),
+            check_none=_('Check none'),
+            viewless_lbl=_('More'),
         )
         self.assertHTMLEqual(html, select.render(name, ()))
 
@@ -287,10 +287,10 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
     </div>
     <div class="checklist-body"><ul class="checklist-content search"></ul></div>
 </div>'''.format(
-                name=name,
-                check_all=_('Check all'),
-                check_none=_('Check none'),
-                filter_lbl=pgettext('creme_core-noun', 'Search').upper(),
+            name=name,
+            check_all=_('Check all'),
+            check_none=_('Check none'),
+            filter_lbl=pgettext('creme_core-noun', 'Search').upper(),
         )
         self.assertHTMLEqual(html, select.render(name, value=None))
 
@@ -344,10 +344,10 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
     </div>
     <div class="checklist-body"><ul class="checklist-content filter"></ul></div>
 </div>'''.format(
-                name=name,
-                check_all=_('Check all'),
-                check_none=_('Check none'),
-                filter_lbl=pgettext('creme_core-noun', 'Filter').upper(),
+            name=name,
+            check_all=_('Check all'),
+            check_none=_('Check none'),
+            filter_lbl=pgettext('creme_core-noun', 'Filter').upper(),
         )
         self.assertHTMLEqual(html, select.render(name, value=None))
 
@@ -538,8 +538,8 @@ class EntitySelectorTestCase(CremeTestCase):
         widget = EntitySelector(content_type=12)
         name = 'field-1'
         value = '1'
-        html = \
-'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
+        html = '''
+<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
           labelURL="{text_url}" label="{label}" popupURL="{url}" popupSelection="single">
     <input name="{name}" type="text" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
     <button type="button">{label}</button>
@@ -589,8 +589,8 @@ class EntitySelectorTestCase(CremeTestCase):
             msg='Widget render is not valid !',
         )
         qfilter_attr = self.assertQFilter(render_dom, {'val': [['pk__in', [12, 13]]], 'op': 'AND'})
-        html = \
-'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
+        html = '''
+<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
           labelURL="{text_url}" label="{label}" popupURL="{url}" popupSelection="single"
           qfilter="{q_filter}">
     <input name="{name}" type="text" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
@@ -618,8 +618,8 @@ class EntitySelectorTestCase(CremeTestCase):
             msg='Widget render is not valid !',
         )
         qfilter_attr = self.assertQFilter(render_dom, {'val': [['name', 'foobar']], 'op': 'AND'})
-        html = \
-'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
+        html = '''
+<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
           labelURL="{text_url}" label="{label}" popupURL="{url}" popupSelection="single"
           qfilter="{q_filter}">
     <input name="{name}" type="text" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
@@ -637,8 +637,8 @@ class EntitySelectorTestCase(CremeTestCase):
 
     def test_render_popup_options(self):
         widget = EntitySelector(content_type=12)
-        html = \
-'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
+        html = '''
+<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
           labelURL="{text_url}" label="{label}"
           popupURL="{url}" popupSelection="multiple" popupAuto>
     <input name="field" type="text" class="ui-creme-input ui-creme-entityselector" value="1"/>
@@ -655,8 +655,8 @@ class EntitySelectorTestCase(CremeTestCase):
         widget = EntitySelector(content_type=12)
         widget.is_required = True
 
-        html = \
-'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
+        html = '''
+<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
           labelURL="{text_url}" label="{label}"
           popupURL="{url}" popupSelection="multiple" popupAuto>
     <input name="field" type="text" class="ui-creme-input ui-creme-entityselector" value="1" required/>

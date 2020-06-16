@@ -18,12 +18,12 @@ class DatePeriodTestCase(CremeTestCase):
         super().setUpClass()
 
         cls.registry = DatePeriodRegistry(
-                MinutesPeriod,
-                HoursPeriod,
-                DaysPeriod,
-                WeeksPeriod,
-                MonthsPeriod,
-                YearsPeriod,
+            MinutesPeriod,
+            HoursPeriod,
+            DaysPeriod,
+            WeeksPeriod,
+            MonthsPeriod,
+            YearsPeriod,
         )
 
     def _get_comparable_data(self, rrule):

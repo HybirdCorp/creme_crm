@@ -326,9 +326,12 @@ class JoinNode(TemplateNode):
 @register.filter
 def widget_urlize(value, trim_url_limit=None, nofollow=False, autoescape=None):
     if settings.URLIZE_TARGET_BLANK:
-        url_ized = django_urlize(value, trim_url_limit=trim_url_limit, nofollow=False, autoescape=autoescape) \
-                                .replace('<a', '<a target="_blank" rel="noopener noreferrer"')
+        url_ized = django_urlize(
+            value, trim_url_limit=trim_url_limit, nofollow=False, autoescape=autoescape,
+        ).replace('<a', '<a target="_blank" rel="noopener noreferrer"')
     else:
-        url_ized = django_urlize(value, trim_url_limit=trim_url_limit, nofollow=nofollow, autoescape=autoescape)
+        url_ized = django_urlize(
+            value, trim_url_limit=trim_url_limit, nofollow=nofollow, autoescape=autoescape,
+        )
 
     return mark_safe(url_ized)

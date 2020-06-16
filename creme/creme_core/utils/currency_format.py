@@ -71,8 +71,10 @@ def currency(val, currency_or_id=None):
     is_local_symbol = SettingValue.objects.get_4_key(currency_symbol_key).value
 
     if currency_or_id:
-        currency_obj = currency_or_id if isinstance(currency_or_id, Currency) else \
-                       Currency.objects.get(pk=currency_or_id)
+        currency_obj = (
+            currency_or_id if isinstance(currency_or_id, Currency) else
+            Currency.objects.get(pk=currency_or_id)
+        )
 
         smb = currency_obj.local_symbol if is_local_symbol else currency_obj.international_symbol
     else:

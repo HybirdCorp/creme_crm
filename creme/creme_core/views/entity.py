@@ -1008,12 +1008,15 @@ class EntityDeletionMixin:
             ) from e
         except ProtectedError as e:
             raise ConflictError(
-                gettext('«{entity}» can not be deleted because of its dependencies ({dependencies}).').format(
-                        entity=entity.allowed_str(user),
-                        dependencies=self.dependencies_to_str(
-                            dependencies=e.args[1],
-                            user=user,
-                        ),
+                gettext(
+                    '«{entity}» can not be deleted because of its dependencies '
+                    '({dependencies}).'
+                ).format(
+                    entity=entity.allowed_str(user),
+                    dependencies=self.dependencies_to_str(
+                        dependencies=e.args[1],
+                        user=user,
+                    ),
                 ),
             ) from e
         except Exception as e:

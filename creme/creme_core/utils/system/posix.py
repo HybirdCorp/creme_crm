@@ -5,7 +5,7 @@
 ################################################################################
 #
 # Copyright (c) 2012 Daniel Miller
-# Copyright (c) 2016-2018 Hybird
+# Copyright (c) 2016-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -41,5 +41,7 @@ def disable_exit_handler():
 
 
 def is_exit_handler_enabled():
-    return signal.getsignal(signal.SIGINT) not in (signal.SIG_DFL, None) and \
-           signal.getsignal(signal.SIGTERM) not in (signal.SIG_DFL, None)
+    return (
+        signal.getsignal(signal.SIGINT) not in (signal.SIG_DFL, None) and
+        signal.getsignal(signal.SIGTERM) not in (signal.SIG_DFL, None)
+    )

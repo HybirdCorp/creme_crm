@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -77,9 +77,9 @@ class Sending(CremeModel):
 
     def __str__(self):
         return pgettext('sms', 'Sending of «{campaign}» on {date}').format(
-                    campaign=self.campaign,
-                    date=date_format(self.date, 'DATE_FORMAT'),
-               )
+            campaign=self.campaign,
+            date=date_format(self.date, 'DATE_FORMAT'),
+        )
 
     def formatstatus(self):
         # TODO: use <Conditional aggregation> to perform only one query

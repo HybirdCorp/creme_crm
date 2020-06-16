@@ -99,14 +99,15 @@ class CurrentYearStatistics:
                             ),
                 )
 
-            agg = opp_model.objects \
-                           .annotate(relations_w_orga=FilteredRelation(
-                                'relations',
-                                condition=Q(relations__object_entity_id__in=mngd_orga_ids),
-                           )).filter(
-                                relations_w_orga__type_id=self.relation_type_id,
-                                closing_date__gte=date.today().replace(month=1, day=1),
-                           ).aggregate(**agg_kwargs)
+            agg = opp_model.objects.annotate(
+                relations_w_orga=FilteredRelation(
+                    'relations',
+                    condition=Q(relations__object_entity_id__in=mngd_orga_ids),
+                ),
+            ).filter(
+                relations_w_orga__type_id=self.relation_type_id,
+                closing_date__gte=date.today().replace(month=1, day=1),
+            ).aggregate(**agg_kwargs)
 
             for orga in mngd_orgas:
                 orga_id = orga.id
@@ -117,14 +118,16 @@ class CurrentYearStatistics:
                     stats.append(
                         self.message_format.format(
                             organisation=orga,
-                            won_stats=ngettext('{count} won opportunity',
-                                               '{count} won opportunities',
-                                               won_count
-                                              ).format(count=won_count),
-                            lost_stats=ngettext('{count} lost opportunity',
-                                                '{count} lost opportunities',
-                                                lost_count
-                                               ).format(count=lost_count),
+                            won_stats=ngettext(
+                                '{count} won opportunity',
+                                '{count} won opportunities',
+                                won_count
+                            ).format(count=won_count),
+                            lost_stats=ngettext(
+                                '{count} lost opportunity',
+                                '{count} lost opportunities',
+                                lost_count,
+                            ).format(count=lost_count),
                         )
                     )
 

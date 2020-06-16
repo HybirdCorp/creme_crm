@@ -254,14 +254,14 @@ class CustomFieldExtractorTestCase(CremeTestCase):
 
         line2 = ['Alvis', 'Hamilton', 'Cooking']
         self.assertEqual(
-            (default_value,
-             _('Error while extracting value: the choice «{value}» '
-               'was not found in existing choices (column {column}). '
-               'Hint: fix your imported file, or configure the import to '
-               'create new choices.').format(
-                    column=3,
-                    value=line2[2],
-             )
+            (
+                default_value,
+                _(
+                    'Error while extracting value: the choice «{value}» '
+                    'was not found in existing choices (column {column}). '
+                    'Hint: fix your imported file, or configure the import to '
+                    'create new choices.'
+                ).format(column=3, value=line2[2]),
             ),
             extractor.extract_value(line2)
         )
@@ -289,14 +289,14 @@ class CustomFieldExtractorTestCase(CremeTestCase):
 
         line = ['Alvis', 'Hamilton', 'Cooking']
         self.assertEqual(
-            (default_value,
-             _('Error while extracting value: the choice «{value}» '
-               'was not found in existing choices (column {column}). '
-               'Hint: fix your imported file, or configure the import to '
-               'create new choices.').format(
-                    column=3,
-                    value=line[2],
-             )
+            (
+                default_value,
+                _(
+                    'Error while extracting value: the choice «{value}» '
+                    'was not found in existing choices (column {column}). '
+                    'Hint: fix your imported file, or configure the import to '
+                    'create new choices.'
+                ).format(column=3, value=line[2]),
             ),
             extractor.extract_value(line)
         )

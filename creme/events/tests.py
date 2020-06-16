@@ -556,10 +556,11 @@ class EventsTestCase(CremeTestCase):
 
         response = self.client.post(
             url, follow=True,
-            data={'related_contacts': self.formfield_value_multi_relation_entity(
-                                            (constants.REL_OBJ_CAME_EVENT, casca)
-                                        ),
-                 }
+            data={
+                'related_contacts': self.formfield_value_multi_relation_entity(
+                    (constants.REL_OBJ_CAME_EVENT, casca),
+                ),
+            },
         )
         self.assertNoFormError(response)
         self.assertEqual([constants.REL_SUB_CAME_EVENT], self.relations_types(casca, event))
@@ -577,16 +578,18 @@ class EventsTestCase(CremeTestCase):
         rickert  = create_contact(first_name='Rickert',  last_name='Miura')
         carcus   = create_contact(first_name='Carcus',   last_name='Miura')
 
-        response = self.client.post(self._build_link_contacts_url(event), follow=True,
-                                    data={'related_contacts': self.formfield_value_multi_relation_entity(
-                                                (constants.REL_OBJ_IS_INVITED_TO,  casca),
-                                                (constants.REL_OBJ_CAME_EVENT,     judo),
-                                                (constants.REL_OBJ_NOT_CAME_EVENT, griffith),
-                                                (constants.REL_OBJ_IS_INVITED_TO,  rickert),
-                                                (constants.REL_OBJ_CAME_EVENT,     carcus),
-                                            ),
-                                          }
-                                   )
+        response = self.client.post(
+            self._build_link_contacts_url(event), follow=True,
+            data={
+                'related_contacts': self.formfield_value_multi_relation_entity(
+                    (constants.REL_OBJ_IS_INVITED_TO,  casca),
+                    (constants.REL_OBJ_CAME_EVENT,     judo),
+                    (constants.REL_OBJ_NOT_CAME_EVENT, griffith),
+                    (constants.REL_OBJ_IS_INVITED_TO,  rickert),
+                    (constants.REL_OBJ_CAME_EVENT,     carcus),
+                ),
+            },
+        )
         self.assertNoFormError(response)
 
         self.assertEqual([constants.REL_SUB_IS_INVITED_TO],  self.relations_types(casca, event))
@@ -595,16 +598,18 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual([constants.REL_SUB_IS_INVITED_TO],  self.relations_types(rickert, event))
         self.assertEqual([constants.REL_SUB_CAME_EVENT],     self.relations_types(carcus, event))
 
-        response = self.client.post(self._build_link_contacts_url(event), follow=True,
-                                    data={'related_contacts': self.formfield_value_multi_relation_entity(
-                                                (constants.REL_OBJ_IS_INVITED_TO,  casca),
-                                                (constants.REL_OBJ_NOT_CAME_EVENT, judo),
-                                                (constants.REL_OBJ_CAME_EVENT,     griffith),
-                                                (constants.REL_OBJ_CAME_EVENT,     rickert),
-                                                (constants.REL_OBJ_CAME_EVENT,     carcus),
-                                            ),
-                                          }
-                                   )
+        response = self.client.post(
+            self._build_link_contacts_url(event), follow=True,
+            data={
+                'related_contacts': self.formfield_value_multi_relation_entity(
+                    (constants.REL_OBJ_IS_INVITED_TO,  casca),
+                    (constants.REL_OBJ_NOT_CAME_EVENT, judo),
+                    (constants.REL_OBJ_CAME_EVENT,     griffith),
+                    (constants.REL_OBJ_CAME_EVENT,     rickert),
+                    (constants.REL_OBJ_CAME_EVENT,     carcus),
+                ),
+            },
+        )
         self.assertNoFormError(response)
 
         self.assertListEqual([constants.REL_SUB_IS_INVITED_TO],  self.relations_types(casca, event))
@@ -624,17 +629,17 @@ class EventsTestCase(CremeTestCase):
 
         response = self.assertPOST200(
             self._build_link_contacts_url(event), follow=True,
-            data={'related_contacts': self.formfield_value_multi_relation_entity(
-                          (constants.REL_OBJ_IS_INVITED_TO, casca),
-                          (constants.REL_OBJ_CAME_EVENT,    casca),
-                      ),
-                 },
+            data={
+                'related_contacts': self.formfield_value_multi_relation_entity(
+                    (constants.REL_OBJ_IS_INVITED_TO, casca),
+                    (constants.REL_OBJ_CAME_EVENT,    casca),
+                ),
+            },
         )
-        self.assertFormError(response, 'form', 'related_contacts',
-                             _('Contact %(contact)s is present twice.') % {
-                                    'contact': casca,
-                                },
-                            )
+        self.assertFormError(
+            response, 'form', 'related_contacts',
+            _('Contact %(contact)s is present twice.') % {'contact': casca},
+        )
 
     @skipIfCustomContact
     def test_link_contacts04(self):
@@ -655,12 +660,14 @@ class EventsTestCase(CremeTestCase):
         url = self._build_link_contacts_url(event)
         self.assertGET200(url)
 
-        response = self.assertPOST200(url, follow=True,
-                                      data={'related_contacts': self.formfield_value_multi_relation_entity(
-                                                                        (constants.REL_OBJ_IS_INVITED_TO, casca),
-                                                                    ),
-                                           }
-                                     )
+        response = self.assertPOST200(
+            url, follow=True,
+            data={
+                'related_contacts': self.formfield_value_multi_relation_entity(
+                    (constants.REL_OBJ_IS_INVITED_TO, casca),
+                ),
+            },
+        )
         self.assertFormError(
             response, 'form', 'related_contacts',
             _('Some entities are not linkable: {}').format(casca)

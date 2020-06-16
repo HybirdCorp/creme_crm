@@ -640,9 +640,9 @@ class ActTestCase(CommercialBaseTestCase):
                 'name': name,
                 # Should not be used
                 'entity_counting': self.formfield_value_filtered_entity_type(
-                                      pub_efilter.entity_type,
-                                      pub_efilter,
-                                    ),
+                    pub_efilter.entity_type,
+                    pub_efilter,
+                ),
                 'counter_goal': counter_goal,
             },
         )

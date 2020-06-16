@@ -95,7 +95,8 @@ class ActionsTestCase(CremeTestCase):
     def test_action_data(self):
         self.assertEqual(None, UIAction(self.user, model=CremeEntity).action_data)
 
-        self.assertEqual({
+        self.assertDictEqual(
+            {
                 'options': {
                     'user_name': self.user.username,
                 },
@@ -103,8 +104,8 @@ class ActionsTestCase(CremeTestCase):
             },
             MockBulkAction(self.user, model=CremeEntity).action_data
         )
-
-        self.assertEqual({
+        self.assertDictEqual(
+            {
                 'options': {
                     'user_name': self.user.username,
                     'instance_id': self.user.id,

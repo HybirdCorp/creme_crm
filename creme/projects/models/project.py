@@ -99,11 +99,12 @@ class AbstractProject(CremeEntity):
 
         # TODO: refactor if start/end can not be null
         if self.start_date and self.end_date and self.start_date >= self.end_date:
-            raise ValidationError(gettext('Start ({start}) must be before end ({end}).').format(
-                                   start=date_format(localtime(self.start_date), 'DATE_FORMAT'),
-                                   end=date_format(localtime(self.end_date), 'DATE_FORMAT'),
-                                  )
-                                 )  # TODO: code & params ??
+            raise ValidationError(
+                gettext('Start ({start}) must be before end ({end}).').format(
+                    start=date_format(localtime(self.start_date), 'DATE_FORMAT'),
+                    end=date_format(localtime(self.end_date), 'DATE_FORMAT'),
+                )
+            )  # TODO: code & params ??
 
     def delete(self, *args, **kwargs):
         for task in self.get_tasks():

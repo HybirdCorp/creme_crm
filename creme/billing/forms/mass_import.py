@@ -122,13 +122,13 @@ def get_import_form_builder(header_dict, choices):
 
                 if cdata['override_billing_addr']:
                     b_change = _copy_or_update_address(
-                            target, instance, 'billing_address', _('Billing address'),
-                        )
+                        target, instance, 'billing_address', _('Billing address'),
+                    )
 
                 if cdata['override_shipping_addr']:
                     s_change = _copy_or_update_address(
-                            target, instance, 'shipping_address', _('Shipping address'),
-                        )
+                        target, instance, 'shipping_address', _('Shipping address'),
+                    )
 
                 if b_change or s_change:
                     instance.save()

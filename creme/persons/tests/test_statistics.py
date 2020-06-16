@@ -45,7 +45,8 @@ class PersonsStatisticsTestCase(CremeTestCase):
         create_rel(subject_entity=customer4, object_entity=managed2)
 
         format = _('For {name}: {related_count}').format
-        self.assertEqual([
+        self.assertListEqual(
+            [
                 format(name=managed1.name, related_count=3),
                 format(name=managed2.name, related_count=2),
             ],

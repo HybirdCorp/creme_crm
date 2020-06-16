@@ -103,15 +103,18 @@ class _DeletorType(JobType):
         total = dcom.total_count
         updated = dcom.updated_count
 
-        return JobProgress(percentage=updated * 100 / total) \
-               if total else \
-               JobProgress(
-                   percentage=None,
-                   label=ngettext('{count} entity updated.',
-                                  '{count} entities updated.',
-                                  updated
-                                 ).format(count=updated),
-               )
+        return (
+            JobProgress(percentage=updated * 100 / total)
+            if total else
+            JobProgress(
+                percentage=None,
+                label=ngettext(
+                    '{count} entity updated.',
+                    '{count} entities updated.',
+                    updated
+                ).format(count=updated),
+            )
+        )
 
     def get_description(self, job):
         dcom = DeletionCommand.objects.get(job=job)

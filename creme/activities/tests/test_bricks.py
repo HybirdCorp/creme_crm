@@ -153,9 +153,10 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
 
         uri = self._buid_add_participants_url(activity)
         self.assertGET200(uri)
-        self.assertNoFormError(
-                self.client.post(uri, data={'participants': self.formfield_value_multi_creator_entity(c1, c2)})
-        )
+        self.assertNoFormError(self.client.post(
+            uri,
+            data={'participants': self.formfield_value_multi_creator_entity(c1, c2)},
+        ))
 
         relations = Relation.objects.filter(subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY)
         self.assertEqual(3, len(relations))

@@ -66,8 +66,9 @@ class QueriesPrinter(CaptureQueriesContext, ContextDecorator):
 
         queries = self.captured_queries
         if queries:
-            print('{} QUERIES:\n{}'.format(
-                        len(queries),
-                        '\n'.join(' - {time}: {sql}'.format(**query) for query in queries),
-                    )
-                 )
+            print(
+                '{} QUERIES:\n{}'.format(
+                    len(queries),
+                    '\n'.join(' - {time}: {sql}'.format(**query) for query in queries),
+                )
+            )

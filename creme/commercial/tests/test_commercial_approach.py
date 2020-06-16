@@ -396,22 +396,27 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(messages))
 
         message = messages[0]
-        self.assertEqual(_('[CremeCRM] The organisation «{}» seems neglected').format(customer),
-                         message.subject
-                        )
-        self.assertEqual(_("It seems you haven't created a commercial approach "
-                           "for the organisation «{orga}» since {delay} days.").format(
-                                orga=customer,
-                                delay=30,
-                            ),
-                         message.body
-                        )
+        self.assertEqual(
+            _('[CremeCRM] The organisation «{}» seems neglected').format(customer),
+            message.subject
+        )
+        self.assertEqual(
+            _(
+                "It seems you haven't created a commercial approach "
+                "for the organisation «{orga}» since {delay} days."
+            ).format(
+                orga=customer,
+                delay=30,
+            ),
+            message.body
+        )
         self.assertEqual(settings.EMAIL_SENDER, message.from_email)
         self.assertFalse(hasattr(message, 'alternatives'))
         self.assertFalse(message.attachments)
-        self.assertEqual([self.user.email],
-                         [recipient for msg in messages for recipient in msg.recipients()]
-                        )
+        self.assertListEqual(
+            [self.user.email],
+            [recipient for msg in messages for recipient in msg.recipients()]
+        )
 
     @skipIfCustomOrganisation
     def test_job02(self):

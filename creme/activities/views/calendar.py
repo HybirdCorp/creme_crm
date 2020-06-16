@@ -81,11 +81,11 @@ class CalendarView(generic.CheckedTemplateView):
         user = self.request.user
 
         for activity in Activity.objects.filter(
-                floating_type=constants.FLOATING,
-                relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
-                relations__object_entity=user.linked_contact.id,
-                is_deleted=False,
-               ):
+            floating_type=constants.FLOATING,
+            relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
+            relations__object_entity=user.linked_contact.id,
+            is_deleted=False,
+        ):
             try:
                 activity.calendar = activity.calendars.get(user=user)
             except Calendar.DoesNotExist:
@@ -297,12 +297,16 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
         return Q(start__range=(start, end)) | Q(end__gt=start, start__lt=end)
 
     def get_end(self, request, start):
-        return self._get_datetime(request=request, key=self.end_arg) or \
-               get_last_day_of_a_month(start)
+        return (
+            self._get_datetime(request=request, key=self.end_arg) or
+            get_last_day_of_a_month(start)
+        )
 
     def get_start(self, request):
-        return self._get_datetime(request=request, key=self.start_arg) or \
-               now().replace(day=1)
+        return (
+            self._get_datetime(request=request, key=self.start_arg) or
+            now().replace(day=1)
+        )
 
     def save_calendar_ids(self, request, calendar_ids):
         # TODO: GET argument to avoid saving ?

@@ -704,10 +704,10 @@ class ImportingTestCase(CremeTestCase):
         # --
         role_contact_bricks_data = defaultdict(list)
         for bdl in BrickDetailviewLocation.objects.filter(
-                    content_type=ContentType.objects.get_for_model(FakeContact),
-                    role__name=role_name,
-                    superuser=False,
-                ):
+            content_type=ContentType.objects.get_for_model(FakeContact),
+            role__name=role_name,
+            superuser=False,
+        ):
             role_contact_bricks_data[bdl.zone].append(
                 {'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
                  'ctype': ct_str, 'role': role_name,
@@ -1708,10 +1708,10 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-             _('The column with function-field="{ffield}" is invalid '
-               'in the view of list id="{id}".').format(
-                     ffield=ff_name, id=hf_id,
-             )
+             _(
+                 'The column with function-field="{ffield}" is invalid '
+                 'in the view of list id="{id}".'
+             ).format(ffield=ff_name, id=hf_id),
         )
 
     def test_headerfilters_error05(self):
@@ -1737,10 +1737,10 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('The column with relation-type="{rtype}" is invalid '
-              'in the view of list id="{id}".').format(
-                     rtype=rtype_id, id=hf_id,
-            )
+            _(
+                'The column with relation-type="{rtype}" is invalid '
+                'in the view of list id="{id}".'
+            ).format(rtype=rtype_id, id=hf_id),
         )
 
     def test_entityfilters01(self):
@@ -1761,12 +1761,14 @@ class ImportingTestCase(CremeTestCase):
 
         contact = other_user.linked_contact
 
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         'creme_config-test_import_entityfilters01_1',
                 'name':       'Spikes',
                 'ctype':      ct_str_c,
                 'is_private': True,  # <== not used
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  RegularFieldConditionHandler.type_id,
                         'name':  'first_name',
                         'value': {'operator': operators.EQUALS, 'values': ['Spike']},
@@ -1794,7 +1796,8 @@ class ImportingTestCase(CremeTestCase):
                 'ctype':  ct_str_o,
                 'user':   other_user.username,
                 'use_or': False,
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  DateRegularFieldConditionHandler.type_id,
                         'name':  'creation_date',
                         'value': {'start': {'month': 4, 'day': 1, 'year': 2015}},
@@ -1823,7 +1826,8 @@ class ImportingTestCase(CremeTestCase):
                 'user':       other_user.username,
                 'is_private': True,
                 'use_or':     True,
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  CustomFieldConditionHandler.type_id,
                         'name':  cf_uuid1,
                         'value': {'operator': 10, 'values': ['100']},
@@ -1843,7 +1847,8 @@ class ImportingTestCase(CremeTestCase):
                 'id':         'creme_config-test_import_entityfilters01_5',
                 'name':       'Organisation view with sub-filter',
                 'ctype':      ct_str_o,
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  SubFilterConditionHandler.type_id,
                         'name':  'creme_config-test_import_entityfilters01_2',  # defined before
                     }, {
@@ -1865,7 +1870,8 @@ class ImportingTestCase(CremeTestCase):
                 {'uuid': cf_uuid1, 'ctype': ct_str_c, 'name': 'Rating', 'type': CustomField.INT},
                 {'uuid': cf_uuid2, 'ctype': ct_str_c, 'name': 'Party',  'type': CustomField.DATETIME},
             ],
-            'relation_types': [{
+            'relation_types': [
+                {
                     'id':          rtype_id1, 'predicate':   'loves',
                     'is_copiable': True, 'minimal_display': False,
 
@@ -2063,11 +2069,13 @@ class ImportingTestCase(CremeTestCase):
              ],
         )
 
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         efilter.id,
                 'name':       'Spikes',
                 'ctype':      'creme_core.fakecontact',
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  RegularFieldConditionHandler.type_id,
                         'name':  'first_name',
                         'value': '{"operator": 1, "values": ["Spike"]}',
@@ -2109,11 +2117,13 @@ class ImportingTestCase(CremeTestCase):
         ef_id3 = 'creme_config-test_import_entityfilters03_3'
         ef_id4 = 'creme_config-test_import_entityfilters03_4'
 
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         ef_id2,
                 'name':       'Organisation view #1',
                 'ctype':      ct_str_c,
-                'conditions': [{
+                'conditions': [
+                    {
                         'type': SubFilterConditionHandler.type_id,
                         'name': ef_id3,  # defined after
                     },
@@ -2122,7 +2132,8 @@ class ImportingTestCase(CremeTestCase):
                 'id':         ef_id3,
                 'name':       'Spikes',
                 'ctype':      ct_str_c,
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  RegularFieldConditionHandler.type_id,
                         'name':  'first_name',
                         'value': {'operator': operators.EQUALS, 'values': ['Spike']},
@@ -2132,7 +2143,8 @@ class ImportingTestCase(CremeTestCase):
                 'id':         ef_id4,
                 'name':       'Spikes & me',
                 'ctype':      ct_str_c,
-                'conditions': [{
+                'conditions': [
+                    {
                         'type': RegularFieldConditionHandler.type_id,
                         'name':  'first_name',
                         'value': {'operator': operators.EQUALS, 'values': ['Spike']},
@@ -2192,11 +2204,13 @@ class ImportingTestCase(CremeTestCase):
         ef_id3 = 'creme_config-test_import_entityfilters04_3'
         ef_id4 = 'creme_config-test_import_entityfilters04_4'
 
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         ef_id2,
                 'name':       'Organisation view #1',
                 'ctype':      ct_str_c,
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  RelationSubFilterConditionHandler.type_id,
                         'name':  rtype.id,
                         'value': {
@@ -2209,7 +2223,8 @@ class ImportingTestCase(CremeTestCase):
                 'id':         ef_id3,
                 'name':       'Spikes',
                 'ctype':      ct_str_c,
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  RegularFieldConditionHandler.type_id,
                         'name':  'first_name',
                         'value': {'operator': operators.EQUALS, 'values': ['Spike']},
@@ -2219,7 +2234,8 @@ class ImportingTestCase(CremeTestCase):
                 'id':         ef_id4,
                 'name':       'Related to orga',
                 'ctype':      ct_str_c,
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  RelationSubFilterConditionHandler.type_id,
                         'name':  rtype.id,
                         'value': {'has': True, 'filter_id': ef1.id},
@@ -2266,11 +2282,13 @@ class ImportingTestCase(CremeTestCase):
 
         unknown_cond_type = 1024
         efilter_id = 'creme_config-test_import_entityfilters_error01'
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         efilter_id,
                 'name':       'Spikes',
                 'ctype':      'creme_core.fakecontact',
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  unknown_cond_type,  # <=
                         'name':  'dontcare',
                         'value': {"operator": 1, "values": ["Spike"]},
@@ -2294,17 +2312,19 @@ class ImportingTestCase(CremeTestCase):
         "Invalid condition: regular field."
         self.login(is_staff=True)
 
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         'creme_config-test_import_entityfilters_error02',
                 'name':       'Spikes',
                 'ctype':      'creme_core.fakecontact',
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  RegularFieldConditionHandler.type_id,
                         'name':  'invalid',  # <=
                         'value': {'operator': 1, 'values': ['Spike']},
                     },
                 ],
-             },
+            },
         ]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))
@@ -2323,17 +2343,19 @@ class ImportingTestCase(CremeTestCase):
 
         ptype_id = 'creme_config-test_import_entityfilter03'  # does not exist/not imported
         ef_id = 'creme_config-test_import_entityfilters_error03'
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         ef_id,
                 'name':       'Spikes',
                 'ctype':      'creme_core.fakecontact',
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  PropertyConditionHandler.type_id,
                         'name':  ptype_id,
                         'value': True,
                     },
                 ],
-             },
+            },
         ]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))
@@ -2352,11 +2374,13 @@ class ImportingTestCase(CremeTestCase):
 
         rtype_id = 'creme_config-subject_test_import_entityfilter_error04_a'  # does not exist/not imported
         ef_id = 'creme_config-test_import_entityfilters_error04'
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         ef_id,
                 'name':       'Spikes',
                 'ctype':      'creme_core.fakecontact',
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  RelationConditionHandler.type_id,
                         'name':  rtype_id,
                         'value': {'has': True},
@@ -2371,10 +2395,10 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('The condition on relation-type is invalid in the filter id="{id}" '
-              '(unknown relation-type={rtype}).').format(
-                 rtype=rtype_id, id=ef_id,
-            )
+            _(
+                'The condition on relation-type is invalid in the filter id="{id}" '
+                '(unknown relation-type={rtype}).'
+            ).format(rtype=rtype_id, id=ef_id),
         )
 
     def test_entityfilters_error04_b(self):
@@ -2387,17 +2411,19 @@ class ImportingTestCase(CremeTestCase):
         self.assertFalse(CremeEntity.objects.filter(uuid=uuid_str))
 
         ef_id = 'creme_config-test_import_entityfilters_error04_b'
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         ef_id,
                 'name':       'Spikes',
                 'ctype':      'creme_core.fakecontact',
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  RelationConditionHandler.type_id,
                         'name':  rtype.id,
                         'value': {'has': True, 'entity_uuid': uuid_str},
                     },
                 ],
-             },
+            },
         ]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))
@@ -2419,11 +2445,13 @@ class ImportingTestCase(CremeTestCase):
         cf_uuid = str(uuid4())  # does not exist/not imported
 
         ef_id = 'creme_config-test_import_entityfilters_error05'
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         ef_id,
                 'name':       'Spikes',
                 'ctype':      'creme_core.fakecontact',
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  CustomFieldConditionHandler.type_id,
                         'name':  cf_uuid,
                         'value': {'operator': 10, 'values': ['100']},
@@ -2449,16 +2477,19 @@ class ImportingTestCase(CremeTestCase):
         cf_uuid = str(uuid4())  # does not exist/not imported
 
         ef_id = 'creme_config-test_import_entityfilters_error06'
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         ef_id,
                 'name':       'Spikes',
                 'ctype':      'creme_core.fakecontact',
-                'conditions': [{
-                    'type':  DateCustomFieldConditionHandler.type_id,
-                    'name':  cf_uuid,
-                    'value': {'start': {'month': 11, 'day': 7, 'year': 2017}},
-                }],
-             },
+                'conditions': [
+                    {
+                        'type':  DateCustomFieldConditionHandler.type_id,
+                        'name':  cf_uuid,
+                        'value': {'start': {'month': 11, 'day': 7, 'year': 2017}},
+                    },
+                ],
+            },
         ]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))
@@ -2477,14 +2508,17 @@ class ImportingTestCase(CremeTestCase):
 
         ef_id1 = 'creme_config-test_import_entityfilters_error07_1'
         ef_id2 = 'creme_config-test_import_entityfilters_error07_2'
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         ef_id1,
                 'name':       'Contact view',
                 'ctype':      'creme_core.fakecontact',
-                'conditions': [{
-                    'type': SubFilterConditionHandler.type_id,
-                    'name': ef_id2,  # does not exist/not imported
-                }],
+                'conditions': [
+                    {
+                        'type': SubFilterConditionHandler.type_id,
+                        'name': ef_id2,  # does not exist/not imported
+                    },
+                ],
             },
         ]
 
@@ -2512,19 +2546,19 @@ class ImportingTestCase(CremeTestCase):
 
         ef_id1 = 'creme_config-test_import_entityfilters_error08_1'
         ef_id2 = 'creme_config-test_import_entityfilters_error08_2'
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         ef_id1,
                 'name':       'Contact view',
                 'ctype':      'creme_core.fakecontact',
                 'conditions': [{
-                        'type':  RelationSubFilterConditionHandler.type_id,
-                        'name':  rtype.id,
-                        'value': {
-                            'has':       False,
-                            'filter_id': ef_id2,  # does not exist/not imported
-                        },
+                    'type':  RelationSubFilterConditionHandler.type_id,
+                    'name':  rtype.id,
+                    'value': {
+                        'has':       False,
+                        'filter_id': ef_id2,  # does not exist/not imported
                     },
-                ],
+                }],
             },
         ]
 
@@ -2550,11 +2584,13 @@ class ImportingTestCase(CremeTestCase):
 
         rtype_id = 'creme_config-subject_test_import_entityfilter_error09'
 
-        efilters_data = [{
+        efilters_data = [
+            {
                 'id':         ef_id1,
                 'name':       'Spikes',
                 'ctype':      ct_str_c,
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  RegularFieldConditionHandler.type_id,
                         'name':  'first_name',
                         'value': {'operator': 1, 'values': ['Spike']},

@@ -598,12 +598,14 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
             self.model = model
 
         def render(self, context, level=0):
-            return format_html('<a href="#" data-href="{url}" class="quickform-menu-link">{label}</a>',
-                               url=reverse('creme_core__quick_form', args=(self.ct_id,)),
-                               label=self.label,
-                              ) \
-                   if context['user'].has_perm_to_create(self.model) else \
-                   format_html('<span class="ui-creme-navigation-text-entry forbidden">{}</span>', self.label)
+            return format_html(
+                '<a href="#" data-href="{url}" class="quickform-menu-link">{label}</a>',
+                url=reverse('creme_core__quick_form', args=(self.ct_id,)),
+                label=self.label,
+            ) if context['user'].has_perm_to_create(self.model) else format_html(
+                '<span class="ui-creme-navigation-text-entry forbidden">{}</span>',
+                self.label,
+            )
 
     def __init__(self, id: str, registry, label=gettext_lazy('Quick creation')):
         """@param registry: QuickFormsRegistry instance (indeed, we only need a iter_models() method)."""

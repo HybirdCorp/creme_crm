@@ -492,13 +492,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
             [ContentType.objects.get_for_model(address).id, address.id, str(address)],
             hline.modifications
         )
-        self.assertEqual([_('Add <{type}>: “{value}”').format(
-                                    type=_('Address'),
-                                    value=address,
-                                ),
-                         ],
-                         hline.get_verbose_modifications(self.user)
-                        )
+        self.assertListEqual(
+            [_('Add <{type}>: “{value}”').format(type=_('Address'), value=address)],
+            hline.get_verbose_modifications(self.user)
+        )
 
     # NB: keep as example
     # def test_search_field(self):

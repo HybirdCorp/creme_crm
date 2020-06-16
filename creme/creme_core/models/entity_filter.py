@@ -680,13 +680,19 @@ class EntityFilter(models.Model):  # CremeModel ???
         qs = cls.objects.filter(filter_type=EF_USER)
 
         if content_type:
-            qs = qs.filter(entity_type=content_type) if isinstance(content_type, ContentType) else \
-                 qs.filter(entity_type__in=content_type)
+            qs = (
+                qs.filter(entity_type=content_type)
+                if isinstance(content_type, ContentType) else
+                qs.filter(entity_type__in=content_type)
+            )
 
-        return qs if user.is_staff else \
-               qs.filter(Q(is_private=False) |
-                         Q(is_private=True, user__in=[user, *user.teams])
-                        )
+        return (
+            qs if user.is_staff else
+            qs.filter(
+                Q(is_private=False) |
+                Q(is_private=True, user__in=[user, *user.teams])
+            )
+        )
 
     def get_q(self, user=None) -> Q:
         query = Q()

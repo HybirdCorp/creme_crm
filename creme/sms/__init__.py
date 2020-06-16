@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,18 +24,24 @@ from creme.creme_core import get_concrete_model
 
 
 def smscampaign_model_is_custom():
-    return settings.SMS_CAMPAIGN_MODEL != 'sms.SMSCampaign' and \
-           not settings.SMS_CAMPAIGN_FORCE_NOT_CUSTOM
+    return (
+        settings.SMS_CAMPAIGN_MODEL != 'sms.SMSCampaign' and
+        not settings.SMS_CAMPAIGN_FORCE_NOT_CUSTOM
+    )
 
 
 def messaginglist_model_is_custom():
-    return settings.SMS_MLIST_MODEL != 'sms.MessagingList' and \
-           not settings.SMS_MLIST_FORCE_NOT_CUSTOM
+    return (
+        settings.SMS_MLIST_MODEL != 'sms.MessagingList' and
+        not settings.SMS_MLIST_FORCE_NOT_CUSTOM
+    )
 
 
 def messagetemplate_model_is_custom():
-    return settings.SMS_TEMPLATE_MODEL != 'sms.MessageTemplate' and \
-           not settings.SMS_TEMPLATE_FORCE_NOT_CUSTOM
+    return (
+        settings.SMS_TEMPLATE_MODEL != 'sms.MessageTemplate' and
+        not settings.SMS_TEMPLATE_FORCE_NOT_CUSTOM
+    )
 
 
 def get_smscampaign_model():

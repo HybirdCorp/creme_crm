@@ -964,7 +964,8 @@ class ExportingTestCase(CremeTestCase):
                 'ctype': ct_str_c,
                 'filter_type': EF_USER,
                 'use_or': False,
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  RegularFieldConditionHandler.type_id,
                         'name':  'first_name',
                         'value': {'operator': 1, 'values': ['Spike']},
@@ -989,7 +990,8 @@ class ExportingTestCase(CremeTestCase):
                 'filter_type': EF_USER,
                 'user':  other_user.username,
                 'use_or': True,
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  PropertyConditionHandler.type_id,
                         'name':  ptype.id,
                         'value': True,
@@ -1019,7 +1021,8 @@ class ExportingTestCase(CremeTestCase):
                 'user':  other_user.username,
                 'is_private': True,
                 'use_or': False,
-                'conditions': [{
+                'conditions': [
+                    {
                         'type':  DateRegularFieldConditionHandler.type_id,
                         'name':  'creation_date',
                         'value': {'start': {'year': 2017, 'month': 11, 'day': 7}},

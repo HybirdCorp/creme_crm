@@ -20,9 +20,11 @@ class ListViewButtonListTestCase(CremeTestCase):
         pass
 
     def test_append(self):
-        blist = ListViewButtonList([self.Button01]) \
-                    .append(self.Button02) \
-                    .append(self.Button03)
+        blist = ListViewButtonList([self.Button01]).append(
+            self.Button02
+        ).append(
+            self.Button03
+        )
         self.assertIsInstance(blist, ListViewButtonList)
         self.assertEqual([self.Button01, self.Button02, self.Button03], blist)
 

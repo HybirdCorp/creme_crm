@@ -307,21 +307,26 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                                'success_rate': 0,  # Minimum is 1
                                               }
                                    )
-        self.assertFormError(response, 'form', 'success_rate',
-                             _('Ensure this value is greater than or equal to %(limit_value)s.') % {
-                                    'limit_value': 1,
-                                }
-                            )
+        self.assertFormError(
+            response, 'form', 'success_rate',
+            _('Ensure this value is greater than or equal to %(limit_value)s.') % {
+                'limit_value': 1,
+            },
+        )
 
-        response = self.client.post(url, data={'name':         'Signed opportunities',
-                                               'success_rate': 101,  # Maximum is 100
-                                              }
-                                   )
-        self.assertFormError(response, 'form', 'success_rate',
-                             _('Ensure this value is less than or equal to %(limit_value)s.') % {
-                                    'limit_value': 100,
-                                }
-                            )
+        response = self.client.post(
+            url,
+            data={
+                'name':         'Signed opportunities',
+                'success_rate': 101,  # Maximum is 100
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'success_rate',
+            _('Ensure this value is less than or equal to %(limit_value)s.') % {
+                'limit_value': 100,
+            },
+        )
 
     def test_get_component_tree(self):
         pattern = self._create_pattern()

@@ -94,18 +94,20 @@ class SettingTestCase(CremeTestCase):
         self.assertEqual(hour, self.refresh(sv).value)
 
         response = self.assertPOST200(url, data={'value': 24})
-        self.assertFormError(response, 'form', 'value',
-                             _('Ensure this value is less than or equal to %(limit_value)s.') % {
-                                    'limit_value': 23,
-                                }
-                            )
+        self.assertFormError(
+            response, 'form', 'value',
+            _('Ensure this value is less than or equal to %(limit_value)s.') % {
+                'limit_value': 23,
+            },
+        )
 
         response = self.assertPOST200(url, data={'value': -1})
-        self.assertFormError(response, 'form', 'value',
-                             _('Ensure this value is greater than or equal to %(limit_value)s.') % {
-                                    'limit_value': 0,
-                                }
-                            )
+        self.assertFormError(
+            response, 'form', 'value',
+            _('Ensure this value is greater than or equal to %(limit_value)s.') % {
+                'limit_value': 0,
+            },
+        )
 
     def test_edit_email(self):
         self.login()

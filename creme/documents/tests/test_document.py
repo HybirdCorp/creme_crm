@@ -346,11 +346,12 @@ class DocumentTestCase(_DocumentsTestCase):
                       ),
             }
         )
-        self.assertFormError(response, 'form', 'user',
-                             _('You are not allowed to link with the «{models}» of this user.').format(
-                                     models=_('Documents'),
-                                )
-                            )
+        self.assertFormError(
+            response, 'form', 'user',
+            _('You are not allowed to link with the «{models}» of this user.').format(
+                models=_('Documents'),
+            )
+         )
 
     def test_add_related_document04(self):
         "Link credentials with related entity are needed"
@@ -409,15 +410,16 @@ class DocumentTestCase(_DocumentsTestCase):
 
         title = 'Related doc'
         response = self.client.post(
-                self._buid_addrelated_url(entity),
-                follow=True,
-                data={'user': user.id,
-                      'title': title,
-                      'description': 'Test description',
-                      'filedata': self.build_filedata(
-                                    'Yes I am the content (DocumentTestCase.test_add_related_document05)'
-                                  ),
-                }
+            self._buid_addrelated_url(entity),
+            follow=True,
+            data={
+                'user': user.id,
+                'title': title,
+                'description': 'Test description',
+                'filedata': self.build_filedata(
+                    'Yes I am the content (DocumentTestCase.test_add_related_document05)'
+                ),
+            },
         )
         self.assertNoFormError(response)
 
@@ -451,9 +453,9 @@ class DocumentTestCase(_DocumentsTestCase):
                 'title':        title,
                 'description':  'Test description',
                 'filedata':     self.build_filedata(
-                                      'Yes I am the content '
-                                      '(DocumentTestCase.test_add_related_document06)'
-                                  ),
+                    'Yes I am the content '
+                    '(DocumentTestCase.test_add_related_document06)'
+                ),
             },
         )
         self.assertNoFormError(response)

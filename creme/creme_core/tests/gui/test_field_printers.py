@@ -559,16 +559,16 @@ class FieldsPrintersTestCase(CremeTestCase):
             '</div>'.format(
                 name=efilter.name,
                 cond1=_('«{field}» starts with {values}').format(
-                     field=_('Name'),
-                     values=fmt_value(enum_value=name),
-                 ),
+                    field=_('Name'),
+                    values=fmt_value(enum_value=name),
+                ),
                 cond2=_('«{field}» contains {values}').format(
-                     field=_('Description'),
-                     values=_('{first} or {last}').format(
-                         first=fmt_value(enum_value=desc1),
-                         last=fmt_value(enum_value=desc2),
-                     ),
-                 ),
+                    field=_('Description'),
+                    values=_('{first} or {last}').format(
+                        first=fmt_value(enum_value=desc1),
+                        last=fmt_value(enum_value=desc2),
+                    ),
+                ),
             ),
             field_printers.print_foreignkey_html(r, efilter, user, field)
         )

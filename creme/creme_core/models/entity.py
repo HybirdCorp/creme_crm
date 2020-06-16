@@ -50,22 +50,28 @@ _SEARCH_FIELD_MAX_LENGTH = 200
 
 
 class CremeEntity(CremeModel):
-    created  = CreationDateTimeField(_('Creation date'), editable=False)\
-                                    .set_tags(clonable=False)
-    modified = ModificationDateTimeField(_('Last modification'), editable=False)\
-                                        .set_tags(clonable=False)
+    created = CreationDateTimeField(
+        _('Creation date'), editable=False
+    ).set_tags(clonable=False)
+    modified = ModificationDateTimeField(
+        _('Last modification'), editable=False
+    ).set_tags(clonable=False)
 
     entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
-    header_filter_search_field = models.CharField(max_length=_SEARCH_FIELD_MAX_LENGTH, editable=False)\
-                                       .set_tags(viewable=False)
+
+    header_filter_search_field = models.CharField(
+        max_length=_SEARCH_FIELD_MAX_LENGTH, editable=False,
+    ).set_tags(viewable=False)
 
     is_deleted = models.BooleanField(default=False, editable=False).set_tags(viewable=False)
-    user       = CremeUserForeignKey(verbose_name=_('Owner user'))
+
+    user = CremeUserForeignKey(verbose_name=_('Owner user'))
 
     description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
 
-    uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)\
-                 .set_tags(viewable=False)
+    uuid = models.UUIDField(
+        unique=True, editable=False, default=uuid.uuid4,
+    ).set_tags(viewable=False)
 
     sandbox = models.ForeignKey(
         'creme_core.Sandbox',
@@ -135,8 +141,10 @@ class CremeEntity(CremeModel):
         return str(real_entity)
 
     def allowed_str(self, user) -> str:
-        return str(self) if user.has_perm_to_view(self) else \
-               gettext('Entity #{id} (not viewable)').format(id=self.id)
+        return (
+            str(self) if user.has_perm_to_view(self) else
+            gettext('Entity #{id} (not viewable)').format(id=self.id)
+        )
 
     def get_real_entity(self) -> 'CremeEntity':
         entity = self._real_entity

@@ -57,15 +57,16 @@ class ReminderAlert(AssistantReminder):
         )
 
     def generate_email_body(self, object):
-        return _("""This mail is automatically sent by Crème CRM to remind you that an alert concerning {entity} will expire.
+        return _(
+            """This mail is automatically sent by Crème CRM to remind you that an alert concerning {entity} will expire.
             Alert : {title}.
             which description is : {description}.
 
             which is related to the entity : {entity}""").format(
-                    entity=object.creme_entity,
-                    title=object.title,
-                    description=object.description,
-            )
+            entity=object.creme_entity,
+            title=object.title,
+            description=object.description,
+        )
 
     def get_Q_filter(self):
         return Q(trigger_date__lte=now() + self._get_delta(), is_validated=False)
@@ -94,15 +95,16 @@ class ReminderTodo(AssistantReminder):
         )
 
     def generate_email_body(self, object):
-        return _("""This mail is automatically sent by Crème CRM to remind you that a todo concerning {entity} will expire.
+        return _(
+            """This mail is automatically sent by Crème CRM to remind you that a todo concerning {entity} will expire.
             Todo : {title}.
             which description is : {description}.
 
              which is related to the entity : {entity}""").format(
-                    entity=object.creme_entity,
-                    title=object.title,
-                    description=object.description,
-                )
+            entity=object.creme_entity,
+            title=object.title,
+            description=object.description,
+        )
 
     def get_Q_filter(self):
         # TODO: exclude Todos related to deleted entities ??

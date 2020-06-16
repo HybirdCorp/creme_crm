@@ -225,9 +225,10 @@ class BricksConfigTestCase(CremeTestCase):
         return reverse('creme_config__add_cells_to_rtype_brick', args=(rbi.id,))
 
     def _build_rbrick_editctype_url(self, rbi, model):
-        return reverse('creme_config__edit_cells_of_rtype_brick', args=(
-                    rbi.id, ContentType.objects.get_for_model(model).id,
-                ))
+        return reverse(
+            'creme_config__edit_cells_of_rtype_brick',
+            args=(rbi.id, ContentType.objects.get_for_model(model).id,),
+        )
 
     def _build_custombrick_edit_url(self, cbc_item):
         return reverse('creme_config__edit_custom_brick', args=(cbc_item.id,))
@@ -1971,9 +1972,9 @@ class BricksConfigTestCase(CremeTestCase):
         rt2 = create_rtype(('test-subbar', 'subject_predicate2'), ('test-objbar', 'object_predicate2'))[0]
 
         rb_item = RelationBrickItem(
-                brick_id='specificblock_creme_config-test-subfoo',
-                relation_type=rt1,
-            )
+            brick_id='specificblock_creme_config-test-subfoo',
+            relation_type=rt1,
+        )
         rb_item.set_cells(ContentType.objects.get_for_model(FakeOrganisation), ())
         rb_item.save()
 

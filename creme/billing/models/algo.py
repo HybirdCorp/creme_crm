@@ -42,9 +42,13 @@ class ConfigBillingAlgo(CremeModel):
         # TODO unique_together = ("organisation", "name_algo", "ct") ??
 
     def __str__(self):
-        return f'ConfigBillingAlgo(organisation="{self.organisation}", ' \
-                                 f'name_algo="{self.name_algo}", ' \
-                                 f'ct="{self.ct}")'
+        return (
+            f'ConfigBillingAlgo('
+            f'organisation="{self.organisation}", '
+            f'name_algo="{self.name_algo}", '
+            f'ct="{self.ct}"'
+            f')'
+        )
 
 
 class SimpleBillingAlgo(Model):
@@ -57,7 +61,7 @@ class SimpleBillingAlgo(Model):
 
     class Meta:
         app_label = 'billing'
-        unique_together = ("organisation", "last_number", "ct")
+        unique_together = ('organisation', 'last_number', 'ct')
 
     def __str__(self):
-        return 'SimpleBillingAlgo(organisation="{}", ct="{}")'.format(self.organisation, self.ct)
+        return f'SimpleBillingAlgo(organisation="{self.organisation}", ct="{self.ct}")'

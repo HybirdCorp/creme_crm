@@ -95,17 +95,20 @@ class BatchActionsFieldTestCase(FieldTestCase):
 
     def test_value_typeerror(self):
         clean = BatchActionsField(model=FakeContact).clean
-        self.assertFieldValidationError(BatchActionsField, 'invalidvalue', clean,
-                                        self.build_data(name='first_name',
-                                                        operator='rm_start',
-                                                        value='notanint',  # <===
-                                                       ),
-                                        message_args={'error': _('{operator} : {message}.').format(
-                                                                    operator=_('Remove the start (N characters)'),
-                                                                    message=_('enter a whole number'),
-                                                                  )
-                                                     },
-                                       )
+        self.assertFieldValidationError(
+            BatchActionsField, 'invalidvalue', clean,
+            self.build_data(
+                name='first_name',
+                operator='rm_start',
+                value='notanint',  # <===
+            ),
+            message_args={
+                'error': _('{operator} : {message}.').format(
+                    operator=_('Remove the start (N characters)'),
+                    message=_('enter a whole number'),
+                ),
+            },
+        )
 
     def test_ok01(self):
         with self.assertNumQueries(0):

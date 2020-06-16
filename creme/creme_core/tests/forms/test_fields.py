@@ -420,12 +420,14 @@ class OptionalChoiceFieldTestCase(FieldTestCase):
         with self.assertRaises(ValidationError) as cm:
             field.clean([False, 'invalid'])
 
-        self.assertEqual([_('Select a valid choice. %(value)s is not one of the available choices.') % {
-                                'value': 'invalid',
-                            },
-                         ],
-                         cm.exception.messages
-                        )
+        self.assertListEqual(
+            [
+                _('Select a valid choice. %(value)s is not one of the available choices.') % {
+                    'value': 'invalid',
+                },
+            ],
+            cm.exception.messages
+        )
 
 
 class ChoiceOrCharFieldTestCase(FieldTestCase):

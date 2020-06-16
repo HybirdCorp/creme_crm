@@ -510,8 +510,8 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
                 if len(forced_relations_info) == 1:
                     rel = forced_relations_info[0]
                     info = _('This relationship will be added: {predicate} «{entity}»').format(
-                            predicate=rel[0].predicate,
-                            entity=rel[1],
+                        predicate=rel[0].predicate,
+                        entity=rel[1],
                     )
                 else:
                     # TODO: ngettext() ?
@@ -634,13 +634,13 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
 
         return FluentList(
             build_relation(
-                 type=rtype,
-                 object_entity=object_entity,
+                type=rtype,
+                object_entity=object_entity,
             ) for rtype, object_entity in cdata.get('relation_types', ())
         ).extend(
             build_relation(
-                 type=sfrt.relation_type,
-                 object_entity=sfrt.object_entity,
+                type=sfrt.relation_type,
+                object_entity=sfrt.object_entity,
             ) for sfrt in cdata.get('semifixed_rtypes', ())
         ).extend(
             build_relation(

@@ -65,8 +65,8 @@ class BaseEditForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         labels = {
-                'discount': _('Overall discount (in %)'),
-            }
+            'discount': _('Overall discount (in %)'),
+        }
 
     blocks = CremeEntityForm.blocks.new(
         ('orga_n_address', _('Organisations'), ['source', 'target']),  # TODO: rename (beware to template)

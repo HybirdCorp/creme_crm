@@ -466,8 +466,9 @@ class EntitySelector(widgets.Widget):
 
     def _build_text_url(self):
         # TODO: use a GET parameter instead of using a TemplateURLBuilder ?
-        return TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}'))\
-                                 .resolve('creme_core__entity_as_json')
+        return TemplateURLBuilder(
+            entity_id=(TemplateURLBuilder.Int, '${id}'),
+        ).resolve('creme_core__entity_as_json')
 
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-entityselector'
@@ -582,8 +583,9 @@ class RelationSelector(ChainedInput):
         self.autocomplete = autocomplete
 
     def _build_ctypes_url(self):
-        return TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${rtype}'))\
-                                 .resolve('creme_core__ctypes_compatible_with_rtype')
+        return TemplateURLBuilder(
+            rtype_id=(TemplateURLBuilder.Word, '${rtype}'),
+        ).resolve('creme_core__ctypes_compatible_with_rtype')
 
     def get_context(self, name, value, attrs):
         dselect_attrs = {'auto': False, 'autocomplete': True} if self.autocomplete else \

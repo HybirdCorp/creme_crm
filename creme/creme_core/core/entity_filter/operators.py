@@ -167,12 +167,14 @@ class ConditionOperator:
         value_format = gettext('«{enum_value}»').format
         first_part = ', '.join(value_format(enum_value=v) for v in values[:-1])
 
-        return gettext('{first} or {last}').format(
-                    first=first_part,
-                    last=value_format(enum_value=values[-1]),
-               ) \
-               if first_part else \
-               value_format(enum_value=values[-1])
+        return (
+            gettext('{first} or {last}').format(
+                first=first_part,
+                last=value_format(enum_value=values[-1]),
+            )
+            if first_part else
+            value_format(enum_value=values[-1])
+        )
 
     def __str__(self):
         return str(self.verbose_name)
@@ -505,16 +507,22 @@ class RangeOperator(ConditionOperator):
     key_pattern = '{}__range'
 
     def _accept_value(self, *, field_value, value):
-        return False if field_value is None else \
-               value[0] <= field_value <= value[1]
+        return (
+            False
+            if field_value is None else
+            value[0] <= field_value <= value[1]
+        )
 
     def description(self, *, field_vname, values):
-        return self.description_pattern.format(
+        return (
+            self.description_pattern.format(
                 field=field_vname,
                 start=values[0],
                 end=values[1],
-            ) if len(values) == 2 else \
+            )
+            if len(values) == 2 else
             super().description(field_vname=field_vname, values=None)
+        )
 
     def validate_field_values(self, *, field, values, user=None,
                               efilter_registry=entity_filter_registries[EF_USER]):

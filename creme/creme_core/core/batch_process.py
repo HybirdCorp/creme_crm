@@ -175,11 +175,12 @@ class BatchAction:
         try:
             self._value = operator.cast(value)
         except CastError as e:
-            raise BatchAction.ValueError(gettext('{operator} : {message}.').format(
-                                                operator=operator,
-                                                message=e,
-                                            )
-                                        ) from e
+            raise BatchAction.ValueError(
+                gettext('{operator} : {message}.').format(
+                    operator=operator,
+                    message=e,
+                )
+            ) from e
 
     def __call__(self, entity: CremeEntity) -> bool:
         """The action's operator is computed with the given entity (on the field indicated by action-field

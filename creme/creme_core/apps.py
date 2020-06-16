@@ -481,15 +481,15 @@ class CremeCoreConfig(CremeAppConfig):
         from . import enumerators, models
 
         enumerable_registry.register_related_model(
-                                get_user_model(),
-                                enumerators.UserEnumerator,
-                            ).register_related_model(
-                                models.EntityFilter,
-                                enumerators.EntityFilterEnumerator,
-                            ).register_field_type(
-                                models.fields.EntityCTypeForeignKey,
-                                enumerators.EntityCTypeForeignKeyEnumerator,
-                            )
+            get_user_model(),
+            enumerators.UserEnumerator,
+        ).register_related_model(
+            models.EntityFilter,
+            enumerators.EntityFilterEnumerator,
+        ).register_field_type(
+            models.fields.EntityCTypeForeignKey,
+            enumerators.EntityCTypeForeignKeyEnumerator,
+        )
         # TODO: register_related_model(models.HeaderFilter, ...) ?
 
     def register_function_fields(self, function_field_registry):

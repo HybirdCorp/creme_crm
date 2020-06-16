@@ -652,7 +652,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator2 = operators.EQUALS
         value2    = 'Faye'
 
-        conditions = clean(self.build_data({
+        conditions = clean(self.build_data(
+            {
                 'name':     name1,
                 'operator': operator1,
                 'value':    value1,
@@ -660,7 +661,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                 'name':     name2,
                 'operator': operator2,
                 'value':    value2,
-        }))
+            },
+        ))
         self.assertEqual(2, len(conditions))
 
         type_id = RegularFieldConditionHandler.type_id
@@ -1502,7 +1504,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_int.id),             condition.name)
         self.assertEqual(EF_CREDENTIALS,                      condition.filter_type)
-        self.assertDictEqual({
+        self.assertDictEqual(
+            {
                 'operator': operator,
                 'rname': 'customfieldinteger',
                 'values': [str(value)],
@@ -1744,10 +1747,9 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     def test_render_empty(self):
         widget = CustomFieldsConditionsWidget()
 
-        self.assertHTMLEqual((
-                '<input type="text" name="test" style="display:none;">'
-                '<span>{no_customfield_label}</span>'
-            ).format(
+        self.assertHTMLEqual(
+            '<input type="text" name="test" style="display:none;">'
+            '<span>{no_customfield_label}</span>'.format(
                 no_customfield_label=_('No custom field at present.')
             ),
             widget.render('test', '')
@@ -1952,10 +1954,9 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
     def test_render_empty(self):
         widget = DateCustomFieldsConditionsWidget()
 
-        self.assertHTMLEqual((
-                '<input type="text" name="test" style="display:none;">'
-                '<span>{no_customfield_label}</span>'
-            ).format(
+        self.assertHTMLEqual(
+            '<input type="text" name="test" style="display:none;">'
+            '<span>{no_customfield_label}</span>'.format(
                 no_customfield_label=_('No date custom field at present.')
             ),
             widget.render('test', '')
@@ -2317,10 +2318,9 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
     def test_render_empty(self):
         widget = RelationsConditionsWidget()
 
-        self.assertHTMLEqual((
-                '<input type="text" name="test" style="display:none;">'
-                '<span>{no_customfield_label}</span>'
-            ).format(
+        self.assertHTMLEqual(
+            '<input type="text" name="test" style="display:none;">'
+            '<span>{no_customfield_label}</span>'.format(
                 no_customfield_label=_('No choice available.')
             ),
             widget.render('test', '')
@@ -2438,10 +2438,9 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
     def test_render_empty(self):
         widget = RelationSubfiltersConditionsWidget()
 
-        self.assertHTMLEqual((
-                '<input type="text" name="test" style="display:none;">'
-                '<span>{no_customfield_label}</span>'
-            ).format(
+        self.assertHTMLEqual(
+            '<input type="text" name="test" style="display:none;">'
+            '<span>{no_customfield_label}</span>'.format(
                 no_customfield_label=_('No relation type at present.')
             ),
             widget.render('test', '')
@@ -2556,12 +2555,12 @@ class EntityFilterFormsTestCase(FieldTestCase):
             'test-filter01', name='Filter 01', model=FakeContact,
             is_custom=True,
             conditions=[
-                 RegularFieldConditionHandler.build_condition(
-                     model=FakeContact,
-                     operator=operators.EQUALS,
-                     field_name='first_name',
-                     values=['Spike'],
-                 ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EQUALS,
+                    field_name='first_name',
+                    values=['Spike'],
+                ),
             ],
         )
 
@@ -2638,12 +2637,12 @@ class EntityFilterFormsTestCase(FieldTestCase):
             'test-filter01', name='Filter 01', model=FakeContact,
             is_custom=False,
             conditions=[
-                 RegularFieldConditionHandler.build_condition(
-                     model=FakeContact,
-                     operator=operators.EQUALS,
-                     field_name='first_name',
-                     values=['Spike'],
-                 ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EQUALS,
+                    field_name='first_name',
+                    values=['Spike'],
+                ),
             ],
         )
 

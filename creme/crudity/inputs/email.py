@@ -92,11 +92,12 @@ class CreateEmailInput(EmailInput):
                     continue
 
                 if right_idx > -1:
-                    body = body[:left_idx] + \
-                           body[left_idx:right_idx + MULTILINE_SEP_LEN].replace('\n', '\\n') \
-                                                                       .replace(LEFT_MULTILINE_SEP, '') \
-                                                                       .replace(RIGHT_MULTILINE_SEP, '') + \
-                           body[right_idx + MULTILINE_SEP_LEN:]
+                    body = (
+                        body[:left_idx] +
+                        body[left_idx:right_idx + MULTILINE_SEP_LEN].replace(
+                            '\n', '\\n').replace(LEFT_MULTILINE_SEP, '').replace(RIGHT_MULTILINE_SEP, '') +
+                        body[right_idx + MULTILINE_SEP_LEN:]
+                    )
                     left_idx = body.find(LEFT_MULTILINE_SEP)
                 else:
                     left_idx = -1

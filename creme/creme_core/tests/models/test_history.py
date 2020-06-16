@@ -118,13 +118,10 @@ class HistoryTestCase(CremeTestCase):
         self.assertEqual([ContentType.objects.get_for_model(address).id, address.id, str(address)],
                          hline.modifications
                         )
-        self.assertEqual([_('Add <{type}>: “{value}”').format(
-                                type='Test address',
-                                value=address,
-                            )
-                         ],
-                         hline.get_verbose_modifications(self.user),
-                        )
+        self.assertListEqual(
+            [_('Add <{type}>: “{value}”').format(type='Test address', value=address)],
+            hline.get_verbose_modifications(self.user),
+        )
 
     def test_edition01(self):
         old_count = HistoryLine.objects.count()
@@ -795,23 +792,18 @@ about this fantastic animation studio."""
         vmodifs = hline.get_verbose_modifications(self.user)
         self.assertEqual(3, len(vmodifs))
 
-        self.assertEqual(_('Edit <{type}>: “{value}”').format(
-                                type='Test address',
-                                value=address,
-                             ),
-                         vmodifs[0]
-                        )
-        self.assertEqual(self.FMT_3_VALUES(field=_('City'),
-                                           oldvalue=old_city,
-                                           value=city,
-                                          ),
-                         vmodifs[1]
-                        )
-        self.assertEqual(self.FMT_2_VALUES(field=_('Department'),
-                                           value=department,
-                                          ),
-                         vmodifs[2]
-                        )
+        self.assertEqual(
+            _('Edit <{type}>: “{value}”').format(type='Test address', value=address),
+            vmodifs[0]
+        )
+        self.assertEqual(
+            self.FMT_3_VALUES(field=_('City'), oldvalue=old_city, value=city),
+            vmodifs[1]
+        )
+        self.assertEqual(
+            self.FMT_2_VALUES(field=_('Department'), value=department),
+            vmodifs[2]
+        )
 
     def test_edit_auxiliary02(self):
         """Billing.Line
@@ -878,12 +870,10 @@ about this fantastic animation studio."""
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(1, len(vmodifs))
 
-        self.assertEqual(_('Delete <{type}>: “{value}”').format(
-                                type='Test address',
-                                value=address,
-                            ),
-                         vmodifs[0]
-                        )
+        self.assertEqual(
+            _('Delete <{type}>: “{value}”').format(type='Test address', value=address),
+            vmodifs[0]
+        )
 
     def test_multi_save01(self):
         old_last_name = 'Ayami'

@@ -364,16 +364,18 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         # --
         name = 'Filter "nerv"'
-        response = self.client.post(self._build_add_url(ct), follow=True,
-                                    data={'name': name,
-                                          'use_or': 'False',
-                                          'regularfieldcondition': self._build_rfields_data(
-                                                operator=operators.CONTAINS,
-                                                name='name',
-                                                value='NERV',
-                                            ),
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_add_url(ct), follow=True,
+            data={
+                'name': name,
+                'use_or': 'False',
+                'regularfieldcondition': self._build_rfields_data(
+                    operator=operators.CONTAINS,
+                    name='name',
+                    value='NERV',
+                ),
+            },
+        )
         self.assertNoFormError(response)
         self.assertRedirects(response, lv_url)
 
@@ -654,12 +656,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', name='Filter 01', model=FakeContact,
             conditions=[
-                 RegularFieldConditionHandler.build_condition(
-                     model=FakeContact,
-                     operator=operators.EQUALS,
-                     field_name='civility',
-                     values=[civility.pk],
-                 ),
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EQUALS,
+                    field_name='civility',
+                    values=[civility.pk],
+                ),
             ],
         )
 
@@ -841,9 +843,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                     'is_private': 'on',
 
                     'regularfieldcondition': self._build_rfields_data(
-                          operator=operators.EQUALS,
-                          name='last_name',
-                          value='Katsuragi',
+                        operator=operators.EQUALS,
+                        name='last_name',
+                        value='Katsuragi',
                     ),
                     'subfiltercondition': [sf.id for sf in subfilters],
                 },
@@ -1012,39 +1014,40 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self.client.post(
             url, follow=True,
             data={
-                'name':                       name,
-                'use_or':                     'True',
-                'regularfieldcondition':      self._build_rfields_data(
-                                                      operator=field_operator,
-                                                      name=field_name,
-                                                      value=field_value,
-                                                  ),
-                'dateregularfieldcondition':  self._build_rdatefields_data(
-                                                  type='',
-                                                  start='2011-5-23',
-                                                  end='2012-6-27',
-                                                  name=date_field_name,
-                                               ),
-                'customfieldcondition':       self._build_cfields_data(
-                                                  cfield_id=custom_field.id,
-                                                  operator=cfield_operator,
-                                                  value=cfield_value,
-                                               ),
-                'datecustomfieldcondition':   self._build_cdatefields_data(
-                                                  cfield_id=datecfield.id,
-                                                  type=datecfield_rtype,
-                                               ),
-                'relationcondition':          self._build_relations_data(rtype.id),
+                'name': name,
+                'use_or': 'True',
+
+                'regularfieldcondition': self._build_rfields_data(
+                    operator=field_operator,
+                    name=field_name,
+                    value=field_value,
+                ),
+                'dateregularfieldcondition': self._build_rdatefields_data(
+                    type='',
+                    start='2011-5-23',
+                    end='2012-6-27',
+                    name=date_field_name,
+                ),
+                'customfieldcondition': self._build_cfields_data(
+                    cfield_id=custom_field.id,
+                    operator=cfield_operator,
+                    value=cfield_value,
+                ),
+                'datecustomfieldcondition': self._build_cdatefields_data(
+                    cfield_id=datecfield.id,
+                    type=datecfield_rtype,
+                ),
+                'relationcondition': self._build_relations_data(rtype.id),
                 'relationsubfiltercondition': self._build_subfilters_data(
-                                                  rtype_id=srtype.id,
-                                                  ct_id=self.ct_orga.id,
-                                                  efilter_id=relsubfilfer.id,
-                                               ),
-                'propertycondition':          self._build_properties_data(
-                                                  has=False,
-                                                  ptype_id=ptype.id,
-                                               ),
-                'subfiltercondition':         [subfilter.id],
+                    rtype_id=srtype.id,
+                    ct_id=self.ct_orga.id,
+                    efilter_id=relsubfilfer.id,
+                ),
+                'propertycondition': self._build_properties_data(
+                    has=False,
+                    ptype_id=ptype.id,
+                ),
+                'subfiltercondition': [subfilter.id],
             },
         )
         self.assertNoFormError(response)

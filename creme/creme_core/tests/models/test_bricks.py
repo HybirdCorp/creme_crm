@@ -408,8 +408,8 @@ class BrickTestCase(CremeTestCase):
         "With a Role."
         role = UserRole.objects.create(name='Viewer')
         loc = BrickDetailviewLocation.objects.create_for_model_brick(
-                model=FakeContact, role=role,
-                order=8, zone=BrickDetailviewLocation.BOTTOM,
+            model=FakeContact, role=role,
+            order=8, zone=BrickDetailviewLocation.BOTTOM,
         )
         self.assertEqual(1, BrickDetailviewLocation.objects.count())
         self.assertEqual('modelblock', loc.brick_id)

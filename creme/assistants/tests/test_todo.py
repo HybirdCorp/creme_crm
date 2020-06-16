@@ -474,13 +474,15 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(jresults))
 
         jresult = jresults[0]
-        self.assertEqual([_('An error occurred while sending emails related to «{model}»').format(
-                                    model=ToDo._meta.verbose_name,
-                                ),
-                          _('Original error: {}').format(err_msg),
-                         ],
-                         jresult.messages
-                        )
+        self.assertListEqual(
+            [
+                _('An error occurred while sending emails related to «{model}»').format(
+                    model=ToDo._meta.verbose_name,
+                ),
+                _('Original error: {}').format(err_msg),
+            ],
+            jresult.messages
+        )
 
         EmailBackend.send_messages = self.original_send_messages
 
@@ -639,15 +641,14 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(2, len(vmodifs))
 
-        self.assertEqual(_('Edit <{type}>: “{value}”').format(
-                                type=_('Todo'),
-                                value=todo,
-                            ),
-                         vmodifs[0]
-                        )
-        self.assertEqual(_('Set field “{field}”').format(field=_('Description')),
-                         vmodifs[1]
-                        )
+        self.assertEqual(
+            _('Edit <{type}>: “{value}”').format(type=_('Todo'), value=todo),
+            vmodifs[0]
+        )
+        self.assertEqual(
+            _('Set field “{field}”').format(field=_('Description')),
+            vmodifs[1]
+        )
 
     def test_history03(self):
         "Deletion"
@@ -667,12 +668,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(1, len(vmodifs))
 
-        self.assertEqual(_('Delete <{type}>: “{value}”').format(
-                                type=_('Todo'),
-                                value=todo,
-                            ),
-                         vmodifs[0]
-                        )
+        self.assertEqual(
+            _('Delete <{type}>: “{value}”').format(type=_('Todo'), value=todo),
+            vmodifs[0]
+        )
 
     def test_manager_filter_by_user(self):
         user = self.user

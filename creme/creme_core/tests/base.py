@@ -349,9 +349,11 @@ class _CremeTestCase:
 
         remaining_errors = {*form_errors.keys()} - field_names
         if remaining_errors:
-            self.fail('Unexpected errors have been found in the form: {}'.format(
-                        [(name, form_errors[name]) for name in remaining_errors]
-                     ))
+            self.fail(
+                'Unexpected errors have been found in the form: {}'.format(
+                    [(name, form_errors[name]) for name in remaining_errors]
+                )
+            )
 
     # TODO: add an argument 'field' like assertNoFormsetError()
     def assertNoFormError(self, response, status=200, form='form'):
@@ -364,9 +366,10 @@ class _CremeTestCase:
             elif hasattr(response, 'url'):
                 redirect = response.url
 
-            self.fail(f'Response status={status_code} (expected: {status}) '
-                      f'[redirections={redirect}; content={response.content}]'
-                     )
+            self.fail(
+                f'Response status={status_code} (expected: {status}) '
+                f'[redirections={redirect}; content={response.content}]'
+            )
 
         try:
             errors = response.context[form].errors

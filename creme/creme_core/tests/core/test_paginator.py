@@ -1012,9 +1012,7 @@ class FlowPaginatorTestCase(CremeTestCase):
                          info3a
                         )
 
-        self.assertListEqual(contacts[6:9],
-                         [*paginator.page(info3a).object_list]
-                        )
+        self.assertListEqual(contacts[6:9], [*paginator.page(info3a).object_list])
 
     def test_info07(self):
         "DESC."

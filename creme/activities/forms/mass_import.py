@@ -97,32 +97,39 @@ class RelatedExtractor:
                 length = len(contacts)
 
                 if length > MAX_RELATIONSHIPS:
-                    err_msg = _('Too many contacts were found for the search «{}»').format(
-                                self._searched_contact(first_name, last_name))
+                    err_msg = _(
+                        'Too many contacts were found for the search «{}»'
+                    ).format(self._searched_contact(first_name, last_name))
                 else:
                     if length > 1:
-                        err_msg = _('Several contacts were found for the search «{}»').format(
-                                    self._searched_contact(first_name, last_name))
+                        err_msg = _(
+                            'Several contacts were found for the search «{}»'
+                        ).format(self._searched_contact(first_name, last_name))
 
                     extracted = contacts
             else:
-                err_msg = _('No linkable contact found for the search «{}»').format(
-                            self._searched_contact(first_name, last_name))
+                err_msg = _(
+                    'No linkable contact found for the search «{}»'
+                ).format(self._searched_contact(first_name, last_name))
         elif self._create:
-            extracted = [Contact.objects.create(user=user,
-                                                first_name=first_name,
-                                                last_name=last_name,
-                                                civility=Civility.objects
-                                                                 .filter(Q(title=civility) |
-                                                                         Q(shortcut=civility)
-                                                                        )
-                                                                 .first()
-                                                         if civility else None,
-                                               )
-                        ]
+            extracted = [
+                Contact.objects.create(
+                    user=user,
+                    first_name=first_name,
+                    last_name=last_name,
+                    civility=(
+                        Civility.objects.filter(
+                            Q(title=civility) | Q(shortcut=civility)
+                        ).first()
+                        if civility else
+                        None
+                    ),
+                ),
+            ]
         else:
-            err_msg = _('The participant «{}» is unfoundable').format(
-                        self._searched_contact(first_name, last_name))
+            err_msg = _(
+                'The participant «{}» is unfoundable'
+            ).format(self._searched_contact(first_name, last_name))
 
         return extracted, (err_msg,) if err_msg else ()
 
@@ -429,18 +436,24 @@ class SubjectsExtractor(RelatedExtractor):
                     length = len(linkable_extracted)
 
                     if length > MAX_RELATIONSHIPS:
-                        err_msg.append(_('Too many «{models}» were found for the search «{search}»').format(
-                                            models=model._meta.verbose_name_plural,
-                                            search=search,
-                                        )
-                                      )
+                        err_msg.append(
+                            _(
+                                'Too many «{models}» were found for the search «{search}»'
+                            ).format(
+                                models=model._meta.verbose_name_plural,
+                                search=search,
+                            )
+                        )
                     else:
                         if length > 1:
-                            err_msg.append(_('Several «{models}» were found for the search «{search}»').format(
-                                                models=model._meta.verbose_name_plural,
-                                                search=search,
-                                            )
-                                          )
+                            err_msg.append(
+                                _(
+                                    'Several «{models}» were found for the search «{search}»'
+                                ).format(
+                                    models=model._meta.verbose_name_plural,
+                                    search=search,
+                                )
+                            )
 
                         extracted.extend(linkable_extracted)
 
@@ -573,10 +586,11 @@ def get_massimport_form_builder(header_dict, choices):
             exclude = ('type', 'sub_type', 'busy')
 
         blocks = ImportForm4CremeEntity.blocks.new(
-                            ('participants',   _('Participants & subjects'),
-                             ['my_participation', 'participating_users', 'participants', 'subjects']
-                            ),
-                        )
+            (
+                'participants',   _('Participants & subjects'),
+                ['my_participation', 'participating_users', 'participants', 'subjects']
+            ),
+        )
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)

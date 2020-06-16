@@ -121,12 +121,12 @@ class Command(BaseCommand):
                         for i in range(number):
                             try:
                                 WaitingAction.objects.create(
-                                        action=method,
-                                        source=f'{fetcher_name} - {input.name}',
-                                        ct=backend.model,
-                                        subject=backend.subject,
-                                        # user=owner,  TODO ?
-                                        data=_entity_2_dict(factory.build()),
+                                    action=method,
+                                    source=f'{fetcher_name} - {input.name}',
+                                    ct=backend.model,
+                                    subject=backend.subject,
+                                    # user=owner,  TODO ?
+                                    data=_entity_2_dict(factory.build()),
                                 )
                             except Exception as e:
                                 self.stderr.write(f'A error occurred when saving action: {e}.')

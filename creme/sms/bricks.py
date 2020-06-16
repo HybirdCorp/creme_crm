@@ -62,8 +62,8 @@ class RecipientsBrick(QuerysetBrick):
     def detailview_display(self, context):
         pk = context['object'].pk
         return self._render(self.get_template_context(
-                context,
-                Recipient.objects.filter(messaging_list=pk),  # get_recipients() ??? related_name() ?
+            context,
+            Recipient.objects.filter(messaging_list=pk),  # get_recipients() ??? related_name() ?
         ))
 
 
@@ -101,6 +101,6 @@ class SendingsBrick(QuerysetBrick):
     def detailview_display(self, context):
         campaign = context['object']
         return self._render(self.get_template_context(
-                    context,
-                    Sending.objects.filter(campaign=campaign),  # get_sendings() ??
+            context,
+            Sending.objects.filter(campaign=campaign),  # get_sendings() ??
         ))

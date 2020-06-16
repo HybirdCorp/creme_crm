@@ -1764,13 +1764,13 @@ class FileSystemInputTestCase(CrudityTestCase):
         inifile_input = IniFileInput()
         subject = CrudityBackend.normalize_subject('test_create_contact')
         backend = self.FakeContactBackend({
-                'subject':    subject,
-                'in_sandbox': True,
-                'body_map':   {
-                    'user_id':     1,
-                    'last_name':   '',
-                    'first_name':  '',
-                },
+            'subject':    subject,
+            'in_sandbox': True,
+            'body_map':   {
+                'user_id':     1,
+                'last_name':   '',
+                'first_name':  '',
+            },
         })
 
         inifile_input.add_backend(backend)

@@ -590,15 +590,17 @@ class DateFieldHandlerMixin:
         end   = self._end
 
         if start:
-            return _('«{field}» is between «{start}» and «{end}»').format(
-                        field=verbose_field,
-                        start=date_format(start, 'DATE_FORMAT'),
-                        end=date_format(end, 'DATE_FORMAT'),
-                   ) if end else \
-                   _('«{field}» starts «{date}»').format(
-                        field=verbose_field,
-                        date=date_format(start, 'DATE_FORMAT'),
-                   )
+            return (
+                _('«{field}» is between «{start}» and «{end}»').format(
+                    field=verbose_field,
+                    start=date_format(start, 'DATE_FORMAT'),
+                    end=date_format(end, 'DATE_FORMAT'),
+                ) if end else
+                _('«{field}» starts «{date}»').format(
+                    field=verbose_field,
+                    date=date_format(start, 'DATE_FORMAT'),
+                )
+            )
 
         if end:
             return _('«{field}» ends «{date}»').format(

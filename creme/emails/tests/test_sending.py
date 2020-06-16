@@ -264,13 +264,15 @@ class SendingsTestCase(_EmailsTestCase):
         hline = HistoryLine.objects.order_by('-id').first()
         self.assertEqual(camp.id,          hline.entity.id)
         self.assertEqual(TYPE_AUX_CREATION,    hline.type)
-        self.assertEqual([_('Add <{type}>: “{value}”').format(
-                                type=EmailSending._meta.verbose_name,
-                                value=sending,
-                            )
-                         ],
-                         hline.get_verbose_modifications(user=user),
-                        )
+        self.assertListEqual(
+            [
+                _('Add <{type}>: “{value}”').format(
+                    type=EmailSending._meta.verbose_name,
+                    value=sending,
+                )
+            ],
+            hline.get_verbose_modifications(user=user),
+        )
 
         # ---
         mail = mails[0]
@@ -537,11 +539,12 @@ class SendingsTestCase(_EmailsTestCase):
         mlist.contacts.add(contact)
 
         self.assertNoFormError(self.client.post(
-                self._build_add_url(camp),
-                data={'sender':   'vicious@reddragons.mrs',
-                      'type':     SENDING_TYPE_IMMEDIATE,
-                      'template': template.id,
-                     },
+            self._build_add_url(camp),
+            data={
+                'sender':   'vicious@reddragons.mrs',
+                'type':     SENDING_TYPE_IMMEDIATE,
+                'template': template.id,
+            },
         ))
 
         self._send_mails(self._get_job())

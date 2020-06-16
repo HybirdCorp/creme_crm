@@ -80,7 +80,8 @@ class AxisFieldsMixin:
         else:
             key = ''
 
-        return json_dump({
+        return json_dump(
+            {
                 'entity_cell': {
                     'cell_key': key,
                     'grouping_category': 'not used',
@@ -96,7 +97,8 @@ class AxisFieldsMixin:
 
     @staticmethod
     def formfield_value_ordinate(*, aggr_id, cell=None):
-        return json_dump({
+        return json_dump(
+            {
                 'aggregator': {
                     'aggr_id': aggr_id,
                     'aggr_category': 'not used',

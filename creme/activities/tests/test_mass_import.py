@@ -941,15 +941,17 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         last_name = 'Kunieda'
         contacts, err_msg = ext.extract_value([first_name, last_name], user)
         self.assertEqual((), contacts)
-        self.assertEqual(tuple([_('The participant «{}» is unfoundable').format(
-                                        _('{first_name} {last_name}').format(
-                                            first_name=first_name,
-                                            last_name=last_name,
-                                        ),
-                                    ),
-                         ]),
-                         err_msg
-                        )
+        self.assertEqual(
+            tuple([
+                _('The participant «{}» is unfoundable').format(
+                    _('{first_name} {last_name}').format(
+                        first_name=first_name,
+                        last_name=last_name,
+                    ),
+                ),
+            ]),
+            err_msg
+        )
 
         create_contact = partial(Contact.objects.create, user=user, last_name=last_name)
         aoi = create_contact(first_name=first_name)
@@ -1217,13 +1219,15 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         contacts, err_msg = ext.extract_value([f' {last_name} #'], user)
         self.assertFalse(contacts)
-        self.assertEqual([_('Too many «{models}» were found for the search «{search}»').format(
-                                models=_('Contacts'),
-                                search=last_name,
-                            )
-                         ],
-                         err_msg
-                        )
+        self.assertListEqual(
+            [
+                _('Too many «{models}» were found for the search «{search}»').format(
+                    models=_('Contacts'),
+                    search=last_name,
+                )
+            ],
+            err_msg
+        )
 
     @skipIfNotInstalled('creme.tickets')
     def test_subjects_extractor03(self):

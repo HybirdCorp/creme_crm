@@ -98,14 +98,15 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
     def test_render_start_n_end(self):
         self.login()
 
-        response = self.assertGET200(reverse('activities__create_activity_popup'),
-                                     data={
-                                        'start': '2010-01-01T16:35:00',
-                                        'end': '2010-01-01T18:35:00',
-                                     })
+        response = self.assertGET200(
+            reverse('activities__create_activity_popup'),
+            data={
+                'start': '2010-01-01T16:35:00',
+                'end': '2010-01-01T18:35:00',
+            },
+        )
 
         fields = response.context['form'].fields
-
         self.assertEqual(fields['start'].initial, datetime(2010, 1, 1, 16, 35))
         self.assertEqual(fields['start_time'].initial, time(16, 35))
         self.assertEqual(fields['end'].initial, datetime(2010, 1, 1, 18, 35))
@@ -115,14 +116,15 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
     def test_render_start_all_day(self):
         self.login()
 
-        response = self.assertGET200(reverse('activities__create_activity_popup'),
-                                     data={
-                                        'start': '2010-01-01T16:35:00',
-                                        'allDay': 'true'
-                                     })
+        response = self.assertGET200(
+            reverse('activities__create_activity_popup'),
+            data={
+                'start': '2010-01-01T16:35:00',
+                'allDay': 'true',
+            },
+        )
 
         fields = response.context['form'].fields
-
         self.assertEqual(fields['start'].initial, datetime(2010, 1, 1, 16, 35))
         self.assertEqual(fields['start_time'].initial, time(16, 35))
         self.assertEqual(fields['end'].initial, None)

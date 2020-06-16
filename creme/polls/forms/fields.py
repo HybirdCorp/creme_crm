@@ -69,9 +69,9 @@ class PollFormLineConditionsField(JSONField):
     def sources(self, sources):
         "@param sources: Sequence of PollFormLines"
         self._sources = valid_sources = [
-                source for source in sources
-                        if source.poll_line_type.get_choices()
-            ]
+            source for source in sources
+            if source.poll_line_type.get_choices()
+        ]
         self.widget.sources = [(src.id, src.question) for src in valid_sources]
 
     def _value_to_jsonifiable(self, value):

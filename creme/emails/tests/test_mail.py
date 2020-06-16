@@ -826,7 +826,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         resend_action = resend_actions[0]
         self.assertEqual('email-resend', resend_action.type)
         self.assertEqual(reverse('emails__resend_emails'), resend_action.url)
-        self.assertDictEqual({
+        self.assertDictEqual(
+            {
                 'data': {},
                 'options': {'selection': [email.id]},
             },

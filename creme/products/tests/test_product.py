@@ -260,13 +260,15 @@ class ProductTestCase(_ProductsTestCase):
         self.assertGET200(url)
 
         next_sub_cat = SubCategory.objects.order_by('category')[1]
-        response = self.client.post(url,
-                                    data={'sub_category': self._cat_field(
-                                                category=next_sub_cat.category,
-                                                sub_category=next_sub_cat,
-                                            ),
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'sub_category': self._cat_field(
+                    category=next_sub_cat.category,
+                    sub_category=next_sub_cat,
+                ),
+            },
+        )
         self.assertNoFormError(response)
 
         product = self.refresh(product)
@@ -287,13 +289,15 @@ class ProductTestCase(_ProductsTestCase):
         self.assertGET200(url)
 
         next_sub_cat = SubCategory.objects.exclude(category=sub_cat.category)[0]
-        response = self.client.post(url,
-                                    data={'sub_category': self._cat_field(
-                                                category=sub_cat.category,
-                                                sub_category=next_sub_cat,
-                                            ),
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'sub_category': self._cat_field(
+                    category=sub_cat.category,
+                    sub_category=next_sub_cat,
+                ),
+            },
+        )
         self.assertFormError(response, 'form', 'sub_category',
                              _('This sub-category causes constraint error.')
                             )
@@ -319,15 +323,17 @@ class ProductTestCase(_ProductsTestCase):
         self.assertGET200(url)
 
         next_sub_cat = SubCategory.objects.order_by('category')[1]
-        response = self.client.post(url,
-                                    {'_bulk_fieldname': url,
-                                     'sub_category': self._cat_field(
-                                                 category=sub_cat.category,
-                                                 sub_category=next_sub_cat,
-                                         ),
-                                     'entities': [product.pk, product2.pk],
-                                    }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                '_bulk_fieldname': url,
+                'sub_category': self._cat_field(
+                    category=sub_cat.category,
+                    sub_category=next_sub_cat,
+                ),
+                'entities': [product.pk, product2.pk],
+            },
+        )
         self.assertNoFormError(response)
 
         product = self.refresh(product)
@@ -355,15 +361,17 @@ class ProductTestCase(_ProductsTestCase):
         self.assertGET200(url)
 
         next_sub_cat = SubCategory.objects.exclude(category=sub_cat.category)[0]
-        response = self.client.post(url,
-                                    {'_bulk_fieldname': url,
-                                     'sub_category': self._cat_field(
-                                             category=sub_cat.category,
-                                             sub_category=next_sub_cat,
-                                     ),
-                                     'entities': [product.id, product2.id],
-                                    }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                '_bulk_fieldname': url,
+                'sub_category': self._cat_field(
+                    category=sub_cat.category,
+                    sub_category=next_sub_cat,
+                ),
+                'entities': [product.id, product2.id],
+            },
+        )
         self.assertFormError(response, 'form', 'sub_category',
                              _('This sub-category causes constraint error.')
                             )
@@ -393,15 +401,17 @@ class ProductTestCase(_ProductsTestCase):
         self.assertGET200(url)
 
         next_sub_cat = SubCategory.objects.order_by('category')[1]
-        response = self.client.post(url,
-                                    {'_bulk_fieldname': url,
-                                     'sub_category': self._cat_field(
-                                             category=next_sub_cat.category,
-                                             sub_category=next_sub_cat,
-                                     ),
-                                     'entities': [product1.pk, product2.pk]
-                                    }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                '_bulk_fieldname': url,
+                'sub_category': self._cat_field(
+                    category=next_sub_cat.category,
+                    sub_category=next_sub_cat,
+                ),
+                'entities': [product1.pk, product2.pk],
+            },
+        )
         self.assertNoFormError(response)
 
         product1 = self.refresh(product1)
@@ -429,15 +439,17 @@ class ProductTestCase(_ProductsTestCase):
         self.assertGET200(url)
 
         next_sub_cat = SubCategory.objects.exclude(category=sub_cat.category)[0]
-        response = self.client.post(url,
-                                    {'_bulk_fieldname': url,
-                                     'sub_category': self._cat_field(
-                                             category=sub_cat.category,
-                                             sub_category=next_sub_cat,
-                                     ),
-                                     'entities': [product1.pk, product2.pk]
-                                    }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                '_bulk_fieldname': url,
+                'sub_category': self._cat_field(
+                    category=sub_cat.category,
+                    sub_category=next_sub_cat,
+                ),
+                'entities': [product1.pk, product2.pk],
+            },
+        )
         self.assertFormError(response, 'form', 'sub_category',
                              _('This sub-category causes constraint error.')
                             )
@@ -738,30 +750,36 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(3, len(jr_errors))
 
         jr_error1 = jr_errors[0]
-        self.assertEqual([_('The category «{cat}» and the sub-category «{sub_cat}» are not matching.').format(
-                                cat=cat2,
-                                sub_cat=sub_cat11,
-                            ),
-                          _('This field cannot be null.'),  # TODO: the message should indicate the name of the field.
-                          _('This field cannot be null.'),
-                         ],
-                         jr_error1.messages
-                        )
+        self.assertListEqual(
+            [
+                _('The category «{cat}» and the sub-category «{sub_cat}» are not matching.').format(
+                    cat=cat2,
+                    sub_cat=sub_cat11,
+                ),
+                _('This field cannot be null.'),  # TODO: the message should indicate the name of the field.
+                _('This field cannot be null.'),
+            ],
+            jr_error1.messages
+        )
         self.assertIsNone(jr_error1.entity)
 
-        self.assertEqual([_('The category «{}» does not exist').format('invalid'),
-                          _('This field cannot be null.'),
-                          _('This field cannot be null.'),
-                         ],
-                         jr_errors[1].messages
-                        )
+        self.assertListEqual(
+            [
+                _('The category «{}» does not exist').format('invalid'),
+                _('This field cannot be null.'),
+                _('This field cannot be null.'),
+            ],
+            jr_errors[1].messages
+        )
 
-        self.assertEqual([_('The sub-category «{}» does not exist').format('invalid'),
-                          _('This field cannot be null.'),
-                          _('This field cannot be null.'),
-                         ],
-                         jr_errors[2].messages
-                        )
+        self.assertListEqual(
+            [
+                _('The sub-category «{}» does not exist').format('invalid'),
+                _('This field cannot be null.'),
+                _('This field cannot be null.'),
+            ],
+            jr_errors[2].messages
+        )
 
     def test_mass_import03(self):
         "Categories in CSV ; creation of Category/SubCategory"

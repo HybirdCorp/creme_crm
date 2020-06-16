@@ -133,11 +133,12 @@ class Command(BaseCommand):
             total_missing_deps |= apps_2_populate
 
         if total_missing_deps and verbosity >= 1:
-            self.stdout.write('Additional dependencies will be populated: {}'.format(
-                                    ', '.join(total_missing_deps)
-                                ),
-                              self.style.NOTICE
-                             )
+            self.stdout.write(
+                'Additional dependencies will be populated: {}'.format(
+                    ', '.join(total_missing_deps)
+                ),
+                self.style.NOTICE
+            )
 
         # Clean the dependencies (avoid dependencies that do not exist in
         # 'populators', which would cause Exception raising)
@@ -176,11 +177,12 @@ class Command(BaseCommand):
         # ----------------------------------------------------------------------
         if self.models:
             if verbosity >= 1:
-                self.stdout.write('Update sequences for models : {}'.format(
-                                        [model.__name__ for model in self.models]
-                                    ),
-                                  ending='',
-                                 )
+                self.stdout.write(
+                    'Update sequences for models : {}'.format(
+                        [model.__name__ for model in self.models]
+                    ),
+                    ending='',
+                )
                 self.stdout.flush()
 
             connection = connections[options.get('database', DEFAULT_DB_ALIAS)]

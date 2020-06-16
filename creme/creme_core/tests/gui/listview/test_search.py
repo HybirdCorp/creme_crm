@@ -310,12 +310,11 @@ class ListViewSearchTestCase(CremeTestCase):
 
                 return cls(cell=cell, user=user)
 
-        registry = lv_search.RegularFieldSearchRegistry()\
-                            .register_model_field(
-                                      model=FakeContact,
-                                      field_name='first_name',
-                                      sfield_builder=MyRegistry
-                             )
+        registry = lv_search.RegularFieldSearchRegistry().register_model_field(
+            model=FakeContact,
+            field_name='first_name',
+            sfield_builder=MyRegistry
+        )
 
         cell = EntityCellRegularField.build(model=FakeContact, name='first_name')
         get_field = registry.get_field

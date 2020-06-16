@@ -125,17 +125,20 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
         create_opp(name='Opp #6', sales_phase=neutral_sp)
 
         self.assertListEqual(
-            [_('For {organisation}: {won_stats} / {lost_stats}').format(
-                  organisation=emitter,
-                  won_stats=ngettext('{count} won opportunity',
-                                     '{count} won opportunities',
-                                     2
-                                    ).format(count=2),
-                  lost_stats=ngettext('{count} lost opportunity',
-                                      '{count} lost opportunities',
-                                      3
-                                     ).format(count=3),
-                 ),
+            [
+                _('For {organisation}: {won_stats} / {lost_stats}').format(
+                    organisation=emitter,
+                    won_stats=ngettext(
+                        '{count} won opportunity',
+                        '{count} won opportunities',
+                        2
+                    ).format(count=2),
+                    lost_stats=ngettext(
+                        '{count} lost opportunity',
+                        '{count} lost opportunities',
+                        3
+                    ).format(count=3),
+                ),
             ],
             CurrentYearStatistics(opp_model=Opportunity, orga_model=Organisation)()
         )
@@ -166,17 +169,20 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
         create_opp(name='Opp #5', sales_phase=won_sp)
 
         self.assertListEqual(
-            [_('For {organisation}: {won_stats} / {lost_stats}').format(
-                  organisation=emitter,
-                  won_stats=ngettext('{count} won opportunity',
-                                     '{count} won opportunities',
-                                     1
-                                    ).format(count=1),
-                  lost_stats=ngettext('{count} lost opportunity',
-                                      '{count} lost opportunities',
-                                      2
-                                     ).format(count=2),
-                 ),
+            [
+                _('For {organisation}: {won_stats} / {lost_stats}').format(
+                    organisation=emitter,
+                    won_stats=ngettext(
+                        '{count} won opportunity',
+                        '{count} won opportunities',
+                        1
+                    ).format(count=1),
+                    lost_stats=ngettext(
+                        '{count} lost opportunity',
+                        '{count} lost opportunities',
+                        2
+                    ).format(count=2),
+                ),
             ],
             CurrentYearStatistics(Opportunity, Organisation)()
         )

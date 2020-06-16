@@ -95,29 +95,35 @@ class FieldConditionSelector(ChainedInput):
                                                 ),
                  )
 
-        pinput.add_dselect('^user(__null)?.({})$'.format(EQUALS_OPS),
-                           '{}?filter_type={}'.format(
-                               reverse('creme_core__efilter_user_choices'),
-                               self.filter_type,
-                           ),
-                           attrs=field_attrs,
-                          )
-        add_input('^fk(__null)?.({})$'.format(EQUALS_OPS),
-                  widget=EntitySelector, attrs={'auto': False},
-                  content_type='${field.ctype}',
-                 )
-        add_input('^date(__null)?.{}$'.format(operators.RANGE),
-                  widget=NullableDateRangeSelect, attrs={'auto': False},
-                 )
-        add_input('^date(__null)?.({})$'.format(EQUALS_OPS),
-                  widget=DynamicInput, type='date', attrs={'auto': False},
-                 )
-        add_input('^boolean(__null)?.*', widget=DynamicSelect,
-                  options=_BOOL_OPTIONS, attrs=field_attrs,
-                 )
-        add_input('(string|.*__null).({})$'.format(operators.ISEMPTY),
-                  widget=DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
-                 )
+        pinput.add_dselect(
+            '^user(__null)?.({})$'.format(EQUALS_OPS),
+            '{}?filter_type={}'.format(
+                reverse('creme_core__efilter_user_choices'),
+                self.filter_type,
+            ),
+            attrs=field_attrs,
+        )
+        add_input(
+            '^fk(__null)?.({})$'.format(EQUALS_OPS),
+            widget=EntitySelector, attrs={'auto': False},
+            content_type='${field.ctype}',
+        )
+        add_input(
+            '^date(__null)?.{}$'.format(operators.RANGE),
+            widget=NullableDateRangeSelect, attrs={'auto': False},
+        )
+        add_input(
+            '^date(__null)?.({})$'.format(EQUALS_OPS),
+            widget=DynamicInput, type='date', attrs={'auto': False},
+        )
+        add_input(
+            '^boolean(__null)?.*', widget=DynamicSelect,
+            options=_BOOL_OPTIONS, attrs=field_attrs,
+        )
+        add_input(
+            '(string|.*__null).({})$'.format(operators.ISEMPTY),
+            widget=DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
+        )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
 
         return pinput
@@ -196,16 +202,22 @@ class FieldConditionSelector(ChainedInput):
             field_attrs['autocomplete'] = True
 
         add_dselect = self.add_dselect
-        add_dselect('field',    options=self._build_fieldchoices(self.fields), attrs=field_attrs)
-        add_dselect('operator', options=self._build_operatorchoices(self.operators),
-                    attrs={
-                        **field_attrs,
-                        'filter': 'context.field && item.value ? '
-                                  'item.value.types.split(" ").indexOf(context.field.type) !== -1 : '
-                                  'true',
-                        'dependencies': 'field',
-                    },
-                   )
+        add_dselect(
+            'field',
+            options=self._build_fieldchoices(self.fields),
+            attrs=field_attrs,
+        )
+        add_dselect(
+            'operator',
+            options=self._build_operatorchoices(self.operators),
+            attrs={
+                **field_attrs,
+                'filter': 'context.field && item.value ? '
+                          'item.value.types.split(" ").indexOf(context.field.type) !== -1 : '
+                          'true',
+                'dependencies': 'field',
+            },
+        )
         self.add_input('value', self._build_valueinput(field_attrs), attrs=attrs)
 
         return super().get_context(name=name, value=value, attrs=attrs)

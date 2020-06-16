@@ -86,8 +86,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertFormError(
             response, 'form', 'types',
             _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                   'value': ptype01.id,
-               }
+                'value': ptype01.id,
+            }
         )
 
     def test_properties_brick(self):

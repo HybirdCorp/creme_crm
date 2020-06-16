@@ -35,15 +35,16 @@ from creme.creme_core.models import CremeEntity, CremeModel
 
 from .market_segment import MarketSegment
 
-__all__ = ('AbstractStrategy', 'Strategy',
-           'MarketSegmentDescription', 'MarketSegmentCategory',
-           'CommercialAsset', 'CommercialAssetScore',
-           'MarketSegmentCharm', 'MarketSegmentCharmScore',
-          )
+__all__ = (
+    'AbstractStrategy', 'Strategy',
+    'MarketSegmentDescription', 'MarketSegmentCategory',
+    'CommercialAsset', 'CommercialAssetScore',
+    'MarketSegmentCharm', 'MarketSegmentCharmScore',
+)
 
 _CATEGORY_MAP = {
-     0: 4,  # Weak charms   & weak assets
-     1: 2,  # Strong charms & weak assets
+    0:  4,  # Weak charms   & weak assets
+    1:  2,  # Strong charms & weak assets
     10: 3,  # Weak charms   & strong assets
     11: 1,  # Strong charms & strong assets
 }
@@ -341,11 +342,14 @@ class MarketSegmentDescription(CremeModel):
         verbose_name_plural = _('Market segment descriptions')
 
     def __repr__(self):
-        return f'MarketSegmentDescription(' \
-                    f'strategy_id={self.strategy_id}, ' \
-                    f'segment_id={self.segment_id}, ' \
-                    f'product={self.product}, place={self.place},' \
-                    f' price={self.price}, promotion={self.promotion})'
+        return (
+            f'MarketSegmentDescription('
+            f'strategy_id={self.strategy_id}, '
+            f'segment_id={self.segment_id}, '
+            f'product={self.product}, place={self.place}, '
+            f'price={self.price}, promotion={self.promotion}'
+            f')'
+        )
 
     def __str__(self):
         return self.segment.name
@@ -391,8 +395,14 @@ class CommercialAssetScore(CremeModel):
         app_label = 'commercial'
 
     def __str__(self):  # Debugging
-        return f'<AssetScore: orga={self.organisation} score={self.score} ' \
-                            f'segment={self.segment_desc} asset={self.asset}>'
+        return (
+            f'<AssetScore: '
+            f'orga={self.organisation} '
+            f'score={self.score} '
+            f'segment={self.segment_desc} '
+            f'asset={self.asset}'
+            f'>'
+        )
 
 
 class MarketSegmentCharm(CremeModel):
@@ -429,8 +439,14 @@ class MarketSegmentCharmScore(CremeModel):
         app_label = 'commercial'
 
     def __str__(self):  # Debugging
-        return f'<CharmScore: orga={self.organisation} score={self.score} ' \
-                            f'segment={self.segment_desc} charm={self.charm}>'
+        return (
+            f'<CharmScore: '
+            f'orga={self.organisation} '
+            f'score={self.score} '
+            f'segment={self.segment_desc} '
+            f'charm={self.charm}'
+            f'>'
+        )
 
 
 class MarketSegmentCategory(CremeModel):
@@ -443,5 +459,10 @@ class MarketSegmentCategory(CremeModel):
         app_label = 'commercial'
 
     def __str__(self):  # Debugging
-        return f'<MarketSegmentCategory: orga={self.organisation} cat={self.category} ' \
-                                       f'segment={self.segment_desc}>'
+        return (
+            f'<MarketSegmentCategory: '
+            f'orga={self.organisation} '
+            f'cat={self.category} '
+            f'segment={self.segment_desc}'
+            f'>'
+        )

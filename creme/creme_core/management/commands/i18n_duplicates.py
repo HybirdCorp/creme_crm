@@ -108,11 +108,12 @@ class Command(BaseCommand):
                 if len(entries_per_msg) == 1:
                     if not_diverging:
                         msg_entries = next(entries_per_msg.values())
-                        self.stdout.write('\n[duplicates] ({}) in {}'.format(
-                                                msgid,
-                                                [entry.file_path for entry in msg_entries],
-                                            )
-                                         )
+                        self.stdout.write(
+                            '\n[duplicates] ({}) in {}'.format(
+                                msgid,
+                                [entry.file_path for entry in msg_entries],
+                            )
+                        )
 
                         problems_count += 1
                 else:
@@ -134,13 +135,15 @@ class Command(BaseCommand):
                         self.stdout.write(f'\n[diverging]\n ({msgid}) in :')
 
                         for msgstr, msg_entries in entries_per_msg.items():
-                            self.stdout.write('    ({}) in: {}'.format(
-                                                    msgstr,
-                                                    ', '.join(f'(file={entry.file_path}, cxt={entry.msgctxt})'
-                                                                  for entry in msg_entries
-                                                             )
-                                                )
-                                             )
+                            self.stdout.write(
+                                '    ({}) in: {}'.format(
+                                    msgstr,
+                                    ', '.join(
+                                        f'(file={entry.file_path}, cxt={entry.msgctxt})'
+                                        for entry in msg_entries
+                                    )
+                                )
+                            )
 
                         problems_count += 1
 
