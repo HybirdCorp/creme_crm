@@ -850,7 +850,8 @@ class EntityFilterCondition(models.Model):
         is not used).
         """
         # key = lambda cond: (cond.type, cond.name, cond.decoded_value)
-        key = lambda cond: (cond.type, cond.name, cond.value)
+        def key(cond):
+            return cond.type, cond.name, cond.value
 
         return all(cond1 and cond2 and
                    cond1.type == cond2.type and

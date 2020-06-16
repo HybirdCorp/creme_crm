@@ -111,11 +111,15 @@ class SearchConfigItemManager(models.Manager):
         role_query = Q(role__isnull=True)
         if user.is_superuser:
             role_query |= Q(superuser=True)
-            filter_func = lambda sci: sci.superuser
+
+            def filter_func(sci):
+                return sci.superuser
         else:
             role = user.role
             role_query |= Q(role=role)
-            filter_func = lambda sci: sci.role == role
+
+            def filter_func(sci):
+                return sci.role == role
 
 # TODO: use a similar way if superuser is a role
 #       (PG does not return a cool result if we do a ".order_by('role', 'superuser')")

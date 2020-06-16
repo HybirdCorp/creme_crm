@@ -637,7 +637,9 @@ class ButtonMenuBrick(Brick):
         for bmi in ButtonMenuItem.objects.order_by('order'):
             buttons_map[bmi.content_type_id].append(bmi)
 
-        build_verbose_names = lambda bm_items: [str(bmi) for bmi in bm_items if bmi.button_id]
+        def build_verbose_names(bm_items):
+            return [str(bmi) for bmi in bm_items if bmi.button_id]
+
         default_buttons = build_verbose_names(buttons_map.pop(None, ()))
 
         get_ct = ContentType.objects.get_for_id

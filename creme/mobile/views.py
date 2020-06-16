@@ -139,24 +139,32 @@ def lw_ajax_exceptions(view):
 def portal(request):
     user = request.user
     now_val = localtime(now())
-    build_dt = lambda h, m, s: datetime(year=now_val.year, month=now_val.month, day=now_val.day,
-                                        hour=h, minute=m, second=s,
-                                        tzinfo=now_val.tzinfo,
-                                       )
+
+    def build_dt(h, m, s):
+        return datetime(
+            year=now_val.year, month=now_val.month, day=now_val.day,
+            hour=h, minute=m, second=s,
+            tzinfo=now_val.tzinfo,
+        )
 
     activities = EntityCredentials.filter(
-            user,
-            Activity.objects
-                    .filter(is_deleted=False,
-                            relations__type=act_constants.REL_OBJ_PART_2_ACTIVITY,
-                            relations__object_entity=user.linked_contact,
-                            start__range=(build_dt(0,  0,  0),
-                                          build_dt(23, 59, 59),
-                                         ),
-                           )
-                    .exclude(status__in=(act_constants.STATUS_DONE, act_constants.STATUS_CANCELLED))
-                    .order_by('start')
-        )
+        user,
+        Activity.objects
+                .filter(
+                    is_deleted=False,
+                    relations__type=act_constants.REL_OBJ_PART_2_ACTIVITY,
+                    relations__object_entity=user.linked_contact,
+                    start__range=(
+                        build_dt(0,  0,  0),
+                        build_dt(23, 59, 59),
+                    ),
+                ).exclude(
+                    status__in=(
+                        act_constants.STATUS_DONE,
+                        act_constants.STATUS_CANCELLED,
+                    ),
+                ).order_by('start')
+    )
 
     # TODO: an activity which starts before now, & ends before now too, with status != PROGRESS
     #       -> should it be displayed in this hot_activities (or in today_activities) ????
@@ -165,26 +173,30 @@ def portal(request):
     #     'today_activities' as we want (they are ordered by start, and NARROW
     #     activities which start at 0h00 will be in 'hot_activities').
     hot_activities, today_activities = split_filter(
-            lambda a: a.floating_type == act_constants.NARROW and
-                      (a.status_id == act_constants.STATUS_IN_PROGRESS or a.start < now_val),
-            activities
-        )
+        lambda a: a.floating_type == act_constants.NARROW and
+                  (a.status_id == act_constants.STATUS_IN_PROGRESS or a.start < now_val),
+        activities
+    )
     # TODO: populate participants (regroup queries for Relation + real entities) ??
 
-    used_worked_hours = frozenset(localtime(a.start).hour
-                                    for a in today_activities
-                                      if a.floating_type == act_constants.NARROW
-                                 )
-    shortcuts_map = [(hour, hour in used_worked_hours)
-                        for hour in range(WORKED_HOURS[0], WORKED_HOURS[1] + 1)
-                    ]
+    used_worked_hours = frozenset(
+        localtime(a.start).hour
+        for a in today_activities
+        if a.floating_type == act_constants.NARROW
+    )
+    shortcuts_map = [
+        (hour, hour in used_worked_hours)
+        for hour in range(WORKED_HOURS[0], WORKED_HOURS[1] + 1)
+    ]
 
-    return render(request, 'mobile/index.html',
-                  {'hot_activities':    hot_activities,
-                   'today_activities':  today_activities,
-                   'shortcuts_map':     shortcuts_map,
-                  }
-                 )
+    return render(
+        request, 'mobile/index.html',
+        {
+            'hot_activities':    hot_activities,
+            'today_activities':  today_activities,
+            'shortcuts_map':     shortcuts_map,
+        },
+    )
 
 
 @lw_exceptions
@@ -369,16 +381,17 @@ def activities_portal(request):
         floating_count = floating_qs.count()
 
     tomorrow = localtime(now_val + timedelta(days=1))
-    build_dt = lambda h, m, s: datetime(
-        year=tomorrow.year, month=tomorrow.month, day=tomorrow.day,
-        hour=h, minute=m, second=s,
-        tzinfo=tomorrow.tzinfo,
-    )
+
+    def build_dt(h, m, s):
+        return datetime(
+            year=tomorrow.year, month=tomorrow.month, day=tomorrow.day,
+            hour=h, minute=m, second=s,
+            tzinfo=tomorrow.tzinfo,
+        )
     tomorrow_act = cred_filter(
-        activities.filter(start__range=(build_dt(0,  0,  0),
-                                        build_dt(23, 59, 59),
-                                       ),
-                         )
+        activities.filter(
+            start__range=(build_dt(0,  0,  0), build_dt(23, 59, 59)),
+        )
     )
 
     # TODO: populate participants (regroup queries for Relation + real entities) ??

@@ -270,7 +270,7 @@ class EqualsNotOperator(EqualsOperator):
 # TODO: several values are stupid here
 class NumericOperatorBase(ConditionOperator):
     allowed_fieldtypes = FIELDTYPES_ORDERABLE
-    operator = lambda a, b: False
+    operator = operator.eq  # NB: not used, overridden in children.
 
     def _accept_value(self, *, field_value, value):
         return False if field_value is None else self.operator(field_value, value)

@@ -84,9 +84,10 @@ class ActionsTestCase(CremeTestCase):
         self.registry = ActionsRegistry()
 
     def assertSortedActions(self, expected_classes, actions):
-        key = lambda a: a.id or ''
+        def key(a):
+            return a.id or ''
 
-        self.assertEqual(
+        self.assertListEqual(
             sorted(expected_classes, key=key),
             sorted((a.__class__ for a in actions), key=key)
         )

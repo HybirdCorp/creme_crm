@@ -482,7 +482,8 @@ class _CremeTestCase:
         )
 
     def assertSameProperties(self, entity1, entity2):
-        properties_desc = lambda entity: [*entity.properties.values_list('type', flat=True)]
+        def properties_desc(entity):
+            return [*entity.properties.values_list('type', flat=True)]
 
         pd1 = properties_desc(entity1)
         pd2 = properties_desc(entity2)

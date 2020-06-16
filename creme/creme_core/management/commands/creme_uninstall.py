@@ -291,9 +291,11 @@ class Command(AppCommand):
                     ))
 
                 if issubclass(model, CremeEntity):
-                    pre_delete = lambda i: i.relations.filter(type__is_internal=False).delete()
+                    def pre_delete(i):
+                        i.relations.filter(type__is_internal=False).delete()
                 else:
-                    pre_delete = lambda i: None
+                    def pre_delete(i):
+                        pass
 
                 local_errors = False
 

@@ -391,8 +391,11 @@ class VcfImportForm(CremeModelForm):
 
         return cleaned
 
-    clean_work_name = lambda self: self._clean_orga_field('work_name')
-    clean_relation  = lambda self: self._clean_orga_field('relation')
+    def clean_work_name(self):
+        return self._clean_orga_field('work_name')
+
+    def clean_relation(self):
+        return self._clean_orga_field('relation')
 
     def _clean_update_checkbox(self, checkbox_name):
         cleaned_data = self.cleaned_data
@@ -410,12 +413,23 @@ class VcfImportForm(CremeModelForm):
 
         return checked
 
-    clean_update_work_name     = lambda self: self._clean_update_checkbox('update_work_name')
-    clean_update_work_phone    = lambda self: self._clean_update_checkbox('update_work_phone')
-    clean_update_work_email    = lambda self: self._clean_update_checkbox('update_work_email')
-    clean_update_work_fax      = lambda self: self._clean_update_checkbox('update_work_fax')
-    clean_update_work_url_site = lambda self: self._clean_update_checkbox('update_work_url_site')
-    clean_update_work_address  = lambda self: self._clean_update_checkbox('update_work_address')
+    def clean_update_work_name(self):
+        return self._clean_update_checkbox('update_work_name')
+
+    def clean_update_work_phone(self):
+        return self._clean_update_checkbox('update_work_phone')
+
+    def clean_update_work_email(self):
+        return self._clean_update_checkbox('update_work_email')
+
+    def clean_update_work_fax(self):
+        return self._clean_update_checkbox('update_work_fax')
+
+    def clean_update_work_url_site(self):
+        return self._clean_update_checkbox('update_work_url_site')
+
+    def clean_update_work_address(self):
+        return self._clean_update_checkbox('update_work_address')
 
     def clean_update_field(self, field_name):
         cleaned_data = self.cleaned_data
@@ -427,11 +441,20 @@ class VcfImportForm(CremeModelForm):
 
         return value
 
-    clean_work_phone    = lambda self: self.clean_update_field('work_phone')
-    clean_work_email    = lambda self: self.clean_update_field('work_email')
-    clean_work_fax      = lambda self: self.clean_update_field('work_fax')
-    clean_work_url_site = lambda self: self.clean_update_field('work_url_site')
-    clean_work_address  = lambda self: self.clean_update_field('work_address')
+    def clean_work_phone(self):
+        return self.clean_update_field('work_phone')
+
+    def clean_work_email(self):
+        return self.clean_update_field('work_email')
+
+    def clean_work_fax(self):
+        return self.clean_update_field('work_fax')
+
+    def clean_work_url_site(self):
+        return self.clean_update_field('work_url_site')
+
+    def clean_work_address(self):
+        return self.clean_update_field('work_address')
 
     def _create_contact(self, cleaned_data):
         get_data = cleaned_data.get
