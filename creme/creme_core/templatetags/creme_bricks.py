@@ -878,6 +878,8 @@ _DISPLAY_METHODS = {
     'detail': 'detailview_display',
     'home':   'home_display',
 }
+
+
 @register.simple_tag(takes_context=True)
 def brick_display(context, *bricks, **kwargs):
     """ Display some Brick instances.

@@ -113,6 +113,7 @@ _log_levels = {
     'DEBUG':    logging.DEBUG,
 }
 
+
 @register.simple_tag
 def log(msg, level='INFO'):
     logger.log(_log_levels.get(level, logging.INFO), msg)
@@ -610,6 +611,7 @@ def do_jsondata(parser, token):
     parser.delete_first_token()
     kwargs = token_kwargs(token.split_contents()[1:], parser)
     return JsonScriptNode(nodelist, kwargs)
+
 
 class JsonScriptNode(TemplateNode):
     def __init__(self, nodelist, kwargs):

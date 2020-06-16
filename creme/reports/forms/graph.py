@@ -77,6 +77,7 @@ from ..report_chart_registry import report_chart_registry
 #
 #         return super().get_context(name=name, value=value, attrs=extra_args)
 
+
 class AbscissaWidget(ChainedInput):
     cell_groups: List[Type[EntityCell]] = [
         EntityCellRegularField,

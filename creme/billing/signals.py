@@ -84,6 +84,7 @@ STATUSES_REPLACEMENTS = {
     billing.get_sales_order_model(): 'status',
 }
 
+
 @receiver(core_signals.pre_replace_and_delete)
 def handle_replace_statuses(sender, model_field, replacing_instance, **kwargs):
     model = model_field.model

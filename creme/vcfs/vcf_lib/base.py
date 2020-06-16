@@ -1004,6 +1004,7 @@ def readOne(stream, validate=False, transform=True, findBegin=True,
                               )
                )
 
+
 # -------------------------- version registry ----------------------------------
 
 class BehaviorRegistry:

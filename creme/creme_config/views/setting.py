@@ -26,8 +26,8 @@ from creme.creme_core.views.generic import CremeModelEditionPopup
 
 from ..forms.setting import SettingForm
 
-# TODO: move to generic_views.py ??
 
+# TODO: move to generic_views.py ??
 class SettingValueEdition(CremeModelEditionPopup):
     model = SettingValue
     form_class = SettingForm

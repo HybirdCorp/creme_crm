@@ -40,6 +40,7 @@ from faker.config import AVAILABLE_LOCALES
 
 # Move to creme_core.utils ? ---------------------------------------------------
 
+
 @contextmanager
 def print_time(name='TIME', mute=False):
     start = time()

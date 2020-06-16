@@ -6,6 +6,7 @@ from .utils import stringToTextValues
 
 # ------------------------ vCard structs ---------------------------------------
 
+
 class Name:
     def __init__(self, family='', given='', additional='', prefix='', suffix=''):
         """Each name attribute can be a string or a list of strings."""
