@@ -1,27 +1,29 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (
-        Relation, RelationType,
-        SetCredentials,
-        ButtonMenuItem,
-        FieldsConfig,
-    )
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import (
+    ButtonMenuItem,
+    FieldsConfig,
+    Relation,
+    RelationType,
+    SetCredentials,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.persons.constants import REL_OBJ_EMPLOYED_BY
+from creme.persons.models import Civility
+from creme.vcfs.buttons import GenerateVcfButton
 
-    from creme.persons.models import Civility
-    from creme.persons.constants import REL_OBJ_EMPLOYED_BY
-
-    from creme.vcfs.buttons import GenerateVcfButton
-
-    from .base import (Address, Contact, Organisation,
-        skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import (
+    Address,
+    Contact,
+    Organisation,
+    skipIfCustomAddress,
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
 
 @skipIfCustomContact

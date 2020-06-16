@@ -29,13 +29,12 @@ class EmailsConfig(CremeAppConfig):
     dependencies = ['creme.persons', 'creme.documents']
 
     def all_apps_ready(self):
-        from . import (get_emailcampaign_model, get_entityemail_model,
-                get_emailtemplate_model, get_mailinglist_model)
+        from creme import emails
 
-        self.EmailCampaign = get_emailcampaign_model()
-        self.EmailTemplate = get_emailtemplate_model()
-        self.EntityEmail   = get_entityemail_model()
-        self.MailingList   = get_mailinglist_model()
+        self.EmailCampaign = emails.get_emailcampaign_model()
+        self.EmailTemplate = emails.get_emailtemplate_model()
+        self.EntityEmail   = emails.get_entityemail_model()
+        self.MailingList   = emails.get_mailinglist_model()
         super().all_apps_ready()
 
         from . import signals  # NOQA

@@ -1,34 +1,36 @@
 # -*- coding: utf-8 -*-
 
-skip_graph_tests = False
-skip_graphviz_tests = False
+from functools import partial
+from os.path import basename, dirname, exists, join
+from unittest import skipIf
 
-try:
-    from functools import partial
-    from os.path import basename, dirname, exists, join
-    from unittest import skipIf
+from django.conf import settings
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from django.conf import settings
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import (
+    FakeContact,
+    FakeOrganisation,
+    FileRef,
+    Relation,
+    RelationType,
+    SetCredentials,
+)
+from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (RelationType, Relation, FileRef, SetCredentials,
-        FakeContact, FakeOrganisation)
+from . import get_graph_model, graph_model_is_custom
+from .models import RootNode
 
-    from . import graph_model_is_custom, get_graph_model
-    from .models import RootNode
-
-    skip_graph_tests = graph_model_is_custom()
-    Graph = get_graph_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+skip_graph_tests = graph_model_is_custom()
+Graph = get_graph_model()
 
 try:
     import pygraphviz  # NOQA
 except ImportError:
     skip_graphviz_tests = True
+else:
+    skip_graphviz_tests = False
 
 
 def skipIfCustomGraph(test_func):

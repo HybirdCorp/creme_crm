@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.db.transaction import atomic
+from django.db.transaction import atomic
 
-    from ..base import CremeTransactionTestCase
-    from creme.creme_core.models.lock import (Mutex, MutexLockedException,
-        MutexNotLockedException, MutexAutoLock)  # mutex_autolock
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.models.lock import (
+    Mutex,
+    MutexAutoLock,
+    MutexLockedException,
+    MutexNotLockedException,
+)
+
+from ..base import CremeTransactionTestCase
 
 
 class MutexTestCase(CremeTransactionTestCase):

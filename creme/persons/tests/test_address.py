@@ -1,26 +1,33 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models.query_utils import Q
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.query_utils import Q
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.core.entity_cell import EntityCellRegularField
-    from creme.creme_core.forms import listview as lv_form
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    from creme.creme_core.models import FieldsConfig
-    from creme.creme_core.models.history import HistoryLine, TYPE_CREATION, TYPE_AUX_CREATION
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.forms import listview as lv_form
+from creme.creme_core.models import FieldsConfig
+from creme.creme_core.models.history import (
+    TYPE_AUX_CREATION,
+    TYPE_CREATION,
+    HistoryLine,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
-    from .base import (skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation,
-            Address, Organisation, Contact)
-    from ..bricks import PrettyOtherAddressesBrick
-    from ..forms.listview import AddressFKField
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import PrettyOtherAddressesBrick
+from ..forms.listview import AddressFKField
+from .base import (
+    Address,
+    Contact,
+    Organisation,
+    skipIfCustomAddress,
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
 
 @skipIfCustomAddress

@@ -88,9 +88,7 @@ class QuerySorterTestCase(CremeTestCase):
       Fields:
         (empty)
   [EntityCellFunctionField.type_id="function_field"]:
-    FunctionFieldSorterRegistry""",
-            ps
-        )
+    FunctionFieldSorterRegistry""", ps)
 
     def test_regularfield_default_oneorder_01(self):
         "Ordering: natural ordering key."
@@ -594,9 +592,9 @@ class QuerySorterTestCase(CremeTestCase):
         build_cell = partial(EntityCellRegularField.build, model=FakeInvoice)
         cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
-        sortinfo = sorter.get(model=FakeInvoice, cells=cells,
-                             cell_key=cells[1].key, order=Order(),
-                            )
+        sortinfo = sorter.get(
+            model=FakeInvoice, cells=cells, cell_key=cells[1].key, order=Order(),
+        )
         self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo.field_names)
         self.assertEqual(cells[0].key, sortinfo.main_cell_key)
         self.assertTrue(sortinfo.main_order.asc)

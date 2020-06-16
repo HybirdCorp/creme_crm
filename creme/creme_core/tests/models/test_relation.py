@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 
-    from ..base import CremeTestCase
+from creme.creme_core.models import (
+    CremeEntity,
+    FakeContact,
+    FakeOrganisation,
+    Relation,
+    RelationType,
+)
+from creme.creme_core.utils.profiling import CaptureQueriesContext
 
-    from creme.creme_core.models import (CremeEntity, RelationType, Relation,
-            FakeContact, FakeOrganisation)
-    from creme.creme_core.utils.profiling import CaptureQueriesContext
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class RelationsTestCase(CremeTestCase):

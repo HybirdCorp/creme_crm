@@ -1,15 +1,29 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from dateutil.rrule import rrule, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY
+from dateutil.rrule import (
+    DAILY,
+    HOURLY,
+    MINUTELY,
+    MONTHLY,
+    WEEKLY,
+    YEARLY,
+    rrule,
+)
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from django.utils.translation import gettext as _, ngettext
+from creme.creme_core.utils.date_period import (
+    DatePeriodRegistry,
+    DaysPeriod,
+    HoursPeriod,
+    MinutesPeriod,
+    MonthsPeriod,
+    WeeksPeriod,
+    YearsPeriod,
+    date_period_registry,
+)
 
-    from ..base import CremeTestCase
-    from creme.creme_core.utils.date_period import (DatePeriodRegistry, date_period_registry,
-        MinutesPeriod, HoursPeriod, DaysPeriod, WeeksPeriod, MonthsPeriod, YearsPeriod)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class DatePeriodTestCase(CremeTestCase):

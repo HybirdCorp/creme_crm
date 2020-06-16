@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    import json
+import json
+from functools import partial
 
-    from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.core.setting_key import (SettingKey, UserSettingKey,
-           setting_key_registry, user_setting_key_registry)
-    from creme.creme_core.models import SettingValue
-    from creme.creme_core.utils import bool_as_html
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.core.setting_key import (
+    SettingKey,
+    UserSettingKey,
+    setting_key_registry,
+    user_setting_key_registry,
+)
+from creme.creme_core.models import SettingValue
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.utils import bool_as_html
 
 
 class SettingValueTestCase(CremeTestCase):

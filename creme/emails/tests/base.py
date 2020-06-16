@@ -1,37 +1,34 @@
 # -*- coding: utf-8 -*-
 
-skip_emailcampaign_tests = False
-skip_emailtemplate_tests = False
-skip_entityemail_tests   = False
-skip_mailinglist_tests   = False
+from functools import partial
+from unittest import skipIf
 
-try:
-    from functools import partial
-    from unittest import skipIf
+from django.urls import reverse
 
-    from django.urls import reverse
+from creme import documents, persons
+from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.creme_core.tests.base import CremeTestCase
+from .. import (
+    emailcampaign_model_is_custom,
+    emailtemplate_model_is_custom,
+    entityemail_model_is_custom,
+    get_emailcampaign_model,
+    get_emailtemplate_model,
+    get_entityemail_model,
+    get_mailinglist_model,
+    mailinglist_model_is_custom,
+)
+from ..constants import MAIL_STATUS_NOTSENT
 
-    from creme import documents, persons
+skip_emailcampaign_tests = emailcampaign_model_is_custom()
+skip_emailtemplate_tests = emailtemplate_model_is_custom()
+skip_entityemail_tests   = entityemail_model_is_custom()
+skip_mailinglist_tests   = mailinglist_model_is_custom()
 
-    from .. import (emailcampaign_model_is_custom, emailtemplate_model_is_custom,
-            entityemail_model_is_custom, mailinglist_model_is_custom,
-            get_emailcampaign_model, get_entityemail_model,
-            get_emailtemplate_model, get_mailinglist_model)
-    from ..constants import MAIL_STATUS_NOTSENT
-
-    skip_emailcampaign_tests = emailcampaign_model_is_custom()
-    skip_emailtemplate_tests = emailtemplate_model_is_custom()
-    skip_entityemail_tests   = entityemail_model_is_custom()
-    skip_mailinglist_tests   = mailinglist_model_is_custom()
-
-    EmailCampaign = get_emailcampaign_model()
-    EntityEmail   = get_entityemail_model()
-    MailingList   = get_mailinglist_model()
-    EmailTemplate = get_emailtemplate_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+EmailCampaign = get_emailcampaign_model()
+EntityEmail   = get_entityemail_model()
+MailingList   = get_mailinglist_model()
+EmailTemplate = get_emailtemplate_model()
 
 Folder   = documents.get_folder_model()
 Document = documents.get_document_model()

@@ -233,8 +233,8 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
                                           creation_allowed=True,
                                          )
         name = 'test'
-        expected = \
-'''<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
+        expected = '''
+<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
         widget="ui-creme-actionbuttonlist">
     <li class="delegate">
         <select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" name="{name}" url=""

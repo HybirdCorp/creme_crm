@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
 
-skip_pollcampaign_tests = False
-skip_pollform_tests = False
-skip_pollreply_tests = False
+from unittest import skipIf
 
-try:
-    from unittest import skipIf
+from django.urls import reverse
 
-    from django.urls import reverse
+from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.creme_core.tests.base import CremeTestCase
+from .. import (
+    get_pollcampaign_model,
+    get_pollform_model,
+    get_pollreply_model,
+    pollcampaign_model_is_custom,
+    pollform_model_is_custom,
+    pollreply_model_is_custom,
+)
+from ..core import PollLineType
+from ..models import PollFormLine
 
-    from .. import (pollcampaign_model_is_custom, pollform_model_is_custom,
-            pollreply_model_is_custom, get_pollform_model,
-            get_pollreply_model, get_pollcampaign_model)
-    from ..core import PollLineType
-    from ..models import PollFormLine
+skip_pollcampaign_tests = pollcampaign_model_is_custom()
+skip_pollform_tests = pollform_model_is_custom()
+skip_pollreply_tests = pollreply_model_is_custom()
 
-    skip_pollcampaign_tests = pollcampaign_model_is_custom()
-    skip_pollform_tests = pollform_model_is_custom()
-    skip_pollreply_tests = pollreply_model_is_custom()
-
-    PollCampaign = get_pollcampaign_model()
-    PollForm     = get_pollform_model()
-    PollReply    = get_pollreply_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+PollCampaign = get_pollcampaign_model()
+PollForm     = get_pollform_model()
+PollReply    = get_pollreply_model()
 
 
 def skipIfCustomPollCampaign(test_func):

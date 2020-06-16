@@ -12,33 +12,65 @@ from .views import contact, opportunity
 urlpatterns = [
     *swap_manager.add_group(
         opportunity_model_is_custom,
-        Swappable(re_path(r'^opportunities[/]?$',   opportunity.OpportunitiesList.as_view(),   name='opportunities__list_opportunities')),
-        Swappable(re_path(r'^opportunity/add[/]?$', opportunity.OpportunityCreation.as_view(), name='opportunities__create_opportunity')),
-        Swappable(re_path(r'^opportunity/add_to/(?P<person_id>\d+)[/]?$',
-                      opportunity.RelatedOpportunityCreation.as_view(),
-                      name='opportunities__create_related_opportunity',
-                     ),
-                  check_args=Swappable.INT_ID,
-                 ),
-        Swappable(re_path(r'^opportunity/add_to/(?P<person_id>\d+)/popup[/]?$',
-                      opportunity.RelatedOpportunityCreationPopup.as_view(),
-                      name='opportunities__create_related_opportunity_popup',
-                     ),
-                  check_args=Swappable.INT_ID,
-                 ),
-        Swappable(re_path(r'^opportunity/edit/(?P<opp_id>\d+)[/]?$', opportunity.OpportunityEdition.as_view(), name='opportunities__edit_opportunity'), check_args=Swappable.INT_ID),
-        Swappable(re_path(r'^opportunity/(?P<opp_id>\d+)[/]?$',      opportunity.OpportunityDetail.as_view(),  name='opportunities__view_opportunity'), check_args=Swappable.INT_ID),
+        Swappable(
+            re_path(
+                r'^opportunities[/]?$',
+                opportunity.OpportunitiesList.as_view(),
+                name='opportunities__list_opportunities',
+            ),
+        ),
+        Swappable(
+            re_path(
+                r'^opportunity/add[/]?$',
+                opportunity.OpportunityCreation.as_view(),
+                name='opportunities__create_opportunity',
+            ),
+        ),
+        Swappable(
+            re_path(
+                r'^opportunity/add_to/(?P<person_id>\d+)[/]?$',
+                opportunity.RelatedOpportunityCreation.as_view(),
+                name='opportunities__create_related_opportunity',
+            ),
+            check_args=Swappable.INT_ID,
+        ),
+        Swappable(
+            re_path(
+                r'^opportunity/add_to/(?P<person_id>\d+)/popup[/]?$',
+                opportunity.RelatedOpportunityCreationPopup.as_view(),
+                name='opportunities__create_related_opportunity_popup',
+            ),
+            check_args=Swappable.INT_ID,
+        ),
+        Swappable(
+            re_path(
+                r'^opportunity/edit/(?P<opp_id>\d+)[/]?$',
+                opportunity.OpportunityEdition.as_view(),
+                name='opportunities__edit_opportunity',
+            ),
+            check_args=Swappable.INT_ID,
+        ),
+        Swappable(
+            re_path(
+                r'^opportunity/(?P<opp_id>\d+)[/]?$',
+                opportunity.OpportunityDetail.as_view(),
+                name='opportunities__view_opportunity',
+            ),
+            check_args=Swappable.INT_ID,
+        ),
         app_name='opportunities',
     ).kept_patterns(),
 
     *swap_manager.add_group(
         contact_model_is_custom,
-        Swappable(re_path(r'^opportunity/(?P<opp_id>\d+)/add_contact[/]?$',
-                          contact.RelatedContactCreation.as_view(),
-                          name='opportunities__create_related_contact',
-                         ),
-                  check_args=Swappable.INT_ID,
-                 ),
+        Swappable(
+            re_path(
+                r'^opportunity/(?P<opp_id>\d+)/add_contact[/]?$',
+                contact.RelatedContactCreation.as_view(),
+                name='opportunities__create_related_contact',
+            ),
+            check_args=Swappable.INT_ID,
+        ),
         app_name='opportunities',
     ).kept_patterns(),
 ]

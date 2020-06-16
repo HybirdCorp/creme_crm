@@ -1,16 +1,25 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.contrib.contenttypes.models import ContentType
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.core.deletion import FixedValueReplacer, SETReplacer, REPLACERS_MAP
-    from creme.creme_core.models import (FakeContact, FakeOrganisation, FakeCivility,
-        FakeSector, FakeTicketPriority, FakeTicket, FakeDocumentCategory, FakeDocument)
+from creme.creme_core.core.deletion import (
+    REPLACERS_MAP,
+    FixedValueReplacer,
+    SETReplacer,
+)
+from creme.creme_core.models import (
+    FakeCivility,
+    FakeContact,
+    FakeDocument,
+    FakeDocumentCategory,
+    FakeOrganisation,
+    FakeSector,
+    FakeTicket,
+    FakeTicketPriority,
+)
 
-    from ..base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class DeletionTestCase(CremeTestCase):

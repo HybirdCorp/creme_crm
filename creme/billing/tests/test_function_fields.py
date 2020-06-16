@@ -1,28 +1,35 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date, timedelta
-    from functools import partial
+from datetime import date, timedelta
+from functools import partial
 
-    from django.conf import settings
-    from django.utils.formats import number_format
-    from django.utils.translation import gettext as _
+from django.conf import settings
+from django.utils.formats import number_format
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_cell import EntityCellFunctionField
-    from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.models import FieldsConfig, SetCredentials
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_cell import EntityCellFunctionField
+from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.models import FieldsConfig, SetCredentials
+from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from creme.persons.tests.base import skipIfCustomOrganisation
-
-    from ..function_fields import (get_total_pending,
-            get_total_won_quote_last_year, get_total_won_quote_this_year)
-    from ..models import QuoteStatus, InvoiceStatus
-    from .base import (_BillingTestCase, skipIfCustomProductLine,
-            skipIfCustomQuote, skipIfCustomInvoice,
-            Organisation, Contact, Quote, Invoice, ProductLine)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..function_fields import (
+    get_total_pending,
+    get_total_won_quote_last_year,
+    get_total_won_quote_this_year,
+)
+from ..models import InvoiceStatus, QuoteStatus
+from .base import (
+    Contact,
+    Invoice,
+    Organisation,
+    ProductLine,
+    Quote,
+    _BillingTestCase,
+    skipIfCustomInvoice,
+    skipIfCustomProductLine,
+    skipIfCustomQuote,
+)
 
 
 @skipIfCustomOrganisation

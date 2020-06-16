@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from datetime import date
+from datetime import date
+from functools import partial
 
-    from django.core.serializers.base import SerializationError
-    from django.db.models import Q
+from django.core.serializers.base import SerializationError
+from django.db.models import Q
 
-    from ..base import CremeTestCase
-    from ..fake_models import (FakeCivility, FakeContact,
-           FakeOrganisation, FakePosition, FakeActivity, FakeActivityType)
-    from creme.creme_core.utils.queries import QSerializer
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.utils.queries import QSerializer
+
+from ..base import CremeTestCase
+from ..fake_models import (
+    FakeActivity,
+    FakeActivityType,
+    FakeCivility,
+    FakeContact,
+    FakeOrganisation,
+    FakePosition,
+)
 
 
 class QueriesTestCase(CremeTestCase):

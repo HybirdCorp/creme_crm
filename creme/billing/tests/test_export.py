@@ -1,26 +1,30 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from decimal import Decimal
-    from functools import partial
-    from os.path import basename, dirname, exists, join
-    from shutil import which
-    from unittest import skipIf
+from decimal import Decimal
+from functools import partial
+from os.path import basename, dirname, exists, join
+from shutil import which
+from unittest import skipIf
 
-    from django.conf import settings
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.conf import settings
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import SetCredentials, FileRef
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import FileRef, SetCredentials
+from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from creme.persons.tests.base import skipIfCustomOrganisation
-
-    from .base import (_BillingTestCase, skipIfCustomInvoice, skipIfCustomQuote,
-            skipIfCustomProductLine, skipIfCustomServiceLine, Organisation,
-            Invoice, ProductLine, ServiceLine)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import (
+    Invoice,
+    Organisation,
+    ProductLine,
+    ServiceLine,
+    _BillingTestCase,
+    skipIfCustomInvoice,
+    skipIfCustomProductLine,
+    skipIfCustomQuote,
+    skipIfCustomServiceLine,
+)
 
 
 @skipIfCustomOrganisation

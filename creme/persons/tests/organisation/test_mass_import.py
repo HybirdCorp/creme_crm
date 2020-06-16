@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.utils.translation import gettext as _, ngettext
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
-    from creme.creme_core.models import FieldsConfig
+from creme.creme_core.models import FieldsConfig
+from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 
-    from ..base import (_BaseTestCase, skipIfCustomAddress,
-            skipIfCustomOrganisation, Organisation, Address)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import (
+    Address,
+    Organisation,
+    _BaseTestCase,
+    skipIfCustomAddress,
+    skipIfCustomOrganisation,
+)
 
 
 @skipIfCustomOrganisation

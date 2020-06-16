@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _
 
-    from ..base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
-            Contact, Address)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import (
+    Address,
+    Contact,
+    _BaseTestCase,
+    skipIfCustomAddress,
+    skipIfCustomContact,
+)
 
 
 @skipIfCustomContact

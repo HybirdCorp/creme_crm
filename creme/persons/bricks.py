@@ -292,7 +292,8 @@ class ManagersBrick(QuerysetBrick):
         orga = context['object']
         is_hidden = context['fields_configs'].get_4_model(Contact).is_fieldname_hidden
 
-        return self._render(self.get_template_context(context,
+        return self._render(self.get_template_context(
+            context,
             self._get_people_qs(orga).select_related('civility'),
             rtype_id=self.relation_type_deps[0],
             add_title=self._get_add_title(),

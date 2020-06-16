@@ -1,19 +1,26 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.auth import get_user_model
-    from django.db import models
-    from django.utils import translation
-    from django.utils.translation import gettext as _
+from django.contrib.auth import get_user_model
+from django.db import models
+from django.utils import translation
+from django.utils.translation import gettext as _
 
-    from ..base import CremeTestCase
-    from creme.creme_core.models import (CremePropertyType, CremeProperty, CremeEntity, Language,
-            FakeContact, FakeOrganisation, FakeImage, FakeEmailCampaign, FakeActivity)
-    from creme.creme_core.utils import meta
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeProperty,
+    CremePropertyType,
+    FakeActivity,
+    FakeContact,
+    FakeEmailCampaign,
+    FakeImage,
+    FakeOrganisation,
+    Language,
+)
+from creme.creme_core.utils import meta
+
+from ..base import CremeTestCase
 
 
 class MiscTestCase(CremeTestCase):

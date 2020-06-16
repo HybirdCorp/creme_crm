@@ -1,47 +1,53 @@
 # -*- coding: utf-8 -*-
 
-skip_projects_tests = False
-skip_tasks_tests = False
+from functools import partial
+from json import dumps as json_dump
+from unittest import skipIf
 
-try:
-    from functools import partial
-    from json import dumps as json_dump
-    from unittest import skipIf
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.formats import date_format
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.formats import date_format
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from creme.activities.constants import (
+    ACTIVITYSUBTYPE_MEETING_MEETING,
+    ACTIVITYTYPE_MEETING,
+    ACTIVITYTYPE_TASK,
+    NARROW,
+    REL_SUB_PART_2_ACTIVITY,
+)
+from creme.activities.models import Activity, Calendar
+from creme.activities.tests.base import skipIfCustomActivity
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.gui import actions
+from creme.creme_core.models import Currency, SetCredentials
+from creme.creme_core.tests.base import CremeTestCase
+from creme.persons.models import Contact
+from creme.persons.tests.base import skipIfCustomContact
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.models import SetCredentials, Currency
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui import actions
+from . import (
+    get_project_model,
+    get_task_model,
+    project_model_is_custom,
+    task_model_is_custom,
+)
+from .actions import ProjectCloseAction
+from .constants import (
+    COMPLETED_PK,
+    NOT_STARTED_PK,
+    REL_OBJ_PROJECT_MANAGER,
+    REL_SUB_LINKED_2_PTASK,
+    REL_SUB_PART_AS_RESOURCE,
+    REL_SUB_PROJECT_MANAGER,
+)
+from .models import ProjectStatus, Resource, TaskStatus
 
-    from creme.persons.models import Contact
-    from creme.persons.tests.base import skipIfCustomContact
+skip_projects_tests = project_model_is_custom()
+skip_tasks_tests = task_model_is_custom()
 
-    from creme.activities.constants import (NARROW, REL_SUB_PART_2_ACTIVITY,
-            ACTIVITYTYPE_TASK, ACTIVITYTYPE_MEETING,
-            ACTIVITYSUBTYPE_MEETING_MEETING)
-    from creme.activities.models import Activity, Calendar
-    from creme.activities.tests.base import skipIfCustomActivity
-
-    from . import (project_model_is_custom, task_model_is_custom,
-            get_project_model, get_task_model)
-    from .actions import ProjectCloseAction
-    from .models import ProjectStatus, TaskStatus, Resource
-    from .constants import (NOT_STARTED_PK, COMPLETED_PK, REL_SUB_PROJECT_MANAGER,
-            REL_OBJ_PROJECT_MANAGER, REL_SUB_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE)
-
-    skip_projects_tests = project_model_is_custom()
-    skip_tasks_tests = task_model_is_custom()
-
-    Project = get_project_model()
-    ProjectTask = get_task_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+Project = get_project_model()
+ProjectTask = get_task_model()
 
 
 def skipIfCustomProject(test_func):
