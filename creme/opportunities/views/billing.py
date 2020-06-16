@@ -236,15 +236,18 @@ class RelatedObjectsSelectionPopup(RelationsObjectsSelectionPopup):
             models = self.model._meta.verbose_name_plural
             opp = self.get_related_entity()
 
-            return _('List of {models} issued by {emitter} and received by {target}').format(
-                        models=models,
-                        target=opp.target,
-                        emitter=opp.emitter,
-                   ) if same_emitter else \
-                   _('List of {models} received by {target}').format(
-                        models=models,
-                        target=opp.target,
-                   )
+            return (
+                _('List of {models} issued by {emitter} and received by {target}').format(
+                    models=models,
+                    target=opp.target,
+                    emitter=opp.emitter,
+                )
+                if same_emitter else
+                _('List of {models} received by {target}').format(
+                    models=models,
+                    target=opp.target,
+                )
+            )
         elif same_emitter:
             return _('List of {models} issued by {emitter}').format(
                 models=self.model._meta.verbose_name_plural,

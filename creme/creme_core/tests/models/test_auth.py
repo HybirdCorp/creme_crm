@@ -564,8 +564,8 @@ class CredentialsTestCase(CremeTestCase):
             users=[user],
             set_creds=[
                 SetCredentials(
-                      value=EntityCredentials.CHANGE | EntityCredentials.DELETE,
-                      set_type=SetCredentials.ESET_OWN,
+                    value=EntityCredentials.CHANGE | EntityCredentials.DELETE,
+                    set_type=SetCredentials.ESET_OWN,
                 ),
             ],
         )
@@ -926,7 +926,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(user.has_perm_to_view(self.contact2))
 
         self.assertFalse(EntityCredentials.filter(user, self._build_contact_qs(), perm=VIEW))
-        self.assertFalse(EntityCredentials.filter_entities(
+        self.assertFalse(
+            EntityCredentials.filter_entities(
                 user=user, perm=VIEW,
                 queryset=CremeEntity.objects.filter(id__in=[contact1.id, contact2.id]),
             )
@@ -1120,7 +1121,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions([
+        efilter.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -1176,7 +1178,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions([
+        efilter.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -1230,7 +1233,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions([
+        efilter.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -1277,7 +1281,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions([
+        efilter.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -1332,7 +1337,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions([
+        efilter.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -1388,7 +1394,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter1.set_conditions([
+        efilter1.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -1405,7 +1412,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter2.set_conditions([
+        efilter2.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -1462,7 +1470,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter1.set_conditions([
+        efilter1.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -1479,7 +1488,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter2.set_conditions([
+        efilter2.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -1546,7 +1556,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter1.set_conditions([
+        efilter1.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -1563,7 +1574,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter2.set_conditions([
+        efilter2.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.IEQUALS,
@@ -1626,7 +1638,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions([
+        efilter.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
                     operator=operators.EQUALS,
@@ -1703,7 +1716,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions([
+        efilter.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.EQUALS_NOT,
@@ -1952,8 +1966,8 @@ class CredentialsTestCase(CremeTestCase):
         role = self._create_role(
             'Coder', ['creme_core'], users=[user],  # 'persons'
             set_creds=[
-                 SetCredentials(value=EntityCredentials.CHANGE, set_type=SetCredentials.ESET_OWN),
-                 SetCredentials(value=EntityCredentials.VIEW,   set_type=SetCredentials.ESET_ALL),
+                SetCredentials(value=EntityCredentials.CHANGE, set_type=SetCredentials.ESET_OWN),
+                SetCredentials(value=EntityCredentials.VIEW,   set_type=SetCredentials.ESET_ALL),
             ],
         )
 
@@ -2314,7 +2328,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions([
+        efilter.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
                     operator=operators.EQUALS,
@@ -2539,7 +2554,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions([
+        efilter.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
                     operator=operators.EQUALS,
@@ -2594,7 +2610,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions([
+        efilter.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
                     operator=operators.EQUALS,
@@ -2638,7 +2655,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions([
+        efilter.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
                     operator=operators.EQUALS,
@@ -2706,7 +2724,8 @@ class CredentialsTestCase(CremeTestCase):
         efilter2 = create_efilter(id='creme_core-test_auth2')
 
         build_condition = condition_handler.RegularFieldConditionHandler.build_condition
-        efilter1.set_conditions([
+        efilter1.set_conditions(
+            [
                 build_condition(
                     model=CremeEntity,
                     operator=operators.EQUALS,
@@ -2717,7 +2736,8 @@ class CredentialsTestCase(CremeTestCase):
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
         )
-        efilter2.set_conditions([
+        efilter2.set_conditions(
+            [
                 build_condition(
                     model=CremeEntity,
                     operator=operators.ISEMPTY,
@@ -2780,7 +2800,8 @@ class CredentialsTestCase(CremeTestCase):
         efilter2 = create_efilter(id='creme_core-test_auth2')
 
         build_condition = condition_handler.RegularFieldConditionHandler.build_condition
-        efilter1.set_conditions([
+        efilter1.set_conditions(
+            [
                 build_condition(
                     model=CremeEntity,
                     operator=operators.EQUALS,
@@ -2791,7 +2812,8 @@ class CredentialsTestCase(CremeTestCase):
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
         )
-        efilter2.set_conditions([
+        efilter2.set_conditions(
+            [
                 build_condition(
                     model=CremeEntity,
                     operator=operators.ISEMPTY,
@@ -2870,7 +2892,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions([
+        efilter.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.EQUALS,
@@ -2928,7 +2951,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=Document,
             filter_type=EF_CREDENTIALS,
         )
-        efilter.set_conditions([
+        efilter.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Document,
                     operator=operators.ICONTAINS,
@@ -2970,7 +2994,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-        efilter_4_contact.set_conditions([
+        efilter_4_contact.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.EQUALS,
@@ -2987,7 +3012,8 @@ class CredentialsTestCase(CremeTestCase):
             entity_type=FakeOrganisation,
             filter_type=EF_CREDENTIALS,
         )
-        efilter_4_orga.set_conditions([
+        efilter_4_orga.set_conditions(
+            [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
                     operator=operators.ICONTAINS,

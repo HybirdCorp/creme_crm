@@ -407,8 +407,11 @@ class EntityCellRegularField(EntityCell):
 
     @cached_property
     def title(self) -> str:
-        return str(self._field_info.verbose_name) if not self.is_excluded else \
-               gettext('{} [hidden]').format(self._field_info.verbose_name)
+        return (
+            str(self._field_info.verbose_name)
+            if not self.is_excluded else
+            gettext('{} [hidden]').format(self._field_info.verbose_name)
+        )
 
 
 @CELLS_MAP
@@ -553,8 +556,11 @@ class EntityCellCustomField(EntityCell):
 
     @cached_property
     def title(self):
-        return gettext('{} [deleted]').format(self._customfield.name) if self.is_excluded else \
-               self._customfield.name
+        return (
+            gettext('{} [deleted]').format(self._customfield.name)
+            if self.is_excluded else
+            self._customfield.name
+        )
 
 
 @CELLS_MAP

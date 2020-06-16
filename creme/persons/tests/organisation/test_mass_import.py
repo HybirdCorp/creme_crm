@@ -74,13 +74,10 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
-        self.assertEqual([_('Import «{model}» from {doc}').format(
-                                model=_('Organisation'),
-                                doc=doc,
-                            )
-                         ],
-                         job.description
-                        )
+        self.assertListEqual(
+            [_('Import «{model}» from {doc}').format(model=_('Organisation'), doc=doc)],
+            job.description
+        )
 
         results = self._get_job_results(job)
         lines_count = len(lines)

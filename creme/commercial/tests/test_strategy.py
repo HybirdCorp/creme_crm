@@ -461,10 +461,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertContains(
             response,
             """<select onchange="creme.commercial.setScore(this, '{url}', {asset_id}, {segment_id}, {orga_id});">""".format(
-                    url=reverse('commercial__set_charm_score', args=(strategy.id,)),
-                    asset_id=charm.id,
-                    segment_id=segment_desc.id,
-                    orga_id=orga.id,
+                url=reverse('commercial__set_charm_score', args=(strategy.id,)),
+                asset_id=charm.id,
+                segment_id=segment_desc.id,
+                orga_id=orga.id,
             ),
         )
 

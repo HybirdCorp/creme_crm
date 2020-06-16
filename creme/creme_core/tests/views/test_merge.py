@@ -62,10 +62,10 @@ class MergeViewsTestCase(ViewsTestCase):
         user = self.login(is_superuser=False)
 
         SetCredentials.objects.create(
-                role=self.role,
-                value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-                set_type=SetCredentials.ESET_OWN,
-            )
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
+            set_type=SetCredentials.ESET_OWN,
+        )
         orga = FakeOrganisation.objects.create(user=self.other_user, name='Genshiken')
         self.assertFalse(user.has_perm_to_view(orga))
         self.assertGET403(self._build_select_url(orga))

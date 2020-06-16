@@ -128,8 +128,10 @@ class GenericCreation(ModelConfMixin, generic.CremeModelCreationPopup):
                gettext('New value: {model}').format(model=model._meta.verbose_name)
 
     def get_submit_label(self):
-        return getattr(self.get_model_conf().model, 'save_label', None) or \
-               super().get_submit_label()
+        return (
+            getattr(self.get_model_conf().model, 'save_label', None) or
+            super().get_submit_label()
+        )
 
 
 class FromWidgetCreation(GenericCreation):
@@ -234,7 +236,7 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
             raise ConflictError('Can not delete (is not custom)')
 
         dcom = DeletionCommand.objects.filter(
-                content_type=ContentType.objects.get_for_model(type(instance)),
+            content_type=ContentType.objects.get_for_model(type(instance)),
         ).first()
 
         if dcom is not None:

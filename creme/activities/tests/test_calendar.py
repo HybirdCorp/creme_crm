@@ -652,9 +652,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         url = self.build_delete_calendar_url(cal3)
 
         response = self.assertGET409(url)
-        msg = _('A deletion process for an instance of «{model}» already exists.').format(
-                  model=_('Calendar'),
-              )
+        msg = _(
+            'A deletion process for an instance of «{model}» already exists.'
+        ).format(model=_('Calendar'))
         self.assertIn(msg, response.content.decode())
 
         # ---
@@ -1339,15 +1339,16 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(1, dcom.total_count)
 
         job = dcom.job
-        self.assertEqual(
-            [_('Deleting «{object}» ({model})').format(
-                 object=cal3.name, model=_('Calendar'),
-             ),
-             _('In «{model} - {field}», replace by «{new}»').format(
-                 model=_('Activity'),
-                 field=_('Calendars'),
-                 new=cal2,
-             )
+        self.assertListEqual(
+            [
+                _('Deleting «{object}» ({model})').format(
+                    object=cal3.name, model=_('Calendar'),
+                ),
+                _('In «{model} - {field}», replace by «{new}»').format(
+                    model=_('Activity'),
+                    field=_('Calendars'),
+                    new=cal2,
+                ),
             ],
             deletor_type.get_description(job)
         )

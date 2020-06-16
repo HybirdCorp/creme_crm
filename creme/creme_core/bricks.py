@@ -256,8 +256,8 @@ class ImprintsBrick(QuerysetBrick):
         if not can_view:
             CremeEntity.populate_real_entities(
                 CremeEntity.objects.filter(
-                        id__in=[imprint.entity_id for imprint in btc['page'].object_list],
-                    )
+                    id__in=[imprint.entity_id for imprint in btc['page'].object_list],
+                )
             )
 
         return self._render(btc)

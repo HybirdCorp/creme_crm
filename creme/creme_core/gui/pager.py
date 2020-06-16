@@ -71,8 +71,12 @@ class PagerLink:
         return self.group == self.CHOOSE
 
     def __str__(self):
-        return f'PagerLink(label={self.label}, help={self.help}, group={self.group}, ' \
-                         f'enabled={self.enabled}, page={self.page})'
+        return (
+            f'PagerLink('
+            f'label={self.label}, help={self.help}, group={self.group}, '
+            f'enabled={self.enabled}, page={self.page}'
+            f')'
+        )
 
 
 class PagerContext:

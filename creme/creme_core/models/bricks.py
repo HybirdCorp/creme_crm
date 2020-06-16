@@ -771,11 +771,15 @@ class BrickState(CremeModel):
         self._extra_data = json_load(self.json_extra_data)
 
     def __str__(self):
-        return f'BrickState(user="{self.user}", ' \
-                          f'brick_id="{self.brick_id}", ' \
-                          f'is_open={self.is_open}, ' \
-                          f'show_empty_fields={self.show_empty_fields}, ' \
-                          f'json_extra_data="{self.json_extra_data}")'
+        return (
+            f'BrickState('
+            f'user="{self.user}", '
+            f'brick_id="{self.brick_id}", '
+            f'is_open={self.is_open}, '
+            f'show_empty_fields={self.show_empty_fields}, '
+            f'json_extra_data="{self.json_extra_data}"'
+            f')'
+        )
 
     # @staticmethod
     # def get_for_brick_id(brick_id, user):

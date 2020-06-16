@@ -170,9 +170,11 @@ def _fk_printer(field: Field, val, user) -> str:
 
 
 def _boolean_printer(field: Field, val, user) -> str:
-    return gettext('Yes') if val else \
-           gettext('No') if val is False else \
-           gettext('N/A')
+    return (
+        gettext('Yes') if val else
+        gettext('No') if val is False else
+        gettext('N/A')
+    )
 
 
 def _date_printer(field: Field, val, user) -> str:
@@ -554,10 +556,10 @@ class _HLTAuxEdition(_HLTAuxCreation):
 
         if fields_modifs:
             HistoryLine._create_line_4_instance(
-                    related.get_related_entity(),
-                    cls.type_id,
-                    modifs=[cls._build_modifs(related), *fields_modifs],
-                )
+                related.get_related_entity(),
+                cls.type_id,
+                modifs=[cls._build_modifs(related), *fields_modifs],
+            )
         elif getattr(related, '_hline_reassigned', False):
             _HLTAuxCreation.create_line(related)
 

@@ -163,13 +163,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         # Properties
         self.assertIs(mass_import_type, job.type)
-        self.assertEqual([_('Import «{model}» from {doc}').format(
-                                model='Test Contact',
-                                doc=doc,
-                            ),
-                         ],
-                         job.description
-                        )  # TODO: description of columns ????
+        self.assertListEqual(
+            [_('Import «{model}» from {doc}').format(model='Test Contact', doc=doc)],
+            job.description
+        )  # TODO: description of columns ????
 
         self.assertRedirects(response, job.get_absolute_url())
 
@@ -313,10 +310,13 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                 # sector_create=False,
 
                 'property_types': [ptype.id],
+
                 'fixed_relations': self.formfield_value_multi_relation_entity(
-                                        [loves.id, shinji]
-                                    ),
-                'dyn_relations': self._dyn_relations_value(employed, FakeOrganisation, 6, 'name'),
+                    [loves.id, shinji]
+                ),
+                'dyn_relations': self._dyn_relations_value(
+                    employed, FakeOrganisation, 6, 'name',
+                ),
 
                 'address_city_colselect': 5,
             },

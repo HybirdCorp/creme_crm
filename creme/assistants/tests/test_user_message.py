@@ -33,8 +33,11 @@ class UserMessageTestCase(AssistantsTestCase):
         EmailBackend.send_messages = self.original_send_messages
 
     def _build_add_url(self, entity=None):
-        return reverse('assistants__create_related_message', args=(entity.id,)) if entity else \
-               reverse('assistants__create_message')
+        return reverse(
+            'assistants__create_related_message', args=(entity.id,),
+        ) if entity else reverse(
+            'assistants__create_message',
+        )
 
     def _create_usermessage(self, title, body, priority, users, entity):
         if priority is None:
@@ -132,12 +135,13 @@ class UserMessageTestCase(AssistantsTestCase):
 
         message = messages[0]
         self.assertEqual(_('User message from Creme: {}').format(title), message.subject)
-        self.assertEqual(_('{user} sent you the following message:\n{body}').format(
-                                user=self.user,
-                                body=body,
-                            ),
-                        message.body
-                       )
+        self.assertEqual(
+            _('{user} sent you the following message:\n{body}').format(
+                user=self.user,
+                body=body,
+            ),
+            message.body
+        )
         self.assertEqual(settings.EMAIL_SENDER, message.from_email)
         self.assertFalse(hasattr(message, 'alternatives'))
         self.assertFalse(message.attachments)

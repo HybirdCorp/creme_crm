@@ -80,14 +80,13 @@ def _set_orga_as_subject(sender, instance, **kwargs):
             type_id=REL_SUB_ACTIVITY_SUBJECT,
             object_entity=activity,
             user=user,
-        ) for orga in Organisation.objects
-                                  .filter(relations__type__in=(
-                                            persons_constants.REL_OBJ_EMPLOYED_BY,
-                                            persons_constants.REL_OBJ_MANAGES,
-                                          ),
-                                          relations__object_entity=instance.subject_entity_id,
-                                         )
-                                  .exclude(is_deleted=False, is_managed=True)
+        ) for orga in Organisation.objects.filter(
+            relations__type__in=(
+                persons_constants.REL_OBJ_EMPLOYED_BY,
+                persons_constants.REL_OBJ_MANAGES,
+            ),
+            relations__object_entity=instance.subject_entity_id,
+        ).exclude(is_deleted=False, is_managed=True)
     )
 
 

@@ -222,21 +222,28 @@ class BillingConfig(CremeAppConfig):
 
         def won_quotes():
             count = Quote.objects.filter(status__won=True).count()
-            return npgettext('billing-quote_stats', '{count} won', '{count} won', count).format(count=count)
+            return npgettext(
+                'billing-quote_stats',
+                '{count} won',
+                '{count} won',
+                count
+            ).format(count=count)
 
-        statistics_registry.register(id='billing-invoices', label=Invoice._meta.verbose_name_plural,
-                                     func=lambda: [Invoice.objects.count()],
-                                     perm='billing', priority=20,
-                                    ) \
-                           .register(id='billing-quotes', label=Quote._meta.verbose_name_plural,
-                                     func=lambda: [won_quotes(),
-                                                   pgettext('billing-quote_stats', '{count} in all').format(
-                                                       count=Quote.objects.count(),
-                                                   ),
-                                                  ],
-                                     perm='billing', priority=22,
-                                    ) \
-                           .register(id='billing-orders', label=SalesOrder._meta.verbose_name_plural,
-                                     func=lambda: [SalesOrder.objects.count()],
-                                     perm='billing', priority=24,
-                                    )
+        statistics_registry.register(
+            id='billing-invoices', label=Invoice._meta.verbose_name_plural,
+            func=lambda: [Invoice.objects.count()],
+            perm='billing', priority=20,
+        ).register(
+            id='billing-quotes', label=Quote._meta.verbose_name_plural,
+            func=lambda: [
+                won_quotes(),
+                pgettext('billing-quote_stats', '{count} in all').format(
+                    count=Quote.objects.count(),
+                ),
+            ],
+            perm='billing', priority=22,
+        ).register(
+            id='billing-orders', label=SalesOrder._meta.verbose_name_plural,
+            func=lambda: [SalesOrder.objects.count()],
+            perm='billing', priority=24,
+        )

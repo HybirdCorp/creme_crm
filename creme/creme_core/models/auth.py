@@ -1114,12 +1114,17 @@ class CremeUser(AbstractBaseUser):
 
         if isinstance(entity_or_model, CremeEntity):
             # TODO: what about related_entity ?
-            return False if entity_or_model.is_deleted else \
-                   self._get_credentials(entity_or_model).can_link()
+            return (
+                False if entity_or_model.is_deleted else
+                self._get_credentials(entity_or_model).can_link()
+            )
 
         assert issubclass(entity_or_model, CremeEntity)
-        return True if self.is_superuser else \
-               self.role.can_do_on_model(self, entity_or_model, owner, EntityCredentials.LINK)
+
+        return (
+            True if self.is_superuser else
+            self.role.can_do_on_model(self, entity_or_model, owner, EntityCredentials.LINK)
+        )
 
     def has_perm_to_link_or_die(self,
                                 entity_or_model: _EntityInstanceOrClass,

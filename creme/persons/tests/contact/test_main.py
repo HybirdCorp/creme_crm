@@ -66,30 +66,33 @@ class ContactTestCase(_BaseTestCase):
         build_contact = partial(Contact, last_name=last_name)
         self.assertEqual(last_name, str(build_contact()))
         self.assertEqual(last_name, str(build_contact(first_name='')))
-        self.assertEqual(_('{first_name} {last_name}').format(
-                                first_name=first_name,
-                                last_name=last_name,
-                            ),
-                         str(build_contact(first_name=first_name))
-                        )
+        self.assertEqual(
+            _('{first_name} {last_name}').format(
+                first_name=first_name,
+                last_name=last_name,
+            ),
+            str(build_contact(first_name=first_name))
+        )
 
         captain = Civility.objects.create(title='Captain')  # No shortcut
-        self.assertEqual(_('{first_name} {last_name}').format(
-                                first_name=first_name,
-                                last_name=last_name,
-                            ),
-                         str(build_contact(first_name=first_name, civility=captain))
-                        )
+        self.assertEqual(
+            _('{first_name} {last_name}').format(
+                first_name=first_name,
+                last_name=last_name,
+            ),
+            str(build_contact(first_name=first_name, civility=captain))
+        )
 
         captain.shortcut = shortcut = 'Cpt'
         captain.save()
-        self.assertEqual(_('{civility} {first_name} {last_name}').format(
-                                civility=shortcut,
-                                first_name=first_name,
-                                last_name=last_name,
-                            ),
-                         str(build_contact(first_name=first_name, civility=captain))
-                        )
+        self.assertEqual(
+            _('{civility} {first_name} {last_name}').format(
+                civility=shortcut,
+                first_name=first_name,
+                last_name=last_name,
+            ),
+            str(build_contact(first_name=first_name, civility=captain))
+        )
 
     def test_populated_contact_uuid(self):
         first_contact = Contact.objects.order_by('id').first()
@@ -492,7 +495,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertFormError(
             response, 'form', 'user',
             _('You are not allowed to link with the «{models}» of this user.').format(
-                 models=_('Contacts'),
+                models=_('Contacts'),
             )
         )
 
@@ -515,9 +518,11 @@ class ContactTestCase(_BaseTestCase):
         response = self.client.get(self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY))
         self.assertContains(
             response,
-            escape(_('You are not allowed to view this entity: {}').format(
-                    _('Entity #{id} (not viewable)').format(id=orga.id)
-                  )),
+            escape(
+                _('You are not allowed to view this entity: {}').format(
+                    _('Entity #{id} (not viewable)').format(id=orga.id),
+                )
+            ),
             status_code=403
         )
 

@@ -53,8 +53,10 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
         super().__init__(entity1, entity2, *args, **kwargs)
 
     def _build_initial_address_dict(self, address, initial, prefix):
-        getter = (lambda fname: '') if address is None else \
-                 lambda fname: getattr(address, fname)
+        getter = (
+            (lambda fname: '') if address is None else
+            lambda fname: getattr(address, fname)
+        )
 
         for fname in self._address_field_names:
             initial[prefix + fname] = getter(fname)

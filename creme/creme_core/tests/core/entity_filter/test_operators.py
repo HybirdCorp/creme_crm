@@ -167,7 +167,8 @@ class OperatorTestCase(CremeTestCase):
         self.assertIsInstance(op, operators.EqualsOperator)
         self.assertFalse(op.accept_subpart)
         self.assertIs(op.exclude, False)
-        self.assertSetEqual({
+        self.assertSetEqual(
+            {
                 'string',
                 'enum', 'enum__null',
                 'number', 'number__null',

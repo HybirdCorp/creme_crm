@@ -54,15 +54,12 @@ class FoundEntitiesBrick(QuerysetBrick):
         self.research = research
         self.user = user
         self.ctype = ctype = ContentType.objects.get_for_model(model)
-        self.id_ = id or self.generate_id('creme_core',
-                                          'found-{}-{}-{}'.format(
-                                                ctype.app_label,
-                                                ctype.model,
-                                                # We generate an unique ID for each research, in order
-                                                # to avoid sharing state (eg: page number) between researches.
-                                                int(time()),
-                                            )
-                                         )
+        self.id_ = id or self.generate_id(
+            'creme_core',
+            # We generate an unique ID for each research, in order
+            # to avoid sharing state (eg: page number) between researches.
+            f'found-{ctype.app_label}-{ctype.model}-{int(time())}',
+        )
 
     @staticmethod
     def parse_brick_id(brick_id):
@@ -94,10 +91,10 @@ class FoundEntitiesBrick(QuerysetBrick):
             qs = EntityCredentials.filter(self.user, results)
 
         return self._render(self.get_template_context(
-                    context, qs,
-                    cells=[EntityCellRegularField.build(model, field.name) for field in searcher.get_fields(model)],
-                    # If the model is inserted in the context, the template call it and create an instance...
-                    ctype=self.ctype,
+            context, qs,
+            cells=[EntityCellRegularField.build(model, field.name) for field in searcher.get_fields(model)],
+            # If the model is inserted in the context, the template call it and create an instance...
+            ctype=self.ctype,
         ))
 
 
@@ -115,8 +112,9 @@ class SearcherMixin:
         searcher = getattr(self, 'searcher', None)
 
         if searcher is None:
-            self.searcher = searcher = \
-                self.searcher_class(models=self.get_raw_models(), user=self.request.user)
+            self.searcher = searcher = self.searcher_class(
+                models=self.get_raw_models(), user=self.request.user,
+            )
 
         return searcher
 

@@ -37,9 +37,12 @@ from creme.creme_core.models.fields import DurationField
 
 # TODO: Rename to ActivityKind ??
 class ActivityType(CremeModel):
-    id                    = CharField(primary_key=True, max_length=100, editable=False)\
-                                     .set_tags(viewable=False)
-    name                  = CharField(_('Name'), max_length=100)
+    id = CharField(
+        primary_key=True, max_length=100, editable=False
+    ).set_tags(viewable=False)
+
+    name = CharField(_('Name'), max_length=100)
+
     default_day_duration  = IntegerField(_('Default day duration')).set_tags(viewable=False)
     default_hour_duration = DurationField(_('Default hour duration'), max_length=15)\
                                          .set_tags(viewable=False)
@@ -65,11 +68,14 @@ class ActivityType(CremeModel):
 
 
 class ActivitySubType(CremeModel):
-    id        = CharField(primary_key=True, max_length=100, editable=False)\
-                         .set_tags(viewable=False)
-    name      = CharField(_('Name'), max_length=100)
-    type      = ForeignKey(ActivityType, verbose_name=_('Type of activity'), on_delete=CASCADE)\
+    id = CharField(
+        primary_key=True, max_length=100, editable=False,
+    ).set_tags(viewable=False)
+
+    name = CharField(_('Name'), max_length=100)
+    type = ForeignKey(ActivityType, verbose_name=_('Type of activity'), on_delete=CASCADE)\
                           .set_tags(viewable=False)
+
     is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
 
     creation_label = pgettext_lazy('activities-type', 'Create a sub-type')

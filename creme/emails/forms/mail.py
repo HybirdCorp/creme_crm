@@ -89,9 +89,11 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
         self.entity = entity
 
         if isinstance(entity, (Contact, Organisation)):
-            fn, msg = ('c_recipients', _('Beware: the contact «{}» has no email address!')) \
-                      if isinstance(entity, Contact) else \
-                      ('o_recipients', _('Beware: the organisation «{}» has no email address!'))
+            fn, msg = (
+                ('c_recipients', _('Beware: the contact «{}» has no email address!'))
+                if isinstance(entity, Contact) else
+                ('o_recipients', _('Beware: the organisation «{}» has no email address!'))
+            )
             field = self.fields[fn]
 
             if entity.email:

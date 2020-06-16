@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,38 +24,52 @@ from creme.creme_core import get_concrete_model
 
 
 def credit_note_model_is_custom():
-    return settings.BILLING_CREDIT_NOTE_MODEL != 'billing.CreditNote' and \
-           not settings.BILLING_CREDIT_NOTE_FORCE_NOT_CUSTOM
+    return (
+        settings.BILLING_CREDIT_NOTE_MODEL != 'billing.CreditNote' and
+        not settings.BILLING_CREDIT_NOTE_FORCE_NOT_CUSTOM
+    )
 
 
 def invoice_model_is_custom():
-    return settings.BILLING_INVOICE_MODEL != 'billing.Invoice' and \
-           not settings.BILLING_INVOICE_FORCE_NOT_CUSTOM
+    return (
+        settings.BILLING_INVOICE_MODEL != 'billing.Invoice' and
+        not settings.BILLING_INVOICE_FORCE_NOT_CUSTOM
+    )
 
 
 def product_line_model_is_custom():
-    return settings.BILLING_PRODUCT_LINE_MODEL != 'billing.ProductLine' and \
-           not settings.BILLING_PRODUCT_LINE_FORCE_NOT_CUSTOM
+    return (
+        settings.BILLING_PRODUCT_LINE_MODEL != 'billing.ProductLine' and
+        not settings.BILLING_PRODUCT_LINE_FORCE_NOT_CUSTOM
+    )
 
 
 def quote_model_is_custom():
-    return settings.BILLING_QUOTE_MODEL != 'billing.Quote' and \
-           not settings.BILLING_QUOTE_FORCE_NOT_CUSTOM
+    return (
+        settings.BILLING_QUOTE_MODEL != 'billing.Quote' and
+        not settings.BILLING_QUOTE_FORCE_NOT_CUSTOM
+    )
 
 
 def sales_order_model_is_custom():
-    return settings.BILLING_SALES_ORDER_MODEL != 'billing.SalesOrder' and \
-           not settings.BILLING_SALES_ORDER_FORCE_NOT_CUSTOM
+    return (
+        settings.BILLING_SALES_ORDER_MODEL != 'billing.SalesOrder' and
+        not settings.BILLING_SALES_ORDER_FORCE_NOT_CUSTOM
+    )
 
 
 def service_line_model_is_custom():
-    return settings.BILLING_SERVICE_LINE_MODEL != 'billing.ServiceLine' and \
-           not settings.BILLING_SERVICE_LINE_FORCE_NOT_CUSTOM
+    return (
+        settings.BILLING_SERVICE_LINE_MODEL != 'billing.ServiceLine' and
+        not settings.BILLING_SERVICE_LINE_FORCE_NOT_CUSTOM
+    )
 
 
 def template_base_model_is_custom():
-    return settings.BILLING_TEMPLATE_BASE_MODEL != 'billing.TemplateBase' and \
-           not settings.BILLING_TEMPLATE_BASE_FORCE_NOT_CUSTOM
+    return (
+        settings.BILLING_TEMPLATE_BASE_MODEL != 'billing.TemplateBase' and
+        not settings.BILLING_TEMPLATE_BASE_FORCE_NOT_CUSTOM
+    )
 
 
 def get_credit_note_model():

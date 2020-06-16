@@ -69,7 +69,7 @@ class EntityEmailBackend(CrudityBackend):
         # TODO: only if at least one attachment
         folder = Folder.objects.get_or_create(
             title=_("{username}'s files received by email").format(
-                      username=current_user.username,
+                username=current_user.username,
             ),
             category=FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS),
             parent_folder=None,

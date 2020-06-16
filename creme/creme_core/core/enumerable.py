@@ -126,29 +126,29 @@ class _EnumerableRegistry:
             res += '\n  * Specific fields:'
             for field, enumerator_cls in self._enums_4_fields.items():
                 res += '\n    - {field} -> {e_module}.{e_type}'.format(
-                            field=field,
-                            e_module=enumerator_cls.__module__,
-                            e_type=enumerator_cls.__qualname__,
+                    field=field,
+                    e_module=enumerator_cls.__module__,
+                    e_type=enumerator_cls.__qualname__,
                 )
 
         if self._enums_4_field_types:
             res += '\n  * Field types:'
             for field_type, enumerator_cls in self._enums_4_field_types.items():
                 res += '\n    - {f_module}.{f_type} -> {e_module}.{e_type}'.format(
-                            f_module=field_type.__module__,
-                            f_type=field_type.__name__,
-                            e_module=enumerator_cls.__module__,
-                            e_type=enumerator_cls.__qualname__,
+                    f_module=field_type.__module__,
+                    f_type=field_type.__name__,
+                    e_module=enumerator_cls.__module__,
+                    e_type=enumerator_cls.__qualname__,
                 )
 
         if self._enums_4_models:
             res += '\n  * Related models:'
             for model, enumerator_cls in self._enums_4_models.items():
                 res += '\n    - {app}.{model} -> {e_module}.{e_type}'.format(
-                            app=model._meta.app_label,
-                            model=model.__name__,
-                            e_module=enumerator_cls.__module__,
-                            e_type=enumerator_cls.__qualname__,
+                    app=model._meta.app_label,
+                    model=model.__name__,
+                    e_module=enumerator_cls.__module__,
+                    e_type=enumerator_cls.__qualname__,
                 )
 
         return res
@@ -179,9 +179,11 @@ class _EnumerableRegistry:
         return field
 
     def _enumerator(self, field):
-        enumerator_cls = self._enums_4_fields.get(field) or \
-                         self._enums_4_field_types[field.__class__] or \
-                         self._enums_4_models.get(field.remote_field.model, QSEnumerator)
+        enumerator_cls = (
+            self._enums_4_fields.get(field) or
+            self._enums_4_field_types[field.__class__] or
+            self._enums_4_models.get(field.remote_field.model, QSEnumerator)
+        )
 
         return enumerator_cls(field)
 

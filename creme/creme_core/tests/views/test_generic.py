@@ -104,11 +104,14 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET403(fox.get_absolute_url())
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-        self.assertIn(escape(_('You are not allowed to view this entity: {}').format(
-                                _('Entity #{id} (not viewable)').format(id=fox.id)
-                            )),
-                      response.content.decode()
-                     )
+        self.assertIn(
+            escape(
+                _('You are not allowed to view this entity: {}').format(
+                    _('Entity #{id} (not viewable)').format(id=fox.id)
+                )
+            ),
+            response.content.decode()
+        )
 
     def test_detail06(self):
         "Viewing is not allowed (app credentials)"
@@ -523,9 +526,11 @@ class EditionTestCase(ViewsTestCase):
         response = self.assertGET403(url)
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
         self.assertIn(
-            escape(_('You are not allowed to edit this entity: {}').format(
-                        _('Entity #{id} (not viewable)').format(id=nerv.id)
-                  )),
+            escape(
+                _('You are not allowed to edit this entity: {}').format(
+                    _('Entity #{id} (not viewable)').format(id=nerv.id)
+                )
+            ),
             response.content.decode()
         )
 

@@ -385,11 +385,11 @@ class ActivityCreateForm(_ActivityCreateForm):
 
         return super()._get_relations_to_create().extend(
             build_rel(subject_entity_id=entity.id, type_id=rtype_id)
-                for entities, rtype_id in (
-                    (cdata['subjects'],        constants.REL_SUB_ACTIVITY_SUBJECT),
-                    (cdata['linked_entities'], constants.REL_SUB_LINKED_2_ACTIVITY),
-                  )
-                    for entity in entities
+            for entities, rtype_id in (
+                (cdata['subjects'],        constants.REL_SUB_ACTIVITY_SUBJECT),
+                (cdata['linked_entities'], constants.REL_SUB_LINKED_2_ACTIVITY),
+            )
+            for entity in entities
         )
 
     def save(self, *args, **kwargs):
@@ -444,12 +444,12 @@ class ActivityCreateForm(_ActivityCreateForm):
     End: {end}.
     Subjects: {subjects}.
     Participants: {participants}.""").format(
-                    activity=activity,
-                    description=activity.description,
-                    start=activity.start or gettext('not specified'),
-                    end=activity.end or gettext('not specified'),
-                    subjects=' / '.join(str(e) for e in cdata['subjects']),
-                    participants=' / '.join(str(c) for c in self.participants),
+                activity=activity,
+                description=activity.description,
+                start=activity.start or gettext('not specified'),
+                end=activity.end or gettext('not specified'),
+                subjects=' / '.join(str(e) for e in cdata['subjects']),
+                participants=' / '.join(str(c) for c in self.participants),
             )
 
             # TODO: sender = the real user that created the activity ???

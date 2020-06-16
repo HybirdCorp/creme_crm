@@ -102,10 +102,11 @@ class BatchActionsField(JSONField):
         widget = self.widget
         widget.model = model
         widget.fields = CallableChoiceIterator(
-                            lambda: [(fname, field.verbose_name)
-                                         for fname, field in self._get_fields().items()
-                                    ]
-                        )
+            lambda: [
+                (fname, field.verbose_name)
+                for fname, field in self._get_fields().items()
+            ]
+        )
 
     def _get_fields(self):
         if self._fields is None:

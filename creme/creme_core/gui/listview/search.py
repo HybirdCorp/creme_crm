@@ -259,9 +259,9 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         return self._build_field(
             builder=self._builders_4_modelfields.get(model_field) or (
-                     self._choice_builder if model_field.choices else
-                     self._builders_4_modelfieldtypes[type(model_field)]
-                    ),
+                self._choice_builder if model_field.choices else
+                self._builders_4_modelfieldtypes[type(model_field)]
+            ),
             cell=cell, user=user,
             **kwargs
         )

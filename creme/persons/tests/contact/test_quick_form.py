@@ -368,8 +368,8 @@ class ContactQuickFormTestCase(_BaseTestCase):
         self.assertFormError(
             response, 'form', None,
             _('You are not allowed to link with the «{models}» of this user.').format(
-                    models=_('Organisations'),
-                )
+                models=_('Organisations'),
+            )
         )
 
     @skipIfCustomOrganisation

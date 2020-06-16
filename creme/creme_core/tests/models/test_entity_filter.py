@@ -3663,17 +3663,18 @@ class EntityFiltersTestCase(CremeTestCase):
 
         fmt_value = _('«{enum_value}»').format
         self.assertListEqual(
-            [_('«{field}» starts with {values}').format(
-                 field=_('Name'),
-                 values=fmt_value(enum_value=name),
-             ),
-             _('«{field}» contains {values}').format(
-                 field=_('Description'),
-                 values=_('{first} or {last}').format(
-                     first=fmt_value(enum_value=desc1),
-                     last=fmt_value(enum_value=desc2),
-                 ),
-             ),
+            [
+                _('«{field}» starts with {values}').format(
+                    field=_('Name'),
+                    values=fmt_value(enum_value=name),
+                ),
+                _('«{field}» contains {values}').format(
+                    field=_('Description'),
+                    values=_('{first} or {last}').format(
+                        first=fmt_value(enum_value=desc1),
+                        last=fmt_value(enum_value=desc2),
+                    ),
+                ),
             ],
             [*efilter.get_verbose_conditions(self.user)]
         )

@@ -26,11 +26,12 @@ urlpatterns = [
     re_path(r'^mark_as_favorite/(?P<entity_id>\d+)[/]?$', views.mark_as_favorite, name='mobile__mark_as_favorite'),
     re_path(r'^unmark_favorite/(?P<entity_id>\d+)[/]?$',  views.unmark_favorite,  name='mobile__unmark_favorite'),
 
-    re_path(r'^login[/]?$',
+    re_path(
+        r'^login[/]?$',
         auth_views.LoginView.as_view(
-             template_name='mobile/login.html',
-             authentication_form=forms.MobileAuthenticationForm,
-             extra_context={'REDIRECT_FIELD_NAME': REDIRECT_FIELD_NAME},
+            template_name='mobile/login.html',
+            authentication_form=forms.MobileAuthenticationForm,
+            extra_context={'REDIRECT_FIELD_NAME': REDIRECT_FIELD_NAME},
         ),
         name='mobile__login',
     ),

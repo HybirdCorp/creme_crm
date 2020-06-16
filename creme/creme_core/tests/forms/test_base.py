@@ -502,13 +502,14 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         ptype = CremePropertyType.create(str_pk='test-prop_spirit',   text='Haunted by a spirit')
 
-        form = FakeContactForm(user=user, forced_ptypes=[ptype.id],
-                               data={
-                                   'user': user.id,
-                                   'first_name': 'Kanbaru',
-                                   'last_name': 'Suruga',
-                               },
-                              )
+        form = FakeContactForm(
+            user=user, forced_ptypes=[ptype.id],
+            data={
+                'user': user.id,
+                'first_name': 'Kanbaru',
+                'last_name': 'Suruga',
+            },
+        )
         self.assertFalse(form.errors)
 
         contact = form.save()
@@ -725,8 +726,8 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertIn('relation_types', fields1)
         self.assertHTMLEqual(
             _('This relationship will be added: {predicate} «{entity}»').format(
-                    predicate=rtype2.predicate,
-                    entity=orga,
+                predicate=rtype2.predicate,
+                entity=orga,
             ),
             info_field.initial
         )

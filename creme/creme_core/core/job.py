@@ -620,11 +620,12 @@ class JobScheduler:
                     elif dt <= now_value:
                         print(f' - {job} (id={job.id}) -> run immediately')
                     else:
-                        print(' - {job} (id={job_id}) -> next run at {start}'.format(
-                                    job=job, job_id=job.id,
-                                    start=date_format(localtime(dt), 'DATETIME_FORMAT'),
-                                )
-                             )
+                        print(
+                            ' - {job} (id={job_id}) -> next run at {start}'.format(
+                                job=job, job_id=job.id,
+                                start=date_format(localtime(dt), 'DATETIME_FORMAT'),
+                            )
+                        )
             else:
                 print('No system job found.')
 

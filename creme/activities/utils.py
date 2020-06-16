@@ -77,14 +77,17 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
             collision_start = max(activity_start.time(), localtime(colliding_activity.start).time())
             collision_end   = min(activity_end.time(),   localtime(colliding_activity.end).time())
 
-            collisions.append(_('{participant} already participates to the activity '
-                                '«{activity}» between {start} and {end}.'
-                               ).format(
-                        participant=participant,
-                        activity=colliding_activity,
-                        start=collision_start,
-                        end=collision_end,
-            ))
+            collisions.append(
+                _(
+                    '{participant} already participates to the activity '
+                    '«{activity}» between {start} and {end}.'
+                ).format(
+                    participant=participant,
+                    activity=colliding_activity,
+                    start=collision_start,
+                    end=collision_end,
+                )
+            )
 
     return collisions
 

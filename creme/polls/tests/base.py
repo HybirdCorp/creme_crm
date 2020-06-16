@@ -60,11 +60,14 @@ class _PollsTestCase(CremeTestCase):
 
         def create_line(question, section=None, qtype=PollLineType.STRING, disabled=False, conds_use_or=None, **type_kwargs):
             return PollFormLine.objects.create(
-                            pform=pform, section=section,
-                            question=question, type=qtype, order=get_order(),
-                            disabled=disabled, conds_use_or=conds_use_or,
-                            type_args=PollLineType.build_serialized_args(qtype, **type_kwargs)
-                                      if type_kwargs else None,
-                           )
+                pform=pform, section=section,
+                question=question, type=qtype, order=get_order(),
+                disabled=disabled, conds_use_or=conds_use_or,
+                type_args=(
+                    PollLineType.build_serialized_args(qtype, **type_kwargs)
+                    if type_kwargs else
+                    None
+                ),
+            )
 
         return create_line

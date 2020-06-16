@@ -49,14 +49,15 @@ Opportunity = get_opportunity_model()
 
 class _RelatedToOpportunity:
     def get_related_queryset(self, *, opportunity, model, rtype_id):
-        return model.objects \
-                    .annotate(relations_w_opp=FilteredRelation(
-                                    'relations',
-                                    condition=Q(relations__object_entity=opportunity.id),
-                             )) \
-                    .filter(is_deleted=False,
-                            relations_w_opp__type=rtype_id,
-                           )
+        return model.objects.annotate(
+            relations_w_opp=FilteredRelation(
+                'relations',
+                condition=Q(relations__object_entity=opportunity.id),
+            ),
+        ).filter(
+            is_deleted=False,
+            relations_w_opp__type=rtype_id,
+        )
 
     def get_related_contacts(self, *, opportunity, rtype_id):
         return self.get_related_queryset(opportunity=opportunity,

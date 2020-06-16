@@ -114,9 +114,9 @@ class EmailSending(CremeModel):
 
     def __str__(self):
         return pgettext('emails', 'Sending of «{campaign}» on {date}').format(
-                    campaign=self.campaign,
-                    date=date_format(localtime(self.sending_date), 'DATETIME_FORMAT'),
-                )
+            campaign=self.campaign,
+            date=date_format(localtime(self.sending_date), 'DATETIME_FORMAT'),
+        )
 
     def get_mails(self):
         warnings.warn('EmailSending.get_mails() is deprecated ;'
@@ -142,17 +142,20 @@ class EmailSending(CremeModel):
         try:
             sender = LightWeightEmailSender(sending=self)
         except ImageFromHTMLError as e:
-            send_mail(gettext('[CremeCRM] Campaign email sending error.'),
-                      gettext("Emails in the sending of the campaign «{campaign}» on {date} weren't sent "
-                              "because the image «{image}» is no longer available in the template.").format(
-                            campaign=self.campaign,
-                            date=self.sending_date,
-                            image=e.filename,
-                      ),
-                      settings.EMAIL_HOST_USER,
-                      [self.campaign.user.email or settings.DEFAULT_USER_EMAIL],
-                      fail_silently=False,
-                     )
+            send_mail(
+                gettext('[CremeCRM] Campaign email sending error.'),
+                gettext(
+                    "Emails in the sending of the campaign «{campaign}» on {date} weren't sent "
+                    "because the image «{image}» is no longer available in the template."
+                ).format(
+                    campaign=self.campaign,
+                    date=self.sending_date,
+                    image=e.filename,
+                ),
+                settings.EMAIL_HOST_USER,
+                [self.campaign.user.email or settings.DEFAULT_USER_EMAIL],
+                fail_silently=False,
+            )
 
             return SENDING_STATE_ERROR
 

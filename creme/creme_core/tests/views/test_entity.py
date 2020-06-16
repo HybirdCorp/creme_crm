@@ -662,7 +662,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity03 = create_contact(first_name='#3')  # Not linked => can be deleted
         entity04 = create_contact(first_name='#4', is_deleted=False)
         entity05 = FakeOrganisation.objects.create(
-                user=user, name='Acme', is_deleted=True,
+            user=user, name='Acme', is_deleted=True,
         )  # Not linked => can be deleted
 
         rtype = RelationType.create(('test-subject_linked', 'is linked to'),

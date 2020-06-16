@@ -567,15 +567,17 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         line = pform.lines.all()[0]
-        self.assertEqual({'lower_bound': lower_bound, 'upper_bound': upper_bound},
-                        json_load(line.type_args),
-                       )
-        self.assertEqual(_('Integer between {min_value} and {max_value}').format(
-                                min_value=lower_bound,
-                                max_value=upper_bound,
-                            ),
-                         str(line.poll_line_type.description)
-                        )
+        self.assertDictEqual(
+            {'lower_bound': lower_bound, 'upper_bound': upper_bound},
+            json_load(line.type_args),
+        )
+        self.assertEqual(
+            _('Integer between {min_value} and {max_value}').format(
+                min_value=lower_bound,
+                max_value=upper_bound,
+            ),
+            str(line.poll_line_type.description)
+        )
 
     def test_add_line_int05(self):
         "Validation error: upper bound > lower bound"
@@ -1211,12 +1213,13 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                      del_choices=[[1, 'White'], [4, 'Blue']],
                                      qtype=PollLineType.MULTI_ENUM
                                      )
-        self.assertEqual(_('Multiple choice list ({choices}) (deleted: {del_choices})').format(
-                                choices='Black / Red',
-                                del_choices='White / Blue',
-                            ),
-                         line.poll_line_type.description
-                        )
+        self.assertEqual(
+            _('Multiple choice list ({choices}) (deleted: {del_choices})').format(
+                choices='Black / Red',
+                del_choices='White / Blue',
+            ),
+            line.poll_line_type.description
+        )
 
     def test_edit_line_description02(self):
         "ENUM_OR_STRING"
@@ -1225,12 +1228,13 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                      del_choices=[[1, 'Grey'], [4, 'Blue']],
                                      qtype=PollLineType.ENUM_OR_STRING
                                      )
-        self.assertEqual(_('Choice list with free choice ({choices}) (deleted: {del_choices})').format(
-                                choices='Brown / Red',
-                                del_choices='Grey / Blue',
-                            ),
-                         line.poll_line_type.description
-                        )
+        self.assertEqual(
+            _('Choice list with free choice ({choices}) (deleted: {del_choices})').format(
+                choices='Brown / Red',
+                del_choices='Grey / Blue',
+            ),
+            line.poll_line_type.description
+        )
 
     def test_edit_line_choices_with_conditions01(self):
         "Delete some choices (NOT used in conditions)"
@@ -1480,14 +1484,16 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         line2 = create_l('What is your real favorite meal ?', **enum_kwargs)
         line3 = create_l('How can you love spam ?')
 
-        response = self.client.post(self.build_editlineconditions_url(line3),
-                                    data={'use_or':     0,
-                                          'conditions': json_dump([
-                                                    self.conds_formfield_entry(source=line1.id, choice=1),
-                                                    self.conds_formfield_entry(source=line2.id, choice=1),
-                                                ]),
-                                         }
-                                    )
+        response = self.client.post(
+            self.build_editlineconditions_url(line3),
+            data={
+                'use_or':     0,
+                'conditions': json_dump([
+                    self.conds_formfield_entry(source=line1.id, choice=1),
+                    self.conds_formfield_entry(source=line2.id, choice=1),
+                ]),
+            }
+        )
         self.assertNoFormError(response)
 
         line3 = self.refresh(line3)
@@ -1535,14 +1541,13 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                            )
         line2 = create_line('Do you love all types of nuts ?', conds_use_or=False)
 
-        response = self.client.post(self.build_editlineconditions_url(line2),
-                                    data={'use_or':     1,
-                                          'conditions': self.conds_formfield_value(
-                                                                source=line1.id,
-                                                                choice=2,
-                                                            ),
-                                         }
-                                    )
+        response = self.client.post(
+            self.build_editlineconditions_url(line2),
+            data={
+                'use_or':     1,
+                'conditions': self.conds_formfield_value(source=line1.id, choice=2),
+            },
+        )
         self.assertNoFormError(response)
 
         condition = line2.conditions.get(source=line1)
@@ -1555,14 +1560,13 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         line1 = create_line('Do you love swallows ?', qtype=PollLineType.BOOL)
         line2 = create_line('Describe your love')
 
-        response = self.assertPOST200(self.build_editlineconditions_url(line2),
-                                      data={'use_or':     1,
-                                            'conditions': self.conds_formfield_value(
-                                                                source=line1.id,
-                                                                choice=choice,
-                                                            ),
-                                           }
-                                      )
+        response = self.assertPOST200(
+            self.build_editlineconditions_url(line2),
+            data={
+                'use_or':     1,
+                'conditions': self.conds_formfield_value(source=line1.id, choice=choice),
+            },
+        )
 
         if error:
             self.assertFormError(response, 'form', 'conditions', error)
@@ -1598,14 +1602,13 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                            )
         line2 = create_line('Do you love all birds ?', conds_use_or=False)
 
-        response = self.client.post(self.build_editlineconditions_url(line2),
-                                    data={'use_or':     1,
-                                          'conditions': self.conds_formfield_value(
-                                                                source=line1.id,
-                                                                choice=choice,
-                                                            ),
-                                         }
-                                    )
+        response = self.client.post(
+            self.build_editlineconditions_url(line2),
+            data={
+                'use_or':     1,
+                'conditions': self.conds_formfield_value(source=line1.id, choice=choice),
+            },
+        )
         self.assertNoFormError(response)
 
         condition = line2.conditions.get(source=line1)
@@ -1631,14 +1634,13 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                             choices=[[1, 'Spam'], [2, 'Grilled swallow']]
                            )
 
-        response = self.assertPOST200(self.build_editlineconditions_url(line1),
-                                      data={'use_or':     1,
-                                            'conditions': self.conds_formfield_value(
-                                                                source=line2.id,
-                                                                choice=1,
-                                                            ),
-                                            }
-                                      )
+        response = self.assertPOST200(
+            self.build_editlineconditions_url(line1),
+            data={
+                'use_or':     1,
+                'conditions': self.conds_formfield_value(source=line2.id, choice=1),
+                },
+            )
         self.assertFormError(response, 'form', 'conditions', _('This source is invalid.'))
 
     def test_add_line_conditions_error02(self):
@@ -1674,12 +1676,13 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         # ---
         response = self.client.post(
             url,
-            data={'use_or':     1,
-                  'conditions': json_dump([
-                                   self.conds_formfield_entry(source=line1.id, choice=2),
-                                   self.conds_formfield_entry(source=line2.id, choice=1),
-                               ]),
-                 },
+            data={
+                'use_or':     1,
+                'conditions': json_dump([
+                    self.conds_formfield_entry(source=line1.id, choice=2),
+                    self.conds_formfield_entry(source=line2.id, choice=1),
+                ]),
+            },
         )
         self.assertNoFormError(response)
 
@@ -1700,14 +1703,13 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         create_cond(source=line1, raw_answer='1')
         create_cond(source=line2, raw_answer='2')
 
-        response = self.client.post(self.build_editlineconditions_url(line3),
-                                    data={'use_or':     1,
-                                          'conditions': self.conds_formfield_value(
-                                                                source=line1.id,
-                                                                choice=2,
-                                                            ),
-                                         }
-                                    )
+        response = self.client.post(
+            self.build_editlineconditions_url(line3),
+            data={
+                'use_or':     1,
+                'conditions': self.conds_formfield_value(source=line1.id, choice=2),
+            },
+        )
         self.assertNoFormError(response)
 
         conditions = line3.conditions.all()

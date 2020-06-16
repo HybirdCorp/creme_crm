@@ -113,9 +113,9 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
 
         field.sources = [line1, line2]
         conditions = field.clean(self.build_data(
-                                    {'source': line1.id, 'choice': 1},
-                                    {'source': line2.id, 'choice': 2},
-                                ))
+            {'source': line1.id, 'choice': 1},
+            {'source': line2.id, 'choice': 2},
+        ))
         self.assertEqual(2, len(conditions))
 
         condition = conditions[0]

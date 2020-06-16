@@ -240,11 +240,10 @@ class AbstractOpportunity(CremeEntity):
     @property
     def emitter(self):
         if not self._opp_emitter:
-            self._opp_emitter = get_organisation_model()\
-                                    .objects\
-                                    .get(relations__type=constants.REL_SUB_EMIT_ORGA,
-                                         relations__object_entity=self.id,
-                                        )
+            self._opp_emitter = get_organisation_model().objects.get(
+                relations__type=constants.REL_SUB_EMIT_ORGA,
+                relations__object_entity=self.id,
+            )
 
         return self._opp_emitter
 

@@ -232,12 +232,15 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         self.assertGET200(url)
 
         predicate = 'Is loving Iori'
-        response = self.client.post(url, data={'predicate':     predicate,
-                                               'semi_relation': self.formfield_value_relation_entity(
-                                                                    self.loves.id, self.iori,
-                                                                   ),
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'predicate':     predicate,
+                'semi_relation': self.formfield_value_relation_entity(
+                    self.loves.id, self.iori,
+                ),
+            },
+        )
         self.assertNoFormError(response)
 
         semi_fixed_relations = SemiFixedRelationType.objects.all()
@@ -257,19 +260,20 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
                                             )
 
         itsuki = FakeContact.objects.create(user=self.user, first_name='Itsuki', last_name='Akiba')
-        response = self.assertPOST200(self.ADD_URL,
-                                      data={'predicate':     predicate,
-                                            'semi_relation': self.formfield_value_relation_entity(
-                                                                    self.loves.id, itsuki,
-                                                                ),
-                                           }
-                                     )
-        self.assertFormError(response, 'form', 'predicate',
-                             _('%(model_name)s with this %(field_label)s already exists.') % {
-                                    'model_name': _('Semi-fixed type of relationship'),
-                                    'field_label': _('Predicate'),
-                                }
-                            )
+        response = self.assertPOST200(
+            self.ADD_URL,
+            data={
+                'predicate':     predicate,
+                'semi_relation': self.formfield_value_relation_entity(self.loves.id, itsuki),
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'predicate',
+            _('%(model_name)s with this %(field_label)s already exists.') % {
+                'model_name': _('Semi-fixed type of relationship'),
+                'field_label': _('Predicate'),
+            },
+        )
 
     def test_create03(self):
         "('relation_type', 'object_entity') => unique together"

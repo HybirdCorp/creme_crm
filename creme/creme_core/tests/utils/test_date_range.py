@@ -17,27 +17,27 @@ class DateRangeTestCase(CremeTestCase):
         super().setUpClass()
 
         cls.registry = date_range.DateRangeRegistry(
-                date_range.PreviousYearRange(),
-                date_range.CurrentYearRange(),
-                date_range.NextYearRange(),
+            date_range.PreviousYearRange(),
+            date_range.CurrentYearRange(),
+            date_range.NextYearRange(),
 
-                date_range.PreviousQuarterRange(),
-                date_range.CurrentQuarterRange(),
-                date_range.NextQuarterRange(),
+            date_range.PreviousQuarterRange(),
+            date_range.CurrentQuarterRange(),
+            date_range.NextQuarterRange(),
 
-                date_range.PreviousMonthRange(),
-                date_range.CurrentMonthRange(),
-                date_range.NextMonthRange(),
+            date_range.PreviousMonthRange(),
+            date_range.CurrentMonthRange(),
+            date_range.NextMonthRange(),
 
-                date_range.YesterdayRange(),
-                date_range.TodayRange(),
-                date_range.TomorrowRange(),
+            date_range.YesterdayRange(),
+            date_range.TodayRange(),
+            date_range.TomorrowRange(),
 
-                date_range.FutureRange(),
-                date_range.PastRange(),
+            date_range.FutureRange(),
+            date_range.PastRange(),
 
-                date_range.EmptyRange(),
-                date_range.NotEmptyRange(),
+            date_range.EmptyRange(),
+            date_range.NotEmptyRange(),
         )
 
     def test_registry01(self):

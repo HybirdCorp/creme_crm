@@ -322,11 +322,12 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
                                             'parent_folder': folder3.id,
                                             }
                                     )
-        self.assertFormError(response, 'form', 'parent_folder',
-                             _('This folder is one of the child folders of «%(folder)s»') % {
-                                    'folder': folder1,
-                                  }
-                            )
+        self.assertFormError(
+            response, 'form', 'parent_folder',
+            _('This folder is one of the child folders of «%(folder)s»') % {
+                'folder': folder1,
+            }
+        )
         self.assertIsNone(self.refresh(folder1).parent_folder)
 
     def test_inneredit_parent01(self):
@@ -382,11 +383,12 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         url = self.build_inneredit_url(folder1, 'parent_folder')
         response = self.assertPOST200(url, data={'field_value': folder3.id})
-        self.assertFormError(response, 'form', None,
-                             _('This folder is one of the child folders of «%(folder)s»') % {
-                                    'folder': folder1,
-                                  }
-                            )
+        self.assertFormError(
+            response, 'form', None,
+            _('This folder is one of the child folders of «%(folder)s»') % {
+                'folder': folder1,
+            }
+        )
 
         # -----
         response = self.client.post(url, data={'field_value': folder1.pk})
@@ -407,23 +409,23 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         url = self.build_bulkupdate_url(Folder, 'parent_folder')
         self.assertGET200(url)
 
-        response = self.client.post(url,
-                                    data={'field_value': folder3.id,
-                                          'entities':    [folder1.id, folder3.id, folder4.id],
-                                         }
-                                   )
-        self.assertContains(response,
-                            _('This folder is one of the child folders of «%(folder)s»') % {
-                                    'folder': folder1,
-                                  },
-                            1
-                           )
-        self.assertContains(response,
-                            _('«%(folder)s» cannot be its own parent') % {
-                                    'folder': folder3,
-                                  },
-                            1
-                           )
+        response = self.client.post(
+            url,
+            data={
+                'field_value': folder3.id,
+                'entities':    [folder1.id, folder3.id, folder4.id],
+            },
+        )
+        self.assertContains(
+            response,
+            _('This folder is one of the child folders of «%(folder)s»') % {
+                'folder': folder1,
+            },
+        )
+        self.assertContains(
+            response,
+            _('«%(folder)s» cannot be its own parent') % {'folder': folder3},
+        )
 
         self.assertIsNone(self.refresh(folder1).parent_folder)
         self.assertEqual(folder2, self.refresh(folder3).parent_folder)

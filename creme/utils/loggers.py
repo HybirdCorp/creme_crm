@@ -48,13 +48,16 @@ except ImportError:
 
 
 class CremeFormatter(Formatter):
-    _COLORS = defaultdict(lambda: (None, []), [
-         (CRITICAL, ('magenta', ['bold'])),
-         (ERROR,    ('red',     [])),
-         (WARNING,  ('yellow',  [])),
-         (INFO,     ('white',   [])),
-         (DEBUG,    ('grey',    [])),
-    ])
+    _COLORS = defaultdict(
+        lambda: (None, []),
+        [
+            (CRITICAL, ('magenta', ['bold'])),
+            (ERROR,    ('red',     [])),
+            (WARNING,  ('yellow',  [])),
+            (INFO,     ('white',   [])),
+            (DEBUG,    ('grey',    [])),
+        ]
+    )
 
     def __init__(self, format=None, datefmt=None, colorize=False, colors=None):
         Formatter.__init__(self, fmt=format, datefmt=datefmt)

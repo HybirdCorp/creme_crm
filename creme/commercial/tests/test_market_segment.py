@@ -322,9 +322,9 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         prop = CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
 
         rtype = RelationType.create(
-                    ('commercial-subject_test_segment_delete7', 'has produced',         [Organisation], [old_ptype]),
-                    ('commercial-object_test_segment_delete7',  'has been produced by', [Organisation]),
-                   )[0]
+            ('commercial-subject_test_segment_delete7', 'has produced',         [Organisation], [old_ptype]),
+            ('commercial-object_test_segment_delete7',  'has been produced by', [Organisation]),
+        )[0]
 
         segment2 = self.get_object_or_fail(MarketSegment, property_type=None)
         self.assertPOST200(self._build_delete_url(segment1), data={'to_segment': segment2.id})

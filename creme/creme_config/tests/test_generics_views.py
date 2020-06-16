@@ -318,14 +318,15 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         job = dcom.job
         self.assertEqual(deletor_type.id, job.type_id)
         self.assertEqual(self.user, job.user)
-        self.assertEqual(
-            [_('Deleting «{object}» ({model})').format(
-                 object=pos2del.title, model='Test People position',
-             ),
-             _('Empty «{model} - {field}»').format(
-                 model='Test Contact',
-                 field=_('Position'),
-             ),
+        self.assertListEqual(
+            [
+                _('Deleting «{object}» ({model})').format(
+                    object=pos2del.title, model='Test People position',
+                ),
+                _('Empty «{model} - {field}»').format(
+                    model='Test Contact',
+                    field=_('Position'),
+                ),
             ],
             deletor_type.get_description(job)
          )
@@ -1356,9 +1357,9 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                      )
 
         response = self.assertGET409(url)
-        msg = _('A deletion process for an instance of «{model}» already exists.').format(
-                  model='Test People position',
-              )
+        msg = _(
+            'A deletion process for an instance of «{model}» already exists.'
+        ).format(model='Test People position')
         self.assertIn(msg, response.content.decode())
 
         # ---

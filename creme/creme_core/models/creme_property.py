@@ -194,12 +194,13 @@ class CremePropertyType(CremeModel):
         """
         if not generate_pk:
             property_type = CremePropertyType.objects.update_or_create(
-                                    id=str_pk,
-                                    defaults={'text': text,
-                                              'is_custom': is_custom,
-                                              'is_copiable': is_copiable,
-                                             }
-                                )[0]
+                id=str_pk,
+                defaults={
+                    'text': text,
+                    'is_custom': is_custom,
+                    'is_copiable': is_copiable,
+                },
+            )[0]
         else:
             from creme.creme_core.utils.id_generator import generate_string_id_and_save
             property_type = CremePropertyType(text=text, is_custom=is_custom, is_copiable=is_copiable)

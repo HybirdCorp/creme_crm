@@ -67,8 +67,8 @@ if apps.is_installed('creme.billing'):
     def _handle_linked_quote_deletion(sender, instance, **kwargs):
         if instance.type_id == REL_SUB_LINKED_QUOTE:
             for relation in Relation.objects.filter(
-                    subject_entity=instance.subject_entity_id,
-                    type_id=REL_SUB_CURRENT_DOC,
-                    object_entity=instance.object_entity_id,
-                   ):
+                subject_entity=instance.subject_entity_id,
+                type_id=REL_SUB_CURRENT_DOC,
+                object_entity=instance.object_entity_id,
+            ):
                 relation.delete()

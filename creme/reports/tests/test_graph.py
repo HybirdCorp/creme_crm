@@ -3375,12 +3375,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(RGF_RELATION, item.get_extra_data('type'))
         self.assertEqual(rtype.id,      item.get_extra_data('value'))
 
-        self.assertEqual('{} - {}'.format(
-                            rgraph.name,
-                            _('{rtype} (Relationship)').format(rtype=rtype),
-                         ),
-                         ReportGraphBrick(item).verbose_name
-                        )
+        self.assertEqual(
+            '{} - {}'.format(
+                rgraph.name,
+                _('{rtype} (Relationship)').format(rtype=rtype),
+            ),
+            ReportGraphBrick(item).verbose_name
+        )
 
         create_contact = partial(FakeContact.objects.create, user=user)
         sonsaku = create_contact(first_name='Sonsaku', last_name='Hakufu')

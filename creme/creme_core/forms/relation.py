@@ -139,22 +139,22 @@ class _RelationsCreateForm(CremeForm):
                 if any(ptype_id not in subject_prop_ids for ptype_id in needed_properties.keys()):
                     if len(needed_properties) == 1:
                         raise ValidationError(
-                                    self.error_messages['missing_property_single'],
-                                    params={'subject':    subject,
-                                            'property':   next(iter(needed_properties.values())),
-                                            'predicate':  rtype.predicate,
-                                           },
-                                    code='missing_property_single',
-                                 )
+                            self.error_messages['missing_property_single'],
+                            params={'subject':    subject,
+                                    'property':   next(iter(needed_properties.values())),
+                                    'predicate':  rtype.predicate,
+                                   },
+                            code='missing_property_single',
+                        )
                     else:
                         raise ValidationError(
-                                    self.error_messages['missing_property_multi'],
-                                    params={'subject':    subject,
-                                            'properties': '/'.join(sorted(map(str, needed_properties.values()))),
-                                            'predicate':  rtype.predicate,
-                                           },
-                                    code='missing_property_multi',
-                                 )
+                            self.error_messages['missing_property_multi'],
+                            params={'subject':    subject,
+                                    'properties': '/'.join(sorted(map(str, needed_properties.values()))),
+                                    'predicate':  rtype.predicate,
+                                   },
+                            code='missing_property_multi',
+                        )
 
     def _check_loops(self, relations):
         subjects_ids = self.subjects_ids

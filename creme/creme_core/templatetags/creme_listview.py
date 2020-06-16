@@ -144,8 +144,11 @@ def listview_buttons(context, *, model, buttons):
 
 @register.simple_tag
 def listview_header_colspan(*, cells, is_readonly, is_single_select):
-    colspan = len(cells) if is_readonly else \
-              sum(2 if cell.type_id != 'actions' else 1 for cell in cells)
+    colspan = (
+        len(cells)
+        if is_readonly else
+        sum(2 if cell.type_id != 'actions' else 1 for cell in cells)
+    )
 
     return colspan if is_single_select else colspan + 1
 

@@ -113,14 +113,16 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Manga club')
 
-        response = self.client.post(url, follow=True,
-                                    data={'actions': self.build_formfield_value(
-                                                            operator='upper',
-                                                            name='name',
-                                                            value='',
-                                                ),
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'actions': self.build_formfield_value(
+                    operator='upper',
+                    name='name',
+                    value='',
+                ),
+            },
+        )
         self.assertNoFormError(response)
 
         jobs = Job.objects.filter(type_id=batch_process_type.id)
@@ -139,14 +141,16 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         # Properties
         self.assertIs(batch_process_type, job.type)
         self.assertIs(False, job.is_finished)
-        self.assertEqual([_('Entity type: {}').format('Test Organisation'),
-                          _('{field} ➔ {operator}').format(
-                                field=_('Name'),
-                                operator=_('To upper case'),
-                            )
-                         ],
-                         job.description
-                        )
+        self.assertListEqual(
+            [
+                _('Entity type: {}').format('Test Organisation'),
+                _('{field} ➔ {operator}').format(
+                    field=_('Name'),
+                    operator=_('To upper case'),
+                )
+            ],
+            job.description
+        )
 
         self.assertRedirects(response, job.get_absolute_url())
 
@@ -182,14 +186,16 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         contact01 = create_contact(first_name='Saki',     last_name='Kasukabe')
         contact02 = create_contact(first_name='Harunobu', last_name='Madarame')
 
-        response = self.client.post(self._build_add_url(FakeContact), follow=True,
-                                    data={'actions': self.build_formfield_value(
-                                                            name='first_name',
-                                                            operator='lower',
-                                                            value='',
-                                                        ),
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_add_url(FakeContact), follow=True,
+            data={
+                'actions': self.build_formfield_value(
+                    name='first_name',
+                    operator='lower',
+                    value='',
+                ),
+            },
+        )
         self.assertNoFormError(response)
 
         self._execute_job(response)
@@ -205,14 +211,16 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         contact01 = create_contact(first_name='Saki',   last_name='Kasukabe')
         contact02 = create_contact(first_name='Kanako', last_name='Ono')
 
-        response = self.client.post(self._build_add_url(FakeContact), follow=True,
-                                    data={'actions': self.build_formfield_value(
-                                                            name='first_name',
-                                                            operator='suffix',
-                                                            value='-adorée',
-                                                        ),
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_add_url(FakeContact), follow=True,
+            data={
+                'actions': self.build_formfield_value(
+                    name='first_name',
+                    operator='suffix',
+                    value='-adorée',
+                ),
+            },
+        )
         self.assertNoFormError(response)
 
         self._execute_job(response)
@@ -224,14 +232,16 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         "Invalid field."
         self.login()
 
-        response = self.assertPOST200(self._build_add_url(FakeContact), follow=True,
-                                      data={'actions': self.build_formfield_value(
-                                                            name='unknown_field',  # <============= HERE
-                                                            operator='lower',
-                                                            value='',
-                                                        ),
-                                           },
-                                     )
+        response = self.assertPOST200(
+            self._build_add_url(FakeContact), follow=True,
+            data={
+                'actions': self.build_formfield_value(
+                    name='unknown_field',  # <============= HERE
+                    operator='lower',
+                    value='',
+                ),
+            },
+        )
         self.assertFormError(response, 'form', 'actions',
                              _('This field is invalid with this model.'),
                             )
@@ -317,8 +327,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertFormError(
             response, 'form', 'actions',
              _('The field «%(field)s» can not be used twice.') % {
-                    'field': _('First name'),
-                 }
+                'field': _('First name'),
+             }
         )
 
     def test_with_filter01(self):
@@ -344,15 +354,17 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             {*efilter.filter(FakeOrganisation.objects.all())}
         )  # <== not 'orga01'
 
-        response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
-                                    data={'filter':  efilter.id,
-                                          'actions': self.build_formfield_value(
-                                                            name='name',
-                                                            operator='lower',
-                                                            value='',
-                                                        ),
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_add_url(FakeOrganisation), follow=True,
+            data={
+                'filter':  efilter.id,
+                'actions': self.build_formfield_value(
+                    name='name',
+                    operator='lower',
+                    value='',
+                ),
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._get_job(response)
@@ -399,13 +411,14 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         response = self.assertPOST200(
             self._build_add_url(FakeOrganisation), follow=True,
-            data={'filter':  efilter.id,
+            data={
+                'filter':  efilter.id,
                 'actions': self.build_formfield_value(
-                                name='name',
-                                operator='lower',
-                                value='',
-                            ),
-               },
+                    name='name',
+                    operator='lower',
+                    value='',
+                ),
+            },
         )
         self.assertFormError(
             response, 'form', 'filter',
@@ -438,10 +451,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             data={
                 'filter':  efilter.id,
                 'actions': self.build_formfield_value(
-                                name='name',
-                                operator='upper',
-                                value='',
-                           ),
+                    name='name',
+                    operator='upper',
+                    value='',
+                ),
             },
         )
         self.assertNoFormError(response)
@@ -473,14 +486,16 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertFalse(self.user.has_perm_to_change(orga01))  # <== user cannot change
         self.assertTrue(self.user.has_perm_to_change(orga02))
 
-        response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
-                                    data={'actions': self.build_formfield_value(
-                                                            name='name',
-                                                            operator='lower',
-                                                            value='',
-                                                        ),
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_add_url(FakeOrganisation), follow=True,
+            data={
+                'actions': self.build_formfield_value(
+                    name='name',
+                    operator='lower',
+                    value='',
+                ),
+            },
+        )
         self.assertNoFormError(response)
         job = self._get_job(response)
 
@@ -632,15 +647,17 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                             {*efilter.filter(FakeOrganisation.objects.all())}
                            )
 
-        response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
-                                    data={'filter':  efilter.id,
-                                          'actions': self.build_formfield_value(
-                                                            name='name',
-                                                            operator='rm_end',
-                                                            value='5',
-                                                        ),
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_add_url(FakeOrganisation), follow=True,
+            data={
+                'filter':  efilter.id,
+                'actions': self.build_formfield_value(
+                    name='name',
+                    operator='rm_end',
+                    value='5',
+                ),
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._get_job(response)
@@ -660,14 +677,16 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         self.login()
 
-        response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
-                                    data={'actions': self.build_formfield_value(
-                                                            name='name',
-                                                            operator='upper',
-                                                            value='',
-                                                        ),
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_add_url(FakeOrganisation), follow=True,
+            data={
+                'actions': self.build_formfield_value(
+                    name='name',
+                    operator='upper',
+                    value='',
+                ),
+            },
+        )
         self.assertNoFormError(response)
 
         response = self.assertGET200(self._build_add_url(FakeOrganisation), follow=True)
@@ -679,15 +698,17 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Contains "club"', FakeOrganisation, is_custom=True,
         )
-        response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
-                                    data={'filter':  efilter.id,
-                                          'actions': self.build_formfield_value(
-                                                            name='name',
-                                                            operator='rm_end',
-                                                            value='5',
-                                                        ),
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_add_url(FakeOrganisation), follow=True,
+            data={
+                'filter':  efilter.id,
+                'actions': self.build_formfield_value(
+                    name='name',
+                    operator='rm_end',
+                    value='5',
+                ),
+            },
+        )
         efilter.delete()
         self.assertDoesNotExist(efilter)
 

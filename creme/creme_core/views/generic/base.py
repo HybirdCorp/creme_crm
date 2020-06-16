@@ -92,9 +92,11 @@ class PermissionsMixin:
         # if permissions is not None:
         if permissions:
             # TODO: has_perm[s]_or_die() with better error message ?
-            allowed = user.has_perm(permissions) \
-                      if isinstance(permissions, str) else \
-                      user.has_perms(permissions)
+            allowed = (
+                user.has_perm(permissions)
+                if isinstance(permissions, str) else
+                user.has_perms(permissions)
+            )
 
             if not allowed:
                 raise PermissionDenied(gettext('You are not allowed to access this view.'))
@@ -112,9 +114,9 @@ class PermissionsMixin:
         redirect_arg_name = self.login_redirect_arg_name
 
         return '{}?{}'.format(
-                    url,
-                    urlencode({redirect_arg_name: self.request.get_full_path()}, safe='/'),
-                ) if redirect_arg_name else url
+            url,
+            urlencode({redirect_arg_name: self.request.get_full_path()}, safe='/'),
+        ) if redirect_arg_name else url
 
 
 class EntityRelatedMixin:

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,18 +24,24 @@ from creme.creme_core import get_concrete_model
 
 
 def act_model_is_custom():
-    return settings.COMMERCIAL_ACT_MODEL != 'commercial.Act' and \
-           not settings.COMMERCIAL_ACT_FORCE_NOT_CUSTOM
+    return (
+        settings.COMMERCIAL_ACT_MODEL != 'commercial.Act' and
+        not settings.COMMERCIAL_ACT_FORCE_NOT_CUSTOM
+    )
 
 
 def pattern_model_is_custom():
-    return settings.COMMERCIAL_PATTERN_MODEL != 'commercial.ActObjectivePattern' and \
-           not settings.COMMERCIAL_PATTERN_FORCE_NOT_CUSTOM
+    return (
+        settings.COMMERCIAL_PATTERN_MODEL != 'commercial.ActObjectivePattern' and
+        not settings.COMMERCIAL_PATTERN_FORCE_NOT_CUSTOM
+    )
 
 
 def strategy_model_is_custom():
-    return settings.COMMERCIAL_STRATEGY_MODEL != 'commercial.Strategy' and \
-           not settings.COMMERCIAL_STRATEGY_FORCE_NOT_CUSTOM
+    return (
+        settings.COMMERCIAL_STRATEGY_MODEL != 'commercial.Strategy' and
+        not settings.COMMERCIAL_STRATEGY_FORCE_NOT_CUSTOM
+    )
 
 
 def get_act_model():

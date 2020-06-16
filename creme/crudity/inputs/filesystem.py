@@ -99,12 +99,12 @@ class IniFileInput(CrudityInput):
                         if backend.in_sandbox:
                             # TODO: factorise with other inputs
                             WaitingAction.objects.create(
-                                  action=self.method,
-                                  ct=backend.model,
-                                  source=f'{backend.fetcher_name} - {self.name}',
-                                  subject=backend.subject,
-                                  user=owner,
-                                  data=data,
+                                action=self.method,
+                                ct=backend.model,
+                                source=f'{backend.fetcher_name} - {self.name}',
+                                subject=backend.subject,
+                                user=owner,
+                                data=data,
                             )
                         else:
                             # TODO: should be a public method

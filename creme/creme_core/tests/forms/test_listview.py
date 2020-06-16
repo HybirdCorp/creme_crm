@@ -472,11 +472,12 @@ class SearchFieldsTestCase(CremeTestCase):
         field = lv_form.RegularRelatedField(cell=cell, user=self.user)
 
         expected_choices = [
-             {'value': '',           'label': _('All')},
-             {'value': lv_form.NULL, 'label': _('* is empty *')},
-             *({'value': pk, 'label': title}
-                  for pk, title in FakeSector.objects.values_list('id', 'title')
-              )
+            {'value': '',           'label': _('All')},
+            {'value': lv_form.NULL, 'label': _('* is empty *')},
+            *(
+                {'value': pk, 'label': title}
+                for pk, title in FakeSector.objects.values_list('id', 'title')
+            )
         ]
         self.assertEqual(expected_choices, field.choices)
 

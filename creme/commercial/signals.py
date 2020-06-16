@@ -49,12 +49,11 @@ def post_save_relation_opp_subject_activity(sender, instance, **kwargs):
                     type_id=REL_SUB_COMPLETE_GOAL,
                     object_entity=relation.object_entity,
                     user=user,
-                ) for relation in Relation.objects
-                                          .filter(
-                                              subject_entity_id=object_entity.id,
-                                              type=REL_SUB_COMPLETE_GOAL,
-                                              object_entity__entity_type=get_ct(get_act_model()),
-                                          )
+                ) for relation in Relation.objects.filter(
+                    subject_entity_id=object_entity.id,
+                    type=REL_SUB_COMPLETE_GOAL,
+                    object_entity__entity_type=get_ct(get_act_model()),
+                )
             )
 
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -128,14 +128,15 @@ if apps.is_installed('creme.opportunities'):
         def get(context, entity):
             return EntityCredentials.filter(
                 context['user'],
-                Opportunity.objects
-                           .annotate(relations_w_person=FilteredRelation(
-                                        'relations',
-                                        condition=Q(relations__object_entity=entity.id),
-                                    ))
-                           .filter(is_deleted=False,
-                                   relations_w_person__type=opp_constants.REL_SUB_TARGETS,
-                                  )
+                Opportunity.objects.annotate(
+                    relations_w_person=FilteredRelation(
+                        'relations',
+                        condition=Q(relations__object_entity=entity.id),
+                    ),
+                ).filter(
+                    is_deleted=False,
+                    relations_w_person__type=opp_constants.REL_SUB_TARGETS,
+                )
             )
 else:
     class Opportunities4Card:
@@ -160,14 +161,15 @@ if apps.is_installed('creme.commercial'):
         def get(context, entity):
             return EntityCredentials.filter(
                 context['user'],
-                Act.objects
-                   .annotate(relations_w_person=FilteredRelation(
-                                'relations',
-                                condition=Q(relations__object_entity=entity.id),
-                            ))
-                   .filter(is_deleted=False,
-                           relations_w_person__type=commercial_constants.REL_OBJ_COMPLETE_GOAL,
-                          )
+                Act.objects.annotate(
+                    relations_w_person=FilteredRelation(
+                        'relations',
+                        condition=Q(relations__object_entity=entity.id),
+                    ),
+                ).filter(
+                    is_deleted=False,
+                    relations_w_person__type=commercial_constants.REL_OBJ_COMPLETE_GOAL,
+                )
             )
 else:
     class CommercialActs4Card:
@@ -291,13 +293,14 @@ class ManagersBrick(QuerysetBrick):
         is_hidden = context['fields_configs'].get_4_model(Contact).is_fieldname_hidden
 
         return self._render(self.get_template_context(context,
-                    self._get_people_qs(orga).select_related('civility'),
-                    rtype_id=self.relation_type_deps[0],
-                    add_title=self._get_add_title(),
-                    hidden_fields={fname
-                                    for fname in ('phone', 'mobile', 'email')
-                                        if is_hidden(fname)
-                                  },
+            self._get_people_qs(orga).select_related('civility'),
+            rtype_id=self.relation_type_deps[0],
+            add_title=self._get_add_title(),
+            hidden_fields={
+                fname
+                for fname in ('phone', 'mobile', 'email')
+                if is_hidden(fname)
+            },
         ))
 
 
@@ -367,10 +370,12 @@ class _AddressesBrick(Brick):
         build_cell = partial(EntityCellRegularField.build, model=Address)
 
         return super().get_template_context(
-                    context,
-                    b_address=b_address,
-                    s_address=s_address,
-                    cells=OrderedDict((fname, build_cell(name=fname)) for fname in _get_address_field_names()),
+            context,
+            b_address=b_address,
+            s_address=s_address,
+            cells=OrderedDict(
+                (fname, build_cell(name=fname)) for fname in _get_address_field_names()
+            ),
         )
 
     def detailview_display(self, context):
@@ -398,9 +403,9 @@ class _OtherAddressesBrick(QuerysetBrick):
         build_cell = partial(EntityCellRegularField.build, model=Address)
 
         return super().get_template_context(
-                    context,
-                    context['object'].other_addresses,
-                    cells=OrderedDict((fname, build_cell(name=fname)) for fname in _get_address_field_names()),
+            context,
+            context['object'].other_addresses,
+            cells=OrderedDict((fname, build_cell(name=fname)) for fname in _get_address_field_names()),
         )
 
     def detailview_display(self, context):
@@ -430,8 +435,8 @@ class ManagedOrganisationsBrick(PaginatedBrick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context,
-                    Organisation.objects.filter_managed_by_creme(),
+            context,
+            Organisation.objects.filter_managed_by_creme(),
         ))
 
 
@@ -512,8 +517,8 @@ if apps.is_installed('creme.activities'):
             # We do not check the 'persons' permission, because it's only
             # statistics for people who cannot see Organisations.
             return self._render(self.get_template_context(
-                        context,
-                        self._get_neglected(context['today']),
+                context,
+                self._get_neglected(context['today']),
             ))
 
     bricks_list += (

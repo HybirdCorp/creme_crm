@@ -184,9 +184,11 @@ class _FilterModelFieldQuery:
             conditions.append(function)
 
         for attr_name, value in kwargs.items():
-            fun = (lambda field, deep, attr_name, value: field.get_tag(attr_name) == value) \
-                  if attr_name in self._TAGS else \
-                  (lambda field, deep, attr_name, value: getattr(field, attr_name) == value)
+            fun = (
+                (lambda field, deep, attr_name, value: field.get_tag(attr_name) == value)
+                if attr_name in self._TAGS else
+                (lambda field, deep, attr_name, value: getattr(field, attr_name) == value)
+            )
 
             conditions.append(partial(fun, attr_name=attr_name, value=value))
 

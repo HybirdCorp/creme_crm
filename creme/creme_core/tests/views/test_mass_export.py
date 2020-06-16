@@ -258,7 +258,8 @@ class MassExportViewsTestCase(ViewsTestCase):
                          hline.modifications
                         )
         self.assertListEqual(
-            [_('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+            [
+                _('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
                     count=count,
                     model='Test Contacts',
                     view=hf.name,
@@ -486,7 +487,8 @@ class MassExportViewsTestCase(ViewsTestCase):
                          hline.modifications
                         )
         self.assertListEqual(
-            [_('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+            [
+                _('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
                     count=1,
                     model='Test Contact',
                     view=hf.name,

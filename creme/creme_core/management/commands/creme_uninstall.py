@@ -180,16 +180,17 @@ def _uninstall_entity_filters(sender, content_types, stdout_write, style, **kwar
                       }
 
             if parents:
-                stdout_write(' Beware: the filter "{name}" (id={id}) was used as '
-                             'sub-filter by the following filter(s): {parents}'.format(
-                                    name=efilter.name,
-                                    id=efilter.id,
-                                    parents=', '.join(f'<"{p.name}" (id="{p.id}")>'
-                                                  for p in parents.values()
-                                             ),
-                                ),
-                             style.NOTICE,
-                            )
+                stdout_write(
+                    ' Beware: the filter "{name}" (id={id}) was used as '
+                    'sub-filter by the following filter(s): {parents}'.format(
+                        name=efilter.name,
+                        id=efilter.id,
+                        parents=', '.join(
+                            f'<"{p.name}" (id="{p.id}")>' for p in parents.values()
+                        ),
+                    ),
+                    style.NOTICE,
+                )
 
             efilter.delete(check_orphan=False)
 
@@ -248,14 +249,13 @@ class Command(AppCommand):
                     depending_app_names.append(other_name)
 
         if depending_app_names:
-            raise CommandError('The following app(s) depend(s) on "{app}" & '
-                               'must be uninstalled before:\n{apps}'.format(
-                                        app=app_config.label,
-                                        apps='\n'.join(' - ' + name
-                                                           for name in depending_app_names
-                                                      ),
-                                   )
-                              )
+            raise CommandError(
+                'The following app(s) depend(s) on "{app}" & '
+                'must be uninstalled before:\n{apps}'.format(
+                    app=app_config.label,
+                    apps='\n'.join(f' - {name}' for name in depending_app_names),
+                )
+            )
 
     def _delete_instances(self, models, verbosity):
         if verbosity > 1:

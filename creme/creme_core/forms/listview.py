@@ -378,8 +378,10 @@ class BaseChoiceField(ListViewSearchField):
                 choice_value = choice['value']
 
                 if value == str(choice_value):
-                    return self._get_q_for_null_choice() if choice_value == NULL else \
-                           self._get_q_for_choice(choice_value)
+                    return (
+                        self._get_q_for_null_choice() if choice_value == NULL else
+                        self._get_q_for_choice(choice_value)
+                    )
 
             # TODO: raise error instead ?
             logger.warning('BaseChoiceField: invalid choice: %s', value)
@@ -543,9 +545,11 @@ class RegularRelatedField(ListViewSearchField):
                 pk = choice['value']
 
                 if value == str(pk):
-                    return Q(**{f'{self.cell.value}__isnull': True}) \
-                           if value == NULL else \
-                           Q(**{self.cell.value: pk})
+                    return (
+                        Q(**{f'{self.cell.value}__isnull': True})
+                        if value == NULL else
+                        Q(**{self.cell.value: pk})
+                    )
 
             logger.warning('ForeignKeyField => invalid ID: %s', value)
 
@@ -556,9 +560,11 @@ class EntityRelatedField(ListViewSearchField):
     widget = TextLVSWidget  # TODO: widget to get NULL ForeignKeys too
 
     def to_python(self, value):
-        return Q(**{f'{self.cell.value}__header_filter_search_field__icontains': value}) \
-               if value else \
-               super().to_python(value=value)
+        return (
+            Q(**{f'{self.cell.value}__header_filter_search_field__icontains': value})
+            if value else
+            super().to_python(value=value)
+        )
 
 
 # For custom fields

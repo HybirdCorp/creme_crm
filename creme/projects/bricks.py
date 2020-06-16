@@ -81,8 +81,8 @@ class ProjectTasksBrick(QuerysetBrick):
         creation_perm = user.has_perm(cperm(ProjectTask)) and user.has_perm_to_change(project)
 
         return self._render(self.get_template_context(
-                    context, project.get_tasks(),
-                    creation_perm=creation_perm,  # TODO: use templatetags instead ??
+            context, project.get_tasks(),
+            creation_perm=creation_perm,  # TODO: use templatetags instead ??
         ))
 
 
@@ -96,8 +96,8 @@ class TaskResourcesBrick(QuerysetBrick):
     def detailview_display(self, context):
         task = context['object']
         return self._render(self.get_template_context(
-                    context,
-                    task.get_resources().select_related('linked_contact'),
+            context,
+            task.get_resources().select_related('linked_contact'),
         ))
 
 

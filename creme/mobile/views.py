@@ -269,24 +269,26 @@ def search_person(request):
 
     # TODO: populate employers
     contacts = EntityCredentials.filter(
-            request.user,
-            Contact.objects.exclude(is_deleted=True)
-                           .filter(Q(first_name__icontains=search) |
-                                   Q(last_name__icontains=search) |
-                                   Q(relations__type__in=(persons_constants.REL_SUB_EMPLOYED_BY,
-                                                          persons_constants.REL_SUB_MANAGES,
-                                                         ),
-                                     relations__object_entity__header_filter_search_field__icontains=search,
-                                    )
-                                  )
-                           .distinct()
-        )[:30]
+        request.user,
+        Contact.objects.exclude(
+            is_deleted=True,
+        ).filter(
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search) |
+            Q(
+                relations__type__in=(
+                    persons_constants.REL_SUB_EMPLOYED_BY,
+                    persons_constants.REL_SUB_MANAGES,
+                ),
+                relations__object_entity__header_filter_search_field__icontains=search,
+            )
+        ).distinct()
+    )[:30]
 
     orgas = EntityCredentials.filter(
-            request.user,
-            Organisation.objects.exclude(is_deleted=True)
-                                .filter(name__icontains=search)
-        )[:30]
+        request.user,
+        Organisation.objects.exclude(is_deleted=True).filter(name__icontains=search)
+    )[:30]
 
     return render(
         request, 'mobile/search.html',
@@ -620,9 +622,9 @@ def _create_failed_pcall(request):
     pcall = failed_activity_creator(
         user=user,
         title=_('{status} call to {person} from Creme Mobile').format(
-                status=_('Failed'),
-                person=person,
-            ),
+            status=_('Failed'),
+            person=person,
+        ),
         type_id=act_constants.ACTIVITYTYPE_PHONECALL,
         sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,
         status_id=act_constants.STATUS_DONE,

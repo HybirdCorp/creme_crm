@@ -56,8 +56,8 @@ class BillingBarHatBrick(Brick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context,
-                    download_button=self.download_button,
+            context,
+            download_button=self.download_button,
         ))
 
 

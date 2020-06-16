@@ -474,7 +474,8 @@ def print_unsafehtml_html(entity: Model, fval, user, field: Field) -> str:
 # TODO: Do more specific fields (i.e: currency field....) ?
 class _FieldPrintersRegistry:
     def __init__(self):
-        self._printers = ClassKeyedMap([
+        self._printers = ClassKeyedMap(
+            [
                 (models.IntegerField,       print_integer),
 
                 (models.FloatField,         print_decimal),
@@ -506,7 +507,8 @@ class _FieldPrintersRegistry:
             ],
             default=simple_print_html,
         )
-        self._csv_printers = ClassKeyedMap([
+        self._csv_printers = ClassKeyedMap(
+            [
                 (models.IntegerField,       print_integer),
 
                 (models.FloatField,         print_decimal),
@@ -540,7 +542,8 @@ class _FieldPrintersRegistry:
         css_textarea_listview    = getattr(settings, 'CSS_TEXTAREA_LISTVIEW',    css_default)
         css_date_header_listview = getattr(settings, 'CSS_DATE_HEADER_LISTVIEW', css_default_header)
 
-        self._listview_css_printers = ClassKeyedMap([
+        self._listview_css_printers = ClassKeyedMap(
+            [
                 (models.IntegerField,               css_number_listview),
                 (models.CommaSeparatedIntegerField, css_number_listview),
                 (models.DecimalField,               css_number_listview),
@@ -551,7 +554,8 @@ class _FieldPrintersRegistry:
             default=css_default,
         )
 
-        self._header_listview_css_printers = ClassKeyedMap([
+        self._header_listview_css_printers = ClassKeyedMap(
+            [
                 (models.DateField,      css_date_header_listview),
                 (models.DateTimeField,  css_date_header_listview),
             ],

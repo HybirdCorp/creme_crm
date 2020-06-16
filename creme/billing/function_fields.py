@@ -74,21 +74,23 @@ class TemplateBaseVerboseStatusField(FunctionField):
 
 
 def sum_totals_no_vat(model, entity, user, **kwargs):
-    all_totals = dict(EntityCredentials.filter(
-                            user,
-                            model.objects.filter(relations__type=REL_SUB_BILL_RECEIVED,
-                                                 relations__object_entity=entity.id,
-                                                 is_deleted=False,
-                                                 total_no_vat__isnull=False,
-                                                 **kwargs
-                                                )
-                                         .values_list('id', 'total_no_vat')
-                     ))
+    all_totals = dict(
+        EntityCredentials.filter(
+            user,
+            model.objects.filter(
+                relations__type=REL_SUB_BILL_RECEIVED,
+                relations__object_entity=entity.id,
+                is_deleted=False,
+                total_no_vat__isnull=False,
+                **kwargs
+            ).values_list('id', 'total_no_vat')
+        )
+    )
     managed_ids = Relation.objects.filter(
-            subject_entity__in=[o.id for o in Organisation.objects.filter_managed_by_creme()],
-            type=REL_OBJ_BILL_ISSUED,
-            object_entity_id__in=all_totals.keys(),
-        ).values_list('object_entity', flat=True)
+        subject_entity__in=[o.id for o in Organisation.objects.filter_managed_by_creme()],
+        type=REL_OBJ_BILL_ISSUED,
+        object_entity_id__in=all_totals.keys(),
+    ).values_list('object_entity', flat=True)
 
     return sum(all_totals[b_id] for b_id in managed_ids)
 
@@ -98,34 +100,37 @@ def sum_totals_no_vat_multi(model, entities, user, **kwargs):
     bill_ids = []
 
     for bill_id, total, e_id in EntityCredentials.filter(
-                                    user,
-                                    model.objects
-                                         .filter(
-                                            relations__type=REL_SUB_BILL_RECEIVED,
-                                            relations__object_entity__in=[e.id for e in entities],
-                                            is_deleted=False,
-                                            total_no_vat__isnull=False,
-                                            **kwargs
-                                           )
-                                         .values_list('id', 'total_no_vat', 'relations__object_entity')
-                                ):
+        user,
+        model.objects.filter(
+            relations__type=REL_SUB_BILL_RECEIVED,
+            relations__object_entity__in=[e.id for e in entities],
+            is_deleted=False,
+            total_no_vat__isnull=False,
+            **kwargs
+         ).values_list('id', 'total_no_vat', 'relations__object_entity')
+    ):
         bill_info_map[e_id].append((bill_id, total))
         bill_ids.append(bill_id)
 
-    managed_bill_ids = {*Relation.objects.filter(
-                             subject_entity__in=[
-                                 # NB: not values_list() to use the cache of filter_managed_by_creme()
-                                 o.id for o in Organisation.objects.filter_managed_by_creme()
-                             ],
-                             type=REL_OBJ_BILL_ISSUED,
-                             object_entity_id__in=bill_ids,
-                         ).values_list('object_entity', flat=True)
-                       }
+    managed_bill_ids = {
+        *Relation.objects.filter(
+            subject_entity__in=[
+                # NB: not values_list() to use the cache of filter_managed_by_creme()
+                o.id for o in Organisation.objects.filter_managed_by_creme()
+            ],
+            type=REL_OBJ_BILL_ISSUED,
+            object_entity_id__in=bill_ids,
+        ).values_list('object_entity', flat=True)
+    }
 
     for entity in entities:
-        yield entity, sum(total for bill_id, total in bill_info_map[entity.id]
-                            if bill_id in managed_bill_ids
-                         )
+        yield (
+            entity,
+            sum(
+                total for bill_id, total in bill_info_map[entity.id]
+                if bill_id in managed_bill_ids
+            )
+        )
 
 
 def get_total_pending(entity, user):

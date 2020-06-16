@@ -58,7 +58,7 @@ class _AssistantsBrick(QuerysetBrick):
     def detailview_display(self, context):
         entity = context['object']
         btc = self.get_template_context(
-                context, self._get_queryset_for_detailview(entity, context),
+            context, self._get_queryset_for_detailview(entity, context),
         )
 
         # NB: optimisation ; it avoids the retrieving of the entity during template rendering.
@@ -69,7 +69,7 @@ class _AssistantsBrick(QuerysetBrick):
 
     def home_display(self, context):
         btc = self.get_template_context(
-                context, self._get_queryset_for_home(context),
+            context, self._get_queryset_for_home(context),
         )
         self._populate_related_real_entities(btc['page'].object_list)
 

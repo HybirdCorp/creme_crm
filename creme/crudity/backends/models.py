@@ -238,9 +238,9 @@ class CrudityBackend:
                             user_id=shift_user_id,
                             filedata=handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename),
                             linked_folder=Folder.objects.get_or_create(
-                                    title=_('External data'),
-                                    parent_folder=None,
-                                    defaults={'user_id': shift_user_id},
+                                title=_('External data'),
+                                parent_folder=None,
+                                defaults={'user_id': shift_user_id},
                             )[0],
                             description=_('Imported from external data.'),
                         )

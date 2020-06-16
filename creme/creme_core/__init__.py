@@ -62,12 +62,15 @@ def get_concrete_model(model_setting: str) -> Type[Model]:
     try:
         return apps.get_model(model_str)
     except ValueError as e:
-        raise ImproperlyConfigured("{} must be of the form 'app_label.model_name'".format(model_setting)) from e
+        raise ImproperlyConfigured(
+            "{} must be of the form 'app_label.model_name'".format(model_setting)
+        ) from e
     except LookupError as e:
-        raise ImproperlyConfigured("{} refers to model '{}' that has not been installed".format(
-                                            model_setting, model_str,
-                                        )
-                                  ) from e
+        raise ImproperlyConfigured(
+            "{} refers to model '{}' that has not been installed".format(
+                model_setting, model_str,
+            )
+        ) from e
 
 
 # ------------------------------------------------------------------------------

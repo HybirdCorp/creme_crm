@@ -108,12 +108,12 @@ class GHCCRegularField(GraphHandCellConstraint):
         model = self.model
 
         for field_chain in ModelFieldEnumerator(
-                    model,
-                    deep=0,
-                    only_leafs=False,
-                ).filter(
-                    lambda field, depth: self._accept_field(field, not_hiddable_cell_keys),
-                ):
+            model,
+            deep=0,
+            only_leafs=False,
+        ).filter(
+            lambda field, depth: self._accept_field(field, not_hiddable_cell_keys),
+        ):
             yield EntityCellRegularField.build(
                 model=model,
                 name='__'.join(field.name for field in field_chain),

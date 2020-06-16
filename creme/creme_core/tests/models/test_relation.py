@@ -257,10 +257,10 @@ class RelationsTestCase(CremeTestCase):
             ('test-object_foobar',  'is managed by')
         )
         internal_rtype, internal_sym_rtype = create_rtype(
-                ('test-subject_foobar_2', 'manages internal'),
-                ('test-object_foobar_2',  'is managed by internal'),
-                is_internal=True,
-            )
+            ('test-subject_foobar_2', 'manages internal'),
+            ('test-object_foobar_2',  'is managed by internal'),
+            is_internal=True,
+        )
 
         compatibles_ids = self.build_compatible_set()
         self.assertEqual(len(orig_compat_ids) + 2, len(compatibles_ids))

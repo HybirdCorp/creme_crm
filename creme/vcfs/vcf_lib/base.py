@@ -144,11 +144,10 @@ class VBase:
                     raise
                 else:
                     e_info = sys.exc_info()
-                    new_error = NativeError('In transformFromNative, unhandled exception: {}: {}'.format(
-                                                e_info[0], e_info[1]
-                                             ),
-                                            lineNumber
-                                           )
+                    new_error = NativeError(
+                        f'In transformFromNative, unhandled exception: {e_info[0]}: {e_info[1]}',
+                        lineNumber
+                    )
 
                     raise NativeError(new_error, e_info[2]) from e
         else:

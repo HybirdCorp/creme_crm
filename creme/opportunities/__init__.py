@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,8 +24,10 @@ from creme.creme_core import get_concrete_model
 
 
 def opportunity_model_is_custom():
-    return settings.OPPORTUNITIES_OPPORTUNITY_MODEL != 'opportunities.Opportunity' and \
-           not settings.OPPORTUNITIES_OPPORTUNITY_FORCE_NOT_CUSTOM
+    return (
+        settings.OPPORTUNITIES_OPPORTUNITY_MODEL != 'opportunities.Opportunity' and
+        not settings.OPPORTUNITIES_OPPORTUNITY_FORCE_NOT_CUSTOM
+    )
 
 
 def get_opportunity_model():

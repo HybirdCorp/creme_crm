@@ -81,10 +81,10 @@ class GoogleDetailMapBrick(_MapBrick):
         entity = context['object']
         addresses = [address for address in self.get_addresses_as_dict(entity) if address.get('content')]
         return self._render(self.get_template_context(
-                    context,
-                    addresses=addresses,
-                    geoaddresses=addresses,
-                    google_api_key=get_google_api_key(),  # TODO: factorise
+            context,
+            addresses=addresses,
+            geoaddresses=addresses,
+            google_api_key=get_google_api_key(),  # TODO: factorise
         ))
 
 
@@ -95,11 +95,11 @@ class GoogleFilteredMapBrick(_MapBrick):
 
     def home_display(self, context):
         return self._render(self.get_template_context(
-                    context,
-                    address_filters=self.get_filter_choices(context['user'],
-                                                            Contact, Organisation,
-                                                           ),
-                    google_api_key=get_google_api_key(),  # TODO: factorise
+            context,
+            address_filters=self.get_filter_choices(context['user'],
+                                                    Contact, Organisation,
+                                                   ),
+            google_api_key=get_google_api_key(),  # TODO: factorise
         ))
 
 
@@ -122,12 +122,12 @@ class GoogleNeighboursMapBrick(_MapBrick):
         entity = context['object']
 
         return self._render(self.get_template_context(
-                    context,
-                    ref_addresses=self.get_addresses_as_dict(entity),
-                    address_filters=self.get_filter_choices(context['user'],
-                                                            Contact, Organisation,
-                                                           ),
-                    radius=get_radius(),
-                    maps_blockid=GoogleDetailMapBrick.id_,
-                    google_api_key=get_google_api_key(),  # TODO: factorise
+            context,
+            ref_addresses=self.get_addresses_as_dict(entity),
+            address_filters=self.get_filter_choices(context['user'],
+                                                    Contact, Organisation,
+                                                   ),
+            radius=get_radius(),
+            maps_blockid=GoogleDetailMapBrick.id_,
+            google_api_key=get_google_api_key(),  # TODO: factorise
         ))

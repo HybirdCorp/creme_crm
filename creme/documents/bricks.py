@@ -63,10 +63,10 @@ class FolderDocsBrick(QuerysetBrick):
         folder_id = context['object'].id
         q_dict = {'linked_folder': folder_id}
         return self._render(self.get_template_context(
-                    context,
-                    Document.objects.filter(**q_dict),
-                    # Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
-                    q_filter=QSerializer().dumps(Q(**q_dict)),
+            context,
+            Document.objects.filter(**q_dict),
+            # Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
+            q_filter=QSerializer().dumps(Q(**q_dict)),
         ))
 
 
@@ -82,9 +82,9 @@ class ChildFoldersBrick(QuerysetBrick):
         folder = context['object']
 
         return self._render(self.get_template_context(
-                    context,
-                    Folder.objects.filter(parent_folder=folder),
-                    folder_model=Folder,
+            context,
+            Folder.objects.filter(parent_folder=folder),
+            folder_model=Folder,
         ))
 
 
@@ -99,14 +99,14 @@ class LinkedDocsBrick(QuerysetBrick):
     def detailview_display(self, context):
         entity = context['object']
         btc = self.get_template_context(
-                    context,
-                    Document.get_linkeddoc_relations(entity),
-                    predicate_id=REL_SUB_RELATED_2_DOC,
+            context,
+            Document.get_linkeddoc_relations(entity),
+            predicate_id=REL_SUB_RELATED_2_DOC,
         )
         relations = btc['page'].object_list
-        docs = Document.objects.filter(pk__in=[r.object_entity_id for r in relations]) \
-                               .select_related('linked_folder') \
-                               .in_bulk()
+        docs = Document.objects.filter(
+            pk__in=[r.object_entity_id for r in relations],
+        ).select_related('linked_folder').in_bulk()
 
         for relation in relations:
             relation.object_entity = docs[relation.object_entity_id]

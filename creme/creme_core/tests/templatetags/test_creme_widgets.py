@@ -44,11 +44,13 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             tpl = Template(r'{% load creme_widgets %}{% widget_entity_hyperlink my_entity user %}')
             render = tpl.render(Context({'user': user, 'my_entity': orga}))
 
-        self.assertEqual(render,
-                         '<a href="/tests/organisation/{}">{}</a>'.format(
-                                orga.id, name + '&lt;br/&gt;'
-                            )
-                        )
+        self.assertEqual(
+            render,
+            '<a href="/tests/organisation/{}">{}</a>'.format(
+                orga.id,
+                name + '&lt;br/&gt;',
+            )
+        )
 
     def test_widget_entity_hyperlink02(self):
         "Credentials"

@@ -420,14 +420,17 @@ class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
         #                ),
         # )
         extra_q = ~Q(
-            pk__in=[*CremeEntity.objects
-                                .annotate(relations_w_entity=FilteredRelation(
-                                             'relations',
-                                             condition=Q(relations__object_entity=self.get_related_entity().id),
-                                         ))
-                                .filter(relations_w_entity__type=rtype.symmetric_type_id)
-                                .values_list('id', flat=True)
-                   ],
+            pk__in=[
+                *CremeEntity.objects
+                            .annotate(
+                                relations_w_entity=FilteredRelation(
+                                    'relations',
+                                    condition=Q(relations__object_entity=self.get_related_entity().id),
+                                )
+                            ).filter(
+                                relations_w_entity__type=rtype.symmetric_type_id,
+                            ).values_list('id', flat=True)
+            ],
         )
 
         # prop_types = [*rtype.object_properties.all()]
