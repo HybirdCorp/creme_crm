@@ -92,8 +92,10 @@ class AbstractPollForm(CremeEntity):
             from .poll_reply import PollReplySection
             create_section = partial(PollReplySection.objects.create, preply=instance)
 
-        matches = {}  # id = ID of PollFormSection instance ;
-                      # value = corresponding PollReplySection or PollFormSection instance
+        # id = ID of PollFormSection instance ;
+        # value = corresponding PollReplySection or PollFormSection instance.
+        matches = {}
+
         fsections = [*self.sections.all()]
         parents = [None]  # set ??
 

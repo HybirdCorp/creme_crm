@@ -413,8 +413,9 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
             def __init__(self, ctype):
                 self.ctype = ctype
                 self.default_count = 0
-                self.locations_info = ()  # List of tuples (role_arg, role_label, brick_count)
-                                          # with role_arg == role.id or 'superuser'
+                # List of tuples (role_arg, role_label, brick_count)
+                # with <role_arg == role.id> or 'superuser'
+                self.locations_info = ()
 
         # TODO: factorise with SearchConfigBlock ?
         # TODO: factorise with CustomBrickConfigItemCreateForm , add a method in brick_registry ?
@@ -740,8 +741,10 @@ class UserSettingValuesBrick(Brick):
     verbose_name  = 'My setting values'
     template_name = 'creme_config/bricks/user-setting-values.html'
     configurable  = False
-    permission    = None  # NB: used by the view creme_core.views.bricks.BricksReloading ;
-                          #     None means 'No special permission required'
+
+    # NB: used by the view creme_core.views.bricks.BricksReloading ;
+    # <None> means 'No special permission required'.
+    permission = None
 
     user_setting_key_registry = setting_key.user_setting_key_registry
 

@@ -28,11 +28,14 @@ from .fields import CremeUserForeignKey
 
 
 class FileRef(models.Model):  # NB: not a CremeModel, because it's used by CremeModel.delete()
-    filedata  = models.FileField(max_length=200)
-    basename  = models.CharField(max_length=200)  # True/user-friendly name of the file
-                                                  # (in 'filedata' there is the path uniqueness constraint).
-    created   = models.DateTimeField(auto_now_add=True)
-    user      = CremeUserForeignKey(verbose_name='Owner user', null=True, on_delete=models.SET_NULL)
+    filedata = models.FileField(max_length=200)
+
+    # True/user-friendly name of the file
+    # (in 'filedata' there is the path uniqueness constraint).
+    basename = models.CharField(max_length=200)
+
+    created = models.DateTimeField(auto_now_add=True)
+    user = CremeUserForeignKey(verbose_name='Owner user', null=True, on_delete=models.SET_NULL)
     temporary = models.BooleanField(verbose_name='Is temporary?', default=True)
 
     class Meta:

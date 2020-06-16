@@ -107,9 +107,11 @@ class PollReplyLinesBrick(Brick):
 
 
 class PollRepliesBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('polls', 'poll_replies')
-    dependencies  = (PollReply, PollFormLine)  # PollFormLine : the 'New' button appears only
-                                               #  if there is at least one line.
+    id_ = QuerysetBrick.generate_id('polls', 'poll_replies')
+
+    # PollFormLine : the 'New' button appears only if there is at least one line.
+    dependencies = (PollReply, PollFormLine)
+
     verbose_name  = _('Form replies')
     template_name = 'polls/bricks/preplies.html'
     target_ctypes = (PollForm,)

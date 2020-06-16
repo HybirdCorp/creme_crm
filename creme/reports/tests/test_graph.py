@@ -1974,8 +1974,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             field_type=CustomField.DATETIME,
         )
         cf = create_cf(name='First victory')
-        cf2 = create_cf(name='First defeat')  # This one is annoying because the values are in the same table
-                                              # so the query must be more complex to not retrieve them
+
+        # This one is annoying because the values are in the same table,
+        # so the query must be more complex to not retrieve them.
+        cf2 = create_cf(name='First defeat')
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         targaryens = create_orga(name='House Targaryen')
@@ -2123,9 +2125,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                                content_type=self.ct_orga,
                                field_type=CustomField.DATETIME,
                               )
-        cf  = create_cf_dt(name='First victory')
-        cf2 = create_cf_dt(name='First defeat')  # This one is annoying because the values are in the same table
-                                                 # so the query must be more complex to not retrieve them
+        cf = create_cf_dt(name='First victory')
+
+        # This one is annoying because the values are in the same table
+        # so the query must be more complex to not retrieve them
+        cf2 = create_cf_dt(name='First defeat')
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         lannisters = create_orga(name='House Lannister', capital=100)

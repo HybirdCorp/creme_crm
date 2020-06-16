@@ -863,8 +863,9 @@ class MultiRelationEntityField(RelationEntityField):
 
 
 class CreatorEntityField(EntityCredsJSONField):
-    widget = core_widgets.EntityCreatorWidget  # The following attributes are set:
-                                               # model, q_filter, creation_url, creation_allowed
+    # The following attributes are set: model, q_filter, creation_url, creation_allowed
+    widget = core_widgets.EntityCreatorWidget
+
     value_type: Type = int
 
     def __init__(self, *, model=None, q_filter=None,

@@ -61,12 +61,15 @@ class PropertiesBrick(QuerysetBrick):
 
 
 class RelationsBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('creme_core', 'relations')
-    dependencies  = (Relation,)  # NB: (Relation, CremeEntity) but useless.
-                                 # Useless because _iter_dependencies_info() has been overriden.
+    id_ = QuerysetBrick.generate_id('creme_core', 'relations')
+
+    # NB: indeed (Relation, CremeEntity) but useless because
+    # _iter_dependencies_info() has been overridden.
+    dependencies = (Relation,)
+
     relation_type_deps = ()  # Voluntarily void -> see detailview_display()
-    order_by      = 'type__predicate'
-    verbose_name  = _('Relationships')
+    order_by = 'type__predicate'
+    verbose_name = _('Relationships')
     template_name = 'creme_core/bricks/relations.html'
 
     def __init__(self):
