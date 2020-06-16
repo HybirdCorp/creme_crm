@@ -359,6 +359,7 @@ class Component(VBase):
             raise AttributeError(name) from e
 
     _normal_attributes = frozenset(['contents', 'name', 'behavior', 'parentBehavior', 'group'])
+
     def __setattr__(self, name, value):
         """For convenience, make self.contents directly accessible.
 
