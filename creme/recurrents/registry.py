@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.utils.imports import import_apps_sub_modules
 
-# TODO : AppRecurrentRegistry indirection useless (at least for now)
+# TODO: AppRecurrentRegistry indirection useless (at least for now)
+
 
 class TemplateRecurrentRegistry:
     def __init__(self, model, template_model, template_form):

@@ -103,9 +103,9 @@ JSON_ESCAPES = {
     ord('\u2028'): '\\u2028',
     ord('\u2029'): '\\u2029'
 }
-
 # Escape every ASCII character with a value less than 32.
 # JSON_ESCAPES.update((ord('%c' % z), '\\u%04X' % z) for z in range(32))
+
 
 def escapejson(value: str) -> str:
     return mark_safe(force_text(value).translate(JSON_ESCAPES))

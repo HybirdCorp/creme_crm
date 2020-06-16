@@ -851,6 +851,7 @@ class TrashCleanerEnd(generic.CheckedView):
 
         return HttpResponse()
 
+
 # @login_required
 # @POST_only
 # @atomic

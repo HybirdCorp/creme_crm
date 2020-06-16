@@ -23,13 +23,13 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+# from creme.creme_core.models import SettingValue
 from creme.creme_core.gui.bricks import QuerysetBrick
 
 from .models import History, WaitingAction
 # from .setting_keys import sandbox_key
 from .utils import is_sandbox_by_user
 
-# from creme.creme_core.models import SettingValue
 
 class CrudityQuerysetBrick(QuerysetBrick):
     def __init__(self, *args, **kwargs):
