@@ -704,10 +704,10 @@ class ImportingTestCase(CremeTestCase):
         # --
         role_contact_bricks_data = defaultdict(list)
         for bdl in BrickDetailviewLocation.objects.filter(
-                content_type=ContentType.objects.get_for_model(FakeContact),
-                role__name=role_name,
-                superuser=False,
-            ):
+                    content_type=ContentType.objects.get_for_model(FakeContact),
+                    role__name=role_name,
+                    superuser=False,
+                ):
             role_contact_bricks_data[bdl.zone].append(
                 {'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
                  'ctype': ct_str, 'role': role_name,
