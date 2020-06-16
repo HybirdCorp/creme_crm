@@ -108,10 +108,11 @@ class Command(BaseCommand):
 
         # ----------------------------------------------------------------------
         populators = []
-        populators_names = set()  # Names of populators that will be run
-        total_deps = set()  # Populators names that are needed by our populators
-        total_missing_deps = set()  # All populators names that are added by
-                                    # this script because of dependencies
+        populators_names = set()  # Names of populators that will be run.
+        total_deps = set()  # Populators names that are needed by our populators.
+
+        # All populators names that are added by this script because of dependencies.
+        total_missing_deps = set()
 
         while True:
             changed = False

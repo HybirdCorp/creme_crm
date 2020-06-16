@@ -25,8 +25,9 @@ except Exception as e:
 
 
 class FlowPaginatorTestCase(CremeTestCase):
-    CONTACTS_DATA = ()  # Build by setUpClass. Sequence of tuples (order, first_name, last_name)
-                        # 'order' is the 1-based-index of data sorted by last_name.
+    # Build by setUpClass. Sequence of tuples (order, first_name, last_name)
+    # 'order' is the 1-based-index of data sorted by last_name.
+    CONTACTS_DATA = ()
 
     @classmethod
     def setUpClass(cls):

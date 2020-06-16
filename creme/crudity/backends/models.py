@@ -262,8 +262,9 @@ class CrudityBackend:
                     # setattr(instance, field_name, field.to_python(field_value)) TODO (instead of for ..: setattr()... ??
 
                 instance.__dict__.update(data)
-                # for k, v in data.iteritems(): #TODO: (but fix bug with ManyToManyField)
-                    # setattr(instance, k, v)
+                # TODO: (but fix bug with ManyToManyField)
+                #     for k, v in data.iteritems():
+                #         setattr(instance, k, v)
 
                 self._create_instance_before_save(instance, data)
                 instance.save()
