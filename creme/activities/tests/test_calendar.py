@@ -1,36 +1,37 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta, date
-    from functools import partial
+from datetime import date, timedelta
+from functools import partial
 
-    from parameterized import parameterized
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sessions.models import Session
+from django.core.exceptions import ValidationError
+from django.core.management import call_command
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.html import escape
+from django.utils.timezone import get_current_timezone, make_naive
+from django.utils.translation import gettext as _
+from parameterized import parameterized
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.contrib.sessions.models import Session
-    from django.core.exceptions import ValidationError
-    from django.core.management import call_command
-    from django.urls import reverse
-    from django.test.utils import override_settings
-    from django.utils.html import escape
-    from django.utils.timezone import make_naive, get_current_timezone
-    from django.utils.translation import gettext as _
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.creme_jobs import deletor_type
+from creme.creme_core.models import (
+    CremeUser,
+    DeletionCommand,
+    Job,
+    Relation,
+    SetCredentials,
+)
+from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.creme_jobs import deletor_type
-    from creme.creme_core.models import (Relation, SetCredentials, CremeUser,
-        Job, DeletionCommand)
-    from creme.creme_core.tests.base import CremeTestCase
-
-    from .base import _ActivitiesTestCase, skipIfCustomActivity
-
-    from .. import get_activity_model
-    from ..management.commands.activities_create_default_calendars import Command as CalCommand
-    from ..models import Calendar
-    from ..constants import *
-    from ..utils import get_last_day_of_a_month
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import constants, get_activity_model
+from ..management.commands.activities_create_default_calendars import (
+    Command as CalCommand,
+)
+from ..models import Calendar
+from ..utils import get_last_day_of_a_month
+from .base import _ActivitiesTestCase, skipIfCustomActivity
 
 Activity = get_activity_model()
 
@@ -310,21 +311,24 @@ class CalendarTestCase(_ActivitiesTestCase):
         create_cal(user=staff_user,    name='Cal #5', is_public=True)  # Should not be used
         create_cal(user=inactive_user, name='Cal #6', is_public=True)  # Should not be used
 
-        create_act = partial(Activity.objects.create, user=user,
-                             type_id=ACTIVITYTYPE_TASK, floating_type=FLOATING,
-                            )
+        create_act = partial(
+            Activity.objects.create, user=user,
+            type_id=constants.ACTIVITYTYPE_TASK, floating_type=constants.FLOATING,
+        )
         act1 = create_act(title='Act#1')
-        act2 = create_act(title='Act#2', type_id=ACTIVITYTYPE_MEETING,
-                          sub_type_id=ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                         )
+        act2 = create_act(
+            title='Act#2', type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+        )
         act3 = create_act(title='Act#3', is_deleted=True)
         act4 = create_act(title='Act#4', user=other_user)
-        act5 = create_act(title='Act#5', floating_type=NARROW)
+        act5 = create_act(title='Act#5', floating_type=constants.NARROW)
 
-        create_rel = partial(Relation.objects.create, user=user,
-                             subject_entity=user.linked_contact,
-                             type_id=REL_SUB_PART_2_ACTIVITY,
-                            )
+        create_rel = partial(
+            Relation.objects.create, user=user,
+            subject_entity=user.linked_contact,
+            type_id=constants.REL_SUB_PART_2_ACTIVITY,
+        )
         create_rel(object_entity=act1)
         act1.calendars.add(cal1)
         create_rel(object_entity=act2)
@@ -365,15 +369,17 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.login()
 
         def create_act(i):
-            act = Activity.objects.create(user=user, title=f'Floating Act#{i}',
-                                          type_id=ACTIVITYTYPE_TASK,
-                                          floating_type=FLOATING,
-                                         )
-            Relation.objects.create(user=user,
-                                    subject_entity=user.linked_contact,
-                                    type_id=REL_SUB_PART_2_ACTIVITY,
-                                    object_entity=act,
-                                   )
+            act = Activity.objects.create(
+                user=user, title=f'Floating Act#{i}',
+                type_id=constants.ACTIVITYTYPE_TASK,
+                floating_type=constants.FLOATING,
+            )
+            Relation.objects.create(
+                user=user,
+                subject_entity=user.linked_contact,
+                type_id=constants.REL_SUB_PART_2_ACTIVITY,
+                object_entity=act,
+            )
             return act
 
         create_act(1)
@@ -531,9 +537,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         def_cal = Calendar.objects.get_default_calendar(user)
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
-        act = Activity.objects.create(user=user, title='Act#1',
-                                      type_id=ACTIVITYTYPE_TASK,
-                                     )
+        act = Activity.objects.create(
+            user=user, title='Act#1', type_id=constants.ACTIVITYTYPE_TASK,
+        )
         act.calendars.add(cal)
 
         url = self.build_delete_calendar_url(cal)
@@ -672,7 +678,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         default_calendar = Calendar.objects.get_default_calendar(user)
 
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
-        act = Activity.objects.create(user=user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
+        act = Activity.objects.create(
+            user=user, title='Act#1', type_id=constants.ACTIVITYTYPE_TASK,
+        )
         act.calendars.add(default_calendar)
         self.assertListEqual([default_calendar], [*act.calendars.all()])
 
@@ -705,7 +713,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal1 = create_cal(name='Cal #1')
         cal2 = create_cal(name='Cal #2')
 
-        act = Activity.objects.create(user=user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
+        act = Activity.objects.create(
+            user=user, title='Act#1', type_id=constants.ACTIVITYTYPE_TASK,
+        )
         act.calendars.set([default_calendar, cal1])
 
         url = self.build_link_url(act.id)
@@ -728,7 +738,9 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
-        act = Activity.objects.create(user=self.other_user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
+        act = Activity.objects.create(
+            user=self.other_user, title='Act#1', type_id=constants.ACTIVITYTYPE_TASK,
+        )
         self.assertFalse(user.has_perm_to_change(act))
         self.assertFalse(user.has_perm_to_link(act))
 
@@ -748,9 +760,9 @@ class CalendarTestCase(_ActivitiesTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        act = Activity.objects.create(user=self.other_user,
-                                      title='Act#1', type_id=ACTIVITYTYPE_TASK,
-                                     )
+        act = Activity.objects.create(
+            user=self.other_user, title='Act#1', type_id=constants.ACTIVITYTYPE_TASK,
+        )
         act.calendars.add(Calendar.objects.get_default_calendar(user))
         self.assertGET403(self.build_link_url(act.id))
 
@@ -782,7 +794,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         activity = Activity.objects.create(
             title='Act#1',
             user=user,
-            type_id=ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_TASK,
             start=start,
             end=end,
             is_all_day=is_all_day
@@ -819,13 +831,16 @@ class CalendarTestCase(_ActivitiesTestCase):
         start = create_dt(year=2013, month=3, day=1)
         end   = create_dt(year=2013, month=3, day=31, hour=23, minute=59)
 
-        create = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_TASK)
+        create = partial(
+            Activity.objects.create,
+            user=user, type_id=constants.ACTIVITYTYPE_TASK,
+        )
         act0 = create(title='Act#0', start=start, end=start)
         act1 = create(title='Act#1', start=start + timedelta(days=1), end=start + timedelta(days=2))
         __   = create(title='Act#2', start=start + timedelta(days=1), end=start + timedelta(days=2))  # Not in calendar
         act3 = create(title='Act#3', start=start + timedelta(days=2), end=end   + timedelta(days=1),  # Start OK
-                      is_all_day=True, type_id=ACTIVITYTYPE_MEETING,
-                      sub_type_id=ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                      is_all_day=True, type_id=constants.ACTIVITYTYPE_MEETING,
+                      sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                      )
         act4 = create(title='Act#4', start=start - timedelta(days=1), end=start + timedelta(days=3))  # End OK
         act5 = create(title='Act#5', start=start + timedelta(days=5), end=start + timedelta(days=5, hours=3),
@@ -835,7 +850,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         for act in (act0, act1, act3, act4, act5):
             act.calendars.set([cal])
 
-        create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, type_id=constants.REL_SUB_PART_2_ACTIVITY,
+        )
         create_rel(subject_entity=user.linked_contact,            object_entity=act3)
         create_rel(subject_entity=self.other_user.linked_contact, object_entity=act3)
 
@@ -912,7 +930,10 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         start = self.create_datetime(year=2013, month=4, day=1)
 
-        create = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_TASK)
+        create = partial(
+            Activity.objects.create,
+            user=user, type_id=constants.ACTIVITYTYPE_TASK,
+        )
         act1 = create(title='Act#1', start=start + timedelta(days=1),  end=start + timedelta(days=2))
         act2 = create(title='Act#2', start=start + timedelta(days=1),  end=start + timedelta(days=2))  # Not in [cal1, cal3]
         act3 = create(title='Act#3', start=start + timedelta(days=32), end=start + timedelta(days=33))  # Start KO
@@ -923,12 +944,18 @@ class CalendarTestCase(_ActivitiesTestCase):
         act3.calendars.set([cal3])
         act4.calendars.set([cal3])
 
-        create_ind = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_INDISPO)
+        create_ind = partial(
+            Activity.objects.create,
+            user=user, type_id=constants.ACTIVITYTYPE_INDISPO,
+        )
         act6 = create_ind(title='Ind#1', start=start + timedelta(days=5), end=start + timedelta(days=6))
         __   = create_ind(title='Ind#2', start=start + timedelta(days=7), end=start + timedelta(days=8))  # Not linked
         act8 = create_ind(title='Ind#3', start=start + timedelta(days=9), end=start + timedelta(days=10))
 
-        create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, type_id=constants.REL_SUB_PART_2_ACTIVITY,
+        )
         create_rel(subject_entity=other_user.linked_contact, object_entity=act6)
         create_rel(subject_entity=user.linked_contact,       object_entity=act8)
 
@@ -962,7 +989,10 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         start = self.create_datetime(year=2013, month=4, day=1)
 
-        create = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_TASK)
+        create = partial(
+            Activity.objects.create,
+            user=user, type_id=constants.ACTIVITYTYPE_TASK,
+        )
         act1 = create(title='Act#1', start=start + timedelta(days=1),  end=start + timedelta(days=2))
         act2 = create(title='Act#2', start=start + timedelta(days=2),  end=start + timedelta(days=3))
 
@@ -1071,9 +1101,10 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         start = self.create_datetime(year=2013, month=4, day=1, hour=9)
         end   = start + timedelta(hours=2)
-        act = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_TASK,
-                                      title='Act#1', start=start, end=end, floating_type=FLOATING,
-                                     )
+        act = Activity.objects.create(
+            user=user, type_id=constants.ACTIVITYTYPE_TASK, title='Act#1',
+            start=start, end=end, floating_type=constants.FLOATING,
+        )
 
         url = self.UPDATE_URL
         self.assertGET405(url)
@@ -1089,9 +1120,9 @@ class CalendarTestCase(_ActivitiesTestCase):
                           )
 
         act = self.refresh(act)
-        self.assertEqual(new_start, act.start)
-        self.assertEqual(new_end,   act.end)
-        self.assertEqual(NARROW,    act.floating_type)
+        self.assertEqual(new_start,        act.start)
+        self.assertEqual(new_end,          act.end)
+        self.assertEqual(constants.NARROW, act.floating_type)
 
     @skipIfCustomActivity
     def test_update_activity_date02(self):
@@ -1099,9 +1130,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.login()
         contact = user.linked_contact
 
-        create_act = partial(Activity.objects.create, user=user,
-                             type_id=ACTIVITYTYPE_TASK, busy=True,
-                            )
+        create_act = partial(
+            Activity.objects.create, user=user,
+            type_id=constants.ACTIVITYTYPE_TASK, busy=True,
+        )
         create_dt = self.create_datetime
         act1 = create_act(title='Act#1',
                           start=create_dt(year=2013, month=4, day=1, hour=9),
@@ -1112,7 +1144,10 @@ class CalendarTestCase(_ActivitiesTestCase):
                           end=create_dt(year=2013,   month=4, day=2, hour=10),
                          )
 
-        create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, type_id=constants.REL_SUB_PART_2_ACTIVITY,
+        )
         create_rel(subject_entity=contact, object_entity=act1)
         create_rel(subject_entity=contact, object_entity=act2)
 
@@ -1130,9 +1165,10 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         start = self.create_datetime(year=2013, month=4, day=1, hour=9)
         end   = start + timedelta(hours=2)
-        act = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_TASK,
-                                      title='Act#1', start=start, end=end,
-                                     )
+        act = Activity.objects.create(
+            user=user, type_id=constants.ACTIVITYTYPE_TASK,
+            title='Act#1', start=start, end=end,
+        )
 
         url = self.UPDATE_URL
         self.assertPOST404(url, data={'id': act.id})
@@ -1250,9 +1286,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal3 = Calendar.objects.create(user=user, name='Cal#3')
         Calendar.objects.get_default_calendar(self.other_user)  # Not in choices
 
-        act = Activity.objects.create(user=user, title='Act#1',
-                                      type_id=ACTIVITYTYPE_TASK,
-                                     )
+        act = Activity.objects.create(
+            user=user, title='Act#1', type_id=constants.ACTIVITYTYPE_TASK,
+        )
         act.calendars.add(cal3)
 
         # GET ---
