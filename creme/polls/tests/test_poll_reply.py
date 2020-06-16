@@ -1405,10 +1405,11 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login()
         pform = PollForm.objects.create(user=self.user, name='Form#1')
         choices = [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']]
-        fline = self._get_formline_creator(pform)('What are the main colors of a swallow?',
-                                              qtype=PollLineType.MULTI_ENUM,
-                                              choices=choices,
-                                             )
+        fline = self._get_formline_creator(pform)(
+            'What are the main colors of a swallow?',
+            qtype=PollLineType.MULTI_ENUM,
+            choices=choices,
+        )
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         rline  = PollReplyLine.objects.get(pform_line=fline)

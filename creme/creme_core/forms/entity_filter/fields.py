@@ -356,8 +356,10 @@ class DateFieldsConditionsField(_ConditionsField):
                 if field.get_tag('viewable'):
                     if isinstance(field, ModelForeignKey):
                         self._build_related_fields(field, fields, fconfigs)
-                    elif is_date_field(field) and (not is_field_hidden(field) or
-                         field.name in non_hiddable_fnames):
+                    elif (
+                            is_date_field(field) and
+                            (not is_field_hidden(field) or field.name in non_hiddable_fnames)
+                    ):
                         fields[field.name] = [field]
 
             for field in model._meta.many_to_many:

@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta
-    from functools import partial
+from datetime import timedelta
+from functools import partial
 
-    from django.urls import reverse
-    from django.utils.timezone import now
+from django.urls import reverse
+from django.utils.timezone import now
 
-    from creme.creme_core.tests.views.base import ViewsTestCase, BrickTestCaseMixin
-    from creme.creme_core.bricks import ImprintsBrick
-    from creme.creme_core.core.imprint import imprint_manager
-    from creme.creme_core.models import (Imprint, BrickDetailviewLocation, BrickHomeLocation,
-            FakeOrganisation)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.bricks import ImprintsBrick
+from creme.creme_core.core.imprint import imprint_manager
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    FakeOrganisation,
+    Imprint,
+)
+from creme.creme_core.tests.views.base import BrickTestCaseMixin, ViewsTestCase
 
 
 class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):

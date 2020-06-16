@@ -1,29 +1,26 @@
 # -*- coding: utf-8 -*-
 
-skip_activities_tests = False
+from functools import partial
+from json import dumps as json_dump
+from unittest import skipIf
 
-try:
-    from functools import partial
-    from json import dumps as json_dump
-    from unittest import skipIf
+from django.urls import reverse
 
-    from django.urls import reverse
+from creme.activities.constants import (
+    ACTIVITYSUBTYPE_MEETING_NETWORK,
+    ACTIVITYTYPE_MEETING,
+    ACTIVITYTYPE_TASK,
+)
+from creme.activities.models import Calendar
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import SetCredentials
+from creme.creme_core.tests.base import CremeTestCase
+from creme.persons import get_contact_model, get_organisation_model
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import SetCredentials
-    from creme.creme_core.tests.base import CremeTestCase
+from .. import activity_model_is_custom, get_activity_model
 
-    from creme.persons import get_contact_model, get_organisation_model
-
-    from .. import activity_model_is_custom, get_activity_model
-    from creme.activities.constants import (ACTIVITYSUBTYPE_MEETING_NETWORK,
-        ACTIVITYTYPE_MEETING, ACTIVITYTYPE_TASK)
-    from creme.activities.models import Calendar
-
-    skip_activities_tests = activity_model_is_custom()
-    Activity = get_activity_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+skip_activities_tests = activity_model_is_custom()
+Activity = get_activity_model()
 
 Contact = get_contact_model()
 Organisation = get_organisation_model()

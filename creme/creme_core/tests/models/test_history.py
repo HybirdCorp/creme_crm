@@ -1,30 +1,55 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date, time
-    from decimal import Decimal
-    from time import sleep
+from datetime import date, time
+from decimal import Decimal
+from time import sleep
 
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.formats import date_format, number_format
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.formats import date_format, number_format
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from ..base import CremeTestCase
-    from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT
-    from ..fake_models import (FakeContact, FakeImage, FakeOrganisation, FakeAddress,
-            FakeSector, FakeLegalForm, FakeInvoice, FakeInvoiceLine, FakeActivity, FakeActivityType)
-    from creme.creme_core.models import (CremeProperty, CremePropertyType,
-            Relation, RelationType, HistoryLine, HistoryConfigItem)
-    from creme.creme_core.models.history import (TYPE_CREATION, TYPE_EDITION, TYPE_DELETION,
-            TYPE_AUX_CREATION, TYPE_AUX_EDITION, TYPE_AUX_DELETION,
-            TYPE_RELATED, TYPE_PROP_ADD, TYPE_PROP_DEL,
-            TYPE_RELATION, TYPE_SYM_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL)
-    from creme.creme_core.utils.dates import dt_to_ISO8601
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    HistoryConfigItem,
+    HistoryLine,
+    Relation,
+    RelationType,
+)
+from creme.creme_core.models.history import (
+    TYPE_AUX_CREATION,
+    TYPE_AUX_DELETION,
+    TYPE_AUX_EDITION,
+    TYPE_CREATION,
+    TYPE_DELETION,
+    TYPE_EDITION,
+    TYPE_PROP_ADD,
+    TYPE_PROP_DEL,
+    TYPE_RELATED,
+    TYPE_RELATION,
+    TYPE_RELATION_DEL,
+    TYPE_SYM_REL_DEL,
+    TYPE_SYM_RELATION,
+)
+from creme.creme_core.utils.dates import dt_to_ISO8601
+
+from ..base import CremeTestCase
+from ..fake_constants import FAKE_AMOUNT_UNIT, FAKE_PERCENT_UNIT
+from ..fake_models import (
+    FakeActivity,
+    FakeActivityType,
+    FakeAddress,
+    FakeContact,
+    FakeImage,
+    FakeInvoice,
+    FakeInvoiceLine,
+    FakeLegalForm,
+    FakeOrganisation,
+    FakeSector,
+)
 
 
 class HistoryTestCase(CremeTestCase):

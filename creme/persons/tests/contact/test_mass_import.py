@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
+from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 
-    from ..base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
-            Contact, Address)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import (
+    Address,
+    Contact,
+    _BaseTestCase,
+    skipIfCustomAddress,
+    skipIfCustomContact,
+)
 
 
 @skipIfCustomContact

@@ -1,29 +1,41 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from itertools import chain
+from functools import partial
+from itertools import chain
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models.query_utils import Q
-    from django.forms.models import ModelMultipleChoiceField
-    from django.urls import reverse
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.query_utils import Q
+from django.forms.models import ModelMultipleChoiceField
+from django.urls import reverse
 
-    from ..base import CremeTestCase
-    from ..fake_models import (FakeContact, FakeOrganisation, FakeAddress,
-           FakeCivility, FakeLegalForm, FakeSector,
-           FakeImageCategory, FakeImage, FakeActivity, FakeProduct, FakeEmailCampaign)
+from creme.creme_config.forms.fields import CreatorModelChoiceField
+from creme.creme_core.core import entity_cell
+from creme.creme_core.forms.bulk import BulkDefaultEditForm
+from creme.creme_core.forms.fields import (
+    CreatorEntityField,
+    MultiCreatorEntityField,
+)
+from creme.creme_core.gui.bulk_update import (
+    FieldNotAllowed,
+    _BulkUpdateRegistry,
+)
+from creme.creme_core.models import CustomField, Language
+from creme.creme_core.utils.unicode_collation import collator
 
-    from creme.creme_config.forms.fields import CreatorModelChoiceField
-
-    from creme.creme_core.core import entity_cell
-    from creme.creme_core.forms.fields import CreatorEntityField, MultiCreatorEntityField
-    from creme.creme_core.forms.bulk import BulkDefaultEditForm
-    from creme.creme_core.gui.bulk_update import _BulkUpdateRegistry, FieldNotAllowed
-    from creme.creme_core.models import CustomField, Language
-    from creme.creme_core.utils.unicode_collation import collator
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
+from ..fake_models import (
+    FakeActivity,
+    FakeAddress,
+    FakeCivility,
+    FakeContact,
+    FakeEmailCampaign,
+    FakeImage,
+    FakeImageCategory,
+    FakeLegalForm,
+    FakeOrganisation,
+    FakeProduct,
+    FakeSector,
+)
 
 
 # TODO: test register(..., expandables=[..])

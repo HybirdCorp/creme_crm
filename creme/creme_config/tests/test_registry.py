@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.core.setting_key import _SettingKeyRegistry, SettingKey
-    from creme.creme_core.forms import CremeModelForm
-    from creme.creme_core.gui.bricks import SimpleBrick, _BrickRegistry
-    from creme.creme_core.models import FakeCivility, FakeSector, FakePosition
-    from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.documents.models import DocumentCategory
-
-    from creme.creme_config.registry import (_ConfigRegistry,
-            NotRegisteredInConfig, RegistrationError)
-    from creme.creme_config.bricks import GenericModelBrick
-    from creme.creme_config.forms.generics import DeletionForm
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_config.bricks import GenericModelBrick
+from creme.creme_config.forms.generics import DeletionForm
+from creme.creme_config.registry import (
+    NotRegisteredInConfig,
+    RegistrationError,
+    _ConfigRegistry,
+)
+from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
+from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.gui.bricks import SimpleBrick, _BrickRegistry
+from creme.creme_core.models import FakeCivility, FakePosition, FakeSector
+from creme.creme_core.tests.base import CremeTestCase
+from creme.documents.models import DocumentCategory
 
 
 class RegistryTestCase(CremeTestCase):

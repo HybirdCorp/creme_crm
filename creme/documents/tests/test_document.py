@@ -1,34 +1,39 @@
 # -*- coding: utf-8 -*-
 
-try:
-    import filecmp
-    from functools import partial
-    from os.path import join, exists
+import filecmp
+from functools import partial
+from os.path import exists, join
 
-    from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
-    from django.test import override_settings
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui import actions
-    from creme.creme_core.gui.field_printers import field_printers_registry
-    from creme.creme_core.models import CremeEntity, RelationType, HeaderFilter, SetCredentials
-    from creme.creme_core.tests.fake_models import FakeOrganisation
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.gui import actions
+from creme.creme_core.gui.field_printers import field_printers_registry
+from creme.creme_core.models import (
+    CremeEntity,
+    HeaderFilter,
+    RelationType,
+    SetCredentials,
+)
+from creme.creme_core.tests.fake_models import FakeOrganisation
+from creme.persons import get_contact_model
+from creme.persons.tests.base import skipIfCustomContact
 
-    from creme.persons.tests.base import skipIfCustomContact
-    from creme.persons import get_contact_model
-
-    from .base import (_DocumentsTestCase, skipIfCustomDocument,
-            skipIfCustomFolder, Folder, Document)
-
-    from ..actions import DownloadAction
-    from ..constants import REL_SUB_RELATED_2_DOC, UUID_FOLDER_RELATED2ENTITIES
-    from ..models import FolderCategory, DocumentCategory
-    from ..utils import get_csv_folder_or_create
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..actions import DownloadAction
+from ..constants import REL_SUB_RELATED_2_DOC, UUID_FOLDER_RELATED2ENTITIES
+from ..models import DocumentCategory, FolderCategory
+from ..utils import get_csv_folder_or_create
+from .base import (
+    Document,
+    Folder,
+    _DocumentsTestCase,
+    skipIfCustomDocument,
+    skipIfCustomFolder,
+)
 
 
 @skipIfCustomDocument

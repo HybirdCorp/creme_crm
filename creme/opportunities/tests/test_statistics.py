@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import relativedelta
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _, ngettext
+from creme.creme_core.models import FieldsConfig
+from creme.opportunities.models import SalesPhase
+from creme.opportunities.statistics import CurrentYearStatistics
 
-    from creme.creme_core.models import FieldsConfig
-
-    from creme.opportunities.models import SalesPhase
-    from creme.opportunities.statistics import CurrentYearStatistics
-
-    from .base import (OpportunitiesBaseTestCase, skipIfCustomOpportunity,
-            Organisation, Opportunity)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import (
+    OpportunitiesBaseTestCase,
+    Opportunity,
+    Organisation,
+    skipIfCustomOpportunity,
+)
 
 
 @skipIfCustomOpportunity

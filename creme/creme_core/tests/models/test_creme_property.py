@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.contrib.contenttypes.models import ContentType
-    from django.db import IntegrityError
-    from django.db.models.query import QuerySet
+from django.contrib.contenttypes.models import ContentType
+from django.db import IntegrityError
+from django.db.models.query import QuerySet
 
-    from ..base import CremeTestCase
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeProperty,
+    CremePropertyType,
+    FakeContact,
+    FakeOrganisation,
+)
+from creme.creme_core.utils.profiling import CaptureQueriesContext
 
-    from creme.creme_core.models import (CremeEntity, CremePropertyType, CremeProperty,
-            FakeContact, FakeOrganisation)
-    from creme.creme_core.utils.profiling import CaptureQueriesContext
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class CremePropertyTypeTestCase(CremeTestCase):

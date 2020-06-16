@@ -1,37 +1,37 @@
 # -*- coding: utf-8 -*-
 
-skip_event_tests = False
+from functools import partial
+from unittest import skipIf
 
-try:
-    from functools import partial
-    from unittest import skipIf
+from django.urls import reverse
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from django.urls import reverse
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from creme import persons
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+from creme.creme_core.models import (
+    FieldsConfig,
+    Relation,
+    RelationType,
+    SetCredentials,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.opportunities import get_opportunity_model
+from creme.opportunities.models import SalesPhase
+from creme.opportunities.tests.base import skipIfCustomOpportunity
+from creme.persons.constants import REL_SUB_EMPLOYED_BY
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (RelationType, Relation,
-            SetCredentials, FieldsConfig)
+from . import constants, event_model_is_custom, get_event_model
+from .models import EventType
+from .views.event import AddRelatedOpportunityAction
 
-    from creme import persons
-    from creme.persons.constants import REL_SUB_EMPLOYED_BY
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
-
-    from creme.opportunities import get_opportunity_model
-    from creme.opportunities.models import SalesPhase
-    from creme.opportunities.tests.base import skipIfCustomOpportunity
-
-    from . import event_model_is_custom, get_event_model, constants
-    from .models import EventType
-    from .views.event import AddRelatedOpportunityAction
-
-    skip_event_tests = event_model_is_custom()
-    Event = get_event_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+skip_event_tests = event_model_is_custom()
+Event = get_event_model()
 
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()

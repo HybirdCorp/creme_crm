@@ -1,24 +1,26 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from datetime import date
+from datetime import date
+from functools import partial
 
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import CremePropertyType, SetCredentials
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.commercial.models import MarketSegment
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import CremePropertyType, SetCredentials
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
-    from creme.commercial.models import MarketSegment
-
-    from .base import (_PollsTestCase, skipIfCustomPollCampaign,
-            skipIfCustomPollForm, skipIfCustomPollReply,
-            PollCampaign, PollForm, PollReply)
-    from ..bricks import PollCampaignRepliesBrick
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import PollCampaignRepliesBrick
+from .base import (
+    PollCampaign,
+    PollForm,
+    PollReply,
+    _PollsTestCase,
+    skipIfCustomPollCampaign,
+    skipIfCustomPollForm,
+    skipIfCustomPollReply,
+)
 
 
 @skipIfCustomPollCampaign

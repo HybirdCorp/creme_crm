@@ -401,8 +401,10 @@ def brick_table_column(title, status='', **attrs):
         'title':      title,
         'status':     status.split(' ') if status else (),
         'attributes': mark_safe(
-            ' '.join('{}="{}"'.format(k.replace('_', '-'), v)
-                for k, v in attrs.items())
+            ' '.join(
+                '{}="{}"'.format(k.replace('_', '-'), v)
+                for k, v in attrs.items()
+            )
         ),
     }
 

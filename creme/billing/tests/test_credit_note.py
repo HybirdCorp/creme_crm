@@ -1,25 +1,33 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from decimal import Decimal
-    from functools import partial
+from decimal import Decimal
+from functools import partial
 
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth import EntityCredentials
-    from creme.creme_core.models import (Relation, Currency, FieldsConfig,
-            SetCredentials, FakeOrganisation)
+from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.models import (
+    Currency,
+    FakeOrganisation,
+    FieldsConfig,
+    Relation,
+    SetCredentials,
+)
+from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from creme.persons.tests.base import skipIfCustomOrganisation
-
-    from ..models import CreditNoteStatus
-    from ..constants import REL_SUB_CREDIT_NOTE_APPLIED
-    from .base import (_BillingTestCase, skipIfCustomCreditNote,
-            skipIfCustomProductLine, skipIfCustomInvoice,
-            Organisation, CreditNote, Invoice, ProductLine)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..constants import REL_SUB_CREDIT_NOTE_APPLIED
+from ..models import CreditNoteStatus
+from .base import (
+    CreditNote,
+    Invoice,
+    Organisation,
+    ProductLine,
+    _BillingTestCase,
+    skipIfCustomCreditNote,
+    skipIfCustomInvoice,
+    skipIfCustomProductLine,
+)
 
 
 @skipIfCustomOrganisation

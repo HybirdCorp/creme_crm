@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _
 
-    from creme.persons.tests.base import (skipIfCustomAddress,
-            skipIfCustomContact, skipIfCustomOrganisation)
+from creme.persons.tests.base import (
+    skipIfCustomAddress,
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from ..models import GeoAddress, Town
-    from .base import GeoLocationBaseTestCase, Address, Organisation, Contact
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..models import GeoAddress, Town
+from .base import Address, Contact, GeoLocationBaseTestCase, Organisation
 
 
 @skipIfCustomOrganisation
@@ -454,14 +454,16 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         AUBAGNE     = create_address(orga2,     address='Maire Aubagne', zipcode=town2.zipcode, town=town2.name, geoloc=(43.295783, 5.565589))
 
         self.assertFalse(ST_VICTOR.geoaddress.neighbours(distance=1000))
-        self.assertListEqual([*ST_VICTOR.geoaddress.neighbours(distance=10000)],
-                            [COMMANDERIE.geoaddress]
-                           )
+        self.assertListEqual(
+            [*ST_VICTOR.geoaddress.neighbours(distance=10000)],
+            [COMMANDERIE.geoaddress]
+        )
 
         self.assertFalse(COMMANDERIE.geoaddress.neighbours(distance=1000))
-        self.assertListEqual([*COMMANDERIE.geoaddress.neighbours(distance=10000)],
-                             [ST_VICTOR.geoaddress, AUBAGNE.geoaddress]
-                            )
+        self.assertListEqual(
+            [*COMMANDERIE.geoaddress.neighbours(distance=10000)],
+            [ST_VICTOR.geoaddress, AUBAGNE.geoaddress]
+        )
 
     @skipIfCustomContact
     def test_neighbours_with_same_owner(self):

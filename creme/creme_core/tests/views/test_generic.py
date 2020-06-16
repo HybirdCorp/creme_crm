@@ -1,26 +1,30 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.sessions.models import Session
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils.html import escape
-    from django.utils.translation import gettext as _
+from django.contrib.sessions.models import Session
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.html import escape
+from django.utils.translation import gettext as _
 
-    from .base import ViewsTestCase, BrickTestCaseMixin
-    from .. import fake_forms
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.bricks import PropertiesBrick
+from creme.creme_core.constants import MODELBRICK_ID
+from creme.creme_core.gui.last_viewed import LastViewedItem
+from creme.creme_core.models import (
+    CremePropertyType,
+    FakeAddress,
+    FakeContact,
+    FakeOrganisation,
+    Imprint,
+    RelationType,
+    SemiFixedRelationType,
+    SetCredentials,
+)
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.bricks import PropertiesBrick
-    from creme.creme_core.constants import MODELBRICK_ID
-    from creme.creme_core.gui.last_viewed import LastViewedItem
-    from creme.creme_core.models import (SetCredentials, Imprint,
-            CremePropertyType, RelationType, SemiFixedRelationType,
-            FakeOrganisation, FakeContact, FakeAddress)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import fake_forms
+from .base import BrickTestCaseMixin, ViewsTestCase
 
 
 class MiscTestCase(ViewsTestCase):

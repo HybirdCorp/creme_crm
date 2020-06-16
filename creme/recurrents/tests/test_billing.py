@@ -1,28 +1,36 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.constants import DEFAULT_VAT
-    from creme.creme_core.models import Currency, Vat
-    from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
+from creme.billing import (
+    get_credit_note_model,
+    get_invoice_model,
+    get_quote_model,
+    get_sales_order_model,
+    get_template_base_model,
+)
+from creme.billing.models import (
+    CreditNoteStatus,
+    InvoiceStatus,
+    QuoteStatus,
+    SalesOrderStatus,
+)
+from creme.billing.tests.base import (
+    skipIfCustomCreditNote,
+    skipIfCustomInvoice,
+    skipIfCustomQuote,
+    skipIfCustomSalesOrder,
+)
+from creme.creme_core.constants import DEFAULT_VAT
+from creme.creme_core.models import Currency, Vat
+from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
+from creme.persons import get_address_model, get_organisation_model
 
-    from creme.persons import get_address_model, get_organisation_model
-
-    from creme.billing import (get_credit_note_model, get_invoice_model,
-           get_quote_model, get_sales_order_model, get_template_base_model)
-    from creme.billing.models import (InvoiceStatus, QuoteStatus, SalesOrderStatus,
-            CreditNoteStatus)
-    from creme.billing.tests.base import (skipIfCustomInvoice, skipIfCustomQuote,
-            skipIfCustomSalesOrder, skipIfCustomCreditNote)
-
-    from .base import skipIfCustomGenerator, RecurrentGenerator
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import RecurrentGenerator, skipIfCustomGenerator
 
 Address = get_address_model()
 Organisation = get_organisation_model()

@@ -1,54 +1,55 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta, date
-    from functools import partial
-    from unittest import skipIf
+from datetime import date, timedelta
+from functools import partial
+from unittest import skipIf
 
-    from django.apps import apps
-    from django.urls import reverse
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.apps import apps
+from django.urls import reverse
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import RelationType, Relation, FieldsConfig
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.models import FieldsConfig, Relation, RelationType
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
-    if apps.is_installed('creme.activities'):
-        from creme.activities import constants as act_constants
-        from creme.activities.models import Activity
-        from creme.activities.tests.base import skipIfCustomActivity
+from .. import bricks, constants
+from .base import (
+    Address,
+    Contact,
+    Organisation,
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-        def skipIfActivitiesIsNotInstalled(test_func):
-            return skipIf(False, 'The app "activities" is not installed')(test_func)
-    else:
-        def skipIfActivitiesIsNotInstalled(test_func):
-            return skipIf(True, 'The app "activities" is not installed')(test_func)
+if apps.is_installed('creme.activities'):
+    from creme.activities import constants as act_constants
+    from creme.activities.models import Activity
+    from creme.activities.tests.base import skipIfCustomActivity
 
-        def skipIfCustomActivity(test_func):
-            return skipIf(True, 'The app "activities" is not installed')(test_func)
+    def skipIfActivitiesIsNotInstalled(test_func):
+        return skipIf(False, 'The app "activities" is not installed')(test_func)
+else:
+    def skipIfActivitiesIsNotInstalled(test_func):
+        return skipIf(True, 'The app "activities" is not installed')(test_func)
 
-    if apps.is_installed('creme.opportunities'):
-        from creme.opportunities.models import Opportunity, SalesPhase
-        from creme.opportunities.tests.base import skipIfCustomOpportunity
-    else:
-        def skipIfCustomOpportunity(test_func):
-            return skipIf(True, 'The app "opportunities" is not installed')(test_func)
+    def skipIfCustomActivity(test_func):
+        return skipIf(True, 'The app "activities" is not installed')(test_func)
 
-    if apps.is_installed('creme.commercial'):
-        from creme.commercial.constants import REL_OBJ_COMPLETE_GOAL
-        from creme.commercial.models import Act, ActType, MarketSegment
-        from creme.commercial.tests.base import skipIfCustomAct
-    else:
-        def skipIfCustomAct(test_func):
-            return skipIf(True, 'The app "commercial" is not installed')(test_func)
+if apps.is_installed('creme.opportunities'):
+    from creme.opportunities.models import Opportunity, SalesPhase
+    from creme.opportunities.tests.base import skipIfCustomOpportunity
+else:
+    def skipIfCustomOpportunity(test_func):
+        return skipIf(True, 'The app "opportunities" is not installed')(test_func)
 
-    from .. import bricks, constants
-
-    from .base import (skipIfCustomOrganisation, skipIfCustomContact,
-            Contact, Organisation, Address)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+if apps.is_installed('creme.commercial'):
+    from creme.commercial.constants import REL_OBJ_COMPLETE_GOAL
+    from creme.commercial.models import Act, ActType, MarketSegment
+    from creme.commercial.tests.base import skipIfCustomAct
+else:
+    def skipIfCustomAct(test_func):
+        return skipIf(True, 'The app "commercial" is not installed')(test_func)
 
 
 @skipIfCustomOrganisation

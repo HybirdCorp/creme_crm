@@ -1,19 +1,22 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date, datetime
-    from os import remove as delete_file, listdir, makedirs
-    from os.path import join, exists
-    from shutil import rmtree
+from datetime import date, datetime
+from os import listdir, makedirs
+from os import remove as delete_file
+from os.path import exists, join
+from shutil import rmtree
 
-    from django.conf import settings
+from django.conf import settings
 
-    from ..base import CremeTestCase
-    from creme.creme_core.utils.file_handling import (FileCreator,
-          IncrFileNameSuffixGenerator, RandomFileNameSuffixGenerator,
-          DateFileNameSuffixGenerator, DatetimeFileNameSuffixGenerator)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.utils.file_handling import (
+    DateFileNameSuffixGenerator,
+    DatetimeFileNameSuffixGenerator,
+    FileCreator,
+    IncrFileNameSuffixGenerator,
+    RandomFileNameSuffixGenerator,
+)
+
+from ..base import CremeTestCase
 
 
 class FileHandlingTestCase(CremeTestCase):

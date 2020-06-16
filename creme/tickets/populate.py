@@ -78,7 +78,8 @@ class Populator(BasePopulator):
 
         # ---------------------------
         create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(pk=constants.DEFAULT_HFILTER_TICKET,
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_TICKET,
             model=Ticket,
             name=_('Ticket view'),
             cells_desc=[

@@ -9,11 +9,13 @@ from . import event_model_is_custom
 from .views import event
 
 urlpatterns = [
-    re_path(r'^event/(?P<event_id>\d+)/contacts[/]?$',
+    re_path(
+        r'^event/(?P<event_id>\d+)/contacts[/]?$',
         event.RelatedContactsList.as_view(),
         name='events__list_related_contacts',
     ),
-    re_path(r'^event/(?P<event_id>\d+)/link_contacts[/]?$',
+    re_path(
+        r'^event/(?P<event_id>\d+)/link_contacts[/]?$',
         event.AddContactsToEvent.as_view(),
         name='events__link_contacts',
     ),

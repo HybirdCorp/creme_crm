@@ -4,7 +4,7 @@
 
 ################################################################################
 #    Copyright (C) 2014 Matt Bierner
-#    Copyright (C) 2016 Hybird
+#    Copyright (C) 2016-2020 Hybird
 #
 #    Permission is hereby granted, free of charge, to any person obtaining a
 #    copy of this software and associated documentation files (the "Software"),
@@ -66,8 +66,11 @@ def latex_escape(x):
     x = str(x)
 
     if _LATEX_ESCAPE_RE is None:
-        _LATEX_ESCAPE_RE = re.compile('|'.join(re.escape(str(key))
-                                        for key in sorted(CONV.keys(), key=lambda item: - len(item)))
-                                     )
+        _LATEX_ESCAPE_RE = re.compile(
+            '|'.join(
+                re.escape(str(key))
+                for key in sorted(CONV.keys(), key=lambda item: - len(item))
+            )
+        )
 
     return _LATEX_ESCAPE_RE.sub(lambda match: CONV[match.group()], x)

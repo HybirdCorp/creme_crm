@@ -1,19 +1,28 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from xml.etree import ElementTree
+from xml.etree import ElementTree
 
-    from bleach._vendor import html5lib  # Avoid a dependence only for test
+from bleach._vendor import html5lib  # Avoid a dependence only for test
+from django.test.client import RequestFactory
 
-    from django.test.client import RequestFactory
+# from creme.creme_core.gui.menu import OnClickItem
+from creme.creme_core.gui.menu import (
+    ContainerItem,
+    CreationFormsItem,
+    ItemGroup,
+    LabelItem,
+    Menu,
+    URLItem,
+    ViewableItem,
+)
+from creme.creme_core.tests.fake_models import (
+    FakeActivity,
+    FakeContact,
+    FakeDocument,
+    FakeOrganisation,
+)
 
-    from ..base import CremeTestCase
-    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeDocument, FakeActivity
-
-    from creme.creme_core.gui.menu import (ViewableItem, URLItem, LabelItem,
-           ItemGroup, ContainerItem, CreationFormsItem, Menu)  # OnClickItem
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class MenuTestCase(CremeTestCase):

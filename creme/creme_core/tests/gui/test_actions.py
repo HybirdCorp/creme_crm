@@ -1,22 +1,25 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls.base import reverse
-    from django.utils.translation import gettext_lazy as _, gettext
+from django.contrib.contenttypes.models import ContentType
+from django.urls.base import reverse
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
-    from creme.creme_core import actions
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui.actions import (UIAction, BulkAction,
-        ActionRegistrationError, ActionsChain, ActionsRegistry)
-    from creme.creme_core.gui.merge import merge_form_registry
-    from creme.creme_core.models import CremeUser, CremeEntity
-    from creme.creme_core.models.auth import SetCredentials, UserRole
+from creme.creme_core import actions
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.gui.actions import (
+    ActionRegistrationError,
+    ActionsChain,
+    ActionsRegistry,
+    BulkAction,
+    UIAction,
+)
+from creme.creme_core.gui.merge import merge_form_registry
+from creme.creme_core.models import CremeEntity, CremeUser
+from creme.creme_core.models.auth import SetCredentials, UserRole
 
-    from ..base import CremeTestCase
-    from ..fake_models import FakeContact, FakeOrganisation
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
+from ..fake_models import FakeContact, FakeOrganisation
 
 
 class MockAction(UIAction):

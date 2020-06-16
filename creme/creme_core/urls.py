@@ -143,9 +143,10 @@ entity_filter_patterns = [
     re_path(r'^delete[/]?$',                  entity_filter.EntityFilterDeletion.as_view(), name='creme_core__delete_efilter'),
 
     # TODO: move to relation_patterns/factorise with 'creme_core__ctypes_compatible_with_rtype'
-    re_path(r'^rtype/(?P<rtype_id>[\w-]+)/content_types[/]?$', entity_filter.get_content_types,
+    re_path(
+        r'^rtype/(?P<rtype_id>[\w-]+)/content_types[/]?$', entity_filter.get_content_types,
         name='creme_core__ctypes_compatible_with_rtype_as_choices',
-       ),
+    ),
 
     re_path(r'^get_for_ctype[/]?$', entity_filter.EntityFilterChoices.as_view(), name='creme_core__efilters'),  # TODO: /json ?
     re_path(r'^users/json[/]?$',    entity_filter.UserChoicesView.as_view(),     name='creme_core__efilter_user_choices'),

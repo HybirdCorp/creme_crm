@@ -1,43 +1,52 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta
-    from functools import partial
-    from json import dumps as json_dump
+from datetime import timedelta
+from functools import partial
+from json import dumps as json_dump
 
-    from django.conf import settings
-    from django.core import mail
-    from django.core.mail.backends.locmem import EmailBackend
-    from django.urls import reverse
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.conf import settings
+from django.core import mail
+from django.core.mail.backends.locmem import EmailBackend
+from django.urls import reverse
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import FakeOrganisation
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    from creme.creme_core.models import (CremeEntity, Relation,
-            BrickHomeLocation, SettingValue, Job, JobResult)
-    from creme.creme_core.models.history import HistoryLine, TYPE_DELETION
+from creme.activities.constants import (
+    ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+    ACTIVITYTYPE_MEETING,
+    REL_SUB_PART_2_ACTIVITY,
+)
+from creme.activities.models import Calendar, Status
+from creme.activities.tests.base import skipIfCustomActivity
+from creme.creme_core.models import (
+    BrickHomeLocation,
+    CremeEntity,
+    Job,
+    JobResult,
+    Relation,
+    SettingValue,
+)
+from creme.creme_core.models.history import TYPE_DELETION, HistoryLine
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_models import FakeOrganisation
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.opportunities.models import SalesPhase
+from creme.opportunities.tests.base import skipIfCustomOpportunity
+from creme.persons.constants import (
+    REL_SUB_CUSTOMER_SUPPLIER,
+    REL_SUB_EMPLOYED_BY,
+    REL_SUB_MANAGES,
+)
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.constants import (REL_SUB_CUSTOMER_SUPPLIER,
-            REL_SUB_MANAGES, REL_SUB_EMPLOYED_BY)
-    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomContact
-
-    from creme.activities.models import Status, Calendar
-    from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY,
-            ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_QUALIFICATION)
-    from creme.activities.tests.base import skipIfCustomActivity
-
-    from creme.opportunities.models import SalesPhase
-    from creme.opportunities.tests.base import skipIfCustomOpportunity
-
-    from ..bricks import ApproachesBrick
-    from ..constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
-    from ..creme_jobs import com_approaches_emails_send_type
-    from ..models import CommercialApproach
-    from .base import Organisation, Contact, Activity, Opportunity
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import ApproachesBrick
+from ..constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
+from ..creme_jobs import com_approaches_emails_send_type
+from ..models import CommercialApproach
+from .base import Activity, Contact, Opportunity, Organisation
 
 
 class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):

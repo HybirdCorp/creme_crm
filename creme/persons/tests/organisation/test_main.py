@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Relation, SetCredentials, FieldsConfig
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import FieldsConfig, Relation, SetCredentials
+from creme.persons import constants
+from creme.persons.models import LegalForm, Sector, StaffSize
 
-    from creme.persons import constants
-    from creme.persons.models import StaffSize, Sector, LegalForm
-
-    from ..base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
-            skipIfCustomOrganisation, Organisation, Address, Contact)
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import (
+    Address,
+    Contact,
+    Organisation,
+    _BaseTestCase,
+    skipIfCustomAddress,
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
 
 @skipIfCustomOrganisation
