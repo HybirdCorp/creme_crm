@@ -13,8 +13,8 @@ RFT_FUNCTION   = 3
 RFT_CUSTOM     = 4
 RFT_AGG_FIELD  = 5
 RFT_AGG_CUSTOM = 6
+# TODO: used only in reports for the moment, integrate into HeaderFilters ?
 RFT_RELATED    = 7  # Related entities (only allowed by the model)
-                    # TODO: used only in reports for the moment, integrate into HeaderFilters ?
 
 
 # ReportGraph types (abscissa)

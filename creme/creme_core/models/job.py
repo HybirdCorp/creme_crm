@@ -344,8 +344,9 @@ class EntityJobResult(BaseJobResult):
 class MassImportJobResult(BaseJobResult):
     entity   = models.ForeignKey(CremeEntity, null=True, on_delete=models.CASCADE)
     raw_line = models.TextField()  # TODO: use a JSONField ?
-    updated  = models.BooleanField(default=False)  # False: entity created
-                                            # True: entity updated
+
+    # False: entity created / True: entity updated
+    updated = models.BooleanField(default=False)
 
     def __repr__(self):
         return (f'MassImportJobResult(job={self.job_id}, '
