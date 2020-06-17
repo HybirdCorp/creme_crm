@@ -210,13 +210,15 @@ class BatchProcessForm(CremeModelForm):
         instance = self.instance
         cdata = self.cleaned_data
         job_data = {
-            'ctype':    self.ct.id,
-            'actions':  [{'field_name':    a._field_name,
-                          'operator_name': a._operator.id,
-                          'value':         a._value,
-                         } for a in cdata['actions']
-                        ],
-            }
+            'ctype': self.ct.id,
+            'actions': [
+                {
+                    'field_name':    a._field_name,
+                    'operator_name': a._operator.id,
+                    'value':         a._value,
+                } for a in cdata['actions']
+            ],
+        }
 
         efilter = cdata.get('filter')
         if efilter:
