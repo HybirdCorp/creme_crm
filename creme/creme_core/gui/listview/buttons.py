@@ -91,8 +91,8 @@ class MassExportButton(ListViewButton):
         context = super().get_context(request=request, lv_context=lv_context)
         context['backend_choices'] = [
             (backend.id, backend.verbose_name)
-                # for backend in self.export_backend_registry.backends
-                for backend in self.export_backend_registry.backend_classes
+            # for backend in self.export_backend_registry.backends
+            for backend in self.export_backend_registry.backend_classes
         ]
         context['extra_q'] = lv_context['extra_q']
 

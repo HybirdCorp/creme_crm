@@ -119,10 +119,10 @@ class ActivityDeletion(generic.CremeModelDeletion):
     def get_relations(self, activity):
         relations = {
             r.type_id: r
-                for r in Relation.objects
-                                 .filter(Q(type=REL_SUB_PART_AS_RESOURCE, object_entity=activity) |
-                                         Q(subject_entity=activity, type=REL_SUB_LINKED_2_PTASK)
-                                        )[:2]
+            for r in Relation.objects.filter(
+                Q(type=REL_SUB_PART_AS_RESOURCE, object_entity=activity) |
+                Q(subject_entity=activity, type=REL_SUB_LINKED_2_PTASK)
+            )[:2]
         }
 
         ptask_rel = relations.get(REL_SUB_LINKED_2_PTASK)

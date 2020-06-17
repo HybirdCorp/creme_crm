@@ -200,8 +200,9 @@ class SVGIcon(BaseIcon):
         final_css_class = self.css_class + css_class
 
         return format_html(
-            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{box}" {attrs} title="{label}" alt="{label}" height="{size}px" width="{size}px">'
-                '<path d="{path}"></path>'
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{box}" {attrs} '
+            'title="{label}" alt="{label}" height="{size}px" width="{size}px">'
+            '<path d="{path}"></path>'
             '</svg>',
             size=self.size,
             label=self.label,

@@ -22,16 +22,26 @@ class CremeDateTagsTestCase(CremeTestCase):
                                 '{{d5|date_timedelta_pprint}}'
                                )
             render = template.render(Context({
-                'd1': datetime(year=2011, month=3, day=12, hour=20, minute=30, second=21) -
-                      datetime(year=2011, month=3, day=9,  hour=17, minute=54, second=32),
-                'd2': datetime(year=2011, month=3, day=12, hour=20, minute=30, second=21) -
-                      datetime(year=2011, month=3, day=12, hour=15, minute=54, second=32),
-                'd3': datetime(year=2011, month=3, day=12, hour=20, minute=50, second=21) -
-                      datetime(year=2011, month=3, day=12, hour=20, minute=30, second=32),
-                'd4': datetime(year=2011, month=3, day=12, hour=20, minute=50, second=32) -
-                      datetime(year=2011, month=3, day=12, hour=20, minute=50, second=30),
-                'd5': datetime(year=2017, month=9, day=8,  hour=17, minute=6,  second=21) -
-                      datetime(year=2017, month=9, day=8,  hour=17, minute=6,  second=20),
+                'd1': (
+                    datetime(year=2011, month=3, day=12, hour=20, minute=30, second=21) -
+                    datetime(year=2011, month=3, day=9,  hour=17, minute=54, second=32)
+                ),
+                'd2': (
+                    datetime(year=2011, month=3, day=12, hour=20, minute=30, second=21) -
+                    datetime(year=2011, month=3, day=12, hour=15, minute=54, second=32)
+                ),
+                'd3': (
+                    datetime(year=2011, month=3, day=12, hour=20, minute=50, second=21) -
+                    datetime(year=2011, month=3, day=12, hour=20, minute=30, second=32)
+                ),
+                'd4': (
+                    datetime(year=2011, month=3, day=12, hour=20, minute=50, second=32) -
+                    datetime(year=2011, month=3, day=12, hour=20, minute=50, second=30)
+                ),
+                'd5': (
+                    datetime(year=2017, month=9, day=8,  hour=17, minute=6,  second=21) -
+                    datetime(year=2017, month=9, day=8,  hour=17, minute=6,  second=20)
+                ),
             }))
 
         self.assertEqual(

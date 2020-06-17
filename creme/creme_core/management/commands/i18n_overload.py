@@ -119,7 +119,7 @@ class Command(BaseCommand):
         catalog = polib.pofile(catalog_path)
         overloading_entries = {
             entry.msgid: entry
-                for entry in catalog.translated_entries()
+            for entry in catalog.translated_entries()
         }
 
         for app_pofile in self._iter_pofiles(language, polib, file_name):

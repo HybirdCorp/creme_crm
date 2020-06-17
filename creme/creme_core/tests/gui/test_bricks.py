@@ -517,8 +517,8 @@ class BrickRegistryTestCase(CremeTestCase):
         def extract_model_brick(**kwargs):
             return [
                 brick
-                    for brick in brick_registry.get_compatible_bricks(**kwargs)
-                        if isinstance(brick, EntityBrick)
+                for brick in brick_registry.get_compatible_bricks(**kwargs)
+                if isinstance(brick, EntityBrick)
             ]
 
         # No model ----

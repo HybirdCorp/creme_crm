@@ -1654,7 +1654,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         with self.assertNoException():
             field_urls = {
                 f_url
-                    for f_url, label in response.context['form'].fields['_bulk_fieldname'].choices
+                for f_url, label in response.context['form'].fields['_bulk_fieldname'].choices
             }
 
         self.assertIn(reverse('creme_core__bulk_update', args=(ctype.id, 'title')), field_urls)
@@ -1672,7 +1672,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         with self.assertNoException():
             field_urls = {
                 f_url
-                    for f_url, label in response.context['form'].fields['_bulk_fieldname'].choices
+                for f_url, label in response.context['form'].fields['_bulk_fieldname'].choices
             }
 
         self.assertIn(reverse('creme_core__bulk_update', args=(ctype.id, 'name')), field_urls)

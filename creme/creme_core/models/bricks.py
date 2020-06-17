@@ -103,8 +103,11 @@ class BrickDetailviewLocationManager(models.Manager):
                 kwargs['role'] = role
 
         return self.get_or_create(
-            content_type=model if model is None or isinstance(model, ContentType) else
-                         ContentType.objects.get_for_model(model),
+            content_type=(
+                model
+                if model is None or isinstance(model, ContentType) else
+                ContentType.objects.get_for_model(model)
+            ),
             brick_id=brick if isinstance(brick, str) else brick.id_,
             defaults={'order': order, 'zone': zone},
             **kwargs

@@ -194,7 +194,7 @@ class FileFieldDownLoadRegistry:
                 except KeyError:
                     logger.warning(
                         '%s.unregister(): the field %s.%s is not registered.',
-                         self.__class__.__name__, model, field_name,
+                        self.__class__.__name__, model, field_name,
                     )
         else:
             logger.warning(

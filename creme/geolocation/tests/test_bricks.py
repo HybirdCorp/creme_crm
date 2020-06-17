@@ -48,7 +48,7 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
 
         contact_group = (
             self.contacts_title,
-           [(contact_me.pk, f'{self.contacts_title} - {contact_me.name}')]
+            [(contact_me.pk, f'{self.contacts_title} - {contact_me.name}')]
         )
         self.assertEqual([contact_group],
                          self.brick.get_filter_choices(user, Contact)

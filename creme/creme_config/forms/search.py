@@ -102,7 +102,7 @@ class SearchEditForm(_SearchForm):
         fields_f = self.fields['fields']
         fields_f.choices = [
             choice
-                for choice in self.instance.get_modelfields_choices()
-                    if keep_field(choice[0])
+            for choice in self.instance.get_modelfields_choices()
+            if keep_field(choice[0])
         ]
         fields_f.initial = selected_fnames

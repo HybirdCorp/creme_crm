@@ -70,7 +70,7 @@ class MobilePersonCreationFormMixin:
 
         self.custom_field_names = [
             self._build_customfield_name(cfield)
-                for cfield, cvalue in self._customs
+            for cfield, cvalue in self._customs
         ]
 
 

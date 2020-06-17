@@ -35,7 +35,7 @@ class PropertiesSearchField(BaseChoiceField):
         choices = super()._build_choices(null_label=null_label)
         choices.extend(
             {'value': ptype.id, 'label': str(ptype)}
-                for ptype in CremePropertyType.objects.compatible(self.cell.model)
+            for ptype in CremePropertyType.objects.compatible(self.cell.model)
         )
 
         return choices
@@ -56,7 +56,7 @@ class PropertiesField(FunctionField):
     def __call__(self, entity, user):
         return FunctionFieldResultsList(
             FunctionFieldLink(label=str(p), url=p.type.get_absolute_url())
-                for p in entity.get_properties()
+            for p in entity.get_properties()
         )
 
     @classmethod

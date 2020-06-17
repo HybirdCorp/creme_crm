@@ -152,8 +152,8 @@ class AddressesInformation(BaseAddressesInformation):
 
         addresses = [
             address
-                for owners in owner_groups()
-                    for address in addresses_from_persons(owners, user)
+            for owners in owner_groups()
+            for address in addresses_from_persons(owners, user)
         ]
 
         GeoAddress.populate_geoaddresses(addresses)
@@ -240,8 +240,8 @@ class NeighboursInformation(BaseAddressesInformation):
         has_perm = request.user.has_perm_to_view
         addresses = [
             address_as_dict(neighbour.address)
-                for neighbour in neighbours
-                    if has_perm(neighbour.address.owner)  # TODO: populate owner ?
+            for neighbour in neighbours
+            if has_perm(neighbour.address.owner)  # TODO: populate owner ?
         ]
 
         return {

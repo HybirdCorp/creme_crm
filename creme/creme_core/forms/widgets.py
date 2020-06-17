@@ -204,11 +204,13 @@ class ActionButtonList(widgets.Widget):
         widget_cxt['class'] = 'ui-creme-widget widget-auto ' + widget_type
         widget_cxt['widget_type'] = widget_type
 
-        widget_cxt['delegate'] = self.delegate.get_context(name=name, value=value, attrs=attrs)['widget']
         widget_cxt['buttons'] = [
-            self._get_button_context(name=a_name, label=a_label, enabled=a_enabled, **a_attrs)
-                for a_name, a_label, a_enabled, a_attrs in self.actions
+            self._get_button_context(
+                name=a_name, label=a_label, enabled=a_enabled, **a_attrs,
+            )
+            for a_name, a_label, a_enabled, a_attrs in self.actions
         ]
+        widget_cxt['delegate'] = self.delegate.get_context(name=name, value=value, attrs=attrs)['widget']
 
         return context
 
@@ -259,7 +261,7 @@ class PolymorphicInput(widgets.TextInput):
 
         widget_cxt['selectors'] = selectors = [
             (w_name, w_input.get_context(name='', value='', attrs=None)['widget'])
-                for w_name, w_input in self.inputs
+            for w_name, w_input in self.inputs
         ]
         if self.default_input:
             selectors.append(
@@ -363,7 +365,7 @@ class ChainedInput(widgets.TextInput):
 
         widget_cxt['chained'] = [
             (w_name, w_input.get_context(name='', value='', attrs=None)['widget'])
-                for w_name, w_input in self.inputs
+            for w_name, w_input in self.inputs
         ]
 
         return context
@@ -1042,7 +1044,7 @@ class OrderedMultipleChoiceWidget(widgets.SelectMultiple):
 
         context['widget']['orders'] = {
             opt_value: order + 1
-                for order, opt_value in enumerate(value or ())
+            for order, opt_value in enumerate(value or ())
         }
 
         return context
@@ -1115,7 +1117,7 @@ class ListEditionWidget(widgets.Widget):
 
         return [
             get(prefix_value_fmt(i)) if (prefix_check_fmt(i) in data) else None
-                for i in range(len(self.content))
+            for i in range(len(self.content))
         ]
 
 

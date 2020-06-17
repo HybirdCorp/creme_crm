@@ -42,9 +42,11 @@ class _JSONFieldBaseTestCase(FieldTestCase):
 
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE |
-                  EntityCredentials.LINK | EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
             set_type=SetCredentials.ESET_OWN,
         )
 
@@ -1168,7 +1170,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def build_data(cls, *relations):
         return json_dump([
             cls.build_entry(rtype_id, entity.entity_type_id, entity.id)
-                for rtype_id, entity in relations
+            for rtype_id, entity in relations
         ])
 
     def test_rtypes(self):

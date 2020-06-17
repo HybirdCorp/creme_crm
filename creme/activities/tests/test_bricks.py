@@ -1,29 +1,31 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.auth import get_user_model
-    from django.urls import reverse
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _, ngettext
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.models import Relation, SetCredentials
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.constants import REL_SUB_HAS
+from creme.creme_core.models import Relation, SetCredentials
+from creme.persons.constants import REL_SUB_EMPLOYED_BY
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.constants import REL_SUB_EMPLOYED_BY
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
-
-    from .base import (
-        _ActivitiesTestCase,
-        skipIfCustomActivity, Activity,
-       Contact, Organisation,
-    )
-    from .. import constants
-    from ..models import Calendar
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import constants
+from ..models import Calendar
+from .base import (
+    Activity,
+    Contact,
+    Organisation,
+    _ActivitiesTestCase,
+    skipIfCustomActivity,
+)
 
 
 @skipIfCustomActivity
@@ -223,11 +225,13 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         user = self.login(is_superuser=False)
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW   |
-                  EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE |
-                  EntityCredentials.LINK |
-                  EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW |
+                EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK |
+                EntityCredentials.UNLINK
+            ),
             set_type=SetCredentials.ESET_ALL,
         )
 

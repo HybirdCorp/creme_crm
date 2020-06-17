@@ -101,16 +101,16 @@ _SERIALISABLE_FIELDS = frozenset((
     'ForeignKey',
 
     # What about ?
-        # BigIntegerField
-        # CommaSeparatedIntegerField
-        # GenericIPAddressField
-        # UUIDField
-        # BinaryField
+    #   BigIntegerField
+    #   CommaSeparatedIntegerField
+    #   GenericIPAddressField
+    #   UUIDField
+    #   BinaryField
 
     # Excluded:
-        # 'FilePathField' => not useful
-        # 'TextField' => too long
-        # 'FileField' => not serialisable
+    #   'FilePathField' => not useful
+    #   'TextField' => too long
+    #   'FileField' => not serializable
 ))
 
 _TIME_FMT = '%H:%M:%S.%f'

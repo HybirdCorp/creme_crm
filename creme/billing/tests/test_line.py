@@ -702,9 +702,11 @@ class LineTestCase(_BillingTestCase):
 
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE | EntityCredentials.LINK |
-                  EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.LINK |
+                EntityCredentials.UNLINK
+            ),
             set_type=SetCredentials.ESET_OWN,
         )
 
@@ -728,9 +730,11 @@ class LineTestCase(_BillingTestCase):
 
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE | EntityCredentials.LINK |
-                  EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.LINK |
+                EntityCredentials.UNLINK
+            ),
             set_type=SetCredentials.ESET_OWN,
         )
 
@@ -904,9 +908,11 @@ class LineTestCase(_BillingTestCase):
 
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW   |
-                  EntityCredentials.DELETE | EntityCredentials.LINK |
-                  EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW   |
+                EntityCredentials.DELETE | EntityCredentials.LINK |
+                EntityCredentials.UNLINK
+            ),
             set_type=SetCredentials.ESET_OWN,
         )
 

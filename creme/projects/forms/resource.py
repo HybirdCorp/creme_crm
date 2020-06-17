@@ -82,8 +82,8 @@ class ResourceEditForm(ResourceCreateForm):
             task_activities = self.instance.task.related_activities
             activities_ids = {
                 activity.id
-                    for activity in task_activities
-                        if activity.projects_resource.linked_contact == old_contact
+                for activity in task_activities
+                if activity.projects_resource.linked_contact == old_contact
             }
 
             atypes = [REL_SUB_PART_AS_RESOURCE]

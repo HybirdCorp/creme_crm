@@ -71,7 +71,7 @@ def listview_header_filters(*, model, user, hfilters, show_buttons):
         users = get_user_model().objects.in_bulk(grouped_hfilters.keys())
         other_header_filters = [
             (users.get(user_id), user_hfilters)
-                for user_id, user_hfilters in grouped_hfilters.items()
+            for user_id, user_hfilters in grouped_hfilters.items()
         ]
 
         sort_key = collator.sort_key

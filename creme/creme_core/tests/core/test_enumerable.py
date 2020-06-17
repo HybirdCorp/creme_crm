@@ -45,7 +45,7 @@ class EnumerableTestCase(CremeTestCase):
         enum1 = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
         expected = [
             {'value': id, 'label': name}
-                for id, name in FakeImageCategory.objects.values_list('id', 'name')
+            for id, name in FakeImageCategory.objects.values_list('id', 'name')
         ]
         self.assertEqual(expected, enum1.choices(user))
 

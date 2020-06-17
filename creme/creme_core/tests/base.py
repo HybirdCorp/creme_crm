@@ -476,13 +476,11 @@ class _CremeTestCase:
     def assertRelationCount(self, count, subject_entity, type_id, object_entity):
         self.assertEqual(
             count,
-            Relation.objects
-                    .filter(
-                        subject_entity=subject_entity.id,
-                        type=type_id,
-                        object_entity=object_entity.id,
-                    )
-                    .count()
+            Relation.objects.filter(
+                subject_entity=subject_entity.id,
+                type=type_id,
+                object_entity=object_entity.id,
+            ).count()
         )
 
     def assertSameProperties(self, entity1, entity2):

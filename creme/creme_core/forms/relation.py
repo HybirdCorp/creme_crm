@@ -217,8 +217,9 @@ class _RelationsCreateForm(CremeForm):
                 subject_entity=subject,
                 type=rtype,
                 object_entity=object_entity,
-            ) for subject in self.subjects
-                  for rtype, object_entity in self.relations_desc
+            )
+            for subject in self.subjects
+            for rtype, object_entity in self.relations_desc
         )
 
 

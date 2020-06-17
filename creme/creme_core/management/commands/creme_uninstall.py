@@ -330,7 +330,7 @@ class Command(AppCommand):
                     'manually before re-run this command.'.format(
                         errors='\n'.join(
                             f'- Cannot delete "{obj}" (id={obj.id}) (original error: {error})'
-                                for obj, error in errors
+                            for obj, error in errors
                         ),
                         extra_errors=f'({extra_errors} extra error(s))\n' if extra_errors else '',
                     )

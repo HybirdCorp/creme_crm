@@ -158,9 +158,11 @@ class ConvertTestCase(_BillingTestCase):
         self.role.creatable_ctypes.set([get_ct(Quote), get_ct(SalesOrder)])
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE |
-                  EntityCredentials.LINK   | EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK   | EntityCredentials.UNLINK
+            ),
             set_type=SetCredentials.ESET_OWN,
         )
 
@@ -180,9 +182,11 @@ class ConvertTestCase(_BillingTestCase):
         self.role.creatable_ctypes.set([get_ct(Quote), get_ct(SalesOrder)])
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE |
-                  EntityCredentials.LINK   | EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK   | EntityCredentials.UNLINK
+            ),
             set_type=SetCredentials.ESET_OWN,
         )
 
@@ -205,9 +209,11 @@ class ConvertTestCase(_BillingTestCase):
         self.role.creatable_ctypes.set([get_ct(Quote)])  # Not get_ct(Invoice)
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE |
-                  EntityCredentials.LINK   | EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK   | EntityCredentials.UNLINK
+            ),
             set_type=SetCredentials.ESET_OWN,
         )
 
@@ -224,9 +230,11 @@ class ConvertTestCase(_BillingTestCase):
         self.role.creatable_ctypes.set([get_ct(Quote), get_ct(Invoice)])
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE |
-                  EntityCredentials.LINK   | EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK   | EntityCredentials.UNLINK
+            ),
             set_type=SetCredentials.ESET_OWN,
         )
 

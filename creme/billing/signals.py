@@ -66,8 +66,9 @@ def handle_merge_organisations(sender, other_entity, **kwargs):
     for model in (ConfigBillingAlgo, SimpleBillingAlgo):
         model_filter = model.objects.filter
         orga_ids = {
-            *model_filter(organisation__in=(sender, other_entity))
-                         .values_list('organisation', flat=True)
+            *model_filter(
+                organisation__in=(sender, other_entity),
+            ).values_list('organisation', flat=True)
         }
 
         if len(orga_ids) == 2:

@@ -813,11 +813,13 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.login(is_superuser=False, creatable_models=[FakeContact])
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW   |
-                  EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE |
-                  EntityCredentials.LINK   |
-                  EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW   |
+                EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK   |
+                EntityCredentials.UNLINK
+            ),
             set_type=SetCredentials.ESET_OWN,
         )
 

@@ -78,9 +78,9 @@ def __get_extending_app_configs(self):
         name = self.name
         ext_app_configs = self._extending_app_configs = [
             app_config
-                for app_config in apps.get_app_configs()
-                    if app_config.extended_app == name
-            ]
+            for app_config in apps.get_app_configs()
+            if app_config.extended_app == name
+        ]
 
     return ext_app_configs
 
@@ -181,8 +181,9 @@ class CremeAppConfig(AppConfig):
                          ' local_settings.py/project_settings.py',
                     obj=self.name,
                     id='creme.E001',
-                ) for dep in self.dependencies
-                      if not apps.is_installed(dep)
+                )
+                for dep in self.dependencies
+                if not apps.is_installed(dep)
             ]
 
         @checks.register(Tags.settings)

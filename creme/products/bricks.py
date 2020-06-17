@@ -40,7 +40,9 @@ class ImagesBrick(Brick):
         pk = entity.id
         return self._render(self.get_template_context(
             context,
-            add_images_url=reverse('products__add_images_to_product', args=(pk,))
-                           if isinstance(entity, Product) else
-                           reverse('products__add_images_to_service', args=(pk,)),
+            add_images_url=(
+                reverse('products__add_images_to_product', args=(pk,))
+                if isinstance(entity, Product) else
+                reverse('products__add_images_to_service', args=(pk,))
+            ),
         ))

@@ -191,8 +191,10 @@ def serializeFields(obj, order=None):
         fields = (backslashEscape(val) for val in obj)
     else:
         fields = (
-            ','.join(backslashEscape(val) for val in toList(getattr(obj, field)))
-                for field in order
+            ','.join(
+                backslashEscape(val)
+                for val in toList(getattr(obj, field))
+            ) for field in order
         )
 
     return ';'.join(fields)

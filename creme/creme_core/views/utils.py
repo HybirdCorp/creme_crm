@@ -58,9 +58,8 @@ def json_update_from_widget_response(instance):
        {"value": id, "added": [[id, label]]} is returned (the JS will add the choice and select it).
     """
     return CremeJsonResponse(
-        data={'value': instance.id,
-              'added': [(instance.id, str(instance))],
-             }
-             if isinstance(instance, Model) else
-             instance,
+        data={
+            'value': instance.id,
+            'added': [(instance.id, str(instance))],
+        } if isinstance(instance, Model) else instance,
     )

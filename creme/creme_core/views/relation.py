@@ -184,8 +184,9 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
 
             if not rtype.is_compatible(subject_ctype):
                 raise ConflictError(
-                    gettext('This type of relationship is not compatible with «{model}».')
-                           .format(model=subject_ctype)
+                    gettext(
+                        'This type of relationship is not compatible with «{model}».'
+                    ).format(model=subject_ctype)
                 )
 
             # TODO: make a method in RelationType (improve is_compatible() ?)
@@ -194,8 +195,8 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
                 subjects_prop_ids = {*subject.properties.values_list('type', flat=True)}
                 missing_ptypes = [
                     needed_ptype
-                        for needed_ptype in needed_property_types
-                            if needed_ptype.id not in subjects_prop_ids
+                    for needed_ptype in needed_property_types
+                    if needed_ptype.id not in subjects_prop_ids
                 ]
 
                 if missing_ptypes:

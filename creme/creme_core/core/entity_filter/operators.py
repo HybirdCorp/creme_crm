@@ -245,7 +245,7 @@ class EqualsOperator(ConditionOperator):
         if isinstance(value, (list, tuple)):
             return any(
                 self._accept_single_value(field_value=field_value, value=v)
-                    for v in value
+                for v in value
             )
 
         return self._accept_single_value(field_value=field_value, value=value)

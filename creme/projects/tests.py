@@ -269,8 +269,10 @@ class ProjectsTestCase(CremeTestCase):
         project = self.create_project('Eva00')[0]
 
         project_actions = [
-            action for action in actions.actions_registry.instance_actions(user=user, instance=project)
-                if isinstance(action, ProjectCloseAction)
+            action
+            for action in actions.actions_registry
+                                 .instance_actions(user=user, instance=project)
+            if isinstance(action, ProjectCloseAction)
         ]
         self.assertEqual(1, len(project_actions))
 
@@ -289,8 +291,10 @@ class ProjectsTestCase(CremeTestCase):
         self.assertTrue(project.is_closed)
 
         project_actions = [
-            action for action in actions.actions_registry.instance_actions(user=user, instance=project)
-                if isinstance(action, ProjectCloseAction)
+            action
+            for action in actions.actions_registry
+                                 .instance_actions(user=user, instance=project)
+            if isinstance(action, ProjectCloseAction)
         ]
         self.assertEqual(1, len(project_actions))
 

@@ -88,8 +88,10 @@ def detailview_bricks(user, entity, registry=brick_registry):
         bricks[hat_brick.id_] = hat_brick
 
     return {
-        zone_name: [*filter(None, (bricks.get(brick_id) for brick_id in loc_map[zone]))]
-            for zone, zone_name in BrickDetailviewLocation.ZONE_NAMES.items()
+        zone_name: [
+            *filter(None, (bricks.get(brick_id) for brick_id in loc_map[zone])),
+        ]
+        for zone, zone_name in BrickDetailviewLocation.ZONE_NAMES.items()
     }
 
 

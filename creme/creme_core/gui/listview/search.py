@@ -141,8 +141,10 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         model_field = cell.field_info[-1]
         return self._build_field(
-            builder=self._builders_4_models[model_field.remote_field.model] or
-                    self._default_builder,
+            builder=(
+                self._builders_4_models[model_field.remote_field.model] or
+                self._default_builder
+            ),
             cell=cell, user=user,
             **kwargs
         )
@@ -411,8 +413,10 @@ class FunctionFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         ffield = cell.function_field
 
         return self._build_field(
-            builder=self._builders.get(ffield.name) or
-                    self._instantiate_builder(ffield.search_field_builder),
+            builder=(
+                self._builders.get(ffield.name) or
+                self._instantiate_builder(ffield.search_field_builder)
+            ),
             cell=cell, user=user,
             **kwargs
         )

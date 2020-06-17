@@ -77,9 +77,9 @@ class PortalBricksMixin(RegistryMixin):
     def get_portal_bricks(self) -> List[Brick]:
         return [
             brick_class(backend)
-                for backend in self.crudity_registry.get_configured_backends()
-                    if backend.in_sandbox
-                        for brick_class in backend.brick_classes
+            for backend in self.crudity_registry.get_configured_backends()
+            if backend.in_sandbox
+            for brick_class in backend.brick_classes
         ]
 
 

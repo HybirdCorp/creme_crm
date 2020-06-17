@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -66,15 +66,16 @@ class AbstractEmailCampaign(CremeEntity):
         # Merge all the mailing_lists and their children
         lists = {
             pk: ml
-                for ml in self.mailing_lists.filter(is_deleted=False)
-                    for pk, ml in ml.get_family().items()
+            for ml in self.mailing_lists.filter(is_deleted=False)
+            for pk, ml in ml.get_family().items()
         }.values()
 
         # Manual recipients
         recipients = {
             addr: None
-                for addr in EmailRecipient.objects.filter(ml__in=[ml.id for ml in lists])
-                                                  .values_list('address', flat=True)
+            for addr in EmailRecipient.objects
+                                      .filter(ml__in=[ml.id for ml in lists])
+                                      .values_list('address', flat=True)
         }
 
         # Contacts & organisations recipients

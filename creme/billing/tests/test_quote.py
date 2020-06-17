@@ -344,9 +344,10 @@ class QuoteTestCase(_BillingTestCase):
         quote = self.create_quote_n_orgas('Quote #1')[0]
 
         export_actions = [
-            action for action in actions.actions_registry
-                                        .instance_actions(user=user, instance=quote)
-                if isinstance(action, ExportQuoteAction)
+            action
+            for action in actions.actions_registry
+                                 .instance_actions(user=user, instance=quote)
+            if isinstance(action, ExportQuoteAction)
         ]
         self.assertEqual(1, len(export_actions))
 

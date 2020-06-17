@@ -274,9 +274,9 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
                     .filter(self.get_date_q(start=start, end=end))
                     .filter(calendars__in=calendar_ids)
                     .distinct()
-                    # NB: we already filter by calendars ; maybe a future Django version
-                    #     will allow us to annotate the calendar ID directly
-                    #     (distinct() would have to be removed of course)
+            # NB: we already filter by calendars ; maybe a future Django version
+            #     will allow us to annotate the calendar ID directly
+            #     (distinct() would have to be removed of course)
                     .prefetch_related(
                         Prefetch('calendars',
                                  queryset=Calendar.objects.filter(id__in=calendar_ids),
@@ -289,7 +289,7 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
 
         return [
             activity_2_dict(activity=a)
-                for a in self._get_one_activity_per_calendar(activities)
+            for a in self._get_one_activity_per_calendar(activities)
         ]
 
     @staticmethod
@@ -339,8 +339,7 @@ class CalendarsSelection(CalendarsMixin, generic.CheckedView):
         ids_2remove = {*self._str_ids_2_int_ids(request.POST.getlist(self.remove_arg))}
 
         session[key] = [
-            cal_id for cal_id in calendar_ids
-                if cal_id not in ids_2remove
+            cal_id for cal_id in calendar_ids if cal_id not in ids_2remove
         ]
 
         return HttpResponse()

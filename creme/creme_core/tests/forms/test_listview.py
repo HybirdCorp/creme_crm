@@ -60,9 +60,9 @@ class SearchWidgetsTestCase(CremeTestCase):
 
         self.assertHTMLEqual(
             '<select class="lv-state-field" data-lv-search-widget="select" name="{name}">'
-               '<option value="">{all}</option>'
-               '<option value="1" selected>{yes}</option>'
-               '<option value="0">{no}</option>'
+            ' <option value="">{all}</option>'
+            ' <option value="1" selected>{yes}</option>'
+            ' <option value="0">{no}</option>'
             '</select>'.format(
                 name=name,
                 all=_('All'),
@@ -87,10 +87,10 @@ class SearchWidgetsTestCase(CremeTestCase):
 
         self.assertHTMLEqual(
             '<select class="lv-state-field" data-lv-search-widget="select" name="{name}">'
-               '<option value="">{all}</option>'
-               '<option value="NULL" selected>{null}</option>'
-               '<option value="1">{yes}</option>'
-               '<option value="0">{no}</option>'
+            ' <option value="">{all}</option>'
+            ' <option value="NULL" selected>{null}</option>'
+            ' <option value="1">{yes}</option>'
+            ' <option value="0">{no}</option>'
             '</select>'.format(
                 name=name,
                 all=_('All'),
@@ -132,10 +132,10 @@ class SearchWidgetsTestCase(CremeTestCase):
         name = 'foo'
         self.assertHTMLEqual(
             f'<select class="lv-state-field" data-lv-search-widget="select" name="{name}">'
-               '<option value="">All</option>'
-               '<option value="1">one</option>'
-               '<option value="2" selected>two</option>'
-               '<option value="3">three</option>'
+            '  <option value="">All</option>'
+            '  <option value="1">one</option>'
+            '  <option value="2" selected>two</option>'
+            '  <option value="3">three</option>'
             '</select>',
             widget.render(name=name, value='2')
         )
@@ -158,16 +158,16 @@ class SearchWidgetsTestCase(CremeTestCase):
         name = 'foob'
         self.assertHTMLEqual(
             f'<select class="lv-state-field" data-lv-search-widget="select" name="{name}">'
-                '<option value="">All</option>'
-                '<option value="NULL" class="search-nullfk">Nothing</option>'
-                '<optgroup label="Numbers">'
-                   '<option value="1">one</option>'
-                   '<option value="2">two</option>'
-                '</optgroup>'
-                '<optgroup label="Letters">'
-                   '<option value="a" selected>A</option>'
-                   '<option value="b">B</option>'
-                '</optgroup>'
+            '   <option value="">All</option>'
+            '   <option value="NULL" class="search-nullfk">Nothing</option>'
+            '   <optgroup label="Numbers">'
+            '       <option value="1">one</option>'
+            '       <option value="2">two</option>'
+            '   </optgroup>'
+            '   <optgroup label="Letters">'
+            '        <option value="a" selected>A</option>'
+            '       <option value="b">B</option>'
+            '   </optgroup>'
             '</select>',
             widget.render(name=name, value='a')
         )
@@ -189,14 +189,14 @@ class SearchWidgetsTestCase(CremeTestCase):
         name = 'search-birthday'
         self.assertHTMLEqual(
             '<div class="lv-state-field lv-search-daterange" data-lv-search-widget="daterange">'
-                '<div class="date-start">'
-                    '<label for="id_birth-start">{start_label}</label>'
-                    '<input data-format="{format}" id="id_birth-start" name="{name}-start" value="12-02-2019" />'
-                '</div>'
-                '<div class="date-end">'
-                    '<label for="id_birth-end">{end_label}</label>'
-                    '<input data-format="{format}" id="id_birth-end" name="{name}-end" value="14-02-2019" />'
-                '</div>'
+            '   <div class="date-start">'
+            '       <label for="id_birth-start">{start_label}</label>'
+            '       <input data-format="{format}" id="id_birth-start" name="{name}-start" value="12-02-2019" />'
+            '   </div>'
+            '   <div class="date-end">'
+            '       <label for="id_birth-end">{end_label}</label>'
+            '       <input data-format="{format}" id="id_birth-end" name="{name}-end" value="14-02-2019" />'
+            '   </div>'
             '</div>'.format(
                 name=name,
                 start_label=_('Start'),

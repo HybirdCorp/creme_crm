@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,7 @@ def menu_buttons_display(context):
     # TODO: pass the registry in the context ?
     context['buttons'] = [
         button.render(button_ctxt)
-            for button in button_registry.get_buttons(bmi, entity)
+        for button in button_registry.get_buttons(bmi, entity)
     ]
 
     return context

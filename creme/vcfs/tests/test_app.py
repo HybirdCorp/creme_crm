@@ -31,8 +31,8 @@ class VcfsTestCase(CremeTestCase):
         contact = user.linked_contact
         vcfs_actions = [
             action
-                for action in actions_registry.instance_actions(user=user, instance=contact)
-                    if isinstance(action, GenerateVcfAction)
+            for action in actions_registry.instance_actions(user=user, instance=contact)
+            if isinstance(action, GenerateVcfAction)
         ]
         self.assertEqual(1, len(vcfs_actions))
 

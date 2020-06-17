@@ -825,10 +825,12 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         # TODO: sadly it performs a query to get the CustomFields => cache
         money_fields = [
             cell.field_info[-1]
-                for cell_constraint in instance.ordinate_constraints.cell_constraints(model)
-                    for cell in cell_constraint.cells(ordinate_f.not_hiddable_cell_keys)
-                        if isinstance(cell, EntityCellRegularField) and
-                           isinstance(cell.field_info[-1], MoneyField)
+            for cell_constraint in instance.ordinate_constraints.cell_constraints(model)
+            for cell in cell_constraint.cells(ordinate_f.not_hiddable_cell_keys)
+            if (
+                isinstance(cell, EntityCellRegularField) and
+                isinstance(cell.field_info[-1], MoneyField)
+            )
         ]
         if money_fields:
             ordinate_f.help_text = gettext(

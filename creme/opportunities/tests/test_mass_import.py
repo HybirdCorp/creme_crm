@@ -95,11 +95,11 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
         lines = [
             ('Opp01', sp1.name, '1000', '2000', target1.name, ''),
-                 ('Opp02', sp2_name, '100',  '200',  target2_name, ''),
-                 ('Opp03', sp1.name, '100',  '200',  '',           target3.last_name),
-                 ('Opp04', sp1.name, '100',  '200',  '',           target4_last_name),
-                 ('Opp05', '',       '100',  '200',  target1.name, ''),
-                 # TODO emitter by name
+            ('Opp02', sp2_name, '100',  '200',  target2_name, ''),
+            ('Opp03', sp1.name, '100',  '200',  '',           target3.last_name),
+            ('Opp04', sp1.name, '100',  '200',  '',           target4_last_name),
+            ('Opp05', '',       '100',  '200',  target1.name, ''),
+            # TODO emitter by name
         ]
 
         doc = self._build_csv_doc(lines)

@@ -302,8 +302,8 @@ class ImportingTestCase(CremeTestCase):
         # --
         own_creds = [
             sc
-                for sc in credentials
-                    if sc.set_type == SetCredentials.ESET_OWN and not sc.forbidden
+            for sc in credentials
+            if sc.set_type == SetCredentials.ESET_OWN and not sc.forbidden
         ]
         self.assertEqual(1, len(own_creds))
         self.assertEqual(
@@ -1681,8 +1681,10 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-             _('The column with custom-field="{uuid}" is invalid in the view of '
-               'list id="{id}".').format(uuid=cf_uuid, id=hf_id)
+            _(
+                'The column with custom-field="{uuid}" is invalid in the view '
+                'of list id="{id}".'
+            ).format(uuid=cf_uuid, id=hf_id)
         )
 
     def test_headerfilters_error04(self):
@@ -1708,10 +1710,10 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-             _(
-                 'The column with function-field="{ffield}" is invalid '
-                 'in the view of list id="{id}".'
-             ).format(ffield=ff_name, id=hf_id),
+            _(
+                'The column with function-field="{ffield}" is invalid '
+                'in the view of list id="{id}".'
+            ).format(ffield=ff_name, id=hf_id),
         )
 
     def test_headerfilters_error05(self):
@@ -1839,10 +1841,10 @@ class ImportingTestCase(CremeTestCase):
                 ],
             }, {
                 'id':         'creme_config-test_import_entityfilters01_4',
-                 'name':       "Invalid user's Organisation view",
-                 'ctype':      ct_str_o,
-                 'user':       'invalid',  # <==
-                 'conditions': [],
+                'name':       "Invalid user's Organisation view",
+                'ctype':      ct_str_o,
+                'user':       'invalid',  # <==
+                'conditions': [],
             }, {
                 'id':         'creme_config-test_import_entityfilters01_5',
                 'name':       'Organisation view with sub-filter',

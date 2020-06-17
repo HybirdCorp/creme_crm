@@ -20,5 +20,5 @@ class FakeTodosField(FunctionField):
             # FunctionFieldResult('Todo {} #{}'.format(entity, i))
             #     for i in range(1, 3)
             FunctionFieldResult(str(todo))
-                for todo in FakeTodo.objects.filter(entity=entity)
+            for todo in FakeTodo.objects.filter(entity=entity)
         )

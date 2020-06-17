@@ -179,7 +179,7 @@ def test_http_response(request):
 
     logger.warning(
         "Beware : If you are not running unittest this view shouldn't be reachable."
-       " Check your server configuration."
+        " Check your server configuration."
     )
 
     status = int(request.GET.get('status', 200))

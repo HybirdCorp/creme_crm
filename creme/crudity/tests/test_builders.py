@@ -626,10 +626,10 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertEqual(Contact._meta.get_field('user').verbose_name, node_vb.text)
 
         attrs = {
-            'class':         'xdComboBox xdBehavior_Select',
-             f'{xd}xctname': 'dropdown',
-             f'{xd}CtrlId':  field_name,
-             f'{xd}binding': f'my:{field_name}',
+            'class':        'xdComboBox xdBehavior_Select',
+            f'{xd}xctname': 'dropdown',
+            f'{xd}CtrlId':  field_name,
+            f'{xd}binding': f'my:{field_name}',
         }
         target_node = xml.find(f'{xsl}template/div/div/table/tbody/tr/td/div/font/select')
         for attr, expected_value in attrs.items():
@@ -744,10 +744,12 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         self.assertSetEqual(
             {f'my:language/my:language_value="{lang.id}"' for lang in languages},
-             {
-                 input_node.get('test')
-                 for input_node in target_node.findall(f'{xsl}choose/{xsl}when/span/span/input/{xsl}if')
-             }
+            {
+                input_node.get('test')
+                for input_node in target_node.findall(
+                    f'{xsl}choose/{xsl}when/span/span/input/{xsl}if'
+                )
+            }
         )
 
         for_each_node = target_node.find(f'{xsl}choose/{xsl}when/span/{xsl}for-each')

@@ -114,7 +114,7 @@ class CremePropertyManager(models.Manager):
         count = 0
         unique_props = {
             (prop.type_id, prop.creme_entity_id): prop
-                for prop in properties
+            for prop in properties
         }
 
         if unique_props:

@@ -150,8 +150,8 @@ class FieldBlocksGroup:
         if wildcard_cat is not None:
             blocks_data[wildcard_cat][1].extend(
                 (form[name], field.required)
-                    for name, field in form.fields.items()
-                        if name not in field_set
+                for name, field in form.fields.items()
+                if name not in field_set
             )
 
     def __getitem__(self, category: str):
@@ -473,7 +473,7 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
 
         self.forced_ptype_ids = ptypes_ids = [
             pt.id if isinstance(pt, CremePropertyType) else pt
-                for pt in forced_ptypes
+            for pt in forced_ptypes
         ]
         self._build_properties_field(forced_ptype_ids=ptypes_ids)
 
@@ -532,8 +532,8 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
                 # TODO: factorise ?
                 entities = [
                     sfrt.object_entity
-                        for sfrt in SemiFixedRelationType.objects
-                                                         .select_related('object_entity')
+                    for sfrt in SemiFixedRelationType.objects
+                                                     .select_related('object_entity')
                 ]
                 sfrt_qs = SemiFixedRelationType.objects.filter(
                     Q(relation_type__subject_ctypes=ctype) |
@@ -662,7 +662,7 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
 
         return FluentList(
             CremeProperty(creme_entity=instance, type_id=ptype_id)
-                for ptype_id in ptype_ids
+            for ptype_id in ptype_ids
         )
 
     # def _save_customfields(self):

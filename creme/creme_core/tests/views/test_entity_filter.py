@@ -782,11 +782,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertFormError(
             response, 'form', None,
-             ngettext(
-                 'Your filter must be private in order to use this private sub-filter: {}',
-                 'Your filter must be private in order to use these private sub-filters: {}',
-                 2
-             ).format(f'{subfilter2.name}, {subfilter1.name}')
+            ngettext(
+                'Your filter must be private in order to use this private sub-filter: {}',
+                'Your filter must be private in order to use these private sub-filters: {}',
+                2
+            ).format(f'{subfilter2.name}, {subfilter1.name}')
         )
 
         response = post('on')

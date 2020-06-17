@@ -85,7 +85,7 @@ class Command(BaseCommand):
     def handle(self, **options):
         types_map = {
             get_concrete_model(type_str): factory_builder
-                for type_str, factory_builder in self.TYPES
+            for type_str, factory_builder in self.TYPES
         }
 
         get_opt = options.get
