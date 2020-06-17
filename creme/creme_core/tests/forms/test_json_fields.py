@@ -538,21 +538,23 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                 build_entry_v1(contact_ct_id, 1, contact_label),
                 build_entry_v1(orga_ct_id, 5,    orga_label),
             ],
-            json_load(field.from_python([{
-                'ctype': {
-                    'id': contact_ct_id,
-                    'create': build_url(contact_ct_id),
-                    'create_label': str(contact_label)
-                },
-                'entity': 1,
+            json_load(field.from_python([
+                {
+                    'ctype': {
+                        'id': contact_ct_id,
+                        'create': build_url(contact_ct_id),
+                        'create_label': str(contact_label)
+                    },
+                    'entity': 1,
                 }, {
-                'ctype': {
-                    'id': orga_ct_id,
-                    'create': build_url(orga_ct_id),
-                    'create_label': str(orga_label)
-                },
-                'entity': 5,
-            }]))
+                    'ctype': {
+                        'id': orga_ct_id,
+                        'create': build_url(orga_ct_id),
+                        'create_label': str(orga_label)
+                    },
+                    'entity': 5,
+                }
+            ]))
         )
 
         # No user

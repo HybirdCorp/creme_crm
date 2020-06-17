@@ -258,8 +258,8 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
                 'user_id':     user.id,
                 'created':     '',
                 'description': '',
-                },
-            )
+            },
+        )
 
         self.assertFalse(WaitingAction.objects.all())
 

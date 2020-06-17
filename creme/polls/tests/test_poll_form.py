@@ -1639,8 +1639,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
             data={
                 'use_or':     1,
                 'conditions': self.conds_formfield_value(source=line2.id, choice=1),
-                },
-            )
+            },
+        )
         self.assertFormError(response, 'form', 'conditions', _('This source is invalid.'))
 
     def test_add_line_conditions_error02(self):

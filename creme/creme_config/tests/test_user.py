@@ -559,11 +559,12 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                      )
         self.assertFormError(
             response, 'form', 'password_2',
-            ngettext('This password is too short. It must contain at least %(min_length)d character.',
-                     'This password is too short. It must contain at least %(min_length)d characters.',
-                     8
-                    ) % {'min_length': 8}
-            )
+            ngettext(
+                'This password is too short. It must contain at least %(min_length)d character.',
+                'This password is too short. It must contain at least %(min_length)d characters.',
+                8
+            ) % {'min_length': 8}
+        )
 
     @skipIfNotCremeUser
     def test_user_activation01(self):
