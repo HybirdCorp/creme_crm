@@ -162,11 +162,13 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         SetCredentials.objects.create(
             role=self.role,
             set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.VIEW |
-                  # EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE |
-                  EntityCredentials.LINK |
-                  EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW |
+                # EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK |
+                EntityCredentials.UNLINK
+            ),
         )
 
         meeting = self._create_meeting(
@@ -233,11 +235,13 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         SetCredentials.objects.create(
             role=self.role,
             set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.VIEW |
-                  # EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE |
-                  EntityCredentials.LINK |
-                  EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW |
+                # EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK |
+                EntityCredentials.UNLINK
+            ),
         )
 
         meeting = self._create_meeting(

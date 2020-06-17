@@ -184,7 +184,7 @@ class ActionsChain(InheritedDataChain):
         """Get a list of UIAction classes corresponding to a model."""
         return [
             a for a in self._inherited_actions(model).values()
-                if not issubclass(a, VoidAction)
+            if not issubclass(a, VoidAction)
         ]
 
     # TODO ?

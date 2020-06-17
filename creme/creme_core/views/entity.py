@@ -101,12 +101,16 @@ def get_creme_entities_repr(request, entities_ids):
     has_perm = user.has_perm_to_view
 
     return [
-        {'id': e_id,
-         'text': entity.get_real_entity().get_entity_summary(user)
-                 if has_perm(entity) else
-                 gettext('Entity #{id} (not viewable)').format(id=e_id)
-        } for e_id, entity in ((e_id, entities.get(e_id)) for e_id in e_ids)
-                if entity is not None
+        {
+            'id': e_id,
+            'text': (
+                entity.get_real_entity().get_entity_summary(user)
+                if has_perm(entity) else
+                gettext('Entity #{id} (not viewable)').format(id=e_id)
+            ),
+        }
+        for e_id, entity in ((e_id, entities.get(e_id)) for e_id in e_ids)
+        if entity is not None
     ]
 
 
@@ -201,8 +205,8 @@ class FieldsInformation(generic.base.EntityCTypeRelatedMixin,
         form = modelform_factory(model, CremeEntityForm)(user=self.request.user)
         required_fields = [
             name
-                for name, field in form.fields.items()
-                    if field.required and name != 'user'
+            for name, field in form.fields.items()
+            if field.required and name != 'user'
         ]
 
         kwargs = {}
@@ -402,10 +406,12 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
         # TODO: select_label in model instead (fr: masculin/féminin)
         context['help_message'] = format_html(
             '<span class="bulk-selection-summary" data-msg="{msg}" data-msg-plural="{plural}"></span>',
-            msg=gettext('{count} «{model}» has been selected.')
-                       .format(count='%s', model=meta.verbose_name),
-            plural=gettext('{count} «{model}» have been selected.')
-                          .format(count='%s', model=meta.verbose_name_plural),
+            msg=gettext('{count} «{model}» has been selected.').format(
+                count='%s', model=meta.verbose_name,
+            ),
+            plural=gettext('{count} «{model}» have been selected.').format(
+                count='%s', model=meta.verbose_name_plural,
+            ),
         )
 
         return context

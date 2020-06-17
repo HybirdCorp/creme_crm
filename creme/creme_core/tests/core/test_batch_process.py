@@ -80,7 +80,7 @@ class BatchOperatorTestCase(CremeTestCase):
     def test_operators01(self):
         ops = [
             (op_name, str(op))
-                for op_name, op in batch_operator_manager.operators(models.CharField)
+            for op_name, op in batch_operator_manager.operators(models.CharField)
         ]
         self.assertInChoices(value='upper', label=_('To upper case'), choices=ops)
         self.assertInChoices(value='lower', label=_('To lower case'), choices=ops)
@@ -89,7 +89,7 @@ class BatchOperatorTestCase(CremeTestCase):
     def test_operators02(self):
         ops = [
             (op_name, str(op))
-                for op_name, op in batch_operator_manager.operators(models.IntegerField)
+            for op_name, op in batch_operator_manager.operators(models.IntegerField)
         ]
         self.assertInChoices(value='add_int', label=_('Add'), choices=ops)
         self.assertNotInChoices(value='prefix', choices=ops)

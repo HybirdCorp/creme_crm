@@ -339,9 +339,8 @@ class ExportingTestCase(CremeTestCase):
         with self.assertNoException():
             default_bricks_info = [
                 dumped_bdl
-                   for dumped_bdl in bricks_info
-                       if 'ctype' not in dumped_bdl and
-                          'role' not in dumped_bdl
+                for dumped_bdl in bricks_info
+                if 'ctype' not in dumped_bdl and 'role' not in dumped_bdl
             ]
 
         self.assertFalse([binfo for binfo in default_bricks_info if binfo['zone'] == BrickDetailviewLocation.HAT])
@@ -350,17 +349,19 @@ class ExportingTestCase(CremeTestCase):
 
         self.assertListEqual(
             existing_default_bricks_data.get(BrickDetailviewLocation.LEFT),
-            [{'id': binfo['id'], 'order': binfo['order']}
+            [
+                {'id': binfo['id'], 'order': binfo['order']}
                 for binfo in default_bricks_info
-                    if binfo['zone'] == BrickDetailviewLocation.LEFT
+                if binfo['zone'] == BrickDetailviewLocation.LEFT
             ]
         )
         self.assertListEqual(
             existing_default_bricks_data.get(BrickDetailviewLocation.RIGHT),
-             [{'id': binfo['id'], 'order': binfo['order']}
+            [
+                {'id': binfo['id'], 'order': binfo['order']}
                 for binfo in default_bricks_info
-                    if binfo['zone'] == BrickDetailviewLocation.RIGHT
-             ]
+                if binfo['zone'] == BrickDetailviewLocation.RIGHT
+            ]
         )
 
     def test_detail_bricks02(self):
@@ -390,8 +391,8 @@ class ExportingTestCase(CremeTestCase):
 
         contact_bricks_info = [
             dumped_bdl
-               for dumped_bdl in content.get('detail_bricks')
-                   if dumped_bdl.get('ctype') == 'creme_core.fakecontact'
+            for dumped_bdl in content.get('detail_bricks')
+            if dumped_bdl.get('ctype') == 'creme_core.fakecontact'
         ]
 
         self.assertFalse([binfo for binfo in contact_bricks_info if binfo['zone'] == BrickDetailviewLocation.HAT])
@@ -426,9 +427,11 @@ class ExportingTestCase(CremeTestCase):
 
         contact_bricks_info = [
             dumped_bdl
-               for dumped_bdl in content.get('detail_bricks')
-                   if dumped_bdl.get('ctype') == 'creme_core.fakecontact' and
-                       dumped_bdl.get('role') == role.name
+            for dumped_bdl in content.get('detail_bricks')
+            if (
+                dumped_bdl.get('ctype') == 'creme_core.fakecontact' and
+                dumped_bdl.get('role') == role.name
+            )
         ]
 
         self.assertFalse([binfo for binfo in contact_bricks_info if binfo['zone'] == BrickDetailviewLocation.HAT])
@@ -456,9 +459,11 @@ class ExportingTestCase(CremeTestCase):
 
         contact_bricks_info = [
             dumped_bdl
-               for dumped_bdl in content.get('detail_bricks')
-                   if dumped_bdl.get('ctype') == 'creme_core.fakecontact' and
-                       dumped_bdl.get('superuser')
+            for dumped_bdl in content.get('detail_bricks')
+            if (
+                dumped_bdl.get('ctype') == 'creme_core.fakecontact' and
+                dumped_bdl.get('superuser')
+            )
         ]
 
         self.assertFalse([binfo for binfo in contact_bricks_info if binfo['zone'] != LEFT])

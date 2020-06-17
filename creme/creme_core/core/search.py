@@ -56,8 +56,8 @@ class Searcher:
                 # TODO: work with FieldInfo instead of strings + split() (see creme_config too)
                 search_map[model] = [
                     sfield
-                        for sfield in sci.searchfields
-                            if not is_hidden(sfield.name.split('__', 1)[0])
+                    for sfield in sci.searchfields
+                    if not is_hidden(sfield.name.split('__', 1)[0])
                 ]
 
         self._search_map = search_map

@@ -2368,8 +2368,10 @@ class CredentialsTestCase(CremeTestCase):
             users=[user],
             set_creds=[
                 SetCredentials(
-                    value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                          EntityCredentials.LINK | EntityCredentials.UNLINK,
+                    value=(
+                        EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                        EntityCredentials.LINK | EntityCredentials.UNLINK
+                    ),
                     set_type=SetCredentials.ESET_ALL,
                 ),
             ],

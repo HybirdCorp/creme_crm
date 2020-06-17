@@ -552,10 +552,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         fmt_value = _('«{enum_value}»').format
         self.assertHTMLEqual(
             '<div class="entity_filter-summary">{name}'
-                '<ul>'
-                    '<li>{cond1}</li>'
-                    '<li>{cond2}</li>'
-                '</ul>'
+            '  <ul>'
+            '    <li>{cond1}</li>'
+            '    <li>{cond2}</li>'
+            '  </ul>'
             '</div>'.format(
                 name=efilter.name,
                 cond1=_('«{field}» starts with {values}').format(
@@ -695,8 +695,8 @@ class FieldsPrintersTestCase(CremeTestCase):
                   )
         self.assertHTMLEqual(
             f'<ul>'
-              f'<li><a target="_blank" href="{img1.get_absolute_url()}">{img1}</a></li>'
-              f'<li>{settings.HIDDEN_VALUE}</li>'
+            f' <li><a target="_blank" href="{img1.get_absolute_url()}">{img1}</a></li>'
+            f' <li>{settings.HIDDEN_VALUE}</li>'
             f'</ul>',
             printer(prod, prod.images, user, field)
         )

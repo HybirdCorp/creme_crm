@@ -190,8 +190,9 @@ class CredentialsFilterStep(CremeModelForm):
             if ctype is None:
                 ctype = ContentType.objects.get_for_model(CremeEntity)
                 handler_classes = (
-                    cls for cls in efilter_registry.handler_classes
-                        if not issubclass(cls, self.no_entity_base_handlers)
+                    cls
+                    for cls in efilter_registry.handler_classes
+                    if not issubclass(cls, self.no_entity_base_handlers)
                 )
             else:
                 handler_classes = efilter_registry.handler_classes
@@ -420,8 +421,7 @@ class UserRoleAppsStep(_UserRoleWizardFormStep):
         CRED_REGULAR = CremeAppConfig.CRED_REGULAR
         allowed_apps_f = self.fields['allowed_apps']
         allowed_apps_f.choices = self.app_choices(
-            app for app in creme_app_configs()
-                if app.credentials & CRED_REGULAR
+            app for app in creme_app_configs() if app.credentials & CRED_REGULAR
         )
         allowed_apps_f.initial = self.instance.allowed_apps
 

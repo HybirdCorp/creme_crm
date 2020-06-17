@@ -507,8 +507,11 @@ class ContactTestCase(_BaseTestCase):
         SetCredentials.objects.create(
             role=self.role,
             set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.LINK |
-                  EntityCredentials.DELETE | EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW |
+                EntityCredentials.CHANGE | EntityCredentials.LINK |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),
             ctype=Contact,  # Not Organisation
         )
 

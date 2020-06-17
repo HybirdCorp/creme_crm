@@ -177,8 +177,8 @@ class CreditNotesBrick(PaginatedBrick):
             add_title=_('Create a credit note'),
             hidden_fields={
                 fname
-                    for fname in ('issuing_date', 'expiration_date', 'comment')
-                       if is_hidden(fname)
+                for fname in ('issuing_date', 'expiration_date', 'comment')
+                if is_hidden(fname)
             },
         ))
 

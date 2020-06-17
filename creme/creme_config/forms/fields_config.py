@@ -61,8 +61,8 @@ class FieldsConfigAddForm(CremeModelForm):
         }
         self.ctypes = ctypes = [
             ct
-                for ct in map(ContentType.objects.get_for_model, models)
-                    if ct.id not in excluded_ct_ids
+            for ct in map(ContentType.objects.get_for_model, models)
+            if ct.id not in excluded_ct_ids
         ]
 
         if ctypes:
@@ -116,7 +116,7 @@ class FieldsConfigEditForm(CremeModelForm):
             HIDDEN = FieldsConfig.HIDDEN
             self.instance.descriptions = [
                 (field_name, {HIDDEN: True})
-                    for field_name in self.cleaned_data['hidden']
+                for field_name in self.cleaned_data['hidden']
             ]
 
         return cdata

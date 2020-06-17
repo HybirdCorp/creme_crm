@@ -140,13 +140,14 @@ class AbstractAct(CremeEntity):
 
     def _post_save_clone(self, source):
         ActObjective.objects.bulk_create([
-            ActObjective(name=objective.name,
-                         act=self,
-                         counter=objective.counter,
-                         counter_goal=objective.counter_goal,
-                         ctype=objective.ctype,
-                        )
-                for objective in ActObjective.objects.filter(act=source).order_by('id')
+            ActObjective(
+                name=objective.name,
+                act=self,
+                counter=objective.counter,
+                counter_goal=objective.counter_goal,
+                ctype=objective.ctype,
+            )
+            for objective in ActObjective.objects.filter(act=source).order_by('id')
         ])
 
 

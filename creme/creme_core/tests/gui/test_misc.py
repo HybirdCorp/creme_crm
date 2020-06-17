@@ -447,7 +447,8 @@ class GuiTestCase(CremeTestCase):
         get_html_val = field_printers_registry.get_html_field_value
         self.assertEqual(
             '<p>A powerful army.<br>'
-                'Official site: <a target="_blank" rel="noopener noreferrer" href="http://www.hawk-troop.org">www.hawk-troop.org</a>'
+            'Official site: '
+            '<a target="_blank" rel="noopener noreferrer" href="http://www.hawk-troop.org">www.hawk-troop.org</a>'
             '</p>',
             get_html_val(hawk, 'description', user)
         )

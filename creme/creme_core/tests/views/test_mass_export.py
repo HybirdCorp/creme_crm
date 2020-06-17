@@ -138,10 +138,13 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         return self._build_dl_url(
             ct_or_model=ct,
-            hfilter_id=hfilter_id or
-                       HeaderFilter.objects.filter(entity_type=ct)
-                                           .values_list('id', flat=True)
-                                           .first(),
+            hfilter_id=(
+                hfilter_id or
+                HeaderFilter.objects
+                            .filter(entity_type=ct)
+                            .values_list('id', flat=True)
+                            .first()
+            ),
             **kwargs
         )
 

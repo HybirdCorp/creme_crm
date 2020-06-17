@@ -308,7 +308,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         )
         self.assertFormError(
             response, 'form', 'c_recipients',
-             _('The email address for {} is invalid').format(contact01)
+            _('The email address for {} is invalid').format(contact01)
         )
         self.assertFormError(
             response, 'form', 'o_recipients',
@@ -357,14 +357,18 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(
-            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                  EntityCredentials.LINK   |
-                  EntityCredentials.DELETE | EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.LINK   |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),
             set_type=SetCredentials.ESET_OWN
         )
         create_sc(
-            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not LINK
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not LINK
             set_type=SetCredentials.ESET_ALL
         )
 
@@ -568,9 +572,11 @@ class EntityEmailTestCase(_EmailsTestCase):
                          )
         SetCredentials.objects.create(
             role=user.role,
-            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                  EntityCredentials.LINK   |
-                  EntityCredentials.DELETE | EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.LINK   |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),
             set_type=SetCredentials.ESET_ALL,
         )
 
@@ -818,8 +824,10 @@ class EntityEmailTestCase(_EmailsTestCase):
         email = self._create_email()
 
         resend_actions = [
-            action for action in actions.actions_registry.instance_actions(user=user, instance=email)
-                if isinstance(action, EntityEmailResendAction)
+            action
+            for action in actions.actions_registry
+                                 .instance_actions(user=user, instance=email)
+            if isinstance(action, EntityEmailResendAction)
         ]
         self.assertEqual(1, len(resend_actions))
 
@@ -839,8 +847,10 @@ class EntityEmailTestCase(_EmailsTestCase):
     def test_listview_bulk_actions(self):
         user = self.login()
         resend_actions = [
-            action for action in actions.actions_registry.bulk_actions(user=user, model=EntityEmail)
-                if isinstance(action, BulkEntityEmailResendAction)
+            action
+            for action in actions.actions_registry
+                                 .bulk_actions(user=user, model=EntityEmail)
+            if isinstance(action, BulkEntityEmailResendAction)
         ]
         self.assertEqual(1, len(resend_actions))
 

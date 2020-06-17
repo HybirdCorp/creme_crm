@@ -469,8 +469,8 @@ class QuerySorter:
         build_cell = partial(EntityCellRegularField.build, model=model)
         ordering = [
             ofield_str
-                for ofield_str in model._meta.ordering
-                    if build_cell(name=OrderedField(ofield_str).field_name).key in cells_dict
+            for ofield_str in model._meta.ordering
+            if build_cell(name=OrderedField(ofield_str).field_name).key in cells_dict
         ]
 
         # Name of the main model-field used to perform the "ORDER BY" instruction.

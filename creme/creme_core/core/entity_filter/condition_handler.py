@@ -490,7 +490,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
                         instance.allowed_str(user)
                         if hasattr(instance, 'allowed_str') else
                         instance
-                            for instance in instances
+                        for instance in instances
                     )
             else:
                 # TODO: operand too...

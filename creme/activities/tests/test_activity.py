@@ -1717,8 +1717,9 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_listview_bulk_actions(self):
         user = self.login()
         export_actions = [
-            action for action in actions.actions_registry.bulk_actions(user=user, model=Activity)
-                if isinstance(action, BulkExportICalAction)
+            action
+            for action in actions.actions_registry.bulk_actions(user=user, model=Activity)
+            if isinstance(action, BulkExportICalAction)
         ]
         self.assertEqual(1, len(export_actions))
 

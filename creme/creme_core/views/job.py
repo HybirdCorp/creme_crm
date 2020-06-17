@@ -212,8 +212,8 @@ class JobsInformation(generic.CheckedView):
     def get_job_ids(self):
         return [
             int(ji)
-                for ji in self.request.GET.getlist(self.job_ids_arg)
-                    if ji.isdigit()
+            for ji in self.request.GET.getlist(self.job_ids_arg)
+            if ji.isdigit()
         ]
 
     def get_job_info(self, *, job, queue, queue_error):

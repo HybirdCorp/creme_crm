@@ -283,9 +283,7 @@ def form_factory(model, merge_form_registry=merge.merge_form_registry):
                 model, formfield_callback=mergefield_factory,
                 exclude=[
                     f.name
-                    for f in FieldsConfig.objects
-                                         .get_for_model(model)
-                                         .hidden_fields
+                    for f in FieldsConfig.objects.get_for_model(model).hidden_fields
                 ],
             )
         )

@@ -167,7 +167,7 @@ class ImportersRegistry:
     def build_importers(self) -> List[Importer]:
         importers = [
             importer_cls(data_id)
-                for data_id, (__, importer_cls) in self._registered.items()
+            for data_id, (__, importer_cls) in self._registered.items()
         ]
 
         return dependence_sort(
@@ -520,8 +520,8 @@ class RelationTypesImporter(Importer):
                 non_existings_ids = {*ptype_ids} - {pt.id for pt in ptypes}
                 imported_ids = [
                     pt_id
-                        for pt_id in non_existings_ids
-                            if pt_id in created_ptype_ids
+                    for pt_id in non_existings_ids
+                    if pt_id in created_ptype_ids
                 ]
 
                 non_existings_ids.difference_update(imported_ids)
@@ -869,8 +869,7 @@ class HeaderFiltersImporter(Importer):
                 user=data['user'],
                 is_private=data['is_private'],
                 cells_desc=[
-                    cell_proxy.build_cell()
-                        for cell_proxy in data['cells']
+                    cell_proxy.build_cell() for cell_proxy in data['cells']
                 ],
             )
 

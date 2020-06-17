@@ -323,9 +323,10 @@ class InvoiceTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice #1')[0]
 
         export_actions = [
-            action for action in actions.actions_registry
-                                        .instance_actions(user=user, instance=invoice)
-                if isinstance(action, ExportInvoiceAction)
+            action
+            for action in actions.actions_registry
+                                 .instance_actions(user=user, instance=invoice)
+            if isinstance(action, ExportInvoiceAction)
         ]
         self.assertEqual(1, len(export_actions))
 
@@ -341,9 +342,10 @@ class InvoiceTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice #1')[0]
 
         number_actions = [
-            action for action in actions.actions_registry
-                                        .instance_actions(user=user, instance=invoice)
-                if isinstance(action, GenerateNumberAction)
+            action
+            for action in actions.actions_registry
+                                 .instance_actions(user=user, instance=invoice)
+            if isinstance(action, GenerateNumberAction)
         ]
         self.assertEqual(1, len(number_actions))
 
@@ -368,9 +370,10 @@ class InvoiceTestCase(_BillingTestCase):
         invoice.save()
 
         number_actions = [
-            action for action in actions.actions_registry
-                                        .instance_actions(user=user, instance=invoice)
-                if isinstance(action, GenerateNumberAction)
+            action
+            for action in actions.actions_registry
+                                 .instance_actions(user=user, instance=invoice)
+            if isinstance(action, GenerateNumberAction)
         ]
         self.assertEqual(1, len(number_actions))
 

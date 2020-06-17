@@ -112,7 +112,7 @@ class SettingValueManager(models.Manager):
         if uncached_info:
             retrieved_svalues = {
                 svalue.key_id: svalue
-                    for svalue in self.filter(key_id__in=[i[0] for i in uncached_info])
+                for svalue in self.filter(key_id__in=[i[0] for i in uncached_info])
             }
 
             for key_id, cache_key, value_info in uncached_info:

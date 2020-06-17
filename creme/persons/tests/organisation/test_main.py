@@ -614,8 +614,10 @@ class OrganisationTestCase(_BaseTestCase):
         self.login(is_superuser=False, creatable_models=[Organisation])
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not 'LINK'
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not 'LINK'
             set_type=SetCredentials.ESET_ALL,
         )
         self.assertPOST403(reverse('persons__create_customer'))

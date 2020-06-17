@@ -60,7 +60,7 @@ class _TrashCleanerType(JobType):
 
         entity_classes = [
             ct.model_class()
-                for ct in map(ContentType.objects.get_for_id, ctype_ids)
+            for ct in map(ContentType.objects.get_for_id, ctype_ids)
         ]
 
         while True:

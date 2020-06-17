@@ -414,7 +414,7 @@ class M2MPrinterForCSV(BaseM2MPrinter):
 
         return '/'.join(
             printer(e, entity, fval, user, field)
-                for e in enumerator(entity, fval, user, field)
+            for e in enumerator(entity, fval, user, field)
         )
 
 

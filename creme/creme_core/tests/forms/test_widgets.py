@@ -599,8 +599,9 @@ class EntitySelectorTestCase(CremeTestCase):
             name=name,
             value=value,
             label=_('Select…'),
-            text_url=TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}'))
-                                       .resolve('creme_core__entity_as_json'),
+            text_url=TemplateURLBuilder(
+                entity_id=(TemplateURLBuilder.Int, '${id}'),
+            ).resolve('creme_core__entity_as_json'),
             url=reverse('creme_core__listview_popup') + '?ct_id=12&selection=${selection}&q_filter=${qfilter}',
             q_filter=escape(qfilter_attr),
         )
@@ -628,8 +629,9 @@ class EntitySelectorTestCase(CremeTestCase):
             name=name,
             value=value,
             label=_('Select…'),
-            text_url=TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}'))
-                                       .resolve('creme_core__entity_as_json'),
+            text_url=TemplateURLBuilder(
+                entity_id=(TemplateURLBuilder.Int, '${id}'),
+            ).resolve('creme_core__entity_as_json'),
             url=reverse('creme_core__listview_popup') + '?ct_id=13&selection=${selection}&q_filter=${qfilter}',
             q_filter=escape(qfilter_attr),
         )
@@ -645,8 +647,9 @@ class EntitySelectorTestCase(CremeTestCase):
     <button type="button">{label}</button>
 </span>'''.format(
             label=_('Select…'),
-            text_url=TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}'))
-                                       .resolve('creme_core__entity_as_json'),
+            text_url=TemplateURLBuilder(
+                entity_id=(TemplateURLBuilder.Int, '${id}'),
+            ).resolve('creme_core__entity_as_json'),
             url=reverse('creme_core__listview_popup') + '?ct_id=12&selection=${selection}&q_filter=${qfilter}',
         )
         self.assertHTMLEqual(html, widget.render('field', '1', attrs={'multiple': True, 'autoselect': True}))
@@ -663,8 +666,9 @@ class EntitySelectorTestCase(CremeTestCase):
     <button type="button">{label}</button>
 </span>'''.format(
             label=_('Select…'),
-            text_url=TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}'))
-                                       .resolve('creme_core__entity_as_json'),
+            text_url=TemplateURLBuilder(
+                entity_id=(TemplateURLBuilder.Int, '${id}'),
+            ).resolve('creme_core__entity_as_json'),
             url=reverse('creme_core__listview_popup') + '?ct_id=12&selection=${selection}&q_filter=${qfilter}',
         )
         self.assertHTMLEqual(html, widget.render('field', '1', attrs={'multiple': True, 'autoselect': True}))

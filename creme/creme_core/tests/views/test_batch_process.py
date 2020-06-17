@@ -326,9 +326,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         )
         self.assertFormError(
             response, 'form', 'actions',
-             _('The field «%(field)s» can not be used twice.') % {
+            _('The field «%(field)s» can not be used twice.') % {
                 'field': _('First name'),
-             }
+            }
         )
 
     def test_with_filter01(self):

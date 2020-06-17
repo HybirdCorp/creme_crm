@@ -1119,7 +1119,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         count = FakeContact.objects.count()
         doc = self._build_csv_doc([
             (d['first_name'], d['last_name'], d['phone'], d['email'])
-                for d in (rei_info, asuka_info)
+            for d in (rei_info, asuka_info)
         ])
         response = self.client.post(
             self._build_import_url(FakeContact),
@@ -1168,21 +1168,26 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         jresult = self.get_object_or_fail(MassImportJobResult, job=job, entity=rei)
         self.assertTrue(jresult.updated)
 
-        self.assertEqual([ngettext('{count} «{model}» has been created.',
-                                   '{count} «{model}» have been created.',
-                                   1
-                                  ).format(count=1, model='Test Contact'),
-                          ngettext('{count} «{model}» has been updated.',
-                                   '{count} «{model}» have been updated.',
-                                   1
-                                  ).format(count=1, model='Test Contact'),
-                          ngettext('{count} line in the file.',
-                                   '{count} lines in the file.',
-                                   2
-                                  ).format(count=2),
-                         ],
-                         job.stats
-                        )
+        self.assertListEqual(
+            [
+                ngettext(
+                    '{count} «{model}» has been created.',
+                    '{count} «{model}» have been created.',
+                    1
+                ).format(count=1, model='Test Contact'),
+                ngettext(
+                    '{count} «{model}» has been updated.',
+                    '{count} «{model}» have been updated.',
+                    1
+                ).format(count=1, model='Test Contact'),
+                ngettext(
+                    '{count} line in the file.',
+                    '{count} lines in the file.',
+                    2
+                ).format(count=2),
+            ],
+            job.stats
+        )
 
     def test_import_with_update02(self):
         "Several existing entities found"
@@ -1280,11 +1285,13 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                          )
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW   |
-                  # EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE |
-                  EntityCredentials.LINK   |
-                  EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW   |
+                # EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK   |
+                EntityCredentials.UNLINK
+            ),
             set_type=SetCredentials.ESET_ALL,
             ctype=FakeContact,
         )

@@ -37,7 +37,7 @@ class CrudityInput:
         self._backends: Dict[str, CrudityBackend] = {}
         self._brickheader_actions: List[BrickHeaderAction] = [
             TemplateBrickHeaderAction(template_name=tn)
-                for tn in self.brickheader_action_templates
+            for tn in self.brickheader_action_templates
         ]
 
     def add_backend(self, backend: CrudityBackend) -> None:

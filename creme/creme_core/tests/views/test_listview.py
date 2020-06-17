@@ -143,7 +143,9 @@ class ListViewTestCase(ViewsTestCase):
 
         return [
             span_node.text
-                for span_node in tr_node.findall(".//th/button/div/span[@class='lv-sort-toggle-title']")
+            for span_node in tr_node.findall(
+                ".//th/button/div/span[@class='lv-sort-toggle-title']"
+            )
         ]
 
     def _get_lv_header_widget_nodes(self, lv_node, cell_key, input_type='input', count=1):
@@ -174,7 +176,7 @@ class ListViewTestCase(ViewsTestCase):
 
         return [
             (input_node.attrib.get('name'), input_node.attrib.get('value'))
-                for input_node in th_node.findall('input')
+            for input_node in th_node.findall('input')
         ]
 
     def _get_lv_content(self, lv_node):
@@ -208,7 +210,7 @@ class ListViewTestCase(ViewsTestCase):
     def _get_options_for_select_node(self, select_node):
         return {
             (option_node.attrib.get('value'), option_node.text)
-                for option_node in select_node.findall('option')
+            for option_node in select_node.findall('option')
         }
 
     @staticmethod

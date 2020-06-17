@@ -371,7 +371,7 @@ class EntityFilter(models.Model):  # CremeModel ???
         """
         accepted = (
             condition.accept(entity=entity, user=user)
-                for condition in self.get_conditions()
+            for condition in self.get_conditions()
         )
 
         return any(accepted) if self.use_or else all(accepted)
@@ -645,14 +645,14 @@ class EntityFilter(models.Model):  # CremeModel ???
         # Sub-filters conditions
         sf_conds = [
             (cond, cond._get_subfilter_id())
-                for cond in self._get_subfilter_conditions()
+            for cond in self._get_subfilter_conditions()
         ]
 
         while level_ids:
             level_ids = {
                 cond.filter_id
-                    for cond, filter_id in sf_conds
-                        if filter_id in level_ids
+                for cond, filter_id in sf_conds
+                if filter_id in level_ids
             }
             connected.update(level_ids)
 

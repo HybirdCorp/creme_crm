@@ -218,7 +218,7 @@ class InfopathFormField:
         if isinstance(self.model_field, (models.ForeignKey, models.ManyToManyField)):
             choices = [
                 (entity.pk, str(entity))
-                    for entity in self.model_field.remote_field.model._default_manager.all()
+                for entity in self.model_field.remote_field.model._default_manager.all()
             ]
         else:
             choices = []

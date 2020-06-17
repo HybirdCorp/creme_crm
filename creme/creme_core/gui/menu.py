@@ -403,7 +403,7 @@ class ContainerItem(ViewableItem, ItemList):
                         id=item.id,
                         item=item.render(context, level),
                     )
-                        for item in self
+                    for item in self
                 )
             ),
         )
@@ -579,12 +579,18 @@ class TrashItem(URLItem):
 
         return format_html(
             '<a href="{url}">'
-                '{label} <span class="ui-creme-navigation-punctuation">(</span>'
-                '{count}<span class="ui-creme-navigation-punctuation">)</span>'
+            '{label} '
+            '<span class="ui-creme-navigation-punctuation">(</span>'
+            '{count}'
+            '<span class="ui-creme-navigation-punctuation">)</span>'
             '</a>',
-                url=self.url,
-                label=_('Trash'),
-                count=ngettext('{count} entity', '{count} entities', count).format(count=count),
+            url=self.url,
+            label=_('Trash'),
+            count=ngettext(
+                '{count} entity',
+                '{count} entities',
+                count,
+            ).format(count=count),
         )
 
 
@@ -619,7 +625,7 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
 
         content_types = [
             (str(model._meta.verbose_name), model)
-                for model in self._registry.models
+            for model in self._registry.models
         ]
         g_id = self.id
 
@@ -631,7 +637,9 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
             for vname, model in content_types:
                 ct_id = get_ct(model).id
 
-                yield self._QuickCreationItem(id=f'{g_id}-{ct_id}', ct_id=ct_id, model=model, label=vname)
+                yield self._QuickCreationItem(
+                    id=f'{g_id}-{ct_id}', ct_id=ct_id, model=model, label=vname,
+                )
         else:
             yield LabelItem(id=f'{g_id}-empty', label=_('No type available'))
 

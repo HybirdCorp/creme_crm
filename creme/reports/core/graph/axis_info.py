@@ -34,9 +34,11 @@ class AbscissaInfo:
 
     def __repr__(self):
         return (
-            f'AbscissaInfo(cell=<{self.cell}>, '
-                         f'graph_type={self.graph_type}, '
-                         f'parameter={self.parameter})'
+            f'AbscissaInfo('
+            f'cell=<{self.cell}>, '
+            f'graph_type={self.graph_type}, '
+            f'parameter={self.parameter}'
+            f')'
         )
 
 

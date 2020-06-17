@@ -37,10 +37,11 @@ class FieldsConfigTestCase(CremeTestCase):
         used_ct_ids = {*FieldsConfig.objects.values_list('content_type', flat=True)}
         FieldsConfig.objects.bulk_create([
             FieldsConfig(content_type=ct, descriptions=())
-                for ct in map(ContentType.objects.get_for_model,
-                              filter(FieldsConfig.objects.is_model_valid, apps.get_models())
-                             )
-                    if ct.id not in used_ct_ids
+            for ct in map(
+                ContentType.objects.get_for_model,
+                filter(FieldsConfig.objects.is_model_valid, apps.get_models())
+            )
+            if ct.id not in used_ct_ids
         ])
 
     def test_portal01(self):

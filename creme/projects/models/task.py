@@ -129,7 +129,7 @@ class AbstractProjectTask(CremeEntity):
     def related_activities(self):
         activities = [
             r.object_entity.get_real_entity()
-                for r in self.get_relations(REL_OBJ_LINKED_2_PTASK, real_obj_entities=True)
+            for r in self.get_relations(REL_OBJ_LINKED_2_PTASK, real_obj_entities=True)
         ]
         resource_per_contactid = {r.linked_contact_id: r for r in self.get_resources()}
         contact_ids = dict(
@@ -153,7 +153,7 @@ class AbstractProjectTask(CremeEntity):
         if self.effective_duration is None:
             self.effective_duration = sum(
                 activity.duration or 0
-                    for activity in self.related_activities
+                for activity in self.related_activities
             )
 
         if format == '%':
@@ -197,15 +197,17 @@ class AbstractProjectTask(CremeEntity):
 
             context[task.id] = {
                 'new_pk':     new_task.id,
-                'o_children': project_task_filter(parent_tasks=task.id)
-                                                 .values_list('pk', flat=True),
+                'o_children': project_task_filter(
+                    parent_tasks=task.id,
+                ).values_list('pk', flat=True),
             }
 
         new_links = {
-            values['new_pk']: [context[old_child_id]['new_pk']
-                                   for old_child_id in values['o_children']
-                              ]
-                for values in context.values()
+            values['new_pk']: [
+                context[old_child_id]['new_pk']
+                for old_child_id in values['o_children']
+            ]
+            for values in context.values()
         }
 
         for task in project_task_filter(pk__in=new_links.keys()):

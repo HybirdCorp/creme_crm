@@ -125,10 +125,12 @@ class BulkForm(CremeForm):
                     choices.append((build_url(fieldname=field.name), str(field.verbose_name)))
             else:
                 field_sub_choices = [
-                    (build_url(fieldname=f'{field.name}__{subfield.name}'),
-                     str(subfield.verbose_name),
-                    ) for subfield in subfields
-                        if not isinstance(subfield, excluded)
+                    (
+                        build_url(fieldname=f'{field.name}__{subfield.name}'),
+                        str(subfield.verbose_name),
+                    )
+                    for subfield in subfields
+                    if not isinstance(subfield, excluded)
                 ]
                 if field_sub_choices:
                     sub_choices.append((str(field.verbose_name), field_sub_choices))

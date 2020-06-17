@@ -52,5 +52,5 @@ class ProjectCreateForm(ProjectEditForm):
 
         return super()._get_relations_to_create().extend(
             build_relation(object_entity=contact)
-                for contact in self.cleaned_data['responsibles']
+            for contact in self.cleaned_data['responsibles']
         )

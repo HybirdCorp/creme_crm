@@ -107,7 +107,7 @@ class EntityEmailWizard(EntityRelatedMixin, generic.EntityCreationWizardPopup):
             email_template = self.get_cleaned_data_for_step('0')['template']
             ctx = {
                 var_name: getattr(self.get_related_entity(), var_name, '')
-                    for var_name in TEMPLATES_VARS
+                for var_name in TEMPLATES_VARS
             }
             initial['subject'] = email_template.subject
             initial['body'] = Template(email_template.body).render(Context(ctx))
@@ -201,10 +201,8 @@ class EntityEmailsResending(generic.CheckedView):
         try:
             return [
                 int(s)
-                    for s in get_from_POST_or_404(request.POST,
-                                                  self.email_ids_arg,
-                                                 ).split(',')
-                        if s.strip()
+                for s in get_from_POST_or_404(request.POST, self.email_ids_arg).split(',')
+                if s.strip()
             ]
         except ValueError as e:
             raise ConflictError(str(e)) from e

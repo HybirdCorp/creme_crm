@@ -153,9 +153,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         SetCredentials.objects.create(
             role=self.role,
             set_type=SetCredentials.ESET_OWN,
-            value=EntityCredentials.VIEW |
-                  EntityCredentials.CHANGE |
-                  EntityCredentials.LINK,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
         )
 
         opp = self._create_opportunity_n_organisations()[0]
@@ -178,11 +176,13 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
                             set_type=SetCredentials.ESET_OWN,
                            )
 
+        VIEW   = EntityCredentials.VIEW
+        CHANGE = EntityCredentials.CHANGE
+        LINK   = EntityCredentials.LINK
+
         for model in (Opportunity, Organisation, Contact):
             create_sc(
-                value=(EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK)
-                      if model in allowed_models else
-                      (EntityCredentials.VIEW | EntityCredentials.CHANGE),
+                value=(VIEW | CHANGE | LINK) if model in allowed_models else (VIEW | CHANGE),
                 ctype=get_ct(model),
             )
 

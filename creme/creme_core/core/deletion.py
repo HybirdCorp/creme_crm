@@ -78,8 +78,7 @@ class ReplacersRegistry:
         #     return r.as_dict()
 
         return [
-            [r.type_id, r.as_dict()]
-                for r in replacers
+            [r.type_id, r.as_dict()] for r in replacers
         ]
 
     def deserialize(self, data):

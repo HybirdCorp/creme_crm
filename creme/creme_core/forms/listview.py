@@ -426,7 +426,7 @@ class RegularOperationsFieldMixin:
     def _build_q_from_operations(self, operations):
         return Q(**{
             f'{self.cell.value}__{op}': number
-                for op, number in operations
+            for op, number in operations
         })
 
 
@@ -669,13 +669,10 @@ class CustomDatetimeField(ListViewSearchField):
                 cfield = self.cell.custom_field
 
                 return Q(
-                    pk__in=cfield.value_class
-                                 .objects
-                                 .filter(
-                                    custom_field=cfield,
-                                    **CustomRange(start=start, end=end).get_q_dict('value', now()),
-                                 )
-                                 .values_list('entity_id', flat=True)
+                    pk__in=cfield.value_class.objects.filter(
+                        custom_field=cfield,
+                        **CustomRange(start=start, end=end).get_q_dict('value', now()),
+                    ).values_list('entity_id', flat=True)
                 )
 
         return super().to_python(value=value)
@@ -686,9 +683,9 @@ class CustomChoiceField(BaseChoiceField):
         choices = super()._build_choices(null_label=null_label)
         choices.extend(
             {'value': cfid, 'label': cfvalue}
-                for cfid, cfvalue in self.cell.custom_field
-                                              .customfieldenumvalue_set
-                                              .values_list('id', 'value')
+            for cfid, cfvalue in self.cell.custom_field
+                                          .customfieldenumvalue_set
+                                          .values_list('id', 'value')
         )
 
         return choices
@@ -787,8 +784,8 @@ class ListViewSearchForm(CremeForm):
         # IDEA: a "spying" dictionary with monitors which keys have been accessed.
         return {
             k: v
-                for k, v in self.data.items()
-                    if k.startswith(prefix)
+            for k, v in self.data.items()
+            if k.startswith(prefix)
         }
 
     @cached_property

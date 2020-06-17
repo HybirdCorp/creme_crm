@@ -150,8 +150,10 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         sc = SetCredentials.objects.create(
             role=self.role,
             set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                  EntityCredentials.UNLINK,  # not EntityCredentials.LINK
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # not EntityCredentials.LINK
         )
 
         parent = Folder.objects.create(user=user, title='Parent folder')
@@ -220,8 +222,10 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         sc = SetCredentials.objects.create(
             role=self.role,
             set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                  EntityCredentials.UNLINK,  # not EntityCredentials.LINK
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # not EntityCredentials.LINK
         )
 
         parent = Folder.objects.create(user=user, title='Parent folder')
@@ -514,9 +518,9 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         explore_actions = [
             action
-                for action in actions.actions_registry
-                                     .instance_actions(user=user, instance=folder)
-                    if isinstance(action, ExploreFolderAction)
+            for action in actions.actions_registry
+                                 .instance_actions(user=user, instance=folder)
+            if isinstance(action, ExploreFolderAction)
         ]
         self.assertEqual(1, len(explore_actions))
 

@@ -914,33 +914,47 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         clean = DateFieldsConditionsField(model=FakeContact).clean
         self.assertFieldValidationError(
             DateFieldsConditionsField, 'invalidfield', clean,
-            '[{"field": {"name": "first_name", "type": "string__null"}, '
-              '"range": {"type": "next_quarter", "start": "2011-5-12"}}]'
+            '[{'
+            '"field": {"name": "first_name", "type": "string__null"}, '
+            '"range": {"type": "next_quarter", "start": "2011-5-12"}'
+            '}]'
         )
         self.assertFieldValidationError(
             DateFieldsConditionsField, 'invalidformat', clean,
-            '[{"field":  {"name": "birthday", "type": "date__null"}, "range":"not a dict"}]'
+            '[{'
+            '"field": {"name": "birthday", "type": "date__null"}, '
+            '"range": "not a dict"'
+            '}]'
         )
         self.assertFieldValidationError(
             DateFieldsConditionsField, 'invaliddaterange', clean,
-            '[{"field":  {"name": "birthday", "type": "date__null"}, '
-              '"range": {"type":"unknown_range"}}]'  # TODO: "start": '' ???
+            '[{'
+            '"field": {"name": "birthday", "type": "date__null"}, '
+            '"range": {"type": "unknown_range"}'
+            '}]'  # TODO: "start": '' ???
         )
 
         self.assertFieldValidationError(
             DateFieldsConditionsField, 'emptydates', clean,
-            '[{"field":  {"name": "birthday", "type": "date__null"}, "range": {"type":""}}]'
+            '[{'
+            '"field": {"name": "birthday", "type": "date__null"}, '
+            '"range": {"type": ""}'
+            '}]'
         )
         self.assertFieldValidationError(
             DateFieldsConditionsField, 'emptydates', clean,
-            '[{"field":  {"name": "birthday", "type": "date__null"}, '
-              '"range": {"type":"", "start": "", "end": ""}}]'
+            '[{'
+            '"field": {"name": "birthday", "type": "date__null"}, '
+            '"range": {"type": "", "start": "", "end": ""}'
+            '}]'
         )
 
         try:
             clean(
-                '[{"field": {"name": "created", "type": "date"}, '
-                  '"range": {"type": "", "start": "not a date"}}]'
+                '[{'
+                '"field": {"name": "created", "type": "date"}, '
+                '"range": {"type": "", "start": "not a date"}'
+                '}]'
             )
         except ValidationError:
             pass
@@ -948,9 +962,12 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
             self.fail('No ValidationError')
 
         try:
-            clean('[{"field": {"name": "created", "type": "date"}, '
-                    '"range": {"type": "", "end": "2011-2-30"}}]'
-                 )  # 30 february !!
+            clean(
+                '[{'
+                '"field": {"name": "created", "type": "date"}, '
+                '"range": {"type": "", "end": "2011-2-30"}'
+                '}]'
+             )  # 30 february !!
         except ValidationError:
             pass
         else:

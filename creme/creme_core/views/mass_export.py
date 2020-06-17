@@ -96,8 +96,9 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
             # HeaderFilter.get_for_user(user=self.request.user,
             #                           content_type=self.get_ctype(),
             #                          ),
-            HeaderFilter.objects.filter_by_user(self.request.user)
-                                .filter(entity_type=self.get_ctype()),
+            HeaderFilter.objects
+                        .filter_by_user(self.request.user)
+                        .filter(entity_type=self.get_ctype()),
             id=self.get_header_filter_id(),
         )
 

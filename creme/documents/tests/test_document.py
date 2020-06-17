@@ -306,8 +306,10 @@ class DocumentTestCase(_DocumentsTestCase):
         SetCredentials.objects.create(
             role=self.role,
             set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                  EntityCredentials.LINK | EntityCredentials.UNLINK,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
         )
 
         entity = CremeEntity.objects.create(user=self.user)
@@ -499,9 +501,9 @@ class DocumentTestCase(_DocumentsTestCase):
 
         dl_actions = [
             action
-                for action in actions.actions_registry
-                                     .instance_actions(user=user, instance=doc1)
-                    if isinstance(action, DownloadAction)
+            for action in actions.actions_registry
+                                 .instance_actions(user=user, instance=doc1)
+            if isinstance(action, DownloadAction)
         ]
         self.assertEqual(1, len(dl_actions))
 

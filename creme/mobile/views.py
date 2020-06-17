@@ -173,8 +173,9 @@ def portal(request):
     #     'today_activities' as we want (they are ordered by start, and NARROW
     #     activities which start at 0h00 will be in 'hot_activities').
     hot_activities, today_activities = split_filter(
-        lambda a: a.floating_type == act_constants.NARROW and
-                  (a.status_id == act_constants.STATUS_IN_PROGRESS or a.start < now_val),
+        lambda a:
+            a.floating_type == act_constants.NARROW and
+            (a.status_id == act_constants.STATUS_IN_PROGRESS or a.start < now_val),
         activities
     )
     # TODO: populate participants (regroup queries for Relation + real entities) ??
@@ -448,7 +449,7 @@ def phonecall_panel(request):
 
         context['participant_contacts'] = [
             r.object_entity.get_real_entity()
-                for r in pcall.get_participant_relations()
+            for r in pcall.get_participant_relations()
         ]
         context['participant_organisations'] = [*orga_subjects(pcall)]
 

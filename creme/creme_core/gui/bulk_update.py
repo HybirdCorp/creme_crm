@@ -111,8 +111,8 @@ class _BulkUpdateRegistry:
                 meta = self._model._meta
                 self._regularfields = rfields = {
                     field.name: field
-                        for field in chain(meta.fields, meta.many_to_many)
-                            if field.name not in self.excludes
+                    for field in chain(meta.fields, meta.many_to_many)
+                    if field.name not in self.excludes
                 }
 
             return rfields
@@ -124,8 +124,8 @@ class _BulkUpdateRegistry:
 
             return {
                 key: field
-                    for key, field in self.regular_fields.items()
-                        if is_updatable(field)
+                for key, field in self.regular_fields.items()
+                if is_updatable(field)
             }
 
         @property
@@ -134,8 +134,8 @@ class _BulkUpdateRegistry:
 
             return {
                 key: field
-                    for key, field in self.regular_fields.items()
-                        if is_expandable(field)
+                for key, field in self.regular_fields.items()
+                if is_expandable(field)
             }
 
         @property
@@ -356,14 +356,20 @@ class _BulkUpdateRegistry:
 
             field_states = [
                 (field, is_expandable(field), is_updatable(field))
-                    for field in fields
+                for field in fields
             ]
 
             exp_fields = [
-                (field,
-                 related_fields(model=field.remote_field.model, exclude_unique=exclude_unique) if expandable else None,
-                ) for field, expandable, updatable in field_states
-                      if expandable or updatable
+                (
+                    field,
+                    related_fields(
+                        model=field.remote_field.model, exclude_unique=exclude_unique,
+                    )
+                    if expandable else
+                    None,
+                )
+                for field, expandable, updatable in field_states
+                if expandable or updatable
             ]
 
             return sorted(exp_fields, key=lambda f: sort_key(f[0].verbose_name))
