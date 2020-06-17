@@ -21,10 +21,10 @@ except Exception as e:
 try:
     from creme.creme_core.utils.xlwt_utils import XlwtWriter
     from creme.creme_core.backends import import_backend_registry
-
-    no_XLS_lib = 'xls' not in import_backend_registry.extensions
-except:
+except ImportError:
     no_XLS_lib = True
+else:
+    no_XLS_lib = 'xls' not in import_backend_registry.extensions
 
 
 def skipIfNoXLSLib(test_func):

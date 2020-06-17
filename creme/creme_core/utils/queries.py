@@ -146,13 +146,13 @@ class QSerializer:
     def dumps(self, obj: Q) -> str:
         try:
             return json.dumps(self.serialize(obj), separators=(',', ':'))
-        except:
+        except Exception:
             logger.exception('QSerializer.dumps(): error when serializing <%s>', obj)
             raise
 
     def loads(self, string: str) -> Q:
         try:
             return self.deserialize(json.loads(string))
-        except:
+        except Exception:
             logger.exception('QSerializer.loads(): error when deserializing <%s>', string)
             raise

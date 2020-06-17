@@ -104,7 +104,7 @@ class _TempFilesCleanerType(JobType):
         """
         try:
             return date_period_registry.deserialize(job.data['delay'])
-        except:
+        except Exception:  # TODO: better exception
             logger.exception('Error in _TempFilesCleanerType.get_delay()')
 
     def get_description(self, job):

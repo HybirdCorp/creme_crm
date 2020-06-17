@@ -239,7 +239,7 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
             with open(backup_filename, 'rb') as log_file:
                 bzip_file = bz2.BZ2File(archive_filename, 'wb')
                 bzip_file.writelines(log_file)
-        except:
+        except Exception:  # TODO: better exceptions ??
             pass
         else:
             delete_file(backup_filename)

@@ -1283,7 +1283,7 @@ class ImportForm(CremeModelForm):
                         for messages in e.message_dict.values():
                             for message in messages:
                                 append_error(str(message))
-                    except:
+                    except Exception:
                         append_error(str(e))
 
                     job_result.messages = self.import_errors
