@@ -56,9 +56,11 @@ class JobDetail(generic.CremeModelDetail):
         jtype = instance.type
 
         if jtype is None:
-            raise Http404(gettext('Unknown job type ({}). Please contact your administrator.')
-                                 .format(instance.id)
-                         )
+            raise Http404(
+                gettext(
+                    'Unknown job type ({}). Please contact your administrator.'
+                ).format(instance.id)
+            )
 
         instance.check_owner_or_die(user)
 

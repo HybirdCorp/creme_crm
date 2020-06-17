@@ -103,5 +103,6 @@ class Searcher:
         strings = smart_split(research)
 
         # TODO: distinct() only if there is a JOIN...
-        return model.objects.filter(self._build_query(strings, searchfields)).distinct() \
-               if searchfields else None
+        return model.objects.filter(
+            self._build_query(strings, searchfields)
+        ).distinct() if searchfields else None

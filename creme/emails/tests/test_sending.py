@@ -101,12 +101,15 @@ class SendingsTestCase(_EmailsTestCase):
         user = self.login(is_superuser=False,
                           creatable_models=(EmailSending, EmailCampaign),
                          )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.DELETE |
-                                            EntityCredentials.LINK | EntityCredentials.UNLINK |
-                                            EntityCredentials.CHANGE,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK |
+                EntityCredentials.CHANGE
+            ),
+            set_type=SetCredentials.ESET_ALL
+        )
 
         camp = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(user=user, name='name',
@@ -430,12 +433,14 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual([('', 'text/html')], message.alternatives)
         self.assertFalse(message.attachments)
 
-        self.assertEqual({contact.email, orga1.email, orga2.email},
-                         {recipient
-                                for message in messages
-                                    for recipient in message.recipients()
-                         }
-                        )
+        self.assertSetEqual(
+            {contact.email, orga1.email, orga2.email},
+            {
+                recipient
+                for message in messages
+                for recipient in message.recipients()
+            }
+        )
 
         self.assertIsNone(job.type.next_wakeup(job, now_value))
         self.assertFalse(queue.refreshed_jobs)  # Other save() in job should not send REFRESH signals

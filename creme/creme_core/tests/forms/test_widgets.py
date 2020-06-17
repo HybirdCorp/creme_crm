@@ -69,13 +69,14 @@ class DynamicSelectTestCase(CremeTestCase):
 
     def test_render(self):
         select = DynamicSelect(options=[(1, 'A'), (2, 'B')])
-        self.assertHTMLEqual('<select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" '
-                                     'name="test" url="" widget="ui-creme-dselect">'
-                               '<option value="1">A</option>'
-                               '<option value="2" selected>B</option>'
-                             '</select>',
-                             select.render('test', 2)
-                            )
+        self.assertHTMLEqual(
+            '<select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" '
+            ' name="test" url="" widget="ui-creme-dselect">'
+            '  <option value="1">A</option>'
+            '  <option value="2" selected>B</option>'
+            '</select>',
+            select.render('test', 2)
+        )
 
         Choice = DynamicSelect.Choice
         select = DynamicSelect(options=[(Choice(1, disabled=True, help='disabled'), 'A'),
@@ -84,15 +85,16 @@ class DynamicSelectTestCase(CremeTestCase):
                                         (Choice(4, readonly=True, help='readonly'), 'D'),
                                        ],
                               )
-        self.assertHTMLEqual('<select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" '
-                                     'name="test" url="" widget="ui-creme-dselect">'
-                               '<option value="1" disabled help="disabled">A</option>'
-                               '<option value="2" selected help="item B">B</option>'
-                               '<option value="3" help="item C">C</option>'
-                               '<option value="4" readonly help="readonly">D</option>'
-                             '</select>',
-                             select.render('test', 2)
-                            )
+        self.assertHTMLEqual(
+            '<select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" '
+            ' name="test" url="" widget="ui-creme-dselect">'
+            '  <option value="1" disabled help="disabled">A</option>'
+            '  <option value="2" selected help="item B">B</option>'
+            '  <option value="3" help="item C">C</option>'
+            '  <option value="4" readonly help="readonly">D</option>'
+            '</select>',
+            select.render('test', 2)
+        )
 
 
 # class UnorderedMultipleChoiceTestCase(FieldTestCase):

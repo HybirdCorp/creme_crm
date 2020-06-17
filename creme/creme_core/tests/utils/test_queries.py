@@ -232,8 +232,10 @@ class QueriesTestCase(CremeTestCase):
         qsr = QSerializer()
         self.assertRaises(SerializationError, qsr.dumps, q)
 
-        q = Q(position__in=FakePosition.objects.filter(title__startswith='B')
-                                           .values_list('id', flat=True)
-             )
+        q = Q(
+            position__in=FakePosition.objects
+                                     .filter(title__startswith='B')
+                                     .values_list('id', flat=True),
+        )
         self._assertQIsOK(q, [self.richard, self.marianne])
         self.assertRaises(SerializationError, qsr.dumps, q)

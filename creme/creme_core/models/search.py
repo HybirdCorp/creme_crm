@@ -209,10 +209,13 @@ class SearchConfigItem(CremeModel):
     @classmethod
     def _get_modelfields_choices(cls, model: Type[CremeEntity]) -> List[Tuple[str, str]]:
         excluded = tuple(cls.EXCLUDED_FIELDS_TYPES)
-        return ModelFieldEnumerator(model, deep=1) \
-                .filter(viewable=True) \
-                .exclude(lambda f, depth: isinstance(f, excluded) or f.choices) \
-                .choices()
+        return ModelFieldEnumerator(
+            model, deep=1
+        ).filter(
+            viewable=True,
+        ).exclude(
+            lambda f, depth: isinstance(f, excluded) or f.choices
+        ).choices()
 
     def _build_searchfields(self,
                             model: Type[CremeEntity],

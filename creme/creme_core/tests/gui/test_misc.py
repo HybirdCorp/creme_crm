@@ -51,9 +51,11 @@ class GuiTestCase(CremeTestCase):
         class FakeRequest:
             def __init__(this):
                 user_id = str(user.id)
-                sessions = [d for d in (s.get_decoded() for s in Session.objects.all())
-                                if d.get('_auth_user_id') == user_id
-                           ]
+                sessions = [
+                    d
+                    for d in (s.get_decoded() for s in Session.objects.all())
+                    if d.get('_auth_user_id') == user_id
+                ]
                 self.assertEqual(1, len(sessions))
                 this.session = sessions[0]
 
@@ -131,10 +133,14 @@ class GuiTestCase(CremeTestCase):
             print_integerfield_html_args.append((entity, fval, user, field))
             return f'<span data-type="integer">{fval}</span>'
 
-        registry = _FieldPrintersRegistry()\
-                       .register(models.CharField,    print_charfield_html) \
-                       .register(models.CharField,    print_charfield_csv, output='csv') \
-                       .register(models.IntegerField, print_integerfield_html, output='html')
+        registry = _FieldPrintersRegistry(
+        ).register(
+            models.CharField, print_charfield_html
+        ).register(
+            models.CharField, print_charfield_csv, output='csv',
+        ).register(
+            models.IntegerField, print_integerfield_html, output='html',
+        )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='NERV', capital=1234)
@@ -272,14 +278,14 @@ class GuiTestCase(CremeTestCase):
         "ManyToMany (CremeEntity)."
         user = self.login(is_superuser=False)
         self.role.exportable_ctypes.set([ContentType.objects.get_for_model(FakeEmailCampaign)])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         field_printers_registry = _FieldPrintersRegistry()
 
@@ -297,18 +303,20 @@ class GuiTestCase(CremeTestCase):
 
         get_html_val = field_printers_registry.get_html_field_value
         get_csv_val  = field_printers_registry.get_csv_field_value
-        self.assertEqual(f'<ul>'
-                            f'<li><a target="_blank" href="{ml1.get_absolute_url()}">{ml1}</a></li>'
-                            f'<li><a target="_blank" href="{ml2.get_absolute_url()}">{ml2}</a></li>'
-                         f'</ul>',
-                         get_html_val(camp1, 'mailing_lists', user)
-                        )
-        self.assertEqual(f'<ul>'
-                            f'<li>{ml1.name}</li>'
-                            f'<li>{ml2.name}</li>'
-                         f'</ul>',
-                         get_html_val(camp1, 'mailing_lists__name', user)
-                        )
+        self.assertHTMLEqual(
+            f'<ul>'
+            f' <li><a target="_blank" href="{ml1.get_absolute_url()}">{ml1}</a></li>'
+            f' <li><a target="_blank" href="{ml2.get_absolute_url()}">{ml2}</a></li>'
+            f'</ul>',
+            get_html_val(camp1, 'mailing_lists', user)
+        )
+        self.assertHTMLEqual(
+            f'<ul>'
+            f' <li>{ml1.name}</li>'
+            f' <li>{ml2.name}</li>'
+            f'</ul>',
+            get_html_val(camp1, 'mailing_lists__name', user)
+        )
 
         csv_value = f'{ml1}/{ml2}'
         self.assertEqual(csv_value, get_csv_val(camp1, 'mailing_lists', user))
@@ -326,14 +334,14 @@ class GuiTestCase(CremeTestCase):
         "Credentials."
         user = self.login(is_superuser=False, allowed_apps=['creme_core'])
         self.role.exportable_ctypes.set([ContentType.objects.get_for_model(FakeContact)])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         field_printers_registry = _FieldPrintersRegistry()
 
@@ -481,10 +489,14 @@ class GuiTestCase(CremeTestCase):
         perm = 'creme_core'
         id2 = 'persons-organisations'
         id3 = 'creme_core-images'
-        registry = _StatisticsRegistry() \
-                    .register(id1, 'Contacts',      lambda: [FakeContact.objects.count()],      priority=2, perm=perm) \
-                    .register(id2, 'Organisations', lambda: [FakeOrganisation.objects.count()], priority=1) \
-                    .register(id3, 'Images',        lambda: [FakeImage.objects.count()],        priority=3)
+        registry = _StatisticsRegistry(
+        ).register(
+            id1, 'Contacts', lambda: [FakeContact.objects.count()], priority=2, perm=perm,
+        ).register(
+            id2, 'Organisations', lambda: [FakeOrganisation.objects.count()], priority=1,
+        ).register(
+            id3, 'Images', lambda: [FakeImage.objects.count()], priority=3,
+        )
 
         stats = [*registry]
         self.assertEqual(id2, stats[0].id)
@@ -500,12 +512,18 @@ class GuiTestCase(CremeTestCase):
         id3 = 'creme_core-images'
         id4 = 'billing-invoices'
         id5 = 'emails-campaigns'
-        registry = _StatisticsRegistry() \
-                    .register(id1, 'Contacts',      lambda: [FakeContact.objects.count()]) \
-                    .register(id2, 'Organisations', lambda: [FakeOrganisation.objects.count()], priority=3) \
-                    .register(id3, 'Images',        lambda: [FakeImage.objects.count()],        priority=2) \
-                    .register(id4, 'Invoices',      lambda: [FakeInvoice.objects.count()]) \
-                    .register(id5, 'Campaigns',     lambda: [FakeInvoice.objects.count()],      priority=0)
+        registry = _StatisticsRegistry(
+        ).register(
+            id1, 'Contacts', lambda: [FakeContact.objects.count()]
+        ).register(
+            id2, 'Organisations', lambda: [FakeOrganisation.objects.count()], priority=3
+        ).register(
+            id3, 'Images', lambda: [FakeImage.objects.count()], priority=2
+        ).register(
+            id4, 'Invoices', lambda: [FakeInvoice.objects.count()]
+        ).register(
+            id5, 'Campaigns', lambda: [FakeInvoice.objects.count()], priority=0
+        )
 
         stats = [*registry]
         self.assertEqual(id5, stats[0].id)
@@ -518,9 +536,12 @@ class GuiTestCase(CremeTestCase):
         "Duplicated ID."
         id1 = 'persons-contacts'
         id2 = 'persons-organisations'
-        registry = _StatisticsRegistry() \
-                    .register(id1, 'Contacts',      lambda: [FakeContact.objects.count()],      priority=2) \
-                    .register(id2, 'Organisations', lambda: [FakeOrganisation.objects.count()], priority=1) \
+        registry = _StatisticsRegistry(
+        ).register(
+            id1, 'Contacts', lambda: [FakeContact.objects.count()], priority=2,
+        ).register(
+            id2, 'Organisations', lambda: [FakeOrganisation.objects.count()], priority=1,
+        )
 
         with self.assertRaises(ValueError):
             registry.register(id1, 'Images', lambda: FakeImage.objects.count())
@@ -529,10 +550,14 @@ class GuiTestCase(CremeTestCase):
         id1 = 'persons-contacts'
         id2 = 'persons-organisations'
         id3 = 'creme_core-images'
-        registry = _StatisticsRegistry() \
-                    .register(id1, 'Contacts',      lambda: [FakeContact.objects.count()],      priority=3) \
-                    .register(id2, 'Organisations', lambda: [FakeOrganisation.objects.count()], priority=6) \
-                    .register(id3, 'Images',        lambda: [FakeImage.objects.count()],        priority=9)
+        registry = _StatisticsRegistry(
+        ).register(
+            id1, 'Contacts', lambda: [FakeContact.objects.count()], priority=3,
+        ).register(
+            id2, 'Organisations', lambda: [FakeOrganisation.objects.count()], priority=6,
+        ).register(
+            id3, 'Images', lambda: [FakeImage.objects.count()], priority=9,
+        )
 
         registry.change_priority(1, id2, id3)
 
@@ -545,10 +570,14 @@ class GuiTestCase(CremeTestCase):
         id1 = 'persons-contacts'
         id2 = 'persons-organisations'
         id3 = 'creme_core-images'
-        registry = _StatisticsRegistry() \
-                    .register(id1, 'Contacts',      lambda: [FakeContact.objects.count()],      priority=3) \
-                    .register(id2, 'Organisations', lambda: [FakeOrganisation.objects.count()], priority=6) \
-                    .register(id3, 'Images',        lambda: [FakeImage.objects.count()],        priority=9)
+        registry = _StatisticsRegistry(
+        ).register(
+            id1, 'Contacts', lambda: [FakeContact.objects.count()], priority=3,
+        ).register(
+            id2, 'Organisations', lambda: [FakeOrganisation.objects.count()], priority=6,
+        ).register(
+            id3, 'Images', lambda: [FakeImage.objects.count()], priority=9,
+        )
 
         registry.remove('invalid_id', id3, id1)
 

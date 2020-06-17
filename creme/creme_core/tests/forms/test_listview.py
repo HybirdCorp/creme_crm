@@ -503,11 +503,13 @@ class SearchFieldsTestCase(CremeTestCase):
         "Not nullable FK."
         cell = EntityCellRegularField.build(model=FakeActivity, name='type')
         field = lv_form.RegularRelatedField(cell=cell, user=self.user)
-        self.assertEqual(
-            [{'value': '', 'label': _('All')},
-             *({'value': pk, 'label': name}
-                   for pk, name in FakeActivityType.objects.values_list('id', 'name')
-              )
+        self.assertListEqual(
+            [
+                {'value': '', 'label': _('All')},
+                *(
+                    {'value': pk, 'label': name}
+                    for pk, name in FakeActivityType.objects.values_list('id', 'name')
+                )
             ],
             field.choices
         )
@@ -517,12 +519,14 @@ class SearchFieldsTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeImage, name='categories')
         field = lv_form.RegularRelatedField(cell=cell, user=self.user)
 
-        self.assertEqual(
-            [{'value': '',           'label': _('All')},
-             {'value': lv_form.NULL, 'label': _('* is empty *')},
-             *({'value': pk, 'label': name}
-                   for pk, name in FakeImageCategory.objects.values_list('id', 'name')
-              )
+        self.assertListEqual(
+            [
+                {'value': '',           'label': _('All')},
+                {'value': lv_form.NULL, 'label': _('* is empty *')},
+                *(
+                    {'value': pk, 'label': name}
+                    for pk, name in FakeImageCategory.objects.values_list('id', 'name')
+                )
             ],
             field.choices
         )
@@ -534,9 +538,10 @@ class SearchFieldsTestCase(CremeTestCase):
         expected_choices = [
             {'value': '',           'label': _('All')},
             {'value': lv_form.NULL, 'label': _('* is empty *')},
-            *({'value': pk, 'label': title}
-                  for pk, title in FakeSector.objects.values_list('id', 'title')
-             )
+            *(
+                {'value': pk, 'label': title}
+                for pk, title in FakeSector.objects.values_list('id', 'title')
+            )
         ]
 
         FakeSector.objects.create(title='[INVALID]')  # Excluded
@@ -563,14 +568,16 @@ class SearchFieldsTestCase(CremeTestCase):
             cell=cell, user=self.user,
             enumerable_registry=enum_registry,
         )
-        self.assertEqual(
-            [{'value': '',           'label': _('All')},
-             {'value': lv_form.NULL, 'label': _('* is empty *')},
-             *({'value': pk, 'label': title}
-                   for pk, title in FakeSector.objects
-                                              .exclude(id=s1.id)
-                                              .values_list('id', 'title')
-              )
+        self.assertListEqual(
+            [
+                {'value': '',           'label': _('All')},
+                {'value': lv_form.NULL, 'label': _('* is empty *')},
+                *(
+                    {'value': pk, 'label': title}
+                    for pk, title in FakeSector.objects
+                                               .exclude(id=s1.id)
+                                               .values_list('id', 'title')
+                )
             ],
             field.choices
         )

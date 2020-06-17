@@ -287,5 +287,9 @@ class CrudityBackend:
 
     def get_id(self) -> str:
         subject = self.subject
-        return self.fetcher_name if subject == '*' else \
-               f'{self.fetcher_name}|{self.input_name}|{self.subject}'
+
+        return (
+            self.fetcher_name
+            if subject == '*' else
+            f'{self.fetcher_name}|{self.input_name}|{self.subject}'
+        )

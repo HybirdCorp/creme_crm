@@ -48,9 +48,10 @@ class FlowPaginatorTestCase(CremeTestCase):
         for order, names in enumerate(all_names, start=1):
             names_orders_map[names] = order
 
-        cls.CONTACTS_DATA = [(order, names[0], names[1])
-                                for names, order in names_orders_map.items()
-                            ]
+        cls.CONTACTS_DATA = [
+            (order, names[0], names[1])
+            for names, order in names_orders_map.items()
+        ]
 
     def setUp(self):
         super().setUp()

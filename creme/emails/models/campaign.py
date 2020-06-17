@@ -80,11 +80,12 @@ class AbstractEmailCampaign(CremeEntity):
 
         # Contacts & organisations recipients
         def update(get_persons):
-            recipients.update((p.email, p)
-                                for ml in lists
-                                    for p in get_persons(ml).filter(is_deleted=False)
-                                        if p.email
-                             )
+            recipients.update(
+                (p.email, p)
+                for ml in lists
+                for p in get_persons(ml).filter(is_deleted=False)
+                if p.email
+            )
 
         update(lambda ml: ml.contacts)
         update(lambda ml: ml.organisations)

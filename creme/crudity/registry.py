@@ -384,10 +384,11 @@ class CRUDityRegistry:
 
         for fetcher_multiplex in self.get_fetchers():
             # TODO: FetcherInterface.has_backends() ?
-            if not any(crud_input.has_backends
-                           for inputs_per_method in fetcher_multiplex.get_inputs()
-                               for crud_input in inputs_per_method.values()
-                      ) and not fetcher_multiplex.get_default_backend():
+            if not any(
+                crud_input.has_backends
+                for inputs_per_method in fetcher_multiplex.get_inputs()
+                for crud_input in inputs_per_method.values()
+            ) and not fetcher_multiplex.get_default_backend():
                 continue
 
             for data in fetcher_multiplex.fetch():

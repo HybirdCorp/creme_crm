@@ -38,14 +38,14 @@ def generate_string_id_and_save(model: Type[Model],
 
     prefix_len = len(prefix)
     # TODO: query with regex instead ?
-    id_list = [int(suffix)
-                    for suffix in (id_str[prefix_len:]
-                                        for id_str in model.objects
-                                                           .filter(id__startswith=prefix)
-                                                           .values_list('id', flat=True)
-                                  )
-                        if suffix.isdigit()
-              ]
+    id_list = [
+        int(suffix)
+        for suffix in (
+            id_str[prefix_len:]
+            for id_str in model.objects.filter(id__startswith=prefix).values_list('id', flat=True)
+        )
+        if suffix.isdigit()
+    ]
     # TODO: do-able in SQL ????
     # TODO: would it be cool to fill the 'holes' in id ranges ???
     index = max(id_list, default=0)

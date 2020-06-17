@@ -275,14 +275,20 @@ class ActTestCase(CommercialBaseTestCase):
                          )
 
         create_sc = partial(SetCredentials.objects.create, role=self.role, set_type=SetCredentials.ESET_ALL)
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE | EntityCredentials.UNLINK,  # NB: Not EntityCredentials.LINK
-                 )
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE |
-                        EntityCredentials.LINK | EntityCredentials.UNLINK,
-                  ctype=Opportunity,
-                 )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # NB: Not EntityCredentials.LINK
+        )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            ctype=Opportunity,
+        )
 
         act = self.create_act()
         self.assertFalse(user.has_perm_to_link(act))
@@ -300,13 +306,15 @@ class ActTestCase(CommercialBaseTestCase):
                           creatable_models=[Opportunity],
                          )
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                      ctype=Act,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+            ctype=Act,
+        )
 
         act = self.create_act()
         self.assertTrue(user.has_perm_to_link(act))
@@ -539,12 +547,10 @@ class ActTestCase(CommercialBaseTestCase):
                                                     ]
                                             )[0]
 
-        self.assertTrue(all(o.counter == 0
-                                for o in [objective00, objective01, objective02,
-                                          objective11, objective12,
-                                         ]
-                           )
-                       )
+        self.assertTrue(all(
+            o.counter == 0
+            for o in [objective00, objective01, objective02, objective11, objective12]
+        ))
 
         # Content types
         self.assertIsNone(objective00.ctype_id)

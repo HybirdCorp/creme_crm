@@ -25,20 +25,24 @@ class EnumerableViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             choices = response.json()
 
-        self.assertEqual([{'value': id, 'label': title}
-                              for id, title in models.FakeCivility.objects.values_list('id', 'title')
-                         ],
-                         choices
-                        )
+        self.assertListEqual(
+            [
+                {'value': id, 'label': title}
+                for id, title in models.FakeCivility.objects.values_list('id', 'title')
+            ],
+            choices
+        )
 
     def test_choices_success_m2m(self):
         self.login()
         response = self.assertGET200(self._build_choices_url(models.FakeImage, 'categories'))
-        self.assertEqual([{'value': id, 'label': name}
-                              for id, name in models.FakeImageCategory.objects.values_list('id', 'name')
-                         ],
-                         response.json()
-                        )
+        self.assertListEqual(
+            [
+                {'value': id, 'label': name}
+                for id, name in models.FakeImageCategory.objects.values_list('id', 'name')
+            ],
+            response.json()
+        )
 
     def test_choices_success_limited_choices_to(self):
         self.login()

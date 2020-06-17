@@ -44,16 +44,20 @@ class FolderCreationButton(listview.CreationButton):
     def get_label(self, request, model):
         parent = self.context['parent_folder']
 
-        return self.label_subfolder.format(entity=parent) \
-               if parent else \
-               super().get_label(request=request, model=model)
+        return (
+            self.label_subfolder.format(entity=parent)
+            if parent else
+            super().get_label(request=request, model=model)
+        )
 
     def get_url(self, request, model):
         parent = self.context['parent_folder']
 
-        return reverse('documents__create_folder', args=(parent.id,)) \
-               if parent else \
-               super().get_url(request=request, model=model)
+        return (
+            reverse('documents__create_folder', args=(parent.id,))
+            if parent else
+            super().get_url(request=request, model=model)
+        )
 
     def is_allowed(self, request, model):
         allowed = super().is_allowed(request=request, model=model)

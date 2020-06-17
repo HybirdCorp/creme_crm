@@ -52,14 +52,18 @@ class ListViewState:
         self.extra_q = None
 
     def __repr__(self):
-        return (f'<ListViewState(efilter_id={self.entity_filter_id}, '
-                               f'hfilter_id={self.header_filter_id}, '
-                               f'page={self.page}, '
-                               f'rows={self.rows}, '
-                               f'sort={self.sort_order}{self.sort_cell_key},'
-                               f' url={self.url}, '
-                               f'search={self.search}, '
-                               f'extra_q={self.extra_q})>')
+        return (
+            f'<ListViewState('
+            f'efilter_id={self.entity_filter_id}, '
+            f'hfilter_id={self.header_filter_id}, '
+            f'page={self.page}, '
+            f'rows={self.rows}, '
+            f'sort={self.sort_order}{self.sort_cell_key},'
+            f' url={self.url}, '
+            f'search={self.search}, '
+            f'extra_q={self.extra_q}'
+            f')>'
+        )
 
     def register_in_session(self, request) -> None:
         serialized = {**self.__dict__}
@@ -133,11 +137,11 @@ class ListViewState:
         @param default_id: ID to use if <filter_id> is not found.
         @return: An EntityFilter instance, or None.
         """
-        efilter = None if filter_id == '' else \
-                  entity_filters.select_by_id(filter_id,
-                                              self.entity_filter_id,
-                                              default_id,
-                                             )
+        efilter = (
+            None
+            if filter_id == '' else
+            entity_filters.select_by_id(filter_id, self.entity_filter_id, default_id)
+        )
 
         self.entity_filter_id = efilter.id if efilter else None
 

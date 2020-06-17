@@ -151,10 +151,14 @@ class EntityFilterManager(models.Manager):
 
         qs = self.filter(filter_type=EF_USER)
 
-        return qs if user.is_staff else \
-               qs.filter(Q(is_private=False) |
-                         Q(is_private=True, user__in=[user, *user.teams])
-                        )
+        return (
+            qs
+            if user.is_staff else
+            qs.filter(
+                Q(is_private=False) |
+                Q(is_private=True, user__in=[user, *user.teams])
+            )
+        )
 
     def smart_update_or_create(self,
                                pk: str,
@@ -865,15 +869,17 @@ class EntityFilterCondition(models.Model):
         def key(cond):
             return cond.type, cond.name, cond.value
 
-        return all(cond1 and cond2 and
-                   cond1.type == cond2.type and
-                   cond1.name == cond2.name and
-                   # cond1.decoded_value == cond2.decoded_value
-                   cond1.value == cond2.value
-                        for cond1, cond2 in zip_longest(sorted(conditions1, key=key),
-                                                        sorted(conditions2, key=key),
-                                                       )
-                  )
+        return all(
+            cond1 and cond2 and
+            cond1.type == cond2.type and
+            cond1.name == cond2.name and
+            # cond1.decoded_value == cond2.decoded_value
+            cond1.value == cond2.value
+            for cond1, cond2 in zip_longest(
+                sorted(conditions1, key=key),
+                sorted(conditions2, key=key),
+            )
+        )
 
     # @property
     # def decoded_value(self):

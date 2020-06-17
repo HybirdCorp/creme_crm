@@ -97,17 +97,18 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
         self.assertEqual(_('Shipping address'), shipping_address.name)
         self.assertEqual(city2,                 shipping_address.city)
 
-        self.assertEqual(
-            [ngettext('{count} «{model}» has been created.',
-                      '{count} «{model}» have been created.',
-                      lines_count
-                     ).format(count=lines_count,
-                               model=_('Organisations'),
-                              ),
-             ngettext('{count} line in the file.',
-                      '{count} lines in the file.',
-                      lines_count
-                     ).format(count=lines_count),
+        self.assertListEqual(
+            [
+                ngettext(
+                    '{count} «{model}» has been created.',
+                    '{count} «{model}» have been created.',
+                    lines_count
+                ).format(count=lines_count, model=_('Organisations')),
+                ngettext(
+                    '{count} line in the file.',
+                    '{count} lines in the file.',
+                    lines_count
+                ).format(count=lines_count),
             ],
             job.stats
         )

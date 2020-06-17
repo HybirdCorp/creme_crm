@@ -108,8 +108,7 @@ class FilterMixin:
     def save_in_session(self, lvs_attr):
         request = self.request
         lv_url = self.build_lv_url()
-        lvs = ListViewState.get_state(request, lv_url) or \
-              ListViewState(url=lv_url)
+        lvs = ListViewState.get_state(request, lv_url) or ListViewState(url=lv_url)
 
         setattr(lvs, lvs_attr, self.object.id)
         lvs.register_in_session(request)

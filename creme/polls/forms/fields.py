@@ -39,12 +39,14 @@ class PollFormLineConditionsWidget(SelectorList):
         self.selector = chained_input = ChainedInput()
 
         src_name = 'source'
-        add = partial(chained_input.add_dselect, attrs={'auto': False})
-        add(src_name, options=self.sources)
-        add('choice',
-            options=TemplateURLBuilder(line_id=(TemplateURLBuilder.Int, '${%s}' % src_name))
-                                      .resolve('polls__form_line_choices')
-           )
+        add_dselect = partial(chained_input.add_dselect, attrs={'auto': False})
+        add_dselect(src_name, options=self.sources)
+        add_dselect(
+            'choice',
+            options=TemplateURLBuilder(
+                line_id=(TemplateURLBuilder.Int, '${%s}' % src_name)
+            ).resolve('polls__form_line_choices'),
+        )
 
         return super().get_context(name=name, value=value, attrs=attrs)
 
@@ -75,9 +77,10 @@ class PollFormLineConditionsField(JSONField):
         self.widget.sources = [(src.id, src.question) for src in valid_sources]
 
     def _value_to_jsonifiable(self, value):
-        return [{'source': condition.source_id, 'choice': condition.raw_answer}
-                    for condition in value
-               ]
+        return [
+            {'source': condition.source_id, 'choice': condition.raw_answer}
+            for condition in value
+        ]
 
     def _clean_source(self, entry):
         line_id = self.clean_value(entry, 'source', int)

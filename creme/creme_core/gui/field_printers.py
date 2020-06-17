@@ -356,8 +356,9 @@ class M2MPrinterForHTML(BaseM2MPrinter):
         printer, enumerator = print_enum
         li_tags = format_html_join(
             '', '<li>{}</li>',
-            ((printer(e, entity, fval, user, field),)
-                 for e in enumerator(entity, fval, user, field)
+            (
+                (printer(e, entity, fval, user, field),)
+                for e in enumerator(entity, fval, user, field)
             )
         )
 
@@ -632,9 +633,10 @@ class _FieldPrintersRegistry:
                         def printer(obj: Model, user):
                             has_perm = user.has_perm_to_view
 
-                            return '/'.join(sub_printer(e, user) if has_perm(e) else HIDDEN_VALUE
-                                                for e in getattr(obj, base_name).filter(is_deleted=False)
-                                            )
+                            return '/'.join(
+                                sub_printer(e, user) if has_perm(e) else HIDDEN_VALUE
+                                for e in getattr(obj, base_name).filter(is_deleted=False)
+                            )
                     else:
                         def printer(obj: Model, user):
                             has_perm = user.has_perm_to_view
@@ -649,9 +651,9 @@ class _FieldPrintersRegistry:
                 else:
                     if output == 'csv':
                         def printer(obj: Model, user):
-                            return '/'.join(sub_printer(a, user)
-                                                for a in getattr(obj, base_name).all()
-                                            )
+                            return '/'.join(
+                                sub_printer(a, user) for a in getattr(obj, base_name).all()
+                            )
                     else:
                         def printer(obj: Model, user):
                             li_tags = format_html_join(

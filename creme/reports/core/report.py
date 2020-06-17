@@ -304,9 +304,11 @@ class RHRegularField(ReportHand):
                 )
 
         first_part = field_info[0]
-        klass = RHForeignKey if isinstance(first_part, ForeignKey) else \
-                RHManyToManyField if isinstance(first_part, ManyToManyField) else \
-                RHRegularField
+        klass = (
+            RHForeignKey if isinstance(first_part, ForeignKey) else
+            RHManyToManyField if isinstance(first_part, ManyToManyField) else
+            RHRegularField
+        )
 
         instance = ReportHand.__new__(klass)
         instance._field_info = field_info

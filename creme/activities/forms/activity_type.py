@@ -81,12 +81,14 @@ class ActivityTypeWidget(ChainedInput):
         self.types = types
 
     def get_context(self, name, value, attrs):
-        add = partial(self.add_dselect, attrs={'auto': False})
-        add('type', options=self.types)
-        add('sub_type',
-            options=TemplateURLBuilder(type_id=(TemplateURLBuilder.Word, '${type}'))
-                                      .resolve('activities__get_types'),
-           )
+        add_dselect = partial(self.add_dselect, attrs={'auto': False})
+        add_dselect('type', options=self.types)
+        add_dselect(
+            'sub_type',
+            options=TemplateURLBuilder(
+                type_id=(TemplateURLBuilder.Word, '${type}'),
+            ).resolve('activities__get_types'),
+        )
 
         return super().get_context(name=name, value=value, attrs=attrs)
 
@@ -182,10 +184,10 @@ class BulkEditTypeForm(BulkDefaultEditForm):
 
     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
         super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
-        self.fields['field_value'] = type_selector = \
-                    ActivityTypeField(label=_('Type'),
-                                      types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO),
-                                     )
+        self.fields['field_value'] = type_selector = ActivityTypeField(
+            label=_('Type'),
+            types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO),
+        )
         self._mixed_indispo = False
         indispo_count = sum(a.type_id == ACTIVITYTYPE_INDISPO for a in entities)
 

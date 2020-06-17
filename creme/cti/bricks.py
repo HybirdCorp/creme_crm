@@ -66,10 +66,11 @@ class CallersBrick(PaginatedBrick):
         # for model in RESPOND_TO_A_CALL_MODELS:
         for model in self.caller_models:
             is_hidden = fconfigs[model].is_field_hidden
-            queries = [Q(**{field.name: number})
-                          for field in model._meta.fields
-                              if isinstance(field, PhoneField) and not is_hidden(field)
-                      ]
+            queries = [
+                Q(**{field.name: number})
+                for field in model._meta.fields
+                if isinstance(field, PhoneField) and not is_hidden(field)
+            ]
 
             if queries:
                 all_fields_hidden = False

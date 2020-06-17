@@ -148,12 +148,11 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         user = self.login(is_superuser=False, allowed_apps=['emails', 'documents'],
                           creatable_models=[Document],
                          )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         file_obj1 = self.build_filedata('Content #1')
         doc1 = self._create_doc('My doc #1', file_obj1)
@@ -182,11 +181,11 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         user = self.login(is_superuser=False, allowed_apps=['emails', 'documents'],
                           creatable_models=[Document],
                          )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW |
-                                            EntityCredentials.LINK,  # Not CHANGE
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,  # Not CHANGE
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         file_obj = self.build_filedata('Content #1')
         doc = self._create_doc('My doc #1', file_obj)

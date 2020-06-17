@@ -239,9 +239,10 @@ class BulkForm(CremeForm):
         if not hasattr(error, 'message_dict'):
             return {NON_FIELD_ERRORS: error.messages}
 
-        fields = {field.name: field
-                    for field in (entity._meta.fields + entity._meta.many_to_many)
-                 }
+        fields = {
+            field.name: field
+            for field in (entity._meta.fields + entity._meta.many_to_many)
+        }
         messages = []
 
         for key, value in error.message_dict.items():

@@ -32,29 +32,26 @@ class AbstractProduct(CremeEntity):
     name = models.CharField(_('Name'), max_length=100)
     code = models.IntegerField(_('Code'), default=0)
 
-    category     = models.ForeignKey(other_models.Category,
-                                     verbose_name=_('Category'),
-                                     on_delete=models.PROTECT,
-                                    )
-    sub_category = models.ForeignKey(other_models.SubCategory,
-                                     verbose_name=_('Sub-category'),
-                                     on_delete=models.PROTECT,
-                                    )
+    category = models.ForeignKey(
+        other_models.Category, verbose_name=_('Category'), on_delete=models.PROTECT,
+    )
+    sub_category = models.ForeignKey(
+        other_models.SubCategory, verbose_name=_('Sub-category'), on_delete=models.PROTECT,
+    )
 
-    unit_price        = models.DecimalField(_('Unit price'), max_digits=8, decimal_places=2)
-    unit              = models.CharField(_('Unit'), max_length=100, blank=True)\
-                                        .set_tags(optional=True)
-    quantity_per_unit = models.IntegerField(_('Quantity/Unit'), blank=True, null=True) \
-                                          .set_tags(optional=True)
-    weight            = models.DecimalField(_('Weight'), max_digits=8, decimal_places=2,
-                                            blank=True, null=True,
-                                           ).set_tags(optional=True)
+    unit_price = models.DecimalField(_('Unit price'), max_digits=8, decimal_places=2)
+    unit = models.CharField(_('Unit'), max_length=100, blank=True).set_tags(optional=True)
+    quantity_per_unit = models.IntegerField(
+        _('Quantity/Unit'), blank=True, null=True
+    ).set_tags(optional=True)
+    weight = models.DecimalField(
+        _('Weight'), max_digits=8, decimal_places=2, blank=True, null=True,
+    ).set_tags(optional=True)
 
-    stock  = models.IntegerField(_('Quantity/Stock'), blank=True, null=True) \
-                                .set_tags(optional=True)
+    stock = models.IntegerField(_('Quantity/Stock'), blank=True, null=True).set_tags(optional=True)
 
     web_site = models.CharField(_('Web Site'), max_length=100, blank=True).set_tags(optional=True)
-    images   = ImageEntityManyToManyField(verbose_name=_('Images'), blank=True)
+    images = ImageEntityManyToManyField(verbose_name=_('Images'), blank=True)
 
     creation_label = _('Create a product')
     save_label     = _('Save the product')

@@ -93,33 +93,45 @@ class Origin(CremeModel):
 
 
 class AbstractOpportunity(CremeEntity):
-    name                  = CharField(_('Name of the opportunity'), max_length=100)
-    reference             = CharField(_('Reference'), max_length=100, blank=True)\
-                                     .set_tags(optional=True)
-    estimated_sales       = PositiveIntegerField(_('Estimated sales'),
-                                                 blank=True, null=True,
-                                                ).set_tags(optional=True)
-    made_sales            = PositiveIntegerField(_('Made sales'), blank=True, null=True)\
-                                                .set_tags(optional=True)
-    currency              = ForeignKey(Currency, verbose_name=_('Currency'),
-                                       default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
-                                      )
-    sales_phase           = ForeignKey(SalesPhase, verbose_name=_('Sales phase'),
-                                       on_delete=PROTECT,
-                                      )
-    chance_to_win         = PositiveIntegerField(_(r'% of chance to win'),
-                                                 blank=True, null=True,
-                                                ).set_tags(optional=True)
-    expected_closing_date = DateField(_('Expected closing date'), blank=True, null=True)\
-                                     .set_tags(optional=True)
-    closing_date          = DateField(_('Actual closing date'), blank=True, null=True)\
-                                     .set_tags(optional=True)
-    origin                = ForeignKey(Origin, verbose_name=_('Origin'),
-                                       blank=True, null=True,
-                                       on_delete=CREME_REPLACE_NULL,
-                                      ).set_tags(optional=True)
-    first_action_date     = DateField(_('Date of the first action'), blank=True, null=True)\
-                                     .set_tags(optional=True)
+    name = CharField(_('Name of the opportunity'), max_length=100)
+
+    reference = CharField(
+        _('Reference'), max_length=100, blank=True,
+    ).set_tags(optional=True)
+
+    estimated_sales = PositiveIntegerField(
+        _('Estimated sales'), blank=True, null=True,
+    ).set_tags(optional=True)
+    made_sales = PositiveIntegerField(
+        _('Made sales'), blank=True, null=True,
+    ).set_tags(optional=True)
+    currency = ForeignKey(
+        Currency, verbose_name=_('Currency'),
+        default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
+    )
+
+    sales_phase = ForeignKey(
+        SalesPhase, verbose_name=_('Sales phase'), on_delete=PROTECT,
+    )
+    chance_to_win = PositiveIntegerField(
+        _(r'% of chance to win'), blank=True, null=True,
+    ).set_tags(optional=True)
+
+    expected_closing_date = DateField(
+        _('Expected closing date'), blank=True, null=True,
+    ).set_tags(optional=True)
+    closing_date = DateField(
+        _('Actual closing date'), blank=True, null=True,
+    ).set_tags(optional=True)
+
+    origin = ForeignKey(
+        Origin, verbose_name=_('Origin'),
+        blank=True, null=True, on_delete=CREME_REPLACE_NULL,
+    ).set_tags(optional=True)
+
+    first_action_date = DateField(
+        _('Date of the first action'), blank=True, null=True,
+    ).set_tags(optional=True)
 
     creation_label = _('Create an opportunity')
     save_label     = _('Save the opportunity')

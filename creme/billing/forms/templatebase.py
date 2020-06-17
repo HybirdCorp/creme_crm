@@ -37,10 +37,11 @@ class _TemplateBaseForm(BaseEditForm):
         meta = billing_ct.model_class()._meta
         status_field = self.fields['status']
 
-        status_field.label   = gettext('Status of {}').format(meta.verbose_name)
-        status_field.choices = [(status.id, str(status))
-                                    for status in meta.get_field('status').remote_field.model.objects.all()
-                               ]
+        status_field.label = gettext('Status of {}').format(meta.verbose_name)
+        status_field.choices = [
+            (status.id, str(status))
+            for status in meta.get_field('status').remote_field.model.objects.all()
+        ]
 
         return status_field
 

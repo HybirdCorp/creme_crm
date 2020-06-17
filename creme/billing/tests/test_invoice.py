@@ -142,15 +142,21 @@ class InvoiceTestCase(_BillingTestCase):
         "Credentials errors with Organisation"
         user = self.login(is_superuser=False, creatable_models=[Invoice])
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not LINK
-                  set_type=SetCredentials.ESET_ALL,
-                 )
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE | EntityCredentials.LINK |
-                        EntityCredentials.UNLINK,
-                  set_type=SetCredentials.ESET_OWN,
-                 )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not LINK
+            set_type=SetCredentials.ESET_ALL,
+        )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.LINK |
+                EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         source = Organisation.objects.create(user=self.other_user, name='Source Orga')
         self.assertFalse(user.has_perm_to_link(source))
@@ -249,14 +255,15 @@ class InvoiceTestCase(_BillingTestCase):
                    allowed_apps=['persons', 'billing'],
                    creatable_models=[Invoice],
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         source, target = self.create_orgas()
         self.assertGET200(reverse('billing__create_related_invoice', args=(target.id,)))
@@ -267,14 +274,15 @@ class InvoiceTestCase(_BillingTestCase):
                    allowed_apps=['persons', 'billing'],
                    # creatable_models=[Invoice],
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         source, target = self.create_orgas()
         self.assertGET403(reverse('billing__create_related_invoice', args=(target.id,)))
@@ -285,14 +293,16 @@ class InvoiceTestCase(_BillingTestCase):
                    allowed_apps=['persons', 'billing'],
                    creatable_models=[Invoice],
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            # EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW |
+                # EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         source, target = self.create_orgas()
         self.assertGET403(reverse('billing__create_related_invoice', args=(target.id,)))
@@ -488,8 +498,8 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertListEqual(
             [other_user.id] * 4,
             [*CremeEntity.objects
-                          .filter(pk__in=[line.pk for line in lines])
-                          .values_list('user', flat=True)
+                         .filter(pk__in=[line.pk for line in lines])
+                         .values_list('user', flat=True)
             ]  # Refresh
         )
 
@@ -686,8 +696,10 @@ class InvoiceTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy service', quantity=9, unit_price=Decimal("10"),
             **kwargs
         )
-        expected = product_line.get_price_inclusive_of_tax() + \
-                   service_line.get_price_inclusive_of_tax()
+        expected = (
+            product_line.get_price_inclusive_of_tax() +
+            service_line.get_price_inclusive_of_tax()
+        )
         invoice.save()
         invoice = self.refresh(invoice)
         self.assertEqual(expected, invoice._get_total_with_tax())

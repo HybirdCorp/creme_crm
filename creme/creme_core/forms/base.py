@@ -188,10 +188,10 @@ class FieldBlockManager:
         """Create a clone of self, updated with new blocks.
         @param blocks: see __init__(). New blocks are merged with self's blocks.
         """
-        merged_blocks = OrderedDict([(cat, _FieldBlock(block.name, block.field_names))
-                                        for cat, block in self.__blocks.items()
-                                    ]
-                                   )
+        merged_blocks = OrderedDict([
+            (cat, _FieldBlock(block.name, block.field_names))
+            for cat, block in self.__blocks.items()
+        ])
         to_add = []
 
         for cat, name, field_names in blocks:
@@ -577,9 +577,9 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
             subject_prop_ids = {pt.id for pt in self.cleaned_data['property_types']}
 
             for rtype, needed_properties in ptypes_contraints.values():
-                if any(ptype_id not in subject_prop_ids
-                           for ptype_id in needed_properties.keys()
-                      ):
+                if any(
+                    ptype_id not in subject_prop_ids for ptype_id in needed_properties.keys()
+                ):
                     if len(needed_properties) == 1:
                         raise forms.ValidationError(
                             self.error_messages['missing_property_single'],

@@ -28,9 +28,10 @@ class EnumerableTestCase(CremeTestCase):
         registry = _EnumerableRegistry()
 
         enum1 = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
-        expected = [{'value': id, 'label': title}
-                        for id, title in FakeCivility.objects.values_list('id', 'title')
-                   ]
+        expected = [
+            {'value': id, 'label': title}
+            for id, title in FakeCivility.objects.values_list('id', 'title')
+        ]
         self.assertEqual(expected, enum1.choices(user))
 
         # --

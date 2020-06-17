@@ -722,15 +722,15 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         user = self.login(is_superuser=False, allowed_apps=('creme_core',))  # NB: can delete ESET_OWN
         other_user = self.other_user
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                      ctype=FakeOrganisation,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+            ctype=FakeOrganisation,
+        )
 
         create_contact = partial(FakeContact.objects.create, user=user, is_deleted=True)
         contact1 = create_contact(first_name='Lawrence', last_name='Kraft')

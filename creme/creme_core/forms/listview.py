@@ -598,14 +598,10 @@ class CustomOperationsFieldMixin:
         cfield = self.cell.custom_field
 
         return Q(
-            pk__in=cfield.value_class
-                         .objects
-                         .filter(custom_field=cfield,
-                                 **{f'value__{op}': number
-                                        for op, number in operations
-                                   }
-                                )
-                         .values_list('entity_id', flat=True)
+            pk__in=cfield.value_class.objects.filter(
+                custom_field=cfield,
+                **{f'value__{op}': number for op, number in operations}
+            ).values_list('entity_id', flat=True)
         )
 
 

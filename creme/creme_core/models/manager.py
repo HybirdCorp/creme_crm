@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2013 Tim Babych
 # Copyright (c) 2016 Daniel Hahler
-# Copyright (c) 2016-2019 Hybird
+# Copyright (c) 2016-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -40,9 +40,12 @@ class LowNullsSQLCompiler(SQLCompiler):
 
         if result and self.connection.vendor == 'postgresql':
             # NB: PostgreSQL accepts NULLS LAST/FIRST even on columns which cannot be NULL, so we do not check it.
-            return [(expr, (sql + (' NULLS LAST' if expr.descending else ' NULLS FIRST'), params, is_ref))
-                        for (expr, (sql, params, is_ref)) in result
-                   ]
+            return [
+                (
+                    expr,
+                    (sql + (' NULLS LAST' if expr.descending else ' NULLS FIRST'), params, is_ref)
+                ) for (expr, (sql, params, is_ref)) in result
+            ]
 
         return result
 

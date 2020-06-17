@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019  Hybird
+#    Copyright (C) 2019-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,9 +39,11 @@ class CremeDeletion(CheckedView):
         # TODO: <return self.delete(request, *args, **kwargs)> ?
         self.perform_deletion(self.request)
 
-        return HttpResponse(self.get_ajax_success_url(), content_type='text/plain') \
-               if request.is_ajax() else \
-               HttpResponseRedirect(self.get_success_url())
+        return (
+            HttpResponse(self.get_ajax_success_url(), content_type='text/plain')
+            if request.is_ajax() else
+            HttpResponseRedirect(self.get_success_url())
+        )
 
     def perform_deletion(self, request):
         raise NotImplementedError

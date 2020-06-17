@@ -459,10 +459,9 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
         'help':       help,
         'sort_by':    sort_data,
         'status':     status.split(' ') if status else (),
-        'attributes': mark_safe(' '.join('{}="{}"'.format(k.replace('_', '-'), v)
-                                            for k, v in attrs.items()
-                                        )
-                               ),
+        'attributes': mark_safe(
+            ' '.join('{}="{}"'.format(k.replace('_', '-'), v) for k, v in attrs.items())
+        ),
     }
 
 

@@ -359,8 +359,11 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             # NB: we want to retrieve ID & not instance (we store ID in 'values'
             #     & want to avoid some queries).
             base_instance = entity if len(field_info) == 1 else field_info[:-1].value_from(entity)
-            field_value = None if base_instance is None else \
-                          getattr(base_instance, field_info[-1].attname)
+            field_value = (
+                None
+                if base_instance is None else
+                getattr(base_instance, field_info[-1].attname)
+            )
 
             # TODO: move this test in operator code + factorise ?
             if not isinstance(operator, operators.IsEmptyOperator):
@@ -369,8 +372,11 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             # NB: see ForeignKey remark
             base_instance = entity if len(field_info) == 1 else field_info[:-1].value_from(entity)
             # NB: <or None> to send at least one value (useful for "is empty" operator
-            field_value = None if base_instance is None else \
-                          [*getattr(base_instance, last_field.attname).values_list('pk', flat=True)] or None
+            field_value = (
+                None
+                if base_instance is None else
+                [*getattr(base_instance, last_field.attname).values_list('pk', flat=True)] or None
+            )
 
             # TODO: move this test in operator code...
             # TODO: test (need M2M with str PK)
@@ -386,9 +392,11 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
 
         accept = partial(operator.accept, values=values)
 
-        return any(accept(field_value=i) for i in field_value) \
-               if isinstance(field_value, list) else \
-               accept(field_value=field_value)
+        return (
+            any(accept(field_value=i) for i in field_value)
+            if isinstance(field_value, list) else
+            accept(field_value=field_value)
+        )
 
     # TODO: multi-value is stupid for some operator (LT, GT etc...) => improve checking ???
     @classmethod

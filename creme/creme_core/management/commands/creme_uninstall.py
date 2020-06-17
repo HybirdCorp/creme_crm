@@ -102,12 +102,11 @@ def _uninstall_blocks(sender, **kwargs):
     # NB: concerned RelationBrickItems should be removed when RelationType are removed.
 
     # InstanceBrickConfigItem --------------------------------------------------
-    ibc_items = InstanceBrickConfigItem.objects\
-                                       .filter(brick_id__startswith=InstanceBrickConfigItem.
-                                                                        generate_base_id(app_name=app_label,
-                                                                                         name='',
-                                                                                        )
-                                              )
+    ibc_items = InstanceBrickConfigItem.objects.filter(
+        brick_id__startswith=InstanceBrickConfigItem.generate_base_id(
+            app_name=app_label, name='',
+        ),
+    )
 
     ibci_brick_ids = [item.brick_id for item in ibc_items]
     brick_ids.update(ibci_brick_ids)
@@ -138,13 +137,13 @@ def _uninstall_blocks(sender, **kwargs):
 @uninstall_handler('Deleting setting values...')
 def _uninstall_setting_values(sender, **kwargs):
     app_label = sender.label
-    SettingValue.objects\
-                .filter(key_id__in=[skey.id
-                                        for skey in setting_key_registry
-                                            if skey.app_label == app_label
-                                   ]
-                       )\
-                .delete()
+    SettingValue.objects.filter(
+        key_id__in=[
+            skey.id
+            for skey in setting_key_registry
+            if skey.app_label == app_label
+        ],
+    ).delete()
 
 
 @receiver(pre_uninstall_flush)
@@ -174,10 +173,11 @@ def _uninstall_entity_filters(sender, content_types, stdout_write, style, **kwar
 
     for ctype in content_types:
         for efilter in EntityFilter.objects.filter(entity_type=ctype):
-            parents = {cond.filter_id:  cond.filter
-                        for cond in efilter._iter_parent_conditions()  # TODO: public method ?
-                            if cond.filter.entity_type_id not in ctype_ids
-                      }
+            parents = {
+                cond.filter_id:  cond.filter
+                for cond in efilter._iter_parent_conditions()  # TODO: public method ?
+                if cond.filter.entity_type_id not in ctype_ids
+            }
 
             if parents:
                 stdout_write(
@@ -264,9 +264,10 @@ class Command(AppCommand):
         # TODO: implement a True dependencies solver ??
         # NB: we delete first the entities models because it will probably
         #     avoid major dependencies problems.
-        models_info = [(model, True)  # True means 'First deletion trial"
-                           for model in chain(*split_filter(lambda m: issubclass(m, CremeEntity), models))
-                      ]
+        models_info = [
+            (model, True)  # True means 'First deletion trial"
+            for model in chain(*split_filter(lambda m: issubclass(m, CremeEntity), models))
+        ]
 
         while True:
             errors = LimitedList(MAX_ERRORS)
@@ -382,10 +383,11 @@ class Command(AppCommand):
                 '{}\n'
                 'Sadly you have to solve this problem manually '
                 'before re-run this command.'.format(
-                    '\n'.join('- Cannot delete ContentType for "{}" '
-                              '(original error: {})'.format(*ci)
-                                  for ci in ctypes_info
-                             ),
+                    '\n'.join(
+                        '- Cannot delete ContentType for "{}" '
+                        '(original error: {})'.format(*ci)
+                        for ci in ctypes_info
+                    ),
                 )
             )
 

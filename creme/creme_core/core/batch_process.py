@@ -204,5 +204,10 @@ class BatchAction:
         op = self._operator
         field = self._model._meta.get_field(self._field_name).verbose_name
 
-        return gettext('{field} ➔ {operator}').format(field=field, operator=op) if not op.need_arg else \
-               gettext('{field} ➔ {operator}: «{value}»').format(field=field, operator=op, value=self._value)
+        return (
+            gettext('{field} ➔ {operator}').format(field=field, operator=op)
+            if not op.need_arg else
+            gettext('{field} ➔ {operator}: «{value}»').format(
+                field=field, operator=op, value=self._value,
+            )
+        )

@@ -881,23 +881,26 @@ class MenuTestCase(CremeTestCase):
         context = self.build_context()
 
         label = 'Creations'
-        container = ContainerItem('persons', label=label) \
-                        .add(URLItem('contacts', url='/persons/contacts',      label='List of contacts'),
-                             URLItem('orgas',    url='/persons/organisations', label='List of organisations'),
-                            )
+        container = ContainerItem(
+            'persons', label=label,
+        ).add(
+            URLItem('contacts', url='/persons/contacts',      label='List of contacts'),
+            URLItem('orgas',    url='/persons/organisations', label='List of organisations'),
+        )
 
         render = container.render(context)
         self.assertTrue(render.startswith(label))
-        self.assertHTMLEqual('<ul>'
-                                 '<li class="ui-creme-navigation-item-id_contacts ui-creme-navigation-item-level1">'
-                                     '<a href="/persons/contacts">List of contacts</a>'
-                                 '</li>'
-                                 '<li class="ui-creme-navigation-item-id_orgas ui-creme-navigation-item-level1">'
-                                     '<a href="/persons/organisations">List of organisations</a>'
-                                 '</li>'
-                             '</ul>',
-                             render[len(label):]
-                            )
+        self.assertHTMLEqual(
+            '<ul>'
+            '  <li class="ui-creme-navigation-item-id_contacts ui-creme-navigation-item-level1">'
+            '    <a href="/persons/contacts">List of contacts</a>'
+            '  </li>'
+            '  <li class="ui-creme-navigation-item-id_orgas ui-creme-navigation-item-level1">'
+            '    <a href="/persons/organisations">List of organisations</a>'
+            '  </li>'
+            '</ul>',
+            render[len(label):]
+        )
 
     def test_render_container_item02(self):
         "No icon"
@@ -906,8 +909,9 @@ class MenuTestCase(CremeTestCase):
         label = 'Contacts'
         icon = 'contact'
         icon_label = 'Contact'
-        parent = ContainerItem('persons', label=label, icon=icon, icon_label=icon_label) \
-                    .add(URLItem('home', url='/persons/contacts', label='List of contacts'))
+        parent = ContainerItem(
+            'persons', label=label, icon=icon, icon_label=icon_label
+        ).add(URLItem('home', url='/persons/contacts', label='List of contacts'))
 
         render = parent.render(context, level=1)
         elt = html5lib.parse(render, namespaceHTMLElements=False)
@@ -933,27 +937,29 @@ class MenuTestCase(CremeTestCase):
 
         ul_node = elt.find('.//ul')
         self.assertIsNotNone(ul_node, 'No <ul> tag.')
-        self.assertHTMLEqual('<ul>'
-                                 '<li class="ui-creme-navigation-item-id_home ui-creme-navigation-item-level2">'
-                                     '<a href="/persons/contacts">List of contacts</a>'
-                                 '</li>'
-                             '</ul>',
-                             ElementTree.tostring(ul_node).decode()
-                            )
+        self.assertHTMLEqual(
+            '<ul>'
+            '  <li class="ui-creme-navigation-item-id_home ui-creme-navigation-item-level2">'
+            '    <a href="/persons/contacts">List of contacts</a>'
+            '  </li>'
+            '</ul>',
+            ElementTree.tostring(ul_node).decode()
+        )
 
     def test_render_menu(self):
         menu = Menu().add(URLItem('contacts', url='/persons/contacts',      label='List of contacts'),
                           URLItem('orgas',    url='/persons/organisations', label='List of organisations'),
                          )
-        self.assertHTMLEqual('<ul class="ui-creme-navigation">'
-                                 '<li class="ui-creme-navigation-item-level0 ui-creme-navigation-item-id_contacts">'
-                                     '<a href="/persons/contacts">List of contacts</a>'
-                                 '</li>'
-                                 '<li class="ui-creme-navigation-item-level0 ui-creme-navigation-item-id_orgas">'
-                                     '<a href="/persons/organisations">List of organisations</a>'
-                                 '</li>'
-                             '</ul>',
-                             menu.render(self.build_context())
-                            )
+        self.assertHTMLEqual(
+            '<ul class="ui-creme-navigation">'
+            '  <li class="ui-creme-navigation-item-level0 ui-creme-navigation-item-id_contacts">'
+            '    <a href="/persons/contacts">List of contacts</a>'
+            '  </li>'
+            '  <li class="ui-creme-navigation-item-level0 ui-creme-navigation-item-id_orgas">'
+            '    <a href="/persons/organisations">List of organisations</a>'
+            '  </li>'
+            '</ul>',
+            menu.render(self.build_context())
+        )
 
 # TODO: rendering of group => test separator (2 following group, at start, at end)

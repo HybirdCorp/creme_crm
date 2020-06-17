@@ -90,9 +90,10 @@ def get_keyed_indexes_columns(model: Type[Model]) -> Tuple[Tuple[str, Tuple[str,
 
     NB: the return value is immutable, so the cached values can not be altered.
     """
-    return tuple((build_columns_key(columns), tuple(columns))
-                    for columns in get_indexes_columns(model)
-                )
+    return tuple(
+        (build_columns_key(columns), tuple(columns))
+        for columns in get_indexes_columns(model)
+    )
 
 
 def get_indexed_ordering(model: Type[Model],
@@ -162,9 +163,7 @@ def get_indexed_ordering(model: Type[Model],
     if asc_fnames[-1] == '*':
         asc_fnames.pop()
 
-    pattern = ''.join(f'#{name}#*' if name != '*' else name
-                          for name in asc_fnames
-                     )
+    pattern = ''.join(f'#{name}#*' if name != '*' else name for name in asc_fnames)
 
     for index_key, ordering in indexes:
         if fnmatch(index_key, pattern):

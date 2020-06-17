@@ -119,15 +119,17 @@ class XMLUtilsTestCase(CremeTestCase):
                         )
 
     def test_xml_diff06(self):
-        xml01 = ('<commands attr1="foo" attr2="bar">'
-                    '<create attr3="xxx" >'
-                    '</create>'
-                 '</commands>'
-                )
-        xml02 = ('<commands attr2="bar" attr1="foo" >'
-                 '   <create attr3="xxx" />'
-                 '</commands>'
-                )
+        xml01 = (
+            '<commands attr1="foo" attr2="bar">'
+            '<create attr3="xxx" >'
+            '</create>'
+            '</commands>'
+        )
+        xml02 = (
+            '<commands attr2="bar" attr1="foo" >'
+            '   <create attr3="xxx" />'
+            '</commands>'
+        )
         self.assertIsNone(xml_diff(xml01, xml02))
 
     def test_xml_diff07(self):

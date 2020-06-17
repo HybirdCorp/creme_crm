@@ -178,9 +178,10 @@ class EntityEmailLinking(RelationsAdding):
                 if subjects_prop_ids is None:
                     subjects_prop_ids = {*subject.properties.values_list('type', flat=True)}
 
-                if any(needed_ptype.id not in subjects_prop_ids
-                           for needed_ptype in needed_property_types
-                      ):
+                if any(
+                    needed_ptype.id not in subjects_prop_ids
+                    for needed_ptype in needed_property_types
+                ):
                     continue
 
             rtypes.append(rtype.id)

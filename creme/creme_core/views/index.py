@@ -35,8 +35,11 @@ class Home(BaseHome):
         user = self.request.user
         is_superuser = user.is_superuser
 
-        role_q = Q(role=None, superuser=True) if is_superuser else \
-                 Q(role=user.role, superuser=False)
+        role_q = (
+            Q(role=None, superuser=True)
+            if is_superuser else
+            Q(role=user.role, superuser=False)
+        )
         locs = BrickHomeLocation.objects \
                                 .filter(role_q | Q(role=None, superuser=False)) \
                                 .order_by('order')

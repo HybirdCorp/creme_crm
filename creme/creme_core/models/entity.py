@@ -217,9 +217,10 @@ class CremeEntity(CremeModel):
     def get_related_entities(self,
                              relation_type_id: str,
                              real_entities: bool = True) -> List['CremeEntity']:
-        return [relation.object_entity.get_real_entity()
-                    for relation in self.get_relations(relation_type_id, real_entities)
-               ]
+        return [
+            relation.object_entity.get_real_entity()
+            for relation in self.get_relations(relation_type_id, real_entities)
+        ]
 
     def get_relations(self,
                       relation_type_id: str,

@@ -119,9 +119,11 @@ def replace_related_object(old_instance, new_instance):
             setattr(rel_object, field_name, new_instance)
             rel_object.save()
 
-    for rel_objects in (f for f in meta.get_fields(include_hidden=True)
-                            if f.many_to_many and f.auto_created
-                       ):
+    for rel_objects in (
+            f
+            for f in meta.get_fields(include_hidden=True)
+            if f.many_to_many and f.auto_created
+    ):
         field_name = rel_objects.field.name
 
         for rel_object in getattr(old_instance, rel_objects.get_accessor_name()).all():

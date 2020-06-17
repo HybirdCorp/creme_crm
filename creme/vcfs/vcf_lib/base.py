@@ -385,8 +385,7 @@ class Component(VBase):
         """Return a child's value (the first, by default), or None."""
         child = self.contents.get(toVName(childName))
 
-        return default if child is None else \
-               child[childNumber].value
+        return default if child is None else child[childNumber].value
 
     def add(self, objOrName, group=None):
         """Add objOrName to contents, set behavior if it can be inferred.
@@ -408,8 +407,11 @@ class Component(VBase):
                 c_id = self.behavior.knownChildren[name][2]
                 behavior = behavior_registry.get(name, c_id)
 
-                obj = Component(name) if behavior.isComponent else \
-                      ContentLine(name, [], '', group)
+                obj = (
+                    Component(name)
+                    if behavior.isComponent else
+                    ContentLine(name, [], '', group)
+                )
                 obj.parentBehavior = self.behavior
                 obj.behavior = behavior
                 obj = obj.transformToNative()
@@ -921,8 +923,11 @@ END:VCALENDAR''')
 
     # stream = StringIO.StringIO(streamOrString) if isinstance(streamOrString, basestring) else \
     #          streamOrString
-    stream = StringIO(streamOrString) if isinstance(streamOrString, str) else \
-             streamOrString
+    stream = (
+        StringIO(streamOrString)
+        if isinstance(streamOrString, str) else
+        streamOrString
+    )
 
     try:
         stack = Stack()

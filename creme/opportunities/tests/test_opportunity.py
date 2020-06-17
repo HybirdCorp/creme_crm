@@ -218,11 +218,14 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         "LINK credentials error"
         self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not LINK
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not LINK
+            set_type=SetCredentials.ESET_OWN
+        )
 
         target, emitter = self._create_target_n_emitter()
         response = self.assertPOST200(self.ADD_URL, follow=True,
@@ -362,11 +365,14 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         "Try to add with wrong credentials (no link credentials)."
         self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not LINK
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not LINK
+            set_type=SetCredentials.ESET_OWN
+        )
 
         target = Organisation.objects.create(user=self.user, name='Target renegade')
         self.assertGET403(self._build_addrelated_url(target))
@@ -481,11 +487,14 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                    creatable_models=[Opportunity],
                   )
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE | EntityCredentials.UNLINK,  # not LINK
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # not LINK
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         target = Contact.objects.create(user=self.user, first_name='Target', last_name='Renegade')
         self.assertGET403(self._build_addrelated_url(target))

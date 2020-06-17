@@ -417,8 +417,9 @@ class OrdinateWidget(ChainedInput):
                  constraint_registry: Optional[AggregatorConstraintsRegistry] = None):
         super().__init__(attrs=attrs)
         self.model: Type[CremeEntity] = model
-        self.constraint_registry: AggregatorConstraintsRegistry = \
-             constraint_registry or AggregatorConstraintsRegistry()
+        self.constraint_registry: AggregatorConstraintsRegistry = (
+            constraint_registry or AggregatorConstraintsRegistry()
+        )
         self.not_hiddable_cell_keys: Set[str] = set()
 
     def build_aggr_choices(self, cells_per_aggr_category):

@@ -53,13 +53,16 @@ class BatchActionsWidget(SelectorList):
 
         # TODO: improve SelectorList.add_* to avoid attribute 'auto'
         chained_input.add_dselect('name', attrs=sub_attrs, options=self.fields)
-        chained_input.add_dselect('operator', attrs=sub_attrs,
-                                  # TODO: use a GET arg instead of using a TemplateURLBuilder ?
-                                  options=TemplateURLBuilder(field=(TemplateURLBuilder.Word, '${name}'))
-                                            .resolve('creme_core__batch_process_ops',
-                                                     kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id}
-                                                    ),
-                                 )
+        chained_input.add_dselect(
+            'operator', attrs=sub_attrs,
+            # TODO: use a GET arg instead of using a TemplateURLBuilder ?
+            options=TemplateURLBuilder(
+                field=(TemplateURLBuilder.Word, '${name}'),
+            ).resolve(
+                'creme_core__batch_process_ops',
+                kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id},
+            ),
+        )
 
         pinput = PolymorphicInput(key='${operator}', attrs=sub_attrs)
         # TODO: count if the operators with need_arg=False are more ?

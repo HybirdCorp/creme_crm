@@ -86,9 +86,9 @@ class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
     def __init__(self, user=None, *args, **kwargs):
         super().__init__(user=user, *args, **kwargs)
         self.fields['filedata'].widget.attrs = {
-            'accept': ','.join('.' + ext
-                                   for ext in import_backend_registry.extensions
-                              ),
+            'accept': ','.join(
+                f'.{ext}' for ext in import_backend_registry.extensions
+            ),
         }
 
     def clean(self):

@@ -158,10 +158,11 @@ class PollFormLineCreateForm(_PollFormLineForm):
             msg_fmt = gettext('Before: «{question}» (#{number})').format  # TODO: cached_gettext ??
             choices = [
                 (0, gettext('Start of section')),
-                *((i, msg_fmt(question=node.question, number=node.number))
-                      for i, node in enumerate(section_lines[1:], start=1)
+                *(
+                    (i, msg_fmt(question=node.question, number=node.number))
+                    for i, node in enumerate(section_lines[1:], start=1)
                 ),
-                (len(section_lines), gettext('End of section'))
+                (len(section_lines), gettext('End of section')),
             ]
 
             self.fields['index'] = TypedChoiceField(

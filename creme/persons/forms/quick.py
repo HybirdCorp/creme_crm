@@ -66,8 +66,11 @@ class ContactQuickForm(CremeEntityQuickForm):
             orga_field = self.fields['organisation']
             orga_field.widget = Label()
             orga_field.help_text = ''
-            orga_field.initial = gettext('You are not allowed to link with a Contact') if not c_link_perm else \
-                                 gettext('You are not allowed to link with an Organisation')
+            orga_field.initial = (
+                gettext('You are not allowed to link with a Contact')
+                if not c_link_perm else
+                gettext('You are not allowed to link with an Organisation')
+            )
         elif not self.can_create():
             self.fields['organisation'].help_text = _('Enter the name of an existing Organisation.')
 

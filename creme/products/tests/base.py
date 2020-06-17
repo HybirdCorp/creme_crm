@@ -41,16 +41,19 @@ class _ProductsTestCase(_DocumentsTestCase, MassImportBaseTestCaseMixin):
                          )
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE |
-                        EntityCredentials.LINK   | EntityCredentials.UNLINK,
-                  set_type=SetCredentials.ESET_OWN,
-                 )
-        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE |
-                        # EntityCredentials.LINK   |
-                        EntityCredentials.UNLINK,
-                  set_type=SetCredentials.ESET_ALL,
-                 )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # EntityCredentials.LINK
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         return user

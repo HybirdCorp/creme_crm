@@ -71,6 +71,7 @@ class Command(BaseCommand):
             )
 
         # List of chars copied from django/core/management/commands/startproject.py
-        return ''.join(choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
-                            for _i in range(50)
-                      )
+        return ''.join(
+            choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
+            for _i in range(50)
+        )

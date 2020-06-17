@@ -68,9 +68,10 @@ def poll_stats_chart(node):
     try:
         if node.type == PollLineType.BOOL:
             chartpath = 'polls/templatetags/plots/boolean.html'
-            data = [[[percent, 1, f'{answer} − {percent} %']]
-                        for answer, _stat, percent in node.answer_stats
-                   ]
+            data = [
+                [[percent, 1, f'{answer} − {percent} %']]
+                for answer, _stat, percent in node.answer_stats
+            ]
         else:
             chartpath = 'polls/templatetags/plots/number.html'
             data = [[[percent, str(answer)] for answer, _stat, percent in node.answer_stats]

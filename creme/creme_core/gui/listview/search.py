@@ -551,9 +551,11 @@ class ListViewSearchFieldRegistry(AbstractListViewSearchFieldRegistry):
     def get_field(self, *, cell, user, **kwargs):
         registry = self._registries.get(cell.type_id)
 
-        return super().get_field(cell=cell, user=user, **kwargs) \
-               if registry is None else \
-               registry.get_field(cell=cell, user=user, **kwargs)
+        return (
+            super().get_field(cell=cell, user=user, **kwargs)
+            if registry is None else
+            registry.get_field(cell=cell, user=user, **kwargs)
+        )
 
     def register(self, *, cell_id: str, registry_class) -> 'ListViewSearchFieldRegistry':
         self._registries[cell_id] = registry_class()

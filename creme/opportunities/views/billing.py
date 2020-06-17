@@ -61,9 +61,11 @@ class CurrentQuoteSetting(base.CheckedView):
         opp_id = self.kwargs[self.opp_id_url_kwarg]
         quote_id = self.kwargs[self.quote_id_url_kwarg]
 
-        has_perm_or_die = user.has_perm_to_link_or_die \
-                          if action == 'set_current' else \
-                          user.has_perm_to_unlink_or_die
+        has_perm_or_die = (
+            user.has_perm_to_link_or_die
+            if action == 'set_current' else
+            user.has_perm_to_unlink_or_die
+        )
 
         opp = get_object_or_404(Opportunity, pk=opp_id)
         has_perm_or_die(opp)

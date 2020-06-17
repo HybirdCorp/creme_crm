@@ -221,11 +221,13 @@ class CreateInfopathInput(CreateEmailInput):
 
             if self.is_allowed_password(backend.password, split_body):
                 is_created = False
-                for data in filter(lambda x: x is not None,
-                                   (self.get_data_from_infopath_file(backend, attachment)
-                                        for name, attachment in attachments
-                                   )
-                                  ):
+                for data in filter(
+                    lambda x: x is not None,
+                    (
+                        self.get_data_from_infopath_file(backend, attachment)
+                        for name, attachment in attachments
+                    )
+                ):
                     self._create(backend, data, email.senders[0])
                     is_created = True
 

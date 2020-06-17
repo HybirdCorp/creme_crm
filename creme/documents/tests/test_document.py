@@ -324,9 +324,12 @@ class DocumentTestCase(_DocumentsTestCase):
         create_sc = partial(SetCredentials.objects.create, role=self.role,
                             set_type=SetCredentials.ESET_OWN,
                            )
-        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not EntityCredentials.LINK
-                 )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not EntityCredentials.LINK
+        )
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
         self.assertTrue(user.has_perm_to_view(orga))
@@ -369,13 +372,19 @@ class DocumentTestCase(_DocumentsTestCase):
         create_sc = partial(SetCredentials.objects.create, role=self.role,
                             set_type=SetCredentials.ESET_OWN,
                            )
-        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not EntityCredentials.LINK
-                 )
-        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.LINK |
-                        EntityCredentials.DELETE | EntityCredentials.UNLINK,
-                  ctype=Document,
-                 )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not EntityCredentials.LINK
+        )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.LINK |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),
+            ctype=Document,
+        )
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
         self.assertTrue(user.has_perm_to_view(orga))
@@ -390,13 +399,14 @@ class DocumentTestCase(_DocumentsTestCase):
                           creatable_models=[Document],
                          )
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,  # Not EntityCredentials.VIEW
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),  # Not EntityCredentials.VIEW
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         orga = FakeOrganisation.objects.create(user=self.other_user, name='NERV')
         self.assertTrue(user.has_perm_to_link(orga))
@@ -576,14 +586,14 @@ class DocumentTestCase(_DocumentsTestCase):
         other_user = self.other_user
 
         self.role.exportable_ctypes.set([ContentType.objects.get_for_model(Contact)])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         create_img = self._create_image
         casca_face = create_img(title='Casca face', user=user,       description="Casca's selfie")

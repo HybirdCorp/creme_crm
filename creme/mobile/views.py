@@ -554,8 +554,7 @@ def _add_participants(activity, persons):
 def _improve_minutes(pcall, minutes):
     if minutes:
         old_minutes = pcall.minutes
-        pcall.minutes = minutes if not old_minutes else \
-                        '{}\n{}'.format(old_minutes, minutes)
+        pcall.minutes = f'{old_minutes}\n{minutes}' if old_minutes else minutes
 
 
 @mobile_login_required

@@ -81,11 +81,11 @@ class _FakePersonCSVImportForm(ImportForm4CremeEntity):
 
 def get_csv_form_builder(header_dict, choices):
     get_field = FakeAddress._meta.get_field
-    attrs = {_ADDRESS_PREFIX + field_name: extractorfield_factory(get_field(field_name),
-                                                                  header_dict, choices,
-                                                                 )
-                for field_name in _ADDR_FIELD_NAMES
-            }
+    attrs = {
+        _ADDRESS_PREFIX + field_name: extractorfield_factory(
+            get_field(field_name), header_dict, choices,
+        ) for field_name in _ADDR_FIELD_NAMES
+    }
 
     return type('PersonCSVImportForm', (_FakePersonCSVImportForm,), attrs)
 

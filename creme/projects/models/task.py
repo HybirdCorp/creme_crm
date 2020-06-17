@@ -145,9 +145,10 @@ class AbstractProjectTask(CremeEntity):
         return activities
 
     def get_task_cost(self):
-        return sum((activity.duration or 0) * activity.projects_resource.hourly_cost
-                        for activity in self.related_activities
-                  )
+        return sum(
+            (activity.duration or 0) * activity.projects_resource.hourly_cost
+            for activity in self.related_activities
+        )
 
     def get_effective_duration(self, format='h'):
         if self.effective_duration is None:

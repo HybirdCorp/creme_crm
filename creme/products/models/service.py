@@ -30,31 +30,28 @@ from . import other_models
 
 # TODO: use an abstract base class for Service and Products ??
 class AbstractService(CremeEntity):
-    name      = models.CharField(_('Name'), max_length=100)
+    name = models.CharField(_('Name'), max_length=100)
     reference = models.CharField(_('Reference'), max_length=100)
 
-    category     = models.ForeignKey(other_models.Category,
-                                     verbose_name=_('Category'),
-                                     on_delete=models.PROTECT,
-                                    )
-    sub_category = models.ForeignKey(other_models.SubCategory,
-                                     verbose_name=_('Sub-category'),
-                                     on_delete=models.PROTECT,
-                                    )
+    category = models.ForeignKey(
+        other_models.Category, verbose_name=_('Category'), on_delete=models.PROTECT,
+    )
+    sub_category = models.ForeignKey(
+        other_models.SubCategory, verbose_name=_('Sub-category'), on_delete=models.PROTECT,
+    )
 
-    countable         = models.BooleanField(_('Countable'), default=False)\
-                                           .set_tags(optional=True)
-    unit              = models.CharField(_('Unit'), max_length=100, blank=True)\
-                                        .set_tags(optional=True)
-    quantity_per_unit = models.IntegerField(_('Quantity/Unit'), blank=True, null=True) \
-                                    .set_tags(optional=True)
-    unit_price        = models.DecimalField(_('Unit price'), max_digits=8, decimal_places=2)
+    countable = models.BooleanField(_('Countable'), default=False).set_tags(optional=True)
+    unit = models.CharField(_('Unit'), max_length=100, blank=True).set_tags(optional=True)
+    quantity_per_unit = models.IntegerField(
+        _('Quantity/Unit'), blank=True, null=True,
+    ).set_tags(optional=True)
+    unit_price = models.DecimalField(_('Unit price'), max_digits=8, decimal_places=2)
 
     web_site = models.CharField(_('Web Site'), max_length=100, blank=True).set_tags(optional=True)
-    images   = ImageEntityManyToManyField(verbose_name=_('Images'), blank=True)
+    images = ImageEntityManyToManyField(verbose_name=_('Images'), blank=True)
 
     creation_label = _('Create a service')
-    save_label     = _('Save the service')
+    save_label = _('Save the service')
 
     class Meta:
         abstract = True

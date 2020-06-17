@@ -62,54 +62,63 @@ logger = logging.getLogger(__name__)
 
 
 class Base(CremeEntity):
-    name             = CharField(_('Name'), max_length=100)
-    number           = CharField(_('Number'), max_length=100, blank=True)
-    issuing_date     = DateField(_('Issuing date'), blank=True, null=True)\
-                                .set_tags(optional=True)
-    expiration_date  = DateField(_('Expiration date'), blank=True, null=True)\
-                                .set_tags(optional=True)
-    discount         = BillingDiscountField(_('Overall discount'), default=DEFAULT_DECIMAL,
-                                            max_digits=10, decimal_places=2,
-                                           )
-    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
-                                  verbose_name=_('Billing address'),
-                                  related_name='+',
-                                  blank=True, null=True, editable=False, on_delete=SET_NULL,
-                                 ).set_tags(enumerable=False)
-    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
-                                  verbose_name=_('Shipping address'),
-                                  related_name='+',
-                                  blank=True, null=True, editable=False, on_delete=SET_NULL,
-                                 ).set_tags(enumerable=False)
-    currency         = ForeignKey(Currency, verbose_name=_('Currency'),
-                                  related_name='+',
-                                  default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
-                                 )
-    comment          = TextField(_('Comment'), blank=True).set_tags(optional=True)
-    total_vat        = MoneyField(_('Total with VAT'), default=0,
-                                  max_digits=14, decimal_places=2,
-                                  blank=True, null=True, editable=False,
-                                 )
-    total_no_vat     = MoneyField(_('Total without VAT'), default=0,
-                                  max_digits=14, decimal_places=2,
-                                  blank=True, null=True, editable=False,
-                                 )
-    additional_info  = ForeignKey(AdditionalInformation,
-                                  verbose_name=_('Additional Information'),
-                                  related_name='+',
-                                  blank=True, null=True,
-                                  # on_delete=SET_NULL,
-                                  on_delete=CREME_REPLACE_NULL,
-                                 ).set_tags(clonable=False, optional=True)
-    payment_terms    = ForeignKey(PaymentTerms, verbose_name=_('Payment Terms'),
-                                  related_name='+',
-                                  blank=True, null=True,
-                                  # on_delete=SET_NULL,
-                                  on_delete=CREME_REPLACE_NULL,
-                                 ).set_tags(clonable=False, optional=True)
-    payment_info     = ForeignKey(PaymentInformation, verbose_name=_('Payment information'),
-                                  blank=True, null=True, editable=False, on_delete=SET_NULL,
-                                 ).set_tags(optional=True)
+    name = CharField(_('Name'), max_length=100)
+    number = CharField(_('Number'), max_length=100, blank=True)
+
+    issuing_date = DateField(_('Issuing date'), blank=True, null=True).set_tags(optional=True)
+    expiration_date = DateField(
+        _('Expiration date'), blank=True, null=True,
+    ).set_tags(optional=True)
+
+    discount = BillingDiscountField(
+        _('Overall discount'), default=DEFAULT_DECIMAL, max_digits=10, decimal_places=2,
+    )
+
+    billing_address = ForeignKey(
+        settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Billing address'),
+        blank=True, null=True, editable=False,
+        related_name='+', on_delete=SET_NULL,
+    ).set_tags(enumerable=False)
+    shipping_address = ForeignKey(
+        settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Shipping address'),
+        blank=True, null=True, editable=False,
+        related_name='+', on_delete=SET_NULL,
+    ).set_tags(enumerable=False)
+
+    currency = ForeignKey(
+        Currency, verbose_name=_('Currency'), related_name='+',
+        default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
+    )
+
+    comment = TextField(_('Comment'), blank=True).set_tags(optional=True)
+
+    total_vat = MoneyField(
+        _('Total with VAT'), default=0,
+        max_digits=14, decimal_places=2,
+        blank=True, null=True, editable=False,
+    )
+    total_no_vat = MoneyField(
+        _('Total without VAT'), default=0,
+        max_digits=14, decimal_places=2,
+        blank=True, null=True, editable=False,
+    )
+
+    additional_info = ForeignKey(
+        AdditionalInformation,
+        verbose_name=_('Additional Information'),
+        related_name='+',
+        blank=True, null=True,
+        on_delete=CREME_REPLACE_NULL,
+    ).set_tags(clonable=False, optional=True)
+    payment_terms = ForeignKey(
+        PaymentTerms, verbose_name=_('Payment Terms'),
+        blank=True, null=True,
+        related_name='+', on_delete=CREME_REPLACE_NULL,
+    ).set_tags(clonable=False, optional=True)
+    payment_info = ForeignKey(
+        PaymentInformation, verbose_name=_('Payment information'),
+        blank=True, null=True, editable=False, on_delete=SET_NULL,
+    ).set_tags(optional=True)
 
     creation_label = _('Create an accounting document')
 
@@ -176,10 +185,11 @@ class Base(CremeEntity):
                                                    ) \
                                             .select_related('object_entity')
                 Relation.populate_real_object_entities(relations)
-                credit_notes.extend(rel.object_entity.get_real_entity()
-                                        for rel in relations
-                                            if not rel.object_entity.is_deleted
-                                   )
+                credit_notes.extend(
+                    rel.object_entity.get_real_entity()
+                    for rel in relations
+                    if not rel.object_entity.is_deleted
+                )
 
         return credit_notes
 

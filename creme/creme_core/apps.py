@@ -127,10 +127,12 @@ class MediaGeneratorConfig(AppConfig):
             *(css for app, css in settings.CREME_OPT_CSS if is_installed(app)),
         ]
         MEDIA_BUNDLES.extend(
-            [theme_dir + CREME_CSS[0],
-             *(css_file if isinstance(css_file, dict) else f'{theme_dir}/{css_file}'
-                  for css_file in CREME_CSS[1:]
-              ),
+            [
+                theme_dir + CREME_CSS[0],
+                *(
+                    css_file if isinstance(css_file, dict) else f'{theme_dir}/{css_file}'
+                    for css_file in CREME_CSS[1:]
+                ),
             ] for theme_dir, theme_vb_name in settings.THEMES
         )
 
@@ -375,39 +377,62 @@ class CremeCoreConfig(CremeAppConfig):
         )
         from .gui.quick_forms import quickforms_registry
 
-        creme_menu.add(ContainerItem('creme', label='Creme')
-                          .add(URLItem('home', url=reverse('creme_core__home'), label=_('Home')), priority=10)
-                          .add(TrashItem('trash'), priority=20)  # TODO: icon ?
-                          .add(ItemGroup('user', label=_('User'))
-                                  .add(URLItem('my_page', url=reverse('creme_core__my_page'), label=_('My page')),
-                                       priority=10,
-                                      )
-                                  .add(URLItem('my_jobs', url=reverse('creme_core__my_jobs'), label=_('My jobs')),
-                                       priority=20,
-                                      ),
-                               priority=30,
-                              )
-                          .add(URLItem('logout', url=reverse('creme_logout'), label=_('Log out')), priority=40),
-                       priority=10,
-                      ) \
-                  .add(ItemGroup('features')
-                            .add(ContainerItem('tools', label=_('Tools'))
-                                    .add(URLItem('creme_core-jobs', url=reverse('creme_core__jobs'),
-                                                 label=_('Jobs'), perm=SUPERUSER_PERM,
-                                                ),
-                                         priority=5,
-                                        ),
-                                 priority=100,
-                                ),
-                       priority=20,
-                      ) \
-                  .add(ContainerItem('creation', label=_('+ Creation'))
-                           .add(ItemGroup('main_entities', label=_('Main entities')), priority=10)
-                           .add(QuickCreationItemGroup('quick_forms', registry=quickforms_registry), priority=20)
-                           .add(CreationFormsItem('any_forms', label=_('Other type of entity')), priority=30),
-                       priority=30,
-                      ) \
-                  .add(LastViewedEntitiesItem('recent_entities', label=_('Recent entities')), priority=40)
+        creme_menu.add(
+            ContainerItem(
+                'creme', label='Creme',
+            ).add(
+                URLItem('home', url=reverse('creme_core__home'), label=_('Home')), priority=10,
+            ).add(
+                TrashItem('trash'), priority=20,  # TODO: icon ?
+            ).add(
+                ItemGroup(
+                    'user', label=_('User'),
+                ).add(
+                    URLItem('my_page', url=reverse('creme_core__my_page'), label=_('My page')),
+                    priority=10,
+                ).add(
+                    URLItem('my_jobs', url=reverse('creme_core__my_jobs'), label=_('My jobs')),
+                    priority=20,
+                ),
+                priority=30,
+            ).add(
+                URLItem('logout', url=reverse('creme_logout'), label=_('Log out')), priority=40,
+            ),
+            priority=10,
+        ).add(
+            ItemGroup(
+                'features',
+            ).add(
+                ContainerItem(
+                    'tools', label=_('Tools'),
+                ).add(
+                    URLItem(
+                        'creme_core-jobs', url=reverse('creme_core__jobs'),
+                        label=_('Jobs'), perm=SUPERUSER_PERM,
+                    ),
+                    priority=5,
+                ),
+                priority=100,
+            ),
+            priority=20,
+        ).add(
+            ContainerItem(
+                'creation', label=_('+ Creation'),
+            ).add(
+                ItemGroup('main_entities', label=_('Main entities')),
+                priority=10,
+            ).add(
+                QuickCreationItemGroup('quick_forms', registry=quickforms_registry),
+                priority=20,
+            ).add(
+                CreationFormsItem('any_forms', label=_('Other type of entity')),
+                priority=30,
+            ),
+            priority=30,
+        ).add(
+            LastViewedEntitiesItem('recent_entities', label=_('Recent entities')),
+            priority=40,
+        )
 
     def register_actions(self, actions_registry):
         from . import actions
@@ -530,16 +555,22 @@ class CremeCoreConfig(CremeAppConfig):
             register_model(fake_models.FakeIngredient,       'fake_ingredient')
 
             # NB: we just need another URLs for creation/edition/deletion (even if these ones are stupid)
-            register_model(fake_models.FakePosition, 'fake_position') \
-                          .creation(enable_func=lambda user: False) \
-                          .edition(url_name='creme_core__edit_fake_contact')
-            register_model(fake_models.FakeLegalForm, 'fake_legalform') \
-                          .creation(url_name='creme_core__create_fake_contact') \
-                          .edition(enable_func=lambda instance, user: False)
-            register_model(fake_models.FakeFolderCategory, 'fake_foldercat') \
-                          .deletion(enable_func=lambda instance, user: False)
-            register_model(fake_models.FakeImageCategory, 'fake_img_cat') \
-                          .deletion(url_name='creme_core__edit_fake_organisation')
+            register_model(
+                fake_models.FakePosition, 'fake_position',
+            ).creation(
+                enable_func=lambda user: False,
+            ).edition(url_name='creme_core__edit_fake_contact')
+            register_model(
+                fake_models.FakeLegalForm, 'fake_legalform',
+            ).creation(
+                url_name='creme_core__create_fake_contact',
+            ).edition(enable_func=lambda instance, user: False)
+            register_model(
+                fake_models.FakeFolderCategory, 'fake_foldercat',
+            ).deletion(enable_func=lambda instance, user: False)
+            register_model(
+                fake_models.FakeImageCategory, 'fake_img_cat',
+            ).deletion(url_name='creme_core__edit_fake_organisation')
 
             config_registry.register_app_bricks('creme_core', fake_bricks.FakeAppPortalBrick)
 
@@ -655,7 +686,7 @@ class CremeCoreConfig(CremeAppConfig):
         from creme.creme_core.forms import widgets
 
         forms.MultipleChoiceField.widget = forms.ModelMultipleChoiceField.widget = \
-             widgets.UnorderedMultipleChoiceWidget
+            widgets.UnorderedMultipleChoiceWidget
 
     @staticmethod
     def tag_ctype():

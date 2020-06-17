@@ -96,9 +96,11 @@ class ButtonMenuEdition(EntityCTypeRelatedMixin, base.ConfigEdition):
     def get_title(self):
         ctype = self.get_ctype()
 
-        return gettext('Edit configuration for «{model}»').format(model=ctype) \
-               if ctype else \
-               gettext('Edit default configuration')
+        return (
+            gettext('Edit configuration for «{model}»').format(model=ctype)
+            if ctype else
+            gettext('Edit default configuration')
+        )
 
 
 class ButtonMenuDeletion(base.ConfigDeletion):

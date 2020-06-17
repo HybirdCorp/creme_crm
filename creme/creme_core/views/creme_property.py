@@ -263,8 +263,9 @@ class PropertyTypeDetail(generic.CremeModelDetail):
 
         bricks = [
             PropertyTypeInfoBrick(ptype, ctypes),
-            *(TaggedEntitiesBrick(ptype, ctype)
-                  for ctype in (ctypes or entity_ctypes())
+            *(
+                TaggedEntitiesBrick(ptype, ctype)
+                for ctype in (ctypes or entity_ctypes())
             ),
         ]
 

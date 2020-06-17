@@ -127,11 +127,11 @@ class MailingListsTestCase(_EmailsTestCase):
     def test_ml_and_campaign02(self):
         "Remove list from campaign."
         user = self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW |
-                                            EntityCredentials.CHANGE,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         create_ml = partial(MailingList.objects.create, user=user)
         mlist01 = create_ml(name='Ml01')
@@ -274,12 +274,11 @@ class MailingListsTestCase(_EmailsTestCase):
     @skipIfCustomContact
     def test_ml_contacts01(self):
         user = self.login(is_superuser=False, allowed_apps=('emails', 'persons'))
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         mlist = MailingList.objects.create(user=user, name='ml01')
         url = self._build_addcontact_url(mlist)
@@ -396,11 +395,15 @@ class MailingListsTestCase(_EmailsTestCase):
         with self.assertNoException():
             choices = [*context['form'].fields['filters'].choices]
 
-        self.assertEqual(
-            [('', _('All')),
-             *((ef.id, ef.name)
-                   for ef in EntityFilter.objects.filter(entity_type=ContentType.objects.get_for_model(Contact))
-              )
+        self.assertListEqual(
+            [
+                ('', _('All')),
+                *(
+                    (ef.id, ef.name)
+                    for ef in EntityFilter.objects.filter(
+                        entity_type=ContentType.objects.get_for_model(Contact),
+                    )
+                ),
             ],
             choices
         )
@@ -429,11 +432,11 @@ class MailingListsTestCase(_EmailsTestCase):
     def test_ml_contacts_rm(self):
         "Not allowed to change the list."
         user = self.login(is_superuser=False, allowed_apps=('emails', 'persons'))
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW |
-                                            EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         contact = Contact.objects.create(
             user=user, first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com',

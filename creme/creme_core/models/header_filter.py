@@ -95,10 +95,14 @@ class HeaderFilterManager(models.Manager):
 
         qs = self.all()
 
-        return qs if user.is_staff else \
-               qs.filter(Q(is_private=False) |
-                         Q(is_private=True, user__in=[user, *user.teams]),
-                        )
+        return (
+            qs
+            if user.is_staff else
+            qs.filter(
+                Q(is_private=False) |
+                Q(is_private=True, user__in=[user, *user.teams]),
+            )
+        )
 
     def create_if_needed(self,
                          pk: str,
@@ -302,10 +306,13 @@ class HeaderFilter(models.Model):  # CremeModel ???
         if content_type:
             qs = qs.filter(entity_type=content_type)
 
-        return qs if user.is_staff else \
-               qs.filter(Q(is_private=False) |
-                         Q(is_private=True, user__in=[user, *user.teams])
-                        )
+        return (
+            qs if user.is_staff else
+            qs.filter(
+                Q(is_private=False) |
+                Q(is_private=True, user__in=[user, *user.teams])
+            )
+        )
 
     # TODO: dispatch this job in Cells classes
     #       => get the cells as argument, so we can pass filtered cells

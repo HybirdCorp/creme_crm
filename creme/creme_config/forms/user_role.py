@@ -271,8 +271,7 @@ class CredentialsFilterStep(CremeModelForm):
             cdata = self.cleaned_data
             name = cdata['name']
             use_or = cdata['use_or']
-            ctype = instance.ctype or \
-                    ContentType.objects.get_for_model(CremeEntity)
+            ctype = instance.ctype or ContentType.objects.get_for_model(CremeEntity)
 
             if efilter is None:
                 efilter = EntityFilter(
@@ -401,9 +400,10 @@ class _UserRoleWizardFormStep(CremeModelForm):
     def app_choices(apps):
         sort_key = collator.sort_key
 
-        return sorted(((app.label, str(app.verbose_name)) for app in apps),
-                          key=lambda t: sort_key(t[1])
-                     )
+        return sorted(
+            ((app.label, str(app.verbose_name)) for app in apps),
+            key=lambda t: sort_key(t[1])
+        )
 
     def save(self, commit=False, *args, **kwargs):
         return super().save(*args, **kwargs) if commit else self.instance
@@ -453,10 +453,11 @@ class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
         CRED_ADMIN = CremeAppConfig.CRED_ADMIN
         labels = self.instance.allowed_apps
         admin_4_apps_f = self.fields['admin_4_apps']
-        admin_4_apps_f.choices = self.app_choices(app for app in creme_app_configs()
-                                                        if app.label in labels and
-                                                           app.credentials & CRED_ADMIN
-                                                 )
+        admin_4_apps_f.choices = self.app_choices(
+            app
+            for app in creme_app_configs()
+            if app.label in labels and app.credentials & CRED_ADMIN
+        )
         admin_4_apps_f.initial = self.instance.admin_4_apps
 
     def clean(self):

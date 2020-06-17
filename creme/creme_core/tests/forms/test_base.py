@@ -465,9 +465,10 @@ class CremeEntityFormTestCase(CremeTestCase):
         with self.assertNoException():
             ptypes_choices = form.fields['property_types'].choices
 
-        choices = [(choice_obj.value, choice_obj.readonly)
-                        for choice_obj, _label in ptypes_choices
-                  ]
+        choices = [
+            (choice_obj.value, choice_obj.readonly)
+            for choice_obj, _label in ptypes_choices
+        ]
         self.assertIndex((ptype01.id, False), choices)
         self.assertIndex((ptype02.id, True),  choices)
         self.assertIndex((ptype03.id, False), choices)
@@ -488,9 +489,10 @@ class CremeEntityFormTestCase(CremeTestCase):
         with self.assertNoException():
             ptypes_choices = form.fields['property_types'].choices
 
-        choices = [(choice_obj.value, choice_obj.readonly)
-                        for choice_obj, _label in ptypes_choices
-                  ]
+        choices = [
+            (choice_obj.value, choice_obj.readonly)
+            for choice_obj, _label in ptypes_choices
+        ]
         self.assertIndex((ptype01.id, False), choices)
         self.assertIndex((ptype02.id, True),  choices)
         self.assertIndex((ptype03.id, False), choices)
@@ -860,15 +862,15 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.login(is_superuser=False, creatable_models=[FakeContact])
 
         create_creds = partial(SetCredentials.objects.create, role=self.role)
-        create_creds(value=EntityCredentials.VIEW   |
-                           EntityCredentials.CHANGE |
-                           EntityCredentials.LINK,
-                     set_type=SetCredentials.ESET_OWN,
-                    )
-        create_creds(value=EntityCredentials.LINK,
-                     set_type=SetCredentials.ESET_ALL,
-                     ctype=FakeContact, forbidden=True,
-                    )
+        create_creds(
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
+        create_creds(
+            value=EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+            ctype=FakeContact, forbidden=True,
+        )
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 

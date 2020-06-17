@@ -979,9 +979,11 @@ class CreatorEntityField(EntityCredsJSONField):
 
         if user and model:
             widget.creation_allowed = user.has_perm_to_create(model)
-            widget.creation_url = self.create_action_url \
-                                  if not self._q_filter or self._force_creation \
-                                  else ''
+            widget.creation_url = (
+                self.create_action_url
+                if not self._q_filter or self._force_creation
+                else ''
+            )
         else:
             widget.creation_allowed = False
             widget.creation_url = ''
@@ -1681,9 +1683,11 @@ class MultiCTypeChoiceField(CTypeChoiceField):
     def prepare_value(self, value):
         prepare_value = super().prepare_value
 
-        return [prepare_value(v) for v in value] \
-               if hasattr(value, '__iter__') else \
-               prepare_value(value)
+        return (
+            [prepare_value(v) for v in value]
+            if hasattr(value, '__iter__') else
+            prepare_value(value)
+        )
 
     def to_python(self, value):
         ctypes = []

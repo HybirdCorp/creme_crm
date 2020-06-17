@@ -85,9 +85,9 @@ class _ActivityForm(CremeEntityForm):
 
         duration_field = self.fields.get('duration')
         if duration_field:
-            duration_field.help_text = _('It is only informative '
-                                         'and is not used to compute the end time.'
-                                        )
+            duration_field.help_text = _(
+                'It is only informative and is not used to compute the end time.'
+            )
 
     def clean(self):
         cdata = super().clean()
@@ -300,11 +300,12 @@ class ActivityCreateForm(_ActivityCreateForm):
         fields['my_participation'].initial = (True, Calendar.objects.get_default_calendar(user).id)
 
         subjects_field = fields['subjects']
-        subjects_field.allowed_models = [ct.model_class()
-                                            for ct in RelationType.objects
-                                                                  .get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
-                                                                  .subject_ctypes.all()
-                                        ]
+        subjects_field.allowed_models = [
+            ct.model_class()
+            for ct in RelationType.objects
+                                  .get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
+                                  .subject_ctypes.all()
+        ]
         if is_auto_orga_subject_enabled():
             subjects_field.help_text = _('The organisations of the participants will be automatically added as subjects')
 

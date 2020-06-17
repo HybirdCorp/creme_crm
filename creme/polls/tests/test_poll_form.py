@@ -291,29 +291,36 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_add_sub_section02(self):
         "Not super-user"
         user = self.login(is_superuser=False, allowed_apps=['polls'])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
         pform = PollForm.objects.create(user=user, name='Form#1')
-        section = PollFormSection.objects.create(pform=pform, name='Name of the Chapter 1', order=1)
-        self.assertGET200(reverse('polls__create_child_form_section', args=(section.id,)))
+        section = PollFormSection.objects.create(
+            pform=pform, name='Name of the Chapter 1', order=1,
+        )
+        self.assertGET200(
+            reverse('polls__create_child_form_section', args=(section.id,))
+        )
 
     def test_add_sub_section03(self):
         "CHA?GE credentials needed"
         user = self.login(is_superuser=False, allowed_apps=['polls'])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            # EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW |
+                # EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK |
+                EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
         pform = PollForm.objects.create(user=user, name='Form#1')
         section = PollFormSection.objects.create(pform=pform, name='Name of the Chapter 1', order=1)
         self.assertGET403(reverse('polls__create_child_form_section', args=(section.id,)))
@@ -327,7 +334,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = section.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
+        self.assertTemplateUsed(
+            response, 'creme_core/generics/blockform/edit-popup.html'
+        )
         self.assertEqual(_('Section for «{entity}»').format(entity=pform),
                          response.context.get('title')
                         )
@@ -932,14 +941,14 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_add_line_to_section04(self):
         "Not super-user"
         user = self.login(is_superuser=False, allowed_apps=['polls'])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL
+        )
 
         pform = PollForm.objects.create(user=user, name='Form#1')
         section = PollFormSection.objects.create(pform=pform, name='Section I')
@@ -947,16 +956,16 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertGET200(self.build_addline2section_url(section))
 
     def test_add_line_to_section05(self):
-        "CHNAGE credentials needed"
+        "CHANGE credentials needed."
         user = self.login(is_superuser=False, allowed_apps=['polls'])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            # EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),  # Not EntityCredentials.CHANGE
+            set_type=SetCredentials.ESET_ALL
+        )
 
         pform = PollForm.objects.create(user=user, name='Form#1')
         section = PollFormSection.objects.create(pform=pform, name='Section I')
@@ -1504,29 +1513,29 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_add_line_conditions_not_super_user(self):
         user = self.login(is_superuser=False, allowed_apps=['polls'])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL
+        )
         pform = PollForm.objects.create(user=user, name='Form#1')
         line = self._get_formline_creator(pform)('How can you love spam ?')
         self.assertGET200(self.build_editlineconditions_url(line))
 
     def test_add_line_conditions_creds(self):
-        "CHANGE credentials needed"
+        "CHANGE credentials needed."
         user = self.login(is_superuser=False, allowed_apps=['polls'])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            # EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),  # Not EntityCredentials.CHANGE
+            set_type=SetCredentials.ESET_ALL
+        )
         pform = PollForm.objects.create(user=user, name='Form#1')
         line = self._get_formline_creator(pform)('How can you love spam ?')
         self.assertGET403(self.build_editlineconditions_url(line))
@@ -1741,14 +1750,14 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_edit_line_conditions04(self):
         "Not super-user"
         self.login(is_superuser=False, allowed_apps=['polls'])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
         line1, line2, line3 = self.create_3_lines_4_conditions()
 
         PollFormLineCondition.objects.create(line=line3, source=line1, raw_answer='1',
@@ -1759,14 +1768,14 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_edit_line_conditions05(self):
         "CHANGE credentials are needed"
         self.login(is_superuser=False, allowed_apps=['polls'])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            # EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),  # EntityCredentials.CHANGE
+            set_type=SetCredentials.ESET_ALL
+        )
         line1, line2, line3 = self.create_3_lines_4_conditions()
 
         PollFormLineCondition.objects.create(line=line3, source=line1, raw_answer='1',

@@ -90,9 +90,11 @@ class AbstractGraph(CremeEntity):
 
         # NB: "self.roots.all()" causes a strange additional query (retrieving of the base CremeEntity !)....
         has_perm_to_view = user.has_perm_to_view
-        roots = [root for root in RootNode.objects.filter(graph=self.id).select_related('entity')
-                    if not root.entity.is_deleted and has_perm_to_view(root.entity)
-                ]
+        roots = [
+            root
+            for root in RootNode.objects.filter(graph=self.id).select_related('entity')
+            if not root.entity.is_deleted and has_perm_to_view(root.entity)
+        ]
 
         add_node = graph.add_node
         add_edge = graph.add_edge

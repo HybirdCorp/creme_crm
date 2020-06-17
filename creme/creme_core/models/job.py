@@ -336,9 +336,13 @@ class EntityJobResult(BaseJobResult):
     entity = models.ForeignKey(CremeEntity, null=True, on_delete=models.CASCADE)
 
     def __repr__(self):
-        return (f'EntityJobResult(job={self.job_id}, '
-                                f'raw_messages="{self.raw_messages}", '
-                                f'entity={self.entity_id})')
+        return (
+            f'EntityJobResult('
+            f'job={self.job_id}, '
+            f'raw_messages="{self.raw_messages}", '
+            f'entity={self.entity_id}'
+            f')'
+        )
 
 
 class MassImportJobResult(BaseJobResult):
@@ -349,11 +353,15 @@ class MassImportJobResult(BaseJobResult):
     updated = models.BooleanField(default=False)
 
     def __repr__(self):
-        return (f'MassImportJobResult(job={self.job_id}, '
-                                    f'raw_messages="{self.raw_messages}", '
-                                    f'entity={self.entity_id}, '
-                                    f'raw_line="{self.raw_line}", '
-                                    f'updated={self.updated})')
+        return (
+            f'MassImportJobResult('
+            f'job={self.job_id}, '
+            f'raw_messages="{self.raw_messages}", '
+            f'entity={self.entity_id}, '
+            f'raw_line="{self.raw_line}", '
+            f'updated={self.updated}'
+            f')'
+        )
 
     @property
     def line(self):  # TODO: cache ?

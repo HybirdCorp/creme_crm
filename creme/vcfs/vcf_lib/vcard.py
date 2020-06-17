@@ -169,9 +169,10 @@ def toListOrString(string):
 
 def splitFields(string):
     "Return a list of strings or lists from a Name or Address."
-    return [toListOrString(i)
-                for i in stringToTextValues(string, listSeparator=';', charList=';')
-           ]
+    return [
+        toListOrString(i)
+        for i in stringToTextValues(string, listSeparator=';', charList=';')
+    ]
 
 
 def toList(stringOrList):

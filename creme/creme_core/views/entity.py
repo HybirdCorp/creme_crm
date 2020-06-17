@@ -1364,9 +1364,11 @@ class EntitiesListPopup(base.EntityCTypeRelatedMixin, listview.BaseEntitiesListP
     def get_ctype_id(self):
         request = self.request
 
-        return get_from_POST_or_404(request.POST, self.ctype_id_url_kwarg) \
-               if request.method == 'POST' else \
-               get_from_GET_or_404(request.GET, self.ctype_id_url_kwarg)
+        return (
+            get_from_POST_or_404(request.POST, self.ctype_id_url_kwarg)
+            if request.method == 'POST' else
+            get_from_GET_or_404(request.GET, self.ctype_id_url_kwarg)
+        )
 
     @property
     def model(self):

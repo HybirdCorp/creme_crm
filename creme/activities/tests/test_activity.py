@@ -990,12 +990,11 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview_related05(self):
         "Not allowed to LINK"
         user = self.login(is_superuser=False, creatable_models=[Activity])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE,  # Not LINK
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,  # Not LINK
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         linked = Activity.objects.create(user=user, title='Meet01',
                                          type_id=constants.ACTIVITYTYPE_MEETING,

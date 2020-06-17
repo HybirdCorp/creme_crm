@@ -152,9 +152,11 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
     def test_regular_fields(self):
         bulk_update_registry = self.bulk_update_registry
 
-        expected = [field for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
-                        if field.editable and not field.unique
-                   ]
+        expected = [
+            field
+            for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
+            if field.editable and not field.unique
+        ]
         self.assertListEqual(self.sortFields(expected),
                              bulk_update_registry.regular_fields(FakeContact))
 
@@ -167,9 +169,11 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
     def test_regular_fields_include_unique(self):
         bulk_update_registry = self.bulk_update_registry
 
-        expected = [field for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
-                        if field.editable
-                   ]
+        expected = [
+            field
+            for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
+            if field.editable
+        ]
         self.assertListEqual(self.sortFields(expected),
                              bulk_update_registry.regular_fields(FakeContact, exclude_unique=False))
 
@@ -199,25 +203,35 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         bulk_update_registry = self.bulk_update_registry
         bulk_update_registry.register(FakeContact)
 
-        expected_names = [field.name for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
-                              if field.editable and not field.unique
-                         ]
+        expected_names = [
+            field.name
+            for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
+            if field.editable and not field.unique
+        ]
         expanded_names = ['address']
 
         fields = bulk_update_registry.regular_fields(FakeContact, expand=True)
 
-        self.assertListEqual(sorted(expected_names + expanded_names), sorted([field[0].name for field in fields]))
-        self.assertListEqual(sorted(expanded_names), sorted([field.name for field, sub in fields if sub is not None]))
+        self.assertListEqual(
+            sorted(expected_names + expanded_names),
+            sorted(field[0].name for field in fields)
+        )
+        self.assertListEqual(
+            sorted(expanded_names),
+            sorted(field.name for field, sub in fields if sub is not None)
+        )
 
         fields_dict = {field[0].name: field for field in fields}
 
-        sub_expected_names = [field.name for field in chain(FakeAddress._meta.fields, FakeAddress._meta.many_to_many)
-                                  if field.editable and not field.unique
-                             ]
+        sub_expected_names = [
+            field.name
+            for field in chain(FakeAddress._meta.fields, FakeAddress._meta.many_to_many)
+            if field.editable and not field.unique
+        ]
 
         address_fields = fields_dict['address'][1]
         self.assertListEqual(sorted(sub_expected_names),
-                             sorted([field.name for field in address_fields])
+                             sorted(field.name for field in address_fields)
                             )
 
     def test_regular_subfield(self):
@@ -232,12 +246,15 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         bulk_update_registry = self.bulk_update_registry
         bulk_update_registry.register(FakeContact)
 
-        expected = self.sortFields([field for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
-                                        if field.editable and not field.unique
-                                   ]
-                                  )[0]
-
-        self.assertEqual(expected.name, bulk_update_registry.get_default_field(FakeContact).name)
+        expected = self.sortFields([
+            field
+            for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
+            if field.editable and not field.unique
+        ])[0]
+        self.assertEqual(
+            expected.name,
+            bulk_update_registry.get_default_field(FakeContact).name
+        )
 
     def test_custom_fields(self):
         bulk_update_registry = self.bulk_update_registry
@@ -247,9 +264,11 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         CustomField.objects.create(name='A', content_type=contact_ct, field_type=CustomField.STR)
 
-        regular_names = [field.name for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
-                             if field.editable and not field.unique
-                        ]
+        regular_names = [
+            field.name
+            for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
+            if field.editable and not field.unique
+        ]
         custom_names  = ['A']
 
         regular_fields = bulk_update_registry.regular_fields(FakeContact)

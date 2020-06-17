@@ -147,8 +147,10 @@ def download_errors(request, job_id):
     # export_backend = get_export_backend(import_backend.id) or \
     #                  get_export_backend(next(export_backend_registry.backends).id)
     get_export_backend_class = export_backend_registry.get_backend_class
-    export_backend_class = get_export_backend_class(import_backend_cls.id) or \
-                           get_export_backend_class(next(export_backend_registry.backend_classes).id)
+    export_backend_class = (
+        get_export_backend_class(import_backend_cls.id) or
+        get_export_backend_class(next(export_backend_registry.backend_classes).id)
+    )
 
     # if not export_backend:
     if not export_backend_class:

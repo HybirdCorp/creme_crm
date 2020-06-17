@@ -262,9 +262,9 @@ class RelationsBulkAdding(base.EntityCTypeRelatedMixin, base.CremeFormPopup):
         kwargs['forbidden_subjects'] = filtered[False]
 
         request = self.request
-        kwargs['relations_types'] = request.GET.getlist('rtype') \
-                                    if request.method == 'GET' else \
-                                    None
+        kwargs['relations_types'] = (
+            request.GET.getlist('rtype') if request.method == 'GET' else None
+        )
 
         return kwargs
 
@@ -501,12 +501,17 @@ def add_relations_with_same_type(request):
 
     # TODO: idem
     object_ctypes = frozenset(int(ct_id) for ct_id in rtype.object_ctypes.values_list('id', flat=True))
-    check_ctype = (lambda e: e.entity_type_id in object_ctypes) if object_ctypes else \
-                  lambda e: True
+    check_ctype = (
+        (lambda e: e.entity_type_id in object_ctypes)
+        if object_ctypes else
+        (lambda e: True)
+    )
 
-    check_properties = (lambda e: any(p.type_id in object_properties for p in e.get_properties())) \
-                       if object_properties else \
-                       lambda e: True
+    check_properties = (
+        (lambda e: any(p.type_id in object_properties for p in e.get_properties()))
+        if object_properties else
+        (lambda e: True)
+    )
 
     create_relation = Relation.objects.safe_create
     for entity in entities:

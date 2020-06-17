@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,8 +47,11 @@ class _GenerateDocsType(JobType):
         # TODO: test is_working VS delete it (see next_wakeup() && job refreshing too)
         for generator in self._get_generators(now()):
             last = generator.last_generation
-            next_generation = generator.first_generation if last is None else \
-                              last + generator.periodicity.as_timedelta()
+            next_generation = (
+                generator.first_generation
+                if last is None else
+                last + generator.periodicity.as_timedelta()
+            )
 
             if next_generation <= now():
                 with atomic():
