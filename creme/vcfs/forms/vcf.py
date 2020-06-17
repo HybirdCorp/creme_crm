@@ -503,7 +503,7 @@ class VcfImportForm(CremeModelForm):
                         tmp_img_path = path.normpath(path.join(IMG_UPLOAD_PATH, img_name))
 
                         urlretrieve(image_encoded, path.normpath(path.join(settings.MEDIA_ROOT, tmp_img_path)))
-                except:
+                except Exception:
                     logger.exception('Error with image')
                 else:
                     img_path = tmp_img_path

@@ -32,7 +32,7 @@ class SalesPhaseTestCase(CremeTestCase):
 
         try:
             SalesPhase.objects.bulk_create(cls._phase_backup)
-        except:
+        except Exception:  # TODO: better exception
             print('SalesPhaseTestCase: test-data backup problem.')
 
     def test_create_n_order(self):

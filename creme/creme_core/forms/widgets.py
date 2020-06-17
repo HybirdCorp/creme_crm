@@ -1157,7 +1157,7 @@ class DatePeriodWidget(widgets.MultiWidget):
                 dateperiod_value='1',
             )
             inverted = localized_order.index('1') < localized_order.index('0')
-        except:
+        except Exception:  # TODO: better exception
             logger.exception('DatePeriodWidget.get_context()')
             inverted = False
 

@@ -99,8 +99,8 @@ def get_meta_value(obj, key, default=''):
         return getattr(obj._meta, key)
     except AttributeError as e:
         logger.warning('Templatetag get_meta_value: %s', e)
-    except:
-        pass
+    # except:
+    #     pass
 
     return default
 

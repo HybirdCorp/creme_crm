@@ -452,7 +452,7 @@ class Component(VBase):
     def sortChildKeys(self):
         try:
             first = [s for s in self.behavior.sortFirst if s in self.contents]
-        except:
+        except Exception:  # TODO: better exception...
             first = []
 
         return first + sorted(k for k in self.contents.keys() if k not in first)

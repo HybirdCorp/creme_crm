@@ -650,7 +650,7 @@ def brick_tile_for_cell(cell, instance, user):  # TODO: keywords only ?
     """
     try:
         content = cell.render_html(instance, user)
-    except:
+    except Exception:
         logger.exception('Error when rendering cell in {% brick_tile_for_cell %}')
         content = ''
 

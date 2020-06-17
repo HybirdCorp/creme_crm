@@ -32,7 +32,7 @@ def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
     while True:
         try:
             charIndex, char = next(charIterator)
-        except:
+        except Exception:  # TODO: better exception...
             char = 'eof'
 
         if state == 'read normal':
