@@ -126,10 +126,11 @@ class Command(BaseCommand):
                     cxt_conflict = (ctn.most_common()[0][1] > 1)
 
                     if not cxt_conflict and no_context:
-                        cxt_conflict = any(entry.msgctxt is None
-                                               for msg_entries in entries_per_msg.values()
-                                                   for entry in msg_entries
-                                          )
+                        cxt_conflict = any(
+                            entry.msgctxt is None
+                            for msg_entries in entries_per_msg.values()
+                            for entry in msg_entries
+                        )
 
                     if cxt_conflict:
                         self.stdout.write(f'\n[diverging]\n ({msgid}) in :')

@@ -86,14 +86,16 @@ class _SettingKey:
         self._castor = self._CASTORS[type]
 
     def __str__(self):
-        return (f'{self.__class__.__name__}('
-                    f'id="{self.id}", '
-                    f'description="{self.description}", '
-                    f'app_label="{self.app_label}", '
-                    f'type={self.type}, '
-                    f'hidden={self.hidden}, '
-                    f'blank={self.blank})'
-               )
+        return (
+            f'{self.__class__.__name__}('
+            f'id="{self.id}", '
+            f'description="{self.description}", '
+            f'app_label="{self.app_label}", '
+            f'type={self.type}, '
+            f'hidden={self.hidden}, '
+            f'blank={self.blank}'
+            f')'
+        )
 
     def cast(self, value_str: str):
         return self._castor(value_str)

@@ -68,8 +68,9 @@ class ParticipantCreateForm(CremeForm):
                                          )
 
         participants_field = fields['participants']
-        participants_field.q_filter = ~Q(pk__in=[c.id for c in existing]) & \
-                                       Q(is_user__isnull=True)
+        participants_field.q_filter = (
+            ~Q(pk__in=[c.id for c in existing]) & Q(is_user__isnull=True)
+        )
         participants_field.force_creation = True  # TODO: in constructor ?
 
         if is_auto_orga_subject_enabled():
@@ -165,9 +166,10 @@ class SubjectCreateForm(CremeForm):
         subjects = self.cleaned_data['subjects']
 
         # TODO: remove when the field manage 'qfilter'
-        already_subjects = {r.object_entity_id
-                                for r in self.activity.get_subject_relations(real_entities=False)
-                           }
+        already_subjects = {
+            r.object_entity_id
+            for r in self.activity.get_subject_relations(real_entities=False)
+        }
         duplicates = [subject for subject in subjects if subject.id in already_subjects]
 
         if duplicates:

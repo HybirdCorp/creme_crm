@@ -361,16 +361,16 @@ class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView)
     @atomic
     def post(self, request, *args, **kwargs):
         POST = request.POST
-        start = get_from_POST_or_404(POST, key=self.start_arg,
-                                     cast=_js_timestamp_to_datetime
-                                    )
-        end = get_from_POST_or_404(POST, key=self.end_arg,
-                                    cast=_js_timestamp_to_datetime
-                                   )
-        is_all_day = get_from_POST_or_404(POST, key=self.all_day_arg,
-                                          cast=bool_from_str_extended,
-                                          default='false',
-                                         )
+        start = get_from_POST_or_404(
+            POST, key=self.start_arg, cast=_js_timestamp_to_datetime,
+        )
+        end = get_from_POST_or_404(
+            POST, key=self.end_arg, cast=_js_timestamp_to_datetime
+        )
+        is_all_day = get_from_POST_or_404(
+            POST, key=self.all_day_arg,
+            cast=bool_from_str_extended, default='false',
+        )
 
         activity = self.get_related_entity()
 

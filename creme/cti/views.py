@@ -240,9 +240,11 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
 
         # TODO: link credentials
         caller_rtype = act_constants.REL_SUB_PART_2_ACTIVITY
-        entity_rtype = act_constants.REL_SUB_PART_2_ACTIVITY \
-                       if isinstance(entity, Contact) else \
-                       act_constants.REL_SUB_LINKED_2_ACTIVITY
+        entity_rtype = (
+            act_constants.REL_SUB_PART_2_ACTIVITY
+            if isinstance(entity, Contact) else
+            act_constants.REL_SUB_LINKED_2_ACTIVITY
+        )
         rtypes_map = get_bulk_or_404(RelationType, id_list=[caller_rtype, entity_rtype])
 
         user_contact = user.linked_contact

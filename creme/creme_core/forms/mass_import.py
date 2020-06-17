@@ -191,8 +191,11 @@ class Extractor:
             if line_value:
                 if self._subfield_search:
                     data = {self._subfield_search: line_value}
-                    retriever = self._fk_model.objects.filter if self._m2m else \
-                                self._fk_model.objects.get
+                    retriever = (
+                        self._fk_model.objects.filter
+                        if self._m2m else
+                        self._fk_model.objects.get
+                    )
 
                     try:
                         value = retriever(**data)
@@ -757,18 +760,24 @@ class RelationExtractorSelector(SelectorList):
         self.selector = chained_input = ChainedInput(attrs)
 
         # TODO: use GET args instead of using TemplateURLBuilders ?
-        add = partial(chained_input.add_dselect, attrs={'auto': False, 'autocomplete': True})
-        add('rtype', options=self.relation_types, label=gettext('The entity'))
-        add('ctype',
-            options=TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${rtype}'))
-                                      .resolve('creme_core__ctypes_compatible_with_rtype')
-           )
-        add('searchfield',
-            options=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${ctype}'))
-                                      .resolve('creme_core__entity_info_fields'),
+        add_dselect = partial(
+            chained_input.add_dselect, attrs={'auto': False, 'autocomplete': True},
+        )
+        add_dselect('rtype', options=self.relation_types, label=gettext('The entity'))
+        add_dselect(
+            'ctype',
+            options=TemplateURLBuilder(
+                rtype_id=(TemplateURLBuilder.Word, '${rtype}'),
+            ).resolve('creme_core__ctypes_compatible_with_rtype'),
+        )
+        add_dselect(
+            'searchfield',
+            options=TemplateURLBuilder(
+                ct_id=(TemplateURLBuilder.Int, '${ctype}'),
+            ).resolve('creme_core__entity_info_fields'),
             label=gettext('which field'),
-           )
-        add('column', options=self.columns, label=gettext('equals to'))
+        )
+        add_dselect('column', options=self.columns, label=gettext('equals to'))
 
         context = super().get_context(name=name, attrs=attrs, value=value.get('selectorlist'))
         context['widget']['can_create_checked'] = value.get('can_create', False)

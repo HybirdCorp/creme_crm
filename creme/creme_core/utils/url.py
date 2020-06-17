@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2017-2018 Hybird
+# Copyright (c) 2017-2020 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -88,9 +88,10 @@ class TemplateURLBuilder:
                - The key is the name of the URL part in the URL regex.
                - The value is a tuple (PlaceHolderClass, final_name).
         """
-        self._place_holders = [ph_value[0](final_name=ph_value[1], regex_key=ph_key)
-                                    for ph_key, ph_value in place_holders.items()
-                              ]
+        self._place_holders = [
+            ph_value[0](final_name=ph_value[1], regex_key=ph_key)
+            for ph_key, ph_value in place_holders.items()
+        ]
 
     def resolve(self, viewname, urlconf=None, kwargs=None, current_app=None):
         """This method works like django.urls.reverse(), excepted that:

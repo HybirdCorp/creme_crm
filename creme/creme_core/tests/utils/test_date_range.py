@@ -212,23 +212,29 @@ class DateRangeTestCase(CremeTestCase):
 
     def test_previous_month02(self):
         today = datetime(year=2011, month=3, day=12)
-        self.assertEqual({'modified__range': (datetime(year=2011, month=2, day=1,  hour=0,  minute=0,  second=0),
-                                              datetime(year=2011, month=2, day=28, hour=23, minute=59, second=59)
-                                             )
-                         },
-                         self.registry.get_range(name='previous_month')
-                                            .get_q_dict(field='modified', now=today)
-                        )
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    datetime(year=2011, month=2, day=1,  hour=0,  minute=0,  second=0),
+                    datetime(year=2011, month=2, day=28, hour=23, minute=59, second=59),
+                ),
+            },
+            self.registry.get_range(name='previous_month')
+                         .get_q_dict(field='modified', now=today)
+        )
 
     def test_previous_month03(self):
         today = datetime(year=2011, month=1, day=12)
-        self.assertEqual({'modified__range': (datetime(year=2010, month=12, day=1,  hour=0,  minute=0,  second=0),
-                                              datetime(year=2010, month=12, day=31, hour=23, minute=59, second=59)
-                                             )
-                         },
-                         self.registry.get_range(name='previous_month')
-                                            .get_q_dict(field='modified', now=today)
-                        )
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    datetime(year=2010, month=12, day=1,  hour=0,  minute=0,  second=0),
+                    datetime(year=2010, month=12, day=31, hour=23, minute=59, second=59),
+                ),
+            },
+            self.registry.get_range(name='previous_month')
+                         .get_q_dict(field='modified', now=today)
+        )
 
     def test_current_month01(self):
         today = datetime(year=2011, month=1, day=15)
@@ -285,23 +291,31 @@ class DateRangeTestCase(CremeTestCase):
 
     def test_next_month02(self):
         today = datetime(year=2011, month=11, day=21)
-        self.assertEqual({'modified__range': (datetime(year=2011, month=12, day=1,  hour=0,  minute=0,  second=0),
-                                              datetime(year=2011, month=12, day=31, hour=23, minute=59, second=59)
-                                             )
-                         },
-                         self.registry.get_range(name='next_month')
-                                            .get_q_dict(field='modified', now=today)
-                        )
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    datetime(year=2011, month=12, day=1,  hour=0,  minute=0,  second=0),
+                    datetime(year=2011, month=12, day=31, hour=23, minute=59, second=59),
+                )
+            },
+            self.registry
+                .get_range(name='next_month')
+                .get_q_dict(field='modified', now=today)
+        )
 
     def test_next_month03(self):
         today = datetime(year=2011, month=12, day=23)
-        self.assertEqual({'modified__range': (datetime(year=2012, month=1, day=1,  hour=0,  minute=0,  second=0),
-                                              datetime(year=2012, month=1, day=31, hour=23, minute=59, second=59)
-                                             )
-                         },
-                         self.registry.get_range(name='next_month')
-                                            .get_q_dict(field='modified', now=today)
-                        )
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    datetime(year=2012, month=1, day=1,  hour=0,  minute=0,  second=0),
+                    datetime(year=2012, month=1, day=31, hour=23, minute=59, second=59),
+                ),
+            },
+            self.registry
+                .get_range(name='next_month')
+                .get_q_dict(field='modified', now=today)
+        )
 
     def test_previous_quarter01(self):
         today = datetime(year=2011, month=4, day=24)
@@ -319,24 +333,32 @@ class DateRangeTestCase(CremeTestCase):
     def test_previous_quarter02(self):
         today = datetime(year=2011, month=6, day=12)
         dt = self.create_datetime
-        self.assertEqual({'modified__range': (dt(year=2011, month=1, day=1,  hour=0,  minute=0,  second=0),
-                                              dt(year=2011, month=3, day=31, hour=23, minute=59, second=59)
-                                             )
-                         },
-                         self.registry.get_range(name='previous_quarter')
-                                            .get_q_dict(field='modified', now=today)
-                        )
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    dt(year=2011, month=1, day=1,  hour=0,  minute=0,  second=0),
+                    dt(year=2011, month=3, day=31, hour=23, minute=59, second=59),
+                )
+            },
+            self.registry
+                .get_range(name='previous_quarter')
+                .get_q_dict(field='modified', now=today)
+        )
 
     def test_previous_quarter03(self):
         today = datetime(year=2011, month=2, day=8)
         dt = self.create_datetime
-        self.assertEqual({'modified__range': (dt(year=2010, month=10, day=1,  hour=0,  minute=0,  second=0),
-                                              dt(year=2010, month=12, day=31, hour=23, minute=59, second=59)
-                                             )
-                         },
-                         self.registry.get_range(name='previous_quarter')
-                                            .get_q_dict(field='modified', now=today)
-                        )
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    dt(year=2010, month=10, day=1,  hour=0,  minute=0,  second=0),
+                    dt(year=2010, month=12, day=31, hour=23, minute=59, second=59),
+                )
+            },
+            self.registry
+                .get_range(name='previous_quarter')
+                .get_q_dict(field='modified', now=today)
+        )
 
     def test_current_quarter01(self):
         today = datetime(year=2011, month=7, day=21)
@@ -367,63 +389,87 @@ class DateRangeTestCase(CremeTestCase):
     def test_next_quarter02(self):
         today = datetime(year=2011, month=12, day=3)
         dt = self.create_datetime
-        self.assertEqual({'modified__range': (dt(year=2012, month=1, day=1,  hour=0,  minute=0,  second=0),
-                                              dt(year=2012, month=3, day=31, hour=23, minute=59, second=59)
-                                             )
-                         },
-                         self.registry.get_range(name='next_quarter')
-                                            .get_q_dict(field='modified', now=today)
-                        )
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    dt(year=2012, month=1, day=1,  hour=0,  minute=0,  second=0),
+                    dt(year=2012, month=3, day=31, hour=23, minute=59, second=59),
+                ),
+            },
+            self.registry
+                .get_range(name='next_quarter')
+                .get_q_dict(field='modified', now=today)
+        )
 
     def test_yesterday01(self):
         today = datetime(year=2011, month=6, day=1, hour=14, minute=14, second=37)
-        self.assertEqual({'modified__range': (datetime(year=2011, month=5, day=31, hour=0,  minute=0,  second=0),
-                                              datetime(year=2011, month=5, day=31, hour=23, minute=59, second=59)
-                                             )
-                         },
-                         self.registry.get_range(name='yesterday')
-                                            .get_q_dict(field='modified', now=today)
-                        )
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    datetime(year=2011, month=5, day=31, hour=0,  minute=0,  second=0),
+                    datetime(year=2011, month=5, day=31, hour=23, minute=59, second=59),
+                ),
+            },
+            self.registry
+                .get_range(name='yesterday')
+                .get_q_dict(field='modified', now=today)
+        )
 
     def test_yesterday02(self):
         today = datetime(year=2011, month=6, day=2, hour=14, minute=14, second=37)
-        self.assertEqual({'modified__range': (datetime(year=2011, month=6, day=1, hour=0,  minute=0,  second=0),
-                                              datetime(year=2011, month=6, day=1, hour=23, minute=59, second=59)
-                                             )
-                         },
-                         self.registry.get_range(name='yesterday')
-                                            .get_q_dict(field='modified', now=today)
-                        )
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    datetime(year=2011, month=6, day=1, hour=0,  minute=0,  second=0),
+                    datetime(year=2011, month=6, day=1, hour=23, minute=59, second=59),
+                ),
+            },
+            self.registry
+                .get_range(name='yesterday')
+                .get_q_dict(field='modified', now=today)
+        )
 
     def test_today(self):
         today = datetime(year=2011, month=6, day=1, hour=14, minute=14, second=37)
-        self.assertEqual({'modified__range': (datetime(year=2011, month=6, day=1, hour=0,  minute=0,  second=0),
-                                              datetime(year=2011, month=6, day=1, hour=23, minute=59, second=59)
-                                             )
-                         },
-                         self.registry.get_range(name='today')
-                                            .get_q_dict(field='modified', now=today)
-                        )
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    datetime(year=2011, month=6, day=1, hour=0,  minute=0,  second=0),
+                    datetime(year=2011, month=6, day=1, hour=23, minute=59, second=59),
+                ),
+            },
+            self.registry
+                .get_range(name='today')
+                .get_q_dict(field='modified', now=today)
+        )
 
     def test_tomorrow01(self):
         today = datetime(year=2011, month=6, day=1, hour=14, minute=14, second=37)
-        self.assertEqual({'modified__range': (datetime(year=2011, month=6, day=2, hour=0,  minute=0,  second=0),
-                                              datetime(year=2011, month=6, day=2, hour=23, minute=59, second=59)
-                                             )
-                         },
-                         self.registry.get_range(name='tomorrow')
-                                            .get_q_dict(field='modified', now=today)
-                        )
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    datetime(year=2011, month=6, day=2, hour=0,  minute=0,  second=0),
+                    datetime(year=2011, month=6, day=2, hour=23, minute=59, second=59),
+                ),
+            },
+            self.registry
+                .get_range(name='tomorrow')
+                .get_q_dict(field='modified', now=today)
+        )
 
     def test_tomorrow02(self):
         today = datetime(year=2011, month=6, day=30, hour=14, minute=14, second=37)
-        self.assertEqual({'modified__range': (datetime(year=2011, month=7, day=1, hour=0,  minute=0,  second=0),
-                                              datetime(year=2011, month=7, day=1, hour=23, minute=59, second=59)
-                                             )
-                         },
-                         self.registry.get_range(name='tomorrow')
-                                            .get_q_dict(field='modified', now=today)
-                        )
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    datetime(year=2011, month=7, day=1, hour=0,  minute=0,  second=0),
+                    datetime(year=2011, month=7, day=1, hour=23, minute=59, second=59),
+                ),
+            },
+            self.registry
+                .get_range(name='tomorrow')
+                .get_q_dict(field='modified', now=today)
+        )
 
     def test_empty(self):
         date_range = self.registry.get_range(name='empty')

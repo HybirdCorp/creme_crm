@@ -891,8 +891,9 @@ class ImportingTestCase(CremeTestCase):
         )
         self.assertListEqual(
             [buttons_data[2], buttons_data[3]],
-            [{'id': bmi.id, 'order': bmi.order, 'button_id': bmi.button_id, 'ctype': ct_str}
-                  for bmi in ButtonMenuItem.objects.filter(content_type=contact_ct)
+            [
+                {'id': bmi.id, 'order': bmi.order, 'button_id': bmi.button_id, 'ctype': ct_str}
+                for bmi in ButtonMenuItem.objects.filter(content_type=contact_ct)
             ]
         )
         self.assertDoesNotExist(orga_bmi)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -56,5 +56,8 @@ class CommercialApproach(creme_models.CremeModel):
     def get_approaches(entity_pk=None):
         queryset = CommercialApproach.objects.select_related('related_activity')
 
-        return queryset.filter(entity_id=entity_pk) if entity_pk else \
-               queryset.exclude(entity__is_deleted=True)
+        return (
+            queryset.filter(entity_id=entity_pk)
+            if entity_pk else
+            queryset.exclude(entity__is_deleted=True)
+        )

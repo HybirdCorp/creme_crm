@@ -55,13 +55,12 @@ class AveragePerMonthStatistics:
 
     def _get_stat(self, item, now_value):
         months = item['months']
-        count = self.activity_model \
-                    .objects \
-                    .filter(type_id=item['type_id'],
-                            start__gte=(now_value - relativedelta(months=months))
-                                       .replace(hour=0, minute=0),
-                           ) \
-                    .count()
+        count = self.activity_model .objects.filter(
+            type_id=item['type_id'],
+            start__gte=(
+                now_value - relativedelta(months=months)
+            ).replace(hour=0, minute=0),
+        ).count()
 
         if count:
             average = count / months

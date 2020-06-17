@@ -68,20 +68,24 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
                                    on_delete=CREME_REPLACE_NULL,
                                   ).set_tags(optional=True)
 
-    capital        = models.PositiveIntegerField(_('Capital'), blank=True, null=True)\
-                                                .set_tags(optional=True)
-    annual_revenue = models.CharField(_('Annual revenue'), max_length=100, blank=True)\
-                                     .set_tags(optional=True)
+    capital = models.PositiveIntegerField(
+        _('Capital'), blank=True, null=True,
+    ).set_tags(optional=True)
+    annual_revenue = models.CharField(
+        _('Annual revenue'), max_length=100, blank=True,
+    ).set_tags(optional=True)
 
     siren = models.CharField(_('SIREN'),    max_length=100, blank=True).set_tags(optional=True)
     naf   = models.CharField(_('NAF code'), max_length=100, blank=True).set_tags(optional=True)
     siret = models.CharField(_('SIRET'),    max_length=100, blank=True).set_tags(optional=True)
     rcs   = models.CharField(_('RCS/RM'),   max_length=100, blank=True).set_tags(optional=True)
 
-    tvaintra       = models.CharField(_('VAT number'), max_length=100, blank=True)\
-                                     .set_tags(optional=True)
-    subject_to_vat = models.BooleanField(_('Subject to VAT'), default=True)\
-                                        .set_tags(optional=True)
+    tvaintra = models.CharField(
+        _('VAT number'), max_length=100, blank=True,
+    ).set_tags(optional=True)
+    subject_to_vat = models.BooleanField(
+        _('Subject to VAT'), default=True,
+    ).set_tags(optional=True)
 
     creation_date = models.DateField(_('Date of creation of the organisation'),
                                      blank=True, null=True,

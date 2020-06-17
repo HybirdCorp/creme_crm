@@ -291,10 +291,11 @@ class UserRole(models.Model):
             sc_sequence=self._get_setcredentials(),
             user=user, queryset=queryset,
             perm=perm,
-            models=[model
-                        for model in creme_registry.iter_entity_models()
-                            if is_app_allowed(model._meta.app_label)
-                   ],
+            models=[
+                model
+                for model in creme_registry.iter_entity_models()
+                if is_app_allowed(model._meta.app_label)
+            ],
             as_model=as_model,
         )
 
@@ -480,12 +481,15 @@ class SetCredentials(models.Model):
 
         forbidden, allowed = split_filter(
             lambda sc: sc.forbidden,
-            sorted((sc for sc in sc_sequence
-                        if sc.ctype_id in allowed_ctype_ids and sc.value & perm
-                   ),
-                   # NB: we sort to get ESET_ALL creds before ESET_OWN ones, then ESET_FILTER ones.
-                   key=lambda sc: sc.set_type,
-                  )
+            sorted(
+                (
+                    sc
+                    for sc in sc_sequence
+                    if sc.ctype_id in allowed_ctype_ids and sc.value & perm
+                ),
+                # NB: we sort to get ESET_ALL creds before ESET_OWN ones, then ESET_FILTER ones.
+                key=lambda sc: sc.set_type,
+            )
         )
 
         if not allowed:
@@ -792,9 +796,11 @@ class CremeUserManager(BaseUserManager):
     def get_admin(self):
         user_qs = self.get_queryset().order_by('id')
 
-        return user_qs.filter(is_superuser=True, is_staff=False).first() or \
-               user_qs.filter(is_superuser=True).first() or \
-               user_qs[0]
+        return (
+            user_qs.filter(is_superuser=True, is_staff=False).first() or
+            user_qs.filter(is_superuser=True).first() or
+            user_qs[0]
+        )
 
 
 _EntityInstanceOrClass = Union[Type['CremeEntity'], 'CremeEntity']
@@ -820,10 +826,12 @@ class CremeUser(AbstractBaseUser):
             'unique': _('A user with that username already exists.'),
         },
     )
-    last_name  = models.CharField(_('Last name'), max_length=100, blank=True)
-    first_name = models.CharField(_('First name'), max_length=100, blank=True)\
-                                 .set_tags(viewable=False)  # NB: blank=True for teams
-    email      = models.EmailField(_('Email address'), blank=True)
+
+    last_name = models.CharField(_('Last name'), max_length=100, blank=True)
+    first_name = models.CharField(
+        _('First name'), max_length=100, blank=True,
+    ).set_tags(viewable=False)  # NB: blank=True for teams
+    email = models.EmailField(_('Email address'), blank=True)
 
     date_joined = models.DateTimeField(_('Date joined'), default=now).set_tags(viewable=False)
     is_active   = models.BooleanField(_('Active?'), default=True,
@@ -1043,9 +1051,11 @@ class CremeUser(AbstractBaseUser):
         if entity.is_deleted:
             return False
 
-        main_entity = entity.get_real_entity().get_related_entity() \
-                      if hasattr(entity.entity_type.model_class(), 'get_related_entity') \
-                      else entity
+        main_entity = (
+            entity.get_real_entity().get_related_entity()
+            if hasattr(entity.entity_type.model_class(), 'get_related_entity')
+            else entity
+        )
 
         return self._get_credentials(main_entity).can_change()
 

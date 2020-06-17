@@ -134,9 +134,10 @@ class QSerializer:
 
     def deserialize(self, d: dict) -> Q:
         query = Q()
-        query.children = [self.deserialize(child) if isinstance(child, dict) else child
-                            for child in d['val']
-                         ]
+        query.children = [
+            self.deserialize(child) if isinstance(child, dict) else child
+            for child in d['val']
+        ]
 
         op = d['op']
         query.connector, query.negated = (op[:1], True) if op.startswith('N') else (op, False)

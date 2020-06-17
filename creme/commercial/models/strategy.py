@@ -108,14 +108,13 @@ class AbstractStrategy(CremeEntity):
             segment_info = self.get_segment_descriptions_list()
 
             # Build a 'matrix' with default score(=1) everywhere
-            scores = {segment_desc.id: {asset.id: CommercialAssetScore(score=1, organisation=orga,
-                                                                       asset=asset,
-                                                                       segment_desc=segment_desc,
-                                                                      )
-                                            for asset in assets
-                                       }
-                        for segment_desc in segment_info
-                     }
+            scores = {
+                segment_desc.id: {
+                    asset.id: CommercialAssetScore(
+                        score=1, organisation=orga, asset=asset, segment_desc=segment_desc,
+                    ) for asset in assets
+                } for segment_desc in segment_info
+            }
 
             # Set the right scores in the matrix
             for score in CommercialAssetScore.objects.filter(organisation=orga,
@@ -137,14 +136,13 @@ class AbstractStrategy(CremeEntity):
             segment_info = self.get_segment_descriptions_list()
 
             # Build a 'matrix' with default score(=1) everywhere
-            scores = {segment_desc.id: {charm.id: MarketSegmentCharmScore(score=1, organisation=orga,
-                                                                          charm=charm,
-                                                                          segment_desc=segment_desc,
-                                                                         )
-                                            for charm in charms
-                                       }
-                          for segment_desc in segment_info
-                     }
+            scores = {
+                segment_desc.id: {
+                    charm.id: MarketSegmentCharmScore(
+                        score=1, organisation=orga, charm=charm, segment_desc=segment_desc,
+                    ) for charm in charms
+                } for segment_desc in segment_info
+            }
 
             # Set the right scores in the matrix
             for score in MarketSegmentCharmScore.objects.filter(organisation=orga,
@@ -188,9 +186,10 @@ class AbstractStrategy(CremeEntity):
         if not orga_scores:
             return []
 
-        scores = [sum(score_obj.score for score_obj in orga_scores[segment_desc.id].values())
-                    for segment_desc in self.get_segment_descriptions_list()
-                 ]
+        scores = [
+            sum(score_obj.score for score_obj in orga_scores[segment_desc.id].values())
+            for segment_desc in self.get_segment_descriptions_list()
+        ]
         max_score = max(scores)
         min_score = min(scores)
 

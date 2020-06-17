@@ -64,10 +64,12 @@ class _MapBrick(Brick):
 
     def get_addresses_as_dict(self, entity):
         return [
-            {k: (escape(v) if isinstance(v, str) else v)
-                    for k, v in address_as_dict(address).items()
-            } for address in Address.objects.filter(object_id=entity.id)
-                                            .select_related('geoaddress')
+            {
+                k: (escape(v) if isinstance(v, str) else v)
+                for k, v in address_as_dict(address).items()
+            } for address in Address.objects
+                                    .filter(object_id=entity.id)
+                                    .select_related('geoaddress')
         ]
 
 

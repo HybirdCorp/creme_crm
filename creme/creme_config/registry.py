@@ -394,9 +394,10 @@ class _AppConfigRegistry:
             self._models or
             self._brick_ids or
             # TODO: factorise with SettingsBrick ; pass the _ConfigRegistry to SettingsBrick everywhere
-            any(skey.app_label == self.name and not skey.hidden
-                    for skey in self._config_registry._skey_registry
-               )
+            any(
+                skey.app_label == self.name and not skey.hidden
+                for skey in self._config_registry._skey_registry
+            )
         )
 
 

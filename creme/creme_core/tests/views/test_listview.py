@@ -572,9 +572,10 @@ class ListViewTestCase(ViewsTestCase):
 
     def assertListViewContentOrder(self, response, key, entries):
         content = self._get_lv_content(self._get_lv_node(response))
-        lines = [(self.assertIndex(str(getattr(e, key)), content), e)
-                    for e in entries
-                ]
+        lines = [
+            (self.assertIndex(str(getattr(e, key)), content), e)
+            for e in entries
+        ]
         self.assertListEqual([*entries],
                              [line[1] for line in sorted(lines, key=lambda e: e[0])]
                             )
@@ -634,9 +635,7 @@ class ListViewTestCase(ViewsTestCase):
                 },
             )
             content = self._get_lv_content(self._get_lv_node(response))
-            indices = [self.assertIndex(c.last_name, content)
-                        for c in contacts
-                      ]
+            indices = [self.assertIndex(c.last_name, content) for c in contacts]
             self.assertEqual(indices, sorted(indices))
 
             return content

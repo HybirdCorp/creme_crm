@@ -226,8 +226,10 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
         assert isinstance(cell, EntityCellRegularField)
 
         field = cell.field_info[-1]
-        sorter = self._sorters_4_modelfields.get(field) or \
-                 self._sorters_4_modelfieldtypes[type(field)]
+        sorter = (
+            self._sorters_4_modelfields.get(field) or
+            self._sorters_4_modelfieldtypes[type(field)]
+        )
 
         return None if sorter is None else sorter.get_field_name(cell=cell)
 

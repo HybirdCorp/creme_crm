@@ -71,8 +71,9 @@ class AddRelatedOpportunityAction(EntityAction):
     def is_enabled(self):
         user = self.user
 
-        return user.has_perm_to_create(Opportunity) and \
-               user.has_perm_to_link(self.event)
+        return (
+            user.has_perm_to_create(Opportunity) and user.has_perm_to_link(self.event)
+        )
 
 
 # def _get_status(request, valid_status):

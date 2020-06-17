@@ -70,10 +70,11 @@ class ParticipantsBrick(QuerysetBrick):
         for relation in relations:
             relation.object_entity = contacts[relation.object_entity_id]
 
-        users_contacts = {contact.is_user_id: contact
-                            for contact in contacts.values()
-                                if contact.is_user_id
-                         }
+        users_contacts = {
+            contact.is_user_id: contact
+            for contact in contacts.values()
+            if contact.is_user_id
+        }
 
         for calendar in Calendar.objects.filter(user__in=users_contacts.keys(),
                                                 activity=activity.id,
@@ -144,12 +145,13 @@ class FutureActivitiesBrick(QuerysetBrick):
                 # at least a Relation with the Organisation (if a direct Relation
                 # does not exist the button is useless).
                 for activity in activities:
-                    activity.enable_unlink_button = \
-                        any(entity.id == rel.object_entity_id
-                                for rel in chain(activity.get_subject_relations(),
-                                                 activity.get_linkedto_relations(),
-                                                )
-                           )
+                    activity.enable_unlink_button = any(
+                        entity.id == rel.object_entity_id
+                        for rel in chain(
+                            activity.get_subject_relations(),
+                            activity.get_linkedto_relations(),
+                        )
+                    )
 
         ctxt['display_review'] = SettingValue.objects.get_4_key(review_key).value
 

@@ -71,10 +71,11 @@ class ButtonMenuEditForm(CremeForm):
         choices = []
 
         if not self.ct:  # Default conf
-            choices.extend((id_, str(button.verbose_name))
-                                for id_, button in button_registry
-                                    if not button.get_ctypes()
-                          )
+            choices.extend(
+                (id_, str(button.verbose_name))
+                for id_, button in button_registry
+                if not button.get_ctypes()
+            )
         else:
             model_class = self.ct.model_class()
 

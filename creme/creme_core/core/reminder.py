@@ -79,9 +79,10 @@ class Reminder:
         subject = self.generate_email_subject(instance)
 
         EMAIL_SENDER = settings.EMAIL_SENDER
-        messages = [EmailMessage(subject, body, EMAIL_SENDER, [email])
-                        for email in self.get_emails(instance)
-                   ]
+        messages = [
+            EmailMessage(subject, body, EMAIL_SENDER, [email])
+            for email in self.get_emails(instance)
+        ]
 
         try:
             with get_connection() as connection:

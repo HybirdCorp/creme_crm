@@ -48,9 +48,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         cls.contact_ct_id = get_ct(FakeContact).id
 
     def _build_add_url(self, model, efilter_id=None):
-        uri = reverse('creme_core__batch_process',
-                       args=(ContentType.objects.get_for_model(model).id,),
-                      )
+        uri = reverse(
+            'creme_core__batch_process',
+            args=(ContentType.objects.get_for_model(model).id,),
+        )
 
         if efilter_id:
             uri += f'?efilter={efilter_id}'
@@ -470,14 +471,20 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         user = self.login(is_superuser=False)
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.DELETE |
-                        EntityCredentials.LINK | EntityCredentials.UNLINK,  # Not 'CHANGE'
-                  set_type=SetCredentials.ESET_ALL,
-                 )
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                        EntityCredentials.LINK | EntityCredentials.UNLINK,
-                  set_type=SetCredentials.ESET_OWN,
-                 )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),  # Not 'CHANGE'
+            set_type=SetCredentials.ESET_ALL,
+        )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         create_orga = FakeOrganisation.objects.create
         orga01 = create_orga(user=self.other_user, name='Genshiken')

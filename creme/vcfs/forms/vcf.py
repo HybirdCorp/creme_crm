@@ -459,18 +459,20 @@ class VcfImportForm(CremeModelForm):
     def _create_contact(self, cleaned_data):
         get_data = cleaned_data.get
 
-        return Contact.objects.create(user=cleaned_data['user'],
-                                      civility=cleaned_data['civility'],
-                                      first_name=cleaned_data['first_name'],
-                                      last_name=cleaned_data['last_name'],
-                                      position=get_data('position'),
-                                      # NB: we do not use cleaned_data.get() in order to not overload
-                                      #     default fields values
-                                      **{fname: cleaned_data[fname]
-                                            for fname in self.contact_details
-                                                if fname in cleaned_data
-                                        }
-                                     )
+        return Contact.objects.create(
+            user=cleaned_data['user'],
+            civility=cleaned_data['civility'],
+            first_name=cleaned_data['first_name'],
+            last_name=cleaned_data['last_name'],
+            position=get_data('position'),
+            # NB: we do not use cleaned_data.get() in order to not overload
+            #     default fields values
+            **{
+                fname: cleaned_data[fname]
+                for fname in self.contact_details
+                if fname in cleaned_data
+            }
+        )
 
     def _create_address(self, cleaned_data, owner, data_prefix):
         # NB: we do not use cleaned_data.get() in order to not overload default fields values

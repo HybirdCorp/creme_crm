@@ -35,22 +35,24 @@ from .projectstatus import ProjectStatus
 class AbstractProject(CremeEntity):
     name = models.CharField(_('Name of the project'), max_length=100)
 
-    status = models.ForeignKey(ProjectStatus, verbose_name=_('Status'),
-                               on_delete=CREME_REPLACE,
-                              )
+    status = models.ForeignKey(
+        ProjectStatus, verbose_name=_('Status'), on_delete=CREME_REPLACE,
+    )
 
-    start_date         = models.DateTimeField(_('Estimated start'), blank=True, null=True)\
-                                             .set_tags(optional=True)
-    end_date           = models.DateTimeField(_('Estimated end'), blank=True, null=True)\
-                                             .set_tags(optional=True)
-    effective_end_date = models.DateTimeField(_('Effective end date'), blank=True, null=True)\
-                                             .set_tags(optional=True)
+    start_date = models.DateTimeField(
+        _('Estimated start'), blank=True, null=True,
+    ).set_tags(optional=True)
+    end_date = models.DateTimeField(
+        _('Estimated end'), blank=True, null=True,
+    ).set_tags(optional=True)
+    effective_end_date = models.DateTimeField(
+        _('Effective end date'), blank=True, null=True,
+    ).set_tags(optional=True)
 
-    currency = models.ForeignKey(Currency, verbose_name=_('Currency'),
-                                 related_name='+',
-                                 default=DEFAULT_CURRENCY_PK,
-                                 on_delete=models.PROTECT,
-                                )
+    currency = models.ForeignKey(
+        Currency, verbose_name=_('Currency'), related_name='+',
+        default=DEFAULT_CURRENCY_PK, on_delete=models.PROTECT,
+    )
 
     tasks_list = None
 

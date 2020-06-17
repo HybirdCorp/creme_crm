@@ -373,15 +373,20 @@ class EventsTestCase(CremeTestCase):
         other_user = self.other_user
 
         create_creds = partial(SetCredentials.objects.create, role=user.role)
-        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.LINK |
-                           EntityCredentials.UNLINK,
-                     set_type=SetCredentials.ESET_OWN,
-                    )
-        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.UNLINK,  # No LINK
-                     set_type=SetCredentials.ESET_ALL,
-                    )
+        create_creds(
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
+        create_creds(
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # No LINK
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         create_contact = Contact.objects.create
 
@@ -473,15 +478,20 @@ class EventsTestCase(CremeTestCase):
         other_user = self.other_user
 
         create_creds = partial(SetCredentials.objects.create, role=user.role)
-        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.LINK |
-                           EntityCredentials.UNLINK,
-                     set_type=SetCredentials.ESET_OWN
-                    )
-        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.UNLINK,  # No LINK
-                     set_type=SetCredentials.ESET_ALL
-                    )
+        create_creds(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
+        create_creds(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # No LINK
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         etype = EventType.objects.all()[0]
         _create_event = Event.objects.create
@@ -646,11 +656,14 @@ class EventsTestCase(CremeTestCase):
         "Link credentials error"
         user = self.login(is_superuser=False, allowed_apps=['persons', 'events'])
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE | EntityCredentials.UNLINK,  # No LINK
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # No LINK
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         event = Event.objects.create(user=user, name='Eclipse',
                                      type=EventType.objects.all()[0],

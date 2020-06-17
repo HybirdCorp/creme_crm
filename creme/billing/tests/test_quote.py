@@ -38,11 +38,11 @@ class QuoteTestCase(_BillingTestCase):
                    allowed_apps=['billing', 'persons'],
                    creatable_models=[Organisation, Quote, Invoice],  # Not SalesOrder
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW |
-                                            EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         quote = self.create_quote_n_orgas('My Quote')[0]
         response = self.assertGET200(quote.get_absolute_url())
@@ -59,11 +59,11 @@ class QuoteTestCase(_BillingTestCase):
                    allowed_apps=['billing', 'persons'],
                    creatable_models=[Organisation, Quote, SalesOrder],  # Not Invoice
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW |
-                                            EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN
+        )
 
         quote = self.create_quote_n_orgas('My Quote')[0]
         response = self.assertGET200(quote.get_absolute_url())
@@ -145,14 +145,17 @@ class QuoteTestCase(_BillingTestCase):
                    allowed_apps=['persons', 'billing'],
                    creatable_models=[Quote],
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW |
+                EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK |
+                EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         source, target = self.create_orgas()
         self.assertGET200(reverse('billing__create_related_quote', args=(target.id,)))
@@ -163,14 +166,17 @@ class QuoteTestCase(_BillingTestCase):
                    allowed_apps=['persons', 'billing'],
                    # creatable_models=[Quote],
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW |
+                EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK |
+                EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL
+        )
 
         source, target = self.create_orgas()
         self.assertGET403(reverse('billing__create_related_quote', args=(target.id,)))
@@ -181,14 +187,17 @@ class QuoteTestCase(_BillingTestCase):
                    allowed_apps=['persons', 'billing'],
                    creatable_models=[Quote],
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            # EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW |
+                # EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK |
+                EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL
+        )
 
         source, target = self.create_orgas()
         self.assertGET403(reverse('billing__create_related_quote', args=(target.id,)))
@@ -241,14 +250,15 @@ class QuoteTestCase(_BillingTestCase):
                          )
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE |
-                        EntityCredentials.LINK | EntityCredentials.UNLINK,
-                  set_type=SetCredentials.ESET_OWN,
-                 )
-        create_sc(value=EntityCredentials.VIEW,
-                  set_type=SetCredentials.ESET_ALL,
-                 )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
+        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         quote, source1, target1 = self.create_quote_n_orgas('My quote')
 
@@ -292,14 +302,15 @@ class QuoteTestCase(_BillingTestCase):
                          )
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE |
-                        EntityCredentials.LINK | EntityCredentials.UNLINK,
-                  set_type=SetCredentials.ESET_OWN,
-                 )
-        create_sc(value=EntityCredentials.VIEW,
-                  set_type=SetCredentials.ESET_ALL,
-                 )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
+        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         quote, source, target = self.create_quote_n_orgas('My quote')
 

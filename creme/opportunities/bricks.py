@@ -103,10 +103,11 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
 
         return self._render(self.get_template_context(
             context,
-            hidden_fields={fname
-                               for fname in ('estimated_sales', 'made_sales')
-                                   if is_hidden(fname)
-                          },
+            hidden_fields={
+                fname
+                for fname in ('estimated_sales', 'made_sales')
+                if is_hidden(fname)
+            },
             is_neglected=is_neglected,
             target=target,
             target_is_organisation=isinstance(target, Organisation),
@@ -230,10 +231,11 @@ class TargettingOpportunitiesBrick(QuerysetBrick):
                                        relations__type=constants.REL_SUB_TARGETS,
                                       ),
             predicate_id=self.relation_type_deps[0],
-            hidden_fields={fname
-                            for fname in ('estimated_sales', 'made_sales')
-                                if is_hidden(fname)
-                          },
+            hidden_fields={
+                fname
+                for fname in ('estimated_sales', 'made_sales')
+                if is_hidden(fname)
+            },
             is_organisation=isinstance(object, Organisation),
             is_contact=isinstance(object, Contact),
         ))

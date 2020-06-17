@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,11 +28,11 @@ User = get_user_model()
 
 
 def _build_select():
-    return Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form), '
-                                                                    'function() {creme.utils.reload(window);}'
-                                                                   ');'
-                        },
-                 )
+    return Select(
+        attrs={
+            'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form), function() {creme.utils.reload(window);});'
+        },
+    )
 
 
 class UserThemeForm(CremeModelForm):

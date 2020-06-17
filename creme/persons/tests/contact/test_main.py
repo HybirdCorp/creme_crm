@@ -469,9 +469,12 @@ class ContactTestCase(_BaseTestCase):
         create_sc = partial(SetCredentials.objects.create, role=self.role,
                             set_type=SetCredentials.ESET_OWN,
                            )
-        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not 'LINK'
-                 )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not 'LINK'
+        )
 
         orga = Organisation.objects.create(user=user, name='Acme')
         self.assertTrue(user.has_perm_to_view(orga))
@@ -534,17 +537,24 @@ class ContactTestCase(_BaseTestCase):
         "Cannot LINK the organisation => error."
         user = self.login(is_superuser=False, creatable_models=[Contact])
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role,
-                            set_type=SetCredentials.ESET_ALL,
-                           )
-        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.LINK |
-                        EntityCredentials.DELETE | EntityCredentials.UNLINK,
-                  ctype=Contact,  # Not Organisation
-                 )
-        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not LINK
-                  ctype=Organisation,
-                 )
+        create_sc = partial(
+            SetCredentials.objects.create,
+            role=self.role, set_type=SetCredentials.ESET_ALL,
+        )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),
+            ctype=Contact,  # Not Organisation
+        )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not LINK
+            ctype=Organisation,
+        )
 
         orga = Organisation.objects.create(user=user, name='Acme')
         self.assertTrue(user.has_perm_to_view(orga))

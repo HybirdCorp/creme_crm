@@ -156,8 +156,11 @@ class InfopathFormField:
 
         template_name = element_builder(element_type)
 
-        return render_to_string(template_name, {'field': self}, request=self.request) \
-               if template_name is not None else None
+        return (
+            render_to_string(template_name, {'field': self}, request=self.request)
+            if template_name is not None else
+            None
+        )
 
     def _get_xsd_element(self) -> Optional[str]:
         return self._get_element('xsd')
@@ -233,10 +236,13 @@ class InfopathFormField:
     @property
     def is_file_field(self) -> bool:
         model_field = self.model_field
-        return issubclass(model_field.__class__, models.FileField) \
-               or (isinstance(model_field, models.ForeignKey) and
-                   issubclass(model_field.remote_field.model, Document)
-                  )
+        return (
+            issubclass(model_field.__class__, models.FileField)
+            or (
+                isinstance(model_field, models.ForeignKey) and
+                issubclass(model_field.remote_field.model, Document)
+            )
+        )
 
     @property
     def is_m2m_field(self) -> bool:
@@ -282,10 +288,11 @@ class InfopathFormBuilder:
         if self._fields is None:
             backend      = self.backend
             build_field  = partial(InfopathFormField, self.urn, backend.model, request=self.request)
-            self._fields = [build_field(field_name)
-                                for field_name in backend.body_map
-                                    if field_name != 'password'
-                           ]
+            self._fields = [
+                build_field(field_name)
+                for field_name in backend.body_map
+                if field_name != 'password'
+            ]
 
         return self._fields
 
@@ -327,9 +334,10 @@ class InfopathFormBuilder:
                 with open(path_join(backend_path, file_name), 'wb') as f:
                     f.write(renderer(request).encode('utf8'))
 
-            final_files_paths = (path_join(backend_path, cab_file)
-                                    for cab_file in chain(cab_files_renderers, media_files)
-                                )
+            final_files_paths = (
+                path_join(backend_path, cab_file)
+                for cab_file in chain(cab_files_renderers, media_files)
+            )
             infopath_form_filepath = path_join(backend_path, file_name)
 
             if sys.platform.startswith('win'):

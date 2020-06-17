@@ -337,14 +337,14 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
                    creatable_models=[Opportunity, get_document_model()],  # Not Organisation
                   )
         role = self.role
-        SetCredentials.objects.create(role=role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
         # TODO: factorise
         emitter = Organisation.objects.filter(is_managed=True)[0]
         doc = self._build_csv_doc([('Opp01', '1000', '2000', 'Acme', 'New phase')])

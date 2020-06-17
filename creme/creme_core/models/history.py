@@ -666,12 +666,16 @@ class HistoryLine(Model):
         verbose_name_plural = _('Lines of history')
 
     def __repr__(self):
-        return (f'HistoryLine(entity_id={self.entity_id}, '
-                            f'entity_owner_id={self.entity_owner_id}, '
-                            f'username={self.username}, '
-                            f'date={self.date}, '
-                            f'type={self.type}, '
-                            f'value={self.value})')
+        return (
+            f'HistoryLine('
+            f'entity_id={self.entity_id}, '
+            f'entity_owner_id={self.entity_owner_id}, '
+            f'username={self.username}, '
+            f'date={self.date}, '
+            f'type={self.type}, '
+            f'value={self.value}'
+            f')'
+        )
 
     def __str__(self):
         return repr(self)

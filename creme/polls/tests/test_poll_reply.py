@@ -643,14 +643,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         user = self.login(is_superuser=False, allowed_apps=['polls'],
                           creatable_models=[PollReply],
                          )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL
+        )
 
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -664,14 +664,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         user = self.login(is_superuser=False, allowed_apps=['polls'],
                           # creatable_models=[PollReply],
                          )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -685,14 +685,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         user = self.login(is_superuser=False, allowed_apps=['polls'],
                           creatable_models=[PollReply],
                          )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            # EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # EntityCredentials.LINK
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -760,11 +760,16 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.CHANGE, set_type=SetCredentials.ESET_OWN)
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.DELETE |
-                        EntityCredentials.LINK | EntityCredentials.UNLINK,  # Not CHANGE
-                  set_type=SetCredentials.ESET_ALL,
-                 )
+        create_sc(
+            value=EntityCredentials.CHANGE, set_type=SetCredentials.ESET_OWN,
+        )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),  # Not CHANGE
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         pform = PollForm.objects.create(user=user, name='Form#1')
         preply = PollReply.objects.create(user=self.other_user, name='Reply#1', pform=pform)
@@ -860,14 +865,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         user = self.login(is_superuser=False, allowed_apps=['polls', 'persons'],
                           creatable_models=[PollReply],
                          )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
         orga = Organisation.objects.create(user=user, name='Gaimos')
         self.assertGET200(self._build_preply_from_person_url(orga))
 
@@ -877,14 +882,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         user = self.login(is_superuser=False, allowed_apps=['polls', 'persons'],
                           # creatable_models=[PollReply],
                          )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
         orga = Organisation.objects.create(user=user, name='Gaimos')
         self.assertGET403(self._build_preply_from_person_url(orga))
 
@@ -894,14 +899,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         user = self.login(is_superuser=False, allowed_apps=['polls', 'persons'],
                           creatable_models=[PollReply],
                          )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            # EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not EntityCredentials.LINK
+            set_type=SetCredentials.ESET_ALL
+        )
         orga = Organisation.objects.create(user=user, name='Gaimos')
         self.assertGET403(self._build_preply_from_person_url(orga))
 
@@ -970,12 +975,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "Permissions for new related person"
         user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         create_contact = partial(Contact.objects.create, last_name='Vance')
         leina     = create_contact(user=user,            first_name='Leina')
@@ -1010,12 +1017,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "No permissions checking on related person when not changed"
         user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         leina = Contact.objects.create(user=self.other_user, first_name='Leina', last_name='Vance')
 
@@ -1094,10 +1103,13 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.DELETE |
-                        EntityCredentials.CHANGE | EntityCredentials.UNLINK,  # Not LINK
-                  set_type=SetCredentials.ESET_ALL,
-                 )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.DELETE |
+                EntityCredentials.CHANGE | EntityCredentials.UNLINK
+            ),  # Not LINK
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         pform  = PollForm.objects.create(user=user, name='Form#1')
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform)
@@ -1773,9 +1785,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.BOOL)
-        flines = [create_line(order=i, question=question)
-                    for i, question in enumerate(('OK?', 'Alright?', 'Cool?'), start=1)
-                 ]
+        flines = [
+            create_line(order=i, question=question)
+            for i, question in enumerate(('OK?', 'Alright?', 'Cool?'), start=1)
+        ]
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
 
@@ -1886,14 +1899,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login(is_superuser=False, allowed_apps=['polls'],
                    creatable_models=[PollReply],
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         pform = PollForm.objects.create(user=self.user, name='Form#1')
         question = 'How many swallows are there?'
@@ -1913,14 +1926,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login(is_superuser=False, allowed_apps=['polls'],
                    creatable_models=[PollReply],
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            # EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),  # EntityCredentials.CHANGE
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         pform = PollForm.objects.create(user=self.user, name='Form#1')
         question = 'How many swallows are there?'
@@ -2032,9 +2045,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.BOOL)
-        flines = [create_line(order=i, question=question)
-                    for i, question in enumerate(('OK?', 'Alright?', 'Cool?'), start=1)
-                 ]
+        flines = [
+            create_line(order=i, question=question)
+            for i, question in enumerate(('OK?', 'Alright?', 'Cool?'), start=1)
+        ]
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
 

@@ -45,9 +45,11 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
     class FakeRequest:
         def __init__(self, user):
             user_id = str(user.id)
-            sessions = [d for d in (s.get_decoded() for s in Session.objects.all())
-                            if d.get('_auth_user_id') == user_id
-                       ]
+            sessions = [
+                d
+                for d in (s.get_decoded() for s in Session.objects.all())
+                if d.get('_auth_user_id') == user_id
+            ]
             assert 1 == len(sessions)
             self.session = sessions[0]
 
@@ -455,14 +457,14 @@ class EditionTestCase(ViewsTestCase):
     def test_entity_edition05(self):
         "Not edition credentials"
         self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            # EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),  # Not EntityCredentials.CHANGE
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         contact = FakeContact.objects.create(user=self.other_user,
                                              first_name='Spike',

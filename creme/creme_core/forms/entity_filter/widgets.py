@@ -167,9 +167,10 @@ class FieldConditionSelector(ChainedInput):
 
         sort_key = collator.sort_key
 
-        return [(cat, sorted(categories[cat], key=lambda item: sort_key(item[1])))
-                    for cat in sorted(categories.keys(), key=sort_key)
-               ]
+        return [
+            (cat, sorted(categories[cat], key=lambda item: sort_key(item[1])))
+            for cat in sorted(categories.keys(), key=sort_key)
+        ]
 
     @staticmethod
     def field_choicetype(field):
@@ -296,9 +297,10 @@ class DateFieldsConditionsWidget(ConditionListWidget):
             category, choice = self._build_fieldchoice(fieldname, fieldlist)
             categories[category].append(choice)
 
-        return [(cat, sorted(categories[cat], key=lambda item: collator.sort_key(item[1])))
-                    for cat in sorted(categories.keys(), key=collator.sort_key)
-               ]
+        return [
+            (cat, sorted(categories[cat], key=lambda item: collator.sort_key(item[1])))
+            for cat in sorted(categories.keys(), key=collator.sort_key)
+        ]
 
     def get_selector(self, name, value, attrs):
         fields = [*self.fields]
@@ -340,24 +342,27 @@ class CustomFieldConditionSelector(FieldConditionSelector):
 
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
-        pinput.add_input('^enum(__null)?.({}|{})$'.format(operators.EQUALS,
-                                                          operators.EQUALS_NOT,
-                                                         ),
-                         widget=DynamicSelectMultiple,
-                         # TODO: use a GET arg instead of using a TemplateURLBuilder ?
-                         url=TemplateURLBuilder(cf_id=(TemplateURLBuilder.Int, '${field.id}'))
-                                               .resolve('creme_core__cfield_enums'),
-                         attrs=field_attrs,
-                        )
-        pinput.add_input('^date(__null)?.{}$'.format(operators.RANGE),
-                         NullableDateRangeSelect, attrs={'auto': False},
-                        )
-        pinput.add_input('^boolean(__null)?.*',
-                         DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
-                        )
-        pinput.add_input('(string|.*__null)?.({})$'.format(operators.ISEMPTY),
-                         DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
-                        )
+        pinput.add_input(
+            '^enum(__null)?.({}|{})$'.format(operators.EQUALS, operators.EQUALS_NOT),
+            widget=DynamicSelectMultiple,
+            # TODO: use a GET arg instead of using a TemplateURLBuilder ?
+            url=TemplateURLBuilder(
+                cf_id=(TemplateURLBuilder.Int, '${field.id}'),
+            ).resolve('creme_core__cfield_enums'),
+            attrs=field_attrs,
+        )
+        pinput.add_input(
+            '^date(__null)?.{}$'.format(operators.RANGE),
+            NullableDateRangeSelect, attrs={'auto': False},
+        )
+        pinput.add_input(
+            '^boolean(__null)?.*',
+            DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
+        )
+        pinput.add_input(
+            '(string|.*__null)?.({})$'.format(operators.ISEMPTY),
+            DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
+        )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
 
         return pinput
@@ -453,8 +458,9 @@ class RelationsConditionsWidget(ConditionListWidget):
 
         rtype_name = 'rtype'
         # TODO: use a GET arg instead of using a TemplateURLBuilder ?
-        ctype_url = TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name))\
-                                      .resolve('creme_core__ctypes_compatible_with_rtype_as_choices')
+        ctype_url = TemplateURLBuilder(
+            rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name),
+        ).resolve('creme_core__ctypes_compatible_with_rtype_as_choices')
 
         add_dselect = chained_input.add_dselect
         add_dselect('has', options=_HAS_RELATION_OPTIONS.items(), attrs=attrs_json)
@@ -489,15 +495,18 @@ class RelationSubfiltersConditionsWidget(ConditionListWidget):
         add_dselect = chained_input.add_dselect
         add_dselect('has', options=_HAS_RELATION_OPTIONS.items(), attrs=attrs_json)
         add_dselect(rtype_name, options=rtypes, attrs={'auto': False, 'autocomplete': True})
-        add_dselect(ctype_name, attrs={**attrs_json, 'autocomplete': True},
-                    # TODO: use a GET arg instead of using a TemplateURLBuilder ?
-                    options=TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name))
-                                              .resolve('creme_core__ctypes_compatible_with_rtype'),
-                   )
-        add_dselect('filter',
-                    options=reverse('creme_core__efilters') + '?ct_id=${%s}' % ctype_name,
-                    attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _('(no filter)')},
-                   )
+        add_dselect(
+            ctype_name, attrs={**attrs_json, 'autocomplete': True},
+            # TODO: use a GET arg instead of using a TemplateURLBuilder ?
+            options=TemplateURLBuilder(
+                rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name),
+            ).resolve('creme_core__ctypes_compatible_with_rtype'),
+        )
+        add_dselect(
+            'filter',
+            options=reverse('creme_core__efilters') + '?ct_id=${%s}' % ctype_name,
+            attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _('(no filter)')},
+        )
 
         return chained_input
 

@@ -411,9 +411,11 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
             # The aggregate keys are computed by grouping the difference, in days, between the date and the pivot,
             #  into buckets of X days & the pivot key is the first value in the ordered set of data.
             x_value_format = _db_grouping_format()
-            x_value_key = x_value_format % (field_name, min_date.strftime("'%Y-%m-%d'"), days) \
-                          if order == 'ASC' else \
-                          x_value_format % (max_date.strftime("'%Y-%m-%d'"), field_name, days)
+            x_value_key = (
+                x_value_format % (field_name, min_date.strftime("'%Y-%m-%d'"), days)
+                if order == 'ASC' else
+                x_value_format % (max_date.strftime("'%Y-%m-%d'"), field_name, days)
+            )
 
             intervals = DateInterval.generate(days - 1, min_date, max_date, order)
             aggregates = self._aggregate_dates_by_key(entities, abscissa, x_value_key, 'ASC')
@@ -741,9 +743,11 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
             field_name = _physical_field_name('creme_core_customfielddatetime', 'value')
 
             x_value_format = _db_grouping_format()
-            x_value_key = x_value_format % (field_name, min_date.strftime("'%Y-%m-%d'"), days) \
-                          if order == 'ASC' else \
-                          x_value_format % (max_date.strftime("'%Y-%m-%d'"), field_name, days)
+            x_value_key = (
+                x_value_format % (field_name, min_date.strftime("'%Y-%m-%d'"), days)
+                if order == 'ASC' else
+                x_value_format % (max_date.strftime("'%Y-%m-%d'"), field_name, days)
+            )
 
             intervals = DateInterval.generate(days - 1, min_date, max_date, order)
             aggregates = self._aggregate_by_key(entities, x_value_key, 'ASC')

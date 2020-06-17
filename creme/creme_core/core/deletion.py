@@ -120,8 +120,11 @@ class FixedValueReplacer(Replacer):
                 new=value,
             )
 
-        msg = _('Remove from «{model} - {field}»') if rel_field.many_to_many else \
-              _('Empty «{model} - {field}»')
+        msg = (
+            _('Remove from «{model} - {field}»')
+            if rel_field.many_to_many else
+            _('Empty «{model} - {field}»')
+        )
 
         return msg.format(
             model=rel_field.model._meta.verbose_name,

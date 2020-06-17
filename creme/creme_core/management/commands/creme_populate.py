@@ -103,8 +103,11 @@ class Command(BaseCommand):
         # eg: 'persons', 'creme_core'...
         all_apps = OrderedSet(app_config.label for app_config in creme_app_configs())
 
-        apps_2_populate = all_apps if not app_labels else \
-                          [_checked_app_label(app, all_apps) for app in app_labels]
+        apps_2_populate = (
+            all_apps
+            if not app_labels else
+            [_checked_app_label(app, all_apps) for app in app_labels]
+        )
 
         # ----------------------------------------------------------------------
         populators = []

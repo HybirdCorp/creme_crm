@@ -82,39 +82,35 @@ class AbstractActivity(CremeEntity):
     """Activity : task, meeting, phone call, unavailability ..."""
     title = models.CharField(_('Title'), max_length=100)
     start = models.DateTimeField(_('Start'), blank=True, null=True)
-    end   = models.DateTimeField(_('End'), blank=True, null=True)
+    end = models.DateTimeField(_('End'), blank=True, null=True)
 
-    minutes  = models.TextField(_('Minutes'), blank=True)
-    place    = models.CharField(_('Activity place'), max_length=500, blank=True)\
-                               .set_tags(optional=True)
-    duration = models.PositiveIntegerField(_('Duration (in hour)'),
-                                           blank=True, null=True,
-                                          )
+    minutes = models.TextField(_('Minutes'), blank=True)
+    place = models.CharField(
+        _('Activity place'), max_length=500, blank=True
+    ).set_tags(optional=True)
+    duration = models.PositiveIntegerField(_('Duration (in hour)'), blank=True, null=True)
 
-    type     = models.ForeignKey(other_models.ActivityType,
-                                 verbose_name=_('Activity type'),
-                                 on_delete=models.PROTECT,
-                                )
-    sub_type = models.ForeignKey(other_models.ActivitySubType,
-                                 verbose_name=_('Activity sub-type'),
-                                 blank=True, null=True,
-                                 on_delete=models.SET_NULL,
-                                )
-    status   = models.ForeignKey(other_models.Status, verbose_name=_('Status'),
-                                 blank=True, null=True,
-                                 on_delete=CREME_REPLACE_NULL,
-                                )
+    type = models.ForeignKey(
+        other_models.ActivityType, verbose_name=_('Activity type'), on_delete=models.PROTECT,
+    )
+    sub_type = models.ForeignKey(
+        other_models.ActivitySubType, verbose_name=_('Activity sub-type'),
+        blank=True, null=True, on_delete=models.SET_NULL,
+    )
 
-    calendars = models.ManyToManyField(Calendar, verbose_name=_('Calendars'),
-                                       editable=False,
-                                      )
+    status = models.ForeignKey(
+        other_models.Status, verbose_name=_('Status'),
+        blank=True, null=True, on_delete=CREME_REPLACE_NULL,
+    )
 
-    is_all_day    = models.BooleanField(_('All day?'), blank=True, default=False)
-    busy          = models.BooleanField(_('Busy?'), default=False)
+    calendars = models.ManyToManyField(Calendar, verbose_name=_('Calendars'), editable=False)
+
+    is_all_day = models.BooleanField(_('All day?'), blank=True, default=False)
+    busy = models.BooleanField(_('Busy?'), default=False)
     # TODO: use choices ?
-    floating_type = models.PositiveIntegerField(_('Floating type'), default=NARROW,
-                                                editable=False,
-                                               ).set_tags(viewable=False)
+    floating_type = models.PositiveIntegerField(
+        _('Floating type'), default=NARROW, editable=False,
+    ).set_tags(viewable=False)
 
     objects = ActivityManager()
 

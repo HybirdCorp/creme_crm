@@ -63,9 +63,11 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
         fields = self.fields
 
         fields['types'].queryset = CremePropertyType.objects.compatible(model)  # TODO: Sort?
-        fields['entities_lbl'].initial = entities_to_str(entities, self.user) \
-                                         if entities else \
-                                         gettext('NONE !')
+        fields['entities_lbl'].initial = (
+            entities_to_str(entities, self.user)
+            if entities else
+            gettext('NONE !')
+        )
 
         if forbidden_entities:
             fields['bad_entities_lbl'] = CharField(
@@ -75,9 +77,8 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
             )
 
     def save(self):
-        CremeProperty.objects.safe_multi_save(
-            [CremeProperty(type=ptype, creme_entity=entity)
-                for entity in self.entities
-                    for ptype in self.cleaned_data['types']
-            ]
-        )
+        CremeProperty.objects.safe_multi_save([
+            CremeProperty(type=ptype, creme_entity=entity)
+            for entity in self.entities
+            for ptype in self.cleaned_data['types']
+        ])

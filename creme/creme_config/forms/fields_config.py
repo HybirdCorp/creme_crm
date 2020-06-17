@@ -54,10 +54,11 @@ class FieldsConfigAddForm(CremeModelForm):
             ContentType.objects.get_for_model(CremeEntity).id,
 
             # Exclude ContentType which already have a configuration
-            *(fc.content_type_id
+            *(
+                fc.content_type_id
                 for fc in FieldsConfig.objects.get_for_models(models).values()
-                    if not fc._state.adding  # <True> means the FieldsConfig is in DB
-             )
+                if not fc._state.adding  # <True> means the FieldsConfig is in DB
+            )
         }
         self.ctypes = ctypes = [
             ct

@@ -206,15 +206,21 @@ class ProjectsTestCase(CremeTestCase):
         user = self.login(is_superuser=False, creatable_models=[Project])
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not LINK
-                  set_type=SetCredentials.ESET_ALL,
-                 )
-        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE | EntityCredentials.LINK |
-                        EntityCredentials.UNLINK,
-                  set_type=SetCredentials.ESET_OWN,
-                 )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not LINK
+            set_type=SetCredentials.ESET_ALL,
+        )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.LINK |
+                EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         manager = Contact.objects.create(user=user, first_name='Gendo', last_name='Ikari')
         self.assertFalse(user.has_perm_to_link(manager))

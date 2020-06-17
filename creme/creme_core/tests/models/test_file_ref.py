@@ -35,13 +35,16 @@ class FileRefTestCase(base.CremeTestCase):
         return job
 
     def _oldify_temp_file(self, temp_file, days):
-        "Make the instance older"
-        FileRef.objects \
-               .filter(id=temp_file.id) \
-               .update(created=temp_file.created
-                               - date_period_registry.get_period('days', days).as_timedelta()
-                               - timedelta(hours=1)
-                      )
+        "Make the instance older."
+        FileRef.objects.filter(
+            id=temp_file.id,
+        ).update(
+            created=(
+                temp_file.created
+                - date_period_registry.get_period('days', days).as_timedelta()
+                - timedelta(hours=1)
+            ),
+        )
 
     def test_basename01(self):
         # path = _create_file('FileRefTestCase_test_basename01.txt')

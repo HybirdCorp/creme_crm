@@ -70,13 +70,14 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
     def test_add_participants02(self):
         "Credentials error with the activity."
         user = self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         activity = self._create_meeting()
         self.assertTrue(user.has_perm_to_change(activity))
@@ -290,12 +291,13 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         create_creds(value=EntityCredentials.VIEW | EntityCredentials.UNLINK,
                      set_type=SetCredentials.ESET_OWN,
                     )
-        create_creds(value=EntityCredentials.VIEW   |
-                           EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE |
-                           EntityCredentials.LINK,
-                     set_type=SetCredentials.ESET_ALL,
-                    )
+        create_creds(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.LINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         contact = self.other_user.linked_contact
         self.assertFalse(user.has_perm_to_unlink(contact))
@@ -319,15 +321,17 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         "Cannot unlink the activity"
         user = self.login(is_superuser=False)
         create_creds = partial(SetCredentials.objects.create, role=self.role)
-        create_creds(value=EntityCredentials.VIEW | EntityCredentials.UNLINK,
-                     set_type=SetCredentials.ESET_OWN,
-                    )
-        create_creds(value=EntityCredentials.VIEW   |
-                           EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE |
-                           EntityCredentials.LINK,
-                     set_type=SetCredentials.ESET_ALL,
-                    )
+        create_creds(
+            value=EntityCredentials.VIEW | EntityCredentials.UNLINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
+        create_creds(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.LINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         contact = user.linked_contact
         self.assertTrue(user.has_perm_to_unlink(contact))
@@ -386,13 +390,14 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
     def test_add_subjects02(self):
         "Credentials error with the activity."
         user = self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         activity = self._create_meeting()
         self.assertTrue(user.has_perm_to_change(activity))
@@ -448,14 +453,14 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
     @skipIfCustomContact
     def test_unlink01(self):
         user = self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         activity = self._create_meeting()
         contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
@@ -485,13 +490,14 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
     def test_unlink02(self):
         "Can not unlink the activity."
         user = self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.LINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         activity = self._create_meeting()
         contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
@@ -511,15 +517,20 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         user = self.login(is_superuser=False)
 
         create_creds = partial(SetCredentials.objects.create, role=self.role)
-        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.LINK   |
-                           EntityCredentials.UNLINK,
-                     set_type=SetCredentials.ESET_OWN,
-                    )
-        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.LINK,
-                     set_type=SetCredentials.ESET_ALL,
-                    )
+        create_creds(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
+        create_creds(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.LINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         activity = self._create_meeting()
         contact = Contact.objects.create(user=self.other_user, first_name='Musashi', last_name='Miyamoto')

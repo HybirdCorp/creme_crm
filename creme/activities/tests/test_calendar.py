@@ -729,11 +729,13 @@ class CalendarTestCase(_ActivitiesTestCase):
         default_calendar = Calendar.objects.get_default_calendar(user)
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE |
-                        EntityCredentials.LINK   | EntityCredentials.UNLINK,
-                  set_type=SetCredentials.ESET_OWN,
-                 )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
         create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)

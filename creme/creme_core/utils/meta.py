@@ -290,12 +290,10 @@ class ModelFieldEnumerator:
                    sort_key(terminal_vname),
                   )
             # A classical django choice. Eg: ('user__email', '[Owner user] - Email address')
-            choice = ('__'.join(field.name for field in fields_info),
-                      ' - '.join(chain((f'[{vname}]' for vname in fk_vnames),
-                                        [terminal_vname],
-                                      )
-                                )
-                     )
+            choice = (
+                '__'.join(field.name for field in fields_info),
+                ' - '.join(chain((f'[{vname}]' for vname in fk_vnames), [terminal_vname]))
+            )
 
             sortable_choices.append((key, choice))
 

@@ -14,9 +14,14 @@ class UserContactURLItem(ViewableItem):
         contact = user.linked_contact
         img = self.render_icon(context)
 
-        return format_html('<a href="{url}">{icon}{user}</a>',
-                           url=contact.get_absolute_url(),
-                           icon=img, user=user,
-                          ) \
-               if user.has_perm_to_view(contact) else \
-               format_html('<span class="ui-creme-navigation-text-entry forbidden">{icon}{user}</span>', icon=img, user=user)
+        return (
+            format_html(
+                '<a href="{url}">{icon}{user}</a>',
+                url=contact.get_absolute_url(), icon=img, user=user,
+            )
+            if user.has_perm_to_view(contact) else
+            format_html(
+                '<span class="ui-creme-navigation-text-entry forbidden">{icon}{user}</span>',
+                icon=img, user=user,
+            )
+        )

@@ -81,6 +81,8 @@ class Conversion(generic.base.EntityRelatedMixin, generic.CheckedView):
 
         url = dest.get_absolute_url()
 
-        return http.HttpResponse(url, content_type='text/plain') \
-               if self.request.is_ajax() else \
-               http.HttpResponseRedirect(url)
+        return (
+            http.HttpResponse(url, content_type='text/plain')
+            if self.request.is_ajax() else
+            http.HttpResponseRedirect(url)
+        )

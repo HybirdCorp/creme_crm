@@ -91,8 +91,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertListEqual(
             [(TestButton.id_, 1000)],
-            [*ButtonMenuItem.objects.filter(content_type=ct)
-                                    .values_list('button_id', 'order')
+            [*ButtonMenuItem.objects
+                            .filter(content_type=ct)
+                            .values_list('button_id', 'order')
             ]
         )
 

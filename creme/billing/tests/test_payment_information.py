@@ -34,10 +34,12 @@ class PaymentInformationTestCase(_BillingTestCase):
         url = self._build_add_url(organisation)
 
         context = self.assertGET200(url).context
-        self.assertEqual(_('New payment information in the organisation «{entity}»')
-                            .format(entity=organisation),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _(
+                'New payment information in the organisation «{entity}»'
+            ).format(entity=organisation),
+            context.get('title')
+        )
         self.assertEqual(_('Save the payment information'), context.get('submit_label'))
 
         self.assertNoFormError(self.client.post(url, data={'user': self.user.pk,

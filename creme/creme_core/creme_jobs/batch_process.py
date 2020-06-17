@@ -66,10 +66,12 @@ class _BatchProcessType(JobType):
 
         try:
             # TODO: NON_FIELD_ERRORS need to be unit tested...
-            humanized = [str(errors) if field == NON_FIELD_ERRORS else
-                         '{} => {}'.format(get_field(field).verbose_name, ', '.join(errors))
-                            for field, errors in ve.message_dict.items()
-                        ]
+            humanized = [
+                str(errors)
+                if field == NON_FIELD_ERRORS else
+                '{} => {}'.format(get_field(field).verbose_name, ', '.join(errors))
+                for field, errors in ve.message_dict.items()
+            ]
         except Exception as e:
             logger.debug('BatchProcess._humanize_validation_error: %s', e)
             humanized = [str(ve)]

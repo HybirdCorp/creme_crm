@@ -278,27 +278,31 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
                                                  )['widget']
 
         # Mode MULTICOLUMNS
-        widget_cxt['firstname_column_select'] = column_select_context(name_fmt='{}_first_name_colselect',
-                                                                      selected_key='first_name_column_index',
-                                                                     )
-        widget_cxt['lastname_column_select'] = column_select_context(name_fmt='{}_last_name_colselect',
-                                                                     selected_key='last_name_column_index',
-                                                                    )
+        widget_cxt['firstname_column_select'] = column_select_context(
+            name_fmt='{}_first_name_colselect', selected_key='first_name_column_index',
+        )
+        widget_cxt['lastname_column_select'] = column_select_context(
+            name_fmt='{}_last_name_colselect', selected_key='last_name_column_index',
+        )
 
         # Mode SPLITTEDCOLUMN
-        widget_cxt['pattern_column_select'] = column_select_context(name_fmt='{}_pattern_colselect',
-                                                                    selected_key='pattern_column_index',
-                                                                   )
+        widget_cxt['pattern_column_select'] = column_select_context(
+            name_fmt='{}_pattern_colselect', selected_key='pattern_column_index',
+        )
 
-        widget_cxt['pattern_select'] = Select(choices=[(pattern_id, str(pattern.verbose_name))
-                                                           for pattern_id, pattern in _PATTERNS.items()
-                                                      ],
-                                             ).get_context(name=f'{name}_pattern',
-                                                           value=value.get('pattern_id'),
-                                                           attrs={'id': f'{id_attr}_pattern',
-                                                                  'class': 'csv_pattern_select',
-                                                                 },
-                                                          )['widget']
+        widget_cxt['pattern_select'] = Select(
+            choices=[
+                (pattern_id, str(pattern.verbose_name))
+                for pattern_id, pattern in _PATTERNS.items()
+            ],
+        ).get_context(
+            name=f'{name}_pattern',
+            value=value.get('pattern_id'),
+            attrs={
+                'id': f'{id_attr}_pattern',
+                'class': 'csv_pattern_select',
+            },
+        )['widget']
 
         return context
 

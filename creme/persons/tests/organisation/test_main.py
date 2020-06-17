@@ -418,14 +418,20 @@ class OrganisationTestCase(_BaseTestCase):
         user = self.login(is_superuser=False)
 
         create_creds = partial(SetCredentials.objects.create, role=self.role)
-        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not 'LINK'
-                     set_type=SetCredentials.ESET_ALL
-                    )
-        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.LINK | EntityCredentials.UNLINK,
-                     set_type=SetCredentials.ESET_OWN
-                    )
+        create_creds(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not 'LINK'
+            set_type=SetCredentials.ESET_ALL,
+        )
+        create_creds(
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         mng_orga01 = self._build_managed_orga()
         customer01 = Contact.objects.create(user=self.other_user, first_name='Jet', last_name='Black')  # Can not link it
@@ -554,14 +560,20 @@ class OrganisationTestCase(_BaseTestCase):
         user = self.login(is_superuser=False, creatable_models=[Organisation])
 
         create_creds = partial(SetCredentials.objects.create, role=self.role)
-        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not 'LINK'
-                     set_type=SetCredentials.ESET_ALL,
-                    )
-        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.LINK | EntityCredentials.UNLINK,
-                     set_type=SetCredentials.ESET_OWN,
-                    )
+        create_creds(
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not 'LINK'
+            set_type=SetCredentials.ESET_ALL,
+        )
+        create_creds(
+            value=(
+                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         managed1 = self.get_object_or_fail(Organisation, is_managed=True)
         self.assertFalse(user.has_perm_to_link(managed1))

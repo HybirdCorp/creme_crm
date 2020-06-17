@@ -1067,9 +1067,11 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
                 called = False
 
             TIME_ZONE = settings.TIME_ZONE
-            time_zones = [tz for tz in ('Asia/Tokyo', 'US/Eastern', 'Europe/Paris')
-                            if tz != TIME_ZONE
-                         ]
+            time_zones = [
+                tz
+                for tz in ('Asia/Tokyo', 'US/Eastern', 'Europe/Paris')
+                if tz != TIME_ZONE
+            ]
 
             assertSelected(TIME_ZONE)
 

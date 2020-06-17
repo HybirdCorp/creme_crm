@@ -65,12 +65,15 @@ class _RelationsCreateForm(CremeForm):
         fields = self.fields
         # TODO: improve queries ??
         user = self.user
-        entities = [sfrt.object_entity
-                        for sfrt in SemiFixedRelationType.objects
-                                                         .exclude(object_entity__in=subjects_ids)
-                                                         .select_related('object_entity')
-                   ]
-        sfrt_queryset = SemiFixedRelationType.objects.filter(object_entity__in=filter(user.has_perm_to_link, entities))
+        entities = [
+            sfrt.object_entity
+            for sfrt in SemiFixedRelationType.objects
+                                             .exclude(object_entity__in=subjects_ids)
+                                             .select_related('object_entity')
+        ]
+        sfrt_queryset = SemiFixedRelationType.objects.filter(
+            object_entity__in=filter(user.has_perm_to_link, entities),
+        )
 
         if not relations_types:
             relations_types = RelationType.objects.compatible(content_type)
@@ -100,14 +103,15 @@ class _RelationsCreateForm(CremeForm):
                 future_relations.add(r_id)
 
         if duplicates:
-            raise ValidationError(self.error_messages['duplicates'],
-                                  params={'duplicates':
-                                              ', '.join(f'({rtype}, {e.allowed_str(user)})'
-                                                            for rtype, e in duplicates
-                                                       ),
-                                         },
-                                  code='duplicates',
-                                 )
+            raise ValidationError(
+                self.error_messages['duplicates'],
+                params={
+                    'duplicates': ', '.join(
+                        f'({rtype}, {e.allowed_str(user)})' for rtype, e in duplicates
+                    ),
+                },
+                code='duplicates',
+            )
 
     # TODO: indicates all subjects which miss properties ?
     # TODO: filter & display these invalid subjects (like non editable subjects)
@@ -187,9 +191,10 @@ class _RelationsCreateForm(CremeForm):
         if not self._errors:
             relations_desc = cdata['relations']
             # TODO: improve queries ??
-            relations_desc.extend((sfrt.relation_type, sfrt.object_entity)
-                                      for sfrt in cdata['semifixed_rtypes']
-                                 )
+            relations_desc.extend(
+                (sfrt.relation_type, sfrt.object_entity)
+                for sfrt in cdata['semifixed_rtypes']
+            )
 
             if not relations_desc:
                 raise ValidationError(self.error_messages['empty'], code='empty')

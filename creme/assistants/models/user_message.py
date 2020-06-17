@@ -100,9 +100,9 @@ class UserMessage(CremeModel):
                             priority_id=priority_id,
                             sender=sender, creme_entity=entity,
                            )
-        cls.objects.bulk_create(build_msg(recipient=user)
-                                    for user in users_map.values()
-                               )
+        cls.objects.bulk_create(
+            build_msg(recipient=user) for user in users_map.values()
+        )
 
         from ..creme_jobs import usermessages_send_type
 
@@ -122,12 +122,14 @@ class UserMessage(CremeModel):
         body_format    = gettext('{user} sent you the following message:\n{body}')
         EMAIL_SENDER   = settings.EMAIL_SENDER
 
-        messages = [EmailMessage(subject_format.format(msg.title),
-                                 body_format.format(user=msg.sender, body=msg.body),
-                                 EMAIL_SENDER, [msg.recipient.email]
-                                )
-                        for msg in usermessages if msg.recipient.email
-                   ]
+        messages = [
+            EmailMessage(
+                subject_format.format(msg.title),
+                body_format.format(user=msg.sender, body=msg.body),
+                EMAIL_SENDER,
+                [msg.recipient.email],
+            ) for msg in usermessages if msg.recipient.email
+        ]
 
         try:
             with get_connection() as connection:

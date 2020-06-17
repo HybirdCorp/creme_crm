@@ -124,8 +124,11 @@ class GenericCreation(ModelConfMixin, generic.CremeModelCreationPopup):
         model = self.get_model_conf().model
         title = getattr(model, 'creation_label', None)
 
-        return title if title is not None else \
-               gettext('New value: {model}').format(model=model._meta.verbose_name)
+        return (
+            title
+            if title is not None else
+            gettext('New value: {model}').format(model=model._meta.verbose_name)
+        )
 
     def get_submit_label(self):
         return (

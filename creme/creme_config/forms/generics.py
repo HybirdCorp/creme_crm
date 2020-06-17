@@ -444,11 +444,13 @@ class DeletionForm(CremeModelForm):
         # TODO: improve CremeJSONEncoder to serialize iterators & remove list().
         get_data = self.cleaned_data.get
         instance.replacers = [
-            *filter(None,
-                    (handler.replacer(get_data(handler.key) or None)
-                         for handler in self.handlers
-                    )
-                   )
+            *filter(
+                None,
+                (
+                    handler.replacer(get_data(handler.key) or None)
+                    for handler in self.handlers
+                )
+            ),
         ]
         instance.total_count = sum(handler.count for handler in self.handlers)
         instance.job = Job.objects.create(

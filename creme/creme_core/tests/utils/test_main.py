@@ -725,9 +725,11 @@ class TemplateURLBuilderTestCase(CremeTestCase):
                                  id=(TemplateURLBuilder.Int, final_value2),
                                  field_name=(TemplateURLBuilder.Word, final_value3),
                                 )
-        self.assertEqual(reverse(vname, args=(placeholder1, placeholder2, placeholder3))
-                                .replace(placeholder1, final_value1)
-                                .replace(placeholder2, final_value2)
-                                .replace(placeholder3, final_value3),
-                         tub.resolve(vname)
-                        )
+        self.assertEqual(
+            reverse(
+                vname, args=(placeholder1, placeholder2, placeholder3)
+            ).replace(placeholder1, final_value1)
+             .replace(placeholder2, final_value2)
+             .replace(placeholder3, final_value3),
+            tub.resolve(vname)
+        )

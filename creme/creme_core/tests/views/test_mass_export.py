@@ -439,9 +439,10 @@ class MassExportViewsTestCase(ViewsTestCase):
         it = (force_text(line) for line in response.content.splitlines())
         self.assertEqual(
             next(it),
-            ','.join(f'"{u}"'
-                       for u in [_('Civility'), _('Last name'), 'pilots', _('Properties')]
-                    )
+            ','.join(
+                f'"{u}"'
+                for u in [_('Civility'), _('Last name'), 'pilots', _('Properties')]
+            )
         )
         self.assertEqual(next(it), '"","Black","Bebop",""')
 

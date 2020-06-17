@@ -239,14 +239,14 @@ class LineTestCase(_BillingTestCase):
                    allowed_apps=['persons', 'billing'],
                    creatable_models=[Invoice],
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         self.assertGET200(reverse('billing__create_product_lines', args=(invoice.id,)))
@@ -261,19 +261,19 @@ class LineTestCase(_BillingTestCase):
         create_sc = partial(SetCredentials.objects.create, role=self.role,
                             set_type=SetCredentials.ESET_ALL,
                            )
-        create_sc(value=EntityCredentials.VIEW   |
-                        EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE |
-                        EntityCredentials.LINK   |
-                        EntityCredentials.UNLINK,
-                  ctype=Organisation,
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            ctype=Organisation,
         )
-        create_sc(value=EntityCredentials.VIEW   |
-                        EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE |
-                        # EntityCredentials.LINK   |
-                        EntityCredentials.UNLINK,
-                  set_type=SetCredentials.ESET_ALL
+        create_sc(
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK  # Not LINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
         )
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
@@ -485,16 +485,22 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(product, product_line2.related_item)
 
         rel_filter = Relation.objects.filter
-        self.assertListEqual([product_line2.pk],
-                             [*rel_filter(type=REL_SUB_HAS_LINE, subject_entity=invoice2)
-                                         .values_list('object_entity', flat=True)
-                             ]
-                        )
-        self.assertSetEqual({product_line.pk, product_line2.pk},
-                            {*rel_filter(type=REL_SUB_LINE_RELATED_ITEM, object_entity=product)
-                                       .values_list('subject_entity', flat=True)
-                            }
-                        )
+        self.assertListEqual(
+            [product_line2.pk],
+            [
+                *rel_filter(
+                    type=REL_SUB_HAS_LINE, subject_entity=invoice2,
+                ).values_list('object_entity', flat=True)
+            ]
+        )
+        self.assertSetEqual(
+            {product_line.pk, product_line2.pk},
+            {
+                *rel_filter(
+                    type=REL_SUB_LINE_RELATED_ITEM, object_entity=product,
+                ).values_list('subject_entity', flat=True)
+            }
+        )
 
     @skipIfCustomServiceLine
     def test_service_line_clone(self):
@@ -517,16 +523,26 @@ class LineTestCase(_BillingTestCase):
         rel_filter = Relation.objects.filter
         self.assertListEqual(
             [service_line1.pk],
-            [*rel_filter(type=REL_SUB_HAS_LINE, subject_entity=invoice1).values_list('object_entity', flat=True)]
+            [
+                *rel_filter(
+                    type=REL_SUB_HAS_LINE, subject_entity=invoice1,
+                ).values_list('object_entity', flat=True)
+            ]
         )
-        self.assertEqual(
+        self.assertListEqual(
             [service_line2.pk],
-            [*rel_filter(type=REL_SUB_HAS_LINE, subject_entity=invoice2).values_list('object_entity', flat=True)]
+            [
+                *rel_filter(
+                    type=REL_SUB_HAS_LINE, subject_entity=invoice2,
+                ).values_list('object_entity', flat=True)
+            ]
         )
         self.assertSetEqual(
             {service_line1.pk, service_line2.pk},
-            {*rel_filter(type=REL_SUB_LINE_RELATED_ITEM, object_entity=service)
-                        .values_list('subject_entity', flat=True)
+            {
+                *rel_filter(
+                    type=REL_SUB_LINE_RELATED_ITEM, object_entity=service,
+                ).values_list('subject_entity', flat=True)
             }
         )
 
@@ -567,12 +583,14 @@ class LineTestCase(_BillingTestCase):
                           creatable_models=[Invoice, Organisation]
                          )
 
-        SetCredentials.objects.create(role=self.role,
-                                      # Not EntityCredentials.CHANGE
-                                      value=EntityCredentials.VIEW | EntityCredentials.DELETE |
-                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),  # Not CHANGE
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
         self.assertFalse(user.has_perm_to_change(invoice))
@@ -685,9 +703,10 @@ class LineTestCase(_BillingTestCase):
                                                  )
         cat, subcat = self.create_cat_n_subcat()
 
-        response = self.client.post(self._build_add2catalog_url(service_line),
-                                      data=self._build_dict_cat_subcat(cat, subcat))
-
+        response = self.client.post(
+            self._build_add2catalog_url(service_line),
+            data=self._build_dict_cat_subcat(cat, subcat),
+        )
         self.assertNoFormError(response)
         self.assertTrue(Service.objects.exists())
 

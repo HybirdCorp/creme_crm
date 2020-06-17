@@ -86,17 +86,26 @@ class ActivitiesConfig(CremeAppConfig):
         from .forms import activity_type as type_forms, calendar as cal_forms
 
         register_model = config_registry.register_model
-        register_model(models.ActivityType, 'activity_type') \
-                      .creation(form_class=type_forms.ActivityTypeForm) \
-                      .edition(form_class=type_forms.ActivityTypeForm)
-        register_model(models.ActivitySubType, 'activity_sub_type') \
-                      .creation(form_class=type_forms.ActivitySubTypeForm) \
-                      .edition(form_class=type_forms.ActivitySubTypeForm)
+        register_model(
+            models.ActivityType, 'activity_type',
+        ).creation(
+            form_class=type_forms.ActivityTypeForm
+        ).edition(form_class=type_forms.ActivityTypeForm)
+        register_model(
+            models.ActivitySubType, 'activity_sub_type',
+        ).creation(
+            form_class=type_forms.ActivitySubTypeForm
+        ).edition(form_class=type_forms.ActivitySubTypeForm)
         register_model(models.Status, 'status')
-        register_model(models.Calendar, 'calendar') \
-                      .creation(form_class=cal_forms.CalendarConfigForm) \
-                      .edition(form_class=cal_forms.CalendarConfigForm) \
-                      .deletion(form_class=cal_forms.CalendarDeletionForm)
+        register_model(
+            models.Calendar, 'calendar'
+        ).creation(
+            form_class=cal_forms.CalendarConfigForm,
+        ).edition(
+            form_class=cal_forms.CalendarConfigForm,
+        ).deletion(
+            form_class=cal_forms.CalendarDeletionForm,
+        )
 
         config_registry.register_user_bricks(bricks.UserCalendarsBrick)
 

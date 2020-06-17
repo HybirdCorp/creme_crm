@@ -112,11 +112,12 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual('ASC', str(sortinfo1.main_order))
 
         # Fast mode -------------------
-        sortinfo2 = sorter.get(model=FakeOrganisation, cells=cells, cell_key=key,
-                                # order='ASC',
-                                order=Order(),
-                                fast_mode=True,
-                               )
+        sortinfo2 = sorter.get(
+            model=FakeOrganisation, cells=cells, cell_key=key,
+            # order='ASC',
+            order=Order(),
+            fast_mode=True,
+        )
         self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo2.field_names)
 
         # DESC -------------------
@@ -625,8 +626,9 @@ class QuerySorterTestCase(CremeTestCase):
     def test_register_related_model(self):
         sorter = QuerySorter()
 
-        fk_registry = sorter.registry[EntityCellRegularField.type_id] \
-                                      .sorter_4_model_field_type(ForeignKey)
+        fk_registry = sorter.registry[
+            EntityCellRegularField.type_id
+        ].sorter_4_model_field_type(ForeignKey)
         efk_registry = fk_registry.sorter(CremeEntity)
         self.assertIsInstance(efk_registry, EntityForeignKeySorter)
 
@@ -754,9 +756,10 @@ class QuerySorterTestCase(CremeTestCase):
             EntityCellRelation.build(model=FakeOrganisation,     rtype_id=REL_SUB_HAS),
         ]
 
-        sortinfo = sorter.get(model=FakeInvoice, cells=cells,
-                               cell_key=cells[1].key, order=Order(),
-                              )
+        sortinfo = sorter.get(
+            model=FakeInvoice, cells=cells,
+            cell_key=cells[1].key, order=Order(),
+        )
         self.assertEqual((field_name, 'cremeentity_ptr_id'), sortinfo.field_names)
         self.assertEqual(cells[0].key, sortinfo.main_cell_key)
         self.assertTrue(sortinfo.main_order.asc)

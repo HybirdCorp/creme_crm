@@ -63,8 +63,9 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
                                       # on_delete=SET_NULL,
                                       on_delete=CREME_REPLACE_NULL,
                                      ).set_tags(optional=True)
-    full_position = models.CharField(_('Detailed position'), max_length=500, blank=True)\
-                                    .set_tags(optional=True)
+    full_position = models.CharField(
+        _('Detailed position'), max_length=500, blank=True,
+    ).set_tags(optional=True)
 
     sector = models.ForeignKey(other_models.Sector,
                                verbose_name=_('Line of business'),
@@ -77,13 +78,12 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
                                       blank=True, editable=False,
                                      ).set_tags(viewable=False)  # TODO: remove this field
 
-    is_user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                verbose_name=_('Related user'),
-                                blank=True, null=True,
-                                related_name='related_contact',
-                                on_delete=models.SET_NULL, editable=False,
-                              ).set_tags(clonable=False) \
-                               .set_null_label(pgettext_lazy('persons-is_user', 'None'))
+    is_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name=_('Related user'),
+        blank=True, null=True,
+        related_name='related_contact', on_delete=models.SET_NULL,
+        editable=False,
+    ).set_tags(clonable=False).set_null_label(pgettext_lazy('persons-is_user', 'None'))
 
     birthday = models.DateField(_('Birthday'), blank=True, null=True).set_tags(optional=True)
     image    = ImageEntityForeignKey(verbose_name=_('Photograph'),

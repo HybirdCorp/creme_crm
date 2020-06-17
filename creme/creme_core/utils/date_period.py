@@ -165,8 +165,11 @@ class DatePeriodRegistry:
                        If None provided, return all the elements.
         @yield The tuples (name, period_klass.verbose_name) of registry elements.
         """
-        is_allowed = (lambda name: True) if choices is None else \
-                     lambda name: name in choices
+        is_allowed = (
+            (lambda name: True)
+            if choices is None else
+            (lambda name: name in choices)
+        )
 
         for name, period_klass in self._periods.items():
             if is_allowed(name):

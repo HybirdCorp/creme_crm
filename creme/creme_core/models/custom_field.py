@@ -423,8 +423,11 @@ class CustomFieldBoolean(CustomFieldValue):
         required = kwargs.get('required', False)
         kwargs['required'] = False
 
-        return forms.BooleanField(**kwargs) if required else \
-               forms.NullBooleanField(**kwargs)
+        return (
+            forms.BooleanField(**kwargs)
+            if required else
+            forms.NullBooleanField(**kwargs)
+        )
 
     def set_value_n_save(self, value):
         # Boolean default value is False

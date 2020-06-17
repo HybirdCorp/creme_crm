@@ -57,9 +57,12 @@ class CancellableMixin:
 
     def get_cancel_url(self) -> Optional[str]:
         request = self.request
-        return request.POST.get(self.cancel_url_post_argument) \
-               if request.method == 'POST' else \
-               build_cancel_path(request)
+
+        return (
+            request.POST.get(self.cancel_url_post_argument)
+            if request.method == 'POST' else
+            build_cancel_path(request)
+        )
 
 
 # NB: we do not use 'django.contrib.auth.mixins.AccessMixin' because its API would

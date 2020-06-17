@@ -186,14 +186,14 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login(is_superuser=False, allowed_apps=['polls'],
                    creatable_models=[PollReply],
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         pform, camp = self._create_pform_n_campaign()
         self.assertGET200(reverse('polls__create_reply_from_campaign', args=(camp.id,)))
@@ -205,14 +205,14 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login(is_superuser=False, allowed_apps=['polls'],
                    # creatable_models=[PollReply],
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         pform, camp = self._create_pform_n_campaign()
 
@@ -225,14 +225,14 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login(is_superuser=False, allowed_apps=['polls'],
                    creatable_models=[PollReply],
                   )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            # EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                EntityCredentials.DELETE | EntityCredentials.UNLINK
+            ),  # Not EntityCredentials.LINK
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         pform, camp = self._create_pform_n_campaign()
 

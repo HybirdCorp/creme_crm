@@ -326,9 +326,10 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
         lines_count = 4
         names   = ['Billdoc #%04i' % i for i in range(1, lines_count + 1)]
         numbers = ['B%04i' % i for i in range(1, lines_count + 1)]
-        issuing_dates = [date(year=2013, month=6 + i, day=24 + i)
-                            for i in range(lines_count)
-                        ]
+        issuing_dates = [
+            date(year=2013, month=6 + i, day=24 + i)
+            for i in range(lines_count)
+        ]
 
         date_fmt = settings.DATE_INPUT_FORMATS[0]
         lines = [

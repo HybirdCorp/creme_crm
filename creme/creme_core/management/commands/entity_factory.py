@@ -107,10 +107,11 @@ def or_blank(f):
 
 def get_best_locale(language_code=None):
     def _get_best_prefixed_locale(prefix):
-        prefixed_locales = {locale
-                                for locale in AVAILABLE_LOCALES
-                                    if locale.startswith(prefix)
-                           }
+        prefixed_locales = {
+            locale
+            for locale in AVAILABLE_LOCALES
+            if locale.startswith(prefix)
+        }
 
         if prefixed_locales:
             best_locale = f'{prefix}_{prefix.upper()}'

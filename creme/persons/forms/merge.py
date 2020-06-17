@@ -76,9 +76,11 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
         address1 = getattr(entity1, attr_name, None)
         address2 = getattr(entity2, attr_name, None)
 
-        address = address1 if address1 is not None else \
-                  address2 if address2 is not None else \
-                  Address(name=name)
+        address = (
+            address1 if address1 is not None else
+            address2 if address2 is not None else
+            Address(name=name)
+        )
 
         address_is_empty = True  # We do not use Address.__bool__() because we ignore the address' name.
         for fname in self._address_field_names:

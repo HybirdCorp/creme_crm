@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -79,11 +79,12 @@ class AbstractSMSCampaign(CremeEntity):
                      ]
 
         # Contacts recipients
-        recipients.extend(contact.mobile
-                            for mlist in mlists
-                                for contact in mlist.contacts.filter(is_deleted=False)
-                                    if contact.mobile
-                         )
+        recipients.extend(
+            contact.mobile
+            for mlist in mlists
+            for contact in mlist.contacts.filter(is_deleted=False)
+            if contact.mobile
+        )
 
         return recipients
 

@@ -83,13 +83,14 @@ class VcfExportTestCase(CremeTestCase):
                           creatable_models=[Contact],
                          )
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,  # Not EntityCredentials.VIEW
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                EntityCredentials.LINK | EntityCredentials.UNLINK
+            ),  # Not EntityCredentials.VIEW
+            set_type=SetCredentials.ESET_ALL
+        )
 
         contact = Contact.objects.create(user=self.other_user, last_name='Abitbol')
         self.assertTrue(user.has_perm_to_change(contact))

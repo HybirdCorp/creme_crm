@@ -66,11 +66,12 @@ class AbstractAddress(CremeModel):
         s = ''
         join = self.STR_SEPARATOR.join
         allowed_fnames = {*self.info_field_names()}
-        get_field_value = (lambda fname: None if fname not in allowed_fnames else
-                                         getattr(self, fname))
+
+        def field_value(fname):
+            return getattr(self, fname) if fname in allowed_fnames else None
 
         for field_names in self.STR_FIELD_NAMES:
-            s = join(filter(None, (get_field_value(fn) for fn in field_names)))
+            s = join(filter(None, (field_value(fn) for fn in field_names)))
 
             if s:
                 break
@@ -95,10 +96,11 @@ class AbstractAddress(CremeModel):
     def info_field_names(cls) -> Tuple[str, ...]:
         is_field_hidden = FieldsConfig.objects.get_for_model(cls).is_field_hidden
         excluded = {'id', 'content_type', 'object'}  # TODO: just exclude not viewable ?
-        return tuple(f.name
-                        for f in cls._meta.fields
-                            if f.name not in excluded and not is_field_hidden(f)
-                    )
+        return tuple(
+            f.name
+            for f in cls._meta.fields
+            if f.name not in excluded and not is_field_hidden(f)
+        )
 
     @property
     def info_fields(self) -> Iterator[Tuple[str, Any]]:

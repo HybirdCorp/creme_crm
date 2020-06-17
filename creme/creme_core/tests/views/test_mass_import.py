@@ -1548,9 +1548,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
     def _csv_to_list(self, response):
         separator = ','
 
-        return [[i[1:-1] for i in line.split(separator)]
-                    for line in smart_text(response.content).splitlines()
-               ]
+        return [
+            [i[1:-1] for i in line.split(separator)]
+            for line in smart_text(response.content).splitlines()
+        ]
 
     def test_dl_errors01(self):
         "CSV, no header."

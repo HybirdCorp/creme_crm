@@ -28,8 +28,9 @@ from creme.creme_core.models import CremeModel, CremePropertyType
 
 class MarketSegment(CremeModel):
     name          = CharField(_('Name'), max_length=100)  # TODO: unique ?
-    property_type = ForeignKey(CremePropertyType, null=True, editable=False, on_delete=CASCADE)\
-                              .set_tags(viewable=False)
+    property_type = ForeignKey(
+        CremePropertyType, null=True, editable=False, on_delete=CASCADE,
+    ).set_tags(viewable=False)
 
     creation_label = _('Create a market segment')
     save_label     = _('Save the market segment')

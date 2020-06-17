@@ -213,10 +213,11 @@ class ContactCardHatBrick(Brick):
 
         return self._render(self.get_template_context(
             context,
-            hidden_fields={fname
-                               for fname in ('phone', 'mobile', 'email', 'position')
-                                   if is_hidden(fname)
-                          },
+            hidden_fields={
+                fname
+                for fname in ('phone', 'mobile', 'email', 'position')
+                if is_hidden(fname)
+            },
             activities=Activities4Card.get(context, contact),
             neglected_indicator=NeglectedContactIndicator(context, contact),
             opportunities=Opportunities4Card.get(context, contact),
@@ -250,10 +251,11 @@ class OrganisationCardHatBrick(Brick):
 
         return self._render(self.get_template_context(
             context,
-            hidden_fields={fname
-                               for fname in ('phone', 'billing_address', 'legal_form')
-                                  if is_hidden(fname)
-                          },
+            hidden_fields={
+                fname
+                for fname in ('phone', 'billing_address', 'legal_form')
+                if is_hidden(fname)
+            },
             position_is_hidden=get_fconfigs(Contact).is_fieldname_hidden('position'),
 
             is_customer=managed_orgas.filter(relations__type=constants.REL_OBJ_CUSTOMER_SUPPLIER,

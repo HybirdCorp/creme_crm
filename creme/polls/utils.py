@@ -95,8 +95,11 @@ class SectionTree:
         for line in line_model.objects.filter(**kwargs):
             line.is_section = False
             line.deep = 0
-            line.number = gen_number() if line.poll_line_type.editable and not getattr(line, 'disabled', False) \
-                          else None
+            line.number = (
+                gen_number()
+                if line.poll_line_type.editable and not getattr(line, 'disabled', False)
+                else None
+            )
             lines_map[line.section_id].append(line)
 
         nodes.extend(lines_map[None])
@@ -199,6 +202,7 @@ class StatsTree(SectionTree):
                     total += choice_count
                     stats[choice_label] += choice_count
 
-            fline.answer_stats = [(stat_label, stat_count, round(float(stat_count * 100) / float(total), 2))
-                                    for stat_label, stat_count in stats.items()
-                                 ] if total > 0 else []
+            fline.answer_stats = [
+                (stat_label, stat_count, round(float(stat_count * 100) / float(total), 2))
+                for stat_label, stat_count in stats.items()
+            ] if total > 0 else []

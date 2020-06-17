@@ -53,9 +53,10 @@ class VcfGenerator:
 
     def address_equality(self, address1, address2):  # TODO : overload __eq__() in Address?
         if address1 is not None and address2 is not None:
-            return all(getattr(address1, fname) == getattr(address2, fname)
-                           for fname in self._address_field_names
-                      )
+            return all(
+                getattr(address1, fname) == getattr(address2, fname)
+                for fname in self._address_field_names
+            )
 
         return False
 
@@ -89,10 +90,11 @@ class VcfGenerator:
 
         addr_equal = self.address_equality
         addresses = []
-        addresses.extend(addr
-                            for addr in self.addresses
-                                if not any(addr_equal(addr, other) for other in addresses)
-                        )
+        addresses.extend(
+            addr
+            for addr in self.addresses
+            if not any(addr_equal(addr, other) for other in addresses)
+        )
 
         generate_address = self.generate_address
         for address in addresses:

@@ -62,13 +62,15 @@ class CreatorCategorySelector(ActionButtonList):
 
     def get_context(self, name, value, attrs):
         selector = ChainedInput(self.attrs)
-        add = partial(selector.add_dselect, attrs={'auto': False})
-        add('category', options=self.categories, label=_('Category'))
-        add('subcategory',
-            options=TemplateURLBuilder(category_id=(TemplateURLBuilder.Int, '${category}'))
-                                      .resolve('products__subcategories'),
+        add_dselect = partial(selector.add_dselect, attrs={'auto': False})
+        add_dselect('category', options=self.categories, label=_('Category'))
+        add_dselect(
+            'subcategory',
+            options=TemplateURLBuilder(
+                category_id=(TemplateURLBuilder.Int, '${category}'),
+            ).resolve('products__subcategories'),
             label=_('Sub-category'),
-           )
+        )
 
         self.delegate = selector
         self._build_actions(attrs)
