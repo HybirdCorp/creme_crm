@@ -51,7 +51,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         except KeyError as e:
             self.fail(
                 f'It seems that the form is already complete (<{e.__class__.__name__}> occurred: {e})'
-             )
+            )
 
         self.assertEqual(f'{line_number or fline.order} - {fline.question}',
                          question_f.initial

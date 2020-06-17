@@ -180,10 +180,11 @@ class DeletionCommandTestCase(CremeTestCase):
         self.assertEqual(0, dcom.total_count)
         self.assertEqual(0, dcom.updated_count)
 
-        self.assertEqual(
-            [_('Deleting «{object}» ({model})').format(
-                object=civ.title, model='Test civility',
-             ),
+        self.assertListEqual(
+            [
+                _('Deleting «{object}» ({model})').format(
+                    object=civ.title, model='Test civility',
+                ),
             ],
             deletor_type.get_description(job)
         )
@@ -259,14 +260,15 @@ class DeletionCommandTestCase(CremeTestCase):
 
         # NB: we check the description is OK _after_ the instance is deleted
         self.assertListEqual(
-            [_('Deleting «{object}» ({model})').format(
-                object=civ2del.title, model='Test civility',
-             ),
-             _('In «{model} - {field}», replace by «{new}»').format(
-                 model='Test Contact',
-                 field=_('Civility'),
-                 new=civ.title,
-             )
+            [
+                _('Deleting «{object}» ({model})').format(
+                    object=civ2del.title, model='Test civility',
+                ),
+                _('In «{model} - {field}», replace by «{new}»').format(
+                    model='Test Contact',
+                    field=_('Civility'),
+                    new=civ.title,
+                ),
             ],
             deletor_type.get_description(job)
         )

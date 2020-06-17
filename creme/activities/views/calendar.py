@@ -277,12 +277,11 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
             # NB: we already filter by calendars ; maybe a future Django version
             #     will allow us to annotate the calendar ID directly
             #     (distinct() would have to be removed of course)
-                    .prefetch_related(
-                        Prefetch('calendars',
-                                 queryset=Calendar.objects.filter(id__in=calendar_ids),
-                                 to_attr='concerned_calendars',
-                                )
-                     )
+                    .prefetch_related(Prefetch(
+                        'calendars',
+                        queryset=Calendar.objects.filter(id__in=calendar_ids),
+                        to_attr='concerned_calendars',
+                    ))
         )
 
         activity_2_dict = partial(self._activity_2_dict, user=user)

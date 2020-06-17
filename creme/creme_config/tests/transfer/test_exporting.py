@@ -283,24 +283,25 @@ class ExportingTestCase(CremeTestCase):
             role_info.get('exportable_ctypes')
         )
         self.assertListEqual(
-            [{
-                'value': sc1.value,
-                'type':  sc1.set_type,
-             }, {
-                'value': sc2.value,
-                'type':  sc2.set_type,
-                'ctype': 'creme_core.fakecontact',
-             }, {
-                'value': sc3.value,
-                'type':  sc3.set_type,
-                'ctype': 'creme_core.fakeorganisation',
-                'forbidden': True,
-             }, {
-                'value': sc4.value,
-                'type':  sc4.set_type,
-                'ctype': 'creme_core.fakeorganisation',
-                'efilter': efilter.id,
-             },
+            [
+                {
+                    'value': sc1.value,
+                    'type':  sc1.set_type,
+                }, {
+                    'value': sc2.value,
+                    'type':  sc2.set_type,
+                    'ctype': 'creme_core.fakecontact',
+                }, {
+                    'value': sc3.value,
+                    'type':  sc3.set_type,
+                    'ctype': 'creme_core.fakeorganisation',
+                    'forbidden': True,
+                }, {
+                    'value': sc4.value,
+                    'type':  sc4.set_type,
+                    'ctype': 'creme_core.fakeorganisation',
+                    'efilter': efilter.id,
+                },
             ],
             role_info.get('credentials'),
         )

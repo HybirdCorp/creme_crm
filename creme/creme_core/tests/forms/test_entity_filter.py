@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 try:
     from datetime import date
     from functools import partial
@@ -967,7 +968,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                 '"field": {"name": "created", "type": "date"}, '
                 '"range": {"type": "", "end": "2011-2-30"}'
                 '}]'
-             )  # 30 february !!
+            )  # 30 february !!
         except ValidationError:
             pass
         else:

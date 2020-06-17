@@ -66,10 +66,10 @@ class EnumerableViewsTestCase(ViewsTestCase):
             is_custom=True,
             conditions=[
                 build_cond(
-                   model=models.FakeContact,
-                   operator=operators.EQUALS,
-                   field_name='first_name',
-                   values=['Misato'],
+                    model=models.FakeContact,
+                    operator=operators.EQUALS,
+                    field_name='first_name',
+                    values=['Misato'],
                 ),
             ],
         )

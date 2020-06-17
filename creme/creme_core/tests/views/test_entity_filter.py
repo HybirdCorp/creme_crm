@@ -467,9 +467,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                     'is_private': 'on',
 
                     'regularfieldcondition': self._build_rfields_data(
-                       operator=operators.EQUALS,
-                       name='last_name',
-                       value='Katsuragi',
+                        operator=operators.EQUALS,
+                        name='last_name',
+                        value='Katsuragi',
                     ),
                 },
             )
@@ -1482,10 +1482,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self._aux_edit_subfilter(efilter1, is_private='on')
         self.assertFormError(
             response, 'form', None,
-            _('This filter cannot be private and belong to a user '
-              'because it is a sub-filter for the filter "{}" which belongs to a team.'
-             ).format(efilter2.name)
-         )
+            _(
+                'This filter cannot be private and belong to a user because it '
+                'is a sub-filter for the filter "{}" which belongs to a team.'
+            ).format(efilter2.name)
+        )
 
         other_team = User.objects.create(username='TeamTitan', is_team=True)
         other_team.teammates = [user, self.other_user]

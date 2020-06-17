@@ -1067,9 +1067,11 @@ class ConditionProxyRelation(ConditionProxy):
 
             if entity is None:
                 raise ValidationError(
-                    _('The condition on relation-type is invalid in the filter '
-                      'id="{id}" (unknown uuid={uuid}).').format(
-                      id=self.efilter_id, uuid=entity_uuid,
+                    _(
+                        'The condition on relation-type is invalid in the '
+                        'filter id="{id}" (unknown uuid={uuid}).'
+                    ).format(
+                        id=self.efilter_id, uuid=entity_uuid,
                     )
                 )
 

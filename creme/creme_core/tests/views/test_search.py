@@ -464,25 +464,25 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         url = self.LIGHT_URL
         response = self.assertGET200(url)
-        self.assertEqual(
+        self.assertDictEqual(
             {
-             # 'query': {'content': '',
-             #           'limit': 5,
-             #           'ctype': None,
-             #          },
-             'error': _('Empty search…'),
+                # 'query': {'content': '',
+                #           'limit': 5,
+                #           'ctype': None,
+                #          },
+                'error': _('Empty search…'),
             },
             response.json()
         )
 
         response = self.assertGET200(url, data={'value': 'co'})
-        self.assertEqual(
+        self.assertDictEqual(
             {
-             # 'query': {'content': 'co',
-             #           'limit': 5,
-             #           'ctype': None,
-             #          },
-             'error': _('Please enter at least {count} characters').format(count=3),
+                # 'query': {'content': 'co',
+                #           'limit': 5,
+                #           'ctype': None,
+                #          },
+                'error': _('Please enter at least {count} characters').format(count=3),
             },
             response.json()
         )

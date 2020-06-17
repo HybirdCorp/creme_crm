@@ -525,8 +525,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         url = self.build_delete_calendar_url(cal)
         response = self.assertGET409(url)
         self.assertIn(
-           escape(_('You cannot delete this calendar: it is not custom.')),
-           response.content.decode()
+            escape(_('You cannot delete this calendar: it is not custom.')),
+            response.content.decode()
         )
 
         self.get_object_or_fail(Calendar, pk=cal.pk)
@@ -615,8 +615,8 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         response = self.assertGET403(self.build_delete_calendar_url(cal))
         self.assertIn(
-           escape(_('You are not allowed to delete this calendar.')),
-           response.content.decode()
+            escape(_('You are not allowed to delete this calendar.')),
+            response.content.decode()
         )
 
     def test_delete_calendar05(self):

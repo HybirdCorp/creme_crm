@@ -452,29 +452,31 @@ class DatesTestCase(CremeTestCase):
                         )
 
     def test_dt_to_ISO8601(self):
-        self.assertEqual('2015-01-16T15:22:03.357000Z',
-                         dt_to_ISO8601(
-                             self.create_datetime(year=2015, month=1, day=16, hour=15,
-                                                  minute=22, second=3, microsecond=357000,
-                                                  utc=True,
-                                                 )
-                            )
-                        )
-        self.assertEqual('2018-02-04T18:41:25.123000Z',
-                         dt_to_ISO8601(
-                             make_aware(datetime(year=2018, month=2, day=4, hour=19,
-                                                 minute=41, second=25, microsecond=123000,
-                                                ),
-                                        timezone=timezone('Europe/Paris'),  # DST: +1h
-                                       )
-                            )
-                        )
-        self.assertEqual('2018-03-05T19:41:25.123000Z',
-                         dt_to_ISO8601(datetime(year=2018, month=3, day=5, hour=19,
-                                                minute=41, second=25, microsecond=123000,
-                                               ),
-                                      )
-                         )
+        self.assertEqual(
+            '2015-01-16T15:22:03.357000Z',
+            dt_to_ISO8601(self.create_datetime(
+                year=2015, month=1, day=16, hour=15,
+                minute=22, second=3, microsecond=357000,
+                utc=True,
+            ))
+        )
+        self.assertEqual(
+            '2018-02-04T18:41:25.123000Z',
+            dt_to_ISO8601(make_aware(
+                datetime(
+                    year=2018, month=2, day=4, hour=19,
+                    minute=41, second=25, microsecond=123000,
+                ),
+                timezone=timezone('Europe/Paris'),  # DST: +1h
+            ))
+        )
+        self.assertEqual(
+            '2018-03-05T19:41:25.123000Z',
+            dt_to_ISO8601(datetime(
+                year=2018, month=3, day=5, hour=19,
+                minute=41, second=25, microsecond=123000,
+            ))
+        )
 
     def test_dt_from_str(self):
         create_dt = self.create_datetime

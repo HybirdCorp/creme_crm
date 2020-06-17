@@ -115,7 +115,7 @@ class RelationsBrick(QuerysetBrick):
                 *RelationType.objects.filter(
                     id__in=used_rtype_ids,
                     minimal_display=True,
-                 ).values_list('id', flat=True),
+                ).values_list('id', flat=True),
             }
             included_rtype_ids.extend(rtype_id for rtype_id in used_rtype_ids if rtype_id not in excluded_rtype_ids_set)
             excluded_rtype_ids.extend(excluded_rtype_ids_set)

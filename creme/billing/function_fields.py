@@ -107,7 +107,7 @@ def sum_totals_no_vat_multi(model, entities, user, **kwargs):
             is_deleted=False,
             total_no_vat__isnull=False,
             **kwargs
-         ).values_list('id', 'total_no_vat', 'relations__object_entity')
+        ).values_list('id', 'total_no_vat', 'relations__object_entity')
     ):
         bill_info_map[e_id].append((bill_id, total))
         bill_ids.append(bill_id)

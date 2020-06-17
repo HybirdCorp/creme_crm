@@ -1771,7 +1771,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             },
             # condition.decoded_value
             condition.value
-         )
+        )
 
         handler = CustomFieldConditionHandler.build(
             model=FakeContact,
@@ -1815,7 +1815,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             },
             # condition.decoded_value
             condition.value
-         )
+        )
 
     def test_customfield_condition03(self):
         "Build condition + errors."
@@ -3316,7 +3316,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             data={
                 'has': True,
                 'filter_id': subfilter_id,
-             },
+            },
         )
         self.assertEqual(FakeContact,  handler.model)
         self.assertEqual(subfilter_id, handler.subfilter_id)

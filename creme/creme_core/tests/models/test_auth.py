@@ -1039,12 +1039,13 @@ class CredentialsTestCase(CremeTestCase):
             filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeContact,
-                operator=operators.IEQUALS,
-                field_name='last_name', values=[contact1.last_name],
-                filter_type=EF_CREDENTIALS,
-             ),
+            [
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.IEQUALS,
+                    field_name='last_name', values=[contact1.last_name],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -3293,7 +3294,7 @@ class CredentialsTestCase(CremeTestCase):
         contact3 = FakeContact.objects.create(
             user=user, sandbox=sandbox,
             first_name='Ito', last_name='Ittosaï',
-         )
+        )
 
         contact1 = self.contact1
         self.assertTrue(user.has_perm_to_view(contact1))

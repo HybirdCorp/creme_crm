@@ -229,68 +229,71 @@ class Populator(BasePopulator):
             build_cell = EntityCellRegularField.build
 
             # cbci_orga_1 =
-            create_cbci(id='persons-organisation_main_info',
-                        name=_('Organisation information'),
-                        content_type=Organisation,
-                        cells=[
-                           build_cell(Organisation, 'name'),
-                           build_cell(Organisation, 'is_managed'),
-                           build_cell(Organisation, 'staff_size'),
-                           build_cell(Organisation, 'legal_form'),
-                           build_cell(Organisation, 'sector'),
-                           build_cell(Organisation, 'capital'),
-                           build_cell(Organisation, 'siren'),
-                           build_cell(Organisation, 'naf'),
-                           build_cell(Organisation, 'siret'),
-                           build_cell(Organisation, 'rcs'),
-                           build_cell(Organisation, 'tvaintra'),
-                           build_cell(Organisation, 'subject_to_vat'),
-                           build_cell(Organisation, 'annual_revenue'),
-                           build_cell(Organisation, 'creation_date'),
-                           build_cell(Organisation, 'image'),
-                           # --
-                           build_cell(Organisation, 'description'),
-                           # --
-                           build_cell(Organisation, 'created'),
-                           build_cell(Organisation, 'modified'),
-                           build_cell(Organisation, 'user'),
-                        ],
-                       )
+            create_cbci(
+                id='persons-organisation_main_info',
+                name=_('Organisation information'),
+                content_type=Organisation,
+                cells=[
+                    build_cell(Organisation, 'name'),
+                    build_cell(Organisation, 'is_managed'),
+                    build_cell(Organisation, 'staff_size'),
+                    build_cell(Organisation, 'legal_form'),
+                    build_cell(Organisation, 'sector'),
+                    build_cell(Organisation, 'capital'),
+                    build_cell(Organisation, 'siren'),
+                    build_cell(Organisation, 'naf'),
+                    build_cell(Organisation, 'siret'),
+                    build_cell(Organisation, 'rcs'),
+                    build_cell(Organisation, 'tvaintra'),
+                    build_cell(Organisation, 'subject_to_vat'),
+                    build_cell(Organisation, 'annual_revenue'),
+                    build_cell(Organisation, 'creation_date'),
+                    build_cell(Organisation, 'image'),
+                    # --
+                    build_cell(Organisation, 'description'),
+                    # --
+                    build_cell(Organisation, 'created'),
+                    build_cell(Organisation, 'modified'),
+                    build_cell(Organisation, 'user'),
+                ],
+            )
             # cbci_orga_2 =
-            create_cbci(id='persons-organisation_details',
-                        name=_('Organisation details'),
-                        content_type=Organisation,
-                        cells=[
-                          build_cell(Organisation, 'phone'),
-                          build_cell(Organisation, 'fax'),
-                          build_cell(Organisation, 'email'),
-                          build_cell(Organisation, 'url_site'),
-                        ],
-                       )
-            cbci_orga_extra = create_cbci(id='persons-organisation_complementary',
-                                          name=_('Organisation complementary information'),
-                                          content_type=Organisation,
-                                          cells=[
-                                              build_cell(Organisation, 'staff_size'),
-                                              build_cell(Organisation, 'sector'),
-                                              build_cell(Organisation, 'capital'),
-                                              build_cell(Organisation, 'siren'),
-                                              build_cell(Organisation, 'naf'),
-                                              build_cell(Organisation, 'siret'),
-                                              build_cell(Organisation, 'rcs'),
-                                              build_cell(Organisation, 'tvaintra'),
-                                              build_cell(Organisation, 'subject_to_vat'),
-                                              build_cell(Organisation, 'annual_revenue'),
-                                              build_cell(Organisation, 'creation_date'),
-                                              build_cell(Organisation, 'image'),
-                                              # --
-                                              build_cell(Organisation, 'description'),
-                                              # --
-                                              build_cell(Organisation, 'fax'),
-                                              build_cell(Organisation, 'email'),
-                                              build_cell(Organisation, 'url_site'),
-                                          ],
-                                         )
+            create_cbci(
+                id='persons-organisation_details',
+                name=_('Organisation details'),
+                content_type=Organisation,
+                cells=[
+                    build_cell(Organisation, 'phone'),
+                    build_cell(Organisation, 'fax'),
+                    build_cell(Organisation, 'email'),
+                    build_cell(Organisation, 'url_site'),
+                ],
+            )
+            cbci_orga_extra = create_cbci(
+                id='persons-organisation_complementary',
+                name=_('Organisation complementary information'),
+                content_type=Organisation,
+                cells=[
+                    build_cell(Organisation, 'staff_size'),
+                    build_cell(Organisation, 'sector'),
+                    build_cell(Organisation, 'capital'),
+                    build_cell(Organisation, 'siren'),
+                    build_cell(Organisation, 'naf'),
+                    build_cell(Organisation, 'siret'),
+                    build_cell(Organisation, 'rcs'),
+                    build_cell(Organisation, 'tvaintra'),
+                    build_cell(Organisation, 'subject_to_vat'),
+                    build_cell(Organisation, 'annual_revenue'),
+                    build_cell(Organisation, 'creation_date'),
+                    build_cell(Organisation, 'image'),
+                    # --
+                    build_cell(Organisation, 'description'),
+                    # --
+                    build_cell(Organisation, 'fax'),
+                    build_cell(Organisation, 'email'),
+                    build_cell(Organisation, 'url_site'),
+                ],
+            )
 
             HAT   = core_models.BrickDetailviewLocation.HAT
             LEFT  = core_models.BrickDetailviewLocation.LEFT
@@ -310,55 +313,58 @@ class Populator(BasePopulator):
             create_bdl(brick=rbi_2.brick_id,                   order=10,  zone=RIGHT, model=Organisation)
             create_bdl(brick=core_bricks.HistoryBrick,         order=30,  zone=RIGHT, model=Organisation)
 
-            create_cbci(id='persons-contact_main_info',
-                        name=_('Contact information'),
-                        content_type=Contact,
-                        cells=[
-                           build_cell(Contact, 'civility'),
-                           build_cell(Contact, 'first_name'),
-                           build_cell(Contact, 'last_name'),
-                           build_cell(Contact, 'sector'),
-                           build_cell(Contact, 'position'),
-                           build_cell(Contact, 'full_position'),
-                           build_cell(Contact, 'is_user'),
-                           build_cell(Contact, 'birthday'),
-                           build_cell(Contact, 'image'),
-                           # --
-                           build_cell(Contact, 'description'),
-                           # --
-                           build_cell(Contact, 'created'),
-                           build_cell(Contact, 'modified'),
-                           build_cell(Contact, 'user'),
-                        ],
-                       )
-            create_cbci(id='persons-contact_details',
-                        name=_('Contact details'),
-                        content_type=Contact,
-                        cells=[
-                           build_cell(Contact, 'phone'),
-                           build_cell(Contact, 'mobile'),
-                           build_cell(Contact, 'fax'),
-                           build_cell(Contact, 'email'),
-                           build_cell(Contact, 'url_site'),
-                           build_cell(Contact, 'skype'),
-                        ],
-                       )
-            cbci_contact_extra = create_cbci(id='persons-contact_complementary',
-                                             name=_('Contact complementary information'),
-                                             content_type=Contact,
-                                             cells=[
-                                                 build_cell(Contact, 'sector'),
-                                                 build_cell(Contact, 'full_position'),
-                                                 build_cell(Contact, 'birthday'),
-                                                 build_cell(Contact, 'image'),
-                                                 # --
-                                                 build_cell(Contact, 'description'),
-                                                 # --
-                                                 build_cell(Contact, 'fax'),
-                                                 build_cell(Contact, 'url_site'),
-                                                 build_cell(Contact, 'skype'),
-                                             ],
-                                            )
+            create_cbci(
+                id='persons-contact_main_info',
+                name=_('Contact information'),
+                content_type=Contact,
+                cells=[
+                    build_cell(Contact, 'civility'),
+                    build_cell(Contact, 'first_name'),
+                    build_cell(Contact, 'last_name'),
+                    build_cell(Contact, 'sector'),
+                    build_cell(Contact, 'position'),
+                    build_cell(Contact, 'full_position'),
+                    build_cell(Contact, 'is_user'),
+                    build_cell(Contact, 'birthday'),
+                    build_cell(Contact, 'image'),
+                    # --
+                    build_cell(Contact, 'description'),
+                    # --
+                    build_cell(Contact, 'created'),
+                    build_cell(Contact, 'modified'),
+                    build_cell(Contact, 'user'),
+                ],
+            )
+            create_cbci(
+                id='persons-contact_details',
+                name=_('Contact details'),
+                content_type=Contact,
+                cells=[
+                    build_cell(Contact, 'phone'),
+                    build_cell(Contact, 'mobile'),
+                    build_cell(Contact, 'fax'),
+                    build_cell(Contact, 'email'),
+                    build_cell(Contact, 'url_site'),
+                    build_cell(Contact, 'skype'),
+                ],
+            )
+            cbci_contact_extra = create_cbci(
+                id='persons-contact_complementary',
+                name=_('Contact complementary information'),
+                content_type=Contact,
+                cells=[
+                    build_cell(Contact, 'sector'),
+                    build_cell(Contact, 'full_position'),
+                    build_cell(Contact, 'birthday'),
+                    build_cell(Contact, 'image'),
+                    # --
+                    build_cell(Contact, 'description'),
+                    # --
+                    build_cell(Contact, 'fax'),
+                    build_cell(Contact, 'url_site'),
+                    build_cell(Contact, 'skype'),
+                ],
+            )
 
             create_bdl(brick=bricks.ContactCardHatBrick,       order=1,   zone=HAT,   model=Contact)
             create_bdl(brick=cbci_contact_extra.generate_id(), order=30,  zone=LEFT,  model=Contact)

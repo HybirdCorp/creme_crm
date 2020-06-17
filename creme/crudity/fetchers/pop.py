@@ -111,7 +111,7 @@ class PopFetcher(CrudityFetcher):
             subject = ''.join(
                 s.decode(enc) if enc is not None else safe_unicode(s)
                 for s, enc in email.header.decode_header(email_message.get('subject', []))
-             )
+            )
 
             dates = [datetime(*parsedate(d)[:-3]) for d in get_all('date', []) if d is not None]
 

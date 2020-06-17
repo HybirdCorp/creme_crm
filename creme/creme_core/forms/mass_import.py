@@ -281,9 +281,9 @@ class ExtractorWidget(BaseExtractorWidget):  # TODO: rename (Regular/Base)FieldE
             name=f'{name}_colselect',
             value=selected_col,
             attrs={
-               'id': f'{id_attr}_colselect',
-               'class': 'csv_col_select',
-               'required': required,
+                'id': f'{id_attr}_colselect',
+                'class': 'csv_col_select',
+                'required': required,
             },
         )['widget']
 
@@ -922,7 +922,7 @@ class CustomFieldExtractor:
                     enum_value = CustomFieldEnumValue.objects.filter(
                         custom_field=self._custom_field,
                         value__iexact=line_value,
-                     ).first()
+                    ).first()
 
                     if enum_value is not None:
                         return (
