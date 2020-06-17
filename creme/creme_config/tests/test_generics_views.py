@@ -329,7 +329,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                 ),
             ],
             deletor_type.get_description(job)
-         )
+        )
 
         deletor_type.execute(job)
         self.assertDoesNotExist(pos2del)
@@ -713,12 +713,13 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         hline = HistoryLine.objects.filter(entity=ticket1.id).order_by('-id').first()
         self.assertIsNotNone(hline)
         self.assertEqual(TYPE_EDITION, hline.type)
-        self.assertEqual(
-            [gettext('Set field “{field}” from “{oldvalue}” to “{value}”').format(
-                field=_('Status'),
-                oldvalue=status2del.id,
-                value=default_status,
-             ),
+        self.assertListEqual(
+            [
+                gettext('Set field “{field}” from “{oldvalue}” to “{value}”').format(
+                    field=_('Status'),
+                    oldvalue=status2del.id,
+                    value=default_status,
+                ),
             ],
             hline.get_verbose_modifications(self.user)
         )
@@ -809,12 +810,13 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         hline = HistoryLine.objects.filter(entity=ticket2.id).order_by('-id').first()
         self.assertIsNotNone(hline)
         self.assertEqual(TYPE_EDITION, hline.type)
-        self.assertEqual(
-            [gettext('Set field “{field}” from “{oldvalue}” to “{value}”').format(
-                field=_('Priority'),
-                oldvalue=prio2del.id,
-                value=fallback_priority,
-             ),
+        self.assertListEqual(
+            [
+                gettext('Set field “{field}” from “{oldvalue}” to “{value}”').format(
+                    field=_('Priority'),
+                    oldvalue=prio2del.id,
+                    value=fallback_priority,
+                ),
             ],
             hline.get_verbose_modifications(self.user)
         )
@@ -1002,15 +1004,16 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             dcom
         )
 
-        self.assertEqual(
-            [_('Deleting «{object}» ({model})').format(
-                object=pos2del.title, model='Test People position',
-            ),
-             # NB: hidden
-             # _('Empty «{model} - {field}»').format(
-             #        model='Test Contact',
-             #        field=_('Position'),
-             # ),
+        self.assertListEqual(
+            [
+                _('Deleting «{object}» ({model})').format(
+                    object=pos2del.title, model='Test People position',
+                ),
+                # NB: hidden
+                # _('Empty «{model} - {field}»').format(
+                #        model='Test Contact',
+                #        field=_('Position'),
+                # ),
             ],
             deletor_type.get_description(dcom.job)
         )

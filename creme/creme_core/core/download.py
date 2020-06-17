@@ -92,8 +92,8 @@ class FileFieldDownLoadRegistry:
     def __init__(self, *,
                  default_permission_checker: PermissionChecker = check_app_permission,
                  permission_checkers: Iterable[Tuple[Model, PermissionChecker]] = (
-                    (CremeEntity, check_entity_permission),
-                    (FileRef,     check_fileref_permission),
+                     (CremeEntity, check_entity_permission),
+                     (FileRef,     check_fileref_permission),
                  ),
                 ):
         self._models_fields: \

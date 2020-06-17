@@ -1299,12 +1299,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             use_or=True,
         )
         efilter1.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeContact,
-                operator=operators.ISTARTSWITH,
-                field_name='last_name', values=['Agency of'],
-                filter_type=EF_CREDENTIALS,
-             ),
+            [
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.ISTARTSWITH,
+                    field_name='last_name', values=['Agency of'],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,   # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -1444,12 +1445,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             use_or=False,
         )
         efilter1.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeContact,
-                operator=operators.ISTARTSWITH,
-                field_name='last_name', values=['Agency of'],
-                filter_type=EF_CREDENTIALS,
-             ),
+            [
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.ISTARTSWITH,
+                    field_name='last_name', values=['Agency of'],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,   # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -1547,12 +1549,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeContact,
-                operator=operators.EQUALS,
-                field_name='last_name', values=['Agent#'],
-                filter_type=EF_CREDENTIALS,
-             ),
+            [
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EQUALS,
+                    field_name='last_name', values=['Agent#'],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -1612,12 +1615,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             filter_type=EF_CREDENTIALS,
         )
         efilter1.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=CremeEntity,
-                operator=operators.ICONTAINS,
-                field_name='description', values=['Important'],
-                filter_type=EF_CREDENTIALS,
-             ),
+            [
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=CremeEntity,
+                    operator=operators.ICONTAINS,
+                    field_name='description', values=['Important'],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -1788,12 +1792,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             filter_type=EF_CREDENTIALS,
         )
         efilter1.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=CremeEntity,
-                operator=operators.ICONTAINS,
-                field_name='description', values=['Important'],
-                filter_type=EF_CREDENTIALS,
-             ),
+            [
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=CremeEntity,
+                    operator=operators.ICONTAINS,
+                    field_name='description', values=['Important'],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.

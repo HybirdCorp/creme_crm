@@ -49,12 +49,13 @@ def dl_png(request, graph_id):
     except ImportError:
         return render(
             request, 'graphs/graph_error.html',
-            {'error_message': gettext(
-                'The package "pygraphviz" is not installed ; '
-                'please contact your administrator.'
-             )
+            {
+                'error_message': gettext(
+                    'The package "pygraphviz" is not installed ; '
+                    'please contact your administrator.'
+                ),
             },
-         )
+        )
     except Graph.GraphException:
         return render(
             request, 'graphs/graph_error.html',

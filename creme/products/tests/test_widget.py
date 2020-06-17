@@ -41,11 +41,12 @@ class CreatorCategorySelectorWidgetTestCase(CremeTestCase):
         widget._build_actions({})
 
         self.assertListEqual(
-            [self._build_create_action(
-                SubCategory.creation_label, _('Create'),
-                url=creation_url + '?category=${_delegate_.category}',
-                enabled=True,
-             ),
+            [
+                self._build_create_action(
+                    SubCategory.creation_label, _('Create'),
+                    url=creation_url + '?category=${_delegate_.category}',
+                    enabled=True,
+                ),
             ],
             widget.actions
         )
@@ -59,11 +60,12 @@ class CreatorCategorySelectorWidgetTestCase(CremeTestCase):
         widget._build_actions({})
 
         self.assertListEqual(
-            [self._build_create_action(
-                SubCategory.creation_label, _("Can't create"),
-                url=creation_url + '?category=${_delegate_.category}',
-                enabled=False,
-             ),
+            [
+                self._build_create_action(
+                    SubCategory.creation_label, _("Can't create"),
+                    url=creation_url + '?category=${_delegate_.category}',
+                    enabled=False,
+                ),
             ],
             widget.actions
         )
@@ -73,23 +75,26 @@ class CreatorCategorySelectorWidgetTestCase(CremeTestCase):
 
         categories = ChoiceModelIterator(Category.objects.all())
         creation_url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
-        widget = CreatorCategorySelector(categories=categories, creation_url=creation_url, creation_allowed=True)
+        widget = CreatorCategorySelector(
+            categories=categories, creation_url=creation_url, creation_allowed=True,
+        )
         widget._build_actions({})
 
-        self.assertEqual(
-            [self._build_create_action(
-                SubCategory.creation_label, _('Create'),
-                creation_url + '?category=${_delegate_.category}',
-             ),
+        self.assertListEqual(
+            [
+                self._build_create_action(
+                    SubCategory.creation_label, _('Create'),
+                    creation_url + '?category=${_delegate_.category}',
+                ),
             ],
             widget.actions
         )
 
         widget._build_actions({'readonly': True})
-        self.assertEqual([], widget.actions)
+        self.assertListEqual([], widget.actions)
 
         widget._build_actions({'disabled': True})
-        self.assertEqual([], widget.actions)
+        self.assertListEqual([], widget.actions)
 
     def test_render(self):
         user = self.login()

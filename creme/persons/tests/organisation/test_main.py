@@ -528,7 +528,7 @@ class OrganisationTestCase(_BaseTestCase):
 
                     'customers_managed_orga': managed.id,
                     'customers_rtypes': [constants.REL_SUB_SUSPECT],
-                 },
+                },
             )
             self.assertNoFormError(response)
 
@@ -577,7 +577,7 @@ class OrganisationTestCase(_BaseTestCase):
 
             'customers_managed_orga': managed1.id,
             'customers_rtypes': [constants.REL_SUB_SUSPECT],
-         }
+        }
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
             response, 'form', 'customers_managed_orga',

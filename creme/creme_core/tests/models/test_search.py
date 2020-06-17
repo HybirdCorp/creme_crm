@@ -260,8 +260,10 @@ class SearchConfigTestCase(CremeTestCase):
         "Fields + disabled."
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeOrganisation, ['name', 'phone'], disabled=True,
-         )
-        self.assertListEqual(['name', 'phone'], [sf.name for sf in sc_item.searchfields])
+        )
+        self.assertListEqual(
+            ['name', 'phone'], [sf.name for sf in sc_item.searchfields]
+        )
 
     def test_get_4_models01(self):  # DEPRECATED
         "No model."

@@ -116,8 +116,8 @@ AUTH_PASSWORD_VALIDATORS = [
 USE_TZ = True
 
 LANGUAGES = [
-  ('en', 'English'),
-  ('fr', 'French'),
+    ('en', 'English'),
+    ('fr', 'French'),
 ]
 
 # If you set this to False, Django will make some optimizations so as not

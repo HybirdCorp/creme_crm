@@ -131,14 +131,17 @@ class AbscissaWidget(ChainedInput):
                 constraint_dname = self.constraint_data_name
 
                 cell_choices.append(
-                    (cell_cls.verbose_name,
-                     [(json_dump({
-                         ckey_dname: cell.key,
-                         constraint_dname: cell.grouping_category,
-                       }),
-                       str(cell)
-                      ) for cell in cells
-                     ]
+                    (
+                        cell_cls.verbose_name,
+                        [
+                            (
+                                json_dump({
+                                    ckey_dname: cell.key,
+                                    constraint_dname: cell.grouping_category,
+                                }),
+                                str(cell)
+                            ) for cell in cells
+                        ]
                     )
                 )
 
@@ -151,11 +154,12 @@ class AbscissaWidget(ChainedInput):
         get_constraint = partial(registry.get_constraint_by_rgraph_type, model=self.model)
 
         return [
-            (json_dump({
-                gtype_id_dname: rgraph_type,
-                constraint_dname: get_constraint(rgraph_type=rgraph_type).type_id,
-             }),
-             GROUP_TYPES.get(rgraph_type, '??'),
+            (
+                json_dump({
+                    gtype_id_dname: rgraph_type,
+                    constraint_dname: get_constraint(rgraph_type=rgraph_type).type_id,
+                }),
+                GROUP_TYPES.get(rgraph_type, '??'),
             ) for rgraph_type in registry.rgraph_types
         ]
 
@@ -459,14 +463,17 @@ class OrdinateWidget(ChainedInput):
                 cells.sort(key=lambda cell: sort_key(str(cell)))
 
                 cell_choices.append(
-                    (cell_cls.verbose_name,
-                     [(json_dump({
-                         ckey_dname: cell.key,
-                         constraint_dname: cell.grouping_category,
-                       }),
-                       str(cell)
-                      ) for cell in cells
-                     ]
+                    (
+                        cell_cls.verbose_name,
+                        [
+                            (
+                                json_dump({
+                                    ckey_dname: cell.key,
+                                    constraint_dname: cell.grouping_category,
+                                }),
+                                str(cell)
+                            ) for cell in cells
+                        ]
                     )
                 )
 

@@ -1051,25 +1051,28 @@ class ImportingTestCase(CremeTestCase):
         pk2a = pk_fmt(2)
 
         rtypes_data = [
-            {'id':          pk1a, 'predicate':       'loves',
-             'is_copiable': True, 'minimal_display': False,
+            {
+                'id':          pk1a, 'predicate':       'loves',
+                'is_copiable': True, 'minimal_display': False,
 
-             'subject_properties': [ptype1.id, ptype2.id],
-             'object_properties':  [ptype3.id],
+                'subject_properties': [ptype1.id, ptype2.id],
+                'object_properties':  [ptype3.id],
 
-             'symmetric': {
-                'predicate': 'is loved by', 'is_copiable': False, 'minimal_display': True,
-             },
-            },
-            {'id':          pk2a, 'predicate':        'likes',
-             'is_copiable': False, 'minimal_display': True,
+                'symmetric': {
+                    'predicate': 'is loved by', 'is_copiable': False,
+                    'minimal_display': True,
+                },
+            }, {
+                'id':          pk2a, 'predicate':        'likes',
+                'is_copiable': False, 'minimal_display': True,
 
-             'subject_ctypes': ['creme_core.fakecontact', 'creme_core.fakeorganisation'],
-             'object_ctypes':  ['creme_core.fakedocument'],
+                'subject_ctypes': ['creme_core.fakecontact', 'creme_core.fakeorganisation'],
+                'object_ctypes':  ['creme_core.fakedocument'],
 
-             'symmetric': {
-                 'predicate': 'is liked by', 'is_copiable': True, 'minimal_display': False,
-             },
+                'symmetric': {
+                    'predicate': 'is liked by', 'is_copiable': True,
+                    'minimal_display': False,
+                },
             },
         ]
 
@@ -2068,7 +2071,7 @@ class ImportingTestCase(CremeTestCase):
                     field_name='is_user',
                     values=[operands.CurrentUserOperand.type_id],
                 ),
-             ],
+            ],
         )
 
         efilters_data = [
@@ -2388,7 +2391,7 @@ class ImportingTestCase(CremeTestCase):
                         'value': {'has': True},
                     },
                 ],
-             },
+            },
         ]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))
@@ -2598,7 +2601,7 @@ class ImportingTestCase(CremeTestCase):
                         'value': {'operator': 1, 'values': ['Spike']},
                     },
                 ],
-             }, {
+            }, {
                 'id':         ef_id2,
                 'name':       'Contact view with related subfilter',
                 'ctype':      ct_str_c,
@@ -2610,7 +2613,7 @@ class ImportingTestCase(CremeTestCase):
                         'filter_id': ef_id1,
                     },
                 }],
-             },
+            },
         ]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))

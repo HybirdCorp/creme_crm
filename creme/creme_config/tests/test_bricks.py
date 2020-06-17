@@ -1457,7 +1457,7 @@ class BricksConfigTestCase(CremeTestCase):
             block
             for brick_id, block in self.brick_registry
             if hasattr(block, 'home_display')
-         ]
+        ]
         self.assertGreaterEqual(len(bricks), 2)
 
         create_bhl = partial(BrickHomeLocation.objects.create, brick_id=bricks[0].id_, order=1)
@@ -2170,8 +2170,7 @@ class BricksConfigTestCase(CremeTestCase):
                          f'function_field-{funcfield.name},'
                          f'custom_field-{customfield.id}',
             },
-           )
-        )
+        ))
 
         cbc_item = self.refresh(cbc_item)
         self.assertEqual(name, cbc_item.name)

@@ -352,7 +352,7 @@ class FieldsConfigTestCase(CremeTestCase):
                 (h_field,   {FieldsConfig.HIDDEN: True}),
                 ('invalid', {FieldsConfig.HIDDEN: True}),
             ],
-         )
+        )
 
         fconf = self.refresh(fconf)
         self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))

@@ -89,15 +89,16 @@ class StatisticsTestCase(CremeTestCase):
                             type_id=ACTIVITYTYPE_TASK,
                            )
 
-        self.assertEqual(
-            [ngettext(
-                '{count} meeting per month',
-                '{count} meetings per month',
-                1.5
-             ).format(
-                count=number_format(1.5, decimal_pos=1, use_l10n=True),
-             ),
-             _('No phone call since one year'),
+        self.assertListEqual(
+            [
+                ngettext(
+                    '{count} meeting per month',
+                    '{count} meetings per month',
+                    1.5
+                ).format(
+                    count=number_format(1.5, decimal_pos=1, use_l10n=True),
+                ),
+                _('No phone call since one year'),
             ],
             AveragePerMonthStatistics(Activity)()
         )
@@ -121,15 +122,16 @@ class StatisticsTestCase(CremeTestCase):
                             start=now_value - relativedelta(months=i),
                            )
 
-        self.assertEqual(
-            [_('No meeting since one year'),
-             ngettext(
-                 '{count} phone call per month',
-                 '{count} phone calls per month',
-                 0.5
-             ).format(
-                 count=number_format(0.5, decimal_pos=1, use_l10n=True),
-             ),
+        self.assertListEqual(
+            [
+                _('No meeting since one year'),
+                ngettext(
+                    '{count} phone call per month',
+                    '{count} phone calls per month',
+                    0.5
+                ).format(
+                    count=number_format(0.5, decimal_pos=1, use_l10n=True),
+                ),
             ],
             AveragePerMonthStatistics(Activity)()
         )

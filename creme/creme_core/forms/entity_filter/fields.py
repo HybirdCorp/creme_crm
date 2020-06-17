@@ -968,8 +968,8 @@ class PropertiesConditionsField(_ConditionsField):
 
         return [
             build_condition(
-              ptype=clean_ptype(entry),
-              has=clean_value(entry, 'has', bool),
+                ptype=clean_ptype(entry),
+                has=clean_value(entry, 'has', bool),
             ) for entry in data
         ]
 

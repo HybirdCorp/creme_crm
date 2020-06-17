@@ -260,10 +260,11 @@ class DatePeriodFieldTestCase(FieldTestCase):
         with self.assertRaises(ValidationError) as cm:
             DatePeriodField().clean(['days', '0'])
 
-        self.assertEqual(
-            [_('Ensure this value is greater than or equal to %(limit_value)s.') % {
-                'limit_value': 1,
-             },
+        self.assertListEqual(
+            [
+                _('Ensure this value is greater than or equal to %(limit_value)s.') % {
+                    'limit_value': 1,
+                },
             ],
             cm.exception.messages
         )

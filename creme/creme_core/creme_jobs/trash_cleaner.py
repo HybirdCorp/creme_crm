@@ -127,11 +127,12 @@ class _TrashCleanerType(JobType):
         count = TrashCleaningCommand.objects.get(job=job).deleted_count
 
         return JobProgress(
-           percentage=None,
-           label=ngettext('{count} entity deleted.',
-                          '{count} entities deleted.',
-                          count
-                         ).format(count=count),
+            percentage=None,
+            label=ngettext(
+                '{count} entity deleted.',
+                '{count} entities deleted.',
+                count
+            ).format(count=count),
         )
 
     # TODO: factorise

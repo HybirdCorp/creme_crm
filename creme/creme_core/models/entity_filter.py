@@ -507,15 +507,16 @@ class EntityFilter(models.Model):  # CremeModel ???
                                                    .values_list('name', flat=True)
 
                 if invalid_filter_names:
-                    raise EntityFilter.PrivacyError(ngettext(
-                        'A private filter which belongs to a team can only use public sub-filters & '
-                        'private sub-filters which belong to this team.'
-                        ' So this private sub-filter cannot be chosen: {}',
-                        'A private filter which belongs to a team can only use public sub-filters & '
-                        'private sub-filters which belong to this team.'
-                        ' So these private sub-filters cannot be chosen: {}',
-                        len(invalid_filter_names)
-                     ).format(', '.join(invalid_filter_names))
+                    raise EntityFilter.PrivacyError(
+                        ngettext(
+                            'A private filter which belongs to a team can only use public sub-filters & '
+                            'private sub-filters which belong to this team.'
+                            ' So this private sub-filter cannot be chosen: {}',
+                            'A private filter which belongs to a team can only use public sub-filters & '
+                            'private sub-filters which belong to this team.'
+                            ' So these private sub-filters cannot be chosen: {}',
+                            len(invalid_filter_names)
+                        ).format(', '.join(invalid_filter_names))
                     )
             else:
                 invalid_filter_names = EntityFilter.objects \
@@ -524,15 +525,16 @@ class EntityFilter(models.Model):  # CremeModel ???
                                                    .values_list('name', flat=True)
 
                 if invalid_filter_names:
-                    raise EntityFilter.PrivacyError(ngettext(
-                        'A private filter can only use public sub-filters, & private sub-filters '
-                        'which belong to the same user and his teams.'
-                        ' So this private sub-filter cannot be chosen: {}',
-                        'A private filter can only use public sub-filters, & private sub-filters '
-                        'which belong to the same user and his teams.'
-                        ' So these private sub-filters cannot be chosen: {}',
-                        len(invalid_filter_names)
-                     ).format(', '.join(invalid_filter_names))
+                    raise EntityFilter.PrivacyError(
+                        ngettext(
+                            'A private filter can only use public sub-filters, & private sub-filters '
+                            'which belong to the same user and his teams.'
+                            ' So this private sub-filter cannot be chosen: {}',
+                            'A private filter can only use public sub-filters, & private sub-filters '
+                            'which belong to the same user and his teams.'
+                            ' So these private sub-filters cannot be chosen: {}',
+                            len(invalid_filter_names)
+                        ).format(', '.join(invalid_filter_names))
                     )
         else:
             invalid_filter_names = EntityFilter.objects \
@@ -542,11 +544,12 @@ class EntityFilter(models.Model):  # CremeModel ???
             if invalid_filter_names:
                 # All user can see this filter, so all user should have the permission
                 # to see the sub-filters too ; so they have to be public (is_private=False)
-                raise EntityFilter.PrivacyError(ngettext(
-                    'Your filter must be private in order to use this private sub-filter: {}',
-                    'Your filter must be private in order to use these private sub-filters: {}',
-                    len(invalid_filter_names)
-                 ).format(', '.join(invalid_filter_names))
+                raise EntityFilter.PrivacyError(
+                    ngettext(
+                        'Your filter must be private in order to use this private sub-filter: {}',
+                        'Your filter must be private in order to use these private sub-filters: {}',
+                        len(invalid_filter_names)
+                    ).format(', '.join(invalid_filter_names))
                 )
 
     def check_privacy(self,

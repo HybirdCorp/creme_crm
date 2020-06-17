@@ -358,7 +358,7 @@ class DocumentTestCase(_DocumentsTestCase):
             _('You are not allowed to link with the «{models}» of this user.').format(
                 models=_('Documents'),
             )
-         )
+        )
 
     def test_add_related_document04(self):
         "Link credentials with related entity are needed"

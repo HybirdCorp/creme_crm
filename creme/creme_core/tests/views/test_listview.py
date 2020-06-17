@@ -3116,12 +3116,13 @@ class ListViewTestCase(ViewsTestCase):
             filter_type=EF_CREDENTIALS,
         )
         efilter.set_conditions(
-            [condition_handler.RegularFieldConditionHandler.build_condition(
-                model=FakeOrganisation,
-                operator=operators.ICONTAINS,
-                field_name='name', values=['Corp'],
-                filter_type=EF_CREDENTIALS,
-             ),
+            [
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator=operators.ICONTAINS,
+                    field_name='name', values=['Corp'],
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.
@@ -3179,11 +3180,12 @@ class ListViewTestCase(ViewsTestCase):
             filter_type=EF_CREDENTIALS,
         )
         cred_efilter.set_conditions(
-            [condition_handler.RelationConditionHandler.build_condition(
-                model=FakeContact,
-                rtype=pilots,
-                filter_type=EF_CREDENTIALS,
-             ),
+            [
+                condition_handler.RelationConditionHandler.build_condition(
+                    model=FakeContact,
+                    rtype=pilots,
+                    filter_type=EF_CREDENTIALS,
+                ),
             ],
             check_cycles=False,  # There cannot be a cycle without sub-filter.
             check_privacy=False,  # No sense here.

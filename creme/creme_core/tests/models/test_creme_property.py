@@ -197,7 +197,7 @@ class CremePropertyTestCase(CremeTestCase):
             CremeProperty(type=ptype1, creme_entity=entity),
             CremeProperty(type=ptype2, creme_entity=entity),
             CremeProperty(type=ptype1, creme_entity=entity),  # <=== duplicate
-         ])
+        ])
 
         self.assertEqual(2, count)
 
@@ -221,7 +221,7 @@ class CremePropertyTestCase(CremeTestCase):
         count = CremeProperty.objects.safe_multi_save([
             build_prop1(),
             CremeProperty(type=ptype2, creme_entity=entity),
-         ])
+        ])
 
         self.assertEqual(1, count)
 

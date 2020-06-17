@@ -179,7 +179,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                     'create_label': label or str(
                         ContentType.objects.get_for_id(ctype_id).model_class().creation_label
                     ),
-                 },
+                },
                 'entity': entity_id,
             },
             separators=(',', ':'),

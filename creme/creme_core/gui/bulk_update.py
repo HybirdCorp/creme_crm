@@ -95,8 +95,8 @@ class _BulkUpdateRegistry:
         def is_updatable(self, field: Union[Field, CustomField]) -> bool:
             return (
                 isinstance(field, CustomField) or (
-                   field.editable and not
-                   FieldsConfig.objects.get_for_model(self._model).is_field_hidden(field)
+                    field.editable and not
+                    FieldsConfig.objects.get_for_model(self._model).is_field_hidden(field)
                 )
             )
 
