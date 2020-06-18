@@ -715,6 +715,133 @@ QUnit.test('creme.listview.core (unknown search widget)', function(assert) {
 });
 
 
+QUnit.parametrize('creme.listview.core (daterange search widget, keydown)', [
+    '#id_search-regular_field-start',
+    '#id_search-regular_field-end'
+], function(daterange_input_id, assert) {
+    var element = $(this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        reloadurl: 'mock/listview/reload',
+        columns: [this.createCheckAllColumnHtml(), {
+                title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
+                search: (
+                    '<th class="lv-column sortable search sorted">' +
+                        '<div class="lv-state-field lv-search-daterange" data-lv-search-widget="daterange">' +
+                            '<div class="date-start">' +
+                                '<input name="search-regular_field-start" id="id_search-regular_field-start" data-format="dd-mm-yy" value="19-06-2020"/>' +
+                            '</div>' +
+                            '<div class="date-end">' +
+                                '<input name="search-regular_field-end" id="id_search-regular_field-end" data-format="dd-mm-yy" value="20-06-2020"/>' +
+                            '</div>' +
+                        '</div>' +
+                    '</th>'
+                )
+            }
+        ]
+    })).appendTo(this.qunitFixture());
+    var table = element.find('table:first');
+    var listview = creme.widget.create(element);
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+    equal(listview.pager().isBound(), false);
+    equal(listview.header().isBound(), false);
+
+    var columnSearch = table.find('.lv-search-header .lv-column .lv-state-field');
+    equal(columnSearch.is('[data-lv-search-widget="daterange"]'), true);
+
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+
+    var dateInput = columnSearch.find(daterange_input_id);
+
+    ok(dateInput.is('.hasDatepicker'));
+
+    // enter key on date input
+    dateInput.trigger($.Event('keydown', {keyCode: 13, which: 13}));
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            content: 1,
+            rows: ['10'],
+            selected_rows: [''],
+            selection: ['multiple'],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
+            'search-regular_field-start': ['19-06-2020'],
+            'search-regular_field-end': ['20-06-2020']
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+
+QUnit.test('creme.listview.core (daterange search widget, change)', function(daterange_input_id, assert) {
+    var element = $(this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        reloadurl: 'mock/listview/reload',
+        columns: [this.createCheckAllColumnHtml(), {
+                title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
+                search: (
+                    '<th class="lv-column sortable search sorted">' +
+                        '<div class="lv-state-field lv-search-daterange" data-lv-search-widget="daterange">' +
+                            '<div class="date-start">' +
+                                '<input name="search-regular_field-start" id="id_search-regular_field-start" data-format="dd-mm-yy" value="19-06-2020"/>' +
+                            '</div>' +
+                            '<div class="date-end">' +
+                                '<input name="search-regular_field-end" id="id_search-regular_field-end" data-format="dd-mm-yy" value="20-06-2020"/>' +
+                            '</div>' +
+                        '</div>' +
+                    '</th>'
+                )
+            }
+        ]
+    })).appendTo(this.qunitFixture());
+    var table = element.find('table:first');
+    var listview = creme.widget.create(element);
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+    equal(listview.pager().isBound(), false);
+    equal(listview.header().isBound(), false);
+
+    var columnSearch = table.find('.lv-search-header .lv-column .lv-state-field');
+    equal(columnSearch.is('[data-lv-search-widget="daterange"]'), true);
+
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+
+    // enter key on start date
+    var start = columnSearch.find('#id_search-regular_field-start');
+
+    ok(start.is('.hasDatepicker'));
+    equal('dd-mm-yy', start.datepicker('option', 'dateFormat'));
+
+    // show picker and select date
+    start.datepicker('show');
+    start.datepicker('setDate', '01-01-2020');
+
+    // click on selected date => onSelect cb => change
+    $('.ui-datepicker-current-day').click();
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            content: 1,
+            rows: ['10'],
+            selected_rows: [''],
+            selection: ['multiple'],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
+            'search-regular_field-start': ['01-01-2020'],
+            'search-regular_field-end': ['20-06-2020']
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+
 QUnit.test('creme.listview.core (custom search widget)', function(assert) {
     var element = $(this.createListViewHtml({
         tableclasses: ['listview-standalone'],
