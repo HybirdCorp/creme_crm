@@ -43,8 +43,8 @@ Organisation  = persons.get_organisation_model()
 
 class MailingListForm(CremeEntityForm):
     class Meta:
-        model  = MailingList
-        fields = ('user', 'name')
+        model = MailingList
+        fields = ('user', 'name', 'description')
 
 
 class AddContactsForm(CremeForm):
