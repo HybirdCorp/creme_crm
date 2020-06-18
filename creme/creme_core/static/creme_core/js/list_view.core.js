@@ -32,17 +32,26 @@
 
         /* global creme_media_url */
         _build_daterange: function(element, options, list) {
-            $(element).find('input').datepicker({
-                showOn: 'both',
-                dateFormat: $(this).attr('data-format'),
-                buttonImage: creme_media_url('images/icon_calendar.gif'),
-                buttonImageOnly: true
+            $(element).find('input').each(function() {
+                $(this).datepicker({
+                    showOn: 'both',
+                    dateFormat: $(this).data('format'),
+                    buttonImage: creme_media_url('images/icon_calendar.gif'),
+                    buttonImageOnly: true
+                });
+            });
+
+            $(element).on('change', 'input', function(e) {
+                list.submitState(creme.ajax.serializeFormAsDict(
+                    $(element).find('input')
+                ));
             });
 
             $(element).on('keydown', 'input', function(e) {
                 if (e.keyCode === list.submitOnKey()) {
-                    e.preventDefault();
-                    list.submitState(creme.ajax.serializeFormAsDict($(e.target)));
+                    list.submitState(creme.ajax.serializeFormAsDict(
+                        $(element).find('input')
+                    ));
                 }
             });
 
