@@ -55,13 +55,18 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertGET200(url)
 
         name = 'my_mailinglist'
-        response = self.client.post(url, follow=True,
-                                    data={'user': user.pk,
-                                          'name': name,
-                                         },
-                                   )
+        description = 'My friends'
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user': user.pk,
+                'name': name,
+                'description': description,
+            },
+        )
         self.assertNoFormError(response)
         ml = self.get_object_or_fail(MailingList, name=name)
+        self.assertEqual(description, ml.description)
 
         response = self.assertGET200(ml.get_absolute_url())
         self.assertTemplateUsed(response, 'emails/view_mailing_list.html')
