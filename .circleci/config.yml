@@ -52,7 +52,7 @@ commands:
            - node_modules
 
   setup-locale:
-    description: "Setup locale"
+    description: "Locale: Setup"
     parameters:
       language:
         type: string
@@ -60,12 +60,12 @@ commands:
         type: string
     steps:
       - run:
-          name: "Locale gen"
+          name: "Locale: locale-gen"
           command: |
             echo "<< parameters.language >>.<< parameters.encoding >> << parameters.encoding >>" | sudo tee -a /etc/locale.gen
             sudo locale-gen
       - run:
-          name: "Setup Environment Variables"
+          name: "Locale: Setup Environment Variables"
           command: |
             echo "export LANG=<< parameters.language >>.<< parameters.encoding >>" >> $BASH_ENV
             echo "export LANGUAGE=<< parameters.language >>" >> $BASH_ENV
@@ -110,6 +110,7 @@ jobs:
       - install-creme-system-packages
       - run: sudo apt install -y mariadb-client
       - install-py-dev-env
+      - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
       - run: cp ~/project/.circleci/mysql_settings.py creme/local_settings.py
       - run: python manage.py migrate
       - run: python manage.py creme_populate
@@ -141,7 +142,31 @@ jobs:
 
       - install-creme-system-packages
       - install-py-dev-env
+      - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
       - run: cp ~/project/.circleci/pgsql_settings.py creme/local_settings.py
+      - run: python manage.py migrate
+      - run: python manage.py creme_populate
+      - run: python manage.py generatemedia
+      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ manage.py test --noinput --parallel=8
+      - run: coverage combine
+      - run: coverage html
+      - store_artifacts:
+          path: artifacts/coverage_html
+
+  tests-sqlite3:
+    docker:
+      - image: circleci/python:3.7-browsers
+    steps:
+      - checkout
+
+      - setup-locale:
+          language: fr_FR
+          encoding: UTF-8
+
+      - install-creme-system-packages
+      - install-py-dev-env
+      - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
+      - run: cp ~/project/.circleci/sqlite3_settings.py creme/local_settings.py
       - run: python manage.py migrate
       - run: python manage.py creme_populate
       - run: python manage.py generatemedia
@@ -183,12 +208,17 @@ workflows:
   version: 2
   build:
     jobs:
-      - lint-isort
-      - lint-flake8
       - lint-js
       - tests-js:
           requires:
            - lint-js
+
+      - lint-isort
+      - lint-flake8
+      - tests-sqlite3:
+          requires:
+            - lint-isort
+            - lint-flake8
       - tests-mysql:
           requires:
             - lint-isort
