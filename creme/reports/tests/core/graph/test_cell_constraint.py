@@ -1,37 +1,39 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django import forms
+from django import forms
 
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellRelation,
-        EntityCellCustomField,
-    )
-    from creme.creme_core.models import (
-        RelationType,
-        CustomField,
-        FieldsConfig,
-        FakeOrganisation, FakeContact,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.reports.constants import (
-        RGT_FK,
-        RGT_MONTH, RGT_YEAR,
-        RGT_RELATION,
-        RGT_RANGE,
-        RGT_CUSTOM_RANGE,
-    )
-    from creme.reports.core.graph.cell_constraint import (
-        GraphHandCellConstraint,
-        GHCCRegularFK, GHCCRegularDate, GHCCRelation, GHCCCustomEnum, GHCCCustomDate,
-        GraphHandConstraintsRegistry,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.models import (
+    CustomField,
+    FakeContact,
+    FakeOrganisation,
+    FieldsConfig,
+    RelationType,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.reports.constants import (
+    RGT_CUSTOM_RANGE,
+    RGT_FK,
+    RGT_MONTH,
+    RGT_RANGE,
+    RGT_RELATION,
+    RGT_YEAR,
+)
+from creme.reports.core.graph.cell_constraint import (
+    GHCCCustomDate,
+    GHCCCustomEnum,
+    GHCCRegularDate,
+    GHCCRegularFK,
+    GHCCRelation,
+    GraphHandCellConstraint,
+    GraphHandConstraintsRegistry,
+)
 
 
 class GraphHandConstraintsTestCase(CremeTestCase):

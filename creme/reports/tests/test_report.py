@@ -1,83 +1,81 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import datetime, date
-    from decimal import Decimal
-    from functools import partial
-    from unittest import skipIf
+from datetime import date, datetime
+from decimal import Decimal
+from functools import partial
+from unittest import skipIf
 
-    from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.encoding import smart_str
-    from django.utils.formats import date_format, number_format
-    from django.utils.html import escape
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _, ngettext, pgettext
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.encoding import smart_str
+from django.utils.formats import date_format, number_format
+from django.utils.html import escape
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext, pgettext
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellCustomField,
-        EntityCellFunctionField,
-        EntityCellRelation,
-    )
-    from creme.creme_core.core.entity_filter import (
-        condition_handler,
-        operators,
-        EF_CREDENTIALS,
-    )
-    from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.gui import actions
-    from creme.creme_core.models import (
-        CremePropertyType, CremeProperty,
-        RelationType, Relation,
-        SetCredentials,
-        HeaderFilter, EntityFilter,  # EntityFilterCondition
-        CustomField, CustomFieldInteger,
-        FieldsConfig,
-        FakeContact, FakeOrganisation, FakeLegalForm, FakePosition,
-        FakeImage, FakeImageCategory,
-        FakeEmailCampaign, FakeMailingList,
-        FakeInvoice,
-        FakeFolderCategory,
-        FakeFolder as FakeCoreFolder,
-        FakeDocument as FakeCoreDocument,
-    )
-    from creme.creme_core.tests.fake_constants import (
-        FAKE_REL_SUB_EMPLOYED_BY,
-        FAKE_REL_OBJ_EMPLOYED_BY,
-        FAKE_REL_OBJ_BILL_ISSUED,
-    )
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.constants import REL_SUB_HAS
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellFunctionField,
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    condition_handler,
+    operators,
+)
+from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.gui import actions
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    CustomField,
+    CustomFieldInteger,
+    EntityFilter,
+    FakeContact,
+)
+from creme.creme_core.models import FakeDocument as FakeCoreDocument
+from creme.creme_core.models import FakeEmailCampaign
+from creme.creme_core.models import FakeFolder as FakeCoreFolder  # EntityFilterCondition
+from creme.creme_core.models import (
+    FakeFolderCategory,
+    FakeImage,
+    FakeImageCategory,
+    FakeInvoice,
+    FakeLegalForm,
+    FakeMailingList,
+    FakeOrganisation,
+    FakePosition,
+    FieldsConfig,
+    HeaderFilter,
+    Relation,
+    RelationType,
+    SetCredentials,
+)
+from creme.creme_core.tests.fake_constants import (
+    FAKE_REL_OBJ_BILL_ISSUED,
+    FAKE_REL_OBJ_EMPLOYED_BY,
+    FAKE_REL_SUB_EMPLOYED_BY,
+)
+from creme.creme_core.utils.xlrd_utils import XlrdReader
 
-    from .base import BaseReportsTestCase, skipIfCustomReport, Report
-
-    from ..actions import ExportReportAction
-    from ..constants import (
-        RFT_FIELD,
-        RFT_CUSTOM,
-        RFT_RELATION,
-        RFT_FUNCTION,
-        RFT_AGG_FIELD,
-        RFT_AGG_CUSTOM,
-        RFT_RELATED,
-    )
-    from ..forms.report import ReportExportPreviewFilterForm
-    from ..models import (
-        Field,
-        FakeReportsFolder, FakeReportsDocument, Guild,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
-
-try:
-    from creme.creme_core.backends import export_backend_registry
-    from creme.creme_core.utils.xlrd_utils import XlrdReader
-
-    XlsImport = 'xls' not in export_backend_registry.extensions
-except Exception:
-    XlsImport = True
+from ..actions import ExportReportAction
+from ..constants import (
+    RFT_AGG_CUSTOM,
+    RFT_AGG_FIELD,
+    RFT_CUSTOM,
+    RFT_FIELD,
+    RFT_FUNCTION,
+    RFT_RELATED,
+    RFT_RELATION,
+)
+from ..forms.report import ReportExportPreviewFilterForm
+from ..models import FakeReportsDocument, FakeReportsFolder, Field, Guild
+from .base import BaseReportsTestCase, Report, skipIfCustomReport
 
 
 @skipIfCustomReport
@@ -1203,7 +1201,6 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual('"Ayanami"',   next(content))
         self.assertEqual('"Katsuragi"', next(content))
 
-    @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_report_xls(self):
         "With date filter."
         self.login()

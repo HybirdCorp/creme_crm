@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.base import CremeTestCase
 
-    from ..utils import sparsezip, expand_sparse_iterator
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..utils import expand_sparse_iterator, sparsezip
 
 
 class SparsezipTestCase(CremeTestCase):
