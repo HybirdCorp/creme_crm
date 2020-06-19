@@ -1,46 +1,50 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from functools import partial
+from datetime import date
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.html import escape
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.html import escape
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-    from creme.creme_core.core.entity_filter import condition_handler, operators
-    from creme.creme_core.forms.widgets import Label
-    from creme.creme_core.models import (
-        RelationType, Relation,
-        EntityFilter,
-        SetCredentials,
-        FakeOrganisation,
-    )
+from creme.activities.constants import (
+    ACTIVITYTYPE_MEETING,
+    REL_SUB_ACTIVITY_SUBJECT,
+)
+from creme.activities.tests.base import skipIfCustomActivity
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+from creme.creme_core.core.entity_filter import condition_handler, operators
+from creme.creme_core.forms.widgets import Label
+from creme.creme_core.models import (
+    EntityFilter,
+    FakeOrganisation,
+    Relation,
+    RelationType,
+    SetCredentials,
+)
+from creme.opportunities.models import SalesPhase
+from creme.opportunities.tests.base import skipIfCustomOpportunity
+from creme.persons.constants import FILTER_MANAGED_ORGA
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.constants import FILTER_MANAGED_ORGA
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
-
-    from creme.opportunities.models import SalesPhase
-    from creme.opportunities.tests.base import skipIfCustomOpportunity
-
-    from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT, ACTIVITYTYPE_MEETING
-    from creme.activities.tests.base import skipIfCustomActivity
-
-    from ..constants import REL_SUB_COMPLETE_GOAL
-    from ..models import ActType, ActObjective, ActObjectivePatternComponent
-    from .base import (
-        CommercialBaseTestCase,
-        skipIfCustomAct, skipIfCustomPattern,
-        Contact, Organisation,
-        Opportunity,
-        Activity,
-        Act, ActObjectivePattern,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..constants import REL_SUB_COMPLETE_GOAL
+from ..models import ActObjective, ActObjectivePatternComponent, ActType
+from .base import (
+    Act,
+    Activity,
+    ActObjectivePattern,
+    CommercialBaseTestCase,
+    Contact,
+    Opportunity,
+    Organisation,
+    skipIfCustomAct,
+    skipIfCustomPattern,
+)
 
 
 @skipIfCustomAct

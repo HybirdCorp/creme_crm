@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import RelationType, CremePropertyType, CremeProperty
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    RelationType,
+)
+from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from creme.persons.tests.base import skipIfCustomOrganisation
-
-    from ..models import MarketSegment
-    from .base import CommercialBaseTestCase, Organisation, Strategy
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..models import MarketSegment
+from .base import CommercialBaseTestCase, Organisation, Strategy
 
 
 class MarketSegmentTestCase(CommercialBaseTestCase):
