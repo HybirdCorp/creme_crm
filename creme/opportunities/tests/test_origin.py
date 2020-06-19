@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.urls import reverse
+from django.urls import reverse
 
-    from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.base import CremeTestCase
+from creme.opportunities.models import Origin, SalesPhase
 
-    from creme.opportunities.models import Origin, SalesPhase
-
-    from .base import Opportunity, skipIfCustomOpportunity, Organisation
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import Opportunity, Organisation, skipIfCustomOpportunity
 
 
 class OriginTestCase(CremeTestCase):

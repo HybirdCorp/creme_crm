@@ -1,21 +1,15 @@
 # -*- coding: utf-8 -*-
 
-skip_opportunity_tests = False
 
-try:
-    from unittest import skipIf
+from unittest import skipIf
 
-    from creme.creme_core.tests.base import CremeTestCase
+from creme import opportunities
+from creme.creme_core.tests.base import CremeTestCase
+from creme.opportunities.models import SalesPhase
+from creme.persons import get_contact_model, get_organisation_model
 
-    from creme.persons import get_contact_model, get_organisation_model
-
-    from creme import opportunities
-    from creme.opportunities.models import SalesPhase
-
-    Opportunity = opportunities.get_opportunity_model()
-    skip_opportunity_tests = opportunities.opportunity_model_is_custom()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+Opportunity = opportunities.get_opportunity_model()
+skip_opportunity_tests = opportunities.opportunity_model_is_custom()
 
 Organisation = get_organisation_model()
 Contact = get_contact_model()

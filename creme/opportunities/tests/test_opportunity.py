@@ -1,40 +1,43 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from functools import partial
+from datetime import date
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.formats import number_format
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.formats import number_format
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-    from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.models import (
-        CremeEntity, RelationType, Relation,
-        SetCredentials, Currency, SettingValue, FieldsConfig,
-        FakeEmailCampaign,
-    )
+from creme import products
+from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.models import (
+    CremeEntity,
+    Currency,
+    FakeEmailCampaign,
+    FieldsConfig,
+    Relation,
+    RelationType,
+    SetCredentials,
+    SettingValue,
+)
+from creme.opportunities import constants, setting_keys
+from creme.opportunities.models import Origin, SalesPhase
+from creme.persons.constants import REL_SUB_PROSPECT
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.constants import REL_SUB_PROSPECT
-    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomContact
-
-    from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
-
-    from creme import products
-
-    from creme.opportunities import constants, setting_keys
-    from creme.opportunities.models import SalesPhase, Origin
-
-    from .base import (
-        OpportunitiesBaseTestCase,
-        skipIfCustomOpportunity,
-        Organisation, Opportunity, Contact,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import (
+    Contact,
+    OpportunitiesBaseTestCase,
+    Opportunity,
+    Organisation,
+    skipIfCustomOpportunity,
+)
 
 
 @skipIfCustomOpportunity

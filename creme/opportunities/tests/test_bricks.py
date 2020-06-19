@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from decimal import Decimal
-    from functools import partial
+from decimal import Decimal
+from functools import partial
 
-    from django.conf import settings
+from django.conf import settings
 
-    from creme.creme_core.models import Relation
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme import products
+from creme.creme_core.models import Relation
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.opportunities import bricks, constants
+from creme.persons import get_contact_model
+from creme.persons.tests.base import skipIfCustomContact
+from creme.products.models import SubCategory
+from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
-    from creme.persons import get_contact_model
-    from creme.persons.tests.base import skipIfCustomContact
-
-    from creme import products
-    from creme.products.models import SubCategory
-    from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
-
-    from .base import OpportunitiesBaseTestCase, skipIfCustomOpportunity, Opportunity
-
-    from creme.opportunities import bricks, constants
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import (
+    OpportunitiesBaseTestCase,
+    Opportunity,
+    skipIfCustomOpportunity,
+)
 
 
 @skipIfCustomOpportunity
