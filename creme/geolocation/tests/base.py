@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.base import CremeTestCase
+from creme.persons import (
+    get_address_model,
+    get_contact_model,
+    get_organisation_model,
+)
 
-    from creme.persons import get_address_model, get_contact_model, get_organisation_model
-
-    from ..models import GeoAddress, Town
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..models import GeoAddress, Town
 
 Address = get_address_model()
 Contact = get_contact_model()

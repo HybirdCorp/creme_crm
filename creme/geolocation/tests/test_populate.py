@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.base import CremeTestCase
+from creme.persons.tests.base import (
+    skipIfCustomAddress,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.tests.base import skipIfCustomAddress, skipIfCustomOrganisation
-
-    from ..models import Town, GeoAddress
-    from ..management.commands.geolocation import CSVPopulator, Command as GeolocationCommand
-    from .base import GeoLocationBaseTestCase, Address, Organisation
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..management.commands.geolocation import Command as GeolocationCommand
+from ..management.commands.geolocation import CSVPopulator
+from ..models import GeoAddress, Town
+from .base import Address, GeoLocationBaseTestCase, Organisation
 
 
 class MockCSVPopulator(CSVPopulator):

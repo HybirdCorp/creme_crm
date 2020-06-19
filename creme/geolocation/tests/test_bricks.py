@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from creme.creme_core.core.entity_filter import condition_handler, operators
-    from creme.creme_core.models.entity_filter import EntityFilter  # EntityFilterCondition
+from creme.creme_core.core.entity_filter import condition_handler, operators
+from creme.creme_core.models.entity_filter import EntityFilter
+from creme.persons.constants import FILTER_CONTACT_ME, FILTER_MANAGED_ORGA
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.constants import FILTER_MANAGED_ORGA, FILTER_CONTACT_ME
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
-
-    from ..bricks import _MapBrick
-    from .base import GeoLocationBaseTestCase, Organisation, Contact
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import _MapBrick
+from .base import Contact, GeoLocationBaseTestCase, Organisation
 
 
 @skipIfCustomContact
