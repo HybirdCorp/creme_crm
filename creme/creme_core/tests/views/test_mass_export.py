@@ -3,7 +3,6 @@
 from datetime import date
 from functools import partial
 from os.path import dirname, exists, join
-from unittest import skipIf
 from urllib.parse import urlencode
 
 from bleach._vendor import html5lib  # Avoid a dependence only for test

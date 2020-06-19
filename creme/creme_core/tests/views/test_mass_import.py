@@ -3,7 +3,6 @@
 from decimal import Decimal
 from functools import partial
 from json import dumps as json_dump
-from unittest import skipIf
 
 from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import slugify
@@ -45,7 +44,6 @@ from .base import (
     BrickTestCaseMixin,
     MassImportBaseTestCaseMixin,
     ViewsTestCase,
-    skipIfNoXLSLib,
 )
 
 
@@ -418,15 +416,12 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
     def test_mass_import03(self):
         return self._test_import03(self._build_csv_doc)
 
-    @skipIfNoXLSLib
     def test_xls_import01(self):
         return self._test_import01(self._build_xls_doc)
 
-    @skipIfNoXLSLib
     def test_xls_import02(self):
         return self._test_import02(self._build_xls_doc)
 
-    @skipIfNoXLSLib
     def test_xls_import03(self):
         return self._test_import03(self._build_xls_doc)
 

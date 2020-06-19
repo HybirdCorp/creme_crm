@@ -3,7 +3,6 @@
 from datetime import date, datetime
 from decimal import Decimal
 from functools import partial
-from unittest import skipIf
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -40,7 +39,7 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.models import FakeDocument as FakeCoreDocument
 from creme.creme_core.models import FakeEmailCampaign
-from creme.creme_core.models import FakeFolder as FakeCoreFolder  # EntityFilterCondition
+from creme.creme_core.models import FakeFolder as FakeCoreFolder
 from creme.creme_core.models import (
     FakeFolderCategory,
     FakeImage,
