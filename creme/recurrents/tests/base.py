@@ -1,15 +1,10 @@
-skip_generator_tests = False
+from unittest import skipIf
 
-try:
-    from unittest import skipIf
+from .. import get_rgenerator_model, rgenerator_model_is_custom
 
-    from .. import rgenerator_model_is_custom, get_rgenerator_model
+skip_generator_tests = rgenerator_model_is_custom()
 
-    skip_generator_tests = rgenerator_model_is_custom()
-
-    RecurrentGenerator = get_rgenerator_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+RecurrentGenerator = get_rgenerator_model()
 
 
 def skipIfCustomGenerator(test_func):

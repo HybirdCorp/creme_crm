@@ -1,29 +1,25 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta
-    from functools import partial
+from datetime import timedelta
+from functools import partial
 
-    from django.apps import apps
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.formats import date_format
-    from django.utils.timezone import now
+from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.formats import date_format
+from django.utils.timezone import now
 
-    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
-    from creme.creme_core.models import HeaderFilter, Job
-    from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
-    from creme.creme_core.utils.date_period import date_period_registry, DatePeriod
+# Should be a test queue
+from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.models import HeaderFilter, Job
+from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
+from creme.creme_core.utils.date_period import DatePeriod, date_period_registry
+from creme.tickets import get_ticket_model, get_tickettemplate_model
+from creme.tickets.models import Criticity, Priority, Status
+from creme.tickets.tests import skipIfCustomTicket, skipIfCustomTicketTemplate
 
-    from creme.tickets import get_ticket_model, get_tickettemplate_model
-    from creme.tickets.models import Status, Priority, Criticity
-    from creme.tickets.tests import skipIfCustomTicket, skipIfCustomTicketTemplate
-
-    from .base import skipIfCustomGenerator, RecurrentGenerator
-    from ..creme_jobs import recurrents_gendocs_type
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
-
+from ..creme_jobs import recurrents_gendocs_type
+from .base import RecurrentGenerator, skipIfCustomGenerator
 
 Ticket = get_ticket_model()
 TicketTemplate = get_tickettemplate_model()
