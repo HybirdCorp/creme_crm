@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from json import dumps as json_dump
+from functools import partial
+from json import dumps as json_dump
 
-    from django.utils.translation import gettext as _, pgettext
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
-    from creme.creme_config.registry import config_registry
+from creme.creme_config.registry import config_registry
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.forms.base import FieldTestCase
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.forms.base import FieldTestCase
-
-    from ..forms.fields import CategoryField
-    from ..models import Category, SubCategory
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..forms.fields import CategoryField
+from ..models import Category, SubCategory
 
 
 class CategoryFieldTestCase(FieldTestCase):

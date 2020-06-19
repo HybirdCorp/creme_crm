@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from decimal import Decimal
-    from functools import partial
+from decimal import Decimal
+from functools import partial
 
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.documents import get_document_model, get_folder_model
+from creme.documents import get_document_model, get_folder_model
 
-    from .base import _ProductsTestCase, skipIfCustomService
-    from .. import get_service_model
-    from ..models import Category, SubCategory
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import get_service_model
+from ..models import Category, SubCategory
+from .base import _ProductsTestCase, skipIfCustomService
 
 Document = get_document_model()
 Service = get_service_model()

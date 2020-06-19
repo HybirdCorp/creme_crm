@@ -1,23 +1,18 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from json import dumps as json_dump
+from json import dumps as json_dump
 
-    from django.urls import reverse
-    from django.utils.html import escape
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.html import escape
+from django.utils.translation import gettext as _
 
-    from creme.creme_config.registry import config_registry
+from creme.creme_config.registry import config_registry
+from creme.creme_core.forms.fields import ChoiceModelIterator
+from creme.creme_core.forms.widgets import ChainedInput
+from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.creme_core.forms.fields import ChoiceModelIterator
-    from creme.creme_core.forms.widgets import ChainedInput
-    from creme.creme_core.tests.base import CremeTestCase
-    # from creme.creme_core.tests.forms.base import FieldTestCase
-
-    from ..forms.fields import CreatorCategorySelector
-    from ..models import Category, SubCategory
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..forms.fields import CreatorCategorySelector
+from ..models import Category, SubCategory
 
 
 # class CreatorCategorySelectorWidgetTestCase(FieldTestCase):

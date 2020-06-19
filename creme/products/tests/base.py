@@ -1,26 +1,19 @@
 # -*- coding: utf-8 -*-
 
-skip_product_tests = False
-skip_service_tests = False
+from functools import partial
+from json import dumps as json_dump
+from unittest import skipIf
 
-try:
-    from unittest import skipIf
-    from functools import partial
-    from json import dumps as json_dump
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import SetCredentials
+from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
+from creme.documents import get_document_model
+from creme.documents.tests.base import _DocumentsTestCase
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import SetCredentials
-    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
+from .. import product_model_is_custom, service_model_is_custom
 
-    from creme.documents import get_document_model
-    from creme.documents.tests.base import _DocumentsTestCase
-
-    from .. import product_model_is_custom, service_model_is_custom
-
-    skip_product_tests = product_model_is_custom()
-    skip_service_tests = service_model_is_custom()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+skip_product_tests = product_model_is_custom()
+skip_service_tests = service_model_is_custom()
 
 
 def skipIfCustomProduct(test_func):
