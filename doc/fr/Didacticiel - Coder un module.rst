@@ -3103,14 +3103,11 @@ Créez un fichier ``beavers/tests.py`` : ::
 
     # -*- coding: utf-8 -*-
 
-    try:
-        import datetime
+    import datetime
 
-        from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 
-        from .models import Beaver, Status
-    except Exception as e:
-        print(f'Error in <{__name__}>: {e}')
+    from .models import Beaver, Status
 
 
     class BeaverTestCase(CremeTestCase):
