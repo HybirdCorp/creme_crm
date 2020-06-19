@@ -1,28 +1,25 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta
+from datetime import timedelta
 
-    from django.urls import reverse
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    from creme.creme_core.gui.field_printers import field_printers_registry
-    from creme.creme_core.models import FieldsConfig
-
-    from creme.persons import get_contact_model, get_organisation_model
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
-
-    from creme.activities import get_activity_model
-    from creme.activities.models import Calendar, ActivityType, ActivitySubType
-    from creme.activities import constants as a_constants
-    from creme.activities.tests.base import skipIfCustomActivity
-
-    from creme.cti.bricks import CallersBrick
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.activities import constants as a_constants
+from creme.activities import get_activity_model
+from creme.activities.models import ActivitySubType, ActivityType, Calendar
+from creme.activities.tests.base import skipIfCustomActivity
+from creme.creme_core.gui.field_printers import field_printers_registry
+from creme.creme_core.models import FieldsConfig
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.cti.bricks import CallersBrick
+from creme.persons import get_contact_model, get_organisation_model
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
 Contact = get_contact_model()
 Organisation = get_organisation_model()
