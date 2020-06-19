@@ -1,39 +1,33 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from functools import partial
+from datetime import date
+from functools import partial
 
-    from django.db.models.query_utils import Q
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.db.models.query_utils import Q
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import (
-        BrickDetailviewLocation,
-        InstanceBrickConfigItem,
-        FakeInvoice,
-    )
-    from creme.creme_core.tests.base import (
-        CremeTestCase,
-        skipIfNotInstalled,
-    )
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    from creme.creme_core.utils.queries import QSerializer
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    FakeInvoice,
+    InstanceBrickConfigItem,
+)
+from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.utils.queries import QSerializer
+from creme.persons.constants import RGF_OWNED
+from creme.persons.reports import OwnedGraphFetcher
+from creme.reports.bricks import ReportGraphBrick
+from creme.reports.constants import RGA_COUNT, RGT_YEAR
+from creme.reports.core.graph.fetcher import GraphFetcher
+from creme.reports.tests.base import (
+    Report,
+    ReportGraph,
+    skipIfCustomReport,
+    skipIfCustomRGraph,
+)
 
-    from creme.reports.bricks import ReportGraphBrick
-    from creme.reports.constants import RGT_YEAR, RGA_COUNT
-    from creme.reports.core.graph.fetcher import GraphFetcher
-    from creme.reports.tests.base import (
-        skipIfCustomReport, skipIfCustomRGraph,
-        Report, ReportGraph,
-    )
-
-    from .base import Contact, Organisation
-
-    from creme.persons.constants import RGF_OWNED
-    from creme.persons.reports import OwnedGraphFetcher
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import Contact, Organisation
 
 
 @skipIfNotInstalled('creme.reports')

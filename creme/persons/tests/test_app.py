@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
 
-    from creme.creme_core.models import HeaderFilter, EntityFilter
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.models import EntityFilter, HeaderFilter
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
-    from .. import constants, bricks, workflow
-    from .base import Contact, Organisation
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import bricks, constants, workflow
+from .base import Contact, Organisation
 
 
 class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):

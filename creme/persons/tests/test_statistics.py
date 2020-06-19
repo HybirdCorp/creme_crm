@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import Relation
-    from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.models import Relation
+from creme.creme_core.tests.base import CremeTestCase
 
-    from .. import constants, statistics
-
-    from .base import Contact, Organisation
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import constants, statistics
+from .base import Contact, Organisation
 
 
 class PersonsStatisticsTestCase(CremeTestCase):
