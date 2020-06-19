@@ -465,7 +465,8 @@ def print_email_html(entity: Model, fval, user, field: Field) -> str:
 
 
 def print_text_html(entity: Model, fval, user, field: Field) -> str:
-    return linebreaks(widget_urlize(fval, autoescape=True)) if fval else ''
+    # return linebreaks(widget_urlize(fval, autoescape=True)) if fval else ''
+    return mark_safe(linebreaks(widget_urlize(fval, autoescape=True))) if fval else ''
 
 
 def print_unsafehtml_html(entity: Model, fval, user, field: Field) -> str:
@@ -629,36 +630,41 @@ class _FieldPrintersRegistry:
                 assert isinstance(base_field, models.ManyToManyField)
 
                 if issubclass(base_model, CremeEntity):
+                    def sub_values(obj, user):
+                        has_perm = user.has_perm_to_view
+
+                        for e in getattr(obj, base_name).filter(is_deleted=False):
+                            if not has_perm(e):
+                                yield HIDDEN_VALUE
+                            else:
+                                sub_value = sub_printer(e, user)
+                                if sub_value:  # NB: avoid empty string
+                                    yield sub_value
+
                     if output == 'csv':
                         def printer(obj: Model, user):
-                            has_perm = user.has_perm_to_view
-
-                            return '/'.join(
-                                sub_printer(e, user) if has_perm(e) else HIDDEN_VALUE
-                                for e in getattr(obj, base_name).filter(is_deleted=False)
-                            )
+                            return '/'.join(sub_values(obj, user))
                     else:
                         def printer(obj: Model, user):
-                            has_perm = user.has_perm_to_view
                             li_tags = format_html_join(
-                                '', '<li>{}</li>',
-                                ([sub_printer(e, user) if has_perm(e) else HIDDEN_VALUE]
-                                    for e in getattr(obj, base_name).filter(is_deleted=False)
-                                )
+                                '', '<li>{}</li>', ((v,) for v in sub_values(obj, user))
                             )
 
                             return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
                 else:
+                    def sub_values(obj, user):
+                        for a in getattr(obj, base_name).all():
+                            sub_value = sub_printer(a, user)
+                            if sub_value:  # NB: avoid empty string
+                                yield sub_value
+
                     if output == 'csv':
                         def printer(obj: Model, user):
-                            return '/'.join(
-                                sub_printer(a, user) for a in getattr(obj, base_name).all()
-                            )
+                            return '/'.join(sub_values(obj, user))
                     else:
                         def printer(obj: Model, user):
                             li_tags = format_html_join(
-                                '', '<li>{}</li>',
-                                ((sub_printer(a, user),) for a in getattr(obj, base_name).all())
+                                '', '<li>{}</li>', ((v,) for v in sub_values(obj, user))
                             )
 
                             return format_html('<ul>{}</ul>', li_tags) if li_tags else ''

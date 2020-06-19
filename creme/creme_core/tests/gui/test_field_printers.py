@@ -27,11 +27,13 @@ from creme.creme_core.models import (
     FakeActivity,
     FakeContact,
     FakeDocument,
+    FakeEmailCampaign,
     FakeFileComponent,
     FakeFolder,
     FakeImage,
     FakeImageCategory,
     FakeInvoiceLine,
+    FakeMailingList,
     FakeOrganisation,
     FakeProduct,
     FakeReport,
@@ -215,13 +217,13 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = c._meta.get_field('description')
         self.assertEqual('', field_printers.print_text_html(c, None, user, field))
 
-        text = 'See you space cowboy...\nThe real folk blues: www.bebop.org'
+        text = 'See you <b>space</b> cowboy...\nThe real folk blues: www.bebop.org'
 
         with override_settings(URLIZE_TARGET_BLANK=True):
             p1 = field_printers.print_text_html(c, user=user, field=field, fval=text)
 
         self.assertEqual(
-            '<p>See you space cowboy...<br>The real folk blues: '
+            '<p>See you &lt;b&gt;space&lt;/b&gt; cowboy...<br>The real folk blues: '
             '<a target="_blank" rel="noopener noreferrer" href="http://www.bebop.org">www.bebop.org</a>'
             '</p>',
             p1
@@ -231,7 +233,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             p2 = field_printers.print_text_html(c, user=user, field=field, fval=text)
 
         self.assertEqual(
-            '<p>See you space cowboy...<br>The real folk blues: '
+            '<p>See you &lt;b&gt;space&lt;/b&gt; cowboy...<br>The real folk blues: '
             '<a href="http://www.bebop.org">www.bebop.org</a>'
             '</p>',
             p2
@@ -745,29 +747,153 @@ class FieldsPrintersTestCase(CremeTestCase):
             field_printers.print_many2many_csv(prod, prod.images, user, field)
         )
 
-    def test_registry(self):
-        registry = field_printers._FieldPrintersRegistry()
-        o = FakeOrganisation(name='Mars', url_site='www.mars.info')
+    def test_registry01(self):
         user = CremeUser()
-        self.assertEqual(
-            o.name,
-            registry.get_html_field_value(o, 'name', user),
-        )
-        self.assertEqual(
-            o.name,
-            registry.get_csv_field_value(o, 'name', user),
+
+        registry = field_printers._FieldPrintersRegistry()
+        as_html = registry.get_html_field_value
+        as_csv = registry.get_csv_field_value
+
+        sector = FakeSector.objects.all()[0]
+        o = FakeOrganisation(
+            user=user, name='Mars', url_site='www.mars.info', sector=sector,
         )
 
-        self.assertEqual(
+        self.assertEqual(o.name, as_html(o, 'name', user))
+        self.assertEqual(o.name, as_csv(o, 'name', user))
+
+        self.assertHTMLEqual(
             '<a href="{url}" target="_blank">{url}</a>'.format(url=o.url_site),
-            registry.get_html_field_value(o, 'url_site', user),
+            as_html(o, 'url_site', user),
+        )
+        self.assertEqual(o.url_site, as_csv(o, 'url_site', user))
+
+        self.assertEqual(sector.title, as_html(o, 'sector', user))
+        self.assertEqual(sector.title, as_csv(o, 'sector', user))
+
+        self.assertEqual(sector.title, as_html(o, 'sector__title', user))
+        self.assertEqual(sector.title, as_csv(o, 'sector__title', user))
+
+    def test_registry_m2m_entity01(self):
+        user = self.create_user()
+
+        registry = field_printers._FieldPrintersRegistry()
+        as_html = registry.get_html_field_value
+        as_csv = registry.get_csv_field_value
+
+        create_ml = partial(FakeMailingList.objects.create, user=user)
+        ml1 = create_ml(name='Swimsuits', description='Best swimsuits of this year')
+        ml2 = create_ml(name='Hats')  # Notice that description is empty
+
+        camp = FakeEmailCampaign.objects.create(user=user, name='Summer 2020')
+        camp.mailing_lists.set([ml1, ml2])
+
+        self.assertHTMLEqual(
+            f'<ul><li>{ml2.name}</li><li>{ml1.name}</li></ul>',
+            as_html(camp, 'mailing_lists__name', user),
         )
         self.assertEqual(
-            o.url_site,
-            registry.get_csv_field_value(o, 'url_site', user),
+            f'{ml2.name}/{ml1.name}',
+            as_csv(camp, 'mailing_lists__name', user),
         )
 
-        # TODO: test with deep fields
+        self.assertHTMLEqual(
+            f'<ul><li><p>{ml1.description}</p></li></ul>',
+            as_html(camp, 'mailing_lists__description', user),
+        )
+        self.assertEqual(
+            ml1.description,
+            as_csv(camp, 'mailing_lists__description', user),
+        )
+
+    def test_registry_m2m_entity02(self):
+        "Credentials."
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        create_ml = FakeMailingList.objects.create
+        ml1 = create_ml(user=user, name='Swimsuits')
+        ml2 = create_ml(user=self.other_user, name='Hats')
+
+        camp = FakeEmailCampaign.objects.create(user=user, name='Summer 2020')
+        camp.mailing_lists.set([ml1, ml2])
+
+        registry = field_printers._FieldPrintersRegistry()
+        self.assertHTMLEqual(
+            f'<ul><li>{settings.HIDDEN_VALUE}</li><li>{ml1.name}</li></ul>',
+            registry.get_html_field_value(camp, 'mailing_lists__name', user),
+        )
+        self.assertEqual(
+            f'{settings.HIDDEN_VALUE}/{ml1.name}',
+            registry.get_csv_field_value(camp, 'mailing_lists__name', user),
+        )
+
+    def test_registry_m2m_entity03(self):
+        "Deleted entity."
+        user = self.create_user()
+
+        create_ml = partial(FakeMailingList.objects.create, user=user)
+        ml1 = create_ml(name='Swimsuits')
+        ml2 = create_ml(name='Hats', is_deleted=True)
+
+        camp = FakeEmailCampaign.objects.create(user=user, name='Summer 2020')
+        camp.mailing_lists.set([ml1, ml2])
+
+        registry = field_printers._FieldPrintersRegistry()
+        self.assertHTMLEqual(
+            f'<ul><li>{ml1.name}</li></ul>',
+            registry.get_html_field_value(camp, 'mailing_lists__name', user),
+        )
+        self.assertEqual(
+            ml1.name,
+            registry.get_csv_field_value(camp, 'mailing_lists__name', user),
+        )
+
+    def test_registry_m2m01(self):
+        user = self.create_user()
+
+        registry = field_printers._FieldPrintersRegistry()
+        as_html = registry.get_html_field_value
+        as_csv = registry.get_csv_field_value
+
+        img = FakeImage.objects.create(user=user, name='My img')
+        img.categories.set([
+            FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')
+        ])
+
+        self.assertHTMLEqual(
+            '<ul><li>A</li><li>B</li><li>C</li></ul>',
+            as_html(img, 'categories', user),
+        )
+        self.assertEqual('A/B/C', as_csv(img, 'categories', user))
+
+        self.assertHTMLEqual(
+            '<ul><li>A</li><li>B</li><li>C</li></ul>',
+            as_html(img, 'categories__name', user),
+        )
+        self.assertEqual('A/B/C', as_csv(img, 'categories', user))
+
+    def test_registry_m2m02(self):
+        "Empty sub-values."
+        user1 = self.create_user(0)
+        user2 = self.create_user(1, theme='')
+
+        team = CremeUser.objects.create(username='Team17', is_team=True)
+        team.teammates_set.set([user1, user2])
+
+        registry = field_printers._FieldPrintersRegistry()
+        self.assertHTMLEqual(
+            f'<ul><li>{user1.theme}</li></ul>',
+            registry.get_html_field_value(team, 'teammates_set__theme', user1),
+        )
+        self.assertEqual(
+            user1.theme,
+            registry.get_csv_field_value(team, 'teammates_set__theme', user1)
+        )
 
     # TODO: test image_size()
     # TODO: test print_color_html()
