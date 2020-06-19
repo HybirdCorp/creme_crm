@@ -1,30 +1,25 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.apps import apps
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.apps import apps
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import CremeProperty, RelationType
-    from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.models import CremeProperty, RelationType
+from creme.creme_core.tests.base import CremeTestCase
+from creme.persons.tests.base import skipIfCustomContact
 
-    from creme.persons.tests.base import skipIfCustomContact
-
-    from ..models import ActType, MarketSegment
-    from ..constants import (
-        REL_SUB_SOLD, REL_OBJ_SOLD,
-        REL_SUB_SOLD_BY, REL_OBJ_SOLD_BY,
-        REL_SUB_COMPLETE_GOAL, REL_OBJ_COMPLETE_GOAL,
-        PROP_IS_A_SALESMAN,
-    )
-    from .base import (
-        Act,
-        Contact, Organisation,
-        Product, Service,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..constants import (
+    PROP_IS_A_SALESMAN,
+    REL_OBJ_COMPLETE_GOAL,
+    REL_OBJ_SOLD,
+    REL_OBJ_SOLD_BY,
+    REL_SUB_COMPLETE_GOAL,
+    REL_SUB_SOLD,
+    REL_SUB_SOLD_BY,
+)
+from ..models import ActType, MarketSegment
+from .base import Act, Contact, Organisation, Product, Service
 
 
 class CommercialTestCase(CremeTestCase):

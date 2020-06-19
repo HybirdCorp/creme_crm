@@ -1,35 +1,21 @@
 # -*- coding: utf-8 -*-
 
-skip_act_tests = False
-skip_pattern_tests = False
-skip_strategy_tests = False
+from unittest import skipIf
 
-try:
-    from unittest import skipIf
+from django.urls import reverse
 
-    from django.urls import reverse
+from creme import activities, commercial, opportunities, persons, products
+from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.creme_core.tests.base import CremeTestCase
+from ..models import MarketSegment
 
-    from creme import (
-        persons,
-        activities,
-        products,
-        opportunities,
-        commercial,
-    )
+skip_act_tests      = commercial.act_model_is_custom()
+skip_pattern_tests  = commercial.pattern_model_is_custom()
+skip_strategy_tests = commercial.strategy_model_is_custom()
 
-    from ..models import MarketSegment
-
-    skip_act_tests      = commercial.act_model_is_custom()
-    skip_pattern_tests  = commercial.pattern_model_is_custom()
-    skip_strategy_tests = commercial.strategy_model_is_custom()
-
-    Act = commercial.get_act_model()
-    ActObjectivePattern = commercial.get_pattern_model()
-    Strategy = commercial.get_strategy_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+Act = commercial.get_act_model()
+ActObjectivePattern = commercial.get_pattern_model()
+Strategy = commercial.get_strategy_model()
 
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
