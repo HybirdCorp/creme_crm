@@ -1,38 +1,42 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.core.exceptions import ValidationError
-    from django.urls import reverse
-    from django.utils.html import escape
-    from django.utils.translation import gettext as _, pgettext
+from django.core.exceptions import ValidationError
+from django.urls import reverse
+from django.utils.html import escape
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui.field_printers import field_printers_registry
-    from creme.creme_core.models import (
-        RelationType, Relation,
-        SetCredentials, CremeUser,
-        FieldsConfig,
-    )
-    from creme.creme_core.tests.base import skipIfCustomUser
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.gui.field_printers import field_printers_registry
+from creme.creme_core.models import (
+    CremeUser,
+    FieldsConfig,
+    Relation,
+    RelationType,
+    SetCredentials,
+)
+from creme.creme_core.tests.base import skipIfCustomUser
+from creme.documents.tests.base import skipIfCustomDocument
+from creme.persons.constants import (
+    REL_OBJ_EMPLOYED_BY,
+    REL_SUB_EMPLOYED_BY,
+    REL_SUB_MANAGES,
+    UUID_FIRST_CONTACT,
+)
+from creme.persons.models import Civility, Position, Sector
 
-    from creme.documents.tests.base import skipIfCustomDocument
-
-    from creme.persons.models import Position, Civility, Sector
-    from creme.persons.constants import (
-        REL_OBJ_EMPLOYED_BY, REL_SUB_MANAGES,
-        REL_SUB_EMPLOYED_BY, UUID_FIRST_CONTACT,
-    )
-
-    from ..base import (
-        _BaseTestCase,
-        skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation,
-        Contact, Organisation, Address,
-        Document,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import (
+    Address,
+    Contact,
+    Document,
+    Organisation,
+    _BaseTestCase,
+    skipIfCustomAddress,
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
 
 @skipIfCustomContact

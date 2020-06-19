@@ -1,28 +1,20 @@
 # -*- coding: utf-8 -*-
 
-skip_address_tests = False
-skip_contact_tests = False
-skip_organisation_tests = False
+from unittest import skipIf
 
-try:
-    from unittest import skipIf
+from creme import persons
+from creme.documents import get_document_model
+from creme.documents.tests.base import _DocumentsTestCase
 
-    from creme.documents import get_document_model
-    from creme.documents.tests.base import _DocumentsTestCase
+skip_address_tests = persons.address_model_is_custom()
+skip_contact_tests = persons.contact_model_is_custom()
+skip_organisation_tests = persons.organisation_model_is_custom()
 
-    from creme import persons
+Document = get_document_model()
 
-    skip_address_tests = persons.address_model_is_custom()
-    skip_contact_tests = persons.contact_model_is_custom()
-    skip_organisation_tests = persons.organisation_model_is_custom()
-
-    Document = get_document_model()
-
-    Address = persons.get_address_model()
-    Contact = persons.get_contact_model()
-    Organisation = persons.get_organisation_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+Address = persons.get_address_model()
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
 
 def skipIfCustomAddress(test_func):
