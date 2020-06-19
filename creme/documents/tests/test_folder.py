@@ -1,24 +1,25 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.conf import settings
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.conf import settings
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui import actions
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    from creme.creme_core.models import SetCredentials, FakeOrganisation
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.gui import actions
+from creme.creme_core.models import FakeOrganisation, SetCredentials
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.documents import constants
+from creme.documents.actions import ExploreFolderAction
+from creme.documents.models import FolderCategory
 
-    from .base import _DocumentsTestCase, skipIfCustomDocument, skipIfCustomFolder, Folder
-
-    from creme.documents import constants
-    from creme.documents.actions import ExploreFolderAction
-    from creme.documents.models import FolderCategory
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import (
+    Folder,
+    _DocumentsTestCase,
+    skipIfCustomDocument,
+    skipIfCustomFolder,
+)
 
 
 @skipIfCustomDocument

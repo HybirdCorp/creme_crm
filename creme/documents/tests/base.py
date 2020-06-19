@@ -1,26 +1,20 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from os.path import join
-    from unittest import skipIf
+from os.path import join
+from unittest import skipIf
 
-    from django.conf import settings
-    from django.urls import reverse
+from django.conf import settings
+from django.urls import reverse
 
-    from creme.creme_core.tests.base import CremeTestCase
+from creme import documents
+from creme.creme_core.tests.base import CremeTestCase
+from creme.documents import constants
 
-    from creme import documents
-    from creme.documents import constants
+skip_document_tests = documents.document_model_is_custom()
+skip_folder_tests   = documents.folder_model_is_custom()
 
-    skip_document_tests = documents.document_model_is_custom()
-    skip_folder_tests   = documents.folder_model_is_custom()
-
-    Document = documents.get_document_model()
-    Folder = documents.get_folder_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
-
-    skip_document_tests = skip_folder_tests = False
+Document = documents.get_document_model()
+Folder = documents.get_folder_model()
 
 
 def skipIfCustomDocument(test_func):

@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.db.models import Q
+from django.db.models import Q
 
-    from .base import _DocumentsTestCase
-
-    from ..constants import MIMETYPE_PREFIX_IMG
-    from ..models.fields import _build_limit_choices_to, _deconstruct_limit_choices_to
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..constants import MIMETYPE_PREFIX_IMG
+from ..models.fields import (
+    _build_limit_choices_to,
+    _deconstruct_limit_choices_to,
+)
+from .base import _DocumentsTestCase
 
 
 class ImageFieldsTestCase(_DocumentsTestCase):
