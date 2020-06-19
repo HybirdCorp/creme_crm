@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from json import dumps as json_dump
+from json import dumps as json_dump
 
-    from creme.creme_core.tests.forms.base import FieldTestCase
+from creme.creme_core.tests.forms.base import FieldTestCase
 
-    from ..models import ActivityType, ActivitySubType
-    from ..forms.activity_type import ActivityTypeField
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
-
+from ..forms.activity_type import ActivityTypeField
+from ..models import ActivitySubType, ActivityType
 
 __all__ = ('ActivityTypeFieldTestCase',)
 

@@ -1,41 +1,44 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.tests.base import skipIfNotInstalled
-    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (
-        SetCredentials,
-        RelationType, Relation,
-        CremePropertyType, CremeProperty,
-    )
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    Relation,
+    RelationType,
+    SetCredentials,
+)
+from creme.creme_core.tests.base import skipIfNotInstalled
+from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
+from creme.documents import get_document_model
+from creme.documents.tests.base import skipIfCustomDocument
+from creme.persons.models import Civility
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.documents import get_document_model
-    from creme.documents.tests.base import skipIfCustomDocument
-
-    from creme.persons.models import Civility
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
-
-    from .base import (
-        _ActivitiesTestCase,
-        skipIfCustomActivity,
-        Contact, Organisation,
-        Activity,
-    )
-    from .. import constants
-    from ..forms.mass_import import (
-        _PATTERNS, _pattern_FL, _pattern_CFL,
-        MultiColumnsParticipantsExtractor,
-        SplitColumnParticipantsExtractor,
-        SubjectsExtractor,
-    )
-    from ..models import Calendar
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import constants
+from ..forms.mass_import import (
+    _PATTERNS,
+    MultiColumnsParticipantsExtractor,
+    SplitColumnParticipantsExtractor,
+    SubjectsExtractor,
+    _pattern_CFL,
+    _pattern_FL,
+)
+from ..models import Calendar
+from .base import (
+    Activity,
+    Contact,
+    Organisation,
+    _ActivitiesTestCase,
+    skipIfCustomActivity,
+)
 
 Document = get_document_model()
 

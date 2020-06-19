@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.urls import reverse
+from django.urls import reverse
 
-    from .base import _ActivitiesTestCase
-    from ..models import ActivityType, ActivitySubType
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
-
+from ..models import ActivitySubType, ActivityType
+from .base import _ActivitiesTestCase
 
 __all__ = ('ActivityTypeTestCase',)
 
