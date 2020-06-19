@@ -1,44 +1,37 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import datetime, timedelta
-    from functools import partial
-    from itertools import count
+from datetime import datetime, timedelta
+from functools import partial
+from itertools import count
 
-    from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import relativedelta
+from django.urls import reverse
+from django.utils.timezone import localtime, now
+from django.utils.translation import gettext as _
 
-    from django.urls import reverse
-    from django.utils.timezone import now, localtime
-    from django.utils.translation import gettext as _
+from creme.activities.constants import (
+    ACTIVITYSUBTYPE_PHONECALL_FAILED,
+    ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+    ACTIVITYTYPE_PHONECALL,
+    FLOATING_TIME,
+    NARROW,
+    REL_SUB_ACTIVITY_SUBJECT,
+    REL_SUB_PART_2_ACTIVITY,
+    STATUS_CANCELLED,
+    STATUS_DONE,
+    STATUS_IN_PROGRESS,
+    STATUS_PLANNED,
+)
+from creme.activities.models import Calendar
+from creme.activities.tests.base import skipIfCustomActivity
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import Relation, SetCredentials
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (
-        Relation,
-        SetCredentials,
-    )
-
-    from creme.persons.tests.base import (
-        skipIfCustomContact,
-        skipIfCustomOrganisation,
-    )
-
-    from creme.activities.constants import (
-        NARROW, FLOATING_TIME,
-        REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
-        STATUS_PLANNED, STATUS_IN_PROGRESS, STATUS_DONE, STATUS_CANCELLED,
-        ACTIVITYTYPE_PHONECALL,
-        ACTIVITYSUBTYPE_PHONECALL_OUTGOING, ACTIVITYSUBTYPE_PHONECALL_FAILED,
-    )
-    from creme.activities.models import Calendar
-    from creme.activities.tests.base import skipIfCustomActivity
-
-    from .base import (
-        MobileBaseTestCase,
-        Contact, Organisation,
-        Activity,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import Activity, Contact, MobileBaseTestCase, Organisation
 
 
 class MobileActivitiesTestCase(MobileBaseTestCase):

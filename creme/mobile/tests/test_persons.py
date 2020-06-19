@@ -1,34 +1,26 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.forms import IntegerField
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.forms import IntegerField
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import (
-        Relation,
-        CustomField,
-        BrickDetailviewLocation,
-    )
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    CustomField,
+    Relation,
+)
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.mobile.bricks import FavoritePersonsBrick
+from creme.mobile.models import MobileFavorite
+from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
-    from creme.persons.tests.base import (
-        skipIfCustomContact,
-        skipIfCustomOrganisation,
-    )
-
-    from creme.mobile.bricks import FavoritePersonsBrick
-    from creme.mobile.models import MobileFavorite
-
-    from .base import (
-        MobileBaseTestCase,
-        Contact, Organisation,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import Contact, MobileBaseTestCase, Organisation
 
 
 class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
