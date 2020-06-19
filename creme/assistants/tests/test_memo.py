@@ -1,25 +1,22 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta
-    from functools import partial
+from datetime import timedelta
+from functools import partial
 
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models.query_utils import Q
-    from django.urls import reverse
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.query_utils import Q
+from django.urls import reverse
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.core.entity_cell import EntityCellFunctionField
-    from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.forms.listview import TextLVSWidget
-    from creme.creme_core.models import CremeEntity, FakeOrganisation
+from creme.creme_core.core.entity_cell import EntityCellFunctionField
+from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.forms.listview import TextLVSWidget
+from creme.creme_core.models import CremeEntity, FakeOrganisation
 
-    from ..models import Memo
-    from .base import AssistantsTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..models import Memo
+from .base import AssistantsTestCase
 
 
 class MemoTestCase(AssistantsTestCase):

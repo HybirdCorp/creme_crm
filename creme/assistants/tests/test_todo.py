@@ -1,48 +1,45 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta, datetime
-    from functools import partial
+from datetime import datetime, timedelta
+from functools import partial
 
-    from django.conf import settings
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
-    from django.core import mail
-    from django.core.mail.backends.locmem import EmailBackend
-    from django.db.models.query import QuerySet, Q
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils.timezone import now, localtime
-    from django.utils.translation import gettext as _
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.core import mail
+from django.core.mail.backends.locmem import EmailBackend
+from django.db.models.query import Q, QuerySet
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.timezone import localtime, now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.bricks import JobErrorsBrick
-    from creme.creme_core.core.entity_cell import EntityCellFunctionField
-    from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
-    from creme.creme_core.forms.listview import TextLVSWidget
-    from creme.creme_core.models import (
-        CremeEntity,
-        DateReminder,
-        SettingValue,
-        HistoryLine,
-        JobResult,
-        FakeContact,
-    )
-    from creme.creme_core.models.history import (
-        TYPE_AUX_CREATION,
-        TYPE_AUX_EDITION,
-        TYPE_AUX_DELETION,
-    )
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.bricks import JobErrorsBrick
+from creme.creme_core.core.entity_cell import EntityCellFunctionField
+from creme.creme_core.core.function_field import function_field_registry
+# Should be a test queue
+from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.forms.listview import TextLVSWidget
+from creme.creme_core.models import (
+    CremeEntity,
+    DateReminder,
+    FakeContact,
+    HistoryLine,
+    JobResult,
+    SettingValue,
+)
+from creme.creme_core.models.history import (
+    TYPE_AUX_CREATION,
+    TYPE_AUX_DELETION,
+    TYPE_AUX_EDITION,
+)
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
-    from ..bricks import TodosBrick
-    from ..constants import MIN_HOUR_4_TODO_REMINDER
-    from ..function_fields import TodosField
-    from ..models import ToDo, Alert
-
-    from .base import AssistantsTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import TodosBrick
+from ..constants import MIN_HOUR_4_TODO_REMINDER
+from ..function_fields import TodosField
+from ..models import Alert, ToDo
+from .base import AssistantsTestCase
 
 
 class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):

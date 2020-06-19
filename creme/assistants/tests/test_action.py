@@ -1,22 +1,19 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta
-    from functools import partial
+from datetime import timedelta
+from functools import partial
 
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import BrickDetailviewLocation, FakeContact
+from creme.creme_core.models import BrickDetailviewLocation, FakeContact
 
-    from ..bricks import ActionsOnTimeBrick, ActionsNotOnTimeBrick
-    from ..models import Action
-    from .base import AssistantsTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import ActionsNotOnTimeBrick, ActionsOnTimeBrick
+from ..models import Action
+from .base import AssistantsTestCase
 
 
 class ActionTestCase(AssistantsTestCase):
