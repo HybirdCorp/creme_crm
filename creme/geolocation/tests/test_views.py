@@ -1,25 +1,20 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.urls import reverse
+from django.urls import reverse
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_filter import condition_handler, operators
-    from creme.creme_core.models.auth import SetCredentials
-    from creme.creme_core.models.entity_filter import EntityFilter  # EntityFilterCondition
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_filter import condition_handler, operators
+from creme.creme_core.models.auth import SetCredentials
+from creme.creme_core.models.entity_filter import EntityFilter
+from creme.persons.tests.base import (
+    skipIfCustomAddress,
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.tests.base import (
-        skipIfCustomAddress,
-        skipIfCustomContact,
-        skipIfCustomOrganisation,
-    )
-
-    from ..models import GeoAddress, Town
-    from ..utils import address_as_dict
-
-    from .base import GeoLocationBaseTestCase, Organisation, Contact
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..models import GeoAddress, Town
+from ..utils import address_as_dict
+from .base import Contact, GeoLocationBaseTestCase, Organisation
 
 create_town = Town.objects.create
 create_orga = Organisation.objects.create

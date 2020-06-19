@@ -1,32 +1,25 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.global_info import clear_global_info
-    from creme.creme_core.models import SettingValue
+from creme.creme_core.global_info import clear_global_info
+from creme.creme_core.models import SettingValue
+from creme.persons.tests.base import (
+    skipIfCustomAddress,
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.tests.base import (
-        skipIfCustomAddress,
-        skipIfCustomContact,
-        skipIfCustomOrganisation,
-    )
-
-    from .. import constants, setting_keys
-    from ..models import GeoAddress
-    from ..utils import (
-        get_radius,
-        get_google_api_key,
-        address_as_dict,
-        addresses_from_persons,
-        location_bounding_box,
-    )
-    from .base import (
-        GeoLocationBaseTestCase,
-        Organisation, Contact, Address,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import constants, setting_keys
+from ..models import GeoAddress
+from ..utils import (
+    address_as_dict,
+    addresses_from_persons,
+    get_google_api_key,
+    get_radius,
+    location_bounding_box,
+)
+from .base import Address, Contact, GeoLocationBaseTestCase, Organisation
 
 
 class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
