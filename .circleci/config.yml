@@ -26,13 +26,17 @@ commands:
     steps:
       - restore_cache:
           keys:
+            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}-{{ checksum "creme/requirements-pgsql.txt" }}
             - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
 
       - create-virtualenv
       - run: pip install -r creme/requirements-dev.txt
+      - run: pip install -r creme/requirements-mysql.txt
+      - run: pip install -r creme/requirements-pgsql.txt
+      - run: pip list --outdated
 
       - save_cache:
-          key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
+          key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}-{{ checksum "creme/requirements-pgsql.txt" }}
           paths: "~/venv"
 
   install-node-env:
@@ -54,7 +58,7 @@ jobs:
     steps:
       - checkout
       - install-py-dev-env
-      - run: git diff --name-only origin/master creme/ | { grep '.py$' || true; } | xargs --no-run-if-empty isort --check --diff --atomic --verbose
+      - run: make isort-check
 
 
   lint-flake8:
@@ -81,21 +85,7 @@ jobs:
 
       - install-creme-system-packages
       - run: sudo apt install -y mariadb-client
-
-      - restore_cache:
-          keys:
-            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}
-            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
-
-      - create-virtualenv
-      - run: pip install -r creme/requirements-dev.txt
-      - run: pip install -r creme/requirements-mysql.txt
-
-      - save_cache:
-          key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}
-          paths: "~/venv"
-
-      - run: pip list --outdated
+      - install-py-dev-env
       - run: cp ~/project/.circleci/mysql_settings.py creme/local_settings.py
       - run: python manage.py migrate
       - run: python manage.py creme_populate
@@ -122,22 +112,7 @@ jobs:
           port: 5432
 
       - install-creme-system-packages
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-pgsql.txt" }}
-            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
-
-      - create-virtualenv
-      - run: pip install -r creme/requirements-dev.txt
-      - run: pip install -r creme/requirements-pgsql.txt
-
-      - save_cache:
-          key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-pgsql.txt" }}
-          paths: "~/venv"
-
-      - run: pip list --outdated
+      - install-py-dev-env
       - run: cp ~/project/.circleci/pgsql_settings.py creme/local_settings.py
       - run: python manage.py migrate
       - run: python manage.py creme_populate

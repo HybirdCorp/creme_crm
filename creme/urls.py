@@ -4,9 +4,9 @@ import logging
 from os.path import join
 
 from django.conf import settings
-from django.urls import re_path, include
 from django.contrib.auth import views as auth_views
 from django.shortcuts import render
+from django.urls import include, re_path
 from django.views.static import serve
 
 from creme.creme_core.apps import creme_app_configs

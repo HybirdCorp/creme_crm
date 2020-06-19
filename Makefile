@@ -77,15 +77,14 @@ eslint:
 ## Validates the Python imports with isort
 .PHONY: isort-check
 isort-check:
-	git diff --name-only origin/master creme/ | { grep '.py$$' || true; } | xargs --no-run-if-empty \
-		isort --check --diff --atomic --verbose
+	isort -rc creme/ --check --diff --atomic
+
 
 
 ## Sort the Python imports with isort
 .PHONY: isort-fix
 isort-fix:
-	git diff --name-only origin/master creme/ | { grep '.py$$' || true; } | xargs --no-run-if-empty \
-		isort --atomic --verbose
+	isort -rc creme/ --atomic
 
 
 ## Validates the Python code with flake8
