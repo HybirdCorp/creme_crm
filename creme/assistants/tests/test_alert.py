@@ -1,33 +1,26 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta, datetime
-    from functools import partial
+from datetime import datetime, timedelta
+from functools import partial
 
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
-    from django.core import mail
-    from django.db.models.query_utils import Q
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.core import mail
+from django.db.models.query_utils import Q
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.core.entity_cell import EntityCellFunctionField
-    from creme.creme_core.forms.listview import TextLVSWidget
-    from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
-    from creme.creme_core.models import (
-        CremeEntity,
-        DateReminder,
-        FakeOrganisation,
-    )
+from creme.creme_core.core.entity_cell import EntityCellFunctionField
+from creme.creme_core.core.function_field import function_field_registry
+# Should be a test queue
+from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.forms.listview import TextLVSWidget
+from creme.creme_core.models import CremeEntity, DateReminder, FakeOrganisation
 
-    from ..models import Alert
-
-    from .base import AssistantsTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..models import Alert
+from .base import AssistantsTestCase
 
 
 class AlertTestCase(AssistantsTestCase):

@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.conf import settings
-    from django.contrib.auth import get_user_model
-    from django.core import mail
-    from django.core.mail.backends.locmem import EmailBackend
-    from django.urls import reverse
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core import mail
+from django.core.mail.backends.locmem import EmailBackend
+from django.urls import reverse
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
-    from creme.creme_core.models import Job, JobResult
+# Should be a test queue
+from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.models import Job, JobResult
 
-    from ..creme_jobs import usermessages_send_type
-    from ..models import UserMessage, UserMessagePriority
-    from .base import AssistantsTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
-
+from ..creme_jobs import usermessages_send_type
+from ..models import UserMessage, UserMessagePriority
+from .base import AssistantsTestCase
 
 User = get_user_model()  # TODO: self.User
 
